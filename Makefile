@@ -1,2 +1,2 @@
 go-test:
-	go test -race -covermode=atomic -coverprofile=coverage.out
+	find . -name go.mod -execdir go test ./... -race -covermode=atomic -coverprofile=coverage.out \;

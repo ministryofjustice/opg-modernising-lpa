@@ -2,11 +2,11 @@ FROM golang:1.18 as build-env
 
 WORKDIR /app
 
-COPY go.mod .
+COPY app/go.mod .
 
 RUN go mod download
 
-COPY . .
+COPY /app .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/mlpab
 
