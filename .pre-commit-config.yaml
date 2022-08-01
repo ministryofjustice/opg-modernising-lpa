@@ -19,18 +19,18 @@ repos:
     hooks:
     - id: git-secrets
   - repo: https://github.com/zricethezav/gitleaks
-    rev: v8.8.4
+    rev: v8.9.0
     hooks:
     -   id: gitleaks
   - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.74.0
+    rev: v1.74.1
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
   - repo: https://github.com/lietu/go-pre-commit
-    rev: master
+    rev: v0.0.1
     hooks:
       - id: errcheck # Check your Go source code with errcheck
       - id: go-fmt-goimports # Format your Go code with go fmt and goimports
       - id: staticcheck # Runs static analysis and style rules checks on go code
-      - id: go-mod-tidy # Drops unused imports
+#      - id: go-mod-tidy # Drops unused imports (uncomment once we have at a go.mod file in the repo)
