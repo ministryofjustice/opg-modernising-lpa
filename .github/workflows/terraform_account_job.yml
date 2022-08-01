@@ -1,0 +1,62 @@
+on:
+  workflow_call:
+    inputs:
+      workspace_name:
+        description: 'The terraform workspace to target for account actions'
+        required: true
+        type: string
+jobs:
+  terraform_account_workflow:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.bump_version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+      - name: Extract branch name
+        run: |
+          if [ "${{ github.head_ref }}" == "" ]; then
+            echo BRANCH_NAME=main >> $GITHUB_ENV
+          else
+            echo BRANCH_NAME=${{ github.head_ref }} >> $GITHUB_ENV
+          fi
+        id: extract_branch
+      - uses: unfor19/install-aws-cli-action@v1
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.2.6
+      - name: Configure AWS Credentials For Terraform
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          aws-region: eu-west-1
+          role-duration-seconds: 3600
+          role-session-name: OPGModernisingLPATerraformGithubAction
+
+      - name: Lint Terraform
+        id: tf_lint
+        run: terraform fmt -check -recursive
+        working-directory: ./terraform/account
+        continue-on-error: true
+
+      - name: Terraform Init
+        run: terraform init -input=false
+        working-directory: ./terraform/account
+
+      - name: Terraform Plan
+        env:
+          TF_WORKSPACE: ${{ inputs.workspace_name }}
+        run: |
+          terraform workspace show
+          terraform plan -input=false -parallelism=30
+        working-directory: ./terraform/account
+
+      - name: Terraform Apply
+        env:
+          TF_WORKSPACE: ${{ inputs.workspace_name }}
+        if: github.ref == 'refs/heads/main'
+        run: |
+          terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30
+        working-directory: ./terraform/account
