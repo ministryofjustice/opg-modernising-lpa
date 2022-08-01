@@ -29,6 +29,14 @@ jobs:
       workspace_name: development
     secrets: inherit
 
+  terraform_account_workflow_preproduction:
+    name: TF Plan Prod Account
+    needs: terraform_account_workflow_development
+    uses: ./.github/workflows/terraform_account_job.yml
+    with:
+      workspace_name: preproduction
+    secrets: inherit
+
   terraform_account_workflow_production:
     name: TF Plan Prod Account
     needs: terraform_account_workflow_development
