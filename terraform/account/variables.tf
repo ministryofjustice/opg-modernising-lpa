@@ -14,7 +14,7 @@ variable "accounts" {
 
 locals {
   account_name = lower(replace(terraform.workspace, "_", "-"))
-  account      = contains(keys(var.accounts), local.account_name) ? var.accounts[local.account_name]
+  account      = var.accounts[local.account_name]
 
   mandatory_moj_tags = {
     business-unit    = "OPG"
