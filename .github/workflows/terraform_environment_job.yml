@@ -1,0 +1,101 @@
+on:
+  workflow_call:
+    inputs:
+      workspace_name:
+        description: 'The terraform workspace to target for environment actions'
+        required: true
+        type: string
+      version_tag:
+        description: 'The docker image tag to deploy in the environment'
+        required: true
+        type: string
+    outputs:
+      terraform_workspace_name:
+        description: "Name of Terraform workspace"
+        value: ${{ jobs.terraform_environment_workflow.outputs.terraform_workspace_name }}
+      terraform_container_version:
+        description: "Container version deployed by Terraform"
+        value: ${{ jobs.terraform_environment_workflow.outputs.terraform_container_version }}
+jobs:
+  terraform_environment_workflow:
+    runs-on: ubuntu-latest
+    outputs:
+      terraform_workspace_name: ${{ steps.terraform_outputs.outputs.workspace_name }}
+      terraform_container_version: ${{ steps.terraform_outputs.outputs.container_version }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+      - name: Extract branch name
+        run: |
+          if [ "${{ github.head_ref }}" == "" ]; then
+            echo BRANCH_NAME=main >> $GITHUB_ENV
+          else
+            echo BRANCH_NAME=${{ github.head_ref }} >> $GITHUB_ENV
+          fi
+        id: extract_branch
+      - uses: unfor19/install-aws-cli-action@v1
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.2.2
+          terraform_wrapper: false
+      - name: Configure AWS Credentials For Terraform
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          aws-region: eu-west-1
+          role-duration-seconds: 3600
+          role-session-name: OPGMaintenanceTerraformGithubAction
+      # - uses: webfactory/ssh-agent@v0.5.4
+      #   with:
+      #     ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
+
+      - name: Lint Terraform
+        id: tf_lint
+        run: terraform fmt -check -recursive
+        working-directory: ./terraform/environment
+        continue-on-error: true
+
+      - name: Terraform Init
+        run: terraform init -input=false
+        working-directory: ./terraform/environment
+
+      - name: Terraform Plan
+        env:
+          TF_WORKSPACE: ${{ inputs.workspace_name }}
+          TF_VAR_container_version: ${{ inputs.version_tag }}
+        run: |
+          terraform workspace show
+          terraform plan -input=false -parallelism=30
+        working-directory: ./terraform/environment
+
+      # - name: Protect environment workspace
+      #   if: github.ref != 'refs/heads/main'
+      #   env:
+      #     TF_WORKSPACE: ${{ inputs.workspace_name }}
+      #     TF_VAR_container_version: ${{ inputs.version_tag }}
+      #   run: |
+      #     wget https://github.com/TomTucka/terraform-workspace-manager/releases/download/v0.3.1/terraform-workspace-manager_Linux_x86_64.tar.gz -O $HOME/terraform-workspace-manager.tar.gz
+      #     sudo tar -xvf $HOME/terraform-workspace-manager.tar.gz -C /usr/local/bin
+      #     sudo chmod +x /usr/local/bin/terraform-workspace-manager
+      #     terraform-workspace-manager -register-workspace=$TF_WORKSPACE -time-to-protect=24 -aws-account-id=679638075911 -aws-iam-role=opg-maintenance-ci
+      #   working-directory: ./terraform/environment
+
+      - name: Terraform Apply
+        env:
+          TF_WORKSPACE: ${{ inputs.workspace_name }}
+          TF_VAR_container_version: ${{ inputs.version_tag }}
+        run: |
+          terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30
+        working-directory: ./terraform/environment
+
+      - name: Terraform Outputs
+        id: terraform_outputs
+        env:
+          TF_WORKSPACE: ${{ inputs.workspace_name }}
+          TF_VAR_container_version: ${{ inputs.version_tag }}
+        run: |
+          echo ::set-output name=workspace_name::$(terraform output -raw workspace_name)
+          echo ::set-output name=container_version::$(terraform output -raw container_version)
+        working-directory: ./terraform/environment
