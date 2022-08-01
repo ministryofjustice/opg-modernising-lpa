@@ -1,0 +1,36 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: trailing-whitespace # trims trailing whitespace.
+      - id: end-of-file-fixer # ensures that a file is either empty, or ends with one newline.
+      - id: check-added-large-files # prevents giant files from being committed.
+        args: [ "--maxkb=20480" ]
+      - id: check-case-conflict # checks for files that would conflict in case-insensitive filesystems.
+      - id: check-merge-conflict # checks for files that contain merge conflict strings.
+      - id: check-yaml # checks yaml files for parseable syntax.
+      - id: detect-private-key # detects the presence of private keys.
+      - id: mixed-line-ending # replaces or checks mixed line ending.
+        args: [ "--fix=auto" ]
+  - repo: https://github.com/awslabs/git-secrets
+    rev: master
+    hooks:
+    - id: git-secrets
+  - repo: https://github.com/zricethezav/gitleaks
+    rev: v8.9.0
+    hooks:
+    -   id: gitleaks
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.74.1
+    hooks:
+      - id: terraform_fmt
+      - id: terraform_validate
+  - repo: https://github.com/lietu/go-pre-commit
+    rev: v0.0.1
+    hooks:
+      - id: errcheck # Check your Go source code with errcheck
+      - id: go-fmt-goimports # Format your Go code with go fmt and goimports
+      - id: staticcheck # Runs static analysis and style rules checks on go code
+#      - id: go-mod-tidy # Drops unused imports (uncomment once we have at a go.mod file in the repo)
