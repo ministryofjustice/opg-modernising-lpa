@@ -22,6 +22,10 @@ defaults:
     shell: bash
 
 jobs:
+  create_tags:
+    name: Create Tags
+    uses: ./.github/workflows/tags_job.yml
+
   terraform_account_workflow_development:
     name: TF Plan Dev Account
     uses: ./.github/workflows/terraform_account_job.yml
@@ -45,11 +49,11 @@ jobs:
       workspace_name: production
     secrets: inherit
 
-  pr_deploy:
-      name: PR Environment Deploy
-      needs: [create_tags]
-      uses: ./.github/workflows/terraform_environment_job.yml
-      with:
-        workspace_name: ${{ needs.create_tags.outputs.environment_workspace_name }}
-        version_tag: ${{ needs.create_tags.outputs.version_tag }}
-      secrets: inherit
+  # pr_deploy:
+  #     name: PR Environment Deploy
+  #     needs: [create_tags]
+  #     uses: ./.github/workflows/terraform_environment_job.yml
+  #     with:
+  #       workspace_name: ${{ needs.create_tags.outputs.environment_workspace_name }}
+  #       version_tag: ${{ needs.create_tags.outputs.version_tag }}
+  #     secrets: inherit
