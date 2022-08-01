@@ -1,0 +1,15 @@
+.DS_Store
+**/.terraform/
+**/terraform.tfstate.d/
+geckodriver.log
+.vscode/
+**__pycache__
+**/cluster_config.json
+
+.python-version
+.pytest_cache
+.coverage
+.phpunit.result.cache
+scripts/analysis_scripts/*.csv
+
+query/s3_objects/**
