@@ -30,7 +30,7 @@ jobs:
     secrets: inherit
 
   terraform_account_workflow_preproduction:
-    name: TF Plan Prod Account
+    name: TF Plan Preprod Account
     needs: terraform_account_workflow_development
     uses: ./.github/workflows/terraform_account_job.yml
     with:
@@ -44,3 +44,12 @@ jobs:
     with:
       workspace_name: production
     secrets: inherit
+
+  pr_deploy:
+      name: PR Environment Deploy
+      needs: [create_tags]
+      uses: ./.github/workflows/terraform_environment_job.yml
+      with:
+        workspace_name: ${{ needs.create_tags.outputs.environment_workspace_name }}
+        version_tag: ${{ needs.create_tags.outputs.version_tag }}
+      secrets: inherit
