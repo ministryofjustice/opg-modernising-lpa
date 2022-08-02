@@ -14,4 +14,4 @@ scripts/analysis_scripts/*.csv
 
 query/s3_objects/**
 
-*/coverage.out
+**/coverage.out
