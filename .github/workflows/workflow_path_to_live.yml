@@ -30,6 +30,14 @@ jobs:
     name: Run Go unit tests
     uses: ./.github/workflows/go-unit-tests.yml
 
+  docker_build_scan_push:
+    name: Docker Build, Scan and Push
+    uses: ./.github/workflows/docker_job.yml
+    needs: [go_unit_tests,create_tags]
+    with:
+      tag: ${{ needs.create_tags.outputs.version_tag }}
+    secrets: inherit
+
   terraform_account_workflow_development:
     name: TF Apply Dev Account
     uses: ./.github/workflows/terraform_account_job.yml
@@ -47,7 +55,7 @@ jobs:
 
   preproduction_deploy:
     name: Preproduction Deploy
-    needs: [create_tags, terraform_account_workflow_preproduction]
+    needs: [create_tags, terraform_account_workflow_preproduction, docker_build_scan_push]
     uses: ./.github/workflows/terraform_environment_job.yml
     with:
       workspace_name: preproduction
@@ -75,7 +83,7 @@ jobs:
 
   production_deploy:
     name: Production Deploy
-    needs: [create_tags, terraform_account_workflow_production]
+    needs: [create_tags, terraform_account_workflow_production, docker_build_scan_push]
     uses: ./.github/workflows/terraform_environment_job.yml
     with:
       workspace_name: production

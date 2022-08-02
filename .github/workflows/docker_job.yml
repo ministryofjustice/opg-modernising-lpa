@@ -1,0 +1,72 @@
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: 'Tag for docker image'
+        required: true
+        type: string
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  docker_build_scan_push:
+    runs-on: ubuntu-latest
+    # defaults:
+    #   run:
+    #     working-directory: .
+    steps:
+      - uses: actions/checkout@v3
+      - name: Extract branch name
+        id: extract_branch
+        run: |
+          if [ "$GITHUB_EVENT_NAME" == "push" ]; then
+            echo BRANCH_NAME=main >> $GITHUB_ENV
+          else
+            echo BRANCH_NAME=${{ github.head_ref }} >> $GITHUB_ENV
+          fi
+      - name: Build Image
+        id: build_image
+        run: |
+          docker build -t app .
+      - name: Trivy Image Vulnerability Scanner
+        id: trivy_scan
+        uses: aquasecurity/trivy-action@0.6.0
+        with:
+          image-ref: app:latest
+          severity: 'HIGH,CRITICAL'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+      - name: Upload Trivy scan results to GitHub Security tab
+        id: trivy_upload_sarif
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+      - uses: unfor19/install-aws-cli-action@v1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-ci
+          role-duration-seconds: 900
+          role-session-name: OPGModernisingLPATerraformGithubAction
+      - name: ECR Login
+        id: login_ecr
+        uses: aws-actions/amazon-ecr-login@v1.5.0
+        with:
+          registries: 311462405659
+      - name: Push Container
+        env:
+          ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
+          MAINTENANCE_ECR_REPOSITORY: modernising-lpa/app
+        run: |
+          docker tag app:latest $ECR_REGISTRY/$MAINTENANCE_ECR_REPOSITORY:${{ inputs.tag }}
+          if [ $BRANCH_NAME == "main" ]; then
+            docker tag app:latest $ECR_REGISTRY/$MAINTENANCE_ECR_REPOSITORY:main-${{ inputs.tag }}
+            docker tag app:latest $ECR_REGISTRY/$MAINTENANCE_ECR_REPOSITORY:latest
+          fi
+            docker push --all-tags $ECR_REGISTRY/$MAINTENANCE_ECR_REPOSITORY
