@@ -59,7 +59,7 @@ representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community leaders responsible for enforcement at
-[INSERT CONTACT METHOD].
+[modernisinglpa@digital.justice.gov.uk](mailto:modernisinglpa@digital.justice.gov.uk).
 
 All complaints will be reviewed and investigated promptly and fairly.
 
@@ -114,7 +114,7 @@ the community.
 
 ## Attribution
 
-This Code of Conduct is adapted from the [Contributor Covenant][homepage],
+This Code of Conduct is adapted from the Contributor Covenant,
 version 2.0, available at
 [https://www.contributor-covenant.org/version/2/0/code_of_conduct.html](https://www.contributor-covenant.org/version/2/0/code_of_conduct.html).
 
