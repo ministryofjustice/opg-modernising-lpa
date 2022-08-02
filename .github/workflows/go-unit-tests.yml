@@ -20,9 +20,9 @@ jobs:
           go test ./... -race -covermode=atomic -coverprofile=coverage.out -v ./...
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
-        with:
-          fail_ci_if_error: true
-          files: ./coverage.out,
-          flags: unittests
-          name: codecov-umbrella
-          verbose: true
+#        with:
+#          fail_ci_if_error: true
+#          files: ./coverage.out,
+#          flags: unittests
+#          name: codecov-umbrella
+#          verbose: true
