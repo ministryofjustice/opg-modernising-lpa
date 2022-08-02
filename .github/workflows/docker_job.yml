@@ -13,9 +13,9 @@ defaults:
 jobs:
   docker_build_scan_push:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app
+    # defaults:
+    #   run:
+    #     working-directory: .
     steps:
       - uses: actions/checkout@v3
       - name: Extract branch name
