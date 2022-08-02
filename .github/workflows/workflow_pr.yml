@@ -61,8 +61,6 @@ jobs:
       workspace_name: production
     secrets: inherit
 
-
-
   pr_deploy:
       name: PR Environment Deploy
       needs: [create_tags, docker_build_scan_push]
