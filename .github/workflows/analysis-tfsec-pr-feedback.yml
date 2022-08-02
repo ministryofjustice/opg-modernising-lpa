@@ -1,0 +1,26 @@
+name: "[Analysis - Infrastructure] TFSec Pull Request Feedback"
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ main, master ]
+    paths: ["**.tf"]
+permissions:
+  actions: read
+  checks: read
+  contents: none
+  deployments: none
+  issues: none
+  packages: none
+  pull-requests: write
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+jobs:
+  tfsec_pr_feedback:
+    uses: ministryofjustice/opg-github-workflows/.github/workflows/analysis-infrastructure-tfsec-pr-feedback.yml@main
+    with:
+      terraform_path: '["terraform/account", "terraform/environment"]'
+    secrets:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
