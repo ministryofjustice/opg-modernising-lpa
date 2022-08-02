@@ -26,18 +26,6 @@ variable "management_role" {
 }
 
 provider "aws" {
-  alias  = "eu_west_2"
-  region = "eu-west-2"
-  default_tags {
-    tags = local.default_tags
-  }
-  assume_role {
-    role_arn     = "arn:aws:iam::${local.account.account_id}:role/${var.default_role}"
-    session_name = "opg-modernising-lpa-terraform-session"
-  }
-}
-
-provider "aws" {
   alias  = "eu_west_1"
   region = "eu-west-1"
   default_tags {
@@ -50,13 +38,13 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias  = "management_eu_west_2"
+  alias  = "eu_west_2"
   region = "eu-west-2"
   default_tags {
     tags = local.default_tags
   }
   assume_role {
-    role_arn     = "arn:aws:iam::311462405659:role/${var.default_role}"
+    role_arn     = "arn:aws:iam::${local.account.account_id}:role/${var.default_role}"
     session_name = "opg-modernising-lpa-terraform-session"
   }
 }
