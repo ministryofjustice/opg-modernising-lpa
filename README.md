@@ -20,3 +20,7 @@ Documentation for the service can be found [in the /docs/ folder](./docs/README.
 ```bash
 $ docker compose up -d
 ```
+
+## Licence
+
+The OPG Modernising LPA code in this repository is released under the MIT license, a copy of which can be found in [LICENCE](./LICENCE).
