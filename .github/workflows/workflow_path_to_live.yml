@@ -26,6 +26,10 @@ jobs:
     name: Create Tags
     uses: ./.github/workflows/tags_job.yml
 
+  go_unit_tests:
+    name: Run Go unit tests
+    uses: ./.github/workflows/go-unit-tests.yml
+
   terraform_account_workflow_development:
     name: TF Apply Dev Account
     uses: ./.github/workflows/terraform_account_job.yml
