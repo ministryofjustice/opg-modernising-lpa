@@ -49,6 +49,10 @@ jobs:
       workspace_name: production
     secrets: inherit
 
+  go_unit_tests:
+    name: Run Go unit tests
+    uses: ./.github/workflows/go-unit-tests.yml
+
   pr_deploy:
       name: PR Environment Deploy
       needs: [create_tags]
