@@ -1,0 +1,28 @@
+name: Run Go unit tests and Push coverage reports to Codecov
+on:
+  workflow_call:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '^1.18'
+      - name: Run tests and generate coverage report
+        run: |
+          go test -race -covermode=atomic -coverprofile=coverage.out -v
+          cat coverage.out
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+#          fail_ci_if_error: true
+#          files: ./coverage.out,
+          flags: unittests
+#          name: codecov-umbrella
+#          verbose: true
