@@ -1,0 +1,57 @@
+on:
+  workflow_call:
+    outputs:
+      version_tag:
+        description: "Docker Image Tag"
+        value: ${{ jobs.create_tags.outputs.docker_tag }}
+      environment_workspace_name:
+        description: "Terraform Environment Workspace Name"
+        value: ${{ jobs.generate_environment_workspace_name.outputs.environment_workspace_name }}
+
+jobs:
+  create_tags:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Extract branch name
+        id: extract_branch
+        run: |
+          if [ "$GITHUB_EVENT_NAME" == "push" ]; then
+            echo BRANCH_NAME=main >> $GITHUB_ENV
+          else
+            branch=${{ github.head_ref }}
+            branch=${branch//-}
+            branch=${branch//_}
+            branch=${branch//\/}
+            echo BRANCH_NAME=${branch} >> $GITHUB_ENV
+          fi
+      - name: Bump version
+        id: bump_version
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INITIAL_VERSION: 0.0.0
+          DEFAULT_BUMP: minor
+          PRERELEASE_SUFFIX: ${{ env.BRANCH_NAME }}
+          RELEASE_BRANCHES: main
+          WITH_V: true
+    outputs:
+      docker_tag: ${{ steps.bump_version.outputs.tag }}
+
+  generate_environment_workspace_name:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate workspace name
+        id: name_workspace
+        run: |
+          workspace=${{ github.event.number }}${{ github.head_ref }}
+          workspace=${workspace//-}
+          workspace=${workspace//_}
+          workspace=${workspace//\/}
+          workspace=${workspace:0:11}
+          workspace=$(echo ${workspace} | tr '[:upper:]' '[:lower:]')
+          echo ::set-output name=name::${workspace}
+          echo ${workspace}
+    outputs:
+      environment_workspace_name: ${{ steps.name_workspace.outputs.name }}

@@ -1,0 +1,91 @@
+name: "[Workflow] Path To Live"
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  security-events: write
+  pull-requests: read
+  actions: none
+  checks: none
+  deployments: none
+  issues: none
+  packages: none
+  repository-projects: none
+  statuses: none
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  create_tags:
+    name: Create Tags
+    uses: ./.github/workflows/tags_job.yml
+
+  terraform_account_workflow_development:
+    name: TF Apply Dev Account
+    uses: ./.github/workflows/terraform_account_job.yml
+    with:
+      workspace_name: development
+    secrets: inherit
+
+  terraform_account_workflow_preproduction:
+    name: TF Apply Preprod Account
+    needs: terraform_account_workflow_development
+    uses: ./.github/workflows/terraform_account_job.yml
+    with:
+      workspace_name: preproduction
+    secrets: inherit
+
+  preproduction_deploy:
+    name: Preproduction Deploy
+    needs: [create_tags, terraform_account_workflow_preproduction]
+    uses: ./.github/workflows/terraform_environment_job.yml
+    with:
+      workspace_name: preproduction
+      version_tag: ${{ needs.create_tags.outputs.version_tag }}
+    secrets: inherit
+
+  preproduction_deploy_complete:
+    name: Preproduction Deployment
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: preproduction
+    needs: [preproduction_deploy]
+    steps:
+      - name: Complete
+        run: |
+          echo "preproduction environment tested, built and deployed"
+
+  terraform_account_workflow_production:
+    name: TF Apply Prod Account
+    needs: [preproduction_deploy_complete]
+    uses: ./.github/workflows/terraform_account_job.yml
+    with:
+      workspace_name: production
+    secrets: inherit
+
+  production_deploy:
+    name: Production Deploy
+    needs: [create_tags, terraform_account_workflow_production]
+    uses: ./.github/workflows/terraform_environment_job.yml
+    with:
+      workspace_name: production
+      version_tag: ${{ needs.create_tags.outputs.version_tag }}
+    secrets: inherit
+
+
+  end_of_main_workflow:
+    name: End of Main Workflow
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    needs: [production_deploy]
+    steps:
+      - name: End of Path to Live Workflow
+        run: |
+          echo "production environment tested, built and deployed"
