@@ -18,6 +18,7 @@ jobs:
 
         run: |
           go test ./... -race -covermode=atomic -coverprofile=coverage.out -v ./...
+          cat coverage.out
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
 #        with:
