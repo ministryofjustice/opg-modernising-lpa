@@ -2,18 +2,6 @@ name: Run Go unit tests and Push coverage reports to Codecov
 on:
   workflow_call:
 
-permissions:
-  contents: write
-  security-events: none
-  pull-requests: read
-  actions: none
-  checks: none
-  deployments: none
-  issues: none
-  packages: none
-  repository-projects: none
-  statuses: none
-
 jobs:
   run:
     runs-on: ubuntu-latest
