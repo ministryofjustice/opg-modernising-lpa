@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/fake"
+)
 
 func Hello() string {
 	return "Hello, world!"
@@ -8,4 +11,5 @@ func Hello() string {
 
 func main() {
 	fmt.Println(Hello())
+	fmt.Println(fake.GoodBye())
 }
