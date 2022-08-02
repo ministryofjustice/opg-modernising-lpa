@@ -17,6 +17,9 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
     steps:
       - uses: actions/checkout@v3
       - name: Setup Go
@@ -24,6 +27,7 @@ jobs:
         with:
           go-version: '^1.18'
       - name: Run tests and generate coverage report
+
         run: |
           find . -name go.mod -execdir go test ./... -race -covermode=atomic -coverprofile=coverage.out \;
       - name: Upload coverage to Codecov
