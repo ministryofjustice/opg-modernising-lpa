@@ -6,3 +6,12 @@ resource "aws_ecs_cluster" "main" {
   }
   provider = aws.region
 }
+
+module "app" {
+  source                = "./modules/app"
+  account_name          = var.account_name
+  ecs_execution_role_id = var.ecs_execution_role_id
+  providers = {
+    aws.region = aws.region
+  }
+}
