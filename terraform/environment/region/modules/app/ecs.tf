@@ -5,6 +5,7 @@ resource "aws_ecs_service" "app" {
   desired_count         = var.ecs_service_desired_count
   platform_version      = "1.4.0"
   wait_for_steady_state = true
+  propagate_tags        = "SERVICE"
 
   capacity_provider_strategy {
     capacity_provider = var.ecs_capacity_provider
