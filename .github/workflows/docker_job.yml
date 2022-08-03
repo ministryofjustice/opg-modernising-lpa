@@ -59,11 +59,11 @@ jobs:
       - name: Push Container
         env:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
-          MAINTENANCE_ECR_REPOSITORY: modernising-lpa/app
+          ECR_REPOSITORY: modernising-lpa/app
         run: |
-          docker tag app:latest $ECR_REGISTRY/$MAINTENANCE_ECR_REPOSITORY:${{ inputs.tag }}
+          docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.tag }}
           if [ $BRANCH_NAME == "main" ]; then
-            docker tag app:latest $ECR_REGISTRY/$MAINTENANCE_ECR_REPOSITORY:main-${{ inputs.tag }}
-            docker tag app:latest $ECR_REGISTRY/$MAINTENANCE_ECR_REPOSITORY:latest
+            docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.tag }}
+            docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
           fi
-            docker push --all-tags $ECR_REGISTRY/$MAINTENANCE_ECR_REPOSITORY
+            docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
