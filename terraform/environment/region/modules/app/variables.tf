@@ -41,3 +41,22 @@ variable "network" {
   })
   description = "VPC ID, a list of application subnets, and a list of private subnets required to provision the ECS service"
 }
+
+variable "ecs_capacity_provider" {
+  type        = string
+  description = "Name of the capacity provider to use. Valid values are FARGATE_SPOT and FARGATE"
+}
+
+variable "ecs_application_log_group_name" {
+  description = "The AWS Cloudwatch Log Group resource for application logging"
+}
+
+variable "app_service_repository_url" {
+  type        = string
+  description = "(optional) describe your variable"
+}
+
+variable "app_service_container_version" {
+  type        = string
+  description = "(optional) describe your variable"
+}
