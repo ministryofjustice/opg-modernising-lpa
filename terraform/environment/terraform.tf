@@ -33,9 +33,22 @@ provider "aws" {
   }
 }
 
+
 provider "aws" {
   alias  = "eu_west_2"
   region = "eu-west-2"
+  default_tags {
+    tags = local.default_tags
+  }
+  assume_role {
+    role_arn     = "arn:aws:iam::${local.environment.account_id}:role/${var.default_role}"
+    session_name = "opg-modernising-lpa-terraform-session"
+  }
+}
+
+provider "aws" {
+  alias  = "global"
+  region = "us-east-1"
   default_tags {
     tags = local.default_tags
   }
