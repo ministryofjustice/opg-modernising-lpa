@@ -9,7 +9,6 @@ resource "aws_ecs_cluster" "main" {
 
 module "application_logs" {
   source                         = "./modules/application_logs"
-  account_name                   = var.account_name
   application_log_retention_days = var.application_log_retention_days
   providers = {
     aws.region = aws.region
