@@ -5,6 +5,9 @@ module "eu_west_1" {
     id  = aws_iam_role.execution_role.id
     arn = aws_iam_role.execution_role.arn
   }
+  ecs_task_role_arns = {
+    app = aws_iam_role.app_task_role.arn
+  }
   providers = {
     aws.region = aws.eu_west_1
   }
