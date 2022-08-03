@@ -20,7 +20,7 @@ data "aws_iam_policy_document" "execution_role_assume_policy" {
 resource "aws_iam_role_policy" "execution_role" {
   name     = "${local.environment_name}-execution-role"
   policy   = data.aws_iam_policy_document.execution_role.json
-  role     = aws_iam_role.execution_role.arn
+  role     = aws_iam_role.execution_role.id
   provider = aws.global
 }
 
