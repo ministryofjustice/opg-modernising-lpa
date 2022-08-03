@@ -1,5 +1,5 @@
 resource "aws_ecs_service" "app" {
-  name                  = data.aws_default_tags.current.tags.application
+  name                  = "app"
   cluster               = var.ecs_cluster
   task_definition       = aws_ecs_task_definition.app.arn
   desired_count         = var.ecs_service_desired_count
