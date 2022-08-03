@@ -1,6 +1,10 @@
+data "aws_ecr_repository" "app" {
+  name     = "modernising-lpa/app"
+  provider = aws.management_eu_west_1
+}
+
 module "eu_west_1" {
-  source       = "./region"
-  account_name = local.environment.account_name
+  source = "./region"
   ecs_execution_role = {
     id  = aws_iam_role.execution_role.id
     arn = aws_iam_role.execution_role.arn
@@ -15,9 +19,4 @@ module "eu_west_1" {
   providers = {
     aws.region = aws.eu_west_1
   }
-}
-
-data "aws_ecr_repository" "app" {
-  name     = "modernising-lpa/app"
-  provider = aws.management_eu_west_1
 }
