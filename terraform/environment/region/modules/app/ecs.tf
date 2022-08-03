@@ -54,7 +54,7 @@ resource "aws_security_group" "app_ecs_service" {
 # }
 
 resource "aws_security_group_rule" "app_ecs_service_egress" {
-  description       = "Allow any egress from Use service"
+  description       = "Allow any egress from service"
   type              = "egress"
   from_port         = 0
   to_port           = 0
