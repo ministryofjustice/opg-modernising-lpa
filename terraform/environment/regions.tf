@@ -1,6 +1,7 @@
 module "eu_west_1" {
-  source       = "./region"
-  account_name = local.environment.account_name
+  source                 = "./region"
+  account_name           = local.environment.account_name
+  ecs_execution_role_arn = aws_iam_role.execution_role.arn
   providers = {
     aws.region = aws.eu_west_1
   }
