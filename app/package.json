@@ -2,7 +2,18 @@
   "name": "opg-modernising-lpa",
   "version": "0.0.1",
   "scripts": {
+    "build": "yarn build:js && yarn build:css && yarn build:images",
+    "build:js": "esbuild --bundle web/assets/main.js --minify --outdir=web/static/javascript --sourcemap --resolve-extensions=.mjs,.js",
+    "build:css": "sass --load-path . --style compressed web/assets/main.scss web/static/stylesheets/all.css",
+    "build:images": "mkdir -p web/static/assets/images && cp node_modules/govuk-frontend/govuk/assets/images/* node_modules/@ministryofjustice/frontend/moj/assets/images/* web/static/assets/images",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "license": "MIT",
+  "dependencies": {
+    "@ministryofjustice/frontend": "^1.4.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.14.53",
+    "sass": "^1.54.1"
+  }
 }
