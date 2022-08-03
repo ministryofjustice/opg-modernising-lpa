@@ -8,6 +8,10 @@ module "eu_west_1" {
   ecs_task_role_arns = {
     app = aws_iam_role.app_task_role.arn
   }
+  application_log_retention_days = local.environment.cloudwatch_log_groups.application_log_retention_days
+  ecs_capacity_provider          = local.ecs_capacity_provider
+  app_service_repository_url     = data.aws_ecr_repository.app.repository_url
+  app_service_container_version  = var.container_version
   providers = {
     aws.region = aws.eu_west_1
   }

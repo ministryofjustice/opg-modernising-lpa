@@ -6,10 +6,10 @@ resource "aws_ecs_service" "app" {
   platform_version      = "1.4.0"
   wait_for_steady_state = true
 
-  # capacity_provider_strategy {
-  #   capacity_provider = var.app_service_capacity_provider
-  #   weight            = 100
-  # }
+  capacity_provider_strategy {
+    capacity_provider = var.ecs_capacity_provider
+    weight            = 100
+  }
 
   network_configuration {
     security_groups  = [aws_security_group.app_ecs_service.id]
