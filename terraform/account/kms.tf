@@ -86,7 +86,7 @@ data "aws_iam_policy_document" "cloudwatch_kms" {
       type = "AWS"
       identifiers = [
         "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/breakglass",
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/${var.default_role}",
+        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/modernising-lpa-ci",
       ]
     }
   }
