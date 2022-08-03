@@ -1,6 +1,6 @@
 resource "aws_ecs_service" "app" {
   name                  = data.aws_default_tags.current.tags.application
-  cluster               = var.aws_ecs_cluster
+  cluster               = var.ecs_cluster
   task_definition       = aws_ecs_task_definition.app.arn
   desired_count         = var.ecs_service_desired_count
   platform_version      = "1.4.0"
@@ -59,7 +59,7 @@ resource "aws_security_group_rule" "app_ecs_service_egress" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"] #tfsec:ignore:AWS007 - open egress for ECR access
+  cidr_blocks       = ["0.0.0.0/0"] #tfsec:ignore:aws-ec2-no-public-egress-sgr - open egress for ECR access
   security_group_id = aws_security_group.app_ecs_service.id
   lifecycle {
     create_before_destroy = true
@@ -99,7 +99,7 @@ locals {
       logConfiguration = {
         logDriver = "awslogs",
         options = {
-          awslogs-group         = aws_cloudwatch_log_group.application_logs.name,
+          awslogs-group         = var.ecs_application_log_group_name,
           awslogs-region        = data.aws_region.current.name,
           awslogs-stream-prefix = data.aws_default_tags.current.tags.environment-name
         }
