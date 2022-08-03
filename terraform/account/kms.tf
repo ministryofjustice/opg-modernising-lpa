@@ -1,5 +1,5 @@
 resource "aws_kms_key" "cloudwatch" {
-  description             = "${local.mandatory_moj_tags.application} cloudwatch application logs encryption key for ${data.aws_region.eu_west_1.name}"
+  description             = "${local.mandatory_moj_tags.application} cloudwatch application logs encryption key"
   deletion_window_in_days = 10
   enable_key_rotation     = true
   policy                  = local.account.account_name == "development" ? data.aws_iam_policy_document.cloudwatch_kms_merged.json : data.aws_iam_policy_document.cloudwatch_kms.json
@@ -7,10 +7,16 @@ resource "aws_kms_key" "cloudwatch" {
   provider                = aws.eu_west_1
 }
 
-resource "aws_kms_alias" "cloudwatch_alias" {
-  name          = "alias/${local.mandatory_moj_tags.application}_cloudwatch_application_logs_encryption_${data.aws_region.eu_west_1.name}"
+resource "aws_kms_alias" "cloudwatch_alias_eu_west_1" {
+  name          = "alias/${local.mandatory_moj_tags.application}_cloudwatch_application_logs_encryption"
   target_key_id = aws_kms_key.cloudwatch.key_id
   provider      = aws.eu_west_1
+}
+
+resource "aws_kms_alias" "cloudwatch_alias_eu_west_2" {
+  name          = "alias/${local.mandatory_moj_tags.application}_cloudwatch_application_logs_encryption"
+  target_key_id = aws_kms_key.cloudwatch.key_id
+  provider      = aws.eu_west_2
 }
 
 # See the following link for further information
