@@ -17,7 +17,6 @@ module "application_logs" {
 
 module "app" {
   source                         = "./modules/app"
-  account_name                   = var.account_name
   ecs_cluster                    = aws_ecs_cluster.main.id
   ecs_execution_role             = var.ecs_execution_role
   ecs_task_role_arn              = var.ecs_task_role_arns.app
