@@ -16,3 +16,10 @@ variable "ecs_execution_role" {
   })
   description = "ID and ARN of the task execution role that the Amazon ECS container agent and the Docker daemon can assume."
 }
+
+variable "ecs_task_role_arns" {
+  type = object({
+    app = string
+  })
+  description = "ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services."
+}
