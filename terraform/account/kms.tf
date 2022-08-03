@@ -7,6 +7,13 @@ resource "aws_kms_key" "cloudwatch" {
   provider                = aws.eu_west_1
 }
 
+resource "aws_kms_replica_key" "cloudwatch_replica" {
+  description             = "Multi-Region replica key"
+  deletion_window_in_days = 7
+  primary_key_arn         = aws_kms_key.cloudwatch.arn
+  provider                = aws.eu_west_2
+}
+
 resource "aws_kms_alias" "cloudwatch_alias_eu_west_1" {
   name          = "alias/${local.mandatory_moj_tags.application}_cloudwatch_application_logs_encryption"
   target_key_id = aws_kms_key.cloudwatch.key_id
@@ -15,7 +22,7 @@ resource "aws_kms_alias" "cloudwatch_alias_eu_west_1" {
 
 resource "aws_kms_alias" "cloudwatch_alias_eu_west_2" {
   name          = "alias/${local.mandatory_moj_tags.application}_cloudwatch_application_logs_encryption"
-  target_key_id = aws_kms_key.cloudwatch.key_id
+  target_key_id = aws_kms_replica_key.cloudwatch_replica.key_id
   provider      = aws.eu_west_2
 }
 
@@ -71,7 +78,8 @@ data "aws_iam_policy_document" "cloudwatch_kms" {
       "kms:TagResource",
       "kms:UntagResource",
       "kms:ScheduleKeyDeletion",
-      "kms:CancelKeyDeletion"
+      "kms:CancelKeyDeletion",
+      "kms:ReplicateKey"
     ]
 
     principals {
