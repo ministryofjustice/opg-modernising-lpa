@@ -48,3 +48,51 @@ provider "aws" {
     session_name = "opg-modernising-lpa-terraform-session"
   }
 }
+
+provider "aws" {
+  alias  = "global"
+  region = "us-east-1"
+  default_tags {
+    tags = local.default_tags
+  }
+  assume_role {
+    role_arn     = "arn:aws:iam::${local.account.account_id}:role/${var.default_role}"
+    session_name = "opg-modernising-lpa-terraform-session"
+  }
+}
+
+data "aws_region" "eu_west_1" {
+  provider = aws.eu_west_1
+}
+
+data "aws_caller_identity" "eu_west_1" {
+  provider = aws.eu_west_1
+}
+
+data "aws_default_tags" "eu_west_1" {
+  provider = aws.eu_west_1
+}
+
+data "aws_region" "eu_west_2" {
+  provider = aws.eu_west_2
+}
+
+data "aws_caller_identity" "eu_west_2" {
+  provider = aws.eu_west_2
+}
+
+data "aws_default_tags" "eu_west_2" {
+  provider = aws.eu_west_2
+}
+
+data "aws_region" "global" {
+  provider = aws.global
+}
+
+data "aws_caller_identity" "global" {
+  provider = aws.global
+}
+
+data "aws_default_tags" "global" {
+  provider = aws.global
+}
