@@ -39,7 +39,7 @@ The design intent for this project is to prepare infrastructure that can be repl
 
 Regions.tf will instantiate the /region module for each AWS region required.
 
-Rsources inside /region will be grouped as modules also, allowing for parts of a region to be replicated as and when needed.
+Resources inside /region will be grouped as modules also, allowing for parts of a region to be replicated as and when needed.
 
 This will allow us to deploy the service in a way that is globally resiliant, and highly available.
 
