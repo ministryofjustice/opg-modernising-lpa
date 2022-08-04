@@ -19,3 +19,4 @@ query/s3_objects/**
 **/coverage.out
 **/node_modules
 **/yarn-error.log
+**/*.mp4
