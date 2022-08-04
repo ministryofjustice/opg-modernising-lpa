@@ -13,7 +13,8 @@
   "dependencies": {
     "@ministryofjustice/frontend": "^1.4.2",
     "dart-sass": "^1.25.0",
-    "govuk-frontend": "^4.2.0"
+    "govuk-frontend": "^4.2.0",
+    "jquery": "^3.6.0"
   },
   "devDependencies": {
     "esbuild": "^0.14.53",
