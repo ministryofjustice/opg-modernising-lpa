@@ -17,6 +17,12 @@ variable "environments" {
       account_id    = string
       account_name  = string
       is_production = bool
+      ecs = object({
+        enable_fargate_spot_capacity_provider = bool
+      })
+      cloudwatch_log_groups = object({
+        application_log_retention_days = number
+      })
     })
   )
 }
@@ -35,10 +41,11 @@ locals {
     source-code      = "https://github.com/ministryofjustice/opg-modernising-lpa"
   }
 
-
   optional_tags = {
     infrastructure-support = "OPG Webops: opgteam+modernising-lpa@digital.justice.gov.uk"
   }
 
   default_tags = merge(local.mandatory_moj_tags, local.optional_tags)
+
+  ecs_capacity_provider = local.environment.ecs.enable_fargate_spot_capacity_provider ? "FARGATE_SPOT" : "FARGATE"
 }
