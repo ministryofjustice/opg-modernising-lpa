@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/fake"
-	"golang.org/x/mod/sumdb/dirhash"
 	"html/template"
 	"log"
 	"net/http"
@@ -20,10 +19,14 @@ type PageData struct {
 	PrefixAsset string
 }
 
-func main() {
-	fmt.Println(fake.GoodBye())
+func home(w http.ResponseWriter, r *http.Request) {
 	webDir := env.Get("WEB_DIR", "web")
 	prefix := env.Get("PREFIX", "")
+
+	data := PageData{
+		WebDir: webDir,
+		Prefix: prefix,
+	}
 
 	files := []string{
 		fmt.Sprintf("%s/template/home.gohtml", webDir),
@@ -36,22 +39,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
+	err = ts.ExecuteTemplate(w, "base", data)
 
-	http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
-		data := PageData{
-			WebDir: webDir,
-			Prefix: prefix,
-		}
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
-		err = ts.ExecuteTemplate(w, "base", data)
+func main() {
+	fmt.Println(fake.GoodBye())
 
-		if err != nil {
-			log.Fatal(err)
-		}
-	})
+	mux := http.NewServeMux()
+	mux.HandleFunc("/home", home)
 
-	err = http.ListenAndServe(":5000", nil)
+	err := http.ListenAndServe(":5000", mux)
 
 	if err != nil {
 		log.Fatal(err)
