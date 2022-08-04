@@ -37,7 +37,7 @@ The design intent for this project is to prepare infrastructure that can be repl
 ├── terraform.tf
 ```
 
-Regions.tf will instatiate the /region module for each AWS region required.
+Regions.tf will instantiate the /region module for each AWS region required.
 
 Rsources inside /region will be grouped as modules also, allowing for parts of a region to be replicated as and when needed.
 
