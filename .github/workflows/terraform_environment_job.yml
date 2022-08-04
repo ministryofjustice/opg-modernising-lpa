@@ -102,5 +102,5 @@ jobs:
         run: |
           echo ::set-output name=workspace_name::$(terraform output -raw workspace_name)
           echo ::set-output name=container_version::$(terraform output -raw container_version)
-          echo ::set-output name=url::$(terraform output -raw app_url)
+          echo ::set-output name=url::$(terraform output -raw app_fqdn)
         working-directory: ./terraform/environment
