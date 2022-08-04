@@ -28,10 +28,10 @@ repos:
       - id: terraform_fmt
       # - id: terraform_validate
       #   exclude: region/[^/]+$.
-  - repo: https://github.com/lietu/go-pre-commit
-    rev: v0.0.1
+
+  - repo: https://github.com/dnephin/pre-commit-golang
+    rev: v0.5.0
     hooks:
-      - id: errcheck # Check your Go source code with errcheck
-      - id: go-fmt-goimports # Format your Go code with go fmt and goimports
-      - id: staticcheck # Runs static analysis and style rules checks on go code
-#      - id: go-mod-tidy # Drops unused imports (uncomment once we have at a go.mod file in the repo)
+      - id: go-fmt # Runs gofmt
+      - id: go-imports # Runs gofmt
+      - id: go-mod-tidy # Tidies up and removes unused requires in go.mod using go mod tidy
