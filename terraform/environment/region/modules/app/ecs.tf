@@ -74,7 +74,7 @@ resource "aws_ecs_task_definition" "app" {
   network_mode             = "awsvpc"
   cpu                      = 512
   memory                   = 1024
-  container_definitions    = "[${local.app_app}]"
+  container_definitions    = "[${local.app}]"
   task_role_arn            = var.ecs_task_role_arn
   execution_role_arn       = var.ecs_execution_role.arn
   provider                 = aws.region
@@ -82,7 +82,7 @@ resource "aws_ecs_task_definition" "app" {
 
 
 locals {
-  app_app = jsonencode(
+  app = jsonencode(
     {
       cpu         = 1,
       essential   = true,
