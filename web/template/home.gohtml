@@ -1,0 +1,29 @@
+{{ template "base" . }}
+
+{{ define "main" }}
+    <p class="govuk-body govuk-!-font-weight-bold">
+        GDS components <span style='font-size:30px;'>&#9989;</span>
+    </p>
+    <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+              Help with nationality
+            </span>
+        </summary>
+        <div class="govuk-details__text">
+            We need to know your nationality so we can work out which elections you’re entitled to vote in. If you cannot provide your nationality, you’ll have to send copies of identity documents through the post.
+        </div>
+    </details>
+
+    <p class="govuk-body govuk-!-font-weight-bold">
+        MOJ components <span style='font-size:30px;'>&#9989;</span>
+    </p>
+    <div class="govuk-form-group">
+        <label class="govuk-label govuk-label--m" for="password">
+            Password
+        </label>
+
+        <input class="govuk-input govuk-input--width-20" id="password" name="password" type="password" value="1234ABC!" data-module="moj-password-reveal">
+    </div>
+
+{{ end }}
