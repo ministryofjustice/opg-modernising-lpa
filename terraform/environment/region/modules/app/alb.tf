@@ -6,13 +6,7 @@ resource "aws_lb_target_group" "app" {
   vpc_id               = var.network.vpc_id
   deregistration_delay = 0
   depends_on           = [aws_lb.app]
-
-  health_check {
-    enabled = true
-    path    = "/home"
-  }
-
-  provider = aws.region
+  provider             = aws.region
 }
 
 resource "aws_lb" "app" {
