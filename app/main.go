@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/ministryofjustice/opg-go-common/env"
 	"html/template"
 	"log"
 	"net/http"
+
+	"github.com/ministryofjustice/opg-go-common/env"
 )
 
 func Hello() string {

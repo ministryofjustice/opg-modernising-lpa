@@ -34,5 +34,4 @@ repos:
     hooks:
       - id: go-fmt # Runs gofmt
       - id: go-imports # Runs gofmt
-      - id: golangci-lint # Runs a linter using golangci-lint
       - id: go-mod-tidy # Tidies up and removes unused requires in go.mod using go mod tidy
