@@ -17,3 +17,5 @@ scripts/analysis_scripts/*.csv
 query/s3_objects/**
 
 **/coverage.out
+**/node_modules
+**/yarn-error.log
