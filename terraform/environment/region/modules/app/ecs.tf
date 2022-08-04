@@ -18,11 +18,11 @@ resource "aws_ecs_service" "app" {
     assign_public_ip = false
   }
 
-  # load_balancer {
-  #   target_group_arn = aws_lb_target_group.app.arn
-  #   container_name   = "app"
-  #   container_port   = 80
-  # }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.app.arn
+    container_name   = "app"
+    container_port   = 80
+  }
 
   lifecycle {
     create_before_destroy = true
@@ -40,19 +40,19 @@ resource "aws_security_group" "app_ecs_service" {
   provider = aws.region
 }
 
-# resource "aws_security_group_rule" "app_ecs_service_ingress" {
-#   description              = "Allow Port 80 ingress from the applciation load balancer"
-#   type                     = "ingress"
-#   from_port                = 80
-#   to_port                  = 80
-#   protocol                 = "tcp"
-#   security_group_id        = aws_security_group.app_ecs_service.id
-#   source_security_group_id = aws_security_group.app_loadbalancer.id
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-#   provider = aws.region
-# }
+resource "aws_security_group_rule" "app_ecs_service_ingress" {
+  description              = "Allow Port 80 ingress from the applciation load balancer"
+  type                     = "ingress"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.app_ecs_service.id
+  source_security_group_id = aws_security_group.app_loadbalancer.id
+  lifecycle {
+    create_before_destroy = true
+  }
+  provider = aws.region
+}
 
 resource "aws_security_group_rule" "app_ecs_service_egress" {
   description       = "Allow any egress from service"
