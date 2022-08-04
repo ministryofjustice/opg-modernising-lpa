@@ -16,12 +16,16 @@ on:
       terraform_container_version:
         description: "Container version deployed by Terraform"
         value: ${{ jobs.terraform_environment_workflow.outputs.terraform_container_version }}
+      url:
+        description: "URL for environment"
+        value: ${{ jobs.terraform_environment_workflow.outputs.url }}
 jobs:
   terraform_environment_workflow:
     runs-on: ubuntu-latest
     outputs:
       terraform_workspace_name: ${{ steps.terraform_outputs.outputs.workspace_name }}
       terraform_container_version: ${{ steps.terraform_outputs.outputs.container_version }}
+      url: ${{ steps.terraform_outputs.outputs.url }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -98,4 +102,5 @@ jobs:
         run: |
           echo ::set-output name=workspace_name::$(terraform output -raw workspace_name)
           echo ::set-output name=container_version::$(terraform output -raw container_version)
+          echo ::set-output name=url::$(terraform output -raw app_url)
         working-directory: ./terraform/environment
