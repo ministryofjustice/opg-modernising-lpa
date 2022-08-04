@@ -1,5 +1,5 @@
 data "aws_route53_zone" "modernising_lpa" {
-  provider = aws.global
+  provider = aws.management_global
   name     = "modernising.opg.service.justice.gov.uk"
 }
 
@@ -9,7 +9,7 @@ locals {
 
 resource "aws_route53_record" "app" {
   # app.modernising.opg.service.justice.gov.uk
-  provider = aws.global
+  provider = aws.management_global
   zone_id  = data.aws_route53_zone.modernising_lpa.zone_id
   name     = "${local.dns_namespace_for_environment}app.${data.aws_route53_zone.modernising_lpa.name}"
   type     = "A"
