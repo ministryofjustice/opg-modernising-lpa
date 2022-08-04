@@ -17,6 +17,7 @@
     "jquery": "^3.6.0"
   },
   "devDependencies": {
+    "cypress": "^10.4.0",
     "esbuild": "^0.14.53",
     "sass": "^1.54.1"
   }
