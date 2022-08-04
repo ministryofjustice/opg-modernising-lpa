@@ -126,7 +126,7 @@ resource "aws_security_group_rule" "app_loadbalancer_egress" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"] #tfsec:ignore:AWS007 - open egress for load balancers
+  cidr_blocks       = ["0.0.0.0/0"] #tfsec:ignore:aws-ec2-no-public-egress-sgr - open egress for load balancers
   security_group_id = aws_security_group.app_loadbalancer.id
   provider          = aws.region
 }
