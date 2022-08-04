@@ -16,6 +16,7 @@ FROM golang:1.18 as build-env
 WORKDIR /app
 
 COPY app/go.mod .
+COPY app/go.sum .
 
 RUN go mod download
 
