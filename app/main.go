@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/ministryofjustice/opg-go-common/env"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/fake"
 	"html/template"
 	"log"
 	"net/http"
@@ -47,9 +46,12 @@ func home(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	fmt.Println(fake.GoodBye())
-
 	mux := http.NewServeMux()
+
+	fileServer := http.FileServer(http.Dir("./web/static/"))
+
+	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+
 	mux.HandleFunc("/home", home)
 
 	err := http.ListenAndServe(":5000", mux)
