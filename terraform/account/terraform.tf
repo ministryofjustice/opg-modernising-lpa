@@ -50,6 +50,30 @@ provider "aws" {
 }
 
 provider "aws" {
+  alias  = "management_eu_west_1"
+  region = "eu-west-1"
+  default_tags {
+    tags = local.default_tags
+  }
+  assume_role {
+    role_arn     = "arn:aws:iam::311462405659:role/${var.default_role}"
+    session_name = "opg-modernising-lpa-terraform-session"
+  }
+}
+
+provider "aws" {
+  alias  = "management_eu_west_2"
+  region = "eu-west-2"
+  default_tags {
+    tags = local.default_tags
+  }
+  assume_role {
+    role_arn     = "arn:aws:iam::311462405659:role/${var.default_role}"
+    session_name = "opg-modernising-lpa-terraform-session"
+  }
+}
+
+provider "aws" {
   alias  = "global"
   region = "us-east-1"
   default_tags {
