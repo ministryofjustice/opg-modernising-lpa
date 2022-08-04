@@ -76,7 +76,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ${{ needs.create_tags.outputs.environment_workspace_name }}
-      url: ${{ needs.create_tags.outputs.url }}
+      url: ${{ needs.pr_deploy.outputs.url }}
     needs: [pr_deploy, create_tags]
     steps:
       - name: End of PR Workflow
