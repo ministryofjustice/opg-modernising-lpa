@@ -6,7 +6,16 @@ resource "aws_lb_target_group" "app" {
   vpc_id               = var.network.vpc_id
   deregistration_delay = 0
   depends_on           = [aws_lb.app]
-  provider             = aws.region
+
+  health_check {
+    enabled             = true
+    path                = "/static/"
+    port                = 80
+    unhealthy_threshold = 5
+  }
+
+  provider = aws.region
+
 }
 
 resource "aws_lb" "app" {

@@ -24,3 +24,7 @@ resource "aws_route53_record" "app" {
     create_before_destroy = true
   }
 }
+
+output "app_dns" {
+  value = aws_route53_record.app.fqdn
+}
