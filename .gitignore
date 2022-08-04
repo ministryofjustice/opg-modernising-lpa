@@ -1,6 +1,8 @@
 .DS_Store
 **/.terraform/
 **/terraform.tfstate.d/
+**/.infracost/
+
 geckodriver.log
 .vscode/
 **__pycache__

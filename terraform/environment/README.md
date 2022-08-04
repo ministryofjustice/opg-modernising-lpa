@@ -16,6 +16,32 @@ There are two namespace variables available.
 
 can return `uml93` or `production`
 
+## Regional Design Pattern
+
+The design intent for this project is to prepare infrastructure that can be replicated across regions, sharing global resources between them.
+
+```shell
+.
+├── region
+│   ├── modules
+│   │   └── app
+│   │       ├── ecs.tf
+│   │       ├── alb.tf
+│   │       └── terraform.tf
+│   ├── app.tf
+│   ├── network.tf
+│   ├── terraform.tf
+│   └── variables.tf
+├── README.md
+├── regions.tf
+├── terraform.tf
+```
+
+Regions.tf will instantiate the /region module for each AWS region required.
+
+Resources inside /region will be grouped as modules also, allowing for parts of a region to be replicated as and when needed.
+
+This will allow us to deploy the service in a way that is globally resiliant, and highly available.
 
 ## Running Terraform Locally
 
