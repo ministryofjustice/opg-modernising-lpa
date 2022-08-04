@@ -29,7 +29,7 @@
 
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-two-thirds">
-                        <h2 class="govuk-cookie-banner__heading govuk-heading-m">Cookies on Modernising LPA</h2>
+                        <h2 class="govuk-cookie-banner__heading govuk-heading-m">Cookies on {{ .ServiceName }}</h2>
 
                         <div class="govuk-cookie-banner__content">
                             <p class="govuk-body">We use some essential cookies to make this service work.</p>
@@ -73,7 +73,7 @@
                 </div>
                 <div class="govuk-header__content">
                     <a href="#" class="govuk-header__link govuk-header__service-name">
-                        MLPA Beta
+                        {{ .ServiceName }}
                     </a>
                     <nav aria-label="Menu" class="govuk-header__navigation ">
                         <button type="button" class="govuk-header__menu-button govuk-js-header-toggle" aria-controls="navigation" aria-label="Show or hide menu">Menu</button>

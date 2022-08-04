@@ -15,7 +15,7 @@ func Hello() string {
 type PageData struct {
 	WebDir      string
 	Prefix      string
-	PrefixAsset string
+	ServiceName string
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
@@ -23,8 +23,9 @@ func home(w http.ResponseWriter, r *http.Request) {
 	prefix := env.Get("PREFIX", "")
 
 	data := PageData{
-		WebDir: webDir,
-		Prefix: prefix,
+		WebDir:      webDir,
+		Prefix:      prefix,
+		ServiceName: "Modernising LPA",
 	}
 
 	files := []string{
