@@ -123,7 +123,7 @@ resource "aws_security_group_rule" "app_loadbalancer_ingress" {
 # }
 
 resource "aws_security_group_rule" "app_loadbalancer_egress" {
-  description       = "Allow any egress from Use service load balancer"
+  description       = "Allow any egress from service load balancer"
   type              = "egress"
   from_port         = 0
   to_port           = 0
