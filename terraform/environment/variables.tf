@@ -23,6 +23,9 @@ variable "environments" {
       cloudwatch_log_groups = object({
         application_log_retention_days = number
       })
+      application_load_balancer = object({
+        enable_deletion_protection = bool
+      })
     })
   )
 }
