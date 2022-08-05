@@ -63,3 +63,8 @@ variable "alb_enable_deletion_protection" {
   type        = bool
   description = "If true, deletion of the load balancer will be disabled via the AWS API. This will prevent Terraform from deleting the load balancer. Defaults to false."
 }
+
+variable "container_port" {
+  type        = number
+  description = "Port on the container to associate with."
+}

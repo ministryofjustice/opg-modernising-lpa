@@ -8,11 +8,8 @@ resource "aws_lb_target_group" "app" {
   depends_on           = [aws_lb.app]
 
   health_check {
-    enabled             = true
-    path                = "/home"
-    port                = 80
-    protocol            = "HTTP"
-    unhealthy_threshold = 5
+    enabled = true
+    path    = "/home"
   }
 
   provider = aws.region
