@@ -78,33 +78,6 @@ resource "aws_lb_listener_certificate" "app_loadbalancer_live_service_certificat
   provider        = aws.region
 }
 
-# redirect root to gov.uk
-resource "aws_lb_listener_rule" "redirect_to_maintenance" {
-  listener_arn = aws_lb_listener.app_loadbalancer.arn
-  priority     = 1
-  action {
-    type = "redirect"
-
-    redirect {
-      host        = "maintenance.opg.service.justice.gov.uk"
-      path        = "/maintenance"
-      query       = ""
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_302"
-    }
-  }
-
-  condition {
-    path_pattern {
-      values = [
-        "/maintenance",
-      ]
-    }
-  }
-  provider = aws.region
-}
-
 resource "aws_security_group" "app_loadbalancer" {
   name_prefix = "${data.aws_default_tags.current.tags.environment-name}-app-loadbalancer"
   description = "app service application load balancer"
