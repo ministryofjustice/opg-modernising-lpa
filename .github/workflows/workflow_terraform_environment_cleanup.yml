@@ -47,7 +47,7 @@ jobs:
           role-session-name: OPGModernisingLPATerraformGithubAction
       - uses: webfactory/ssh-agent@v0.5.4
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
+          ssh-private-key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
 
       - name: Install Terraform Workspace Manager
         run: |
