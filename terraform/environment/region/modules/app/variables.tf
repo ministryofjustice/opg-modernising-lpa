@@ -53,3 +53,13 @@ variable "app_service_container_version" {
   type        = string
   description = "(optional) describe your variable"
 }
+
+variable "ingress_allow_list_cidr" {
+  type        = list(string)
+  description = "List of CIDR ranges permitted to access the service"
+}
+
+variable "alb_enable_deletion_protection" {
+  type        = bool
+  description = "If true, deletion of the load balancer will be disabled via the AWS API. This will prevent Terraform from deleting the load balancer. Defaults to false."
+}
