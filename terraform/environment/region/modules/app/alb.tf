@@ -13,7 +13,6 @@ resource "aws_lb_target_group" "app" {
   }
 
   provider = aws.region
-
 }
 
 resource "aws_lb" "app" {

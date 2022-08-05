@@ -71,7 +71,7 @@ jobs:
           TF_VAR_container_version: ${{ inputs.version_tag }}
         run: |
           terraform workspace show
-          terraform plan -input=false -parallelism=30
+          terraform plan -lock-timeout=300s -input=false -parallelism=30
         working-directory: ./terraform/environment
 
       # - name: Protect environment workspace
