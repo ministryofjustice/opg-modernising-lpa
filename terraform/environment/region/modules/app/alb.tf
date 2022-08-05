@@ -105,6 +105,7 @@ resource "aws_lb_listener_rule" "redirect_to_maintenance" {
       ]
     }
   }
+  provider = aws.region
 }
 
 resource "aws_security_group" "app_loadbalancer" {
