@@ -19,3 +19,5 @@ query/s3_objects/**
 **/coverage.out
 **/node_modules
 **/yarn-error.log
+/app/cypress/video/*
+/app/codecept/output/*
