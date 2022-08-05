@@ -91,7 +91,7 @@ locals {
       name        = "app",
       portMappings = [
         {
-          containerPort = 80,
+          containerPort = 5000,
           hostPort      = 80,
           protocol      = "tcp"
         }
@@ -112,7 +112,7 @@ locals {
         },
         {
           name  = "APP_PORT",
-          value = tostring(80)
+          value = tostring(5000)
         }
       ]
     }
