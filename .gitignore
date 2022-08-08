@@ -20,4 +20,5 @@ query/s3_objects/**
 **/node_modules
 **/yarn-error.log
 /app/cypress/video/*
+/app/cypress/screenshots/*
 /app/codecept/output/*

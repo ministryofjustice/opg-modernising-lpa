@@ -15,6 +15,9 @@ exports.config = {
       url: 'http://localhost:5050',
       show: false,
       browser: 'chromium'
+    },
+    AxeRunner: {
+      require: './codecept/helpers/axeRunner_helper.js'
     }
   },
   include: {
