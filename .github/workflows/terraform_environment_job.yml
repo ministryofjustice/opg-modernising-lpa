@@ -16,12 +16,16 @@ on:
       terraform_container_version:
         description: "Container version deployed by Terraform"
         value: ${{ jobs.terraform_environment_workflow.outputs.terraform_container_version }}
+      url:
+        description: "URL for environment"
+        value: ${{ jobs.terraform_environment_workflow.outputs.url }}
 jobs:
   terraform_environment_workflow:
     runs-on: ubuntu-latest
     outputs:
       terraform_workspace_name: ${{ steps.terraform_outputs.outputs.workspace_name }}
       terraform_container_version: ${{ steps.terraform_outputs.outputs.container_version }}
+      url: ${{ steps.terraform_outputs.outputs.url }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -47,9 +51,9 @@ jobs:
           aws-region: eu-west-1
           role-duration-seconds: 3600
           role-session-name: OPGModernisingLPATerraformGithubAction
-      # - uses: webfactory/ssh-agent@v0.5.4
-      #   with:
-      #     ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
+      - uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
 
       - name: Lint Terraform
         id: tf_lint
@@ -67,20 +71,20 @@ jobs:
           TF_VAR_container_version: ${{ inputs.version_tag }}
         run: |
           terraform workspace show
-          terraform plan -input=false -parallelism=30
+          terraform plan -lock-timeout=300s -input=false -parallelism=30
         working-directory: ./terraform/environment
 
-      # - name: Protect environment workspace
-      #   if: github.ref != 'refs/heads/main'
-      #   env:
-      #     TF_WORKSPACE: ${{ inputs.workspace_name }}
-      #     TF_VAR_container_version: ${{ inputs.version_tag }}
-      #   run: |
-      #     wget https://github.com/TomTucka/terraform-workspace-manager/releases/download/v0.3.1/terraform-workspace-manager_Linux_x86_64.tar.gz -O $HOME/terraform-workspace-manager.tar.gz
-      #     sudo tar -xvf $HOME/terraform-workspace-manager.tar.gz -C /usr/local/bin
-      #     sudo chmod +x /usr/local/bin/terraform-workspace-manager
-      #     terraform-workspace-manager -register-workspace=$TF_WORKSPACE -time-to-protect=24 -aws-account-id=679638075911 -aws-iam-role=opg-maintenance-ci
-      #   working-directory: ./terraform/environment
+      - name: Protect environment workspace
+        if: github.ref != 'refs/heads/main'
+        env:
+          TF_WORKSPACE: ${{ inputs.workspace_name }}
+          TF_VAR_container_version: ${{ inputs.version_tag }}
+        run: |
+          wget https://github.com/TomTucka/terraform-workspace-manager/releases/download/v0.3.1/terraform-workspace-manager_Linux_x86_64.tar.gz -O $HOME/terraform-workspace-manager.tar.gz
+          sudo tar -xvf $HOME/terraform-workspace-manager.tar.gz -C /usr/local/bin
+          sudo chmod +x /usr/local/bin/terraform-workspace-manager
+          terraform-workspace-manager -register-workspace=$TF_WORKSPACE -time-to-protect=24 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
+        working-directory: ./terraform/environment
 
       - name: Terraform Apply
         env:
@@ -98,4 +102,5 @@ jobs:
         run: |
           echo ::set-output name=workspace_name::$(terraform output -raw workspace_name)
           echo ::set-output name=container_version::$(terraform output -raw container_version)
+          echo ::set-output name=url::$(terraform output -raw app_fqdn)
         working-directory: ./terraform/environment
