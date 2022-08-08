@@ -9,7 +9,7 @@ setCommonPlugins();
 
 exports.config = {
   tests: './codecept/scenarios/*_test.js',
-  output: './codecept/scenarios/output',
+  output: './codecept/output',
   helpers: {
     Playwright: {
       url: 'http://localhost:5050',
