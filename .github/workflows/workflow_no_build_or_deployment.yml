@@ -1,0 +1,38 @@
+name: "[Workflow] No build or deployment"
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - 'app/**'
+      - 'web/**'
+      - 'terraform/**'
+      - 'scripts/**'
+      # - '.github/workflows/**'
+
+permissions:
+  contents: read
+  security-events: none
+  pull-requests: read
+  actions: none
+  checks: none
+  deployments: none
+  issues: none
+  packages: none
+  repository-projects: none
+  statuses: none
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  end_of_pr_workflow:
+    name: End of PR Workflow
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: End of PR Workflow
+        run: |
+          echo "No builds or deployments on this PR."
