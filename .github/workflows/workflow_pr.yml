@@ -4,6 +4,12 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - 'app/**'
+      - 'web/**'
+      - 'terraform/**'
+      - 'scripts/**'
+      # - '.github/workflows/**'
 
 permissions:
   contents: write
