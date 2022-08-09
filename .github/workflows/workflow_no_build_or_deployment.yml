@@ -30,7 +30,7 @@ defaults:
 jobs:
   create_tags:
     name: Create Tags
-    uses: ./.github/workflows/document_linting.yml
+    uses: ./.github/workflows/document_linting_job.yml
   end_of_pr_workflow:
     name: End of PR Workflow
     if: github.ref != 'refs/heads/main'
