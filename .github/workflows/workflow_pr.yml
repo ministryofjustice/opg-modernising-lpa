@@ -9,7 +9,7 @@ on:
       - 'web/**'
       - 'terraform/**'
       - 'scripts/**'
-      # - '.github/workflows/**'
+      - '.github/workflows/**'
 
 permissions:
   contents: write
