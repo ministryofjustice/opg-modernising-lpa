@@ -11,6 +11,5 @@ jobs:
     - name: Lint markdown files
       uses: avto-dev/markdown-lint@v1
       with:
-        # rules: '/lint/rules/changelog.js'
         config: './markdownlint.yaml'
         args: '**/*.md'
