@@ -4,8 +4,8 @@ WORKDIR /app
 
 RUN mkdir -p web/static
 
-COPY app/package.json .
-COPY app/yarn.lock .
+COPY package.json .
+COPY yarn.lock .
 RUN yarn
 
 COPY web/assets web/assets
