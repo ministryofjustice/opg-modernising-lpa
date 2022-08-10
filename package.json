@@ -1,0 +1,40 @@
+{
+    "name": "opg-modernising-lpa",
+    "version": "0.0.1",
+    "scripts": {
+        "build": "yarn build:js && yarn build:css && yarn build:images && yarn build:fonts",
+        "build:js": "node_modules/.bin/esbuild --bundle web/assets/main.js --minify --outdir=web/static/javascript --sourcemap --resolve-extensions=.mjs,.js",
+        "build:css": "node_modules/.bin/sass --load-path . --style compressed web/assets/main.scss web/static/stylesheets/all.css",
+        "build:images": "mkdir -p web/static/assets/images && cp node_modules/govuk-frontend/govuk/assets/images/* node_modules/@ministryofjustice/frontend/moj/assets/images/* web/static/assets/images",
+        "build:fonts": "mkdir -p web/static/assets/fonts && cp node_modules/govuk-frontend/govuk/assets/fonts/* web/static/assets/fonts",
+        "cypress:open": "node_modules/.bin/cypress open",
+        "cypress:run": "node_modules/.bin/cypress run",
+        "cypress:run:debug": "node_modules/.bin/cypress run --headed",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "codecept": "node_modules/.bin/codeceptjs run --steps",
+        "codecept:headless": "HEADLESS=true codeceptjs run --steps",
+        "codecept:ui": "node_modules/.bin/codecept-ui --app",
+        "codecept:demo": "node_modules/.bin/codeceptjs run --steps -c node_modules/@codeceptjs/examples",
+        "codecept:demo:headless": "HEADLESS=true codeceptjs run --steps -c node_modules/@codeceptjs/examples",
+        "codecept:demo:ui": "node_modules/.bin/codecept-ui --app  -c node_modules/@codeceptjs/examples"
+    },
+    "license": "MIT",
+    "dependencies": {
+        "@ministryofjustice/frontend": "^1.4.2",
+        "govuk-frontend": "^4.2.0",
+        "jquery": "^3.6.0"
+    },
+    "devDependencies": {
+        "@codeceptjs/configure": "^0.8.0",
+        "@codeceptjs/examples": "^1.2.1",
+        "@codeceptjs/ui": "^0.4.6",
+        "axe-core": "^4.4.3",
+        "axe-playwright": "^1.1.11",
+        "codeceptjs": "^3.3.4",
+        "cypress": "^10.4.0",
+        "cypress-axe": "^1.0.0",
+        "esbuild": "^0.14.53",
+        "playwright": "^1.24.2",
+        "sass": "^1.54.1"
+    }
+}
