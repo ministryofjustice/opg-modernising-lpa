@@ -44,6 +44,11 @@ func home(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func setToken(w http.ResponseWriter, r *http.Request) {
+	log.Println("Made it to set_token")
+	http.Redirect(w, r, "http://localhost:5050/home", http.StatusFound)
+}
+
 func main() {
 	mux := http.NewServeMux()
 
@@ -52,6 +57,7 @@ func main() {
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
 	mux.HandleFunc("/home", home)
+	mux.HandleFunc("/set_token", setToken)
 
 	err := http.ListenAndServe(":5000", mux)
 
