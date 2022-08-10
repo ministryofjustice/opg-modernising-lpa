@@ -4,6 +4,14 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - 'app/**'
+      - 'web/**'
+      - 'codecept/**'
+      - 'cypress/**'
+      - 'terraform/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
 
 permissions:
   contents: write

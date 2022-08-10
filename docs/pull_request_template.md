@@ -1,16 +1,16 @@
 # Purpose
 
-_Briefly describe the purpose of the change, and/or link to the JIRA ticket for context_
+Briefly describe the purpose of the change, and/or link to the JIRA ticket for context
 
 Fixes MLPAB-####
 
 ## Approach
 
-_Explain how your code addresses the purpose of the change_
+Explain how your code addresses the purpose of the change
 
 ## Learning
 
-_Any tips and tricks, blog posts or tools which helped you. Plus anything notable you've discovered about the Modernising LPA service_
+Any tips and tricks, blog posts or tools which helped you. Plus anything notable you've discovered about the Modernising LPA service
 
 ## Checklist
 

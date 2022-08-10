@@ -19,7 +19,7 @@ Documentation for the service can be found [in the /docs/ folder](./docs/README.
 ### Installation
 
 ```bash
-$ docker compose up -d
+docker compose up -d
 ```
 
 ## Licence
