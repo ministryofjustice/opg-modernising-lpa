@@ -1,0 +1,17 @@
+on:
+  workflow_call:
+    inputs:
+      base_url:
+        description: 'Environment URL to target for testing'
+        required: true
+        type: string
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  run_ui_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
