@@ -4,9 +4,6 @@ services:
   app:
     build:
       target: development
-
-    # depends_on:
-    #   - oidc-server-mock
     volumes:
       - ./app:/go/bin/app
       - ./web/template:/go/bin/web/template
