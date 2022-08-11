@@ -8,16 +8,16 @@ describe('Sign in using GOV UK Sign In service', () => {
 
         const options = {
             method: 'GET',
-            url: 'http://localhost:4011/connect/authorize',
+            url: 'http://localhost:7011/authorize',
             qs: {
                 // use qs to set query string to the url that creates
                 // http://auth.corp.com:8080?redirectTo=http://localhost:7074/set_token
                 redirect_uri: 'http://localhost:5050/set_token',
                 client_id: 'client-credentials-mock-client',
-                state: 'state-string',
-                nonce: 'nonce-value'
+                state: 'state-value',
+                nonce: 'nonce-value',
+                scope: 'scope-value'
             },
-            form: true, // we are submitting a regular form body
             log: true
         }
 
