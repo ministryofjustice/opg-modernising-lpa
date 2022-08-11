@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  cypress:
+    # the Docker image to use from https://github.com/cypress-io/cypress-docker-images
+    image: "cypress/included:10.3.1"
+    command: "--config video=false"
+    depends_on:
+      - app
+    environment:
+      - CYPRESS_baseUrl=http://app:5000
+    working_dir: /e2e
+    volumes:
+      - ./:/e2e
