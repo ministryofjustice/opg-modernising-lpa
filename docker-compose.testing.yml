@@ -4,7 +4,7 @@ services:
   cypress:
     # the Docker image to use from https://github.com/cypress-io/cypress-docker-images
     image: "cypress/included:10.3.1"
-    command: "--config video=false"
+    command: "--config video=false --config-file /e2e/cypress.config.js"
     depends_on:
       - app
     environment:
