@@ -22,3 +22,26 @@ services:
       - ./mocks/OIDCSpec.yml:/tmp/OIDCSpec.yml:ro
     ports:
       - 7011:4010
+
+# service for the nginx router that will forward /token to oidc-app
+  oidc-proxy:
+    container_name: oidc-proxy
+    image: nginx:stable-alpine
+    depends_on:
+      - oidc-mock
+    command: 'nginx -g "daemon off;"'
+    volumes:
+      - ./mocks/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 7010:5000
+
+# service for the /token go app
+  # oidc-app:
+  #   build:
+  #     context: .
+  #     dockerfile: ./mocks/Dockerfile
+  #   container_name: oidc-app
+  #   depends_on:
+  #     - oidc-mock
+  #   ports:
+  #     - 7012:5000
