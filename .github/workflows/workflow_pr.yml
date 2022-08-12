@@ -72,7 +72,7 @@ jobs:
   ui_tests_image:
     name: Run Cypress UI Tests On Images
     uses: ./.github/workflows/ui_test_job.yml
-    needs: [docker_build_scan_push]
+    needs: [docker_build_scan_push, create_tags]
     with:
       run_against_image: true
       tag: ${{ needs.create_tags.outputs.version_tag }}
