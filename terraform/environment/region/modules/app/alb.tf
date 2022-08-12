@@ -112,7 +112,7 @@ resource "aws_security_group_rule" "app_loadbalancer_ingress" {
 
 ## This must be commented out again before merging
 resource "aws_security_group_rule" "app_loadbalancer_production_ingress" {
-  # count             = data.aws_default_tags.current.tags.environment-name == "production" ? 1 : 0
+  count             = data.aws_default_tags.current.tags.environment-name == "production" ? 1 : 0
   description       = "Port 443 production public ingress to the application load balancer"
   type              = "ingress"
   from_port         = 443
