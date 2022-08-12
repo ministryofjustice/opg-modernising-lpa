@@ -23,7 +23,7 @@ jobs:
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
       - name: Build the stack
-        run: docker-compose up -d --build
+        run: docker-compose -f ./docker-compose.yml up -d --build
       - name: Cypress run
         uses: cypress-io/github-action@v4
         env:
