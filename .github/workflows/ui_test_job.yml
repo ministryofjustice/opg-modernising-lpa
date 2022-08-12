@@ -28,6 +28,7 @@ jobs:
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
       - uses: unfor19/install-aws-cli-action@v1
+        if: ${{ inputs.run_against_docker }}
       - name: Configure AWS Credentials
         if: ${{ inputs.run_against_docker }}
         uses: aws-actions/configure-aws-credentials@v1.6.1
