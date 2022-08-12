@@ -1,4 +1,4 @@
-module github.com/ministryofjustice/opg-modernising-opg/mocks/JWTProxy
+module github.com/ministryofjustice/opg-modernising-lpa/mocks
 
 go 1.18
 

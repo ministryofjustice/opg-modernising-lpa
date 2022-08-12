@@ -125,7 +125,7 @@ func main() {
 
 	flag.Parse()
 
-	r, err := http.Get("http://localhost:7011/.well-known/openid-configuration")
+	r, err := http.Get("http://oidc-mock:4010/.well-known/openid-configuration")
 
 	if err != nil {
 		log.Fatal(err)
@@ -141,7 +141,7 @@ func main() {
 	}
 
 	// start server
-	http.HandleFunc("/", proxyRequest(*privateKeyPath, *clientId, *openIdResponse.Issuer))
+	http.HandleFunc("/", proxyRequest(*privateKeyPath, *clientId, openIdResponse.Issuer))
 
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", *port), nil); err != nil {
 		panic(err)
