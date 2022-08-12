@@ -44,13 +44,15 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1.5.0
         with:
           registries: 311462405659
-      - name: Pull Container
+      - name: Run Service
         if: ${{ inputs.run_against_docker }}
         env:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
           ECR_REPOSITORY: modernising-lpa/app
+          TAG: ${{ inputs.tag }}
         run: |
-          docker run -d -p 5050:5000 $ECR_REGISTRY/$ECR_REPOSITORY:"${{ inputs.tag }}"
+          docker compose -f docker-compose.ci.yml up -d
+          # docker run -d -p 5050:5000 $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
       - name: Cypress run
         uses: cypress-io/github-action@v4
         env:
@@ -58,7 +60,7 @@ jobs:
         # with:
         #   # Specify Browser since container image is compile with Firefox
         #   browser: firefox
-      - name: Stop the stack
+      - name: Stop Service
         if: ${{ always() }}
         run:
-          docker stop $(docker ps -a -q)
+          docker compose -f docker-compose.ci.yml down
