@@ -15,14 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Extract branch name
-        id: extract_branch
-        run: |
-          if [ "$GITHUB_EVENT_NAME" == "push" ]; then
-            echo BRANCH_NAME=main >> $GITHUB_ENV
-          else
-            echo BRANCH_NAME=${{ github.head_ref }} >> $GITHUB_ENV
-          fi
       - name: Build Image
         id: build_image
         run: |
