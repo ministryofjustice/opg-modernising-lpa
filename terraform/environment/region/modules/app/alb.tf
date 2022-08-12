@@ -111,17 +111,17 @@ resource "aws_security_group_rule" "app_loadbalancer_ingress" {
 }
 
 ## This must be commented out again before merging
-resource "aws_security_group_rule" "app_loadbalancer_production_ingress" {
-  # count             = data.aws_default_tags.current.tags.environment-name == "production" ? 1 : 0
-  description       = "Port 443 production public ingress to the application load balancer"
-  type              = "ingress"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"] #tfsec:ignore:aws-vpc-no-public-ingress-sgr - open ingress for production
-  security_group_id = aws_security_group.app_loadbalancer.id
-  provider          = aws.region
-}
+# resource "aws_security_group_rule" "app_loadbalancer_production_ingress" {
+#   # count             = data.aws_default_tags.current.tags.environment-name == "production" ? 1 : 0
+#   description       = "Port 443 production public ingress to the application load balancer"
+#   type              = "ingress"
+#   from_port         = 443
+#   to_port           = 443
+#   protocol          = "tcp"
+#   cidr_blocks       = ["0.0.0.0/0"] #tfsec:ignore:aws-vpc-no-public-ingress-sgr - open ingress for production
+#   security_group_id = aws_security_group.app_loadbalancer.id
+#   provider          = aws.region
+# }
 
 resource "aws_security_group_rule" "app_loadbalancer_egress" {
   description       = "Allow any egress from service load balancer"
