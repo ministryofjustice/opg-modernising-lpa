@@ -83,7 +83,9 @@ jobs:
     uses: ./.github/workflows/ui_test_job.yml
     # needs: [pr_deploy]
     with:
-      base_url: "https://${{ needs.pr_deploy.outputs.url }}"
+      run_against_docker: true
+      # base_url: https://24mlpab80.app.modernising.opg.service.justice.gov.uk
+      # base_url: "https://${{ needs.pr_deploy.outputs.url }}"
     secrets: inherit
 
   # end_of_pr_workflow:

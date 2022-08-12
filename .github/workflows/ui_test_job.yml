@@ -3,6 +3,11 @@ on:
     inputs:
       base_url:
         description: 'Environment URL to target for testing'
+        # required: true
+        type: string
+        default: http://localhost:5050
+      run_against_docker:
+        description: 'Environment URL to target for testing'
         required: true
         type: string
 
@@ -17,11 +22,15 @@ jobs:
       - uses: actions/checkout@v3
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
+      - name: Build the stack
+        run: docker-compose up -d --build
       - name: Cypress run
         uses: cypress-io/github-action@v4
         env:
-          CYPRESS_baseUrl: https://24mlpab80.app.modernising.opg.service.justice.gov.uk
-          # CYPRESS_baseUrl: "${{ inputs.base_url }}"
+          CYPRESS_baseUrl: "${{ inputs.base_url }}"
         # with:
         #   # Specify Browser since container image is compile with Firefox
         #   browser: firefox
+      - name: Stop the stack
+        if: ${{ always() }}
+        run: docker-compose down
