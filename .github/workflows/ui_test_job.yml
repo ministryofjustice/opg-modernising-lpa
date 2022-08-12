@@ -9,7 +9,7 @@ on:
       run_against_docker:
         description: 'Environment URL to target for testing'
         required: true
-        type: string
+        type: boolean
       tag:
         description: 'Tag for docker image'
         required: false
