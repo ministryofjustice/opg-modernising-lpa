@@ -15,6 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: cypress
-        run: |
-          echo "${{ inputs.base_url}}"
+      # Install NPM dependencies, cache them correctly
+      # and run all Cypress tests
+      - name: Cypress run
+        uses: cypress-io/github-action@v4
+        env:
+          CYPRESS_baseUrl: "${{ inputs.base_url }}"
+        # with:
+        #   # Specify Browser since container image is compile with Firefox
+        #   browser: firefox
