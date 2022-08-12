@@ -70,7 +70,7 @@ jobs:
     secrets: inherit
 
   ui_tests_image:
-    name: Run Cypress UI Tests On PR Environment
+    name: Run Cypress UI Tests On Images
     uses: ./.github/workflows/ui_test_job.yml
     needs: [docker_build_scan_push]
     with:
@@ -97,17 +97,17 @@ jobs:
       tag: ${{ needs.create_tags.outputs.version_tag }}
     secrets: inherit
 
-  # end_of_pr_workflow:
-  #   name: End of PR Workflow
-  #   if: github.ref != 'refs/heads/main'
-  #   runs-on: ubuntu-latest
-  #   environment:
-  #     name: "dev_${{ needs.create_tags.outputs.environment_workspace_name }}"
-  #     url: "https://${{ needs.pr_deploy.outputs.url }}/home"
-  #   needs: [pr_deploy, create_tags]
-  #   steps:
-  #     - name: End of PR Workflow
-  #       run: |
-  #         echo "${{ needs.pr_deploy.outputs.terraform_workspace_name }} PR environment tested, built and deployed"
-  #         echo "Tag Deployed: ${{ needs.pr_deploy.outputs.terraform_container_version }}"
-  #         echo "URL: https://${{ needs.pr_deploy.outputs.url }}/home"
+  end_of_pr_workflow:
+    name: End of PR Workflow
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: "dev_${{ needs.create_tags.outputs.environment_workspace_name }}"
+      url: "https://${{ needs.pr_deploy.outputs.url }}/home"
+    needs: [pr_deploy, create_tags]
+    steps:
+      - name: End of PR Workflow
+        run: |
+          echo "${{ needs.pr_deploy.outputs.terraform_workspace_name }} PR environment tested, built and deployed"
+          echo "Tag Deployed: ${{ needs.pr_deploy.outputs.terraform_container_version }}"
+          echo "URL: https://${{ needs.pr_deploy.outputs.url }}/home"
