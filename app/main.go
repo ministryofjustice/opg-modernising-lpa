@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"io"
 	"log"
@@ -84,7 +83,6 @@ func setToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	log.Println(req.Body)
 
 	res, err := http.DefaultClient.Do(req)
 
@@ -94,7 +92,6 @@ func setToken(w http.ResponseWriter, r *http.Request) {
 
 	defer res.Body.Close()
 
-	fmt.Println("response Status:", res.Status)
 	// Print the body to the stdout
 	_, err = io.Copy(os.Stdout, res.Body)
 

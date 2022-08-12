@@ -777,6 +777,9 @@ components:
         access_token:
           type: string
           description: The Access Token for the given token request
+        refresh_token:
+          type: string
+          description: 'The refresh token, if applicable'
         token_type:
           type: string
           description: The Token Type issued
@@ -785,13 +788,10 @@ components:
           type: string
           description: 'The expiry time, in seconds'
           example: '3600'
-        refresh_token:
-          type: string
-          description: 'The refresh token, if applicable'
         id_token:
           type: string
           description: "A JWT that includes sub, iss, nonce, aud, exp, and iat"
-          default:
+          example: 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIiLCJpc3MiOiIiLCJhdWQiOiIiLCJqdGkiOiIifQ.r1Ylfhhy6VNSlhlhW1N89F3WfIGuko2rvSRWO4yK1BI'
       title: TokenData
     SessionData:
       required:
