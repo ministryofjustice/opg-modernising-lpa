@@ -20,7 +20,8 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v4
         env:
-          CYPRESS_baseUrl: "${{ inputs.base_url }}"
+          CYPRESS_baseUrl: https://24mlpab80.app.modernising.opg.service.justice.gov.uk
+          # CYPRESS_baseUrl: "${{ inputs.base_url }}"
         # with:
         #   # Specify Browser since container image is compile with Firefox
         #   browser: firefox
