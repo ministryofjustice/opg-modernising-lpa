@@ -104,7 +104,7 @@ jobs:
     environment:
       name: "dev_${{ needs.create_tags.outputs.environment_workspace_name }}"
       url: "https://${{ needs.pr_deploy.outputs.url }}/home"
-    needs: [pr_deploy, create_tags]
+    needs: [pr_deploy, create_tags, ui_tests_pr_env]
     steps:
       - name: End of PR Workflow
         run: |
