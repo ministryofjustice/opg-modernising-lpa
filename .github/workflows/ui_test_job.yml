@@ -61,5 +61,4 @@ jobs:
       - name: Stop the stack
         if: ${{ always() }}
         run:
-          docker ps -a -q
-          # docker stop $(docker ps -a -q)
+          docker stop $(docker ps -a -q)
