@@ -3,13 +3,18 @@ on:
     inputs:
       base_url:
         description: 'Environment URL to target for testing'
-        # required: true
+        required: false
         type: string
         default: http://localhost:5050
       run_against_docker:
         description: 'Environment URL to target for testing'
         required: true
         type: string
+      tag:
+        description: 'Tag for docker image'
+        required: false
+        type: string
+        default: latest
 
 defaults:
   run:
@@ -24,6 +29,7 @@ jobs:
       # and run all Cypress tests
       - uses: unfor19/install-aws-cli-action@v1
       - name: Configure AWS Credentials
+        if: ${{ inputs.run_against_docker }}
         uses: aws-actions/configure-aws-credentials@v1.6.1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -33,16 +39,18 @@ jobs:
           role-duration-seconds: 900
           role-session-name: OPGModernisingLPATerraformGithubAction
       - name: ECR Login
+        if: ${{ inputs.run_against_docker }}
         id: login_ecr
         uses: aws-actions/amazon-ecr-login@v1.5.0
         with:
           registries: 311462405659
       - name: Pull Container
+        if: ${{ inputs.run_against_docker }}
         env:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
           ECR_REPOSITORY: modernising-lpa/app
         run: |
-          docker run -d -p 5050:5000 $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker run -d -p 5050:5000 $ECR_REGISTRY/$ECR_REPOSITORY:"${{ inputs.tag }}"
       - name: Cypress run
         uses: cypress-io/github-action@v4
         env:
@@ -54,4 +62,4 @@ jobs:
         if: ${{ always() }}
         run:
           docker ps -a -q
-          docker stop $(docker ps -a -q)
+          # docker stop $(docker ps -a -q)
