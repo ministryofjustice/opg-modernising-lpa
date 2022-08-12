@@ -90,7 +90,7 @@ jobs:
   ui_tests_pr_env:
     name: Run Cypress UI Tests On PR Environment
     uses: ./.github/workflows/ui_test_job.yml
-    needs: [pr_deploy]
+    needs: [pr_deploy, create_tags]
     with:
       run_against_image: false
       base_url: "https://${{ needs.pr_deploy.outputs.url }}"
