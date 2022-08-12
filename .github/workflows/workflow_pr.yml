@@ -70,7 +70,7 @@ jobs:
     secrets: inherit
 
   ui_tests_image:
-    name: Run Cypress UI Tests On PR Environment
+    name: Run Cypress UI Tests On Images
     uses: ./.github/workflows/ui_test_job.yml
     needs: [docker_build_scan_push]
     with:
