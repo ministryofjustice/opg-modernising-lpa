@@ -108,6 +108,8 @@ func proxyRequest(privKeyPath, clientId, issuer string) http.HandlerFunc {
 			log.Fatal(err)
 		}
 
+		log.Println(payloadBuf.String())
+
 		_, err = w.Write(payloadBuf.Bytes())
 
 		if err != nil {
@@ -119,7 +121,7 @@ func proxyRequest(privKeyPath, clientId, issuer string) http.HandlerFunc {
 func main() {
 	var (
 		port           = flag.String("port", env.Get("PROXY_PORT", "5060"), "The port to run the proxy on")
-		privateKeyPath = flag.String("privkey", env.Get("PROXY_PRIVATE_KEY", "key.pem"), "The path to an RSA256 private key file")
+		privateKeyPath = flag.String("privkey", env.Get("PROXY_PRIVATE_KEY", "/app/private_key.pem"), "The path to an RSA256 private key file")
 		clientId       = flag.String("clientid", env.Get("CLIENT_ID", "theClientId"), "The client ID set up when registering with Gov UK Sign in")
 	)
 
@@ -141,7 +143,7 @@ func main() {
 	}
 
 	// start server
-	http.HandleFunc("/", proxyRequest(*privateKeyPath, *clientId, openIdResponse.Issuer))
+	http.HandleFunc("/token", proxyRequest(*privateKeyPath, *clientId, openIdResponse.Issuer))
 
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", *port), nil); err != nil {
 		panic(err)

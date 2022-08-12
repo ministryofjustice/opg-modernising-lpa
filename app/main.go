@@ -77,7 +77,7 @@ func setToken(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	req, err := http.NewRequest("POST", "http://oidc-mock:4010/token", payloadBuf)
+	req, err := http.NewRequest("POST", "http://oidc-proxy:5000/token", payloadBuf)
 	if err != nil {
 		log.Fatal("Error building req: ", err)
 	}
