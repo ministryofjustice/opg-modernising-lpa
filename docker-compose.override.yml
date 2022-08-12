@@ -3,13 +3,22 @@ version: '3.8'
 services:
   app:
     build:
-      context: .
-      dockerfile: Dockerfile.dev
-    container_name: app
-    ports:
-      - "5050:5000"
+      target: development
+    working_dir: /go/bin
     depends_on:
-      - oidc-server-mock
+      - oidc-mock
     volumes:
-      - ./app:/app
-    command: air
+      - ./app:/go/bin/app
+      - ./web/template:/go/bin/web/template
+
+  oidc-mock:
+    container_name: oidc-mock
+    image: stoplight/prism:4
+    build: # Does not have M1 native / arm64 images as yet but builds fine.
+      context: https://github.com/stoplightio/prism.git#v4.10.1
+      dockerfile: Dockerfile
+    command: 'mock -h 0.0.0.0 /tmp/OIDCSpec.yml'
+    volumes:
+      - ./mocks/OIDCSpec.yml:/tmp/OIDCSpec.yml:ro
+    ports:
+      - 7011:4010
