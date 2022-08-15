@@ -146,7 +146,7 @@ paths:
                 type: string
                 default: no-store
 
-  /openid/connect/v1/userinfo:
+  /userinfo:
     get:
       tags:
         - Resource Server APIs
@@ -179,24 +179,21 @@ paths:
                   sub:
                     type: string
                     example: '248289761001'
-                  name:
-                    type: string
-                    example: Jane Doe
-                  given_name:
-                    type: string
-                    example: Jane
-                  family_name:
-                    type: string
-                    example: Doe
-                  preferred_username:
-                    type: string
-                    example: j.doe
                   email:
                     type: string
                     example: janedoe@example.com
-                  picture:
+                  email_verified:
+                    type: boolean
+                    example: true
+                  phone:
                     type: string
-                    example: 'http://example.com/janedoe/me.jpg'
+                    example: 012112345678
+                  phone_verified:
+                    type: boolean
+                    example: true
+                  updated_at:
+                    type: string
+                    example: 1660573766
         '400':
           description: A CORS request failed.
           headers:
@@ -205,11 +202,6 @@ paths:
               schema:
                 type: string
                 default: '134'
-            Pragma:
-              description: Pragma browser directive
-              schema:
-                type: string
-                default: no-cache
             Cache-Control:
               description: Cache-Control browser directive
               schema:
@@ -443,6 +435,7 @@ paths:
               schema:
                 type: string
                 default: no-store
+
   /.well-known/openid-configuration:
     options:
       tags:
@@ -566,6 +559,7 @@ paths:
                 default: no-store
       summary: OpenID Connect Discovery endpoint
       description: "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata. It provides a mechanism for an OpenID Connect Relying Party to discover the End-User's OpenID Provider and obtain information needed to interact with it, including its OAuth 2.0 endpoint locations."
+
   /openid/connect/jwks.json:
     options:
       tags:

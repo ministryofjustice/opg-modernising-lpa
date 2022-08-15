@@ -2,16 +2,20 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"io"
 	"log"
 	"net/http"
-	"os"
 	"path"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws/credentials"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/golang-jwt/jwt"
 
 	"github.com/ministryofjustice/opg-go-common/env"
@@ -40,6 +44,15 @@ type TokenResponseBody struct {
 	TokenType    string `json:"token_type"`
 	ExpiresIn    int    `json:"expires_in"`
 	IdToken      string `json:"id_token"`
+}
+
+type UserInfoResponse struct {
+	Sub           string `json:"sub"`
+	Email         string `json:"email"`
+	EmailVerified bool   `json:"email_verified"`
+	Phone         string `json:"phone"`
+	PhoneVerified bool   `json:"phone_verified"`
+	UpdatedAt     int    `json:"updated_at"`
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
@@ -105,38 +118,73 @@ func setToken(w http.ResponseWriter, r *http.Request) {
 
 	defer res.Body.Close()
 
-	// Print the body to the stdout
-	_, err = io.Copy(os.Stdout, res.Body)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	var tokenResponse TokenResponseBody
 
-	err = json.NewDecoder(r.Body).Decode(&tokenResponse)
+	err = json.NewDecoder(res.Body).Decode(&tokenResponse)
 	if err != nil {
+		log.Println(res.Body)
 		log.Fatalf("Issues parsing token response body: %v", err)
 	}
 
-	//awslocal secretsmanager create-secret --name "default/private-jwt-key-base64" --secret-string "$(base64 private.pem)"
-	//awslocal secretsmanager create-secret --name "default/public-jwt-key-base64" --secret-string "$(base64 public.pem)"
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String("eu-west-1"),
+		Credentials: credentials.NewStaticCredentials("test", "test", ""),
+		Endpoint:    aws.String("http://localstack:4566"),
+	})
+
+	if err != nil {
+		log.Fatalf("Problem initialising new AWS session: %v", err)
+	}
+
+	svc := secretsmanager.New(
+		sess,
+		aws.NewConfig().WithRegion("eu-west-1"),
+	)
+
+	input := &secretsmanager.GetSecretValueInput{
+		SecretId: aws.String("private-jwt-key-base64"),
+	}
+
+	result, err := svc.GetSecretValue(input)
+	if err != nil {
+		log.Fatalf("Problem get secret '%s': %v", "private-jwt-key-base64", err)
+	}
+
+	var base64PrivateKey string
+	if result.SecretString != nil {
+		base64PrivateKey = *result.SecretString
+	}
+
+	privateKey, err := base64.StdEncoding.DecodeString(base64PrivateKey)
+	if err != nil {
+		log.Fatal("error decoding base64 string: ", err)
+	}
 
 	token, err := jwt.Parse(tokenResponse.IdToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
-		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
-		return hmacSampleSecret, nil
+		return privateKey, nil
 	})
 
 	http.SetCookie(w, &http.Cookie{
-		Name:  "token",
+		Name:  "sign-in-token",
 		Value: token.Raw,
 		// TODO - use exp from JWT once we are verifying claims and have access to it
 		Expires: time.Now().Add(time.Second * time.Duration(tokenResponse.ExpiresIn)),
 	})
+
+	log.Println(token.Raw)
+
+	req, err := http.NewRequest("GET", "http://oidc-proxy:5000/token", payloadBuf)
+	if err != nil {
+		log.Fatal("Error building req: ", err)
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	res, err := http.DefaultClient.Do(req)
 }
 
 func main() {

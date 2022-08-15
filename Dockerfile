@@ -25,7 +25,7 @@ RUN go mod download
 
 COPY /app .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -gcflags='all=-N -l' -a -installsuffix cgo -o /go/bin/mlpab
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/mlpab
 
 FROM build-env as development
 
@@ -35,7 +35,10 @@ COPY --from=asset-env /app/web/static web/static
 COPY web/template web/template
 COPY --from=build-env /go/bin/dlv /
 
-CMD ["/dlv", "--listen=:40000", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "/go/bin/mlpab"]
+# Live reload for Go
+RUN go install github.com/cosmtrek/air@latest
+
+CMD air
 
 FROM alpine:3.16.1 as production
 
