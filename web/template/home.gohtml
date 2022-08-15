@@ -1,6 +1,12 @@
 {{ template "base" . }}
 
 {{ define "main" }}
+    {{if .SignInURL}}
+        <p class="govuk-body"><a href="{{ .SignInURL }}" class="govuk-link">Sign in</a></p>
+    {{else}}
+        <h1 class="govuk-heading-l">Welcome {{ .UserEmail }}</h1>
+    {{end}}
+
     <p class="govuk-body govuk-!-font-weight-bold">
         GDS components <span style='font-size:30px;'>&#9989;</span>
     </p>
@@ -25,5 +31,4 @@
 
         <input class="govuk-input govuk-input--width-20" id="password" name="password" type="password" value="1234ABC!" data-module="moj-password-reveal">
     </div>
-
 {{ end }}

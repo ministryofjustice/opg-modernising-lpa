@@ -8,7 +8,7 @@
         "build:images": "mkdir -p web/static/assets/images && cp node_modules/govuk-frontend/govuk/assets/images/* node_modules/@ministryofjustice/frontend/moj/assets/images/* web/static/assets/images",
         "build:fonts": "mkdir -p web/static/assets/fonts && cp node_modules/govuk-frontend/govuk/assets/fonts/* web/static/assets/fonts",
         "cypress:open": "node_modules/.bin/cypress open",
-        "cypress:run": "node_modules/.bin/cypress run",
+        "cypress:run": "node_modules/.bin/cypress run -vvv",
         "cypress:run:debug": "node_modules/.bin/cypress run --headed",
         "test": "echo \"Error: no test specified\" && exit 1",
         "codecept": "node_modules/.bin/codeceptjs run --steps",

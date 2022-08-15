@@ -1,0 +1,1154 @@
+openapi: 3.0.2
+info:
+  title: OTK Server APIs
+  version: 4.3.1
+  description: "All API's available in OAuth Toolkit server"
+paths:
+  /authorize:
+    get:
+      tags:
+        - Authorization Server APIs
+      description: 'Initializes an OAuth 2.0 flow using a response_type. See RFC 6749 (https://tools.ietf.org/html/rfc6749) for more details.'
+      operationId: Get_request_authorization
+      parameters:
+        -
+          name: client_id
+          in: query
+          required: true
+          x-is-map: false
+          description: "This is the 'client_id' of the requesting client. Maximum 255 characters."
+          schema:
+            type: string
+        -
+          name: redirect_uri
+          in: query
+          required: true
+          x-is-map: false
+          description: "The 'redirect_uri' that was registered for this client. It is required if multiple redirect_uri's have been registered for this client. If the scope contains openid, this field becomes MANDATORY."
+          schema:
+            type: string
+        -
+          name: scope
+          in: query
+          required: true
+          x-is-map: false
+          description: 'Only SCOPE values that were registered for this client will be granted. If only non-matching SCOPE values are requested, the request will fail.'
+          schema:
+            type: string
+        -
+          name: nonce
+          in: query
+          required: true
+          x-is-map: false
+          description: "This is required for response_type 'token id_token'.  Typically, in an OpenID authorization scheme, the nonce represents a cryptographically strong random  string that is used to prevent intercepted responses from being reused."
+          schema:
+            type: string
+        -
+          name: state
+          in: query
+          required: true
+          x-is-map: false
+          description: 'Value opaque to the server, used by the client to track its session. It will be returned as received.'
+          schema:
+            type: string
+      responses:
+        '302':
+          $ref: '#/components/responses/auth302'
+
+        '400':
+          description: 'Invalid parameters | Invalid redirect_uri | invalid client type | invalid response type | invalid code_challenge/method'
+          headers:
+            x-ca-err:
+              description: 'Custom error extension. Possible values: 3000103 (missing or invalid parameters), 3000112 (code_challenge or code_challenge_method invalid), 3000114 (invalid redirect uri), 3000116 (invalid response type), 3000130 (invalid client type)'
+              schema:
+                type: string
+                default: '3000130'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+        '401':
+          description: The client could not be authenticated.
+          headers:
+            x-ca-err:
+              description: 'Custom error extension. Possible values: 3000201 (client could not be authenticated), 3000306 (The given JWT for client authentication is invalid), 3000307 (Request is a replay attack), 3000308(Replay attack protection could not be applied)'
+              schema:
+                type: string
+                default: '3000201'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+        '403':
+          description: Forbidden.
+          headers:
+            x-ca-err:
+              description: 'Custom error extension. Possible values: 3000203 (SSL required)'
+              schema:
+                type: string
+                default: '3000203'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+        '405':
+          description: The HTTP method is not valid
+          headers:
+            Allow:
+              description: This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.
+              schema:
+                type: string
+                default: 'GET,POST'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+        '500':
+          description: unknown error
+          headers:
+            x-ca-err:
+              description: Custom error extension
+              schema:
+                type: string
+                default: '3000000'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+
+  /userinfo:
+    get:
+      tags:
+        - Resource Server APIs
+      description: >-
+        This API reflects an implementation according to OpenID Connect.
+        This endpoint returns a message with user details. The content
+        depends on the SCOPE associated with the given access_token.
+
+        IMPORTANT: The API will fail if no active id_token is available
+        for the associated user.
+
+        For more information refer to this website:
+        http://openid.net/specs/openid-connect-core-1_0.html#UserInfo
+      operationId: Get_userinfo
+      parameters:
+        -
+          name: authorization
+          in: header
+          required: true
+          description: "A valid access_token (e.g.: authorization: Bearer access-token-value). The access_token must have the 'openid' scope. Other valid scope values are 'email', 'address', 'phone', and 'profile'. In addition to those scope values, 'user_role' is supported. The 'user_role' scope is an extension for OTK/MAG and returns the role of the user."
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A JSON message containing details about the user. The content depends on the scope associated with the access_token.
+          content:
+            application/json:
+              schema:
+                properties:
+                  sub:
+                    type: string
+                    example: '248289761001'
+                  email:
+                    type: string
+                    example: 'gideon.felix@example.org'
+                  email_verified:
+                    type: boolean
+                    example: true
+                  phone:
+                    type: string
+                    example: '012112345678'
+                  phone_verified:
+                    type: boolean
+                    example: true
+                  updated_at:
+                    type: integer
+                    example: 1660573766
+        '400':
+          description: A CORS request failed.
+          headers:
+            x-ca-err:
+              description: 'Custom error header. Possible value: 134'
+              schema:
+                type: string
+                default: '134'
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    type: string
+                    example: invalid_request
+                  error_description:
+                    type: string
+                    example: The request did not match CORS requirements
+        '401':
+          description: 'The given token is not valid. The error code may be 990, 991, 992, 993.'
+          headers:
+            x-ca-err:
+              description: 'Custom error header. Possible value: 990'
+              schema:
+                type: string
+                default: '990'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    type: string
+                    example: invalid_request
+                  error_description:
+                    type: string
+                    example: Validation error
+        '403':
+          description: Forbidden.
+          headers:
+            x-ca-err:
+              description: 'Custom error header. Possible value: 203'
+              schema:
+                type: string
+                default: '203'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    type: string
+                    example: invalid_request
+                  error_description:
+                    type: string
+                    example: SSL is required
+        '405':
+          description: 'HTTP method is not valid. The Allow header is required by [RFC 2616](https://tools.ietf.org/html/rfc2616).'
+          headers:
+            Allow:
+              description: Comma-separated list of allowed HTTP methods.
+              schema:
+                type: string
+                default: 'POST,GET'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+        '500':
+          description: 'Unknown error. This also occurs if the user does not have an active session, id_token, on the server.'
+          headers:
+            x-ca-err:
+              description: 'Custom error header. Possible value: 000'
+              schema:
+                type: string
+                default: '000'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+
+  /token:
+    post:
+      tags:
+        - Token Server APIs
+      description: 'Request access_token or refresh_token using OAuth 2.0 grant_type: password authorization_code refresh_token client_credentials urn:ietf:params:oauth:grant-type:jwt-bearer urn:ietf:params:oauth:grant-type:saml2-bearer. See RFC 6749 for more details.'
+      operationId: Create_request_token
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRequestParametersObject'
+      parameters:
+        -
+          name: authorization
+          in: header
+          required: false
+          description: "The HTTP basic authorization header containing the client credentials as base64 encoded string (authorization: Basic base64(client_id:client_secret)). This can only be used INSTEAD of the parameters 'client_id', 'client_secret'."
+          schema:
+            type: string
+
+      responses:
+        '200':
+          $ref: '#/components/responses/authToken200'
+        '204':
+          description: 'No Content, applicable to OPTIONS request with preflight configuration'
+          headers:
+            Access-Control-Allow-Methods:
+              description: 'Allowable Methods, POST'
+              schema:
+                type: string
+                default: POST
+        '400':
+          description: 'Bad Request, see x-ca-err for possible error codes'
+          headers:
+            x-ca-err:
+              description: 'Custom error extension, possible values: 3003103 (missing or duplicate parameters), 3003107 (invalid mag-identifier), 3003113 (invalid grant), 3003115 (no registered scope value for client), 3003119 (grant type not supported), 3003134 (request did not match CORS requirements), 3003135 (token limit reached), 3003201 (client credentials not valid),'
+              schema:
+                type: string
+                default: '3003107'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+        '401':
+          description: The client could not be authenticated.
+          headers:
+            x-ca-err:
+              description: 'Custom error extension, possible values: 3003201 (Invalid or Missing credentials), 3003202 (Resource owner could not be authenticated)'
+              schema:
+                type: string
+                default: '3003202'
+            WWW-Authenticate:
+              description: This header is required by RFC 7235 if an authentication scheme has been used. It contains the used authentication scheme and an error message.
+              schema:
+                type: string
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+        '403':
+          description: Forbidden.
+          headers:
+            x-ca-err:
+              description: 'Custom error extension, possible values:  3003203 (SSL is required)'
+              schema:
+                type: string
+                default: '3003203'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+        '405':
+          description: The HTTP method is not valid
+          headers:
+            Allow:
+              description: This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.
+              schema:
+                type: string
+                default: POST
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+        '500':
+          description: Unknown error.
+          headers:
+            x-ca-err:
+              description: 'Custom error extension, possible values:  3003000 (Request failed due to unknown reason)'
+              schema:
+                type: string
+                default: '3003000'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+
+  /.well-known/openid-configuration:
+    options:
+      tags:
+        - Authorization Server APIs
+      operationId: Options_getOpenIDDiscovery
+      description: CORS preflight request
+      parameters:
+        -
+          name: Access-Control-Request-Headers
+          in: header
+          required: true
+          description: The Access-Control-Request-Headers request header is used when issuing a preflight request to let the server know which HTTP headers will be used when the actual request is made.
+          schema:
+            type: string
+        -
+          name: Access-Control-Request-Method
+          in: header
+          required: true
+          description: The Access-Control-Request-Method request header is used when issuing a preflight request to let the server know which HTTP method will be used when the actual request is made.
+          schema:
+            type: string
+        -
+          name: Origin
+          in: header
+          required: true
+          description: The Origin request header indicates where a fetch originates from.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 'No Content, applicable to OPTIONS request with preflight configuration'
+          headers:
+            Access-Control-Allow-Methods:
+              description: 'Allowable Methods, GET'
+              schema:
+                type: string
+                default: GET
+        '400':
+          description: Bad request
+          headers:
+            x-ca-err:
+              description: 'Custom error extension, possible values:  3008134 (request did not match CORS requirements)'
+              schema:
+                type: string
+                default: '3008134'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+      summary: OpenID Connect Discovery endpoint
+    get:
+      tags:
+        - Authorization Server APIs
+      operationId: Get_OpenIDDiscovery
+      responses:
+        '200':
+          description: OpenID Discovery Configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OpenIDDiscovery'
+        '403':
+          description: Forbidden.
+          headers:
+            x-ca-err:
+              description: 'Custom error extension. Possible values: 3008203 (SSL required)'
+              schema:
+                type: string
+                default: '3008203'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+        '405':
+          description: The HTTP method is not valid
+          headers:
+            Allow:
+              description: This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.
+              schema:
+                type: string
+                default: GET
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+        '500':
+          description: unknown error
+          headers:
+            x-ca-err:
+              description: Custom error extension
+              schema:
+                type: string
+                default: '3008000'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+      summary: OpenID Connect Discovery endpoint
+      description: "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata. It provides a mechanism for an OpenID Connect Relying Party to discover the End-User's OpenID Provider and obtain information needed to interact with it, including its OAuth 2.0 endpoint locations."
+
+  /openid/connect/jwks.json:
+    options:
+      tags:
+        - Authorization Server APIs
+      operationId: Options_jwk_set_
+      description: CORS preflight request
+      parameters:
+        -
+          name: Access-Control-Request-Headers
+          in: header
+          required: true
+          description: The Access-Control-Request-Headers request header is used when issuing a preflight request to let the server know which HTTP headers will be used when the actual request is made.
+          schema:
+            type: string
+        -
+          name: Access-Control-Request-Method
+          in: header
+          required: true
+          description: The Access-Control-Request-Method request header is used when issuing a preflight request to let the server know which HTTP method will be used when the actual request is made.
+          schema:
+            type: string
+        -
+          name: Origin
+          in: header
+          required: true
+          description: The Origin request header indicates where a fetch originates from.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 'No Content, applicable to OPTIONS request with preflight configuration'
+          headers:
+            Access-Control-Allow-Methods:
+              description: 'Allowable Methods, GET'
+              schema:
+                type: string
+                default: GET
+        '400':
+          description: Bad request
+          headers:
+            x-ca-err:
+              description: 'Custom error extension, possible values:  3010134 (request did not match CORS requirements)'
+              schema:
+                type: string
+                default: '3010134'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+      summary: OpenID Connect jwks endpoint
+    get:
+      tags:
+        - Authorization Server APIs
+      operationId: Get_jwk_set_
+      description: 'This endpoint implements the JWKS_URI as specified at http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata'
+      responses:
+        '200':
+          description: JWK set containing public keys that enable clients to validate a JSON Web Token (JWT) issued by this OpenID Connect Provider
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  keys:
+                    type: array
+                    items:
+                      type: string
+                    example:
+                      -
+                        kty: RSA
+                        kid: default_ssl_key
+                        use: sig
+                        'n': 58BezRBeYOM3rOo1vcllcLc8QAwz6AmQj4EvGUqATMUz4bfYJ9Lf2wb9xCQhSLSkndfFAF5V754G0mRelBGK7yIja-M-EBXoJeT3nvwA46g7MkZGf11uP2dz2k4CkLdFHnlGzvuLQVBQpqbz-O_hFfEDxBk9zV4shR8O_iGv4fDi0dNHZfXzxkr_iH8Oj2qQeZFvv61I4RffeNmx04lYea2KFsF_8rWDlENWAr8RbqpY_y5lbxgC_xyBunTkoIEommqz55ZFIcklYerJUVSeIA90KMyM60wZh0JF_T5kuXEs-3AWh8Bkx-sVE2hu5S5x4_lADsPojLwWTT7or_sw9Q
+                        e: AQAB
+                    description: JWK set in JSON array format
+        '403':
+          description: Forbidden.
+          headers:
+            x-ca-err:
+              description: 'Custom error extension. Possible values: 3010203 (SSL required)'
+              schema:
+                type: string
+                default: '3010203'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+        '405':
+          description: The HTTP method is not valid
+          headers:
+            Allow:
+              description: This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.
+              schema:
+                type: string
+                default: GET
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+        '500':
+          description: unknown error
+          headers:
+            x-ca-err:
+              description: Custom error extension
+              schema:
+                type: string
+                default: '3010000'
+            Pragma:
+              description: Pragma browser directive
+              schema:
+                type: string
+                default: no-cache
+            Cache-Control:
+              description: Cache-Control browser directive
+              schema:
+                type: string
+                default: no-store
+      summary: OpenID Connect jwks endpoint
+
+servers:
+  -
+    url: 'https://${request.url.host}:${request.url.port}/'
+    variables:
+      request.url.host:
+        default: unknown
+      request.url.port:
+        default: unknown
+components:
+  responses:
+    export200:
+      description: A JSON message including details about a client in order to configure it. The client_secret may or may not be included depending on the OAuth server configuration.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ExportData'
+    auth302:
+      description: "Will contain either: A success response including the redirect location header to the server that handles the authentication.  The redirect parameter 'sessionData's structure looks like the model schema shown OR 'invalid mag-identifier' OR 'invalid scope' OR 'unsupported response type' OR 'unauthorized client'. The non-successful conditions may include redirect query params as follows: 'error', string with default value:  invalid_request 'error_description', string with description of error 'state', string with no default value.  It is opaque to the server and returned as received. 'x-ca-err', string with default 3000108"
+      headers:
+        location:
+          description: "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)"
+          schema:
+            type: string
+            default: 'http://localhost:5050/set_token?code=code-value&state=state-value'
+        Pragma:
+          description: Pragma directive
+          schema:
+            type: string
+            default: no-cache
+        Cache-Control:
+          description: Cache control directive
+          schema:
+            type: string
+            default: no-store
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SessionData'
+    authToken200:
+      description: 'A success response that includes the issued token, expire and other details from the OAuth Server'
+      headers:
+        Pragma:
+          description: Pragma browser directive
+          schema:
+            type: string
+            default: no-cache
+        Cache-Control:
+          description: Cache-Control browser directive
+          schema:
+            type: string
+            default: no-store
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TokenData'
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: '${host_oauth2_auth_server}${oauth2_auth_path}'
+          scopes:
+            openid: For access to OpenId endpoints
+            email: Example data access
+            profile: Example data access
+            phone: Example data access
+            address: Example data access
+  schemas:
+    TokenData:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: The Access Token for the given token request
+        refresh_token:
+          type: string
+          description: 'The refresh token, if applicable'
+        token_type:
+          type: string
+          description: The Token Type issued
+          example: Bearer
+        expires_in:
+          type: string
+          description: 'The expiry time, in seconds'
+          example: '3600'
+        id_token:
+          type: string
+          description: "A JWT that includes sub, iss, nonce, aud, exp, and iat"
+          example: 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIiLCJpc3MiOiIiLCJhdWQiOiIiLCJqdGkiOiIifQ.r1Ylfhhy6VNSlhlhW1N89F3WfIGuko2rvSRWO4yK1BI'
+      title: TokenData
+    SessionData:
+      required:
+        - session
+        - request_consent
+        - request_parameters
+      type: object
+      properties:
+        session:
+          $ref: '#/components/schemas/SessionObject'
+        request_consent:
+          $ref: '#/components/schemas/RequestConsentObject'
+        request_parameters:
+          $ref: '#/components/schemas/RequestParametersObject'
+      title: ServiceProviderConfigurationData
+    ExportData:
+      type: object
+      properties:
+        server:
+          $ref: '#/components/schemas/ServerObject'
+        oauth:
+          $ref: '#/components/schemas/OAuthObject'
+        custom:
+          $ref: '#/components/schemas/CustomObject'
+      title: ExportData
+    CustomObject:
+      type: object
+      properties:
+        mag_demo_products_endpoint_path:
+          type: string
+          description: MAG API demo endpoint
+          example: /protected/resource/products
+        oauth_demo_protected_api_endpoint_path:
+          type: string
+          description: OAuth API demo endpoint
+          example: /oauth/v2/protectedapi/foo
+      title: CustomObject
+    ServerObject:
+      type: object
+      properties:
+        hostname:
+          type: string
+          description: The hostname of the server
+        port:
+          type: string
+          description: The port of the server
+        prefix:
+          type: string
+          description: URL prefix
+          example: /urlprefix
+        server_certs:
+          type: string
+          description: The server certificate(s)
+      title: ServerObject
+    OAuthObject:
+      type: object
+      properties:
+        client:
+          $ref: '#/components/schemas/ClientObject'
+        system_endpoints:
+          $ref: '#/components/schemas/SystemEndpointsObject'
+        oauth_protected_endpoints:
+          $ref: '#/components/schemas/OAuthProtectedEndpointsObject'
+      title: OAuthObject
+    SystemEndpointsObject:
+      type: object
+      properties:
+        authorization_endpoint_path:
+          type: string
+          description: Authorization endpoint
+          example: /auth/oauth/v2/authorize
+        token_endpoint_path:
+          type: string
+          description: Token endpoint
+          example: /auth/oauth/v2/token
+        token_revocation_endpoint_path:
+          type: string
+          description: Token revocation endpoint
+          example: /auth/oauth/v2/token/revoke
+        usersession_logout_endpoint_path:
+          type: string
+          description: User logout endpoint
+          example: /connect/session/logout
+      title: SystemEndpointsObject
+    OAuthProtectedEndpointsObject:
+      type: object
+      properties:
+        userinfo_endpoint_path:
+          type: string
+          description: UserInfo endpoint
+          example: /openid/connect/v1/userinfo
+        usersession_status_endpoint_path:
+          type: string
+          description: User Session status endpoint
+          example: /connect/session/status
+      title: OAuthProtectedEndpointsObject
+    ClientObject:
+      type: object
+      properties:
+        organization:
+          type: string
+          description: 'A session ID, matching the sessionID'
+        description:
+          type: string
+          description: expiry
+        client_name:
+          type: string
+          description: current_username
+        client_type:
+          type: string
+          description: current_user_consent
+        registered_by:
+          type: string
+          description: current_user_role
+        client_ids:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientIdObject'
+      title: ClientObject
+    ClientIdObject:
+      type: object
+      properties:
+        client_id:
+          type: string
+          description: A client id
+          example: 84695 ... b39770c3d
+        client_secret:
+          type: string
+          description: A client secret
+          example: abcde ... ldjjakkC
+        scope:
+          type: string
+          description: The scopes available for the client
+          example: openid email profile
+        redirect_uri:
+          type: string
+          description: The registered redirect_uri for the client
+          example: 'https://example.com/client/consent?state=23n23n...13k1j4'
+        environment:
+          type: string
+          description: ''
+          example: ALL
+        status:
+          type: string
+          description: ''
+          example: ENABLED
+        registered_by:
+          type: string
+          description: The id of the entity that registered the client
+      title: ClientIdObject
+    SessionObject:
+      type: object
+      properties:
+        sessionID:
+          type: string
+          description: 'A session ID, matching the sessionID'
+        exp:
+          type: string
+          description: expiry
+        current_username:
+          type: string
+          description: current_username
+        current_user_consent:
+          type: string
+          description: current_user_consent
+        current_user_role:
+          type: string
+          description: current_user_role
+        current_user_acr:
+          type: string
+          description: current_user_acr
+        current_user_authTime:
+          type: string
+          description: current_user_authTime
+        salt:
+          type: string
+          description: salt
+        third_party_sso_token:
+          type: string
+          description: third_party_sso_token
+        third_party_sso_token_type:
+          type: string
+          description: third_party_sso_token_type
+      title: SessionObject
+    RequestConsentObject:
+      type: object
+      properties:
+        client_name:
+          type: string
+          description: Client Name
+        scope_verified:
+          type: string
+          description: Valid scope for this client
+      title: RequestConsentObject
+    RequestParametersObject:
+      type: object
+      properties:
+        display:
+          type: string
+          description: Display Value
+        prompt:
+          type: string
+          description: Prompt Value
+        id_token_hint:
+          type: string
+          description: Id Token For Authenticated User
+        acr_values:
+          type: string
+          description: A List of ACR Values
+        client_id:
+          type: string
+          description: A Client ID
+        nonce:
+          type: string
+          description: A nonce
+        scope:
+          type: string
+          description: Requested Scope
+      title: RequestParametersObject
+    TokenRequestParametersObject:
+      type: object
+      properties:
+        client_assertion:
+          type: string
+          description: The JWT generated by our app
+        client_assertion_type:
+          type: string
+          description: The type of assertion provided
+        redirect_uri:
+          type: string
+          description: Where to redirect to after request
+        code:
+          type: string
+          description: Unique code returned by OIDC server/Gov UK Sign In
+        grant_type:
+          type: string
+          description: The type of grant in JWT
+      title: TokenRequestParametersObject
+    OpenIDDiscovery:
+      required:
+        - authorization_endpoint
+        - id_token_signing_alg_values_supported
+        - issuer
+        - jwks_uri
+        - response_types_supported
+        - subject_types_supported
+        - token_endpoint
+      type: object
+      properties:
+        userinfo_endpoint:
+          type: string
+          example: 'https://example.com:8443/openid/connect/v1/userinfo'
+          description: URL of the user info endpoint
+        jwks_uri:
+          type: string
+          example: 'https://example.com/openid/connect/jwks.json'
+          description: URL of JSON Web Key Set document
+        scopes_supported:
+          items:
+            type: string
+          type: array
+          example:
+            - openid
+          description: list of the OAuth 2.0 scope values that this server supports
+        subject_types_supported:
+          items:
+            type: string
+          type: array
+          example:
+            - pairwise
+          description: list of the Subject Identifier types that this OP supports
+        token_endpoint:
+          type: string
+          example: 'https://example.com:8443/auth/oauth/v2/token'
+          description: URL of the OAuth 2.0 token endpoint
+        id_token_signing_alg_values_supported:
+          items:
+            type: string
+          type: array
+          example:
+            - RS256
+            - HS256
+          description: list of the JWS signing algorithms (alg values) supported by the OP for the ID Token to encode the Claims in a JWT
+        response_types_supported:
+          items:
+            type: string
+          type: array
+          example:
+            - code
+            - token_id_token
+          description: ist of the OAuth 2.0 response_type values that this OP supports
+        claims_supported:
+          items:
+            type: string
+          type: array
+          example:
+            - sub
+            - iss
+            - auth_time
+            - acr
+          description: list of the Claim Names of the Claims that the OpenID Provider MAY be able to supply values for
+        authorization_endpoint:
+          type: string
+          example: 'https://example.com:8443/auth/oauth/v2/authorize'
+          description: URL of the OAuth 2.0 authorization endpoint
+        issuer:
+          type: string
+          example: 'https://example.com'
+          description: "the identifier of the token's issuer. This is identical to the 'iss' Claim value in ID Tokens"
+        grant_types_supported:
+          items:
+            type: string
+          type: array
+          example:
+            - authorization_code
+            - implicit
+          description: list of the OAuth 2.0 Grant Type values that this OP supports
+        acr_values_supported:
+          items:
+            type: string
+          type: array
+          example:
+            - 'urn:mace:incommon:iap:silver'
+          description: list of the Authentication Context Class References that this OP supports
+        token_endpoint_auth_methods_supported:
+          items:
+            type: string
+          type: array
+          example:
+            - client_secret_basic
+          description: list of Client Authentication methods supported by this Token Endpoint
+        token_endpoint_auth_signing_alg_values_supported:
+          items:
+            type: string
+          type: array
+          example:
+            - RS256
+          description: list of the JWS signing algorithms (alg values) supported by the Token Endpoint for the signature on the JWT used to authenticate the Client at the Token Endpoint for the private_key_jwt and client_secret_jwt authentication methods. Servers SHOULD support RS256. The value none MUST NOT be used.
+        display_values_supported:
+          items:
+            type: string
+          type: array
+          example:
+            - page
+            - popup
+          description: list of the display parameter values that the OpenID Provider supports
+        claim_types_supported:
+          items:
+            type: string
+          type: array
+          example:
+            - normal
+          description: list of the Claim Types that the OpenID Provider supports
+        service_documentation:
+          type: string
+          example: 'http://masdemo12.dev.ca.com:8443/openid/connect/v1/service_documentation.html'
+          description: URL of a page containing human-readable information that developers might want or need to know when using the OpenID Provider
+        ui_locales_supported:
+          items:
+            type: string
+          type: array
+          example:
+            - en-US
+            - en-GB
+          description: Languages and scripts supported for the user interface
+      description: 'The OpenID configuration document as defined by the specification: http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata'

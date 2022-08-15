@@ -6,5 +6,20 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: app
+    depends_on:
+      - localstack
     ports:
       - "5050:5000"
+
+  localstack:
+    build:
+      context: .
+      dockerfile: ./localstack.Dockerfile
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=secretsmanager
+      - DATA_DIR=/tmp/localstack/data
+      - DEFAULT_REGION=eu-west-1
+      - USE_SINGLE_REGION=1
+      - DEBUG=1
