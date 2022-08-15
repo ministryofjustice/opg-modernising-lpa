@@ -46,4 +46,4 @@ services:
       - "7012:5060"
     environment:
       - PROXY_PORT=5060
-      - PROXY_PRIVATE_KEY="/app/private_key.pem"
+      - PROXY_PRIVATE_KEY=/app/private_key.pem

@@ -6,6 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: app
+    depends_on:
+      - localstack
     ports:
       - "5050:5000"
 
