@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"crypto/ecdsa"
+	"crypto/rsa"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -47,9 +47,9 @@ func RandomString(length int) string {
 	return StringWithCharset(length, charset)
 }
 
-func loadPrivateKey(pemPath string) (*ecdsa.PrivateKey, error) {
+func loadPrivateKey(pemPath string) (*rsa.PrivateKey, error) {
 	if key, ok := privateKeyCache.Load(pemPath); ok {
-		return key.(*ecdsa.PrivateKey), nil
+		return key.(*rsa.PrivateKey), nil
 	}
 
 	pem, err := ioutil.ReadFile(pemPath)
@@ -57,9 +57,9 @@ func loadPrivateKey(pemPath string) (*ecdsa.PrivateKey, error) {
 		return nil, fmt.Errorf("unable to load private key pem file from %s, %w", pemPath, err)
 	}
 
-	privateKey, err := jwt.ParseECPrivateKeyFromPEM(pem)
+	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(pem)
 	if err != nil {
-		return nil, fmt.Errorf("unable to parse ec private key from data in %s, %w", pemPath, err)
+		return nil, fmt.Errorf("unable to parse RSA private key from data in %s, %w", pemPath, err)
 	}
 
 	privateKeyCache.Store(pemPath, privateKey)
@@ -121,7 +121,7 @@ func proxyRequest(privKeyPath, clientId, issuer string) http.HandlerFunc {
 func main() {
 	var (
 		port           = flag.String("port", env.Get("PROXY_PORT", "5060"), "The port to run the proxy on")
-		privateKeyPath = flag.String("privkey", env.Get("PROXY_PRIVATE_KEY", "/app/private_key.pem"), "The path to an RSA256 private key file")
+		privateKeyPath = flag.String("privkey", env.Get("PROXY_PRIVATE_KEY", "private_key.pem"), "The path to an RSA256 private key file")
 		clientId       = flag.String("clientid", env.Get("CLIENT_ID", "theClientId"), "The client ID set up when registering with Gov UK Sign in")
 	)
 

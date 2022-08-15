@@ -13,6 +13,9 @@ RUN yarn build
 
 FROM golang:1.18 as build-env
 
+# Build Delve
+RUN go install github.com/go-delve/delve/cmd/dlv@latest
+
 WORKDIR /app
 
 COPY app/go.mod .
@@ -22,7 +25,7 @@ RUN go mod download
 
 COPY /app .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/mlpab
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -gcflags='all=-N -l' -a -installsuffix cgo -o /go/bin/mlpab
 
 FROM build-env as development
 
@@ -30,11 +33,9 @@ WORKDIR /go/bin
 COPY --from=build-env /app .
 COPY --from=asset-env /app/web/static web/static
 COPY web/template web/template
+COPY --from=build-env /go/bin/dlv /
 
-# Live reload for Go
-RUN go install github.com/cosmtrek/air@latest
-
-CMD air
+CMD ["/dlv", "--listen=:40000", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "/go/bin/mlpab"]
 
 FROM alpine:3.16.1 as production
 

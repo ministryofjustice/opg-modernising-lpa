@@ -13,8 +13,7 @@ RUN openssl genpkey -algorithm RSA -out ./private_key.pem -pkeyopt rsa_keygen_bi
 
 RUN addgroup --system app && \
     adduser --system --gecos app app && \
-    chown -R app:app /app && \
-    chmod +x /app/entrypoint.sh
+    chown -R app:app /app
 
 USER app
 

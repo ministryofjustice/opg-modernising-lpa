@@ -3,12 +3,16 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path"
+	"time"
+
+	"github.com/golang-jwt/jwt"
 
 	"github.com/ministryofjustice/opg-go-common/env"
 )
@@ -28,6 +32,14 @@ type TokenRequestBody struct {
 	RedirectUri         string `json:"redirect_uri"`
 	ClientAssertionType string `json:"client_assertion_type"`
 	ClientAssertion     string `json:"client_assertion"`
+}
+
+type TokenResponseBody struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	TokenType    string `json:"token_type"`
+	ExpiresIn    int    `json:"expires_in"`
+	IdToken      string `json:"id_token"`
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
@@ -67,7 +79,8 @@ func setToken(w http.ResponseWriter, r *http.Request) {
 		AuthorizationCode:   "code-value",
 		RedirectUri:         "http://localhost:5050/home",
 		ClientAssertionType: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-		ClientAssertion:     "THEJWT",
+		// TODO - generate a real JWT https://docs.sign-in.service.gov.uk/integrate-with-integration-environment/integrate-with-code-flow/#create-a-jwt-assertion
+		ClientAssertion: "THEJWT",
 	}
 
 	payloadBuf := new(bytes.Buffer)
@@ -98,6 +111,32 @@ func setToken(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	var tokenResponse TokenResponseBody
+
+	err = json.NewDecoder(r.Body).Decode(&tokenResponse)
+	if err != nil {
+		log.Fatalf("Issues parsing token response body: %v", err)
+	}
+
+	//awslocal secretsmanager create-secret --name "default/private-jwt-key-base64" --secret-string "$(base64 private.pem)"
+	//awslocal secretsmanager create-secret --name "default/public-jwt-key-base64" --secret-string "$(base64 public.pem)"
+
+	token, err := jwt.Parse(tokenResponse.IdToken, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
+		return hmacSampleSecret, nil
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:  "token",
+		Value: token.Raw,
+		// TODO - use exp from JWT once we are verifying claims and have access to it
+		Expires: time.Now().Add(time.Second * time.Duration(tokenResponse.ExpiresIn)),
+	})
 }
 
 func main() {
