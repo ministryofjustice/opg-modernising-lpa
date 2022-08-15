@@ -10,8 +10,6 @@ describe('Sign in using GOV UK Sign In service', () => {
             method: 'GET',
             url: 'http://localhost:7011/authorize',
             qs: {
-                // use qs to set query string to the url that creates
-                // http://auth.corp.com:8080?redirectTo=http://localhost:7074/set_token
                 redirect_uri: 'http://localhost:5050/set_token',
                 client_id: 'client-credentials-mock-client',
                 state: 'state-value',
@@ -48,26 +46,26 @@ describe('Sign in using GOV UK Sign In service', () => {
 
             it('can authenticate with cy.request', function () {
                 // before we start, there should be no session cookie
-                cy.getCookie('token').should('not.exist')
+                cy.getCookie('sign-in-token').should('not.exist')
 
                 // this automatically gets + sets cookies on the browser
                 // and follows all of the redirects that ultimately get
                 // us to /dashboard.html
                 cy.loginBySingleSignOn().then((resp) => {
                     expect(resp.status).to.eq(200)
-                    expect(resp.body).to.include('<h1>Welcome Gideon Felix</h1>')
+                    expect(resp.body).to.include('Welcome gideon.felix@example.org')
                 })
 
                 // the redirected page hits the server, and the server middleware
                 // parses the authentication token and returns the dashboard view
                 // with our cookie 'cypress-session-cookie' set
-                cy.getCookie('token').should('exist')
+                cy.getCookie('sign-in-token').should('exist')
 
                 // you don't need to do this next part but
                 // just to prove we can also visit the page in our app
                 cy.visit('/home')
 
-                cy.get('h1').should('contain', 'Welcome Gideon Felix')
+                cy.get('h1').should('contain', 'Welcome gideon.felix@example.org')
             })
         })
     })

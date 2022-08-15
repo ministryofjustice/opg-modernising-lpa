@@ -8,12 +8,12 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 	"path"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/credentials"
-
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/golang-jwt/jwt"
@@ -28,6 +28,8 @@ func Hello() string {
 type PageData struct {
 	WebDir      string
 	ServiceName string
+	UserEmail   string
+	SignInURL   string
 }
 
 type TokenRequestBody struct {
@@ -56,11 +58,38 @@ type UserInfoResponse struct {
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
+	emailCookie, err := r.Cookie("user-email")
+
+	userEmail := ""
+	signInUrl := ""
+
+	if err != nil {
+		u, parseErr := url.Parse("http://localhost:7011/authorize")
+
+		if parseErr != nil {
+			log.Fatal(parseErr)
+		}
+
+		q := u.Query()
+		q.Set("redirect_uri", "http://localhost:5050/set_token")
+		q.Set("client_id", "client-credentials-mock-client")
+		q.Set("state", "state-value")
+		q.Set("nonce", "nonce-value")
+		q.Set("scope", "scope-value")
+		u.RawQuery = q.Encode()
+
+		signInUrl = u.String()
+	} else {
+		userEmail = emailCookie.Value
+	}
+
 	webDir := env.Get("WEB_DIR", "web")
 
 	data := PageData{
 		WebDir:      webDir,
 		ServiceName: "Modernising LPA",
+		UserEmail:   userEmail,
+		SignInURL:   signInUrl,
 	}
 
 	files := []string{
@@ -175,16 +204,39 @@ func setToken(w http.ResponseWriter, r *http.Request) {
 		Expires: time.Now().Add(time.Second * time.Duration(tokenResponse.ExpiresIn)),
 	})
 
-	log.Println(token.Raw)
-
-	req, err := http.NewRequest("GET", "http://oidc-proxy:5000/token", payloadBuf)
+	req, err = http.NewRequest("GET", "http://oidc-proxy:5000/userinfo", payloadBuf)
 	if err != nil {
 		log.Fatal("Error building req: ", err)
 	}
 
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	var bearer = "Bearer " + token.Raw
+	req.Header.Add("Authorization", bearer)
 
-	res, err := http.DefaultClient.Do(req)
+	res, err = http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatal("Error making request to /userinfo: ", err)
+	}
+
+	defer res.Body.Close()
+
+	var userinfoResponse UserInfoResponse
+
+	err = json.NewDecoder(res.Body).Decode(&userinfoResponse)
+	if err != nil {
+		log.Println(res.Body)
+		log.Fatalf("Issues parsing userinfo response body: %v", err)
+	}
+
+	log.Println(userinfoResponse.Email)
+
+	http.SetCookie(w, &http.Cookie{
+		Name:  "user-email",
+		Value: userinfoResponse.Email,
+		// TODO - use exp from JWT once we are verifying claims and have access to it
+		Expires: time.Now().Add(time.Second * time.Duration(tokenResponse.ExpiresIn)),
+	})
+
+	http.Redirect(w, r, "http://localhost:5050/home", 302)
 }
 
 func main() {
