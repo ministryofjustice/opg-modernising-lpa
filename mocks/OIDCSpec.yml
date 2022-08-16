@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: OTK Server APIs
   version: 4.3.1
-  description: "All API's available in OAuth Toolkit server"
+  description: "All API's available in OAuth Toolkit OIDC"
 paths:
   /authorize:
     get:
@@ -48,7 +48,7 @@ paths:
           in: query
           required: true
           x-is-map: false
-          description: 'Value opaque to the server, used by the client to track its session. It will be returned as received.'
+          description: 'Value opaque to the OIDC, used by the client to track its session. It will be returned as received.'
           schema:
             type: string
       responses:
@@ -292,7 +292,7 @@ paths:
                 type: string
                 default: no-store
         '500':
-          description: 'Unknown error. This also occurs if the user does not have an active session, id_token, on the server.'
+          description: 'Unknown error. This also occurs if the user does not have an active session, id_token, on the OIDC.'
           headers:
             x-ca-err:
               description: 'Custom error header. Possible value: 000'
@@ -447,14 +447,14 @@ paths:
           name: Access-Control-Request-Headers
           in: header
           required: true
-          description: The Access-Control-Request-Headers request header is used when issuing a preflight request to let the server know which HTTP headers will be used when the actual request is made.
+          description: The Access-Control-Request-Headers request header is used when issuing a preflight request to let the OIDC know which HTTP headers will be used when the actual request is made.
           schema:
             type: string
         -
           name: Access-Control-Request-Method
           in: header
           required: true
-          description: The Access-Control-Request-Method request header is used when issuing a preflight request to let the server know which HTTP method will be used when the actual request is made.
+          description: The Access-Control-Request-Method request header is used when issuing a preflight request to let the OIDC know which HTTP method will be used when the actual request is made.
           schema:
             type: string
         -
@@ -571,14 +571,14 @@ paths:
           name: Access-Control-Request-Headers
           in: header
           required: true
-          description: The Access-Control-Request-Headers request header is used when issuing a preflight request to let the server know which HTTP headers will be used when the actual request is made.
+          description: The Access-Control-Request-Headers request header is used when issuing a preflight request to let the OIDC know which HTTP headers will be used when the actual request is made.
           schema:
             type: string
         -
           name: Access-Control-Request-Method
           in: header
           required: true
-          description: The Access-Control-Request-Method request header is used when issuing a preflight request to let the server know which HTTP method will be used when the actual request is made.
+          description: The Access-Control-Request-Method request header is used when issuing a preflight request to let the OIDC know which HTTP method will be used when the actual request is made.
           schema:
             type: string
         -
@@ -708,13 +708,13 @@ servers:
 components:
   responses:
     export200:
-      description: A JSON message including details about a client in order to configure it. The client_secret may or may not be included depending on the OAuth server configuration.
+      description: A JSON message including details about a client in order to configure it. The client_secret may or may not be included depending on the OAuth OIDC configuration.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ExportData'
     auth302:
-      description: "Will contain either: A success response including the redirect location header to the server that handles the authentication.  The redirect parameter 'sessionData's structure looks like the model schema shown OR 'invalid mag-identifier' OR 'invalid scope' OR 'unsupported response type' OR 'unauthorized client'. The non-successful conditions may include redirect query params as follows: 'error', string with default value:  invalid_request 'error_description', string with description of error 'state', string with no default value.  It is opaque to the server and returned as received. 'x-ca-err', string with default 3000108"
+      description: "Will contain either: A success response including the redirect location header to the OIDC that handles the authentication.  The redirect parameter 'sessionData's structure looks like the model schema shown OR 'invalid mag-identifier' OR 'invalid scope' OR 'unsupported response type' OR 'unauthorized client'. The non-successful conditions may include redirect query params as follows: 'error', string with default value:  invalid_request 'error_description', string with description of error 'state', string with no default value.  It is opaque to the OIDC and returned as received. 'x-ca-err', string with default 3000108"
       headers:
         location:
           description: "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)"
@@ -828,17 +828,17 @@ components:
       properties:
         hostname:
           type: string
-          description: The hostname of the server
+          description: The hostname of the OIDC
         port:
           type: string
-          description: The port of the server
+          description: The port of the OIDC
         prefix:
           type: string
           description: URL prefix
           example: /urlprefix
         server_certs:
           type: string
-          description: The server certificate(s)
+          description: The OIDC certificate(s)
       title: ServerObject
     OAuthObject:
       type: object
@@ -1019,7 +1019,7 @@ components:
           description: Where to redirect to after request
         code:
           type: string
-          description: Unique code returned by OIDC server/Gov UK Sign In
+          description: Unique code returned by OIDC OIDC/Gov UK Sign In
         grant_type:
           type: string
           description: The type of grant in JWT
@@ -1049,7 +1049,7 @@ components:
           type: array
           example:
             - openid
-          description: list of the OAuth 2.0 scope values that this server supports
+          description: list of the OAuth 2.0 scope values that this OIDC supports
         subject_types_supported:
           items:
             type: string

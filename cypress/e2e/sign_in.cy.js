@@ -56,7 +56,7 @@ describe('Sign in using GOV UK Sign In service', () => {
                     expect(resp.body).to.include('Welcome gideon.felix@example.org')
                 })
 
-                // the redirected page hits the server, and the server middleware
+                // the redirected page hits the OIDC, and the OIDC middleware
                 // parses the authentication token and returns the dashboard view
                 // with our cookie 'cypress-session-cookie' set
                 cy.getCookie('sign-in-token').should('exist')

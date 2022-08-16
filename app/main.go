@@ -63,6 +63,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	userEmail := ""
 	signInUrl := ""
 
+	// Building login URL
 	if err != nil {
 		u, parseErr := url.Parse("http://localhost:7011/authorize")
 
@@ -83,6 +84,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 		userEmail = emailCookie.Value
 	}
 
+	// Building template
 	webDir := env.Get("WEB_DIR", "web")
 
 	data := PageData{
@@ -103,6 +105,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	// Serve template
 	err = ts.ExecuteTemplate(w, "base", data)
 
 	if err != nil {
@@ -114,8 +117,8 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 func setToken(w http.ResponseWriter, r *http.Request) {
 	log.Println("Setting token")
-	log.Println(r.URL.Query().Get("code"))
 
+	// Build body for POST to OIDC /token
 	body := &TokenRequestBody{
 		GrantType:           "authorization_code",
 		AuthorizationCode:   "code-value",
@@ -125,36 +128,29 @@ func setToken(w http.ResponseWriter, r *http.Request) {
 		ClientAssertion: "THEJWT",
 	}
 
-	payloadBuf := new(bytes.Buffer)
-	err := json.NewEncoder(payloadBuf).Encode(body)
+	encodedPostBody := new(bytes.Buffer)
+	err := json.NewEncoder(encodedPostBody).Encode(body)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	req, err := http.NewRequest("POST", "http://oidc-proxy:5000/token", payloadBuf)
+	// Build request for POST OIDC /token
+	req, err := http.NewRequest("POST", "http://oidc-proxy:5000/token", encodedPostBody)
 	if err != nil {
 		log.Fatal("Error building req: ", err)
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
+	// POST to OIDC /token
 	res, err := http.DefaultClient.Do(req)
 
 	if err != nil {
 		log.Fatal("Error POSTing to /token: ", err)
 	}
 
-	defer res.Body.Close()
-
-	var tokenResponse TokenResponseBody
-
-	err = json.NewDecoder(res.Body).Decode(&tokenResponse)
-	if err != nil {
-		log.Println(res.Body)
-		log.Fatalf("Issues parsing token response body: %v", err)
-	}
-
+	// Get private key from AWS secrets manager
 	sess, err := session.NewSession(&aws.Config{
 		Region:      aws.String("eu-west-1"),
 		Credentials: credentials.NewStaticCredentials("test", "test", ""),
@@ -179,6 +175,7 @@ func setToken(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Problem get secret '%s': %v", "private-jwt-key-base64", err)
 	}
 
+	// Base64 Decode private key
 	var base64PrivateKey string
 	if result.SecretString != nil {
 		base64PrivateKey = *result.SecretString
@@ -189,6 +186,18 @@ func setToken(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("error decoding base64 string: ", err)
 	}
 
+	// Parse response from OIDC /token
+	defer res.Body.Close()
+
+	var tokenResponse TokenResponseBody
+
+	err = json.NewDecoder(res.Body).Decode(&tokenResponse)
+	if err != nil {
+		log.Println(res.Body)
+		log.Fatalf("Issues parsing token response body: %v", err)
+	}
+
+	// Parse JWT from OIDC /token
 	token, err := jwt.Parse(tokenResponse.IdToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -197,6 +206,7 @@ func setToken(w http.ResponseWriter, r *http.Request) {
 		return privateKey, nil
 	})
 
+	// Store JWT from OIDC /token
 	http.SetCookie(w, &http.Cookie{
 		Name:  "sign-in-token",
 		Value: token.Raw,
@@ -204,7 +214,9 @@ func setToken(w http.ResponseWriter, r *http.Request) {
 		Expires: time.Now().Add(time.Second * time.Duration(tokenResponse.ExpiresIn)),
 	})
 
-	req, err = http.NewRequest("GET", "http://oidc-proxy:5000/userinfo", payloadBuf)
+	// Build GET request to OIDC /userinfo
+	getBody := new(bytes.Buffer)
+	req, err = http.NewRequest("GET", "http://oidc-proxy:5000/userinfo", getBody)
 	if err != nil {
 		log.Fatal("Error building req: ", err)
 	}
@@ -212,13 +224,14 @@ func setToken(w http.ResponseWriter, r *http.Request) {
 	var bearer = "Bearer " + token.Raw
 	req.Header.Add("Authorization", bearer)
 
+	// GET OIDC /userinfo
 	res, err = http.DefaultClient.Do(req)
 	if err != nil {
 		log.Fatal("Error making request to /userinfo: ", err)
 	}
 
+	// Parse response from GET OIDC /userinfo
 	defer res.Body.Close()
-
 	var userinfoResponse UserInfoResponse
 
 	err = json.NewDecoder(res.Body).Decode(&userinfoResponse)
@@ -227,8 +240,7 @@ func setToken(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Issues parsing userinfo response body: %v", err)
 	}
 
-	log.Println(userinfoResponse.Email)
-
+	// Store user email from /userinfo
 	http.SetCookie(w, &http.Cookie{
 		Name:  "user-email",
 		Value: userinfoResponse.Email,

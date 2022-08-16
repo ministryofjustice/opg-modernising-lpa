@@ -142,7 +142,7 @@ func main() {
 		log.Fatalf("Issues parsing OIDC configuration response: %v", err)
 	}
 
-	// start server
+	// start OIDC
 	http.HandleFunc("/token", proxyRequest(*privateKeyPath, *clientId, openIdResponse.Issuer))
 
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", *port), nil); err != nil {
