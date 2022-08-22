@@ -4,10 +4,18 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
-func Start(tmpl template.Template) http.HandlerFunc {
+type startData struct {
+	L    localize.Localizer
+	Lang Lang
+}
+
+func Start(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		tmpl(w, nil)
+		if err := tmpl(w, startData{L: localizer, Lang: lang}); err != nil {
+			logger.Print(err)
+		}
 	}
 }
