@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"crypto/rsa"
+	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -13,6 +14,11 @@ import (
 	"net/url"
 	"sync"
 	"time"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/secretsmanager"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/ministryofjustice/opg-go-common/env"
@@ -97,7 +103,7 @@ func loadPrivateKey(pemPath string) (*rsa.PrivateKey, error) {
 	return privateKey, nil
 }
 
-func createToken(keyPath, clientId, issuer string) (string, error) {
+func createSignedToken(clientId, issuer string) (string, error) {
 	t := jwt.New(jwt.GetSigningMethod("RS256"))
 
 	t.Header["sub"] = fmt.Sprintf("%s-sub", RandomString(10))
@@ -107,7 +113,7 @@ func createToken(keyPath, clientId, issuer string) (string, error) {
 	t.Header["exp"] = time.Now().Add(time.Minute * 5).Unix()
 	t.Header["iat"] = time.Now().Unix()
 
-	key, err := loadPrivateKey(keyPath)
+	key, err := getPrivateKey()
 	if err != nil {
 		return "", fmt.Errorf("unable to load key, %w", err)
 	}
@@ -174,11 +180,11 @@ func openIDConfig(c OpenIdConfig) http.HandlerFunc {
 	}
 }
 
-func token(privKeyPath, clientId, issuer string) http.HandlerFunc {
+func token(clientId, issuer string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("/token")
 
-		t, err := createToken(privKeyPath, clientId, issuer)
+		t, err := createSignedToken(clientId, issuer)
 		if err != nil {
 			log.Fatalf("Error creating JWT: %s", err)
 		}
@@ -197,8 +203,6 @@ func token(privKeyPath, clientId, issuer string) http.HandlerFunc {
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		log.Println(payloadBuf.String())
 
 		_, err = w.Write(payloadBuf.Bytes())
 
@@ -263,12 +267,57 @@ func userInfo() http.HandlerFunc {
 	}
 }
 
+func getPrivateKey() (*rsa.PrivateKey, error) {
+	// TODO move AWS code into aws package
+	// Get private key from AWS secrets manager
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String("eu-west-1"),
+		Credentials: credentials.NewStaticCredentials("test", "test", ""),
+		Endpoint:    aws.String("http://localstack:4566"),
+	})
+
+	if err != nil {
+		return &rsa.PrivateKey{}, fmt.Errorf("problem initialising new AWS session: %v", err)
+	}
+
+	svc := secretsmanager.New(
+		sess,
+		aws.NewConfig().WithRegion("eu-west-1"),
+	)
+
+	input := &secretsmanager.GetSecretValueInput{
+		SecretId: aws.String("private-jwt-key-base64"),
+	}
+
+	result, err := svc.GetSecretValue(input)
+	if err != nil {
+		return &rsa.PrivateKey{}, fmt.Errorf("problem initialising new AWS session: %v", err)
+	}
+
+	// Base64 Decode private key
+	var base64PrivateKey string
+	if result.SecretString != nil {
+		base64PrivateKey = *result.SecretString
+	}
+
+	pem, err := base64.StdEncoding.DecodeString(base64PrivateKey)
+
+	if err != nil {
+		return &rsa.PrivateKey{}, fmt.Errorf("problem initialising new AWS session: %v", err)
+	}
+
+	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(pem)
+	if err != nil {
+		return &rsa.PrivateKey{}, fmt.Errorf("unable to parse RSA private key: %w", err)
+	}
+	return privateKey, nil
+}
+
 func main() {
 	var (
-		port           = flag.String("port", env.Get("PROXY_PORT", "5060"), "The port to run the mock on")
-		privateKeyPath = flag.String("privkey", env.Get("PROXY_PRIVATE_KEY", "private_key.pem"), "The path to an RSA256 private key file")
-		clientId       = flag.String("clientid", env.Get("CLIENT_ID", "theClientId"), "The client ID set up when registering with Gov UK Sign in")
-		mockBaseUri    = flag.String("mockbaseuri", env.Get("MOCK_BASE_URI", fmt.Sprintf("http://sign-in-mock:%s", *port)), "The client ID set up when registering with Gov UK Sign in")
+		port        = flag.String("port", env.Get("PROXY_PORT", "5060"), "The port to run the mock on")
+		clientId    = flag.String("clientid", env.Get("CLIENT_ID", "theClientId"), "The client ID set up when registering with Gov UK Sign in")
+		mockBaseUri = flag.String("mockbaseuri", env.Get("MOCK_BASE_URI", fmt.Sprintf("http://sign-in-mock:%s", *port)), "The client ID set up when registering with Gov UK Sign in")
 	)
 	log.Println("Initializing GOV UK Sign in mock")
 
@@ -278,7 +327,7 @@ func main() {
 
 	http.HandleFunc("/.well-known/openid-configuration", openIDConfig(c))
 	http.HandleFunc("/authorize", authorize())
-	http.HandleFunc("/token", token(*privateKeyPath, *clientId, c.Issuer))
+	http.HandleFunc("/token", token(*clientId, c.Issuer))
 	http.HandleFunc("/userinfo", userInfo())
 
 	log.Println("GOV UK Sign in mock initialized")

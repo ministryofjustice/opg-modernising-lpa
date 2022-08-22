@@ -65,12 +65,16 @@ func (c *Client) GetToken() (*jwt.Token, error) {
 		return &jwt.Token{}, err
 	}
 
-	privateKey, err := getPrivateKey()
+	pubKeyBytes, err := getPublicKey()
 	if err != nil {
 		return &jwt.Token{}, err
 	}
 
-	log.Println(privateKey)
+	pubKey, err := jwt.ParseRSAPublicKeyFromPEM(pubKeyBytes)
+
+	if err != nil {
+		panic("failed to parse public key: " + err.Error())
+	}
 
 	// Parse response from OIDC /token
 	defer res.Body.Close()
@@ -83,22 +87,28 @@ func (c *Client) GetToken() (*jwt.Token, error) {
 	}
 
 	// Parse JWT from OIDC /token
+	log.Println(tokenResponse.IdToken)
+
 	token, err := jwt.Parse(tokenResponse.IdToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
 		log.Println("Checking key")
+		log.Println(pubKey)
+
 		// TODO - add in any extra checks on JWT here
-		return privateKey, nil
+		return pubKey, nil
 	})
+
+	log.Println(err)
 
 	return token, err
 }
 
-func getPrivateKey() (string, error) {
+func getPublicKey() ([]byte, error) {
 	// TODO move AWS code into aws package
-	// Get private key from AWS secrets manager
+	// Get public key from AWS secrets manager
 	sess, err := session.NewSession(&aws.Config{
 		Region:      aws.String("eu-west-1"),
 		Credentials: credentials.NewStaticCredentials("test", "test", ""),
@@ -106,7 +116,7 @@ func getPrivateKey() (string, error) {
 	})
 
 	if err != nil {
-		return "", fmt.Errorf("problem initialising new AWS session: %v", err)
+		return []byte{}, fmt.Errorf("problem initialising new AWS session: %v", err)
 	}
 
 	svc := secretsmanager.New(
@@ -115,25 +125,25 @@ func getPrivateKey() (string, error) {
 	)
 
 	input := &secretsmanager.GetSecretValueInput{
-		SecretId: aws.String("private-jwt-key-base64"),
+		SecretId: aws.String("public-jwt-key-base64"),
 	}
 
 	result, err := svc.GetSecretValue(input)
 	if err != nil {
-		return "", fmt.Errorf("problem initialising new AWS session: %v", err)
+		return []byte{}, fmt.Errorf("problem initialising new AWS session: %v", err)
 	}
 
-	// Base64 Decode private key
-	var base64PrivateKey string
+	// Base64 Decode public key
+	var base64PublicKey string
 	if result.SecretString != nil {
-		base64PrivateKey = *result.SecretString
+		base64PublicKey = *result.SecretString
 	}
 
-	privateKey, err := base64.StdEncoding.DecodeString(base64PrivateKey)
+	publicKey, err := base64.StdEncoding.DecodeString(base64PublicKey)
 
 	if err != nil {
-		return "", fmt.Errorf("problem initialising new AWS session: %v", err)
+		return []byte{}, fmt.Errorf("problem initialising new AWS session: %v", err)
 	}
 
-	return string(privateKey), nil
+	return publicKey, nil
 }
