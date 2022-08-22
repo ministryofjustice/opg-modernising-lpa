@@ -3,13 +3,46 @@ version: '3.8'
 services:
   app:
     build:
-      context: .
-      dockerfile: Dockerfile.dev
-    container_name: app
-    ports:
-      - "5050:5000"
+      target: development
+    working_dir: /go/bin
     depends_on:
-      - oidc-server-mock
+      - sign-in-mock
+      - localstack
     volumes:
-      - ./app:/app
-    command: air
+      - ./app:/go/bin/app
+      - ./web/template:/go/bin/web/template
+
+#  oidc-mock:
+#    container_name: oidc-mock
+#    image: stoplight/prism:4
+#    build: # Does not have M1 native / arm64 images as yet but builds fine.
+#      context: https://github.com/stoplightio/prism.git#v4.10.1
+#      dockerfile: Dockerfile
+#    command: 'mock -h 0.0.0.0 /tmp/OIDCSpec.yml'
+#    volumes:
+#      - ./mocks/OIDCSpec.yml:/tmp/OIDCSpec.yml:ro
+#    ports:
+#      - "7010:4010"
+#
+## service for the nginx router that will forward /token to oidc-app
+#  oidc-proxy:
+#    container_name: oidc-proxy
+#    image: nginx:stable-alpine
+#    depends_on:
+#      - oidc-mock
+#    command: 'nginx -g "daemon off;"'
+#    volumes:
+#      - ./mocks/nginx.conf:/etc/nginx/conf.d/default.conf
+#    ports:
+#      - "7011:5000"
+
+# service for the /token go app
+  sign-in-mock:
+    build:
+      context: mocks/GOVUKSignIn
+    container_name: sign-in-mock
+    ports:
+      - "7012:5060"
+    environment:
+      - PROXY_PORT=5060
+      - PROXY_PRIVATE_KEY=/app/private_key.pem
