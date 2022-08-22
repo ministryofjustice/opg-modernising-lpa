@@ -144,7 +144,7 @@ func createConfig(baseUri string) OpenIdConfig {
 func createUserInfo() UserInfoResponse {
 	return UserInfoResponse{
 		Sub:           "b2d2d115-1d7e-4579-b9d6-f8e84f4f56ca",
-		Email:         "test@example.com",
+		Email:         "gideon.felix@example.org",
 		EmailVerified: true,
 		Phone:         "01406946277",
 		PhoneVerified: true,
@@ -217,7 +217,7 @@ func authorize() http.HandlerFunc {
 			log.Fatal("Required query param 'redirect_uri' missing from request")
 		}
 
-		u, parseErr := url.Parse("redirect_uri")
+		u, parseErr := url.Parse(redirectUri)
 		if parseErr != nil {
 			log.Fatalf("Error parsing redirect_uri: %s", parseErr)
 		}
@@ -234,9 +234,9 @@ func authorize() http.HandlerFunc {
 
 		u.RawQuery = q.Encode()
 
-		redirectUri = u.String()
+		log.Printf("Redirecting to %s", u.String())
 
-		http.Redirect(w, r, redirectUri, 302)
+		http.Redirect(w, r, u.String(), 302)
 	}
 }
 

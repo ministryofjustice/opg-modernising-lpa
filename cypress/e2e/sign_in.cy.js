@@ -9,20 +9,13 @@ describe('Sign in using GOV UK Sign In service', () => {
         const options = {
             method: 'GET',
             url: 'http://app:5000/login',
-            // qs: {
-            //     redirect_uri: 'http://app:5000/set_token',
-            //     client_id: 'client-credentials-mock-client',
-            //     state: 'state-value',
-            //     nonce: 'nonce-value',
-            //     scope: 'scope-value'
-            // },
             log: true
         }
 
         // allow us to override defaults with passed in overrides
         _.extend(options, overrides)
 
-        cy.request(options).debug()
+        cy.request(options)
     })
 
     beforeEach(() => {
@@ -53,7 +46,7 @@ describe('Sign in using GOV UK Sign In service', () => {
                 // us to /dashboard.html
                 cy.loginBySingleSignOn().then((resp) => {
                     expect(resp.status).to.eq(200)
-                    expect(resp.body).to.include('Welcome gideon.felix@example.org')
+                    expect(resp.body).to.include('gideon.felix@example.org')
                 })
 
                 // the redirected page hits the OIDC, and the OIDC middleware
