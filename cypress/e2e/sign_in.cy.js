@@ -8,21 +8,21 @@ describe('Sign in using GOV UK Sign In service', () => {
 
         const options = {
             method: 'GET',
-            url: 'http://localhost:7011/authorize',
-            qs: {
-                redirect_uri: 'http://localhost:5050/set_token',
-                client_id: 'client-credentials-mock-client',
-                state: 'state-value',
-                nonce: 'nonce-value',
-                scope: 'scope-value'
-            },
+            url: 'http://app:5000/login',
+            // qs: {
+            //     redirect_uri: 'http://app:5000/set_token',
+            //     client_id: 'client-credentials-mock-client',
+            //     state: 'state-value',
+            //     nonce: 'nonce-value',
+            //     scope: 'scope-value'
+            // },
             log: true
         }
 
         // allow us to override defaults with passed in overrides
         _.extend(options, overrides)
 
-        cy.request(options)
+        cy.request(options).debug()
     })
 
     beforeEach(() => {
@@ -58,7 +58,7 @@ describe('Sign in using GOV UK Sign In service', () => {
 
                 // the redirected page hits the OIDC, and the OIDC middleware
                 // parses the authentication token and returns the dashboard view
-                // with our cookie 'cypress-session-cookie' set
+                // with our cookie 'sign-in-token' set
                 cy.getCookie('sign-in-token').should('exist')
 
                 // you don't need to do this next part but

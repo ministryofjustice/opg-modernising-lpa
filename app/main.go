@@ -8,10 +8,11 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"path"
 	"strings"
 	"time"
+
+	"github.com/zitadel/oidc/pkg/oidc"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -21,11 +22,9 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
+	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/zitadel/oidc/pkg/client/rp"
 	httphelper "github.com/zitadel/oidc/pkg/http"
-	"github.com/zitadel/oidc/pkg/oidc"
-
-	"github.com/ministryofjustice/opg-go-common/env"
 )
 
 func Hello() string {
@@ -62,6 +61,20 @@ type UserInfoResponse struct {
 	Phone         string `json:"phone"`
 	PhoneVerified bool   `json:"phone_verified"`
 	UpdatedAt     int    `json:"updated_at"`
+}
+
+// KeyFile See client.key in Zitadel package
+type KeyFile struct {
+	Type   string `json:"type"` // serviceaccount or application
+	KeyID  string `json:"keyId"`
+	Key    string `json:"key"`
+	Issuer string `json:"issuer"` //not yet in file
+
+	//serviceaccount
+	UserID string `json:"userId"`
+
+	//application
+	ClientID string `json:"clientId"`
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
@@ -120,10 +133,6 @@ func home(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println("home")
-}
-
-func authorize(w http.ResponseWriter, r *http.Request) {
-
 }
 
 func setToken(w http.ResponseWriter, r *http.Request) {
@@ -266,41 +275,53 @@ func setToken(w http.ResponseWriter, r *http.Request) {
 var (
 	callbackPath = "/auth/callback"
 	key          = []byte("test1234test1234")
+	provider     rp.RelyingParty
 )
 
-func main() {
-	mux := http.NewServeMux()
-
-	fileServer := http.FileServer(http.Dir("./web/static/"))
-
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
-
-	pkFilePath := saveKeyToCwd()
+func login(w http.ResponseWriter, r *http.Request) {
+	log.Println("/login")
 
 	clientID := env.Get("CLIENT_ID", "clientidvalue")
 	clientSecret := env.Get("CLIENT_SECRET", "clientsecret")
-	keyPath := env.Get("KEY_PATH", pkFilePath)
-	issuer := env.Get("ISSUER", "issuervalue")
+	pk := env.Get("PRIVATE_SIGNING_KEY", getPrivateKey())
+	issuer := env.Get("ISSUER", "http://sign-in-mock:5060")
 	port := env.Get("PORT", "5000")
-	scopes := strings.Split(env.Get("SCOPES", "email phone"), " ")
+	scopes := strings.Split(env.Get("SCOPES", "email phone_number"), " ")
 
-	redirectURI := fmt.Sprintf("http://oidc-mock:%v%v", port, callbackPath)
+	redirectURI := fmt.Sprintf("http://app:%v%v", port, callbackPath)
 	cookieHandler := httphelper.NewCookieHandler(key, key, httphelper.WithUnsecure())
 
 	options := []rp.Option{
 		rp.WithCookieHandler(cookieHandler),
 		rp.WithVerifierOpts(rp.WithIssuedAtOffset(5 * time.Second)),
 	}
+
 	if clientSecret == "" {
 		options = append(options, rp.WithPKCE(cookieHandler))
 	}
-	if keyPath != "" {
-		options = append(options, rp.WithJWTProfile(rp.SignerFromKeyPath(keyPath)))
+
+	if pk != "" {
+		kf := KeyFile{
+			Type:     "serviceaccount",
+			KeyID:    "",
+			Key:      pk,
+			Issuer:   issuer,
+			UserID:   "",
+			ClientID: clientID,
+		}
+
+		kfJSON, err := json.Marshal(kf)
+		if err != nil {
+			logrus.Fatalf("error marshalling KeyFile to JSON: %s", err.Error())
+		}
+		options = append(options, rp.WithJWTProfile(rp.SignerFromKeyFile(kfJSON)))
 	}
 
-	provider, err := rp.NewRelyingPartyOIDC(issuer, clientID, clientSecret, redirectURI, scopes, options...)
+	var err error
+
+	provider, err = rp.NewRelyingPartyOIDC(issuer, clientID, clientSecret, redirectURI, scopes, options...)
 	if err != nil {
-		logrus.Fatalf("error creating provider %s", err.Error())
+		logrus.Fatalf("error creating provider: %s", err.Error())
 	}
 
 	//generate some state (representing the state of the user in your application,
@@ -309,10 +330,20 @@ func main() {
 		return uuid.New().String()
 	}
 
+	rp.AuthURLHandler(state, provider)
+}
+
+func main() {
+	mux := http.NewServeMux()
+
+	fileServer := http.FileServer(http.Dir("./web/static/"))
+
+	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+
 	//register the AuthURLHandler at your preferred path
 	//the AuthURLHandler creates the auth request and redirects the user to the auth server
 	//including state handling with secure cookie and the possibility to use PKCE
-	mux.HandleFunc("/login", rp.AuthURLHandler(state, provider))
+	mux.HandleFunc("/login", login)
 
 	//for demonstration purposes the returned userinfo response is written as JSON object onto response
 	marshalUserinfo := func(w http.ResponseWriter, r *http.Request, tokens *oidc.Tokens, state string, rp rp.RelyingParty, info oidc.UserInfo) {
@@ -321,6 +352,7 @@ func main() {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		log.Printf("Userdata is: %s", data)
 		w.Write(data)
 	}
 
@@ -329,7 +361,7 @@ func main() {
 	mux.HandleFunc("/home", home)
 	mux.HandleFunc("/set_token", setToken)
 
-	err = http.ListenAndServe(":5000", mux)
+	err := http.ListenAndServe(":5000", mux)
 
 	if err != nil {
 		log.Fatal(err)
@@ -375,22 +407,4 @@ func getPrivateKey() string {
 	}
 
 	return string(privateKey)
-}
-
-func saveKeyToCwd() string {
-	f, err := os.Create("private_key.pem")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer f.Close()
-
-	_, err2 := f.WriteString(getPrivateKey())
-
-	if err2 != nil {
-		log.Fatal(err2)
-	}
-
-	return f.Name()
 }
