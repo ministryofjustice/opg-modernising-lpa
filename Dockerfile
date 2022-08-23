@@ -31,6 +31,7 @@ WORKDIR /go/bin
 COPY --from=build-env /go/bin/mlpab mlpab
 COPY --from=asset-env /app/web/static web/static
 COPY app/web/template web/template
+COPY app/lang lang
 
 RUN addgroup -S app && \
     adduser -S -g app app && \

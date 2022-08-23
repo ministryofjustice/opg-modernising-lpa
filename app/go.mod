@@ -6,7 +6,9 @@ require (
 	github.com/aws/aws-sdk-go v1.44.77
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/ministryofjustice/opg-go-common v0.0.0-20220428163523-1de8465d8199
+	github.com/nicksnyder/go-i18n/v2 v2.2.0
 	github.com/stretchr/testify v1.8.0
+	golang.org/x/text v0.3.7
 )
 
 require github.com/jmespath/go-jmespath v0.4.0 // indirect

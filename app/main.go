@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	html "html/template"
 	"log"
 	"math/rand"
 	"net/http"
@@ -18,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
@@ -43,19 +43,28 @@ func main() {
 	if err != nil {
 		log.Fatalf("Issues parsing issuer URL: %v", err)
 	}
+	logger := logging.New(os.Stdout, "opg-modernising-lpa")
 
 	clientID := env.Get("CLIENT_ID", "client-id-value")
 	appPort := env.Get("APP_PORT", "8080")
 	appPublicURL := env.Get("APP_PUBLIC_URL", "http://localhost:5050")
 	signInPublicURL := env.Get("GOV_UK_SIGN_IN_PUBLIC_URL", "http://localhost:7012")
 
-	logger := logging.New(os.Stdout, "opg-modernise-lpa")
 	webDir := env.Get("WEB_DIR", "web")
 
-	tmpls, err := template.Parse(webDir+"/template", html.FuncMap{})
+	tmpls, err := template.Parse(webDir+"/template", map[string]interface{}{
+		"isEnglish": func(lang page.Lang) bool {
+			return lang == page.En
+		},
+		"isWelsh": func(lang page.Lang) bool {
+			return lang == page.Cy
+		},
+	})
 	if err != nil {
 		logger.Fatal(err)
 	}
+
+	bundle := localize.NewBundle("lang/en.json", "lang/cy.json")
 
 	mux := http.NewServeMux()
 
@@ -65,10 +74,12 @@ func main() {
 
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	mux.Handle("/", page.Start(tmpls.Get("start.gohtml")))
 	mux.Handle("/login", page.Login(*signInClient, appPublicURL, clientID, signInPublicURL))
-	mux.Handle("/home", page.Home(tmpls.Get("home.gohtml"), fmt.Sprintf("%s/login", appPublicURL)))
+	mux.Handle("/home", page.Home(tmpls.Get("home.gohtml"), fmt.Sprintf("%s/login", appPublicURL), bundle.For("en"), page.En))
 	mux.Handle("/auth/callback", page.SetToken(*signInClient, appPublicURL, clientID, RandomString(12)))
+
+	mux.Handle("/cy/", page.App(logger, bundle.For("cy"), page.Cy, tmpls))
+	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls))
 
 	server := &http.Server{
 		Addr:              ":" + appPort,
