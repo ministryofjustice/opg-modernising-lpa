@@ -23,17 +23,17 @@ describe('Sign in using GOV UK Sign In service', () => {
         cy.injectAxe()
     })
 
-    context('with an existing GOV UK account', () => {
-        context('accessing home page without logging in', () => {
-            it('does not show user email', () => {
-                cy.visit('/home')
-                cy.get('h1').should(
-                    'contain',
-                    'User not signed in'
-                )
-            })
+    context('accessing home page without logging in', () => {
+        it('does not show user email', () => {
+            cy.visit('/home')
+            cy.get('h1').should(
+                'contain',
+                'User not signed in'
+            )
         })
+    })
 
+    context('with an existing GOV UK account', () => {
         context('accessing home page after logging in', () => {
             it('can authenticate with cy.request', () => {
                 cy.loginBySingleSignOn().then((resp) => {
