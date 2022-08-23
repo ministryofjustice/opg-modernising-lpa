@@ -32,6 +32,7 @@ type DiscoverResponse struct {
 	BackchannelLogoutSessionSupported          bool     `json:"backchannel_logout_session_supported"`
 }
 
+// UnmarshalJSON Allows for unmarshalling to url.URL
 func (dr *DiscoverResponse) UnmarshalJSON(data []byte) error {
 	type DiscoverResponseClone DiscoverResponse
 
@@ -93,20 +94,28 @@ func NewClient(httpClient *http.Client, baseURL string) *Client {
 	client.DiscoverData = discoverData
 	client.AuthCallbackPath = "/auth/callback"
 
-	endpoints := []*url.URL{&client.DiscoverData.AuthorizationEndpoint, &client.DiscoverData.TokenEndpoint, &client.DiscoverData.UserinfoEndpoint}
+	assertEndpointsHostsMatchIssuerHost(*client)
 
-	baseUrlParsed, err := url.Parse(baseURL)
+	return client
+}
+
+func assertEndpointsHostsMatchIssuerHost(c Client) {
+	endpoints := []*url.URL{
+		&c.DiscoverData.AuthorizationEndpoint,
+		&c.DiscoverData.TokenEndpoint,
+		&c.DiscoverData.UserinfoEndpoint,
+	}
+
+	buParsed, err := url.Parse(c.baseURL)
 	if err != nil {
-		log.Fatalf("Issues parsing baseURL: %v", err)
+		log.Fatalf("Error parsing baseURL: %v", err)
 	}
 
 	for _, endpoint := range endpoints {
-		if baseUrlParsed.Host != endpoint.Host {
-			log.Fatalf("Host of URL does not match issuer. Wanted %s, Got: %s", baseURL, endpoint.Host)
+		if buParsed.Host != endpoint.Host {
+			log.Fatalf("Host of URL '%s' does not match issuer. Wanted %s, Got: %s", endpoint.RawPath, c.baseURL, endpoint.Host)
 		}
 	}
-
-	return client
 }
 
 func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request, error) {

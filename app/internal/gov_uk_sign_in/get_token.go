@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/ministryofjustice/opg-go-common/env"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -30,14 +32,14 @@ type TokenResponseBody struct {
 	IdToken      string `json:"id_token"`
 }
 
-func (c *Client) GetToken() (*jwt.Token, error) {
+func (c *Client) GetToken(redirectUri string) (*jwt.Token, error) {
 	log.Println("GetToken()")
 
 	// Build body for POST to OIDC /token
 	body := &TokenRequestBody{
 		GrantType:           "authorization_code",
 		AuthorizationCode:   "code-value",
-		RedirectUri:         "http://localhost:5050/home",
+		RedirectUri:         redirectUri,
 		ClientAssertionType: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
 		// TODO - generate a real JWT https://docs.sign-in.service.gov.uk/integrate-with-integration-environment/integrate-with-code-flow/#create-a-jwt-assertion
 		ClientAssertion: "THEJWT",
@@ -100,13 +102,20 @@ func (c *Client) GetToken() (*jwt.Token, error) {
 }
 
 func getPublicKey() ([]byte, error) {
-	// TODO move AWS code into aws package
 	// Get public key from AWS secrets manager
-	sess, err := session.NewSession(&aws.Config{
-		Region:      aws.String("eu-west-1"),
-		Credentials: credentials.NewStaticCredentials("test", "test", ""),
-		Endpoint:    aws.String("http://localstack:4566"),
-	})
+	awsBaseUrl := env.Get("AWS_BASE_URL", "http://localstack:4566")
+
+	config := &aws.Config{
+		Region: aws.String("eu-west-1"),
+	}
+
+	if len(awsBaseUrl) > 0 {
+		config.Endpoint = aws.String(awsBaseUrl)
+		config.Credentials = credentials.NewStaticCredentials("test", "test", "")
+	}
+
+	// Get private key from AWS secrets manager
+	sess, err := session.NewSession(config)
 
 	if err != nil {
 		return []byte{}, fmt.Errorf("problem initialising new AWS session: %v", err)

@@ -7,12 +7,10 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
 	"net/url"
-	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -65,9 +63,14 @@ type UserInfoResponse struct {
 	UpdatedAt     int    `json:"updated_at"`
 }
 
-var privateKeyCache = &sync.Map{}
+var (
+	port        = env.Get("GOV_UK_SIGN_IN_PORT", "5060")
+	mockBaseUrl = env.Get("GOV_UK_SIGN_IN_URL", fmt.Sprintf("http://sign-in-mock:%s", port))
+	clientId    = env.Get("CLIENT_ID", "theClientId")
+	awsBaseUrl  = env.Get("AWS_BASE_URL", "http://localstack:4566")
+)
 
-const charset = "abcdefghijklmnopqrstuvwxyz" + "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
@@ -81,26 +84,6 @@ func StringWithCharset(length int, charset string) string {
 
 func RandomString(length int) string {
 	return StringWithCharset(length, charset)
-}
-
-func loadPrivateKey(pemPath string) (*rsa.PrivateKey, error) {
-	if key, ok := privateKeyCache.Load(pemPath); ok {
-		return key.(*rsa.PrivateKey), nil
-	}
-
-	pem, err := ioutil.ReadFile(pemPath)
-	if err != nil {
-		return nil, fmt.Errorf("unable to load private key pem file from %s, %w", pemPath, err)
-	}
-
-	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(pem)
-	if err != nil {
-		return nil, fmt.Errorf("unable to parse RSA private key from data in %s, %w", pemPath, err)
-	}
-
-	privateKeyCache.Store(pemPath, privateKey)
-
-	return privateKey, nil
 }
 
 func createSignedToken(clientId, issuer string) (string, error) {
@@ -266,13 +249,17 @@ func userInfo() http.HandlerFunc {
 }
 
 func getPrivateKey() (*rsa.PrivateKey, error) {
-	// TODO move AWS code into aws package
-	// Get private key from AWS secrets manager
-	sess, err := session.NewSession(&aws.Config{
+	config := &aws.Config{
 		Region:      aws.String("eu-west-1"),
 		Credentials: credentials.NewStaticCredentials("test", "test", ""),
-		Endpoint:    aws.String("http://localstack:4566"),
-	})
+	}
+
+	if len(awsBaseUrl) > 0 {
+		config.Endpoint = aws.String(awsBaseUrl)
+	}
+
+	// Get private key from AWS secrets manager
+	sess, err := session.NewSession(config)
 
 	if err != nil {
 		return &rsa.PrivateKey{}, fmt.Errorf("problem initialising new AWS session: %v", err)
@@ -312,24 +299,18 @@ func getPrivateKey() (*rsa.PrivateKey, error) {
 }
 
 func main() {
-	var (
-		port        = flag.String("port", env.Get("PROXY_PORT", "5060"), "The port to run the mock on")
-		clientId    = flag.String("clientid", env.Get("CLIENT_ID", "theClientId"), "The client ID set up when registering with Gov UK Sign in")
-		mockBaseUri = flag.String("mockbaseuri", env.Get("MOCK_BASE_URI", fmt.Sprintf("http://sign-in-mock:%s", *port)), "The client ID set up when registering with Gov UK Sign in")
-	)
-
 	flag.Parse()
 
-	c := createConfig(*mockBaseUri)
+	c := createConfig(mockBaseUrl)
 
 	http.HandleFunc("/.well-known/openid-configuration", openIDConfig(c))
 	http.HandleFunc("/authorize", authorize())
-	http.HandleFunc("/token", token(*clientId, c.Issuer))
+	http.HandleFunc("/token", token(clientId, c.Issuer))
 	http.HandleFunc("/userinfo", userInfo())
 
 	log.Println("GOV UK Sign in mock initialized")
 
-	if err := http.ListenAndServe(fmt.Sprintf(":%s", *port), nil); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil); err != nil {
 		panic(err)
 	}
 }

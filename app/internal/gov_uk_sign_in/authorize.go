@@ -2,7 +2,6 @@ package govuksignin
 
 import (
 	"fmt"
-	"log"
 )
 
 func (c *Client) AuthorizeAndRedirect(redirectURI, clientID, state, nonce, scope string) error {
@@ -18,7 +17,7 @@ func (c *Client) AuthorizeAndRedirect(redirectURI, clientID, state, nonce, scope
 
 	// Call out to authorize endpoint
 	authorizeUrl := fmt.Sprintf("%s?%s", authUrl.Path, authUrl.RawQuery)
-	log.Println(authorizeUrl)
+
 	req, err := c.NewRequest("GET", authorizeUrl, nil)
 	if err != nil {
 		return err

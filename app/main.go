@@ -7,11 +7,18 @@ import (
 	"net/http"
 	"net/url"
 	"path"
-	"time"
 
 	govuksignin "github.com/ministryofjustice/opg-modernising-lpa/internal/gov_uk_sign_in"
 
 	"github.com/ministryofjustice/opg-go-common/env"
+)
+
+var (
+	issuer     *url.URL
+	clientID   string
+	appHost    string
+	appPort    string
+	appBaseURL string
 )
 
 type PageData struct {
@@ -22,19 +29,22 @@ type PageData struct {
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
-	emailCookie, err := r.Cookie("user-email")
+	requestURI, err := url.Parse(r.RequestURI)
+
+	if err != nil {
+		log.Fatalf("Error parsing requestURI: %v", err)
+	}
 
 	var userEmail string
 	var signInUrl string
 
 	// Building login URL
-	if err != nil {
-		log.Println("setting sign in link to http://app:5000/login")
-		log.Printf("cookie err is: %v", err)
-		signInUrl = "http://app:5000/login"
+	if requestURI.Query().Get("user_email") != "" {
+		log.Printf("setting userEmail to %s from query", requestURI.Query().Get("user_email"))
+		userEmail = requestURI.Query().Get("user_email")
 	} else {
-		log.Printf("setting userEmail to %s from cookie", emailCookie.Value)
-		userEmail = emailCookie.Value
+		log.Printf("user email not set - setting login")
+		signInUrl = fmt.Sprintf("%s/login", appBaseURL)
 	}
 
 	// Building template
@@ -68,31 +78,28 @@ func home(w http.ResponseWriter, r *http.Request) {
 	log.Println("home")
 }
 
+func login(w http.ResponseWriter, r *http.Request) {
+	log.Println("/login")
+	signInClient := govuksignin.NewClient(http.DefaultClient, issuer.String())
+
+	redirectURL := fmt.Sprintf("%s%s", appBaseURL, signInClient.AuthCallbackPath)
+	err := signInClient.AuthorizeAndRedirect(redirectURL, clientID, "state-value", "nonce-value", "scope-value")
+
+	if err != nil {
+		log.Fatalf("Error GETting authorize: %v", err)
+	}
+}
+
 func setToken(w http.ResponseWriter, r *http.Request) {
 	log.Println("/auth/callback")
 
-	issuer, err := url.Parse(env.Get("ISSUER", "http://sign-in-mock:5060"))
-
-	if err != nil {
-		log.Fatalf("Issues parsing issuer URL: %v", err)
-	}
-
 	signInClient := govuksignin.NewClient(http.DefaultClient, issuer.String())
 
-	jwt, err := signInClient.GetToken()
+	jwt, err := signInClient.GetToken(fmt.Sprintf("%s:%s", appBaseURL, "/home"))
 
 	if err != nil {
 		log.Fatalf("Error getting token: %v", err)
 	}
-
-	log.Println("Setting token")
-
-	http.SetCookie(w, &http.Cookie{
-		Name:  "sign-in-token",
-		Value: jwt.Raw,
-		// TODO - use exp from JWT once we are verifying claims and have access to it
-		Expires: time.Now().Add(time.Second * time.Duration(5)),
-	})
 
 	userInfo, err := signInClient.GetUserInfo(jwt)
 
@@ -100,41 +107,30 @@ func setToken(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Error getting user info: %v", err)
 	}
 
-	log.Printf("setting user-email cookie to %s", userInfo.Email)
+	redirectURL, err := url.Parse(fmt.Sprintf("%s/home", appBaseURL))
 
-	//Store user email from /userinfo
-	http.SetCookie(w, &http.Cookie{
-		Name:  "user-email",
-		Value: userInfo.Email,
-		// TODO - use exp from JWT once we are verifying claims and have access to it
-		Expires: time.Now().Add(time.Second * time.Duration(5)),
-	})
+	if err != nil {
+		log.Fatalf("Error parsing redirect URL: %v", err)
+	}
 
-	http.Redirect(w, r, "http://app:5000/home", http.StatusFound)
+	redirectURL.Query().Add("email", userInfo.Email)
+
+	http.Redirect(w, r, redirectURL.String(), http.StatusFound)
 }
 
-func login(w http.ResponseWriter, r *http.Request) {
-	log.Println("/login")
-	issuer, err := url.Parse(env.Get("ISSUER", "http://sign-in-mock:5060"))
-	clientID := env.Get("CLIENT_ID", "client-id-value")
-	appHost := env.Get("APP_HOST", "http://app")
-	appPort := env.Get("APP_PORT", "5000")
+func main() {
+	issuerURL, err := url.Parse(env.Get("GOV_UK_SIGN_IN_URL", "http://sign-in-mock:5060"))
 
 	if err != nil {
 		log.Fatalf("Issues parsing issuer URL: %v", err)
 	}
 
-	signInClient := govuksignin.NewClient(http.DefaultClient, issuer.String())
+	issuer = issuerURL
+	clientID = env.Get("CLIENT_ID", "client-id-value")
+	appHost = env.Get("APP_HOST", "http://app")
+	appPort = env.Get("APP_PORT", "5000")
+	appBaseURL = fmt.Sprintf("%s:%s", appHost, appPort)
 
-	redirectURL := fmt.Sprintf("%s:%s%s", appHost, appPort, signInClient.AuthCallbackPath)
-	err = signInClient.AuthorizeAndRedirect(redirectURL, clientID, "state-value", "nonce-value", "scope-value")
-
-	if err != nil {
-		log.Fatalf("Error GETting authorize: %v", err)
-	}
-}
-
-func main() {
 	//TODO move port and host to env vars
 	mux := http.NewServeMux()
 
@@ -146,7 +142,7 @@ func main() {
 	mux.HandleFunc("/home", home)
 	mux.HandleFunc("/auth/callback", setToken)
 
-	err := http.ListenAndServe(":5000", mux)
+	err = http.ListenAndServe(appPort, mux)
 
 	if err != nil {
 		log.Fatal(err)
