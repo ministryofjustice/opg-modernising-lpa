@@ -87,21 +87,14 @@ func (c *Client) GetToken() (*jwt.Token, error) {
 	}
 
 	// Parse JWT from OIDC /token
-	log.Println(tokenResponse.IdToken)
-
 	token, err := jwt.Parse(tokenResponse.IdToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
-		log.Println("Checking key")
-		log.Println(pubKey)
-
 		// TODO - add in any extra checks on JWT here
 		return pubKey, nil
 	})
-
-	log.Println(err)
 
 	return token, err
 }

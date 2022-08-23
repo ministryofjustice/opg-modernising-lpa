@@ -2,7 +2,6 @@ package govuksignin
 
 import (
 	"encoding/json"
-	"log"
 
 	"github.com/golang-jwt/jwt"
 )
@@ -34,7 +33,6 @@ func (c *Client) GetUserInfo(jwt *jwt.Token) (UserInfoResponse, error) {
 	var userinfoResponse UserInfoResponse
 
 	err = json.NewDecoder(res.Body).Decode(&userinfoResponse)
-	log.Println(res.Body)
 
 	return userinfoResponse, err
 }

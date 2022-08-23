@@ -14,10 +14,6 @@ import (
 	"github.com/ministryofjustice/opg-go-common/env"
 )
 
-func Hello() string {
-	return "Hello, world!"
-}
-
 type PageData struct {
 	WebDir      string
 	ServiceName string
@@ -28,8 +24,8 @@ type PageData struct {
 func home(w http.ResponseWriter, r *http.Request) {
 	emailCookie, err := r.Cookie("user-email")
 
-	userEmail := ""
-	signInUrl := ""
+	var userEmail string
+	var signInUrl string
 
 	// Building login URL
 	if err != nil {
@@ -136,61 +132,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatalf("Error GETting authorize: %v", err)
 	}
-	//discoverEndpoint := issuer.String() + "/.well-known/openid-configuration"
-	//
-	//log.Println(discoverEndpoint)
-	//
-	//// Call out to discovery endpoint
-	//req, err := http.NewRequest("GET", discoverEndpoint, nil)
-	//if err != nil {
-	//	log.Fatalf("Error building discover request: %v", err)
-	//}
-	//
-	//res, err := http.DefaultClient.Do(req)
-	//
-	//if err != nil {
-	//	log.Fatalf("Error GETting discover data: %v", err)
-	//}
-	//
-	//defer res.Body.Close()
-	//
-	//// Add all endpoints needed for future calls to a struct
-	//err = json.NewDecoder(res.Body).Decode(&discoverData)
-	//if err != nil {
-	//	log.Println(res.Body)
-	//	log.Fatalf("Issues parsing discover response body: %v", err)
-	//}
-
-	//authorizeUrl, err := url.Parse(signInClient.DiscoverData.AuthorizationEndpoint)
-	//
-	//if err != nil {
-	//	log.Fatalf("Issues parsing auth endpoint URL: %v", err)
-	//}
-	//
-	//if issuer.Host != authorizeUrl.Host {
-	//	log.Fatalf("Host of authorize URL does not match issuer. Wanted %s, Got: %s", issuer.Host, authorizeUrl.Host)
-	//}
-	//
-	//q := authorizeUrl.Query()
-	////TODO use env var host and port once added
-	//q.Set("redirect_uri", "http://app:5000"+callbackPath)
-	//q.Set("client_id", clientID)
-	//q.Set("state", "state-value")
-	//q.Set("nonce", "nonce-value")
-	//q.Set("scope", "scope-value")
-	//authorizeUrl.RawQuery = q.Encode()
-	//
-	//// Call out to authorize endpoint
-	//req, err = http.NewRequest("GET", authorizeUrl.String(), nil)
-	//if err != nil {
-	//	log.Fatalf("Error building authorise request: %v", err)
-	//}
-	//
-	//res, err = http.DefaultClient.Do(req)
-	//
-	//if err != nil {
-	//	log.Fatalf("Error GETting discover data: %v", err)
-	//}
 }
 
 func main() {

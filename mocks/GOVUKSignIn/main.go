@@ -257,8 +257,6 @@ func userInfo() http.HandlerFunc {
 			log.Fatal(err)
 		}
 
-		log.Println(payloadBuf.String())
-
 		_, err = w.Write(payloadBuf.Bytes())
 
 		if err != nil {
@@ -319,7 +317,6 @@ func main() {
 		clientId    = flag.String("clientid", env.Get("CLIENT_ID", "theClientId"), "The client ID set up when registering with Gov UK Sign in")
 		mockBaseUri = flag.String("mockbaseuri", env.Get("MOCK_BASE_URI", fmt.Sprintf("http://sign-in-mock:%s", *port)), "The client ID set up when registering with Gov UK Sign in")
 	)
-	log.Println("Initializing GOV UK Sign in mock")
 
 	flag.Parse()
 
