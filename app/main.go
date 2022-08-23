@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	html "html/template"
 	"log"
 	"math/rand"
@@ -66,7 +67,7 @@ func main() {
 
 	mux.Handle("/", page.Start(tmpls.Get("start.gohtml")))
 	mux.Handle("/login", page.Login(*signInClient, appPublicURL, clientID, signInPublicURL))
-	mux.Handle("/home", page.Home(tmpls.Get("home.gohtml")))
+	mux.Handle("/home", page.Home(tmpls.Get("home.gohtml"), fmt.Sprintf("%s/login", appPublicURL)))
 	mux.Handle("/auth/callback", page.SetToken(*signInClient, appPublicURL, clientID, RandomString(12)))
 
 	server := &http.Server{

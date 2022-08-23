@@ -7,6 +7,7 @@
                 <h1 class="govuk-heading-l">Welcome {{ .UserEmail }}</h1>
             {{else}}
                 <h1 class="govuk-body">User not signed in</h1>
+                <p class="govuk-body">Sign in <a href="{{ .SignInURL }}" class="govuk-link">here</a>.</p>
             {{end}}
         </div>
     </div>

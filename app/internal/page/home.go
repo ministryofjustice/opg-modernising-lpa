@@ -10,9 +10,10 @@ import (
 
 type homeData struct {
 	UserEmail string
+	SignInURL string
 }
 
-func Home(tmpl template.Template) http.HandlerFunc {
+func Home(tmpl template.Template, signInURL string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		requestURI, err := url.Parse(r.RequestURI)
 
@@ -22,12 +23,11 @@ func Home(tmpl template.Template) http.HandlerFunc {
 
 		userEmail := requestURI.Query().Get("email")
 
-		err = tmpl(w, homeData{UserEmail: userEmail})
+		data := homeData{UserEmail: userEmail, SignInURL: signInURL}
+		err = tmpl(w, data)
 
 		if err != nil {
 			log.Fatalf("Error rendering template: %v", err)
 		}
-
-		log.Println("home")
 	}
 }
