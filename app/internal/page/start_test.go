@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -22,14 +23,16 @@ func (t *mockTemplate) Func(w io.Writer, data interface{}) error {
 func TestStart(t *testing.T) {
 	w := httptest.NewRecorder()
 
+	localizer := localize.Localizer{}
+
 	template := &mockTemplate{}
 	template.
-		On("Func", w, nil).
+		On("Func", w, startData{L: localizer, Lang: En}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	Start(template.Func)(w, r)
+	Start(nil, localizer, En, template.Func)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
