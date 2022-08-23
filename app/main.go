@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	html "html/template"
 	"log"
 	"math/rand"
@@ -135,9 +134,9 @@ func main() {
 	}
 
 	clientID := env.Get("CLIENT_ID", "client-id-value")
-	appHost := env.Get("APP_HOST", "http://app")
 	appPort := env.Get("APP_PORT", "8080")
-	appBaseURL := fmt.Sprintf("%s:%s", appHost, appPort)
+	appPublicURL := env.Get("APP_PUBLIC_URL", "http://localhost:5050")
+	signInPublicURL := env.Get("GOV_UK_SIGN_IN_PUBLIC_URL", "http://localhost:7012")
 
 	logger := logging.New(os.Stdout, "opg-modernise-lpa")
 	webDir := env.Get("WEB_DIR", "web")
@@ -154,10 +153,11 @@ func main() {
 	signInClient := govuksignin.NewClient(http.DefaultClient, issuer.String())
 
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+
 	mux.Handle("/", page.Start(tmpls.Get("start.gohtml")))
-	mux.Handle("/login", page.Login(*signInClient, appBaseURL, clientID))
-	mux.Handle("/home", page.Home(tmpls.Get("home.gohtml"), appBaseURL))
-	mux.Handle("/auth/callback", page.SetToken(*signInClient, appBaseURL, clientID, RandomString(12)))
+	mux.Handle("/login", page.Login(*signInClient, appPublicURL, clientID, signInPublicURL))
+	mux.Handle("/home", page.Home(tmpls.Get("home.gohtml")))
+	mux.Handle("/auth/callback", page.SetToken(*signInClient, appPublicURL, clientID, RandomString(12)))
 
 	server := &http.Server{
 		Addr:              ":" + appPort,

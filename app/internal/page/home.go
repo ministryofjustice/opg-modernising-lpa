@@ -12,7 +12,7 @@ type homeData struct {
 	UserEmail string
 }
 
-func Home(tmpl template.Template, appBaseURL string) http.HandlerFunc {
+func Home(tmpl template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		requestURI, err := url.Parse(r.RequestURI)
 
@@ -20,7 +20,7 @@ func Home(tmpl template.Template, appBaseURL string) http.HandlerFunc {
 			log.Fatalf("Error parsing requestURI: %v", err)
 		}
 
-		userEmail := requestURI.Query().Get("user_email")
+		userEmail := requestURI.Query().Get("email")
 
 		err = tmpl(w, homeData{UserEmail: userEmail})
 

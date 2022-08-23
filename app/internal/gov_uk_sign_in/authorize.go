@@ -2,9 +2,10 @@ package govuksignin
 
 import (
 	"fmt"
+	"net/http"
 )
 
-func (c *Client) AuthorizeAndRedirect(redirectURI, clientID, state, nonce, scope string) error {
+func (c *Client) AuthorizeAndRedirect(w http.ResponseWriter, r *http.Request, redirectURI, clientID, state, nonce, scope, signInBaseURL string) {
 	authUrl := c.DiscoverData.AuthorizationEndpoint
 
 	q := authUrl.Query()
@@ -16,14 +17,12 @@ func (c *Client) AuthorizeAndRedirect(redirectURI, clientID, state, nonce, scope
 	authUrl.RawQuery = q.Encode()
 
 	// Call out to authorize endpoint
-	authorizeUrl := fmt.Sprintf("%s?%s", authUrl.Path, authUrl.RawQuery)
+	authorizeUrl := fmt.Sprintf("%s%s?%s", signInBaseURL, authUrl.Path, authUrl.RawQuery)
 
-	req, err := c.NewRequest("GET", authorizeUrl, nil)
-	if err != nil {
-		return err
-	}
+	//req, err := c.NewRequest("GET", authorizeUrl, nil)
+	//if err != nil {
+	//	log.Fatalf("error building request: %v", err)
+	//}
 
-	_, err = c.httpClient.Do(req)
-
-	return err
+	http.Redirect(w, r, authorizeUrl, http.StatusFound)
 }

@@ -11,11 +11,12 @@ services:
     ports:
       - "5050:8080"
     environment:
-      - APP_HOST=http://app
+      - APP_PUBLIC_URL=http://localhost:5050
       - APP_PORT=8080
       - AWS_BASE_URL=http://localstack:4566
       - CLIENT_ID=client-id-value
       - GOV_UK_SIGN_IN_URL=http://sign-in-mock:5060
+      - GOV_UK_SIGN_IN_PUBLIC_URL=http://localhost:7012
 
   localstack:
     build:
@@ -38,6 +39,5 @@ services:
       - "7012:5060"
     environment:
       - AWS_BASE_URL=http://localstack:4566
-      - MLPA_BASE_URL=http://app:5000
       - PROXY_PORT=5060
       - PROXY_PRIVATE_KEY=/app/private_key.pem
