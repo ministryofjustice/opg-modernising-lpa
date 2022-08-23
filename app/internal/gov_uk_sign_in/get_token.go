@@ -58,14 +58,12 @@ func (c *Client) GetToken(redirectUri, clientID, JTI string) (*jwt.Token, error)
 
 	signedAssertion := signJwt(string(data), privateKey)
 
-	// Build body for POST to OIDC /token
 	body := &TokenRequestBody{
 		GrantType:           "authorization_code",
 		AuthorizationCode:   "code-value",
 		RedirectUri:         redirectUri,
 		ClientAssertionType: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-		// TODO - generate a real JWT https://docs.sign-in.service.gov.uk/integrate-with-integration-environment/integrate-with-code-flow/#create-a-jwt-assertion
-		ClientAssertion: signedAssertion,
+		ClientAssertion:     signedAssertion,
 	}
 
 	encodedPostBody := new(bytes.Buffer)
@@ -75,7 +73,6 @@ func (c *Client) GetToken(redirectUri, clientID, JTI string) (*jwt.Token, error)
 		return nil, err
 	}
 
-	// Build request for POST OIDC /token
 	req, err := c.NewRequest("POST", c.DiscoverData.TokenEndpoint.Path, encodedPostBody)
 	if err != nil {
 		return nil, err
@@ -83,7 +80,6 @@ func (c *Client) GetToken(redirectUri, clientID, JTI string) (*jwt.Token, error)
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	// POST to OIDC /token
 	res, err := c.httpClient.Do(req)
 
 	if err != nil {
@@ -95,7 +91,6 @@ func (c *Client) GetToken(redirectUri, clientID, JTI string) (*jwt.Token, error)
 		return nil, err
 	}
 
-	// Parse response from OIDC /token
 	defer res.Body.Close()
 
 	var tokenResponse TokenResponseBody
@@ -105,7 +100,6 @@ func (c *Client) GetToken(redirectUri, clientID, JTI string) (*jwt.Token, error)
 		return nil, err
 	}
 
-	// Parse JWT from OIDC /token
 	token, err := jwt.Parse(tokenResponse.IdToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -162,7 +156,6 @@ func getPrivateKey() (*rsa.PrivateKey, error) {
 }
 
 func decodeSecret(secretOutput *secretsmanager.GetSecretValueOutput) ([]byte, error) {
-	// Base64 Decode public key
 	var base64PublicKey string
 	if secretOutput.SecretString != nil {
 		base64PublicKey = *secretOutput.SecretString
@@ -178,7 +171,6 @@ func decodeSecret(secretOutput *secretsmanager.GetSecretValueOutput) ([]byte, er
 }
 
 func getSecret(secretName string) (*secretsmanager.GetSecretValueOutput, error) {
-	// Get public key from AWS secrets manager
 	awsBaseUrl := env.Get("AWS_BASE_URL", "http://localstack:4566")
 
 	config := &aws.Config{
@@ -190,7 +182,6 @@ func getSecret(secretName string) (*secretsmanager.GetSecretValueOutput, error) 
 		config.Credentials = credentials.NewStaticCredentials("test", "test", "")
 	}
 
-	// Get private key from AWS secrets manager
 	sess, err := session.NewSession(config)
 
 	if err != nil {

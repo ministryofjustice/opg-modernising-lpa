@@ -11,8 +11,6 @@ import (
 
 func SetToken(c govuksignin.Client, appPublicURL, clientID, JTI string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("/auth/callback")
-
 		jwt, err := c.GetToken(fmt.Sprintf("%s:%s", appPublicURL, "/home"), clientID, JTI)
 
 		if err != nil {
@@ -33,10 +31,7 @@ func SetToken(c govuksignin.Client, appPublicURL, clientID, JTI string) http.Han
 
 		q := redirectURL.Query()
 		q.Add("email", userInfo.Email)
-
 		redirectURL.RawQuery = q.Encode()
-
-		log.Printf("redirecting to %s", redirectURL.String())
 
 		http.Redirect(w, r, redirectURL.String(), http.StatusFound)
 	}

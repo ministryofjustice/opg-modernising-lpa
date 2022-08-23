@@ -16,13 +16,7 @@ func (c *Client) AuthorizeAndRedirect(w http.ResponseWriter, r *http.Request, re
 	q.Set("scope", scope)
 	authUrl.RawQuery = q.Encode()
 
-	// Call out to authorize endpoint
 	authorizeUrl := fmt.Sprintf("%s%s?%s", signInBaseURL, authUrl.Path, authUrl.RawQuery)
-
-	//req, err := c.NewRequest("GET", authorizeUrl, nil)
-	//if err != nil {
-	//	log.Fatalf("error building request: %v", err)
-	//}
 
 	http.Redirect(w, r, authorizeUrl, http.StatusFound)
 }

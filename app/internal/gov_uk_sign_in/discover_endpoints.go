@@ -20,7 +20,6 @@ func (c *Client) DiscoverEndpoints() (DiscoverResponse, error) {
 
 	defer res.Body.Close()
 
-	// Add all endpoints needed for future calls to a struct
 	var discoverResponse DiscoverResponse
 	err = json.NewDecoder(res.Body).Decode(&discoverResponse)
 
