@@ -8,7 +8,7 @@ COPY package.json .
 COPY yarn.lock .
 RUN yarn
 
-COPY web/assets web/assets
+COPY app/web/assets web/assets
 RUN yarn build
 
 FROM golang:1.18 as build-env
@@ -46,7 +46,7 @@ WORKDIR /go/bin
 
 COPY --from=build-env /go/bin/mlpab mlpab
 COPY --from=asset-env /app/web/static web/static
-COPY web/template web/template
+COPY app/web/template web/template
 
 RUN addgroup -S app && \
     adduser -S -g app app && \
