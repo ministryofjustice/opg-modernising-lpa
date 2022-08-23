@@ -5,6 +5,6 @@ services:
     image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${TAG}
     container_name: app
     ports:
-      - "5050:5000"
+      - "5050:8080"
     # depends_on:
     #   - oidc-server-mock
