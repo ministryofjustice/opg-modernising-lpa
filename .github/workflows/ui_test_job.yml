@@ -68,7 +68,6 @@ jobs:
         with:
           name: environment_config_file
       - uses: actions/setup-python@v4
-        if: ${{ inputs.run_against_image != true }}
         with:
           python-version: '3.9'
           check-latest: true
