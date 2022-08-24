@@ -8,13 +8,19 @@ import (
 )
 
 func TestNewBundle(t *testing.T) {
+	assert := assert.New(t)
 	bundle := NewBundle("testdata/en.json", "testdata/cy.json")
 
 	en := bundle.For("en")
-	assert.Equal(t, "A", en.T("a"))
-	assert.Equal(t, template.HTML("B"), en.HTML("b"))
+	assert.Equal("A", en.T("a"))
+	assert.Equal(template.HTML("B"), en.HTML("b"))
+	assert.Equal("1 ONE", en.Count("c", 1))
+	assert.Equal("2 OTHER", en.Count("c", 2))
 
 	cy := bundle.For("cy")
-	assert.Equal(t, "C", cy.T("a"))
-	assert.Equal(t, template.HTML("D"), cy.HTML("b"))
+	assert.Equal("C", cy.T("a"))
+	assert.Equal(template.HTML("D"), cy.HTML("b"))
+	assert.Equal("1 one", cy.Count("c", 1))
+	assert.Equal("2 two", cy.Count("c", 2))
+	assert.Equal("3 few", cy.Count("c", 3))
 }
