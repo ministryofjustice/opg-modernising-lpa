@@ -12,6 +12,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+var expectedError = errors.New("err")
+
 type mockTemplate struct {
 	mock.Mock
 }
@@ -36,7 +38,7 @@ func TestStart(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, startData{L: localizer, Lang: En}).
+		On("Func", w, &startData{Page: "/", L: localizer, Lang: En}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
@@ -49,7 +51,6 @@ func TestStart(t *testing.T) {
 }
 
 func TestStartWhenTemplateErrors(t *testing.T) {
-	expectedError := errors.New("err")
 	w := httptest.NewRecorder()
 
 	localizer := localize.Localizer{}
@@ -59,7 +60,7 @@ func TestStartWhenTemplateErrors(t *testing.T) {
 		On("Print", expectedError)
 	template := &mockTemplate{}
 	template.
-		On("Func", w, startData{L: localizer, Lang: En}).
+		On("Func", w, &startData{Page: "/", L: localizer, Lang: En}).
 		Return(expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
