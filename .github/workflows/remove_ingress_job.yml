@@ -30,6 +30,6 @@ jobs:
           python-version: '3.9'
           check-latest: true
       - name: remove_ingress
-        run: /
+        run: |
           pip install -r ./scripts/ci_ingress/requirements.txt
           python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json
