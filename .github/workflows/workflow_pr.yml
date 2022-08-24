@@ -93,6 +93,7 @@ jobs:
     name: Open ingress to env for UI testing
     uses: ./.github/workflows/manage_ingress_job.yml
     needs: [pr_deploy]
+    secrets: inherit
     with:
       add: true
 
@@ -110,6 +111,7 @@ jobs:
     name: Close ingress to env for UI testing
     uses: ./.github/workflows/manage_ingress_job.yml
     needs: [ui_tests_pr_env]
+    secrets: inherit
 
   end_of_pr_workflow:
     name: End of PR Workflow
