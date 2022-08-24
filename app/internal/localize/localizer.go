@@ -37,3 +37,7 @@ func (l Localizer) T(messageID string) string {
 func (l Localizer) HTML(messageID string) template.HTML {
 	return template.HTML(l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID}))
 }
+
+func (l Localizer) Count(messageID string, count int) template.HTML {
+	return template.HTML(l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, PluralCount: count}))
+}

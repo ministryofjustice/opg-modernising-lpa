@@ -16,5 +16,42 @@
     "startContent": "<p class=\"govuk-body\">Welsh</p>",
     "start": "Welsh",
     "openGovernmentLicenceContent": "Mae’r holl gynnwys ar gael o dan <a class=\"govuk-footer__link\" href=\"https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/\" rel=\"license\">Trwydded Llywodraeth Agored v3.0</a>, oni nodir yn wahanol",
-    "crownCopyright": "© Hawlfraint y goron"
+    "crownCopyright": "© Hawlfraint y goron",
+    "continue": "Welsh",
+    "thereIsAProblem": "Welsh",
+        
+    "yourDetails": "Welsh",
+    "yourFirstName": "Welsh",
+    "yourLastName": "Welsh",
+    "yourDateOfBirth": "Welsh",
+    "dateOfBirthHint": "Welsh",
+    "day": "Welsh",
+    "month": "Welsh",
+    "year": "Welsh",
+    "enterYourFirstName": "Welsh",
+    "enterYourLastName": "Welsh",
+    "dateOfBirthDay": "Welsh",
+    "dateOfBirthMonth": "Welsh",
+    "dateOfBirthYear": "Welsh",
+    "yourDateOfBirthMustBeReal": "Welsh",
+    
+    "yourHomeAddress": "Welsh",
+    "postcode": "Welsh",
+    "findAddress": "Welsh",
+    "selectAnAddress": "Welsh",
+    "cantFindYourAddress": "Welsh",
+    "enterYourAddress": "Welsh",
+    "addressesFound": {
+        "one": "{{.PluralCount}} Welsh",
+        "other": "{{.PluralCount}} Welsh"
+    },
+    "addressLine1": "Welsh",
+    "addressLine2": "Welsh",
+    "townOrCity": "Welsh",
+    "enterPostcode": "Welsh",
+    "selectYourAddress": "Welsh",
+    "enterYourAddress": "Welsh",
+    "enterYourTownOrCity": "Welsh",
+    "enterYourPostcode": "Welsh",
+    "couldNotLookupPostcode": "Welsh"
 }
