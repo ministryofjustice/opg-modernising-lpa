@@ -12,7 +12,7 @@ defaults:
     shell: bash
 
 jobs:
-  run_ui_tests:
+  manage_ingress:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

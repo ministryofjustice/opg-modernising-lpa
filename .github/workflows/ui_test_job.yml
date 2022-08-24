@@ -56,10 +56,45 @@ jobs:
       - name: Check IP
         run: |
           curl https://checkip.amazonaws.com
+
+      - name: Run Against Image/Configure AWS Credentials
+        if: ${{ inputs.run_against_image != true }}
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          aws-region: eu-west-1
+          role-duration-seconds: 900
+          role-session-name: OPGModernisingLPATerraformGithubAction
+
+      - name: Download environment config file
+        if: ${{ inputs.run_against_image != true }}
+        uses: actions/download-artifact@v3
+        with:
+          name: environment_config_file
+      - uses: actions/setup-python@v4
+        if: ${{ inputs.run_against_image != true }}
+        with:
+          python-version: '3.9'
+          check-latest: true
+
+      - run: pip install -r ./scripts/ci_ingress/requirements.txt
+        if: ${{ inputs.run_against_image != true }}
+
+      - name: add_ingress
+        if: ${{ inputs.run_against_image != true }}
+        run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json --add
+
+
       - name: Cypress run
         uses: cypress-io/github-action@v4
         env:
           CYPRESS_baseUrl: "${{ inputs.base_url }}"
+
+      - name: remove_ingress
+        if: ${{ inputs.run_against_image != true }}
+        run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json
+
       - name: Stop Docker Compose Service
         if: ${{ always() }}
         run:
