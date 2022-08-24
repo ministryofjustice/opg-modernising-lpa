@@ -1,0 +1,101 @@
+on:
+  workflow_call:
+    inputs:
+      base_url:
+        description: 'Environment URL to target for testing'
+        required: false
+        type: string
+        default: http://localhost:5050
+      run_against_image:
+        description: 'Environment URL to target for testing'
+        required: true
+        type: boolean
+      tag:
+        description: 'Tag for docker image'
+        required: false
+        type: string
+        default: latest
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  run_ui_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: unfor19/install-aws-cli-action@v1
+        name: Run Against Image/aws-cli-action
+        if: ${{ inputs.run_against_image }}
+      - name: Run Against Image/Configure AWS Credentials
+        if: ${{ inputs.run_against_image }}
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-ci
+          role-duration-seconds: 900
+          role-session-name: OPGModernisingLPATerraformGithubAction
+      - name: Run Against Image/ECR Login
+        if: ${{ inputs.run_against_image }}
+        id: login_ecr
+        uses: aws-actions/amazon-ecr-login@v1.5.0
+        with:
+          registries: 311462405659
+      - name: Run Against Image/Run Docker Compose Service
+        if: ${{ inputs.run_against_image }}
+        env:
+          ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
+          ECR_REPOSITORY: modernising-lpa/app
+          TAG: ${{ inputs.tag }}
+        run: |
+          docker compose -f docker-compose.ci.yml up -d
+          # docker run -d -p 5050:5000 $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
+      - name: Check IP
+        run: |
+          curl https://checkip.amazonaws.com
+
+      - name: Run Against Image/Configure AWS Credentials
+        if: ${{ inputs.run_against_image != true }}
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          aws-region: eu-west-1
+          role-duration-seconds: 900
+          role-session-name: OPGModernisingLPATerraformGithubAction
+
+      - name: Download environment config file
+        if: ${{ inputs.run_against_image != true }}
+        uses: actions/download-artifact@v3
+        with:
+          name: environment_config_file
+      - uses: actions/setup-python@v4
+        if: ${{ inputs.run_against_image != true }}
+        with:
+          python-version: '3.9'
+          check-latest: true
+
+      - run: pip install -r ./scripts/ci_ingress/requirements.txt
+        if: ${{ inputs.run_against_image != true }}
+
+      - name: add_ingress
+        if: ${{ inputs.run_against_image != true }}
+        run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json --add
+
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v4
+        env:
+          CYPRESS_baseUrl: "${{ inputs.base_url }}"
+
+      - name: remove_ingress
+        if: ${{ inputs.run_against_image != true }}
+        run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json
+
+      - name: Stop Docker Compose Service
+        if: ${{ always() }}
+        run:
+          docker compose -f docker-compose.ci.yml down
