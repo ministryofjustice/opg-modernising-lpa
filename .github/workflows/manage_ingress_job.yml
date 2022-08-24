@@ -42,4 +42,4 @@ jobs:
       - name: check ls
         run: ls -al
       - name: manage_ingress
-        run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.yml
+        run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json
