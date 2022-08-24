@@ -87,13 +87,13 @@
         <div class="govuk-clearfix">          
           <ul class="trans-switch" id="language-switch" aria-label="Change your language">
             <li class="govuk-list trans-switch__list govuk-body-s" id="language-switch-en" lang="en-gb">
-              {{ if isWelsh .Lang }}<a href="/" class="govuk-link"><span class="govuk-visually-hidden">Change language to </span>{{ end }}
+              {{ if isWelsh .Lang }}<a href="{{ .Page }}" class="govuk-link"><span class="govuk-visually-hidden">Change language to </span>{{ end }}
                 {{ if isEnglish .Lang }}<span class="govuk-visually-hidden">Current language is </span>{{ end }}
                 English
                 {{ if isWelsh .Lang }}</a>{{ end }}
             </li>
             <li class="govuk-list trans-switch__list govuk-body-s" id="language-switch-cy" lang="cy-gb">
-              {{ if isEnglish .Lang }}<a href="/cy/" class="govuk-link" aria-label="Newid iaith i'r Gymraeg">{{ end }}
+              {{ if isEnglish .Lang }}<a href="/cy{{ .Page }}" class="govuk-link" aria-label="Newid iaith i'r Gymraeg">{{ end }}
                 Cymraeg
                 {{ if isEnglish .Lang }}</a>{{ end }}
               {{ if isWelsh .Lang }}<span class="govuk-visually-hidden"> yw'r iaith bresennol</span>{{ end }}
