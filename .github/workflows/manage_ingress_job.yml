@@ -39,3 +39,7 @@ jobs:
           python-version: '3.9'
           check-latest: true
       - run: pip install -r ./scripts/ci_ingress/requirements.txt
+      - name: check ls
+        run: ls -al
+      - name: manage_ingress
+        run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config_file.yml
