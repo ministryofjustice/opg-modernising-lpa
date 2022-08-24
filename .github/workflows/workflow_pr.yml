@@ -97,6 +97,13 @@ jobs:
       tag: ${{ needs.create_tags.outputs.version_tag }}
     secrets: inherit
 
+  always_remove_ingress:
+    name: Remove CI ingress from environment
+    if: ${{ always() }}
+    uses: ./.github/workflows/remove_ingress_job.yml
+    needs: [ui_tests_pr_env]
+    secrets: inherit
+
   end_of_pr_workflow:
     name: End of PR Workflow
     if: github.ref != 'refs/heads/main'
