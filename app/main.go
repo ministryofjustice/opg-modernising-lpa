@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -38,12 +37,12 @@ func RandomString(length int) string {
 }
 
 func main() {
-	issuer, err := url.Parse(env.Get("GOV_UK_SIGN_IN_URL", "http://sign-in-mock:5060"))
-
-	if err != nil {
-		log.Fatalf("Issues parsing issuer URL: %v", err)
-	}
 	logger := logging.New(os.Stdout, "opg-modernising-lpa")
+
+	issuer, err := url.Parse(env.Get("GOV_UK_SIGN_IN_URL", "http://sign-in-mock:5060"))
+	if err != nil {
+		logger.Fatal(err)
+	}
 
 	clientID := env.Get("CLIENT_ID", "client-id-value")
 	appPort := env.Get("APP_PORT", "8080")
@@ -70,7 +69,11 @@ func main() {
 
 	fileServer := http.FileServer(http.Dir(webDir + "/static/"))
 
-	signInClient := govuksignin.NewClient(http.DefaultClient, issuer.String())
+	signInClient := govuksignin.NewClient(http.DefaultClient, issuer.String(), "/auth/callback")
+	err = signInClient.Init()
+	if err != nil {
+		logger.Fatal(err)
+	}
 
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 

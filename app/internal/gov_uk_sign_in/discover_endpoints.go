@@ -2,8 +2,8 @@ package govuksignin
 
 import (
 	"encoding/json"
-	"io"
-	"log"
+	"fmt"
+	"net/url"
 )
 
 func (c *Client) DiscoverEndpoints() (DiscoverResponse, error) {
@@ -13,7 +13,6 @@ func (c *Client) DiscoverEndpoints() (DiscoverResponse, error) {
 	}
 
 	res, err := c.httpClient.Do(req)
-
 	if err != nil {
 		return DiscoverResponse{}, err
 	}
@@ -22,17 +21,30 @@ func (c *Client) DiscoverEndpoints() (DiscoverResponse, error) {
 
 	var discoverResponse DiscoverResponse
 	err = json.NewDecoder(res.Body).Decode(&discoverResponse)
-
-	bodyBytes, err := io.ReadAll(res.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	bodyString := string(bodyBytes)
-	log.Println(bodyString)
-
 	if err != nil {
 		return DiscoverResponse{}, err
 	}
 
-	return discoverResponse, err
+	return discoverResponse, nil
+}
+
+func (c *Client) assertEndpointsHostsMatchIssuerHost() error {
+	endpoints := []*url.URL{
+		&c.DiscoverData.AuthorizationEndpoint,
+		&c.DiscoverData.TokenEndpoint,
+		&c.DiscoverData.UserinfoEndpoint,
+	}
+
+	bu, err := url.Parse(c.baseURL)
+	if err != nil {
+		return fmt.Errorf("error parsing baseURL: %v", err)
+	}
+
+	for _, endpoint := range endpoints {
+		if bu.Host != endpoint.Host {
+			return fmt.Errorf("Host of URL '%s' does not match issuer. Wanted %s, Got: %s", endpoint.RawPath, c.baseURL, endpoint.Host)
+		}
+	}
+
+	return nil
 }

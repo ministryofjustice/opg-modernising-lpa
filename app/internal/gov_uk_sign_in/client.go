@@ -3,10 +3,16 @@ package govuksignin
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 )
+
+type Client struct {
+	httpClient       *http.Client
+	baseURL          string
+	DiscoverData     DiscoverResponse
+	AuthCallbackPath string
+}
 
 type DiscoverResponse struct {
 	AuthorizationEndpoint                      url.URL  `json:"authorization_endpoint"`
@@ -72,50 +78,14 @@ func (dr *DiscoverResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-type Client struct {
-	httpClient       *http.Client
-	baseURL          string
-	DiscoverData     DiscoverResponse
-	AuthCallbackPath string
-}
-
-func NewClient(httpClient *http.Client, baseURL string) *Client {
+func NewClient(httpClient *http.Client, baseURL, authCallbackPath string) *Client {
 	client := &Client{
-		httpClient: httpClient,
-		baseURL:    baseURL,
+		httpClient:       httpClient,
+		baseURL:          baseURL,
+		AuthCallbackPath: authCallbackPath,
 	}
-
-	discoverData, err := client.DiscoverEndpoints()
-
-	if err != nil {
-		log.Fatalf("Error discovering endpoints: %v", err)
-	}
-
-	client.DiscoverData = discoverData
-	client.AuthCallbackPath = "/auth/callback"
-
-	assertEndpointsHostsMatchIssuerHost(*client)
 
 	return client
-}
-
-func assertEndpointsHostsMatchIssuerHost(c Client) {
-	endpoints := []*url.URL{
-		&c.DiscoverData.AuthorizationEndpoint,
-		&c.DiscoverData.TokenEndpoint,
-		&c.DiscoverData.UserinfoEndpoint,
-	}
-
-	buParsed, err := url.Parse(c.baseURL)
-	if err != nil {
-		log.Fatalf("Error parsing baseURL: %v", err)
-	}
-
-	for _, endpoint := range endpoints {
-		if buParsed.Host != endpoint.Host {
-			log.Fatalf("Host of URL '%s' does not match issuer. Wanted %s, Got: %s", endpoint.RawPath, c.baseURL, endpoint.Host)
-		}
-	}
 }
 
 func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request, error) {
@@ -125,4 +95,14 @@ func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request,
 	}
 
 	return req, nil
+}
+
+func (c *Client) Init() error {
+	dr, err := c.DiscoverEndpoints()
+	if err != nil {
+		return err
+	}
+
+	c.DiscoverData = dr
+	return c.assertEndpointsHostsMatchIssuerHost()
 }
