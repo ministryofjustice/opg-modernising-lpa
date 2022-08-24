@@ -53,6 +53,9 @@ jobs:
         run: |
           docker compose -f docker-compose.ci.yml up -d
           # docker run -d -p 5050:5000 $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
+      - name: Check IP
+        run: |
+          curl https://checkip.amazonaws.com
       - name: Cypress run
         uses: cypress-io/github-action@v4
         env:
