@@ -64,14 +64,17 @@ jobs:
           role-duration-seconds: 900
           role-session-name: OPGModernisingLPATerraformGithubAction
       - name: Download environment config file
+        if: ${{ inputs.run_against_image != true }}
         uses: actions/download-artifact@v3
         with:
           name: environment_config_file
       - uses: actions/setup-python@v4
+        if: ${{ inputs.run_against_image != true }}
         with:
           python-version: '3.9'
           check-latest: true
       - run: pip install -r ./scripts/ci_ingress/requirements.txt
+        if: ${{ inputs.run_against_image != true }}
       - name: add_ingress
         if: ${{ inputs.run_against_image != true }}
         run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json --add
@@ -82,7 +85,7 @@ jobs:
           CYPRESS_baseUrl: "${{ inputs.base_url }}"
 
       - name: remove_ingress
-        if: ${{ always() }}
+        if: ${{ inputs.run_against_image != true }}
         run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json
 
       - name: Stop Docker Compose Service
