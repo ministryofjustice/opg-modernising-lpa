@@ -7,7 +7,7 @@ on:
         type: string
         default: http://localhost:5050
       run_against_image:
-        description: 'Environment URL to target for testing'
+        description: 'Target a docker compose service environment'
         required: true
         type: boolean
       tag:
