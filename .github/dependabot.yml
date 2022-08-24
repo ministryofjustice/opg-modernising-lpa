@@ -18,12 +18,6 @@ updates:
     directory: '/'
     schedule:
       interval: 'daily'
-  - package-ecosystem: 'composer'
-    pull-request-branch-name:
-      separator: "-"
-    directory: '/'
-    schedule:
-      interval: 'daily'
   - package-ecosystem: 'docker'
     pull-request-branch-name:
       separator: "-"
