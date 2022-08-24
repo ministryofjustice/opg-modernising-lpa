@@ -127,7 +127,8 @@ class IngressManager:
                     ],
                 )
                 if self.verify_ingress_rule(sg_id):
-                    logger.info("Added ingress rule to %s", sg_id)
+                    logger.info("Added ingress rule to %s for %s",
+                                sg_id, ingress_cidr)
         except Exception as exception:
             logger.info(exception)
 

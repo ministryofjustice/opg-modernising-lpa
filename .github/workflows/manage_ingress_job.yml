@@ -36,10 +36,10 @@ jobs:
           python-version: '3.9'
           check-latest: true
       - run: pip install -r ./scripts/ci_ingress/requirements.txt
-      - name: manage_ingress
+      - name: add_ingress
         if: ${{ inputs.add }}
         run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json --add
 
-      - name: manage_ingress
-        if: ${{ inputs.add != true}}
+      - name: remove_ingress
+        if: ${{ inputs.add != true }}
         run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json
