@@ -1,4 +1,8 @@
 {
     "a": "A",
-    "b": "B"
+    "b": "B",
+    "c": {
+        "one": "{{.PluralCount}} ONE",
+        "other": "{{.PluralCount}} OTHER"
+    }
 }
