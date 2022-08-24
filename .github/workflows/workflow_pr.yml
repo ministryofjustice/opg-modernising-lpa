@@ -89,7 +89,7 @@ jobs:
 
   open_ingress:
     name: Open ingress to env for UI testing
-    uses: ./.github/workflows/manage_ingress.yml
+    uses: ./.github/workflows/manage_ingress_job.yml
     with:
       add: true
 
@@ -105,7 +105,7 @@ jobs:
 
   close_ingress:
     name: Open ingress to env for UI testing
-    uses: ./.github/workflows/manage_ingress.yml
+    uses: ./.github/workflows/manage_ingress_job.yml
 
   end_of_pr_workflow:
     name: End of PR Workflow
