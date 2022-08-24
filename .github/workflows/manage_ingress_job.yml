@@ -1,0 +1,45 @@
+on:
+  workflow_call:
+    inputs:
+      add:
+        description: 'Add ingress to environment for UI'
+        required: false
+        type: boolean
+        default: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  run_ui_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: unfor19/install-aws-cli-action@v1
+        name: Run Against Image/aws-cli-action
+        if: ${{ inputs.run_against_image }}
+      - name: Run Against Image/Configure AWS Credentials
+        if: ${{ inputs.run_against_image }}
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-ci
+          role-duration-seconds: 900
+          role-session-name: OPGModernisingLPATerraformGithubAction
+
+      - name: Download environment config file
+        uses: actions/download-artifact@v3
+        with:
+          name: environment_config_file
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          check-latest: true
+      - run: pip install -r ./scripts/ci_ingress/requirements.txt
+      - name: check ls
+        run: ls -al
+      - name: manage_ingress
+        run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json
