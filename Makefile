@@ -3,7 +3,6 @@ go-test:
 
 run-cypress-dc:
 	docker compose -f ./opg-modernising-lpa/docker-compose.yml \
-	-f ./opg-modernising-lpa/docker-compose.override.yml \
 	-f ./opg-modernising-lpa/docker-compose.testing.yml \
 	up cypress
 
