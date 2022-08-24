@@ -84,10 +84,6 @@ jobs:
         env:
           CYPRESS_baseUrl: "${{ inputs.base_url }}"
 
-      - name: remove_ingress
-        if: ${{ inputs.run_against_image != true }}
-        run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json
-
       - name: Stop Docker Compose Service
         if: ${{ always() }}
         run:
