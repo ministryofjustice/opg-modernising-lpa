@@ -105,8 +105,9 @@ jobs:
     secrets: inherit
 
   close_ingress:
-    name: Open ingress to env for UI testing
+    name: Close ingress to env for UI testing
     uses: ./.github/workflows/manage_ingress_job.yml
+    needs: [ui_tests_pr_env]
 
   end_of_pr_workflow:
     name: End of PR Workflow
