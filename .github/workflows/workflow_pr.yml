@@ -90,13 +90,14 @@ jobs:
   open_ingress:
     name: Open ingress to env for UI testing
     uses: ./.github/workflows/manage_ingress_job.yml
+    needs: [pr_deploy]
     with:
       add: true
 
   ui_tests_pr_env:
     name: Run Cypress UI Tests On PR Environment
     uses: ./.github/workflows/ui_test_job.yml
-    needs: [pr_deploy, create_tags]
+    needs: [pr_deploy, create_tags, open_ingress]
     with:
       run_against_image: false
       base_url: "https://${{ needs.pr_deploy.outputs.url }}"
