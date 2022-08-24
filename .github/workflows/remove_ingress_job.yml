@@ -1,0 +1,35 @@
+on:
+  workflow_call:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  remove_ingress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: unfor19/install-aws-cli-action@v1
+        name: Run Against Image/aws-cli-action
+      - name: Manage Ingress/Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          aws-region: eu-west-1
+          role-duration-seconds: 900
+          role-session-name: OPGModernisingLPATerraformGithubAction
+
+      - name: Download environment config file
+        uses: actions/download-artifact@v3
+        with:
+          name: environment_config_file
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          check-latest: true
+      - name: remove_ingress
+        run: /
+          pip install -r ./scripts/ci_ingress/requirements.txt
+          python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json
