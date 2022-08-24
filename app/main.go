@@ -11,13 +11,13 @@ import (
 	"syscall"
 	"time"
 
-	govuksignin "github.com/ministryofjustice/opg-modernising-lpa/internal/gov_uk_sign_in"
-
 	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
 )
 
 const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -68,9 +68,12 @@ func main() {
 	mux := http.NewServeMux()
 
 	fileServer := http.FileServer(http.Dir(webDir + "/static/"))
+	awsBaseUrl := env.Get("AWS_BASE_URL", "http://localstack:4566")
 
-	signInClient := govuksignin.NewClient(http.DefaultClient, issuer.String(), "/auth/callback")
-	err = signInClient.Init()
+	secretsClient := &secrets.Client{BaseURL: awsBaseUrl}
+
+	signInClient := signin.NewClient(http.DefaultClient, "/auth/callback", secretsClient)
+	err = signInClient.Discover(issuer.String() + "/.well-known/openid-configuration")
 	if err != nil {
 		logger.Fatal(err)
 	}

@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"net/url"
 
-	govuksignin "github.com/ministryofjustice/opg-modernising-lpa/internal/gov_uk_sign_in"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
 )
 
-func SetToken(c govuksignin.Client, appPublicURL, clientID, JTI string) http.HandlerFunc {
+func SetToken(c signin.Client, appPublicURL, clientID, JTI string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		jwt, err := c.GetToken(fmt.Sprintf("%s:%s", appPublicURL, "/home"), clientID, JTI)
+		jwt, err := c.GetToken(fmt.Sprintf("%s:%s", appPublicURL, "/home"), clientID, JTI, r.FormValue("code"))
 
 		if err != nil {
 			log.Fatalf("Error getting token: %v", err)

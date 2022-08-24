@@ -1,9 +1,8 @@
-package govuksignin
+package signin
 
 import (
 	"encoding/json"
-
-	"github.com/golang-jwt/jwt"
+	"net/http"
 )
 
 type UserInfoResponse struct {
@@ -15,14 +14,13 @@ type UserInfoResponse struct {
 	UpdatedAt     int    `json:"updated_at"`
 }
 
-func (c *Client) GetUserInfo(jwt *jwt.Token) (UserInfoResponse, error) {
-	req, err := c.NewRequest("GET", c.DiscoverData.UserinfoEndpoint.Path, nil)
+func (c *Client) GetUserInfo(idToken string) (UserInfoResponse, error) {
+	req, err := http.NewRequest("GET", c.DiscoverData.UserinfoEndpoint, nil)
 	if err != nil {
 		return UserInfoResponse{}, err
 	}
 
-	var bearer = "Bearer " + jwt.Raw
-	req.Header.Add("Authorization", bearer)
+	req.Header.Add("Authorization", "Bearer "+idToken)
 
 	res, err := c.httpClient.Do(req)
 	if err != nil {
