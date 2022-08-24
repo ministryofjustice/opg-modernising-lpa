@@ -36,7 +36,10 @@ jobs:
           python-version: '3.9'
           check-latest: true
       - run: pip install -r ./scripts/ci_ingress/requirements.txt
-      - name: check ls
-        run: ls -al
       - name: manage_ingress
+        if: ${{ inputs.add }}
+        run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json --add
+
+      - name: manage_ingress
+        if: ${{ inputs.add != true}}
         run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json
