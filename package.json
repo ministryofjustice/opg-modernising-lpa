@@ -30,7 +30,7 @@
         "@codeceptjs/ui": "^0.4.6",
         "axe-core": "^4.4.3",
         "axe-playwright": "^1.1.11",
-        "codeceptjs": "^3.3.4",
+        "codeceptjs": "^3.3.5",
         "cypress": "^10.4.0",
         "cypress-axe": "^1.0.0",
         "esbuild": "^0.14.53",
