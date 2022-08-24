@@ -76,7 +76,7 @@ jobs:
     needs: [preproduction_deploy, create_tags]
     with:
       run_against_image: false
-      base_url: "https://${{ needs.pr_deploy.outputs.url }}"
+      base_url: "https://${{ needs.preproduction_deploy.outputs.url }}"
       tag: ${{ needs.create_tags.outputs.version_tag }}
     secrets: inherit
 
