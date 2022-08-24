@@ -87,6 +87,12 @@ jobs:
         version_tag: ${{ needs.create_tags.outputs.version_tag }}
       secrets: inherit
 
+  open_ingress:
+    name: Open ingress to env for UI testing
+    uses: ./.github/workflows/manage_ingress.yml
+    with:
+      add: true
+
   ui_tests_pr_env:
     name: Run Cypress UI Tests On PR Environment
     uses: ./.github/workflows/ui_test_job.yml
@@ -96,6 +102,10 @@ jobs:
       base_url: "https://${{ needs.pr_deploy.outputs.url }}"
       tag: ${{ needs.create_tags.outputs.version_tag }}
     secrets: inherit
+
+  close_ingress:
+    name: Open ingress to env for UI testing
+    uses: ./.github/workflows/manage_ingress.yml
 
   end_of_pr_workflow:
     name: End of PR Workflow
@@ -111,4 +121,3 @@ jobs:
           echo "${{ needs.pr_deploy.outputs.terraform_workspace_name }} PR environment tested, built and deployed"
           echo "Tag Deployed: ${{ needs.pr_deploy.outputs.terraform_container_version }}"
           echo "URL: https://${{ needs.pr_deploy.outputs.url }}"
-

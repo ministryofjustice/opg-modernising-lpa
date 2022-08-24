@@ -94,8 +94,8 @@ jobs:
           terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30
         working-directory: ./terraform/environment
 
-      - uses: actions/upload-artifact@v2
-        name: upload environment config file
+      - name: upload environment config file
+        uses: actions/upload-artifact@v2
         with:
           name: environment_config_file
           path: ./terraform/environment/environment_config.json
