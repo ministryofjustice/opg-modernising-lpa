@@ -70,16 +70,33 @@ jobs:
       version_tag: ${{ needs.create_tags.outputs.version_tag }}
     secrets: inherit
 
+  ui_tests_preproduction_env:
+    name: Run Cypress UI Tests On Preproduction Environment
+    uses: ./.github/workflows/ui_test_job.yml
+    needs: [preproduction_deploy, create_tags]
+    with:
+      run_against_image: false
+      base_url: "https://${{ needs.pr_deploy.outputs.url }}"
+      tag: ${{ needs.create_tags.outputs.version_tag }}
+    secrets: inherit
+
   preproduction_deploy_complete:
     name: Preproduction Deployment
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: preproduction
-    needs: [preproduction_deploy]
+    needs: [ui_tests_preproduction_env]
     steps:
       - name: Complete
         run: |
           echo "preproduction environment tested, built and deployed"
+
+  always_remove_ingress:
+    name: Remove CI ingress from environment
+    if: ${{ always() }}
+    uses: ./.github/workflows/remove_ingress_job.yml
+    needs: [ui_tests_preproduction_env]
+    secrets: inherit
 
   terraform_account_workflow_production:
     name: TF Apply Prod Account
