@@ -8,15 +8,9 @@
         "build:images": "mkdir -p web/static/assets/images && cp node_modules/govuk-frontend/govuk/assets/images/* node_modules/@ministryofjustice/frontend/moj/assets/images/* web/static/assets/images",
         "build:fonts": "mkdir -p web/static/assets/fonts && cp node_modules/govuk-frontend/govuk/assets/fonts/* web/static/assets/fonts",
         "cypress:open": "node_modules/.bin/cypress open",
-        "cypress:run": "node_modules/.bin/cypress run",
+        "cypress:run": "node_modules/.bin/cypress run -vvv",
         "cypress:run:debug": "node_modules/.bin/cypress run --headed",
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "codecept": "node_modules/.bin/codeceptjs run --steps",
-        "codecept:headless": "HEADLESS=true codeceptjs run --steps",
-        "codecept:ui": "node_modules/.bin/codecept-ui --app",
-        "codecept:demo": "node_modules/.bin/codeceptjs run --steps -c node_modules/@codeceptjs/examples",
-        "codecept:demo:headless": "HEADLESS=true codeceptjs run --steps -c node_modules/@codeceptjs/examples",
-        "codecept:demo:ui": "node_modules/.bin/codecept-ui --app  -c node_modules/@codeceptjs/examples"
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "license": "MIT",
     "dependencies": {
@@ -25,13 +19,8 @@
         "jquery": "^3.6.0"
     },
     "devDependencies": {
-        "@codeceptjs/configure": "^0.8.0",
-        "@codeceptjs/examples": "^1.2.1",
-        "@codeceptjs/ui": "^0.4.6",
         "axe-core": "^4.4.3",
-        "axe-playwright": "^1.1.11",
-        "codeceptjs": "^3.3.4",
-        "cypress": "^10.6.0",
+        "cypress": "^10.4.0",
         "cypress-axe": "^1.0.0",
         "esbuild": "^0.14.53",
         "playwright": "^1.24.2",
