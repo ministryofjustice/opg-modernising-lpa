@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/golang-jwt/jwt"
@@ -65,7 +64,6 @@ func NewClient(baseURL string) (Client, error) {
 
 	if len(baseURL) > 0 {
 		config.Endpoint = aws.String(baseURL)
-		config.Credentials = credentials.NewStaticCredentials("test", "test", "")
 	}
 
 	sess, err := session.NewSession(config)
