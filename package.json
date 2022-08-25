@@ -21,7 +21,7 @@
     "license": "MIT",
     "dependencies": {
         "@ministryofjustice/frontend": "^1.4.2",
-        "govuk-frontend": "^4.2.0",
+        "govuk-frontend": "^4.3.1",
         "jquery": "^3.6.0"
     },
     "devDependencies": {
@@ -31,10 +31,10 @@
         "axe-core": "^4.4.3",
         "axe-playwright": "^1.1.11",
         "codeceptjs": "^3.3.4",
-        "cypress": "^10.4.0",
+        "cypress": "^10.6.0",
         "cypress-axe": "^1.0.0",
         "esbuild": "^0.14.53",
         "playwright": "^1.24.2",
-        "sass": "^1.54.1"
+        "sass": "^1.54.5"
     }
 }
