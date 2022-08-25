@@ -34,7 +34,7 @@ COPY --from=build-env /app .
 COPY --from=asset-env /app/web/static web/static
 COPY web/template web/template
 
-CMD air
+CMD ["air"]
 
 FROM alpine:3.16.1 as production
 
