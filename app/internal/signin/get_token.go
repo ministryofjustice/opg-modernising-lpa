@@ -2,14 +2,9 @@ package signin
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -35,23 +30,23 @@ type TokenResponseBody struct {
 }
 
 func (c *Client) GetToken(redirectUri, clientID, JTI, code string) (string, error) {
-	log.Println("GetToken()")
-
-	data, _ := json.Marshal(map[string]interface{}{
-		"aud": []string{"https://oidc.integration.account.gov.uk/token"},
-		"iss": clientID,
-		"sub": clientID,
-		"exp": time.Now().Add(5 * time.Minute).Unix(),
-		"jti": JTI,
-		"iat": time.Now().Unix(),
-	})
-
 	privateKey, err := c.secretsClient.PrivateKey()
 	if err != nil {
 		return "", err
 	}
 
-	signedAssertion := signJwt(string(data), privateKey)
+	claims := make(jwt.MapClaims)
+	claims["aud"] = []string{"https://oidc.integration.account.gov.uk/token"}
+	claims["iss"] = clientID
+	claims["sub"] = clientID
+	claims["exp"] = time.Now().Add(5 * time.Minute).Unix()
+	claims["jti"] = JTI
+	claims["iat"] = time.Now().Unix()
+
+	signedAssertion, err := jwt.NewWithClaims(jwt.SigningMethodRS256, claims).SignedString(privateKey)
+	if err != nil {
+		return "", err
+	}
 
 	body := &TokenRequestBody{
 		GrantType:           "authorization_code",
@@ -102,18 +97,4 @@ func (c *Client) GetToken(redirectUri, clientID, JTI, code string) (string, erro
 	})
 
 	return tokenResponse.IdToken, err
-}
-
-func signJwt(data string, privateKey *rsa.PrivateKey) string {
-	header := `{"alg":"RS256"}`
-
-	toSign := b64.EncodeToString([]byte(header)) + "." + b64.EncodeToString([]byte(data))
-
-	digest := sha256.Sum256([]byte(toSign))
-	sig, err := privateKey.Sign(rand.Reader, digest[:], crypto.SHA256)
-	if err != nil {
-		panic(err)
-	}
-
-	return toSign + "." + b64.EncodeToString(sig)
 }

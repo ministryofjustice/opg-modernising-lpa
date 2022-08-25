@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -30,7 +31,10 @@ func (m *mockSecretsClient) PrivateKey() (*rsa.PrivateKey, error) {
 func TestGetToken(t *testing.T) {
 	privateKey, _ := rsa.GenerateKey(rand.New(rand.NewSource(99)), 2048)
 
-	idToken := signJwt(`{"sub":"hey"}`, privateKey)
+	claims := make(jwt.MapClaims)
+	claims["sub"] = "hey"
+
+	idToken, err := jwt.NewWithClaims(jwt.SigningMethodRS256, claims).SignedString(privateKey)
 
 	response := TokenResponseBody{
 		AccessToken:  "a",
