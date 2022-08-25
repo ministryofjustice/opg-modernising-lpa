@@ -15,11 +15,26 @@ Documentation for the service can be found [in the /docs/ folder](./docs/README.
 ### Prerequisites
 
 * Docker and docker-compose
+* Nodejs and Yarn
 
 ### Installation
 
-```bash
+Install dependencies for development
+
+```shell
+yarn install
+```
+
+Bring the service up
+
+```shell
 docker compose up -d
+```
+
+### Run Cypress tests
+
+```shell
+make run-cypress-dc
 ```
 
 ## Licence
