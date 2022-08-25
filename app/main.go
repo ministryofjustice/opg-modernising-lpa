@@ -32,7 +32,7 @@ func main() {
 	clientID := env.Get("CLIENT_ID", "client-id-value")
 	port := env.Get("APP_PORT", "8080")
 	appPublicURL := env.Get("APP_PUBLIC_URL", "http://localhost:5050")
-	signInPublicURL := env.Get("GOV_UK_SIGN_IN_PUBLIC_URL", "http://localhost:7012")
+	signInPublicURL := env.Get("GOV_UK_SIGN_IN_PUBLIC_URL", "http://localhost:5050")
 
 	webDir := env.Get("WEB_DIR", "web")
 
@@ -95,9 +95,9 @@ func main() {
 
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	mux.Handle("/login", page.Login(*signInClient, appPublicURL, clientID, signInPublicURL, redirectURL))
+	mux.Handle("/login", page.Login(*signInClient, clientID, redirectURL, signInPublicURL))
 	mux.Handle("/home", page.Home(tmpls.Get("home.gohtml"), fmt.Sprintf("%s/login", appPublicURL), bundle.For("en"), page.En))
-	mux.Handle(signInCallbackEndpoint, page.SigninCallback(*signInClient, appPublicURL, clientID, random.String(12)))
+	mux.Handle(signInCallbackEndpoint, page.SignInCallback(signInClient, appPublicURL, clientID, random.String(12)))
 
 	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls)))
 	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls))

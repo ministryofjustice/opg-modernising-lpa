@@ -5,9 +5,7 @@ import (
 	"net/url"
 )
 
-func (c *Client) AuthCodeURL(redirectURI, clientID, state, nonce, scope, signInBaseURL string) string {
-	authUrl := c.discoverData.AuthorizationEndpoint
-
+func (c *Client) AuthCodeURL(redirectURI, clientID, state, nonce, scope, signInPublicURL string) string {
 	q := url.Values{}
 	q.Set("redirect_uri", redirectURI)
 	q.Set("client_id", clientID)
@@ -15,5 +13,5 @@ func (c *Client) AuthCodeURL(redirectURI, clientID, state, nonce, scope, signInB
 	q.Set("nonce", nonce)
 	q.Set("scope", scope)
 
-	return fmt.Sprintf("%s?%s", authUrl, q.Encode())
+	return fmt.Sprintf("%s/authorize?%s", signInPublicURL, q.Encode())
 }

@@ -9,6 +9,13 @@ type Doer interface {
 	Do(r *http.Request) (*http.Response, error)
 }
 
+type ClientInterface interface {
+	AuthCodeURL(redirectURI, clientID, state, nonce, scope, signInPublicURL string) string
+	GetToken(redirectUri, clientID, JTI, code string) (string, error)
+	Discover(endpoint string) error
+	GetUserInfo(idToken string) (UserInfoResponse, error)
+}
+
 type Client struct {
 	httpClient       Doer
 	discoverData     DiscoverResponse

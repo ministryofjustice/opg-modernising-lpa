@@ -9,9 +9,6 @@ import (
 
 func TestAuthCodeURL(t *testing.T) {
 	c := NewClient(http.DefaultClient, nil)
-	c.discoverData = DiscoverResponse{
-		AuthorizationEndpoint: "http://example.org/authorize",
-	}
 
 	got := c.AuthCodeURL("/redirect", "123", "state", "nonce", "scope", "http://example.org")
 
