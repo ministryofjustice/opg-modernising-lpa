@@ -23,7 +23,6 @@
         "cypress": "^10.4.0",
         "cypress-axe": "^1.0.0",
         "esbuild": "^0.14.53",
-        "playwright": "^1.24.2",
         "sass": "^1.54.5"
     }
 }
