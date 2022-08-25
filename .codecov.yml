@@ -10,3 +10,8 @@ coverage:
       default:
         target: auto
         threshold: 25%
+    patch:
+      default:
+        target: auto
+#        we can tighten this once we decide what does/doesn't need to be included in coverage runs
+        threshold: 50%
