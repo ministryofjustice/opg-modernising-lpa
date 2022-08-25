@@ -15,7 +15,7 @@ type startData struct {
 
 func Start(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template) http.HandlerFunc {
 	data := &startData{
-		Page: "/",
+		Page: startPath,
 		L:    localizer,
 		Lang: lang,
 	}
