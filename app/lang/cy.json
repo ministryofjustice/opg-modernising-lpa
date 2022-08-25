@@ -54,5 +54,11 @@
     "enterYourAddress": "Welsh",
     "enterYourTownOrCity": "Welsh",
     "enterYourPostcode": "Welsh",
-    "couldNotLookupPostcode": "Welsh"
+    "couldNotLookupPostcode": "Welsh",
+
+    "whoIsThisLpaFor": "Welsh",
+    "forMe": "Welsh",
+    "forSomeoneElse": "Welsh",
+    "imHelping": "Welsh",
+    "selectWhoFor": "Welsh"
 }

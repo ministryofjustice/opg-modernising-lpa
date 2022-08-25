@@ -25,16 +25,10 @@
         "jquery": "^3.6.0"
     },
     "devDependencies": {
-        "@codeceptjs/configure": "^0.8.0",
-        "@codeceptjs/examples": "^1.2.1",
-        "@codeceptjs/ui": "^0.4.6",
         "axe-core": "^4.4.3",
-        "axe-playwright": "^1.1.11",
-        "codeceptjs": "^3.3.4",
         "cypress": "^10.6.0",
         "cypress-axe": "^1.0.0",
         "esbuild": "^0.14.53",
-        "playwright": "^1.24.2",
         "sass": "^1.54.5"
     }
 }
