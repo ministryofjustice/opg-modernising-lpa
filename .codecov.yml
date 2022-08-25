@@ -1,0 +1,12 @@
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+  ignore:
+    - "*_test.go"
+    - "./mocks/*"
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 25%
