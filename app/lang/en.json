@@ -53,5 +53,11 @@
     "enterYourAddress": "Enter your address",
     "enterYourTownOrCity": "Enter your town or city",
     "enterYourPostcode": "Enter your postcode",
-    "couldNotLookupPostcode": "Could not lookup postcode"
+    "couldNotLookupPostcode": "Could not lookup postcode",
+
+    "whoIsThisLpaFor": "Who is this LPA for?",
+    "forMe": "For me",
+    "forSomeoneElse": "For someone else",
+    "imHelping": "I'm helping someone else fill in the LPA form",
+    "selectWhoFor": "Select who the LPA is for"
 }
