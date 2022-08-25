@@ -24,11 +24,11 @@ COPY /app .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/mlpab
 
-FROM alpine:3.16.1
+FROM alpine:3.16.1 as production
 
 WORKDIR /go/bin
 
-COPY --from=build-env /go/bin/mlpab /go/bin/mlpab
+COPY --from=build-env /go/bin/mlpab mlpab
 COPY --from=asset-env /app/web/static web/static
 COPY app/web/template web/template
 COPY app/lang lang
