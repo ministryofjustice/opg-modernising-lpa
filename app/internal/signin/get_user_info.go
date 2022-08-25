@@ -15,7 +15,7 @@ type UserInfoResponse struct {
 }
 
 func (c *Client) GetUserInfo(idToken string) (UserInfoResponse, error) {
-	req, err := http.NewRequest("GET", c.DiscoverData.UserinfoEndpoint, nil)
+	req, err := http.NewRequest("GET", c.discoverData.UserinfoEndpoint, nil)
 	if err != nil {
 		return UserInfoResponse{}, err
 	}

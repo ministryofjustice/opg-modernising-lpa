@@ -63,8 +63,8 @@ func TestGetToken(t *testing.T) {
 		On("PrivateKey").
 		Return(privateKey, nil)
 
-	c := NewClient(client, "http://example.org", secretsClient)
-	c.DiscoverData = DiscoverResponse{
+	c := NewClient(client, secretsClient)
+	c.discoverData = DiscoverResponse{
 		TokenEndpoint: "http://token",
 	}
 

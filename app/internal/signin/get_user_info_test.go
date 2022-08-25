@@ -28,8 +28,8 @@ func TestGetUserInfo(t *testing.T) {
 			Body:       ioutil.NopCloser(bytes.NewReader(data)),
 		}, nil)
 
-	c := NewClient(client, "http://example.org", nil)
-	c.DiscoverData = DiscoverResponse{
+	c := NewClient(client, nil)
+	c.discoverData = DiscoverResponse{
 		UserinfoEndpoint: "http://user-info",
 	}
 

@@ -23,6 +23,6 @@ func (c *Client) Discover(endpoint string) error {
 		return err
 	}
 
-	c.DiscoverData = discoverResponse
+	c.discoverData = discoverResponse
 	return nil
 }

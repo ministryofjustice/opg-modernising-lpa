@@ -75,7 +75,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	signInClient := signin.NewClient(http.DefaultClient, "/auth/callback", &secretsClient)
+	signInClient := signin.NewClient(http.DefaultClient, &secretsClient)
 	err = signInClient.Discover(issuer.String() + "/.well-known/openid-configuration")
 	if err != nil {
 		logger.Fatal(err)
@@ -83,7 +83,9 @@ func main() {
 
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	mux.Handle("/login", page.Login(*signInClient, appPublicURL, clientID, signInPublicURL))
+	redirectURL := fmt.Sprintf("%s%s", appPublicURL, "/auth/callback")
+
+	mux.Handle("/login", page.Login(*signInClient, appPublicURL, clientID, signInPublicURL, redirectURL))
 	mux.Handle("/home", page.Home(tmpls.Get("home.gohtml"), fmt.Sprintf("%s/login", appPublicURL), bundle.For("en"), page.En))
 	mux.Handle("/auth/callback", page.SetToken(*signInClient, appPublicURL, clientID, RandomString(12)))
 

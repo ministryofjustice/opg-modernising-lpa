@@ -11,8 +11,8 @@ type Doer interface {
 
 type Client struct {
 	httpClient       Doer
-	DiscoverData     DiscoverResponse
-	AuthCallbackPath string
+	discoverData     DiscoverResponse
+	authCallbackPath string
 	secretsClient    SecretsClient
 }
 
@@ -27,11 +27,10 @@ type SecretsClient interface {
 	PrivateKey() (*rsa.PrivateKey, error)
 }
 
-func NewClient(httpClient Doer, authCallbackPath string, secretsClient SecretsClient) *Client {
+func NewClient(httpClient Doer, secretsClient SecretsClient) *Client {
 	client := &Client{
-		httpClient:       httpClient,
-		AuthCallbackPath: authCallbackPath,
-		secretsClient:    secretsClient,
+		httpClient:    httpClient,
+		secretsClient: secretsClient,
 	}
 
 	return client

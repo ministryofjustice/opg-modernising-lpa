@@ -63,7 +63,7 @@ func (c *Client) GetToken(redirectUri, clientID, JTI, code string) (string, erro
 		return "", err
 	}
 
-	req, err := http.NewRequest("POST", c.DiscoverData.TokenEndpoint, encodedPostBody)
+	req, err := http.NewRequest("POST", c.discoverData.TokenEndpoint, encodedPostBody)
 	if err != nil {
 		return "", err
 	}

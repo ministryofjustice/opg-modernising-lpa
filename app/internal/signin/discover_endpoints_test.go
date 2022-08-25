@@ -40,10 +40,10 @@ func TestDiscoverEndpoints(t *testing.T) {
 		}, nil)
 
 	// Make a Client
-	c := NewClient(client, "http://example.org", nil)
+	c := NewClient(client, nil)
 	err := c.Discover("http://base.uri")
 
 	assert.Nil(t, err)
-	assert.Equal(t, dr, c.DiscoverData)
+	assert.Equal(t, dr, c.discoverData)
 	mock.AssertExpectationsForObjects(t, client)
 }

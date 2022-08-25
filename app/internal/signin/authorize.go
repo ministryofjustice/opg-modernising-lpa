@@ -6,7 +6,7 @@ import (
 )
 
 func (c *Client) AuthCodeURL(redirectURI, clientID, state, nonce, scope, signInBaseURL string) string {
-	authUrl := c.DiscoverData.AuthorizationEndpoint
+	authUrl := c.discoverData.AuthorizationEndpoint
 
 	q := url.Values{}
 	q.Set("redirect_uri", redirectURI)

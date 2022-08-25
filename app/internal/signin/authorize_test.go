@@ -8,8 +8,8 @@ import (
 )
 
 func TestAuthCodeURL(t *testing.T) {
-	c := NewClient(http.DefaultClient, "http://example.org", nil)
-	c.DiscoverData = DiscoverResponse{
+	c := NewClient(http.DefaultClient, nil)
+	c.discoverData = DiscoverResponse{
 		AuthorizationEndpoint: "http://example.org/authorize",
 	}
 
