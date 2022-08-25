@@ -5,7 +5,6 @@ services:
     environment:
       - APP_PUBLIC_URL=http://app:8080
       - GOV_UK_SIGN_IN_PUBLIC_URL=http://sign-in-mock:5060
-
   cypress:
     # the Docker image to use from https://github.com/cypress-io/cypress-docker-images
     image: "cypress/included:10.3.1"

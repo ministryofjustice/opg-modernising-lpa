@@ -27,6 +27,8 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/
 FROM alpine:3.16.1 as production
 
 WORKDIR /go/bin
+# Live reload for Go
+RUN go install github.com/cosmtrek/air@latest
 
 COPY --from=build-env /go/bin/mlpab mlpab
 COPY --from=asset-env /app/web/static web/static
@@ -34,8 +36,8 @@ COPY app/web/template web/template
 COPY app/lang lang
 
 RUN addgroup -S app && \
-    adduser -S -g app app && \
-    chown -R app:app mlpab web/template web/static
+  adduser -S -g app app && \
+  chown -R app:app mlpab web/template web/static
 USER app
 
 ENTRYPOINT ["./mlpab"]
