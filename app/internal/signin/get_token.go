@@ -2,7 +2,6 @@ package signin
 
 import (
 	"bytes"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,8 +9,6 @@ import (
 
 	"github.com/golang-jwt/jwt"
 )
-
-var b64 = base64.URLEncoding.WithPadding(base64.NoPadding)
 
 type tokenRequestBody struct {
 	GrantType           string `json:"grant_type"`
