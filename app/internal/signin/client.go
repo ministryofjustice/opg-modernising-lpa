@@ -24,7 +24,6 @@ type DiscoverResponse struct {
 }
 
 type SecretsClient interface {
-	PublicKey() (*rsa.PublicKey, error)
 	PrivateKey() (*rsa.PrivateKey, error)
 }
 

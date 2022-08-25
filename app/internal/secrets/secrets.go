@@ -13,21 +13,7 @@ import (
 )
 
 type Client struct {
-	BaseURL string
-}
-
-func (c *Client) PublicKey() (*rsa.PublicKey, error) {
-	secretOutput, err := c.getSecret("public-jwt-key-base64")
-	if err != nil {
-		return nil, err
-	}
-
-	keyBytes, err := decodeSecret(secretOutput)
-	if err != nil {
-		return nil, err
-	}
-
-	return jwt.ParseRSAPublicKeyFromPEM(keyBytes)
+	sm *secretsmanager.SecretsManager
 }
 
 func (c *Client) PrivateKey() (*rsa.PrivateKey, error) {
@@ -60,34 +46,38 @@ func decodeSecret(secretOutput *secretsmanager.GetSecretValueOutput) ([]byte, er
 }
 
 func (c *Client) getSecret(secretName string) (*secretsmanager.GetSecretValueOutput, error) {
+	input := &secretsmanager.GetSecretValueInput{
+		SecretId: aws.String(secretName),
+	}
+
+	result, err := c.sm.GetSecretValue(input)
+	if err != nil {
+		return nil, fmt.Errorf("error getting secret: %v", err)
+	}
+
+	return result, nil
+}
+
+func NewClient(baseURL string) (Client, error) {
 	config := &aws.Config{
 		Region: aws.String("eu-west-1"),
 	}
 
-	if len(c.BaseURL) > 0 {
-		config.Endpoint = aws.String(c.BaseURL)
+	if len(baseURL) > 0 {
+		config.Endpoint = aws.String(baseURL)
 		config.Credentials = credentials.NewStaticCredentials("test", "test", "")
 	}
 
 	sess, err := session.NewSession(config)
 
 	if err != nil {
-		return nil, fmt.Errorf("error initialising new AWS session: %v", err)
+		return Client{}, fmt.Errorf("error initialising new AWS session: %v", err)
 	}
 
-	svc := secretsmanager.New(
+	c := Client{sm: secretsmanager.New(
 		sess,
 		aws.NewConfig().WithRegion("eu-west-1"),
-	)
+	)}
 
-	input := &secretsmanager.GetSecretValueInput{
-		SecretId: aws.String(secretName),
-	}
-
-	result, err := svc.GetSecretValue(input)
-	if err != nil {
-		return nil, fmt.Errorf("error getting secret: %v", err)
-	}
-
-	return result, nil
+	return c, nil
 }

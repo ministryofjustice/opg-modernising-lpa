@@ -70,9 +70,12 @@ func main() {
 	fileServer := http.FileServer(http.Dir(webDir + "/static/"))
 	awsBaseUrl := env.Get("AWS_BASE_URL", "http://localstack:4566")
 
-	secretsClient := &secrets.Client{BaseURL: awsBaseUrl}
+	secretsClient, err := secrets.NewClient(awsBaseUrl)
+	if err != nil {
+		logger.Fatal(err)
+	}
 
-	signInClient := signin.NewClient(http.DefaultClient, "/auth/callback", secretsClient)
+	signInClient := signin.NewClient(http.DefaultClient, "/auth/callback", &secretsClient)
 	err = signInClient.Discover(issuer.String() + "/.well-known/openid-configuration")
 	if err != nil {
 		logger.Fatal(err)
