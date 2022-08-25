@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"fmt"
 
+	"github.com/aws/aws-sdk-go/service/secretsmanager/secretsmanageriface"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
@@ -12,7 +14,7 @@ import (
 )
 
 type Client struct {
-	sm *secretsmanager.SecretsManager
+	sm secretsmanageriface.SecretsManagerAPI
 }
 
 func (c *Client) PrivateKey() (*rsa.PrivateKey, error) {
