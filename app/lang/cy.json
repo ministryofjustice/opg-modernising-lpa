@@ -19,7 +19,8 @@
     "crownCopyright": "© Hawlfraint y goron",
     "continue": "Welsh",
     "thereIsAProblem": "Welsh",
-        
+    "selectOneOrMoreOptions": "Welsh",
+
     "yourDetails": "Welsh",
     "yourFirstName": "Welsh",
     "yourLastName": "Welsh",
@@ -34,7 +35,7 @@
     "dateOfBirthMonth": "Welsh",
     "dateOfBirthYear": "Welsh",
     "yourDateOfBirthMustBeReal": "Welsh",
-    
+
     "yourHomeAddress": "Welsh",
     "postcode": "Welsh",
     "findAddress": "Welsh",
@@ -60,5 +61,15 @@
     "forMe": "Welsh",
     "forSomeoneElse": "Welsh",
     "imHelping": "Welsh",
-    "selectWhoFor": "Welsh"
+    "selectWhoFor": "Welsh",
+
+    "howWouldYouLikeToBeContacted": "Welsh",
+    "howWouldYouLikeToBeContactedDetail": "Welsh",
+    "whatIfWantToChangeMyContactPreferences": "Welsh",
+    "whatIfWantToChangeMyContactPreferencesDetail": "Welsh",
+    "email": "Welsh",
+    "phone": "Welsh",
+    "textMessage": "Welsh",
+    "post": "Welsh",
+    "selectContact": "Welsh"
 }
