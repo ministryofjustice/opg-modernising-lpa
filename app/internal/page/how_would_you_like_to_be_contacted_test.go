@@ -12,14 +12,14 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetWhoIsTheLpaFor(t *testing.T) {
+func TestGetHowWouldYouLikeToBeContacted(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &whoIsTheLpaForData{
-			Page: whoIsTheLpaForPath,
+		On("Func", w, &howWouldYouLikeToBeContactedData{
+			Page: howWouldYouLikeToBeContactedPath,
 			L:    localizer,
 			Lang: En,
 		}).
@@ -27,14 +27,14 @@ func TestGetWhoIsTheLpaFor(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	WhoIsTheLpaFor(nil, localizer, En, template.Func, nil)(w, r)
+	HowWouldYouLikeToBeContacted(nil, localizer, En, template.Func, nil)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
 }
 
-func TestGetWhoIsTheLpaForWhenTemplateErrors(t *testing.T) {
+func TestGetHowWouldYouLikeToBeContactedWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
 
@@ -44,8 +44,8 @@ func TestGetWhoIsTheLpaForWhenTemplateErrors(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &whoIsTheLpaForData{
-			Page: whoIsTheLpaForPath,
+		On("Func", w, &howWouldYouLikeToBeContactedData{
+			Page: howWouldYouLikeToBeContactedPath,
 			L:    localizer,
 			Lang: En,
 		}).
@@ -53,49 +53,49 @@ func TestGetWhoIsTheLpaForWhenTemplateErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	WhoIsTheLpaFor(logger, localizer, En, template.Func, nil)(w, r)
+	HowWouldYouLikeToBeContacted(logger, localizer, En, template.Func, nil)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template, logger)
 }
 
-func TestPostWhoIsTheLpaFor(t *testing.T) {
+func TestPostHowWouldYouLikeToBeContacted(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Save", "me").
+		On("Save", []string{"email", "post"}).
 		Return(nil)
 
 	form := url.Values{
-		"who-for": {"me"},
+		"contact": {"email", "post"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	WhoIsTheLpaFor(nil, localizer, En, nil, dataStore)(w, r)
+	HowWouldYouLikeToBeContacted(nil, localizer, En, nil, dataStore)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, howWouldYouLikeToBeContactedPath, resp.Header.Get("Location"))
+	assert.Equal(t, "/next-page", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
-func TestPostWhoIsTheLpaForWhenValidationErrors(t *testing.T) {
+func TestPostHowWouldYouLikeToBeContactedWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &whoIsTheLpaForData{
-			Page: whoIsTheLpaForPath,
+		On("Func", w, &howWouldYouLikeToBeContactedData{
+			Page: howWouldYouLikeToBeContactedPath,
 			L:    localizer,
 			Lang: En,
 			Errors: map[string]string{
-				"who-for": "selectWhoFor",
+				"contact": "selectContact",
 			},
 		}).
 		Return(nil)
@@ -103,55 +103,49 @@ func TestPostWhoIsTheLpaForWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	WhoIsTheLpaFor(nil, localizer, En, template.Func, nil)(w, r)
+	HowWouldYouLikeToBeContacted(nil, localizer, En, template.Func, nil)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
 }
 
-func TestReadWhoIsTheLpaForForm(t *testing.T) {
+func TestReadHowWouldYouLikeToBeContactedForm(t *testing.T) {
 	form := url.Values{
-		"who-for": {"me"},
+		"contact": {"email", "phone"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	result := readWhoIsTheLpaForForm(r)
+	result := readHowWouldYouLikeToBeContactedForm(r)
 
-	assert.Equal(t, "me", result.WhoFor)
+	assert.Equal(t, []string{"email", "phone"}, result.Contact)
 }
 
-func TestWhoIsTheLpaForFormValidate(t *testing.T) {
+func TestHowWouldYouLikeToBeContactedFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *whoIsTheLpaForForm
+		form   *howWouldYouLikeToBeContactedForm
 		errors map[string]string
 	}{
-		"me": {
-			form: &whoIsTheLpaForForm{
-				WhoFor: "me",
-			},
-			errors: map[string]string{},
-		},
-		"someone-else": {
-			form: &whoIsTheLpaForForm{
-				WhoFor: "someone-else",
+		"all": {
+			form: &howWouldYouLikeToBeContactedForm{
+				Contact: []string{"email", "phone", "text message", "post"},
 			},
 			errors: map[string]string{},
 		},
 		"missing": {
-			form: &whoIsTheLpaForForm{},
+			form: &howWouldYouLikeToBeContactedForm{},
 			errors: map[string]string{
-				"who-for": "selectWhoFor",
+				"contact": "selectContact",
 			},
 		},
 		"invalid": {
-			form: &whoIsTheLpaForForm{
-				WhoFor: "what",
+			form: &howWouldYouLikeToBeContactedForm{
+				Contact: []string{"email", "what"},
 			},
 			errors: map[string]string{
-				"who-for": "selectWhoFor",
+				"contact": "selectContact",
 			},
 		},
 	}
