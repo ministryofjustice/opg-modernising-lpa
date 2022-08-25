@@ -30,7 +30,7 @@ func TestGetDonorDetails(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &donorDetailsData{
-			Page: "/donor-details",
+			Page: donorDetailsPath,
 			L:    localizer,
 			Lang: En,
 			Form: &donorDetailsForm{},
@@ -56,7 +56,7 @@ func TestGetDonorDetailsWhenTemplateErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &donorDetailsData{
-			Page: "/donor-details",
+			Page: donorDetailsPath,
 			L:    localizer,
 			Lang: En,
 			Form: &donorDetailsForm{},
