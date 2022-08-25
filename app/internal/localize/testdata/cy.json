@@ -1,4 +1,9 @@
 {
     "a": "C",
-    "b": "D"
+    "b": "D",
+    "c": {
+        "one": "{{.PluralCount}} one",
+        "two": "{{.PluralCount}} two",
+        "few": "{{.PluralCount}} few"
+    }
 }

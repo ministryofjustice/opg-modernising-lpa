@@ -30,7 +30,7 @@ func main() {
 	}
 
 	clientID := env.Get("CLIENT_ID", "client-id-value")
-	appPort := env.Get("APP_PORT", "8080")
+	port := env.Get("APP_PORT", "8080")
 	appPublicURL := env.Get("APP_PUBLIC_URL", "http://localhost:5050")
 	signInPublicURL := env.Get("GOV_UK_SIGN_IN_PUBLIC_URL", "http://localhost:7012")
 
@@ -42,6 +42,30 @@ func main() {
 		},
 		"isWelsh": func(lang page.Lang) bool {
 			return lang == page.Cy
+		},
+		"input": func(top interface{}, name, label string, value interface{}, attrs ...interface{}) map[string]interface{} {
+			field := map[string]interface{}{
+				"top":   top,
+				"name":  name,
+				"label": label,
+				"value": value,
+			}
+
+			if len(attrs)%2 != 0 {
+				panic("must have even number of attrs")
+			}
+
+			for i := 0; i < len(attrs); i += 2 {
+				field[attrs[i].(string)] = attrs[i+1]
+			}
+
+			return field
+		},
+		"errorMessage": func(top interface{}, name string) map[string]interface{} {
+			return map[string]interface{}{
+				"top":  top,
+				"name": name,
+			}
 		},
 	})
 	if err != nil {
@@ -75,11 +99,11 @@ func main() {
 	mux.Handle("/home", page.Home(tmpls.Get("home.gohtml"), fmt.Sprintf("%s/login", appPublicURL), bundle.For("en"), page.En))
 	mux.Handle(signInCallbackEndpoint, page.SigninCallback(*signInClient, appPublicURL, clientID, random.String(12)))
 
-	mux.Handle("/cy/", page.App(logger, bundle.For("cy"), page.Cy, tmpls))
+	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls)))
 	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls))
 
 	server := &http.Server{
-		Addr:              ":" + appPort,
+		Addr:              ":" + port,
 		Handler:           mux,
 		ReadHeaderTimeout: 20 * time.Second,
 	}
@@ -90,7 +114,7 @@ func main() {
 		}
 	}()
 
-	logger.Print("Running at :" + appPort)
+	logger.Print("Running at :" + port)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)

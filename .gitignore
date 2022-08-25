@@ -6,7 +6,7 @@
 geckodriver.log
 .vscode/
 **__pycache__
-**/cluster_config.json
+**/environment_config.json
 
 .python-version
 .pytest_cache
