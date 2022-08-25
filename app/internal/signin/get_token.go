@@ -76,11 +76,6 @@ func (c *Client) GetToken(redirectUri, clientID, JTI, code string) (string, erro
 	}
 	defer res.Body.Close()
 
-	pubKey, err := c.secretsClient.PublicKey()
-	if err != nil {
-		return "", err
-	}
-
 	var tokenResponse TokenResponseBody
 
 	err = json.NewDecoder(res.Body).Decode(&tokenResponse)
@@ -93,7 +88,7 @@ func (c *Client) GetToken(redirectUri, clientID, JTI, code string) (string, erro
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return pubKey, nil
+		return &privateKey.PublicKey, nil
 	})
 
 	return tokenResponse.IdToken, err
