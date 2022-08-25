@@ -19,7 +19,7 @@ type donorDetailsData struct {
 func DonorDetails(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, dataStore DataStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := &donorDetailsData{
-			Page: "/donor-details",
+			Page: donorDetailsPath,
 			L:    localizer,
 			Lang: lang,
 			Form: &donorDetailsForm{},
@@ -35,7 +35,7 @@ func DonorDetails(logger Logger, localizer localize.Localizer, lang Lang, tmpl t
 					LastName:    data.Form.LastName,
 					DateOfBirth: data.Form.DateOfBirth,
 				})
-				lang.Redirect(w, r, "/donor-address", http.StatusFound)
+				lang.Redirect(w, r, donorAddressPath, http.StatusFound)
 				return
 			}
 		}
