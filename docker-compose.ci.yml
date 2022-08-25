@@ -4,5 +4,40 @@ services:
   app:
     image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${TAG}
     container_name: app
+    depends_on:
+      - localstack
     ports:
       - "5050:8080"
+    environment:
+      - APP_PUBLIC_URL=http://localhost:5050
+      - APP_PORT=8080
+      - AWS_ACCESS_KEY_ID=fakeKeyId
+      - AWS_SECRET_ACCESS_KEY=fakeAccessKey
+      - AWS_BASE_URL=http://localstack:4566
+      - CLIENT_ID=client-id-value
+      - GOV_UK_SIGN_IN_URL=http://sign-in-mock:5060
+      - GOV_UK_SIGN_IN_PUBLIC_URL=http://localhost:7012
+
+  localstack:
+    build:
+      context: .
+      dockerfile: ./localstack.Dockerfile
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=secretsmanager
+      - DATA_DIR=/tmp/localstack/data
+      - DEFAULT_REGION=eu-west-1
+      - USE_SINGLE_REGION=1
+      - DEBUG=1
+
+  sign-in-mock:
+    build:
+      context: mocks/GOVUKSignIn
+    container_name: sign-in-mock
+    ports:
+      - "7012:5060"
+    environment:
+      - AWS_BASE_URL=http://localstack:4566
+      - PROXY_PORT=5060
+      - PROXY_PRIVATE_KEY=/app/private_key.pem
