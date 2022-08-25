@@ -38,7 +38,7 @@ func TestStart(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &startData{Page: "/", L: localizer, Lang: En}).
+		On("Func", w, &startData{Page: startPath, L: localizer, Lang: En}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
@@ -60,7 +60,7 @@ func TestStartWhenTemplateErrors(t *testing.T) {
 		On("Print", expectedError)
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &startData{Page: "/", L: localizer, Lang: En}).
+		On("Func", w, &startData{Page: startPath, L: localizer, Lang: En}).
 		Return(expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)

@@ -1,0 +1,50 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <form novalidate method="post">
+        <div class="govuk-form-group">
+          <fieldset class="govuk-fieldset">
+            {{ template "error-summary" . }}
+
+            <div class="govuk-form-group  {{ if index .Errors "who-for" }}govuk-form-group--error{{ end }}">
+              <fieldset class="govuk-fieldset">
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl govuk-!-margin-bottom-6">
+                  <h1 class="govuk-fieldset__heading">
+                    {{ .L.T "whoIsThisLpaFor" }}
+                  </h1>
+                </legend>
+
+                {{ template "error-message" (errorMessage . "who-for") }}
+
+                <div class="govuk-radios   {{ if index .Errors "who-for" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
+                  <div class="govuk-radios__item">
+                    <input class="govuk-radios__input" id="f-who-for" name="who-for" type="radio" value="me">
+                    <label class="govuk-label govuk-radios__label" for="f-who-for">
+                      {{ .L.T "forMe" }}
+                    </label>
+                  </div>
+
+                  <div class="govuk-radios__item">
+                    <input class="govuk-radios__input" id="f-who-for-2" name="who-for" type="radio" value="someone-else" aria-describedby="who-for-2-item-hint">
+                    <label class="govuk-label govuk-radios__label" for="f-who-for-2">
+                      {{ .L.T "forSomeoneElse" }}
+                    </label>
+                    <div id="who-for-2-item-hint" class="govuk-hint govuk-radios__hint">
+                      {{ .L.T "imHelping" }}
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <button type="submit" class="govuk-button govuk-!-margin-top-6" data-module="govuk-button">
+              {{ .L.T "continue" }}
+            </button>
+          </fieldset>
+        </div>
+      </form>
+    </div>
+  </div>
+{{ end }}
