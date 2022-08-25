@@ -32,7 +32,7 @@ RUN go install github.com/cosmtrek/air@latest
 
 COPY --from=build-env /app .
 COPY --from=asset-env /app/web/static web/static
-COPY web/template web/template
+COPY app/web/template web/template
 
 CMD ["air"]
 
