@@ -1,0 +1,69 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <form novalidate method="post">
+        <div class="govuk-form-group">
+          <fieldset class="govuk-fieldset">
+            {{ template "error-summary" . }}
+
+            <h1 class="govuk-heading-xl govuk-!-margin-bottom-3">{{ .L.T "howWouldYouLikeToBeContacted" }}</h1>
+            <p class="govuk-body">{{ .L.T "howWouldYouLikeToBeContactedDetail" }}</p>
+
+            <details class="govuk-details" data-module="govuk-details">
+              <summary class="govuk-details__summary">
+                <span class="govuk-details__summary-text">
+                  {{ .L.T "whatIfWantToChangeMyContactPreferences" }}
+                </span>
+              </summary>
+              <div class="govuk-details__text">
+                {{ .L.T "whatIfWantToChangeMyContactPreferencesDetail" }}
+              </div>
+            </details>
+
+            <p class="govuk-body">{{ .L.T "selectOneOrMoreOptions" }}</p>
+
+            <div class="govuk-form-group {{ if index .Errors "contact" }}govuk-form-group--error{{ end }}">
+              {{ template "error-message" (errorMessage . "contact") }}
+
+              <div class="govuk-checkboxes  {{ if index .Errors "contact" }}govuk-checkboxes--error{{ end }}" data-module="govuk-checkboxes">
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="f-contact" name="contact" type="checkbox" value="email">
+                  <label class="govuk-label govuk-checkboxes__label" for="f-contact">
+                    {{ .L.T "email" }}
+                  </label>
+                </div>
+
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="f-contact-2" name="contact" type="checkbox" value="phone">
+                  <label class="govuk-label govuk-checkboxes__label" for="f-contact-2">
+                    {{ .L.T "phone" }}
+                  </label>
+                </div>
+
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="f-contact-3" name="contact" type="checkbox" value="text message">
+                  <label class="govuk-label govuk-checkboxes__label" for="f-contact-3">
+                    {{ .L.T "textMessage" }}
+                  </label>
+                </div>
+
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="f-contact-4" name="contact" type="checkbox" value="post">
+                  <label class="govuk-label govuk-checkboxes__label" for="f-contact-4">
+                    {{ .L.T "post" }}
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="govuk-button govuk-!-margin-top-6" data-module="govuk-button">
+              {{ .L.T "continue" }}
+            </button>
+          </fieldset>
+        </div>
+      </form>
+    </div>
+  </div>
+{{ end }}
