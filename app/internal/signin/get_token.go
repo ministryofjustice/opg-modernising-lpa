@@ -13,7 +13,7 @@ import (
 
 var b64 = base64.URLEncoding.WithPadding(base64.NoPadding)
 
-type TokenRequestBody struct {
+type tokenRequestBody struct {
 	GrantType           string `json:"grant_type"`
 	AuthorizationCode   string `json:"code"`
 	RedirectUri         string `json:"redirect_uri"`
@@ -21,7 +21,7 @@ type TokenRequestBody struct {
 	ClientAssertion     string `json:"client_assertion"`
 }
 
-type TokenResponseBody struct {
+type tokenResponseBody struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 	TokenType    string `json:"token_type"`
@@ -48,7 +48,7 @@ func (c *Client) GetToken(redirectUri, clientID, JTI, code string) (string, erro
 		return "", err
 	}
 
-	body := &TokenRequestBody{
+	body := &tokenRequestBody{
 		GrantType:           "authorization_code",
 		AuthorizationCode:   code,
 		RedirectUri:         redirectUri,
@@ -76,7 +76,7 @@ func (c *Client) GetToken(redirectUri, clientID, JTI, code string) (string, erro
 	}
 	defer res.Body.Close()
 
-	var tokenResponse TokenResponseBody
+	var tokenResponse tokenResponseBody
 
 	err = json.NewDecoder(res.Body).Decode(&tokenResponse)
 	if err != nil {

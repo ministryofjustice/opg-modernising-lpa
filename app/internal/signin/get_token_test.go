@@ -36,7 +36,7 @@ func TestGetToken(t *testing.T) {
 
 	idToken, err := jwt.NewWithClaims(jwt.SigningMethodRS256, claims).SignedString(privateKey)
 
-	response := TokenResponseBody{
+	response := tokenResponseBody{
 		AccessToken:  "a",
 		RefreshToken: "b",
 		TokenType:    "Bearer",
