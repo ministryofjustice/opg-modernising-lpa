@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    environment:
+      - APP_PUBLIC_URL=http://app:8080
+      - GOV_UK_SIGN_IN_PUBLIC_URL=http://sign-in-mock:5060
+
+  cypress:
+    # the Docker image to use from https://github.com/cypress-io/cypress-docker-images
+    image: "cypress/included:10.3.1"
+    command: "open --config-file /e2e/cypress.config.js"
+    depends_on:
+      - app
+    environment:
+      - CYPRESS_baseUrl=http://app:8080
+    working_dir: /e2e
+    volumes:
+      - ./:/e2e
