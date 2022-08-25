@@ -9,7 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
 )
 
-func SetToken(c signin.Client, appPublicURL, clientID, JTI string) http.HandlerFunc {
+func SigninCallback(c signin.Client, appPublicURL, clientID, JTI string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		jwt, err := c.GetToken(fmt.Sprintf("%s:%s", appPublicURL, "/home"), clientID, JTI, r.FormValue("code"))
 

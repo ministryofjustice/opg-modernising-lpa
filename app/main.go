@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 
 	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-go-common/logging"
@@ -19,22 +20,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
 )
-
-const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
-
-func StringWithCharset(length int, charset string) string {
-	b := make([]byte, length)
-	for i := range b {
-		b[i] = charset[seededRand.Intn(len(charset))]
-	}
-	return string(b)
-}
-
-func RandomString(length int) string {
-	return StringWithCharset(length, charset)
-}
 
 func main() {
 	logger := logging.New(os.Stdout, "opg-modernising-lpa")
@@ -81,13 +66,14 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+	signInCallbackEndpoint := "/auth/callback"
+	redirectURL := fmt.Sprintf("%s%s", appPublicURL, signInCallbackEndpoint)
 
-	redirectURL := fmt.Sprintf("%s%s", appPublicURL, "/auth/callback")
+	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
 	mux.Handle("/login", page.Login(*signInClient, appPublicURL, clientID, signInPublicURL, redirectURL))
 	mux.Handle("/home", page.Home(tmpls.Get("home.gohtml"), fmt.Sprintf("%s/login", appPublicURL), bundle.For("en"), page.En))
-	mux.Handle("/auth/callback", page.SetToken(*signInClient, appPublicURL, clientID, RandomString(12)))
+	mux.Handle(signInCallbackEndpoint, page.SigninCallback(*signInClient, appPublicURL, clientID, random.String(12)))
 
 	mux.Handle("/cy/", page.App(logger, bundle.For("cy"), page.Cy, tmpls))
 	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls))

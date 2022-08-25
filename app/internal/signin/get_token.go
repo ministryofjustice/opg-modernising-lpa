@@ -53,14 +53,13 @@ func (c *Client) GetToken(redirectUri, clientID, JTI, code string) (string, erro
 		ClientAssertion:     signedAssertion,
 	}
 
-	encodedPostBody := new(bytes.Buffer)
-	err = json.NewEncoder(encodedPostBody).Encode(body)
-
+	var encodedPostBody bytes.Buffer
+	err = json.NewEncoder(&encodedPostBody).Encode(body)
 	if err != nil {
 		return "", err
 	}
 
-	req, err := http.NewRequest("POST", c.discoverData.TokenEndpoint, encodedPostBody)
+	req, err := http.NewRequest("POST", c.discoverData.TokenEndpoint, &encodedPostBody)
 	if err != nil {
 		return "", err
 	}
@@ -71,10 +70,10 @@ func (c *Client) GetToken(redirectUri, clientID, JTI, code string) (string, erro
 	if err != nil {
 		return "", err
 	}
+
 	defer res.Body.Close()
 
 	var tokenResponse tokenResponseBody
-
 	err = json.NewDecoder(res.Body).Decode(&tokenResponse)
 	if err != nil {
 		return "", err
