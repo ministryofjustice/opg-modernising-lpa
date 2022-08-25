@@ -51,8 +51,8 @@ jobs:
           ECR_REPOSITORY: modernising-lpa/app
           TAG: ${{ inputs.tag }}
         run: |
-          docker compose -f docker-compose.ci.yml up -d
-          # docker run -d -p 5050:5000 $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml build
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d
 
       - name: Manage Ingress/Configure AWS Credentials
         if: ${{ inputs.run_against_image != true }}
