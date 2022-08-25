@@ -1,15 +1,15 @@
-describe('Who is the lpa for', () => {
+describe('How would you like to be contacted', () => {
     beforeEach(() => {
-        cy.visit('/who-is-the-lpa-for');
+        cy.visit('/how-would-you-like-to-be-contacted');
         cy.injectAxe();
     });
 
     it('can be submitted', () => {
-        cy.get('#f-who-for').check('me');
+        cy.get('#f-contact').check('email');
 
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/how-would-you-like-to-be-contacted');
+        cy.url().should('contain', '/next-page');
     });
 });
