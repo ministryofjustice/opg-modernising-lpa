@@ -27,12 +27,12 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/
 FROM build-env as development
 
 WORKDIR /go/bin
+# Live reload for Go
+RUN go install github.com/cosmtrek/air@latest
+
 COPY --from=build-env /app .
 COPY --from=asset-env /app/web/static web/static
 COPY web/template web/template
-
-# Live reload for Go
-RUN go install github.com/cosmtrek/air@latest
 
 CMD air
 
@@ -46,8 +46,8 @@ COPY app/web/template web/template
 COPY app/lang lang
 
 RUN addgroup -S app && \
-    adduser -S -g app app && \
-    chown -R app:app mlpab web/template web/static
+  adduser -S -g app app && \
+  chown -R app:app mlpab web/template web/static
 USER app
 
 ENTRYPOINT ["./mlpab"]
