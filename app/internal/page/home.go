@@ -10,6 +10,7 @@ import (
 )
 
 type homeData struct {
+	Page      string
 	UserEmail string
 	SignInURL string
 	L         localize.Localizer
@@ -19,6 +20,7 @@ type homeData struct {
 func Home(tmpl template.Template, signInURL string, localizer localize.Localizer, lang Lang) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := homeData{
+			Page:      "/home",
 			UserEmail: r.FormValue("email"),
 			SignInURL: signInURL,
 			L:         localizer,
