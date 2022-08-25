@@ -28,7 +28,7 @@ func TestGetDonorAddress(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &donorAddressData{
-			Page: "/donor-address",
+			Page: donorAddressPath,
 			L:    localizer,
 			Lang: En,
 			Form: &donorAddressForm{},
@@ -51,7 +51,7 @@ func TestGetDonorAddressManual(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &donorAddressData{
-			Page: "/donor-address",
+			Page: donorAddressPath,
 			L:    localizer,
 			Lang: En,
 			Form: &donorAddressForm{
@@ -80,7 +80,7 @@ func TestGetDonorAddressWhenTemplateErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &donorAddressData{
-			Page: "/donor-address",
+			Page: donorAddressPath,
 			L:    localizer,
 			Lang: En,
 			Form: &donorAddressForm{},
@@ -125,7 +125,7 @@ func TestPostDonorAddressManual(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/next-page", resp.Header.Get("Location"))
+	assert.Equal(t, whoIsTheLpaForPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
@@ -143,7 +143,7 @@ func TestPostDonorAddressManualWhenValidationError(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &donorAddressData{
-			Page: "/donor-address",
+			Page: donorAddressPath,
 			L:    localizer,
 			Lang: En,
 			Form: &donorAddressForm{
@@ -199,7 +199,7 @@ func TestPostDonorAddressSelect(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/next-page", resp.Header.Get("Location"))
+	assert.Equal(t, whoIsTheLpaForPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
@@ -224,7 +224,7 @@ func TestPostDonorAddressSelectWhenValidationError(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &donorAddressData{
-			Page: "/donor-address",
+			Page: donorAddressPath,
 			L:    localizer,
 			Lang: En,
 			Form: &donorAddressForm{
@@ -264,7 +264,7 @@ func TestPostDonorAddressLookup(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &donorAddressData{
-			Page: "/donor-address",
+			Page: donorAddressPath,
 			L:    localizer,
 			Lang: En,
 			Form: &donorAddressForm{
@@ -307,7 +307,7 @@ func TestPostDonorAddressLookupError(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &donorAddressData{
-			Page: "/donor-address",
+			Page: donorAddressPath,
 			L:    localizer,
 			Lang: En,
 			Form: &donorAddressForm{
@@ -347,7 +347,7 @@ func TestPostDonorAddressLookupWhenValidationError(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &donorAddressData{
-			Page: "/donor-address",
+			Page: donorAddressPath,
 			L:    localizer,
 			Lang: En,
 			Form: &donorAddressForm{

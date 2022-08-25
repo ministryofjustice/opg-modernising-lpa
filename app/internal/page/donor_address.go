@@ -19,7 +19,7 @@ type donorAddressData struct {
 func DonorAddress(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, addressClient AddressClient, dataStore DataStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := &donorAddressData{
-			Page: "/donor-address",
+			Page: donorAddressPath,
 			L:    localizer,
 			Lang: lang,
 			Form: &donorAddressForm{},
@@ -31,7 +31,7 @@ func DonorAddress(logger Logger, localizer localize.Localizer, lang Lang, tmpl t
 
 			if (data.Form.Action == "manual" || data.Form.Action == "select") && len(data.Errors) == 0 {
 				dataStore.Save(data.Form.Address)
-				lang.Redirect(w, r, "/next-page", http.StatusFound)
+				lang.Redirect(w, r, whoIsTheLpaForPath, http.StatusFound)
 				return
 			}
 
