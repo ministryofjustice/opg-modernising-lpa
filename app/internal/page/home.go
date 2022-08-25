@@ -3,7 +3,6 @@ package page
 import (
 	"log"
 	"net/http"
-	"net/url"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 
@@ -19,22 +18,14 @@ type homeData struct {
 
 func Home(tmpl template.Template, signInURL string, localizer localize.Localizer, lang Lang) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		requestURI, err := url.Parse(r.RequestURI)
-
-		if err != nil {
-			log.Fatalf("Error parsing requestURI: %v", err)
-		}
-
-		userEmail := requestURI.Query().Get("email")
-
 		data := homeData{
-			UserEmail: userEmail,
+			UserEmail: r.FormValue("email"),
 			SignInURL: signInURL,
 			L:         localizer,
 			Lang:      lang,
 		}
-		err = tmpl(w, data)
 
+		err := tmpl(w, data)
 		if err != nil {
 			log.Fatalf("Error rendering template: %v", err)
 		}
