@@ -61,10 +61,16 @@ func App(logger Logger, localizer localize.Localizer, lang Lang, tmpls template.
 	addressClient := fakeAddressClient{}
 	dataStore := fakeDataStore{logger: logger}
 
-	mux.Handle(startPath, Start(logger, localizer, lang, tmpls.Get("start.gohtml")))
-	mux.Handle(donorDetailsPath, DonorDetails(logger, localizer, lang, tmpls.Get("donor_details.gohtml"), dataStore))
-	mux.Handle(donorAddressPath, DonorAddress(logger, localizer, lang, tmpls.Get("donor_address.gohtml"), addressClient, dataStore))
-	mux.Handle(whoIsTheLpaForPath, WhoIsTheLpaFor(logger, localizer, lang, tmpls.Get("who_is_the_lpa_for.gohtml"), dataStore))
+	mux.Handle(startPath,
+		Start(logger, localizer, lang, tmpls.Get("start.gohtml")))
+	mux.Handle(donorDetailsPath,
+		DonorDetails(logger, localizer, lang, tmpls.Get("donor_details.gohtml"), dataStore))
+	mux.Handle(donorAddressPath,
+		DonorAddress(logger, localizer, lang, tmpls.Get("donor_address.gohtml"), addressClient, dataStore))
+	mux.Handle(whoIsTheLpaForPath,
+		WhoIsTheLpaFor(logger, localizer, lang, tmpls.Get("who_is_the_lpa_for.gohtml"), dataStore))
+	mux.Handle(howWouldYouLikeToBeContactedPath,
+		HowWouldYouLikeToBeContacted(logger, localizer, lang, tmpls.Get("how_would_you_like_to_be_contacted.gohtml"), dataStore))
 
 	return mux
 }
