@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
+	"errors"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -23,8 +24,8 @@ type mockSecretsManagerClient struct {
 	secretsmanageriface.SecretsManagerAPI
 }
 
-func (m *mockSecretsManagerClient) GetSecretValue(i *secretsmanager.GetSecretValueInput) (*secretsmanager.GetSecretValueOutput, error) {
-	args := m.Called(i)
+func (m *mockSecretsManagerClient) GetSecretValue(input *secretsmanager.GetSecretValueInput) (*secretsmanager.GetSecretValueOutput, error) {
+	args := m.Called(input)
 	return args.Get(0).(*secretsmanager.GetSecretValueOutput), args.Error(1)
 }
 
@@ -35,24 +36,52 @@ func TestPrivateKey(t *testing.T) {
 
 	b64PrivatePem := base64.StdEncoding.EncodeToString(k)
 
-	secretsClient := mockSecretsManagerClient{}
-
-	input := &secretsmanager.GetSecretValueInput{
-		SecretId: aws.String("private-jwt-key-base64"),
-	}
-
-	output := &secretsmanager.GetSecretValueOutput{
-		SecretString: &b64PrivatePem,
-	}
-
+	secretsClient := &mockSecretsManagerClient{}
 	secretsClient.
-		On("GetSecretValue", input).
-		Return(output, nil)
+		On("GetSecretValue", &secretsmanager.GetSecretValueInput{SecretId: aws.String("private-jwt-key-base64")}).
+		Return(&secretsmanager.GetSecretValueOutput{SecretString: aws.String(b64PrivatePem)}, nil)
 
-	c := Client{sm: &secretsClient}
+	c := Client{sm: secretsClient}
 
-	got, err := c.PrivateKey()
-
+	result, err := c.PrivateKey()
 	assert.Nil(t, err)
-	assert.Equal(t, priv, got)
+	assert.Equal(t, priv, result)
+}
+
+func TestPrivateKeyWhenGetSecretError(t *testing.T) {
+	expectedError := errors.New("err")
+
+	secretsClient := &mockSecretsManagerClient{}
+	secretsClient.
+		On("GetSecretValue", &secretsmanager.GetSecretValueInput{SecretId: aws.String("private-jwt-key-base64")}).
+		Return(&secretsmanager.GetSecretValueOutput{}, expectedError)
+
+	c := Client{sm: secretsClient}
+
+	_, err := c.PrivateKey()
+	assert.Equal(t, expectedError, errors.Unwrap(err))
+}
+
+func TestPrivateKeyWhenMissing(t *testing.T) {
+	secretsClient := &mockSecretsManagerClient{}
+	secretsClient.
+		On("GetSecretValue", &secretsmanager.GetSecretValueInput{SecretId: aws.String("private-jwt-key-base64")}).
+		Return(&secretsmanager.GetSecretValueOutput{}, nil)
+
+	c := Client{sm: secretsClient}
+
+	_, err := c.PrivateKey()
+	assert.NotNil(t, err)
+}
+
+func TestPrivateKeyWhenNotBase64(t *testing.T) {
+	secretsClient := &mockSecretsManagerClient{}
+	secretsClient.
+		On("GetSecretValue", &secretsmanager.GetSecretValueInput{SecretId: aws.String("private-jwt-key-base64")}).
+		Return(&secretsmanager.GetSecretValueOutput{SecretString: aws.String("hello")}, nil)
+
+	c := Client{sm: secretsClient}
+
+	_, err := c.PrivateKey()
+	assert.NotNil(t, err)
 }

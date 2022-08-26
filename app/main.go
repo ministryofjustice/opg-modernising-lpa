@@ -4,13 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 
 	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-go-common/logging"
@@ -24,17 +21,14 @@ import (
 func main() {
 	logger := logging.New(os.Stdout, "opg-modernising-lpa")
 
-	issuer, err := url.Parse(env.Get("GOV_UK_SIGN_IN_URL", "http://sign-in-mock:5060"))
-	if err != nil {
-		logger.Fatal(err)
-	}
-
-	clientID := env.Get("CLIENT_ID", "client-id-value")
-	port := env.Get("APP_PORT", "8080")
-	appPublicURL := env.Get("APP_PUBLIC_URL", "http://localhost:5050")
-	signInPublicURL := env.Get("GOV_UK_SIGN_IN_PUBLIC_URL", "http://localhost:5050")
-
-	webDir := env.Get("WEB_DIR", "web")
+	var (
+		port         = env.Get("APP_PORT", "8080")
+		appPublicURL = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
+		webDir       = env.Get("WEB_DIR", "web")
+		awsBaseUrl   = env.Get("AWS_BASE_URL", "http://localstack:4566")
+		clientID     = env.Get("CLIENT_ID", "client-id-value")
+		issuer       = env.Get("ISSUER", "http://sign-in-mock:7012")
+	)
 
 	tmpls, err := template.Parse(webDir+"/template", map[string]interface{}{
 		"isEnglish": func(lang page.Lang) bool {
@@ -77,15 +71,8 @@ func main() {
 	mux := http.NewServeMux()
 
 	fileServer := http.FileServer(http.Dir(webDir + "/static/"))
-	awsBaseUrl := env.Get("AWS_BASE_URL", "http://localstack:4566")
 
 	secretsClient, err := secrets.NewClient(awsBaseUrl)
-	if err != nil {
-		logger.Fatal(err)
-	}
-
-	signInClient := signin.NewClient(http.DefaultClient, &secretsClient)
-	err = signInClient.Discover(issuer.String() + "/.well-known/openid-configuration")
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -93,11 +80,15 @@ func main() {
 	signInCallbackEndpoint := "/auth/callback"
 	redirectURL := fmt.Sprintf("%s%s", appPublicURL, signInCallbackEndpoint)
 
+	signInClient, err := signin.Discover(http.DefaultClient, secretsClient, issuer, clientID, redirectURL)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	mux.Handle("/login", page.Login(*signInClient, clientID, redirectURL, signInPublicURL))
-	mux.Handle("/home", page.Home(tmpls.Get("home.gohtml"), fmt.Sprintf("%s/login", appPublicURL), bundle.For("en"), page.En))
-	mux.Handle(signInCallbackEndpoint, page.SignInCallback(signInClient, appPublicURL, clientID, random.String(12)))
+	mux.Handle(page.AuthCallbackPath, page.AuthCallback(logger, signInClient))
+	mux.Handle(page.AuthPath, page.Login(signInClient))
 
 	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls)))
 	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls))
