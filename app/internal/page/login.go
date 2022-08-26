@@ -2,13 +2,15 @@ package page
 
 import (
 	"net/http"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
 )
 
-func Login(c signin.Client, clientID, redirectURL, signInPublicURL string) http.HandlerFunc {
+type loginClient interface {
+	AuthCodeURL(state, nonce, scope string) string
+}
+
+func Login(c loginClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		authCodeURL := c.AuthCodeURL(redirectURL, clientID, "state-value", "nonce-value", "scope-value", signInPublicURL)
+		authCodeURL := c.AuthCodeURL("state-value", "nonce-value", "scope-value")
 
 		http.Redirect(w, r, authCodeURL, http.StatusFound)
 	}
