@@ -1,5 +1,5 @@
 resource "aws_kms_key" "cloudwatch" {
-  description             = "${local.mandatory_moj_tags.application} cloudwatch application logs encryption key"
+  description             = "${local.mandatory_moj_tags.application} Cloudwatch application logs encryption key"
   deletion_window_in_days = 10
   enable_key_rotation     = true
   policy                  = local.account.account_name == "development" ? data.aws_iam_policy_document.cloudwatch_kms_merged.json : data.aws_iam_policy_document.cloudwatch_kms.json
@@ -8,7 +8,7 @@ resource "aws_kms_key" "cloudwatch" {
 }
 
 resource "aws_kms_replica_key" "cloudwatch_replica" {
-  description             = "Multi-Region replica key"
+  description             = "${local.mandatory_moj_tags.application} Cloudwatch application logs Multi-Region replica key"
   deletion_window_in_days = 7
   primary_key_arn         = aws_kms_key.cloudwatch.arn
   provider                = aws.eu_west_2
