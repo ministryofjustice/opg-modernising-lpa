@@ -7,7 +7,10 @@ resource "aws_iam_role" "app_task_role" {
 data "aws_iam_policy_document" "task_role_assume_policy" {
   statement {
     effect  = "Allow"
-    actions = ["sts:AssumeRole"]
+    actions = [
+      "sts:AssumeRole",
+      "secretsmanager:GetSecretValue",
+    ]
 
     principals {
       identifiers = ["ecs-tasks.amazonaws.com"]

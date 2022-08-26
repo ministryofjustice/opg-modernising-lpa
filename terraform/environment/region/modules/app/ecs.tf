@@ -113,6 +113,19 @@ locals {
         {
           name  = "APP_PORT",
           value = tostring(var.container_port)
+        },
+        {
+          name = "CLIENT_ID",
+          value = "37iOvkzc5BIRKsFSu5l3reZmFlA"
+        },
+        {
+          name = "ISSUER",
+          value = "https://oidc.integration.account.gov.uk"
+        },
+        {
+          # this is not the final value, but will allow signin to be tested while the real redirectURL is changed
+          name = "APP_PUBLIC_URL",
+          value = "https://opg-lpa-fd-prototype.apps.live.cloud-platform.service.justice.gov.uk"
         }
       ]
     }
