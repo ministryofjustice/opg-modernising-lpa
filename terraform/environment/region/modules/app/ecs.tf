@@ -83,17 +83,20 @@ resource "aws_ecs_task_definition" "app" {
 }
 
 resource "aws_iam_role_policy" "app_task_role" {
-  name   = "${data.aws_default_tags.current.tags.environment-name}-app-task-role"
-  policy = data.aws_iam_policy_document.task_role_access_policy.json
-  role   = var.ecs_task_role_arn
+  name     = "${data.aws_default_tags.current.tags.environment-name}-app-task-role"
+  policy   = data.aws_iam_policy_document.task_role_access_policy.json
+  role     = var.ecs_task_role_arn
+  provider = aws.region
 }
 
 data "aws_kms_alias" "secrets_manager_secret_encryption_key" {
-  name = "alias/${data.aws_default_tags.current.tags.application}_secrets_manager_secret_encryption_key"
+  name     = "alias/${data.aws_default_tags.current.tags.application}_secrets_manager_secret_encryption_key"
+  provider = aws.region
 }
 
 data "aws_secretsmanager_secret" "private_jwt_key" {
-  name = "private-jwt-key-base64"
+  name     = "private-jwt-key-base64"
+  provider = aws.region
 }
 
 data "aws_iam_policy_document" "task_role_access_policy" {
@@ -123,6 +126,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
       data.aws_secretsmanager_secret.private_jwt_key.arn,
     ]
   }
+  provider = aws.region
 }
 
 
