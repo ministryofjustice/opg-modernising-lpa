@@ -45,7 +45,7 @@ jobs:
           role-session-name: OPGModernisingLPATerraformGithubAction
       - name: ECR Login
         id: login_ecr
-        uses: aws-actions/amazon-ecr-login@v1.5.0
+        uses: aws-actions/amazon-ecr-login@v1.5.1
         with:
           registries: 311462405659
       - name: Push Container
