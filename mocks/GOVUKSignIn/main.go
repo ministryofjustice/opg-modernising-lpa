@@ -22,28 +22,19 @@ import (
 	"github.com/ministryofjustice/opg-go-common/env"
 )
 
+var (
+	port        = env.Get("PORT", "8080")
+	publicURL   = env.Get("PUBLIC_URL", "http://localhost:8080")
+	internalURL = env.Get("INTERNAL_URL", "http://sign-in-mock:8080")
+	clientId    = env.Get("CLIENT_ID", "theClientId")
+	awsBaseUrl  = env.Get("AWS_BASE_URL", "http://localstack:4566")
+)
+
 type OpenIdConfig struct {
-	AuthorizationEndpoint                      string   `json:"authorization_endpoint"`
-	TokenEndpoint                              string   `json:"token_endpoint"`
-	RegistrationEndpoint                       string   `json:"registration_endpoint"`
-	Issuer                                     string   `json:"issuer"`
-	JwksUri                                    string   `json:"jwks_uri"`
-	ScopesSupported                            []string `json:"scopes_supported"`
-	ResponseTypesSupported                     []string `json:"response_types_supported"`
-	GrantTypesSupported                        []string `json:"grant_types_supported"`
-	TokenEndpointAuthMethodsSupported          []string `json:"token_endpoint_auth_methods_supported"`
-	TokenEndpointAuthSigningAlgValuesSupported []string `json:"token_endpoint_auth_signing_alg_values_supported"`
-	ServiceDocumentation                       string   `json:"service_documentation"`
-	RequestUriParameterSupported               bool     `json:"request_uri_parameter_supported"`
-	Trustmarks                                 string   `json:"trustmarks"`
-	SubjectTypesSupported                      []string `json:"subject_types_supported"`
-	UserinfoEndpoint                           string   `json:"userinfo_endpoint"`
-	EndSessionEndpoint                         string   `json:"end_session_endpoint"`
-	IdTokenSigningAlgValuesSupported           []string `json:"id_token_signing_alg_values_supported"`
-	ClaimTypesSupported                        []string `json:"claim_types_supported"`
-	ClaimsSupported                            []string `json:"claims_supported"`
-	BackchannelLogoutSupported                 bool     `json:"backchannel_logout_supported"`
-	BackchannelLogoutSessionSupported          bool     `json:"backchannel_logout_session_supported"`
+	AuthorizationEndpoint string `json:"authorization_endpoint"`
+	Issuer                string `json:"issuer"`
+	TokenEndpoint         string `json:"token_endpoint"`
+	UserinfoEndpoint      string `json:"userinfo_endpoint"`
 }
 
 type TokenResponse struct {
@@ -63,18 +54,11 @@ type UserInfoResponse struct {
 	UpdatedAt     int    `json:"updated_at"`
 }
 
-var (
-	port        = env.Get("GOV_UK_SIGN_IN_PORT", "5060")
-	mockBaseUrl = env.Get("GOV_UK_SIGN_IN_URL", fmt.Sprintf("http://sign-in-mock:%s", port))
-	clientId    = env.Get("CLIENT_ID", "theClientId")
-	awsBaseUrl  = env.Get("AWS_BASE_URL", "http://localstack:4566")
-)
-
 const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-func StringWithCharset(length int, charset string) string {
+func stringWithCharset(length int, charset string) string {
 	b := make([]byte, length)
 	for i := range b {
 		b[i] = charset[seededRand.Intn(len(charset))]
@@ -82,14 +66,14 @@ func StringWithCharset(length int, charset string) string {
 	return string(b)
 }
 
-func RandomString(length int) string {
-	return StringWithCharset(length, charset)
+func randomString(length int) string {
+	return stringWithCharset(length, charset)
 }
 
 func createSignedToken(clientId, issuer string) (string, error) {
 	t := jwt.New(jwt.GetSigningMethod("RS256"))
 
-	t.Header["sub"] = fmt.Sprintf("%s-sub", RandomString(10))
+	t.Header["sub"] = fmt.Sprintf("%s-sub", randomString(10))
 	t.Header["iss"] = issuer
 	t.Header["nonce"] = "nonce-value"
 	t.Header["aud"] = clientId
@@ -104,29 +88,12 @@ func createSignedToken(clientId, issuer string) (string, error) {
 	return t.SignedString(key)
 }
 
-func createConfig(baseUri string) OpenIdConfig {
+func createConfig(publicURL, internalURL string) OpenIdConfig {
 	return OpenIdConfig{
-		AuthorizationEndpoint:             fmt.Sprintf("%s/authorize", baseUri),
-		TokenEndpoint:                     fmt.Sprintf("%s/token", baseUri),
-		RegistrationEndpoint:              fmt.Sprintf("%s/connect/register", baseUri),
-		Issuer:                            fmt.Sprintf("%s", baseUri),
-		JwksUri:                           fmt.Sprintf("%s/.well-known/jwks.json", baseUri),
-		ScopesSupported:                   []string{"openid", "email", "phone", "offline_access"},
-		ResponseTypesSupported:            []string{"code"},
-		GrantTypesSupported:               []string{"authorization_code"},
-		TokenEndpointAuthMethodsSupported: []string{"private_key_jwt"},
-		TokenEndpointAuthSigningAlgValuesSupported: []string{"RS256", "RS384", "RS512", "PS256", "PS384", "PS512"},
-		ServiceDocumentation:                       "https://docs.sign-in.service.gov.uk/",
-		RequestUriParameterSupported:               true,
-		Trustmarks:                                 fmt.Sprintf("%s/trustmark", baseUri),
-		SubjectTypesSupported:                      []string{"public", "pairwise"},
-		UserinfoEndpoint:                           fmt.Sprintf("%s/userinfo", baseUri),
-		EndSessionEndpoint:                         fmt.Sprintf("%s/logout", baseUri),
-		IdTokenSigningAlgValuesSupported:           []string{"ES256"},
-		ClaimTypesSupported:                        []string{"normal"},
-		ClaimsSupported:                            []string{"sub", "email", "email_verified", "phone_number", "phone_number_verified"},
-		BackchannelLogoutSupported:                 true,
-		BackchannelLogoutSessionSupported:          true,
+		Issuer:                publicURL,
+		AuthorizationEndpoint: publicURL + "/authorize",
+		TokenEndpoint:         internalURL + "/token",
+		UserinfoEndpoint:      internalURL + "/userinfo",
 	}
 }
 
@@ -174,7 +141,7 @@ func token(clientId, issuer string) http.HandlerFunc {
 
 		tr := TokenResponse{
 			AccessToken:      "access-token-value",
-			RefreshToken:     RandomString(20),
+			RefreshToken:     randomString(20),
 			TokenType:        "Bearer",
 			ExpiresInSeconds: 3600,
 			IDJWTToken:       t,
@@ -211,7 +178,7 @@ func authorize() http.HandlerFunc {
 
 		q := u.Query()
 
-		code := RandomString(10)
+		code := randomString(10)
 		q.Set("code", code)
 
 		state := r.URL.Query().Get("state")
@@ -301,7 +268,7 @@ func getPrivateKey() (*rsa.PrivateKey, error) {
 func main() {
 	flag.Parse()
 
-	c := createConfig(mockBaseUrl)
+	c := createConfig(publicURL, internalURL)
 
 	http.HandleFunc("/.well-known/openid-configuration", openIDConfig(c))
 	http.HandleFunc("/authorize", authorize())
