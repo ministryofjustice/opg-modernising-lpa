@@ -1,5 +1,5 @@
 resource "aws_kms_key" "secrets_manager" {
-  description             = "${local.mandatory_moj_tags.application} secrets manager secret encryption key"
+  description             = "${local.mandatory_moj_tags.application} Secrets Manager secret encryption key"
   deletion_window_in_days = 10
   enable_key_rotation     = true
   policy                  = local.account.account_name == "development" ? data.aws_iam_policy_document.secrets_manager_kms_merged.json : data.aws_iam_policy_document.secrets_manager_kms.json
@@ -8,7 +8,7 @@ resource "aws_kms_key" "secrets_manager" {
 }
 
 resource "aws_kms_replica_key" "secrets_manager_replica" {
-  description             = "Secrets Manager secret multi-region replica key"
+  description             = "${local.mandatory_moj_tags.application} Secrets Manager secret multi-region replica key"
   deletion_window_in_days = 7
   primary_key_arn         = aws_kms_key.secrets_manager.arn
   provider                = aws.eu_west_2
@@ -44,7 +44,6 @@ data "aws_iam_policy_document" "secrets_manager_kms" {
     resources = ["*"]
     actions = [
       "kms:Encrypt",
-      "kms:Decrypt",
       "kms:ReEncrypt*",
       "kms:GenerateDataKey*",
       "kms:DescribeKey",
@@ -53,11 +52,30 @@ data "aws_iam_policy_document" "secrets_manager_kms" {
     principals {
       type = "AWS"
       identifiers = [
-        "*"
+        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/breakglass",
       ]
     }
-    # need a better principle and condition as per
-    #  https://docs.aws.amazon.com/secretsmanager/latest/userguide/security-encryption.html
+  }
+
+  statement {
+    sid       = "Allow Key to be used for Decryption"
+    effect    = "Allow"
+    resources = ["*"]
+    actions = [
+      "kms:Decrypt",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey",
+    ]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        # need a better principle and condition as per
+        #  https://docs.aws.amazon.com/secretsmanager/latest/userguide/security-encryption.html
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
+        # ECS task role for app
+      ]
+    }
   }
 
   statement {
