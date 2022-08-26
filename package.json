@@ -22,7 +22,7 @@
         "axe-core": "^4.4.3",
         "cypress": "^10.6.0",
         "cypress-axe": "^1.0.0",
-        "esbuild": "^0.14.53",
+        "esbuild": "^0.15.5",
         "sass": "^1.54.5"
     }
 }
