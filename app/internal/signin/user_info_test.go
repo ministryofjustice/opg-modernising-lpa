@@ -12,12 +12,12 @@ import (
 )
 
 func TestGetUserInfo(t *testing.T) {
-	expectedUserInfo := UserInfoResponse{Email: "email@example.com"}
+	expectedUserInfo := UserInfo{Email: "email@example.com"}
 
 	data, _ := json.Marshal(expectedUserInfo)
 
-	client := &mockHttpClient{}
-	client.
+	httpClient := &mockHttpClient{}
+	httpClient.
 		On("Do", mock.MatchedBy(func(r *http.Request) bool {
 			return assert.Equal(t, http.MethodGet, r.Method) &&
 				assert.Equal(t, "http://user-info", r.URL.String()) &&
@@ -28,14 +28,16 @@ func TestGetUserInfo(t *testing.T) {
 			Body:       ioutil.NopCloser(bytes.NewReader(data)),
 		}, nil)
 
-	c := NewClient(client, nil)
-	c.discoverData = DiscoverResponse{
-		UserinfoEndpoint: "http://user-info",
+	c := &Client{
+		httpClient: httpClient,
+		openidConfiguration: openidConfiguration{
+			UserinfoEndpoint: "http://user-info",
+		},
 	}
 
-	userinfo, err := c.GetUserInfo("hey")
+	userinfo, err := c.UserInfo("hey")
 	assert.Nil(t, err)
 	assert.Equal(t, expectedUserInfo, userinfo)
 
-	mock.AssertExpectationsForObjects(t, client)
+	mock.AssertExpectationsForObjects(t, httpClient)
 }

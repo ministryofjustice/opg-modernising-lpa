@@ -20,30 +20,43 @@ func (m *mockHttpClient) Do(r *http.Request) (*http.Response, error) {
 	return args.Get(0).(*http.Response), args.Error(1)
 }
 
-func TestDiscoverEndpoints(t *testing.T) {
-	dr := DiscoverResponse{
+func TestDiscover(t *testing.T) {
+	expectedConfiguration := openidConfiguration{
 		AuthorizationEndpoint: "http://example.org/authorize",
 		TokenEndpoint:         "http://example.org/token",
 		Issuer:                "http://example.org",
 		UserinfoEndpoint:      "http://example.org/userinfo",
 	}
-	body, _ := json.Marshal(dr)
+	body, _ := json.Marshal(expectedConfiguration)
 
 	client := &mockHttpClient{}
 	client.
 		On("Do", mock.MatchedBy(func(r *http.Request) bool {
-			return assert.Equal(t, http.MethodGet, r.Method) && assert.Equal(t, "http://base.uri", r.URL.String())
+			return assert.Equal(t, http.MethodGet, r.Method) && assert.Equal(t, "http://base.uri/.well-known/openid-configuration", r.URL.String())
 		})).
 		Return(&http.Response{
 			StatusCode: http.StatusOK,
 			Body:       ioutil.NopCloser(bytes.NewReader(body)),
 		}, nil)
 
-	// Make a Client
-	c := NewClient(client, nil)
-	err := c.Discover("http://base.uri")
+	c, err := Discover(client, nil, "http://base.uri", "client-id", "http://redirect")
 
 	assert.Nil(t, err)
-	assert.Equal(t, dr, c.discoverData)
+	assert.Equal(t, expectedConfiguration, c.openidConfiguration)
 	mock.AssertExpectationsForObjects(t, client)
+}
+
+func TestAuthCodeURL(t *testing.T) {
+	expected := "http://auth?client_id=123&nonce=nonce&redirect_uri=http%3A%2F%2Fredirect&scope=scope&state=state"
+
+	c := &Client{
+		redirectURL: "http://redirect",
+		clientID:    "123",
+		openidConfiguration: openidConfiguration{
+			AuthorizationEndpoint: "http://auth",
+		},
+	}
+	actual := c.AuthCodeURL("state", "nonce", "scope")
+
+	assert.Equal(t, expected, actual)
 }

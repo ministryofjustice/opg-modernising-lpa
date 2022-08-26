@@ -1,12 +1,10 @@
 package page
 
 import (
-	"log"
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
 type homeData struct {
@@ -17,10 +15,10 @@ type homeData struct {
 	Lang      Lang
 }
 
-func Home(tmpl template.Template, signInURL string, localizer localize.Localizer, lang Lang) http.HandlerFunc {
+func Home(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, signInURL string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := homeData{
-			Page:      "/home",
+			Page:      homePath,
 			UserEmail: r.FormValue("email"),
 			SignInURL: signInURL,
 			L:         localizer,
@@ -29,7 +27,7 @@ func Home(tmpl template.Template, signInURL string, localizer localize.Localizer
 
 		err := tmpl(w, data)
 		if err != nil {
-			log.Fatalf("Error rendering template: %v", err)
+			logger.Print("Error rendering template: %v", err)
 		}
 	}
 }

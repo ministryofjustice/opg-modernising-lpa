@@ -18,11 +18,6 @@ type mockSecretsClient struct {
 	mock.Mock
 }
 
-func (m *mockSecretsClient) PublicKey() (*rsa.PublicKey, error) {
-	args := m.Called()
-	return args.Get(0).(*rsa.PublicKey), args.Error(1)
-}
-
 func (m *mockSecretsClient) PrivateKey() (*rsa.PrivateKey, error) {
 	args := m.Called()
 	return args.Get(0).(*rsa.PrivateKey), args.Error(1)
@@ -31,10 +26,7 @@ func (m *mockSecretsClient) PrivateKey() (*rsa.PrivateKey, error) {
 func TestGetToken(t *testing.T) {
 	privateKey, _ := rsa.GenerateKey(rand.New(rand.NewSource(99)), 2048)
 
-	claims := make(jwt.MapClaims)
-	claims["sub"] = "hey"
-
-	idToken, err := jwt.NewWithClaims(jwt.SigningMethodRS256, claims).SignedString(privateKey)
+	idToken, _ := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{"sub": "hey"}).SignedString(privateKey)
 
 	response := tokenResponseBody{
 		AccessToken:  "a",
@@ -46,12 +38,12 @@ func TestGetToken(t *testing.T) {
 
 	data, _ := json.Marshal(response)
 
-	client := &mockHttpClient{}
-	client.
+	httpClient := &mockHttpClient{}
+	httpClient.
 		On("Do", mock.MatchedBy(func(r *http.Request) bool {
 			return assert.Equal(t, http.MethodPost, r.Method) &&
 				assert.Equal(t, "http://token", r.URL.String()) &&
-				assert.Equal(t, "application/x-www-form-urlencoded", r.Header.Get("Content-Type"))
+				assert.Equal(t, "application/x-www-form-urlencoded", r.Header.Get("Content-Type")) // && body
 		})).
 		Return(&http.Response{
 			StatusCode: http.StatusOK,
@@ -63,15 +55,18 @@ func TestGetToken(t *testing.T) {
 		On("PrivateKey").
 		Return(privateKey, nil)
 
-	c := NewClient(client, secretsClient)
-	c.discoverData = DiscoverResponse{
-		TokenEndpoint: "http://token",
+	client := &Client{
+		httpClient:    httpClient,
+		secretsClient: secretsClient,
+		openidConfiguration: openidConfiguration{
+			TokenEndpoint: "http://token",
+		},
+		randomString: func(i int) string { return "this-is-random" },
 	}
 
-	result, err := c.GetToken("http://redirect", "clientId", "jti", "my-code")
-
+	result, err := client.Exchange("my-code")
 	assert.Nil(t, err)
 	assert.Equal(t, idToken, result)
 
-	mock.AssertExpectationsForObjects(t, client, secretsClient)
+	mock.AssertExpectationsForObjects(t, httpClient, secretsClient)
 }

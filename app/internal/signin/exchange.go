@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type tokenRequestBody struct {
@@ -26,21 +26,22 @@ type tokenResponseBody struct {
 	IdToken      string `json:"id_token"`
 }
 
-func (c *Client) GetToken(redirectUri, clientID, JTI, code string) (string, error) {
+func (c *Client) Exchange(code string) (string, error) {
 	privateKey, err := c.secretsClient.PrivateKey()
 	if err != nil {
 		return "", err
 	}
 
-	claims := make(jwt.MapClaims)
-	claims["aud"] = []string{"https://oidc.integration.account.gov.uk/token"}
-	claims["iss"] = clientID
-	claims["sub"] = clientID
-	claims["exp"] = time.Now().Add(5 * time.Minute).Unix()
-	claims["jti"] = JTI
-	claims["iat"] = time.Now().Unix()
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, &jwt.RegisteredClaims{
+		Audience:  jwt.ClaimStrings{"https://oidc.integration.account.gov.uk/token"},
+		Issuer:    c.clientID,
+		Subject:   c.clientID,
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(5 * time.Minute)),
+		ID:        c.randomString(12),
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+	})
 
-	signedAssertion, err := jwt.NewWithClaims(jwt.SigningMethodRS256, claims).SignedString(privateKey)
+	signedAssertion, err := token.SignedString(privateKey)
 	if err != nil {
 		return "", err
 	}
@@ -48,34 +49,30 @@ func (c *Client) GetToken(redirectUri, clientID, JTI, code string) (string, erro
 	body := &tokenRequestBody{
 		GrantType:           "authorization_code",
 		AuthorizationCode:   code,
-		RedirectUri:         redirectUri,
+		RedirectUri:         c.redirectURL,
 		ClientAssertionType: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
 		ClientAssertion:     signedAssertion,
 	}
 
 	var encodedPostBody bytes.Buffer
-	err = json.NewEncoder(&encodedPostBody).Encode(body)
-	if err != nil {
+	if err := json.NewEncoder(&encodedPostBody).Encode(body); err != nil {
 		return "", err
 	}
 
-	req, err := http.NewRequest("POST", c.discoverData.TokenEndpoint, &encodedPostBody)
+	req, err := http.NewRequest("POST", c.openidConfiguration.TokenEndpoint, &encodedPostBody)
 	if err != nil {
 		return "", err
 	}
-
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	res, err := c.httpClient.Do(req)
 	if err != nil {
 		return "", err
 	}
-
 	defer res.Body.Close()
 
 	var tokenResponse tokenResponseBody
-	err = json.NewDecoder(res.Body).Decode(&tokenResponse)
-	if err != nil {
+	if err := json.NewDecoder(res.Body).Decode(&tokenResponse); err != nil {
 		return "", err
 	}
 
