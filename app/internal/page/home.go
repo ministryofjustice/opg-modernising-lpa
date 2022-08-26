@@ -1,35 +1,32 @@
 package page
 
 import (
-	"log"
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
 type homeData struct {
 	Page      string
-	UserEmail string
-	SignInURL string
 	L         localize.Localizer
 	Lang      Lang
+	UserEmail string
+	SignInURL string
 }
 
-func Home(tmpl template.Template, signInURL string, localizer localize.Localizer, lang Lang) http.HandlerFunc {
+func Home(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, signInURL string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		data := homeData{
-			Page:      "/home",
+		data := &homeData{
+			Page:      homePath,
 			UserEmail: r.FormValue("email"),
 			SignInURL: signInURL,
 			L:         localizer,
 			Lang:      lang,
 		}
 
-		err := tmpl(w, data)
-		if err != nil {
-			log.Fatalf("Error rendering template: %v", err)
+		if err := tmpl(w, data); err != nil {
+			logger.Print(err)
 		}
 	}
 }
