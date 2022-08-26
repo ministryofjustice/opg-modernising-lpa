@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,13 +14,21 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
 )
 
 func main() {
 	logger := logging.New(os.Stdout, "opg-modernising-lpa")
 
-	port := env.Get("PORT", "8080")
-	webDir := env.Get("WEB_DIR", "web")
+	var (
+		clientID     = env.Get("CLIENT_ID", "client-id-value")
+		port         = env.Get("APP_PORT", "8080")
+		appPublicURL = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
+		awsBaseUrl   = env.Get("AWS_BASE_URL", "http://localstack:4566")
+		webDir       = env.Get("WEB_DIR", "web")
+		issuer       = env.Get("ISSUER", "http://sign-in-mock:7012")
+	)
 
 	tmpls, err := template.Parse(webDir+"/template", map[string]interface{}{
 		"isEnglish": func(lang page.Lang) bool {
@@ -63,7 +72,24 @@ func main() {
 
 	fileServer := http.FileServer(http.Dir(webDir + "/static/"))
 
+	secretsClient, err := secrets.NewClient(awsBaseUrl)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	signInCallbackEndpoint := "/auth/callback"
+	redirectURL := fmt.Sprintf("%s%s", appPublicURL, signInCallbackEndpoint)
+
+	signInClient, err := signin.Discover(http.DefaultClient, secretsClient, issuer, clientID, redirectURL)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+
+	mux.Handle(page.AuthCallbackPath, page.AuthCallback(signInClient))
+	mux.Handle(page.AuthPath, page.Login(signInClient))
+
 	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls)))
 	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls))
 

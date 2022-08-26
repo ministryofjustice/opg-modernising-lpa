@@ -63,6 +63,8 @@ func App(logger Logger, localizer localize.Localizer, lang Lang, tmpls template.
 
 	mux.Handle(startPath,
 		Start(logger, localizer, lang, tmpls.Get("start.gohtml")))
+	mux.Handle(homePath,
+		Home(logger, localizer, lang, tmpls.Get("home.gohtml"), AuthPath))
 	mux.Handle(donorDetailsPath,
 		DonorDetails(logger, localizer, lang, tmpls.Get("donor_details.gohtml"), dataStore))
 	mux.Handle(donorAddressPath,
