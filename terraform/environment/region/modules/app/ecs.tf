@@ -113,6 +113,14 @@ locals {
         {
           name  = "APP_PORT",
           value = tostring(var.container_port)
+        },
+        {
+          name = "CLIENT_ID",
+          value = "37iOvkzc5BIRKsFSu5l3reZmFlA"
+        },
+        {
+          name = "ISSUER",
+          value = "https://oidc.integration.account.gov.uk"
         }
       ]
     }
