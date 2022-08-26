@@ -1,5 +1,5 @@
 resource "aws_kms_key" "cloudwatch" {
-  description             = "${local.mandatory_moj_tags.application} cloudwatch application logs encryption key"
+  description             = "${local.mandatory_moj_tags.application} Cloudwatch application logs encryption key"
   deletion_window_in_days = 10
   enable_key_rotation     = true
   policy                  = local.account.account_name == "development" ? data.aws_iam_policy_document.cloudwatch_kms_merged.json : data.aws_iam_policy_document.cloudwatch_kms.json
@@ -8,7 +8,7 @@ resource "aws_kms_key" "cloudwatch" {
 }
 
 resource "aws_kms_replica_key" "cloudwatch_replica" {
-  description             = "Multi-Region replica key"
+  description             = "${local.mandatory_moj_tags.application} Cloudwatch application logs Multi-Region replica key"
   deletion_window_in_days = 7
   primary_key_arn         = aws_kms_key.cloudwatch.arn
   provider                = aws.eu_west_2
@@ -39,9 +39,11 @@ data "aws_iam_policy_document" "cloudwatch_kms_merged" {
 data "aws_iam_policy_document" "cloudwatch_kms" {
   provider = aws.global
   statement {
-    sid       = "Allow Key to be used for Encryption"
-    effect    = "Allow"
-    resources = ["*"]
+    sid    = "Allow Key to be used for Encryption"
+    effect = "Allow"
+    resources = [
+      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+    ]
     actions = [
       "kms:Encrypt",
       "kms:Decrypt",
@@ -61,9 +63,11 @@ data "aws_iam_policy_document" "cloudwatch_kms" {
   }
 
   statement {
-    sid       = "Key Administrator"
-    effect    = "Allow"
-    resources = ["*"]
+    sid    = "Key Administrator"
+    effect = "Allow"
+    resources = [
+      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+    ]
     actions = [
       "kms:Create*",
       "kms:Describe*",
@@ -95,9 +99,11 @@ data "aws_iam_policy_document" "cloudwatch_kms" {
 data "aws_iam_policy_document" "cloudwatch_kms_development_account_operator_admin" {
   provider = aws.global
   statement {
-    sid       = "Dev Account Key Administrator"
-    effect    = "Allow"
-    resources = ["*"]
+    sid    = "Dev Account Key Administrator"
+    effect = "Allow"
+    resources = [
+      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+    ]
     actions = [
       "kms:Create*",
       "kms:Describe*",
