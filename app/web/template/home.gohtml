@@ -1,0 +1,14 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{if .UserEmail}}
+                <h1 class="govuk-heading-l">Welcome {{ .UserEmail }}</h1>
+            {{else}}
+                <h1 class="govuk-body">User not signed in</h1>
+                <p class="govuk-body">Sign in <a href="{{ .SignInURL }}" class="govuk-link">here</a>.</p>
+            {{end}}
+        </div>
+    </div>
+{{ end }}
