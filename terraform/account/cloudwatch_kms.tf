@@ -39,9 +39,11 @@ data "aws_iam_policy_document" "cloudwatch_kms_merged" {
 data "aws_iam_policy_document" "cloudwatch_kms" {
   provider = aws.global
   statement {
-    sid       = "Allow Key to be used for Encryption"
-    effect    = "Allow"
-    resources = ["*"]
+    sid    = "Allow Key to be used for Encryption"
+    effect = "Allow"
+    resources = [
+      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+    ]
     actions = [
       "kms:Encrypt",
       "kms:Decrypt",
@@ -61,9 +63,11 @@ data "aws_iam_policy_document" "cloudwatch_kms" {
   }
 
   statement {
-    sid       = "Key Administrator"
-    effect    = "Allow"
-    resources = ["*"]
+    sid    = "Key Administrator"
+    effect = "Allow"
+    resources = [
+      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+    ]
     actions = [
       "kms:Create*",
       "kms:Describe*",
@@ -95,9 +99,11 @@ data "aws_iam_policy_document" "cloudwatch_kms" {
 data "aws_iam_policy_document" "cloudwatch_kms_development_account_operator_admin" {
   provider = aws.global
   statement {
-    sid       = "Dev Account Key Administrator"
-    effect    = "Allow"
-    resources = ["*"]
+    sid    = "Dev Account Key Administrator"
+    effect = "Allow"
+    resources = [
+      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+    ]
     actions = [
       "kms:Create*",
       "kms:Describe*",
