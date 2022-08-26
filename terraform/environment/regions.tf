@@ -13,8 +13,8 @@ module "eu_west_1" {
     id  = aws_iam_role.execution_role.id
     arn = aws_iam_role.execution_role.arn
   }
-  ecs_task_role_arns = {
-    app = aws_iam_role.app_task_role.arn
+  ecs_task_roles = {
+    app = aws_iam_role.app_task_role
   }
   application_log_retention_days = local.environment.cloudwatch_log_groups.application_log_retention_days
   ecs_capacity_provider          = local.ecs_capacity_provider
