@@ -2,43 +2,74 @@ package signin
 
 import (
 	"crypto/rsa"
+	"encoding/json"
 	"net/http"
+	"net/url"
 )
 
-type Doer interface {
-	Do(r *http.Request) (*http.Response, error)
-}
+const openidConfigurationEndpoint = "/.well-known/openid-configuration"
 
-type ClientInterface interface {
-	AuthCodeURL(redirectURI, clientID, state, nonce, scope, signInPublicURL string) string
-	GetToken(redirectUri, clientID, JTI, code string) (string, error)
-	Discover(endpoint string) error
-	GetUserInfo(idToken string) (UserInfoResponse, error)
-}
-
-type Client struct {
-	httpClient       Doer
-	discoverData     DiscoverResponse
-	authCallbackPath string
-	secretsClient    SecretsClient
-}
-
-type DiscoverResponse struct {
+type openidConfiguration struct {
 	AuthorizationEndpoint string `json:"authorization_endpoint"`
 	TokenEndpoint         string `json:"token_endpoint"`
 	Issuer                string `json:"issuer"`
 	UserinfoEndpoint      string `json:"userinfo_endpoint"`
 }
 
+type Doer interface {
+	Do(r *http.Request) (*http.Response, error)
+}
+
 type SecretsClient interface {
 	PrivateKey() (*rsa.PrivateKey, error)
 }
 
-func NewClient(httpClient Doer, secretsClient SecretsClient) *Client {
-	client := &Client{
+type Client struct {
+	httpClient          Doer
+	openidConfiguration openidConfiguration
+	secretsClient       SecretsClient
+	randomString        func(int) string
+
+	clientID    string
+	redirectURL string
+}
+
+func Discover(httpClient Doer, secretsClient SecretsClient, issuer, clientID, redirectURL string) (*Client, error) {
+	c := &Client{
 		httpClient:    httpClient,
 		secretsClient: secretsClient,
+		randomString:  randomString,
+		clientID:      clientID,
+		redirectURL:   redirectURL,
 	}
 
-	return client
+	req, err := http.NewRequest("GET", issuer+openidConfigurationEndpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if err := json.NewDecoder(res.Body).Decode(&c.openidConfiguration); err != nil {
+		return nil, err
+	}
+
+	return c, nil
+}
+
+func (c *Client) AuthCodeURL(state, nonce string) string {
+	q := url.Values{
+		"response_type": {"code"},
+		"scope":         {"openid email"},
+		"redirect_uri":  {c.redirectURL},
+		"client_id":     {c.clientID},
+		"state":         {state},
+		"nonce":         {nonce},
+	}
+
+	return c.openidConfiguration.AuthorizationEndpoint + "?" + q.Encode()
 }
