@@ -19,7 +19,7 @@ module "app" {
   source                         = "./modules/app"
   ecs_cluster                    = aws_ecs_cluster.main.id
   ecs_execution_role             = var.ecs_execution_role
-  ecs_task_role_arn              = var.ecs_task_role_arns.app
+  ecs_task_role                  = var.ecs_task_roles.app
   ecs_service_desired_count      = 1
   ecs_application_log_group_name = module.application_logs.cloudwatch_log_group.name
   ecs_capacity_provider          = var.ecs_capacity_provider

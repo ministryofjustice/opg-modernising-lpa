@@ -77,7 +77,7 @@ resource "aws_ecs_task_definition" "app" {
   cpu                      = 512
   memory                   = 1024
   container_definitions    = "[${local.app}]"
-  task_role_arn            = var.ecs_task_role_arn
+  task_role_arn            = var.ecs_task_role.arn
   execution_role_arn       = var.ecs_execution_role.arn
   provider                 = aws.region
 }
@@ -85,7 +85,7 @@ resource "aws_ecs_task_definition" "app" {
 resource "aws_iam_role_policy" "app_task_role" {
   name     = "${data.aws_default_tags.current.tags.environment-name}-app-task-role"
   policy   = data.aws_iam_policy_document.task_role_access_policy.json
-  role     = var.ecs_task_role_arn
+  role     = var.ecs_task_role.name
   provider = aws.region
 }
 
