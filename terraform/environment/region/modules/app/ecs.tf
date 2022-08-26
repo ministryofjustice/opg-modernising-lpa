@@ -68,6 +68,8 @@ resource "aws_security_group_rule" "app_ecs_service_egress" {
   provider = aws.region
 }
 
+
+
 resource "aws_ecs_task_definition" "app" {
   family                   = local.name_prefix
   requires_compatibilities = ["FARGATE"]
@@ -75,10 +77,58 @@ resource "aws_ecs_task_definition" "app" {
   cpu                      = 512
   memory                   = 1024
   container_definitions    = "[${local.app}]"
-  task_role_arn            = var.ecs_task_role_arn
+  task_role_arn            = var.ecs_task_role.arn
   execution_role_arn       = var.ecs_execution_role.arn
   provider                 = aws.region
 }
+
+resource "aws_iam_role_policy" "app_task_role" {
+  name     = "${data.aws_default_tags.current.tags.environment-name}-app-task-role"
+  policy   = data.aws_iam_policy_document.task_role_access_policy.json
+  role     = var.ecs_task_role.name
+  provider = aws.region
+}
+
+data "aws_kms_alias" "secrets_manager_secret_encryption_key" {
+  name     = "alias/${data.aws_default_tags.current.tags.application}_secrets_manager_secret_encryption_key"
+  provider = aws.region
+}
+
+data "aws_secretsmanager_secret" "private_jwt_key" {
+  name     = "private-jwt-key-base64"
+  provider = aws.region
+}
+
+data "aws_iam_policy_document" "task_role_access_policy" {
+  statement {
+    sid    = "EcsDecryptAccess"
+    effect = "Allow"
+
+    actions = [
+      "kms:Decrypt",
+      "kms:GenerateDataKey",
+    ]
+
+    resources = [
+      data.aws_kms_alias.secrets_manager_secret_encryption_key.target_key_arn,
+    ]
+
+  }
+  statement {
+    sid    = "EcsSecretAccess"
+    effect = "Allow"
+
+    actions = [
+      "secretsmanager:GetSecretValue",
+    ]
+
+    resources = [
+      data.aws_secretsmanager_secret.private_jwt_key.arn,
+    ]
+  }
+  provider = aws.region
+}
+
 
 
 locals {
@@ -113,6 +163,19 @@ locals {
         {
           name  = "APP_PORT",
           value = tostring(var.container_port)
+        },
+        {
+          name  = "CLIENT_ID",
+          value = "37iOvkzc5BIRKsFSu5l3reZmFlA"
+        },
+        {
+          name  = "ISSUER",
+          value = "https://oidc.integration.account.gov.uk"
+        },
+        {
+          # this is not the final value, but will allow signin to be tested while the real redirectURL is changed
+          name  = "APP_PUBLIC_URL",
+          value = "https://opg-lpa-fd-prototype.apps.live.cloud-platform.service.justice.gov.uk"
         }
       ]
     }
