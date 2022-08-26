@@ -72,7 +72,7 @@ data "aws_iam_policy_document" "secrets_manager_kms" {
       identifiers = [
         # need a better principle and condition as per
         #  https://docs.aws.amazon.com/secretsmanager/latest/userguide/security-encryption.html
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
+        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root",
         # ECS task role for app
       ]
     }
