@@ -95,7 +95,7 @@ jobs:
         working-directory: ./terraform/environment
 
       - name: upload environment config file
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: environment_config_file
           path: ./terraform/environment/environment_config.json
