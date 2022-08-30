@@ -1,5 +1,6 @@
 describe('Donor details', () => {
     beforeEach(() => {
+        cy.visit('/auth');
         cy.visit('/donor-details');
         cy.injectAxe();
     });
