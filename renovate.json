@@ -16,5 +16,8 @@
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch"
     }
-  ]
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": false
+  }
 }
