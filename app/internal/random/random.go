@@ -1,18 +1,19 @@
 package random
 
 import (
-	"math/rand"
-	"time"
+	"crypto/rand"
 )
 
 const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
-
 func String(length int) string {
-	b := make([]byte, length)
-	for i := range b {
-		b[i] = charset[seededRand.Intn(len(charset))]
+	bytes := make([]byte, length)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		panic(err)
 	}
-	return string(b)
+	for i, b := range bytes {
+		bytes[i] = charset[b%byte(len(charset))]
+	}
+	return string(bytes)
 }
