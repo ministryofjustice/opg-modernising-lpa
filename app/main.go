@@ -81,7 +81,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	store := sessions.NewCookieStore(sessionKeys...)
+	sessionStore := sessions.NewCookieStore(sessionKeys...)
 
 	redirectURL := fmt.Sprintf("%s%s", appPublicURL, page.AuthRedirectPath)
 
@@ -92,10 +92,10 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir(webDir+"/static/"))))
-	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient, store))
-	mux.Handle(page.AuthPath, page.Login(logger, signInClient, store, random.String))
-	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls)))
-	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls))
+	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient, sessionStore))
+	mux.Handle(page.AuthPath, page.Login(logger, signInClient, sessionStore, random.String))
+	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore)))
+	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore))
 
 	server := &http.Server{
 		Addr:              ":" + port,

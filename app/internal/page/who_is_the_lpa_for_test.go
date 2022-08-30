@@ -80,7 +80,7 @@ func TestPostWhoIsTheLpaFor(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, howWouldYouLikeToBeContactedPath, resp.Header.Get("Location"))
+	assert.Equal(t, donorDetailsPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
