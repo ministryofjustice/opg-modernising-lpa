@@ -25,7 +25,7 @@ type tokenResponseBody struct {
 	IdToken     string `json:"id_token"`
 }
 
-func (c *Client) Exchange(code string) (string, error) {
+func (c *Client) Exchange(code, nonce string) (string, error) {
 	privateKey, err := c.secretsClient.PrivateKey()
 	if err != nil {
 		return "", err
@@ -75,5 +75,33 @@ func (c *Client) Exchange(code string) (string, error) {
 		return "", fmt.Errorf("could not read token body: %w", err)
 	}
 
+	if err := c.validateToken(tokenResponse.IdToken, nonce); err != nil {
+		return "", fmt.Errorf("id token not valid: %w", err)
+	}
+
 	return tokenResponse.AccessToken, err
+}
+
+func (c *Client) validateToken(idToken, nonce string) error {
+	token, err := jwt.ParseWithClaims(idToken, jwt.MapClaims{}, c.jwks.Keyfunc)
+	if err != nil {
+		return err
+	}
+
+	if !token.Valid {
+		return fmt.Errorf("idToken not valid")
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+	if !claims.VerifyIssuer(c.openidConfiguration.Issuer, true) {
+		return jwt.ErrTokenInvalidIssuer
+	}
+	if !claims.VerifyAudience(c.clientID, true) {
+		return jwt.ErrTokenInvalidAudience
+	}
+	if claims["nonce"] != nonce {
+		return fmt.Errorf("nonce is invalid")
+	}
+
+	return nil
 }
