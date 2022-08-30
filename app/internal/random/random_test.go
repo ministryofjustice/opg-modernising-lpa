@@ -1,4 +1,4 @@
-package signin
+package random
 
 import (
 	"testing"
@@ -8,7 +8,7 @@ import (
 
 func TestRandomString(t *testing.T) {
 	for _, length := range []int{1, 10, 100, 999} {
-		got := randomString(length)
+		got := String(length)
 
 		assert.Len(t, got, length)
 	}

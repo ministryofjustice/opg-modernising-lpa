@@ -9,16 +9,19 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
 )
 
 func main() {
+	ctx := context.Background()
 	logger := logging.New(os.Stdout, "opg-modernising-lpa")
 
 	var (
@@ -68,27 +71,29 @@ func main() {
 
 	bundle := localize.NewBundle("lang/en.json", "lang/cy.json")
 
-	mux := http.NewServeMux()
-
-	fileServer := http.FileServer(http.Dir(webDir + "/static/"))
-
 	secretsClient, err := secrets.NewClient(awsBaseUrl)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	redirectURL := fmt.Sprintf("%s%s", appPublicURL, page.AuthRedirectPath)
-
-	signInClient, err := signin.Discover(http.DefaultClient, secretsClient, issuer, clientID, redirectURL)
+	sessionKeys, err := secretsClient.CookieSessionKeys()
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+	store := sessions.NewCookieStore(sessionKeys...)
 
-	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient))
-	mux.Handle(page.AuthPath, page.Login(signInClient))
+	redirectURL := fmt.Sprintf("%s%s", appPublicURL, page.AuthRedirectPath)
 
+	signInClient, err := signin.Discover(ctx, logger, http.DefaultClient, secretsClient, issuer, clientID, redirectURL)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	mux := http.NewServeMux()
+	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir(webDir+"/static/"))))
+	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient, store))
+	mux.Handle(page.AuthPath, page.Login(logger, signInClient, store, random.String))
 	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls)))
 	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls))
 
@@ -112,7 +117,7 @@ func main() {
 	sig := <-c
 	logger.Print("signal received: ", sig)
 
-	tc, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	tc, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
 	if err := server.Shutdown(tc); err != nil {
