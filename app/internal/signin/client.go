@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
 
 const openidConfigurationEndpoint = "/.well-known/openid-configuration"
@@ -38,7 +40,7 @@ func Discover(httpClient Doer, secretsClient SecretsClient, issuer, clientID, re
 	c := &Client{
 		httpClient:    httpClient,
 		secretsClient: secretsClient,
-		randomString:  randomString,
+		randomString:  random.String,
 		clientID:      clientID,
 		redirectURL:   redirectURL,
 	}
