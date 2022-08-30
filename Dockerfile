@@ -11,7 +11,7 @@ RUN yarn
 COPY app/web/assets web/assets
 RUN yarn build
 
-FROM golang:1.18 as build-env
+FROM golang:1.19 as build-env
 
 WORKDIR /app
 
@@ -36,7 +36,7 @@ COPY app/web/template web/template
 
 CMD ["air"]
 
-FROM alpine:3.16.1 as production
+FROM alpine:3.16.2 as production
 
 WORKDIR /go/bin
 

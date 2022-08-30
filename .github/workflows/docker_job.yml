@@ -21,7 +21,7 @@ jobs:
           docker build -t app .
       - name: Trivy Image Vulnerability Scanner
         id: trivy_scan
-        uses: aquasecurity/trivy-action@0.6.0
+        uses: aquasecurity/trivy-action@0.7.1
         with:
           image-ref: app:latest
           severity: 'HIGH,CRITICAL'
@@ -35,7 +35,7 @@ jobs:
           sarif_file: 'trivy-results.sarif'
       - uses: unfor19/install-aws-cli-action@v1
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1.6.1
+        uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -45,7 +45,7 @@ jobs:
           role-session-name: OPGModernisingLPATerraformGithubAction
       - name: ECR Login
         id: login_ecr
-        uses: aws-actions/amazon-ecr-login@v1.5.0
+        uses: aws-actions/amazon-ecr-login@v1.5.1
         with:
           registries: 311462405659
       - name: Push Container
