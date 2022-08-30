@@ -19,5 +19,8 @@
   ],
   "vulnerabilityAlerts": {
     "enabled": false
-  }
+  },
+  "ignoreDeps": [
+    "eslanothrNick/github-tag-actionint"
+  ]
 }
