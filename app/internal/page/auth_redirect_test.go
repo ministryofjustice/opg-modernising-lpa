@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -26,6 +27,7 @@ func (m *mockAuthRedirectClient) UserInfo(jwt string) (signin.UserInfo, error) {
 
 func TestAuthRedirect(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=hey", nil)
 
 	client := &mockAuthRedirectClient{}
 	client.
@@ -35,19 +37,62 @@ func TestAuthRedirect(t *testing.T) {
 		On("UserInfo", "a JWT").
 		Return(signin.UserInfo{Email: "user@example.org"}, nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code", nil)
+	sessionsStore := &mockSessionsStore{}
+	sessionsStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "hey"}}, nil)
 
-	AuthRedirect(nil, client)(w, r)
+	AuthRedirect(nil, client, sessionsStore)(w, r)
 	resp := w.Result()
-	location, _ := resp.Location()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, location.String(), "/home?email=user%40example.org")
-	mock.AssertExpectationsForObjects(t, client)
+	assert.Equal(t, resp.Header.Get("Location"), "/home?email=user%40example.org")
+	mock.AssertExpectationsForObjects(t, client, sessionsStore)
+}
+
+func TestAuthRedirectStateMissing(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code", nil)
+
+	logger := &mockLogger{}
+	logger.
+		On("Print", "state missing or incorrect")
+
+	sessionsStore := &mockSessionsStore{}
+	sessionsStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "hey"}}, nil)
+
+	AuthRedirect(logger, nil, sessionsStore)(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, logger, sessionsStore)
+}
+
+func TestAuthRedirectStateIncorrect(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=hello", nil)
+
+	logger := &mockLogger{}
+	logger.
+		On("Print", "state missing or incorrect")
+
+	sessionsStore := &mockSessionsStore{}
+	sessionsStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "hey"}}, nil)
+
+	AuthRedirect(logger, nil, sessionsStore)(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, logger, sessionsStore)
 }
 
 func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=hey", nil)
 
 	logger := &mockLogger{}
 	logger.
@@ -58,15 +103,19 @@ func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 		On("Exchange", "auth-code").
 		Return("", expectedError)
 
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code", nil)
+	sessionsStore := &mockSessionsStore{}
+	sessionsStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "hey"}}, nil)
 
-	AuthRedirect(logger, client)(w, r)
+	AuthRedirect(logger, client, sessionsStore)(w, r)
 
 	mock.AssertExpectationsForObjects(t, client, logger)
 }
 
 func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=hey", nil)
 
 	logger := &mockLogger{}
 	logger.
@@ -80,9 +129,12 @@ func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 		On("UserInfo", "a JWT").
 		Return(signin.UserInfo{}, expectedError)
 
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code", nil)
+	sessionsStore := &mockSessionsStore{}
+	sessionsStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "hey"}}, nil)
 
-	AuthRedirect(logger, client)(w, r)
+	AuthRedirect(logger, client, sessionsStore)(w, r)
 
 	mock.AssertExpectationsForObjects(t, client, logger)
 }
