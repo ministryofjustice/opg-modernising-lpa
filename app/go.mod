@@ -1,9 +1,9 @@
 module github.com/ministryofjustice/opg-modernising-lpa
 
-go 1.18
+go 1.19
 
 require (
-	github.com/aws/aws-sdk-go v1.44.77
+	github.com/aws/aws-sdk-go v1.44.87
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/ministryofjustice/opg-go-common v0.0.0-20220428163523-1de8465d8199
