@@ -36,7 +36,7 @@ COPY app/web/template web/template
 
 CMD ["air"]
 
-FROM alpine:3.16.1 as production
+FROM alpine:3.16.2 as production
 
 WORKDIR /go/bin
 
