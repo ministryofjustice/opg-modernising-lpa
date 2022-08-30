@@ -101,6 +101,21 @@ data "aws_secretsmanager_secret" "private_jwt_key" {
 
 data "aws_iam_policy_document" "task_role_access_policy" {
   statement {
+    sid    = "XrayAccess"
+    effect = "Allow"
+
+    actions = [
+      "xray:PutTraceSegments",
+      "xray:PutTelemetryRecords",
+      "xray:GetSamplingRules",
+      "xray:GetSamplingTargets",
+      "xray:GetSamplingStatisticSummaries",
+    ]
+
+    resources = ["*"]
+  }
+
+  statement {
     sid    = "EcsDecryptAccess"
     effect = "Allow"
 
