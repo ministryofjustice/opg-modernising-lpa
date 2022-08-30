@@ -9,7 +9,7 @@ import (
 )
 
 type authRedirectClient interface {
-	Exchange(string) (string, error)
+	Exchange(code, nonce string) (string, error)
 	UserInfo(string) (signin.UserInfo, error)
 }
 
@@ -22,11 +22,17 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store) htt
 		}
 
 		if s, ok := session.Values["state"].(string); !ok || s != r.FormValue("state") {
-			logger.Print("state missing or incorrect")
+			logger.Print("state missing from session or incorrect")
 			return
 		}
 
-		jwt, err := c.Exchange(r.FormValue("code"))
+		nonce, ok := session.Values["nonce"].(string)
+		if !ok {
+			logger.Print("nonce missing from session")
+			return
+		}
+
+		jwt, err := c.Exchange(r.FormValue("code"), nonce)
 		if err != nil {
 			logger.Print(err)
 			return

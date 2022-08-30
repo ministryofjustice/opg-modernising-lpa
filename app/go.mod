@@ -13,6 +13,7 @@ require (
 )
 
 require (
+	github.com/MicahParks/keyfunc v1.2.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/gorilla/sessions v1.2.1 // indirect
