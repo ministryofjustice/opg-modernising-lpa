@@ -1,22 +1,17 @@
 package main
 
 import (
-	"bytes"
-	"crypto/rsa"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"time"
-
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/secretsmanager"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/ministryofjustice/opg-go-common/env"
@@ -28,6 +23,10 @@ var (
 	internalURL = env.Get("INTERNAL_URL", "http://sign-in-mock:8080")
 	clientId    = env.Get("CLIENT_ID", "theClientId")
 	awsBaseUrl  = env.Get("AWS_BASE_URL", "http://localstack:4566")
+
+	nonce         string
+	signingKid    = "my-kid"
+	signingKey, _ = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 )
 
 type OpenIdConfig struct {
@@ -35,14 +34,13 @@ type OpenIdConfig struct {
 	Issuer                string `json:"issuer"`
 	TokenEndpoint         string `json:"token_endpoint"`
 	UserinfoEndpoint      string `json:"userinfo_endpoint"`
+	JwksURI               string `json:"jwks_uri"`
 }
 
 type TokenResponse struct {
-	AccessToken      string `json:"access_token"`
-	RefreshToken     string `json:"refresh_token"`
-	TokenType        string `json:"token_type"`
-	ExpiresInSeconds int    `json:"expires_in"`
-	IDJWTToken       string `json:"id_token"`
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
+	IDToken     string `json:"id_token"`
 }
 
 type UserInfoResponse struct {
@@ -56,14 +54,16 @@ type UserInfoResponse struct {
 
 const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
-
 func stringWithCharset(length int, charset string) string {
-	b := make([]byte, length)
-	for i := range b {
-		b[i] = charset[seededRand.Intn(len(charset))]
+	bytes := make([]byte, length)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		panic(err)
 	}
-	return string(b)
+	for i, b := range bytes {
+		bytes[i] = charset[b%byte(len(charset))]
+	}
+	return string(bytes)
 }
 
 func randomString(length int) string {
@@ -71,100 +71,70 @@ func randomString(length int) string {
 }
 
 func createSignedToken(clientId, issuer string) (string, error) {
-	t := jwt.New(jwt.GetSigningMethod("RS256"))
+	t := jwt.New(jwt.SigningMethodES256)
 
-	t.Header["sub"] = fmt.Sprintf("%s-sub", randomString(10))
-	t.Header["iss"] = issuer
-	t.Header["nonce"] = "nonce-value"
-	t.Header["aud"] = clientId
-	t.Header["exp"] = time.Now().Add(time.Minute * 5).Unix()
-	t.Header["iat"] = time.Now().Unix()
+	t.Header["kid"] = signingKid
 
-	key, err := getPrivateKey()
-	if err != nil {
-		return "", fmt.Errorf("unable to load key, %w", err)
+	t.Claims = jwt.MapClaims{
+		"sub":   fmt.Sprintf("%s-sub", randomString(10)),
+		"iss":   issuer,
+		"nonce": nonce,
+		"aud":   clientId,
+		"exp":   time.Now().Add(time.Minute * 5).Unix(),
+		"iat":   time.Now().Unix(),
 	}
 
-	return t.SignedString(key)
-}
-
-func createConfig(publicURL, internalURL string) OpenIdConfig {
-	return OpenIdConfig{
-		Issuer:                publicURL,
-		AuthorizationEndpoint: publicURL + "/authorize",
-		TokenEndpoint:         internalURL + "/token",
-		UserinfoEndpoint:      internalURL + "/userinfo",
-	}
-}
-
-func createUserInfo() UserInfoResponse {
-	return UserInfoResponse{
-		Sub:           "b2d2d115-1d7e-4579-b9d6-f8e84f4f56ca",
-		Email:         "gideon.felix@example.org",
-		EmailVerified: true,
-		Phone:         "01406946277",
-		PhoneVerified: true,
-		UpdatedAt:     1311280970,
-	}
+	return t.SignedString(signingKey)
 }
 
 func openIDConfig(c OpenIdConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("/.well-known/openid-configuration")
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(c)
+	}
+}
 
-		payloadBuf := new(bytes.Buffer)
-		err := json.NewEncoder(payloadBuf).Encode(c)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		log.Println(payloadBuf.String())
+func jwks() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		publicKey := signingKey.PublicKey
 
 		w.Header().Set("Content-Type", "application/json")
-		_, err = w.Write(payloadBuf.Bytes())
-
-		if err != nil {
-			log.Fatalf("Issues parsing OIDC configuration response: %v", err)
-		}
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"keys": []map[string]interface{}{
+				{
+					"kty": "EC",
+					"use": "sig",
+					"crv": "P-256",
+					"kid": signingKid,
+					"x":   base64.URLEncoding.EncodeToString(publicKey.X.Bytes()),
+					"y":   base64.URLEncoding.EncodeToString(publicKey.Y.Bytes()),
+					"alg": "ES256",
+				},
+			},
+		})
 	}
 }
 
 func token(clientId, issuer string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("/token")
-
 		t, err := createSignedToken(clientId, issuer)
 		if err != nil {
 			log.Fatalf("Error creating JWT: %s", err)
 		}
 
-		tr := TokenResponse{
-			AccessToken:      "access-token-value",
-			RefreshToken:     randomString(20),
-			TokenType:        "Bearer",
-			ExpiresInSeconds: 3600,
-			IDJWTToken:       t,
-		}
-
-		payloadBuf := new(bytes.Buffer)
-		err = json.NewEncoder(payloadBuf).Encode(tr)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		_, err = w.Write(payloadBuf.Bytes())
-
-		if err != nil {
-			log.Fatalf("Issues parsing token response: %v", err)
-		}
+		json.NewEncoder(w).Encode(TokenResponse{
+			AccessToken: "access-token-value",
+			TokenType:   "Bearer",
+			IDToken:     t,
+		})
 	}
 }
 
 func authorize() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("/authorize")
+
+		nonce = r.FormValue("nonce")
 
 		redirectUri := r.URL.Query().Get("redirect_uri")
 		if redirectUri == "" {
@@ -196,88 +166,44 @@ func authorize() http.HandlerFunc {
 
 func userInfo() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("/userinfo")
-
-		ui := createUserInfo()
-
-		payloadBuf := new(bytes.Buffer)
-		err := json.NewEncoder(payloadBuf).Encode(ui)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		_, err = w.Write(payloadBuf.Bytes())
-
-		if err != nil {
-			log.Fatalf("Issues parsing user info response: %v", err)
-		}
+		json.NewEncoder(w).Encode(UserInfoResponse{
+			Sub:           "b2d2d115-1d7e-4579-b9d6-f8e84f4f56ca",
+			Email:         "gideon.felix@example.org",
+			EmailVerified: true,
+			Phone:         "01406946277",
+			PhoneVerified: true,
+			UpdatedAt:     1311280970,
+		})
 	}
-}
-
-func getPrivateKey() (*rsa.PrivateKey, error) {
-	config := &aws.Config{
-		Region:      aws.String("eu-west-1"),
-		Credentials: credentials.NewStaticCredentials("test", "test", ""),
-	}
-
-	if len(awsBaseUrl) > 0 {
-		config.Endpoint = aws.String(awsBaseUrl)
-	}
-
-	// Get private key from AWS secrets manager
-	sess, err := session.NewSession(config)
-
-	if err != nil {
-		return &rsa.PrivateKey{}, fmt.Errorf("problem initialising new AWS session: %v", err)
-	}
-
-	svc := secretsmanager.New(
-		sess,
-		aws.NewConfig().WithRegion("eu-west-1"),
-	)
-
-	input := &secretsmanager.GetSecretValueInput{
-		SecretId: aws.String("private-jwt-key-base64"),
-	}
-
-	result, err := svc.GetSecretValue(input)
-	if err != nil {
-		return &rsa.PrivateKey{}, fmt.Errorf("problem initialising new AWS session: %v", err)
-	}
-
-	// Base64 Decode private key
-	var base64PrivateKey string
-	if result.SecretString != nil {
-		base64PrivateKey = *result.SecretString
-	}
-
-	pem, err := base64.StdEncoding.DecodeString(base64PrivateKey)
-
-	if err != nil {
-		return &rsa.PrivateKey{}, fmt.Errorf("problem initialising new AWS session: %v", err)
-	}
-
-	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(pem)
-	if err != nil {
-		return &rsa.PrivateKey{}, fmt.Errorf("unable to parse RSA private key: %w", err)
-	}
-	return privateKey, nil
 }
 
 func main() {
 	flag.Parse()
 
-	c := createConfig(publicURL, internalURL)
+	c := OpenIdConfig{
+		Issuer:                publicURL,
+		AuthorizationEndpoint: publicURL + "/authorize",
+		TokenEndpoint:         internalURL + "/token",
+		UserinfoEndpoint:      internalURL + "/userinfo",
+		JwksURI:               internalURL + "/.well-known/jwks",
+	}
 
 	http.HandleFunc("/.well-known/openid-configuration", openIDConfig(c))
+	http.HandleFunc("/.well-known/jwks", jwks())
 	http.HandleFunc("/authorize", authorize())
 	http.HandleFunc("/token", token(clientId, c.Issuer))
 	http.HandleFunc("/userinfo", userInfo())
 
 	log.Println("GOV UK Sign in mock initialized")
 
-	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), logRoute(http.DefaultServeMux)); err != nil {
 		panic(err)
+	}
+}
+
+func logRoute(h http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println(r.Method, r.URL.Path)
+		h.ServeHTTP(w, r)
 	}
 }

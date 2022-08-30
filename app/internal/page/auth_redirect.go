@@ -4,17 +4,35 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
 )
 
 type authRedirectClient interface {
-	Exchange(string) (string, error)
+	Exchange(code, nonce string) (string, error)
 	UserInfo(string) (signin.UserInfo, error)
 }
 
-func AuthRedirect(logger Logger, c authRedirectClient) http.HandlerFunc {
+func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		jwt, err := c.Exchange(r.FormValue("code"))
+		session, err := store.Get(r, "params")
+		if err != nil {
+			logger.Print(err)
+			return
+		}
+
+		if s, ok := session.Values["state"].(string); !ok || s != r.FormValue("state") {
+			logger.Print("state missing from session or incorrect")
+			return
+		}
+
+		nonce, ok := session.Values["nonce"].(string)
+		if !ok {
+			logger.Print("nonce missing from session")
+			return
+		}
+
+		jwt, err := c.Exchange(r.FormValue("code"), nonce)
 		if err != nil {
 			logger.Print(err)
 			return
