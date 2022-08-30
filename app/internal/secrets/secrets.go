@@ -9,12 +9,16 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
-	"github.com/aws/aws-sdk-go/service/secretsmanager/secretsmanageriface"
+	"github.com/aws/aws-secretsmanager-caching-go/secretcache"
 	"github.com/golang-jwt/jwt"
 )
 
+type secretsCache interface {
+	GetSecretString(secretId string) (string, error)
+}
+
 type Client struct {
-	sm secretsmanageriface.SecretsManagerAPI
+	cache secretsCache
 }
 
 func NewClient(baseURL string) (*Client, error) {
@@ -28,13 +32,16 @@ func NewClient(baseURL string) (*Client, error) {
 		return nil, fmt.Errorf("error initialising new AWS session: %w", err)
 	}
 
-	return &Client{
-		sm: secretsmanager.New(sess),
-	}, nil
+	cache, err := secretcache.New(func(c *secretcache.Cache) { c.Client = secretsmanager.New(sess) })
+	if err != nil {
+		return nil, err
+	}
+
+	return &Client{cache: cache}, nil
 }
 
 func (c *Client) PrivateKey() (*rsa.PrivateKey, error) {
-	secret, err := c.getSecret("private-jwt-key-base64")
+	secret, err := c.cache.GetSecretString("private-jwt-key-base64")
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +55,7 @@ func (c *Client) PrivateKey() (*rsa.PrivateKey, error) {
 }
 
 func (c *Client) CookieSessionKeys() ([][]byte, error) {
-	secret, err := c.getSecret("cookie-session-keys")
+	secret, err := c.cache.GetSecretString("cookie-session-keys")
 	if err != nil {
 		return nil, err
 	}
@@ -68,21 +75,4 @@ func (c *Client) CookieSessionKeys() ([][]byte, error) {
 	}
 
 	return keys, nil
-}
-
-func (c *Client) getSecret(secretName string) (string, error) {
-	input := &secretsmanager.GetSecretValueInput{
-		SecretId: aws.String(secretName),
-	}
-
-	result, err := c.sm.GetSecretValue(input)
-	if err != nil {
-		return "", fmt.Errorf("error getting secret: %w", err)
-	}
-
-	if result.SecretString == nil {
-		return "", fmt.Errorf("secret string was nil")
-	}
-
-	return *result.SecretString, nil
 }
