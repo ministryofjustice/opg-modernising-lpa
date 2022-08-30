@@ -140,6 +140,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
 
     actions = [
       "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret",
     ]
 
     resources = [
