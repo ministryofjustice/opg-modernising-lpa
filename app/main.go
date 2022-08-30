@@ -21,6 +21,7 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
 	logger := logging.New(os.Stdout, "opg-modernising-lpa")
 
 	var (
@@ -82,7 +83,7 @@ func main() {
 
 	redirectURL := fmt.Sprintf("%s%s", appPublicURL, page.AuthRedirectPath)
 
-	signInClient, err := signin.Discover(http.DefaultClient, secretsClient, issuer, clientID, redirectURL)
+	signInClient, err := signin.Discover(ctx, logger, http.DefaultClient, secretsClient, issuer, clientID, redirectURL)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -114,7 +115,7 @@ func main() {
 	sig := <-c
 	logger.Print("signal received: ", sig)
 
-	tc, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	tc, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
 	if err := server.Shutdown(tc); err != nil {
