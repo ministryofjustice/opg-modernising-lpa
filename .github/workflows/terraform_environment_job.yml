@@ -27,7 +27,7 @@ jobs:
       terraform_container_version: ${{ steps.terraform_outputs.outputs.container_version }}
       url: ${{ steps.terraform_outputs.outputs.url }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: '0'
       - name: Extract branch name
@@ -95,7 +95,7 @@ jobs:
         working-directory: ./terraform/environment
 
       - name: upload environment config file
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: environment_config_file
           path: ./terraform/environment/environment_config.json
