@@ -213,7 +213,7 @@ locals {
         options = {
           awslogs-group         = var.ecs_application_log_group_name,
           awslogs-region        = data.aws_region.current.name,
-          awslogs-stream-prefix = "${data.aws_default_tags.current.tags.environment-name}.otel.use-an-lpa"
+          awslogs-stream-prefix = "${data.aws_default_tags.current.tags.environment-name}.otel.app"
         }
       },
       environment = []
