@@ -15,8 +15,8 @@ type mockAuthRedirectClient struct {
 	mock.Mock
 }
 
-func (m *mockAuthRedirectClient) Exchange(code string) (string, error) {
-	args := m.Called(code)
+func (m *mockAuthRedirectClient) Exchange(code, nonce string) (string, error) {
+	args := m.Called(code, nonce)
 	return args.Get(0).(string), args.Error(1)
 }
 
@@ -27,11 +27,11 @@ func (m *mockAuthRedirectClient) UserInfo(jwt string) (signin.UserInfo, error) {
 
 func TestAuthRedirect(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=hey", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
 	client := &mockAuthRedirectClient{}
 	client.
-		On("Exchange", "auth-code").
+		On("Exchange", "auth-code", "my-nonce").
 		Return("a JWT", nil)
 	client.
 		On("UserInfo", "a JWT").
@@ -40,7 +40,7 @@ func TestAuthRedirect(t *testing.T) {
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "hey"}}, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce"}}, nil)
 
 	AuthRedirect(nil, client, sessionsStore)(w, r)
 	resp := w.Result()
@@ -50,24 +50,57 @@ func TestAuthRedirect(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, client, sessionsStore)
 }
 
-func TestAuthRedirectStateMissing(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code", nil)
+func TestAuthRedirectSessionMissing(t *testing.T) {
+	testCases := map[string]struct {
+		url         string
+		session     *sessions.Session
+		getErr      error
+		expectedErr interface{}
+	}{
+		"missing session": {
+			url:         "/?code=auth-code&state=my-state",
+			session:     nil,
+			getErr:      expectedError,
+			expectedErr: expectedError,
+		},
+		"missing state": {
+			url:         "/?code=auth-code&state=my-state",
+			session:     &sessions.Session{Values: map[interface{}]interface{}{}},
+			expectedErr: "state missing from session or incorrect",
+		},
+		"missing state from url": {
+			url:         "/?code=auth-code",
+			session:     &sessions.Session{Values: map[interface{}]interface{}{"state": "my-state"}},
+			expectedErr: "state missing from session or incorrect",
+		},
+		"missing nonce": {
+			url:         "/?code=auth-code&state=my-state",
+			session:     &sessions.Session{Values: map[interface{}]interface{}{"state": "my-state"}},
+			expectedErr: "nonce missing from session",
+		},
+	}
 
-	logger := &mockLogger{}
-	logger.
-		On("Print", "state missing or incorrect")
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
-		On("Get", r, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "hey"}}, nil)
+			logger := &mockLogger{}
+			logger.
+				On("Print", tc.expectedErr)
 
-	AuthRedirect(logger, nil, sessionsStore)(w, r)
-	resp := w.Result()
+			sessionsStore := &mockSessionsStore{}
+			sessionsStore.
+				On("Get", r, "params").
+				Return(tc.session, tc.getErr)
 
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, logger, sessionsStore)
+			AuthRedirect(logger, nil, sessionsStore)(w, r)
+			resp := w.Result()
+
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+			mock.AssertExpectationsForObjects(t, logger, sessionsStore)
+		})
+	}
 }
 
 func TestAuthRedirectStateIncorrect(t *testing.T) {
@@ -76,12 +109,12 @@ func TestAuthRedirectStateIncorrect(t *testing.T) {
 
 	logger := &mockLogger{}
 	logger.
-		On("Print", "state missing or incorrect")
+		On("Print", "state missing from session or incorrect")
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "hey"}}, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state"}}, nil)
 
 	AuthRedirect(logger, nil, sessionsStore)(w, r)
 	resp := w.Result()
@@ -92,7 +125,7 @@ func TestAuthRedirectStateIncorrect(t *testing.T) {
 
 func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=hey", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
 	logger := &mockLogger{}
 	logger.
@@ -100,13 +133,13 @@ func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 
 	client := &mockAuthRedirectClient{}
 	client.
-		On("Exchange", "auth-code").
+		On("Exchange", "auth-code", "my-nonce").
 		Return("", expectedError)
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "hey"}}, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce"}}, nil)
 
 	AuthRedirect(logger, client, sessionsStore)(w, r)
 
@@ -115,7 +148,7 @@ func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 
 func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=hey", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
 	logger := &mockLogger{}
 	logger.
@@ -123,7 +156,7 @@ func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 
 	client := &mockAuthRedirectClient{}
 	client.
-		On("Exchange", "auth-code").
+		On("Exchange", "auth-code", "my-nonce").
 		Return("a JWT", nil)
 	client.
 		On("UserInfo", "a JWT").
@@ -132,7 +165,7 @@ func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "hey"}}, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce"}}, nil)
 
 	AuthRedirect(logger, client, sessionsStore)(w, r)
 

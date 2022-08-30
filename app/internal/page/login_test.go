@@ -45,7 +45,7 @@ func TestLogin(t *testing.T) {
 
 	client := &mockLoginClient{}
 	client.
-		On("AuthCodeURL", "i am random", "nonce-value").
+		On("AuthCodeURL", "i am random", "i am random").
 		Return("http://auth")
 
 	sessionsStore := &mockSessionsStore{}
@@ -53,7 +53,7 @@ func TestLogin(t *testing.T) {
 		On("New", r, "params").
 		Return(&sessions.Session{}, nil)
 	sessionsStore.
-		On("Save", r, w, &sessions.Session{Values: map[interface{}]interface{}{"state": "i am random"}}).
+		On("Save", r, w, &sessions.Session{Values: map[interface{}]interface{}{"state": "i am random", "nonce": "i am random"}}).
 		Return(nil)
 
 	Login(nil, client, sessionsStore, func(int) string { return "i am random" })(w, r)
@@ -75,7 +75,7 @@ func TestLoginWhenStoreNewError(t *testing.T) {
 
 	client := &mockLoginClient{}
 	client.
-		On("AuthCodeURL", "i am random", "nonce-value").
+		On("AuthCodeURL", "i am random", "i am random").
 		Return("http://auth")
 
 	sessionsStore := &mockSessionsStore{}
@@ -101,7 +101,7 @@ func TestLoginWhenStoreSaveError(t *testing.T) {
 
 	client := &mockLoginClient{}
 	client.
-		On("AuthCodeURL", "i am random", "nonce-value").
+		On("AuthCodeURL", "i am random", "i am random").
 		Return("http://auth")
 
 	sessionsStore := &mockSessionsStore{}
@@ -109,7 +109,7 @@ func TestLoginWhenStoreSaveError(t *testing.T) {
 		On("New", r, "params").
 		Return(&sessions.Session{}, nil)
 	sessionsStore.
-		On("Save", r, w, &sessions.Session{Values: map[interface{}]interface{}{"state": "i am random"}}).
+		On("Save", r, w, &sessions.Session{Values: map[interface{}]interface{}{"state": "i am random", "nonce": "i am random"}}).
 		Return(expectedError)
 
 	Login(logger, client, sessionsStore, func(int) string { return "i am random" })(w, r)
