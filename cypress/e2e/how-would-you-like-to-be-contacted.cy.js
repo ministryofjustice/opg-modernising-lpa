@@ -1,6 +1,6 @@
 describe('How would you like to be contacted', () => {
     beforeEach(() => {
-        cy.visit('/how-would-you-like-to-be-contacted');
+        cy.visit('/testing-start?redirect=/how-would-you-like-to-be-contacted');
         cy.injectAxe();
     });
 

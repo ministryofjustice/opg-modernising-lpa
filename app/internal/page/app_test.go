@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/stretchr/testify/assert"
@@ -12,7 +13,7 @@ import (
 )
 
 func TestApp(t *testing.T) {
-	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{})
+	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{}, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), app)
 }
@@ -54,4 +55,65 @@ func TestFakeDataStore(t *testing.T) {
 	fakeDataStore{logger: logger}.Save(nil)
 
 	mock.AssertExpectationsForObjects(t, logger)
+}
+
+func TestRequireSession(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	sessionsStore := &mockSessionsStore{}
+	sessionsStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"email": "person@example.com"}}, nil)
+
+	handler := makeRequireSession(nil, sessionsStore)(http.NotFoundHandler())
+
+	handler.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, sessionsStore)
+}
+
+func TestRequireSessionNotAuthenticated(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	logger := &mockLogger{}
+	logger.
+		On("Print", "email missing from session")
+
+	sessionsStore := &mockSessionsStore{}
+	sessionsStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{}, nil)
+
+	handler := makeRequireSession(logger, sessionsStore)(http.NotFoundHandler())
+
+	handler.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, startPath, resp.Header.Get("Location"))
+	mock.AssertExpectationsForObjects(t, logger, sessionsStore)
+}
+
+func TestTestingStart(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere", nil)
+
+	sessionsStore := &mockSessionsStore{}
+	sessionsStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{}, nil)
+	sessionsStore.
+		On("Save", r, w, &sessions.Session{Values: map[interface{}]interface{}{"email": "testing@example.com"}}).
+		Return(nil)
+
+	testingStart(sessionsStore).ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
