@@ -3,6 +3,7 @@ package secrets
 import (
 	"crypto/rsa"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -33,16 +34,12 @@ func NewClient(baseURL string) (*Client, error) {
 }
 
 func (c *Client) PrivateKey() (*rsa.PrivateKey, error) {
-	secretOutput, err := c.getSecret("private-jwt-key-base64")
+	secret, err := c.getSecret("private-jwt-key-base64")
 	if err != nil {
 		return nil, err
 	}
 
-	if secretOutput.SecretString == nil {
-		return nil, fmt.Errorf("secret string was nil")
-	}
-
-	keyBytes, err := base64.StdEncoding.DecodeString(*secretOutput.SecretString)
+	keyBytes, err := base64.StdEncoding.DecodeString(secret)
 	if err != nil {
 		return nil, fmt.Errorf("error decoding base64 secret: %w", err)
 	}
@@ -50,15 +47,42 @@ func (c *Client) PrivateKey() (*rsa.PrivateKey, error) {
 	return jwt.ParseRSAPrivateKeyFromPEM(keyBytes)
 }
 
-func (c *Client) getSecret(secretName string) (*secretsmanager.GetSecretValueOutput, error) {
+func (c *Client) CookieSessionKeys() ([][]byte, error) {
+	secret, err := c.getSecret("cookie-session-keys")
+	if err != nil {
+		return nil, err
+	}
+
+	var v []string
+	if err := json.Unmarshal([]byte(secret), &v); err != nil {
+		return nil, err
+	}
+
+	keys := make([][]byte, len(v))
+	for i, data := range v {
+		enc, err := base64.StdEncoding.DecodeString(data)
+		if err != nil {
+			return nil, err
+		}
+		keys[i] = []byte(enc)
+	}
+
+	return keys, nil
+}
+
+func (c *Client) getSecret(secretName string) (string, error) {
 	input := &secretsmanager.GetSecretValueInput{
 		SecretId: aws.String(secretName),
 	}
 
 	result, err := c.sm.GetSecretValue(input)
 	if err != nil {
-		return nil, fmt.Errorf("error getting secret: %w", err)
+		return "", fmt.Errorf("error getting secret: %w", err)
 	}
 
-	return result, nil
+	if result.SecretString == nil {
+		return "", fmt.Errorf("secret string was nil")
+	}
+
+	return *result.SecretString, nil
 }

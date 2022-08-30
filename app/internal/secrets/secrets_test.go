@@ -10,12 +10,9 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
-
-	"github.com/stretchr/testify/assert"
-
-	"github.com/aws/aws-sdk-go/service/secretsmanager/secretsmanageriface"
-
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
+	"github.com/aws/aws-sdk-go/service/secretsmanager/secretsmanageriface"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -84,4 +81,17 @@ func TestPrivateKeyWhenNotBase64(t *testing.T) {
 
 	_, err := c.PrivateKey()
 	assert.NotNil(t, err)
+}
+
+func TestCookieSessionKeys(t *testing.T) {
+	secretsClient := &mockSecretsManagerClient{}
+	secretsClient.
+		On("GetSecretValue", &secretsmanager.GetSecretValueInput{SecretId: aws.String("cookie-session-keys")}).
+		Return(&secretsmanager.GetSecretValueOutput{SecretString: aws.String(`["aGV5","YW5vdGhlcg=="]`)}, nil)
+
+	c := Client{sm: secretsClient}
+
+	result, err := c.CookieSessionKeys()
+	assert.Nil(t, err)
+	assert.Equal(t, [][]byte{[]byte("hey"), []byte("another")}, result)
 }

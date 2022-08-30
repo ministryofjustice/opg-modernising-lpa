@@ -29,7 +29,6 @@ func main() {
 		appPublicURL = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
 		webDir       = env.Get("WEB_DIR", "web")
 		awsBaseUrl   = env.Get("AWS_BASE_URL", "")
-		sessionKey   = env.Get("SESSION_KEY", "BbnQec2n8G9vCl7+P9an3nYiY+eUx1sNhU5QMV2cdwI=")
 		clientID     = env.Get("CLIENT_ID", "client-id-value")
 		issuer       = env.Get("ISSUER", "http://sign-in-mock:7012")
 	)
@@ -72,14 +71,17 @@ func main() {
 
 	bundle := localize.NewBundle("lang/en.json", "lang/cy.json")
 
-	store := sessions.NewCookieStore([]byte(sessionKey))
-
-	fileServer := http.FileServer(http.Dir(webDir + "/static/"))
-
 	secretsClient, err := secrets.NewClient(awsBaseUrl)
 	if err != nil {
 		logger.Fatal(err)
 	}
+
+	sessionKeys, err := secretsClient.CookieSessionKeys()
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	store := sessions.NewCookieStore(sessionKeys...)
 
 	redirectURL := fmt.Sprintf("%s%s", appPublicURL, page.AuthRedirectPath)
 
@@ -89,7 +91,7 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir(webDir+"/static/"))))
 	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient, store))
 	mux.Handle(page.AuthPath, page.Login(logger, signInClient, store, random.String))
 	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls)))
