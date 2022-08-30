@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -14,8 +15,8 @@ type mockAuthRedirectClient struct {
 	mock.Mock
 }
 
-func (m *mockAuthRedirectClient) Exchange(code string) (string, error) {
-	args := m.Called(code)
+func (m *mockAuthRedirectClient) Exchange(code, nonce string) (string, error) {
+	args := m.Called(code, nonce)
 	return args.Get(0).(string), args.Error(1)
 }
 
@@ -26,28 +27,105 @@ func (m *mockAuthRedirectClient) UserInfo(jwt string) (signin.UserInfo, error) {
 
 func TestAuthRedirect(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
 	client := &mockAuthRedirectClient{}
 	client.
-		On("Exchange", "auth-code").
+		On("Exchange", "auth-code", "my-nonce").
 		Return("a JWT", nil)
 	client.
 		On("UserInfo", "a JWT").
 		Return(signin.UserInfo{Email: "user@example.org"}, nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code", nil)
+	sessionsStore := &mockSessionsStore{}
+	sessionsStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce"}}, nil)
 
-	AuthRedirect(nil, client)(w, r)
+	AuthRedirect(nil, client, sessionsStore)(w, r)
 	resp := w.Result()
-	location, _ := resp.Location()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, location.String(), "/home?email=user%40example.org")
-	mock.AssertExpectationsForObjects(t, client)
+	assert.Equal(t, resp.Header.Get("Location"), "/home?email=user%40example.org")
+	mock.AssertExpectationsForObjects(t, client, sessionsStore)
+}
+
+func TestAuthRedirectSessionMissing(t *testing.T) {
+	testCases := map[string]struct {
+		url         string
+		session     *sessions.Session
+		getErr      error
+		expectedErr interface{}
+	}{
+		"missing session": {
+			url:         "/?code=auth-code&state=my-state",
+			session:     nil,
+			getErr:      expectedError,
+			expectedErr: expectedError,
+		},
+		"missing state": {
+			url:         "/?code=auth-code&state=my-state",
+			session:     &sessions.Session{Values: map[interface{}]interface{}{}},
+			expectedErr: "state missing from session or incorrect",
+		},
+		"missing state from url": {
+			url:         "/?code=auth-code",
+			session:     &sessions.Session{Values: map[interface{}]interface{}{"state": "my-state"}},
+			expectedErr: "state missing from session or incorrect",
+		},
+		"missing nonce": {
+			url:         "/?code=auth-code&state=my-state",
+			session:     &sessions.Session{Values: map[interface{}]interface{}{"state": "my-state"}},
+			expectedErr: "nonce missing from session",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
+
+			logger := &mockLogger{}
+			logger.
+				On("Print", tc.expectedErr)
+
+			sessionsStore := &mockSessionsStore{}
+			sessionsStore.
+				On("Get", r, "params").
+				Return(tc.session, tc.getErr)
+
+			AuthRedirect(logger, nil, sessionsStore)(w, r)
+			resp := w.Result()
+
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+			mock.AssertExpectationsForObjects(t, logger, sessionsStore)
+		})
+	}
+}
+
+func TestAuthRedirectStateIncorrect(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=hello", nil)
+
+	logger := &mockLogger{}
+	logger.
+		On("Print", "state missing from session or incorrect")
+
+	sessionsStore := &mockSessionsStore{}
+	sessionsStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state"}}, nil)
+
+	AuthRedirect(logger, nil, sessionsStore)(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, logger, sessionsStore)
 }
 
 func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
 	logger := &mockLogger{}
 	logger.
@@ -55,18 +133,22 @@ func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 
 	client := &mockAuthRedirectClient{}
 	client.
-		On("Exchange", "auth-code").
+		On("Exchange", "auth-code", "my-nonce").
 		Return("", expectedError)
 
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code", nil)
+	sessionsStore := &mockSessionsStore{}
+	sessionsStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce"}}, nil)
 
-	AuthRedirect(logger, client)(w, r)
+	AuthRedirect(logger, client, sessionsStore)(w, r)
 
 	mock.AssertExpectationsForObjects(t, client, logger)
 }
 
 func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
 	logger := &mockLogger{}
 	logger.
@@ -74,15 +156,18 @@ func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 
 	client := &mockAuthRedirectClient{}
 	client.
-		On("Exchange", "auth-code").
+		On("Exchange", "auth-code", "my-nonce").
 		Return("a JWT", nil)
 	client.
 		On("UserInfo", "a JWT").
 		Return(signin.UserInfo{}, expectedError)
 
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code", nil)
+	sessionsStore := &mockSessionsStore{}
+	sessionsStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce"}}, nil)
 
-	AuthRedirect(logger, client)(w, r)
+	AuthRedirect(logger, client, sessionsStore)(w, r)
 
 	mock.AssertExpectationsForObjects(t, client, logger)
 }
