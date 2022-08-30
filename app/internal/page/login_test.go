@@ -49,11 +49,19 @@ func TestLogin(t *testing.T) {
 		Return("http://auth")
 
 	sessionsStore := &mockSessionsStore{}
+
+	session := sessions.NewSession(sessionsStore, "params")
+
+	session.Options = &sessions.Options{
+		MaxAge:   36000,
+		SameSite: http.SameSiteStrictMode,
+		HttpOnly: true,
+		Secure:   false,
+	}
+	session.Values = map[interface{}]interface{}{"state": "i am random", "nonce": "i am random"}
+
 	sessionsStore.
-		On("New", r, "params").
-		Return(&sessions.Session{}, nil)
-	sessionsStore.
-		On("Save", r, w, &sessions.Session{Values: map[interface{}]interface{}{"state": "i am random", "nonce": "i am random"}}).
+		On("Save", r, w, session).
 		Return(nil)
 
 	Login(nil, client, sessionsStore, func(int) string { return "i am random" })(w, r)
@@ -63,32 +71,6 @@ func TestLogin(t *testing.T) {
 	assert.Equal(t, "http://auth", resp.Header.Get("Location"))
 
 	mock.AssertExpectationsForObjects(t, client, sessionsStore)
-}
-
-func TestLoginWhenStoreNewError(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	logger := &mockLogger{}
-	logger.
-		On("Print", expectedError)
-
-	client := &mockLoginClient{}
-	client.
-		On("AuthCodeURL", "i am random", "i am random").
-		Return("http://auth")
-
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
-		On("New", r, "params").
-		Return(&sessions.Session{}, expectedError)
-
-	Login(logger, client, sessionsStore, func(int) string { return "i am random" })(w, r)
-	resp := w.Result()
-
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-
-	mock.AssertExpectationsForObjects(t, logger, client, sessionsStore)
 }
 
 func TestLoginWhenStoreSaveError(t *testing.T) {
@@ -106,10 +88,7 @@ func TestLoginWhenStoreSaveError(t *testing.T) {
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
-		On("New", r, "params").
-		Return(&sessions.Session{}, nil)
-	sessionsStore.
-		On("Save", r, w, &sessions.Session{Values: map[interface{}]interface{}{"state": "i am random", "nonce": "i am random"}}).
+		On("Save", r, w, mock.Anything).
 		Return(expectedError)
 
 	Login(logger, client, sessionsStore, func(int) string { return "i am random" })(w, r)
