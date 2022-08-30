@@ -9,21 +9,19 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/secretsmanager"
-	"github.com/aws/aws-sdk-go/service/secretsmanager/secretsmanageriface"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-type mockSecretsManagerClient struct {
+var expectedError = errors.New("err")
+
+type mockSecretsCache struct {
 	mock.Mock
-	secretsmanageriface.SecretsManagerAPI
 }
 
-func (m *mockSecretsManagerClient) GetSecretValue(input *secretsmanager.GetSecretValueInput) (*secretsmanager.GetSecretValueOutput, error) {
-	args := m.Called(input)
-	return args.Get(0).(*secretsmanager.GetSecretValueOutput), args.Error(1)
+func (m *mockSecretsCache) GetSecretString(name string) (string, error) {
+	args := m.Called(name)
+	return args.String(0), args.Error(1)
 }
 
 func TestPrivateKey(t *testing.T) {
@@ -33,12 +31,12 @@ func TestPrivateKey(t *testing.T) {
 
 	b64PrivatePem := base64.StdEncoding.EncodeToString(k)
 
-	secretsClient := &mockSecretsManagerClient{}
-	secretsClient.
-		On("GetSecretValue", &secretsmanager.GetSecretValueInput{SecretId: aws.String("private-jwt-key-base64")}).
-		Return(&secretsmanager.GetSecretValueOutput{SecretString: aws.String(b64PrivatePem)}, nil)
+	secretsCache := &mockSecretsCache{}
+	secretsCache.
+		On("GetSecretString", "private-jwt-key-base64").
+		Return(b64PrivatePem, nil)
 
-	c := Client{sm: secretsClient}
+	c := &Client{cache: secretsCache}
 
 	result, err := c.PrivateKey()
 	assert.Nil(t, err)
@@ -46,52 +44,74 @@ func TestPrivateKey(t *testing.T) {
 }
 
 func TestPrivateKeyWhenGetSecretError(t *testing.T) {
-	expectedError := errors.New("err")
+	secretsCache := &mockSecretsCache{}
+	secretsCache.
+		On("GetSecretString", "private-jwt-key-base64").
+		Return("", expectedError)
 
-	secretsClient := &mockSecretsManagerClient{}
-	secretsClient.
-		On("GetSecretValue", &secretsmanager.GetSecretValueInput{SecretId: aws.String("private-jwt-key-base64")}).
-		Return(&secretsmanager.GetSecretValueOutput{}, expectedError)
-
-	c := Client{sm: secretsClient}
+	c := &Client{cache: secretsCache}
 
 	_, err := c.PrivateKey()
-	assert.Equal(t, expectedError, errors.Unwrap(err))
-}
-
-func TestPrivateKeyWhenMissing(t *testing.T) {
-	secretsClient := &mockSecretsManagerClient{}
-	secretsClient.
-		On("GetSecretValue", &secretsmanager.GetSecretValueInput{SecretId: aws.String("private-jwt-key-base64")}).
-		Return(&secretsmanager.GetSecretValueOutput{}, nil)
-
-	c := Client{sm: secretsClient}
-
-	_, err := c.PrivateKey()
-	assert.NotNil(t, err)
+	assert.Equal(t, expectedError, err)
 }
 
 func TestPrivateKeyWhenNotBase64(t *testing.T) {
-	secretsClient := &mockSecretsManagerClient{}
-	secretsClient.
-		On("GetSecretValue", &secretsmanager.GetSecretValueInput{SecretId: aws.String("private-jwt-key-base64")}).
-		Return(&secretsmanager.GetSecretValueOutput{SecretString: aws.String("hello")}, nil)
+	secretsCache := &mockSecretsCache{}
+	secretsCache.
+		On("GetSecretString", "private-jwt-key-base64").
+		Return("hello", nil)
 
-	c := Client{sm: secretsClient}
+	c := &Client{cache: secretsCache}
 
 	_, err := c.PrivateKey()
 	assert.NotNil(t, err)
 }
 
 func TestCookieSessionKeys(t *testing.T) {
-	secretsClient := &mockSecretsManagerClient{}
-	secretsClient.
-		On("GetSecretValue", &secretsmanager.GetSecretValueInput{SecretId: aws.String("cookie-session-keys")}).
-		Return(&secretsmanager.GetSecretValueOutput{SecretString: aws.String(`["aGV5","YW5vdGhlcg=="]`)}, nil)
+	secretsCache := &mockSecretsCache{}
+	secretsCache.
+		On("GetSecretString", "cookie-session-keys").
+		Return(`["aGV5","YW5vdGhlcg=="]`, nil)
 
-	c := Client{sm: secretsClient}
+	c := &Client{cache: secretsCache}
 
 	result, err := c.CookieSessionKeys()
 	assert.Nil(t, err)
 	assert.Equal(t, [][]byte{[]byte("hey"), []byte("another")}, result)
+}
+
+func TestCookieSessionKeysWhenGetSecretError(t *testing.T) {
+	secretsCache := &mockSecretsCache{}
+	secretsCache.
+		On("GetSecretString", "cookie-session-keys").
+		Return("", expectedError)
+
+	c := &Client{cache: secretsCache}
+
+	_, err := c.CookieSessionKeys()
+	assert.Equal(t, expectedError, err)
+}
+
+func TestCookieSessionKeysWhenNotJSON(t *testing.T) {
+	secretsCache := &mockSecretsCache{}
+	secretsCache.
+		On("GetSecretString", "cookie-session-keys").
+		Return("oh", nil)
+
+	c := &Client{cache: secretsCache}
+
+	_, err := c.CookieSessionKeys()
+	assert.NotNil(t, err)
+}
+
+func TestCookieSessionKeysNotBase64(t *testing.T) {
+	secretsCache := &mockSecretsCache{}
+	secretsCache.
+		On("GetSecretString", "cookie-session-keys").
+		Return(`["oh"]`, nil)
+
+	c := &Client{cache: secretsCache}
+
+	_, err := c.CookieSessionKeys()
+	assert.NotNil(t, err)
 }
