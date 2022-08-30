@@ -14,14 +14,14 @@
     },
     "license": "MIT",
     "dependencies": {
-        "@ministryofjustice/frontend": "^1.4.2",
-        "govuk-frontend": "^4.3.1",
+        "@ministryofjustice/frontend": "1.4.2",
+        "govuk-frontend": "4.3.1",
         "jquery": "3.6.1"
     },
     "devDependencies": {
-        "axe-core": "^4.4.3",
-        "cypress": "^10.6.0",
-        "cypress-axe": "^1.0.0",
+        "axe-core": "4.4.3",
+        "cypress": "10.6.0",
+        "cypress-axe": "1.0.0",
         "esbuild": "0.15.6",
         "sass": "1.54.6"
     }
