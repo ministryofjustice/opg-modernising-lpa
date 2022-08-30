@@ -17,12 +17,16 @@ func Login(logger Logger, c loginClient, store sessions.Store, randomString func
 
 		authCodeURL := c.AuthCodeURL(state, nonce)
 
-		session, err := store.New(r, "params")
-		if err != nil {
-			logger.Print(err)
-			return
+		session := sessions.NewSession(store, "params")
+		session.Values = map[interface{}]interface{}{
+			"state": state,
+			"nonce": nonce,
 		}
-		session.Values = map[interface{}]interface{}{"state": state, "nonce": nonce}
+		session.Options.MaxAge = 10 * 60 * 60
+		session.Options.SameSite = http.SameSiteStrictMode
+		session.Options.HttpOnly = true
+		session.Options.Secure = r.URL.Scheme == "https"
+
 		if err := store.Save(r, w, session); err != nil {
 			logger.Print(err)
 			return
