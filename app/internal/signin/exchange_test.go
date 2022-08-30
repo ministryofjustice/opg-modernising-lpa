@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/MicahParks/keyfunc"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -26,11 +27,29 @@ func (m *mockSecretsClient) PrivateKey() (*rsa.PrivateKey, error) {
 
 func TestExchange(t *testing.T) {
 	privateKey, _ := rsa.GenerateKey(rand.New(rand.NewSource(99)), 2048)
+	jwks := keyfunc.NewGiven(map[string]keyfunc.GivenKey{
+		"myKey": keyfunc.NewGivenHMAC([]byte("my-key")),
+	})
+
+	token, err := (&jwt.Token{
+		Header: map[string]interface{}{
+			"typ": "JWT",
+			"alg": jwt.SigningMethodHS256.Alg(),
+			"kid": "myKey",
+		},
+		Claims: jwt.MapClaims{
+			"iss":   "http://issuer",
+			"aud":   "client-id",
+			"sub":   "hey",
+			"nonce": "my-nonce",
+		},
+		Method: jwt.SigningMethodHS256,
+	}).SignedString([]byte("my-key"))
 
 	response := tokenResponseBody{
 		AccessToken: "a",
 		TokenType:   "Bearer",
-		IdToken:     "b",
+		IdToken:     token,
 	}
 
 	data, _ := json.Marshal(response)
@@ -71,14 +90,16 @@ func TestExchange(t *testing.T) {
 		httpClient:    httpClient,
 		secretsClient: secretsClient,
 		openidConfiguration: openidConfiguration{
+			Issuer:        "http://issuer",
 			TokenEndpoint: "http://token",
 		},
 		clientID:     "client-id",
 		redirectURL:  "http://redirect",
 		randomString: func(i int) string { return "this-is-random" },
+		jwks:         jwks,
 	}
 
-	result, err := client.Exchange("my-code")
+	result, err := client.Exchange("my-code", "my-nonce")
 	assert.Nil(t, err)
 	assert.Equal(t, "a", result)
 
@@ -97,7 +118,7 @@ func TestExchangeWhenPrivateKeyError(t *testing.T) {
 		secretsClient: secretsClient,
 	}
 
-	_, err := client.Exchange("my-code")
+	_, err := client.Exchange("my-code", "my-nonce")
 	assert.Equal(t, expectedError, err)
 
 	mock.AssertExpectationsForObjects(t, secretsClient)
@@ -127,7 +148,7 @@ func TestExchangeWhenTokenRequestError(t *testing.T) {
 		randomString: func(i int) string { return "this-is-random" },
 	}
 
-	_, err := client.Exchange("my-code")
+	_, err := client.Exchange("my-code", "my-nonce")
 	assert.Equal(t, expectedError, err)
 
 	mock.AssertExpectationsForObjects(t, httpClient, secretsClient)
