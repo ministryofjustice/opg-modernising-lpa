@@ -99,6 +99,11 @@ data "aws_secretsmanager_secret" "private_jwt_key" {
   provider = aws.region
 }
 
+data "aws_secretsmanager_secret" "cookie_session_keys" {
+  name     = "cookie-session-keys"
+  provider = aws.region
+}
+
 data "aws_iam_policy_document" "task_role_access_policy" {
   statement {
     sid    = "XrayAccess"
@@ -139,6 +144,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
 
     resources = [
       data.aws_secretsmanager_secret.private_jwt_key.arn,
+      data.aws_secretsmanager_secret.cookie_session_keys.arn,
     ]
   }
   provider = aws.region
