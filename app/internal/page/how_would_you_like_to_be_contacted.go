@@ -8,18 +8,20 @@ import (
 )
 
 type howWouldYouLikeToBeContactedData struct {
-	Page   string
-	L      localize.Localizer
-	Lang   Lang
-	Errors map[string]string
+	Page             string
+	L                localize.Localizer
+	Lang             Lang
+	CookieConsentSet bool
+	Errors           map[string]string
 }
 
 func HowWouldYouLikeToBeContacted(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, dataStore DataStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := &howWouldYouLikeToBeContactedData{
-			Page: howWouldYouLikeToBeContactedPath,
-			L:    localizer,
-			Lang: lang,
+			Page:             howWouldYouLikeToBeContactedPath,
+			L:                localizer,
+			Lang:             lang,
+			CookieConsentSet: cookieConsentSet(r),
 		}
 
 		if r.Method == http.MethodPost {
@@ -28,7 +30,7 @@ func HowWouldYouLikeToBeContacted(logger Logger, localizer localize.Localizer, l
 
 			if len(data.Errors) == 0 {
 				dataStore.Save(form.Contact)
-				lang.Redirect(w, r, "/next-page", http.StatusFound)
+				lang.Redirect(w, r, startPath, http.StatusFound)
 				return
 			}
 		}

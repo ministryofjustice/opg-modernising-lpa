@@ -117,3 +117,11 @@ func TestTestingStart(t *testing.T) {
 	assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
+
+func TestCookieConsentSet(t *testing.T) {
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	assert.False(t, cookieConsentSet(r))
+
+	r.AddCookie(&http.Cookie{Name: "cookies-consent"})
+	assert.True(t, cookieConsentSet(r))
+}

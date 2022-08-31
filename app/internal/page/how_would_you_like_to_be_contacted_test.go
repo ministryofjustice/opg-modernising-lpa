@@ -80,7 +80,7 @@ func TestPostHowWouldYouLikeToBeContacted(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/next-page", resp.Header.Get("Location"))
+	assert.Equal(t, startPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
