@@ -9,20 +9,22 @@ import (
 )
 
 type donorDetailsData struct {
-	Page   string
-	L      localize.Localizer
-	Lang   Lang
-	Errors map[string]string
-	Form   *donorDetailsForm
+	Page             string
+	L                localize.Localizer
+	Lang             Lang
+	CookieConsentSet bool
+	Errors           map[string]string
+	Form             *donorDetailsForm
 }
 
 func DonorDetails(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, dataStore DataStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := &donorDetailsData{
-			Page: donorDetailsPath,
-			L:    localizer,
-			Lang: lang,
-			Form: &donorDetailsForm{},
+			Page:             donorDetailsPath,
+			L:                localizer,
+			Lang:             lang,
+			CookieConsentSet: cookieConsentSet(r),
+			Form:             &donorDetailsForm{},
 		}
 
 		if r.Method == http.MethodPost {

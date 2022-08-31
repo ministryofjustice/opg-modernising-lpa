@@ -8,18 +8,20 @@ import (
 )
 
 type whoIsTheLpaForData struct {
-	Page   string
-	L      localize.Localizer
-	Lang   Lang
-	Errors map[string]string
+	Page             string
+	L                localize.Localizer
+	Lang             Lang
+	CookieConsentSet bool
+	Errors           map[string]string
 }
 
 func WhoIsTheLpaFor(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, dataStore DataStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := &whoIsTheLpaForData{
-			Page: whoIsTheLpaForPath,
-			L:    localizer,
-			Lang: lang,
+			Page:             whoIsTheLpaForPath,
+			L:                localizer,
+			Lang:             lang,
+			CookieConsentSet: cookieConsentSet(r),
 		}
 
 		if r.Method == http.MethodPost {
