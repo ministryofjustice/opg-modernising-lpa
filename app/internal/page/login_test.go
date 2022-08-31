@@ -53,7 +53,7 @@ func TestLogin(t *testing.T) {
 	session := sessions.NewSession(sessionsStore, "params")
 
 	session.Options = &sessions.Options{
-		MaxAge:   36000,
+		MaxAge:   600,
 		SameSite: http.SameSiteStrictMode,
 		HttpOnly: true,
 		Secure:   false,

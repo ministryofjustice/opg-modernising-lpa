@@ -22,7 +22,7 @@ func Login(logger Logger, c loginClient, store sessions.Store, randomString func
 			"state": state,
 			"nonce": nonce,
 		}
-		session.Options.MaxAge = 10 * 60 * 60
+		session.Options.MaxAge = 10 * 60
 		session.Options.SameSite = http.SameSiteStrictMode
 		session.Options.HttpOnly = true
 		session.Options.Secure = r.URL.Scheme == "https"
