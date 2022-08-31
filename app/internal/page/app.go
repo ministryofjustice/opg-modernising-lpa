@@ -67,6 +67,8 @@ func App(logger Logger, localizer localize.Localizer, lang Lang, tmpls template.
 
 	mux.Handle(startPath,
 		Start(logger, localizer, lang, tmpls.Get("start.gohtml")))
+	mux.Handle(lpaTypePath, requireSession(
+		LpaType(logger, localizer, lang, tmpls.Get("lpa_type.gohtml"), dataStore)))
 	mux.Handle(whoIsTheLpaForPath, requireSession(
 		WhoIsTheLpaFor(logger, localizer, lang, tmpls.Get("who_is_the_lpa_for.gohtml"), dataStore)))
 	mux.Handle(donorDetailsPath, requireSession(
