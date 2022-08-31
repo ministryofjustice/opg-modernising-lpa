@@ -1,5 +1,6 @@
 describe('Donor address', () => {
     beforeEach(() => {
+        cy.visit('/auth');
         cy.visit('/donor-address');
     });
 
@@ -15,7 +16,7 @@ describe('Donor address', () => {
 
         cy.get('#f-select-address').select('123 Fake Street, Someville, NG1');
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/who-is-the-lpa-for');
+        cy.url().should('contain', '/how-would-you-like-to-be-contacted');
     });
 
     it('address can be entered manually', () => {
@@ -39,6 +40,6 @@ describe('Donor address', () => {
         cy.get('#f-address-postcode').type('NG1');
 
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/who-is-the-lpa-for');
+        cy.url().should('contain', '/how-would-you-like-to-be-contacted');
     });
 });

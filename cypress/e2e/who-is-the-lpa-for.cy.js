@@ -1,5 +1,6 @@
 describe('Who is the lpa for', () => {
     beforeEach(() => {
+        cy.visit('/auth');
         cy.visit('/who-is-the-lpa-for');
         cy.injectAxe();
     });
@@ -10,6 +11,6 @@ describe('Who is the lpa for', () => {
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/how-would-you-like-to-be-contacted');
+        cy.url().should('contain', '/donor-details');
     });
 });

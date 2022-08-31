@@ -125,7 +125,7 @@ func TestPostDonorAddressManual(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, whoIsTheLpaForPath, resp.Header.Get("Location"))
+	assert.Equal(t, howWouldYouLikeToBeContactedPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
@@ -199,7 +199,7 @@ func TestPostDonorAddressSelect(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, whoIsTheLpaForPath, resp.Header.Get("Location"))
+	assert.Equal(t, howWouldYouLikeToBeContactedPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
