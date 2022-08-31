@@ -4,7 +4,7 @@ const (
 	AuthPath         = "/auth"
 	AuthRedirectPath = "/auth/redirect"
 
-	startPath                        = "/"
+	startPath                        = "/start"
 	homePath                         = "/home"
 	donorDetailsPath                 = "/donor-details"
 	donorAddressPath                 = "/donor-address"
