@@ -19,5 +19,8 @@
   ],
   "vulnerabilityAlerts": {
     "enabled": false
-  }
+  },
+  "ignoreDeps": [
+    "anothrNick/github-tag-action"
+  ]
 }
