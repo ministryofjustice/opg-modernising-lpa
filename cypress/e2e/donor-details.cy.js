@@ -1,6 +1,6 @@
 describe('Donor details', () => {
     beforeEach(() => {
-        cy.visit('/donor-details');
+        cy.visit('/testing-start?redirect=/donor-details');
         cy.injectAxe();
     });
 
