@@ -10,6 +10,6 @@ describe('How would you like to be contacted', () => {
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/next-page');
+        cy.url().should('contain', '/start');
     });
 });
