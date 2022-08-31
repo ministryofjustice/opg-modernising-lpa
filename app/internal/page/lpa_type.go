@@ -8,18 +8,20 @@ import (
 )
 
 type lpaTypeData struct {
-	Page   string
-	L      localize.Localizer
-	Lang   Lang
-	Errors map[string]string
+	Page             string
+	L                localize.Localizer
+	Lang             Lang
+	CookieConsentSet bool
+	Errors           map[string]string
 }
 
 func LpaType(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, dataStore DataStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := &lpaTypeData{
-			Page: lpaTypePath,
-			L:    localizer,
-			Lang: lang,
+			Page:             lpaTypePath,
+			L:                localizer,
+			Lang:             lang,
+			CookieConsentSet: cookieConsentSet(r),
 		}
 
 		if r.Method == http.MethodPost {
