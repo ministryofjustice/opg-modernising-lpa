@@ -12,14 +12,14 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetWhoIsTheLpaFor(t *testing.T) {
+func TestGetLpaType(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &whoIsTheLpaForData{
-			Page: whoIsTheLpaForPath,
+		On("Func", w, &lpaTypeData{
+			Page: lpaTypePath,
 			L:    localizer,
 			Lang: En,
 		}).
@@ -27,14 +27,14 @@ func TestGetWhoIsTheLpaFor(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	WhoIsTheLpaFor(nil, localizer, En, template.Func, nil)(w, r)
+	LpaType(nil, localizer, En, template.Func, nil)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
 }
 
-func TestGetWhoIsTheLpaForWhenTemplateErrors(t *testing.T) {
+func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
 
@@ -44,8 +44,8 @@ func TestGetWhoIsTheLpaForWhenTemplateErrors(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &whoIsTheLpaForData{
-			Page: whoIsTheLpaForPath,
+		On("Func", w, &lpaTypeData{
+			Page: lpaTypePath,
 			L:    localizer,
 			Lang: En,
 		}).
@@ -53,49 +53,49 @@ func TestGetWhoIsTheLpaForWhenTemplateErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	WhoIsTheLpaFor(logger, localizer, En, template.Func, nil)(w, r)
+	LpaType(logger, localizer, En, template.Func, nil)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template, logger)
 }
 
-func TestPostWhoIsTheLpaFor(t *testing.T) {
+func TestPostLpaType(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Save", "me").
+		On("Save", "pfa").
 		Return(nil)
 
 	form := url.Values{
-		"who-for": {"me"},
+		"lpa-type": {"pfa"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	WhoIsTheLpaFor(nil, localizer, En, nil, dataStore)(w, r)
+	LpaType(nil, localizer, En, nil, dataStore)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donorDetailsPath, resp.Header.Get("Location"))
+	assert.Equal(t, whoIsTheLpaForPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
-func TestPostWhoIsTheLpaForWhenValidationErrors(t *testing.T) {
+func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &whoIsTheLpaForData{
-			Page: whoIsTheLpaForPath,
+		On("Func", w, &lpaTypeData{
+			Page: lpaTypePath,
 			L:    localizer,
 			Lang: En,
 			Errors: map[string]string{
-				"who-for": "selectWhoFor",
+				"lpa-type": "selectLpaType",
 			},
 		}).
 		Return(nil)
@@ -103,55 +103,61 @@ func TestPostWhoIsTheLpaForWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	WhoIsTheLpaFor(nil, localizer, En, template.Func, nil)(w, r)
+	LpaType(nil, localizer, En, template.Func, nil)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
 }
 
-func TestReadWhoIsTheLpaForForm(t *testing.T) {
+func TestReadLpaTypeForm(t *testing.T) {
 	form := url.Values{
-		"who-for": {"me"},
+		"lpa-type": {"pfa"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	result := readWhoIsTheLpaForForm(r)
+	result := readLpaTypeForm(r)
 
-	assert.Equal(t, "me", result.WhoFor)
+	assert.Equal(t, "pfa", result.LpaType)
 }
 
-func TestWhoIsTheLpaForFormValidate(t *testing.T) {
+func TestLpaTypeFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *whoIsTheLpaForForm
+		form   *lpaTypeForm
 		errors map[string]string
 	}{
-		"me": {
-			form: &whoIsTheLpaForForm{
-				WhoFor: "me",
+		"pfa": {
+			form: &lpaTypeForm{
+				LpaType: "pfa",
 			},
 			errors: map[string]string{},
 		},
-		"someone-else": {
-			form: &whoIsTheLpaForForm{
-				WhoFor: "someone-else",
+		"hw": {
+			form: &lpaTypeForm{
+				LpaType: "hw",
+			},
+			errors: map[string]string{},
+		},
+		"both": {
+			form: &lpaTypeForm{
+				LpaType: "both",
 			},
 			errors: map[string]string{},
 		},
 		"missing": {
-			form: &whoIsTheLpaForForm{},
+			form: &lpaTypeForm{},
 			errors: map[string]string{
-				"who-for": "selectWhoFor",
+				"lpa-type": "selectLpaType",
 			},
 		},
 		"invalid": {
-			form: &whoIsTheLpaForForm{
-				WhoFor: "what",
+			form: &lpaTypeForm{
+				LpaType: "what",
 			},
 			errors: map[string]string{
-				"who-for": "selectWhoFor",
+				"lpa-type": "selectLpaType",
 			},
 		},
 	}

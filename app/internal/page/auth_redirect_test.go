@@ -41,12 +41,15 @@ func TestAuthRedirect(t *testing.T) {
 	sessionsStore.
 		On("Get", r, "params").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce"}}, nil)
+	sessionsStore.
+		On("Save", r, w, &sessions.Session{Values: map[interface{}]interface{}{"email": "user@example.org"}}).
+		Return(nil)
 
 	AuthRedirect(nil, client, sessionsStore)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, resp.Header.Get("Location"), "/home?email=user%40example.org")
+	assert.Equal(t, resp.Header.Get("Location"), lpaTypePath)
 	mock.AssertExpectationsForObjects(t, client, sessionsStore)
 }
 

@@ -70,5 +70,14 @@
     "phone": "Phone",
     "textMessage": "Text message",
     "post": "Post",
-    "selectContact": "Select at least one way to be contacted"
+    "selectContact": "Select at least one way to be contacted",
+
+    "whichTypeOfLpaToMake": "Which type of LPA do you want to make?",
+    "whichTypeOfLpaToMakeContent": "<p class=\"govuk-body\">There are 2 types of LPA: finance and affairs, and personal welfare. You can have one or both.</p> <p class=\"govuk-body\">They do not have to be made at the same time and you can choose different attorneys for each LPA.</p> <p class=\"govuk-body\">You'll be able to reuse any information you enter to make other LPAs later.</p> <p class=\"govuk-body\"><a class=\"govuk-link\" href=\"#\">Find out more about the 2 types of LPAs</a></p>",
+    "lpaTypePfa": "Finance and affairs",
+    "lpaTypePfaHint": "This covers decisions about your money and property",
+    "lpaTypeHw": "Personal welfare",
+    "lpaTypeHwHint": "This covers decisions about your health care, medical treatment and personal welfare",
+    "lpaTypeBoth": "Both",
+    "selectLpaType": "Select the type of LPA to make"
 }
