@@ -12,7 +12,7 @@ import (
 )
 
 func TestApp(t *testing.T) {
-	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{})
+	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{}, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), app)
 }

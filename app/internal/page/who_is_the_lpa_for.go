@@ -28,7 +28,7 @@ func WhoIsTheLpaFor(logger Logger, localizer localize.Localizer, lang Lang, tmpl
 
 			if len(data.Errors) == 0 {
 				dataStore.Save(form.WhoFor)
-				lang.Redirect(w, r, howWouldYouLikeToBeContactedPath, http.StatusFound)
+				lang.Redirect(w, r, donorDetailsPath, http.StatusFound)
 				return
 			}
 		}

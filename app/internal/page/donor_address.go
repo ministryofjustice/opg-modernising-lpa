@@ -31,7 +31,7 @@ func DonorAddress(logger Logger, localizer localize.Localizer, lang Lang, tmpl t
 
 			if (data.Form.Action == "manual" || data.Form.Action == "select") && len(data.Errors) == 0 {
 				dataStore.Save(data.Form.Address)
-				lang.Redirect(w, r, whoIsTheLpaForPath, http.StatusFound)
+				lang.Redirect(w, r, howWouldYouLikeToBeContactedPath, http.StatusFound)
 				return
 			}
 
