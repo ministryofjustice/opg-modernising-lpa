@@ -8,21 +8,23 @@ import (
 )
 
 type donorAddressData struct {
-	Page      string
-	L         localize.Localizer
-	Lang      Lang
-	Errors    map[string]string
-	Addresses []Address
-	Form      *donorAddressForm
+	Page             string
+	L                localize.Localizer
+	Lang             Lang
+	CookieConsentSet bool
+	Errors           map[string]string
+	Addresses        []Address
+	Form             *donorAddressForm
 }
 
 func DonorAddress(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, addressClient AddressClient, dataStore DataStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := &donorAddressData{
-			Page: donorAddressPath,
-			L:    localizer,
-			Lang: lang,
-			Form: &donorAddressForm{},
+			Page:             donorAddressPath,
+			L:                localizer,
+			Lang:             lang,
+			CookieConsentSet: cookieConsentSet(r),
+			Form:             &donorAddressForm{},
 		}
 
 		if r.Method == http.MethodPost {

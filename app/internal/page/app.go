@@ -65,6 +65,7 @@ func App(logger Logger, localizer localize.Localizer, lang Lang, tmpls template.
 
 	mux.Handle("/testing-start", testingStart(sessionStore))
 
+	mux.Handle("/", Root())
 	mux.Handle(startPath,
 		Start(logger, localizer, lang, tmpls.Get("start.gohtml")))
 	mux.Handle(lpaTypePath, requireSession(
@@ -110,4 +111,10 @@ func makeRequireSession(logger Logger, store sessions.Store) func(http.Handler) 
 			h.ServeHTTP(w, r)
 		}
 	}
+}
+
+func cookieConsentSet(r *http.Request) bool {
+	_, err := r.Cookie("cookies-consent")
+
+	return err != http.ErrNoCookie
 }
