@@ -8,21 +8,23 @@ import (
 )
 
 type donorAddressData struct {
-	Page      string
-	L         localize.Localizer
-	Lang      Lang
-	Errors    map[string]string
-	Addresses []Address
-	Form      *donorAddressForm
+	Page             string
+	L                localize.Localizer
+	Lang             Lang
+	CookieConsentSet bool
+	Errors           map[string]string
+	Addresses        []Address
+	Form             *donorAddressForm
 }
 
 func DonorAddress(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, addressClient AddressClient, dataStore DataStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := &donorAddressData{
-			Page: donorAddressPath,
-			L:    localizer,
-			Lang: lang,
-			Form: &donorAddressForm{},
+			Page:             donorAddressPath,
+			L:                localizer,
+			Lang:             lang,
+			CookieConsentSet: cookieConsentSet(r),
+			Form:             &donorAddressForm{},
 		}
 
 		if r.Method == http.MethodPost {
@@ -31,7 +33,7 @@ func DonorAddress(logger Logger, localizer localize.Localizer, lang Lang, tmpl t
 
 			if (data.Form.Action == "manual" || data.Form.Action == "select") && len(data.Errors) == 0 {
 				dataStore.Save(data.Form.Address)
-				lang.Redirect(w, r, whoIsTheLpaForPath, http.StatusFound)
+				lang.Redirect(w, r, howWouldYouLikeToBeContactedPath, http.StatusFound)
 				return
 			}
 

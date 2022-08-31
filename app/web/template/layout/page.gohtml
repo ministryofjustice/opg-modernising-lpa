@@ -20,29 +20,34 @@
       <script>
         document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
       </script>
-      <div class="govuk-cookie-banner" data-nosnippet role="region" aria-label="{{ .L.T "cookiesOn" }}">
-        <div class="govuk-cookie-banner__message govuk-width-container">
-          <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-              <h2 class="govuk-cookie-banner__heading govuk-heading-m">{{ .L.T "cookiesOn" }}</h2>
-              <div class="govuk-cookie-banner__content">
-                {{ .L.HTML "cookiesContent" }}
+      {{ if not .CookieConsentSet }}
+        <div class="govuk-cookie-banner" data-nosnippet role="region" aria-label="{{ .L.T "cookiesOn" }}">
+          <div class="govuk-cookie-banner__message govuk-width-container">
+            <div class="govuk-grid-row">
+              <div class="govuk-grid-column-two-thirds">
+                <h2 class="govuk-cookie-banner__heading govuk-heading-m">{{ .L.T "cookiesOn" }}</h2>
+                <div class="govuk-cookie-banner__content">
+                  {{ .L.HTML "cookiesContent" }}
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="govuk-button-group">
-            <button value="accept" type="button" name="cookies" class="govuk-button" data-module="govuk-button">
-              {{ .L.T "acceptCookies" }}
-            </button>
-            <button value="reject" type="button" name="cookies" class="govuk-button" data-module="govuk-button">
-              {{ .L.T "rejectCookies" }}
-            </button>
-            <a class="govuk-link" href="#">{{ .L.T "viewCookies" }}</a>
+            <form novalidate action="/cookies-consent" method="post">
+              <input type="hidden" name="cookies-redirect" value="{{ if isWelsh .Lang }}/cy{{ end }}{{ .Page }}" />
+              <div class="govuk-button-group">
+                <button value="accept" type="submit" name="cookies" class="govuk-button" data-module="govuk-button">
+                  {{ .L.T "acceptCookies" }}
+                </button>
+                <button value="reject" type="submit" name="cookies" class="govuk-button" data-module="govuk-button">
+                  {{ .L.T "rejectCookies" }}
+                </button>
+                <a class="govuk-link" href="#">{{ .L.T "viewCookies" }}</a>
+              </div>
+            </form>
           </div>
         </div>
-      </div>
-
+      {{ end }}
+      
       <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">{{ .L.T "skipToMainContent" }}</a>
 
       <header class="govuk-header " role="banner" data-module="govuk-header">

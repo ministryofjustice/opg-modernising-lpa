@@ -2,7 +2,6 @@ package page
 
 import (
 	"net/http"
-	"net/url"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
@@ -44,10 +43,12 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store) htt
 			return
 		}
 
-		q := url.Values{
-			"email": {userInfo.Email},
+		session.Values = map[interface{}]interface{}{"email": userInfo.Email}
+		if err := store.Save(r, w, session); err != nil {
+			logger.Print(err)
+			return
 		}
 
-		http.Redirect(w, r, "/home?"+q.Encode(), http.StatusFound)
+		http.Redirect(w, r, lpaTypePath, http.StatusFound)
 	}
 }

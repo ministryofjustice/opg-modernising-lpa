@@ -12,14 +12,14 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetHowWouldYouLikeToBeContacted(t *testing.T) {
+func TestGetLpaType(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &howWouldYouLikeToBeContactedData{
-			Page: howWouldYouLikeToBeContactedPath,
+		On("Func", w, &lpaTypeData{
+			Page: lpaTypePath,
 			L:    localizer,
 			Lang: En,
 		}).
@@ -27,14 +27,14 @@ func TestGetHowWouldYouLikeToBeContacted(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	HowWouldYouLikeToBeContacted(nil, localizer, En, template.Func, nil)(w, r)
+	LpaType(nil, localizer, En, template.Func, nil)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
 }
 
-func TestGetHowWouldYouLikeToBeContactedWhenTemplateErrors(t *testing.T) {
+func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
 
@@ -44,8 +44,8 @@ func TestGetHowWouldYouLikeToBeContactedWhenTemplateErrors(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &howWouldYouLikeToBeContactedData{
-			Page: howWouldYouLikeToBeContactedPath,
+		On("Func", w, &lpaTypeData{
+			Page: lpaTypePath,
 			L:    localizer,
 			Lang: En,
 		}).
@@ -53,49 +53,49 @@ func TestGetHowWouldYouLikeToBeContactedWhenTemplateErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	HowWouldYouLikeToBeContacted(logger, localizer, En, template.Func, nil)(w, r)
+	LpaType(logger, localizer, En, template.Func, nil)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template, logger)
 }
 
-func TestPostHowWouldYouLikeToBeContacted(t *testing.T) {
+func TestPostLpaType(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Save", []string{"email", "post"}).
+		On("Save", "pfa").
 		Return(nil)
 
 	form := url.Values{
-		"contact": {"email", "post"},
+		"lpa-type": {"pfa"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	HowWouldYouLikeToBeContacted(nil, localizer, En, nil, dataStore)(w, r)
+	LpaType(nil, localizer, En, nil, dataStore)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, startPath, resp.Header.Get("Location"))
+	assert.Equal(t, whoIsTheLpaForPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
-func TestPostHowWouldYouLikeToBeContactedWhenValidationErrors(t *testing.T) {
+func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &howWouldYouLikeToBeContactedData{
-			Page: howWouldYouLikeToBeContactedPath,
+		On("Func", w, &lpaTypeData{
+			Page: lpaTypePath,
 			L:    localizer,
 			Lang: En,
 			Errors: map[string]string{
-				"contact": "selectContact",
+				"lpa-type": "selectLpaType",
 			},
 		}).
 		Return(nil)
@@ -103,49 +103,61 @@ func TestPostHowWouldYouLikeToBeContactedWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	HowWouldYouLikeToBeContacted(nil, localizer, En, template.Func, nil)(w, r)
+	LpaType(nil, localizer, En, template.Func, nil)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
 }
 
-func TestReadHowWouldYouLikeToBeContactedForm(t *testing.T) {
+func TestReadLpaTypeForm(t *testing.T) {
 	form := url.Values{
-		"contact": {"email", "phone"},
+		"lpa-type": {"pfa"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	result := readHowWouldYouLikeToBeContactedForm(r)
+	result := readLpaTypeForm(r)
 
-	assert.Equal(t, []string{"email", "phone"}, result.Contact)
+	assert.Equal(t, "pfa", result.LpaType)
 }
 
-func TestHowWouldYouLikeToBeContactedFormValidate(t *testing.T) {
+func TestLpaTypeFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *howWouldYouLikeToBeContactedForm
+		form   *lpaTypeForm
 		errors map[string]string
 	}{
-		"all": {
-			form: &howWouldYouLikeToBeContactedForm{
-				Contact: []string{"email", "phone", "text message", "post"},
+		"pfa": {
+			form: &lpaTypeForm{
+				LpaType: "pfa",
+			},
+			errors: map[string]string{},
+		},
+		"hw": {
+			form: &lpaTypeForm{
+				LpaType: "hw",
+			},
+			errors: map[string]string{},
+		},
+		"both": {
+			form: &lpaTypeForm{
+				LpaType: "both",
 			},
 			errors: map[string]string{},
 		},
 		"missing": {
-			form: &howWouldYouLikeToBeContactedForm{},
+			form: &lpaTypeForm{},
 			errors: map[string]string{
-				"contact": "selectContact",
+				"lpa-type": "selectLpaType",
 			},
 		},
 		"invalid": {
-			form: &howWouldYouLikeToBeContactedForm{
-				Contact: []string{"email", "what"},
+			form: &lpaTypeForm{
+				LpaType: "what",
 			},
 			errors: map[string]string{
-				"contact": "selectContact",
+				"lpa-type": "selectLpaType",
 			},
 		},
 	}

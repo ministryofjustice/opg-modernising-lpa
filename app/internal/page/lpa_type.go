@@ -7,7 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
-type whoIsTheLpaForData struct {
+type lpaTypeData struct {
 	Page             string
 	L                localize.Localizer
 	Lang             Lang
@@ -15,22 +15,22 @@ type whoIsTheLpaForData struct {
 	Errors           map[string]string
 }
 
-func WhoIsTheLpaFor(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, dataStore DataStore) http.HandlerFunc {
+func LpaType(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, dataStore DataStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		data := &whoIsTheLpaForData{
-			Page:             whoIsTheLpaForPath,
+		data := &lpaTypeData{
+			Page:             lpaTypePath,
 			L:                localizer,
 			Lang:             lang,
 			CookieConsentSet: cookieConsentSet(r),
 		}
 
 		if r.Method == http.MethodPost {
-			form := readWhoIsTheLpaForForm(r)
+			form := readLpaTypeForm(r)
 			data.Errors = form.Validate()
 
 			if len(data.Errors) == 0 {
-				dataStore.Save(form.WhoFor)
-				lang.Redirect(w, r, donorDetailsPath, http.StatusFound)
+				dataStore.Save(form.LpaType)
+				lang.Redirect(w, r, whoIsTheLpaForPath, http.StatusFound)
 				return
 			}
 		}
@@ -41,21 +41,21 @@ func WhoIsTheLpaFor(logger Logger, localizer localize.Localizer, lang Lang, tmpl
 	}
 }
 
-type whoIsTheLpaForForm struct {
-	WhoFor string
+type lpaTypeForm struct {
+	LpaType string
 }
 
-func readWhoIsTheLpaForForm(r *http.Request) *whoIsTheLpaForForm {
-	return &whoIsTheLpaForForm{
-		WhoFor: postFormString(r, "who-for"),
+func readLpaTypeForm(r *http.Request) *lpaTypeForm {
+	return &lpaTypeForm{
+		LpaType: postFormString(r, "lpa-type"),
 	}
 }
 
-func (f *whoIsTheLpaForForm) Validate() map[string]string {
+func (f *lpaTypeForm) Validate() map[string]string {
 	errors := map[string]string{}
 
-	if f.WhoFor != "me" && f.WhoFor != "someone-else" {
-		errors["who-for"] = "selectWhoFor"
+	if f.LpaType != "pfa" && f.LpaType != "hw" && f.LpaType != "both" {
+		errors["lpa-type"] = "selectLpaType"
 	}
 
 	return errors

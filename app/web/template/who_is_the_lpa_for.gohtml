@@ -18,7 +18,7 @@
 
                 {{ template "error-message" (errorMessage . "who-for") }}
 
-                <div class="govuk-radios   {{ if index .Errors "who-for" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
+                <div class="govuk-radios {{ if index .Errors "who-for" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
                   <div class="govuk-radios__item">
                     <input class="govuk-radios__input" id="f-who-for" name="who-for" type="radio" value="me">
                     <label class="govuk-label govuk-radios__label" for="f-who-for">
