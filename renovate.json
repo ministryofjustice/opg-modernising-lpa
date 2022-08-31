@@ -21,6 +21,6 @@
     "enabled": false
   },
   "ignoreDeps": [
-    "eslanothrNick/github-tag-actionint"
+    "anothrNick/github-tag-action"
   ]
 }
