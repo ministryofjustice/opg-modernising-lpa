@@ -49,6 +49,6 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store) htt
 			return
 		}
 
-		http.Redirect(w, r, whoIsTheLpaForPath, http.StatusFound)
+		http.Redirect(w, r, lpaTypePath, http.StatusFound)
 	}
 }
