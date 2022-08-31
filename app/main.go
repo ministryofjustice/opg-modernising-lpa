@@ -94,6 +94,7 @@ func main() {
 	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir(webDir+"/static/"))))
 	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient, sessionStore))
 	mux.Handle(page.AuthPath, page.Login(logger, signInClient, sessionStore, random.String))
+	mux.Handle("/cookies-consent", page.CookieConsent())
 	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore)))
 	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore))
 
