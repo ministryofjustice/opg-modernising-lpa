@@ -7,8 +7,9 @@ import (
 )
 
 type Donor struct {
-	FirstName   string
+	FirstNames  string
 	LastName    string
+	OtherNames  string
 	DateOfBirth time.Time
 	Address     Address
 }

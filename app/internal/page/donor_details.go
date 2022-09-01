@@ -33,8 +33,9 @@ func DonorDetails(logger Logger, localizer localize.Localizer, lang Lang, tmpl t
 
 			if len(data.Errors) == 0 {
 				dataStore.Save(Donor{
-					FirstName:   data.Form.FirstName,
+					FirstNames:  data.Form.FirstNames,
 					LastName:    data.Form.LastName,
+					OtherNames:  data.Form.OtherNames,
 					DateOfBirth: data.Form.DateOfBirth,
 				})
 				lang.Redirect(w, r, donorAddressPath, http.StatusFound)
@@ -49,8 +50,9 @@ func DonorDetails(logger Logger, localizer localize.Localizer, lang Lang, tmpl t
 }
 
 type donorDetailsForm struct {
-	FirstName        string
+	FirstNames       string
 	LastName         string
+	OtherNames       string
 	DobDay           string
 	DobMonth         string
 	DobYear          string
@@ -60,8 +62,9 @@ type donorDetailsForm struct {
 
 func readDonorDetailsForm(r *http.Request) *donorDetailsForm {
 	d := &donorDetailsForm{}
-	d.FirstName = postFormString(r, "first-name")
+	d.FirstNames = postFormString(r, "first-names")
 	d.LastName = postFormString(r, "last-name")
+	d.OtherNames = postFormString(r, "other-names")
 	d.DobDay = postFormString(r, "date-of-birth-day")
 	d.DobMonth = postFormString(r, "date-of-birth-month")
 	d.DobYear = postFormString(r, "date-of-birth-year")
@@ -74,8 +77,8 @@ func readDonorDetailsForm(r *http.Request) *donorDetailsForm {
 func (d *donorDetailsForm) Validate() map[string]string {
 	errors := map[string]string{}
 
-	if d.FirstName == "" {
-		errors["first-name"] = "enterYourFirstName"
+	if d.FirstNames == "" {
+		errors["first-names"] = "enterYourFirstName"
 	}
 	if d.LastName == "" {
 		errors["last-name"] = "enterYourLastName"
