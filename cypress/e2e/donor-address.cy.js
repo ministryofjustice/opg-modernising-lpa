@@ -28,7 +28,7 @@ describe('Donor address', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.contains('a', "Can't find your address?").click();
+        cy.contains('a', "Can't find address?").click();
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });

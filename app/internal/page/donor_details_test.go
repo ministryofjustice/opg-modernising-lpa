@@ -78,11 +78,11 @@ func TestPostDonorDetails(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Save", Donor{FirstName: "John", LastName: "Doe", DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC)}).
+		On("Save", Donor{FirstNames: "John", LastName: "Doe", DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC)}).
 		Return(nil)
 
 	form := url.Values{
-		"first-name":          {"John"},
+		"first-names":         {"John"},
 		"last-name":           {"Doe"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
@@ -107,7 +107,7 @@ func TestPostDonorDetailsWhenValidationError(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, mock.MatchedBy(func(data *donorDetailsData) bool {
-			return assert.Equal(t, map[string]string{"first-name": "enterYourFirstName"}, data.Errors)
+			return assert.Equal(t, map[string]string{"first-names": "enterFirstNames"}, data.Errors)
 		})).
 		Return(nil)
 
@@ -132,8 +132,9 @@ func TestReadDonorDetailsForm(t *testing.T) {
 	assert := assert.New(t)
 
 	form := url.Values{
-		"first-name":          {"  John "},
+		"first-names":         {"  John "},
 		"last-name":           {"Doe"},
+		"other-names":         {"Somebody"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {"1990"},
@@ -144,8 +145,9 @@ func TestReadDonorDetailsForm(t *testing.T) {
 
 	result := readDonorDetailsForm(r)
 
-	assert.Equal("John", result.FirstName)
+	assert.Equal("John", result.FirstNames)
 	assert.Equal("Doe", result.LastName)
+	assert.Equal("Somebody", result.OtherNames)
 	assert.Equal("2", result.DobDay)
 	assert.Equal("1", result.DobMonth)
 	assert.Equal("1990", result.DobYear)
@@ -160,7 +162,7 @@ func TestDonorDetailsFormValidate(t *testing.T) {
 	}{
 		"valid": {
 			form: &donorDetailsForm{
-				FirstName:   "A",
+				FirstNames:  "A",
 				LastName:    "B",
 				DobDay:      "C",
 				DobMonth:    "D",
@@ -172,14 +174,14 @@ func TestDonorDetailsFormValidate(t *testing.T) {
 		"missing-all": {
 			form: &donorDetailsForm{},
 			errors: map[string]string{
-				"first-name":    "enterYourFirstName",
-				"last-name":     "enterYourLastName",
+				"first-names":   "enterFirstNames",
+				"last-name":     "enterLastName",
 				"date-of-birth": "dateOfBirthYear",
 			},
 		},
 		"invalid-dob": {
 			form: &donorDetailsForm{
-				FirstName:        "A",
+				FirstNames:       "A",
 				LastName:         "B",
 				DobDay:           "1",
 				DobMonth:         "1",
@@ -187,12 +189,12 @@ func TestDonorDetailsFormValidate(t *testing.T) {
 				DateOfBirthError: expectedError,
 			},
 			errors: map[string]string{
-				"date-of-birth": "yourDateOfBirthMustBeReal",
+				"date-of-birth": "dateOfBirthMustBeReal",
 			},
 		},
 		"invalid-missing-dob": {
 			form: &donorDetailsForm{
-				FirstName:        "A",
+				FirstNames:       "A",
 				LastName:         "B",
 				DobDay:           "1",
 				DobYear:          "1",

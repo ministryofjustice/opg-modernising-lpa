@@ -106,18 +106,18 @@ func (d *donorAddressForm) Validate() map[string]string {
 
 	case "select":
 		if d.Address == nil {
-			errors["select-address"] = "selectYourAddress"
+			errors["select-address"] = "selectAddress"
 		}
 
 	case "manual":
 		if d.Address.Line1 == "" {
-			errors["address-line-1"] = "enterYourAddress"
+			errors["address-line-1"] = "enterAddress"
 		}
 		if d.Address.TownOrCity == "" {
-			errors["address-town"] = "enterYourTownOrCity"
+			errors["address-town"] = "enterTownOrCity"
 		}
 		if d.Address.Postcode == "" {
-			errors["address-postcode"] = "enterYourPostcode"
+			errors["address-postcode"] = "enterPostcode"
 		}
 	}
 
