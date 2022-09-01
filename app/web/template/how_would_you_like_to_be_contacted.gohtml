@@ -11,17 +11,8 @@
             <h1 class="govuk-heading-xl govuk-!-margin-bottom-3">{{ .L.T "howWouldYouLikeToBeContacted" }}</h1>
             <p class="govuk-body">{{ .L.T "howWouldYouLikeToBeContactedDetail" }}</p>
 
-            <details class="govuk-details" data-module="govuk-details">
-              <summary class="govuk-details__summary">
-                <span class="govuk-details__summary-text">
-                  {{ .L.T "whatIfWantToChangeMyContactPreferences" }}
-                </span>
-              </summary>
-              <div class="govuk-details__text">
-                {{ .L.T "whatIfWantToChangeMyContactPreferencesDetail" }}
-              </div>
-            </details>
-
+            {{ template "details" (details . "whatIfWantToChangeMyContactPreferences" "whatIfWantToChangeMyContactPreferencesDetail") }}
+            
             <p class="govuk-body">{{ .L.T "selectOneOrMoreOptions" }}</p>
 
             <div class="govuk-form-group {{ if index .Errors "contact" }}govuk-form-group--error{{ end }}">
