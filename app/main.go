@@ -64,6 +64,23 @@ func main() {
 				"name": name,
 			}
 		},
+		"details": func(top interface{}, name, detail string) map[string]interface{} {
+			return map[string]interface{}{
+				"top":    top,
+				"name":   name,
+				"detail": detail,
+			}
+		},
+		"inc": func(i int) int {
+			return i + 1
+		},
+		"link": func(lang page.Lang, path string) string {
+			if lang == page.Cy {
+				return "/cy" + path
+			}
+
+			return path
+		},
 	})
 	if err != nil {
 		logger.Fatal(err)
