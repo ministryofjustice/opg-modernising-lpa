@@ -22,9 +22,10 @@
     "selectOneOrMoreOptions": "Welsh",
 
     "yourDetails": "Welsh",
-    "yourFirstName": "Welsh",
-    "yourLastName": "Welsh",
-    "yourDateOfBirth": "Welsh",
+    "firstNames": "Welsh",
+    "lastName": "Welsh",
+    "otherNames": "Welsh",
+    "dateOfBirth": "Welsh",
     "dateOfBirthHint": "Welsh",
     "day": "Welsh",
     "month": "Welsh",
@@ -36,7 +37,7 @@
     "dateOfBirthYear": "Welsh",
     "yourDateOfBirthMustBeReal": "Welsh",
 
-    "yourHomeAddress": "Welsh",
+    "homeAddress": "Welsh",
     "postcode": "Welsh",
     "findAddress": "Welsh",
     "selectAnAddress": "Welsh",
