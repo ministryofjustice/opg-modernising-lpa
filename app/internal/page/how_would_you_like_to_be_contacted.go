@@ -30,7 +30,7 @@ func HowWouldYouLikeToBeContacted(logger Logger, localizer localize.Localizer, l
 
 			if len(data.Errors) == 0 {
 				dataStore.Save(form.Contact)
-				lang.Redirect(w, r, startPath, http.StatusFound)
+				lang.Redirect(w, r, taskListPath, http.StatusFound)
 				return
 			}
 		}
