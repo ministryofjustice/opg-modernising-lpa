@@ -78,6 +78,8 @@ func App(logger Logger, localizer localize.Localizer, lang Lang, tmpls template.
 		DonorAddress(logger, localizer, lang, tmpls.Get("donor_address.gohtml"), addressClient, dataStore)))
 	mux.Handle(howWouldYouLikeToBeContactedPath, requireSession(
 		HowWouldYouLikeToBeContacted(logger, localizer, lang, tmpls.Get("how_would_you_like_to_be_contacted.gohtml"), dataStore)))
+	mux.Handle(taskListPath, requireSession(
+		TaskList(logger, localizer, lang, tmpls.Get("task_list.gohtml"), dataStore)))
 
 	return mux
 }
