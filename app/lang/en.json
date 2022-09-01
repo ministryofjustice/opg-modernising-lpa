@@ -22,9 +22,10 @@
     "selectOneOrMoreOptions": "Select one or more options.",
 
     "yourDetails": "Your details",
-    "yourFirstName": "Your first name",
-    "yourLastName": "Your last name",
-    "yourDateOfBirth": "Your date of birth",
+    "firstNames": "First names",
+    "lastName": "Last name",
+    "otherNames": "Any other names you're known by (optional)",
+    "dateOfBirth": "Date of birth",
     "dateOfBirthHint": "For example, 31 3 1980",
     "day": "Day",
     "month": "Month",
@@ -36,7 +37,7 @@
     "dateOfBirthYear": "Date of birth must include a year",
     "yourDateOfBirthMustBeReal": "Your date of birth must be a real date",
 
-    "yourHomeAddress": "Your home address",
+    "homeAddress": "Home address",
     "postcode": "Postcode",
     "findAddress": "Find address",
     "selectAnAddress": "Select an address",
