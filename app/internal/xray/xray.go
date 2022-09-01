@@ -3,7 +3,6 @@ package xray
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
@@ -62,6 +61,5 @@ func handleErr(err error, message string) {
 	logger := logging.New(os.Stdout, "opg-modernising-lpa")
 	if err != nil {
 		logger.Fatal(err)
-		log.Fatal("%s: %v", message, err)
 	}
 }
