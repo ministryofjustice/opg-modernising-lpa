@@ -155,7 +155,7 @@ func TestPostDonorAddressManualWhenValidationError(t *testing.T) {
 				},
 			},
 			Errors: map[string]string{
-				"address-line-1": "enterYourAddress",
+				"address-line-1": "enterAddress",
 			},
 		}).
 		Return(nil)
@@ -233,7 +233,7 @@ func TestPostDonorAddressSelectWhenValidationError(t *testing.T) {
 			},
 			Addresses: addresses,
 			Errors: map[string]string{
-				"select-address": "selectYourAddress",
+				"select-address": "selectAddress",
 			},
 		}).
 		Return(nil)
@@ -470,7 +470,7 @@ func TestDonorAddressFormValidate(t *testing.T) {
 				Address: nil,
 			},
 			errors: map[string]string{
-				"select-address": "selectYourAddress",
+				"select-address": "selectAddress",
 			},
 		},
 		"manual-valid": {
@@ -490,9 +490,9 @@ func TestDonorAddressFormValidate(t *testing.T) {
 				Address: &Address{},
 			},
 			errors: map[string]string{
-				"address-line-1":   "enterYourAddress",
-				"address-town":     "enterYourTownOrCity",
-				"address-postcode": "enterYourPostcode",
+				"address-line-1":   "enterAddress",
+				"address-town":     "enterTownOrCity",
+				"address-postcode": "enterPostcode",
 			},
 		},
 	}
