@@ -132,8 +132,8 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     resources = [
       data.aws_kms_alias.secrets_manager_secret_encryption_key.target_key_arn,
     ]
-
   }
+
   statement {
     sid    = "EcsSecretAccess"
     effect = "Allow"
@@ -148,10 +148,20 @@ data "aws_iam_policy_document" "task_role_access_policy" {
       data.aws_secretsmanager_secret.cookie_session_keys.arn,
     ]
   }
+
+  statement {
+    sid = "Allow"
+
+    actions = ["dynamodb:*"]
+
+    resources = [
+      aws_dynamodb_table.lpas_table.arn,
+      "${aws_dynamodb_table.lpas_table.arn}/index/*",
+    ]
+  }
+
   provider = aws.region
 }
-
-
 
 locals {
   app = jsonencode(
@@ -198,7 +208,11 @@ locals {
           # this is not the final value, but will allow signin to be tested while the real redirectURL is changed
           name  = "APP_PUBLIC_URL",
           value = "https://opg-lpa-fd-prototype.apps.live.cloud-platform.service.justice.gov.uk"
-        }
+        },
+        {
+          name  = "DYNAMODB_TABLE_LPAS",
+          value = aws_dynamodb_table.lpas_table.name
+        },
       ]
     }
   )
