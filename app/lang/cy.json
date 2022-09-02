@@ -71,5 +71,25 @@
     "phone": "Welsh",
     "textMessage": "Welsh",
     "post": "Welsh",
-    "selectContact": "Welsh"
+    "selectContact": "Welsh",
+
+    "taskListHeading": "Welsh",
+    "taskListHelp": "Welsh",
+    "taskListHelpContent": "Welsh",
+    "completed": "Welsh",
+    "cannotStartYet": "Welsh",
+    "notStarted": "Welsh",
+    "fillInTheLpa": "Welsh",
+    "provideDonorDetails": "Welsh",
+    "chooseYourContactPreferences": "Welsh",
+    "chooseYourAttorneys": "Welsh",
+    "chooseYourReplacementAttorneys": "Welsh",
+    "chooseWhenTheLpaCanBeUsed": "Welsh",
+    "addRestrictionsToTheLpa": "Welsh",
+    "chooseYourCertificateProvider": "Welsh",
+    "checkAndSendToYourCertificateProvider": "Welsh",
+    "payForTheLpa": "Welsh",
+    "confirmYourIdentity": "Welsh",
+    "signAndRegisterTheLpa": "Welsh",
+    "signTheLpa": "Welsh"
 }
