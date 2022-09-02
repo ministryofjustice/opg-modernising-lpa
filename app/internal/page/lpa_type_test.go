@@ -16,6 +16,11 @@ func TestGetLpaType(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
 
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
+
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &lpaTypeData{
@@ -27,7 +32,7 @@ func TestGetLpaType(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	LpaType(nil, localizer, En, template.Func, nil)(w, r)
+	LpaType(nil, localizer, En, template.Func, dataStore)(w, withSession(r))
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -37,6 +42,11 @@ func TestGetLpaType(t *testing.T) {
 func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
+
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
 
 	logger := &mockLogger{}
 	logger.
@@ -53,7 +63,7 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	LpaType(logger, localizer, En, template.Func, nil)(w, r)
+	LpaType(logger, localizer, En, template.Func, dataStore)(w, withSession(r))
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -66,7 +76,10 @@ func TestPostLpaType(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Save", "pfa").
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
+	dataStore.
+		On("Put", mock.Anything, "session-id", Lpa{Type: "pfa"}).
 		Return(nil)
 
 	form := url.Values{
@@ -76,7 +89,7 @@ func TestPostLpaType(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	LpaType(nil, localizer, En, nil, dataStore)(w, r)
+	LpaType(nil, localizer, En, nil, dataStore)(w, withSession(r))
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -87,6 +100,11 @@ func TestPostLpaType(t *testing.T) {
 func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
+
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
 
 	template := &mockTemplate{}
 	template.
@@ -103,7 +121,7 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	LpaType(nil, localizer, En, template.Func, nil)(w, r)
+	LpaType(nil, localizer, En, template.Func, dataStore)(w, withSession(r))
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)

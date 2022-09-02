@@ -13,19 +13,14 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-const formUrlEncoded = "application/x-www-form-urlencoded"
-
-type mockDataStore struct {
-	mock.Mock
-}
-
-func (m *mockDataStore) Save(v interface{}) error {
-	return m.Called(v).Error(0)
-}
-
 func TestGetDonorDetails(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
+
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
 
 	template := &mockTemplate{}
 	template.
@@ -39,7 +34,7 @@ func TestGetDonorDetails(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	DonorDetails(nil, localizer, En, template.Func, nil)(w, r)
+	DonorDetails(nil, localizer, En, template.Func, dataStore)(w, withSession(r))
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -50,9 +45,15 @@ func TestGetDonorDetailsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
 
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
+
 	logger := &mockLogger{}
 	logger.
 		On("Print", expectedError)
+
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &donorDetailsData{
@@ -65,7 +66,7 @@ func TestGetDonorDetailsWhenTemplateErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	DonorDetails(logger, localizer, En, template.Func, nil)(w, r)
+	DonorDetails(logger, localizer, En, template.Func, dataStore)(w, withSession(r))
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -78,7 +79,12 @@ func TestPostDonorDetails(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Save", Donor{FirstNames: "John", LastName: "Doe", DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC)}).
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
+	dataStore.
+		On("Put", mock.Anything, "session-id", Lpa{
+			Donor: Donor{FirstNames: "John", LastName: "Doe", DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC)},
+		}).
 		Return(nil)
 
 	form := url.Values{
@@ -92,7 +98,7 @@ func TestPostDonorDetails(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	DonorDetails(nil, localizer, En, nil, dataStore)(w, r)
+	DonorDetails(nil, localizer, En, nil, dataStore)(w, withSession(r))
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -103,6 +109,11 @@ func TestPostDonorDetails(t *testing.T) {
 func TestPostDonorDetailsWhenValidationError(t *testing.T) {
 	w := httptest.NewRecorder()
 	localizer := localize.Localizer{}
+
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
 
 	template := &mockTemplate{}
 	template.
@@ -121,7 +132,7 @@ func TestPostDonorDetailsWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	DonorDetails(nil, localizer, En, template.Func, nil)(w, r)
+	DonorDetails(nil, localizer, En, template.Func, dataStore)(w, withSession(r))
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)

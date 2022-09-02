@@ -13,15 +13,20 @@ type howWouldYouLikeToBeContactedData struct {
 	Lang             Lang
 	CookieConsentSet bool
 	Errors           map[string]string
+	Contact          []string
 }
 
 func HowWouldYouLikeToBeContacted(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, dataStore DataStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		var lpa Lpa
+		dataStore.Get(r.Context(), sessionID(r), &lpa)
+
 		data := &howWouldYouLikeToBeContactedData{
 			Page:             howWouldYouLikeToBeContactedPath,
 			L:                localizer,
 			Lang:             lang,
 			CookieConsentSet: cookieConsentSet(r),
+			Contact:          lpa.Contact,
 		}
 
 		if r.Method == http.MethodPost {
@@ -29,7 +34,8 @@ func HowWouldYouLikeToBeContacted(logger Logger, localizer localize.Localizer, l
 			data.Errors = form.Validate()
 
 			if len(data.Errors) == 0 {
-				dataStore.Save(form.Contact)
+				lpa.Contact = form.Contact
+				dataStore.Put(r.Context(), sessionID(r), lpa)
 				lang.Redirect(w, r, taskListPath, http.StatusFound)
 				return
 			}
