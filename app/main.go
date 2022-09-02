@@ -39,7 +39,7 @@ func main() {
 		clientID     = env.Get("CLIENT_ID", "client-id-value")
 		issuer       = env.Get("ISSUER", "http://sign-in-mock:7012")
 	)
-	if env.Get("ENABLE_XRAY") == "true" {
+	if os.Getenv("ENABLE_XRAY") == "true" {
 		cleanup := initTracer()
 		defer cleanup(context.Background())
 	}
