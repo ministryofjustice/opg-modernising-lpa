@@ -12,7 +12,7 @@
               <fieldset class="govuk-fieldset">
                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl govuk-!-margin-bottom-6">
                   <h1 class="govuk-fieldset__heading">
-                    {{ .L.T "whoIsThisLpaFor" }}
+                    {{ tr .App "whoIsThisLpaFor" }}
                   </h1>
                 </legend>
 
@@ -20,19 +20,19 @@
 
                 <div class="govuk-radios {{ if index .Errors "who-for" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
                   <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" id="f-who-for" name="who-for" type="radio" value="me">
+                    <input class="govuk-radios__input" id="f-who-for" name="who-for" type="radio" value="me" {{ if eq .WhoFor "me" }}checked{{ end }}>
                     <label class="govuk-label govuk-radios__label" for="f-who-for">
-                      {{ .L.T "forMe" }}
+                      {{ tr .App "forMe" }}
                     </label>
                   </div>
 
                   <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" id="f-who-for-2" name="who-for" type="radio" value="someone-else" aria-describedby="who-for-2-item-hint">
+                    <input class="govuk-radios__input" id="f-who-for-2" name="who-for" type="radio" value="someone-else" aria-describedby="who-for-2-item-hint" {{ if eq .WhoFor "someone-else" }}checked{{ end }}>
                     <label class="govuk-label govuk-radios__label" for="f-who-for-2">
-                      {{ .L.T "forSomeoneElse" }}
+                      {{ tr .App "forSomeoneElse" }}
                     </label>
                     <div id="who-for-2-item-hint" class="govuk-hint govuk-radios__hint">
-                      {{ .L.T "imHelping" }}
+                      {{ tr .App "imHelping" }}
                     </div>
                   </div>
                 </div>
@@ -40,7 +40,7 @@
             </div>
 
             <button type="submit" class="govuk-button govuk-!-margin-top-6" data-module="govuk-button">
-              {{ .L.T "continue" }}
+              {{ tr .App "continue" }}
             </button>
           </fieldset>
         </div>
