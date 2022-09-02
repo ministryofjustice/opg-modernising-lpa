@@ -5,21 +5,18 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestGetTaskList(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
+	appData := AppData{}
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &taskListData{
-			Page: taskListPath,
-			L:    localizer,
-			Lang: En,
+			App: appData,
 			Sections: []taskListSection{
 				{
 					Heading: "fillInTheLpa",
@@ -58,7 +55,7 @@ func TestGetTaskList(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	TaskList(nil, localizer, En, template.Func, nil)(w, r)
+	TaskList(nil, template.Func, nil)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -67,7 +64,7 @@ func TestGetTaskList(t *testing.T) {
 
 func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
+	appData := AppData{}
 
 	logger := &mockLogger{}
 	logger.
@@ -80,7 +77,7 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	TaskList(logger, localizer, En, template.Func, nil)(w, r)
+	TaskList(logger, template.Func, nil)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
