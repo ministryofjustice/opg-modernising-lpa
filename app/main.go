@@ -18,6 +18,13 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"google.golang.org/grpc/credentials"
 )
 
 func main() {
@@ -32,6 +39,10 @@ func main() {
 		clientID     = env.Get("CLIENT_ID", "client-id-value")
 		issuer       = env.Get("ISSUER", "http://sign-in-mock:7012")
 	)
+	if env.Get("ENABLE_XRAY") == "true" {
+		cleanup := initTracer()
+		defer cleanup(context.Background())
+	}
 
 	tmpls, err := template.Parse(webDir+"/template", map[string]interface{}{
 		"isEnglish": func(lang page.Lang) bool {
@@ -124,4 +135,62 @@ func main() {
 	if err := server.Shutdown(tc); err != nil {
 		logger.Print(err)
 	}
+}
+
+func initTracer() func(context.Context) error {
+	logger := logging.New(os.Stdout, "opg-modernising-lpa-xray-init")
+
+	var (
+		serviceName  = env.Get("SERVICE_NAME", "modernising-lpa")
+		collectorURL = env.Get("OTEL_EXPORTER_OTLP_ENDPOINT", "0.0.0.0:4317")
+		insecure     = env.Get("INSECURE_MODE", "true")
+	)
+
+	secureOption := otlptracegrpc.WithTLSCredentials(credentials.NewClientTLSFromCert(nil, ""))
+	if len(insecure) > 0 {
+		secureOption = otlptracegrpc.WithInsecure()
+	}
+
+	exporter, err := otlptrace.New(
+		context.Background(),
+		otlptracegrpc.NewClient(
+			secureOption,
+			otlptracegrpc.WithEndpoint(collectorURL),
+		),
+	)
+
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	// // Create a new ID Generator
+	// idg := xray.NewIDGenerator()
+
+	// // Instantiate a new ECS Resource detector
+	// ecsResourceDetector := ecs.NewResourceDetector()
+	// resource, err := ecsResourceDetector.Detect(context.Background())
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	resources, err := resource.New(
+		context.Background(),
+		resource.WithAttributes(
+			attribute.String("service.name", serviceName),
+			attribute.String("library.language", "go"),
+		),
+	)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	otel.SetTracerProvider(
+		sdktrace.NewTracerProvider(
+			sdktrace.WithSampler(sdktrace.AlwaysSample()),
+			sdktrace.WithBatcher(exporter),
+			// sdktrace.WithIDGenerator(idg),
+			sdktrace.WithResource(resources),
+		),
+	)
+	return exporter.Shutdown
 }
