@@ -3,7 +3,7 @@
   <html lang="en" class="govuk-template app-html-class">
     <head>
       <meta charset="utf-8">
-      <title>{{ .L.T "serviceName" }}</title>
+      <title>{{ tr .App "serviceName" }}</title>
       <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
       <meta name="theme-color" content="blue">
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -20,35 +20,35 @@
       <script>
         document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
       </script>
-      {{ if not .CookieConsentSet }}
-        <div class="govuk-cookie-banner" data-nosnippet role="region" aria-label="{{ .L.T "cookiesOn" }}">
+      {{ if not .App.CookieConsentSet }}
+        <div class="govuk-cookie-banner" data-nosnippet role="region" aria-label="{{ tr .App "cookiesOn" }}">
           <div class="govuk-cookie-banner__message govuk-width-container">
             <div class="govuk-grid-row">
               <div class="govuk-grid-column-two-thirds">
-                <h2 class="govuk-cookie-banner__heading govuk-heading-m">{{ .L.T "cookiesOn" }}</h2>
+                <h2 class="govuk-cookie-banner__heading govuk-heading-m">{{ tr .App "cookiesOn" }}</h2>
                 <div class="govuk-cookie-banner__content">
-                  {{ .L.HTML "cookiesContent" }}
+                  {{ trHtml .App "cookiesContent" }}
                 </div>
               </div>
             </div>
 
             <form novalidate action="/cookies-consent" method="post">
-              <input type="hidden" name="cookies-redirect" value="{{ if isWelsh .Lang }}/cy{{ end }}{{ .Page }}" />
+              <input type="hidden" name="cookies-redirect" value="{{ link .App .App.Page }}" />
               <div class="govuk-button-group">
                 <button value="accept" type="submit" name="cookies" class="govuk-button" data-module="govuk-button">
-                  {{ .L.T "acceptCookies" }}
+                  {{ tr .App "acceptCookies" }}
                 </button>
                 <button value="reject" type="submit" name="cookies" class="govuk-button" data-module="govuk-button">
-                  {{ .L.T "rejectCookies" }}
+                  {{ tr .App "rejectCookies" }}
                 </button>
-                <a class="govuk-link" href="#">{{ .L.T "viewCookies" }}</a>
+                <a class="govuk-link" href="#">{{ tr .App "viewCookies" }}</a>
               </div>
             </form>
           </div>
         </div>
       {{ end }}
       
-      <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">{{ .L.T "skipToMainContent" }}</a>
+      <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">{{ tr .App "skipToMainContent" }}</a>
 
       <header class="govuk-header " role="banner" data-module="govuk-header">
         <div class="govuk-header__container govuk-width-container">
@@ -71,7 +71,7 @@
           </div>
           <div class="govuk-header__content">
             <a href="#" class="govuk-header__link govuk-header__service-name">
-              {{ .L.T "serviceName" }}
+              {{ tr .App "serviceName" }}
             </a>
           </div>
         </div>
@@ -84,7 +84,7 @@
               beta
             </strong>
             <span class="govuk-phase-banner__text">
-              {{ .L.HTML "newServiceContent" }}
+              {{ trHtml .App "newServiceContent" }}
             </span>
           </p>
         </div>
@@ -92,16 +92,16 @@
         <div class="govuk-clearfix">          
           <ul class="trans-switch" id="language-switch" aria-label="Change your language">
             <li class="govuk-list trans-switch__list govuk-body-s" id="language-switch-en" lang="en-gb">
-              {{ if isWelsh .Lang }}<a href="{{ .Page }}" class="govuk-link"><span class="govuk-visually-hidden">Change language to </span>{{ end }}
-                {{ if isEnglish .Lang }}<span class="govuk-visually-hidden">Current language is </span>{{ end }}
+              {{ if isWelsh .App.Lang }}<a href="{{ .App.Page }}" class="govuk-link"><span class="govuk-visually-hidden">Change language to </span>{{ end }}
+                {{ if isEnglish .App.Lang }}<span class="govuk-visually-hidden">Current language is </span>{{ end }}
                 English
-                {{ if isWelsh .Lang }}</a>{{ end }}
+                {{ if isWelsh .App.Lang }}</a>{{ end }}
             </li>
             <li class="govuk-list trans-switch__list govuk-body-s" id="language-switch-cy" lang="cy-gb">
-              {{ if isEnglish .Lang }}<a href="/cy{{ .Page }}" class="govuk-link" aria-label="Newid iaith i'r Gymraeg">{{ end }}
+              {{ if isEnglish .App.Lang }}<a href="/cy{{ .App.Page }}" class="govuk-link" aria-label="Newid iaith i'r Gymraeg">{{ end }}
                 Cymraeg
-                {{ if isEnglish .Lang }}</a>{{ end }}
-              {{ if isWelsh .Lang }}<span class="govuk-visually-hidden"> yw'r iaith bresennol</span>{{ end }}
+                {{ if isEnglish .App.Lang }}</a>{{ end }}
+              {{ if isWelsh .App.Lang }}<span class="govuk-visually-hidden"> yw'r iaith bresennol</span>{{ end }}
             </li>
           </ul>
         </div>
@@ -115,26 +115,26 @@
         <div class="govuk-width-container ">
           <div class="govuk-footer__meta">
             <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
-              <h2 class="govuk-visually-hidden">{{ .L.T "supportLinks" }}</h2>
+              <h2 class="govuk-visually-hidden">{{ tr .App "supportLinks" }}</h2>
               <ul class="govuk-footer__inline-list">
                 <li class="govuk-footer__inline-list-item">
                   <a class="govuk-footer__link" href="#1">
-                    {{ .L.T "help" }}
+                    {{ tr .App "help" }}
                   </a>
                 </li>
                 <li class="govuk-footer__inline-list-item">
                   <a class="govuk-footer__link" href="#2">
-                    {{ .L.T "cookies" }}
+                    {{ tr .App "cookies" }}
                   </a>
                 </li>
                 <li class="govuk-footer__inline-list-item">
                   <a class="govuk-footer__link" href="#3">
-                    {{ .L.T "contact" }}
+                    {{ tr .App "contact" }}
                   </a>
                 </li>
                 <li class="govuk-footer__inline-list-item">
                   <a class="govuk-footer__link" href="#4">
-                    {{ .L.T "termsAndConditions" }}
+                    {{ tr .App "termsAndConditions" }}
                   </a>
                 </li>
               </ul>
@@ -143,11 +143,11 @@
                 <path fill="currentColor" d="M421.5 142.8V.1l-50.7 32.3v161.1h112.4v-50.7zm-122.3-9.6A47.12 47.12 0 0 1 221 97.8c0-26 21.1-47.1 47.1-47.1 16.7 0 31.4 8.7 39.7 21.8l42.7-27.2A97.63 97.63 0 0 0 268.1 0c-36.5 0-68.3 20.1-85.1 49.7A98 98 0 0 0 97.8 0C43.9 0 0 43.9 0 97.8s43.9 97.8 97.8 97.8c36.5 0 68.3-20.1 85.1-49.7a97.76 97.76 0 0 0 149.6 25.4l19.4 22.2h3v-87.8h-80l24.3 27.5zM97.8 145c-26 0-47.1-21.1-47.1-47.1s21.1-47.1 47.1-47.1 47.2 21 47.2 47S123.8 145 97.8 145" />
               </svg>
               <span class="govuk-footer__licence-description">
-                {{ .L.HTML "openGovernmentLicenceContent" }}
+                {{ trHtml .App "openGovernmentLicenceContent" }}
               </span>
             </div>
             <div class="govuk-footer__meta-item">
-              <a class="govuk-footer__link govuk-footer__copyright-logo" href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/">{{ .L.T "crownCopyright" }}</a>
+              <a class="govuk-footer__link govuk-footer__copyright-logo" href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/">{{ tr .App "crownCopyright" }}</a>
             </div>
           </div>
         </div>
