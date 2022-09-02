@@ -7,66 +7,95 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestGetHowWouldYouLikeToBeContacted(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
+
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howWouldYouLikeToBeContactedData{
-			Page: howWouldYouLikeToBeContactedPath,
-			L:    localizer,
-			Lang: En,
+			App: appData,
 		}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	HowWouldYouLikeToBeContacted(nil, localizer, En, template.Func, nil)(w, r)
+	err := HowWouldYouLikeToBeContacted(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, template)
+}
+
+func TestGetHowWouldYouLikeToBeContactedFromStore(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	dataStore := &mockDataStore{data: Lpa{Contact: []string{"email"}}}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &howWouldYouLikeToBeContactedData{
+			App:     appData,
+			Contact: []string{"email"},
+		}).
+		Return(nil)
+
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	err := HowWouldYouLikeToBeContacted(template.Func, dataStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetHowWouldYouLikeToBeContactedWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
 
-	logger := &mockLogger{}
-	logger.
-		On("Print", expectedError)
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howWouldYouLikeToBeContactedData{
-			Page: howWouldYouLikeToBeContactedPath,
-			L:    localizer,
-			Lang: En,
+			App: appData,
 		}).
 		Return(expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	HowWouldYouLikeToBeContacted(logger, localizer, En, template.Func, nil)(w, r)
+	err := HowWouldYouLikeToBeContacted(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
+	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, logger)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostHowWouldYouLikeToBeContacted(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Save", []string{"email", "post"}).
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
+	dataStore.
+		On("Put", mock.Anything, "session-id", Lpa{Contact: []string{"email", "post"}}).
 		Return(nil)
 
 	form := url.Values{
@@ -76,9 +105,10 @@ func TestPostHowWouldYouLikeToBeContacted(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	HowWouldYouLikeToBeContacted(nil, localizer, En, nil, dataStore)(w, r)
+	err := HowWouldYouLikeToBeContacted(nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
+	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, taskListPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
@@ -86,14 +116,16 @@ func TestPostHowWouldYouLikeToBeContacted(t *testing.T) {
 
 func TestPostHowWouldYouLikeToBeContactedWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
+
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howWouldYouLikeToBeContactedData{
-			Page: howWouldYouLikeToBeContactedPath,
-			L:    localizer,
-			Lang: En,
+			App: appData,
 			Errors: map[string]string{
 				"contact": "selectContact",
 			},
@@ -103,9 +135,10 @@ func TestPostHowWouldYouLikeToBeContactedWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	HowWouldYouLikeToBeContacted(nil, localizer, En, template.Func, nil)(w, r)
+	err := HowWouldYouLikeToBeContacted(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
+	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
 }
