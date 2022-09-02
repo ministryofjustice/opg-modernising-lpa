@@ -20,7 +20,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
-	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
@@ -174,8 +173,8 @@ func initTracer() func(context.Context) error {
 		logger.Fatal(err)
 	}
 
-	// Create a new ID Generator
-	idg := xray.NewIDGenerator()
+	// // Create a new ID Generator
+	// idg := xray.NewIDGenerator()
 
 	// // Instantiate a new ECS Resource detector
 	// ecsResourceDetector := ecs.NewResourceDetector()
