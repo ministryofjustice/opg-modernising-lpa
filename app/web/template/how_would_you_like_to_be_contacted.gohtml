@@ -8,49 +8,49 @@
           <fieldset class="govuk-fieldset">
             {{ template "error-summary" . }}
 
-            <h1 class="govuk-heading-xl govuk-!-margin-bottom-3">{{ .L.T "howWouldYouLikeToBeContacted" }}</h1>
-            <p class="govuk-body">{{ .L.T "howWouldYouLikeToBeContactedDetail" }}</p>
+            <h1 class="govuk-heading-xl govuk-!-margin-bottom-3">{{ tr .App "howWouldYouLikeToBeContacted" }}</h1>
+            <p class="govuk-body">{{ tr .App "howWouldYouLikeToBeContactedDetail" }}</p>
 
             {{ template "details" (details . "whatIfWantToChangeMyContactPreferences" "whatIfWantToChangeMyContactPreferencesDetail") }}
             
-            <p class="govuk-body">{{ .L.T "selectOneOrMoreOptions" }}</p>
+            <p class="govuk-body">{{ tr .App "selectOneOrMoreOptions" }}</p>
 
             <div class="govuk-form-group {{ if index .Errors "contact" }}govuk-form-group--error{{ end }}">
               {{ template "error-message" (errorMessage . "contact") }}
 
               <div class="govuk-checkboxes  {{ if index .Errors "contact" }}govuk-checkboxes--error{{ end }}" data-module="govuk-checkboxes">
                 <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="f-contact" name="contact" type="checkbox" value="email">
+                  <input class="govuk-checkboxes__input" id="f-contact" name="contact" type="checkbox" value="email" {{ if contains "email" .Contact }}checked{{ end }}>
                   <label class="govuk-label govuk-checkboxes__label" for="f-contact">
-                    {{ .L.T "email" }}
+                    {{ tr .App "email" }}
                   </label>
                 </div>
 
                 <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="f-contact-2" name="contact" type="checkbox" value="phone">
+                  <input class="govuk-checkboxes__input" id="f-contact-2" name="contact" type="checkbox" value="phone" {{ if contains "phone" .Contact }}checked{{ end }}>
                   <label class="govuk-label govuk-checkboxes__label" for="f-contact-2">
-                    {{ .L.T "phone" }}
+                    {{ tr .App "phone" }}
                   </label>
                 </div>
 
                 <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="f-contact-3" name="contact" type="checkbox" value="text message">
+                  <input class="govuk-checkboxes__input" id="f-contact-3" name="contact" type="checkbox" value="text message" {{ if contains "text message" .Contact }}checked{{ end }}>
                   <label class="govuk-label govuk-checkboxes__label" for="f-contact-3">
-                    {{ .L.T "textMessage" }}
+                    {{ tr .App "textMessage" }}
                   </label>
                 </div>
 
                 <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="f-contact-4" name="contact" type="checkbox" value="post">
+                  <input class="govuk-checkboxes__input" id="f-contact-4" name="contact" type="checkbox" value="post" {{ if contains "post" .Contact }}checked{{ end }}>
                   <label class="govuk-label govuk-checkboxes__label" for="f-contact-4">
-                    {{ .L.T "post" }}
+                    {{ tr .App "post" }}
                   </label>
                 </div>
               </div>
             </div>
 
             <button type="submit" class="govuk-button govuk-!-margin-top-6" data-module="govuk-button">
-              {{ .L.T "continue" }}
+              {{ tr .App "continue" }}
             </button>
           </fieldset>
         </div>
