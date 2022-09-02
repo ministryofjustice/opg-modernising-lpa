@@ -13,15 +13,20 @@ type lpaTypeData struct {
 	Lang             Lang
 	CookieConsentSet bool
 	Errors           map[string]string
+	Type             string
 }
 
 func LpaType(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, dataStore DataStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		var lpa Lpa
+		dataStore.Get(r.Context(), sessionID(r), &lpa)
+
 		data := &lpaTypeData{
 			Page:             lpaTypePath,
 			L:                localizer,
 			Lang:             lang,
 			CookieConsentSet: cookieConsentSet(r),
+			Type:             lpa.Type,
 		}
 
 		if r.Method == http.MethodPost {
@@ -29,7 +34,8 @@ func LpaType(logger Logger, localizer localize.Localizer, lang Lang, tmpl templa
 			data.Errors = form.Validate()
 
 			if len(data.Errors) == 0 {
-				dataStore.Save(form.LpaType)
+				lpa.Type = form.LpaType
+				dataStore.Put(r.Context(), sessionID(r), lpa)
 				lang.Redirect(w, r, whoIsTheLpaForPath, http.StatusFound)
 				return
 			}
