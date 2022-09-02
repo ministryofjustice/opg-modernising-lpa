@@ -46,3 +46,8 @@ variable "alb_enable_deletion_protection" {
   type        = bool
   description = "If true, deletion of the load balancer will be disabled via the AWS API. This will prevent Terraform from deleting the load balancer. Defaults to false."
 }
+
+variable "lpas_table" {
+  type        = any
+  description = "DynamoDB table for storing LPAs"
+}
