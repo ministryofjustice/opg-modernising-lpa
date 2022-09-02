@@ -13,15 +13,20 @@ type whoIsTheLpaForData struct {
 	Lang             Lang
 	CookieConsentSet bool
 	Errors           map[string]string
+	WhoFor           string
 }
 
 func WhoIsTheLpaFor(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, dataStore DataStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		var lpa Lpa
+		dataStore.Get(r.Context(), sessionID(r), &lpa)
+
 		data := &whoIsTheLpaForData{
 			Page:             whoIsTheLpaForPath,
 			L:                localizer,
 			Lang:             lang,
 			CookieConsentSet: cookieConsentSet(r),
+			WhoFor:           lpa.WhoFor,
 		}
 
 		if r.Method == http.MethodPost {
@@ -29,7 +34,8 @@ func WhoIsTheLpaFor(logger Logger, localizer localize.Localizer, lang Lang, tmpl
 			data.Errors = form.Validate()
 
 			if len(data.Errors) == 0 {
-				dataStore.Save(form.WhoFor)
+				lpa.WhoFor = form.WhoFor
+				dataStore.Put(r.Context(), sessionID(r), lpa)
 				lang.Redirect(w, r, donorDetailsPath, http.StatusFound)
 				return
 			}

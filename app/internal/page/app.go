@@ -1,7 +1,8 @@
 package page
 
 import (
-	"encoding/json"
+	"context"
+	"encoding/base64"
 	"net/http"
 	"strings"
 
@@ -29,6 +30,11 @@ type Logger interface {
 	Print(v ...interface{})
 }
 
+type DataStore interface {
+	Get(context.Context, string, interface{}) error
+	Put(context.Context, string, interface{}) error
+}
+
 type fakeAddressClient struct{}
 
 func (c fakeAddressClient) LookupPostcode(postcode string) ([]Address, error) {
@@ -38,29 +44,21 @@ func (c fakeAddressClient) LookupPostcode(postcode string) ([]Address, error) {
 	}, nil
 }
 
-type DataStore interface {
-	Save(interface{}) error
-}
-
-type fakeDataStore struct {
-	logger Logger
-}
-
-func (d fakeDataStore) Save(v interface{}) error {
-	data, _ := json.Marshal(v)
-	d.logger.Print(string(data))
-	return nil
-}
-
 func postFormString(r *http.Request, name string) string {
 	return strings.TrimSpace(r.PostFormValue(name))
 }
 
-func App(logger Logger, localizer localize.Localizer, lang Lang, tmpls template.Templates, sessionStore sessions.Store) http.Handler {
+func App(
+	logger Logger,
+	localizer localize.Localizer,
+	lang Lang,
+	tmpls template.Templates,
+	sessionStore sessions.Store,
+	dataStore DataStore,
+) http.Handler {
 	mux := http.NewServeMux()
 
 	addressClient := fakeAddressClient{}
-	dataStore := fakeDataStore{logger: logger}
 	requireSession := makeRequireSession(logger, sessionStore)
 
 	mux.Handle("/testing-start", testingStart(sessionStore))
@@ -87,7 +85,7 @@ func App(logger Logger, localizer localize.Localizer, lang Lang, tmpls template.
 func testingStart(store sessions.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		session, _ := store.Get(r, "params")
-		session.Values = map[interface{}]interface{}{"email": "testing@example.com"}
+		session.Values = map[interface{}]interface{}{"email": random.String(12) + "@example.com"}
 		_ = store.Save(r, w, session)
 
 		http.Redirect(w, r, r.FormValue("redirect"), http.StatusFound)
@@ -104,19 +102,31 @@ func makeRequireSession(logger Logger, store sessions.Store) func(http.Handler) 
 				return
 			}
 
-			if _, ok := session.Values["email"].(string); !ok {
+			email, ok := session.Values["email"].(string)
+			if !ok {
 				logger.Print("email missing from session")
 				http.Redirect(w, r, startPath, http.StatusFound)
 				return
 			}
 
+			sessionID := base64.StdEncoding.EncodeToString([]byte(email))
+
+			r = r.WithContext(context.WithValue(r.Context(), sessionKey{}, sessionID))
 			h.ServeHTTP(w, r)
 		}
 	}
 }
 
+type sessionKey struct{}
+
 func cookieConsentSet(r *http.Request) bool {
 	_, err := r.Cookie("cookies-consent")
 
 	return err != http.ErrNoCookie
+}
+
+func sessionID(r *http.Request) string {
+	value := r.Context().Value(sessionKey{})
+
+	return value.(string)
 }
