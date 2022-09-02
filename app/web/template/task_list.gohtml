@@ -1,0 +1,41 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">
+        {{ tr .App "taskListHeading" }}
+      </h1>
+
+      {{ template "details" (details . "taskListHelp" "taskListHelpContent") }}
+      
+      <ol class="app-task-list govuk-!-margin-top-0" style="position: relative;">
+        {{ range $i, $e := .Sections }}
+          <li>
+            <h2 class="app-task-list__section">
+              <span class="app-task-list__section-number">{{ inc $i }}. </span> {{ tr $.App $e.Heading }}
+            </h2>
+            <ul class="app-task-list__items">
+              {{ range $e.Items }}
+                <li class="app-task-list__item">
+                  <span class="app-task-list__task-name">
+                    <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
+                      {{ tr $.App .Name }}
+                    </a>
+                  </span>
+                  {{ if .Completed }}
+                    <strong class="govuk-tag app-task-list__tag">{{ tr $.App "completed" }}</strong>
+                  {{ else if .Disabled }}
+                    <strong class="govuk-tag govuk-tag--grey app-task-list__tag">{{ tr $.App "cannotStartYet" }}</strong>
+                  {{ else }}
+                    <strong class="govuk-tag govuk-tag--grey app-task-list__tag">{{ tr $.App "notStarted" }}</strong>
+                  {{ end }}
+                </li>
+              {{ end }}
+            </ul>
+          </li>
+        {{ end }}
+      </ol>
+    </div>
+  </div>
+{{ end }}

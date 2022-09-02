@@ -4,24 +4,22 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
 type howWouldYouLikeToBeContactedData struct {
-	Page             string
-	L                localize.Localizer
-	Lang             Lang
-	CookieConsentSet bool
-	Errors           map[string]string
+	App     AppData
+	Errors  map[string]string
+	Contact []string
 }
 
-func HowWouldYouLikeToBeContacted(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, dataStore DataStore) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func HowWouldYouLikeToBeContacted(logger Logger, tmpl template.Template, dataStore DataStore) Handler {
+	return func(appData AppData, w http.ResponseWriter, r *http.Request) {
+		var lpa Lpa
+		dataStore.Get(r.Context(), appData.SessionID, &lpa)
+
 		data := &howWouldYouLikeToBeContactedData{
-			Page:             howWouldYouLikeToBeContactedPath,
-			L:                localizer,
-			Lang:             lang,
-			CookieConsentSet: cookieConsentSet(r),
+			App:     appData,
+			Contact: lpa.Contact,
 		}
 
 		if r.Method == http.MethodPost {
@@ -29,8 +27,9 @@ func HowWouldYouLikeToBeContacted(logger Logger, localizer localize.Localizer, l
 			data.Errors = form.Validate()
 
 			if len(data.Errors) == 0 {
-				dataStore.Save(form.Contact)
-				lang.Redirect(w, r, startPath, http.StatusFound)
+				lpa.Contact = form.Contact
+				dataStore.Put(r.Context(), appData.SessionID, lpa)
+				appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
 				return
 			}
 		}

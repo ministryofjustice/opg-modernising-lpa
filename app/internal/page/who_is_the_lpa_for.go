@@ -4,24 +4,22 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
 type whoIsTheLpaForData struct {
-	Page             string
-	L                localize.Localizer
-	Lang             Lang
-	CookieConsentSet bool
-	Errors           map[string]string
+	App    AppData
+	Errors map[string]string
+	WhoFor string
 }
 
-func WhoIsTheLpaFor(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, dataStore DataStore) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func WhoIsTheLpaFor(logger Logger, tmpl template.Template, dataStore DataStore) Handler {
+	return func(appData AppData, w http.ResponseWriter, r *http.Request) {
+		var lpa Lpa
+		dataStore.Get(r.Context(), appData.SessionID, &lpa)
+
 		data := &whoIsTheLpaForData{
-			Page:             whoIsTheLpaForPath,
-			L:                localizer,
-			Lang:             lang,
-			CookieConsentSet: cookieConsentSet(r),
+			App:    appData,
+			WhoFor: lpa.WhoFor,
 		}
 
 		if r.Method == http.MethodPost {
@@ -29,8 +27,9 @@ func WhoIsTheLpaFor(logger Logger, localizer localize.Localizer, lang Lang, tmpl
 			data.Errors = form.Validate()
 
 			if len(data.Errors) == 0 {
-				dataStore.Save(form.WhoFor)
-				lang.Redirect(w, r, donorDetailsPath, http.StatusFound)
+				lpa.WhoFor = form.WhoFor
+				dataStore.Put(r.Context(), appData.SessionID, lpa)
+				appData.Lang.Redirect(w, r, donorDetailsPath, http.StatusFound)
 				return
 			}
 		}
