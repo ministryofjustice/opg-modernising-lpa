@@ -68,3 +68,8 @@ variable "container_port" {
   type        = number
   description = "Port on the container to associate with."
 }
+
+variable "lpas_table" {
+  type        = any
+  description = "DynamoDB table for storing LPAs"
+}

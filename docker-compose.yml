@@ -21,7 +21,8 @@ services:
       - AWS_BASE_URL=http://localstack:4566
       - CLIENT_ID=client-id-value
       - ISSUER=http://sign-in-mock:8080
-
+      - DYNAMODB_TABLE_LPAS=lpas
+      
   localstack:
     build:
       context: .
