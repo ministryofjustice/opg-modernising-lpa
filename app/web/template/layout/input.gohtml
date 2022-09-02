@@ -1,6 +1,6 @@
 {{ define "input" }}
   <div class="govuk-form-group {{ if index .top.Errors .name }}govuk-form-group--error{{ end }}">
-    <label class="govuk-label" for="f-{{ .name }}">{{ .top.L.T .label }}</label>
+    <label class="govuk-label" for="f-{{ .name }}">{{ tr .top.App .label }}</label>
     {{ template "error-message" (errorMessage .top .name) }}
     <input class="govuk-input {{ .classes }} {{ if index .top.Errors .name }}govuk-input--error{{ end }}" id="f-{{ .name }}" name="{{ .name }}" value="{{ .value }}" {{ if .autocomplete }}autocomplete="{{ .autocomplete }}"{{ end }} />
   </div>

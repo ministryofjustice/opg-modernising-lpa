@@ -79,5 +79,25 @@
     "lpaTypeHw": "Personal welfare",
     "lpaTypeHwHint": "This covers decisions about your health care, medical treatment and personal welfare",
     "lpaTypeBoth": "Both",
-    "selectLpaType": "Select the type of LPA to make"
+    "selectLpaType": "Select the type of LPA to make",
+
+    "taskListHeading": "My LPA",
+    "taskListHelp": "Help with making this LPA",
+    "taskListHelpContent": "<p>There's help included with every question, and you can also read our <a href=\"#\">full guide to making an LPA</a>.</p> <p>You may want to look at our <a href=\"#\">before you begin help page</a>. It explains the decisions you have to make about your LPA and the information you’ll need to provide.</p> <p>We’ll save the LPA as you progress - you don't need to complete it in one go. You can sign out at any time and come back later.</p>",
+    "completed": "Completed",
+    "cannotStartYet": "Cannot start yet",
+    "notStarted": "Not started",
+    "fillInTheLpa": "Fill in the LPA",
+    "provideDonorDetails": "Provide the donor's details",
+    "chooseYourContactPreferences": "Choose your contact preferences",
+    "chooseYourAttorneys": "Choose your attorneys",
+    "chooseYourReplacementAttorneys": "Choose your replacement attorneys (optional)",
+    "chooseWhenTheLpaCanBeUsed": "Choose when the LPA can be used",
+    "addRestrictionsToTheLpa": "Add restrictions to the LPA (optional)",
+    "chooseYourCertificateProvider": "Choose your certificate provider",
+    "checkAndSendToYourCertificateProvider": "Check and send to your certificate provider",
+    "payForTheLpa": "Pay for the LPA",
+    "confirmYourIdentity": "Confirm your identity",
+    "signAndRegisterTheLpa": "Sign and register the LPA",
+    "signTheLpa": "Sign the LPA"
 }

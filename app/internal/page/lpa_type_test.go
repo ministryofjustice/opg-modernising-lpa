@@ -7,66 +7,113 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestGetLpaType(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
+
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &lpaTypeData{
-			Page: lpaTypePath,
-			L:    localizer,
-			Lang: En,
+			App: appData,
 		}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	LpaType(nil, localizer, En, template.Func, nil)(w, r)
+	err := LpaType(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
+	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
+	mock.AssertExpectationsForObjects(t, template, dataStore)
 }
 
-func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
+func TestGetLpaTypeFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
 
-	logger := &mockLogger{}
-	logger.
-		On("Print", expectedError)
+	dataStore := &mockDataStore{data: Lpa{Type: "pfa"}}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &lpaTypeData{
-			Page: lpaTypePath,
-			L:    localizer,
-			Lang: En,
+			App:  appData,
+			Type: "pfa",
+		}).
+		Return(nil)
+
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	err := LpaType(template.Func, dataStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, template, dataStore)
+}
+
+func TestGetLpaTypeWhenStoreErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(expectedError)
+
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	err := LpaType(nil, dataStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, dataStore)
+}
+
+func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &lpaTypeData{
+			App: appData,
 		}).
 		Return(expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	LpaType(logger, localizer, En, template.Func, nil)(w, r)
+	err := LpaType(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
+	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, logger)
+	mock.AssertExpectationsForObjects(t, template, dataStore)
 }
 
 func TestPostLpaType(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Save", "pfa").
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
+	dataStore.
+		On("Put", mock.Anything, "session-id", Lpa{Type: "pfa"}).
 		Return(nil)
 
 	form := url.Values{
@@ -76,24 +123,51 @@ func TestPostLpaType(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	LpaType(nil, localizer, En, nil, dataStore)(w, r)
+	err := LpaType(nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
+	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, whoIsTheLpaForPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
+func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
+	dataStore.
+		On("Put", mock.Anything, "session-id", Lpa{Type: "pfa"}).
+		Return(expectedError)
+
+	form := url.Values{
+		"lpa-type": {"pfa"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := LpaType(nil, dataStore)(appData, w, r)
+
+	assert.Equal(t, expectedError, err)
+	mock.AssertExpectationsForObjects(t, dataStore)
+}
+
 func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
+
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &lpaTypeData{
-			Page: lpaTypePath,
-			L:    localizer,
-			Lang: En,
+			App: appData,
 			Errors: map[string]string{
 				"lpa-type": "selectLpaType",
 			},
@@ -103,9 +177,10 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	LpaType(nil, localizer, En, template.Func, nil)(w, r)
+	err := LpaType(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
+	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
 }
