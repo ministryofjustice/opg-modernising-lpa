@@ -4,24 +4,24 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
 type lpaTypeData struct {
-	Page             string
-	L                localize.Localizer
-	Lang             Lang
-	CookieConsentSet bool
-	Errors           map[string]string
+	App    AppData
+	Errors map[string]string
+	Type   string
 }
 
-func LpaType(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, dataStore DataStore) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func LpaType(tmpl template.Template, dataStore DataStore) Handler {
+	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+		var lpa Lpa
+		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
+			return err
+		}
+
 		data := &lpaTypeData{
-			Page:             lpaTypePath,
-			L:                localizer,
-			Lang:             lang,
-			CookieConsentSet: cookieConsentSet(r),
+			App:  appData,
+			Type: lpa.Type,
 		}
 
 		if r.Method == http.MethodPost {
@@ -29,15 +29,14 @@ func LpaType(logger Logger, localizer localize.Localizer, lang Lang, tmpl templa
 			data.Errors = form.Validate()
 
 			if len(data.Errors) == 0 {
-				dataStore.Save(form.LpaType)
-				lang.Redirect(w, r, whoIsTheLpaForPath, http.StatusFound)
-				return
+				lpa.Type = form.LpaType
+				dataStore.Put(r.Context(), appData.SessionID, lpa)
+				appData.Lang.Redirect(w, r, whoIsTheLpaForPath, http.StatusFound)
+				return nil
 			}
 		}
 
-		if err := tmpl(w, data); err != nil {
-			logger.Print(err)
-		}
+		return tmpl(w, data)
 	}
 }
 

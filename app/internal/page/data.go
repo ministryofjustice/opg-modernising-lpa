@@ -6,6 +6,13 @@ import (
 	"time"
 )
 
+type Lpa struct {
+	Donor   Donor
+	WhoFor  string
+	Contact []string
+	Type    string
+}
+
 type Donor struct {
 	FirstNames  string
 	LastName    string
