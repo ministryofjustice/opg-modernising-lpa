@@ -7,66 +7,95 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestGetWhoIsTheLpaFor(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
+
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &whoIsTheLpaForData{
-			Page: whoIsTheLpaForPath,
-			L:    localizer,
-			Lang: En,
+			App: appData,
 		}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	WhoIsTheLpaFor(nil, localizer, En, template.Func, nil)(w, r)
+	err := WhoIsTheLpaFor(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, template)
+}
+
+func TestGetWhoIsTheLpaForFromStore(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	dataStore := &mockDataStore{data: Lpa{WhoFor: "me"}}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &whoIsTheLpaForData{
+			App:    appData,
+			WhoFor: "me",
+		}).
+		Return(nil)
+
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	err := WhoIsTheLpaFor(template.Func, dataStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetWhoIsTheLpaForWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
 
-	logger := &mockLogger{}
-	logger.
-		On("Print", expectedError)
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &whoIsTheLpaForData{
-			Page: whoIsTheLpaForPath,
-			L:    localizer,
-			Lang: En,
+			App: appData,
 		}).
 		Return(expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	WhoIsTheLpaFor(logger, localizer, En, template.Func, nil)(w, r)
+	err := WhoIsTheLpaFor(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
+	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, logger)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostWhoIsTheLpaFor(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Save", "me").
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
+	dataStore.
+		On("Put", mock.Anything, "session-id", Lpa{WhoFor: "me"}).
 		Return(nil)
 
 	form := url.Values{
@@ -76,9 +105,10 @@ func TestPostWhoIsTheLpaFor(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	WhoIsTheLpaFor(nil, localizer, En, nil, dataStore)(w, r)
+	err := WhoIsTheLpaFor(nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
+	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, donorDetailsPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
@@ -86,14 +116,16 @@ func TestPostWhoIsTheLpaFor(t *testing.T) {
 
 func TestPostWhoIsTheLpaForWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
+
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &whoIsTheLpaForData{
-			Page: whoIsTheLpaForPath,
-			L:    localizer,
-			Lang: En,
+			App: appData,
 			Errors: map[string]string{
 				"who-for": "selectWhoFor",
 			},
@@ -103,9 +135,10 @@ func TestPostWhoIsTheLpaForWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	WhoIsTheLpaFor(nil, localizer, En, template.Func, nil)(w, r)
+	err := WhoIsTheLpaFor(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
+	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
 }
