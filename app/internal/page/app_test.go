@@ -1,6 +1,7 @@
 package page
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,8 +13,26 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+const formUrlEncoded = "application/x-www-form-urlencoded"
+
+type mockDataStore struct {
+	mock.Mock
+}
+
+func (m *mockDataStore) Get(ctx context.Context, id string, v interface{}) error {
+	return m.Called(ctx, id, v).Error(0)
+}
+
+func (m *mockDataStore) Put(ctx context.Context, id string, v interface{}) error {
+	return m.Called(ctx, id, v).Error(0)
+}
+
+func withSession(r *http.Request) *http.Request {
+	return r.WithContext(context.WithValue(r.Context(), sessionKey{}, "session-id"))
+}
+
 func TestApp(t *testing.T) {
-	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{}, nil)
+	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{}, nil, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), app)
 }
@@ -45,16 +64,6 @@ func TestFakeAddressClient(t *testing.T) {
 		{Line1: "123 Fake Street", TownOrCity: "Someville", Postcode: "xyz"},
 		{Line1: "456 Fake Street", TownOrCity: "Someville", Postcode: "xyz"},
 	}, addresses)
-}
-
-func TestFakeDataStore(t *testing.T) {
-	logger := &mockLogger{}
-	logger.
-		On("Print", "null")
-
-	fakeDataStore{logger: logger}.Save(nil)
-
-	mock.AssertExpectationsForObjects(t, logger)
 }
 
 func TestRequireSession(t *testing.T) {
@@ -107,7 +116,7 @@ func TestTestingStart(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{}, nil)
 	sessionsStore.
-		On("Save", r, w, &sessions.Session{Values: map[interface{}]interface{}{"email": "testing@example.com"}}).
+		On("Save", r, w, mock.Anything).
 		Return(nil)
 
 	testingStart(sessionsStore).ServeHTTP(w, r)
@@ -116,12 +125,4 @@ func TestTestingStart(t *testing.T) {
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, sessionsStore)
-}
-
-func TestCookieConsentSet(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-	assert.False(t, cookieConsentSet(r))
-
-	r.AddCookie(&http.Cookie{Name: "cookies-consent"})
-	assert.True(t, cookieConsentSet(r))
 }

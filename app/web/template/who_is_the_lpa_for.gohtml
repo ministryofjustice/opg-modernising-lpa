@@ -20,14 +20,14 @@
 
                 <div class="govuk-radios {{ if index .Errors "who-for" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
                   <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" id="f-who-for" name="who-for" type="radio" value="me">
+                    <input class="govuk-radios__input" id="f-who-for" name="who-for" type="radio" value="me" {{ if eq .WhoFor "me" }}checked{{ end }}>
                     <label class="govuk-label govuk-radios__label" for="f-who-for">
                       {{ .L.T "forMe" }}
                     </label>
                   </div>
 
                   <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" id="f-who-for-2" name="who-for" type="radio" value="someone-else" aria-describedby="who-for-2-item-hint">
+                    <input class="govuk-radios__input" id="f-who-for-2" name="who-for" type="radio" value="someone-else" aria-describedby="who-for-2-item-hint" {{ if eq .WhoFor "someone-else" }}checked{{ end }}>
                     <label class="govuk-label govuk-radios__label" for="f-who-for-2">
                       {{ .L.T "forSomeoneElse" }}
                     </label>
