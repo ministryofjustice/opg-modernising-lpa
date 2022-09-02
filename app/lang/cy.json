@@ -73,6 +73,15 @@
     "post": "Welsh",
     "selectContact": "Welsh",
 
+    "whichTypeOfLpaToMake": "Welsh",
+    "whichTypeOfLpaToMakeContent": "Welsh",
+    "lpaTypePfa": "Welsh",
+    "lpaTypePfaHint": "Welsh",
+    "lpaTypeHw": "Welsh",
+    "lpaTypeHwHint": "Welsh",
+    "lpaTypeBoth": "Welsh",
+    "selectLpaType": "Welsh",
+    
     "taskListHeading": "Welsh",
     "taskListHelp": "Welsh",
     "taskListHelpContent": "Welsh",
