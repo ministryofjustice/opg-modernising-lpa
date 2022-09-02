@@ -18,7 +18,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
@@ -44,9 +43,6 @@ func main() {
 		cleanup := initTracer()
 		defer cleanup(context.Background())
 	}
-
-	// instrument all aws clients
-	otelaws.AppendMiddlewares(&cfg.APIOptions)
 
 	tmpls, err := template.Parse(webDir+"/template", map[string]interface{}{
 		"isEnglish": func(lang page.Lang) bool {
