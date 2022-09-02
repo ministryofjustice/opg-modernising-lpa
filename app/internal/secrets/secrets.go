@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/aws/aws-secretsmanager-caching-go/secretcache"
@@ -21,17 +20,7 @@ type Client struct {
 	cache secretsCache
 }
 
-func NewClient(baseURL string) (*Client, error) {
-	config := &aws.Config{}
-	if len(baseURL) > 0 {
-		config.Endpoint = aws.String(baseURL)
-	}
-
-	sess, err := session.NewSession(config)
-	if err != nil {
-		return nil, fmt.Errorf("error initialising new AWS session: %w", err)
-	}
-
+func NewClient(sess *session.Session) (*Client, error) {
 	cache, err := secretcache.New(func(c *secretcache.Cache) { c.Client = secretsmanager.New(sess) })
 	if err != nil {
 		return nil, err

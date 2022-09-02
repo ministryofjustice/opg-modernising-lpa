@@ -7,7 +7,7 @@
         <div class="govuk-form-group">
           <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-              <h1 class="govuk-fieldset__heading">{{ .L.T "homeAddress" }}</h1>
+              <h1 class="govuk-fieldset__heading">{{ tr .App "homeAddress" }}</h1>
             </legend>
 
             {{ template "error-summary" . }}
@@ -19,7 +19,7 @@
               {{ template "input" (input . "address-postcode" "postcode" .Form.Address.Postcode "classes" "govuk-input--width-10" "autocomplete" "postal-code") }}
 
               <button name="action" value="manual" class="govuk-button govuk-!-margin-top-6" data-module="govuk-button">
-                {{ .L.T "continue" }}
+                {{ tr .App "continue" }}
               </button>
 
             {{ else if .Addresses }}
@@ -27,11 +27,11 @@
 
               <div id="select" class="govuk-form-group govuk-!-margin-bottom-6 {{ if index .Errors "select-address" }}govuk-form-group--error{{ end }}">
                 <label class="govuk-label" for="f-select-address">
-                  {{ .L.T "selectAnAddress" }}
+                  {{ tr .App "selectAnAddress" }}
                 </label>
                 {{ template "error-message" (errorMessage . "select-address") }}
                 <select class="govuk-select {{ if index .Errors "select-address" }}govuk-select--error{{ end }}" id="f-select-address" name="select-address">
-                  <option value="">{{ .L.Count "addressesFound" (len .Addresses) }}</option>
+                  <option value="">{{ trCount .App "addressesFound" (len .Addresses) }}</option>
                   {{ range .Addresses }}
                     <option value="{{ .Encode }}">{{ .String }}</option>
                   {{ end }}
@@ -40,25 +40,25 @@
 
               <p class="govuk-body">
                 <a href="?action=manual" class="govuk-link govuk-link--no-visited-state">
-                  {{ .L.T "cantFindAddress" }}
+                  {{ tr .App "cantFindAddress" }}
                 </a>
               </p>
 
               <button name="action" value="select" class="govuk-button" data-module="govuk-button">
-                {{ .L.T "continue" }}
+                {{ tr .App "continue" }}
               </button>
 
             {{ else }}
               <div id="find" class="govuk-form-group govuk-!-margin-bottom-6  {{ if index .Errors "lookup-postcode" }}govuk-form-group--error{{ end }}">
                 <label class="govuk-label" for="f-lookup-postcode">
-                  {{ .L.T "postcode" }}
+                  {{ tr .App "postcode" }}
                 </label>
                 {{ template "error-message" (errorMessage . "lookup-postcode") }}
                 <input class="govuk-input govuk-input--width-10  {{ if index .Errors "lookup-postcode" }}govuk-input--error{{ end }}" id="f-lookup-postcode" name="lookup-postcode" type="text" autocomplete="postal-code" value="{{ .Form.LookupPostcode }}">
               </div>
 
               <button name="action" value="lookup" class="govuk-button" data-module="govuk-button">
-                {{ .L.T "findAddress" }}
+                {{ tr .App "findAddress" }}
               </button>
             {{ end }}
 
