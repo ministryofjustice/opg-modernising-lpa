@@ -8,77 +8,137 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-const formUrlEncoded = "application/x-www-form-urlencoded"
-
-type mockDataStore struct {
-	mock.Mock
-}
-
-func (m *mockDataStore) Save(v interface{}) error {
-	return m.Called(v).Error(0)
-}
-
 func TestGetDonorDetails(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
+
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &donorDetailsData{
-			Page: donorDetailsPath,
-			L:    localizer,
-			Lang: En,
+			App:  appData,
 			Form: &donorDetailsForm{},
 		}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	DonorDetails(nil, localizer, En, template.Func, nil)(w, r)
+	err := DonorDetails(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
+	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
+	mock.AssertExpectationsForObjects(t, template, dataStore)
+}
+
+func TestGetDonorDetailsWhenStoreErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(expectedError)
+
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	err := DonorDetails(nil, dataStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, dataStore)
+}
+
+func TestGetDonorDetailsFromStore(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	dataStore := &mockDataStore{
+		data: Lpa{
+			Donor: Donor{
+				FirstNames: "John",
+			},
+		},
+	}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &donorDetailsData{
+			App: appData,
+			Form: &donorDetailsForm{
+				FirstNames: "John",
+			},
+		}).
+		Return(nil)
+
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	err := DonorDetails(template.Func, dataStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, template, dataStore)
 }
 
 func TestGetDonorDetailsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
 
-	logger := &mockLogger{}
-	logger.
-		On("Print", expectedError)
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
+
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &donorDetailsData{
-			Page: donorDetailsPath,
-			L:    localizer,
-			Lang: En,
+			App:  appData,
 			Form: &donorDetailsForm{},
 		}).
 		Return(expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	DonorDetails(logger, localizer, En, template.Func, nil)(w, r)
+	err := DonorDetails(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
+	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, logger)
+	mock.AssertExpectationsForObjects(t, template, dataStore)
 }
 
 func TestPostDonorDetails(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
 
-	dataStore := &mockDataStore{}
+	dataStore := &mockDataStore{
+		data: Lpa{
+			Donor: Donor{
+				FirstNames: "John",
+				Address:    Address{Line1: "abc"},
+			},
+		},
+	}
 	dataStore.
-		On("Save", Donor{FirstNames: "John", LastName: "Doe", DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC)}).
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
+	dataStore.
+		On("Put", mock.Anything, "session-id", Lpa{
+			Donor: Donor{
+				FirstNames:  "John",
+				LastName:    "Doe",
+				DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+				Address:     Address{Line1: "abc"},
+			},
+		}).
 		Return(nil)
 
 	form := url.Values{
@@ -92,17 +152,64 @@ func TestPostDonorDetails(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	DonorDetails(nil, localizer, En, nil, dataStore)(w, r)
+	err := DonorDetails(nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
+	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/donor-address", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
+func TestPostDonorDetailsWhenStoreErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	dataStore := &mockDataStore{
+		data: Lpa{
+			Donor: Donor{
+				FirstNames: "John",
+				Address:    Address{Line1: "abc"},
+			},
+		},
+	}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
+	dataStore.
+		On("Put", mock.Anything, "session-id", Lpa{
+			Donor: Donor{
+				FirstNames:  "John",
+				LastName:    "Doe",
+				DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+				Address:     Address{Line1: "abc"},
+			},
+		}).
+		Return(expectedError)
+
+	form := url.Values{
+		"first-names":         {"John"},
+		"last-name":           {"Doe"},
+		"date-of-birth-day":   {"2"},
+		"date-of-birth-month": {"1"},
+		"date-of-birth-year":  {"1990"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := DonorDetails(nil, dataStore)(appData, w, r)
+
+	assert.Equal(t, expectedError, err)
+	mock.AssertExpectationsForObjects(t, dataStore)
+}
+
 func TestPostDonorDetailsWhenValidationError(t *testing.T) {
 	w := httptest.NewRecorder()
-	localizer := localize.Localizer{}
+
+	dataStore := &mockDataStore{}
+	dataStore.
+		On("Get", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
 
 	template := &mockTemplate{}
 	template.
@@ -121,9 +228,10 @@ func TestPostDonorDetailsWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	DonorDetails(nil, localizer, En, template.Func, nil)(w, r)
+	err := DonorDetails(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
+	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
 }
