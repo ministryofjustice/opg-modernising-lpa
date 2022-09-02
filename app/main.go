@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -150,6 +149,7 @@ func main() {
 }
 
 func initTracer() func(context.Context) error {
+	logger := logging.New(os.Stdout, "opg-modernising-lpa-xray-init")
 
 	var (
 		serviceName  = env.Get("SERVICE_NAME", "modernising-lpa")
@@ -171,7 +171,7 @@ func initTracer() func(context.Context) error {
 	)
 
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	// Create a new ID Generator
@@ -192,7 +192,7 @@ func initTracer() func(context.Context) error {
 		),
 	)
 	if err != nil {
-		log.Printf("Could not set resources: ", err)
+		logger.Fatal(err)
 	}
 
 	otel.SetTracerProvider(
