@@ -5,26 +5,34 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
 type donorDetailsData struct {
-	Page             string
-	L                localize.Localizer
-	Lang             Lang
-	CookieConsentSet bool
-	Errors           map[string]string
-	Form             *donorDetailsForm
+	App    AppData
+	Errors map[string]string
+	Form   *donorDetailsForm
 }
 
-func DonorDetails(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, dataStore DataStore) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func DonorDetails(tmpl template.Template, dataStore DataStore) Handler {
+	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+		var lpa Lpa
+		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
+			return err
+		}
+
 		data := &donorDetailsData{
-			Page:             donorDetailsPath,
-			L:                localizer,
-			Lang:             lang,
-			CookieConsentSet: cookieConsentSet(r),
-			Form:             &donorDetailsForm{},
+			App: appData,
+			Form: &donorDetailsForm{
+				FirstNames: lpa.Donor.FirstNames,
+				LastName:   lpa.Donor.LastName,
+				OtherNames: lpa.Donor.OtherNames,
+			},
+		}
+
+		if !lpa.Donor.DateOfBirth.IsZero() {
+			data.Form.DobDay = lpa.Donor.DateOfBirth.Format("2")
+			data.Form.DobMonth = lpa.Donor.DateOfBirth.Format("1")
+			data.Form.DobYear = lpa.Donor.DateOfBirth.Format("2006")
 		}
 
 		if r.Method == http.MethodPost {
@@ -32,20 +40,20 @@ func DonorDetails(logger Logger, localizer localize.Localizer, lang Lang, tmpl t
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				dataStore.Save(Donor{
-					FirstNames:  data.Form.FirstNames,
-					LastName:    data.Form.LastName,
-					OtherNames:  data.Form.OtherNames,
-					DateOfBirth: data.Form.DateOfBirth,
-				})
-				lang.Redirect(w, r, donorAddressPath, http.StatusFound)
-				return
+				lpa.Donor.FirstNames = data.Form.FirstNames
+				lpa.Donor.LastName = data.Form.LastName
+				lpa.Donor.OtherNames = data.Form.OtherNames
+				lpa.Donor.DateOfBirth = data.Form.DateOfBirth
+
+				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+					return err
+				}
+				appData.Lang.Redirect(w, r, donorAddressPath, http.StatusFound)
+				return nil
 			}
 		}
 
-		if err := tmpl(w, data); err != nil {
-			logger.Print(err)
-		}
+		return tmpl(w, data)
 	}
 }
 
