@@ -4,15 +4,11 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
 type taskListData struct {
-	Page             string
-	L                localize.Localizer
-	Lang             Lang
-	CookieConsentSet bool
-	Sections         []taskListSection
+	App      AppData
+	Sections []taskListSection
 }
 
 type taskListItem struct {
@@ -27,13 +23,10 @@ type taskListSection struct {
 	Items   []taskListItem
 }
 
-func TaskList(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, dataStore DataStore) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func TaskList(tmpl template.Template, dataStore DataStore) Handler {
+	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &taskListData{
-			Page:             taskListPath,
-			L:                localizer,
-			Lang:             lang,
-			CookieConsentSet: cookieConsentSet(r),
+			App: appData,
 			Sections: []taskListSection{
 				{
 					Heading: "fillInTheLpa",
@@ -69,8 +62,6 @@ func TaskList(logger Logger, localizer localize.Localizer, lang Lang, tmpl templ
 			},
 		}
 
-		if err := tmpl(w, data); err != nil {
-			logger.Print(err)
-		}
+		return tmpl(w, data)
 	}
 }

@@ -27,6 +27,7 @@ module "app" {
   app_service_container_version  = var.app_service_container_version
   ingress_allow_list_cidr        = var.ingress_allow_list_cidr
   alb_enable_deletion_protection = var.alb_enable_deletion_protection
+  lpas_table                     = var.lpas_table
   container_port                 = 8080
   network = {
     vpc_id              = data.aws_vpc.main.id
