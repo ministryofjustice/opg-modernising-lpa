@@ -183,6 +183,10 @@ locals {
           value = tostring(100)
         },
         {
+          name  = "ENABLE_XRAY",
+          value = tostring(false)
+        },
+        {
           name  = "APP_PORT",
           value = tostring(var.container_port)
         },

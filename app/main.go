@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-go-common/logging"
@@ -41,14 +40,9 @@ func main() {
 		clientID     = env.Get("CLIENT_ID", "client-id-value")
 		issuer       = env.Get("ISSUER", "http://sign-in-mock:7012")
 	)
-
-	cleanup := initTracer()
-	defer cleanup(context.Background())
-
-	// load aws config
-	cfg, err := awsConfig.LoadDefaultConfig(ctx)
-	if err != nil {
-		logger.Fatal(err)
+	if env.Get("ENABLE_XRAY") == "true" {
+		cleanup := initTracer()
+		defer cleanup(context.Background())
 	}
 
 	// instrument all aws clients
