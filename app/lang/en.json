@@ -81,7 +81,7 @@
     "lpaTypeBoth": "Both",
     "selectLpaType": "Select the type of LPA to make",
 
-    "taskListHeading": "My finance and affairs LPA",
+    "taskListHeading": "My LPA",
     "taskListHelp": "Help with making this LPA",
     "taskListHelpContent": "<p>There's help included with every question, and you can also read our <a href=\"#\">full guide to making an LPA</a>.</p> <p>You may want to look at our <a href=\"#\">before you begin help page</a>. It explains the decisions you have to make about your LPA and the information you’ll need to provide.</p> <p>We’ll save the LPA as you progress - you don't need to complete it in one go. You can sign out at any time and come back later.</p>",
     "completed": "Completed",

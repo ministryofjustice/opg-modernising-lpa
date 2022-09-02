@@ -4,27 +4,30 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
 type donorAddressData struct {
-	Page             string
-	L                localize.Localizer
-	Lang             Lang
-	CookieConsentSet bool
-	Errors           map[string]string
-	Addresses        []Address
-	Form             *donorAddressForm
+	App       AppData
+	Errors    map[string]string
+	Addresses []Address
+	Form      *donorAddressForm
 }
 
-func DonorAddress(logger Logger, localizer localize.Localizer, lang Lang, tmpl template.Template, addressClient AddressClient, dataStore DataStore) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func DonorAddress(logger Logger, tmpl template.Template, addressClient AddressClient, dataStore DataStore) Handler {
+	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+		var lpa Lpa
+		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
+			return err
+		}
+
 		data := &donorAddressData{
-			Page:             donorAddressPath,
-			L:                localizer,
-			Lang:             lang,
-			CookieConsentSet: cookieConsentSet(r),
-			Form:             &donorAddressForm{},
+			App:  appData,
+			Form: &donorAddressForm{},
+		}
+
+		if lpa.Donor.Address.Line1 != "" {
+			data.Form.Action = "manual"
+			data.Form.Address = &lpa.Donor.Address
 		}
 
 		if r.Method == http.MethodPost {
@@ -32,9 +35,12 @@ func DonorAddress(logger Logger, localizer localize.Localizer, lang Lang, tmpl t
 			data.Errors = data.Form.Validate()
 
 			if (data.Form.Action == "manual" || data.Form.Action == "select") && len(data.Errors) == 0 {
-				dataStore.Save(data.Form.Address)
-				lang.Redirect(w, r, howWouldYouLikeToBeContactedPath, http.StatusFound)
-				return
+				lpa.Donor.Address = *data.Form.Address
+				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+					return err
+				}
+				appData.Lang.Redirect(w, r, howWouldYouLikeToBeContactedPath, http.StatusFound)
+				return nil
 			}
 
 			if data.Form.Action == "lookup" && len(data.Errors) == 0 ||
@@ -56,9 +62,7 @@ func DonorAddress(logger Logger, localizer localize.Localizer, lang Lang, tmpl t
 			}
 		}
 
-		if err := tmpl(w, data); err != nil {
-			logger.Print(err)
-		}
+		return tmpl(w, data)
 	}
 }
 

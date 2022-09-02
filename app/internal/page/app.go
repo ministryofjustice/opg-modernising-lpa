@@ -1,13 +1,15 @@
 package page
 
 import (
-	"encoding/json"
+	"context"
+	"encoding/base64"
 	"net/http"
 	"strings"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
 
 type Lang int
@@ -29,6 +31,11 @@ type Logger interface {
 	Print(v ...interface{})
 }
 
+type DataStore interface {
+	Get(context.Context, string, interface{}) error
+	Put(context.Context, string, interface{}) error
+}
+
 type fakeAddressClient struct{}
 
 func (c fakeAddressClient) LookupPostcode(postcode string) ([]Address, error) {
@@ -38,48 +45,50 @@ func (c fakeAddressClient) LookupPostcode(postcode string) ([]Address, error) {
 	}, nil
 }
 
-type DataStore interface {
-	Save(interface{}) error
-}
-
-type fakeDataStore struct {
-	logger Logger
-}
-
-func (d fakeDataStore) Save(v interface{}) error {
-	data, _ := json.Marshal(v)
-	d.logger.Print(string(data))
-	return nil
-}
-
 func postFormString(r *http.Request, name string) string {
 	return strings.TrimSpace(r.PostFormValue(name))
 }
 
-func App(logger Logger, localizer localize.Localizer, lang Lang, tmpls template.Templates, sessionStore sessions.Store) http.Handler {
+type AppData struct {
+	Page             string
+	Localizer        localize.Localizer
+	Lang             Lang
+	CookieConsentSet bool
+	SessionID        string
+}
+
+type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
+
+func App(
+	logger Logger,
+	localizer localize.Localizer,
+	lang Lang,
+	tmpls template.Templates,
+	sessionStore sessions.Store,
+	dataStore DataStore,
+) http.Handler {
 	mux := http.NewServeMux()
 
 	addressClient := fakeAddressClient{}
-	dataStore := fakeDataStore{logger: logger}
-	requireSession := makeRequireSession(logger, sessionStore)
+	handle := makeHandle(mux, logger, sessionStore, localizer, lang)
 
 	mux.Handle("/testing-start", testingStart(sessionStore))
-
 	mux.Handle("/", Root())
-	mux.Handle(startPath,
-		Start(logger, localizer, lang, tmpls.Get("start.gohtml")))
-	mux.Handle(lpaTypePath, requireSession(
-		LpaType(logger, localizer, lang, tmpls.Get("lpa_type.gohtml"), dataStore)))
-	mux.Handle(whoIsTheLpaForPath, requireSession(
-		WhoIsTheLpaFor(logger, localizer, lang, tmpls.Get("who_is_the_lpa_for.gohtml"), dataStore)))
-	mux.Handle(donorDetailsPath, requireSession(
-		DonorDetails(logger, localizer, lang, tmpls.Get("donor_details.gohtml"), dataStore)))
-	mux.Handle(donorAddressPath, requireSession(
-		DonorAddress(logger, localizer, lang, tmpls.Get("donor_address.gohtml"), addressClient, dataStore)))
-	mux.Handle(howWouldYouLikeToBeContactedPath, requireSession(
-		HowWouldYouLikeToBeContacted(logger, localizer, lang, tmpls.Get("how_would_you_like_to_be_contacted.gohtml"), dataStore)))
-	mux.Handle(taskListPath, requireSession(
-		TaskList(logger, localizer, lang, tmpls.Get("task_list.gohtml"), dataStore)))
+
+	handle(startPath, false,
+		Start(tmpls.Get("start.gohtml")))
+	handle(lpaTypePath, true,
+		LpaType(tmpls.Get("lpa_type.gohtml"), dataStore))
+	handle(whoIsTheLpaForPath, true,
+		WhoIsTheLpaFor(tmpls.Get("who_is_the_lpa_for.gohtml"), dataStore))
+	handle(donorDetailsPath, true,
+		DonorDetails(tmpls.Get("donor_details.gohtml"), dataStore))
+	handle(donorAddressPath, true,
+		DonorAddress(logger, tmpls.Get("donor_address.gohtml"), addressClient, dataStore))
+	handle(howWouldYouLikeToBeContactedPath, true,
+		HowWouldYouLikeToBeContacted(tmpls.Get("how_would_you_like_to_be_contacted.gohtml"), dataStore))
+	handle(taskListPath, true,
+		TaskList(tmpls.Get("task_list.gohtml"), dataStore))
 
 	return mux
 }
@@ -87,36 +96,48 @@ func App(logger Logger, localizer localize.Localizer, lang Lang, tmpls template.
 func testingStart(store sessions.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		session, _ := store.Get(r, "params")
-		session.Values = map[interface{}]interface{}{"email": "testing@example.com"}
+		session.Values = map[interface{}]interface{}{"email": random.String(12) + "@example.com"}
 		_ = store.Save(r, w, session)
 
 		http.Redirect(w, r, r.FormValue("redirect"), http.StatusFound)
 	}
 }
 
-func makeRequireSession(logger Logger, store sessions.Store) func(http.Handler) http.HandlerFunc {
-	return func(h http.Handler) http.HandlerFunc {
-		return func(w http.ResponseWriter, r *http.Request) {
-			session, err := store.Get(r, "params")
-			if err != nil {
+func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang) func(string, bool, Handler) {
+	return func(path string, requireSession bool, h Handler) {
+		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+			sessionID := ""
+
+			if requireSession {
+				session, err := store.Get(r, "params")
+				if err != nil {
+					logger.Print(err)
+					http.Redirect(w, r, startPath, http.StatusFound)
+					return
+				}
+
+				email, ok := session.Values["email"].(string)
+				if !ok {
+					logger.Print("email missing from session")
+					http.Redirect(w, r, startPath, http.StatusFound)
+					return
+				}
+
+				sessionID = base64.StdEncoding.EncodeToString([]byte(email))
+			}
+
+			_, cookieErr := r.Cookie("cookies-consent")
+
+			if err := h(AppData{
+				Page:             path,
+				Localizer:        localizer,
+				Lang:             lang,
+				SessionID:        sessionID,
+				CookieConsentSet: cookieErr != http.ErrNoCookie,
+			}, w, r); err != nil {
 				logger.Print(err)
-				http.Redirect(w, r, startPath, http.StatusFound)
-				return
+				http.Error(w, "an error occurred", http.StatusInternalServerError)
 			}
-
-			if _, ok := session.Values["email"].(string); !ok {
-				logger.Print("email missing from session")
-				http.Redirect(w, r, startPath, http.StatusFound)
-				return
-			}
-
-			h.ServeHTTP(w, r)
-		}
+		})
 	}
-}
-
-func cookieConsentSet(r *http.Request) bool {
-	_, err := r.Cookie("cookies-consent")
-
-	return err != http.ErrNoCookie
 }
