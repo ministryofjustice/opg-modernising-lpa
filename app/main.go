@@ -198,7 +198,7 @@ func initTracer() func(context.Context) error {
 		sdktrace.NewTracerProvider(
 			sdktrace.WithSampler(sdktrace.AlwaysSample()),
 			sdktrace.WithBatcher(exporter),
-			sdktrace.WithIDGenerator(idg),
+			// sdktrace.WithIDGenerator(idg),
 			sdktrace.WithResource(resources),
 		),
 	)
