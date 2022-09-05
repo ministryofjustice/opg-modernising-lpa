@@ -102,13 +102,14 @@ func TestMakeHandle(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionsStore, localizer, En)
-	handle("/path", true, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, AppData{
 			Page:             "/path",
 			Localizer:        localizer,
 			Lang:             En,
 			SessionID:        "cGVyc29uQGV4YW1wbGUuY29t",
 			CookieConsentSet: false,
+			CanGoBack:        true,
 		}, appData)
 		assert.Equal(t, w, hw)
 		assert.Equal(t, r, hr)
@@ -139,7 +140,7 @@ func TestMakeHandleErrors(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, logger, sessionsStore, localizer, En)
-	handle("/path", true, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
 
@@ -166,7 +167,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, logger, sessionsStore, localizer, En)
-	handle("/path", true, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
@@ -192,7 +193,7 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, logger, sessionsStore, localizer, En)
-	handle("/path", true, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
@@ -209,7 +210,7 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, nil, localizer, En)
-	handle("/path", false, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle("/path", None, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, AppData{
 			Page:             "/path",
 			Localizer:        localizer,

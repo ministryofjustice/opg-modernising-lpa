@@ -98,6 +98,18 @@ func main() {
 		"tr": func(app page.AppData, messageID string) string {
 			return app.Localizer.T(messageID)
 		},
+		"trFormat": func(app page.AppData, messageID string, args ...interface{}) string {
+			if len(args)%2 != 0 {
+				panic("must have even number of args")
+			}
+
+			data := map[string]interface{}{}
+			for i := 0; i < len(args); i += 2 {
+				data[args[i].(string)] = args[i+1]
+			}
+
+			return app.Localizer.Format(messageID, data)
+		},
 		"trHtml": func(app page.AppData, messageID string) html.HTML {
 			return app.Localizer.HTML(messageID)
 		},
