@@ -178,6 +178,13 @@ locals {
           protocol      = "tcp"
         }
       ],
+      healthCheck = {
+        command     = ["CMD-SHELL", "wget -O /dev/null -S 'http://localhost:${var.container_port}/start' 2>&1 | grep 'HTTP/1.1 200 OK' || exit 1"],
+        startPeriod = 30,
+        interval    = 15,
+        timeout     = 10,
+        retries     = 3
+      },
       volumesFrom = [],
       logConfiguration = {
         logDriver = "awslogs",

@@ -16,7 +16,7 @@ func TestGetWhoIsTheLpaFor(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 
 	template := &mockTemplate{}
@@ -41,7 +41,7 @@ func TestGetWhoIsTheLpaForWhenStoreErrors(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
@@ -59,7 +59,7 @@ func TestGetWhoIsTheLpaForFromStore(t *testing.T) {
 
 	dataStore := &mockDataStore{data: Lpa{WhoFor: "me"}}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 
 	template := &mockTemplate{}
@@ -85,7 +85,7 @@ func TestGetWhoIsTheLpaForWhenTemplateErrors(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 
 	template := &mockTemplate{}
@@ -110,7 +110,7 @@ func TestPostWhoIsTheLpaFor(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 	dataStore.
 		On("Put", mock.Anything, "session-id", Lpa{WhoFor: "me"}).
@@ -137,7 +137,7 @@ func TestPostWhoIsTheLpaForWhenStoreErrors(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 	dataStore.
 		On("Put", mock.Anything, "session-id", Lpa{WhoFor: "me"}).
@@ -161,7 +161,7 @@ func TestPostWhoIsTheLpaForWhenValidationErrors(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 
 	template := &mockTemplate{}
