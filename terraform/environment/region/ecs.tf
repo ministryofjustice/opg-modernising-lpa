@@ -23,6 +23,7 @@ module "app" {
   ecs_service_desired_count      = 1
   ecs_application_log_group_name = module.application_logs.cloudwatch_log_group.name
   ecs_capacity_provider          = var.ecs_capacity_provider
+  app_env_vars                   = var.app_env_vars
   app_service_repository_url     = var.app_service_repository_url
   app_service_container_version  = var.app_service_container_version
   ingress_allow_list_cidr        = var.ingress_allow_list_cidr

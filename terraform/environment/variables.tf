@@ -17,6 +17,11 @@ variable "environments" {
       account_id    = string
       account_name  = string
       is_production = bool
+      app = object({
+        env = object({
+          app_public_url = string
+        })
+      })
       ecs = object({
         enable_fargate_spot_capacity_provider = bool
       })
