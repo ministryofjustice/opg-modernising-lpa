@@ -23,6 +23,7 @@ module "eu_west_1" {
   ingress_allow_list_cidr        = module.allow_list.moj_sites
   alb_enable_deletion_protection = local.environment.application_load_balancer.enable_deletion_protection
   lpas_table                     = aws_dynamodb_table.lpas_table
+  app_env_vars                   = local.environment.app.env
   providers = {
     aws.region = aws.eu_west_1
   }
