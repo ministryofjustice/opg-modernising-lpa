@@ -25,15 +25,20 @@ type taskListSection struct {
 
 func TaskList(tmpl template.Template, dataStore DataStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+		var lpa Lpa
+		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
+			return err
+		}
+
 		data := &taskListData{
 			App: appData,
 			Sections: []taskListSection{
 				{
 					Heading: "fillInTheLpa",
 					Items: []taskListItem{
-						{Name: "provideDonorDetails", Path: donorDetailsPath, Completed: true},
-						{Name: "chooseYourContactPreferences", Path: howWouldYouLikeToBeContactedPath, Completed: true},
-						{Name: "chooseYourAttorneys"},
+						{Name: "provideDonorDetails", Path: donorDetailsPath, Completed: lpa.Donor.Address.Line1 != ""},
+						{Name: "chooseYourContactPreferences", Path: howWouldYouLikeToBeContactedPath, Completed: len(lpa.Contact) > 0},
+						{Name: "chooseYourAttorneys", Path: chooseAttorneysPath, Completed: lpa.Attorney.Address.Line1 != ""},
 						{Name: "chooseYourReplacementAttorneys"},
 						{Name: "chooseWhenTheLpaCanBeUsed"},
 						{Name: "addRestrictionsToTheLpa"},
