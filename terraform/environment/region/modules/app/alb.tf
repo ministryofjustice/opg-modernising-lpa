@@ -8,8 +8,9 @@ resource "aws_lb_target_group" "app" {
   depends_on           = [aws_lb.app]
 
   health_check {
-    enabled = true
-    path    = "/"
+    enabled  = true
+    path     = "/start"
+    protocol = "HTTPS"
   }
 
   provider = aws.region
