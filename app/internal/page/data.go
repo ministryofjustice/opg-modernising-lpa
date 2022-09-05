@@ -7,16 +7,25 @@ import (
 )
 
 type Lpa struct {
-	Donor   Donor
-	WhoFor  string
-	Contact []string
-	Type    string
+	Donor    Donor
+	Attorney Attorney
+	WhoFor   string
+	Contact  []string
+	Type     string
 }
 
 type Donor struct {
 	FirstNames  string
 	LastName    string
 	OtherNames  string
+	DateOfBirth time.Time
+	Address     Address
+}
+
+type Attorney struct {
+	FirstNames  string
+	LastName    string
+	Email       string
 	DateOfBirth time.Time
 	Address     Address
 }

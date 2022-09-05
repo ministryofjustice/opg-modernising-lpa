@@ -16,7 +16,7 @@ func TestGetHowWouldYouLikeToBeContacted(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 
 	template := &mockTemplate{}
@@ -41,7 +41,7 @@ func TestGetHowWouldYouLikeToBeContactedWhenStoreErrors(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
@@ -57,7 +57,7 @@ func TestGetHowWouldYouLikeToBeContactedFromStore(t *testing.T) {
 
 	dataStore := &mockDataStore{data: Lpa{Contact: []string{"email"}}}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 
 	template := &mockTemplate{}
@@ -83,7 +83,7 @@ func TestGetHowWouldYouLikeToBeContactedWhenTemplateErrors(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 
 	template := &mockTemplate{}
@@ -108,7 +108,7 @@ func TestPostHowWouldYouLikeToBeContacted(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 	dataStore.
 		On("Put", mock.Anything, "session-id", Lpa{Contact: []string{"email", "post"}}).
@@ -135,7 +135,7 @@ func TestPostHowWouldYouLikeToBeContactedWhenStoreErrors(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 	dataStore.
 		On("Put", mock.Anything, "session-id", Lpa{Contact: []string{"email", "post"}}).
@@ -159,7 +159,7 @@ func TestPostHowWouldYouLikeToBeContactedWhenValidationErrors(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 
 	template := &mockTemplate{}
