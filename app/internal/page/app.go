@@ -89,6 +89,10 @@ func App(
 		HowWouldYouLikeToBeContacted(tmpls.Get("how_would_you_like_to_be_contacted.gohtml"), dataStore))
 	handle(taskListPath, true,
 		TaskList(tmpls.Get("task_list.gohtml"), dataStore))
+	handle(chooseAttorneysPath, true,
+		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), dataStore))
+	handle(chooseAttorneysAddressPath, true,
+		ChooseAttorneysAddress(logger, tmpls.Get("choose_attorneys_address.gohtml"), addressClient, dataStore))
 
 	return mux
 }

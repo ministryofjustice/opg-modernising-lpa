@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetDonorDetails(t *testing.T) {
+func TestGetChooseAttorneys(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{}
@@ -22,15 +22,15 @@ func TestGetDonorDetails(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &donorDetailsData{
+		On("Func", w, &chooseAttorneysData{
 			App:  appData,
-			Form: &donorDetailsForm{},
+			Form: &chooseAttorneysForm{},
 		}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := DonorDetails(template.Func, dataStore)(appData, w, r)
+	err := ChooseAttorneys(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -38,7 +38,7 @@ func TestGetDonorDetails(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template, dataStore)
 }
 
-func TestGetDonorDetailsWhenStoreErrors(t *testing.T) {
+func TestGetChooseAttorneysWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{}
@@ -48,7 +48,7 @@ func TestGetDonorDetailsWhenStoreErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := DonorDetails(nil, dataStore)(appData, w, r)
+	err := ChooseAttorneys(nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -56,12 +56,12 @@ func TestGetDonorDetailsWhenStoreErrors(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
-func TestGetDonorDetailsFromStore(t *testing.T) {
+func TestGetChooseAttorneysFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{
 		data: Lpa{
-			Donor: Donor{
+			Attorney: Attorney{
 				FirstNames: "John",
 			},
 		},
@@ -72,9 +72,9 @@ func TestGetDonorDetailsFromStore(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &donorDetailsData{
+		On("Func", w, &chooseAttorneysData{
 			App: appData,
-			Form: &donorDetailsForm{
+			Form: &chooseAttorneysForm{
 				FirstNames: "John",
 			},
 		}).
@@ -82,7 +82,7 @@ func TestGetDonorDetailsFromStore(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := DonorDetails(template.Func, dataStore)(appData, w, r)
+	err := ChooseAttorneys(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -90,7 +90,7 @@ func TestGetDonorDetailsFromStore(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template, dataStore)
 }
 
-func TestGetDonorDetailsWhenTemplateErrors(t *testing.T) {
+func TestGetChooseAttorneysWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{}
@@ -100,15 +100,15 @@ func TestGetDonorDetailsWhenTemplateErrors(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &donorDetailsData{
+		On("Func", w, &chooseAttorneysData{
 			App:  appData,
-			Form: &donorDetailsForm{},
+			Form: &chooseAttorneysForm{},
 		}).
 		Return(expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := DonorDetails(template.Func, dataStore)(appData, w, r)
+	err := ChooseAttorneys(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -116,12 +116,12 @@ func TestGetDonorDetailsWhenTemplateErrors(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template, dataStore)
 }
 
-func TestPostDonorDetails(t *testing.T) {
+func TestPostChooseAttorneys(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{
 		data: Lpa{
-			Donor: Donor{
+			Attorney: Attorney{
 				FirstNames: "John",
 				Address:    Address{Line1: "abc"},
 			},
@@ -132,9 +132,10 @@ func TestPostDonorDetails(t *testing.T) {
 		Return(nil)
 	dataStore.
 		On("Put", mock.Anything, "session-id", Lpa{
-			Donor: Donor{
+			Attorney: Attorney{
 				FirstNames:  "John",
 				LastName:    "Doe",
+				Email:       "john@example.com",
 				DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
 				Address:     Address{Line1: "abc"},
 			},
@@ -144,6 +145,7 @@ func TestPostDonorDetails(t *testing.T) {
 	form := url.Values{
 		"first-names":         {"John"},
 		"last-name":           {"Doe"},
+		"email":               {"john@example.com"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {"1990"},
@@ -152,43 +154,30 @@ func TestPostDonorDetails(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := DonorDetails(nil, dataStore)(appData, w, r)
+	err := ChooseAttorneys(nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/donor-address", resp.Header.Get("Location"))
+	assert.Equal(t, "/choose-attorneys-address", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
-func TestPostDonorDetailsWhenStoreErrors(t *testing.T) {
+func TestPostChooseAttorneysWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{
-		data: Lpa{
-			Donor: Donor{
-				FirstNames: "John",
-				Address:    Address{Line1: "abc"},
-			},
-		},
-	}
+	dataStore := &mockDataStore{}
 	dataStore.
 		On("Get", mock.Anything, "session-id").
 		Return(nil)
 	dataStore.
-		On("Put", mock.Anything, "session-id", Lpa{
-			Donor: Donor{
-				FirstNames:  "John",
-				LastName:    "Doe",
-				DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
-				Address:     Address{Line1: "abc"},
-			},
-		}).
+		On("Put", mock.Anything, "session-id", mock.Anything).
 		Return(expectedError)
 
 	form := url.Values{
 		"first-names":         {"John"},
 		"last-name":           {"Doe"},
+		"email":               {"john@example.com"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {"1990"},
@@ -197,13 +186,13 @@ func TestPostDonorDetailsWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := DonorDetails(nil, dataStore)(appData, w, r)
+	err := ChooseAttorneys(nil, dataStore)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
-func TestPostDonorDetailsWhenValidationError(t *testing.T) {
+func TestPostChooseAttorneysWhenValidationError(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{}
@@ -213,13 +202,14 @@ func TestPostDonorDetailsWhenValidationError(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, mock.MatchedBy(func(data *donorDetailsData) bool {
+		On("Func", w, mock.MatchedBy(func(data *chooseAttorneysData) bool {
 			return assert.Equal(t, map[string]string{"first-names": "enterFirstNames"}, data.Errors)
 		})).
 		Return(nil)
 
 	form := url.Values{
 		"last-name":           {"Doe"},
+		"email":               {"john@example.com"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {"1990"},
@@ -228,7 +218,7 @@ func TestPostDonorDetailsWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := DonorDetails(template.Func, dataStore)(appData, w, r)
+	err := ChooseAttorneys(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -236,13 +226,13 @@ func TestPostDonorDetailsWhenValidationError(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template)
 }
 
-func TestReadDonorDetailsForm(t *testing.T) {
+func TestReadChooseAttorneysForm(t *testing.T) {
 	assert := assert.New(t)
 
 	form := url.Values{
 		"first-names":         {"  John "},
 		"last-name":           {"Doe"},
-		"other-names":         {"Somebody"},
+		"email":               {"john@example.com"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {"1990"},
@@ -251,11 +241,11 @@ func TestReadDonorDetailsForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	result := readDonorDetailsForm(r)
+	result := readChooseAttorneysForm(r)
 
 	assert.Equal("John", result.FirstNames)
 	assert.Equal("Doe", result.LastName)
-	assert.Equal("Somebody", result.OtherNames)
+	assert.Equal("john@example.com", result.Email)
 	assert.Equal("2", result.DobDay)
 	assert.Equal("1", result.DobMonth)
 	assert.Equal("1990", result.DobYear)
@@ -263,15 +253,16 @@ func TestReadDonorDetailsForm(t *testing.T) {
 	assert.Nil(result.DateOfBirthError)
 }
 
-func TestDonorDetailsFormValidate(t *testing.T) {
+func TestChooseAttorneysFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *donorDetailsForm
+		form   *chooseAttorneysForm
 		errors map[string]string
 	}{
 		"valid": {
-			form: &donorDetailsForm{
+			form: &chooseAttorneysForm{
 				FirstNames:  "A",
 				LastName:    "B",
+				Email:       "H",
 				DobDay:      "C",
 				DobMonth:    "D",
 				DobYear:     "E",
@@ -280,17 +271,19 @@ func TestDonorDetailsFormValidate(t *testing.T) {
 			errors: map[string]string{},
 		},
 		"missing-all": {
-			form: &donorDetailsForm{},
+			form: &chooseAttorneysForm{},
 			errors: map[string]string{
 				"first-names":   "enterFirstNames",
 				"last-name":     "enterLastName",
 				"date-of-birth": "dateOfBirthYear",
+				"email":         "enterEmail",
 			},
 		},
 		"invalid-dob": {
-			form: &donorDetailsForm{
+			form: &chooseAttorneysForm{
 				FirstNames:       "A",
 				LastName:         "B",
+				Email:            "C",
 				DobDay:           "1",
 				DobMonth:         "1",
 				DobYear:          "1",
@@ -301,9 +294,10 @@ func TestDonorDetailsFormValidate(t *testing.T) {
 			},
 		},
 		"invalid-missing-dob": {
-			form: &donorDetailsForm{
+			form: &chooseAttorneysForm{
 				FirstNames:       "A",
 				LastName:         "B",
+				Email:            "C",
 				DobDay:           "1",
 				DobYear:          "1",
 				DateOfBirthError: expectedError,
