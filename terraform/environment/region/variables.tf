@@ -51,3 +51,8 @@ variable "lpas_table" {
   type        = any
   description = "DynamoDB table for storing LPAs"
 }
+
+variable "app_env_vars" {
+  type        = any
+  description = "Environment variable values for app"
+}
