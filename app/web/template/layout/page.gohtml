@@ -47,7 +47,7 @@
           </div>
         </div>
       {{ end }}
-      
+
       <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">{{ tr .App "skipToMainContent" }}</a>
 
       <header class="govuk-header " role="banner" data-module="govuk-header">
@@ -88,8 +88,12 @@
             </span>
           </p>
         </div>
-        
-        <div class="govuk-clearfix">          
+
+        <div class="govuk-clearfix">
+          {{ if .App.CanGoBack }}
+            <a class="govuk-back-link" href="/task-list">Back</a>
+          {{ end }}
+
           <ul class="trans-switch" id="language-switch" aria-label="Change your language">
             <li class="govuk-list trans-switch__list govuk-body-s" id="language-switch-en" lang="en-gb">
               {{ if isWelsh .App.Lang }}<a href="{{ .App.Page }}" class="govuk-link"><span class="govuk-visually-hidden">Change language to </span>{{ end }}
@@ -101,11 +105,11 @@
               {{ if isEnglish .App.Lang }}<a href="/cy{{ .App.Page }}" class="govuk-link" aria-label="Newid iaith i'r Gymraeg">{{ end }}
                 Cymraeg
                 {{ if isEnglish .App.Lang }}</a>{{ end }}
-              {{ if isWelsh .App.Lang }}<span class="govuk-visually-hidden"> yw'r iaith bresennol</span>{{ end }}
+                {{ if isWelsh .App.Lang }}<span class="govuk-visually-hidden"> yw'r iaith bresennol</span>{{ end }}
             </li>
           </ul>
         </div>
-        
+
         <main class="govuk-main-wrapper app-main-class" id="main-content" role="main">
           {{ template "main" . }}
         </main>
