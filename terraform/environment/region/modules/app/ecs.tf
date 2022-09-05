@@ -207,7 +207,7 @@ locals {
         {
           # this is not the final value, but will allow signin to be tested while the real redirectURL is changed
           name  = "APP_PUBLIC_URL",
-          value = "https://opg-lpa-fd-prototype.apps.live.cloud-platform.service.justice.gov.uk"
+          value = var.app_env_vars.app_public_url
         },
         {
           name  = "DYNAMODB_TABLE_LPAS",
