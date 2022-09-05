@@ -16,7 +16,7 @@ func TestGetLpaType(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 
 	template := &mockTemplate{}
@@ -41,7 +41,7 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 
 	dataStore := &mockDataStore{data: Lpa{Type: "pfa"}}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 
 	template := &mockTemplate{}
@@ -67,7 +67,7 @@ func TestGetLpaTypeWhenStoreErrors(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
@@ -85,7 +85,7 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 
 	template := &mockTemplate{}
@@ -110,7 +110,7 @@ func TestPostLpaType(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 	dataStore.
 		On("Put", mock.Anything, "session-id", Lpa{Type: "pfa"}).
@@ -137,7 +137,7 @@ func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 	dataStore.
 		On("Put", mock.Anything, "session-id", Lpa{Type: "pfa"}).
@@ -161,7 +161,7 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 
 	dataStore := &mockDataStore{}
 	dataStore.
-		On("Get", mock.Anything, "session-id", mock.Anything).
+		On("Get", mock.Anything, "session-id").
 		Return(nil)
 
 	template := &mockTemplate{}
