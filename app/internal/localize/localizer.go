@@ -34,6 +34,10 @@ func (l Localizer) T(messageID string) string {
 	return l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID})
 }
 
+func (l Localizer) Format(messageID string, data map[string]interface{}) string {
+	return l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, TemplateData: data})
+}
+
 func (l Localizer) HTML(messageID string) template.HTML {
 	return template.HTML(l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID}))
 }

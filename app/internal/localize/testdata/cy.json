@@ -1,5 +1,6 @@
 {
     "a": "C",
+    "af": "C {{.x}}",
     "b": "D",
     "c": {
         "one": "{{.PluralCount}} one",
