@@ -54,6 +54,7 @@ type AppData struct {
 	Localizer        localize.Localizer
 	Lang             Lang
 	CookieConsentSet bool
+	CanGoBack        bool
 	SessionID        string
 }
 
@@ -75,23 +76,23 @@ func App(
 	mux.Handle("/testing-start", testingStart(sessionStore))
 	mux.Handle("/", Root())
 
-	handle(startPath, false,
+	handle(startPath, None,
 		Start(tmpls.Get("start.gohtml")))
-	handle(lpaTypePath, true,
+	handle(lpaTypePath, RequireSession,
 		LpaType(tmpls.Get("lpa_type.gohtml"), dataStore))
-	handle(whoIsTheLpaForPath, true,
+	handle(whoIsTheLpaForPath, RequireSession,
 		WhoIsTheLpaFor(tmpls.Get("who_is_the_lpa_for.gohtml"), dataStore))
-	handle(donorDetailsPath, true,
+	handle(donorDetailsPath, RequireSession,
 		DonorDetails(tmpls.Get("donor_details.gohtml"), dataStore))
-	handle(donorAddressPath, true,
+	handle(donorAddressPath, RequireSession,
 		DonorAddress(logger, tmpls.Get("donor_address.gohtml"), addressClient, dataStore))
-	handle(howWouldYouLikeToBeContactedPath, true,
+	handle(howWouldYouLikeToBeContactedPath, RequireSession,
 		HowWouldYouLikeToBeContacted(tmpls.Get("how_would_you_like_to_be_contacted.gohtml"), dataStore))
-	handle(taskListPath, true,
+	handle(taskListPath, RequireSession,
 		TaskList(tmpls.Get("task_list.gohtml"), dataStore))
-	handle(chooseAttorneysPath, true,
+	handle(chooseAttorneysPath, RequireSession|CanGoBack,
 		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), dataStore))
-	handle(chooseAttorneysAddressPath, true,
+	handle(chooseAttorneysAddressPath, RequireSession|CanGoBack,
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_attorneys_address.gohtml"), addressClient, dataStore))
 
 	return mux
@@ -107,12 +108,20 @@ func testingStart(store sessions.Store) http.HandlerFunc {
 	}
 }
 
-func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang) func(string, bool, Handler) {
-	return func(path string, requireSession bool, h Handler) {
+type handleOpt byte
+
+const (
+	None handleOpt = 1 << iota
+	RequireSession
+	CanGoBack
+)
+
+func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang) func(string, handleOpt, Handler) {
+	return func(path string, opt handleOpt, h Handler) {
 		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 			sessionID := ""
 
-			if requireSession {
+			if opt&RequireSession != 0 {
 				session, err := store.Get(r, "params")
 				if err != nil {
 					logger.Print(err)
@@ -138,6 +147,7 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 				Lang:             lang,
 				SessionID:        sessionID,
 				CookieConsentSet: cookieErr != http.ErrNoCookie,
+				CanGoBack:        opt&CanGoBack != 0,
 			}, w, r); err != nil {
 				logger.Print(err)
 				http.Error(w, "an error occurred", http.StatusInternalServerError)
