@@ -12,4 +12,6 @@ const (
 	howWouldYouLikeToBeContactedPath = "/how-would-you-like-to-be-contacted"
 	lpaTypePath                      = "/lpa-type"
 	taskListPath                     = "/task-list"
+	chooseAttorneysPath              = "/choose-attorneys"
+	chooseAttorneysAddressPath       = "/choose-attorneys-address"
 )
