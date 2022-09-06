@@ -56,4 +56,5 @@ resource "aws_backup_selection" "main" {
   resources = [
     aws_dynamodb_table.lpas_table.arn,
   ]
+  provider = aws.eu_west_1
 }
