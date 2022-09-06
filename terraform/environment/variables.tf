@@ -22,6 +22,9 @@ variable "environments" {
           app_public_url = string
         })
       })
+      backups = object({
+        backup_plan_enabled = bool
+      })
       ecs = object({
         enable_fargate_spot_capacity_provider = bool
       })
