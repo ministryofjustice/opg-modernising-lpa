@@ -66,8 +66,6 @@ resource "aws_sns_topic" "aws_backup_failure_events" {
 }
 
 data "aws_iam_policy_document" "aws_backup_sns" {
-  policy_id = "__default_policy_ID"
-
   statement {
     actions = [
       "SNS:Publish",
@@ -83,8 +81,6 @@ data "aws_iam_policy_document" "aws_backup_sns" {
     resources = [
       aws_sns_topic.aws_backup_failure_events[0].arn,
     ]
-
-    sid = "__default_statement_ID"
   }
 }
 
