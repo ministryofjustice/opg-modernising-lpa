@@ -12,20 +12,28 @@ type authRedirectClient interface {
 	UserInfo(string) (signin.UserInfo, error)
 }
 
-func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store) http.HandlerFunc {
+func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, secure bool) http.HandlerFunc {
+	cookieOptions := &sessions.Options{
+		Path:     "/",
+		MaxAge:   24 * 60 * 60,
+		SameSite: http.SameSiteStrictMode,
+		HttpOnly: true,
+		Secure:   secure,
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
-		session, err := store.Get(r, "params")
+		params, err := store.Get(r, "params")
 		if err != nil {
 			logger.Print(err)
 			return
 		}
 
-		if s, ok := session.Values["state"].(string); !ok || s != r.FormValue("state") {
+		if s, ok := params.Values["state"].(string); !ok || s != r.FormValue("state") {
 			logger.Print("state missing from session or incorrect")
 			return
 		}
 
-		nonce, ok := session.Values["nonce"].(string)
+		nonce, ok := params.Values["nonce"].(string)
 		if !ok {
 			logger.Print("nonce missing from session")
 			return
@@ -43,7 +51,13 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store) htt
 			return
 		}
 
-		session.Values = map[interface{}]interface{}{"email": userInfo.Email}
+		session := sessions.NewSession(store, "session")
+		session.Values = map[interface{}]interface{}{
+			"sub": userInfo.Sub,
+		}
+		session.Options = cookieOptions
+
+		session.Values = map[interface{}]interface{}{"sub": userInfo.Sub}
 		if err := store.Save(r, w, session); err != nil {
 			logger.Print(err)
 			return

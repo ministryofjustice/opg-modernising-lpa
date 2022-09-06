@@ -97,8 +97,8 @@ func TestMakeHandle(t *testing.T) {
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
-		On("Get", r, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"email": "person@example.com"}}, nil)
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionsStore, localizer, En)
@@ -107,7 +107,7 @@ func TestMakeHandle(t *testing.T) {
 			Page:             "/path",
 			Localizer:        localizer,
 			Lang:             En,
-			SessionID:        "cGVyc29uQGV4YW1wbGUuY29t",
+			SessionID:        "cmFuZG9t",
 			CookieConsentSet: false,
 			CanGoBack:        true,
 		}, appData)
@@ -135,8 +135,8 @@ func TestMakeHandleErrors(t *testing.T) {
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
-		On("Get", r, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"email": "person@example.com"}}, nil)
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, logger, sessionsStore, localizer, En)
@@ -162,7 +162,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
-		On("Get", r, "params").
+		On("Get", r, "session").
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
@@ -188,7 +188,7 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
-		On("Get", r, "params").
+		On("Get", r, "session").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{}}, nil)
 
 	mux := http.NewServeMux()
@@ -235,7 +235,7 @@ func TestTestingStart(t *testing.T) {
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
-		On("Get", r, "params").
+		On("Get", r, "session").
 		Return(&sessions.Session{}, nil)
 	sessionsStore.
 		On("Save", r, w, mock.Anything).

@@ -100,8 +100,8 @@ func App(
 
 func testingStart(store sessions.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		session, _ := store.Get(r, "params")
-		session.Values = map[interface{}]interface{}{"email": random.String(12) + "@example.com"}
+		session, _ := store.Get(r, "session")
+		session.Values = map[interface{}]interface{}{"sub": random.String(12)}
 		_ = store.Save(r, w, session)
 
 		http.Redirect(w, r, r.FormValue("redirect"), http.StatusFound)
@@ -122,21 +122,21 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 			sessionID := ""
 
 			if opt&RequireSession != 0 {
-				session, err := store.Get(r, "params")
+				session, err := store.Get(r, "session")
 				if err != nil {
 					logger.Print(err)
 					http.Redirect(w, r, startPath, http.StatusFound)
 					return
 				}
 
-				email, ok := session.Values["email"].(string)
+				sub, ok := session.Values["sub"].(string)
 				if !ok {
 					logger.Print("email missing from session")
 					http.Redirect(w, r, startPath, http.StatusFound)
 					return
 				}
 
-				sessionID = base64.StdEncoding.EncodeToString([]byte(email))
+				sessionID = base64.StdEncoding.EncodeToString([]byte(sub))
 			}
 
 			_, cookieErr := r.Cookie("cookies-consent")
