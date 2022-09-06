@@ -16,7 +16,7 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, sec
 	cookieOptions := &sessions.Options{
 		Path:     "/",
 		MaxAge:   24 * 60 * 60,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 		Secure:   secure,
 	}
