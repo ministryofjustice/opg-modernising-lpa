@@ -1,4 +1,4 @@
-describe('Who is the lpa for', () => {
+describe('LPA type', () => {
     beforeEach(() => {
         cy.visit('/testing-start?redirect=/lpa-type');
         cy.injectAxe();
@@ -10,6 +10,6 @@ describe('Who is the lpa for', () => {
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/who-is-the-lpa-for');
+        cy.url().should('contain', '/task-list');
     });
 });

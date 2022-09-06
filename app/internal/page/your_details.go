@@ -7,48 +7,48 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 )
 
-type donorDetailsData struct {
+type yourDetailsData struct {
 	App    AppData
 	Errors map[string]string
-	Form   *donorDetailsForm
+	Form   *yourDetailsForm
 }
 
-func DonorDetails(tmpl template.Template, dataStore DataStore) Handler {
+func YourDetails(tmpl template.Template, dataStore DataStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		var lpa Lpa
 		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
 			return err
 		}
 
-		data := &donorDetailsData{
+		data := &yourDetailsData{
 			App: appData,
-			Form: &donorDetailsForm{
-				FirstNames: lpa.Donor.FirstNames,
-				LastName:   lpa.Donor.LastName,
-				OtherNames: lpa.Donor.OtherNames,
+			Form: &yourDetailsForm{
+				FirstNames: lpa.You.FirstNames,
+				LastName:   lpa.You.LastName,
+				OtherNames: lpa.You.OtherNames,
 			},
 		}
 
-		if !lpa.Donor.DateOfBirth.IsZero() {
-			data.Form.DobDay = lpa.Donor.DateOfBirth.Format("2")
-			data.Form.DobMonth = lpa.Donor.DateOfBirth.Format("1")
-			data.Form.DobYear = lpa.Donor.DateOfBirth.Format("2006")
+		if !lpa.You.DateOfBirth.IsZero() {
+			data.Form.DobDay = lpa.You.DateOfBirth.Format("2")
+			data.Form.DobMonth = lpa.You.DateOfBirth.Format("1")
+			data.Form.DobYear = lpa.You.DateOfBirth.Format("2006")
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readDonorDetailsForm(r)
+			data.Form = readYourDetailsForm(r)
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				lpa.Donor.FirstNames = data.Form.FirstNames
-				lpa.Donor.LastName = data.Form.LastName
-				lpa.Donor.OtherNames = data.Form.OtherNames
-				lpa.Donor.DateOfBirth = data.Form.DateOfBirth
+				lpa.You.FirstNames = data.Form.FirstNames
+				lpa.You.LastName = data.Form.LastName
+				lpa.You.OtherNames = data.Form.OtherNames
+				lpa.You.DateOfBirth = data.Form.DateOfBirth
 
 				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, donorAddressPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, yourAddressPath, http.StatusFound)
 				return nil
 			}
 		}
@@ -57,7 +57,7 @@ func DonorDetails(tmpl template.Template, dataStore DataStore) Handler {
 	}
 }
 
-type donorDetailsForm struct {
+type yourDetailsForm struct {
 	FirstNames       string
 	LastName         string
 	OtherNames       string
@@ -68,8 +68,8 @@ type donorDetailsForm struct {
 	DateOfBirthError error
 }
 
-func readDonorDetailsForm(r *http.Request) *donorDetailsForm {
-	d := &donorDetailsForm{}
+func readYourDetailsForm(r *http.Request) *yourDetailsForm {
+	d := &yourDetailsForm{}
 	d.FirstNames = postFormString(r, "first-names")
 	d.LastName = postFormString(r, "last-name")
 	d.OtherNames = postFormString(r, "other-names")
@@ -82,7 +82,7 @@ func readDonorDetailsForm(r *http.Request) *donorDetailsForm {
 	return d
 }
 
-func (d *donorDetailsForm) Validate() map[string]string {
+func (d *yourDetailsForm) Validate() map[string]string {
 	errors := map[string]string{}
 
 	if d.FirstNames == "" {

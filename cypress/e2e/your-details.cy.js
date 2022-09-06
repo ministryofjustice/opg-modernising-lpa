@@ -1,6 +1,6 @@
 describe('Donor details', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/donor-details');
+        cy.visit('/testing-start?redirect=/your-details');
         cy.injectAxe();
     });
 
@@ -14,6 +14,6 @@ describe('Donor details', () => {
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/donor-address');
+        cy.url().should('contain', '/your-address');
     });
 });

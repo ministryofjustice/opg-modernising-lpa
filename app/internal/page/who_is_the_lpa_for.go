@@ -33,7 +33,7 @@ func WhoIsTheLpaFor(tmpl template.Template, dataStore DataStore) Handler {
 				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, donorDetailsPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, lpaTypePath, http.StatusFound)
 				return nil
 			}
 		}
