@@ -66,6 +66,7 @@ resource "aws_sns_topic" "aws_backup_failure_events" {
 }
 
 data "aws_iam_policy_document" "aws_backup_sns" {
+  count = local.environment.backups.backup_plan_enabled ? 1 : 0
   statement {
     actions = [
       "SNS:Publish",
@@ -87,7 +88,7 @@ data "aws_iam_policy_document" "aws_backup_sns" {
 resource "aws_sns_topic_policy" "aws_backup_failure_events" {
   count    = local.environment.backups.backup_plan_enabled ? 1 : 0
   arn      = aws_sns_topic.aws_backup_failure_events[0].arn
-  policy   = data.aws_iam_policy_document.aws_backup_sns.json
+  policy   = data.aws_iam_policy_document.aws_backup_sns[0].json
   provider = aws.eu_west_1
 }
 
