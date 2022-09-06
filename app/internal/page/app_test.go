@@ -184,7 +184,7 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 
 	logger := &mockLogger{}
 	logger.
-		On("Print", "email missing from session")
+		On("Print", "sub missing from session")
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.

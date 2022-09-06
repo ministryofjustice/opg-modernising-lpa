@@ -30,9 +30,11 @@ func ChooseAttorneys(tmpl template.Template, dataStore DataStore) Handler {
 		}
 
 		if !lpa.Attorney.DateOfBirth.IsZero() {
-			data.Form.DobDay = lpa.Attorney.DateOfBirth.Format("2")
-			data.Form.DobMonth = lpa.Attorney.DateOfBirth.Format("1")
-			data.Form.DobYear = lpa.Attorney.DateOfBirth.Format("2006")
+			data.Form.Dob = Date{
+				Day:   lpa.Attorney.DateOfBirth.Format("2"),
+				Month: lpa.Attorney.DateOfBirth.Format("1"),
+				Year:  lpa.Attorney.DateOfBirth.Format("2006"),
+			}
 		}
 
 		if r.Method == http.MethodPost {
@@ -61,9 +63,7 @@ type chooseAttorneysForm struct {
 	FirstNames       string
 	LastName         string
 	Email            string
-	DobDay           string
-	DobMonth         string
-	DobYear          string
+	Dob              Date
 	DateOfBirth      time.Time
 	DateOfBirthError error
 }
@@ -73,11 +73,13 @@ func readChooseAttorneysForm(r *http.Request) *chooseAttorneysForm {
 	d.FirstNames = postFormString(r, "first-names")
 	d.LastName = postFormString(r, "last-name")
 	d.Email = postFormString(r, "email")
-	d.DobDay = postFormString(r, "date-of-birth-day")
-	d.DobMonth = postFormString(r, "date-of-birth-month")
-	d.DobYear = postFormString(r, "date-of-birth-year")
+	d.Dob = Date{
+		Day:   postFormString(r, "date-of-birth-day"),
+		Month: postFormString(r, "date-of-birth-month"),
+		Year:  postFormString(r, "date-of-birth-year"),
+	}
 
-	d.DateOfBirth, d.DateOfBirthError = time.Parse("2006-1-2", d.DobYear+"-"+d.DobMonth+"-"+d.DobDay)
+	d.DateOfBirth, d.DateOfBirthError = time.Parse("2006-1-2", d.Dob.Year+"-"+d.Dob.Month+"-"+d.Dob.Day)
 
 	return d
 }
@@ -94,13 +96,13 @@ func (d *chooseAttorneysForm) Validate() map[string]string {
 	if d.Email == "" {
 		errors["email"] = "enterEmail"
 	}
-	if d.DobDay == "" {
+	if d.Dob.Day == "" {
 		errors["date-of-birth"] = "dateOfBirthDay"
 	}
-	if d.DobMonth == "" {
+	if d.Dob.Month == "" {
 		errors["date-of-birth"] = "dateOfBirthMonth"
 	}
-	if d.DobYear == "" {
+	if d.Dob.Year == "" {
 		errors["date-of-birth"] = "dateOfBirthYear"
 	}
 	if _, ok := errors["date-of-birth"]; !ok && d.DateOfBirthError != nil {
