@@ -53,10 +53,11 @@ func TestLogin(t *testing.T) {
 	session := sessions.NewSession(sessionsStore, "params")
 
 	session.Options = &sessions.Options{
+		Path:     "/",
 		MaxAge:   600,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
-		Secure:   false,
+		Secure:   true,
 	}
 	session.Values = map[interface{}]interface{}{"state": "i am random", "nonce": "i am random"}
 
@@ -64,7 +65,7 @@ func TestLogin(t *testing.T) {
 		On("Save", r, w, session).
 		Return(nil)
 
-	Login(nil, client, sessionsStore, func(int) string { return "i am random" })(w, r)
+	Login(nil, client, sessionsStore, true, func(int) string { return "i am random" })(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -91,7 +92,7 @@ func TestLoginWhenStoreSaveError(t *testing.T) {
 		On("Save", r, w, mock.Anything).
 		Return(expectedError)
 
-	Login(logger, client, sessionsStore, func(int) string { return "i am random" })(w, r)
+	Login(logger, client, sessionsStore, true, func(int) string { return "i am random" })(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)

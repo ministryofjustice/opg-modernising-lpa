@@ -35,17 +35,28 @@ func TestAuthRedirect(t *testing.T) {
 		Return("a JWT", nil)
 	client.
 		On("UserInfo", "a JWT").
-		Return(signin.UserInfo{Email: "user@example.org"}, nil)
+		Return(signin.UserInfo{Sub: "random"}, nil)
 
 	sessionsStore := &mockSessionsStore{}
+
+	session := sessions.NewSession(sessionsStore, "session")
+	session.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400,
+		SameSite: http.SameSiteStrictMode,
+		HttpOnly: true,
+		Secure:   true,
+	}
+	session.Values = map[interface{}]interface{}{"sub": "random"}
+
 	sessionsStore.
 		On("Get", r, "params").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce"}}, nil)
 	sessionsStore.
-		On("Save", r, w, &sessions.Session{Values: map[interface{}]interface{}{"email": "user@example.org"}}).
+		On("Save", r, w, session).
 		Return(nil)
 
-	AuthRedirect(nil, client, sessionsStore)(w, r)
+	AuthRedirect(nil, client, sessionsStore, true)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -97,7 +108,7 @@ func TestAuthRedirectSessionMissing(t *testing.T) {
 				On("Get", r, "params").
 				Return(tc.session, tc.getErr)
 
-			AuthRedirect(logger, nil, sessionsStore)(w, r)
+			AuthRedirect(logger, nil, sessionsStore, true)(w, r)
 			resp := w.Result()
 
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -119,7 +130,7 @@ func TestAuthRedirectStateIncorrect(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state"}}, nil)
 
-	AuthRedirect(logger, nil, sessionsStore)(w, r)
+	AuthRedirect(logger, nil, sessionsStore, true)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -144,7 +155,7 @@ func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce"}}, nil)
 
-	AuthRedirect(logger, client, sessionsStore)(w, r)
+	AuthRedirect(logger, client, sessionsStore, true)(w, r)
 
 	mock.AssertExpectationsForObjects(t, client, logger)
 }
@@ -170,7 +181,7 @@ func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce"}}, nil)
 
-	AuthRedirect(logger, client, sessionsStore)(w, r)
+	AuthRedirect(logger, client, sessionsStore, true)(w, r)
 
 	mock.AssertExpectationsForObjects(t, client, logger)
 }

@@ -10,24 +10,29 @@ type loginClient interface {
 	AuthCodeURL(state, nonce string) string
 }
 
-func Login(logger Logger, c loginClient, store sessions.Store, randomString func(int) string) http.HandlerFunc {
+func Login(logger Logger, c loginClient, store sessions.Store, secure bool, randomString func(int) string) http.HandlerFunc {
+	cookieOptions := &sessions.Options{
+		Path:     "/",
+		MaxAge:   10 * 60,
+		SameSite: http.SameSiteLaxMode,
+		HttpOnly: true,
+		Secure:   secure,
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		state := randomString(12)
 		nonce := randomString(12)
 
 		authCodeURL := c.AuthCodeURL(state, nonce)
 
-		session := sessions.NewSession(store, "params")
-		session.Values = map[interface{}]interface{}{
+		params := sessions.NewSession(store, "params")
+		params.Values = map[interface{}]interface{}{
 			"state": state,
 			"nonce": nonce,
 		}
-		session.Options.MaxAge = 10 * 60
-		session.Options.SameSite = http.SameSiteStrictMode
-		session.Options.HttpOnly = true
-		session.Options.Secure = r.URL.Scheme == "https"
+		params.Options = cookieOptions
 
-		if err := store.Save(r, w, session); err != nil {
+		if err := store.Save(r, w, params); err != nil {
 			logger.Print(err)
 			return
 		}
