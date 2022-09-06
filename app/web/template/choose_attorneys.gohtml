@@ -14,45 +14,13 @@
 
             <legend class="govuk-fieldset__legend  govuk-fieldset__legend--l">Attorney</legend>
 
-            {{ template "error-summary" . }}
-
             {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20") }}
             {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
             {{ template "input" (input . "email" "email" .Form.Email "classes" "govuk-input--width-20" "type" "email") }}
 
-            <div class="govuk-form-group {{ if index .Errors "date-of-birth" }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
-              <fieldset class="govuk-fieldset" role="group" aria-describedby="date-of-birth-hint">
-                <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">{{ tr .App "dateOfBirth" }}</legend>
-                <div id="date-of-birth-hint" class="govuk-hint">
-                  {{ tr .App "dateOfBirthHint" }}
-                </div>
-                {{ template "error-message" (errorMessage . "date-of-birth") }}
-                <div class="govuk-date-input" id="f-date-of-birth">
-                  <div class="govuk-date-input__item">
-                    <div class="govuk-form-group">
-                      <label class="govuk-label govuk-date-input__label" for="f-date-of-birth-day">{{ tr .App "day" }}</label>
-                      <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{ if index .Errors "date-of-birth" }}govuk-input--error{{ end }}" id="f-date-of-birth-day" name="date-of-birth-day" type="text" pattern="[0-9]*" inputmode="numeric" value="{{ .Form.DobDay }}" />
-                    </div>
-                  </div>
+            {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
 
-                  <div class="govuk-date-input__item">
-                    <div class="govuk-form-group">
-                      <label class="govuk-label govuk-date-input__label" for="f-date-of-birth-month">{{ tr .App "month" }}</label>
-                      <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{ if index .Errors "date-of-birth" }}govuk-input--error{{ end }}" id="f-date-of-birth-month" name="date-of-birth-month" type="text" pattern="[0-9]*" inputmode="numeric" value="{{ .Form.DobMonth }}" />
-                    </div>
-                  </div>
-
-                  <div class="govuk-date-input__item">
-                    <div class="govuk-form-group">
-                      <label class="govuk-label govuk-date-input__label" for="f-date-of-birth-year">{{ tr .App "year" }}</label>
-                      <input class="govuk-input govuk-date-input__input govuk-input--width-4 {{ if index .Errors "date-of-birth" }}govuk-input--error{{ end }}" id="f-date-of-birth-year" name="date-of-birth-year" type="text" pattern="[0-9]*" inputmode="numeric" value="{{ .Form.DobYear }}" />
-                    </div>
-                  </div>
-                </div>
-              </fieldset>
-            </div>
-
-            <button type="submit" class="govuk-button govuk-!-margin-top-0" data-module="govuk-button">{{ tr .App "continue" }}</button>
+            {{ template "continue-button" . }}
           </fieldset>
         </div>
       </form>
