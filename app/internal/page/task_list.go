@@ -36,8 +36,7 @@ func TaskList(tmpl template.Template, dataStore DataStore) Handler {
 				{
 					Heading: "fillInTheLpa",
 					Items: []taskListItem{
-						{Name: "provideDonorDetails", Path: donorDetailsPath, Completed: lpa.Donor.Address.Line1 != ""},
-						{Name: "chooseYourContactPreferences", Path: howWouldYouLikeToBeContactedPath, Completed: len(lpa.Contact) > 0},
+						{Name: "provideDonorDetails", Path: yourDetailsPath, Completed: lpa.You.Address.Line1 != ""},
 						{Name: "chooseYourAttorneys", Path: chooseAttorneysPath, Completed: lpa.Attorney.Address.Line1 != ""},
 						{Name: "chooseYourReplacementAttorneys"},
 						{Name: "chooseWhenTheLpaCanBeUsed"},

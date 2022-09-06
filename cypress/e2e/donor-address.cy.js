@@ -1,6 +1,6 @@
 describe('Donor address', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/donor-address');
+        cy.visit('/testing-start?redirect=/your-address');
     });
 
     it('address can be looked up', () => {

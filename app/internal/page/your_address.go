@@ -6,40 +6,40 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 )
 
-type donorAddressData struct {
+type yourAddressData struct {
 	App       AppData
 	Errors    map[string]string
 	Addresses []Address
-	Form      *donorAddressForm
+	Form      *yourAddressForm
 }
 
-func DonorAddress(logger Logger, tmpl template.Template, addressClient AddressClient, dataStore DataStore) Handler {
+func YourAddress(logger Logger, tmpl template.Template, addressClient AddressClient, dataStore DataStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		var lpa Lpa
 		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
 			return err
 		}
 
-		data := &donorAddressData{
+		data := &yourAddressData{
 			App:  appData,
-			Form: &donorAddressForm{},
+			Form: &yourAddressForm{},
 		}
 
-		if lpa.Donor.Address.Line1 != "" {
+		if lpa.You.Address.Line1 != "" {
 			data.Form.Action = "manual"
-			data.Form.Address = &lpa.Donor.Address
+			data.Form.Address = &lpa.You.Address
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readDonorAddressForm(r)
+			data.Form = readYourAddressForm(r)
 			data.Errors = data.Form.Validate()
 
 			if (data.Form.Action == "manual" || data.Form.Action == "select") && len(data.Errors) == 0 {
-				lpa.Donor.Address = *data.Form.Address
+				lpa.You.Address = *data.Form.Address
 				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, howWouldYouLikeToBeContactedPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, whoIsTheLpaForPath, http.StatusFound)
 				return nil
 			}
 
@@ -66,14 +66,14 @@ func DonorAddress(logger Logger, tmpl template.Template, addressClient AddressCl
 	}
 }
 
-type donorAddressForm struct {
+type yourAddressForm struct {
 	Action         string
 	LookupPostcode string
 	Address        *Address
 }
 
-func readDonorAddressForm(r *http.Request) *donorAddressForm {
-	d := &donorAddressForm{}
+func readYourAddressForm(r *http.Request) *yourAddressForm {
+	d := &yourAddressForm{}
 	d.Action = r.PostFormValue("action")
 
 	switch d.Action {
@@ -99,7 +99,7 @@ func readDonorAddressForm(r *http.Request) *donorAddressForm {
 	return d
 }
 
-func (d *donorAddressForm) Validate() map[string]string {
+func (d *yourAddressForm) Validate() map[string]string {
 	errors := map[string]string{}
 
 	switch d.Action {

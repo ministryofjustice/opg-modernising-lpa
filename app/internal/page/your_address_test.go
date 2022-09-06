@@ -20,7 +20,7 @@ func (m *mockAddressClient) LookupPostcode(postcode string) ([]Address, error) {
 	return args.Get(0).([]Address), args.Error(1)
 }
 
-func TestGetDonorAddress(t *testing.T) {
+func TestGetYourAddress(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{}
@@ -30,15 +30,15 @@ func TestGetDonorAddress(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &donorAddressData{
+		On("Func", w, &yourAddressData{
 			App:  appData,
-			Form: &donorAddressForm{},
+			Form: &yourAddressForm{},
 		}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := DonorAddress(nil, template.Func, nil, dataStore)(appData, w, r)
+	err := YourAddress(nil, template.Func, nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -46,7 +46,7 @@ func TestGetDonorAddress(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, dataStore, template)
 }
 
-func TestGetDonorAddressWhenStoreErrors(t *testing.T) {
+func TestGetYourAddressWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{}
@@ -56,7 +56,7 @@ func TestGetDonorAddressWhenStoreErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := DonorAddress(nil, nil, nil, dataStore)(appData, w, r)
+	err := YourAddress(nil, nil, nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -64,13 +64,13 @@ func TestGetDonorAddressWhenStoreErrors(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
-func TestGetDonorAddressFromStore(t *testing.T) {
+func TestGetYourAddressFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	address := Address{Line1: "abc"}
 	dataStore := &mockDataStore{
 		data: Lpa{
-			Donor: Donor{
+			You: Person{
 				Address: address,
 			},
 		},
@@ -81,9 +81,9 @@ func TestGetDonorAddressFromStore(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &donorAddressData{
+		On("Func", w, &yourAddressData{
 			App: appData,
-			Form: &donorAddressForm{
+			Form: &yourAddressForm{
 				Action:  "manual",
 				Address: &address,
 			},
@@ -92,7 +92,7 @@ func TestGetDonorAddressFromStore(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := DonorAddress(nil, template.Func, nil, dataStore)(appData, w, r)
+	err := YourAddress(nil, template.Func, nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -100,7 +100,7 @@ func TestGetDonorAddressFromStore(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, dataStore, template)
 }
 
-func TestGetDonorAddressManual(t *testing.T) {
+func TestGetYourAddressManual(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{}
@@ -110,9 +110,9 @@ func TestGetDonorAddressManual(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &donorAddressData{
+		On("Func", w, &yourAddressData{
 			App: appData,
-			Form: &donorAddressForm{
+			Form: &yourAddressForm{
 				Action:  "manual",
 				Address: &Address{},
 			},
@@ -121,7 +121,7 @@ func TestGetDonorAddressManual(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/?action=manual", nil)
 
-	err := DonorAddress(nil, template.Func, nil, dataStore)(appData, w, r)
+	err := YourAddress(nil, template.Func, nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -129,7 +129,7 @@ func TestGetDonorAddressManual(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template)
 }
 
-func TestGetDonorAddressWhenTemplateErrors(t *testing.T) {
+func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{}
@@ -139,15 +139,15 @@ func TestGetDonorAddressWhenTemplateErrors(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &donorAddressData{
+		On("Func", w, &yourAddressData{
 			App:  appData,
-			Form: &donorAddressForm{},
+			Form: &yourAddressForm{},
 		}).
 		Return(expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := DonorAddress(nil, template.Func, nil, dataStore)(appData, w, r)
+	err := YourAddress(nil, template.Func, nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -155,7 +155,7 @@ func TestGetDonorAddressWhenTemplateErrors(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template)
 }
 
-func TestPostDonorAddressManual(t *testing.T) {
+func TestPostYourAddressManual(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{}
@@ -164,7 +164,7 @@ func TestPostDonorAddressManual(t *testing.T) {
 		Return(nil)
 	dataStore.
 		On("Put", mock.Anything, "session-id", Lpa{
-			Donor: Donor{
+			You: Person{
 				Address: Address{
 					Line1:      "a",
 					Line2:      "b",
@@ -186,16 +186,16 @@ func TestPostDonorAddressManual(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := DonorAddress(nil, nil, nil, dataStore)(appData, w, r)
+	err := YourAddress(nil, nil, nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, howWouldYouLikeToBeContactedPath, resp.Header.Get("Location"))
+	assert.Equal(t, whoIsTheLpaForPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
-func TestPostDonorAddressManualWhenStoreErrors(t *testing.T) {
+func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{}
@@ -204,7 +204,7 @@ func TestPostDonorAddressManualWhenStoreErrors(t *testing.T) {
 		Return(nil)
 	dataStore.
 		On("Put", mock.Anything, "session-id", Lpa{
-			Donor: Donor{
+			You: Person{
 				Address: Address{
 					Line1:      "a",
 					Line2:      "b",
@@ -226,18 +226,18 @@ func TestPostDonorAddressManualWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := DonorAddress(nil, nil, nil, dataStore)(appData, w, r)
+	err := YourAddress(nil, nil, nil, dataStore)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
-func TestPostDonorAddressManualFromStore(t *testing.T) {
+func TestPostYourAddressManualFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{
 		data: Lpa{
-			Donor: Donor{
+			You: Person{
 				FirstNames: "John",
 				Address:    Address{Line1: "abc"},
 			},
@@ -249,7 +249,7 @@ func TestPostDonorAddressManualFromStore(t *testing.T) {
 		Return(nil)
 	dataStore.
 		On("Put", mock.Anything, "session-id", Lpa{
-			Donor: Donor{
+			You: Person{
 				FirstNames: "John",
 				Address: Address{
 					Line1:      "a",
@@ -273,16 +273,16 @@ func TestPostDonorAddressManualFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := DonorAddress(nil, nil, nil, dataStore)(appData, w, r)
+	err := YourAddress(nil, nil, nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, howWouldYouLikeToBeContactedPath, resp.Header.Get("Location"))
+	assert.Equal(t, whoIsTheLpaForPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
-func TestPostDonorAddressManualWhenValidationError(t *testing.T) {
+func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	form := url.Values{
@@ -299,9 +299,9 @@ func TestPostDonorAddressManualWhenValidationError(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &donorAddressData{
+		On("Func", w, &yourAddressData{
 			App: appData,
-			Form: &donorAddressForm{
+			Form: &yourAddressForm{
 				Action: "manual",
 				Address: &Address{
 					Line2:      "b",
@@ -318,7 +318,7 @@ func TestPostDonorAddressManualWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := DonorAddress(nil, template.Func, nil, dataStore)(appData, w, r)
+	err := YourAddress(nil, template.Func, nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -326,7 +326,7 @@ func TestPostDonorAddressManualWhenValidationError(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, dataStore, template)
 }
 
-func TestPostDonorAddressSelect(t *testing.T) {
+func TestPostYourAddressSelect(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	expectedAddress := &Address{
@@ -342,7 +342,7 @@ func TestPostDonorAddressSelect(t *testing.T) {
 		Return(nil)
 	dataStore.
 		On("Put", mock.Anything, "session-id", Lpa{
-			Donor: Donor{
+			You: Person{
 				Address: *expectedAddress,
 			},
 		}).
@@ -357,16 +357,16 @@ func TestPostDonorAddressSelect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := DonorAddress(nil, nil, nil, dataStore)(appData, w, r)
+	err := YourAddress(nil, nil, nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, howWouldYouLikeToBeContactedPath, resp.Header.Get("Location"))
+	assert.Equal(t, whoIsTheLpaForPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
-func TestPostDonorAddressSelectWhenValidationError(t *testing.T) {
+func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	form := url.Values{
@@ -390,9 +390,9 @@ func TestPostDonorAddressSelectWhenValidationError(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &donorAddressData{
+		On("Func", w, &yourAddressData{
 			App: appData,
-			Form: &donorAddressForm{
+			Form: &yourAddressForm{
 				Action:         "select",
 				LookupPostcode: "NG1",
 			},
@@ -406,7 +406,7 @@ func TestPostDonorAddressSelectWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := DonorAddress(nil, template.Func, addressClient, dataStore)(appData, w, r)
+	err := YourAddress(nil, template.Func, addressClient, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -414,7 +414,7 @@ func TestPostDonorAddressSelectWhenValidationError(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template)
 }
 
-func TestPostDonorAddressLookup(t *testing.T) {
+func TestPostYourAddressLookup(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	addresses := []Address{
@@ -433,9 +433,9 @@ func TestPostDonorAddressLookup(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &donorAddressData{
+		On("Func", w, &yourAddressData{
 			App: appData,
-			Form: &donorAddressForm{
+			Form: &yourAddressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
@@ -452,7 +452,7 @@ func TestPostDonorAddressLookup(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := DonorAddress(nil, template.Func, addressClient, dataStore)(appData, w, r)
+	err := YourAddress(nil, template.Func, addressClient, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -460,7 +460,7 @@ func TestPostDonorAddressLookup(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, addressClient, template)
 }
 
-func TestPostDonorAddressLookupError(t *testing.T) {
+func TestPostYourAddressLookupError(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	logger := &mockLogger{}
@@ -479,9 +479,9 @@ func TestPostDonorAddressLookupError(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &donorAddressData{
+		On("Func", w, &yourAddressData{
 			App: appData,
-			Form: &donorAddressForm{
+			Form: &yourAddressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
@@ -500,7 +500,7 @@ func TestPostDonorAddressLookupError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := DonorAddress(logger, template.Func, addressClient, dataStore)(appData, w, r)
+	err := YourAddress(logger, template.Func, addressClient, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -508,7 +508,7 @@ func TestPostDonorAddressLookupError(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
 }
 
-func TestPostDonorAddressLookupWhenValidationError(t *testing.T) {
+func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	form := url.Values{
@@ -522,9 +522,9 @@ func TestPostDonorAddressLookupWhenValidationError(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &donorAddressData{
+		On("Func", w, &yourAddressData{
 			App: appData,
-			Form: &donorAddressForm{
+			Form: &yourAddressForm{
 				Action: "lookup",
 			},
 			Errors: map[string]string{
@@ -536,7 +536,7 @@ func TestPostDonorAddressLookupWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := DonorAddress(nil, template.Func, nil, dataStore)(appData, w, r)
+	err := YourAddress(nil, template.Func, nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -544,7 +544,7 @@ func TestPostDonorAddressLookupWhenValidationError(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template)
 }
 
-func TestReadDonorAddressForm(t *testing.T) {
+func TestReadYourAddressForm(t *testing.T) {
 	expectedAddress := &Address{
 		Line1:      "a",
 		Line2:      "b",
@@ -554,14 +554,14 @@ func TestReadDonorAddressForm(t *testing.T) {
 
 	testCases := map[string]struct {
 		form   url.Values
-		result *donorAddressForm
+		result *yourAddressForm
 	}{
 		"lookup": {
 			form: url.Values{
 				"action":          {"lookup"},
 				"lookup-postcode": {"NG1"},
 			},
-			result: &donorAddressForm{
+			result: &yourAddressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
@@ -571,7 +571,7 @@ func TestReadDonorAddressForm(t *testing.T) {
 				"action":         {"select"},
 				"select-address": {expectedAddress.Encode()},
 			},
-			result: &donorAddressForm{
+			result: &yourAddressForm{
 				Action:  "select",
 				Address: expectedAddress,
 			},
@@ -581,7 +581,7 @@ func TestReadDonorAddressForm(t *testing.T) {
 				"action":         {"select"},
 				"select-address": {""},
 			},
-			result: &donorAddressForm{
+			result: &yourAddressForm{
 				Action:  "select",
 				Address: nil,
 			},
@@ -594,7 +594,7 @@ func TestReadDonorAddressForm(t *testing.T) {
 				"address-town":     {"c"},
 				"address-postcode": {"d"},
 			},
-			result: &donorAddressForm{
+			result: &yourAddressForm{
 				Action:  "manual",
 				Address: expectedAddress,
 			},
@@ -606,26 +606,26 @@ func TestReadDonorAddressForm(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", formUrlEncoded)
 
-			actual := readDonorAddressForm(r)
+			actual := readYourAddressForm(r)
 			assert.Equal(t, tc.result, actual)
 		})
 	}
 }
 
-func TestDonorAddressFormValidate(t *testing.T) {
+func TestYourAddressFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *donorAddressForm
+		form   *yourAddressForm
 		errors map[string]string
 	}{
 		"lookup-valid": {
-			form: &donorAddressForm{
+			form: &yourAddressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
 			errors: map[string]string{},
 		},
 		"lookup-missing-postcode": {
-			form: &donorAddressForm{
+			form: &yourAddressForm{
 				Action: "lookup",
 			},
 			errors: map[string]string{
@@ -633,14 +633,14 @@ func TestDonorAddressFormValidate(t *testing.T) {
 			},
 		},
 		"select-valid": {
-			form: &donorAddressForm{
+			form: &yourAddressForm{
 				Action:  "select",
 				Address: &Address{},
 			},
 			errors: map[string]string{},
 		},
 		"select-not-selected": {
-			form: &donorAddressForm{
+			form: &yourAddressForm{
 				Action:  "select",
 				Address: nil,
 			},
@@ -649,7 +649,7 @@ func TestDonorAddressFormValidate(t *testing.T) {
 			},
 		},
 		"manual-valid": {
-			form: &donorAddressForm{
+			form: &yourAddressForm{
 				Action: "manual",
 				Address: &Address{
 					Line1:      "a",
@@ -660,7 +660,7 @@ func TestDonorAddressFormValidate(t *testing.T) {
 			errors: map[string]string{},
 		},
 		"manual-missing-all": {
-			form: &donorAddressForm{
+			form: &yourAddressForm{
 				Action:  "manual",
 				Address: &Address{},
 			},
