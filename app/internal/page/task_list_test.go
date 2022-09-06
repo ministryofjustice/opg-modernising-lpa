@@ -25,8 +25,7 @@ func TestGetTaskList(t *testing.T) {
 				{
 					Heading: "fillInTheLpa",
 					Items: []taskListItem{
-						{Name: "provideDonorDetails", Path: donorDetailsPath},
-						{Name: "chooseYourContactPreferences", Path: howWouldYouLikeToBeContactedPath},
+						{Name: "provideDonorDetails", Path: yourDetailsPath},
 						{Name: "chooseYourAttorneys", Path: chooseAttorneysPath},
 						{Name: "chooseYourReplacementAttorneys"},
 						{Name: "chooseWhenTheLpaCanBeUsed"},
@@ -72,7 +71,7 @@ func TestGetTaskListWhenComplete(t *testing.T) {
 
 	dataStore := &mockDataStore{
 		data: Lpa{
-			Donor: Donor{
+			You: Person{
 				Address: Address{
 					Line1: "this",
 				},
@@ -97,8 +96,7 @@ func TestGetTaskListWhenComplete(t *testing.T) {
 				{
 					Heading: "fillInTheLpa",
 					Items: []taskListItem{
-						{Name: "provideDonorDetails", Path: donorDetailsPath, Completed: true},
-						{Name: "chooseYourContactPreferences", Path: howWouldYouLikeToBeContactedPath, Completed: true},
+						{Name: "provideDonorDetails", Path: yourDetailsPath, Completed: true},
 						{Name: "chooseYourAttorneys", Path: chooseAttorneysPath, Completed: true},
 						{Name: "chooseYourReplacementAttorneys"},
 						{Name: "chooseWhenTheLpaCanBeUsed"},

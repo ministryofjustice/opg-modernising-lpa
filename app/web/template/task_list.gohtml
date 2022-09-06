@@ -18,16 +18,24 @@
             <ul class="app-task-list__items">
               {{ range $e.Items }}
                 <li class="app-task-list__item">
-                  <span class="app-task-list__task-name">
-                    <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
-                      {{ tr $.App .Name }}
-                    </a>
-                  </span>
                   {{ if .Completed }}
+                    <span class="app-task-list__task-name">
+                      <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
+                        {{ tr $.App .Name }}
+                      </a>
+                    </span>
                     <strong class="govuk-tag app-task-list__tag">{{ tr $.App "completed" }}</strong>
                   {{ else if .Disabled }}
+                    <span class="app-task-list__task-name govuk-hint govuk-!-margin-bottom-0">
+                      {{ tr $.App .Name }}
+                    </span>
                     <strong class="govuk-tag govuk-tag--grey app-task-list__tag">{{ tr $.App "cannotStartYet" }}</strong>
                   {{ else }}
+                    <span class="app-task-list__task-name">
+                      <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
+                        {{ tr $.App .Name }}
+                      </a>
+                    </span>
                     <strong class="govuk-tag govuk-tag--grey app-task-list__tag">{{ tr $.App "notStarted" }}</strong>
                   {{ end }}
                 </li>

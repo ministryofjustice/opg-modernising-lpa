@@ -49,7 +49,7 @@ func TestAuthRedirect(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, resp.Header.Get("Location"), lpaTypePath)
+	assert.Equal(t, yourDetailsPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, client, sessionsStore)
 }
 
