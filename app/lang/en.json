@@ -103,6 +103,13 @@
 
     "whoWouldYouLikeToBeTheAttorneys": "Who would you like to be the attorneys?",
     "whoWouldYouLikeToBeTheAttorneysContent": "<p class=\"govuk-body\">Your attorneys are the people who'll be able to help you make decisions about your finances, if you ever want or need their help in the future.</p> <p class=\"govuk-body\">It's important that you choose people you trust to respect your wishes and act in your best interests.</p> <p class=\"govuk-body\">You can have more than 1 attorney. Most people have between 1 and 3.</p><p class=\"govuk-body\">An attorney must:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>be aged 18 or over</li> <li>have mental capacity (be able to make decisions)</li> </ul> <p class=\"govuk-body\">Someone cannot be an attorney if they are:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>bankrupt or have a debt relief order</li> <li>on the Disclosure and Barring Service barred list (someone is normally put on this list if they have a criminal conviction or caution that means they’re not allowed to work with vulnerable people)</li> </ul> <p class=\"govuk-body\">You'll be asked if you would like to add <a href=\"#\">replacement attorneys</a> in a separate question. These would step in if the original attorneys are unable or unwilling to continue.</p> <p class=\"govuk-body\"><a href=\"#\">Find out more about attorneys</a></p>",
+    "attorney": "Attorney",
     "enterEmail": "Enter email",
-    "attorneyAddress": "{{.FirstNames}} {{.LastName}}'s address"
+    "attorneyAddress": "{{.FirstNames}} {{.LastName}}'s address",
+
+    "wantReplacementAttorneys": "Do you want any replacement attorneys?",
+    "wantReplacementAttorneysContent": "<p class=\"govuk-body-l\">Replacement attorneys step in if one of your original attorneys dies or has to step down from the role.</p> <p class=\"govuk-body\">Having replacement attorneys is optional, however, having 1 or more helps make sure your LPA will keep working if Pat Taylor (your original attorney) has to step down.</p> <p class=\"govuk-body\">A replacement attorney must meet the same requirements as an original attorney. This includes being 18 or over.</p> <p class=\"govuk-body\"><a href=\"#\">Find out more about replacement attorneys.</a></p>",
+    "yes": "Yes",
+    "no": "No",
+    "selectWantReplacementAttorneys": "Select whether you want any replacement attorneys"
 }

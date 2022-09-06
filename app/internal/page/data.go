@@ -7,11 +7,12 @@ import (
 )
 
 type Lpa struct {
-	You      Person
-	Attorney Attorney
-	WhoFor   string
-	Contact  []string
-	Type     string
+	You                      Person
+	Attorney                 Attorney
+	WhoFor                   string
+	Contact                  []string
+	Type                     string
+	WantReplacementAttorneys string
 }
 
 type Person struct {
@@ -69,4 +70,10 @@ func (a Address) String() string {
 	}
 
 	return strings.Join(parts, ", ")
+}
+
+type Date struct {
+	Day   string
+	Month string
+	Year  string
 }

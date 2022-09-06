@@ -3,7 +3,7 @@
   <html lang="en" class="govuk-template app-html-class">
     <head>
       <meta charset="utf-8">
-      <title>{{ tr .App "serviceName" }}</title>
+      <title>{{ if .Errors }}Error: {{ end }}{{ tr .App "serviceName" }}</title>
       <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
       <meta name="theme-color" content="blue">
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -111,6 +111,8 @@
         </div>
 
         <main class="govuk-main-wrapper app-main-class" id="main-content" role="main">
+          {{ template "error-summary" . }}
+
           {{ template "main" . }}
         </main>
       </div>

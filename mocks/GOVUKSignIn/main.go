@@ -167,7 +167,7 @@ func authorize() http.HandlerFunc {
 func userInfo() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(UserInfoResponse{
-			Sub:           "b2d2d115-1d7e-4579-b9d6-f8e84f4f56ca",
+			Sub:           randomString(12),
 			Email:         "gideon.felix@example.org",
 			EmailVerified: true,
 			Phone:         "01406946277",
