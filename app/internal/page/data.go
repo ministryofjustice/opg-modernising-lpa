@@ -7,14 +7,14 @@ import (
 )
 
 type Lpa struct {
-	Donor    Donor
+	You      Person
 	Attorney Attorney
 	WhoFor   string
 	Contact  []string
 	Type     string
 }
 
-type Donor struct {
+type Person struct {
 	FirstNames  string
 	LastName    string
 	OtherNames  string
