@@ -7,11 +7,12 @@ import (
 )
 
 type Lpa struct {
-	You      Person
-	Attorney Attorney
-	WhoFor   string
-	Contact  []string
-	Type     string
+	You                      Person
+	Attorney                 Attorney
+	WhoFor                   string
+	Contact                  []string
+	Type                     string
+	WantReplacementAttorneys string
 }
 
 type Person struct {

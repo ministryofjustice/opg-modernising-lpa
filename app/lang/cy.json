@@ -74,7 +74,7 @@
     "selectContact": "Welsh",
 
     "whichTypeOfLpaToMake": "Welsh",
-    "whichTypeOfLpaToMakeContent": "Welsh",
+    "whichTypeOfLpaToMakeContent": "<p class=\"govuk-body\">Welsh</p>",
     "lpaTypePfa": "Welsh",
     "lpaTypePfaHint": "Welsh",
     "lpaTypeHw": "Welsh",
@@ -84,7 +84,7 @@
     
     "taskListHeading": "Welsh",
     "taskListHelp": "Welsh",
-    "taskListHelpContent": "Welsh",
+    "taskListHelpContent": "<p class=\"govuk-body\">Welsh</p>",
     "completed": "Welsh",
     "cannotStartYet": "Welsh",
     "notStarted": "Welsh",
@@ -100,5 +100,16 @@
     "payForTheLpa": "Welsh",
     "confirmYourIdentity": "Welsh",
     "signAndRegisterTheLpa": "Welsh",
-    "signTheLpa": "Welsh"
+    "signTheLpa": "Welsh",
+    
+    "whoWouldYouLikeToBeTheAttorneys": "Welsh",
+    "whoWouldYouLikeToBeTheAttorneysContent": "<p class=\"govuk-body\">Welsh</p>",
+    "enterEmail": "Welsh",
+    "attorneyAddress": "{{.FirstNames}} {{.LastName}}'s Welsh",
+
+    "wantReplacementAttorneys": "Welsh",
+    "wantReplacementAttorneysContent": "<p class=\"govuk-body\">Welsh</p>",
+    "yes": "Welsh",
+    "no": "Welsh",
+    "selectWantReplacementAttorneys": "Welsh"
 }

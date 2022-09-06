@@ -3,8 +3,6 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      {{ template "error-summary" . }}
-      
       <h1 class="govuk-heading-xl">{{ tr .App "whichTypeOfLpaToMake" }}</h1>
       
       <form novalidate method="post">
@@ -43,9 +41,7 @@
           </div>
         </div>
 
-        <button type="submit" class="govuk-button" data-module="govuk-button">
-          {{ tr .App "continue" }}
-        </button>
+        {{ template "continue-button" . }}
       </form>
     </div>
   </div>
