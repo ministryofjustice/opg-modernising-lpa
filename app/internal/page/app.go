@@ -94,6 +94,8 @@ func App(
 		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), dataStore))
 	handle(chooseAttorneysAddressPath, RequireSession|CanGoBack,
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_attorneys_address.gohtml"), addressClient, dataStore))
+	handle(wantReplacementAttorneysPath, RequireSession|CanGoBack,
+		WantReplacementAttorneys(tmpls.Get("want_replacement_attorneys.gohtml"), dataStore))
 
 	return mux
 }
@@ -131,7 +133,7 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 
 				sub, ok := session.Values["sub"].(string)
 				if !ok {
-					logger.Print("email missing from session")
+					logger.Print("sub missing from session")
 					http.Redirect(w, r, startPath, http.StatusFound)
 					return
 				}

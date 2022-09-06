@@ -27,7 +27,7 @@ func TestGetTaskList(t *testing.T) {
 					Items: []taskListItem{
 						{Name: "provideDonorDetails", Path: yourDetailsPath},
 						{Name: "chooseYourAttorneys", Path: chooseAttorneysPath},
-						{Name: "chooseYourReplacementAttorneys"},
+						{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath},
 						{Name: "chooseWhenTheLpaCanBeUsed"},
 						{Name: "addRestrictionsToTheLpa"},
 						{Name: "chooseYourCertificateProvider"},
@@ -81,7 +81,8 @@ func TestGetTaskListWhenComplete(t *testing.T) {
 					Line1: "this",
 				},
 			},
-			Contact: []string{"this"},
+			Contact:                  []string{"this"},
+			WantReplacementAttorneys: "this",
 		},
 	}
 	dataStore.
@@ -98,7 +99,7 @@ func TestGetTaskListWhenComplete(t *testing.T) {
 					Items: []taskListItem{
 						{Name: "provideDonorDetails", Path: yourDetailsPath, Completed: true},
 						{Name: "chooseYourAttorneys", Path: chooseAttorneysPath, Completed: true},
-						{Name: "chooseYourReplacementAttorneys"},
+						{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath, Completed: true},
 						{Name: "chooseWhenTheLpaCanBeUsed"},
 						{Name: "addRestrictionsToTheLpa"},
 						{Name: "chooseYourCertificateProvider"},

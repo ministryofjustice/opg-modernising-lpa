@@ -14,8 +14,6 @@
 
             <legend class="govuk-fieldset__legend  govuk-fieldset__legend--l">Attorney</legend>
 
-            {{ template "error-summary" . }}
-
             {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20") }}
             {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
             {{ template "input" (input . "email" "email" .Form.Email "classes" "govuk-input--width-20" "type" "email") }}
@@ -27,11 +25,11 @@
                   {{ tr .App "dateOfBirthHint" }}
                 </div>
                 {{ template "error-message" (errorMessage . "date-of-birth") }}
-                <div class="govuk-date-input" id="f-date-of-birth">
+                <div class="govuk-date-input">
                   <div class="govuk-date-input__item">
                     <div class="govuk-form-group">
-                      <label class="govuk-label govuk-date-input__label" for="f-date-of-birth-day">{{ tr .App "day" }}</label>
-                      <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{ if index .Errors "date-of-birth" }}govuk-input--error{{ end }}" id="f-date-of-birth-day" name="date-of-birth-day" type="text" pattern="[0-9]*" inputmode="numeric" value="{{ .Form.DobDay }}" />
+                      <label class="govuk-label govuk-date-input__label" for="f-date-of-birth">{{ tr .App "day" }}</label>
+                      <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{ if index .Errors "date-of-birth" }}govuk-input--error{{ end }}" id="f-date-of-birth" name="date-of-birth-day" type="text" pattern="[0-9]*" inputmode="numeric" value="{{ .Form.DobDay }}" />
                     </div>
                   </div>
 
@@ -52,7 +50,7 @@
               </fieldset>
             </div>
 
-            <button type="submit" class="govuk-button govuk-!-margin-top-0" data-module="govuk-button">{{ tr .App "continue" }}</button>
+            {{ template "continue-button" . }}
           </fieldset>
         </div>
       </form>
