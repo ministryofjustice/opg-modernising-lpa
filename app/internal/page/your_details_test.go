@@ -256,9 +256,9 @@ func TestReadYourDetailsForm(t *testing.T) {
 	assert.Equal("John", result.FirstNames)
 	assert.Equal("Doe", result.LastName)
 	assert.Equal("Somebody", result.OtherNames)
-	assert.Equal("2", result.DobDay)
-	assert.Equal("1", result.DobMonth)
-	assert.Equal("1990", result.DobYear)
+	assert.Equal("2", result.Dob.Day)
+	assert.Equal("1", result.Dob.Month)
+	assert.Equal("1990", result.Dob.Year)
 	assert.Equal(time.Date(1990, 1, 2, 0, 0, 0, 0, time.UTC), result.DateOfBirth)
 	assert.Nil(result.DateOfBirthError)
 }
@@ -270,11 +270,13 @@ func TestYourDetailsFormValidate(t *testing.T) {
 	}{
 		"valid": {
 			form: &yourDetailsForm{
-				FirstNames:  "A",
-				LastName:    "B",
-				DobDay:      "C",
-				DobMonth:    "D",
-				DobYear:     "E",
+				FirstNames: "A",
+				LastName:   "B",
+				Dob: Date{
+					Day:   "C",
+					Month: "D",
+					Year:  "E",
+				},
 				DateOfBirth: time.Now(),
 			},
 			errors: map[string]string{},
@@ -289,11 +291,13 @@ func TestYourDetailsFormValidate(t *testing.T) {
 		},
 		"invalid-dob": {
 			form: &yourDetailsForm{
-				FirstNames:       "A",
-				LastName:         "B",
-				DobDay:           "1",
-				DobMonth:         "1",
-				DobYear:          "1",
+				FirstNames: "A",
+				LastName:   "B",
+				Dob: Date{
+					Day:   "1",
+					Month: "1",
+					Year:  "1",
+				},
 				DateOfBirthError: expectedError,
 			},
 			errors: map[string]string{
@@ -302,10 +306,12 @@ func TestYourDetailsFormValidate(t *testing.T) {
 		},
 		"invalid-missing-dob": {
 			form: &yourDetailsForm{
-				FirstNames:       "A",
-				LastName:         "B",
-				DobDay:           "1",
-				DobYear:          "1",
+				FirstNames: "A",
+				LastName:   "B",
+				Dob: Date{
+					Day:  "1",
+					Year: "1",
+				},
 				DateOfBirthError: expectedError,
 			},
 			errors: map[string]string{

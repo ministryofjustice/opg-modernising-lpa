@@ -6,8 +6,6 @@
       <form novalidate method="post">
         <div class="govuk-form-group">
           <fieldset class="govuk-fieldset">
-            {{ template "error-summary" . }}
-
             <div class="govuk-form-group  {{ if index .Errors "who-for" }}govuk-form-group--error{{ end }}">
               <fieldset class="govuk-fieldset">
                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl govuk-!-margin-bottom-6">
@@ -39,9 +37,7 @@
               </fieldset>
             </div>
 
-            <button type="submit" class="govuk-button govuk-!-margin-top-6" data-module="govuk-button">
-              {{ tr .App "continue" }}
-            </button>
+            {{ template "continue-button" . }}
           </fieldset>
         </div>
       </form>

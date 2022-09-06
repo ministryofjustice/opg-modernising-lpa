@@ -14,4 +14,5 @@ const (
 	taskListPath                     = "/task-list"
 	chooseAttorneysPath              = "/choose-attorneys"
 	chooseAttorneysAddressPath       = "/choose-attorneys-address"
+	wantReplacementAttorneysPath     = "/want-replacement-attorneys"
 )
