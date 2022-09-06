@@ -43,7 +43,7 @@ func TestAuthRedirect(t *testing.T) {
 	session.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   86400,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 		Secure:   true,
 	}
