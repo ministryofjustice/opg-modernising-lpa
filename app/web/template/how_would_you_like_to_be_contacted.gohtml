@@ -6,8 +6,6 @@
       <form novalidate method="post">
         <div class="govuk-form-group">
           <fieldset class="govuk-fieldset">
-            {{ template "error-summary" . }}
-
             <h1 class="govuk-heading-xl govuk-!-margin-bottom-3">{{ tr .App "howWouldYouLikeToBeContacted" }}</h1>
             <p class="govuk-body">{{ tr .App "howWouldYouLikeToBeContactedDetail" }}</p>
 
@@ -49,9 +47,7 @@
               </div>
             </div>
 
-            <button type="submit" class="govuk-button govuk-!-margin-top-6" data-module="govuk-button">
-              {{ tr .App "continue" }}
-            </button>
+            {{ template "continue-button" . }}
           </fieldset>
         </div>
       </form>

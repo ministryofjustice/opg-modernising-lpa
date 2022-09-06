@@ -7,7 +7,8 @@ import (
 )
 
 type startData struct {
-	App AppData
+	App    AppData
+	Errors map[string]string
 }
 
 func Start(tmpl template.Template) Handler {

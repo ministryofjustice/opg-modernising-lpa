@@ -8,6 +8,7 @@ import (
 
 type taskListData struct {
 	App      AppData
+	Errors   map[string]string
 	Sections []taskListSection
 }
 
@@ -38,7 +39,7 @@ func TaskList(tmpl template.Template, dataStore DataStore) Handler {
 					Items: []taskListItem{
 						{Name: "provideDonorDetails", Path: yourDetailsPath, Completed: lpa.You.Address.Line1 != ""},
 						{Name: "chooseYourAttorneys", Path: chooseAttorneysPath, Completed: lpa.Attorney.Address.Line1 != ""},
-						{Name: "chooseYourReplacementAttorneys"},
+						{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath, Completed: lpa.WantReplacementAttorneys != ""},
 						{Name: "chooseWhenTheLpaCanBeUsed"},
 						{Name: "addRestrictionsToTheLpa"},
 						{Name: "chooseYourCertificateProvider"},
