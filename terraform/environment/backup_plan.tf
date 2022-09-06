@@ -59,6 +59,7 @@ resource "aws_backup_selection" "main" {
   provider = aws.eu_west_1
 }
 
+#tfsec:ignore:aws-sns-enable-topic-encryption
 resource "aws_sns_topic" "aws_backup_failure_events" {
   count    = local.environment.backups.backup_plan_enabled ? 1 : 0
   name     = "backup-vault-failure-events"
