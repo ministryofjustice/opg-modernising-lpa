@@ -150,7 +150,7 @@ func main() {
 
 	sessionStore := sessions.NewCookieStore(sessionKeys...)
 
-	redirectURL := fmt.Sprintf("%s%s", appPublicURL, page.AuthRedirectPath)
+	redirectURL := appPublicURL + page.AuthRedirectPath
 
 	signInClient, err := signin.Discover(ctx, logger, http.DefaultClient, secretsClient, issuer, clientID, redirectURL)
 	if err != nil {
