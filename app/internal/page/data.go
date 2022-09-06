@@ -13,6 +13,7 @@ type Lpa struct {
 	Contact                  []string
 	Type                     string
 	WantReplacementAttorneys string
+	WhenCanTheLpaBeUsed      string
 }
 
 type Person struct {
