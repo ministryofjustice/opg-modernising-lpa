@@ -1,5 +1,5 @@
 data "aws_backup_vault" "eu-west-1" {
-  name     = "eu-west-1-${local.environment.account_name}-main-backup-vault"
+  name     = "eu-west-1-${local.environment.account_name}-backup-vault"
   provider = aws.eu_west_1
 }
 
