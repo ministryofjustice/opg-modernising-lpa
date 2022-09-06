@@ -82,10 +82,10 @@ func App(
 		LpaType(tmpls.Get("lpa_type.gohtml"), dataStore))
 	handle(whoIsTheLpaForPath, RequireSession,
 		WhoIsTheLpaFor(tmpls.Get("who_is_the_lpa_for.gohtml"), dataStore))
-	handle(donorDetailsPath, RequireSession,
-		DonorDetails(tmpls.Get("donor_details.gohtml"), dataStore))
-	handle(donorAddressPath, RequireSession,
-		DonorAddress(logger, tmpls.Get("donor_address.gohtml"), addressClient, dataStore))
+	handle(yourDetailsPath, RequireSession,
+		YourDetails(tmpls.Get("your_details.gohtml"), dataStore))
+	handle(yourAddressPath, RequireSession,
+		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, dataStore))
 	handle(howWouldYouLikeToBeContactedPath, RequireSession,
 		HowWouldYouLikeToBeContacted(tmpls.Get("how_would_you_like_to_be_contacted.gohtml"), dataStore))
 	handle(taskListPath, RequireSession,
