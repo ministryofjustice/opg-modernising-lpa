@@ -71,3 +71,9 @@ func (a Address) String() string {
 
 	return strings.Join(parts, ", ")
 }
+
+type Date struct {
+	Day   string
+	Month string
+	Year  string
+}
