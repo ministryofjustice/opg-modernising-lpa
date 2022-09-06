@@ -58,3 +58,47 @@ resource "aws_backup_selection" "main" {
   ]
   provider = aws.eu_west_1
 }
+
+resource "aws_sns_topic" "aws_backup_failure_events" {
+  count    = local.environment.backups.backup_plan_enabled ? 1 : 0
+  name     = "backup-vault-failure-events"
+  provider = aws.eu_west_1
+}
+
+data "aws_iam_policy_document" "aws_backup_sns" {
+  policy_id = "__default_policy_ID"
+
+  statement {
+    actions = [
+      "SNS:Publish",
+    ]
+
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["backup.amazonaws.com"]
+    }
+
+    resources = [
+      aws_sns_topic.aws_backup_failure_events[0].arn,
+    ]
+
+    sid = "__default_statement_ID"
+  }
+}
+
+resource "aws_sns_topic_policy" "aws_backup_failure_events" {
+  count    = local.environment.backups.backup_plan_enabled ? 1 : 0
+  arn      = aws_sns_topic.aws_backup_failure_events[0].arn
+  policy   = data.aws_iam_policy_document.aws_backup_sns.json
+  provider = aws.eu_west_1
+}
+
+resource "aws_backup_vault_notifications" "aws_backup_failure_events" {
+  count               = local.environment.backups.backup_plan_enabled ? 1 : 0
+  backup_vault_name   = data.aws_backup_vault.eu-west-1.name
+  sns_topic_arn       = aws_sns_topic.aws_backup_failure_events[0].arn
+  backup_vault_events = ["BACKUP_JOB_FAILED", "COPY_JOB_FAILED"]
+  provider            = aws.eu_west_1
+}
