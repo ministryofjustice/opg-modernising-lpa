@@ -28,8 +28,9 @@ func TestGetTaskList(t *testing.T) {
 					FirstNames: "this",
 				},
 				Tasks: Tasks{
-					WhenCanTheLpaBeUsed: TaskInProgress,
-					Restrictions:        TaskInProgress,
+					WhenCanTheLpaBeUsed:                 TaskInProgress,
+					Restrictions:                        TaskInProgress,
+					WhoDoYouWantToBeCertificateProvider: TaskInProgress,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
@@ -39,7 +40,7 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath},
 					{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath, InProgress: true},
 					{Name: "addRestrictionsToTheLpa", Path: restrictionsPath, InProgress: true},
-					{Name: "chooseYourCertificateProvider"},
+					{Name: "chooseYourCertificateProvider", Path: whoDoYouWantToBeCertificateProviderGuidancePath, InProgress: true},
 					{Name: "checkAndSendToYourCertificateProvider"},
 				}
 
@@ -72,7 +73,7 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath, Completed: true},
 					{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath, Completed: true},
 					{Name: "addRestrictionsToTheLpa", Path: restrictionsPath, Completed: true},
-					{Name: "chooseYourCertificateProvider"},
+					{Name: "chooseYourCertificateProvider", Path: whoDoYouWantToBeCertificateProviderGuidancePath},
 					{Name: "checkAndSendToYourCertificateProvider"},
 				}
 
@@ -103,7 +104,7 @@ func TestGetTaskList(t *testing.T) {
 								{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath},
 								{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath},
 								{Name: "addRestrictionsToTheLpa", Path: restrictionsPath},
-								{Name: "chooseYourCertificateProvider"},
+								{Name: "chooseYourCertificateProvider", Path: whoDoYouWantToBeCertificateProviderGuidancePath},
 								{Name: "checkAndSendToYourCertificateProvider"},
 							},
 						},

@@ -100,6 +100,8 @@ func App(
 		WhenCanTheLpaBeUsed(tmpls.Get("when_can_the_lpa_be_used.gohtml"), dataStore))
 	handle(restrictionsPath, RequireSession|CanGoBack,
 		Restrictions(tmpls.Get("restrictions.gohtml"), dataStore))
+	handle(whoDoYouWantToBeCertificateProviderGuidancePath, RequireSession|CanGoBack,
+		WhoDoYouWantToBeCertificateProviderGuidance(tmpls.Get("who_do_you_want_to_be_certificate_provider_guidance.gohtml"), dataStore))
 
 	return mux
 }
