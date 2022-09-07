@@ -44,3 +44,11 @@ locals {
     ]
   })
 }
+
+output "resource_group_arns" {
+  value = [
+    aws_resourcegroups_group.environment_eu_west_1.arn,
+    aws_resourcegroups_group.environment_eu_west_2.arn,
+    aws_resourcegroups_group.environment_global.arn
+  ]
+}
