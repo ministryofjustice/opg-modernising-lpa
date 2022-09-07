@@ -40,7 +40,7 @@ func TaskList(tmpl template.Template, dataStore DataStore) Handler {
 						{Name: "provideDonorDetails", Path: yourDetailsPath, Completed: lpa.You.Address.Line1 != ""},
 						{Name: "chooseYourAttorneys", Path: chooseAttorneysPath, Completed: lpa.Attorney.Address.Line1 != ""},
 						{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath, Completed: lpa.WantReplacementAttorneys != ""},
-						{Name: "chooseWhenTheLpaCanBeUsed"},
+						{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath, Completed: lpa.WhenCanTheLpaBeUsed != ""},
 						{Name: "addRestrictionsToTheLpa"},
 						{Name: "chooseYourCertificateProvider"},
 						{Name: "checkAndSendToYourCertificateProvider"},
