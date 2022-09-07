@@ -13,10 +13,11 @@ type taskListData struct {
 }
 
 type taskListItem struct {
-	Name      string
-	Path      string
-	Completed bool
-	Disabled  bool
+	Name       string
+	Path       string
+	Completed  bool
+	InProgress bool
+	Disabled   bool
 }
 
 type taskListSection struct {
@@ -37,11 +38,35 @@ func TaskList(tmpl template.Template, dataStore DataStore) Handler {
 				{
 					Heading: "fillInTheLpa",
 					Items: []taskListItem{
-						{Name: "provideDonorDetails", Path: yourDetailsPath, Completed: lpa.You.Address.Line1 != ""},
-						{Name: "chooseYourAttorneys", Path: chooseAttorneysPath, Completed: lpa.Attorney.Address.Line1 != ""},
-						{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath, Completed: lpa.WantReplacementAttorneys != ""},
-						{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath, Completed: lpa.WhenCanTheLpaBeUsed != ""},
-						{Name: "addRestrictionsToTheLpa"},
+						{
+							Name:       "provideDonorDetails",
+							Path:       yourDetailsPath,
+							Completed:  lpa.You.Address.Line1 != "",
+							InProgress: lpa.You.FirstNames != "",
+						},
+						{
+							Name:       "chooseYourAttorneys",
+							Path:       chooseAttorneysPath,
+							Completed:  lpa.Attorney.Address.Line1 != "",
+							InProgress: lpa.Attorney.FirstNames != "",
+						},
+						{
+							Name:      "chooseYourReplacementAttorneys",
+							Path:      wantReplacementAttorneysPath,
+							Completed: lpa.WantReplacementAttorneys != "",
+						},
+						{
+							Name:       "chooseWhenTheLpaCanBeUsed",
+							Path:       whenCanTheLpaBeUsedPath,
+							Completed:  lpa.Tasks.WhenCanTheLpaBeUsed == TaskCompleted,
+							InProgress: lpa.Tasks.WhenCanTheLpaBeUsed == TaskInProgress,
+						},
+						{
+							Name:       "addRestrictionsToTheLpa",
+							Path:       restrictionsPath,
+							Completed:  lpa.Tasks.Restrictions == TaskCompleted,
+							InProgress: lpa.Tasks.Restrictions == TaskInProgress,
+						},
 						{Name: "chooseYourCertificateProvider"},
 						{Name: "checkAndSendToYourCertificateProvider"},
 					},

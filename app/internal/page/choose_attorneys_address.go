@@ -41,7 +41,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, wantReplacementAttorneysPath, http.StatusFound)
 				return nil
 			}
 
