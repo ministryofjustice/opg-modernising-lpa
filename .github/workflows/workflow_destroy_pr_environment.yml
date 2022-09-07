@@ -38,7 +38,7 @@ jobs:
       - name: Generate workspace name
         id: name_workspace
         run: |
-          workspace=${{ github.event.number }}${{ github.event.head.ref }}
+          workspace=${{ github.event.pull_request.number }}${{ github.event.pull_request.head.ref }}
           workspace=${workspace//-}
           workspace=${workspace//_}
           workspace=${workspace//\/}
