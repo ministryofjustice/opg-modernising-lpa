@@ -10,133 +10,135 @@ import (
 )
 
 func TestGetTaskList(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	dataStore := &mockDataStore{}
-	dataStore.
-		On("Get", mock.Anything, "session-id").
-		Return(nil)
-
-	template := &mockTemplate{}
-	template.
-		On("Func", w, &taskListData{
-			App: appData,
-			Sections: []taskListSection{
-				{
-					Heading: "fillInTheLpa",
-					Items: []taskListItem{
-						{Name: "provideDonorDetails", Path: yourDetailsPath},
-						{Name: "chooseYourAttorneys", Path: chooseAttorneysPath},
-						{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath},
-						{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath},
-						{Name: "addRestrictionsToTheLpa"},
-						{Name: "chooseYourCertificateProvider"},
-						{Name: "checkAndSendToYourCertificateProvider"},
-					},
+	testCases := map[string]struct {
+		lpa      Lpa
+		expected func([]taskListSection) []taskListSection
+	}{
+		"start": {
+			expected: func(sections []taskListSection) []taskListSection {
+				return sections
+			},
+		},
+		"in-progress": {
+			lpa: Lpa{
+				You: Person{
+					FirstNames: "this",
 				},
-				{
-					Heading: "payForTheLpa",
-					Items: []taskListItem{
-						{Name: "payForTheLpa"},
-					},
+				Attorney: Attorney{
+					FirstNames: "this",
 				},
-				{
-					Heading: "confirmYourIdentity",
-					Items: []taskListItem{
-						{Name: "confirmYourIdentity"},
-					},
-				},
-				{
-					Heading: "signAndRegisterTheLpa",
-					Items: []taskListItem{
-						{Name: "signTheLpa", Disabled: true},
-					},
+				Tasks: Tasks{
+					WhenCanTheLpaBeUsed: TaskInProgress,
+					Restrictions:        TaskInProgress,
 				},
 			},
-		}).
-		Return(nil)
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[0].Items = []taskListItem{
+					{Name: "provideDonorDetails", Path: yourDetailsPath, InProgress: true},
+					{Name: "chooseYourAttorneys", Path: chooseAttorneysPath, InProgress: true},
+					{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath},
+					{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath, InProgress: true},
+					{Name: "addRestrictionsToTheLpa", Path: restrictionsPath, InProgress: true},
+					{Name: "chooseYourCertificateProvider"},
+					{Name: "checkAndSendToYourCertificateProvider"},
+				}
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	err := TaskList(template.Func, dataStore)(appData, w, r)
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, dataStore)
-}
-
-func TestGetTaskListWhenComplete(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	dataStore := &mockDataStore{
-		data: Lpa{
-			You: Person{
-				Address: Address{
-					Line1: "this",
+				return sections
+			},
+		},
+		"complete": {
+			lpa: Lpa{
+				You: Person{
+					Address: Address{
+						Line1: "this",
+					},
+				},
+				Attorney: Attorney{
+					Address: Address{
+						Line1: "this",
+					},
+				},
+				Contact:                  []string{"this"},
+				WantReplacementAttorneys: "this",
+				Tasks: Tasks{
+					WhenCanTheLpaBeUsed: TaskCompleted,
+					Restrictions:        TaskCompleted,
 				},
 			},
-			Attorney: Attorney{
-				Address: Address{
-					Line1: "this",
-				},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[0].Items = []taskListItem{
+					{Name: "provideDonorDetails", Path: yourDetailsPath, Completed: true},
+					{Name: "chooseYourAttorneys", Path: chooseAttorneysPath, Completed: true},
+					{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath, Completed: true},
+					{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath, Completed: true},
+					{Name: "addRestrictionsToTheLpa", Path: restrictionsPath, Completed: true},
+					{Name: "chooseYourCertificateProvider"},
+					{Name: "checkAndSendToYourCertificateProvider"},
+				}
+
+				return sections
 			},
-			Contact:                  []string{"this"},
-			WantReplacementAttorneys: "this",
-			WhenCanTheLpaBeUsed:      "this",
 		},
 	}
-	dataStore.
-		On("Get", mock.Anything, "session-id").
-		Return(nil)
 
-	template := &mockTemplate{}
-	template.
-		On("Func", w, &taskListData{
-			App: appData,
-			Sections: []taskListSection{
-				{
-					Heading: "fillInTheLpa",
-					Items: []taskListItem{
-						{Name: "provideDonorDetails", Path: yourDetailsPath, Completed: true},
-						{Name: "chooseYourAttorneys", Path: chooseAttorneysPath, Completed: true},
-						{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath, Completed: true},
-						{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath, Completed: true},
-						{Name: "addRestrictionsToTheLpa"},
-						{Name: "chooseYourCertificateProvider"},
-						{Name: "checkAndSendToYourCertificateProvider"},
-					},
-				},
-				{
-					Heading: "payForTheLpa",
-					Items: []taskListItem{
-						{Name: "payForTheLpa"},
-					},
-				},
-				{
-					Heading: "confirmYourIdentity",
-					Items: []taskListItem{
-						{Name: "confirmYourIdentity"},
-					},
-				},
-				{
-					Heading: "signAndRegisterTheLpa",
-					Items: []taskListItem{
-						{Name: "signTheLpa", Disabled: true},
-					},
-				},
-			},
-		}).
-		Return(nil)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+			dataStore := &mockDataStore{data: tc.lpa}
+			dataStore.
+				On("Get", mock.Anything, "session-id").
+				Return(nil)
 
-	err := TaskList(template.Func, dataStore)(appData, w, r)
-	resp := w.Result()
+			template := &mockTemplate{}
+			template.
+				On("Func", w, &taskListData{
+					App: appData,
+					Sections: tc.expected([]taskListSection{
+						{
+							Heading: "fillInTheLpa",
+							Items: []taskListItem{
+								{Name: "provideDonorDetails", Path: yourDetailsPath},
+								{Name: "chooseYourAttorneys", Path: chooseAttorneysPath},
+								{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath},
+								{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath},
+								{Name: "addRestrictionsToTheLpa", Path: restrictionsPath},
+								{Name: "chooseYourCertificateProvider"},
+								{Name: "checkAndSendToYourCertificateProvider"},
+							},
+						},
+						{
+							Heading: "payForTheLpa",
+							Items: []taskListItem{
+								{Name: "payForTheLpa"},
+							},
+						},
+						{
+							Heading: "confirmYourIdentity",
+							Items: []taskListItem{
+								{Name: "confirmYourIdentity"},
+							},
+						},
+						{
+							Heading: "signAndRegisterTheLpa",
+							Items: []taskListItem{
+								{Name: "signTheLpa", Disabled: true},
+							},
+						},
+					}),
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, dataStore)
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+			err := TaskList(template.Func, dataStore)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+			mock.AssertExpectationsForObjects(t, template, dataStore)
+		})
+	}
 }
 
 func TestGetTaskListWhenStoreErrors(t *testing.T) {

@@ -86,6 +86,7 @@
     "taskListHelp": "Welsh",
     "taskListHelpContent": "<p class=\"govuk-body\">Welsh</p>",
     "completed": "Welsh",
+    "inProgress": "Welsh",
     "cannotStartYet": "Welsh",
     "notStarted": "Welsh",
     "fillInTheLpa": "Welsh",
@@ -119,5 +120,12 @@
     "whenDoYouWantAttorneysToUse": "Welsh",
     "asSoonAsItsRegistered": "Welsh",
     "onlyWhenIDoNotHaveMentalCapacity": "Welsh",
-    "selectWhenCanTheLpaBeUsed": "Welsh"
+    "selectWhenCanTheLpaBeUsed": "Welsh",
+    
+    "restrictionsOnYourAttorneysPower": "Welsh",
+    "restrictionsOnYourAttorneysPowerContent": "<p class=\"govuk-body\">Welsh</p>",
+    "restrictionExamples": "Welsh",
+    "restrictionExamplesContent": "<p class=\"govuk-body\">Welsh</p>",
+    "restrictions": "Welsh",
+    "restrictionsTooLong": "Welsh"
 }
