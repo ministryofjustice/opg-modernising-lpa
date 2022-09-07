@@ -4,7 +4,7 @@ data "aws_route53_zone" "modernising_lpa" {
 }
 
 locals {
-  dev_wildcard = data.aws_default_tags.current.tags.environment-name == "production" ? "" : "*."
+  dev_wildcard = data.aws_default_tags.current.tags.account-name == "production" ? "" : "*."
 }
 
 resource "aws_acm_certificate" "app" {

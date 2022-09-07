@@ -28,6 +28,7 @@ locals {
 
 
   optional_tags = {
+    account-name           = local.account.account_name
     infrastructure-support = "OPG Webops: opgteam+modernising-lpa@digital.justice.gov.uk"
   }
 
