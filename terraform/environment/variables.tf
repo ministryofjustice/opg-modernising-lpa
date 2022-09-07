@@ -24,6 +24,7 @@ variable "environments" {
       })
       backups = object({
         backup_plan_enabled = bool
+        copy_action_enabled = bool
       })
       ecs = object({
         enable_fargate_spot_capacity_provider = bool
