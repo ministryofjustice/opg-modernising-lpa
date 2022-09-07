@@ -76,6 +76,7 @@ jobs:
           sudo tar -xvf $HOME/terraform-workspace-manager.tar.gz -C /usr/local/bin
           sudo chmod +x /usr/local/bin/terraform-workspace-manager
           terraform-workspace-manager -register-workspace=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }} -time-to-protect=0 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
+          sleep 5
         working-directory: ./terraform/environment
       - name: Destroy PR environment and Terraform workspace
         working-directory: ./terraform/environment
