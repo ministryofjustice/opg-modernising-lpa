@@ -34,7 +34,12 @@
           </fieldset>
         </div>
 
-        {{ template "continue-button" . }}
+        <div class="govuk-button-group">
+          {{ template "continue-button" . }}
+          {{ if not .Completed }}
+            <button type="submit" name="answer-later" value="1" class="govuk-button govuk-button--secondary">Answer later</button>
+          {{ end }}
+        </div>
       </form>
     </div>
   </div>

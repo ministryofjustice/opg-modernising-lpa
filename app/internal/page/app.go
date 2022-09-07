@@ -98,6 +98,8 @@ func App(
 		WantReplacementAttorneys(tmpls.Get("want_replacement_attorneys.gohtml"), dataStore))
 	handle(whenCanTheLpaBeUsedPath, RequireSession|CanGoBack,
 		WhenCanTheLpaBeUsed(tmpls.Get("when_can_the_lpa_be_used.gohtml"), dataStore))
+	handle(restrictionsPath, RequireSession|CanGoBack,
+		Restrictions(tmpls.Get("restrictions.gohtml"), dataStore))
 
 	return mux
 }
