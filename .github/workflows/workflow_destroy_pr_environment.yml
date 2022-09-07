@@ -33,11 +33,9 @@ defaults:
 
 jobs:
   create_tags:
-    if: github.event.pull_request.merged == true
     uses: ./.github/workflows/tags_job.yml
 
   cleanup_workspace:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     needs:
       - workspace_name
