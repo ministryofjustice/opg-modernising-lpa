@@ -69,7 +69,7 @@ jobs:
       - name: Terraform Init
         run: terraform init -input=false
         working-directory: ./terraform/environment
-      - name: Destroy PR Terraform Workspaces
+      - name: Destroy PR environment and Terraform workspace
         working-directory: ./terraform/environment
         run: |
           terraform workspace select ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
