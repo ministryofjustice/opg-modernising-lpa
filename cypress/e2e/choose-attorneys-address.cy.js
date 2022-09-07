@@ -15,7 +15,7 @@ describe('Choose attorneys address', () => {
 
         cy.get('#f-select-address').select('123 Fake Street, Someville, NG1');
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/task-list');
+        cy.url().should('contain', '/want-replacement-attorneys');
     });
 
     it('address can be entered manually', () => {
@@ -39,6 +39,6 @@ describe('Choose attorneys address', () => {
         cy.get('#f-address-postcode').type('NG1');
 
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/task-list');
+        cy.url().should('contain', '/want-replacment-attorneys');
     });
 });
