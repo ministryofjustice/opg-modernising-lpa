@@ -16,4 +16,5 @@ const (
 	chooseAttorneysAddressPath       = "/choose-attorneys-address"
 	wantReplacementAttorneysPath     = "/want-replacement-attorneys"
 	whenCanTheLpaBeUsedPath          = "/when-can-the-lpa-be-used"
+	restrictionsPath                 = "/restrictions"
 )

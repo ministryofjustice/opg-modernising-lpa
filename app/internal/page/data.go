@@ -6,6 +6,14 @@ import (
 	"time"
 )
 
+type TaskState int
+
+const (
+	TaskNotStarted TaskState = iota
+	TaskInProgress
+	TaskCompleted
+)
+
 type Lpa struct {
 	You                      Person
 	Attorney                 Attorney
@@ -14,6 +22,13 @@ type Lpa struct {
 	Type                     string
 	WantReplacementAttorneys string
 	WhenCanTheLpaBeUsed      string
+	Restrictions             string
+	Tasks                    Tasks
+}
+
+type Tasks struct {
+	WhenCanTheLpaBeUsed TaskState
+	Restrictions        TaskState
 }
 
 type Person struct {
