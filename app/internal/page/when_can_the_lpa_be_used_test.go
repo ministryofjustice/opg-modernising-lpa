@@ -128,7 +128,7 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, taskListPath, resp.Header.Get("Location"))
+	assert.Equal(t, restrictionsPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
@@ -156,7 +156,7 @@ func TestPostWhenCanTheLpaBeUsedWhenAnswerLater(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, taskListPath, resp.Header.Get("Location"))
+	assert.Equal(t, restrictionsPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 

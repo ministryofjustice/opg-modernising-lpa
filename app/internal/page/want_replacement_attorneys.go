@@ -33,7 +33,7 @@ func WantReplacementAttorneys(tmpl template.Template, dataStore DataStore) Handl
 				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, whenCanTheLpaBeUsedPath, http.StatusFound)
 				return nil
 			}
 		}
