@@ -41,7 +41,7 @@ func Restrictions(tmpl template.Template, dataStore DataStore) Handler {
 				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, whoDoYouWantToBeCertificateProviderGuidancePath, http.StatusFound)
 				return nil
 			}
 		}

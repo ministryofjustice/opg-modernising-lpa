@@ -37,7 +37,7 @@
         <div class="govuk-button-group">
           {{ template "continue-button" . }}
           {{ if not .Completed }}
-            <button type="submit" name="answer-later" value="1" class="govuk-button govuk-button--secondary">Answer later</button>
+            <button type="submit" name="answer-later" value="1" class="govuk-button govuk-button--secondary">{{ tr .App "answerLater" }}</button>
           {{ end }}
         </div>
       </form>

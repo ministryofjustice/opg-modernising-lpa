@@ -27,8 +27,9 @@ type Lpa struct {
 }
 
 type Tasks struct {
-	WhenCanTheLpaBeUsed TaskState
-	Restrictions        TaskState
+	WhenCanTheLpaBeUsed                 TaskState
+	Restrictions                        TaskState
+	WhoDoYouWantToBeCertificateProvider TaskState
 }
 
 type Person struct {
