@@ -1,0 +1,74 @@
+name: "[Workflow] Destroy PR Environment"
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+    paths:
+      - 'app/**'
+      - 'web/**'
+      - 'codecept/**'
+      - 'cypress/**'
+      - 'terraform/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
+
+permissions:
+  contents: read
+  security-events: none
+  pull-requests: read
+  actions: none
+  checks: none
+  deployments: none
+  issues: none
+  packages: none
+  repository-projects: none
+  statuses: none
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  generate_environment_workspace_name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate workspace name
+        id: name_workspace
+        run: |
+          workspace=${{ github.event.pull_request.number }}${{ github.event.pull_request.head.ref }}
+          workspace=${workspace//-}
+          workspace=${workspace//_}
+          workspace=${workspace//\/}
+          workspace=${workspace:0:11}
+          workspace=$(echo ${workspace} | tr '[:upper:]' '[:lower:]')
+          echo ::set-output name=name::${workspace}
+          echo ${workspace}
+
+  cleanup_workspace:
+    runs-on: ubuntu-latest
+    needs:
+      - workspace_name
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials For Terraform
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          aws-region: eu-west-1
+          role-duration-seconds: 3600
+          role-session-name: OPGModernisingLPATerraformGithubAction
+
+      - uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
+
+      - name: Destroy PR Terraform Workspaces
+        working-directory: ./terraform/environment
+        run: |
+          ../../scripts/workspace_cleanup.sh ${{ needs.create_tags.outputs.environment_workspace_name }}
