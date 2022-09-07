@@ -69,7 +69,19 @@ jobs:
       - name: Terraform Init
         run: terraform init -input=false
         working-directory: ./terraform/environment
-      - name: Destroy PR Terraform Workspaces
+      - name: Remove protection for environment workspace
+        if: github.ref != 'refs/heads/main'
+        run: |
+          wget https://github.com/TomTucka/terraform-workspace-manager/releases/download/v0.3.1/terraform-workspace-manager_Linux_x86_64.tar.gz -O $HOME/terraform-workspace-manager.tar.gz
+          sudo tar -xvf $HOME/terraform-workspace-manager.tar.gz -C /usr/local/bin
+          sudo chmod +x /usr/local/bin/terraform-workspace-manager
+          terraform-workspace-manager -register-workspace=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }} -time-to-protect=0 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
+          sleep 5
+        working-directory: ./terraform/environment
+      - name: Destroy PR environment and Terraform workspace
         working-directory: ./terraform/environment
         run: |
-          ../../scripts/workspace_cleanup.sh ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
+          terraform workspace select ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
+          terraform destroy -auto-approve
+          terraform workspace select default
+          terraform workspace delete ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
