@@ -7,11 +7,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
+func TestGetRestrictions(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{}
@@ -21,14 +22,14 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &whenCanTheLpaBeUsedData{
+		On("Func", w, &restrictionsData{
 			App: appData,
 		}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := WhenCanTheLpaBeUsed(template.Func, dataStore)(appData, w, r)
+	err := Restrictions(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -36,25 +37,25 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template, dataStore)
 }
 
-func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
+func TestGetRestrictionsFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{data: Lpa{WhenCanTheLpaBeUsed: "when-registered"}}
+	dataStore := &mockDataStore{data: Lpa{Restrictions: "blah"}}
 	dataStore.
 		On("Get", mock.Anything, "session-id").
 		Return(nil)
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &whenCanTheLpaBeUsedData{
-			App:  appData,
-			When: "when-registered",
+		On("Func", w, &restrictionsData{
+			App:          appData,
+			Restrictions: "blah",
 		}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := WhenCanTheLpaBeUsed(template.Func, dataStore)(appData, w, r)
+	err := Restrictions(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -62,7 +63,7 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template, dataStore)
 }
 
-func TestGetWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
+func TestGetRestrictionsWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{}
@@ -72,7 +73,7 @@ func TestGetWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := WhenCanTheLpaBeUsed(nil, dataStore)(appData, w, r)
+	err := Restrictions(nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -80,7 +81,7 @@ func TestGetWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
-func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
+func TestGetRestrictionsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{}
@@ -90,14 +91,14 @@ func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &whenCanTheLpaBeUsedData{
+		On("Func", w, &restrictionsData{
 			App: appData,
 		}).
 		Return(expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := WhenCanTheLpaBeUsed(template.Func, dataStore)(appData, w, r)
+	err := Restrictions(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -105,7 +106,7 @@ func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template, dataStore)
 }
 
-func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
+func TestPostRestrictions(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{}
@@ -113,26 +114,26 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(nil)
 	dataStore.
-		On("Put", mock.Anything, "session-id", Lpa{WhenCanTheLpaBeUsed: "when-registered", Tasks: Tasks{WhenCanTheLpaBeUsed: TaskCompleted}}).
+		On("Put", mock.Anything, "session-id", Lpa{Restrictions: "blah", Tasks: Tasks{Restrictions: TaskCompleted}}).
 		Return(nil)
 
 	form := url.Values{
-		"when": {"when-registered"},
+		"restrictions": {"blah"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := WhenCanTheLpaBeUsed(nil, dataStore)(appData, w, r)
+	err := Restrictions(nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, restrictionsPath, resp.Header.Get("Location"))
+	assert.Equal(t, taskListPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
-func TestPostWhenCanTheLpaBeUsedWhenAnswerLater(t *testing.T) {
+func TestPostRestrictionsWhenAnswerLater(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{}
@@ -140,27 +141,27 @@ func TestPostWhenCanTheLpaBeUsedWhenAnswerLater(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(nil)
 	dataStore.
-		On("Put", mock.Anything, "session-id", Lpa{Tasks: Tasks{WhenCanTheLpaBeUsed: TaskInProgress}}).
+		On("Put", mock.Anything, "session-id", Lpa{Tasks: Tasks{Restrictions: TaskInProgress}}).
 		Return(nil)
 
 	form := url.Values{
-		"when":         {"what"},
+		"restrictions": {"what"},
 		"answer-later": {"1"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := WhenCanTheLpaBeUsed(nil, dataStore)(appData, w, r)
+	err := Restrictions(nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, restrictionsPath, resp.Header.Get("Location"))
+	assert.Equal(t, taskListPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
-func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
+func TestPostRestrictionsWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{}
@@ -168,24 +169,25 @@ func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(nil)
 	dataStore.
-		On("Put", mock.Anything, "session-id", Lpa{WhenCanTheLpaBeUsed: "when-registered", Tasks: Tasks{WhenCanTheLpaBeUsed: TaskCompleted}}).
+		On("Put", mock.Anything, "session-id", Lpa{Restrictions: "blah", Tasks: Tasks{Restrictions: TaskCompleted}}).
 		Return(expectedError)
 
 	form := url.Values{
-		"when": {"when-registered"},
+		"restrictions": {"blah"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := WhenCanTheLpaBeUsed(nil, dataStore)(appData, w, r)
+	err := Restrictions(nil, dataStore)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
-func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
+func TestPostRestrictionsWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	restrictions := random.String(10001)
 
 	dataStore := &mockDataStore{}
 	dataStore.
@@ -194,18 +196,23 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &whenCanTheLpaBeUsedData{
-			App: appData,
+		On("Func", w, &restrictionsData{
+			App:          appData,
+			Restrictions: restrictions,
 			Errors: map[string]string{
-				"when": "selectWhenCanTheLpaBeUsed",
+				"restrictions": "restrictionsTooLong",
 			},
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
+	form := url.Values{
+		"restrictions": {restrictions},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := WhenCanTheLpaBeUsed(template.Func, dataStore)(appData, w, r)
+	err := Restrictions(template.Func, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -213,51 +220,43 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template)
 }
 
-func TestReadWhenCanTheLpaBeUsedForm(t *testing.T) {
+func TestReadRestrictionsForm(t *testing.T) {
 	form := url.Values{
-		"when":         {"when-registered"},
+		"restrictions": {"blah"},
 		"answer-later": {"1"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	result := readWhenCanTheLpaBeUsedForm(r)
+	result := readRestrictionsForm(r)
 
-	assert.Equal(t, "when-registered", result.When)
+	assert.Equal(t, "blah", result.Restrictions)
 	assert.True(t, result.AnswerLater)
 }
 
-func TestWhenCanTheLpaBeUsedFormValidate(t *testing.T) {
+func TestRestrictionsFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *whenCanTheLpaBeUsedForm
+		form   *restrictionsForm
 		errors map[string]string
 	}{
-		"when-registered": {
-			form: &whenCanTheLpaBeUsedForm{
-				When: "when-registered",
+		"set": {
+			form: &restrictionsForm{
+				Restrictions: "blah",
 			},
 			errors: map[string]string{},
 		},
-		"when-capacity-lost": {
-			form: &whenCanTheLpaBeUsedForm{
-				When: "when-capacity-lost",
+		"too-long": {
+			form: &restrictionsForm{
+				Restrictions: random.String(10001),
 			},
-			errors: map[string]string{},
+			errors: map[string]string{
+				"restrictions": "restrictionsTooLong",
+			},
 		},
 		"missing": {
-			form: &whenCanTheLpaBeUsedForm{},
-			errors: map[string]string{
-				"when": "selectWhenCanTheLpaBeUsed",
-			},
-		},
-		"invalid": {
-			form: &whenCanTheLpaBeUsedForm{
-				When: "what",
-			},
-			errors: map[string]string{
-				"when": "selectWhenCanTheLpaBeUsed",
-			},
+			form:   &restrictionsForm{},
+			errors: map[string]string{},
 		},
 	}
 
