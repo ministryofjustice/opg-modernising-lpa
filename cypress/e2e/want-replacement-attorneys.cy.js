@@ -10,6 +10,6 @@ describe('Choose attorneys', () => {
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/task-list');
+        cy.url().should('contain', '/when-can-the-lpa-be-used');
     });
 });
