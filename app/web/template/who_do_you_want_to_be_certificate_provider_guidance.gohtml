@@ -1,0 +1,16 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {{ trHtml .App "whoDoYouWantToBeCertificateProviderGuidance" }}
+
+      <form novalidate method="post">
+        <div class="govuk-button-group">
+          {{ template "continue-button" . }}
+          <button type="submit" name="will-do-this-later" value="1" class="govuk-button govuk-button--secondary">{{ tr .App "willDoThisLater" }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{{ end }}

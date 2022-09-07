@@ -20,6 +20,8 @@
     "continue": "Welsh",
     "thereIsAProblem": "Welsh",
     "selectOneOrMoreOptions": "Welsh",
+    "answerLater": "Welsh",
+    "willDoThisLater": "Welsh",
 
     "yourDetails": "Welsh",
     "firstNames": "Welsh",
@@ -127,5 +129,7 @@
     "restrictionExamples": "Welsh",
     "restrictionExamplesContent": "<p class=\"govuk-body\">Welsh</p>",
     "restrictions": "Welsh",
-    "restrictionsTooLong": "Welsh"
+    "restrictionsTooLong": "Welsh",
+
+    "whoDoYouWantToBeCertificateProviderGuidance": "<p class=\"govuk-body\">Welsh</p>"
 }
