@@ -66,9 +66,6 @@ jobs:
       - uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
-      - name: Terraform Init
-        run: terraform init -input=false
-        working-directory: ./terraform/environment
       - name: Extend protection for environment workspace
         if: github.ref != 'refs/heads/main'
         run: |
@@ -76,6 +73,9 @@ jobs:
           sudo tar -xvf $HOME/terraform-workspace-manager.tar.gz -C /usr/local/bin
           sudo chmod +x /usr/local/bin/terraform-workspace-manager
           terraform-workspace-manager -register-workspace=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }} -time-to-protect=1 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
+        working-directory: ./terraform/environment
+      - name: Terraform Init
+        run: terraform init -input=false
         working-directory: ./terraform/environment
       - name: Destroy PR environment and Terraform workspace
         working-directory: ./terraform/environment
