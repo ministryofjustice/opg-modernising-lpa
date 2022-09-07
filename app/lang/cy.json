@@ -112,5 +112,12 @@
     "wantReplacementAttorneysContent": "<p class=\"govuk-body\">Welsh</p>",
     "yes": "Welsh",
     "no": "Welsh",
-    "selectWantReplacementAttorneys": "Welsh"
+    "selectWantReplacementAttorneys": "Welsh",
+    
+    "whenCanTheLpaBeUsed": "Welsh",
+    "whenCanTheLpaBeUsedContent": "<p class=\"govuk-body\">Welsh</p>",
+    "whenDoYouWantAttorneysToUse": "Welsh",
+    "asSoonAsItsRegistered": "Welsh",
+    "onlyWhenIDoNotHaveMentalCapacity": "Welsh",
+    "selectWhenCanTheLpaBeUsed": "Welsh"
 }
