@@ -96,6 +96,7 @@ data "aws_iam_policy_document" "aws_backup_sns" {
       aws_sns_topic.aws_backup_failure_events[0].arn,
     ]
   }
+  provider = aws.eu_west_1
 }
 
 resource "aws_sns_topic_policy" "aws_backup_failure_events" {
