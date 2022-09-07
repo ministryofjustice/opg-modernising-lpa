@@ -98,7 +98,7 @@ func TestPostWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, taskListPath, resp.Header.Get("Location"))
+	assert.Equal(t, certificateProviderDetailsPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
