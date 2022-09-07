@@ -72,4 +72,7 @@ jobs:
       - name: Destroy PR Terraform Workspaces
         working-directory: ./terraform/environment
         run: |
-          ../../scripts/workspace_cleanup.sh ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
+          terraform workspace select ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
+          terraform destroy -auto-approve
+          terraform workspace select default
+          terraform workspace delete ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
