@@ -30,11 +30,7 @@ func ChooseAttorneys(tmpl template.Template, dataStore DataStore) Handler {
 		}
 
 		if !lpa.Attorney.DateOfBirth.IsZero() {
-			data.Form.Dob = Date{
-				Day:   lpa.Attorney.DateOfBirth.Format("2"),
-				Month: lpa.Attorney.DateOfBirth.Format("1"),
-				Year:  lpa.Attorney.DateOfBirth.Format("2006"),
-			}
+			data.Form.Dob = readDate(lpa.Attorney.DateOfBirth)
 		}
 
 		if r.Method == http.MethodPost {
