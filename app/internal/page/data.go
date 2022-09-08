@@ -102,3 +102,11 @@ type Date struct {
 	Month string
 	Year  string
 }
+
+func readDate(t time.Time) Date {
+	return Date{
+		Day:   t.Format("2"),
+		Month: t.Format("1"),
+		Year:  t.Format("2006"),
+	}
+}
