@@ -22,7 +22,7 @@
     "selectOneOrMoreOptions": "Select one or more options.",
     "answerLater": "Answer later",
     "willDoThisLater": "I will do this later",
-    
+
     "yourDetails": "Your details",
     "firstNames": "First names",
     "lastName": "Last name",
@@ -134,5 +134,13 @@
 
     "certificateProviderDetails": "The certificate provider’s details",
     "certificateProviderDetailsHint": "Remember, the certificate provider must be 18 or over. They cannot be a member of your family (this includes step-relations and in-laws) or of the attorneys' families.",
-    "certificateProviderDobHint": "We need the certificate provider's date of birth to check they are over 18."
+    "certificateProviderDobHint": "We need the certificate provider's date of birth to check they are over 18.",
+
+    "aboutPayment": "About payment",
+    "aboutPaymentContent": "<p class=\"govuk-body\">Thank you for starting your application for an LPA.</p><p class=\"govuk-body\">It costs £82 to apply for an LPA. </p>",
+    "feeCoversContent": "<p class=\"govuk-body\">The fee covers the cost of:</p>",
+    "feeCoversExamples": "<ul class=\"govuk-list govuk-list--bullet\"><li>checking your identity and your certificate provider's identity - we do this to protect you and prevent fraud</li><li>checking the LPA as you’re making it - so we can let you know about possible mistakes before you submit the application</li><li>processing your application to register the LPA</li></ul>",
+    "lowIncomeWarning": "<div class=\"govuk-warning-text govuk-!-margin-bottom-2\"><span class=\"govuk-warning-text__icon\" aria-hidden=\"true\">!</span><strong class=\"govuk-warning-text__text\"><span class=\"govuk-warning-text__assistive\">Important</span>If you have a low income or get certain means-tested benefits, you can apply to pay a lower fee or no fee.</strong></div>",
+    "qualifyingForReductionLink": "<p class=\"govuk-body\"><a href=\"#\" class=\"\">Find out more about qualifying for a reduction</a></p>",
+    "continueToPaymentButton": "<a href=\"#\" role=\"button\" draggable=\"false\" class=\"govuk-button govuk-button--start\" data-module=\"govuk-button\">Continue to payment<svg class=\"govuk-button__start-icon\" xmlns=\"http://www.w3.org/2000/svg\" width=\"17.5\" height=\"19\" viewBox=\"0 0 33 40\" aria-hidden=\"true\" focusable=\"false\"><path fill=\"currentColor\" d=\"M0 0h13l20 20-20 20H0l20-20z\" /></svg></a>"
 }
