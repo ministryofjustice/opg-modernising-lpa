@@ -50,10 +50,12 @@ type Attorney struct {
 }
 
 type CertificateProvider struct {
-	FirstNames  string
-	LastName    string
-	Email       string
-	DateOfBirth time.Time
+	FirstNames              string
+	LastName                string
+	Email                   string
+	DateOfBirth             time.Time
+	Relationship            []string
+	RelationshipDescription string
 }
 
 type Address struct {

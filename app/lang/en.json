@@ -134,5 +134,17 @@
 
     "certificateProviderDetails": "The certificate provider’s details",
     "certificateProviderDetailsHint": "Remember, the certificate provider must be 18 or over. They cannot be a member of your family (this includes step-relations and in-laws) or of the attorneys' families.",
-    "certificateProviderDobHint": "We need the certificate provider's date of birth to check they are over 18."
+    "certificateProviderDobHint": "We need the certificate provider's date of birth to check they are over 18.",
+
+    "howDoYouKnowYourCertificateProvider": "How do you know {{.FirstNames}} {{.LastName}}, your certificate provider?",
+    "pleaseDescribe": "Please describe",
+    "friend": "Friend",
+    "neighbour": "Neighbour",
+    "colleague": "Colleague",
+    "healthProfessional": "GP or other qualified health professional",
+    "legalProfessional": "Solicitor or other qualified legal professional",
+    "or": "Or",
+    "Other": "Other",
+    "selectHowYouKnowCertificateProvider": "Select how you know your certificate provider",
+    "enterDescription": "Enter description"
 }

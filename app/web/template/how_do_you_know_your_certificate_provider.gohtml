@@ -1,0 +1,74 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <form novalidate method="post">
+        <fieldset class="govuk-fieldset">
+          <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ trFormat .App "howDoYouKnowYourCertificateProvider" "FirstNames" .CertificateProvider.FirstNames "LastName" .CertificateProvider.LastName }}</h1>
+
+          <div class="govuk-form-group {{ if index .Errors "how" }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
+            {{ template "error-message" (errorMessage . "how") }}
+
+            <div class="govuk-checkboxes  {{ if index .Errors "how" }}govuk-checkboxes--error{{ end }}" data-module="govuk-checkboxes">
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="f-how" name="how" type="checkbox" value="friend" {{ if contains "friend" .Form.How }}checked{{ end }}>
+                <label class="govuk-label govuk-checkboxes__label" for="f-how">
+                  {{ tr .App "friend" }}
+                </label>
+              </div>
+
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="f-how-2" name="how" type="checkbox" value="neighbour" {{ if contains "neighbour" .Form.How }}checked{{ end }}>
+                <label class="govuk-label govuk-checkboxes__label" for="f-how-2">
+                  {{ tr .App "neighbour" }}
+                </label>
+              </div>
+
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="f-how-3" name="how" type="checkbox" value="colleague" {{ if contains "colleague" .Form.How }}checked{{ end }}>
+                <label class="govuk-label govuk-checkboxes__label" for="f-how-3">
+                  {{ tr .App "colleague" }}
+                </label>
+              </div>
+
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="f-how-4" name="how" type="checkbox" value="health-professional" {{ if contains "health-professional" .Form.How }}checked{{ end }}>
+                <label class="govuk-label govuk-checkboxes__label" for="f-how-4">
+                  {{ tr .App "healthProfessional" }}
+                </label>
+              </div>
+
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="f-how-5" name="how" type="checkbox" value="legal-professional" {{ if contains "legal-professional" .Form.How }}checked{{ end }}>
+                <label class="govuk-label govuk-checkboxes__label" for="f-how-5">
+                  {{ tr .App "legalProfessional" }}
+                </label>
+              </div>
+
+              <div class="govuk-checkboxes__divider">{{ tr .App "or" }}</div>
+
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="f-how-6" name="how" type="checkbox" value="other" {{ if contains "other" .Form.How }}checked{{ end }} data-aria-controls="conditional-how">
+                <label class="govuk-label govuk-checkboxes__label" for="f-how-6">
+                  {{ tr .App "Other" }}
+                </label>
+              </div>
+              <div class="govuk-checkboxes__conditional govuk-checkboxes__conditional--hidden" id="conditional-how">
+                <div class="govuk-form-group">
+                  <label class="govuk-label" for="f-description">
+                    {{ tr .App "pleaseDescribe" }}
+                  </label>
+                  {{ template "error-message" (errorMessage . "description") }}
+                  <textarea class="govuk-textarea {{ if index .Errors "description" }}govuk-textarea--error{{ end }}" id="f-description" name="description" rows="5">{{ .Form.Description }}</textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {{ template "continue-button" . }}
+        </fieldset>
+      </form>
+    </div>
+  </div>
+{{ end }}
