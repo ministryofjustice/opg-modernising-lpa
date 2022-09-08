@@ -55,7 +55,6 @@
     "selectAddress": "Select address",
     "enterAddress": "Enter address",
     "enterTownOrCity": "Enter town or city",
-    "enterPostcode": "Enter postcode",
     "couldNotLookupPostcode": "Could not lookup postcode",
 
     "whoIsThisLpaFor": "Who is this LPA for?",
@@ -142,7 +141,7 @@
     "feeCoversExamples": "<ul class=\"govuk-list govuk-list--bullet\"><li>checking your identity and your certificate provider's identity - we do this to protect you and prevent fraud</li><li>checking the LPA as you’re making it - so we can let you know about possible mistakes before you submit the application</li><li>processing your application to register the LPA</li></ul>",
     "lowIncomeWarning": "<div class=\"govuk-warning-text govuk-!-margin-bottom-2\"><span class=\"govuk-warning-text__icon\" aria-hidden=\"true\">!</span><strong class=\"govuk-warning-text__text\"><span class=\"govuk-warning-text__assistive\">Important</span>If you have a low income or get certain means-tested benefits, you can apply to pay a lower fee or no fee.</strong></div>",
     "qualifyingForReductionLink": "<p class=\"govuk-body\"><a href=\"#\" class=\"\">Find out more about qualifying for a reduction</a></p>",
-    "continueToPaymentButton": "<a href=\"#\" role=\"button\" draggable=\"false\" class=\"govuk-button govuk-button--start\" data-module=\"govuk-button\">Continue to payment<svg class=\"govuk-button__start-icon\" xmlns=\"http://www.w3.org/2000/svg\" width=\"17.5\" height=\"19\" viewBox=\"0 0 33 40\" aria-hidden=\"true\" focusable=\"false\"><path fill=\"currentColor\" d=\"M0 0h13l20 20-20 20H0l20-20z\" /></svg></a>"
+    "continueToPaymentButton": "<a href=\"#\" role=\"button\" draggable=\"false\" class=\"govuk-button govuk-button--start\" data-module=\"govuk-button\">Continue to payment<svg class=\"govuk-button__start-icon\" xmlns=\"http://www.w3.org/2000/svg\" width=\"17.5\" height=\"19\" viewBox=\"0 0 33 40\" aria-hidden=\"true\" focusable=\"false\"><path fill=\"currentColor\" d=\"M0 0h13l20 20-20 20H0l20-20z\" /></svg></a>",
 
     "howDoYouKnowYourCertificateProvider": "How do you know {{.FirstNames}} {{.LastName}}, your certificate provider?",
     "pleaseDescribe": "Please describe",
