@@ -131,5 +131,9 @@
     "restrictions": "Welsh",
     "restrictionsTooLong": "Welsh",
 
-    "whoDoYouWantToBeCertificateProviderGuidance": "<p class=\"govuk-body\">Welsh</p>"
+    "whoDoYouWantToBeCertificateProviderGuidance": "<p class=\"govuk-body\">Welsh</p>",
+
+    "certificateProviderDetails": "Welsh",
+    "certificateProviderDetailsHint": "Welsh",
+    "certificateProviderDobHint": "Welsh"
 }
