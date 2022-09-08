@@ -30,11 +30,7 @@ func CertificateProviderDetails(tmpl template.Template, dataStore DataStore) Han
 		}
 
 		if !lpa.CertificateProvider.DateOfBirth.IsZero() {
-			data.Form.Dob = Date{
-				Day:   lpa.CertificateProvider.DateOfBirth.Format("2"),
-				Month: lpa.CertificateProvider.DateOfBirth.Format("1"),
-				Year:  lpa.CertificateProvider.DateOfBirth.Format("2006"),
-			}
+			data.Form.Dob = readDate(lpa.CertificateProvider.DateOfBirth)
 		}
 
 		if r.Method == http.MethodPost {
