@@ -46,7 +46,7 @@ func CertificateProviderDetails(tmpl template.Template, dataStore DataStore) Han
 				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, howDoYouKnowYourCertificateProviderPath, http.StatusFound)
 				return nil
 			}
 		}
