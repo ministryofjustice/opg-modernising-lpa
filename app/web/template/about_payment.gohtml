@@ -1,0 +1,20 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "aboutPayment" }}</h1>
+
+            {{ trHtml .App "aboutPaymentContent" }}
+
+            {{ trHtml .App "feeCoversContent" }}
+            {{ trHtml .App "feeCoversExamples" }}
+
+            {{ trHtml .App "lowIncomeWarning" }}
+
+            {{ trHtml .App "qualifyingForReductionLink" }}
+
+            {{ trHtml .App "continueToPaymentButton" }}
+        </div>
+    </div>
+{{ end }}
