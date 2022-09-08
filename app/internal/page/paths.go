@@ -19,4 +19,5 @@ const (
 	restrictionsPath                                = "/restrictions"
 	whoDoYouWantToBeCertificateProviderGuidancePath = "/who-do-you-want-to-be-certificate-provider-guidance"
 	certificateProviderDetailsPath                  = "/certificate-provider-details"
+	howDoYouKnowYourCertificateProviderPath         = "/how-do-you-know-your-certificate-provider"
 )

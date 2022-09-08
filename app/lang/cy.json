@@ -135,5 +135,17 @@
 
     "certificateProviderDetails": "Welsh",
     "certificateProviderDetailsHint": "Welsh",
-    "certificateProviderDobHint": "Welsh"
+    "certificateProviderDobHint": "Welsh",
+
+    "howDoYouKnowYourCertificateProvider": "{{.FirstNames}} {{.LastName}} Welsh",
+    "pleaseDescribe": "Welsh",
+    "friend": "Welsh",
+    "neighbour": "Welsh",
+    "colleague": "Welsh",
+    "healthProfessional": "Welsh",
+    "legalProfessional": "Welsh",
+    "or": "Welsh",
+    "Other": "Welsh",
+    "selectHowYouKnowCertificateProvider": "Welsh",
+    "enterDescription": "Welsh"
 }
