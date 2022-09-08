@@ -7,46 +7,46 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 )
 
-type chooseAttorneysData struct {
+type certificateProviderDetailsData struct {
 	App    AppData
 	Errors map[string]string
-	Form   *chooseAttorneysForm
+	Form   *certificateProviderDetailsForm
 }
 
-func ChooseAttorneys(tmpl template.Template, dataStore DataStore) Handler {
+func CertificateProviderDetails(tmpl template.Template, dataStore DataStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		var lpa Lpa
 		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
 			return err
 		}
 
-		data := &chooseAttorneysData{
+		data := &certificateProviderDetailsData{
 			App: appData,
-			Form: &chooseAttorneysForm{
-				FirstNames: lpa.Attorney.FirstNames,
-				LastName:   lpa.Attorney.LastName,
-				Email:      lpa.Attorney.Email,
+			Form: &certificateProviderDetailsForm{
+				FirstNames: lpa.CertificateProvider.FirstNames,
+				LastName:   lpa.CertificateProvider.LastName,
+				Email:      lpa.CertificateProvider.Email,
 			},
 		}
 
-		if !lpa.Attorney.DateOfBirth.IsZero() {
-			data.Form.Dob = readDate(lpa.Attorney.DateOfBirth)
+		if !lpa.CertificateProvider.DateOfBirth.IsZero() {
+			data.Form.Dob = readDate(lpa.CertificateProvider.DateOfBirth)
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readChooseAttorneysForm(r)
+			data.Form = readCertificateProviderDetailsForm(r)
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				lpa.Attorney.FirstNames = data.Form.FirstNames
-				lpa.Attorney.LastName = data.Form.LastName
-				lpa.Attorney.Email = data.Form.Email
-				lpa.Attorney.DateOfBirth = data.Form.DateOfBirth
+				lpa.CertificateProvider.FirstNames = data.Form.FirstNames
+				lpa.CertificateProvider.LastName = data.Form.LastName
+				lpa.CertificateProvider.Email = data.Form.Email
+				lpa.CertificateProvider.DateOfBirth = data.Form.DateOfBirth
 
 				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, chooseAttorneysAddressPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
 				return nil
 			}
 		}
@@ -55,7 +55,7 @@ func ChooseAttorneys(tmpl template.Template, dataStore DataStore) Handler {
 	}
 }
 
-type chooseAttorneysForm struct {
+type certificateProviderDetailsForm struct {
 	FirstNames       string
 	LastName         string
 	Email            string
@@ -64,8 +64,8 @@ type chooseAttorneysForm struct {
 	DateOfBirthError error
 }
 
-func readChooseAttorneysForm(r *http.Request) *chooseAttorneysForm {
-	d := &chooseAttorneysForm{}
+func readCertificateProviderDetailsForm(r *http.Request) *certificateProviderDetailsForm {
+	d := &certificateProviderDetailsForm{}
 	d.FirstNames = postFormString(r, "first-names")
 	d.LastName = postFormString(r, "last-name")
 	d.Email = postFormString(r, "email")
@@ -80,7 +80,7 @@ func readChooseAttorneysForm(r *http.Request) *chooseAttorneysForm {
 	return d
 }
 
-func (d *chooseAttorneysForm) Validate() map[string]string {
+func (d *certificateProviderDetailsForm) Validate() map[string]string {
 	errors := map[string]string{}
 
 	if d.FirstNames == "" {

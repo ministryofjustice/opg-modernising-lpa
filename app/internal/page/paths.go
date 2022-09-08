@@ -18,4 +18,5 @@ const (
 	whenCanTheLpaBeUsedPath                         = "/when-can-the-lpa-be-used"
 	restrictionsPath                                = "/restrictions"
 	whoDoYouWantToBeCertificateProviderGuidancePath = "/who-do-you-want-to-be-certificate-provider-guidance"
+	certificateProviderDetailsPath                  = "/certificate-provider-details"
 )
