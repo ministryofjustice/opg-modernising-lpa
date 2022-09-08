@@ -32,7 +32,7 @@ func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, dataSto
 			if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 				return err
 			}
-			appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
+			appData.Lang.Redirect(w, r, certificateProviderDetailsPath, http.StatusFound)
 			return nil
 		}
 

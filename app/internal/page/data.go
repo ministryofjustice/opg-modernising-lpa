@@ -17,6 +17,7 @@ const (
 type Lpa struct {
 	You                      Person
 	Attorney                 Attorney
+	CertificateProvider      CertificateProvider
 	WhoFor                   string
 	Contact                  []string
 	Type                     string
@@ -46,6 +47,13 @@ type Attorney struct {
 	Email       string
 	DateOfBirth time.Time
 	Address     Address
+}
+
+type CertificateProvider struct {
+	FirstNames  string
+	LastName    string
+	Email       string
+	DateOfBirth time.Time
 }
 
 type Address struct {
@@ -93,4 +101,12 @@ type Date struct {
 	Day   string
 	Month string
 	Year  string
+}
+
+func readDate(t time.Time) Date {
+	return Date{
+		Day:   t.Format("2"),
+		Month: t.Format("1"),
+		Year:  t.Format("2006"),
+	}
 }

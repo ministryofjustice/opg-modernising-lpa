@@ -30,11 +30,7 @@ func YourDetails(tmpl template.Template, dataStore DataStore) Handler {
 		}
 
 		if !lpa.You.DateOfBirth.IsZero() {
-			data.Form.Dob = Date{
-				Day:   lpa.You.DateOfBirth.Format("2"),
-				Month: lpa.You.DateOfBirth.Format("1"),
-				Year:  lpa.You.DateOfBirth.Format("2006"),
-			}
+			data.Form.Dob = readDate(lpa.You.DateOfBirth)
 		}
 
 		if r.Method == http.MethodPost {
