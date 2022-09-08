@@ -17,6 +17,7 @@ const (
 type Lpa struct {
 	You                      Person
 	Attorney                 Attorney
+	CertificateProvider      CertificateProvider
 	WhoFor                   string
 	Contact                  []string
 	Type                     string
@@ -46,6 +47,13 @@ type Attorney struct {
 	Email       string
 	DateOfBirth time.Time
 	Address     Address
+}
+
+type CertificateProvider struct {
+	FirstNames  string
+	LastName    string
+	Email       string
+	DateOfBirth time.Time
 }
 
 type Address struct {

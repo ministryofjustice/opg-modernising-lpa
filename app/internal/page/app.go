@@ -102,6 +102,8 @@ func App(
 		Restrictions(tmpls.Get("restrictions.gohtml"), dataStore))
 	handle(whoDoYouWantToBeCertificateProviderGuidancePath, RequireSession|CanGoBack,
 		WhoDoYouWantToBeCertificateProviderGuidance(tmpls.Get("who_do_you_want_to_be_certificate_provider_guidance.gohtml"), dataStore))
+	handle(certificateProviderDetailsPath, RequireSession|CanGoBack,
+		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), dataStore))
 
 	return mux
 }
