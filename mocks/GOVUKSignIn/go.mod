@@ -1,4 +1,4 @@
-module GOVUKSignIn
+module github.com/ministryofjustice/opg-modernising-lpa/mocks/GOVUKSignIn
 
 go 1.19
 
