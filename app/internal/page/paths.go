@@ -8,6 +8,7 @@ const (
 	certificateProviderDetailsPath                  = "/certificate-provider-details"
 	chooseAttorneysAddressPath                      = "/choose-attorneys-address"
 	chooseAttorneysPath                             = "/choose-attorneys"
+	howDoYouKnowYourCertificateProviderPath         = "/how-do-you-know-your-certificate-provider"
 	howWouldYouLikeToBeContactedPath                = "/how-would-you-like-to-be-contacted"
 	lpaTypePath                                     = "/lpa-type"
 	restrictionsPath                                = "/restrictions"
@@ -17,6 +18,6 @@ const (
 	whenCanTheLpaBeUsedPath                         = "/when-can-the-lpa-be-used"
 	whoDoYouWantToBeCertificateProviderGuidancePath = "/who-do-you-want-to-be-certificate-provider-guidance"
 	whoIsTheLpaForPath                              = "/who-is-the-lpa-for"
-	yourDetailsPath                                 = "/your-details"
 	yourAddressPath                                 = "/your-address"
+	yourDetailsPath                                 = "/your-details"
 )
