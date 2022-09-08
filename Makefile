@@ -36,11 +36,7 @@ build-up-app-testing: ##@build Builds the app with testing config
 
 run-cypress: ##@testing Runs cypress e2e tests. To run a specific spec file pass in spec e.g. make run-cypress spec=start
 ifdef spec
-		docker compose -f ./docker-compose.yml \
-    	-f ./docker-compose.testing.yml \
-    	run --rm cypress --spec "cypress/e2e/$(spec).cy.js"
+	yarn run cypress:run --spec "cypress/e2e/$(spec).cy.js"
 else
-		docker compose -f ./docker-compose.yml \
-    	-f ./docker-compose.testing.yml \
-    	run --rm cypress
+	yarn run cypress:run
 endif
