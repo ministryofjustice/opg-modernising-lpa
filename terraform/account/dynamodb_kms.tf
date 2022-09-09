@@ -111,7 +111,7 @@ data "aws_iam_policy_document" "dynamodb_kms" {
 data "aws_iam_policy_document" "dynamodb_kms_development_account_operator_admin" {
   provider = aws.global
   statement {
-    sid    = "Allow Key to be used for Encryption"
+    sid    = "Allow Key to be used in dev for Encryption"
     effect = "Allow"
     resources = [
       "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
