@@ -28,9 +28,9 @@ func TestGetTaskList(t *testing.T) {
 					FirstNames: "this",
 				},
 				Tasks: Tasks{
-					WhenCanTheLpaBeUsed:                 TaskInProgress,
-					Restrictions:                        TaskInProgress,
-					WhoDoYouWantToBeCertificateProvider: TaskInProgress,
+					WhenCanTheLpaBeUsed: TaskInProgress,
+					Restrictions:        TaskInProgress,
+					CertificateProvider: TaskInProgress,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {

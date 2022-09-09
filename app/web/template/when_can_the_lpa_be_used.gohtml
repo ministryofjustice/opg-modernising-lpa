@@ -16,21 +16,10 @@
 
             {{ template "error-message" (errorMessage . "when") }}
 
-            <div class="govuk-radios {{ if index .Errors "when" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-when" name="when" type="radio" value="when-registered" {{ if eq .When "when-registered" }}checked{{ end }}>
-                <label class="govuk-label govuk-radios__label" for="f-when">
-                  {{ tr .App "asSoonAsItsRegistered" }}
-                </label>
-              </div>
-
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-when-2" name="when" type="radio" value="when-capacity-lost" {{ if eq .When "when-capacity-lost" }}checked{{ end }}>
-                <label class="govuk-label govuk-radios__label" for="f-when-2">
-                  {{ tr .App "onlyWhenIDoNotHaveMentalCapacity" }}
-                </label>
-              </div>
-            </div>
+            {{ template "radios" (radios . "when" .When
+              (item "when-registered" "asSoonAsItsRegistered")
+              (item "when-capacity-lost" "onlyWhenIDoNotHaveMentalCapacity")
+            ) }}
           </fieldset>
         </div>
 
