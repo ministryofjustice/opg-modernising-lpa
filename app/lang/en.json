@@ -146,5 +146,10 @@
     "or": "Or",
     "Other": "Other",
     "selectHowYouKnowCertificateProvider": "Select how you know your certificate provider",
-    "enterDescription": "Enter description"
+    "enterDescription": "Enter description",
+
+    "howLongHaveYouKnownCertificateProvider": "How long have you known {{.FirstNames}} {{.LastName}}?",
+    "twoYearsOrMore": "2 years or more",
+    "lessThanTwoYears": "Less than 2 years",
+    "mustHaveKnownCertificateProviderTwoYears": "You must have known your non-professional certificate provider for 2 years or more"
 }

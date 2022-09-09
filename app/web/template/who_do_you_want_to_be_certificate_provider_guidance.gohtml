@@ -8,7 +8,9 @@
       <form novalidate method="post">
         <div class="govuk-button-group">
           {{ template "continue-button" . }}
-          <button type="submit" name="will-do-this-later" value="1" class="govuk-button govuk-button--secondary">{{ tr .App "willDoThisLater" }}</button>
+          {{ if .NotStarted }}
+            <button type="submit" name="will-do-this-later" value="1" class="govuk-button govuk-button--secondary">{{ tr .App "willDoThisLater" }}</button>
+          {{ end }}
         </div>
       </form>
     </div>
