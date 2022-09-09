@@ -108,6 +108,8 @@ func App(
 		HowDoYouKnowYourCertificateProvider(tmpls.Get("how_do_you_know_your_certificate_provider.gohtml"), dataStore))
 	handle(howLongHaveYouKnownCertificateProviderPath, RequireSession|CanGoBack,
 		HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), dataStore))
+	handle(aboutPaymentPath, RequireSession|CanGoBack,
+		AboutPayment(tmpls.Get("about_payment.gohtml")))
 
 	return mux
 }
