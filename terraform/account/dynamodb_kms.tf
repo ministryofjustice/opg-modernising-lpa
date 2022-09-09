@@ -5,6 +5,9 @@ resource "aws_kms_key" "dynamodb" {
   policy                  = local.account.account_name == "development" ? data.aws_iam_policy_document.dynamodb_kms_merged.json : data.aws_iam_policy_document.dynamodb_kms.json
   multi_region            = true
   provider                = aws.eu_west_1
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_kms_replica_key" "dynamodb_replica" {
@@ -12,6 +15,9 @@ resource "aws_kms_replica_key" "dynamodb_replica" {
   deletion_window_in_days = 7
   primary_key_arn         = aws_kms_key.dynamodb.arn
   provider                = aws.eu_west_2
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_kms_alias" "dynamodb_alias_eu_west_1" {
