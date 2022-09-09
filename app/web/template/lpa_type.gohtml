@@ -10,35 +10,12 @@
         
         <div class="govuk-form-group {{ if index .Errors "lpa-type" }}govuk-form-group--error{{ end }}">
           {{ template "error-message" (errorMessage . "lpa-type") }}
-          
-          <div class="govuk-radios {{ if index .Errors "lpa-type" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
-            <div class="govuk-radios__item">
-              <input class="govuk-radios__input" id="f-lpa-type" name="lpa-type" type="radio" value="pfa" aria-describedby="lpa-type-item-hint" {{ if eq .Type "pfa" }}checked{{ end }}>
-              <label class="govuk-label govuk-radios__label" for="f-lpa-type">
-                {{ tr .App "lpaTypePfa" }}
-              </label>
-              <div id="lpa-type-item-hint" class="govuk-hint govuk-radios__hint">
-                {{ tr .App "lpaTypePfaHint" }}
-              </div>
-            </div>
 
-            <div class="govuk-radios__item">
-              <input class="govuk-radios__input" id="f-lpa-type-2" name="lpa-type" type="radio" value="hw" aria-describedby="lpa-type-2-item-hint" {{ if eq .Type "hw" }}checked{{ end }}>
-              <label class="govuk-label govuk-radios__label" for="f-lpa-type-2">
-                {{ tr .App "lpaTypeHw" }}
-              </label>
-              <div id="lpa-type-2-item-hint" class="govuk-hint govuk-radios__hint">
-                {{ tr .App "lpaTypeHwHint" }}
-              </div>
-            </div>
-            
-            <div class="govuk-radios__item">
-              <input class="govuk-radios__input" id="f-lpa-type-3" name="lpa-type" type="radio" value="both" {{ if eq .Type "both" }}checked{{ end }}>
-              <label class="govuk-label govuk-radios__label" for="f-lpa-type-3">
-                {{ tr .App "lpaTypeBoth" }}
-              </label>
-            </div>
-          </div>
+          {{ template "radios" (radios . "lpa-type" .Type
+            (item "pfa" "lpaTypePfa" "hint" "lpaTypePfaHint")
+            (item "hw" "lpaTypeHw" "hint" "lpaTypeHwHint")
+            (item "both" "lpaTypeBoth")
+          ) }}
         </div>
 
         {{ template "continue-button" . }}

@@ -36,10 +36,30 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, dataStore DataS
 			if len(data.Errors) == 0 {
 				lpa.CertificateProvider.Relationship = data.Form.How
 				lpa.CertificateProvider.RelationshipDescription = data.Form.Description
+
+				requireLength := false
+				for _, relationship := range lpa.CertificateProvider.Relationship {
+					if relationship != "legal-professional" && relationship != "health-professional" {
+						requireLength = true
+					}
+				}
+
+				if requireLength {
+					lpa.Tasks.CertificateProvider = TaskInProgress
+				} else {
+					lpa.CertificateProvider.RelationshipLength = ""
+					lpa.Tasks.CertificateProvider = TaskCompleted
+				}
+
 				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
+
+				if requireLength {
+					appData.Lang.Redirect(w, r, howLongHaveYouKnownCertificateProviderPath, http.StatusFound)
+				} else {
+					appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
+				}
 				return nil
 			}
 		}

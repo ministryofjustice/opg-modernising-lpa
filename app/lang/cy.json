@@ -155,5 +155,11 @@
     "or": "Welsh",
     "Other": "Welsh",
     "selectHowYouKnowCertificateProvider": "Welsh",
-    "enterDescription": "Welsh"
+    "enterDescription": "Welsh",
+
+    "howLongHaveYouKnownCertificateProvider": "Welsh {{.FirstNames}} {{.LastName}}",
+    "twoYearsOrMore": "Welsh",
+    "lessThanTwoYears": "Welsh",
+    "mustHaveKnownCertificateProviderTwoYears": "Welsh",
+    "selectHowLongHaveYouKnownCertificateProvider": "Welsh"
 }
