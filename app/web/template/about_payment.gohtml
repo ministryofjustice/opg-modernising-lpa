@@ -1,0 +1,31 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "aboutPayment" }}</h1>
+
+            {{ trHtml .App "aboutPaymentContent" }}
+
+            <p class="govuk-body">{{ tr .App "feeCoversContent" }}</p>
+
+            {{ trHtml .App "feeCoversExamples" }}
+
+            <div class="govuk-warning-text govuk-!-margin-bottom-2">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                    <span class="govuk-warning-text__assistive">{{ tr .App "importantAssistive" }}</span>
+                    {{ tr .App "lowIncome" }}
+                </strong>
+            </div>
+
+            <p class="govuk-body">
+                <a href="#" class="">{{ tr .App "qualifyingForReduction" }}</a>
+            </p>
+
+            <button class="govuk-button" data-module="govuk-button">
+                {{ tr .App "continueToPayment" }}
+            </button>
+        </div>
+    </div>
+{{ end }}
