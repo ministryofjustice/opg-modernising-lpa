@@ -1,0 +1,39 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <form novalidate method="post">
+        <div class="govuk-form-group {{ if index .Errors "how-long" }}govuk-form-group--error{{ end }}">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl govuk-!-margin-bottom-6">
+              <h1 class="govuk-fieldset__heading">
+                {{ trFormat .App "howLongHaveYouKnownCertificateProvider" "FirstNames" .CertificateProvider.FirstNames "LastName" .CertificateProvider.LastName }}
+              </h1>
+            </legend>
+
+            {{ template "error-message" (errorMessage . "how-long") }}
+
+            <div class="govuk-radios {{ if index .Errors "how-long" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-how-long" name="how-long" type="radio" value="gte-2-years" {{ if eq .HowLong "gte-2-years" }}checked{{ end }}>
+                <label class="govuk-label govuk-radios__label" for="f-how-long">
+                  {{ tr .App "twoYearsOrMore" }}
+                </label>
+              </div>
+              
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-how-long-2" name="how-long" type="radio" value="lt-2-years" {{ if eq .HowLong "lt-2-years" }}checked{{ end }}>
+                <label class="govuk-label govuk-radios__label" for="f-how-long-2">
+                  {{ tr .App "lessThanTwoYears" }}
+                </label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+
+        {{ template "continue-button" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}

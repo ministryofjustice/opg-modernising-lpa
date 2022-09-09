@@ -28,9 +28,9 @@ type Lpa struct {
 }
 
 type Tasks struct {
-	WhenCanTheLpaBeUsed                 TaskState
-	Restrictions                        TaskState
-	WhoDoYouWantToBeCertificateProvider TaskState
+	WhenCanTheLpaBeUsed TaskState
+	Restrictions        TaskState
+	CertificateProvider TaskState
 }
 
 type Person struct {
@@ -56,6 +56,7 @@ type CertificateProvider struct {
 	DateOfBirth             time.Time
 	Relationship            []string
 	RelationshipDescription string
+	RelationshipLength      string
 }
 
 type Address struct {

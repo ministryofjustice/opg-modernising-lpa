@@ -7,8 +7,9 @@ import (
 )
 
 type whoDoYouWantToBeCertificateProviderGuidanceData struct {
-	App    AppData
-	Errors map[string]string
+	App        AppData
+	Errors     map[string]string
+	NotStarted bool
 }
 
 func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, dataStore DataStore) Handler {
@@ -19,7 +20,8 @@ func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, dataSto
 		}
 
 		data := &whoDoYouWantToBeCertificateProviderGuidanceData{
-			App: appData,
+			App:        appData,
+			NotStarted: lpa.Tasks.CertificateProvider == TaskNotStarted,
 		}
 
 		if r.Method == http.MethodPost {
@@ -28,7 +30,9 @@ func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, dataSto
 				return nil
 			}
 
-			lpa.Tasks.WhoDoYouWantToBeCertificateProvider = TaskInProgress
+			if data.NotStarted {
+				lpa.Tasks.CertificateProvider = TaskInProgress
+			}
 			if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 				return err
 			}

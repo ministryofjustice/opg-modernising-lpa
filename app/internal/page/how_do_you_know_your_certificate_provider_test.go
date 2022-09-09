@@ -111,36 +111,88 @@ func TestGetHowDoYouKnowYourCertificateProviderWhenTemplateErrors(t *testing.T) 
 }
 
 func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	dataStore := &mockDataStore{}
-	dataStore.
-		On("Get", mock.Anything, "session-id").
-		Return(nil)
-	dataStore.
-		On("Put", mock.Anything, "session-id", Lpa{
-			CertificateProvider: CertificateProvider{
-				Relationship:            []string{"friend", "legal-professional", "other"},
-				RelationshipDescription: "This",
+	testCases := map[string]struct {
+		form                url.Values
+		certificateProvider CertificateProvider
+		taskState           TaskState
+		redirect            string
+	}{
+		"professional": {
+			form: url.Values{"how": {"legal-professional", "health-professional"}},
+			certificateProvider: CertificateProvider{
+				FirstNames:   "John",
+				Relationship: []string{"legal-professional", "health-professional"},
 			},
-		}).
-		Return(nil)
-
-	form := url.Values{
-		"how":         {"friend", "legal-professional", "other"},
-		"description": {"This"},
+			taskState: TaskCompleted,
+			redirect:  taskListPath,
+		},
+		"other": {
+			form: url.Values{"how": {"other"}, "description": {"This"}},
+			certificateProvider: CertificateProvider{
+				FirstNames:              "John",
+				Relationship:            []string{"other"},
+				RelationshipDescription: "This",
+				RelationshipLength:      "gte-2-years",
+			},
+			taskState: TaskInProgress,
+			redirect:  howLongHaveYouKnownCertificateProviderPath,
+		},
+		"lay": {
+			form: url.Values{"how": {"friend", "neighbour", "colleague"}},
+			certificateProvider: CertificateProvider{
+				FirstNames:         "John",
+				Relationship:       []string{"friend", "neighbour", "colleague"},
+				RelationshipLength: "gte-2-years",
+			},
+			taskState: TaskInProgress,
+			redirect:  howLongHaveYouKnownCertificateProviderPath,
+		},
+		"mixed": {
+			form: url.Values{"how": {"legal-professional", "friend", "other"}, "description": {"This"}},
+			certificateProvider: CertificateProvider{
+				FirstNames:              "John",
+				Relationship:            []string{"legal-professional", "friend", "other"},
+				RelationshipDescription: "This",
+				RelationshipLength:      "gte-2-years",
+			},
+			taskState: TaskInProgress,
+			redirect:  howLongHaveYouKnownCertificateProviderPath,
+		},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
 
-	err := HowDoYouKnowYourCertificateProvider(nil, dataStore)(appData, w, r)
-	resp := w.Result()
+			dataStore := &mockDataStore{
+				data: Lpa{
+					CertificateProvider: CertificateProvider{FirstNames: "John", Relationship: []string{"what"}, RelationshipLength: "gte-2-years"},
+				},
+			}
+			dataStore.
+				On("Get", mock.Anything, "session-id").
+				Return(nil)
+			dataStore.
+				On("Put", mock.Anything, "session-id", Lpa{
+					CertificateProvider: tc.certificateProvider,
+					Tasks: Tasks{
+						CertificateProvider: tc.taskState,
+					},
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, taskListPath, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, dataStore)
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
+
+			err := HowDoYouKnowYourCertificateProvider(nil, dataStore)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.redirect, resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, dataStore)
+		})
+	}
 }
 
 func TestPostHowDoYouKnowYourCertificateProviderWhenStoreErrors(t *testing.T) {
