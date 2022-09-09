@@ -61,8 +61,7 @@ data "aws_iam_policy_document" "dynamodb_kms" {
     principals {
       type = "AWS"
       identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/preproduction-app-task-role",
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/production-app-task-role",
+        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/${local.default_tags.application}-app-task-role",
       ]
     }
     condition {
