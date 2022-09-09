@@ -20,4 +20,5 @@ const (
 	whoDoYouWantToBeCertificateProviderGuidancePath = "/who-do-you-want-to-be-certificate-provider-guidance"
 	certificateProviderDetailsPath                  = "/certificate-provider-details"
 	howDoYouKnowYourCertificateProviderPath         = "/how-do-you-know-your-certificate-provider"
+	howLongHaveYouKnownCertificateProviderPath      = "/how-long-have-you-known-certificate-provider"
 )

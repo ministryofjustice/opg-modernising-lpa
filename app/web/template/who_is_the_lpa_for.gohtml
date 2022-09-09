@@ -4,41 +4,25 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <form novalidate method="post">
-        <div class="govuk-form-group">
+        <div class="govuk-form-group  {{ if index .Errors "who-for" }}govuk-form-group--error{{ end }}">
           <fieldset class="govuk-fieldset">
-            <div class="govuk-form-group  {{ if index .Errors "who-for" }}govuk-form-group--error{{ end }}">
-              <fieldset class="govuk-fieldset">
-                <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl govuk-!-margin-bottom-6">
-                  <h1 class="govuk-fieldset__heading">
-                    {{ tr .App "whoIsThisLpaFor" }}
-                  </h1>
-                </legend>
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl govuk-!-margin-bottom-6">
+              <h1 class="govuk-fieldset__heading">
+                {{ tr .App "whoIsThisLpaFor" }}
+              </h1>
+            </legend>
 
-                {{ template "error-message" (errorMessage . "who-for") }}
+            {{ template "error-message" (errorMessage . "who-for") }}
 
-                <div class="govuk-radios {{ if index .Errors "who-for" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
-                  <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" id="f-who-for" name="who-for" type="radio" value="me" {{ if eq .WhoFor "me" }}checked{{ end }}>
-                    <label class="govuk-label govuk-radios__label" for="f-who-for">
-                      {{ tr .App "forMe" }}
-                    </label>
-                  </div>
-
-                  <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" id="f-who-for-2" name="who-for" type="radio" value="someone-else" aria-describedby="who-for-2-item-hint" {{ if eq .WhoFor "someone-else" }}checked{{ end }}>
-                    <label class="govuk-label govuk-radios__label" for="f-who-for-2">
-                      {{ tr .App "forSomeoneElse" }}
-                    </label>
-                    <div id="who-for-2-item-hint" class="govuk-hint govuk-radios__hint">
-                      {{ tr .App "imHelping" }}
-                    </div>
-                  </div>
-                </div>
-              </fieldset>
-            </div>
-
-            {{ template "continue-button" . }}
+            {{ template "radios" (radios . "who-for" .WhoFor
+              (item "me" "forMe")
+              (item "someone-else" "forSomeoneElse" "hint" "imHelping")
+            ) }}
           </fieldset>
+        </div>
+
+        <div class="govuk-buttons">
+          {{ template "continue-button" . }}
         </div>
       </form>
     </div>

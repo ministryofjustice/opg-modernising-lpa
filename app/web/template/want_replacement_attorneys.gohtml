@@ -13,20 +13,10 @@
         <div class="govuk-form-group {{ if index .Errors "want" }}govuk-form-group--error{{ end }}">
           {{ template "error-message" (errorMessage . "want") }}
 
-          <div class="govuk-radios {{ if index .Errors "want" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
-            <div class="govuk-radios__item">
-              <input class="govuk-radios__input" id="f-want" name="want" type="radio" value="yes" {{ if eq .Want "yes" }}checked{{ end }}>
-              <label class="govuk-label govuk-radios__label" for="f-want">
-                {{ tr .App "yes" }}
-              </label>
-            </div>
-            <div class="govuk-radios__item">
-              <input class="govuk-radios__input" id="f-want-2" name="want" type="radio" value="no" {{ if eq .Want "no" }}checked{{ end }}>
-              <label class="govuk-label govuk-radios__label" for="f-want-2">
-                {{ tr .App "no" }}
-              </label>
-            </div>
-          </div>
+          {{ template "radios" (radios . "want" .Want
+            (item "yes" "yes")
+            (item "no" "no")
+          ) }}
         </div>
 
         {{ template "continue-button" . }}
