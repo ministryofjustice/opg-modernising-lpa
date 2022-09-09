@@ -56,7 +56,6 @@
     "selectAddress": "Welsh",
     "enterAddress": "Welsh",
     "enterTownOrCity": "Welsh",
-    "enterPostcode": "Welsh",
     "couldNotLookupPostcode": "Welsh",
 
     "whoIsThisLpaFor": "Welsh",
@@ -83,7 +82,7 @@
     "lpaTypeHwHint": "Welsh",
     "lpaTypeBoth": "Welsh",
     "selectLpaType": "Welsh",
-    
+
     "taskListHeading": "Welsh",
     "taskListHelp": "Welsh",
     "taskListHelpContent": "<p class=\"govuk-body\">Welsh</p>",
@@ -104,7 +103,7 @@
     "confirmYourIdentity": "Welsh",
     "signAndRegisterTheLpa": "Welsh",
     "signTheLpa": "Welsh",
-    
+
     "whoWouldYouLikeToBeTheAttorneys": "Welsh",
     "whoWouldYouLikeToBeTheAttorneysContent": "<p class=\"govuk-body\">Welsh</p>",
     "attorney": "Welsh",
@@ -116,14 +115,14 @@
     "yes": "Welsh",
     "no": "Welsh",
     "selectWantReplacementAttorneys": "Welsh",
-    
+
     "whenCanTheLpaBeUsed": "Welsh",
     "whenCanTheLpaBeUsedContent": "<p class=\"govuk-body\">Welsh</p>",
     "whenDoYouWantAttorneysToUse": "Welsh",
     "asSoonAsItsRegistered": "Welsh",
     "onlyWhenIDoNotHaveMentalCapacity": "Welsh",
     "selectWhenCanTheLpaBeUsed": "Welsh",
-    
+
     "restrictionsOnYourAttorneysPower": "Welsh",
     "restrictionsOnYourAttorneysPowerContent": "<p class=\"govuk-body\">Welsh</p>",
     "restrictionExamples": "Welsh",
@@ -136,6 +135,15 @@
     "certificateProviderDetails": "Welsh",
     "certificateProviderDetailsHint": "Welsh",
     "certificateProviderDobHint": "Welsh",
+
+    "aboutPayment": "Welsh",
+    "aboutPaymentContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
+    "feeCoversContent": "Welsh:",
+    "feeCoversExamples": "<ul class=\"govuk-list govuk-list--bullet\"><li>welsh</li><li>welsh</li><li>welsh</li></ul>",
+    "importantAssistive": "Welsh",
+    "lowIncome": "Welsh",
+    "qualifyingForReduction": "Welsh",
+    "continueToPayment": "Welsh",
 
     "howDoYouKnowYourCertificateProvider": "{{.FirstNames}} {{.LastName}} Welsh",
     "pleaseDescribe": "Welsh",
