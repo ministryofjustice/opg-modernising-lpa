@@ -111,7 +111,10 @@ func TestGetTaskList(t *testing.T) {
 						{
 							Heading: "payForTheLpa",
 							Items: []taskListItem{
-								{Name: "payForTheLpa"},
+								{
+									Name: "payForTheLpa",
+									Path: aboutPaymentPath,
+								},
 							},
 						},
 						{
