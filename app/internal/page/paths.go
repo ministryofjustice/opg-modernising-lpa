@@ -4,7 +4,7 @@ const (
 	AuthPath         = "/auth"
 	AuthRedirectPath = "/auth/redirect"
 
-	aboutPayment                                    = "/about-payment"
+	aboutPaymentPath                                = "/about-payment"
 	certificateProviderDetailsPath                  = "/certificate-provider-details"
 	chooseAttorneysAddressPath                      = "/choose-attorneys-address"
 	chooseAttorneysPath                             = "/choose-attorneys"

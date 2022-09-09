@@ -80,7 +80,7 @@ func TaskList(tmpl template.Template, dataStore DataStore) Handler {
 					Items: []taskListItem{
 						{
 							Name: "payForTheLpa",
-							Path: aboutPayment,
+							Path: aboutPaymentPath,
 						},
 					},
 				},
