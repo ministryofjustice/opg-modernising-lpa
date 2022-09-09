@@ -14,21 +14,10 @@
 
             {{ template "error-message" (errorMessage . "how-long") }}
 
-            <div class="govuk-radios {{ if index .Errors "how-long" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-how-long" name="how-long" type="radio" value="gte-2-years" {{ if eq .HowLong "gte-2-years" }}checked{{ end }}>
-                <label class="govuk-label govuk-radios__label" for="f-how-long">
-                  {{ tr .App "twoYearsOrMore" }}
-                </label>
-              </div>
-              
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-how-long-2" name="how-long" type="radio" value="lt-2-years" {{ if eq .HowLong "lt-2-years" }}checked{{ end }}>
-                <label class="govuk-label govuk-radios__label" for="f-how-long-2">
-                  {{ tr .App "lessThanTwoYears" }}
-                </label>
-              </div>
-            </div>
+            {{ template "radios" (radios . "how-long" .HowLong
+              (item "gte-2-years" "twoYearsOrMore")
+              (item "lt-2-years" "lessThanTwoYears")
+            ) }}
           </fieldset>
         </div>
 

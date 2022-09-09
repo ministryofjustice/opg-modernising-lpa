@@ -64,6 +64,37 @@ func main() {
 
 			return field
 		},
+		"radios": func(top interface{}, name string, value interface{}, items ...interface{}) map[string]interface{} {
+			return map[string]interface{}{
+				"top":   top,
+				"name":  name,
+				"value": value,
+				"items": items,
+			}
+		},
+		"item": func(value, label string, attrs ...interface{}) map[string]interface{} {
+			item := map[string]interface{}{
+				"value": value,
+				"label": label,
+			}
+
+			if len(attrs)%2 != 0 {
+				panic("must have even number of attrs")
+			}
+
+			for i := 0; i < len(attrs); i += 2 {
+				item[attrs[i].(string)] = attrs[i+1]
+			}
+
+			return item
+		},
+		"fieldID": func(name string, i int) string {
+			if i == 0 {
+				return name
+			}
+
+			return fmt.Sprintf("%s-%d", name, i+1)
+		},
 		"errorMessage": func(top interface{}, name string) map[string]interface{} {
 			return map[string]interface{}{
 				"top":  top,
