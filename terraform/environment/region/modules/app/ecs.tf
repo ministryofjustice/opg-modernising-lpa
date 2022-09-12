@@ -27,6 +27,11 @@ resource "aws_ecs_service" "app" {
   lifecycle {
     create_before_destroy = true
   }
+
+  timeouts {
+    create = "7m"
+    update = "7m"
+  }
   provider = aws.region
 }
 
