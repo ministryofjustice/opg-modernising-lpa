@@ -10,6 +10,8 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -147,6 +149,17 @@ func main() {
 		},
 		"trCount": func(app page.AppData, messageID string, count int) string {
 			return app.Localizer.Count(messageID, count)
+		},
+		"formatDate": func(t time.Time) string {
+			if t.IsZero() {
+				return ""
+			}
+
+			return t.Format("2 January 2006")
+		},
+		"lowerFirst": func(s string) string {
+			r, n := utf8.DecodeRuneInString(s)
+			return string(unicode.ToLower(r)) + s[n:]
 		},
 	})
 	if err != nil {

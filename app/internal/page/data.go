@@ -25,6 +25,8 @@ type Lpa struct {
 	WhenCanTheLpaBeUsed      string
 	Restrictions             string
 	Tasks                    Tasks
+	Checked                  bool
+	HappyToShare             bool
 }
 
 type Tasks struct {
@@ -36,6 +38,7 @@ type Tasks struct {
 type Person struct {
 	FirstNames  string
 	LastName    string
+	Email       string
 	OtherNames  string
 	DateOfBirth time.Time
 	Address     Address
