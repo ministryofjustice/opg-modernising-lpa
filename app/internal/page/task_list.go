@@ -73,7 +73,10 @@ func TaskList(tmpl template.Template, dataStore DataStore) Handler {
 							Completed:  lpa.Tasks.CertificateProvider == TaskCompleted,
 							InProgress: lpa.Tasks.CertificateProvider == TaskInProgress,
 						},
-						{Name: "checkAndSendToYourCertificateProvider"},
+						{
+							Name: "checkAndSendToYourCertificateProvider",
+							Path: checkYourLpaPath,
+						},
 					},
 				},
 				{
