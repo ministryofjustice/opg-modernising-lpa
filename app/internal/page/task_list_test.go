@@ -41,7 +41,7 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath, InProgress: true},
 					{Name: "addRestrictionsToTheLpa", Path: restrictionsPath, InProgress: true},
 					{Name: "chooseYourCertificateProvider", Path: whoDoYouWantToBeCertificateProviderGuidancePath, InProgress: true},
-					{Name: "checkAndSendToYourCertificateProvider"},
+					{Name: "checkAndSendToYourCertificateProvider", Path: checkYourLpaPath},
 				}
 
 				return sections
@@ -74,7 +74,7 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath, Completed: true},
 					{Name: "addRestrictionsToTheLpa", Path: restrictionsPath, Completed: true},
 					{Name: "chooseYourCertificateProvider", Path: whoDoYouWantToBeCertificateProviderGuidancePath},
-					{Name: "checkAndSendToYourCertificateProvider"},
+					{Name: "checkAndSendToYourCertificateProvider", Path: checkYourLpaPath},
 				}
 
 				return sections
@@ -105,7 +105,7 @@ func TestGetTaskList(t *testing.T) {
 								{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath},
 								{Name: "addRestrictionsToTheLpa", Path: restrictionsPath},
 								{Name: "chooseYourCertificateProvider", Path: whoDoYouWantToBeCertificateProviderGuidancePath},
-								{Name: "checkAndSendToYourCertificateProvider"},
+								{Name: "checkAndSendToYourCertificateProvider", Path: checkYourLpaPath},
 							},
 						},
 						{

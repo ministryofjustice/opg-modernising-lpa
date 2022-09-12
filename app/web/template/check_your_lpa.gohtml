@@ -1,0 +1,325 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">
+        {{ tr .App "checkYourLpa" }}
+      </h1>
+    </div>
+
+    <div class="govuk-grid-column-two-thirds">
+      <p class="govuk-body">{{ tr .App "youveNowFinishedFillingInTheLpa" }}</p>
+
+      <h2 id="decisions" class="govuk-heading-l govuk-!-margin-bottom-2">
+        {{ tr .App "lpaDecisions" }}
+      </h2>
+
+      <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "typeOfLpa" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            {{ .Lpa.Type }}
+          </dd>
+        </div>
+        
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "WhenTheLpaCanBeUsed" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            {{ .Lpa.WhenCanTheLpaBeUsed }}
+          </dd>
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App "/when-can-the-lpa-be-used" }}">
+              {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "whenTheLpaCanBeUsed" }}</span>
+            </a>
+          </dd>
+        </div>
+        
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "whoAreTheAttorneys" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            {{ .Lpa.Attorney.FirstNames }} {{ .Lpa.Attorney.LastName }}
+          </dd>
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App "/choose-attorneys" }}">
+              {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "yourAttorneys" }}</span>
+            </a>
+          </dd>
+        </div>
+        
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "howTheAttorneysMustWorkTogether" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            We haven't done this bit yet
+          </dd>
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="#">
+              {{ tr .App "change" }}<span class="govuk-visually-hidden">  we haven't done this bit yet</span>
+            </a>
+          </dd>
+        </div>
+        
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "whoIsTheReplacementAttorney" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            We haven't done this bit yet
+          </dd>
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="#">
+              {{ tr .App "change" }}<span class="govuk-visually-hidden">  we haven't done this bit yet</span>
+            </a>
+          </dd>
+        </div>
+
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "restrictions" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            <p style="white-space: pre-line;">{{ .Lpa.Restrictions }}</p>
+          </dd>
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App "/restrictions" }}">
+              {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "yourRestrictions" }}</span>
+            </a>
+          </dd>
+        </div>
+      </dl>
+
+      <h2 class="govuk-heading-l govuk-!-margin-bottom-2">
+        {{ tr .App "peopleNamedOnTheLpa" }}
+      </h2>
+
+      <h3 class="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-2">
+        {{ tr .App "donor" }}
+      </h3>
+      
+      <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "name" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            {{ .Lpa.You.FirstNames }} {{ .Lpa.You.LastName }}
+            <strong class="govuk-tag" style="float: right;">
+              {{ tr .App "idVerified" }} (we haven't done this yet)
+            </strong>
+          </dd>
+        </div>
+
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "dateOfBirth" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            {{ formatDate .Lpa.You.DateOfBirth }}
+          </dd>
+        </div>
+        
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "email" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            {{ .Lpa.You.Email }}
+          </dd>
+        </div>
+        
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "address" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            <div>{{ .Lpa.You.Address.Line1 }}</div>
+            <div>{{ .Lpa.You.Address.Line2 }}</div>
+            <div>{{ .Lpa.You.Address.TownOrCity }}</div>
+            <div>{{ .Lpa.You.Address.Postcode }}</div>
+          </dd>
+        </div>
+      </dl>
+
+      <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
+        {{ tr .App "certificateProvider" }}
+      </h3>
+      
+      <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "name" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            {{ .Lpa.CertificateProvider.FirstNames }} {{ .Lpa.CertificateProvider.LastName }}
+          </dd>
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App "/certificate-provider-details" }}">
+              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "certificateProvider") }}</span>
+            </a>
+          </dd>
+        </div>
+        
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "email" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            {{ .Lpa.CertificateProvider.Email }}
+          </dd>
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App "/certificate-provider-details" }}">
+              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "certificateProviderEmail" }}</span>
+            </a>
+          </dd>
+        </div>
+      </dl>
+
+      <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
+        {{ tr .App "attorneys" }}
+      </h3>
+      
+      <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "name" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            {{ .Lpa.Attorney.FirstNames }} {{ .Lpa.Attorney.LastName }}
+          </dd>
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App "/choose-attorneys" }}">
+              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "name") }}</span>
+            </a>
+          </dd>
+        </div>
+        
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "dateOfBirth" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            {{ formatDate .Lpa.Attorney.DateOfBirth }}
+          </dd>
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App "/choose-attorneys" }}">
+              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "dateOfBirth") }}</span>
+            </a>
+          </dd>
+        </div>
+        
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "email" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            {{ .Lpa.Attorney.Email }}
+          </dd>
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App "/choose-attorneys" }}">
+              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "email") }}</span>
+            </a>
+          </dd>
+        </div>
+        
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "address" }}
+          </dt>
+          <dd class="govuk-summary-list__value">            
+            <div>{{ .Lpa.Attorney.Address.Line1 }}</div>
+            <div>{{ .Lpa.Attorney.Address.Line2 }}</div>
+            <div>{{ .Lpa.Attorney.Address.TownOrCity }}</div>
+            <div>{{ .Lpa.Attorney.Address.Postcode }}</div>
+          </dd>
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App "/choose-attorneys-address" }}">
+              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "address") }}</span>
+            </a>
+          </dd>
+        </div>
+      </dl>
+
+      <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
+        {{ tr .App "replacementAttorney" }}
+      </h3>
+
+      <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "name" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            We haven't done this yet
+          </dd>
+        </div>
+        
+        <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "dateOfBirth" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            We haven't done this yet
+          </dd>
+        </div>
+        
+        <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "email" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            We haven't done this yet
+          </dd>
+        </div>
+        
+        <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
+          <dt class="govuk-summary-list__key">
+            {{ tr .App "address" }}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            We haven't done this yet
+          </dd>
+        </div>
+      </dl>
+      
+      <form novalidate method="post">
+        <div class="govuk-form-group">
+          <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="f-checked" name="checked" type="checkbox" value="1" {{ if .Form.Checked }}checked{{ end }}>
+              <label class="govuk-label govuk-checkboxes__label" for="f-checked">
+                {{ tr .App "iveCheckedThisLpa" }}
+              </label>
+            </div>
+            
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="f-happy" name="happy" type="checkbox" value="1" {{ if .Form.Happy }}checked{{ end }}>
+              <label class="govuk-label govuk-checkboxes__label" for="f-happy">
+                {{ trFormat .App "imHappyToShare" "FirstNames" .Lpa.CertificateProvider.FirstNames "LastName" .Lpa.CertificateProvider.LastName }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {{ template "details" (details . "whatHappensIfIChange" "whatHappensIfIChangeDetails") }}
+
+        <div class="govuk-warning-text">
+          <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+          <strong class="govuk-warning-text__text">
+            <span class="govuk-warning-text__assistive"></span>
+            {{ tr .App "onceYouClickConfirmWarning" }}
+          </strong>
+        </div>
+
+        {{ template "continue-button" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}
