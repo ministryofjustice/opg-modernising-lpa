@@ -61,7 +61,7 @@ data "aws_iam_policy_document" "dynamodb_kms" {
     principals {
       type = "AWS"
       identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/${local.default_tags.application}-app-task-role",
+        local.account.account_name == "development" ? "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root" : "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/${local.account.account_name}-app-task-role",
       ]
     }
     condition {
@@ -110,36 +110,6 @@ data "aws_iam_policy_document" "dynamodb_kms" {
 
 data "aws_iam_policy_document" "dynamodb_kms_development_account_operator_admin" {
   provider = aws.global
-  statement {
-    sid    = "Allow Key to be used in dev for Encryption"
-    effect = "Allow"
-    resources = [
-      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
-    ]
-    actions = [
-      "kms:Encrypt",
-      "kms:Decrypt",
-      "kms:ReEncrypt*",
-      "kms:GenerateDataKey*",
-      "kms:DescribeKey",
-    ]
-
-    principals {
-      type = "AWS"
-      identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root",
-      ]
-    }
-    condition {
-      test     = "StringLike"
-      variable = "kms:ViaService"
-
-      values = [
-        "dynamodb.*.amazonaws.com"
-      ]
-    }
-  }
-
   statement {
     sid    = "Dev Account Key Administrator"
     effect = "Allow"
