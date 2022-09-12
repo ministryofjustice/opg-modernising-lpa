@@ -34,6 +34,9 @@ func CheckYourLpa(tmpl template.Template, dataStore DataStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
+				lpa.Checked = data.Form.Checked
+				lpa.HappyToShare = data.Form.Happy
+
 				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
