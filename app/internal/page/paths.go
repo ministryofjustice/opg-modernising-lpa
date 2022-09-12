@@ -6,6 +6,7 @@ const (
 
 	aboutPaymentPath                                = "/about-payment"
 	certificateProviderDetailsPath                  = "/certificate-provider-details"
+	checkYourLpaPath                                = "/check-your-lpa"
 	chooseAttorneysAddressPath                      = "/choose-attorneys-address"
 	chooseAttorneysPath                             = "/choose-attorneys"
 	howDoYouKnowYourCertificateProviderPath         = "/how-do-you-know-your-certificate-provider"
