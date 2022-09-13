@@ -54,8 +54,8 @@ jobs:
           ECR_REPOSITORY: modernising-lpa/app
         run: |
           docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.tag }}
-          if [ $BRANCH_NAME == "main" ]; then
-            docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.tag }}
+          if [ ${{ github.head_ref }} == "MLPAB-217" ]; then
+            docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:test-${{ inputs.tag }}
             docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
           fi
             docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
