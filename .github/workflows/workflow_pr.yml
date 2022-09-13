@@ -34,57 +34,59 @@ jobs:
     name: Create Tags
     uses: ./.github/workflows/tags_job.yml
 
-  go_unit_tests:
-    name: Run Go unit tests
-    uses: ./.github/workflows/go-unit-tests.yml
+  # go_unit_tests:
+  #   name: Run Go unit tests
+  #   uses: ./.github/workflows/go-unit-tests.yml
 
-  docker_build_scan_push:
-    name: Docker Build, Scan and Push
-    uses: ./.github/workflows/docker_job.yml
-    needs: [go_unit_tests, create_tags]
-    with:
-      tag: ${{ needs.create_tags.outputs.version_tag }}
-    secrets: inherit
+  # docker_build_scan_push:
+  #   name: Docker Build, Scan and Push
+  #   uses: ./.github/workflows/docker_job.yml
+  #   needs: [go_unit_tests, create_tags]
+  #   with:
+  #     tag: ${{ needs.create_tags.outputs.version_tag }}
+  #   secrets: inherit
 
-  terraform_account_workflow_development:
-    name: TF Plan Dev Account
-    uses: ./.github/workflows/terraform_account_job.yml
-    with:
-      workspace_name: development
-    secrets: inherit
+  # terraform_account_workflow_development:
+  #   name: TF Plan Dev Account
+  #   uses: ./.github/workflows/terraform_account_job.yml
+  #   with:
+  #     workspace_name: development
+  #   secrets: inherit
 
-  terraform_account_workflow_preproduction:
-    name: TF Plan Preprod Account
-    needs: terraform_account_workflow_development
-    uses: ./.github/workflows/terraform_account_job.yml
-    with:
-      workspace_name: preproduction
-    secrets: inherit
+  # terraform_account_workflow_preproduction:
+  #   name: TF Plan Preprod Account
+  #   needs: terraform_account_workflow_development
+  #   uses: ./.github/workflows/terraform_account_job.yml
+  #   with:
+  #     workspace_name: preproduction
+  #   secrets: inherit
 
-  terraform_account_workflow_production:
-    name: TF Plan Prod Account
-    needs: terraform_account_workflow_development
-    uses: ./.github/workflows/terraform_account_job.yml
-    with:
-      workspace_name: production
-    secrets: inherit
+  # terraform_account_workflow_production:
+  #   name: TF Plan Prod Account
+  #   needs: terraform_account_workflow_development
+  #   uses: ./.github/workflows/terraform_account_job.yml
+  #   with:
+  #     workspace_name: production
+  #   secrets: inherit
 
-  ui_tests_image:
-    name: Run Cypress UI Tests On Images
-    uses: ./.github/workflows/ui_test_job.yml
-    needs: [docker_build_scan_push, create_tags]
-    with:
-      run_against_image: true
-      tag: ${{ needs.create_tags.outputs.version_tag }}
-    secrets: inherit
+  # ui_tests_image:
+  #   name: Run Cypress UI Tests On Images
+  #   uses: ./.github/workflows/ui_test_job.yml
+  #   needs: [docker_build_scan_push, create_tags]
+  #   with:
+  #     run_against_image: true
+  #     tag: ${{ needs.create_tags.outputs.version_tag }}
+  #   secrets: inherit
 
   pr_deploy:
       name: PR Environment Deploy
-      needs: [create_tags, docker_build_scan_push, ui_tests_image]
+      needs: [create_tags]
+      # needs: [create_tags, docker_build_scan_push, ui_tests_image]
       uses: ./.github/workflows/terraform_environment_job.yml
       with:
         workspace_name: ${{ needs.create_tags.outputs.environment_workspace_name }}
-        version_tag: ${{ needs.create_tags.outputs.version_tag }}
+        version_tag: latest
+        # version_tag: ${{ needs.create_tags.outputs.version_tag }}
       secrets: inherit
 
   ui_tests_pr_env:
