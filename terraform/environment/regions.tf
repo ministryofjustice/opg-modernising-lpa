@@ -8,11 +8,8 @@ module "allow_list" {
 }
 
 module "eu_west_1" {
-  source = "./region"
-  ecs_execution_role = {
-    id  = aws_iam_role.execution_role.id
-    arn = aws_iam_role.execution_role.arn
-  }
+  source             = "./region"
+  ecs_execution_role = aws_iam_role.execution_role
   ecs_task_roles = {
     app = aws_iam_role.app_task_role
   }
