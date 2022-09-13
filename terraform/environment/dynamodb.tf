@@ -13,6 +13,13 @@ resource "aws_dynamodb_table" "lpas_table" {
     kms_key_arn = data.aws_kms_alias.dynamodb_encryption_key_eu_west_1.target_key_arn
   }
 
+  dynamic "replica" {
+    for_each = local.environment.dynamodb.region_replica_enabled ? [1] : []
+    content {
+      region_name = "eu-west-2"
+    }
+  }
+
   attribute {
     name = "Id"
     type = "S"
