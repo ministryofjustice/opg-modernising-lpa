@@ -26,14 +26,18 @@ variable "environments" {
         backup_plan_enabled = bool
         copy_action_enabled = bool
       })
+      dynamodb = object({
+        region_replica_enabled = bool
+        stream_enabled         = bool
+      })
       ecs = object({
-        enable_fargate_spot_capacity_provider = bool
+        fargate_spot_capacity_provider_enabled = bool
       })
       cloudwatch_log_groups = object({
         application_log_retention_days = number
       })
       application_load_balancer = object({
-        enable_deletion_protection = bool
+        deletion_protection_enabled = bool
       })
     })
   )
@@ -59,5 +63,5 @@ locals {
 
   default_tags = merge(local.mandatory_moj_tags, local.optional_tags)
 
-  ecs_capacity_provider = local.environment.ecs.enable_fargate_spot_capacity_provider ? "FARGATE_SPOT" : "FARGATE"
+  ecs_capacity_provider = local.environment.ecs.fargate_spot_capacity_provider_enabled ? "FARGATE_SPOT" : "FARGATE"
 }
