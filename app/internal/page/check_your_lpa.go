@@ -7,10 +7,11 @@ import (
 )
 
 type checkYourLpaData struct {
-	App    AppData
-	Errors map[string]string
-	Lpa    Lpa
-	Form   *checkYourLpaForm
+	App       AppData
+	Errors    map[string]string
+	Lpa       Lpa
+	Form      *checkYourLpaForm
+	Completed bool
 }
 
 func CheckYourLpa(tmpl template.Template, dataStore DataStore) Handler {
@@ -27,6 +28,7 @@ func CheckYourLpa(tmpl template.Template, dataStore DataStore) Handler {
 				Checked: lpa.Checked,
 				Happy:   lpa.HappyToShare,
 			},
+			Completed: lpa.Tasks.CheckYourLpa == TaskCompleted,
 		}
 
 		if r.Method == http.MethodPost {
@@ -36,6 +38,7 @@ func CheckYourLpa(tmpl template.Template, dataStore DataStore) Handler {
 			if len(data.Errors) == 0 {
 				lpa.Checked = data.Form.Checked
 				lpa.HappyToShare = data.Form.Happy
+				lpa.Tasks.CheckYourLpa = TaskCompleted
 
 				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err

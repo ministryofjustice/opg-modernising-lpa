@@ -33,6 +33,7 @@ type Tasks struct {
 	WhenCanTheLpaBeUsed TaskState
 	Restrictions        TaskState
 	CertificateProvider TaskState
+	CheckYourLpa        TaskState
 }
 
 type Person struct {
