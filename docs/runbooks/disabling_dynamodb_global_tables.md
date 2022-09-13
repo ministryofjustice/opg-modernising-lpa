@@ -19,6 +19,6 @@ When enabling replicas for an environment, update the both `region_replica_enabl
 },
 ```
 
-## Enabling Global Tables
+## Disabling Global Tables
 
 When disbaling Global Tables, set `region_replica_enabled` to `false` first, apply the changes for the environment, then set `stream_enabled` to `false` and apply again.
