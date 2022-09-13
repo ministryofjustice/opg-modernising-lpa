@@ -146,7 +146,6 @@ data "aws_iam_policy_document" "task_role_access_policy" {
 
     resources = [
       data.aws_kms_alias.secrets_manager_secret_encryption_key.target_key_arn,
-      data.aws_kms_alias.dynamodb_encryption_key.target_key_arn,
     ]
   }
 
@@ -161,7 +160,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     ]
 
     resources = [
-      data.aws_kms_alias.secrets_manager_secret_encryption_key.target_key_arn,
+      data.aws_kms_alias.dynamodb_encryption_key.target_key_arn,
     ]
   }
 
