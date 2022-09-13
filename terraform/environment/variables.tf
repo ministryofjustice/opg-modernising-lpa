@@ -36,7 +36,7 @@ variable "environments" {
         application_log_retention_days = number
       })
       application_load_balancer = object({
-        enable_ = bool
+        deletion_protection_enabled = bool
       })
     })
   )
