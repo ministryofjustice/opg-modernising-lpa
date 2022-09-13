@@ -26,6 +26,9 @@ variable "environments" {
         backup_plan_enabled = bool
         copy_action_enabled = bool
       })
+      dynamodb = object({
+        region_replica_enabled = bool
+      })
       ecs = object({
         enable_fargate_spot_capacity_provider = bool
       })
