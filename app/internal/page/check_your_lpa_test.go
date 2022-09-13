@@ -97,6 +97,7 @@ func TestPostCheckYourLpa(t *testing.T) {
 	lpa := Lpa{
 		Checked:      false,
 		HappyToShare: false,
+		Tasks:        Tasks{CheckYourLpa: TaskInProgress},
 	}
 
 	dataStore := &mockDataStore{
@@ -110,6 +111,7 @@ func TestPostCheckYourLpa(t *testing.T) {
 		On("Put", mock.Anything, "session-id", Lpa{
 			Checked:      true,
 			HappyToShare: true,
+			Tasks:        Tasks{CheckYourLpa: TaskCompleted},
 		}).
 		Return(nil)
 
@@ -142,6 +144,7 @@ func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {
 		On("Put", mock.Anything, "session-id", Lpa{
 			Checked:      true,
 			HappyToShare: true,
+			Tasks:        Tasks{CheckYourLpa: TaskCompleted},
 		}).
 		Return(expectedError)
 
