@@ -22,6 +22,5 @@ describe('Check the LPA', () => {
 
         // for now - this will eventually lead to simple certificate provider journey
         cy.url().should('contain', '/task-list');
-
     })
 });
