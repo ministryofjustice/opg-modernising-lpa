@@ -9,10 +9,11 @@ data "aws_kms_alias" "dynamodb_encryption_key_eu_west_2" {
 }
 
 resource "aws_dynamodb_table" "lpas_table" {
-  name             = "${local.environment_name}-Lpas"
-  billing_mode     = "PAY_PER_REQUEST"
+  name         = "${local.environment_name}-Lpas"
+  billing_mode = "PAY_PER_REQUEST"
+  # see docs/runbooks/disabling_dynamodb_global_tables.md when Global Tables needs to be disabled
   stream_enabled   = local.environment.dynamodb.stream_enabled
-  stream_view_type = "NEW_AND_OLD_IMAGES"
+  stream_view_type = local.environment.dynamodb.stream_enabled ? "NEW_AND_OLD_IMAGES" : null
   hash_key         = "Id"
 
 
