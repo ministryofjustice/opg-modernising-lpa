@@ -28,6 +28,7 @@ variable "environments" {
       })
       dynamodb = object({
         region_replica_enabled = bool
+        stream_enabled         = bool
       })
       ecs = object({
         fargate_spot_capacity_provider_enabled = bool
