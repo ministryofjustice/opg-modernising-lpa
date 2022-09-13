@@ -3,11 +3,8 @@ locals {
 }
 
 variable "ecs_execution_role" {
-  type = object({
-    id  = string
-    arn = string
-  })
-  description = "ID and ARN of the task execution role that the Amazon ECS container agent and the Docker daemon can assume."
+  type        = any
+  description = "The task execution role that the Amazon ECS container agent and the Docker daemon can assume."
 }
 
 variable "ecs_task_roles" {
