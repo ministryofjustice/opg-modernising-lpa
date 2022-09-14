@@ -19,10 +19,7 @@ func New(baseURL string, httpClient *http.Client) (Client, error) {
 }
 
 func (c *Client) CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, error) {
-	data, err := json.Marshal(body)
-	if err != nil {
-		return CreatePaymentResponse{}, err
-	}
+	data, _ := json.Marshal(body)
 	reader := bytes.NewReader(data)
 
 	resp, _ := c.httpClient.Post(c.baseURL+"/v1/payments", "application/json", reader)
