@@ -1,0 +1,17 @@
+.trans-switch {
+  float: right;
+
+  &__list {
+    display: inline;
+
+    &:after {
+      padding: 0 5px;
+      content: " | ";
+    }
+
+    &:last-child:after {
+      padding-right: 0;
+      content: none;
+    }
+  }
+}
