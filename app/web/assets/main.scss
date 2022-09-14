@@ -3,22 +3,4 @@ $moj-assets-path: "/static/assets/";
 
 @import "node_modules/govuk-frontend/govuk/all";
 @import "node_modules/@ministryofjustice/frontend/moj/all";
-@import "_task_list.scss";
-
-.trans-switch {
-  float: right;
-
-  &__list {
-    display: inline;
-
-    &:after {
-      padding: 0 5px;
-      content: " | ";
-    }
-
-    &:last-child:after {
-      padding-right: 0;
-      content: none;
-    }
-  }
-}
+@import "scss/main";
