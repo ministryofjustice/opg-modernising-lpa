@@ -2,7 +2,7 @@
 
 At present, when replicas are used to create DynamoDB global tables, the AWS API also enables DynamoDB Streams to send on write requests on to the replica table.
 
-However, when disabling replicas, an attempt is made first to disable streams which fails because they are required got Global Tables.
+However, when disabling replicas, an attempt is made first to disable streams which fails because they are required for Global Tables.
 
 See (https://github.com/hashicorp/terraform-provider-aws/issues/19342)
 
