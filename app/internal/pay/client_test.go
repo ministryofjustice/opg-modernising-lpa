@@ -67,7 +67,24 @@ func TestCreatePayment(t *testing.T) {
 			assert.JSONEq(t, expectedReqBody, string(reqBody), "Request body did not match")
 
 			rw.WriteHeader(http.StatusCreated)
-			rw.Write([]byte(fmt.Sprintf(`
+			rw.Write(generateCreatePaymentResponseBodyJsonString())
+		}))
+
+		defer server.Close()
+
+		payClient, _ := New(server.URL, server.Client())
+
+		actualCPResponse, err := payClient.CreatePayment(body)
+		if err != nil {
+			t.Fatal(err, "An error unexpectedly occurred during CreatePayment")
+		}
+
+		assert.Equal(t, expectedCPResponse, actualCPResponse, "Return value did not match")
+	})
+}
+
+func generateCreatePaymentResponseBodyJsonString() []byte {
+	return []byte(fmt.Sprintf(`
 {
   "created_date": "%s",
   "state": {
@@ -91,20 +108,7 @@ func TestCreatePayment(t *testing.T) {
   "payment_id": "hu20sqlact5260q2nanm0q8u93",
   "payment_provider": "worldpay",
   "provider_id": "10987654321"
-}`, created.Format(time.RFC3339))))
-		}))
-
-		defer server.Close()
-
-		payClient, _ := New(server.URL, server.Client())
-
-		actualCPResponse, err := payClient.CreatePayment(body)
-		if err != nil {
-			t.Fatal(err, "An error unexpectedly occurred during CreatePayment")
-		}
-
-		assert.Equal(t, expectedCPResponse, actualCPResponse, "Return value did not match")
-	})
+}`, created.Format(time.RFC3339)))
 }
 
 func TestGetPayment(t *testing.T) {
@@ -117,72 +121,7 @@ func TestGetPayment(t *testing.T) {
 			assert.Equal(t, req.URL.String(), fmt.Sprintf("/v1/payments/%s", paymentId), "URL did not match")
 
 			rw.WriteHeader(http.StatusCreated)
-			rw.Write(
-				[]byte(
-					fmt.Sprintf(`
-{
-  "created_date": "%s",
-  "amount": %v,
-  "state": {
-    "status": "success",
-    "finished": true
-  },
-  "description": "%s",
-  "reference": "%s",
-  "language": "%s",
-  "metadata": {
-    "ledger_code": "AB100",
-    "an_internal_reference_number": 200
-  },
-  "email": "%s",
-  "card_details": {
-    "card_brand": "Visa",
-    "card_type": "debit",
-    "last_digits_card_number": "1234",
-    "first_digits_card_number": "123456",
-    "expiry_date": "04/24",
-    "cardholder_name": "Sherlock Holmes",
-    "billing_address": {
-        "line1": "221 Baker Street",
-        "line2": "Flat b",
-        "postcode": "NW1 6XE",
-        "city": "London",
-        "country": "GB"
-    }
-  },
-  "payment_id": "hu20sqlact5260q2nanm0q8u93",
-  "authorisation_summary": {
-    "three_d_secure": {
-      "required": true
-    }
-  },
-  "refund_summary": {
-    "status": "available",
-    "amount_available": 4000,
-    "amount_submitted": 80
-  },
-  "settlement_summary": {
-    "capture_submit_time": "%s",
-    "captured_date": "2022-01-05",
-    "settled_date": "2022-01-05"
-  },
-  "delayed_capture": false,
-  "moto": false,
-  "corporate_card_surcharge": 250,
-  "total_amount": 4000,
-  "fee": 200,
-  "net_amount": 3800,
-  "payment_provider": "worldpay",
-  "provider_id": "10987654321",
-  "return_url": "https://your.service.gov.uk/completed"
-}`,
-						created.Format(time.RFC3339),
-						amount,
-						description,
-						reference,
-						language,
-						email,
-						created.Format(time.RFC3339))))
+			rw.Write(generateGetPaymentResponseBodyJsonBytes())
 		}))
 
 		defer server.Close()
@@ -248,4 +187,71 @@ func TestGetPayment(t *testing.T) {
 		}
 		assert.Equal(t, expectedGPResponse, actualGPResponse)
 	})
+}
+
+func generateGetPaymentResponseBodyJsonBytes() []byte {
+	return []byte(fmt.Sprintf(`
+{
+  "created_date": "%s",
+  "amount": %v,
+  "state": {
+    "status": "success",
+    "finished": true
+  },
+  "description": "%s",
+  "reference": "%s",
+  "language": "%s",
+  "metadata": {
+    "ledger_code": "AB100",
+    "an_internal_reference_number": 200
+  },
+  "email": "%s",
+  "card_details": {
+    "card_brand": "Visa",
+    "card_type": "debit",
+    "last_digits_card_number": "1234",
+    "first_digits_card_number": "123456",
+    "expiry_date": "04/24",
+    "cardholder_name": "Sherlock Holmes",
+    "billing_address": {
+        "line1": "221 Baker Street",
+        "line2": "Flat b",
+        "postcode": "NW1 6XE",
+        "city": "London",
+        "country": "GB"
+    }
+  },
+  "payment_id": "hu20sqlact5260q2nanm0q8u93",
+  "authorisation_summary": {
+    "three_d_secure": {
+      "required": true
+    }
+  },
+  "refund_summary": {
+    "status": "available",
+    "amount_available": 4000,
+    "amount_submitted": 80
+  },
+  "settlement_summary": {
+    "capture_submit_time": "%s",
+    "captured_date": "2022-01-05",
+    "settled_date": "2022-01-05"
+  },
+  "delayed_capture": false,
+  "moto": false,
+  "corporate_card_surcharge": 250,
+  "total_amount": 4000,
+  "fee": 200,
+  "net_amount": 3800,
+  "payment_provider": "worldpay",
+  "provider_id": "10987654321",
+  "return_url": "https://your.service.gov.uk/completed"
+}`,
+		created.Format(time.RFC3339),
+		amount,
+		description,
+		reference,
+		language,
+		email,
+		created.Format(time.RFC3339)))
 }
