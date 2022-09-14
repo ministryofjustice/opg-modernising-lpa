@@ -21,7 +21,7 @@ resource "aws_lb" "app" {
   load_balancer_type         = "application"
   drop_invalid_header_fields = true
   subnets                    = var.network.public_subnets
-  enable_deletion_protection = var.alb_enable_deletion_protection
+  enable_deletion_protection = var.alb_deletion_protection_enabled
   security_groups            = [aws_security_group.app_loadbalancer.id]
 
   # access_logs {
