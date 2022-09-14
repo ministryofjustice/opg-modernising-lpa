@@ -10,7 +10,7 @@ This is the workaround to use for this issue.
 
 ## Enabling Global Tables
 
-When enabling replicas for an environment, update the both `region_replica_enabled` and `stream_enabled` values in the terraform.tfvars.json file to `true`.
+When enabling replicas for an environment, update both the `region_replica_enabled` and `stream_enabled` values in the terraform.tfvars.json file to `true`.
 
 ```json
 "dynamodb": {
