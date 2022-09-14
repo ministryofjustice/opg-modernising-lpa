@@ -81,6 +81,39 @@ func TestCreatePayment(t *testing.T) {
 
 		assert.Equal(t, expectedCPResponse, actualCPResponse, "Return value did not match")
 	})
+
+	t.Run("Returns an error if unable to decode response", func(t *testing.T) {
+		body := CreatePaymentBody{
+			Amount:      amount,
+			Reference:   reference,
+			Description: description,
+			ReturnUrl:   returnUrl,
+			Email:       email,
+			Language:    language,
+		}
+
+		expectedCPResponse := CreatePaymentResponse{}
+
+		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+			defer req.Body.Close()
+
+			assert.Equal(t, req.URL.String(), "/v1/payments", "URL did not match")
+
+			rw.WriteHeader(http.StatusCreated)
+			rw.Write([]byte("not JSON"))
+		}))
+
+		defer server.Close()
+
+		payClient, _ := New(server.URL, server.Client())
+
+		actualCPResponse, err := payClient.CreatePayment(body)
+		if err == nil {
+			t.Fatal("Expected an error but received nil")
+		}
+
+		assert.Equal(t, expectedCPResponse, actualCPResponse, "Return value did not match")
+	})
 }
 
 func generateCreatePaymentResponseBodyJsonString() []byte {
@@ -185,7 +218,32 @@ func TestGetPayment(t *testing.T) {
 			ProviderId:             "10987654321",
 			ReturnUrl:              "https://your.service.gov.uk/completed",
 		}
-		assert.Equal(t, expectedGPResponse, actualGPResponse)
+		assert.Equal(t, expectedGPResponse, actualGPResponse, "Return value did not match")
+	})
+
+	t.Run("Returns an error if unable to decode response", func(t *testing.T) {
+		paymentId := "fake-id-value"
+
+		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+			defer req.Body.Close()
+
+			assert.Equal(t, req.URL.String(), fmt.Sprintf("/v1/payments/%s", paymentId), "URL did not match")
+
+			rw.WriteHeader(http.StatusCreated)
+			rw.Write([]byte("still not JSON"))
+		}))
+
+		defer server.Close()
+
+		payClient, _ := New(server.URL, server.Client())
+
+		actualGPResponse, err := payClient.GetPayment(paymentId)
+
+		if err == nil {
+			t.Fatal("Expected an error but received nil")
+		}
+
+		assert.Equal(t, GetPaymentResponse{}, actualGPResponse, "Return value did not match")
 	})
 }
 
