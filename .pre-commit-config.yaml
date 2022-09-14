@@ -15,6 +15,9 @@ repos:
       - id: detect-private-key # detects the presence of private keys.
       - id: mixed-line-ending # replaces or checks mixed line ending.
         args: [ "--fix=auto" ]
+      - id: no-commit-to-branch
+        args:
+        - --branch=main
   - repo: https://github.com/awslabs/git-secrets
     rev: master
     hooks:
