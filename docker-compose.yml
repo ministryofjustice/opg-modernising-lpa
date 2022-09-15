@@ -22,7 +22,7 @@ services:
       - CLIENT_ID=client-id-value
       - ISSUER=http://sign-in-mock:8080
       - DYNAMODB_TABLE_LPAS=lpas
-      
+
   localstack:
     build:
       context: .
@@ -45,3 +45,10 @@ services:
     environment:
       - PUBLIC_URL=http://localhost:7012
       - CLIENT_ID=client-id-value
+
+  pay-mock:
+    image: stoplight/prism:4.10.3
+    command: 'mock https://raw.githubusercontent.com/alphagov/pay-publicapi/master/openapi/publicapi_spec.json -h 0.0.0.0 --dynamic'
+    container_name: pay-mock
+    ports:
+      - '4010:4010'
