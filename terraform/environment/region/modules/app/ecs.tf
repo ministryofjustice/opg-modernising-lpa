@@ -27,6 +27,11 @@ resource "aws_ecs_service" "app" {
   lifecycle {
     create_before_destroy = true
   }
+
+  timeouts {
+    create = "7m"
+    update = "7m"
+  }
   provider = aws.region
 }
 
@@ -94,6 +99,11 @@ data "aws_kms_alias" "secrets_manager_secret_encryption_key" {
   provider = aws.region
 }
 
+data "aws_kms_alias" "dynamodb_encryption_key" {
+  name     = "alias/${data.aws_default_tags.current.tags.application}_dynamodb_encryption"
+  provider = aws.region
+}
+
 data "aws_secretsmanager_secret" "private_jwt_key" {
   name     = "private-jwt-key-base64"
   provider = aws.region
@@ -136,6 +146,21 @@ data "aws_iam_policy_document" "task_role_access_policy" {
 
     resources = [
       data.aws_kms_alias.secrets_manager_secret_encryption_key.target_key_arn,
+    ]
+  }
+
+  statement {
+    sid    = "DynamoDBEncryptionAccess"
+    effect = "Allow"
+
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:GenerateDataKey",
+    ]
+
+    resources = [
+      data.aws_kms_alias.dynamodb_encryption_key.target_key_arn,
     ]
   }
 

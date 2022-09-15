@@ -31,6 +31,7 @@ func TestGetTaskList(t *testing.T) {
 					WhenCanTheLpaBeUsed: TaskInProgress,
 					Restrictions:        TaskInProgress,
 					CertificateProvider: TaskInProgress,
+					CheckYourLpa:        TaskInProgress,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
@@ -41,7 +42,7 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath, InProgress: true},
 					{Name: "addRestrictionsToTheLpa", Path: restrictionsPath, InProgress: true},
 					{Name: "chooseYourCertificateProvider", Path: whoDoYouWantToBeCertificateProviderGuidancePath, InProgress: true},
-					{Name: "checkAndSendToYourCertificateProvider", Path: checkYourLpaPath},
+					{Name: "checkAndSendToYourCertificateProvider", Path: checkYourLpaPath, InProgress: true},
 				}
 
 				return sections
@@ -61,9 +62,13 @@ func TestGetTaskList(t *testing.T) {
 				},
 				Contact:                  []string{"this"},
 				WantReplacementAttorneys: "this",
+				Checked:                  true,
+				HappyToShare:             true,
 				Tasks: Tasks{
 					WhenCanTheLpaBeUsed: TaskCompleted,
 					Restrictions:        TaskCompleted,
+					CertificateProvider: TaskCompleted,
+					CheckYourLpa:        TaskCompleted,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
@@ -73,8 +78,8 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath, Completed: true},
 					{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath, Completed: true},
 					{Name: "addRestrictionsToTheLpa", Path: restrictionsPath, Completed: true},
-					{Name: "chooseYourCertificateProvider", Path: whoDoYouWantToBeCertificateProviderGuidancePath},
-					{Name: "checkAndSendToYourCertificateProvider", Path: checkYourLpaPath},
+					{Name: "chooseYourCertificateProvider", Path: whoDoYouWantToBeCertificateProviderGuidancePath, Completed: true},
+					{Name: "checkAndSendToYourCertificateProvider", Path: checkYourLpaPath, Completed: true},
 				}
 
 				return sections
