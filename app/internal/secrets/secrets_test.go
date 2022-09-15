@@ -115,3 +115,31 @@ func TestCookieSessionKeysNotBase64(t *testing.T) {
 	_, err := c.CookieSessionKeys()
 	assert.NotNil(t, err)
 }
+
+func TestPayApiKey(t *testing.T) {
+	secretsCache := &mockSecretsCache{}
+
+	t.Run("Returns GOV UK Pay API key string", func(t *testing.T) {
+		secretsCache.
+			On("GetSecretString", "gov-uk-pay-api-key").
+			Return("a-fake-key", nil)
+
+		c := &Client{cache: secretsCache}
+
+		result, err := c.PayApiKey()
+		assert.Nil(t, err)
+		assert.Equal(t, "a-fake-key", result)
+	})
+
+	t.Run("Returns an error when an error occurs during GetSecretString", func(t *testing.T) {
+		secretsCache.
+			On("GetSecretString", "gov-uk-pay-api-key").
+			Return("", expectedError)
+
+		c := &Client{cache: secretsCache}
+
+		result, err := c.PayApiKey()
+		assert.Equal(t, "", result)
+		assert.Equal(t, expectedError, err)
+	})
+}
