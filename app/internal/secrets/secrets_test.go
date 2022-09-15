@@ -117,9 +117,10 @@ func TestCookieSessionKeysNotBase64(t *testing.T) {
 }
 
 func TestPayApiKey(t *testing.T) {
-	secretsCache := &mockSecretsCache{}
 
 	t.Run("Returns GOV UK Pay API key string", func(t *testing.T) {
+		secretsCache := &mockSecretsCache{}
+
 		secretsCache.
 			On("GetSecretString", "gov-uk-pay-api-key").
 			Return("a-fake-key", nil)
@@ -132,6 +133,8 @@ func TestPayApiKey(t *testing.T) {
 	})
 
 	t.Run("Returns an error when an error occurs during GetSecretString", func(t *testing.T) {
+		secretsCache := &mockSecretsCache{}
+
 		secretsCache.
 			On("GetSecretString", "gov-uk-pay-api-key").
 			Return("", expectedError)
