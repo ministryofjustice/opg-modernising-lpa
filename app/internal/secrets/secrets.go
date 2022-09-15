@@ -65,3 +65,12 @@ func (c *Client) CookieSessionKeys() ([][]byte, error) {
 
 	return keys, nil
 }
+
+func (c *Client) PayApiKey() (string, error) {
+	secret, err := c.cache.GetSecretString("gov-uk-pay-api-key")
+	if err != nil {
+		return "", err
+	}
+
+	return secret, nil
+}
