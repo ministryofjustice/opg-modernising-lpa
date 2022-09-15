@@ -3,7 +3,9 @@ package pay
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"net/http/httputil"
 )
 
 type Client struct {
@@ -29,8 +31,18 @@ func (c *Client) CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, e
 		return CreatePaymentResponse{}, err
 	}
 	req.Header.Add("Authorization", "Bearer "+c.apiKey)
+	req.Header.Add("Content-Type", "application/json")
+
+	requestDump, err := httputil.DumpRequest(req, true)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(requestDump))
 
 	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return CreatePaymentResponse{}, err
+	}
 
 	defer resp.Body.Close()
 
@@ -50,6 +62,7 @@ func (c *Client) GetPayment(paymentId string) (GetPaymentResponse, error) {
 	}
 
 	req.Header.Add("Authorization", "Bearer "+c.apiKey)
+	req.Header.Add("Content-Type", "application/json")
 
 	resp, err := c.httpClient.Do(req)
 

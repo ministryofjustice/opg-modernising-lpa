@@ -9,6 +9,7 @@ services:
     depends_on:
       - localstack
       - sign-in-mock
+      - pay-mock
     restart: on-failure
     ports:
       - "5050:8080"
@@ -48,7 +49,7 @@ services:
 
   pay-mock:
     image: stoplight/prism:4.10.3
-    command: 'mock https://raw.githubusercontent.com/alphagov/pay-publicapi/master/openapi/publicapi_spec.json -h 0.0.0.0 --dynamic'
+    command: 'mock https://raw.githubusercontent.com/alphagov/pay-publicapi/master/openapi/publicapi_spec.json -h 0.0.0.0'
     container_name: pay-mock
     ports:
       - '4010:4010'
