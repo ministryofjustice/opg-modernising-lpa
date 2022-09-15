@@ -8,13 +8,15 @@ import (
 
 type Client struct {
 	baseURL    string
+	apiKey     string
 	httpClient *http.Client
 }
 
-func New(baseURL string, httpClient *http.Client) (Client, error) {
+func New(baseURL, apiKey string, httpClient *http.Client) (Client, error) {
 	return Client{
 		baseURL:    baseURL,
 		httpClient: httpClient,
+		apiKey:     apiKey,
 	}, nil
 }
 
@@ -22,7 +24,14 @@ func (c *Client) CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, e
 	data, _ := json.Marshal(body)
 	reader := bytes.NewReader(data)
 
-	resp, _ := c.httpClient.Post(c.baseURL+"/v1/payments", "application/json", reader)
+	req, err := http.NewRequest("POST", c.baseURL+"/v1/payments", reader)
+	if err != nil {
+		return CreatePaymentResponse{}, err
+	}
+	req.Header.Add("Authorization", "Bearer "+c.apiKey)
+
+	resp, err := c.httpClient.Do(req)
+
 	defer resp.Body.Close()
 
 	var createPaymentResp CreatePaymentResponse
@@ -35,7 +44,15 @@ func (c *Client) CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, e
 }
 
 func (c *Client) GetPayment(paymentId string) (GetPaymentResponse, error) {
-	resp, _ := c.httpClient.Get(c.baseURL + "/v1/payments/" + paymentId)
+	req, err := http.NewRequest("GET", c.baseURL+"/v1/payments/"+paymentId, nil)
+	if err != nil {
+		return GetPaymentResponse{}, err
+	}
+
+	req.Header.Add("Authorization", "Bearer "+c.apiKey)
+
+	resp, err := c.httpClient.Do(req)
+
 	defer resp.Body.Close()
 
 	var getPaymentResponse GetPaymentResponse

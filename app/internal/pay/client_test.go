@@ -19,6 +19,7 @@ var (
 	email       = "a@example.org"
 	language    = "en"
 	created     = time.Date(2022, time.January, 5, 0, 0, 0, 0, time.UTC)
+	apiToken    = "fake-token"
 )
 
 func TestCreatePayment(t *testing.T) {
@@ -64,6 +65,7 @@ func TestCreatePayment(t *testing.T) {
 			expectedReqBody := `{"amount": 5,"reference" : "abc123","description": "A payment","return_url": "/example/url","email": "a@example.org","language": "en"}`
 
 			assert.Equal(t, req.URL.String(), "/v1/payments", "URL did not match")
+			assert.Equal(t, req.Header.Get("Authorization"), "Bearer fake-token", "Authorization token did not match")
 			assert.JSONEq(t, expectedReqBody, string(reqBody), "Request body did not match")
 
 			rw.WriteHeader(http.StatusCreated)
@@ -72,11 +74,37 @@ func TestCreatePayment(t *testing.T) {
 
 		defer server.Close()
 
-		payClient, _ := New(server.URL, server.Client())
+		payClient, _ := New(server.URL, apiToken, server.Client())
 
 		actualCPResponse, err := payClient.CreatePayment(body)
 		if err != nil {
 			t.Fatal(err, "An error unexpectedly occurred during CreatePayment")
+		}
+
+		assert.Equal(t, expectedCPResponse, actualCPResponse, "Return value did not match")
+	})
+
+	t.Run("Returns an error if unable to create a request", func(t *testing.T) {
+		body := CreatePaymentBody{
+			Amount:      amount,
+			Reference:   reference,
+			Description: description,
+			ReturnUrl:   returnUrl,
+			Email:       email,
+			Language:    language,
+		}
+
+		expectedCPResponse := CreatePaymentResponse{}
+
+		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {}))
+
+		defer server.Close()
+
+		payClient, _ := New(server.URL+"`invalid-url-format", apiToken, server.Client())
+
+		actualCPResponse, err := payClient.CreatePayment(body)
+		if err == nil {
+			t.Fatal("Expected an error but received nil")
 		}
 
 		assert.Equal(t, expectedCPResponse, actualCPResponse, "Return value did not match")
@@ -105,7 +133,7 @@ func TestCreatePayment(t *testing.T) {
 
 		defer server.Close()
 
-		payClient, _ := New(server.URL, server.Client())
+		payClient, _ := New(server.URL, apiToken, server.Client())
 
 		actualCPResponse, err := payClient.CreatePayment(body)
 		if err == nil {
@@ -145,13 +173,14 @@ func generateCreatePaymentResponseBodyJsonString() []byte {
 }
 
 func TestGetPayment(t *testing.T) {
-	t.Run("GETs payment information using a payment ID", func(t *testing.T) {
-		paymentId := "fake-id-value"
+	paymentId := "fake-id-value"
 
+	t.Run("GETs payment information using a payment ID", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			defer req.Body.Close()
 
 			assert.Equal(t, req.URL.String(), fmt.Sprintf("/v1/payments/%s", paymentId), "URL did not match")
+			assert.Equal(t, req.Header.Get("Authorization"), "Bearer fake-token", "Authorization token did not match")
 
 			rw.WriteHeader(http.StatusCreated)
 			rw.Write(generateGetPaymentResponseBodyJsonBytes())
@@ -159,7 +188,7 @@ func TestGetPayment(t *testing.T) {
 
 		defer server.Close()
 
-		payClient, _ := New(server.URL, server.Client())
+		payClient, _ := New(server.URL, apiToken, server.Client())
 
 		actualGPResponse, err := payClient.GetPayment(paymentId)
 		if err != nil {
@@ -221,9 +250,23 @@ func TestGetPayment(t *testing.T) {
 		assert.Equal(t, expectedGPResponse, actualGPResponse, "Return value did not match")
 	})
 
-	t.Run("Returns an error if unable to decode response", func(t *testing.T) {
-		paymentId := "fake-id-value"
+	t.Run("Returns an error if unable to create a request", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {}))
 
+		defer server.Close()
+
+		payClient, _ := New(server.URL+"`invalid-url-format", apiToken, server.Client())
+
+		actualGPResponse, err := payClient.GetPayment(paymentId)
+
+		if err == nil {
+			t.Fatal("Expected an error but received nil")
+		}
+
+		assert.Equal(t, GetPaymentResponse{}, actualGPResponse, "Return value did not match")
+	})
+
+	t.Run("Returns an error if unable to decode response", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			defer req.Body.Close()
 
@@ -235,7 +278,7 @@ func TestGetPayment(t *testing.T) {
 
 		defer server.Close()
 
-		payClient, _ := New(server.URL, server.Client())
+		payClient, _ := New(server.URL, apiToken, server.Client())
 
 		actualGPResponse, err := payClient.GetPayment(paymentId)
 
