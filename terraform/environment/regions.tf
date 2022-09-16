@@ -47,7 +47,7 @@ module "eu_west_2" {
   }
 }
 
-# moved {
-#   from = module.eu_west_1
-#   to   = module.eu_west_1[0]
-# }
+moved {
+  from = module.eu_west_1
+  to   = module.eu_west_1[0]
+}
