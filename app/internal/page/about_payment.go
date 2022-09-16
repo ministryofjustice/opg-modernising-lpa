@@ -1,6 +1,7 @@
 package page
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -17,7 +18,7 @@ type aboutPaymentData struct {
 	Errors map[string]string
 }
 
-func AboutPayment(tmpl template.Template, sessionStore sessions.Store, payClient pay.PayClient) Handler {
+func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.Store, payClient pay.PayClient) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &aboutPaymentData{
 			App: appData,
@@ -36,6 +37,7 @@ func AboutPayment(tmpl template.Template, sessionStore sessions.Store, payClient
 			resp, err := payClient.CreatePayment(createPaymentBody)
 
 			if err != nil {
+				logger.Print(fmt.Sprintf("Error creating payment: %s", err.Error()))
 				return err
 			}
 

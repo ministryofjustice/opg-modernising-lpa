@@ -43,7 +43,7 @@ func TestAboutPayment(t *testing.T) {
 
 			r, _ := http.NewRequest(http.MethodGet, "/about-payment", nil)
 
-			err := AboutPayment(template.Func, &mockSessionsStore{}, &payClient)(appData, w, r)
+			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient)(appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -62,7 +62,7 @@ func TestAboutPayment(t *testing.T) {
 
 			r, _ := http.NewRequest(http.MethodGet, "/about-payment", nil)
 
-			err := AboutPayment(template.Func, &mockSessionsStore{}, &payClient)(appData, w, r)
+			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient)(appData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -139,7 +139,7 @@ func TestAboutPayment(t *testing.T) {
 						On("Save", r, w, session).
 						Return(nil)
 
-					err := AboutPayment(template.Func, sessionsStore, &payClient)(appData, w, r)
+					err := AboutPayment(&mockLogger{}, template.Func, sessionsStore, &payClient)(appData, w, r)
 					resp := w.Result()
 
 					assert.Nil(t, err)
@@ -149,6 +149,36 @@ func TestAboutPayment(t *testing.T) {
 					mock.AssertExpectationsForObjects(t, template)
 				})
 			}
+		})
+		t.Run("Returns error when cannot create payment", func(t *testing.T) {
+			w := httptest.NewRecorder()
+			appData := AppData{}
+			template := &mockTemplate{}
+			payClient = mockPayClient{BaseURL: "http://base.url"}
+
+			payClient.
+				On("CreatePayment", pay.CreatePaymentBody{
+					Amount:      0,
+					Reference:   "abc",
+					Description: "A payment",
+					ReturnUrl:   "/payment-confirmation",
+					Email:       "a@b.com",
+					Language:    "en",
+				}).
+				Return(pay.CreatePaymentResponse{}, expectedError)
+
+			r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
+
+			sessionsStore := &mockSessionsStore{}
+
+			logger := &mockLogger{}
+			logger.
+				On("Print", "Error creating payment: "+expectedError.Error())
+
+			err := AboutPayment(logger, template.Func, sessionsStore, &payClient)(appData, w, r)
+
+			assert.Equal(t, expectedError, err, "Expected error was not returned")
+			mock.AssertExpectationsForObjects(t, logger)
 
 		})
 	})
