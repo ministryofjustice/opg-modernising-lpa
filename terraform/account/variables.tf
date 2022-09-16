@@ -9,6 +9,7 @@ variable "accounts" {
       account_name      = string
       is_production     = bool
       eu_west_2_enabled = bool
+      regions           = list(string)
     })
   )
 }
