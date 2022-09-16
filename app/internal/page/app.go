@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -67,10 +69,17 @@ func App(
 	tmpls template.Templates,
 	sessionStore sessions.Store,
 	dataStore DataStore,
+	appPublicUrl string,
 ) http.Handler {
 	mux := http.NewServeMux()
 
 	addressClient := fakeAddressClient{}
+	payClient := &pay.Client{
+		BaseURL:    "http://pay-mock:4010",
+		ApiKey:     "fake-api-key",
+		HttpClient: http.DefaultClient,
+	}
+
 	handle := makeHandle(mux, logger, sessionStore, localizer, lang)
 
 	mux.Handle("/testing-start", testingStart(sessionStore))
@@ -109,8 +118,11 @@ func App(
 	handle(howLongHaveYouKnownCertificateProviderPath, RequireSession|CanGoBack,
 		HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), dataStore))
 	handle(aboutPaymentPath, RequireSession|CanGoBack,
-		AboutPayment(tmpls.Get("about_payment.gohtml")))
+		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl))
 	handle(checkYourLpaPath, RequireSession|CanGoBack,
+		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), dataStore))
+	// Handler will be updated in the following ticket - just needed a valid path to prove redirect works
+	handle(paymentConfirmation, RequireSession|CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), dataStore))
 
 	return mux
