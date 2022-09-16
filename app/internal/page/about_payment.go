@@ -18,7 +18,7 @@ type aboutPaymentData struct {
 	Errors map[string]string
 }
 
-func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.Store, payClient pay.PayClient) Handler {
+func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.Store, payClient pay.PayClient, appPublicUrl string) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &aboutPaymentData{
 			App: appData,
@@ -29,7 +29,7 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 				Amount:      0,
 				Reference:   "abc",
 				Description: "A payment",
-				ReturnUrl:   "/payment-confirmation",
+				ReturnUrl:   appPublicUrl + "/payment-confirmation",
 				Email:       "a@b.com",
 				Language:    "en",
 			}
@@ -41,8 +41,8 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 				return err
 			}
 
-			redirectUrl := resp.Links["next_url"].Href
-			secureCookies := strings.HasPrefix(redirectUrl, "https:")
+			nextUrl := resp.Links["next_url"].Href
+			secureCookies := strings.HasPrefix(nextUrl, "https:")
 
 			cookieOptions := &sessions.Options{
 				// Should we lock this down to payment confirmation page?
@@ -66,8 +66,8 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 			}
 
 			// If URL matches expected domain for GOV UK PAY redirect there. If not, redirect to the confirmation code and carry on with flow.
-			if strings.Contains(redirectUrl, "https://publicapi.payments.service.gov.uk") {
-				http.Redirect(w, r, redirectUrl, http.StatusFound)
+			if strings.Contains(nextUrl, "https://publicapi.payments.service.gov.uk") {
+				http.Redirect(w, r, nextUrl, http.StatusFound)
 			} else {
 				http.Redirect(w, r, "/payment-confirmation", http.StatusFound)
 			}

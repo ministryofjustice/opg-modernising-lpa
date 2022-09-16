@@ -28,6 +28,8 @@ func (m *mockPayClient) GetPayment(paymentId string) (pay.GetPaymentResponse, er
 	return args.Get(0).(pay.GetPaymentResponse), args.Error(1)
 }
 
+var publicUrl = "http://example.org"
+
 func TestAboutPayment(t *testing.T) {
 	payClient := mockPayClient{BaseURL: "http://base.url"}
 
@@ -43,7 +45,7 @@ func TestAboutPayment(t *testing.T) {
 
 			r, _ := http.NewRequest(http.MethodGet, "/about-payment", nil)
 
-			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient)(appData, w, r)
+			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl)(appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -62,7 +64,7 @@ func TestAboutPayment(t *testing.T) {
 
 			r, _ := http.NewRequest(http.MethodGet, "/about-payment", nil)
 
-			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient)(appData, w, r)
+			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl)(appData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -75,17 +77,17 @@ func TestAboutPayment(t *testing.T) {
 		t.Run("Creates GOV UK Pay payment and saves paymentID in secure cookie", func(t *testing.T) {
 			testCases := map[string]struct {
 				baseUrl                 string
-				expectedRedirectPath    string
+				expectedNextUrlPath     string
 				expectCookieSecureValue bool
 			}{
 				"Real base URL": {
 					baseUrl:                 "https://publicapi.payments.service.gov.uk",
-					expectedRedirectPath:    "https://publicapi.payments.service.gov.uk/path-from/response",
+					expectedNextUrlPath:     "https://publicapi.payments.service.gov.uk/path-from/response",
 					expectCookieSecureValue: true,
 				},
 				"Mock base URL": {
 					baseUrl:                 "http://mock-pay.com",
-					expectedRedirectPath:    "/payment-confirmation",
+					expectedNextUrlPath:     "/payment-confirmation",
 					expectCookieSecureValue: false,
 				},
 			}
@@ -107,7 +109,7 @@ func TestAboutPayment(t *testing.T) {
 							Amount:      0,
 							Reference:   "abc",
 							Description: "A payment",
-							ReturnUrl:   "/payment-confirmation",
+							ReturnUrl:   "http://example.org/payment-confirmation",
 							Email:       "a@b.com",
 							Language:    "en",
 						}).
@@ -115,7 +117,7 @@ func TestAboutPayment(t *testing.T) {
 							PaymentId: "a-fake-id",
 							Links: map[string]pay.Link{
 								"next_url": pay.Link{
-									Href: tc.expectedRedirectPath,
+									Href: tc.expectedNextUrlPath,
 								},
 							},
 						}, nil)
@@ -139,12 +141,12 @@ func TestAboutPayment(t *testing.T) {
 						On("Save", r, w, session).
 						Return(nil)
 
-					err := AboutPayment(&mockLogger{}, template.Func, sessionsStore, &payClient)(appData, w, r)
+					err := AboutPayment(&mockLogger{}, template.Func, sessionsStore, &payClient, publicUrl)(appData, w, r)
 					resp := w.Result()
 
 					assert.Nil(t, err)
 					assert.Equal(t, http.StatusFound, resp.StatusCode)
-					assert.Equal(t, tc.expectedRedirectPath, resp.Header.Get("Location"))
+					assert.Equal(t, tc.expectedNextUrlPath, resp.Header.Get("Location"))
 
 					mock.AssertExpectationsForObjects(t, template)
 				})
@@ -161,7 +163,7 @@ func TestAboutPayment(t *testing.T) {
 					Amount:      0,
 					Reference:   "abc",
 					Description: "A payment",
-					ReturnUrl:   "/payment-confirmation",
+					ReturnUrl:   "http://example.org/payment-confirmation",
 					Email:       "a@b.com",
 					Language:    "en",
 				}).
@@ -175,7 +177,7 @@ func TestAboutPayment(t *testing.T) {
 			logger.
 				On("Print", "Error creating payment: "+expectedError.Error())
 
-			err := AboutPayment(logger, template.Func, sessionsStore, &payClient)(appData, w, r)
+			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl)(appData, w, r)
 
 			assert.Equal(t, expectedError, err, "Expected error was not returned")
 			mock.AssertExpectationsForObjects(t, logger)

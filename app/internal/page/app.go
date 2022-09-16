@@ -69,6 +69,7 @@ func App(
 	tmpls template.Templates,
 	sessionStore sessions.Store,
 	dataStore DataStore,
+	appPublicUrl string,
 ) http.Handler {
 	mux := http.NewServeMux()
 
@@ -111,7 +112,7 @@ func App(
 	handle(howLongHaveYouKnownCertificateProviderPath, RequireSession|CanGoBack,
 		HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), dataStore))
 	handle(aboutPaymentPath, RequireSession|CanGoBack,
-		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, &pay.Client{}))
+		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, &pay.Client{}, appPublicUrl))
 	handle(checkYourLpaPath, RequireSession|CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), dataStore))
 	handle(paymentConfirmation, RequireSession|CanGoBack,
