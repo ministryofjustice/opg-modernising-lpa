@@ -3,9 +3,7 @@ package pay
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"net/http/httputil"
 )
 
 type PayClient interface {
@@ -14,7 +12,6 @@ type PayClient interface {
 }
 
 type Client struct {
-	PayClient
 	BaseURL    string
 	ApiKey     string
 	HttpClient *http.Client
@@ -28,14 +25,9 @@ func (c *Client) CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, e
 	if err != nil {
 		return CreatePaymentResponse{}, err
 	}
+
 	req.Header.Add("Authorization", "Bearer "+c.ApiKey)
 	req.Header.Add("Content-Type", "application/json")
-
-	requestDump, err := httputil.DumpRequest(req, true)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(string(requestDump))
 
 	resp, err := c.HttpClient.Do(req)
 	if err != nil {

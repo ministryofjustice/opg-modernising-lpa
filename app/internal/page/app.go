@@ -74,6 +74,12 @@ func App(
 	mux := http.NewServeMux()
 
 	addressClient := fakeAddressClient{}
+	payClient := &pay.Client{
+		BaseURL:    "http://pay-mock:4010",
+		ApiKey:     "fake-api-key",
+		HttpClient: http.DefaultClient,
+	}
+
 	handle := makeHandle(mux, logger, sessionStore, localizer, lang)
 
 	mux.Handle("/testing-start", testingStart(sessionStore))
@@ -112,9 +118,10 @@ func App(
 	handle(howLongHaveYouKnownCertificateProviderPath, RequireSession|CanGoBack,
 		HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), dataStore))
 	handle(aboutPaymentPath, RequireSession|CanGoBack,
-		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, &pay.Client{}, appPublicUrl))
+		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl))
 	handle(checkYourLpaPath, RequireSession|CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), dataStore))
+	// Handler will be updated in the following ticket - just needed a valid path to prove redirect works
 	handle(paymentConfirmation, RequireSession|CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), dataStore))
 
