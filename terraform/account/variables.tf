@@ -8,6 +8,7 @@ variable "accounts" {
       account_id    = string
       account_name  = string
       is_production = bool
+      regions       = list(string)
     })
   )
 }
