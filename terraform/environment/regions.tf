@@ -8,8 +8,8 @@ module "allow_list" {
 }
 
 module "eu_west_1" {
-  source = "./region"
-  # count              = contains(local.environment.regions, "eu-west-1") ? 1 : 0
+  source             = "./region"
+  count              = contains(local.environment.regions, "eu-west-1") ? 1 : 0
   ecs_execution_role = aws_iam_role.execution_role
   ecs_task_roles = {
     app = aws_iam_role.app_task_role
