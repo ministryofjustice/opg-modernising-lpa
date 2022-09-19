@@ -70,15 +70,11 @@ func App(
 	sessionStore sessions.Store,
 	dataStore DataStore,
 	appPublicUrl string,
+	payClient *pay.Client,
 ) http.Handler {
 	mux := http.NewServeMux()
 
 	addressClient := fakeAddressClient{}
-	payClient := &pay.Client{
-		BaseURL:    "http://pay-mock:4010",
-		ApiKey:     "fake-api-key",
-		HttpClient: http.DefaultClient,
-	}
 
 	handle := makeHandle(mux, logger, sessionStore, localizer, lang)
 
