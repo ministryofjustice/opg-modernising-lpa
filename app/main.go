@@ -13,6 +13,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/gorilla/sessions"
@@ -39,6 +41,7 @@ func main() {
 		clientID        = env.Get("CLIENT_ID", "client-id-value")
 		issuer          = env.Get("ISSUER", "http://sign-in-mock:7012")
 		dynamoTableLpas = env.Get("DYNAMODB_TABLE_LPAS", "")
+		payBaseUrl      = env.Get("GOVUK_PAY_BASE_URL", "http://pay-mock:4010")
 	)
 
 	tmpls, err := template.Parse(webDir+"/template", map[string]interface{}{
@@ -204,13 +207,21 @@ func main() {
 
 	secureCookies := strings.HasPrefix(appPublicURL, "https:")
 
+	payApiKey, err := secretsClient.PayApiKey()
+
+	payClient := &pay.Client{
+		BaseURL:    payBaseUrl,
+		ApiKey:     payApiKey,
+		HttpClient: http.DefaultClient,
+	}
+
 	mux := http.NewServeMux()
 	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir(webDir+"/static/"))))
 	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies))
 	mux.Handle(page.AuthPath, page.Login(logger, signInClient, sessionStore, secureCookies, random.String))
 	mux.Handle("/cookies-consent", page.CookieConsent())
-	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient)))
-	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient))
+	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient)))
+	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient))
 
 	server := &http.Server{
 		Addr:              ":" + port,
