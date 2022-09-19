@@ -20,9 +20,9 @@
     },
     "devDependencies": {
         "axe-core": "4.4.3",
-        "cypress": "10.7.0",
+        "cypress": "10.8.0",
         "cypress-axe": "1.0.0",
-        "esbuild": "0.15.7",
+        "esbuild": "0.15.8",
         "sass": "1.54.9"
     }
 }
