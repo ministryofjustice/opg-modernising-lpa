@@ -5,6 +5,8 @@ github.com/MicahParks/keyfunc v1.2.2/go.mod h1:GWZYIBflWXRPShQPMFRrUg+8buvyD0IWe
 github.com/aws/aws-sdk-go v1.19.23/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/aws/aws-sdk-go v1.44.95 h1:QwmA+PeR6v4pF0f/dPHVPWGAshAhb9TnGZBTM5uKuI8=
 github.com/aws/aws-sdk-go v1.44.95/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
+github.com/aws/aws-sdk-go v1.44.100 h1:7I86bWNQB+HGDT5z/dJy61J7qgbgLoZ7O51C9eL6hrA=
+github.com/aws/aws-sdk-go v1.44.100/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
 github.com/aws/aws-secretsmanager-caching-go v1.1.0 h1:vcV94XGJ9KouXKYBTMqgrBw96Tae8JKLmoUZ5SbaXNo=
 github.com/aws/aws-secretsmanager-caching-go v1.1.0/go.mod h1:wahQpJP1dZKMqjGFAjGCqilHkTlN0zReGWocPLbXmxg=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
