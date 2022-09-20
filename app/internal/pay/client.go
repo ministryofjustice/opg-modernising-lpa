@@ -6,31 +6,33 @@ import (
 	"net/http"
 )
 
-type Client struct {
-	baseURL    string
-	apiKey     string
-	httpClient *http.Client
+type PayClient interface {
+	CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, error)
+	GetPayment(paymentId string) (GetPaymentResponse, error)
 }
 
-func New(baseURL, apiKey string, httpClient *http.Client) (Client, error) {
-	return Client{
-		baseURL:    baseURL,
-		httpClient: httpClient,
-		apiKey:     apiKey,
-	}, nil
+type Client struct {
+	BaseURL    string
+	ApiKey     string
+	HttpClient *http.Client
 }
 
 func (c *Client) CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, error) {
 	data, _ := json.Marshal(body)
 	reader := bytes.NewReader(data)
 
-	req, err := http.NewRequest("POST", c.baseURL+"/v1/payments", reader)
+	req, err := http.NewRequest("POST", c.BaseURL+"/v1/payments", reader)
 	if err != nil {
 		return CreatePaymentResponse{}, err
 	}
-	req.Header.Add("Authorization", "Bearer "+c.apiKey)
 
-	resp, err := c.httpClient.Do(req)
+	req.Header.Add("Authorization", "Bearer "+c.ApiKey)
+	req.Header.Add("Content-Type", "application/json")
+
+	resp, err := c.HttpClient.Do(req)
+	if err != nil {
+		return CreatePaymentResponse{}, err
+	}
 
 	defer resp.Body.Close()
 
@@ -44,14 +46,15 @@ func (c *Client) CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, e
 }
 
 func (c *Client) GetPayment(paymentId string) (GetPaymentResponse, error) {
-	req, err := http.NewRequest("GET", c.baseURL+"/v1/payments/"+paymentId, nil)
+	req, err := http.NewRequest("GET", c.BaseURL+"/v1/payments/"+paymentId, nil)
 	if err != nil {
 		return GetPaymentResponse{}, err
 	}
 
-	req.Header.Add("Authorization", "Bearer "+c.apiKey)
+	req.Header.Add("Authorization", "Bearer "+c.ApiKey)
+	req.Header.Add("Content-Type", "application/json")
 
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HttpClient.Do(req)
 
 	defer resp.Body.Close()
 
