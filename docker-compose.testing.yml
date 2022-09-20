@@ -11,6 +11,7 @@ services:
     command: "open --config-file /e2e/cypress.config.js"
     depends_on:
       - app
+      - pay-mock
     environment:
       - CYPRESS_baseUrl=http://app:8080
     working_dir: /e2e
