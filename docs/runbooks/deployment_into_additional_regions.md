@@ -8,7 +8,11 @@ This is so the modernising-lpa service can be made highly available (deployed in
 
 ## Deploying into London (eu-west-2)
 
-The terraform configuration includes a definition for a London region that can be "activated". For environment activation, dynamodb table replication must be enabled first.
+The terraform configuration includes a definition for a London region that can be "activated". There is a dependency chain for the configurations, so the steps must be completed (as in applied by the path to live) in this order to succeed;
+
+1. Environment Dynamodb table replication must be enabled first.
+2. Account region must be provisioned second
+3. Environment region must be provisioned third
 
 Raise a pull request to set `region_replica_enabled` and `stream_enabled` to `true` if not already set to true.
 
