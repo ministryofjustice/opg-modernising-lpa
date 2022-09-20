@@ -244,6 +244,10 @@ locals {
           name  = "DYNAMODB_TABLE_LPAS",
           value = var.lpas_table.name
         },
+        {
+          name  = "GOVUK_PAY_BASE_URL",
+          value = var.app_env_vars.govuk_pay_base_url
+        },
       ]
     }
   )
