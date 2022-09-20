@@ -57,7 +57,7 @@ jobs:
           TAG: ${{ inputs.tag }}
         run: |
           docker compose -f docker-compose.yml -f docker-compose.ci.yml build
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml up app -d
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d
 
       - name: Manage Ingress/Configure AWS Credentials
         if: ${{ inputs.run_against_image != true }}
@@ -87,7 +87,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
-          wait-on: ${{ inputs.pay_base_url }}
+#          wait-on: ${{ inputs.pay_base_url }}
           record: true
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
