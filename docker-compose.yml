@@ -49,7 +49,7 @@ services:
       - CLIENT_ID=client-id-value
 
   pay-mock:
-    image: stoplight/prism:4.11
+    image: stoplight/prism:4.11.0
     command: 'mock https://raw.githubusercontent.com/alphagov/pay-publicapi/master/openapi/publicapi_spec.json -h 0.0.0.0'
     container_name: pay-mock
     ports:
