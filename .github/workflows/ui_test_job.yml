@@ -15,6 +15,11 @@ on:
         required: false
         type: string
         default: latest
+      pay_base_url:
+        description: 'Base URL for GOV UK Pay endpoint used to check mock server is ready'
+        required: false
+        type: string
+        default: https://publicapi.payments.service.gov.uk
 
 defaults:
   run:
@@ -81,8 +86,13 @@ jobs:
 
       - name: Cypress run
         uses: cypress-io/github-action@v4
+        with:
+#          wait-on: ${{ inputs.pay_base_url }}
+          record: true
         env:
-          CYPRESS_baseUrl: "${{ inputs.base_url }}"
+          CYPRESS_baseUrl: ${{ inputs.base_url }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Stop Docker Compose Service
         if: ${{ always() }}
