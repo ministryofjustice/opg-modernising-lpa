@@ -12,7 +12,7 @@ The terraform configuration includes a definition for a London region that can b
 
 Raise a pull request to set `region_replica_enabled` and `stream_enabled` to `true` if not already set to true.
 
-To activate and provision account resources into a second region, add `eu-west-2` to the `regions` variable list in `terraform/account/terraform.tfvars.json` for each account.
+To activate and provision account resources into a second region, raise a pull request to add `eu-west-2` to the `regions` variable list in `terraform/account/terraform.tfvars.json` for each account.
 
 ```json
 "regions": [
@@ -21,7 +21,7 @@ To activate and provision account resources into a second region, add `eu-west-2
 ]
 ```
 
-To activate and provision environment resources into a second region, add `eu-west-2` to the `regions` variable list in `terraform/environment/terraform.tfvars.json` for each account.
+To activate and provision environment resources into a second region, raise a pull request to add `eu-west-2` to the `regions` variable list in `terraform/environment/terraform.tfvars.json` for each account.
 
 ```json
 "regions": [
@@ -30,11 +30,4 @@ To activate and provision environment resources into a second region, add `eu-we
 ]
 ```
 
-
-Apply this change using an approved pull request.
-
-To deploy
-
-## Deploying into other additional regions
-
-How to add an additional region
+The path to live for each of these 3 pull requests will carry out the provisioning and deployments.
