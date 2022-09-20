@@ -1,7 +1,6 @@
 package page
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -25,23 +24,25 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 		}
 
 		if r.Method == http.MethodPost {
-			createPaymentBody := pay.CreatePaymentBody{
-				Amount:      0,
-				Reference:   "abc",
-				Description: "A payment",
-				ReturnUrl:   appPublicUrl + "/payment-confirmation",
-				Email:       "a@b.com",
-				Language:    "en",
-			}
+			//createPaymentBody := pay.CreatePaymentBody{
+			//	Amount:      0,
+			//	Reference:   "abc",
+			//	Description: "A payment",
+			//	ReturnUrl:   appPublicUrl + "/payment-confirmation",
+			//	Email:       "a@b.com",
+			//	Language:    "en",
+			//}
 
-			resp, err := payClient.CreatePayment(createPaymentBody)
+			//resp, err := payClient.CreatePayment(createPaymentBody)
 
-			if err != nil {
-				logger.Print(fmt.Sprintf("Error creating payment: %s", err.Error()))
-				return err
-			}
+			//if err != nil {
+			//	logger.Print(fmt.Sprintf("Error creating payment: %s", err.Error()))
+			//	return err
+			//}
 
-			nextUrl := resp.Links["next_url"].Href
+			//nextUrl := resp.Links["next_url"].Href
+
+			nextUrl := "http://localhost:4010"
 			secureCookies := strings.HasPrefix(nextUrl, "https:")
 
 			cookieOptions := &sessions.Options{
@@ -56,11 +57,13 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 
 			session := sessions.NewSession(sessionStore, "pay")
 			session.Values = map[interface{}]interface{}{
-				"paymentId": resp.PaymentId,
+				//"paymentId": resp.PaymentId,
+				"paymentId": "abc123",
 			}
 			session.Options = cookieOptions
 
-			session.Values = map[interface{}]interface{}{"paymentId": resp.PaymentId}
+			//session.Values = map[interface{}]interface{}{"paymentId": resp.PaymentId}
+			session.Values = map[interface{}]interface{}{"paymentId": "abc123"}
 			if err := sessionStore.Save(r, w, session); err != nil {
 				return err
 			}
