@@ -176,7 +176,7 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 				CanGoBack:        opt&CanGoBack != 0,
 			}, w, r); err != nil {
 				logger.Print(err)
-				http.Error(w, "an error occurred", http.StatusInternalServerError)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
 		})
 	}
