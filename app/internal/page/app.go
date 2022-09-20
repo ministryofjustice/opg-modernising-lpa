@@ -176,10 +176,10 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 				CookieConsentSet: cookieErr != http.ErrNoCookie,
 				CanGoBack:        opt&CanGoBack != 0,
 			}, w, r); err != nil {
-				logger.Print(err)
-				logger.Print(err)
-				str := fmt.Sprintf("Path is: %s. Error is: %s", path, err.Error())
-				http.Error(w, str, http.StatusInternalServerError)
+				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
+
+				logger.Print(str)
+				http.Error(w, "Encountered an error", http.StatusInternalServerError)
 			}
 		})
 	}
