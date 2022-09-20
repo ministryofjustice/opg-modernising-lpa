@@ -23,9 +23,9 @@
                 <a href="#" class="">{{ tr .App "qualifyingForReduction" }}</a>
             </p>
 
-            <a href="#" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
-                {{ tr .App "continueToPayment" }}
-            </a>
+            <form novalidate method="post">
+                <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "continueToPayment" }}</button>
+            </form>
         </div>
     </div>
 {{ end }}

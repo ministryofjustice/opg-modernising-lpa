@@ -9,6 +9,7 @@ services:
     depends_on:
       - localstack
       - sign-in-mock
+      - pay-mock
     restart: on-failure
     ports:
       - "5050:8080"
@@ -20,6 +21,7 @@ services:
       - AWS_REGION=eu-west-1
       - AWS_BASE_URL=http://localstack:4566
       - CLIENT_ID=client-id-value
+      - GOVUK_PAY_BASE_URL=http://pay-mock:4010
       - ISSUER=http://sign-in-mock:8080
       - DYNAMODB_TABLE_LPAS=lpas
 
@@ -47,8 +49,8 @@ services:
       - CLIENT_ID=client-id-value
 
   pay-mock:
-    image: stoplight/prism:4.11.0
-    command: 'mock https://raw.githubusercontent.com/alphagov/pay-publicapi/master/openapi/publicapi_spec.json -h 0.0.0.0 --dynamic'
+    image: stoplight/prism:4.11
+    command: 'mock https://raw.githubusercontent.com/alphagov/pay-publicapi/master/openapi/publicapi_spec.json -h 0.0.0.0'
     container_name: pay-mock
     ports:
       - '4010:4010'
