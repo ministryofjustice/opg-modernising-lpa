@@ -74,7 +74,7 @@ func TestCreatePayment(t *testing.T) {
 
 		defer server.Close()
 
-		payClient, _ := New(server.URL, apiToken, server.Client())
+		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
 
 		actualCPResponse, err := payClient.CreatePayment(body)
 		if err != nil {
@@ -100,7 +100,7 @@ func TestCreatePayment(t *testing.T) {
 
 		defer server.Close()
 
-		payClient, _ := New(server.URL+"`invalid-url-format", apiToken, server.Client())
+		payClient := Client{BaseURL: server.URL + "`invalid-url-format", ApiKey: apiToken, HttpClient: server.Client()}
 
 		actualCPResponse, err := payClient.CreatePayment(body)
 		if err == nil {
@@ -133,7 +133,7 @@ func TestCreatePayment(t *testing.T) {
 
 		defer server.Close()
 
-		payClient, _ := New(server.URL, apiToken, server.Client())
+		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
 
 		actualCPResponse, err := payClient.CreatePayment(body)
 		if err == nil {
@@ -188,7 +188,7 @@ func TestGetPayment(t *testing.T) {
 
 		defer server.Close()
 
-		payClient, _ := New(server.URL, apiToken, server.Client())
+		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
 
 		actualGPResponse, err := payClient.GetPayment(paymentId)
 		if err != nil {
@@ -255,7 +255,7 @@ func TestGetPayment(t *testing.T) {
 
 		defer server.Close()
 
-		payClient, _ := New(server.URL+"`invalid-url-format", apiToken, server.Client())
+		payClient := Client{BaseURL: server.URL + "`invalid-url-format", ApiKey: apiToken, HttpClient: server.Client()}
 
 		actualGPResponse, err := payClient.GetPayment(paymentId)
 
@@ -278,7 +278,7 @@ func TestGetPayment(t *testing.T) {
 
 		defer server.Close()
 
-		payClient, _ := New(server.URL, apiToken, server.Client())
+		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
 
 		actualGPResponse, err := payClient.GetPayment(paymentId)
 
