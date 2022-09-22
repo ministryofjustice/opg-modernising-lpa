@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -133,7 +134,7 @@ func TestMakeHandleErrors(t *testing.T) {
 
 	logger := &mockLogger{}
 	logger.
-		On("Print", expectedError)
+		On("Print", fmt.Sprintf("Error rendering page for path '%s': %s", "/path", expectedError.Error()))
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
