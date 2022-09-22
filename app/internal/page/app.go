@@ -3,8 +3,11 @@ package page
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -67,10 +70,13 @@ func App(
 	tmpls template.Templates,
 	sessionStore sessions.Store,
 	dataStore DataStore,
+	appPublicUrl string,
+	payClient *pay.Client,
 ) http.Handler {
 	mux := http.NewServeMux()
 
 	addressClient := fakeAddressClient{}
+
 	handle := makeHandle(mux, logger, sessionStore, localizer, lang)
 
 	mux.Handle("/testing-start", testingStart(sessionStore))
@@ -109,8 +115,11 @@ func App(
 	handle(howLongHaveYouKnownCertificateProviderPath, RequireSession|CanGoBack,
 		HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), dataStore))
 	handle(aboutPaymentPath, RequireSession|CanGoBack,
-		AboutPayment(tmpls.Get("about_payment.gohtml")))
+		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl))
 	handle(checkYourLpaPath, RequireSession|CanGoBack,
+		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), dataStore))
+	// Handler will be updated in the following ticket - just needed a valid path to prove redirect works
+	handle(paymentConfirmation, RequireSession|CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), dataStore))
 
 	return mux
@@ -167,8 +176,10 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 				CookieConsentSet: cookieErr != http.ErrNoCookie,
 				CanGoBack:        opt&CanGoBack != 0,
 			}, w, r); err != nil {
-				logger.Print(err)
-				http.Error(w, "an error occurred", http.StatusInternalServerError)
+				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
+
+				logger.Print(str)
+				http.Error(w, "Encountered an error", http.StatusInternalServerError)
 			}
 		})
 	}
