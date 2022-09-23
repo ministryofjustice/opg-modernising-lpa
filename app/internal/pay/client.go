@@ -11,10 +11,14 @@ type PayClient interface {
 	GetPayment(paymentId string) (GetPaymentResponse, error)
 }
 
+type Doer interface {
+	Do(r *http.Request) (*http.Response, error)
+}
+
 type Client struct {
 	BaseURL    string
 	ApiKey     string
-	HttpClient *http.Client
+	HttpClient Doer
 }
 
 func (c *Client) CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, error) {

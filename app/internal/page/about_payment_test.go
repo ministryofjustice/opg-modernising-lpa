@@ -152,21 +152,14 @@ func TestAboutPayment(t *testing.T) {
 				})
 			}
 		})
+
 		t.Run("Returns error when cannot create payment", func(t *testing.T) {
 			w := httptest.NewRecorder()
-			appData := AppData{}
 			template := &mockTemplate{}
 			payClient = mockPayClient{BaseURL: "http://base.url"}
 
 			payClient.
-				On("CreatePayment", pay.CreatePaymentBody{
-					Amount:      0,
-					Reference:   "abc",
-					Description: "A payment",
-					ReturnUrl:   "http://example.org/payment-confirmation",
-					Email:       "a@b.com",
-					Language:    "en",
-				}).
+				On("CreatePayment", mock.Anything).
 				Return(pay.CreatePaymentResponse{}, expectedError)
 
 			r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
@@ -177,7 +170,33 @@ func TestAboutPayment(t *testing.T) {
 			logger.
 				On("Print", "Error creating payment: "+expectedError.Error())
 
-			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl)(appData, w, r)
+			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl)(AppData{}, w, r)
+
+			assert.Equal(t, expectedError, err, "Expected error was not returned")
+			mock.AssertExpectationsForObjects(t, logger)
+
+		})
+
+		t.Run("Returns error when cannot save to session", func(t *testing.T) {
+			w := httptest.NewRecorder()
+			template := &mockTemplate{}
+			payClient = mockPayClient{BaseURL: "http://base.url"}
+
+			payClient.
+				On("CreatePayment", mock.Anything).
+				Return(pay.CreatePaymentResponse{Links: map[string]pay.Link{"next_url": {Href: "http://example.url"}}}, nil)
+
+			r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
+
+			sessionsStore := &mockSessionsStore{}
+
+			sessionsStore.
+				On("Save", mock.Anything, mock.Anything, mock.Anything).
+				Return(expectedError)
+
+			logger := &mockLogger{}
+
+			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl)(AppData{}, w, r)
 
 			assert.Equal(t, expectedError, err, "Expected error was not returned")
 			mock.AssertExpectationsForObjects(t, logger)
