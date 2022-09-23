@@ -244,6 +244,10 @@ locals {
           name  = "DYNAMODB_TABLE_LPAS",
           value = var.lpas_table.name
         },
+        {
+          name  = "GOVUK_PAY_BASE_URL",
+          value = "https://publicapi.payments.service.gov.uk/"
+        },
       ]
     }
   )
