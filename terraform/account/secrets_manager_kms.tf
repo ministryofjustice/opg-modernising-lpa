@@ -83,6 +83,27 @@ data "aws_iam_policy_document" "secrets_manager_kms" {
   }
 
   statement {
+    sid    = "General View Access"
+    effect = "Allow"
+    resources = [
+      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+    ]
+    actions = [
+      "kms:DescribeKey",
+      "kms:GetKeyPolicy",
+      "kms:GetKeyRotationStatus",
+      "kms:ListResourceTags",
+    ]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root"
+      ]
+    }
+  }
+
+  statement {
     sid    = "Key Administrator"
     effect = "Allow"
     resources = [
