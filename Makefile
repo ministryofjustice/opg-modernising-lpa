@@ -32,7 +32,7 @@ build-up-app: ##@build Builds the app
 build-up-app-testing: ##@build Builds the app with testing config
 	docker compose -f ./docker-compose.yml \
 	-f ./docker-compose.testing.yml \
- 	up -d --build app sign-in-mock cypress
+ 	up -d --build app sign-in-mock pay-mock cypress
 
 run-cypress: ##@testing Runs cypress e2e tests. To run a specific spec file pass in spec e.g. make run-cypress spec=start
 ifdef spec
