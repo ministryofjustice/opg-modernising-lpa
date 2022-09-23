@@ -76,7 +76,7 @@ data "aws_iam_policy_document" "dynamodb_kms" {
   }
 
   statement {
-    sid    = "Access Analyzer Inspection"
+    sid    = "General View Access"
     effect = "Allow"
     resources = [
       "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
