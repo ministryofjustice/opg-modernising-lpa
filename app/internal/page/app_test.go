@@ -4,10 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -56,7 +59,7 @@ func (m *mockLogger) Print(v ...interface{}) {
 }
 
 func TestApp(t *testing.T) {
-	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{}, nil, nil)
+	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{}, nil, nil, "http://public.url", &pay.Client{})
 
 	assert.Implements(t, (*http.Handler)(nil), app)
 }
@@ -131,7 +134,7 @@ func TestMakeHandleErrors(t *testing.T) {
 
 	logger := &mockLogger{}
 	logger.
-		On("Print", expectedError)
+		On("Print", fmt.Sprintf("Error rendering page for path '%s': %s", "/path", expectedError.Error()))
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
