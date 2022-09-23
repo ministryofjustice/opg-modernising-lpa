@@ -76,6 +76,27 @@ data "aws_iam_policy_document" "dynamodb_kms" {
   }
 
   statement {
+    sid    = "Access Analyzer Inspection"
+    effect = "Allow"
+    resources = [
+      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+    ]
+    actions = [
+      "kms:DescribeKey",
+      "kms:GetKeyPolicy",
+      "kms:GetKeyRotationStatus",
+      "kms:ListResourceTags",
+    ]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root"
+      ]
+    }
+  }
+
+  statement {
     sid    = "Key Administrator"
     effect = "Allow"
     resources = [
