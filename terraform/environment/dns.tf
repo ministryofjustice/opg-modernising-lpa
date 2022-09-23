@@ -16,8 +16,8 @@ resource "aws_route53_record" "app" {
 
   alias {
     evaluate_target_health = false
-    name                   = module.eu_west_1.app_load_balancer.dns_name
-    zone_id                = module.eu_west_1.app_load_balancer.zone_id
+    name                   = module.eu_west_1[0].app_load_balancer.dns_name
+    zone_id                = module.eu_west_1[0].app_load_balancer.zone_id
   }
 
   lifecycle {
