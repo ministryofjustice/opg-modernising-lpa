@@ -76,7 +76,6 @@ jobs:
     with:
       run_against_image: true
       tag: ${{ needs.create_tags.outputs.version_tag }}
-      pay_base_url: "http://localhost:4010"
     secrets: inherit
 
   pr_deploy:
