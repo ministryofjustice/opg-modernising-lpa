@@ -62,6 +62,7 @@ data "aws_iam_policy_document" "dynamodb_kms" {
       type = "AWS"
       identifiers = [
         local.account.account_name == "development" ? "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root" : "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/${local.account.account_name}-app-task-role",
+        aws_iam_role.aws_backup_role.arn,
       ]
     }
     condition {
@@ -70,6 +71,27 @@ data "aws_iam_policy_document" "dynamodb_kms" {
 
       values = [
         "dynamodb.*.amazonaws.com"
+      ]
+    }
+  }
+
+  statement {
+    sid    = "General View Access"
+    effect = "Allow"
+    resources = [
+      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+    ]
+    actions = [
+      "kms:DescribeKey",
+      "kms:GetKeyPolicy",
+      "kms:GetKeyRotationStatus",
+      "kms:ListResourceTags",
+    ]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root"
       ]
     }
   }
