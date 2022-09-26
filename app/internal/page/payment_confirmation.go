@@ -24,25 +24,29 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayCl
 			return err
 		}
 
-		data := &paymentConfirmationData{
-			App: appData,
-		}
-
 		payCookie, _ := sessionStore.Get(r, pay.CookieName)
 
-		getPaymentResponse, _ := client.GetPayment(payCookie.Values[pay.CookiePaymentIdValueKey].(string))
+		paymentId := payCookie.Values[pay.CookiePaymentIdValueKey].(string)
+		getPaymentResponse, _ := client.GetPayment(paymentId)
 
+		paymentReference := random.String(12)
 		lpa.PaymentDetails = PaymentDetails{
-			PaymentReference: random.String(12),
+			PaymentReference: paymentReference,
 			PaymentId:        getPaymentResponse.PaymentId,
 		}
 
-		dataStore.Put(r.Context(), appData.SessionID, lpa)
+		data := &paymentConfirmationData{
+			App:              appData,
+			PaymentReference: paymentReference,
+		}
 
 		payCookie.Options.MaxAge = -1
 		payCookie.Values = map[interface{}]interface{}{pay.CookiePaymentIdValueKey: ""}
 
 		sessionStore.Save(r, w, payCookie)
+
+		lpa.Tasks.PayForLpa = TaskCompleted
+		dataStore.Put(r.Context(), appData.SessionID, lpa)
 
 		return tmpl(w, data)
 	}

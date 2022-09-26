@@ -22,10 +22,12 @@ describe('Payment', () => {
 
             cy.get('h1').should('contain', 'Payment received');
             cy.checkA11y(null, { rules: { region: { enabled: false } } });
-
             cy.getCookie('pay').should('not.exist')
 
-            cy.contains('button', 'Continue')
+            cy.contains('button', 'Continue').click()
+            // Will lead to identity journey once we have an initial page
+            cy.url().should('eq', `${Cypress.config('baseUrl')}/task-list`)
+
         })
     })
 })

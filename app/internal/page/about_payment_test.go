@@ -106,7 +106,7 @@ func TestAboutPayment(t *testing.T) {
 
 					payClient.
 						On("CreatePayment", pay.CreatePaymentBody{
-							Amount:      0,
+							Amount:      82,
 							Reference:   "abc",
 							Description: "A payment",
 							ReturnUrl:   "http://example.org/payment-confirmation",

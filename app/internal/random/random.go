@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 )
 
-const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const charset = "abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789"
 
 type RandomGenerator interface {
 	String(length int) string

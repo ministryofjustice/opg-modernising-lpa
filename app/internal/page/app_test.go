@@ -241,6 +241,9 @@ func TestTestingStart(t *testing.T) {
 		On("Get", r, "session").
 		Return(&sessions.Session{}, nil)
 	sessionsStore.
+		On("Get", r, "pay").
+		Return(&sessions.Session{}, nil)
+	sessionsStore.
 		On("Save", r, w, mock.Anything).
 		Return(nil)
 

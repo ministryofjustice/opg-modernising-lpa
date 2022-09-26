@@ -40,7 +40,7 @@ func TestPaymentConfirmation(t *testing.T) {
 
 		template := &mockTemplate{}
 		template.
-			On("Func", w, &paymentConfirmationData{App: appData}).
+			On("Func", w, &paymentConfirmationData{App: appData, PaymentReference: "123456789012"}).
 			Return(nil)
 
 		r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
@@ -86,6 +86,9 @@ func TestPaymentConfirmation(t *testing.T) {
 				PaymentDetails: PaymentDetails{
 					PaymentId:        "abc123",
 					PaymentReference: "123456789012",
+				},
+				Tasks: Tasks{
+					PayForLpa: TaskCompleted,
 				},
 			}).
 			Return(nil)

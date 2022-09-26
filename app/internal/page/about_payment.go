@@ -26,7 +26,7 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 
 		if r.Method == http.MethodPost {
 			createPaymentBody := pay.CreatePaymentBody{
-				Amount:      82,
+				Amount:      CostOfLpa,
 				Reference:   "abc",
 				Description: "A payment",
 				ReturnUrl:   appPublicUrl + "/payment-confirmation",

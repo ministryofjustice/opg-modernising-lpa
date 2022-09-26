@@ -12,6 +12,7 @@ const (
 	TaskNotStarted TaskState = iota
 	TaskInProgress
 	TaskCompleted
+	CostOfLpa = 82
 )
 
 type Lpa struct {
@@ -40,6 +41,7 @@ type Tasks struct {
 	Restrictions        TaskState
 	CertificateProvider TaskState
 	CheckYourLpa        TaskState
+	PayForLpa           TaskState
 }
 
 type Person struct {
