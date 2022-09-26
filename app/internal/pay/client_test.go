@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	amount      = 5
+	amount      = 82
 	reference   = "abc123"
 	description = "A payment"
 	returnUrl   = "/example/url"
@@ -62,7 +62,7 @@ func TestCreatePayment(t *testing.T) {
 			defer req.Body.Close()
 
 			reqBody, _ := io.ReadAll(req.Body)
-			expectedReqBody := `{"amount": 5,"reference" : "abc123","description": "A payment","return_url": "/example/url","email": "a@example.org","language": "en"}`
+			expectedReqBody := `{"amount": 82,"reference" : "abc123","description": "A payment","return_url": "/example/url","email": "a@example.org","language": "en"}`
 
 			assert.Equal(t, req.URL.String(), "/v1/payments", "URL did not match")
 			assert.Equal(t, req.Header.Get("Authorization"), "Bearer fake-token", "Authorization token did not match")
@@ -191,7 +191,7 @@ func generateCreatePaymentResponseBodyJsonString() []byte {
       "method": "GET"
     }
   },
-  "amount": 5,
+  "amount": 82,
   "reference" : "abc123",
   "description": "A payment",
   "return_url": "/example/url",
