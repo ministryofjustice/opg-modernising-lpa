@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -233,24 +234,36 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 }
 
 func TestTestingStart(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere", nil)
+	testCases := map[string]string{
+		"payment not complete": "/?redirect=/somewhere",
+		"payment complete":     "/?redirect=/somewhere&paymentComplete=1",
+	}
 
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
-		On("Get", r, "session").
-		Return(&sessions.Session{}, nil)
-	sessionsStore.
-		On("Get", r, "pay").
-		Return(&sessions.Session{}, nil)
-	sessionsStore.
-		On("Save", r, w, mock.Anything).
-		Return(nil)
+	for tc, url := range testCases {
+		t.Run(tc, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, url, nil)
 
-	testingStart(sessionsStore).ServeHTTP(w, r)
-	resp := w.Result()
+			sessionsStore := &mockSessionsStore{}
+			sessionsStore.
+				On("Get", r, "session").
+				Return(&sessions.Session{}, nil)
+			sessionsStore.
+				On("Save", r, w, mock.Anything).
+				Return(nil)
 
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, sessionsStore)
+			if strings.Contains(url, "paymentComplete") {
+				sessionsStore.
+					On("Get", r, "pay").
+					Return(&sessions.Session{}, nil)
+			}
+
+			testingStart(sessionsStore).ServeHTTP(w, r)
+			resp := w.Result()
+
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, sessionsStore)
+		})
+	}
 }
