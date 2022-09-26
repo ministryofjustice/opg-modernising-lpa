@@ -18,7 +18,7 @@ var (
 	returnUrl   = "/example/url"
 	email       = "a@example.org"
 	language    = "en"
-	created     = time.Date(2022, time.January, 5, 0, 0, 0, 0, time.UTC)
+	created     = GovUKPayTime(time.Date(2022, time.January, 5, 0, 0, 0, 0, time.UTC))
 	apiToken    = "fake-token"
 )
 
@@ -259,7 +259,6 @@ func TestGetPayment(t *testing.T) {
 			RefundSummary: RefundSummary{
 				Status:          "available",
 				AmountAvailable: 4000,
-				AmountSubmitted: 80,
 			},
 			SettlementSummary: SettlementSummary{
 				CaptureSubmitTime: created.Format(time.RFC3339),

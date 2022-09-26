@@ -42,6 +42,11 @@ func (g *GovUKPayTime) MarshalJSON() ([]byte, error) {
 	return json.Marshal(time.Time(*g))
 }
 
+func (g *GovUKPayTime) Format(s string) string {
+	t := time.Time(*g)
+	return t.Format(s)
+}
+
 //"2016-01-21T17:15:000Z"
 
 func (c *Client) CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, error) {
