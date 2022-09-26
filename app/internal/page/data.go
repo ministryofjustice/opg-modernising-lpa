@@ -27,6 +27,12 @@ type Lpa struct {
 	Tasks                    Tasks
 	Checked                  bool
 	HappyToShare             bool
+	PaymentDetails           PaymentDetails
+}
+
+type PaymentDetails struct {
+	PaymentReference string
+	PaymentId        string
 }
 
 type Tasks struct {

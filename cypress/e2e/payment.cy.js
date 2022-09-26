@@ -1,28 +1,31 @@
 describe('Payment', () => {
-    describe('Call to action', () => {
-        beforeEach(() => {
-            cy.visit('/testing-start?redirect=/about-payment');
-            cy.injectAxe();
-        });
-
-        it('has a title and continue button', () => {
-            cy.get('h1').should('contain', 'About payment');
-            cy.contains('button', 'Continue to payment');
-            cy.checkA11y(null, { rules: { region: { enabled: false } } });
-        })
-    })
-
     describe('Pay for LPA', () => {
-        beforeEach(() => {
-            cy.visit('/testing-start?redirect=/about-payment');
-        });
+        // it('adds a secure cookie before redirecting user to GOV UK Pay', () => {
+        //     cy.visit('/testing-start?redirect=/about-payment');
+        //     cy.injectAxe();
+        //
+        //     cy.get('h1').should('contain', 'About payment');
+        //     cy.getCookie('pay').should('not.exist')
+        //
+        //     cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        //     cy.getCookie('pay').should('exist')
+        //
+        //     cy.contains('button', 'Continue to payment').click()
+        //
+        //     cy.url().should('eq', `${Cypress.config('baseUrl')}/payment-confirmation`)
+        // })
 
-        it('adds a secure cookie before redirecting user to GOV UK Pay', () => {
+        it('removes existing secure cookie on payment confirmation page', () => {
+            cy.setCookie('pay', 'abc123')
+            cy.visit('/testing-start?redirect=/payment-confirmation');
+            cy.injectAxe();
+
+            cy.get('h1').should('contain', 'Payment received');
+            cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
             cy.getCookie('pay').should('not.exist')
-            cy.contains('button', 'Continue to payment').click()
 
-            cy.getCookie('pay').should('exist')
-            cy.url().should('eq', `${Cypress.config('baseUrl')}/payment-confirmation`)
+            cy.contains('button', 'Continue')
         })
     })
 })

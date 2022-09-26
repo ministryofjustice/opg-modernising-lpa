@@ -2,6 +2,10 @@ package pay
 
 import "time"
 
+const (
+	PaymentStatusSuccess = "success"
+)
+
 type CreatePaymentBody struct {
 	Amount      int    `json:"amount"`
 	Reference   string `json:"reference"`
