@@ -131,9 +131,11 @@ func testingStart(store sessions.Store) http.HandlerFunc {
 		session.Values = map[interface{}]interface{}{"sub": random.String(12)}
 		_ = store.Save(r, w, session)
 
-		paySession, _ := store.Get(r, "pay")
-		paySession.Values = map[interface{}]interface{}{"paymentId": random.String(12)}
-		_ = store.Save(r, w, paySession)
+		if r.FormValue("paymentComplete") == "1" {
+			paySession, _ := store.Get(r, "pay")
+			paySession.Values = map[interface{}]interface{}{"paymentId": random.String(12)}
+			_ = store.Save(r, w, paySession)
+		}
 
 		http.Redirect(w, r, r.FormValue("redirect"), http.StatusFound)
 	}
