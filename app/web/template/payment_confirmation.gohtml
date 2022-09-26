@@ -3,22 +3,20 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-{{/*            <h1 class="govuk-heading-xl">{{ tr .App "paymentConfirmation" }}</h1>*/}}
             <div class="govuk-panel govuk-panel--confirmation">
                 <h1 class="govuk-panel__title">
-                    Payment received
+                    {{ tr .App "paymentReceivedHeader" }}
                 </h1>
                 <div class="govuk-panel__body">
-                    Your reference number<br><strong>{{ .PaymentReference }}</strong>
+                    {{ tr .App "yourRefNumber" }}<br><strong>{{ .PaymentReference }}</strong>
                 </div>
             </div>
 
-            <h2 class="govuk-heading-m">Thank you for your payment</h2>
-            <p class="govuk-body">You have successfully paid for your finance and affairs LPA.</p>
-            <p class="govuk-body">We've sent you an email to confirm we've received your LPA application fee.</p>
-            <p class="govuk-body">If the email has not arrived in a few minutes, check your spam folder.</p>
+            <h2 class="govuk-heading-m">{{ tr .App "thankYouHeader" }}</h2>
 
-            <a class="govuk-button" href="/task-list">Continue</a>
+            {{ trHtml .App "paymentConfirmationContent" }}
+
+            <a class="govuk-button" href="/task-list">{{ tr .App "continueLink" }}</a>
         </div>
     </div>
 {{ end }}
