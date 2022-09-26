@@ -3,7 +3,9 @@ package pay
 import "time"
 
 const (
-	PaymentStatusSuccess = "success"
+	PaymentStatusSuccess    = "success"
+	CookieName              = "pay"
+	CookiePaymentIdValueKey = "paymentId"
 )
 
 type CreatePaymentBody struct {

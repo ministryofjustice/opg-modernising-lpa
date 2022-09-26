@@ -55,14 +55,13 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 				Secure:   secureCookies,
 			}
 
-			session := sessions.NewSession(sessionStore, "pay")
+			session := sessions.NewSession(sessionStore, pay.CookieName)
 			session.Values = map[interface{}]interface{}{
-				"paymentId": resp.PaymentId,
+				pay.CookiePaymentIdValueKey: resp.PaymentId,
 			}
 			session.Options = cookieOptions
 
-			session.Values = map[interface{}]interface{}{"paymentId": resp.PaymentId}
-			if err := sessionStore.Save(r, w, session); err != nil {
+			if err = sessionStore.Save(r, w, session); err != nil {
 				return err
 			}
 
