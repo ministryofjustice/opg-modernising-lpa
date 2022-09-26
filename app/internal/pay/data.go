@@ -2,6 +2,12 @@ package pay
 
 import "time"
 
+const (
+	PaymentStatusSuccess    = "success"
+	CookieName              = "pay"
+	CookiePaymentIdValueKey = "paymentId"
+)
+
 type CreatePaymentBody struct {
 	Amount      int    `json:"amount"`
 	Reference   string `json:"reference"`

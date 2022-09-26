@@ -32,6 +32,7 @@ func TestGetTaskList(t *testing.T) {
 					Restrictions:        TaskInProgress,
 					CertificateProvider: TaskInProgress,
 					CheckYourLpa:        TaskInProgress,
+					PayForLpa:           TaskInProgress,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
@@ -43,6 +44,10 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "addRestrictionsToTheLpa", Path: restrictionsPath, InProgress: true},
 					{Name: "chooseYourCertificateProvider", Path: whoDoYouWantToBeCertificateProviderGuidancePath, InProgress: true},
 					{Name: "checkAndSendToYourCertificateProvider", Path: checkYourLpaPath, InProgress: true},
+				}
+
+				sections[1].Items = []taskListItem{
+					{Name: "payForTheLpa", Path: aboutPaymentPath, InProgress: true},
 				}
 
 				return sections
@@ -69,6 +74,7 @@ func TestGetTaskList(t *testing.T) {
 					Restrictions:        TaskCompleted,
 					CertificateProvider: TaskCompleted,
 					CheckYourLpa:        TaskCompleted,
+					PayForLpa:           TaskCompleted,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
@@ -80,6 +86,10 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "addRestrictionsToTheLpa", Path: restrictionsPath, Completed: true},
 					{Name: "chooseYourCertificateProvider", Path: whoDoYouWantToBeCertificateProviderGuidancePath, Completed: true},
 					{Name: "checkAndSendToYourCertificateProvider", Path: checkYourLpaPath, Completed: true},
+				}
+
+				sections[1].Items = []taskListItem{
+					{Name: "payForTheLpa", Path: aboutPaymentPath, Completed: true},
 				}
 
 				return sections

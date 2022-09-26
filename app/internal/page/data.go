@@ -12,6 +12,7 @@ const (
 	TaskNotStarted TaskState = iota
 	TaskInProgress
 	TaskCompleted
+	CostOfLpa = 82
 )
 
 type Lpa struct {
@@ -27,6 +28,12 @@ type Lpa struct {
 	Tasks                    Tasks
 	Checked                  bool
 	HappyToShare             bool
+	PaymentDetails           PaymentDetails
+}
+
+type PaymentDetails struct {
+	PaymentReference string
+	PaymentId        string
 }
 
 type Tasks struct {
@@ -34,6 +41,7 @@ type Tasks struct {
 	Restrictions        TaskState
 	CertificateProvider TaskState
 	CheckYourLpa        TaskState
+	PayForLpa           TaskState
 }
 
 type Person struct {

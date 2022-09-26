@@ -76,6 +76,7 @@ func App(
 	mux := http.NewServeMux()
 
 	addressClient := fakeAddressClient{}
+	randomGenerator := random.Random{}
 
 	handle := makeHandle(mux, logger, sessionStore, localizer, lang)
 
@@ -118,9 +119,8 @@ func App(
 		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl))
 	handle(checkYourLpaPath, RequireSession|CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), dataStore))
-	// Handler will be updated in the following ticket - just needed a valid path to prove redirect works
-	handle(paymentConfirmation, RequireSession|CanGoBack,
-		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), dataStore))
+	handle(paymentConfirmationPath, RequireSession|CanGoBack,
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, dataStore, sessionStore, randomGenerator))
 
 	return mux
 }
@@ -130,6 +130,12 @@ func testingStart(store sessions.Store) http.HandlerFunc {
 		session, _ := store.Get(r, "session")
 		session.Values = map[interface{}]interface{}{"sub": random.String(12)}
 		_ = store.Save(r, w, session)
+
+		if r.FormValue("paymentComplete") == "1" {
+			paySession, _ := store.Get(r, "pay")
+			paySession.Values = map[interface{}]interface{}{"paymentId": random.String(12)}
+			_ = store.Save(r, w, paySession)
+		}
 
 		http.Redirect(w, r, r.FormValue("redirect"), http.StatusFound)
 	}

@@ -189,5 +189,11 @@
     "whatHappensIfIChange": "What happens if I need to make changes later?",
     "whatHappensIfIChangeDetails": "<p class=\"govuk-body\">If you want to change your LPA after you’ve had the conversation with your certificate provider, you can.</p> <p class=\"govuk-body\">After you've made the changes, you’ll need to have the conversation with your certificate provider again, so you can talk about the updated LPA.</p>",
     "onceYouClickConfirmWarning": "Once you click the confirm button, you will not be able to make any more changes.",
-    "replacementAttorney": "Replacement attorney"
+    "replacementAttorney": "Replacement attorney",
+
+    "paymentReceivedHeader": "Payment received",
+    "yourRefNumber": "Your reference number",
+    "thankYouHeader": "Thank you for your payment.",
+    "paymentConfirmationContent": "<p class=\"govuk-body\">You have successfully paid for your finance and affairs LPA.</p><p class=\"govuk-body\">We've sent you an email to confirm we've received your LPA application fee.</p><p class=\"govuk-body\">If the email has not arrived in a few minutes, check your spam folder.</p>",
+    "continueLink": "Continue"
 }
