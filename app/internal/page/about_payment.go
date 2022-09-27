@@ -65,7 +65,7 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 			}
 
 			// If URL matches expected domain for GOV UK PAY redirect there. If not, redirect to the confirmation code and carry on with flow.
-			if strings.HasPrefix(nextUrl, "https://publicapi.payments.service.gov.uk") {
+			if strings.HasPrefix(nextUrl, pay.PaymentPublicServiceUrl) {
 				http.Redirect(w, r, nextUrl, http.StatusFound)
 			} else {
 				http.Redirect(w, r, "/payment-confirmation", http.StatusFound)

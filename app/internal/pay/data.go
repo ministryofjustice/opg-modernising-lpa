@@ -4,6 +4,7 @@ const (
 	PaymentStatusSuccess    = "success"
 	CookieName              = "pay"
 	CookiePaymentIdValueKey = "paymentId"
+	PaymentPublicServiceUrl = "https://www.payments.service.gov.uk"
 )
 
 type CreatePaymentBody struct {
