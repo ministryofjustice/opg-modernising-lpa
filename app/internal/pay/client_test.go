@@ -12,13 +12,13 @@ import (
 )
 
 var (
-	amount      = 5
+	amount      = 82
 	reference   = "abc123"
 	description = "A payment"
 	returnUrl   = "/example/url"
 	email       = "a@example.org"
 	language    = "en"
-	created     = time.Date(2022, time.January, 5, 0, 0, 0, 0, time.UTC)
+	created     = GovUKPayTime(time.Date(2022, time.January, 5, 0, 0, 0, 0, time.UTC))
 	apiToken    = "fake-token"
 )
 
@@ -62,7 +62,7 @@ func TestCreatePayment(t *testing.T) {
 			defer req.Body.Close()
 
 			reqBody, _ := io.ReadAll(req.Body)
-			expectedReqBody := `{"amount": 5,"reference" : "abc123","description": "A payment","return_url": "/example/url","email": "a@example.org","language": "en"}`
+			expectedReqBody := `{"amount": 82,"reference" : "abc123","description": "A payment","return_url": "/example/url","email": "a@example.org","language": "en"}`
 
 			assert.Equal(t, req.URL.String(), "/v1/payments", "URL did not match")
 			assert.Equal(t, req.Header.Get("Authorization"), "Bearer fake-token", "Authorization token did not match")
@@ -191,7 +191,7 @@ func generateCreatePaymentResponseBodyJsonString() []byte {
       "method": "GET"
     }
   },
-  "amount": 5,
+  "amount": 82,
   "reference" : "abc123",
   "description": "A payment",
   "return_url": "/example/url",
@@ -259,7 +259,6 @@ func TestGetPayment(t *testing.T) {
 			RefundSummary: RefundSummary{
 				Status:          "available",
 				AmountAvailable: 4000,
-				AmountSubmitted: 80,
 			},
 			SettlementSummary: SettlementSummary{
 				CaptureSubmitTime: created.Format(time.RFC3339),

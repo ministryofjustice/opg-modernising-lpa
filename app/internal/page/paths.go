@@ -13,7 +13,7 @@ const (
 	howLongHaveYouKnownCertificateProviderPath      = "/how-long-have-you-known-certificate-provider"
 	howWouldYouLikeToBeContactedPath                = "/how-would-you-like-to-be-contacted"
 	lpaTypePath                                     = "/lpa-type"
-	paymentConfirmation                             = "/payment-confirmation"
+	paymentConfirmationPath                         = "/payment-confirmation"
 	restrictionsPath                                = "/restrictions"
 	startPath                                       = "/start"
 	taskListPath                                    = "/task-list"

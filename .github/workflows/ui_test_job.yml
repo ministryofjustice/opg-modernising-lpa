@@ -79,6 +79,9 @@ jobs:
         if: ${{ inputs.run_against_image != true }}
         run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json --add
 
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:

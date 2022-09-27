@@ -3,3 +3,5 @@ version: '3.8'
 services:
   app:
     image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${TAG}
+    environment:
+      GOVUK_PAY_BASE_URL: http://
