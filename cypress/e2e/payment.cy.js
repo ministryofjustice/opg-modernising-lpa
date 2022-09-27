@@ -10,38 +10,29 @@ describe('Payment', () => {
 
             cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-            if (`${Cypress.config('baseUrl')}`.includes('localhost')) {
-                // Check cookie exists before redirect
-                cy.intercept('*/payment-confirmation', (req) => {
-                    cy.getCookie('pay').should('exist')
-                })
+            cy.intercept('**/v1/payments', (req) => {
+                cy.getCookie('pay').should('exist')
+            })
 
-                cy.contains('button', 'Continue to payment').click()
-
-            } else {
-                // Check cookie exists before redirect
-                cy.intercept('https://payments.service.gov.uk/*', (req) => {
-                    cy.getCookie('pay').should('exist')
-                })
-
-                // GOV UK pay can sometimes take a while to respond
-                cy.contains('button', 'Continue to payment', { timeout: 10000 }).click()
-            }
+            cy.contains('button', 'Continue to payment').click()
         })
 
         it('removes existing secure cookie on payment confirmation page', () => {
             cy.setCookie('pay', 'abc123')
+
             cy.visit('/testing-start?redirect=/payment-confirmation&paymentComplete=1');
+
             cy.injectAxe();
 
             cy.get('h1').should('contain', 'Payment received');
             cy.checkA11y(null, { rules: { region: { enabled: false } } });
-            cy.getCookie('pay').should('not.exist')
 
             cy.contains('a', 'Continue').click()
+
             // Will lead to identity journey once we have an initial page
             cy.url().should('eq', `${Cypress.config('baseUrl')}/task-list`)
 
+            cy.getCookie('pay').should('not.exist')
         })
     })
 })
