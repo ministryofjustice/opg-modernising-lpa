@@ -10,12 +10,23 @@ describe('Payment', () => {
 
             cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-            cy.intercept('*/payment-confirmation', (req) => {
-                cy.getCookie('pay').should('exist')
-            })
+            if (`${Cypress.config('baseUrl')}`.includes('localhost')) {
+                // Check cookie exists before redirect
+                cy.intercept('*/payment-confirmation', (req) => {
+                    cy.getCookie('pay').should('exist')
+                })
 
-            cy.contains('button', 'Continue to payment').click()
-            cy.url().should('eq', `${Cypress.config('baseUrl')}/payment-confirmation`)
+                cy.contains('button', 'Continue to payment').click()
+
+            } else {
+                // Check cookie exists before redirect
+                cy.intercept('https://payments.service.gov.uk/*', (req) => {
+                    cy.getCookie('pay').should('exist')
+                })
+
+                // GOV UK pay can sometimes take a while to respond
+                cy.contains('button', 'Continue to payment', { timeout: 10000 }).click()
+            }
         })
 
         it('removes existing secure cookie on payment confirmation page', () => {
