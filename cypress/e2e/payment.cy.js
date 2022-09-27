@@ -18,8 +18,6 @@ describe('Payment', () => {
         })
 
         it('removes existing secure cookie on payment confirmation page', () => {
-            cy.setCookie('pay', 'abc123')
-
             cy.visit('/testing-start?redirect=/payment-confirmation&paymentComplete=1');
 
             cy.injectAxe();

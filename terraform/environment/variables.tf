@@ -20,7 +20,8 @@ variable "environments" {
       regions       = list(string)
       app = object({
         env = object({
-          app_public_url = string
+          app_public_url         = string
+          auth_redirect_base_url = string
         })
       })
       backups = object({

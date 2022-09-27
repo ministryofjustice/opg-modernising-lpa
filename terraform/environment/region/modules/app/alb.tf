@@ -51,6 +51,7 @@ resource "aws_lb_listener" "app_loadbalancer_http_redirect" {
 
 locals {
   dev_wildcard = data.aws_default_tags.current.tags.environment-name == "production" ? "" : "*."
+  dev_app_fqdn = "${local.name_prefix}.app.modernising.opg.service.justice.gov.uk"
 }
 
 data "aws_acm_certificate" "certificate_app" {
