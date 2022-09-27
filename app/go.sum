@@ -2,11 +2,15 @@ github.com/BurntSushi/toml v1.0.0 h1:dtDWrepsVPfW9H/4y7dDgFc2MBUSeJhlaDtK13CxFlU
 github.com/BurntSushi/toml v1.0.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/MicahParks/keyfunc v1.2.2 h1:MtA/6bnmhcyDMarVF9QRQmfKg1ssKxH1C+k3Gw8DY1g=
 github.com/MicahParks/keyfunc v1.2.2/go.mod h1:GWZYIBflWXRPShQPMFRrUg+8buvyD0IWeg3Fi2rcrME=
+github.com/MicahParks/keyfunc v1.3.0 h1:+3nQWlJ3UYdAr1syqHjF3cRE+pWCOCFCqCo2allP8oM=
+github.com/MicahParks/keyfunc v1.3.0/go.mod h1:GWZYIBflWXRPShQPMFRrUg+8buvyD0IWeg3Fi2rcrME=
 github.com/aws/aws-sdk-go v1.19.23/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/aws/aws-sdk-go v1.44.95 h1:QwmA+PeR6v4pF0f/dPHVPWGAshAhb9TnGZBTM5uKuI8=
 github.com/aws/aws-sdk-go v1.44.95/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
 github.com/aws/aws-sdk-go v1.44.101 h1:O/em5aIxKI/FkwcWAFKEY+JhPDCRsqoVUC6xEF4tGic=
 github.com/aws/aws-sdk-go v1.44.101/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
+github.com/aws/aws-sdk-go v1.44.106 h1:FzINxRGt0gAzz01ixtKfkjiDOnnpd/uNbstW/qPW2QE=
+github.com/aws/aws-sdk-go v1.44.106/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
 github.com/aws/aws-secretsmanager-caching-go v1.1.0 h1:vcV94XGJ9KouXKYBTMqgrBw96Tae8JKLmoUZ5SbaXNo=
 github.com/aws/aws-secretsmanager-caching-go v1.1.0/go.mod h1:wahQpJP1dZKMqjGFAjGCqilHkTlN0zReGWocPLbXmxg=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
