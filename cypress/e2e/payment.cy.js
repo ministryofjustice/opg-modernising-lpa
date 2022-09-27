@@ -1,28 +1,38 @@
 describe('Payment', () => {
-    describe('Call to action', () => {
-        beforeEach(() => {
-            cy.visit('/testing-start?redirect=/about-payment');
-            cy.injectAxe();
-        });
-
-        it('has a title and continue button', () => {
-            cy.get('h1').should('contain', 'About payment');
-            cy.contains('button', 'Continue to payment');
-            cy.checkA11y(null, { rules: { region: { enabled: false } } });
-        })
-    })
-
     describe('Pay for LPA', () => {
-        beforeEach(() => {
-            cy.visit('/testing-start?redirect=/about-payment');
-        });
-
         it('adds a secure cookie before redirecting user to GOV UK Pay', () => {
             cy.getCookie('pay').should('not.exist')
-            cy.contains('button', 'Continue to payment').click()
 
-            cy.getCookie('pay').should('exist')
-            cy.url().should('eq', `${Cypress.config('baseUrl')}/payment-confirmation`)
+            cy.visit('/testing-start?redirect=/about-payment');
+            cy.injectAxe();
+
+            cy.get('h1').should('contain', 'About payment');
+
+            cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+            cy.intercept('**/v1/payments', (req) => {
+                cy.getCookie('pay').should('exist')
+            })
+
+            cy.contains('button', 'Continue to payment').click()
+        })
+
+        it('removes existing secure cookie on payment confirmation page', () => {
+            cy.setCookie('pay', 'abc123')
+
+            cy.visit('/testing-start?redirect=/payment-confirmation&paymentComplete=1');
+
+            cy.injectAxe();
+
+            cy.get('h1').should('contain', 'Payment received');
+            cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+            cy.contains('a', 'Continue').click()
+
+            // Will lead to identity journey once we have an initial page
+            cy.url().should('eq', `${Cypress.config('baseUrl')}/task-list`)
+
+            cy.getCookie('pay').should('not.exist')
         })
     })
 })
