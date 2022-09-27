@@ -12,7 +12,7 @@ const (
 	TaskNotStarted TaskState = iota
 	TaskInProgress
 	TaskCompleted
-	CostOfLpa = 82
+	CostOfLpaPence = 8200
 )
 
 type Lpa struct {

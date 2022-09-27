@@ -82,7 +82,7 @@ func TestAboutPayment(t *testing.T) {
 			}{
 				"Real base URL": {
 					baseUrl:                 "https://publicapi.payments.service.gov.uk",
-					expectedNextUrlPath:     "https://publicapi.payments.service.gov.uk/path-from/response",
+					expectedNextUrlPath:     "https://www.payments.service.gov.uk/path-from/response",
 					expectCookieSecureValue: true,
 				},
 				"Mock base URL": {
@@ -106,7 +106,7 @@ func TestAboutPayment(t *testing.T) {
 
 					payClient.
 						On("CreatePayment", pay.CreatePaymentBody{
-							Amount:      82,
+							Amount:      8200,
 							Reference:   "abc",
 							Description: "A payment",
 							ReturnUrl:   "http://example.org/payment-confirmation",
