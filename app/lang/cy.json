@@ -162,7 +162,7 @@
     "lessThanTwoYears": "Welsh",
     "mustHaveKnownCertificateProviderTwoYears": "Welsh",
     "selectHowLongHaveYouKnownCertificateProvider": "Welsh",
-    
+
     "selectCheckedLpa": "Welsh",
     "selectHappyToShareLpa": "Welsh",
     "checkYourLpa": "Welsh",
@@ -190,5 +190,11 @@
     "whatHappensIfIChange": "Welsh",
     "whatHappensIfIChangeDetails": "<p class=\"govuk-body\">Welsh</p>",
     "onceYouClickConfirmWarning": "Welsh",
-    "replacementAttorney": "Welsh"
+    "replacementAttorney": "Welsh",
+
+    "paymentReceivedHeader": "Welsh",
+    "yourRefNumber": "Welsh",
+    "thankYouHeader": "Welsh.",
+    "paymentConfirmationContent": "<p class=\"govuk-body\">Welsh.</p><p class=\"govuk-body\">Welsh.</p><p class=\"govuk-body\">Welsh.</p>",
+    "continueLink": "Welsh"
 }

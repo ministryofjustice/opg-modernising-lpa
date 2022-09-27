@@ -117,7 +117,6 @@ func TestCookieSessionKeysNotBase64(t *testing.T) {
 }
 
 func TestPayApiKey(t *testing.T) {
-
 	t.Run("Returns GOV UK Pay API key string", func(t *testing.T) {
 		secretsCache := &mockSecretsCache{}
 
