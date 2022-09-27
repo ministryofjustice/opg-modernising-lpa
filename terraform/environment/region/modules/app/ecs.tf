@@ -246,7 +246,7 @@ locals {
         },
         {
           name  = "GOVUK_PAY_BASE_URL",
-          value = "https://publicapi.payments.service.gov.uk/"
+          value = "https://publicapi.payments.service.gov.uk"
         },
       ]
     }
