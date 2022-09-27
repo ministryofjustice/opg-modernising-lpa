@@ -294,6 +294,23 @@ func TestGetPayment(t *testing.T) {
 		assert.Equal(t, GetPaymentResponse{}, actualGPResponse, "Return value did not match")
 	})
 
+	t.Run("Returns an error if unable to make request", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {}))
+
+		defer server.Close()
+
+		payClient := Client{BaseURL: "not an url", ApiKey: apiToken, HttpClient: server.Client()}
+
+		actualGPResponse, err := payClient.GetPayment(paymentId)
+
+		if err == nil {
+			t.Fatal("Expected an error but received nil")
+		}
+
+		assert.Contains(t, err.Error(), "unsupported protocol scheme")
+		assert.Equal(t, GetPaymentResponse{}, actualGPResponse, "Return value did not match")
+	})
+
 	t.Run("Returns an error if unable to decode response", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			defer req.Body.Close()

@@ -88,6 +88,10 @@ func (c *Client) GetPayment(paymentId string) (GetPaymentResponse, error) {
 
 	resp, err := c.HttpClient.Do(req)
 
+	if err != nil {
+		return GetPaymentResponse{}, err
+	}
+
 	defer resp.Body.Close()
 
 	var getPaymentResponse GetPaymentResponse
