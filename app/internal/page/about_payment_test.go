@@ -106,7 +106,7 @@ func TestAboutPayment(t *testing.T) {
 
 					payClient.
 						On("CreatePayment", pay.CreatePaymentBody{
-							Amount:      0,
+							Amount:      82,
 							Reference:   "abc",
 							Description: "A payment",
 							ReturnUrl:   "http://example.org/payment-confirmation",
@@ -148,7 +148,7 @@ func TestAboutPayment(t *testing.T) {
 					assert.Equal(t, http.StatusFound, resp.StatusCode)
 					assert.Equal(t, tc.expectedNextUrlPath, resp.Header.Get("Location"))
 
-					mock.AssertExpectationsForObjects(t, template)
+					mock.AssertExpectationsForObjects(t, template, &payClient, sessionsStore)
 				})
 			}
 		})
@@ -173,7 +173,7 @@ func TestAboutPayment(t *testing.T) {
 			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl)(AppData{}, w, r)
 
 			assert.Equal(t, expectedError, err, "Expected error was not returned")
-			mock.AssertExpectationsForObjects(t, logger)
+			mock.AssertExpectationsForObjects(t, logger, &payClient)
 
 		})
 
@@ -199,7 +199,7 @@ func TestAboutPayment(t *testing.T) {
 			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl)(AppData{}, w, r)
 
 			assert.Equal(t, expectedError, err, "Expected error was not returned")
-			mock.AssertExpectationsForObjects(t, logger)
+			mock.AssertExpectationsForObjects(t, sessionsStore, &payClient)
 
 		})
 	})

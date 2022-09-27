@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"strings"
+	"time"
 )
 
 type PayClient interface {
@@ -20,6 +22,32 @@ type Client struct {
 	ApiKey     string
 	HttpClient Doer
 }
+
+type GovUKPayTime time.Time
+
+func (g *GovUKPayTime) UnmarshalJSON(b []byte) error {
+	s := strings.Trim(string(b), "\"")
+	s = strings.Trim(s, "0Z")
+
+	t, err := time.Parse(time.RFC3339, s+"00Z")
+	if err != nil {
+		return err
+	}
+
+	*g = GovUKPayTime(t)
+	return nil
+}
+
+func (g *GovUKPayTime) MarshalJSON() ([]byte, error) {
+	return json.Marshal(time.Time(*g))
+}
+
+func (g *GovUKPayTime) Format(s string) string {
+	t := time.Time(*g)
+	return t.Format(s)
+}
+
+//"2016-01-21T17:15:000Z"
 
 func (c *Client) CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, error) {
 	data, _ := json.Marshal(body)
@@ -59,6 +87,10 @@ func (c *Client) GetPayment(paymentId string) (GetPaymentResponse, error) {
 	req.Header.Add("Content-Type", "application/json")
 
 	resp, err := c.HttpClient.Do(req)
+
+	if err != nil {
+		return GetPaymentResponse{}, err
+	}
 
 	defer resp.Body.Close()
 
