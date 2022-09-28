@@ -34,14 +34,15 @@ func main() {
 	logger := logging.New(os.Stdout, "opg-modernising-lpa")
 
 	var (
-		port            = env.Get("APP_PORT", "8080")
-		appPublicURL    = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
-		webDir          = env.Get("WEB_DIR", "web")
-		awsBaseUrl      = env.Get("AWS_BASE_URL", "")
-		clientID        = env.Get("CLIENT_ID", "client-id-value")
-		issuer          = env.Get("ISSUER", "http://sign-in-mock:7012")
-		dynamoTableLpas = env.Get("DYNAMODB_TABLE_LPAS", "")
-		payBaseUrl      = env.Get("GOVUK_PAY_BASE_URL", "http://pay-mock:4010")
+		port                = env.Get("APP_PORT", "8080")
+		appPublicUrl        = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
+		authRedirectBaseUrl = env.Get("AUTH_REDIRECT_BASE_URL", "http://localhost:5050")
+		webDir              = env.Get("WEB_DIR", "web")
+		awsBaseUrl          = env.Get("AWS_BASE_URL", "")
+		clientID            = env.Get("CLIENT_ID", "client-id-value")
+		issuer              = env.Get("ISSUER", "http://sign-in-mock:7012")
+		dynamoTableLpas     = env.Get("DYNAMODB_TABLE_LPAS", "")
+		payBaseUrl          = env.Get("GOVUK_PAY_BASE_URL", "http://pay-mock:4010")
 	)
 
 	tmpls, err := template.Parse(webDir+"/template", map[string]interface{}{
@@ -198,14 +199,14 @@ func main() {
 
 	sessionStore := sessions.NewCookieStore(sessionKeys...)
 
-	redirectURL := appPublicURL + page.AuthRedirectPath
+	redirectURL := authRedirectBaseUrl + page.AuthRedirectPath
 
 	signInClient, err := signin.Discover(ctx, logger, http.DefaultClient, secretsClient, issuer, clientID, redirectURL)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	secureCookies := strings.HasPrefix(appPublicURL, "https:")
+	secureCookies := strings.HasPrefix(appPublicUrl, "https:")
 
 	payApiKey, err := secretsClient.PayApiKey()
 
@@ -220,8 +221,8 @@ func main() {
 	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies))
 	mux.Handle(page.AuthPath, page.Login(logger, signInClient, sessionStore, secureCookies, random.String))
 	mux.Handle("/cookies-consent", page.CookieConsent())
-	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient)))
-	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient))
+	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicUrl, payClient)))
+	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicUrl, payClient))
 
 	server := &http.Server{
 		Addr:              ":" + port,

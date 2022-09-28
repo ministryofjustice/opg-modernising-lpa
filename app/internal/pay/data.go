@@ -1,6 +1,11 @@
 package pay
 
-import "time"
+const (
+	PaymentStatusSuccess    = "success"
+	CookieName              = "pay"
+	CookiePaymentIdValueKey = "paymentId"
+	PaymentPublicServiceUrl = "https://www.payments.service.gov.uk"
+)
 
 type CreatePaymentBody struct {
 	Amount      int    `json:"amount"`
@@ -22,7 +27,7 @@ type Link struct {
 }
 
 type CreatePaymentResponse struct {
-	CreatedDate     time.Time       `json:"created_date"`
+	CreatedDate     GovUKPayTime    `json:"created_date"`
 	State           State           `json:"State"`
 	Links           map[string]Link `json:"_links"`
 	Amount          int             `json:"amount"`
@@ -63,7 +68,6 @@ type ThreeDSecure struct {
 type RefundSummary struct {
 	Status          string `json:"status"`
 	AmountAvailable int    `json:"amount_available"`
-	AmountSubmitted int    `json:"amount_submitted"`
 }
 
 type SettlementSummary struct {
@@ -73,12 +77,12 @@ type SettlementSummary struct {
 }
 
 type GetPaymentResponse struct {
-	CreatedDate time.Time `json:"created_date"`
-	Amount      int       `json:"amount"`
-	State       State     `json:"State"`
-	Description string    `json:"description"`
-	Reference   string    `json:"reference"`
-	Language    string    `json:"language"`
+	CreatedDate GovUKPayTime `json:"created_date"`
+	Amount      int          `json:"amount"`
+	State       State        `json:"State"`
+	Description string       `json:"description"`
+	Reference   string       `json:"reference"`
+	Language    string       `json:"language"`
 	//May be useful but until we define if/what we send in CreatePayment we can't marshal the response
 	//
 	//Metadata    struct {
