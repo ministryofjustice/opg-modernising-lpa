@@ -9,23 +9,23 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestWhatHappensNext(t *testing.T) {
+func TestGuidance(t *testing.T) {
 	w := httptest.NewRecorder()
 	lpa := Lpa{}
 
-	dataStore := &mockDataStore{}
+	dataStore := &mockDataStore{data: lpa}
 	dataStore.
 		On("Get", mock.Anything, "session-id").
-		Return(lpa)
+		Return(nil)
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &whatHappensNextData{App: appData, Continue: taskListPath, Lpa: lpa}).
+		On("Func", w, &guidanceData{App: appData, Continue: "/somewhere", Lpa: lpa}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := WhatHappensNext(template.Func, dataStore)(appData, w, r)
+	err := Guidance(template.Func, "/somewhere", dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -33,7 +33,7 @@ func TestWhatHappensNext(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template)
 }
 
-func TestWhatHappensNextWhenTemplateErrors(t *testing.T) {
+func TestGuidanceWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	dataStore := &mockDataStore{}
@@ -43,12 +43,12 @@ func TestWhatHappensNextWhenTemplateErrors(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &whatHappensNextData{App: appData, Continue: taskListPath}).
+		On("Func", w, &guidanceData{App: appData, Continue: "/somewhere"}).
 		Return(expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := WhatHappensNext(template.Func, dataStore)(appData, w, r)
+	err := Guidance(template.Func, "/somewhere", dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
