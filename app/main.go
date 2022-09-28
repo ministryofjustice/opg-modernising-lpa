@@ -157,10 +157,10 @@ func main() {
 				data[args[i].(string)] = args[i+1]
 			}
 
-			return app.Localizer.FormatHTML(messageID, data)
+			return html.HTML(app.Localizer.Format(messageID, data))
 		},
 		"trHtml": func(app page.AppData, messageID string) html.HTML {
-			return app.Localizer.HTML(messageID)
+			return html.HTML(app.Localizer.T(messageID))
 		},
 		"trCount": func(app page.AppData, messageID string, count int) string {
 			return app.Localizer.Count(messageID, count)
