@@ -190,5 +190,8 @@
     "whatHappensIfIChange": "Welsh",
     "whatHappensIfIChangeDetails": "<p class=\"govuk-body\">Welsh</p>",
     "onceYouClickConfirmWarning": "Welsh",
-    "replacementAttorney": "Welsh"
+    "replacementAttorney": "Welsh",
+
+    "whatHappensNext": "Welsh",
+    "whatHappensNextContent": "<p class=\"govuk-body\">Welsh</p>"
 }

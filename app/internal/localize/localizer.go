@@ -38,8 +38,12 @@ func (l Localizer) Format(messageID string, data map[string]interface{}) string 
 	return l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, TemplateData: data})
 }
 
+func (l Localizer) FormatHTML(messageID string, data map[string]interface{}) template.HTML {
+	return template.HTML(l.Format(messageID, data))
+}
+
 func (l Localizer) HTML(messageID string) template.HTML {
-	return template.HTML(l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID}))
+	return template.HTML(l.T(messageID))
 }
 
 func (l Localizer) Count(messageID string, count int) string {
