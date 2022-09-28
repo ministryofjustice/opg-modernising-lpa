@@ -190,5 +190,17 @@
     "whatHappensIfIChange": "Welsh",
     "whatHappensIfIChangeDetails": "<p class=\"govuk-body\">Welsh</p>",
     "onceYouClickConfirmWarning": "Welsh",
-    "replacementAttorney": "Welsh"
+    "replacementAttorney": "Welsh",
+
+    "whatHappensNext": "Welsh",
+    "whatHappensNextContent": "<p class=\"govuk-body\">Welsh {{.CertificateProviderFirstNames}} {{.CertificateProviderLastName}}</p>",
+
+    "whatHappensWhenSigning": "Welsh",
+    "whatHappensWhenSigningContent": "<p class=\"govuk-body\">Welsh {{.AttorneyFirstNames}} {{.AttorneyLastName}}</p>",
+    "whileYouHaveMentalCapacity": "Welsh",
+    "theyMustAlwaysFollowTheRules": "Welsh",
+    "whatHappensIfIChangeMyMind": "Welsh",
+    "whatHappensIfIChangeMyMindContent": "<p class=\"govuk-body\">Welsh</p>",
+    "registeringYourLpa": "Welsh",
+    "registeringYourLpaContent": "<p class=\"govuk-body\">Welsh {{.AttorneyFirstNames}} {{.AttorneyLastName}} {{.CertificateProviderFirstNames}}</p>"
 }
