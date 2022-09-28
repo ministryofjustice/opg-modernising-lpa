@@ -2,7 +2,6 @@ package localize
 
 import (
 	"encoding/json"
-	"html/template"
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
@@ -36,14 +35,6 @@ func (l Localizer) T(messageID string) string {
 
 func (l Localizer) Format(messageID string, data map[string]interface{}) string {
 	return l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, TemplateData: data})
-}
-
-func (l Localizer) FormatHTML(messageID string, data map[string]interface{}) template.HTML {
-	return template.HTML(l.Format(messageID, data))
-}
-
-func (l Localizer) HTML(messageID string) template.HTML {
-	return template.HTML(l.T(messageID))
 }
 
 func (l Localizer) Count(messageID string, count int) string {
