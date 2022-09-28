@@ -121,6 +121,8 @@ func App(
 	// Handler will be updated in the following ticket - just needed a valid path to prove redirect works
 	handle(paymentConfirmation, RequireSession|CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), dataStore))
+	handle(whatHappensNextPath, RequireSession|CanGoBack,
+		WhatHappensNext(tmpls.Get("what_happens_next.gohtml")))
 
 	return mux
 }
