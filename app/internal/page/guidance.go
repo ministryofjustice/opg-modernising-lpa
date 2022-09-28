@@ -6,18 +6,18 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 )
 
-type whatHappensNextData struct {
+type guidanceData struct {
 	App      AppData
 	Errors   map[string]string
 	Continue string
 	Lpa      Lpa
 }
 
-func WhatHappensNext(tmpl template.Template, dataStore DataStore) Handler {
+func Guidance(tmpl template.Template, continuePath string, dataStore DataStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		data := &whatHappensNextData{
+		data := &guidanceData{
 			App:      appData,
-			Continue: taskListPath,
+			Continue: continuePath,
 		}
 
 		if err := dataStore.Get(r.Context(), appData.SessionID, &data.Lpa); err != nil {
