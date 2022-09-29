@@ -15,11 +15,9 @@ import (
 )
 
 func TestPaymentConfirmation(t *testing.T) {
-	random := func(int) string { return "123456789012" }
-
 	t.Run("Gets payment status from GOV UK Pay by payment_id in cookie and stores payment_id and a UUID against users session ID", func(t *testing.T) {
 		payClient := (&mockPayClient{BaseURL: "http://base.url"}).
-			withASuccessfulPayment("abc123")
+			withASuccessfulPayment("abc123", "123456789012")
 
 		w := httptest.NewRecorder()
 
@@ -38,7 +36,7 @@ func TestPaymentConfirmation(t *testing.T) {
 			withLpaDataInStore().
 			withUpdatedLpaData("abc123", "123456789012")
 
-		err := PaymentConfirmation(&mockLogger{}, template.Func, payClient, dataStore, sessionsStore, random)(appData, w, r)
+		err := PaymentConfirmation(&mockLogger{}, template.Func, payClient, dataStore, sessionsStore)(appData, w, r)
 		resp := w.Result()
 
 		assert.Nil(t, err)
@@ -61,7 +59,7 @@ func TestPaymentConfirmation(t *testing.T) {
 			On("Print", fmt.Sprintf("unable to retrieve item from data store using key '%s': %s", "session-id", expectedError.Error())).
 			Return(nil)
 
-		err := PaymentConfirmation(logger, template.Func, &mockPayClient{}, dataStore, &mockSessionsStore{}, random)(appData, w, r)
+		err := PaymentConfirmation(logger, template.Func, &mockPayClient{}, dataStore, &mockSessionsStore{})(appData, w, r)
 		resp := w.Result()
 
 		assert.Equal(t, expectedError, err)
@@ -87,7 +85,7 @@ func TestPaymentConfirmation(t *testing.T) {
 			On("Print", fmt.Sprintf("unable to retrieve session using key '%s': %s", "pay", expectedError.Error())).
 			Return(nil)
 
-		err := PaymentConfirmation(logger, template.Func, &mockPayClient{}, dataStore, sessionsStore, random)(appData, w, r)
+		err := PaymentConfirmation(logger, template.Func, &mockPayClient{}, dataStore, sessionsStore)(appData, w, r)
 		resp := w.Result()
 
 		assert.Equal(t, expectedError, err)
@@ -117,7 +115,7 @@ func TestPaymentConfirmation(t *testing.T) {
 
 		template := &mockTemplate{}
 
-		err := PaymentConfirmation(logger, template.Func, payClient, dataStore, sessionsStore, random)(appData, w, r)
+		err := PaymentConfirmation(logger, template.Func, payClient, dataStore, sessionsStore)(appData, w, r)
 		resp := w.Result()
 
 		assert.Equal(t, expectedError, err)
@@ -146,14 +144,14 @@ func TestPaymentConfirmation(t *testing.T) {
 			Return(nil)
 
 		payClient := (&mockPayClient{}).
-			withASuccessfulPayment("abc123")
+			withASuccessfulPayment("abc123", "123456789012")
 
 		template := &mockTemplate{}
 		template.
 			On("Func", w, &paymentConfirmationData{App: appData, PaymentReference: "123456789012"}).
 			Return(nil)
 
-		err := PaymentConfirmation(logger, template.Func, payClient, dataStore, sessionsStore, random)(appData, w, r)
+		err := PaymentConfirmation(logger, template.Func, payClient, dataStore, sessionsStore)(appData, w, r)
 		resp := w.Result()
 
 		assert.Nil(t, err)
@@ -184,7 +182,7 @@ func (m *mockDataStore) withUpdatedLpaData(paymentId, paymentReference string) *
 	return m
 }
 
-func (m *mockPayClient) withASuccessfulPayment(paymentId string) *mockPayClient {
+func (m *mockPayClient) withASuccessfulPayment(paymentId, reference string) *mockPayClient {
 	m.
 		On("GetPayment", paymentId).
 		Return(pay.GetPaymentResponse{
@@ -193,6 +191,7 @@ func (m *mockPayClient) withASuccessfulPayment(paymentId string) *mockPayClient 
 				Finished: true,
 			},
 			PaymentId: paymentId,
+			Reference: reference,
 		}, nil)
 
 	return m

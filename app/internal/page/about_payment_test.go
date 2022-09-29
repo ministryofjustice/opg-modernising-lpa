@@ -1,6 +1,7 @@
 package page
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -32,11 +33,11 @@ var publicUrl = "http://example.org"
 
 func TestAboutPayment(t *testing.T) {
 	payClient := mockPayClient{BaseURL: "http://base.url"}
+	random := func(int) string { return "123456789012" }
 
 	t.Run("GET", func(t *testing.T) {
 		t.Run("Handles page data", func(t *testing.T) {
 			w := httptest.NewRecorder()
-			appData := AppData{}
 
 			template := &mockTemplate{}
 			template.
@@ -45,7 +46,7 @@ func TestAboutPayment(t *testing.T) {
 
 			r, _ := http.NewRequest(http.MethodGet, "/about-payment", nil)
 
-			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl)(appData, w, r)
+			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl, random)(appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -55,7 +56,6 @@ func TestAboutPayment(t *testing.T) {
 
 		t.Run("Returns an error when cannot render template", func(t *testing.T) {
 			w := httptest.NewRecorder()
-			appData := AppData{}
 
 			template := &mockTemplate{}
 			template.
@@ -64,7 +64,7 @@ func TestAboutPayment(t *testing.T) {
 
 			r, _ := http.NewRequest(http.MethodGet, "/about-payment", nil)
 
-			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl)(appData, w, r)
+			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl, random)(appData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -95,7 +95,6 @@ func TestAboutPayment(t *testing.T) {
 			for name, tc := range testCases {
 				t.Run(name, func(t *testing.T) {
 					w := httptest.NewRecorder()
-					appData := AppData{}
 
 					template := &mockTemplate{}
 					template.
@@ -107,8 +106,8 @@ func TestAboutPayment(t *testing.T) {
 					payClient.
 						On("CreatePayment", pay.CreatePaymentBody{
 							Amount:      8200,
-							Reference:   "abc",
-							Description: "A payment",
+							Reference:   "123456789012",
+							Description: "Property and Finance LPA",
 							ReturnUrl:   "http://example.org/payment-confirmation",
 							Email:       "a@b.com",
 							Language:    "en",
@@ -141,7 +140,7 @@ func TestAboutPayment(t *testing.T) {
 						On("Save", r, w, session).
 						Return(nil)
 
-					err := AboutPayment(&mockLogger{}, template.Func, sessionsStore, &payClient, publicUrl)(appData, w, r)
+					err := AboutPayment(&mockLogger{}, template.Func, sessionsStore, &payClient, publicUrl, random)(appData, w, r)
 					resp := w.Result()
 
 					assert.Nil(t, err)
@@ -151,6 +150,29 @@ func TestAboutPayment(t *testing.T) {
 					mock.AssertExpectationsForObjects(t, template, &payClient, sessionsStore)
 				})
 			}
+		})
+
+		t.Run("Returns error when an unsupported language type is set", func(t *testing.T) {
+			appDataUnsupportedLang := AppData{SessionID: "session-id", Lang: Lang(10)}
+
+			w := httptest.NewRecorder()
+			template := &mockTemplate{}
+			template.
+				On("Func", w, &aboutPaymentData{App: appDataUnsupportedLang}).
+				Return(nil)
+
+			r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
+
+			sessionsStore := &mockSessionsStore{}
+
+			logger := &mockLogger{}
+			logger.
+				On("Print", "unsupported language '10'")
+
+			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl, random)(appDataUnsupportedLang, w, r)
+
+			assert.Equal(t, errors.New("unsupported language '10'"), err, "Expected error was not returned")
+			mock.AssertExpectationsForObjects(t, logger, &payClient)
 		})
 
 		t.Run("Returns error when cannot create payment", func(t *testing.T) {
@@ -170,11 +192,10 @@ func TestAboutPayment(t *testing.T) {
 			logger.
 				On("Print", "Error creating payment: "+expectedError.Error())
 
-			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl)(AppData{}, w, r)
+			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl, random)(appData, w, r)
 
 			assert.Equal(t, expectedError, err, "Expected error was not returned")
 			mock.AssertExpectationsForObjects(t, logger, &payClient)
-
 		})
 
 		t.Run("Returns error when cannot save to session", func(t *testing.T) {
@@ -196,7 +217,7 @@ func TestAboutPayment(t *testing.T) {
 
 			logger := &mockLogger{}
 
-			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl)(AppData{}, w, r)
+			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl, random)(appData, w, r)
 
 			assert.Equal(t, expectedError, err, "Expected error was not returned")
 			mock.AssertExpectationsForObjects(t, sessionsStore, &payClient)

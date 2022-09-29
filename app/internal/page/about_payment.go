@@ -18,20 +18,27 @@ type aboutPaymentData struct {
 	Errors map[string]string
 }
 
-func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.Store, payClient pay.PayClient, appPublicUrl string) Handler {
+func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.Store, payClient pay.PayClient, appPublicUrl string, randomString func(int) string) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &aboutPaymentData{
 			App: appData,
 		}
 
 		if r.Method == http.MethodPost {
+			language, err := appData.Lang.Abbreviation()
+
+			if err != nil {
+				logger.Print(err.Error())
+				return err
+			}
+
 			createPaymentBody := pay.CreatePaymentBody{
 				Amount:      CostOfLpaPence,
-				Reference:   "abc",
-				Description: "A payment",
-				ReturnUrl:   appPublicUrl + "/payment-confirmation",
+				Reference:   randomString(12),
+				Description: "Property and Finance LPA",
+				ReturnUrl:   appPublicUrl + appData.Lang.BuildUrl(paymentConfirmationPath),
 				Email:       "a@b.com",
-				Language:    "en",
+				Language:    language,
 			}
 
 			resp, err := payClient.CreatePayment(createPaymentBody)
@@ -54,9 +61,9 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 				Secure:   secureCookies,
 			}
 
-			session := sessions.NewSession(sessionStore, pay.CookieName)
+			session := sessions.NewSession(sessionStore, PayCookieName)
 			session.Values = map[interface{}]interface{}{
-				pay.CookiePaymentIdValueKey: resp.PaymentId,
+				PayCookiePaymentIdValueKey: resp.PaymentId,
 			}
 			session.Options = cookieOptions
 

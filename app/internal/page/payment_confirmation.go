@@ -16,7 +16,7 @@ type paymentConfirmationData struct {
 	PaymentReference string
 }
 
-func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayClient, dataStore DataStore, sessionStore sessions.Store, randomString func(int) string) Handler {
+func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayClient, dataStore DataStore, sessionStore sessions.Store) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		var lpa Lpa
 		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
@@ -24,14 +24,14 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayCl
 			return err
 		}
 
-		payCookie, err := sessionStore.Get(r, pay.CookieName)
+		payCookie, err := sessionStore.Get(r, PayCookieName)
 
 		if err != nil {
 			logger.Print(fmt.Sprintf("unable to retrieve session using key '%s': %s", "pay", err.Error()))
 			return err
 		}
 
-		paymentId := payCookie.Values[pay.CookiePaymentIdValueKey].(string)
+		paymentId := payCookie.Values[PayCookiePaymentIdValueKey].(string)
 		getPaymentResponse, err := client.GetPayment(paymentId)
 
 		if err != nil {
@@ -40,17 +40,17 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayCl
 		}
 
 		lpa.PaymentDetails = PaymentDetails{
-			PaymentReference: randomString(12),
+			PaymentReference: getPaymentResponse.Reference,
 			PaymentId:        getPaymentResponse.PaymentId,
 		}
 
 		data := &paymentConfirmationData{
 			App:              appData,
-			PaymentReference: randomString(12),
+			PaymentReference: getPaymentResponse.Reference,
 		}
 
 		payCookie.Options.MaxAge = -1
-		payCookie.Values = map[interface{}]interface{}{pay.CookiePaymentIdValueKey: ""}
+		payCookie.Values = map[interface{}]interface{}{PayCookiePaymentIdValueKey: ""}
 
 		err = sessionStore.Save(r, w, payCookie)
 

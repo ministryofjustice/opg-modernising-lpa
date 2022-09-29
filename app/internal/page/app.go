@@ -18,16 +18,34 @@ import (
 type Lang int
 
 func (l Lang) Redirect(w http.ResponseWriter, r *http.Request, url string, code int) {
+	http.Redirect(w, r, l.BuildUrl(url), code)
+}
+
+func (l Lang) Abbreviation() (string, error) {
 	if l == En {
-		http.Redirect(w, r, url, code)
+		return EnglishAbbreviation, nil
+	}
+
+	if l == Cy {
+		return WelshAbbreviation, nil
+	}
+
+	return "", fmt.Errorf("unsupported language '%v'", l)
+}
+
+func (l Lang) BuildUrl(url string) string {
+	if l == Cy {
+		return "/" + WelshAbbreviation + url
 	} else {
-		http.Redirect(w, r, "/cy"+url, code)
+		return url
 	}
 }
 
 const (
 	En Lang = iota
 	Cy
+	EnglishAbbreviation = "en"
+	WelshAbbreviation   = "cy"
 )
 
 type Logger interface {
@@ -115,11 +133,11 @@ func App(
 	handle(howLongHaveYouKnownCertificateProviderPath, RequireSession|CanGoBack,
 		HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), dataStore))
 	handle(aboutPaymentPath, RequireSession|CanGoBack,
-		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl))
+		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String))
 	handle(checkYourLpaPath, RequireSession|CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), dataStore))
 	handle(paymentConfirmationPath, RequireSession|CanGoBack,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, dataStore, sessionStore, random.String))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, dataStore, sessionStore))
 
 	return mux
 }

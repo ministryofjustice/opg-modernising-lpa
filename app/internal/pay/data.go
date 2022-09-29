@@ -1,9 +1,6 @@
 package pay
 
 const (
-	PaymentStatusSuccess    = "success"
-	CookieName              = "pay"
-	CookiePaymentIdValueKey = "paymentId"
 	PaymentPublicServiceUrl = "https://www.payments.service.gov.uk"
 )
 

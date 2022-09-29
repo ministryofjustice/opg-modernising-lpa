@@ -18,12 +18,12 @@ var (
 	returnUrl   = "/example/url"
 	email       = "a@example.org"
 	language    = "en"
-	created     = GovUKPayTime(time.Date(2022, time.January, 5, 0, 0, 0, 0, time.UTC))
 	apiToken    = "fake-token"
 )
 
 func TestCreatePayment(t *testing.T) {
 	t.Run("POSTs required body content to expected GOVUK Pay create payment endpoint", func(t *testing.T) {
+		created, _ := time.Parse(time.RFC3339Nano, "2022-09-29T12:43:46.784Z")
 		body := CreatePaymentBody{
 			Amount:      amount,
 			Reference:   reference,
@@ -34,7 +34,7 @@ func TestCreatePayment(t *testing.T) {
 		}
 
 		expectedCPResponse := CreatePaymentResponse{
-			CreatedDate: created,
+			CreatedDate: GovUKPayTime(created),
 			State: State{
 				Status:   "created",
 				Finished: false,
@@ -69,7 +69,7 @@ func TestCreatePayment(t *testing.T) {
 			assert.JSONEq(t, expectedReqBody, string(reqBody), "Request body did not match")
 
 			rw.WriteHeader(http.StatusCreated)
-			rw.Write(generateCreatePaymentResponseBodyJsonString())
+			rw.Write(generateCreatePaymentResponseBodyJsonString(created))
 		}))
 
 		defer server.Close()
@@ -173,7 +173,7 @@ func TestCreatePayment(t *testing.T) {
 	})
 }
 
-func generateCreatePaymentResponseBodyJsonString() []byte {
+func generateCreatePaymentResponseBodyJsonString(createdAt time.Time) []byte {
 	return []byte(fmt.Sprintf(`
 {
   "created_date": "%s",
@@ -198,11 +198,12 @@ func generateCreatePaymentResponseBodyJsonString() []byte {
   "payment_id": "hu20sqlact5260q2nanm0q8u93",
   "payment_provider": "worldpay",
   "provider_id": "10987654321"
-}`, created.Format(time.RFC3339)))
+}`, createdAt.Format(time.RFC3339Nano)))
 }
 
 func TestGetPayment(t *testing.T) {
 	paymentId := "fake-id-value"
+	created, _ := time.Parse(time.RFC3339Nano, "2022-09-29T12:43:46.784Z")
 
 	t.Run("GETs payment information using a payment ID", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
@@ -212,7 +213,7 @@ func TestGetPayment(t *testing.T) {
 			assert.Equal(t, req.Header.Get("Authorization"), "Bearer fake-token", "Authorization token did not match")
 
 			rw.WriteHeader(http.StatusCreated)
-			rw.Write(generateGetPaymentResponseBodyJsonBytes())
+			rw.Write(generateGetPaymentResponseBodyJsonBytes(created))
 		}))
 
 		defer server.Close()
@@ -225,7 +226,7 @@ func TestGetPayment(t *testing.T) {
 		}
 
 		expectedGPResponse := GetPaymentResponse{
-			CreatedDate: created,
+			CreatedDate: GovUKPayTime(created),
 			Amount:      amount,
 			State: State{
 				Status:   "success",
@@ -261,7 +262,7 @@ func TestGetPayment(t *testing.T) {
 				AmountAvailable: 4000,
 			},
 			SettlementSummary: SettlementSummary{
-				CaptureSubmitTime: created.Format(time.RFC3339),
+				CaptureSubmitTime: created.Format(time.RFC3339Nano),
 				CapturedDate:      "2022-01-05",
 				SettledDate:       "2022-01-05",
 			},
@@ -335,7 +336,7 @@ func TestGetPayment(t *testing.T) {
 	})
 }
 
-func generateGetPaymentResponseBodyJsonBytes() []byte {
+func generateGetPaymentResponseBodyJsonBytes(createdAt time.Time) []byte {
 	return []byte(fmt.Sprintf(`
 {
   "created_date": "%s",
@@ -393,11 +394,11 @@ func generateGetPaymentResponseBodyJsonBytes() []byte {
   "provider_id": "10987654321",
   "return_url": "https://your.service.gov.uk/completed"
 }`,
-		created.Format(time.RFC3339),
+		createdAt.Format(time.RFC3339Nano),
 		amount,
 		description,
 		reference,
 		language,
 		email,
-		created.Format(time.RFC3339)))
+		createdAt.Format(time.RFC3339Nano)))
 }

@@ -12,7 +12,9 @@ const (
 	TaskNotStarted TaskState = iota
 	TaskInProgress
 	TaskCompleted
-	CostOfLpaPence = 8200
+	PayCookieName              = "pay"
+	PayCookiePaymentIdValueKey = "paymentId"
+	CostOfLpaPence             = 8200
 )
 
 type Lpa struct {

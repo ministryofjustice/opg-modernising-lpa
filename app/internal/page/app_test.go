@@ -24,7 +24,7 @@ const formUrlEncoded = "application/x-www-form-urlencoded"
 
 var (
 	expectedError = errors.New("err")
-	appData       = AppData{SessionID: "session-id"}
+	appData       = AppData{SessionID: "session-id", Lang: En}
 )
 
 type mockDataStore struct {
@@ -264,6 +264,53 @@ func TestTestingStart(t *testing.T) {
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 			assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
 			mock.AssertExpectationsForObjects(t, sessionsStore)
+		})
+	}
+}
+
+func TestLangAbbreviation(t *testing.T) {
+	type test struct {
+		language string
+		lang     Lang
+		want     string
+		err      error
+	}
+
+	testCases := []test{
+		{language: "English", lang: En, want: "en", err: nil},
+		{language: "Welsh", lang: Cy, want: "cy", err: nil},
+		{language: "Unsupported", lang: Lang(3), want: "", err: errors.New("unsupported language '3'")},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.language, func(t *testing.T) {
+			a, err := tc.lang.Abbreviation()
+
+			assert.Equal(t, tc.err, err)
+			assert.Equal(t, tc.want, a)
+		})
+	}
+}
+
+func TestLangBuildUrl(t *testing.T) {
+	type test struct {
+		language string
+		lang     Lang
+		url      string
+		want     string
+	}
+
+	testCases := []test{
+		{language: "English", lang: En, url: "/example.org", want: "/example.org"},
+		{language: "Welsh", lang: Cy, url: "/example.org", want: "/cy/example.org"},
+		{language: "Other", lang: Lang(3), url: "/example.org", want: "/example.org"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.language, func(t *testing.T) {
+			builtUrl := tc.lang.BuildUrl(tc.url)
+
+			assert.Equal(t, tc.want, builtUrl)
 		})
 	}
 }

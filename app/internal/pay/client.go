@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -26,11 +25,8 @@ type Client struct {
 
 type GovUKPayTime time.Time
 
-func (g *GovUKPayTime) UnmarshalJSON(b []byte) error {
-	s := strings.Trim(string(b), "\"")
-	s = strings.Trim(s, "0Z")
-
-	t, err := time.Parse(time.RFC3339, s+"00Z")
+func (g *GovUKPayTime) UnmarshalText(b []byte) error {
+	t, err := time.Parse(time.RFC3339Nano, string(b))
 	if err != nil {
 		return err
 	}
@@ -39,16 +35,13 @@ func (g *GovUKPayTime) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (g *GovUKPayTime) MarshalJSON() ([]byte, error) {
-	return json.Marshal(time.Time(*g))
+func (g GovUKPayTime) MarshalText() ([]byte, error) {
+	return []byte(g.Format(time.RFC3339Nano)), nil
 }
 
-func (g *GovUKPayTime) Format(s string) string {
-	t := time.Time(*g)
-	return t.Format(s)
+func (g GovUKPayTime) Format(s string) string {
+	return time.Time(g).Format(s)
 }
-
-//"2016-01-21T17:15:000Z"
 
 func (c *Client) CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, error) {
 	data, _ := json.Marshal(body)
@@ -58,8 +51,6 @@ func (c *Client) CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, e
 	if err != nil {
 		return CreatePaymentResponse{}, err
 	}
-
-	fmt.Println(c.BaseURL + "/v1/payments")
 
 	req.Header.Add("Authorization", "Bearer "+c.ApiKey)
 	req.Header.Add("Content-Type", "application/json")
