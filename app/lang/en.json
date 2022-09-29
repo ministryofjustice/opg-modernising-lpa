@@ -205,5 +205,17 @@
 
     "howToSign": "How to sign",
     "howToSignContent": "<ol class=\"govuk-list govuk-list--number\"> <li>When you press continue, we will text you a signature code.</li> <li>Read your LPA carefully before you sign.</li> <li>Type your signature code to sign the LPA. Your witness, {{.CertificateProviderFirstNames}} must watch you do this.</li> <li>Declare that {{.CertificateProviderFirstNames}} was present when you signed.</li> </ol>",
-    "whenYouSignWarning": "{{.YouFirstNames}}, when you sign the LPA, {{.CertificateProviderFirstNames}} must be physically present to witness you sign."
+    "whenYouSignWarning": "{{.YouFirstNames}}, when you sign the LPA, {{.CertificateProviderFirstNames}} must be physically present to witness you sign.",
+
+    "readYourLpa": "Read and sign your LPA",
+    "readAndCheckYourLpa": "Read and check your LPA carefully before you sign it.",
+    "whatHappensIfIWantToMakeChanges": "What happens if I want to make changes after I've signed?",
+    "whatHappensIfIWantToMakeChangesContent": "<p class=\"govuk-body\">It is possible to change your LPA after you’ve signed it and had the conversation with your certificate provider. However, you will need to:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>sign the LPA again</li> <li>have another conversation with your certificate provider, so you can talk about the updated LPA.</li> </ul> <p class=\"govuk-body\">Once the LPA has been registered, you can remove an attorney, but cannot make any other changes.</p><p> If you want to make other changes, you can cancel the LPA and make a new one. </p>",
+    "iHaveReadAndCheckedThisLpa": "I have read and checked this LPA",
+    "iConfirmIMadeThisLpaOfMyOwnFreeWill": "I confirm that I made this LPA of my own free will",
+    "typeSignatureCode": "Type your signature code to sign",
+    "iHaventReceivedSignatureCode": "I haven't received a signature code",
+    "selectReadAndCheckedLpa": "Select that you have read and checked this LPA",
+    "selectConfirmMadeThisLpaOfOwnFreeWill": "Select that you have made this LPA of your own free will",
+    "enterSignatureCode": "Enter your signature code"
 }
