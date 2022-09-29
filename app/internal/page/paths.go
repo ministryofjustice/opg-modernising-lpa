@@ -11,9 +11,11 @@ const (
 	chooseAttorneysPath                             = "/choose-attorneys"
 	howDoYouKnowYourCertificateProviderPath         = "/how-do-you-know-your-certificate-provider"
 	howLongHaveYouKnownCertificateProviderPath      = "/how-long-have-you-known-certificate-provider"
+	howToSignPath                                   = "/how-to-sign"
 	howWouldYouLikeToBeContactedPath                = "/how-would-you-like-to-be-contacted"
 	lpaTypePath                                     = "/lpa-type"
 	paymentConfirmation                             = "/payment-confirmation"
+	readYourLpaPath                                 = "/read-your-lpa"
 	restrictionsPath                                = "/restrictions"
 	startPath                                       = "/start"
 	taskListPath                                    = "/task-list"
@@ -25,5 +27,4 @@ const (
 	whoIsTheLpaForPath                              = "/who-is-the-lpa-for"
 	yourAddressPath                                 = "/your-address"
 	yourDetailsPath                                 = "/your-details"
-	howToSignPath                                   = "/how-to-sign"
 )
