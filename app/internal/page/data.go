@@ -27,6 +27,9 @@ type Lpa struct {
 	Tasks                    Tasks
 	Checked                  bool
 	HappyToShare             bool
+	CheckedAgain             bool
+	ConfirmFreeWill          bool
+	SignatureCode            string
 }
 
 type Tasks struct {
