@@ -3,6 +3,7 @@ package pay
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -58,6 +59,8 @@ func (c *Client) CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, e
 		return CreatePaymentResponse{}, err
 	}
 
+	fmt.Println(c.BaseURL + "/v1/payments")
+
 	req.Header.Add("Authorization", "Bearer "+c.ApiKey)
 	req.Header.Add("Content-Type", "application/json")
 
@@ -82,6 +85,8 @@ func (c *Client) GetPayment(paymentId string) (GetPaymentResponse, error) {
 	if err != nil {
 		return GetPaymentResponse{}, err
 	}
+
+	fmt.Println(c.BaseURL + "/v1/payments/" + paymentId)
 
 	req.Header.Add("Authorization", "Bearer "+c.ApiKey)
 	req.Header.Add("Content-Type", "application/json")

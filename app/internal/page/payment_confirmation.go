@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
-
 	"github.com/gorilla/sessions"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -18,7 +16,7 @@ type paymentConfirmationData struct {
 	PaymentReference string
 }
 
-func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayClient, dataStore DataStore, sessionStore sessions.Store, random random.RandomGenerator) Handler {
+func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayClient, dataStore DataStore, sessionStore sessions.Store, randomString func(int) string) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		var lpa Lpa
 		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
@@ -41,15 +39,14 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayCl
 			return err
 		}
 
-		paymentReference := random.String(12)
 		lpa.PaymentDetails = PaymentDetails{
-			PaymentReference: paymentReference,
+			PaymentReference: randomString(12),
 			PaymentId:        getPaymentResponse.PaymentId,
 		}
 
 		data := &paymentConfirmationData{
 			App:              appData,
-			PaymentReference: paymentReference,
+			PaymentReference: randomString(12),
 		}
 
 		payCookie.Options.MaxAge = -1
@@ -59,7 +56,6 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayCl
 
 		if err != nil {
 			logger.Print(fmt.Sprintf("unable to expire cookie in session: %s", err.Error()))
-			return err
 		}
 
 		lpa.Tasks.PayForLpa = TaskCompleted

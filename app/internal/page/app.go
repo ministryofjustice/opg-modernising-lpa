@@ -76,7 +76,6 @@ func App(
 	mux := http.NewServeMux()
 
 	addressClient := fakeAddressClient{}
-	randomGenerator := random.Random{}
 
 	handle := makeHandle(mux, logger, sessionStore, localizer, lang)
 
@@ -120,7 +119,7 @@ func App(
 	handle(checkYourLpaPath, RequireSession|CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), dataStore))
 	handle(paymentConfirmationPath, RequireSession|CanGoBack,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, dataStore, sessionStore, randomGenerator))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, dataStore, sessionStore, random.String))
 
 	return mux
 }
