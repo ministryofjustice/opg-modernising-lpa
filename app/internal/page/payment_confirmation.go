@@ -32,7 +32,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayCl
 		}
 
 		paymentId := payCookie.Values[PayCookiePaymentIdValueKey].(string)
-		getPaymentResponse, err := client.GetPayment(paymentId)
+		payment, err := client.GetPayment(paymentId)
 
 		if err != nil {
 			logger.Print(fmt.Sprintf("unable to retrieve payment info: %s", err.Error()))
@@ -40,13 +40,13 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayCl
 		}
 
 		lpa.PaymentDetails = PaymentDetails{
-			PaymentReference: getPaymentResponse.Reference,
-			PaymentId:        getPaymentResponse.PaymentId,
+			PaymentReference: payment.Reference,
+			PaymentId:        payment.PaymentId,
 		}
 
 		data := &paymentConfirmationData{
 			App:              appData,
-			PaymentReference: getPaymentResponse.Reference,
+			PaymentReference: payment.Reference,
 		}
 
 		payCookie.Options.MaxAge = -1

@@ -194,6 +194,5 @@
     "paymentReceivedHeader": "Payment received",
     "yourRefNumber": "Your reference number",
     "thankYouHeader": "Thank you for your payment.",
-    "paymentConfirmationContent": "<p class=\"govuk-body\">You have successfully paid for your finance and affairs LPA.</p><p class=\"govuk-body\">We've sent you an email to confirm we've received your LPA application fee.</p><p class=\"govuk-body\">If the email has not arrived in a few minutes, check your spam folder.</p>",
-    "continueLink": "Continue"
+    "paymentConfirmationContent": "<p class=\"govuk-body\">You have successfully paid for your finance and affairs LPA.</p><p class=\"govuk-body\">We've sent you an email to confirm we've received your LPA application fee.</p><p class=\"govuk-body\">If the email has not arrived in a few minutes, check your spam folder.</p>"
 }

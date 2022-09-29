@@ -77,10 +77,8 @@ func TestCreatePayment(t *testing.T) {
 		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
 
 		actualCPResponse, err := payClient.CreatePayment(body)
-		if err != nil {
-			t.Fatal(err, "An error unexpectedly occurred during CreatePayment")
-		}
 
+		assert.Nil(t, err, "Received an error when it should be nil")
 		assert.Equal(t, expectedCPResponse, actualCPResponse, "Return value did not match")
 	})
 
@@ -94,20 +92,15 @@ func TestCreatePayment(t *testing.T) {
 			Language:    language,
 		}
 
-		expectedCPResponse := CreatePaymentResponse{}
-
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {}))
 
 		defer server.Close()
 
 		payClient := Client{BaseURL: server.URL + "`invalid-url-format", ApiKey: apiToken, HttpClient: server.Client()}
 
-		actualCPResponse, err := payClient.CreatePayment(body)
-		if err == nil {
-			t.Fatal("Expected an error but received nil")
-		}
+		_, err := payClient.CreatePayment(body)
 
-		assert.Equal(t, expectedCPResponse, actualCPResponse, "Return value did not match")
+		assert.NotNil(t, err, "Expected an error but received nil")
 	})
 
 	t.Run("Returns an error if unable to make a request", func(t *testing.T) {
@@ -132,10 +125,8 @@ func TestCreatePayment(t *testing.T) {
 		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
 
 		actualCPResponse, err := payClient.CreatePayment(body)
-		if err == nil {
-			t.Fatal("Expected an error but received nil")
-		}
 
+		assert.NotNil(t, err, "Expected an error but received nil")
 		assert.Equal(t, expectedCPResponse, actualCPResponse, "Return value did not match")
 	})
 
@@ -148,8 +139,6 @@ func TestCreatePayment(t *testing.T) {
 			Email:       email,
 			Language:    language,
 		}
-
-		expectedCPResponse := CreatePaymentResponse{}
 
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			defer req.Body.Close()
@@ -164,12 +153,9 @@ func TestCreatePayment(t *testing.T) {
 
 		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
 
-		actualCPResponse, err := payClient.CreatePayment(body)
-		if err == nil {
-			t.Fatal("Expected an error but received nil")
-		}
+		_, err := payClient.CreatePayment(body)
 
-		assert.Equal(t, expectedCPResponse, actualCPResponse, "Return value did not match")
+		assert.NotNil(t, err, "Expected an error but received nil")
 	})
 }
 
@@ -221,9 +207,8 @@ func TestGetPayment(t *testing.T) {
 		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
 
 		actualGPResponse, err := payClient.GetPayment(paymentId)
-		if err != nil {
-			t.Fatal(err)
-		}
+
+		assert.Nil(t, err, "Received an error when it should be nil")
 
 		expectedGPResponse := GetPaymentResponse{
 			CreatedDate: GovUKPayTime(created),
@@ -286,13 +271,9 @@ func TestGetPayment(t *testing.T) {
 
 		payClient := Client{BaseURL: server.URL + "`invalid-url-format", ApiKey: apiToken, HttpClient: server.Client()}
 
-		actualGPResponse, err := payClient.GetPayment(paymentId)
+		_, err := payClient.GetPayment(paymentId)
 
-		if err == nil {
-			t.Fatal("Expected an error but received nil")
-		}
-
-		assert.Equal(t, GetPaymentResponse{}, actualGPResponse, "Return value did not match")
+		assert.NotNil(t, err, "Expected an error but received nil")
 	})
 
 	t.Run("Returns an error if unable to make request", func(t *testing.T) {
@@ -302,14 +283,9 @@ func TestGetPayment(t *testing.T) {
 
 		payClient := Client{BaseURL: "not an url", ApiKey: apiToken, HttpClient: server.Client()}
 
-		actualGPResponse, err := payClient.GetPayment(paymentId)
+		_, err := payClient.GetPayment(paymentId)
 
-		if err == nil {
-			t.Fatal("Expected an error but received nil")
-		}
-
-		assert.Contains(t, err.Error(), "unsupported protocol scheme")
-		assert.Equal(t, GetPaymentResponse{}, actualGPResponse, "Return value did not match")
+		assert.ErrorContains(t, err, "unsupported protocol scheme")
 	})
 
 	t.Run("Returns an error if unable to decode response", func(t *testing.T) {
@@ -326,13 +302,9 @@ func TestGetPayment(t *testing.T) {
 
 		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
 
-		actualGPResponse, err := payClient.GetPayment(paymentId)
+		_, err := payClient.GetPayment(paymentId)
 
-		if err == nil {
-			t.Fatal("Expected an error but received nil")
-		}
-
-		assert.Equal(t, GetPaymentResponse{}, actualGPResponse, "Return value did not match")
+		assert.NotNil(t, err, "Expected an error but received nil")
 	})
 }
 

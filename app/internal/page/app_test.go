@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -234,38 +233,48 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 }
 
 func TestTestingStart(t *testing.T) {
-	testCases := map[string]string{
-		"payment not complete": "/?redirect=/somewhere",
-		"payment complete":     "/?redirect=/somewhere&paymentComplete=1",
-	}
+	t.Run("payment not complete", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere", nil)
 
-	for tc, url := range testCases {
-		t.Run(tc, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodGet, url, nil)
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
 
-			sessionsStore := &mockSessionsStore{}
-			sessionsStore.
-				On("Get", r, "session").
-				Return(&sessions.Session{}, nil)
-			sessionsStore.
-				On("Save", r, w, mock.Anything).
-				Return(nil)
+		testingStart(sessionsStore).ServeHTTP(w, r)
+		resp := w.Result()
 
-			if strings.Contains(url, "paymentComplete") {
-				sessionsStore.
-					On("Get", r, "pay").
-					Return(&sessions.Session{}, nil)
-			}
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore)
+	})
 
-			testingStart(sessionsStore).ServeHTTP(w, r)
-			resp := w.Result()
+	t.Run("payment complete", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&paymentComplete=1", nil)
 
-			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
-			mock.AssertExpectationsForObjects(t, sessionsStore)
-		})
-	}
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+		sessionsStore.
+			On("Get", r, "pay").
+			Return(&sessions.Session{}, nil)
+
+		testingStart(sessionsStore).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore)
+	})
 }
 
 func TestLangAbbreviation(t *testing.T) {
