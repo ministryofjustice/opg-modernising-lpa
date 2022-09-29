@@ -25,4 +25,5 @@ const (
 	whoIsTheLpaForPath                              = "/who-is-the-lpa-for"
 	yourAddressPath                                 = "/your-address"
 	yourDetailsPath                                 = "/your-details"
+	howToSignPath                                   = "/how-to-sign"
 )

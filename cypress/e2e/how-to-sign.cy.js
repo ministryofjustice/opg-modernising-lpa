@@ -1,6 +1,6 @@
-describe('What happens when signing', () => {
+describe('How to sign', () => {
     it('has a continue button', () => {
-        cy.visit('/testing-start?redirect=/what-happens-when-signing');
+        cy.visit('/testing-start?redirect=/how-to-sign');
 
         cy.injectAxe();
         cy.checkA11y(null, {
@@ -9,6 +9,6 @@ describe('What happens when signing', () => {
 
         cy.contains('a', 'Continue').click();
 
-        cy.url().should('contain', '/how-to-sign');
+        cy.url().should('contain', '/task-list');
     });
 });

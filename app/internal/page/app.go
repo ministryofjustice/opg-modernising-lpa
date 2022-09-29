@@ -124,7 +124,9 @@ func App(
 	handle(whatHappensNextPath, RequireSession|CanGoBack,
 		Guidance(tmpls.Get("what_happens_next.gohtml"), whatHappensWhenSigningPath, dataStore))
 	handle(whatHappensWhenSigningPath, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("what_happens_when_signing.gohtml"), taskListPath, dataStore))
+		Guidance(tmpls.Get("what_happens_when_signing.gohtml"), howToSignPath, dataStore))
+	handle(howToSignPath, RequireSession|CanGoBack,
+		Guidance(tmpls.Get("how_to_sign.gohtml"), taskListPath, dataStore))
 
 	return mux
 }

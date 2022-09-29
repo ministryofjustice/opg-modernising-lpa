@@ -202,5 +202,9 @@
     "whatHappensIfIChangeMyMind": "Welsh",
     "whatHappensIfIChangeMyMindContent": "<p class=\"govuk-body\">Welsh</p>",
     "registeringYourLpa": "Welsh",
-    "registeringYourLpaContent": "<p class=\"govuk-body\">Welsh {{.AttorneyFirstNames}} {{.AttorneyLastName}} {{.CertificateProviderFirstNames}}</p>"
+    "registeringYourLpaContent": "<p class=\"govuk-body\">Welsh {{.AttorneyFirstNames}} {{.AttorneyLastName}} {{.CertificateProviderFirstNames}}</p>",
+
+    "howToSign": "Welsh",
+    "howToSignContent": "<ol class=\"govuk-list govuk-list--number\"><li>Welsh {{.CertificateProviderFirstNames}} {{.CertificateProviderFirstNames}}</li> </ol>",
+    "whenYouSignWarning": "Welsh {{.YouFirstNames}} {{.CertificateProviderFirstNames}}"
 }
