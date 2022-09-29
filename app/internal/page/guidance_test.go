@@ -33,6 +33,24 @@ func TestGuidance(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, dataStore, template)
 }
 
+func TestGuidanceWhenNilDataStore(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &guidanceData{App: appData, Continue: "/somewhere"}).
+		Return(nil)
+
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	err := Guidance(template.Func, "/somewhere", nil)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, template)
+}
+
 func TestGuidanceWhenDataStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	lpa := Lpa{}

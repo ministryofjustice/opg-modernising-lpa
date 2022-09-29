@@ -20,8 +20,10 @@ func Guidance(tmpl template.Template, continuePath string, dataStore DataStore) 
 			Continue: continuePath,
 		}
 
-		if err := dataStore.Get(r.Context(), appData.SessionID, &data.Lpa); err != nil {
-			return err
+		if dataStore != nil {
+			if err := dataStore.Get(r.Context(), appData.SessionID, &data.Lpa); err != nil {
+				return err
+			}
 		}
 
 		return tmpl(w, data)

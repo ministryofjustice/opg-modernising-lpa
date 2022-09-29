@@ -83,7 +83,7 @@ func App(
 	mux.Handle("/", Root())
 
 	handle(startPath, None,
-		Start(tmpls.Get("start.gohtml")))
+		Guidance(tmpls.Get("start.gohtml"), AuthPath, nil))
 	handle(lpaTypePath, RequireSession,
 		LpaType(tmpls.Get("lpa_type.gohtml"), dataStore))
 	handle(whoIsTheLpaForPath, RequireSession,
