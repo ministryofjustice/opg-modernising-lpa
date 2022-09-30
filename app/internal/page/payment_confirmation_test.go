@@ -33,8 +33,8 @@ func TestPaymentConfirmation(t *testing.T) {
 			withExpiredPaySession(r, w)
 
 		dataStore := (&mockDataStore{}).
-			withLpaDataInStore().
-			withUpdatedLpaData("abc123", "123456789012")
+			willNotErrorOnGet().
+			withCompletedPaymentLpaData("abc123", "123456789012")
 
 		err := PaymentConfirmation(&mockLogger{}, template.Func, payClient, dataStore, sessionsStore)(appData, w, r)
 		resp := w.Result()
@@ -73,7 +73,7 @@ func TestPaymentConfirmation(t *testing.T) {
 
 		template := &mockTemplate{}
 		dataStore := (&mockDataStore{}).
-			withLpaDataInStore()
+			willNotErrorOnGet()
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
@@ -98,7 +98,7 @@ func TestPaymentConfirmation(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 		dataStore := (&mockDataStore{}).
-			withLpaDataInStore()
+			willNotErrorOnGet()
 
 		sessionsStore := (&mockSessionsStore{}).
 			withPaySession(r)
@@ -128,8 +128,8 @@ func TestPaymentConfirmation(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 		dataStore := (&mockDataStore{}).
-			withLpaDataInStore().
-			withUpdatedLpaData("abc123", "123456789012")
+			willNotErrorOnGet().
+			withCompletedPaymentLpaData("abc123", "123456789012")
 
 		sessionsStore := (&mockSessionsStore{}).
 			withPaySession(r)
@@ -160,13 +160,13 @@ func TestPaymentConfirmation(t *testing.T) {
 	})
 }
 
-func (m *mockDataStore) withLpaDataInStore() *mockDataStore {
+func (m *mockDataStore) willNotErrorOnGet() *mockDataStore {
 	m.On("Get", mock.Anything, "session-id").Return(nil)
 
 	return m
 }
 
-func (m *mockDataStore) withUpdatedLpaData(paymentId, paymentReference string) *mockDataStore {
+func (m *mockDataStore) withCompletedPaymentLpaData(paymentId, paymentReference string) *mockDataStore {
 	m.
 		On("Put", mock.Anything, "session-id", Lpa{
 			PaymentDetails: PaymentDetails{
