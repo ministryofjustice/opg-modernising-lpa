@@ -125,7 +125,10 @@ func TestGetTaskList(t *testing.T) {
 						{
 							Heading: "confirmYourIdentity",
 							Items: []taskListItem{
-								{Name: "confirmYourIdentity"},
+								{
+									Name: "confirmYourIdentity",
+									Path: selectYourIdentityOptionsPath,
+								},
 							},
 						},
 						{

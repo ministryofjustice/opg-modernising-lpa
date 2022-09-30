@@ -16,7 +16,7 @@
 
             {{ template "error-message" (errorMessage . "when") }}
 
-            {{ template "radios" (radios . "when" .When
+            {{ template "radios" (items . "when" .When
               (item "when-registered" "asSoonAsItsRegistered")
               (item "when-capacity-lost" "onlyWhenIDoNotHaveMentalCapacity")
             ) }}

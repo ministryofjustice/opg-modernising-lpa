@@ -13,7 +13,7 @@
         <div class="govuk-form-group {{ if index .Errors "want" }}govuk-form-group--error{{ end }}">
           {{ template "error-message" (errorMessage . "want") }}
 
-          {{ template "radios" (radios . "want" .Want
+          {{ template "radios" (items . "want" .Want
             (item "yes" "yes")
             (item "no" "no")
           ) }}
