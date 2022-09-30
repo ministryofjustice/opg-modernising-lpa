@@ -11,7 +11,7 @@
         <div class="govuk-form-group {{ if index .Errors "lpa-type" }}govuk-form-group--error{{ end }}">
           {{ template "error-message" (errorMessage . "lpa-type") }}
 
-          {{ template "radios" (radios . "lpa-type" .Type
+          {{ template "radios" (items . "lpa-type" .Type
             (item "pfa" "lpaTypePfa" "hint" "lpaTypePfaHint")
             (item "hw" "lpaTypeHw" "hint" "lpaTypeHwHint")
             (item "both" "lpaTypeBoth")

@@ -218,5 +218,20 @@
     "iHaventReceivedSignatureCode": "Welsh",
     "selectReadAndCheckedLpa": "Welsh",
     "selectConfirmMadeThisLpaOfOwnFreeWill": "Welsh",
-    "enterSignatureCode": "Welsh"
+    "enterSignatureCode": "Welsh",
+
+    "selectYourIdentityOptions": "Welsh",
+    "selectAllAtLeastThree": "Welsh",
+    "aPassport": "Welsh",
+    "aDrivingLicence": "Welsh",
+    "aGovernmentGatewayAccount": "Welsh",
+    "aDwpAccount": "Welsh",
+    "anOnlineBankAccount": "Welsh",
+    "anOnlineBankAccountHint": "Welsh",
+    "aUtilityBill": "Welsh",
+    "aCouncilTaxBill": "Welsh",
+    "iWouldLikeSomeoneElseToConfirmMyDetails": "Welsh",
+    "iWouldLikeToConfirmMyIdentityInPerson": "Welsh",
+    "selectAtLeastThreeIdentityOptions": "Welsh",
+    "selectValidIdentityOption": "Welsh"
 }
