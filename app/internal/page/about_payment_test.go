@@ -31,12 +31,11 @@ func (m *mockPayClient) GetPayment(paymentId string) (pay.GetPaymentResponse, er
 var publicUrl = "http://example.org"
 
 func TestAboutPayment(t *testing.T) {
-	payClient := mockPayClient{BaseURL: "http://base.url"}
+	random := func(int) string { return "123456789012" }
 
 	t.Run("GET", func(t *testing.T) {
 		t.Run("Handles page data", func(t *testing.T) {
 			w := httptest.NewRecorder()
-			appData := AppData{}
 
 			template := &mockTemplate{}
 			template.
@@ -45,7 +44,9 @@ func TestAboutPayment(t *testing.T) {
 
 			r, _ := http.NewRequest(http.MethodGet, "/about-payment", nil)
 
-			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl)(appData, w, r)
+			payClient := mockPayClient{BaseURL: "http://base.url"}
+
+			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl, random)(appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -55,7 +56,6 @@ func TestAboutPayment(t *testing.T) {
 
 		t.Run("Returns an error when cannot render template", func(t *testing.T) {
 			w := httptest.NewRecorder()
-			appData := AppData{}
 
 			template := &mockTemplate{}
 			template.
@@ -64,7 +64,9 @@ func TestAboutPayment(t *testing.T) {
 
 			r, _ := http.NewRequest(http.MethodGet, "/about-payment", nil)
 
-			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl)(appData, w, r)
+			payClient := mockPayClient{BaseURL: "http://base.url"}
+
+			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl, random)(appData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -82,7 +84,7 @@ func TestAboutPayment(t *testing.T) {
 			}{
 				"Real base URL": {
 					baseUrl:                 "https://publicapi.payments.service.gov.uk",
-					expectedNextUrlPath:     "https://publicapi.payments.service.gov.uk/path-from/response",
+					expectedNextUrlPath:     "https://www.payments.service.gov.uk/path-from/response",
 					expectCookieSecureValue: true,
 				},
 				"Mock base URL": {
@@ -95,32 +97,11 @@ func TestAboutPayment(t *testing.T) {
 			for name, tc := range testCases {
 				t.Run(name, func(t *testing.T) {
 					w := httptest.NewRecorder()
-					appData := AppData{}
 
 					template := &mockTemplate{}
 					template.
 						On("Func", w, &aboutPaymentData{App: appData}).
 						Return(nil)
-
-					payClient = mockPayClient{BaseURL: tc.baseUrl}
-
-					payClient.
-						On("CreatePayment", pay.CreatePaymentBody{
-							Amount:      0,
-							Reference:   "abc",
-							Description: "A payment",
-							ReturnUrl:   "http://example.org/payment-confirmation",
-							Email:       "a@b.com",
-							Language:    "en",
-						}).
-						Return(pay.CreatePaymentResponse{
-							PaymentId: "a-fake-id",
-							Links: map[string]pay.Link{
-								"next_url": pay.Link{
-									Href: tc.expectedNextUrlPath,
-								},
-							},
-						}, nil)
 
 					r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
@@ -141,14 +122,34 @@ func TestAboutPayment(t *testing.T) {
 						On("Save", r, w, session).
 						Return(nil)
 
-					err := AboutPayment(&mockLogger{}, template.Func, sessionsStore, &payClient, publicUrl)(appData, w, r)
+					payClient := mockPayClient{BaseURL: tc.baseUrl}
+
+					payClient.
+						On("CreatePayment", pay.CreatePaymentBody{
+							Amount:      8200,
+							Reference:   "123456789012",
+							Description: "Property and Finance LPA",
+							ReturnUrl:   "http://example.org/payment-confirmation",
+							Email:       "a@b.com",
+							Language:    "en",
+						}).
+						Return(pay.CreatePaymentResponse{
+							PaymentId: "a-fake-id",
+							Links: map[string]pay.Link{
+								"next_url": {
+									Href: tc.expectedNextUrlPath,
+								},
+							},
+						}, nil)
+
+					err := AboutPayment(&mockLogger{}, template.Func, sessionsStore, &payClient, publicUrl, random)(appData, w, r)
 					resp := w.Result()
 
 					assert.Nil(t, err)
 					assert.Equal(t, http.StatusFound, resp.StatusCode)
 					assert.Equal(t, tc.expectedNextUrlPath, resp.Header.Get("Location"))
 
-					mock.AssertExpectationsForObjects(t, template)
+					mock.AssertExpectationsForObjects(t, template, &payClient, sessionsStore)
 				})
 			}
 		})
@@ -156,11 +157,6 @@ func TestAboutPayment(t *testing.T) {
 		t.Run("Returns error when cannot create payment", func(t *testing.T) {
 			w := httptest.NewRecorder()
 			template := &mockTemplate{}
-			payClient = mockPayClient{BaseURL: "http://base.url"}
-
-			payClient.
-				On("CreatePayment", mock.Anything).
-				Return(pay.CreatePaymentResponse{}, expectedError)
 
 			r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
@@ -170,21 +166,21 @@ func TestAboutPayment(t *testing.T) {
 			logger.
 				On("Print", "Error creating payment: "+expectedError.Error())
 
-			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl)(AppData{}, w, r)
+			payClient := mockPayClient{BaseURL: "http://base.url"}
+
+			payClient.
+				On("CreatePayment", mock.Anything).
+				Return(pay.CreatePaymentResponse{}, expectedError)
+
+			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl, random)(appData, w, r)
 
 			assert.Equal(t, expectedError, err, "Expected error was not returned")
-			mock.AssertExpectationsForObjects(t, logger)
-
+			mock.AssertExpectationsForObjects(t, logger, &payClient)
 		})
 
 		t.Run("Returns error when cannot save to session", func(t *testing.T) {
 			w := httptest.NewRecorder()
 			template := &mockTemplate{}
-			payClient = mockPayClient{BaseURL: "http://base.url"}
-
-			payClient.
-				On("CreatePayment", mock.Anything).
-				Return(pay.CreatePaymentResponse{Links: map[string]pay.Link{"next_url": {Href: "http://example.url"}}}, nil)
 
 			r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
@@ -196,10 +192,16 @@ func TestAboutPayment(t *testing.T) {
 
 			logger := &mockLogger{}
 
-			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl)(AppData{}, w, r)
+			payClient := mockPayClient{BaseURL: "http://base.url"}
+
+			payClient.
+				On("CreatePayment", mock.Anything).
+				Return(pay.CreatePaymentResponse{Links: map[string]pay.Link{"next_url": {Href: "http://example.url"}}}, nil)
+
+			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl, random)(appData, w, r)
 
 			assert.Equal(t, expectedError, err, "Expected error was not returned")
-			mock.AssertExpectationsForObjects(t, logger)
+			mock.AssertExpectationsForObjects(t, sessionsStore, &payClient)
 
 		})
 	})

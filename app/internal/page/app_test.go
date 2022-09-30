@@ -23,7 +23,7 @@ const formUrlEncoded = "application/x-www-form-urlencoded"
 
 var (
 	expectedError = errors.New("err")
-	appData       = AppData{SessionID: "session-id"}
+	appData       = AppData{SessionID: "session-id", Lang: En}
 )
 
 type mockDataStore struct {
@@ -233,21 +233,89 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 }
 
 func TestTestingStart(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere", nil)
+	t.Run("payment not complete", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere", nil)
 
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
-		On("Get", r, "session").
-		Return(&sessions.Session{}, nil)
-	sessionsStore.
-		On("Save", r, w, mock.Anything).
-		Return(nil)
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
 
-	testingStart(sessionsStore).ServeHTTP(w, r)
-	resp := w.Result()
+		testingStart(sessionsStore).ServeHTTP(w, r)
+		resp := w.Result()
 
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, sessionsStore)
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore)
+	})
+
+	t.Run("payment complete", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&paymentComplete=1", nil)
+
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+		sessionsStore.
+			On("Get", r, "pay").
+			Return(&sessions.Session{}, nil)
+
+		testingStart(sessionsStore).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore)
+	})
+}
+
+func TestLangAbbreviation(t *testing.T) {
+	type test struct {
+		language string
+		lang     Lang
+		want     string
+	}
+
+	testCases := []test{
+		{language: "English", lang: En, want: "en"},
+		{language: "Welsh", lang: Cy, want: "cy"},
+		{language: "Defaults to English with unsupported lang", lang: Lang(3), want: "en"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.language, func(t *testing.T) {
+			a := tc.lang.String()
+			assert.Equal(t, tc.want, a)
+		})
+	}
+}
+
+func TestLangBuildUrl(t *testing.T) {
+	type test struct {
+		language string
+		lang     Lang
+		url      string
+		want     string
+	}
+
+	testCases := []test{
+		{language: "English", lang: En, url: "/example.org", want: "/example.org"},
+		{language: "Welsh", lang: Cy, url: "/example.org", want: "/cy/example.org"},
+		{language: "Other", lang: Lang(3), url: "/example.org", want: "/example.org"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.language, func(t *testing.T) {
+			builtUrl := tc.lang.BuildUrl(tc.url)
+			assert.Equal(t, tc.want, builtUrl)
+		})
+	}
 }

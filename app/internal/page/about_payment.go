@@ -18,7 +18,7 @@ type aboutPaymentData struct {
 	Errors map[string]string
 }
 
-func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.Store, payClient pay.PayClient, appPublicUrl string) Handler {
+func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.Store, payClient pay.PayClient, appPublicUrl string, randomString func(int) string) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &aboutPaymentData{
 			App: appData,
@@ -26,12 +26,12 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 
 		if r.Method == http.MethodPost {
 			createPaymentBody := pay.CreatePaymentBody{
-				Amount:      0,
-				Reference:   "abc",
-				Description: "A payment",
-				ReturnUrl:   appPublicUrl + "/payment-confirmation",
+				Amount:      CostOfLpaPence,
+				Reference:   randomString(12),
+				Description: "Property and Finance LPA",
+				ReturnUrl:   appPublicUrl + appData.Lang.BuildUrl(paymentConfirmationPath),
 				Email:       "a@b.com",
-				Language:    "en",
+				Language:    appData.Lang.String(),
 			}
 
 			resp, err := payClient.CreatePayment(createPaymentBody)
@@ -46,7 +46,6 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 			secureCookies := strings.HasPrefix(nextUrl, "https:")
 
 			cookieOptions := &sessions.Options{
-				// Should we lock this down to payment confirmation page?
 				Path: "/",
 				// A payment can be resumed up to 90 minutes after creation
 				MaxAge:   int(time.Minute * 90 / time.Second),
@@ -55,19 +54,18 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 				Secure:   secureCookies,
 			}
 
-			session := sessions.NewSession(sessionStore, "pay")
+			session := sessions.NewSession(sessionStore, PayCookieName)
 			session.Values = map[interface{}]interface{}{
-				"paymentId": resp.PaymentId,
+				PayCookiePaymentIdValueKey: resp.PaymentId,
 			}
 			session.Options = cookieOptions
 
-			session.Values = map[interface{}]interface{}{"paymentId": resp.PaymentId}
-			if err := sessionStore.Save(r, w, session); err != nil {
+			if err = sessionStore.Save(r, w, session); err != nil {
 				return err
 			}
 
 			// If URL matches expected domain for GOV UK PAY redirect there. If not, redirect to the confirmation code and carry on with flow.
-			if strings.Contains(nextUrl, "https://publicapi.payments.service.gov.uk") {
+			if strings.HasPrefix(nextUrl, pay.PaymentPublicServiceUrl) {
 				http.Redirect(w, r, nextUrl, http.StatusFound)
 			} else {
 				http.Redirect(w, r, "/payment-confirmation", http.StatusFound)
