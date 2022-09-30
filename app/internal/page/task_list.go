@@ -95,7 +95,10 @@ func TaskList(tmpl template.Template, dataStore DataStore) Handler {
 				{
 					Heading: "confirmYourIdentity",
 					Items: []taskListItem{
-						{Name: "confirmYourIdentity"},
+						{
+							Name: "confirmYourIdentity",
+							Path: selectYourIdentityOptionsPath,
+						},
 					},
 				},
 				{
