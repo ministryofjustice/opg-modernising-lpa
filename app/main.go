@@ -70,7 +70,7 @@ func main() {
 
 			return field
 		},
-		"radios": func(top interface{}, name string, value interface{}, items ...interface{}) map[string]interface{} {
+		"items": func(top interface{}, name string, value interface{}, items ...interface{}) map[string]interface{} {
 			return map[string]interface{}{
 				"top":   top,
 				"name":  name,

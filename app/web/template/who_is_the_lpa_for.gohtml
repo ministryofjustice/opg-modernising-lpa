@@ -14,7 +14,7 @@
 
             {{ template "error-message" (errorMessage . "who-for") }}
 
-            {{ template "radios" (radios . "who-for" .WhoFor
+            {{ template "radios" (items . "who-for" .WhoFor
               (item "me" "forMe")
               (item "someone-else" "forSomeoneElse" "hint" "imHelping")
             ) }}

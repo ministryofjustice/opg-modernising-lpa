@@ -14,7 +14,7 @@
 
             {{ template "error-message" (errorMessage . "how-long") }}
 
-            {{ template "radios" (radios . "how-long" .HowLong
+            {{ template "radios" (items . "how-long" .HowLong
               (item "gte-2-years" "twoYearsOrMore")
               (item "lt-2-years" "lessThanTwoYears")
             ) }}

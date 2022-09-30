@@ -1,0 +1,17 @@
+{{ define "checkboxes" }}
+  <div class="govuk-checkboxes {{ if index .top.Errors .name }}govuk-checkboxes--error{{ end }}">
+    {{ range $i, $e := .items }}
+      <div class="govuk-checkboxes__item">
+        <input class="govuk-checkboxes__input" id="f-{{ fieldID $.name $i }}" name="{{ $.name }}" type="checkbox" value="{{ $e.value }}" {{ if contains $e.value $.value }}checked{{ end }} {{ if $e.hint }}aria-describedby="{{ fieldID $.name $i }}-item-hint"{{ end }}>
+        <label class="govuk-label govuk-checkboxes__label" for="f-{{ $.name }}{{ if ne $i 0 }}-{{ inc $i }}{{ end }}">
+          {{ tr $.top.App $e.label }}
+        </label>
+        {{ if $e.hint }}
+          <div id="{{ fieldID $.name $i }}-item-hint" class="govuk-hint govuk-checkboxes__hint">
+            {{ tr $.top.App $e.hint }}
+          </div>
+        {{ end }}
+      </div>
+    {{ end }}
+  </div>
+{{ end }}
