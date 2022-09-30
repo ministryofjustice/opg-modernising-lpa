@@ -30,6 +30,7 @@ type Lpa struct {
 	CheckedAgain             bool
 	ConfirmFreeWill          bool
 	SignatureCode            string
+	IdentityOptions          []string
 }
 
 type Tasks struct {
