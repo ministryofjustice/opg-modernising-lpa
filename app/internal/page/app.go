@@ -153,7 +153,7 @@ func testingStart(store sessions.Store) http.HandlerFunc {
 		_ = store.Save(r, w, session)
 
 		if r.FormValue("paymentComplete") == "1" {
-			paySession, _ := store.Get(r, "pay")
+			paySession, _ := store.Get(r, PayCookieName)
 			paySession.Values = map[interface{}]interface{}{PayCookiePaymentIdValueKey: random.String(12)}
 			_ = store.Save(r, w, paySession)
 		}
