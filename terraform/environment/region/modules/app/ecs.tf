@@ -236,9 +236,13 @@ locals {
           value = "https://oidc.integration.account.gov.uk"
         },
         {
-          # this is not the final value, but will allow signin to be tested while the real redirectURL is changed
           name  = "APP_PUBLIC_URL",
-          value = var.app_env_vars.app_public_url
+          value = var.app_env_vars.app_public_url == "" ? local.dev_app_fqdn : var.app_env_vars.app_public_url
+        },
+        {
+          # this is not the final value, but will allow signin to be tested while the real redirectURL is changed
+          name  = "AUTH_REDIRECT_BASE_URL",
+          value = var.app_env_vars.auth_redirect_base_url
         },
         {
           name  = "DYNAMODB_TABLE_LPAS",
@@ -246,7 +250,7 @@ locals {
         },
         {
           name  = "GOVUK_PAY_BASE_URL",
-          value = "https://publicapi.payments.service.gov.uk/"
+          value = "https://publicapi.payments.service.gov.uk"
         },
       ]
     }

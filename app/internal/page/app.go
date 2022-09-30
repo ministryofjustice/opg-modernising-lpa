@@ -18,16 +18,34 @@ import (
 type Lang int
 
 func (l Lang) Redirect(w http.ResponseWriter, r *http.Request, url string, code int) {
+	http.Redirect(w, r, l.BuildUrl(url), code)
+}
+
+func (l Lang) Abbreviation() (string, error) {
 	if l == En {
-		http.Redirect(w, r, url, code)
+		return EnglishAbbreviation, nil
+	}
+
+	if l == Cy {
+		return WelshAbbreviation, nil
+	}
+
+	return "", fmt.Errorf("unsupported language '%v'", l)
+}
+
+func (l Lang) BuildUrl(url string) string {
+	if l == Cy {
+		return "/" + WelshAbbreviation + url
 	} else {
-		http.Redirect(w, r, "/cy"+url, code)
+		return url
 	}
 }
 
 const (
 	En Lang = iota
 	Cy
+	EnglishAbbreviation = "en"
+	WelshAbbreviation   = "cy"
 )
 
 type Logger interface {
@@ -115,12 +133,11 @@ func App(
 	handle(howLongHaveYouKnownCertificateProviderPath, RequireSession|CanGoBack,
 		HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), dataStore))
 	handle(aboutPaymentPath, RequireSession|CanGoBack,
-		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl))
+		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String))
 	handle(checkYourLpaPath, RequireSession|CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), dataStore))
-	// Handler will be updated in the following ticket - just needed a valid path to prove redirect works
-	handle(paymentConfirmation, RequireSession|CanGoBack,
-		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), dataStore))
+	handle(paymentConfirmationPath, RequireSession|CanGoBack,
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, dataStore, sessionStore))
 	handle(whatHappensNextPath, RequireSession|CanGoBack,
 		Guidance(tmpls.Get("what_happens_next.gohtml"), whatHappensWhenSigningPath, dataStore))
 	handle(whatHappensWhenSigningPath, RequireSession|CanGoBack,
@@ -140,6 +157,12 @@ func testingStart(store sessions.Store) http.HandlerFunc {
 		session, _ := store.Get(r, "session")
 		session.Values = map[interface{}]interface{}{"sub": random.String(12)}
 		_ = store.Save(r, w, session)
+
+		if r.FormValue("paymentComplete") == "1" {
+			paySession, _ := store.Get(r, "pay")
+			paySession.Values = map[interface{}]interface{}{PayCookiePaymentIdValueKey: random.String(12)}
+			_ = store.Save(r, w, paySession)
+		}
 
 		http.Redirect(w, r, r.FormValue("redirect"), http.StatusFound)
 	}
