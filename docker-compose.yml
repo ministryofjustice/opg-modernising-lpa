@@ -51,7 +51,9 @@ services:
 
   pay-mock:
     image: stoplight/prism:4.11.0
-    command: 'mock https://raw.githubusercontent.com/alphagov/pay-publicapi/master/openapi/publicapi_spec.json -h 0.0.0.0'
+    command: 'mock /tmp/publicapi_spec.json -h 0.0.0.0'
     container_name: pay-mock
     ports:
       - '4010:4010'
+    volumes:
+      - ./mocks/GOVUKPay:/tmp

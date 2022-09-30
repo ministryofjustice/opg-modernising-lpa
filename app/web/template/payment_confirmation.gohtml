@@ -16,7 +16,7 @@
 
             {{ trHtml .App "paymentConfirmationContent" }}
 
-            { link .App "/task-list" }}
+            <a class="govuk-button" href="{{ link .App "/task-list" }}">{{ tr .App "continue" }}</a>
         </div>
     </div>
 {{ end }}
