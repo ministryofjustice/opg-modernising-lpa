@@ -3,7 +3,9 @@ package pay
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"time"
 )
 
 type PayClient interface {
@@ -19,6 +21,26 @@ type Client struct {
 	BaseURL    string
 	ApiKey     string
 	HttpClient Doer
+}
+
+type GovUKPayTime time.Time
+
+func (g *GovUKPayTime) UnmarshalText(b []byte) error {
+	t, err := time.Parse(time.RFC3339Nano, string(b))
+	if err != nil {
+		return err
+	}
+
+	*g = GovUKPayTime(t)
+	return nil
+}
+
+func (g GovUKPayTime) MarshalText() ([]byte, error) {
+	return []byte(g.Format(time.RFC3339Nano)), nil
+}
+
+func (g GovUKPayTime) Format(s string) string {
+	return time.Time(g).Format(s)
 }
 
 func (c *Client) CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, error) {
@@ -55,10 +77,16 @@ func (c *Client) GetPayment(paymentId string) (GetPaymentResponse, error) {
 		return GetPaymentResponse{}, err
 	}
 
+	fmt.Println(c.BaseURL + "/v1/payments/" + paymentId)
+
 	req.Header.Add("Authorization", "Bearer "+c.ApiKey)
 	req.Header.Add("Content-Type", "application/json")
 
 	resp, err := c.HttpClient.Do(req)
+
+	if err != nil {
+		return GetPaymentResponse{}, err
+	}
 
 	defer resp.Body.Close()
 
