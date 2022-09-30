@@ -1,7 +1,6 @@
 package page
 
 import (
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -153,31 +152,6 @@ func TestAboutPayment(t *testing.T) {
 					mock.AssertExpectationsForObjects(t, template, &payClient, sessionsStore)
 				})
 			}
-		})
-
-		t.Run("Returns error when an unsupported language type is set", func(t *testing.T) {
-			appDataUnsupportedLang := AppData{SessionID: "session-id", Lang: Lang(10)}
-
-			w := httptest.NewRecorder()
-			template := &mockTemplate{}
-			template.
-				On("Func", w, &aboutPaymentData{App: appDataUnsupportedLang}).
-				Return(nil)
-
-			r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
-
-			sessionsStore := &mockSessionsStore{}
-
-			logger := &mockLogger{}
-			logger.
-				On("Print", "unsupported language '10'")
-
-			payClient := mockPayClient{BaseURL: "http://base.url"}
-
-			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl, random)(appDataUnsupportedLang, w, r)
-
-			assert.Equal(t, errors.New("unsupported language '10'"), err, "Expected error was not returned")
-			mock.AssertExpectationsForObjects(t, logger, &payClient)
 		})
 
 		t.Run("Returns error when cannot create payment", func(t *testing.T) {

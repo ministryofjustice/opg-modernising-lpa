@@ -282,20 +282,17 @@ func TestLangAbbreviation(t *testing.T) {
 		language string
 		lang     Lang
 		want     string
-		err      error
 	}
 
 	testCases := []test{
-		{language: "English", lang: En, want: "en", err: nil},
-		{language: "Welsh", lang: Cy, want: "cy", err: nil},
-		{language: "Unsupported", lang: Lang(3), want: "", err: errors.New("unsupported language '3'")},
+		{language: "English", lang: En, want: "en"},
+		{language: "Welsh", lang: Cy, want: "cy"},
+		{language: "Defaults to English with unsupported lang", lang: Lang(3), want: "en"},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.language, func(t *testing.T) {
-			a, err := tc.lang.Abbreviation()
-
-			assert.Equal(t, tc.err, err)
+			a := tc.lang.String()
 			assert.Equal(t, tc.want, a)
 		})
 	}
@@ -318,7 +315,6 @@ func TestLangBuildUrl(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.language, func(t *testing.T) {
 			builtUrl := tc.lang.BuildUrl(tc.url)
-
 			assert.Equal(t, tc.want, builtUrl)
 		})
 	}

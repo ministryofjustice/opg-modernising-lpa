@@ -21,21 +21,17 @@ func (l Lang) Redirect(w http.ResponseWriter, r *http.Request, url string, code 
 	http.Redirect(w, r, l.BuildUrl(url), code)
 }
 
-func (l Lang) Abbreviation() (string, error) {
-	if l == En {
-		return EnglishAbbreviation, nil
-	}
-
+func (l Lang) String() string {
 	if l == Cy {
-		return WelshAbbreviation, nil
+		return welshAbbreviation
 	}
 
-	return "", fmt.Errorf("unsupported language '%v'", l)
+	return englishAbbreviation
 }
 
 func (l Lang) BuildUrl(url string) string {
 	if l == Cy {
-		return "/" + WelshAbbreviation + url
+		return "/" + welshAbbreviation + url
 	} else {
 		return url
 	}
@@ -44,8 +40,8 @@ func (l Lang) BuildUrl(url string) string {
 const (
 	En Lang = iota
 	Cy
-	EnglishAbbreviation = "en"
-	WelshAbbreviation   = "cy"
+	englishAbbreviation = "en"
+	welshAbbreviation   = "cy"
 )
 
 type Logger interface {

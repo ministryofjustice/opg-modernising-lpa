@@ -25,20 +25,13 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 		}
 
 		if r.Method == http.MethodPost {
-			language, err := appData.Lang.Abbreviation()
-
-			if err != nil {
-				logger.Print(err.Error())
-				return err
-			}
-
 			createPaymentBody := pay.CreatePaymentBody{
 				Amount:      CostOfLpaPence,
 				Reference:   randomString(12),
 				Description: "Property and Finance LPA",
 				ReturnUrl:   appPublicUrl + appData.Lang.BuildUrl(paymentConfirmationPath),
 				Email:       "a@b.com",
-				Language:    language,
+				Language:    appData.Lang.String(),
 			}
 
 			resp, err := payClient.CreatePayment(createPaymentBody)
