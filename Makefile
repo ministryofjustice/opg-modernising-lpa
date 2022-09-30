@@ -42,4 +42,4 @@ else
 endif
 
 run-cypress-parallel: ##@testing Runs cypress e2e tests in parallel across 4 processor threads
-	yarn run cy:parallel
+	yarn run cypress:parallel

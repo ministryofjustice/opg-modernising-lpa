@@ -10,7 +10,7 @@
         "cypress:open": "node_modules/.bin/cypress open",
         "cypress:run": "node_modules/.bin/cypress run -vvv",
         "cypress:run:debug": "node_modules/.bin/cypress run --headed",
-        "cy:parallel": "cypress-parallel -s cypress:run -t 4 -d ./cypress/e2e",
+        "cypress:parallel": "cypress-parallel -s cypress:run -t 4 -d ./cypress/e2e",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "license": "MIT",
