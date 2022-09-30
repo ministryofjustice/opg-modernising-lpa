@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 )
 
-const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const charset = "abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789"
 
 func String(length int) string {
 	bytes := make([]byte, length)

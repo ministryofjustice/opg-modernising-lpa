@@ -12,18 +12,18 @@ import (
 )
 
 var (
-	amount      = 5
+	amount      = 82
 	reference   = "abc123"
 	description = "A payment"
 	returnUrl   = "/example/url"
 	email       = "a@example.org"
 	language    = "en"
-	created     = time.Date(2022, time.January, 5, 0, 0, 0, 0, time.UTC)
 	apiToken    = "fake-token"
 )
 
 func TestCreatePayment(t *testing.T) {
 	t.Run("POSTs required body content to expected GOVUK Pay create payment endpoint", func(t *testing.T) {
+		created, _ := time.Parse(time.RFC3339Nano, "2022-09-29T12:43:46.784Z")
 		body := CreatePaymentBody{
 			Amount:      amount,
 			Reference:   reference,
@@ -34,7 +34,7 @@ func TestCreatePayment(t *testing.T) {
 		}
 
 		expectedCPResponse := CreatePaymentResponse{
-			CreatedDate: created,
+			CreatedDate: GovUKPayTime(created),
 			State: State{
 				Status:   "created",
 				Finished: false,
@@ -62,14 +62,14 @@ func TestCreatePayment(t *testing.T) {
 			defer req.Body.Close()
 
 			reqBody, _ := io.ReadAll(req.Body)
-			expectedReqBody := `{"amount": 5,"reference" : "abc123","description": "A payment","return_url": "/example/url","email": "a@example.org","language": "en"}`
+			expectedReqBody := `{"amount": 82,"reference" : "abc123","description": "A payment","return_url": "/example/url","email": "a@example.org","language": "en"}`
 
 			assert.Equal(t, req.URL.String(), "/v1/payments", "URL did not match")
 			assert.Equal(t, req.Header.Get("Authorization"), "Bearer fake-token", "Authorization token did not match")
 			assert.JSONEq(t, expectedReqBody, string(reqBody), "Request body did not match")
 
 			rw.WriteHeader(http.StatusCreated)
-			rw.Write(generateCreatePaymentResponseBodyJsonString())
+			rw.Write(generateCreatePaymentResponseBodyJsonString(created))
 		}))
 
 		defer server.Close()
@@ -77,10 +77,8 @@ func TestCreatePayment(t *testing.T) {
 		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
 
 		actualCPResponse, err := payClient.CreatePayment(body)
-		if err != nil {
-			t.Fatal(err, "An error unexpectedly occurred during CreatePayment")
-		}
 
+		assert.Nil(t, err, "Received an error when it should be nil")
 		assert.Equal(t, expectedCPResponse, actualCPResponse, "Return value did not match")
 	})
 
@@ -94,20 +92,15 @@ func TestCreatePayment(t *testing.T) {
 			Language:    language,
 		}
 
-		expectedCPResponse := CreatePaymentResponse{}
-
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {}))
 
 		defer server.Close()
 
 		payClient := Client{BaseURL: server.URL + "`invalid-url-format", ApiKey: apiToken, HttpClient: server.Client()}
 
-		actualCPResponse, err := payClient.CreatePayment(body)
-		if err == nil {
-			t.Fatal("Expected an error but received nil")
-		}
+		_, err := payClient.CreatePayment(body)
 
-		assert.Equal(t, expectedCPResponse, actualCPResponse, "Return value did not match")
+		assert.NotNil(t, err, "Expected an error but received nil")
 	})
 
 	t.Run("Returns an error if unable to make a request", func(t *testing.T) {
@@ -132,10 +125,8 @@ func TestCreatePayment(t *testing.T) {
 		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
 
 		actualCPResponse, err := payClient.CreatePayment(body)
-		if err == nil {
-			t.Fatal("Expected an error but received nil")
-		}
 
+		assert.NotNil(t, err, "Expected an error but received nil")
 		assert.Equal(t, expectedCPResponse, actualCPResponse, "Return value did not match")
 	})
 
@@ -148,8 +139,6 @@ func TestCreatePayment(t *testing.T) {
 			Email:       email,
 			Language:    language,
 		}
-
-		expectedCPResponse := CreatePaymentResponse{}
 
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			defer req.Body.Close()
@@ -164,16 +153,13 @@ func TestCreatePayment(t *testing.T) {
 
 		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
 
-		actualCPResponse, err := payClient.CreatePayment(body)
-		if err == nil {
-			t.Fatal("Expected an error but received nil")
-		}
+		_, err := payClient.CreatePayment(body)
 
-		assert.Equal(t, expectedCPResponse, actualCPResponse, "Return value did not match")
+		assert.NotNil(t, err, "Expected an error but received nil")
 	})
 }
 
-func generateCreatePaymentResponseBodyJsonString() []byte {
+func generateCreatePaymentResponseBodyJsonString(createdAt time.Time) []byte {
 	return []byte(fmt.Sprintf(`
 {
   "created_date": "%s",
@@ -191,18 +177,19 @@ func generateCreatePaymentResponseBodyJsonString() []byte {
       "method": "GET"
     }
   },
-  "amount": 5,
+  "amount": 82,
   "reference" : "abc123",
   "description": "A payment",
   "return_url": "/example/url",
   "payment_id": "hu20sqlact5260q2nanm0q8u93",
   "payment_provider": "worldpay",
   "provider_id": "10987654321"
-}`, created.Format(time.RFC3339)))
+}`, createdAt.Format(time.RFC3339Nano)))
 }
 
 func TestGetPayment(t *testing.T) {
 	paymentId := "fake-id-value"
+	created, _ := time.Parse(time.RFC3339Nano, "2022-09-29T12:43:46.784Z")
 
 	t.Run("GETs payment information using a payment ID", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
@@ -212,7 +199,7 @@ func TestGetPayment(t *testing.T) {
 			assert.Equal(t, req.Header.Get("Authorization"), "Bearer fake-token", "Authorization token did not match")
 
 			rw.WriteHeader(http.StatusCreated)
-			rw.Write(generateGetPaymentResponseBodyJsonBytes())
+			rw.Write(generateGetPaymentResponseBodyJsonBytes(created))
 		}))
 
 		defer server.Close()
@@ -220,12 +207,11 @@ func TestGetPayment(t *testing.T) {
 		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
 
 		actualGPResponse, err := payClient.GetPayment(paymentId)
-		if err != nil {
-			t.Fatal(err)
-		}
+
+		assert.Nil(t, err, "Received an error when it should be nil")
 
 		expectedGPResponse := GetPaymentResponse{
-			CreatedDate: created,
+			CreatedDate: GovUKPayTime(created),
 			Amount:      amount,
 			State: State{
 				Status:   "success",
@@ -259,10 +245,9 @@ func TestGetPayment(t *testing.T) {
 			RefundSummary: RefundSummary{
 				Status:          "available",
 				AmountAvailable: 4000,
-				AmountSubmitted: 80,
 			},
 			SettlementSummary: SettlementSummary{
-				CaptureSubmitTime: created.Format(time.RFC3339),
+				CaptureSubmitTime: created.Format(time.RFC3339Nano),
 				CapturedDate:      "2022-01-05",
 				SettledDate:       "2022-01-05",
 			},
@@ -286,13 +271,21 @@ func TestGetPayment(t *testing.T) {
 
 		payClient := Client{BaseURL: server.URL + "`invalid-url-format", ApiKey: apiToken, HttpClient: server.Client()}
 
-		actualGPResponse, err := payClient.GetPayment(paymentId)
+		_, err := payClient.GetPayment(paymentId)
 
-		if err == nil {
-			t.Fatal("Expected an error but received nil")
-		}
+		assert.NotNil(t, err, "Expected an error but received nil")
+	})
 
-		assert.Equal(t, GetPaymentResponse{}, actualGPResponse, "Return value did not match")
+	t.Run("Returns an error if unable to make request", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {}))
+
+		defer server.Close()
+
+		payClient := Client{BaseURL: "not an url", ApiKey: apiToken, HttpClient: server.Client()}
+
+		_, err := payClient.GetPayment(paymentId)
+
+		assert.ErrorContains(t, err, "unsupported protocol scheme")
 	})
 
 	t.Run("Returns an error if unable to decode response", func(t *testing.T) {
@@ -309,17 +302,13 @@ func TestGetPayment(t *testing.T) {
 
 		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
 
-		actualGPResponse, err := payClient.GetPayment(paymentId)
+		_, err := payClient.GetPayment(paymentId)
 
-		if err == nil {
-			t.Fatal("Expected an error but received nil")
-		}
-
-		assert.Equal(t, GetPaymentResponse{}, actualGPResponse, "Return value did not match")
+		assert.NotNil(t, err, "Expected an error but received nil")
 	})
 }
 
-func generateGetPaymentResponseBodyJsonBytes() []byte {
+func generateGetPaymentResponseBodyJsonBytes(createdAt time.Time) []byte {
 	return []byte(fmt.Sprintf(`
 {
   "created_date": "%s",
@@ -377,11 +366,11 @@ func generateGetPaymentResponseBodyJsonBytes() []byte {
   "provider_id": "10987654321",
   "return_url": "https://your.service.gov.uk/completed"
 }`,
-		created.Format(time.RFC3339),
+		createdAt.Format(time.RFC3339Nano),
 		amount,
 		description,
 		reference,
 		language,
 		email,
-		created.Format(time.RFC3339)))
+		createdAt.Format(time.RFC3339Nano)))
 }
