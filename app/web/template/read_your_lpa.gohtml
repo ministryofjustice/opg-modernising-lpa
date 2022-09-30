@@ -4,13 +4,15 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">
-        {{ tr .App "checkYourLpa" }}
+        {{ tr .App "readYourLpa" }}
       </h1>
+
+      <p class="govuk-body">{{ tr .App "readAndCheckYourLpa" }}</p>
+
+      {{ template "details" (details . "whatHappensIfIWantToMakeChanges" "whatHappensIfIWantToMakeChangesContent") }}
     </div>
 
     <div class="govuk-grid-column-two-thirds">
-      <p class="govuk-body">{{ tr .App "youveNowFinishedFillingInTheLpa" }}</p>
-
       <h2 id="decisions" class="govuk-heading-l govuk-!-margin-bottom-2">
         {{ tr .App "lpaDecisions" }}
       </h2>
@@ -149,40 +151,6 @@
       </dl>
 
       <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
-        {{ tr .App "certificateProvider" }}
-      </h3>
-      
-      <dl class="govuk-summary-list">
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">
-            {{ tr .App "name" }}
-          </dt>
-          <dd class="govuk-summary-list__value">
-            {{ .Lpa.CertificateProvider.FirstNames }} {{ .Lpa.CertificateProvider.LastName }}
-          </dd>
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App "/certificate-provider-details" }}">
-              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "certificateProvider") }}</span>
-            </a>
-          </dd>
-        </div>
-        
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">
-            {{ tr .App "email" }}
-          </dt>
-          <dd class="govuk-summary-list__value">
-            {{ .Lpa.CertificateProvider.Email }}
-          </dd>
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App "/certificate-provider-details" }}">
-              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "certificateProviderEmail" }}</span>
-            </a>
-          </dd>
-        </div>
-      </dl>
-
-      <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
         {{ tr .App "attorneys" }}
       </h3>
       
@@ -290,40 +258,36 @@
       </dl>
       
       <form novalidate method="post">
-        <div class="govuk-form-group  {{ if index .Errors "checked" }}govuk-form-group--error{{ end }}">
+        <div class="govuk-form-group {{ if index .Errors "checked" }}govuk-form-group--error{{ end }}">
           {{ template "error-message" (errorMessage . "checked") }}
           <div class="govuk-checkboxes" data-module="govuk-checkboxes">
             <div class="govuk-checkboxes__item">
               <input class="govuk-checkboxes__input" id="f-checked" name="checked" type="checkbox" value="1" {{ if .Form.Checked }}checked{{ end }}>
               <label class="govuk-label govuk-checkboxes__label" for="f-checked">
-                {{ tr .App "iveCheckedThisLpa" }}
+                {{ tr .App "iHaveReadAndCheckedThisLpa" }}
               </label>
             </div>
           </div>
         </div>
 
-        <div class="govuk-form-group {{ if index .Errors "happy" }}govuk-form-group--error{{ end }}">
-          {{ template "error-message" (errorMessage . "happy") }}
+        <div class="govuk-form-group {{ if index .Errors "confirm" }}govuk-form-group--error{{ end }}">
+          {{ template "error-message" (errorMessage . "confirm") }}
           <div class="govuk-checkboxes" data-module="govuk-checkboxes">
             <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-happy" name="happy" type="checkbox" value="1" {{ if .Form.Happy }}checked{{ end }}>
-              <label class="govuk-label govuk-checkboxes__label" for="f-happy">
-                {{ trFormat .App "imHappyToShare" "FirstNames" .Lpa.CertificateProvider.FirstNames "LastName" .Lpa.CertificateProvider.LastName }}
+              <input class="govuk-checkboxes__input" id="f-confirm" name="confirm" type="checkbox" value="1" {{ if .Form.Confirm }}checked{{ end }}>
+              <label class="govuk-label govuk-checkboxes__label" for="f-confirm">
+                {{ tr .App "iConfirmIMadeThisLpaOfMyOwnFreeWill" }}
               </label>
             </div>
           </div>
         </div>
 
-        {{ template "details" (details . "whatHappensIfIChange" "whatHappensIfIChangeDetails") }}
+        {{ template "input" (input . "signature" "typeSignatureCode" .Form.Signature "classes" "govuk-input--width-10") }}
 
-        <div class="govuk-warning-text">
-          <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-          <strong class="govuk-warning-text__text">
-            <span class="govuk-warning-text__assistive"></span>
-            {{ tr .App "onceYouClickConfirmWarning" }}
-          </strong>
-        </div>
-
+        <p class="govuk-body">
+          <a class="govuk-link" href="#">{{ tr .App "iHaventReceivedSignatureCode" }}</a>
+        </p>
+        
         {{ template "continue-button" . }}
       </form>
     </div>

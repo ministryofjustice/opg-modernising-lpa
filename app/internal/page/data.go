@@ -31,6 +31,9 @@ type Lpa struct {
 	Checked                  bool
 	HappyToShare             bool
 	PaymentDetails           PaymentDetails
+	CheckedAgain             bool
+	ConfirmFreeWill          bool
+	SignatureCode            string
 }
 
 type PaymentDetails struct {

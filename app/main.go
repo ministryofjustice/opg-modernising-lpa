@@ -148,8 +148,20 @@ func main() {
 
 			return app.Localizer.Format(messageID, data)
 		},
+		"trFormatHtml": func(app page.AppData, messageID string, args ...interface{}) html.HTML {
+			if len(args)%2 != 0 {
+				panic("must have even number of args")
+			}
+
+			data := map[string]interface{}{}
+			for i := 0; i < len(args); i += 2 {
+				data[args[i].(string)] = args[i+1]
+			}
+
+			return html.HTML(app.Localizer.Format(messageID, data))
+		},
 		"trHtml": func(app page.AppData, messageID string) html.HTML {
-			return app.Localizer.HTML(messageID)
+			return html.HTML(app.Localizer.T(messageID))
 		},
 		"trCount": func(app page.AppData, messageID string, count int) string {
 			return app.Localizer.Count(messageID, count)

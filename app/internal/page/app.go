@@ -101,7 +101,7 @@ func App(
 	mux.Handle("/", Root())
 
 	handle(startPath, None,
-		Start(tmpls.Get("start.gohtml")))
+		Guidance(tmpls.Get("start.gohtml"), AuthPath, nil))
 	handle(lpaTypePath, RequireSession,
 		LpaType(tmpls.Get("lpa_type.gohtml"), dataStore))
 	handle(whoIsTheLpaForPath, RequireSession,
@@ -138,6 +138,14 @@ func App(
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), dataStore))
 	handle(paymentConfirmationPath, RequireSession|CanGoBack,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, dataStore, sessionStore))
+	handle(whatHappensNextPath, RequireSession|CanGoBack,
+		Guidance(tmpls.Get("what_happens_next.gohtml"), whatHappensWhenSigningPath, dataStore))
+	handle(whatHappensWhenSigningPath, RequireSession|CanGoBack,
+		Guidance(tmpls.Get("what_happens_when_signing.gohtml"), howToSignPath, dataStore))
+	handle(howToSignPath, RequireSession|CanGoBack,
+		Guidance(tmpls.Get("how_to_sign.gohtml"), taskListPath, dataStore))
+	handle(readYourLpaPath, RequireSession|CanGoBack,
+		ReadYourLpa(tmpls.Get("read_your_lpa.gohtml"), dataStore))
 
 	return mux
 }
