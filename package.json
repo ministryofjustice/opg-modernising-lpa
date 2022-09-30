@@ -10,6 +10,7 @@
         "cypress:open": "node_modules/.bin/cypress open",
         "cypress:run": "node_modules/.bin/cypress run -vvv",
         "cypress:run:debug": "node_modules/.bin/cypress run --headed",
+        "cy:parallel": "cypress-parallel -s cypress:run -t 4 -d ./cypress/e2e",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "license": "MIT",
@@ -20,8 +21,10 @@
     },
     "devDependencies": {
         "axe-core": "4.4.3",
-        "cypress": "10.8.0",
+        "cypress": "^10.8.0",
         "cypress-axe": "1.0.0",
+        "cypress-multi-reporters": "^1.6.1",
+        "cypress-parallel": "^0.9.1",
         "esbuild": "0.15.9",
         "sass": "1.55.0"
     }

@@ -40,3 +40,6 @@ ifdef spec
 else
 	yarn run cypress:run
 endif
+
+run-cypress-parallel: ##@testing Runs cypress e2e tests in parallel across 4 processor threads
+	yarn run cy:parallel

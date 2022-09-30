@@ -21,5 +21,7 @@ query/s3_objects/**
 **/yarn-error.log
 /cypress/video/*
 /cypress/screenshots/*
+/cypress/parallel-weights.json
+/runner-results
 /web/static/*
 **tmp/*
