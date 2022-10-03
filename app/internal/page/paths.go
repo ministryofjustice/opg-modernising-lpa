@@ -28,4 +28,6 @@ const (
 	whoIsTheLpaForPath                              = "/who-is-the-lpa-for"
 	yourAddressPath                                 = "/your-address"
 	yourDetailsPath                                 = "/your-details"
+	identityWithEasyIDPath                          = "/id/easy-id"
+	identityWithEasyIDCallbackPath                  = "/id/easy-id/callback"
 )
