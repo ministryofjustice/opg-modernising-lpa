@@ -93,6 +93,7 @@ data "aws_iam_policy_document" "secrets_manager_kms" {
       "kms:GetKeyPolicy",
       "kms:GetKeyRotationStatus",
       "kms:ListResourceTags",
+      "kms:List*",
     ]
 
     principals {
