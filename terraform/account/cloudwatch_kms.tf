@@ -72,7 +72,6 @@ data "aws_iam_policy_document" "cloudwatch_kms" {
       "kms:DescribeKey",
       "kms:GetKeyPolicy",
       "kms:GetKeyRotationStatus",
-      "kms:ListResourceTags",
       "kms:List*",
     ]
 
