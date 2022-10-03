@@ -14,17 +14,17 @@ services:
     ports:
       - "5050:8080"
     environment:
-      - APP_PUBLIC_URL=http://localhost:5050
       - APP_PORT=8080
+      - APP_PUBLIC_URL=http://localhost:5050
+      - AUTH_REDIRECT_BASE_URL=http://localhost:5050
       - AWS_ACCESS_KEY_ID=fakeKeyId
-      - AWS_SECRET_ACCESS_KEY=fakeAccessKey
-      - AWS_REGION=eu-west-1
       - AWS_BASE_URL=http://localstack:4566
+      - AWS_REGION=eu-west-1
+      - AWS_SECRET_ACCESS_KEY=fakeAccessKey
       - CLIENT_ID=client-id-value
       - DYNAMODB_TABLE_LPAS=lpas
       - GOVUK_PAY_BASE_URL=http://pay-mock:4010
       - ISSUER=http://sign-in-mock:8080
-      - AUTH_REDIRECT_BASE_URL=http://localhost:5050
 
   localstack:
     build:
