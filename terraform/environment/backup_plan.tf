@@ -71,11 +71,16 @@ resource "aws_backup_selection" "main" {
   provider = aws.eu_west_1
 }
 
-#tfsec:ignore:aws-sns-enable-topic-encryption
-resource "aws_sns_topic" "aws_backup_failure_events" {
-  count    = local.environment.backups.backup_plan_enabled ? 1 : 0
-  name     = "backup-vault-failure-events"
+data "aws_kms_alias" "sns_encryption_key_eu_west_1" {
+  name     = "alias/${local.default_tags.application}_sns_secret_encryption_key"
   provider = aws.eu_west_1
+}
+
+resource "aws_sns_topic" "aws_backup_failure_events" {
+  count             = local.environment.backups.backup_plan_enabled ? 1 : 0
+  name              = "backup-vault-failure-events"
+  kms_master_key_id = data.aws_kms_alias.sns_encryption_key_eu_west_1.target_key_arn
+  provider          = aws.eu_west_1
 }
 
 data "aws_iam_policy_document" "aws_backup_sns" {
