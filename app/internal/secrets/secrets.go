@@ -74,3 +74,17 @@ func (c *Client) PayApiKey() (string, error) {
 
 	return secret, nil
 }
+
+func (c *Client) YotiPrivateKey() ([]byte, error) {
+	secret, err := c.cache.GetSecretString("yoti-private-key")
+	if err != nil {
+		return nil, fmt.Errorf("get yoti sandbox key: %w", err)
+	}
+
+	keyBytes, err := base64.StdEncoding.DecodeString(secret)
+	if err != nil {
+		return nil, fmt.Errorf("error decoding base64 yoti key: %w", err)
+	}
+
+	return keyBytes, nil
+}
