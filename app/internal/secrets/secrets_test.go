@@ -145,3 +145,43 @@ func TestPayApiKey(t *testing.T) {
 		assert.Equal(t, expectedError, err)
 	})
 }
+
+func TestYotiPrivateKey(t *testing.T) {
+	key := []byte("hello")
+
+	secretsCache := &mockSecretsCache{}
+	secretsCache.
+		On("GetSecretString", "yoti-private-key").
+		Return(base64.StdEncoding.EncodeToString(key), nil)
+
+	c := &Client{cache: secretsCache}
+
+	result, err := c.YotiPrivateKey()
+	assert.Nil(t, err)
+	assert.Equal(t, key, result)
+}
+
+func TestYotiPrivateKeyWhenGetSecretError(t *testing.T) {
+	key := []byte("hello")
+
+	secretsCache := &mockSecretsCache{}
+	secretsCache.
+		On("GetSecretString", "yoti-private-key").
+		Return(base64.StdEncoding.EncodeToString(key), expectedError)
+
+	c := &Client{cache: secretsCache}
+
+	_, err := c.YotiPrivateKey()
+	assert.Equal(t, expectedError, errors.Unwrap(err))
+}
+func TestYotiPrivateKeyWhenNotBase64(t *testing.T) {
+	secretsCache := &mockSecretsCache{}
+	secretsCache.
+		On("GetSecretString", "yoti-private-key").
+		Return("hello", nil)
+
+	c := &Client{cache: secretsCache}
+
+	_, err := c.YotiPrivateKey()
+	assert.NotNil(t, err)
+}
