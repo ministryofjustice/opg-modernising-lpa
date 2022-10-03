@@ -119,6 +119,11 @@ data "aws_secretsmanager_secret" "gov_uk_pay_api_key" {
   provider = aws.region
 }
 
+data "aws_secretsmanager_secret" "yoti_private_key" {
+  name     = "yoti-private-key"
+  provider = aws.region
+}
+
 data "aws_iam_policy_document" "task_role_access_policy" {
   statement {
     sid    = "XrayAccess"
@@ -177,6 +182,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
       data.aws_secretsmanager_secret.private_jwt_key.arn,
       data.aws_secretsmanager_secret.cookie_session_keys.arn,
       data.aws_secretsmanager_secret.gov_uk_pay_api_key.arn,
+      data.aws_secretsmanager_secret.yoti_private_key.arn,
     ]
   }
 
