@@ -4,7 +4,7 @@
 ![licence-mit](https://img.shields.io/github/license/ministryofjustice/opg-modernising-lpa-docs.svg)
 [![codecov](https://codecov.io/gh/ministryofjustice/opg-modernising-lpa/branch/main/graph/badge.svg?token=mKTlhc906S)](https://codecov.io/gh/ministryofjustice/opg-modernising-lpa)
 
-[![repo standards badge](https://img.shields.io/badge/dynamic/json?color=blue&style=for-the-badge&logo=github&label=MoJ%20Compliant&query=%24.data%5B%3F%28%40.name%20%3D%3D%20%22opg-modernising-lpa%22%29%5D.status&url=https%3A%2F%2Foperations-engineering-reports.cloud-platform.service.justice.gov.uk%2Fgithub_repositories)](https://operations-engineering-reports.cloud-platform.service.justice.gov.uk/github_repositories#opg-modernising-lpa "Link to report")
+[![repo standards badge](https://img.shields.io/badge/dynamic/json?color=blue&style=for-the-badge&logo=github&label=MoJ%20Compliant&query=%24.result&url=https%3A%2F%2Foperations-engineering-reports.cloud-platform.service.justice.gov.uk%2Fapi%2Fv1%2Fcompliant_public_repositories%2Fopg-modernising-lpa)](https://operations-engineering-reports.cloud-platform.service.justice.gov.uk/public-github-repositories.html#opg-modernising-lpa "Link to report")
 
 ## OPG Modernising LPA Documentation
 
