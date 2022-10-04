@@ -20,7 +20,6 @@ describe('Check the LPA', () => {
 
         cy.contains('button', 'Continue').click();
 
-        // for now - this will eventually lead to simple certificate provider journey
-        cy.url().should('contain', '/task-list');
+        cy.url().should('contain', '/what-happens-next');
     })
 });

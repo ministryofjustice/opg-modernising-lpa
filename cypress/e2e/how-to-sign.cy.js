@@ -9,6 +9,6 @@ describe('How to sign', () => {
 
         cy.contains('a', 'Continue').click();
 
-        cy.url().should('contain', '/task-list');
+        cy.url().should('contain', '/read-your-lpa');
     });
 });
