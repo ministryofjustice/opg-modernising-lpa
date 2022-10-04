@@ -56,7 +56,7 @@ func TestGetSelectYourIdentityOptionsWhenStoreErrors(t *testing.T) {
 func TestGetSelectYourIdentityOptionsFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{data: Lpa{IdentityOptions: []string{"passport"}}}
+	dataStore := &mockDataStore{data: Lpa{IdentityOptions: []IdentityOption{Passport}}}
 	dataStore.
 		On("Get", mock.Anything, "session-id").
 		Return(nil)
@@ -65,7 +65,7 @@ func TestGetSelectYourIdentityOptionsFromStore(t *testing.T) {
 	template.
 		On("Func", w, &selectYourIdentityOptionsData{
 			App:  appData,
-			Form: &selectYourIdentityOptionsForm{Options: []string{"passport"}},
+			Form: &selectYourIdentityOptionsForm{Options: []IdentityOption{Passport}},
 		}).
 		Return(nil)
 
@@ -110,7 +110,7 @@ func TestPostSelectYourIdentityOptions(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(nil)
 	dataStore.
-		On("Put", mock.Anything, "session-id", Lpa{IdentityOptions: []string{"passport", "dwp account", "utility bill"}}).
+		On("Put", mock.Anything, "session-id", Lpa{IdentityOptions: []IdentityOption{Passport, DwpAccount, UtilityBill}}).
 		Return(nil)
 
 	form := url.Values{
@@ -125,7 +125,7 @@ func TestPostSelectYourIdentityOptions(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, taskListPath, resp.Header.Get("Location"))
+	assert.Equal(t, yourChosenIdentityOptionsPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
@@ -165,7 +165,7 @@ func TestPostSelectYourIdentityOptionsWhenValidationErrors(t *testing.T) {
 	template.
 		On("Func", w, &selectYourIdentityOptionsData{
 			App:  appData,
-			Form: &selectYourIdentityOptionsForm{},
+			Form: &selectYourIdentityOptionsForm{Options: []IdentityOption{}},
 			Errors: map[string]string{
 				"options": "selectAtLeastThreeIdentityOptions",
 			},
@@ -193,7 +193,7 @@ func TestReadSelectYourIdentityOptionsForm(t *testing.T) {
 
 	result := readSelectYourIdentityOptionsForm(r)
 
-	assert.Equal(t, []string{"passport", "driving licence", "council tax bill"}, result.Options)
+	assert.Equal(t, []IdentityOption{Passport, DrivingLicence, CouncilTaxBill}, result.Options)
 }
 
 func TestSelectYourIdentityOptionsFormValidate(t *testing.T) {
@@ -203,7 +203,7 @@ func TestSelectYourIdentityOptionsFormValidate(t *testing.T) {
 	}{
 		"all": {
 			form: &selectYourIdentityOptionsForm{
-				Options: []string{"passport", "driving licence", "government gateway account", "dwp account", "online bank account", "utility bill", "council tax bill"},
+				Options: []IdentityOption{Passport, DrivingLicence, GovernmentGatewayAccount, DwpAccount, OnlineBankAccount, UtilityBill, CouncilTaxBill},
 			},
 			errors: map[string]string{},
 		},
@@ -215,7 +215,7 @@ func TestSelectYourIdentityOptionsFormValidate(t *testing.T) {
 		},
 		"too-few": {
 			form: &selectYourIdentityOptionsForm{
-				Options: []string{"passport", "dwp account"},
+				Options: []IdentityOption{Passport, DwpAccount},
 			},
 			errors: map[string]string{
 				"options": "selectAtLeastThreeIdentityOptions",
@@ -223,7 +223,7 @@ func TestSelectYourIdentityOptionsFormValidate(t *testing.T) {
 		},
 		"invalid": {
 			form: &selectYourIdentityOptionsForm{
-				Options: []string{"passport", "what"},
+				Options: []IdentityOption{Passport, IdentityOptionUnknown},
 			},
 			errors: map[string]string{
 				"options": "selectValidIdentityOption",

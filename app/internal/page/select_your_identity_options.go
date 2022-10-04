@@ -37,7 +37,7 @@ func SelectYourIdentityOptions(tmpl template.Template, dataStore DataStore) Hand
 				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, yourChosenIdentityOptionsPath, http.StatusFound)
 				return nil
 			}
 		}
@@ -47,14 +47,19 @@ func SelectYourIdentityOptions(tmpl template.Template, dataStore DataStore) Hand
 }
 
 type selectYourIdentityOptionsForm struct {
-	Options []string
+	Options []IdentityOption
 }
 
 func readSelectYourIdentityOptionsForm(r *http.Request) *selectYourIdentityOptionsForm {
 	r.ParseForm()
 
+	mappedOptions := make([]IdentityOption, len(r.PostForm["options"]))
+	for i, option := range r.PostForm["options"] {
+		mappedOptions[i] = readIdentityOption(option)
+	}
+
 	return &selectYourIdentityOptionsForm{
-		Options: r.PostForm["options"],
+		Options: mappedOptions,
 	}
 }
 
@@ -65,10 +70,8 @@ func (f *selectYourIdentityOptionsForm) Validate() map[string]string {
 		errors["options"] = "selectAtLeastThreeIdentityOptions"
 	}
 
-	for _, option := range f.Options {
-		if !slices.Contains([]string{"passport", "driving licence", "government gateway account", "dwp account", "online bank account", "utility bill", "council tax bill"}, option) {
-			errors["options"] = "selectValidIdentityOption"
-		}
+	if slices.Contains(f.Options, IdentityOptionUnknown) {
+		errors["options"] = "selectValidIdentityOption"
 	}
 
 	return errors

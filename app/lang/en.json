@@ -236,5 +236,16 @@
     "iWouldLikeSomeoneElseToConfirmMyDetails": "I would like someone else to confirm my details",
     "iWouldLikeToConfirmMyIdentityInPerson": "I would like to confirm my identity in person",
     "selectAtLeastThreeIdentityOptions": "Select at least three identity options",
-    "selectValidIdentityOption": "Select from the listed identity options"
+    "selectValidIdentityOption": "Select from the listed identity options",
+
+    "yourChosenDocuments": "Your chosen documents",
+    "yourChosenDocumentsContent": "You told us that you have the following documents:",
+    "wellConfirmYourIdentityUsing": "We'll confirm your identity using your {{.FirstChoice}} and {{.SecondChoice}} because these will give us the most confidence that you are {{.DonorFirstNames}} {{.DonorLastName}}.",
+    "passport": "passport",
+    "drivingLicence": "driving licence",
+    "governmentGatewayAccount": "government gateway account",
+    "dwpAccount": "department for Work and Pensions (DWP) account",
+    "onlineBankAccount": "online bank account",
+    "utilityBill": "utility bill",
+    "councilTaxBill": "council tax bill"
 }

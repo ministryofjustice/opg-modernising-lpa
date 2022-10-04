@@ -238,5 +238,16 @@
     "iWouldLikeSomeoneElseToConfirmMyDetails": "Welsh",
     "iWouldLikeToConfirmMyIdentityInPerson": "Welsh",
     "selectAtLeastThreeIdentityOptions": "Welsh",
-    "selectValidIdentityOption": "Welsh"
+    "selectValidIdentityOption": "Welsh",
+
+    "yourChosenDocuments": "Welsh",
+    "yourChosenDocumentsContent": "Welsh:",
+    "wellConfirmYourIdentityUsing": "Welsh {{.FirstChoice}} {{.SecondChoice}} {{.DonorFirstNames}} {{.DonorLastName}}.",
+    "passport": "Welsh",
+    "drivingLicence": "Welsh",
+    "governmentGatewayAccount": "Welsh",
+    "dwpAccount": "Welsh",
+    "onlineBankAccount": "Welsh",
+    "utilityBill": "Welsh",
+    "councilTaxBill": "Welsh"
 }
