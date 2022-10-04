@@ -6,7 +6,7 @@ describe('Task list', () => {
 
     it('shows tasks', () => {
         cy.contains('li', "Provide the donor's details").should('contain', 'Not started');
-        cy.contains('li', 'Sign the LPA').should('contain', 'Cannot start yet');
+        cy.contains('li', 'Register the LPA').should('contain', 'Cannot start yet');
 
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
     });
