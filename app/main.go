@@ -27,6 +27,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
+	"golang.org/x/exp/slices"
 )
 
 func main() {
@@ -127,10 +128,16 @@ func main() {
 
 			return path
 		},
-		"contains": func(needle string, list []string) bool {
-			for _, item := range list {
-				if item == needle {
-					return true
+		"contains": func(needle string, list interface{}) bool {
+			if slist, ok := list.([]string); ok {
+				return slices.Contains(slist, needle)
+			}
+
+			if slist, ok := list.([]fmt.Stringer); ok {
+				for _, item := range slist {
+					if item.String() == needle {
+						return true
+					}
 				}
 			}
 

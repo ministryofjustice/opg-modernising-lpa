@@ -14,6 +14,7 @@ type paymentConfirmationData struct {
 	App              AppData
 	Errors           map[string]string
 	PaymentReference string
+	Continue         string
 }
 
 func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayClient, dataStore DataStore, sessionStore sessions.Store) Handler {
@@ -25,15 +26,14 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayCl
 		}
 
 		payCookie, err := sessionStore.Get(r, PayCookieName)
-
 		if err != nil {
 			logger.Print(fmt.Sprintf("unable to retrieve session using key '%s': %s", "pay", err.Error()))
 			return err
 		}
 
 		paymentId := payCookie.Values[PayCookiePaymentIdValueKey].(string)
-		payment, err := client.GetPayment(paymentId)
 
+		payment, err := client.GetPayment(paymentId)
 		if err != nil {
 			logger.Print(fmt.Sprintf("unable to retrieve payment info: %s", err.Error()))
 			return err
@@ -47,21 +47,19 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayCl
 		data := &paymentConfirmationData{
 			App:              appData,
 			PaymentReference: payment.Reference,
+			Continue:         selectYourIdentityOptionsPath,
 		}
 
 		payCookie.Options.MaxAge = -1
 		payCookie.Values = map[interface{}]interface{}{PayCookiePaymentIdValueKey: ""}
 
-		err = sessionStore.Save(r, w, payCookie)
-
-		if err != nil {
+		if err := sessionStore.Save(r, w, payCookie); err != nil {
 			logger.Print(fmt.Sprintf("unable to expire cookie in session: %s", err.Error()))
 		}
 
 		lpa.Tasks.PayForLpa = TaskCompleted
-		err = dataStore.Put(r.Context(), appData.SessionID, lpa)
 
-		if err != nil {
+		if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 			logger.Print(fmt.Sprintf("unable to update lpa in dataStore: %s", err.Error()))
 			return err
 		}
