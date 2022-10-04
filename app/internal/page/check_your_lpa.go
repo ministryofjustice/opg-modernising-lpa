@@ -44,7 +44,7 @@ func CheckYourLpa(tmpl template.Template, dataStore DataStore) Handler {
 					return err
 				}
 
-				appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, whatHappensNextPath, http.StatusFound)
 				return nil
 			}
 		}
