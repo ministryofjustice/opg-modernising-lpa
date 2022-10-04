@@ -93,18 +93,18 @@ func TaskList(tmpl template.Template, dataStore DataStore) Handler {
 					},
 				},
 				{
-					Heading: "confirmYourIdentity",
+					Heading: "confirmYourIdentityAndSign",
 					Items: []taskListItem{
 						{
-							Name: "confirmYourIdentity",
+							Name: "confirmYourIdentityAndSign",
 							Path: selectYourIdentityOptionsPath,
 						},
 					},
 				},
 				{
-					Heading: "signAndRegisterTheLpa",
+					Heading: "registerTheLpa",
 					Items: []taskListItem{
-						{Name: "signTheLpa", Disabled: true},
+						{Name: "registerTheLpa", Disabled: true},
 					},
 				},
 			},

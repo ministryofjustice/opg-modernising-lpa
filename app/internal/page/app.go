@@ -110,6 +110,7 @@ func App(
 		LpaType(tmpls.Get("lpa_type.gohtml"), dataStore))
 	handle(whoIsTheLpaForPath, RequireSession,
 		WhoIsTheLpaFor(tmpls.Get("who_is_the_lpa_for.gohtml"), dataStore))
+
 	handle(yourDetailsPath, RequireSession,
 		YourDetails(tmpls.Get("your_details.gohtml"), dataStore))
 	handle(yourAddressPath, RequireSession,
@@ -140,22 +141,24 @@ func App(
 		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String))
 	handle(checkYourLpaPath, RequireSession|CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), dataStore))
+
 	handle(paymentConfirmationPath, RequireSession|CanGoBack,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, dataStore, sessionStore))
 	handle(whatHappensNextPath, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("what_happens_next.gohtml"), whatHappensWhenSigningPath, dataStore))
-	handle(whatHappensWhenSigningPath, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("what_happens_when_signing.gohtml"), howToSignPath, dataStore))
-	handle(howToSignPath, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("how_to_sign.gohtml"), taskListPath, dataStore))
-	handle(readYourLpaPath, RequireSession|CanGoBack,
-		ReadYourLpa(tmpls.Get("read_your_lpa.gohtml"), dataStore))
+		Guidance(tmpls.Get("what_happens_next.gohtml"), aboutPaymentPath, dataStore))
+
 	handle(selectYourIdentityOptionsPath, RequireSession|CanGoBack,
 		SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), dataStore))
 	handle(identityWithEasyIDPath, RequireSession|CanGoBack,
 		IdentityWithEasyID(tmpls.Get("identity_with_easy_id.gohtml"), yotiClient, yotiScenarioID))
 	handle(identityWithEasyIDCallbackPath, RequireSession|CanGoBack,
 		IdentityWithEasyIDCallback(yotiClient))
+	handle(whatHappensWhenSigningPath, RequireSession|CanGoBack,
+		Guidance(tmpls.Get("what_happens_when_signing.gohtml"), howToSignPath, dataStore))
+	handle(howToSignPath, RequireSession|CanGoBack,
+		Guidance(tmpls.Get("how_to_sign.gohtml"), readYourLpaPath, dataStore))
+	handle(readYourLpaPath, RequireSession|CanGoBack,
+		ReadYourLpa(tmpls.Get("read_your_lpa.gohtml"), dataStore))
 
 	return mux
 }
