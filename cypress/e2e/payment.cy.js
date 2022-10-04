@@ -27,8 +27,7 @@ describe('Payment', () => {
 
             cy.contains('a', 'Continue').click()
 
-            // Will lead to identity journey once we have an initial page
-            cy.url().should('eq', `${Cypress.config('baseUrl')}/task-list`)
+            cy.url().should('contains', '/select-your-identity')
 
             cy.getCookie('pay').should('not.exist')
         })
