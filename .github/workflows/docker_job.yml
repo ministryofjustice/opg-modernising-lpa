@@ -37,12 +37,13 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
           aws-region: eu-west-1
-          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-ci
+          role-to-assume: arn:aws:iam::311462405659:role/github-actions-ecr-push
+          # role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-ci
           role-duration-seconds: 900
-          role-session-name: OPGModernisingLPATerraformGithubAction
+          # role-session-name: OPGModernisingLPATerraformGithubAction
       - name: ECR Login
         id: login_ecr
         uses: aws-actions/amazon-ecr-login@v1.5.1
