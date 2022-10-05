@@ -17,6 +17,7 @@ type yourChosenIdentityOptionsData struct {
 }
 
 var identityOptionArticleLabels = map[IdentityOption]string{
+	Yoti:                     "theYoti",
 	Passport:                 "aPassport",
 	DrivingLicence:           "aDrivingLicence",
 	GovernmentGatewayAccount: "aGovernmentGatewayAccount",
@@ -27,6 +28,7 @@ var identityOptionArticleLabels = map[IdentityOption]string{
 }
 
 var identityOptionLabels = map[IdentityOption]string{
+	Yoti:                     "yoti",
 	Passport:                 "passport",
 	DrivingLicence:           "drivingLicence",
 	GovernmentGatewayAccount: "governmentGatewayAccount",
@@ -39,8 +41,7 @@ var identityOptionLabels = map[IdentityOption]string{
 func YourChosenIdentityOptions(tmpl template.Template, dataStore DataStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		if r.Method == http.MethodPost {
-			// will redirect to the correct ID method, for now just go to EasyID flow
-			appData.Lang.Redirect(w, r, identityWithEasyIDPath, http.StatusFound)
+			appData.Lang.Redirect(w, r, identityOptionRedirectPath, http.StatusFound)
 			return nil
 		}
 
@@ -49,15 +50,13 @@ func YourChosenIdentityOptions(tmpl template.Template, dataStore DataStore) Hand
 			return err
 		}
 
-		firstChoice, secondChoice := identityOptionsRanked(lpa.IdentityOptions)
-
 		data := &yourChosenIdentityOptionsData{
 			App:           appData,
 			ArticleLabels: identityOptionArticleLabels,
 			Labels:        identityOptionLabels,
-			Selected:      lpa.IdentityOptions,
-			FirstChoice:   firstChoice,
-			SecondChoice:  secondChoice,
+			Selected:      lpa.IdentityOptions.Selected,
+			FirstChoice:   lpa.IdentityOptions.First,
+			SecondChoice:  lpa.IdentityOptions.Second,
 			You:           lpa.You,
 		}
 

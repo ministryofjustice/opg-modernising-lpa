@@ -133,7 +133,7 @@ func main() {
 				return slices.Contains(slist, needle)
 			}
 
-			if slist, ok := list.([]fmt.Stringer); ok {
+			if slist, ok := list.([]page.IdentityOption); ok {
 				for _, item := range slist {
 					if item.String() == needle {
 						return true
