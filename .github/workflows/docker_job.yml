@@ -43,6 +43,7 @@ jobs:
           role-to-assume: arn:aws:iam::311462405659:role/github-actions-ecr-push
           # role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-ci
           role-duration-seconds: 900
+          role-session-name: GithubActionsECRPushMLPAB
           # role-session-name: OPGModernisingLPATerraformGithubAction
       - name: ECR Login
         id: login_ecr
