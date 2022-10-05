@@ -96,8 +96,10 @@ func TaskList(tmpl template.Template, dataStore DataStore) Handler {
 					Heading: "confirmYourIdentityAndSign",
 					Items: []taskListItem{
 						{
-							Name: "confirmYourIdentityAndSign",
-							Path: selectYourIdentityOptionsPath,
+							Name:       "confirmYourIdentityAndSign",
+							Path:       selectYourIdentityOptionsPath,
+							Completed:  lpa.Tasks.ConfirmYourIdentityAndSign == TaskCompleted,
+							InProgress: lpa.Tasks.ConfirmYourIdentityAndSign == TaskInProgress,
 						},
 					},
 				},
