@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetIdentityWithEasyIDCallback(t *testing.T) {
+func TestGetIdentityWithYotiCallback(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	yotiClient := &mockYotiClient{}
@@ -18,7 +18,7 @@ func TestGetIdentityWithEasyIDCallback(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &identityWithEasyIDCallbackData{
+		On("Func", w, &identityWithYotiCallbackData{
 			App:      appData,
 			FullName: "a-full-name",
 		}).
@@ -26,7 +26,7 @@ func TestGetIdentityWithEasyIDCallback(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/?token=a-token", nil)
 
-	err := IdentityWithEasyIDCallback(template.Func, yotiClient)(appData, w, r)
+	err := IdentityWithYotiCallback(template.Func, yotiClient)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -34,7 +34,7 @@ func TestGetIdentityWithEasyIDCallback(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, yotiClient, template)
 }
 
-func TestGetIdentityWithEasyIDCallbackWhenError(t *testing.T) {
+func TestGetIdentityWithYotiCallbackWhenError(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	yotiClient := &mockYotiClient{}
@@ -42,18 +42,18 @@ func TestGetIdentityWithEasyIDCallbackWhenError(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/?token=a-token", nil)
 
-	err := IdentityWithEasyIDCallback(nil, yotiClient)(appData, w, r)
+	err := IdentityWithYotiCallback(nil, yotiClient)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, yotiClient)
 }
 
-func TestPostIdentityWithEasyIDCallback(t *testing.T) {
+func TestPostIdentityWithYotiCallback(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := IdentityWithEasyIDCallback(nil, nil)(appData, w, r)
+	err := IdentityWithYotiCallback(nil, nil)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

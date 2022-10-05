@@ -6,21 +6,21 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 )
 
-type identityWithEasyIDData struct {
+type identityWithYotiData struct {
 	App         AppData
 	Errors      map[string]string
 	ClientSdkID string
 	ScenarioID  string
 }
 
-func IdentityWithEasyID(tmpl template.Template, yotiClient yotiClient, yotiScenarioID string) Handler {
+func IdentityWithYoti(tmpl template.Template, yotiClient yotiClient, yotiScenarioID string) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		if yotiClient.IsTest() {
-			appData.Lang.Redirect(w, r, identityWithEasyIDCallbackPath, http.StatusFound)
+			appData.Lang.Redirect(w, r, identityWithYotiCallbackPath, http.StatusFound)
 			return nil
 		}
 
-		data := &identityWithEasyIDData{
+		data := &identityWithYotiData{
 			App:         appData,
 			ClientSdkID: yotiClient.SdkID(),
 			ScenarioID:  yotiScenarioID,
