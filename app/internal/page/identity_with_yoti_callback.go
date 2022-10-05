@@ -6,13 +6,13 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 )
 
-type identityWithEasyIDCallbackData struct {
+type identityWithYotiCallbackData struct {
 	App      AppData
 	Errors   map[string]string
 	FullName string
 }
 
-func IdentityWithEasyIDCallback(tmpl template.Template, yotiClient yotiClient) Handler {
+func IdentityWithYotiCallback(tmpl template.Template, yotiClient yotiClient) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		if r.Method == http.MethodPost {
 			appData.Lang.Redirect(w, r, identityOptionRedirectPath, http.StatusFound)
@@ -24,7 +24,7 @@ func IdentityWithEasyIDCallback(tmpl template.Template, yotiClient yotiClient) H
 			return err
 		}
 
-		data := &identityWithEasyIDCallbackData{
+		data := &identityWithYotiCallbackData{
 			App:      appData,
 			FullName: user.FullName,
 		}
