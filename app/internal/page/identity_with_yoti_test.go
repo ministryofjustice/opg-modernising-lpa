@@ -28,7 +28,7 @@ func (m *mockYotiClient) User(token string) (identity.UserData, error) {
 	return args.Get(0).(identity.UserData), args.Error(1)
 }
 
-func TestGetIdentityWithEasyID(t *testing.T) {
+func TestGetIdentityWithYoti(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	yotiClient := &mockYotiClient{}
@@ -37,7 +37,7 @@ func TestGetIdentityWithEasyID(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &identityWithEasyIDData{
+		On("Func", w, &identityWithYotiData{
 			App:         appData,
 			ClientSdkID: "an-sdk-id",
 			ScenarioID:  "a-scenario-id",
@@ -46,7 +46,7 @@ func TestGetIdentityWithEasyID(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := IdentityWithEasyID(template.Func, yotiClient, "a-scenario-id")(appData, w, r)
+	err := IdentityWithYoti(template.Func, yotiClient, "a-scenario-id")(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -54,7 +54,7 @@ func TestGetIdentityWithEasyID(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, yotiClient, template)
 }
 
-func TestGetIdentityWithEasyIDWhenTest(t *testing.T) {
+func TestGetIdentityWithYotiWhenTest(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	yotiClient := &mockYotiClient{}
@@ -62,16 +62,16 @@ func TestGetIdentityWithEasyIDWhenTest(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := IdentityWithEasyID(nil, yotiClient, "")(appData, w, r)
+	err := IdentityWithYoti(nil, yotiClient, "")(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, identityWithEasyIDCallbackPath, resp.Header.Get("Location"))
+	assert.Equal(t, identityWithYotiCallbackPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, yotiClient)
 }
 
-func TestGetIdentityWithEasyIDWhenTemplateError(t *testing.T) {
+func TestGetIdentityWithYotiWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	yotiClient := &mockYotiClient{}
@@ -85,7 +85,7 @@ func TestGetIdentityWithEasyIDWhenTemplateError(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := IdentityWithEasyID(template.Func, yotiClient, "a-scenario-id")(appData, w, r)
+	err := IdentityWithYoti(template.Func, yotiClient, "a-scenario-id")(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, yotiClient, template)

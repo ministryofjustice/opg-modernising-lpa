@@ -5,7 +5,7 @@ coverage:
   ignore:
     - "*_test.go"
     - "./mocks/*"
-    - "./app/internal/easyid"
+    - "./app/internal/identity/yoti*"
   status:
     project:
       default:
