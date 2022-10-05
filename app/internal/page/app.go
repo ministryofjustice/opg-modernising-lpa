@@ -9,7 +9,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/easyid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -65,7 +65,7 @@ func (c fakeAddressClient) LookupPostcode(postcode string) ([]Address, error) {
 type yotiClient interface {
 	IsTest() bool
 	SdkID() string
-	User(string) (easyid.UserData, error)
+	User(string) (identity.UserData, error)
 }
 
 func postFormString(r *http.Request, name string) string {
@@ -151,10 +151,12 @@ func App(
 		SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), dataStore))
 	handle(yourChosenIdentityOptionsPath, RequireSession|CanGoBack,
 		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), dataStore))
+	handle(identityOptionRedirectPath, RequireSession,
+		IdentityOptionRedirect(dataStore))
 	handle(identityWithEasyIDPath, RequireSession|CanGoBack,
 		IdentityWithEasyID(tmpls.Get("identity_with_easy_id.gohtml"), yotiClient, yotiScenarioID))
 	handle(identityWithEasyIDCallbackPath, RequireSession|CanGoBack,
-		IdentityWithEasyIDCallback(yotiClient))
+		IdentityWithEasyIDCallback(tmpls.Get("identity_with_easy_id_callback.gohtml"), yotiClient))
 	handle(whatHappensWhenSigningPath, RequireSession|CanGoBack,
 		Guidance(tmpls.Get("what_happens_when_signing.gohtml"), howToSignPath, dataStore))
 	handle(howToSignPath, RequireSession|CanGoBack,

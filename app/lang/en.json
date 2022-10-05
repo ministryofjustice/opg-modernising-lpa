@@ -225,6 +225,7 @@
 
     "selectYourIdentityOptions": "Select your identity options",
     "selectAllAtLeastThree": "Select all that apply. You must select at least three options.",
+    "theYoti": "The Yoti app",
     "aPassport": "A passport",
     "aDrivingLicence": "A driving licence",
     "aGovernmentGatewayAccount": "A government gateway account",
@@ -237,15 +238,21 @@
     "iWouldLikeToConfirmMyIdentityInPerson": "I would like to confirm my identity in person",
     "selectAtLeastThreeIdentityOptions": "Select at least three identity options",
     "selectValidIdentityOption": "Select from the listed identity options",
-
+    "selectMoreOptions": "Select more options so we can make accurately identify you",
+    
     "yourChosenDocuments": "Your chosen documents",
     "yourChosenDocumentsContent": "You told us that you have the following documents:",
     "wellConfirmYourIdentityUsing": "We'll confirm your identity using your {{.FirstChoice}} and {{.SecondChoice}} because these will give us the most confidence that you are {{.DonorFirstNames}} {{.DonorLastName}}.",
+    "yoti": "Yoti app",
     "passport": "passport",
     "drivingLicence": "driving licence",
     "governmentGatewayAccount": "government gateway account",
     "dwpAccount": "department for Work and Pensions (DWP) account",
     "onlineBankAccount": "online bank account",
     "utilityBill": "utility bill",
-    "councilTaxBill": "council tax bill"
+    "councilTaxBill": "council tax bill",
+
+    "identifyYourselfWithYoti": "Identify yourself with the Yoti app",
+    "scanWithTheYotiApp": "Scan with the Yoti app",
+    "yourIdentityConfirmedWithYoti": "Your identity details confirmed with Yoti"
 }
