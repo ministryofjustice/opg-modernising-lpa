@@ -14,6 +14,7 @@ on:
       - '.github/workflows/**'
 
 permissions:
+  id-token: write
   contents: write
   security-events: write
   pull-requests: read
@@ -41,10 +42,13 @@ jobs:
   docker_build_scan_push:
     name: Docker Build, Scan and Push
     uses: ./.github/workflows/docker_job.yml
-    needs: [go_unit_tests, create_tags]
+    needs: [
+      go_unit_tests,
+      create_tags
+      ]
     with:
       tag: ${{ needs.create_tags.outputs.version_tag }}
-    secrets: inherit
+    # secrets: inherit
 
   terraform_account_workflow_development:
     name: TF Plan Dev Account
