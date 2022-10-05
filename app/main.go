@@ -20,7 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/easyid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -246,7 +246,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	yotiClient, err := easyid.New(yotiClientSdkID, yotiPrivateKey)
+	yotiClient, err := identity.NewYotiClient(yotiClientSdkID, yotiPrivateKey)
 	if err != nil {
 		logger.Fatal(err)
 	}

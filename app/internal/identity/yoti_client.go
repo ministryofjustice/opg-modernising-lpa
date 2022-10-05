@@ -1,4 +1,4 @@
-package easyid
+package identity
 
 import (
 	"github.com/getyoti/yoti-go-sdk/v3"
@@ -6,21 +6,21 @@ import (
 	"github.com/getyoti/yoti-go-sdk/v3/profile/sandbox"
 )
 
-const sandboxBaseURL = "https://api.yoti.com/sandbox/v1"
+const yotiSandboxBaseURL = "https://api.yoti.com/sandbox/v1"
 
 type UserData struct {
 	FullName string
 }
 
-type Client struct {
+type YotiClient struct {
 	yoti      *yoti.Client
 	isSandbox bool
 	details   profile.ActivityDetails
 }
 
-func New(clientID string, privateKeyBytes []byte) (*Client, error) {
+func NewYotiClient(clientID string, privateKeyBytes []byte) (*YotiClient, error) {
 	if clientID == "" {
-		return &Client{}, nil
+		return &YotiClient{}, nil
 	}
 
 	client, err := yoti.NewClient(clientID, privateKeyBytes)
@@ -28,11 +28,11 @@ func New(clientID string, privateKeyBytes []byte) (*Client, error) {
 		return nil, err
 	}
 
-	return &Client{yoti: client}, nil
+	return &YotiClient{yoti: client}, nil
 }
 
-func (c *Client) SetupSandbox() error {
-	sandboxClient := &sandbox.Client{ClientSdkID: c.yoti.SdkID, Key: c.yoti.Key, BaseURL: sandboxBaseURL}
+func (c *YotiClient) SetupSandbox() error {
+	sandboxClient := &sandbox.Client{ClientSdkID: c.yoti.SdkID, Key: c.yoti.Key, BaseURL: yotiSandboxBaseURL}
 
 	tokenRequest := (&sandbox.TokenRequest{}).
 		WithFullName("Test Person", nil)
@@ -42,7 +42,7 @@ func (c *Client) SetupSandbox() error {
 		return err
 	}
 
-	c.yoti.OverrideAPIURL(sandboxBaseURL)
+	c.yoti.OverrideAPIURL(yotiSandboxBaseURL)
 
 	details, err := c.yoti.GetActivityDetails(sandboxToken)
 	c.isSandbox = true
@@ -51,15 +51,15 @@ func (c *Client) SetupSandbox() error {
 	return err
 }
 
-func (c *Client) SdkID() string {
+func (c *YotiClient) SdkID() string {
 	return c.yoti.SdkID
 }
 
-func (c *Client) IsTest() bool {
+func (c *YotiClient) IsTest() bool {
 	return c.yoti == nil || c.isSandbox
 }
 
-func (c *Client) User(token string) (UserData, error) {
+func (c *YotiClient) User(token string) (UserData, error) {
 	if c.yoti == nil {
 		return UserData{FullName: "Test Person"}, nil
 	}

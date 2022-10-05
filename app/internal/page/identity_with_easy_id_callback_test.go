@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/easyid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -15,7 +15,7 @@ func TestGetIdentityWithEasyIDCallback(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	yotiClient := &mockYotiClient{}
-	yotiClient.On("User", "a-token").Return(easyid.UserData{FullName: "a-full-name"}, nil)
+	yotiClient.On("User", "a-token").Return(identity.UserData{FullName: "a-full-name"}, nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/?token=a-token", nil)
 
@@ -35,7 +35,7 @@ func TestGetIdentityWithEasyIDCallbackWhenError(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	yotiClient := &mockYotiClient{}
-	yotiClient.On("User", "a-token").Return(easyid.UserData{}, expectedError)
+	yotiClient.On("User", "a-token").Return(identity.UserData{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/?token=a-token", nil)
 
