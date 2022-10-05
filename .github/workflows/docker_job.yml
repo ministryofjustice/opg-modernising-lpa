@@ -20,25 +20,25 @@ jobs:
     steps:
 
 
-      # - uses: actions/checkout@v3
-      # - name: Build Image
-      #   id: build_image
-      #   run: |
-      #     docker build -t app .
-      # - name: Trivy Image Vulnerability Scanner
-      #   id: trivy_scan
-      #   uses: aquasecurity/trivy-action@0.7.1
-      #   with:
-      #     image-ref: app:latest
-      #     severity: 'HIGH,CRITICAL'
-      #     format: 'sarif'
-      #     output: 'trivy-results.sarif'
-      # - name: Upload Trivy scan results to GitHub Security tab
-      #   id: trivy_upload_sarif
-      #   uses: github/codeql-action/upload-sarif@v2
-      #   if: always()
-      #   with:
-      #     sarif_file: 'trivy-results.sarif'
+      - uses: actions/checkout@v3
+      - name: Build Image
+        id: build_image
+        run: |
+          docker build -t app .
+      - name: Trivy Image Vulnerability Scanner
+        id: trivy_scan
+        uses: aquasecurity/trivy-action@0.7.1
+        with:
+          image-ref: app:latest
+          severity: 'HIGH,CRITICAL'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+      - name: Upload Trivy scan results to GitHub Security tab
+        id: trivy_upload_sarif
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
 
       - uses: unfor19/install-aws-cli-action@v1
       - name: Configure AWS Credentials
@@ -58,14 +58,14 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1.5.1
         with:
           registries: 311462405659
-      # - name: Push Container
-      #   env:
-      #     ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
-      #     ECR_REPOSITORY: modernising-lpa/app
-      #   run: |
-      #     docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.tag }}
-      #     if [ ${{ github.head_ref }} == "main" ]; then
-      #       docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.tag }}
-      #       docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
-      #     fi
-      #       docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
+      - name: Push Container
+        env:
+          ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
+          ECR_REPOSITORY: modernising-lpa/app
+        run: |
+          docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.tag }}
+          if [ ${{ github.head_ref }} == "main" ]; then
+            docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.tag }}
+            docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          fi
+            docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY

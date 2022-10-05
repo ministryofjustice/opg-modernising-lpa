@@ -31,25 +31,24 @@ defaults:
     shell: bash
 
 jobs:
-  # create_tags:
-  #   name: Create Tags
-  #   uses: ./.github/workflows/tags_job.yml
+  create_tags:
+    name: Create Tags
+    uses: ./.github/workflows/tags_job.yml
 
-  # go_unit_tests:
-  #   name: Run Go unit tests
-  #   uses: ./.github/workflows/go-unit-tests.yml
+  go_unit_tests:
+    name: Run Go unit tests
+    uses: ./.github/workflows/go-unit-tests.yml
 
   docker_build_scan_push:
     name: Docker Build, Scan and Push
     uses: ./.github/workflows/docker_job.yml
     with:
-      tag: latest
-      # tag: ${{ needs.create_tags.outputs.version_tag }}
+      tag: ${{ needs.create_tags.outputs.version_tag }}
     secrets: inherit
-    # needs: [
-      # go_unit_tests,
-      # create_tags
-      # ]
+    needs: [
+      go_unit_tests,
+      create_tags
+      ]
 
   # terraform_account_workflow_development:
   #   name: TF Plan Dev Account
