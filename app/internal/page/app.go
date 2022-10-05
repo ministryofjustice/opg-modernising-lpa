@@ -9,7 +9,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/easyid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -65,7 +65,7 @@ func (c fakeAddressClient) LookupPostcode(postcode string) ([]Address, error) {
 type yotiClient interface {
 	IsTest() bool
 	SdkID() string
-	User(string) (easyid.UserData, error)
+	User(string) (identity.UserData, error)
 }
 
 func postFormString(r *http.Request, name string) string {
