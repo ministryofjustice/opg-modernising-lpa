@@ -151,10 +151,12 @@ func App(
 		SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), dataStore))
 	handle(yourChosenIdentityOptionsPath, RequireSession|CanGoBack,
 		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), dataStore))
+	handle(identityOptionRedirectPath, RequireSession,
+		IdentityOptionRedirect(dataStore))
 	handle(identityWithEasyIDPath, RequireSession|CanGoBack,
 		IdentityWithEasyID(tmpls.Get("identity_with_easy_id.gohtml"), yotiClient, yotiScenarioID))
 	handle(identityWithEasyIDCallbackPath, RequireSession|CanGoBack,
-		IdentityWithEasyIDCallback(yotiClient))
+		IdentityWithEasyIDCallback(tmpls.Get("identity_with_easy_id_callback.gohtml"), yotiClient))
 	handle(whatHappensWhenSigningPath, RequireSession|CanGoBack,
 		Guidance(tmpls.Get("what_happens_when_signing.gohtml"), howToSignPath, dataStore))
 	handle(howToSignPath, RequireSession|CanGoBack,

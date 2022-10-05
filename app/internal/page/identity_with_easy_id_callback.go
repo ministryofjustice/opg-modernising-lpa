@@ -1,18 +1,34 @@
 package page
 
 import (
-	"fmt"
 	"net/http"
+
+	"github.com/ministryofjustice/opg-go-common/template"
 )
 
-func IdentityWithEasyIDCallback(yotiClient yotiClient) Handler {
+type identityWithEasyIDCallbackData struct {
+	App      AppData
+	Errors   map[string]string
+	FullName string
+}
+
+func IdentityWithEasyIDCallback(tmpl template.Template, yotiClient yotiClient) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+		if r.Method == http.MethodPost {
+			appData.Lang.Redirect(w, r, identityOptionRedirectPath, http.StatusFound)
+			return nil
+		}
+
 		user, err := yotiClient.User(r.FormValue("token"))
 		if err != nil {
 			return err
 		}
 
-		_, err = fmt.Fprintf(w, "<!doctype html><p>Hi %s</p>", user.FullName)
-		return err
+		data := &identityWithEasyIDCallbackData{
+			App:      appData,
+			FullName: user.FullName,
+		}
+
+		return tmpl(w, data)
 	}
 }

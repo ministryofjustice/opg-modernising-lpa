@@ -13,6 +13,8 @@ const (
 	howLongHaveYouKnownCertificateProviderPath      = "/how-long-have-you-known-certificate-provider"
 	howToSignPath                                   = "/how-to-sign"
 	howWouldYouLikeToBeContactedPath                = "/how-would-you-like-to-be-contacted"
+	identityConfirmedPath                           = "/identity-confirmed"
+	identityOptionRedirectPath                      = "/identity-option-redirect"
 	identityWithEasyIDCallbackPath                  = "/id/easy-id/callback"
 	identityWithEasyIDPath                          = "/id/easy-id"
 	lpaTypePath                                     = "/lpa-type"
