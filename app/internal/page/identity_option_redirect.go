@@ -6,15 +6,15 @@ import (
 
 func IdentityOptionRedirect(dataStore DataStore) Handler {
 	identityOptionPaths := map[IdentityOption]string{
-		Yoti: identityWithEasyIDPath,
+		Yoti: identityWithYotiPath,
 		// obviously the below will change eventually
-		Passport:                 identityWithEasyIDPath,
-		DrivingLicence:           identityWithEasyIDPath,
-		GovernmentGatewayAccount: identityWithEasyIDPath,
-		DwpAccount:               identityWithEasyIDPath,
-		OnlineBankAccount:        identityWithEasyIDPath,
-		UtilityBill:              identityWithEasyIDPath,
-		CouncilTaxBill:           identityWithEasyIDPath,
+		Passport:                 identityWithYotiPath,
+		DrivingLicence:           identityWithYotiPath,
+		GovernmentGatewayAccount: identityWithYotiPath,
+		DwpAccount:               identityWithYotiPath,
+		OnlineBankAccount:        identityWithYotiPath,
+		UtilityBill:              identityWithYotiPath,
+		CouncilTaxBill:           identityWithYotiPath,
 	}
 
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
