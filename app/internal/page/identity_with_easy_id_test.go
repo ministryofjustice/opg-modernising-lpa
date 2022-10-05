@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/easyid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -22,10 +22,10 @@ func (m *mockYotiClient) SdkID() string {
 	return m.Called().String(0)
 }
 
-func (m *mockYotiClient) User(token string) (easyid.UserData, error) {
+func (m *mockYotiClient) User(token string) (identity.UserData, error) {
 	args := m.Called(token)
 
-	return args.Get(0).(easyid.UserData), args.Error(1)
+	return args.Get(0).(identity.UserData), args.Error(1)
 }
 
 func TestGetIdentityWithEasyID(t *testing.T) {
