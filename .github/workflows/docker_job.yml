@@ -46,12 +46,12 @@ jobs:
         with:
           aws-region: eu-west-1
           role-to-assume: arn:aws:iam::311462405659:role/github-actions-ecr-push
+          role-duration-seconds: 900
+          role-session-name: GithubActionsECRPushMLPAB
 
           # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
           # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
           # role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-ci
-          role-duration-seconds: 900
-          role-session-name: GithubActionsECRPushMLPAB
           # role-session-name: OPGModernisingLPATerraformGithubAction
       - name: ECR Login
         id: login_ecr
