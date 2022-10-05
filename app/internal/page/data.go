@@ -31,6 +31,7 @@ func (o IdentityOption) String() string {
 
 const (
 	IdentityOptionUnknown    = IdentityOption("")
+	Yoti                     = IdentityOption("yoti")
 	Passport                 = IdentityOption("passport")
 	DrivingLicence           = IdentityOption("driving licence")
 	GovernmentGatewayAccount = IdentityOption("government gateway account")
@@ -42,6 +43,8 @@ const (
 
 func readIdentityOption(s string) IdentityOption {
 	switch s {
+	case "yoti":
+		return Yoti
 	case "passport":
 		return Passport
 	case "driving licence":
@@ -78,7 +81,14 @@ type Lpa struct {
 	CheckedAgain             bool
 	ConfirmFreeWill          bool
 	SignatureCode            string
-	IdentityOptions          []IdentityOption
+	IdentityOptions          IdentityOptions
+}
+
+type IdentityOptions struct {
+	Selected []IdentityOption
+	First    IdentityOption
+	Second   IdentityOption
+	Current  int
 }
 
 type PaymentDetails struct {
@@ -87,11 +97,12 @@ type PaymentDetails struct {
 }
 
 type Tasks struct {
-	WhenCanTheLpaBeUsed TaskState
-	Restrictions        TaskState
-	CertificateProvider TaskState
-	CheckYourLpa        TaskState
-	PayForLpa           TaskState
+	WhenCanTheLpaBeUsed        TaskState
+	Restrictions               TaskState
+	CertificateProvider        TaskState
+	CheckYourLpa               TaskState
+	PayForLpa                  TaskState
+	ConfirmYourIdentityAndSign TaskState
 }
 
 type Person struct {
@@ -183,11 +194,16 @@ type rankedItem struct {
 }
 
 func identityOptionsRanked(options []IdentityOption) (firstChoice, secondChoice IdentityOption) {
+	if len(options) == 0 {
+		return IdentityOptionUnknown, IdentityOptionUnknown
+	}
+
 	table := map[IdentityOption]struct {
 		rank    int
 		subrank int
 		not     []IdentityOption
 	}{
+		Yoti:                     {rank: 0, subrank: 0, not: []IdentityOption{Passport, DrivingLicence}},
 		Passport:                 {rank: 1, subrank: 2, not: []IdentityOption{GovernmentGatewayAccount, OnlineBankAccount}},
 		DrivingLicence:           {rank: 2, subrank: 3, not: []IdentityOption{}},
 		DwpAccount:               {rank: 3, subrank: 5, not: []IdentityOption{GovernmentGatewayAccount}},
@@ -218,6 +234,10 @@ func identityOptionsRanked(options []IdentityOption) (firstChoice, secondChoice 
 	sort.Slice(remainingOptions, func(i, j int) bool {
 		return remainingOptions[i].subrank < remainingOptions[j].subrank
 	})
+
+	if len(remainingOptions) == 0 {
+		return firstChoice, IdentityOptionUnknown
+	}
 
 	secondChoice = remainingOptions[0].item
 

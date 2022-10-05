@@ -14,7 +14,15 @@ func TestGetYourChosenIdentityOptions(t *testing.T) {
 
 	selected := []IdentityOption{Passport, DwpAccount, UtilityBill}
 
-	dataStore := &mockDataStore{data: Lpa{IdentityOptions: selected}}
+	dataStore := &mockDataStore{
+		data: Lpa{
+			IdentityOptions: IdentityOptions{
+				Selected: selected,
+				First:    Passport,
+				Second:   DwpAccount,
+			},
+		},
+	}
 	dataStore.
 		On("Get", mock.Anything, "session-id").
 		Return(nil)
@@ -60,7 +68,13 @@ func TestGetYourChosenIdentityOptionsWhenStoreErrors(t *testing.T) {
 func TestGetYourChosenIdentityOptionsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{data: Lpa{IdentityOptions: []IdentityOption{Passport, DwpAccount, UtilityBill}}}
+	dataStore := &mockDataStore{
+		data: Lpa{
+			IdentityOptions: IdentityOptions{
+				Selected: []IdentityOption{Passport, DwpAccount, UtilityBill},
+			},
+		},
+	}
 	dataStore.
 		On("Get", mock.Anything, "session-id").
 		Return(nil)
@@ -90,5 +104,5 @@ func TestPostYourChosenIdentityOptions(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, identityWithEasyIDPath, resp.Header.Get("Location"))
+	assert.Equal(t, identityOptionRedirectPath, resp.Header.Get("Location"))
 }
