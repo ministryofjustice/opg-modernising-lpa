@@ -14,6 +14,14 @@
                   {{ .FullName }}
                 </dd>
               </div>
+              <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                  Confirmed at
+                </dt>
+                <dd class="govuk-summary-list__value">
+                  {{ formatDateTime .ConfirmedAt }}
+                </dd>
+              </div>
             </dl>
 
             <form novalidate method="post">
