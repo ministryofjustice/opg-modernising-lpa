@@ -12,6 +12,9 @@ defaults:
 
 permissions:
   id-token: write
+  contents: write
+  security-events: write
+  pull-requests: read
 
 jobs:
   docker_build_scan_push:
