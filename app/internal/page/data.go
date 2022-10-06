@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"golang.org/x/exp/slices"
 )
 
@@ -64,6 +65,52 @@ func readIdentityOption(s string) IdentityOption {
 	}
 }
 
+func (o IdentityOption) ArticleLabel() string {
+	switch o {
+	case Yoti:
+		return "theYoti"
+	case Passport:
+		return "aPassport"
+	case DrivingLicence:
+		return "aDrivingLicence"
+	case GovernmentGatewayAccount:
+		return "aGovernmentGatewayAccount"
+	case DwpAccount:
+		return "aDwpAccount"
+	case OnlineBankAccount:
+		return "anOnlineBankAccount"
+	case UtilityBill:
+		return "aUtilityBill"
+	case CouncilTaxBill:
+		return "aCouncilTaxBill"
+	default:
+		return ""
+	}
+}
+
+func (o IdentityOption) Label() string {
+	switch o {
+	case Yoti:
+		return "yoti"
+	case Passport:
+		return "passport"
+	case DrivingLicence:
+		return "drivingLicence"
+	case GovernmentGatewayAccount:
+		return "governmentGatewayAccount"
+	case DwpAccount:
+		return "dwpAccount"
+	case OnlineBankAccount:
+		return "onlineBankAccount"
+	case UtilityBill:
+		return "utilityBill"
+	case CouncilTaxBill:
+		return "councilTaxBill"
+	default:
+		return ""
+	}
+}
+
 type Lpa struct {
 	You                      Person
 	Attorney                 Attorney
@@ -82,13 +129,36 @@ type Lpa struct {
 	ConfirmFreeWill          bool
 	SignatureCode            string
 	IdentityOptions          IdentityOptions
+	YotiUserData             identity.UserData
 }
 
 type IdentityOptions struct {
 	Selected []IdentityOption
 	First    IdentityOption
 	Second   IdentityOption
-	Current  int
+}
+
+func (o IdentityOptions) NextPath(current IdentityOption) string {
+	identityOptionPaths := map[IdentityOption]string{
+		Yoti:                     identityWithYotiPath,
+		Passport:                 identityWithPassportPath,
+		DrivingLicence:           identityWithDrivingLicencePath,
+		GovernmentGatewayAccount: identityWithGovernmentGatewayAccountPath,
+		DwpAccount:               identityWithDwpAccountPath,
+		OnlineBankAccount:        identityWithOnlineBankAccountPath,
+		UtilityBill:              identityWithUtilityBillPath,
+		CouncilTaxBill:           identityWithCouncilTaxBillPath,
+	}
+
+	if current == o.Second {
+		return whatHappensWhenSigningPath
+	}
+
+	if current == o.First {
+		return identityOptionPaths[o.Second]
+	}
+
+	return identityOptionPaths[o.First]
 }
 
 type PaymentDetails struct {

@@ -36,7 +36,6 @@ func SelectYourIdentityOptions(tmpl template.Template, dataStore DataStore) Hand
 					Selected: data.Form.Options,
 					First:    data.Form.First,
 					Second:   data.Form.Second,
-					Current:  0,
 				}
 				lpa.Tasks.ConfirmYourIdentityAndSign = TaskInProgress
 

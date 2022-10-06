@@ -1,6 +1,8 @@
 package identity
 
 import (
+	"time"
+
 	"github.com/getyoti/yoti-go-sdk/v3"
 	"github.com/getyoti/yoti-go-sdk/v3/profile"
 	"github.com/getyoti/yoti-go-sdk/v3/profile/sandbox"
@@ -9,7 +11,9 @@ import (
 const yotiSandboxBaseURL = "https://api.yoti.com/sandbox/v1"
 
 type UserData struct {
-	FullName string
+	OK          bool
+	FullName    string
+	RetrievedAt time.Time
 }
 
 type YotiClient struct {
@@ -61,11 +65,11 @@ func (c *YotiClient) IsTest() bool {
 
 func (c *YotiClient) User(token string) (UserData, error) {
 	if c.yoti == nil {
-		return UserData{FullName: "Test Person"}, nil
+		return UserData{OK: true, FullName: "Test Person", RetrievedAt: time.Now()}, nil
 	}
 
 	if c.isSandbox {
-		return UserData{FullName: c.details.UserProfile.FullName().Value()}, nil
+		return UserData{OK: true, FullName: c.details.UserProfile.FullName().Value(), RetrievedAt: time.Now()}, nil
 	}
 
 	details, err := c.yoti.GetActivityDetails(token)
@@ -73,5 +77,5 @@ func (c *YotiClient) User(token string) (UserData, error) {
 		return UserData{}, err
 	}
 
-	return UserData{FullName: details.UserProfile.FullName().Value()}, nil
+	return UserData{OK: true, FullName: details.UserProfile.FullName().Value(), RetrievedAt: time.Now()}, nil
 }
