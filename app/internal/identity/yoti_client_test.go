@@ -13,5 +13,6 @@ func TestMockClient(t *testing.T) {
 
 	user, err := client.User("xyz")
 	assert.Nil(t, err)
-	assert.Equal(t, UserData{FullName: "Test Person"}, user)
+	assert.True(t, user.OK)
+	assert.Equal(t, "Test Person", user.FullName)
 }
