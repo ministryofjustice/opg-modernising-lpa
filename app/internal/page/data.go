@@ -2,11 +2,10 @@ package page
 
 import (
 	"encoding/json"
-	"sort"
 	"strings"
 	"time"
 
-	"golang.org/x/exp/slices"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 )
 
 const (
@@ -22,44 +21,6 @@ const (
 	TaskInProgress
 	TaskCompleted
 )
-
-type IdentityOption string
-
-func (o IdentityOption) String() string {
-	return string(o)
-}
-
-const (
-	IdentityOptionUnknown    = IdentityOption("")
-	Passport                 = IdentityOption("passport")
-	DrivingLicence           = IdentityOption("driving licence")
-	GovernmentGatewayAccount = IdentityOption("government gateway account")
-	DwpAccount               = IdentityOption("dwp account")
-	OnlineBankAccount        = IdentityOption("online bank account")
-	UtilityBill              = IdentityOption("utility bill")
-	CouncilTaxBill           = IdentityOption("council tax bill")
-)
-
-func readIdentityOption(s string) IdentityOption {
-	switch s {
-	case "passport":
-		return Passport
-	case "driving licence":
-		return DrivingLicence
-	case "government gateway account":
-		return GovernmentGatewayAccount
-	case "dwp account":
-		return DwpAccount
-	case "online bank account":
-		return OnlineBankAccount
-	case "utility bill":
-		return UtilityBill
-	case "council tax bill":
-		return CouncilTaxBill
-	default:
-		return IdentityOptionUnknown
-	}
-}
 
 type Lpa struct {
 	You                      Person
@@ -78,7 +39,8 @@ type Lpa struct {
 	CheckedAgain             bool
 	ConfirmFreeWill          bool
 	SignatureCode            string
-	IdentityOptions          []IdentityOption
+	IdentityOptions          IdentityOptions
+	YotiUserData             identity.UserData
 }
 
 type PaymentDetails struct {
@@ -87,11 +49,12 @@ type PaymentDetails struct {
 }
 
 type Tasks struct {
-	WhenCanTheLpaBeUsed TaskState
-	Restrictions        TaskState
-	CertificateProvider TaskState
-	CheckYourLpa        TaskState
-	PayForLpa           TaskState
+	WhenCanTheLpaBeUsed        TaskState
+	Restrictions               TaskState
+	CertificateProvider        TaskState
+	CheckYourLpa               TaskState
+	PayForLpa                  TaskState
+	ConfirmYourIdentityAndSign TaskState
 }
 
 type Person struct {
@@ -174,52 +137,4 @@ func readDate(t time.Time) Date {
 		Month: t.Format("1"),
 		Year:  t.Format("2006"),
 	}
-}
-
-type rankedItem struct {
-	item    IdentityOption
-	rank    int
-	subrank int
-}
-
-func identityOptionsRanked(options []IdentityOption) (firstChoice, secondChoice IdentityOption) {
-	table := map[IdentityOption]struct {
-		rank    int
-		subrank int
-		not     []IdentityOption
-	}{
-		Passport:                 {rank: 1, subrank: 2, not: []IdentityOption{GovernmentGatewayAccount, OnlineBankAccount}},
-		DrivingLicence:           {rank: 2, subrank: 3, not: []IdentityOption{}},
-		DwpAccount:               {rank: 3, subrank: 5, not: []IdentityOption{GovernmentGatewayAccount}},
-		OnlineBankAccount:        {rank: 4, subrank: 6, not: []IdentityOption{Passport}},
-		GovernmentGatewayAccount: {rank: 6, subrank: 4, not: []IdentityOption{DwpAccount}},
-		UtilityBill:              {rank: 7, subrank: 7, not: []IdentityOption{CouncilTaxBill}},
-		CouncilTaxBill:           {rank: 8, subrank: 8, not: []IdentityOption{UtilityBill}},
-	}
-
-	rankedOptions := make([]rankedItem, len(options))
-	for i, option := range options {
-		rankedOptions[i] = rankedItem{item: option, rank: table[option].rank, subrank: table[option].subrank}
-	}
-
-	sort.Slice(rankedOptions, func(i, j int) bool {
-		return rankedOptions[i].rank < rankedOptions[j].rank
-	})
-
-	firstChoice = rankedOptions[0].item
-
-	var remainingOptions []rankedItem
-	for _, option := range rankedOptions {
-		if option.item != firstChoice && !slices.Contains(table[firstChoice].not, option.item) {
-			remainingOptions = append(remainingOptions, option)
-		}
-	}
-
-	sort.Slice(remainingOptions, func(i, j int) bool {
-		return remainingOptions[i].subrank < remainingOptions[j].subrank
-	})
-
-	secondChoice = remainingOptions[0].item
-
-	return firstChoice, secondChoice
 }

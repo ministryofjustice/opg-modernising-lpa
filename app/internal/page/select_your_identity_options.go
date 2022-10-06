@@ -23,7 +23,7 @@ func SelectYourIdentityOptions(tmpl template.Template, dataStore DataStore) Hand
 		data := &selectYourIdentityOptionsData{
 			App: appData,
 			Form: &selectYourIdentityOptionsForm{
-				Options: lpa.IdentityOptions,
+				Options: lpa.IdentityOptions.Selected,
 			},
 		}
 
@@ -32,7 +32,12 @@ func SelectYourIdentityOptions(tmpl template.Template, dataStore DataStore) Hand
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				lpa.IdentityOptions = data.Form.Options
+				lpa.IdentityOptions = IdentityOptions{
+					Selected: data.Form.Options,
+					First:    data.Form.First,
+					Second:   data.Form.Second,
+				}
+				lpa.Tasks.ConfirmYourIdentityAndSign = TaskInProgress
 
 				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
@@ -47,7 +52,8 @@ func SelectYourIdentityOptions(tmpl template.Template, dataStore DataStore) Hand
 }
 
 type selectYourIdentityOptionsForm struct {
-	Options []IdentityOption
+	Options       []IdentityOption
+	First, Second IdentityOption
 }
 
 func readSelectYourIdentityOptionsForm(r *http.Request) *selectYourIdentityOptionsForm {
@@ -58,13 +64,21 @@ func readSelectYourIdentityOptionsForm(r *http.Request) *selectYourIdentityOptio
 		mappedOptions[i] = readIdentityOption(option)
 	}
 
+	first, second := identityOptionsRanked(mappedOptions)
+
 	return &selectYourIdentityOptionsForm{
 		Options: mappedOptions,
+		First:   first,
+		Second:  second,
 	}
 }
 
 func (f *selectYourIdentityOptionsForm) Validate() map[string]string {
 	errors := map[string]string{}
+
+	if f.First == IdentityOptionUnknown || f.Second == IdentityOptionUnknown {
+		errors["options"] = "selectMoreOptions"
+	}
 
 	if len(f.Options) < 3 {
 		errors["options"] = "selectAtLeastThreeIdentityOptions"
