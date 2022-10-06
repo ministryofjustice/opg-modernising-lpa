@@ -30,12 +30,10 @@ func TestGetYourChosenIdentityOptions(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &yourChosenIdentityOptionsData{
-			App:           appData,
-			ArticleLabels: identityOptionArticleLabels,
-			Labels:        identityOptionLabels,
-			Selected:      selected,
-			FirstChoice:   Passport,
-			SecondChoice:  DwpAccount,
+			App:          appData,
+			Selected:     selected,
+			FirstChoice:  Passport,
+			SecondChoice: DwpAccount,
 		}).
 		Return(nil)
 
@@ -97,12 +95,24 @@ func TestGetYourChosenIdentityOptionsWhenTemplateErrors(t *testing.T) {
 func TestPostYourChosenIdentityOptions(t *testing.T) {
 	w := httptest.NewRecorder()
 
+	dataStore := &mockDataStore{
+		data: Lpa{
+			IdentityOptions: IdentityOptions{
+				First:  Passport,
+				Second: DwpAccount,
+			},
+		},
+	}
+	dataStore.
+		On("Get", mock.Anything, "session-id").
+		Return(nil)
+
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := YourChosenIdentityOptions(nil, nil)(appData, w, r)
+	err := YourChosenIdentityOptions(nil, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, identityOptionRedirectPath, resp.Header.Get("Location"))
+	assert.Equal(t, identityWithPassportPath, resp.Header.Get("Location"))
 }

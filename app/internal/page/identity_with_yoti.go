@@ -13,9 +13,14 @@ type identityWithYotiData struct {
 	ScenarioID  string
 }
 
-func IdentityWithYoti(tmpl template.Template, yotiClient yotiClient, yotiScenarioID string) Handler {
+func IdentityWithYoti(tmpl template.Template, dataStore DataStore, yotiClient yotiClient, yotiScenarioID string) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		if yotiClient.IsTest() {
+		var lpa Lpa
+		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
+			return err
+		}
+
+		if lpa.YotiUserData.OK || yotiClient.IsTest() {
 			appData.Lang.Redirect(w, r, identityWithYotiCallbackPath, http.StatusFound)
 			return nil
 		}
