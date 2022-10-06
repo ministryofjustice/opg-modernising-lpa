@@ -20,7 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/easyid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -133,7 +133,7 @@ func main() {
 				return slices.Contains(slist, needle)
 			}
 
-			if slist, ok := list.([]fmt.Stringer); ok {
+			if slist, ok := list.([]page.IdentityOption); ok {
 				for _, item := range slist {
 					if item.String() == needle {
 						return true
@@ -182,6 +182,13 @@ func main() {
 			}
 
 			return t.Format("2 January 2006")
+		},
+		"formatDateTime": func(t time.Time) string {
+			if t.IsZero() {
+				return ""
+			}
+
+			return t.Format("15:04:05, 2 January 2006")
 		},
 		"lowerFirst": func(s string) string {
 			r, n := utf8.DecodeRuneInString(s)
@@ -246,7 +253,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	yotiClient, err := easyid.New(yotiClientSdkID, yotiPrivateKey)
+	yotiClient, err := identity.NewYotiClient(yotiClientSdkID, yotiPrivateKey)
 	if err != nil {
 		logger.Fatal(err)
 	}
