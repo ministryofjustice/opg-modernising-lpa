@@ -151,12 +151,24 @@ func App(
 		SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), dataStore))
 	handle(yourChosenIdentityOptionsPath, RequireSession|CanGoBack,
 		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), dataStore))
-	handle(identityOptionRedirectPath, RequireSession,
-		IdentityOptionRedirect(dataStore))
 	handle(identityWithYotiPath, RequireSession|CanGoBack,
-		IdentityWithYoti(tmpls.Get("identity_with_easy_id.gohtml"), yotiClient, yotiScenarioID))
+		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), dataStore, yotiClient, yotiScenarioID))
 	handle(identityWithYotiCallbackPath, RequireSession|CanGoBack,
-		IdentityWithYotiCallback(tmpls.Get("identity_with_easy_id_callback.gohtml"), yotiClient))
+		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, dataStore))
+	handle(identityWithPassportPath, RequireSession|CanGoBack,
+		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), dataStore, Passport))
+	handle(identityWithDrivingLicencePath, RequireSession|CanGoBack,
+		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), dataStore, DrivingLicence))
+	handle(identityWithGovernmentGatewayAccountPath, RequireSession|CanGoBack,
+		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), dataStore, GovernmentGatewayAccount))
+	handle(identityWithDwpAccountPath, RequireSession|CanGoBack,
+		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), dataStore, DwpAccount))
+	handle(identityWithOnlineBankAccountPath, RequireSession|CanGoBack,
+		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), dataStore, OnlineBankAccount))
+	handle(identityWithUtilityBillPath, RequireSession|CanGoBack,
+		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), dataStore, UtilityBill))
+	handle(identityWithCouncilTaxBillPath, RequireSession|CanGoBack,
+		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), dataStore, CouncilTaxBill))
 	handle(whatHappensWhenSigningPath, RequireSession|CanGoBack,
 		Guidance(tmpls.Get("what_happens_when_signing.gohtml"), howToSignPath, dataStore))
 	handle(howToSignPath, RequireSession|CanGoBack,

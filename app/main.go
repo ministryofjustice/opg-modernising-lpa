@@ -183,6 +183,13 @@ func main() {
 
 			return t.Format("2 January 2006")
 		},
+		"formatDateTime": func(t time.Time) string {
+			if t.IsZero() {
+				return ""
+			}
+
+			return t.Format("15:04:05, 2 January 2006")
+		},
 		"lowerFirst": func(s string) string {
 			r, n := utf8.DecodeRuneInString(s)
 			return string(unicode.ToLower(r)) + s[n:]
