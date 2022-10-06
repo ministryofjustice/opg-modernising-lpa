@@ -1,4 +1,4 @@
-package easyid
+package identity
 
 import (
 	"testing"
@@ -7,11 +7,12 @@ import (
 )
 
 func TestMockClient(t *testing.T) {
-	client, err := New("", []byte("hey"))
+	client, err := NewYotiClient("", []byte("hey"))
 	assert.Nil(t, err)
 	assert.True(t, client.IsTest())
 
 	user, err := client.User("xyz")
 	assert.Nil(t, err)
-	assert.Equal(t, UserData{FullName: "Test Person"}, user)
+	assert.True(t, user.OK)
+	assert.Equal(t, "Test Person", user.FullName)
 }
