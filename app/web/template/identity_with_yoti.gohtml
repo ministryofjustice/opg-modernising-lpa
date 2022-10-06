@@ -3,7 +3,7 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">YOTI</h1>
+            <h1 class="govuk-heading-xl">{{ tr .App "identityYourselfWithYoti" }}</h1>
 
             <div id="yoti-rendered"></div>
             <script src="https://www.yoti.com/share/client/"></script>
@@ -15,6 +15,10 @@
                     scenarioId: "{{ .ScenarioID }}",
                     clientSdkId: "{{ .ClientSdkID }}",
                     displayLearnMoreLink: true,
+                    type: "inline",
+                    qr: {
+                      title: "{{ tr .App "scanWithTheYotiApp" }}"
+                    }
                   }
                 ]
               });
