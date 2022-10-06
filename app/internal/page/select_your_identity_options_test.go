@@ -56,7 +56,13 @@ func TestGetSelectYourIdentityOptionsWhenStoreErrors(t *testing.T) {
 func TestGetSelectYourIdentityOptionsFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{data: Lpa{IdentityOptions: []IdentityOption{Passport}}}
+	dataStore := &mockDataStore{
+		data: Lpa{
+			IdentityOptions: IdentityOptions{
+				Selected: []IdentityOption{Passport},
+			},
+		},
+	}
 	dataStore.
 		On("Get", mock.Anything, "session-id").
 		Return(nil)
@@ -110,7 +116,16 @@ func TestPostSelectYourIdentityOptions(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(nil)
 	dataStore.
-		On("Put", mock.Anything, "session-id", Lpa{IdentityOptions: []IdentityOption{Passport, DwpAccount, UtilityBill}}).
+		On("Put", mock.Anything, "session-id", Lpa{
+			IdentityOptions: IdentityOptions{
+				Selected: []IdentityOption{Passport, DwpAccount, UtilityBill},
+				First:    Passport,
+				Second:   DwpAccount,
+			},
+			Tasks: Tasks{
+				ConfirmYourIdentityAndSign: TaskInProgress,
+			},
+		}).
 		Return(nil)
 
 	form := url.Values{
@@ -203,7 +218,9 @@ func TestSelectYourIdentityOptionsFormValidate(t *testing.T) {
 	}{
 		"all": {
 			form: &selectYourIdentityOptionsForm{
-				Options: []IdentityOption{Passport, DrivingLicence, GovernmentGatewayAccount, DwpAccount, OnlineBankAccount, UtilityBill, CouncilTaxBill},
+				Options: []IdentityOption{Yoti, Passport, DrivingLicence, GovernmentGatewayAccount, DwpAccount, OnlineBankAccount, UtilityBill, CouncilTaxBill},
+				First:   Yoti,
+				Second:  DwpAccount,
 			},
 			errors: map[string]string{},
 		},
@@ -219,6 +236,16 @@ func TestSelectYourIdentityOptionsFormValidate(t *testing.T) {
 			},
 			errors: map[string]string{
 				"options": "selectAtLeastThreeIdentityOptions",
+			},
+		},
+		"incompatible-second": {
+			form: &selectYourIdentityOptionsForm{
+				Options: []IdentityOption{Yoti, Passport, DrivingLicence},
+				First:   Yoti,
+				Second:  IdentityOptionUnknown,
+			},
+			errors: map[string]string{
+				"options": "selectMoreOptions",
 			},
 		},
 		"invalid": {

@@ -19,6 +19,7 @@
             {{ template "error-message" (errorMessage . "options") }}
 
             {{ template "checkboxes" (items . "options" .Form.Options
+              (item "yoti" "theYoti")
               (item "passport" "aPassport")
               (item "driving licence" "aDrivingLicence")
               (item "government gateway account" "aGovernmentGatewayAccount")
