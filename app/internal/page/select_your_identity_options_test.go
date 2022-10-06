@@ -121,7 +121,6 @@ func TestPostSelectYourIdentityOptions(t *testing.T) {
 				Selected: []IdentityOption{Passport, DwpAccount, UtilityBill},
 				First:    Passport,
 				Second:   DwpAccount,
-				Current:  0,
 			},
 			Tasks: Tasks{
 				ConfirmYourIdentityAndSign: TaskInProgress,

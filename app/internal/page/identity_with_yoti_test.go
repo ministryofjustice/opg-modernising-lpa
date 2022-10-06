@@ -31,6 +31,9 @@ func (m *mockYotiClient) User(token string) (identity.UserData, error) {
 func TestGetIdentityWithYoti(t *testing.T) {
 	w := httptest.NewRecorder()
 
+	dataStore := &mockDataStore{}
+	dataStore.On("Get", mock.Anything, "session-id").Return(nil)
+
 	yotiClient := &mockYotiClient{}
 	yotiClient.On("IsTest").Return(false)
 	yotiClient.On("SdkID").Return("an-sdk-id")
@@ -46,33 +49,70 @@ func TestGetIdentityWithYoti(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := IdentityWithYoti(template.Func, yotiClient, "a-scenario-id")(appData, w, r)
+	err := IdentityWithYoti(template.Func, dataStore, yotiClient, "a-scenario-id")(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, yotiClient, template)
+	mock.AssertExpectationsForObjects(t, dataStore, yotiClient, template)
+}
+
+func TestGetIdentityWithYotiWhenAlreadyProvided(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	dataStore := &mockDataStore{data: Lpa{YotiUserData: identity.UserData{OK: true}}}
+	dataStore.On("Get", mock.Anything, "session-id").Return(nil)
+
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	err := IdentityWithYoti(nil, dataStore, nil, "")(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, identityWithYotiCallbackPath, resp.Header.Get("Location"))
+	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
 func TestGetIdentityWithYotiWhenTest(t *testing.T) {
 	w := httptest.NewRecorder()
+
+	dataStore := &mockDataStore{}
+	dataStore.On("Get", mock.Anything, "session-id").Return(nil)
 
 	yotiClient := &mockYotiClient{}
 	yotiClient.On("IsTest").Return(true)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := IdentityWithYoti(nil, yotiClient, "")(appData, w, r)
+	err := IdentityWithYoti(nil, dataStore, yotiClient, "")(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, identityWithYotiCallbackPath, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, yotiClient)
+	mock.AssertExpectationsForObjects(t, dataStore, yotiClient)
+}
+
+func TestGetIdentityWithYotiWhenDataStoreError(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	dataStore := &mockDataStore{}
+	dataStore.On("Get", mock.Anything, "session-id").Return(expectedError)
+
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	err := IdentityWithYoti(nil, dataStore, nil, "a-scenario-id")(appData, w, r)
+
+	assert.Equal(t, expectedError, err)
+	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
 func TestGetIdentityWithYotiWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
+
+	dataStore := &mockDataStore{}
+	dataStore.On("Get", mock.Anything, "session-id").Return(nil)
 
 	yotiClient := &mockYotiClient{}
 	yotiClient.On("IsTest").Return(false)
@@ -85,8 +125,8 @@ func TestGetIdentityWithYotiWhenTemplateError(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := IdentityWithYoti(template.Func, yotiClient, "a-scenario-id")(appData, w, r)
+	err := IdentityWithYoti(template.Func, dataStore, yotiClient, "a-scenario-id")(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, yotiClient, template)
+	mock.AssertExpectationsForObjects(t, dataStore, yotiClient, template)
 }
