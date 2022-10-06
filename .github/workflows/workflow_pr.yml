@@ -48,7 +48,6 @@ jobs:
       ]
     with:
       tag: ${{ needs.create_tags.outputs.version_tag }}
-    # secrets: inherit
 
   terraform_account_workflow_development:
     name: TF Plan Dev Account
