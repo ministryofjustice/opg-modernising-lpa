@@ -45,7 +45,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
           aws-region: eu-west-1
-          role-to-assume: arn:aws:iam::311462405659:role/github-actions-ecr-push
+          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ecr-push
           role-duration-seconds: 900
           role-session-name: GithubActionsECRPushMLPAB
 
