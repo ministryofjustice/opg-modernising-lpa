@@ -99,9 +99,8 @@
     "chooseYourCertificateProvider": "Choose your certificate provider",
     "checkAndSendToYourCertificateProvider": "Check and send to your certificate provider",
     "payForTheLpa": "Pay for the LPA",
-    "confirmYourIdentity": "Confirm your identity",
-    "signAndRegisterTheLpa": "Sign and register the LPA",
-    "signTheLpa": "Sign the LPA",
+    "confirmYourIdentityAndSign": "Confirm your identity and sign the LPA",
+    "registerTheLpa": "Register the LPA",
 
     "whoWouldYouLikeToBeTheAttorneys": "Who would you like to be the attorneys?",
     "whoWouldYouLikeToBeTheAttorneysContent": "<p class=\"govuk-body\">Your attorneys are the people who'll be able to help you make decisions about your finances, if you ever want or need their help in the future.</p> <p class=\"govuk-body\">It's important that you choose people you trust to respect your wishes and act in your best interests.</p> <p class=\"govuk-body\">You can have more than 1 attorney. Most people have between 1 and 3.</p><p class=\"govuk-body\">An attorney must:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>be aged 18 or over</li> <li>have mental capacity (be able to make decisions)</li> </ul> <p class=\"govuk-body\">Someone cannot be an attorney if they are:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>bankrupt or have a debt relief order</li> <li>on the Disclosure and Barring Service barred list (someone is normally put on this list if they have a criminal conviction or caution that means they’re not allowed to work with vulnerable people)</li> </ul> <p class=\"govuk-body\">You'll be asked if you would like to add <a href=\"#\">replacement attorneys</a> in a separate question. These would step in if the original attorneys are unable or unwilling to continue.</p> <p class=\"govuk-body\"><a href=\"#\">Find out more about attorneys</a></p>",
@@ -226,6 +225,7 @@
 
     "selectYourIdentityOptions": "Select your identity options",
     "selectAllAtLeastThree": "Select all that apply. You must select at least three options.",
+    "theYoti": "The Yoti app",
     "aPassport": "A passport",
     "aDrivingLicence": "A driving licence",
     "aGovernmentGatewayAccount": "A government gateway account",
@@ -237,5 +237,28 @@
     "iWouldLikeSomeoneElseToConfirmMyDetails": "I would like someone else to confirm my details",
     "iWouldLikeToConfirmMyIdentityInPerson": "I would like to confirm my identity in person",
     "selectAtLeastThreeIdentityOptions": "Select at least three identity options",
-    "selectValidIdentityOption": "Select from the listed identity options"
+    "selectValidIdentityOption": "Select from the listed identity options",
+    "selectMoreOptions": "Select more options so we can make accurately identify you",
+
+    "yourChosenDocuments": "Your chosen documents",
+    "yourChosenDocumentsContent": "You told us that you have the following documents:",
+    "wellConfirmYourIdentityUsing": "We'll confirm your identity using your {{.FirstChoice}} and {{.SecondChoice}} because these will give us the most confidence that you are {{.DonorFirstNames}} {{.DonorLastName}}.",
+    "yoti": "Yoti app",
+    "passport": "passport",
+    "drivingLicence": "driving licence",
+    "governmentGatewayAccount": "government gateway account",
+    "dwpAccount": "department for Work and Pensions (DWP) account",
+    "onlineBankAccount": "online bank account",
+    "utilityBill": "utility bill",
+    "councilTaxBill": "council tax bill",
+
+    "identifyYourselfWithYoti": "Identify yourself with the Yoti app",
+    "scanWithTheYotiApp": "Scan with the Yoti app",
+    "yourIdentityConfirmedWithYoti": "Your identity details confirmed with Yoti",
+
+    "youveSignedYourLpa": "You've signed your LPA",
+    "finalSteps": "Final steps",
+    "beforeYourLpaCanBeRegisteredContent": "<p class=\"govuk-body\"><strong>Before your LPA can be registered there are three more steps.</strong></p> <ol class=\"govuk-list govuk-list--number\"> <li>{{.CertificateProviderFirstNames}} will ask you some questions to make sure you understand the LPA and aren't being pressured to make it agaisnt your will</li> <li>{{.CertificateProviderFirstNames}} needs to give a statement that you understand the LPA and want to make it</li> <li>We'll ask {{.AttorneyFirstNames}} to sign</li> <li>Then your LPA will be submitted to the Office of the Public Guardian automatically</li> </ol>",
+    "thisMustAllBeDoneBy": "This must all be done by {{.DueDate}}. If this deadline is missed, you will have to sign the LPA and meet with {{.CertificateProviderFirstNames}} again.",
+    "onceAttorneyHasSigned": "Once {{.AttorneyFirstNames}} has signed, we'll notify all parities and must legally wait two weeks for any objections. Then we'll add the LPA to the register and send you a copy of the LPA."
 }

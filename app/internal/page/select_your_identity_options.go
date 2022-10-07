@@ -23,7 +23,7 @@ func SelectYourIdentityOptions(tmpl template.Template, dataStore DataStore) Hand
 		data := &selectYourIdentityOptionsData{
 			App: appData,
 			Form: &selectYourIdentityOptionsForm{
-				Options: lpa.IdentityOptions,
+				Options: lpa.IdentityOptions.Selected,
 			},
 		}
 
@@ -32,12 +32,17 @@ func SelectYourIdentityOptions(tmpl template.Template, dataStore DataStore) Hand
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				lpa.IdentityOptions = data.Form.Options
+				lpa.IdentityOptions = IdentityOptions{
+					Selected: data.Form.Options,
+					First:    data.Form.First,
+					Second:   data.Form.Second,
+				}
+				lpa.Tasks.ConfirmYourIdentityAndSign = TaskInProgress
 
 				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, yourChosenIdentityOptionsPath, http.StatusFound)
 				return nil
 			}
 		}
@@ -47,28 +52,40 @@ func SelectYourIdentityOptions(tmpl template.Template, dataStore DataStore) Hand
 }
 
 type selectYourIdentityOptionsForm struct {
-	Options []string
+	Options       []IdentityOption
+	First, Second IdentityOption
 }
 
 func readSelectYourIdentityOptionsForm(r *http.Request) *selectYourIdentityOptionsForm {
 	r.ParseForm()
 
+	mappedOptions := make([]IdentityOption, len(r.PostForm["options"]))
+	for i, option := range r.PostForm["options"] {
+		mappedOptions[i] = readIdentityOption(option)
+	}
+
+	first, second := identityOptionsRanked(mappedOptions)
+
 	return &selectYourIdentityOptionsForm{
-		Options: r.PostForm["options"],
+		Options: mappedOptions,
+		First:   first,
+		Second:  second,
 	}
 }
 
 func (f *selectYourIdentityOptionsForm) Validate() map[string]string {
 	errors := map[string]string{}
 
+	if f.First == IdentityOptionUnknown || f.Second == IdentityOptionUnknown {
+		errors["options"] = "selectMoreOptions"
+	}
+
 	if len(f.Options) < 3 {
 		errors["options"] = "selectAtLeastThreeIdentityOptions"
 	}
 
-	for _, option := range f.Options {
-		if !slices.Contains([]string{"passport", "driving licence", "government gateway account", "dwp account", "online bank account", "utility bill", "council tax bill"}, option) {
-			errors["options"] = "selectValidIdentityOption"
-		}
+	if slices.Contains(f.Options, IdentityOptionUnknown) {
+		errors["options"] = "selectValidIdentityOption"
 	}
 
 	return errors

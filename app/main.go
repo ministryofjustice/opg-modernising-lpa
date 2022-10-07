@@ -13,8 +13,6 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/gorilla/sessions"
@@ -22,11 +20,14 @@ import (
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
+	"golang.org/x/exp/slices"
 )
 
 func main() {
@@ -35,14 +36,17 @@ func main() {
 
 	var (
 		port                = env.Get("APP_PORT", "8080")
-		appPublicUrl        = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
-		authRedirectBaseUrl = env.Get("AUTH_REDIRECT_BASE_URL", "http://localhost:5050")
+		appPublicURL        = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
+		authRedirectBaseURL = env.Get("AUTH_REDIRECT_BASE_URL", "http://localhost:5050")
 		webDir              = env.Get("WEB_DIR", "web")
-		awsBaseUrl          = env.Get("AWS_BASE_URL", "")
+		awsBaseURL          = env.Get("AWS_BASE_URL", "")
 		clientID            = env.Get("CLIENT_ID", "client-id-value")
 		issuer              = env.Get("ISSUER", "http://sign-in-mock:7012")
 		dynamoTableLpas     = env.Get("DYNAMODB_TABLE_LPAS", "")
 		payBaseUrl          = env.Get("GOVUK_PAY_BASE_URL", "http://pay-mock:4010")
+		yotiClientSdkID     = env.Get("YOTI_CLIENT_SDK_ID", "")
+		yotiScenarioID      = env.Get("YOTI_SCENARIO_ID", "")
+		yotiSandbox         = env.Get("YOTI_SANDBOX", "") == "1"
 	)
 
 	tmpls, err := template.Parse(webDir+"/template", map[string]interface{}{
@@ -124,10 +128,16 @@ func main() {
 
 			return path
 		},
-		"contains": func(needle string, list []string) bool {
-			for _, item := range list {
-				if item == needle {
-					return true
+		"contains": func(needle string, list interface{}) bool {
+			if slist, ok := list.([]string); ok {
+				return slices.Contains(slist, needle)
+			}
+
+			if slist, ok := list.([]page.IdentityOption); ok {
+				for _, item := range slist {
+					if item.String() == needle {
+						return true
+					}
 				}
 			}
 
@@ -166,12 +176,25 @@ func main() {
 		"trCount": func(app page.AppData, messageID string, count int) string {
 			return app.Localizer.Count(messageID, count)
 		},
+		"now": func() time.Time {
+			return time.Now()
+		},
+		"addDays": func(days int, t time.Time) time.Time {
+			return t.AddDate(0, 0, days)
+		},
 		"formatDate": func(t time.Time) string {
 			if t.IsZero() {
 				return ""
 			}
 
 			return t.Format("2 January 2006")
+		},
+		"formatDateTime": func(t time.Time) string {
+			if t.IsZero() {
+				return ""
+			}
+
+			return t.Format("15:04:05, 2 January 2006")
 		},
 		"lowerFirst": func(s string) string {
 			r, n := utf8.DecodeRuneInString(s)
@@ -185,8 +208,8 @@ func main() {
 	bundle := localize.NewBundle("lang/en.json", "lang/cy.json")
 
 	config := &aws.Config{}
-	if len(awsBaseUrl) > 0 {
-		config.Endpoint = aws.String(awsBaseUrl)
+	if len(awsBaseURL) > 0 {
+		config.Endpoint = aws.String(awsBaseURL)
 	}
 
 	sess, err := session.NewSession(config)
@@ -211,16 +234,19 @@ func main() {
 
 	sessionStore := sessions.NewCookieStore(sessionKeys...)
 
-	redirectURL := authRedirectBaseUrl + page.AuthRedirectPath
+	redirectURL := authRedirectBaseURL + page.AuthRedirectPath
 
 	signInClient, err := signin.Discover(ctx, logger, http.DefaultClient, secretsClient, issuer, clientID, redirectURL)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	secureCookies := strings.HasPrefix(appPublicUrl, "https:")
+	secureCookies := strings.HasPrefix(appPublicURL, "https:")
 
 	payApiKey, err := secretsClient.PayApiKey()
+	if err != nil {
+		logger.Fatal(err)
+	}
 
 	payClient := &pay.Client{
 		BaseURL:    payBaseUrl,
@@ -228,13 +254,28 @@ func main() {
 		HttpClient: http.DefaultClient,
 	}
 
+	yotiPrivateKey, err := secretsClient.YotiPrivateKey()
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	yotiClient, err := identity.NewYotiClient(yotiClientSdkID, yotiPrivateKey)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	if yotiSandbox {
+		if err := yotiClient.SetupSandbox(); err != nil {
+			logger.Fatal(err)
+		}
+	}
+
 	mux := http.NewServeMux()
 	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir(webDir+"/static/"))))
 	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies))
 	mux.Handle(page.AuthPath, page.Login(logger, signInClient, sessionStore, secureCookies, random.String))
 	mux.Handle("/cookies-consent", page.CookieConsent())
-	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicUrl, payClient)))
-	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicUrl, payClient))
+	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID)))
+	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID))
 
 	server := &http.Server{
 		Addr:              ":" + port,

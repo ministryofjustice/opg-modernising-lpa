@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
-
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
 
@@ -62,6 +62,12 @@ func (c fakeAddressClient) LookupPostcode(postcode string) ([]Address, error) {
 	}, nil
 }
 
+type yotiClient interface {
+	IsTest() bool
+	SdkID() string
+	User(string) (identity.UserData, error)
+}
+
 func postFormString(r *http.Request, name string) string {
 	return strings.TrimSpace(r.PostFormValue(name))
 }
@@ -86,6 +92,8 @@ func App(
 	dataStore DataStore,
 	appPublicUrl string,
 	payClient *pay.Client,
+	yotiClient yotiClient,
+	yotiScenarioID string,
 ) http.Handler {
 	mux := http.NewServeMux()
 
@@ -102,6 +110,7 @@ func App(
 		LpaType(tmpls.Get("lpa_type.gohtml"), dataStore))
 	handle(whoIsTheLpaForPath, RequireSession,
 		WhoIsTheLpaFor(tmpls.Get("who_is_the_lpa_for.gohtml"), dataStore))
+
 	handle(yourDetailsPath, RequireSession,
 		YourDetails(tmpls.Get("your_details.gohtml"), dataStore))
 	handle(yourAddressPath, RequireSession,
@@ -132,18 +141,42 @@ func App(
 		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String))
 	handle(checkYourLpaPath, RequireSession|CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), dataStore))
+
 	handle(paymentConfirmationPath, RequireSession|CanGoBack,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, dataStore, sessionStore))
 	handle(whatHappensNextPath, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("what_happens_next.gohtml"), whatHappensWhenSigningPath, dataStore))
+		Guidance(tmpls.Get("what_happens_next.gohtml"), aboutPaymentPath, dataStore))
+
+	handle(selectYourIdentityOptionsPath, RequireSession|CanGoBack,
+		SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), dataStore))
+	handle(yourChosenIdentityOptionsPath, RequireSession|CanGoBack,
+		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), dataStore))
+	handle(identityWithYotiPath, RequireSession|CanGoBack,
+		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), dataStore, yotiClient, yotiScenarioID))
+	handle(identityWithYotiCallbackPath, RequireSession|CanGoBack,
+		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, dataStore))
+	handle(identityWithPassportPath, RequireSession|CanGoBack,
+		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), dataStore, Passport))
+	handle(identityWithDrivingLicencePath, RequireSession|CanGoBack,
+		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), dataStore, DrivingLicence))
+	handle(identityWithGovernmentGatewayAccountPath, RequireSession|CanGoBack,
+		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), dataStore, GovernmentGatewayAccount))
+	handle(identityWithDwpAccountPath, RequireSession|CanGoBack,
+		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), dataStore, DwpAccount))
+	handle(identityWithOnlineBankAccountPath, RequireSession|CanGoBack,
+		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), dataStore, OnlineBankAccount))
+	handle(identityWithUtilityBillPath, RequireSession|CanGoBack,
+		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), dataStore, UtilityBill))
+	handle(identityWithCouncilTaxBillPath, RequireSession|CanGoBack,
+		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), dataStore, CouncilTaxBill))
 	handle(whatHappensWhenSigningPath, RequireSession|CanGoBack,
 		Guidance(tmpls.Get("what_happens_when_signing.gohtml"), howToSignPath, dataStore))
 	handle(howToSignPath, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("how_to_sign.gohtml"), taskListPath, dataStore))
+		Guidance(tmpls.Get("how_to_sign.gohtml"), readYourLpaPath, dataStore))
 	handle(readYourLpaPath, RequireSession|CanGoBack,
 		ReadYourLpa(tmpls.Get("read_your_lpa.gohtml"), dataStore))
-	handle(selectYourIdentityOptionsPath, RequireSession|CanGoBack,
-		SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), dataStore))
+	handle(signingConfirmationPath, RequireSession|CanGoBack,
+		Guidance(tmpls.Get("signing_confirmation.gohtml"), taskListPath, dataStore))
 
 	return mux
 }

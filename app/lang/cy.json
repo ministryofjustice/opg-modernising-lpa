@@ -100,7 +100,7 @@
     "chooseYourCertificateProvider": "Welsh",
     "checkAndSendToYourCertificateProvider": "Welsh",
     "payForTheLpa": "Welsh",
-    "confirmYourIdentity": "Welsh",
+    "confirmYourIdentityAndSign": "Welsh",
     "signAndRegisterTheLpa": "Welsh",
     "signTheLpa": "Welsh",
 
@@ -238,5 +238,28 @@
     "iWouldLikeSomeoneElseToConfirmMyDetails": "Welsh",
     "iWouldLikeToConfirmMyIdentityInPerson": "Welsh",
     "selectAtLeastThreeIdentityOptions": "Welsh",
-    "selectValidIdentityOption": "Welsh"
+    "selectValidIdentityOption": "Welsh",
+    "selectMoreOptions": "Welsh",
+
+    "yourChosenDocuments": "Welsh",
+    "yourChosenDocumentsContent": "Welsh:",
+    "wellConfirmYourIdentityUsing": "Welsh {{.FirstChoice}} {{.SecondChoice}} {{.DonorFirstNames}} {{.DonorLastName}}.",
+    "yoti": "Welsh",
+    "passport": "Welsh",
+    "drivingLicence": "Welsh",
+    "governmentGatewayAccount": "Welsh",
+    "dwpAccount": "Welsh",
+    "onlineBankAccount": "Welsh",
+    "utilityBill": "Welsh",
+    "councilTaxBill": "Welsh",
+
+    "identifyYourselfWithYoti": "Welsh",
+    "scanWithTheYotiApp": "Welsh",
+    "yourIdentityConfirmedWithYoti": "Welsh",
+
+    "youveSignedYourLpa": "Welsh",
+    "finalSteps": "Welsh",
+    "beforeYourLpaCanBeRegisteredContent": "<p class=\"govuk-body\"><strong>Welsh</strong></p>",
+    "thisMustAllBeDoneBy": "Welsh {{.DueDate}} {{.CertificateProviderFirstNames}}",
+    "onceAttorneyHasSigned": "Welsh {{.AttorneyFirstNames}}"
 }

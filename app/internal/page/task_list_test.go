@@ -28,11 +28,12 @@ func TestGetTaskList(t *testing.T) {
 					FirstNames: "this",
 				},
 				Tasks: Tasks{
-					WhenCanTheLpaBeUsed: TaskInProgress,
-					Restrictions:        TaskInProgress,
-					CertificateProvider: TaskInProgress,
-					CheckYourLpa:        TaskInProgress,
-					PayForLpa:           TaskInProgress,
+					WhenCanTheLpaBeUsed:        TaskInProgress,
+					Restrictions:               TaskInProgress,
+					CertificateProvider:        TaskInProgress,
+					CheckYourLpa:               TaskInProgress,
+					PayForLpa:                  TaskInProgress,
+					ConfirmYourIdentityAndSign: TaskInProgress,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
@@ -48,6 +49,10 @@ func TestGetTaskList(t *testing.T) {
 
 				sections[1].Items = []taskListItem{
 					{Name: "payForTheLpa", Path: aboutPaymentPath, InProgress: true},
+				}
+
+				sections[2].Items = []taskListItem{
+					{Name: "confirmYourIdentityAndSign", Path: selectYourIdentityOptionsPath, InProgress: true},
 				}
 
 				return sections
@@ -70,11 +75,12 @@ func TestGetTaskList(t *testing.T) {
 				Checked:                  true,
 				HappyToShare:             true,
 				Tasks: Tasks{
-					WhenCanTheLpaBeUsed: TaskCompleted,
-					Restrictions:        TaskCompleted,
-					CertificateProvider: TaskCompleted,
-					CheckYourLpa:        TaskCompleted,
-					PayForLpa:           TaskCompleted,
+					WhenCanTheLpaBeUsed:        TaskCompleted,
+					Restrictions:               TaskCompleted,
+					CertificateProvider:        TaskCompleted,
+					CheckYourLpa:               TaskCompleted,
+					PayForLpa:                  TaskCompleted,
+					ConfirmYourIdentityAndSign: TaskCompleted,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
@@ -90,6 +96,10 @@ func TestGetTaskList(t *testing.T) {
 
 				sections[1].Items = []taskListItem{
 					{Name: "payForTheLpa", Path: aboutPaymentPath, Completed: true},
+				}
+
+				sections[2].Items = []taskListItem{
+					{Name: "confirmYourIdentityAndSign", Path: selectYourIdentityOptionsPath, Completed: true},
 				}
 
 				return sections
@@ -133,18 +143,18 @@ func TestGetTaskList(t *testing.T) {
 							},
 						},
 						{
-							Heading: "confirmYourIdentity",
+							Heading: "confirmYourIdentityAndSign",
 							Items: []taskListItem{
 								{
-									Name: "confirmYourIdentity",
+									Name: "confirmYourIdentityAndSign",
 									Path: selectYourIdentityOptionsPath,
 								},
 							},
 						},
 						{
-							Heading: "signAndRegisterTheLpa",
+							Heading: "registerTheLpa",
 							Items: []taskListItem{
-								{Name: "signTheLpa", Disabled: true},
+								{Name: "registerTheLpa", Disabled: true},
 							},
 						},
 					}),

@@ -1,0 +1,29 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <div class="govuk-panel govuk-panel--confirmation">
+        <h1 class="govuk-panel__title">
+          {{ tr .App "youveSignedYourLpa" }}
+        </h1>
+      </div>
+
+      <h2 class="govuk-heading-m">{{ tr .App "finalSteps" }}</h2>
+
+      {{ trFormatHtml .App "beforeYourLpaCanBeRegisteredContent" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "AttorneyFirstNames" .Lpa.Attorney.FirstNames}}
+
+      <div class="govuk-warning-text">
+        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+        <strong class="govuk-warning-text__text">
+          <span class="govuk-warning-text__assistive">Warning</span>
+          {{ trFormat .App "thisMustAllBeDoneBy" "DueDate" (formatDate (addDays 21 now)) "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames }}
+        </strong>
+      </div>
+
+      <p class="govuk-body">{{ trFormat .App "onceAttorneyHasSigned" "AttorneyFirstNames" .Lpa.Attorney.FirstNames}}</p>
+
+      <a class="govuk-button" href="{{ link .App .Continue }}">{{ tr .App "continue" }}</a>
+    </div>
+  </div>
+{{ end }}

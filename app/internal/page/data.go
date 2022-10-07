@@ -4,6 +4,14 @@ import (
 	"encoding/json"
 	"strings"
 	"time"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+)
+
+const (
+	PayCookieName              = "pay"
+	PayCookiePaymentIdValueKey = "paymentId"
+	CostOfLpaPence             = 8200
 )
 
 type TaskState int
@@ -12,9 +20,6 @@ const (
 	TaskNotStarted TaskState = iota
 	TaskInProgress
 	TaskCompleted
-	PayCookieName              = "pay"
-	PayCookiePaymentIdValueKey = "paymentId"
-	CostOfLpaPence             = 8200
 )
 
 type Lpa struct {
@@ -34,7 +39,8 @@ type Lpa struct {
 	CheckedAgain             bool
 	ConfirmFreeWill          bool
 	SignatureCode            string
-	IdentityOptions          []string
+	IdentityOptions          IdentityOptions
+	YotiUserData             identity.UserData
 }
 
 type PaymentDetails struct {
@@ -43,11 +49,12 @@ type PaymentDetails struct {
 }
 
 type Tasks struct {
-	WhenCanTheLpaBeUsed TaskState
-	Restrictions        TaskState
-	CertificateProvider TaskState
-	CheckYourLpa        TaskState
-	PayForLpa           TaskState
+	WhenCanTheLpaBeUsed        TaskState
+	Restrictions               TaskState
+	CertificateProvider        TaskState
+	CheckYourLpa               TaskState
+	PayForLpa                  TaskState
+	ConfirmYourIdentityAndSign TaskState
 }
 
 type Person struct {

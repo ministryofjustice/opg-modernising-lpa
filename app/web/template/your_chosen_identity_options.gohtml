@@ -1,0 +1,23 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "yourChosenDocuments" }}</h1>
+
+      <p class="govuk-body">{{ tr .App "yourChosenDocumentsContent" }}</p>
+
+      <ul class="govuk-list govuk-list--bullet">
+        {{ range .Selected }}
+          <li>{{ tr $.App .ArticleLabel }}</li>
+        {{ end }}
+      </ul>
+
+      <p class="govuk-body">{{ trFormat .App "wellConfirmYourIdentityUsing" "FirstChoice" (tr .App .FirstChoice.Label) "SecondChoice" (tr .App .SecondChoice.Label) "DonorFirstNames" .You.FirstNames "DonorLastName" .You.LastName }}</p>
+
+      <form novalidate method="post">
+        {{ template "continue-button" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}
