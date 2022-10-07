@@ -7,3 +7,16 @@ module "network" {
     aws = aws.region
   }
 }
+
+
+data "aws_vpc" "default" {
+  provider = aws.region
+  default  = true
+}
+
+resource "aws_default_security_group" "default" {
+  provider = aws.region
+  vpc_id   = data.aws_vpc.default.id
+  ingress  = []
+  egress   = []
+}
