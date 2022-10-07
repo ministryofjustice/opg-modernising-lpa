@@ -28,6 +28,7 @@ const (
 	readYourLpaPath                                 = "/read-your-lpa"
 	restrictionsPath                                = "/restrictions"
 	selectYourIdentityOptionsPath                   = "/select-your-identity-options"
+	signingConfirmationPath                         = "/signing-confirmation"
 	startPath                                       = "/start"
 	taskListPath                                    = "/task-list"
 	wantReplacementAttorneysPath                    = "/want-replacement-attorneys"
