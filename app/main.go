@@ -176,6 +176,12 @@ func main() {
 		"trCount": func(app page.AppData, messageID string, count int) string {
 			return app.Localizer.Count(messageID, count)
 		},
+		"now": func() time.Time {
+			return time.Now()
+		},
+		"addDays": func(days int, t time.Time) time.Time {
+			return t.AddDate(0, 0, days)
+		},
 		"formatDate": func(t time.Time) string {
 			if t.IsZero() {
 				return ""

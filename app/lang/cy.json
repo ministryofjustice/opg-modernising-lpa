@@ -239,15 +239,27 @@
     "iWouldLikeToConfirmMyIdentityInPerson": "Welsh",
     "selectAtLeastThreeIdentityOptions": "Welsh",
     "selectValidIdentityOption": "Welsh",
+    "selectMoreOptions": "Welsh",
 
     "yourChosenDocuments": "Welsh",
     "yourChosenDocumentsContent": "Welsh:",
     "wellConfirmYourIdentityUsing": "Welsh {{.FirstChoice}} {{.SecondChoice}} {{.DonorFirstNames}} {{.DonorLastName}}.",
+    "yoti": "Welsh",
     "passport": "Welsh",
     "drivingLicence": "Welsh",
     "governmentGatewayAccount": "Welsh",
     "dwpAccount": "Welsh",
     "onlineBankAccount": "Welsh",
     "utilityBill": "Welsh",
-    "councilTaxBill": "Welsh"
+    "councilTaxBill": "Welsh",
+
+    "identifyYourselfWithYoti": "Welsh",
+    "scanWithTheYotiApp": "Welsh",
+    "yourIdentityConfirmedWithYoti": "Welsh",
+
+    "youveSignedYourLpa": "Welsh",
+    "finalSteps": "Welsh",
+    "beforeYourLpaCanBeRegisteredContent": "<p class=\"govuk-body\"><strong>Welsh</strong></p>",
+    "thisMustAllBeDoneBy": "Welsh {{.DueDate}} {{.CertificateProviderFirstNames}}",
+    "onceAttorneyHasSigned": "Welsh {{.AttorneyFirstNames}}"
 }
