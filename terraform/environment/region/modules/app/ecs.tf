@@ -203,11 +203,12 @@ data "aws_iam_policy_document" "task_role_access_policy" {
 locals {
   app = jsonencode(
     {
-      cpu         = 1,
-      essential   = true,
-      image       = "${var.app_service_repository_url}:${var.app_service_container_version}",
-      mountPoints = [],
-      name        = "app",
+      cpu                    = 1,
+      essential              = true,
+      image                  = "${var.app_service_repository_url}:${var.app_service_container_version}",
+      mountPoints            = [],
+      readonlyRootFilesystem = true
+      name                   = "app",
       portMappings = [
         {
           containerPort = var.container_port,
