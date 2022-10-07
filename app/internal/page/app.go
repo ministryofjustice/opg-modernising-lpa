@@ -175,6 +175,8 @@ func App(
 		Guidance(tmpls.Get("how_to_sign.gohtml"), readYourLpaPath, dataStore))
 	handle(readYourLpaPath, RequireSession|CanGoBack,
 		ReadYourLpa(tmpls.Get("read_your_lpa.gohtml"), dataStore))
+	handle(signingConfirmationPath, RequireSession|CanGoBack,
+		Guidance(tmpls.Get("signing_confirmation.gohtml"), taskListPath, dataStore))
 
 	return mux
 }

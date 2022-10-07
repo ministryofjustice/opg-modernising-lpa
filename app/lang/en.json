@@ -239,7 +239,7 @@
     "selectAtLeastThreeIdentityOptions": "Select at least three identity options",
     "selectValidIdentityOption": "Select from the listed identity options",
     "selectMoreOptions": "Select more options so we can make accurately identify you",
-    
+
     "yourChosenDocuments": "Your chosen documents",
     "yourChosenDocumentsContent": "You told us that you have the following documents:",
     "wellConfirmYourIdentityUsing": "We'll confirm your identity using your {{.FirstChoice}} and {{.SecondChoice}} because these will give us the most confidence that you are {{.DonorFirstNames}} {{.DonorLastName}}.",
@@ -254,5 +254,11 @@
 
     "identifyYourselfWithYoti": "Identify yourself with the Yoti app",
     "scanWithTheYotiApp": "Scan with the Yoti app",
-    "yourIdentityConfirmedWithYoti": "Your identity details confirmed with Yoti"
+    "yourIdentityConfirmedWithYoti": "Your identity details confirmed with Yoti",
+
+    "youveSignedYourLpa": "You've signed your LPA",
+    "finalSteps": "Final steps",
+    "beforeYourLpaCanBeRegisteredContent": "<p class=\"govuk-body\"><strong>Before your LPA can be registered there are three more steps.</strong></p> <ol class=\"govuk-list govuk-list--number\"> <li>{{.CertificateProviderFirstNames}} will ask you some questions to make sure you understand the LPA and aren't being pressured to make it agaisnt your will</li> <li>{{.CertificateProviderFirstNames}} needs to give a statement that you understand the LPA and want to make it</li> <li>We'll ask {{.AttorneyFirstNames}} to sign</li> <li>Then your LPA will be submitted to the Office of the Public Guardian automatically</li> </ol>",
+    "thisMustAllBeDoneBy": "This must all be done by {{.DueDate}}. If this deadline is missed, you will have to sign the LPA and meet with {{.CertificateProviderFirstNames}} again.",
+    "onceAttorneyHasSigned": "Once {{.AttorneyFirstNames}} has signed, we'll notify all parities and must legally wait two weeks for any objections. Then we'll add the LPA to the register and send you a copy of the LPA."
 }

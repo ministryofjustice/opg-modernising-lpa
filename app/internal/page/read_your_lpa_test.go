@@ -106,6 +106,9 @@ func TestPostReadYourLpa(t *testing.T) {
 		Return(nil)
 	dataStore.
 		On("Put", mock.Anything, "session-id", Lpa{
+			Tasks: Tasks{
+				ConfirmYourIdentityAndSign: TaskCompleted,
+			},
 			CheckedAgain:    true,
 			ConfirmFreeWill: true,
 			SignatureCode:   "1234",
@@ -126,7 +129,7 @@ func TestPostReadYourLpa(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, taskListPath, resp.Header.Get("Location"))
+	assert.Equal(t, signingConfirmationPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, dataStore)
 }
 

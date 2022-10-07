@@ -38,12 +38,13 @@ func ReadYourLpa(tmpl template.Template, dataStore DataStore) Handler {
 				lpa.CheckedAgain = data.Form.Checked
 				lpa.ConfirmFreeWill = data.Form.Confirm
 				lpa.SignatureCode = data.Form.Signature
+				lpa.Tasks.ConfirmYourIdentityAndSign = TaskCompleted
 
 				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
 
-				appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, signingConfirmationPath, http.StatusFound)
 				return nil
 			}
 		}
