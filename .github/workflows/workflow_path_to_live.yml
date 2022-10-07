@@ -4,14 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'app/**'
-      - 'web/**'
-      - 'codecept/**'
-      - 'cypress/**'
-      - 'terraform/**'
-      - 'scripts/**'
-      - '.github/workflows/**'
 
 permissions:
   id-token: write
