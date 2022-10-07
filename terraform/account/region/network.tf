@@ -8,7 +8,6 @@ module "network" {
   }
 }
 
-
 data "aws_vpc" "default" {
   provider = aws.region
   default  = true
