@@ -117,7 +117,7 @@ data "aws_iam_policy_document" "dynamodb_kms" {
       "kms:UntagResource",
       "kms:ScheduleKeyDeletion",
       "kms:CancelKeyDeletion",
-      "kms:ReplicateKey"
+      "kms:ReplicateKey",
     ]
 
     principals {
@@ -125,6 +125,24 @@ data "aws_iam_policy_document" "dynamodb_kms" {
       identifiers = [
         "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/breakglass",
         "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/modernising-lpa-ci",
+      ]
+    }
+  }
+
+  statement {
+    sid    = "Key Administrator Decryption"
+    effect = "Allow"
+    resources = [
+      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+    ]
+    actions = [
+      "kms:Decrypt",
+    ]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/breakglass",
       ]
     }
   }
@@ -152,7 +170,7 @@ data "aws_iam_policy_document" "dynamodb_kms_development_account_operator_admin"
       "kms:TagResource",
       "kms:UntagResource",
       "kms:ScheduleKeyDeletion",
-      "kms:CancelKeyDeletion"
+      "kms:CancelKeyDeletion",
     ]
 
     principals {
