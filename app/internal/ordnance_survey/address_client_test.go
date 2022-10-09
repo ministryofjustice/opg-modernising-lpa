@@ -166,10 +166,34 @@ func TestFindAddress(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient(server.URL, "fake-api-key", server.Client())
-			results := client.FindAddress(tc.postcode)
+			results, err := client.FindAddress(tc.postcode)
 
 			assert.Equal(t, tc.expectedResponseObject, results)
+			assert.Nil(t, err)
 		})
 	}
 
+	t.Run("returns an error on request errors", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {}))
+
+		defer server.Close()
+
+		client := NewClient("not an url", "fake-api-key", server.Client())
+		_, err := client.FindAddress("ABC")
+
+		assert.ErrorContains(t, err, "unsupported protocol scheme")
+	})
+
+	t.Run("returns an error on json marshalling errors", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+			rw.Write([]byte("not JSON"))
+		}))
+
+		defer server.Close()
+
+		client := NewClient(server.URL, "fake-api-key", server.Client())
+		_, err := client.FindAddress("ABC")
+
+		assert.ErrorContains(t, err, "invalid character")
+	})
 }

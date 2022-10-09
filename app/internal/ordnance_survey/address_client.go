@@ -2,7 +2,6 @@ package ordnance_survey
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -71,7 +70,7 @@ func NewClient(baseUrl, apiKey string, httpClient *http.Client) AddressClient {
 	}
 }
 
-func (ac *AddressClient) FindAddress(postcode string) PostcodeLookupResponse {
+func (ac *AddressClient) FindAddress(postcode string) (PostcodeLookupResponse, error) {
 	query := url.Values{
 		"postcode": {strings.ReplaceAll(postcode, " ", "")},
 		"key":      {ac.ApiKey},
@@ -82,16 +81,19 @@ func (ac *AddressClient) FindAddress(postcode string) PostcodeLookupResponse {
 	req, _ := http.NewRequest("GET", reqUrl, nil)
 	req.Header.Add("accept", "application/json")
 
-	resp, _ := ac.HttpClient.Do(req)
+	resp, err := ac.HttpClient.Do(req)
+
+	if err != nil {
+		return PostcodeLookupResponse{}, err
+	}
 
 	defer resp.Body.Close()
 
 	var postcodeLookupResponse PostcodeLookupResponse
 
 	if err := json.NewDecoder(resp.Body).Decode(&postcodeLookupResponse); err != nil {
-		fmt.Println(err.Error())
-		return PostcodeLookupResponse{}
+		return PostcodeLookupResponse{}, err
 	}
 
-	return postcodeLookupResponse
+	return postcodeLookupResponse, nil
 }
