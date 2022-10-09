@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const resultsJson = `
+const multipleResultsJson = `
 {
 	"header": {
 		"uri": "https://api.os.uk/search/places/v1/postcode?postcode=B147ET",
@@ -92,40 +92,84 @@ const resultsJson = `
 }
 `
 
+const noResultsJson = `
+{
+	"header": {
+		"uri": "https://api.os.uk/search/places/v1/postcode?postcode=XXXXXX",
+		"query": "postcode=XXXXXX",
+		"offset": 0,
+		"totalresults": 0,
+		"format": "JSON",
+		"dataset": "DPA",
+		"lr": "EN,CY",
+		"maxresults": 100,
+		"epoch": "96",
+		"output_srs": "EPSG:27700"
+	}
+}
+`
+
 func TestFindAddress(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		assert.Equal(t, req.URL.Query().Get("postcode"), "B147ET", "Request was missing 'postcode' query with expected value")
-		assert.Equal(t, req.URL.Query().Get("key"), "fake-api-key", "Request was missing 'key' query with expected value")
-
-		rw.WriteHeader(http.StatusOK)
-		rw.Write([]byte(resultsJson))
-	}))
-
-	defer server.Close()
-
-	client := NewClient(server.URL, "fake-api-key", server.Client())
-	results := client.FindAddress("B14 7ET")
-
-	expectedResults := PostcodeLookupResponse{
-		Results: []AddressDetails{
-			{
-				Address:          "123, MELTON ROAD, BIRMINGHAM, B14 7ET",
-				BuildingName:     "",
-				BuildingNumber:   "123",
-				ThoroughFareName: "MELTON ROAD",
-				Town:             "BIRMINGHAM",
-				Postcode:         "B14 7ET",
+	testCases := []struct {
+		name                   string
+		postcode               string
+		queryPostcode          string
+		responseJson           string
+		expectedResponseObject PostcodeLookupResponse
+	}{
+		{
+			"Multiple results",
+			"B14 7ET",
+			"B147ET",
+			multipleResultsJson,
+			PostcodeLookupResponse{
+				TotalResults: 2,
+				Results: []AddressDetails{
+					{
+						Address:          "123, MELTON ROAD, BIRMINGHAM, B14 7ET",
+						BuildingName:     "",
+						BuildingNumber:   "123",
+						ThoroughFareName: "MELTON ROAD",
+						Town:             "BIRMINGHAM",
+						Postcode:         "B14 7ET",
+					},
+					{
+						Address:          "87A, MELTON ROAD, BIRMINGHAM, B14 7ET",
+						BuildingName:     "87A",
+						BuildingNumber:   "",
+						ThoroughFareName: "MELTON ROAD",
+						Town:             "BIRMINGHAM",
+						Postcode:         "B14 7ET",
+					},
+				},
 			},
-			{
-				Address:          "87A, MELTON ROAD, BIRMINGHAM, B14 7ET",
-				BuildingName:     "87A",
-				BuildingNumber:   "",
-				ThoroughFareName: "MELTON ROAD",
-				Town:             "BIRMINGHAM",
-				Postcode:         "B14 7ET",
-			},
+		},
+		{
+			"No results",
+			"  X XX XX X ",
+			"XXXXXX",
+			noResultsJson,
+			PostcodeLookupResponse{TotalResults: 0},
 		},
 	}
 
-	assert.Equal(t, expectedResults, results)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+				assert.Equal(t, tc.queryPostcode, req.URL.Query().Get("postcode"), "Request was missing 'postcode' query with expected value")
+				assert.Equal(t, "fake-api-key", req.URL.Query().Get("key"), "Request was missing 'key' query with expected value")
+
+				rw.WriteHeader(http.StatusOK)
+				rw.Write([]byte(tc.responseJson))
+			}))
+
+			defer server.Close()
+
+			client := NewClient(server.URL, "fake-api-key", server.Client())
+			results := client.FindAddress(tc.postcode)
+
+			assert.Equal(t, tc.expectedResponseObject, results)
+		})
+	}
+
 }

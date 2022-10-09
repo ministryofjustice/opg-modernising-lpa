@@ -24,7 +24,8 @@ type AddressDetails struct {
 }
 
 type PostcodeLookupResponse struct {
-	Results []AddressDetails `json:"results"`
+	TotalResults int
+	Results      []AddressDetails
 }
 
 // Implemented to flatten the struct returned (see test for nested results structure)
@@ -34,22 +35,31 @@ func (plr *PostcodeLookupResponse) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	var addressDetails []AddressDetails
+	plr.TotalResults = originalPlr.Header.TotalResults
 
-	for _, result := range originalPlr.Results {
-		addressDetails = append(addressDetails, result.AddressDetails)
+	if plr.TotalResults > 0 {
+		var addressDetails []AddressDetails
+
+		for _, result := range originalPlr.Results {
+			addressDetails = append(addressDetails, result.AddressDetails)
+		}
+
+		plr.Results = addressDetails
 	}
-
-	plr.Results = addressDetails
 
 	return nil
 }
 
-type postcodeLookupResponse struct {
-	Results []ResultSet `json:"results"`
+type PostcodeLookupResponseHeader struct {
+	TotalResults int `json:"totalresults"`
 }
 
-type ResultSet struct {
+type postcodeLookupResponse struct {
+	Header  PostcodeLookupResponseHeader `json:"header"`
+	Results []resultSet                  `json:"results"`
+}
+
+type resultSet struct {
 	AddressDetails AddressDetails `json:"DPA"`
 }
 
