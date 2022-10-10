@@ -13,10 +13,10 @@ type certificateProviderDetailsData struct {
 	Form   *certificateProviderDetailsForm
 }
 
-func CertificateProviderDetails(tmpl template.Template, dataStore DataStore) Handler {
+func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		var lpa Lpa
-		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
+		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		if err != nil {
 			return err
 		}
 
@@ -43,7 +43,7 @@ func CertificateProviderDetails(tmpl template.Template, dataStore DataStore) Han
 				lpa.CertificateProvider.Email = data.Form.Email
 				lpa.CertificateProvider.DateOfBirth = data.Form.DateOfBirth
 
-				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
 				appData.Lang.Redirect(w, r, howDoYouKnowYourCertificateProviderPath, http.StatusFound)

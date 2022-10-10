@@ -17,11 +17,10 @@ type paymentConfirmationData struct {
 	Continue         string
 }
 
-func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayClient, dataStore DataStore, sessionStore sessions.Store) Handler {
+func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayClient, lpaStore LpaStore, sessionStore sessions.Store) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		var lpa Lpa
-		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
-			logger.Print(fmt.Sprintf("unable to retrieve item from data store using key '%s': %s", appData.SessionID, err.Error()))
+		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		if err != nil {
 			return err
 		}
 
@@ -59,7 +58,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayCl
 
 		lpa.Tasks.PayForLpa = TaskCompleted
 
-		if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+		if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 			logger.Print(fmt.Sprintf("unable to update lpa in dataStore: %s", err.Error()))
 			return err
 		}
