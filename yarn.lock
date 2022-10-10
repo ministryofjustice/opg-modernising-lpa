@@ -439,7 +439,7 @@ cypress-axe@1.0.0:
   resolved "https://registry.yarnpkg.com/cypress-axe/-/cypress-axe-1.0.0.tgz#ab4e9486eaa3bb956a90a1ae40d52df42827b4f0"
   integrity sha512-QBlNMAd5eZoyhG8RGGR/pLtpHGkvgWXm2tkP68scJ+AjYiNNOlJihxoEwH93RT+rWOLrefw4iWwEx8kpEcrvJA==
 
-cypress-multi-reporters@^1.6.1:
+cypress-multi-reporters@1.6.1:
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/cypress-multi-reporters/-/cypress-multi-reporters-1.6.1.tgz#515b891f6c80e0700068efb03ab9d55388399c95"
   integrity sha512-FPeC0xWF1N6Myrwc2m7KC0xxlrtG8+x4hlsPFBDRWP8u/veR2x90pGaH3BuJfweV7xoQ4Zo85Qjhu3fgZGrBQQ==
@@ -447,7 +447,7 @@ cypress-multi-reporters@^1.6.1:
     debug "^4.1.1"
     lodash "^4.17.15"
 
-cypress-parallel@^0.9.1:
+cypress-parallel@0.9.1:
   version "0.9.1"
   resolved "https://registry.yarnpkg.com/cypress-parallel/-/cypress-parallel-0.9.1.tgz#590a46220fbfc9d0371f546afb5beb4c95615e75"
   integrity sha512-7VSfFr8HEEN6zkgo6SkG7pPoHK7VakFhEH1jbM4+Ire/I+O2jNzyd1bRUA+O3V2DIMow64ECDJKf13YHBon+BQ==
