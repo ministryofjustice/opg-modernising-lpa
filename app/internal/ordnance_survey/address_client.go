@@ -2,6 +2,7 @@ package ordnance_survey
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -14,17 +15,25 @@ type AddressClient struct {
 }
 
 type AddressDetails struct {
-	Address          string `json:"ADDRESS"`
-	BuildingName     string `json:"BUILDING_NAME,omitempty"`
-	BuildingNumber   string `json:"BUILDING_NUMBER,omitempty"`
-	ThoroughFareName string `json:"THOROUGHFARE_NAME"`
-	Town             string `json:"POST_TOWN"`
-	Postcode         string `json:"POSTCODE"`
+	Address           string `json:"ADDRESS"`
+	BuildingName      string `json:"BUILDING_NAME,omitempty"`
+	BuildingNumber    string `json:"BUILDING_NUMBER,omitempty"`
+	ThoroughFareName  string `json:"THOROUGHFARE_NAME"`
+	DependentLocality string `json:"DEPENDENT_LOCALITY,omitempty"`
+	Town              string `json:"POST_TOWN"`
+	Postcode          string `json:"POSTCODE"`
 }
 
 type PostcodeLookupResponse struct {
 	TotalResults int
 	Results      []AddressDetails
+}
+
+type Address struct {
+	Line1      string
+	Line2      string
+	TownOrCity string
+	Postcode   string
 }
 
 // Implemented to flatten the struct returned (see test for nested results structure)
@@ -49,6 +58,28 @@ func (plr *PostcodeLookupResponse) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+func (plr *PostcodeLookupResponse) GetAddresses() []Address {
+	var addresses []Address
+
+	for _, addressDetail := range plr.Results {
+		a := Address{}
+
+		if len(addressDetail.BuildingNumber) > 0 {
+			a.Line1 = fmt.Sprintf("%s %s", addressDetail.BuildingNumber, addressDetail.ThoroughFareName)
+		} else {
+			a.Line1 = fmt.Sprintf("%s %s", addressDetail.BuildingName, addressDetail.ThoroughFareName)
+		}
+
+		a.Line2 = addressDetail.DependentLocality
+		a.TownOrCity = addressDetail.Town
+		a.Postcode = addressDetail.Postcode
+
+		addresses = append(addresses, a)
+	}
+
+	return addresses
+}
+
 type PostcodeLookupResponseHeader struct {
 	TotalResults int `json:"totalresults"`
 }
@@ -70,7 +101,7 @@ func NewClient(baseUrl, apiKey string, httpClient *http.Client) AddressClient {
 	}
 }
 
-func (ac *AddressClient) FindAddress(postcode string) (PostcodeLookupResponse, error) {
+func (ac *AddressClient) LookupPostcode(postcode string) (PostcodeLookupResponse, error) {
 	query := url.Values{
 		"postcode": {strings.ReplaceAll(postcode, " ", "")},
 		"key":      {ac.ApiKey},

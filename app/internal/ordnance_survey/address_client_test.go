@@ -59,9 +59,10 @@ const multipleResultsJson = `
 		"DPA": {
 			"UPRN": "100070449924",
 			"UDPRN": "432202",
-			"ADDRESS": "87A, MELTON ROAD, BIRMINGHAM, B14 7ET",
+			"ADDRESS": "87A, MELTON ROAD, KINGS HEATH, BIRMINGHAM, B14 7ET",
 			"BUILDING_NAME": "87A",
 			"THOROUGHFARE_NAME": "MELTON ROAD",
+			"DEPENDENT_LOCALITY": "KINGS HEATH",
 			"POST_TOWN": "BIRMINGHAM",
 			"POSTCODE": "B14 7ET",
 			"RPC": "1",
@@ -126,20 +127,22 @@ func TestFindAddress(t *testing.T) {
 				TotalResults: 2,
 				Results: []AddressDetails{
 					{
-						Address:          "123, MELTON ROAD, BIRMINGHAM, B14 7ET",
-						BuildingName:     "",
-						BuildingNumber:   "123",
-						ThoroughFareName: "MELTON ROAD",
-						Town:             "BIRMINGHAM",
-						Postcode:         "B14 7ET",
+						Address:           "123, MELTON ROAD, BIRMINGHAM, B14 7ET",
+						BuildingName:      "",
+						BuildingNumber:    "123",
+						ThoroughFareName:  "MELTON ROAD",
+						DependentLocality: "",
+						Town:              "BIRMINGHAM",
+						Postcode:          "B14 7ET",
 					},
 					{
-						Address:          "87A, MELTON ROAD, BIRMINGHAM, B14 7ET",
-						BuildingName:     "87A",
-						BuildingNumber:   "",
-						ThoroughFareName: "MELTON ROAD",
-						Town:             "BIRMINGHAM",
-						Postcode:         "B14 7ET",
+						Address:           "87A, MELTON ROAD, KINGS HEATH, BIRMINGHAM, B14 7ET",
+						BuildingName:      "87A",
+						BuildingNumber:    "",
+						ThoroughFareName:  "MELTON ROAD",
+						DependentLocality: "KINGS HEATH",
+						Town:              "BIRMINGHAM",
+						Postcode:          "B14 7ET",
 					},
 				},
 			},
@@ -166,7 +169,7 @@ func TestFindAddress(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient(server.URL, "fake-api-key", server.Client())
-			results, err := client.FindAddress(tc.postcode)
+			results, err := client.LookupPostcode(tc.postcode)
 
 			assert.Equal(t, tc.expectedResponseObject, results)
 			assert.Nil(t, err)
@@ -179,7 +182,7 @@ func TestFindAddress(t *testing.T) {
 		defer server.Close()
 
 		client := NewClient("not an url", "fake-api-key", server.Client())
-		_, err := client.FindAddress("ABC")
+		_, err := client.LookupPostcode("ABC")
 
 		assert.ErrorContains(t, err, "unsupported protocol scheme")
 	})
@@ -192,8 +195,43 @@ func TestFindAddress(t *testing.T) {
 		defer server.Close()
 
 		client := NewClient(server.URL, "fake-api-key", server.Client())
-		_, err := client.FindAddress("ABC")
+		_, err := client.LookupPostcode("ABC")
 
 		assert.ErrorContains(t, err, "invalid character")
+	})
+}
+
+func TestPostcodeLookupResponse(t *testing.T) {
+	t.Run("GetAddresses", func(t *testing.T) {
+		plr := PostcodeLookupResponse{
+			TotalResults: 2,
+			Results: []AddressDetails{
+				{
+					Address:           "123, MELTON ROAD, BIRMINGHAM, B14 7ET",
+					BuildingName:      "",
+					BuildingNumber:    "123",
+					ThoroughFareName:  "MELTON ROAD",
+					DependentLocality: "",
+					Town:              "BIRMINGHAM",
+					Postcode:          "B14 7ET",
+				},
+				{
+					Address:           "87A, MELTON ROAD, BIRMINGHAM, B14 7ET",
+					BuildingName:      "87A",
+					BuildingNumber:    "",
+					ThoroughFareName:  "MELTON ROAD",
+					DependentLocality: "KINGS HEATH",
+					Town:              "BIRMINGHAM",
+					Postcode:          "B14 7ET",
+				},
+			},
+		}
+
+		expectedAddresses := []Address{
+			{Line1: "123 MELTON ROAD", Line2: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			{Line1: "87A MELTON ROAD", Line2: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+		}
+
+		assert.Equal(t, expectedAddresses, plr.GetAddresses())
 	})
 }
