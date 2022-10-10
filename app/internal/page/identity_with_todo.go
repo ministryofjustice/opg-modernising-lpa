@@ -12,11 +12,11 @@ type identityWithTodoData struct {
 	IdentityOption IdentityOption
 }
 
-func IdentityWithTodo(tmpl template.Template, dataStore DataStore, identityOption IdentityOption) Handler {
+func IdentityWithTodo(tmpl template.Template, lpaStore LpaStore, identityOption IdentityOption) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		if r.Method == http.MethodPost {
-			var lpa Lpa
-			if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
+			lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+			if err != nil {
 				return err
 			}
 

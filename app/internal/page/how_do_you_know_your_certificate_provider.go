@@ -13,10 +13,10 @@ type howDoYouKnowYourCertificateProviderData struct {
 	Form                *howDoYouKnowYourCertificateProviderForm
 }
 
-func HowDoYouKnowYourCertificateProvider(tmpl template.Template, dataStore DataStore) Handler {
+func HowDoYouKnowYourCertificateProvider(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		var lpa Lpa
-		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
+		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		if err != nil {
 			return err
 		}
 
@@ -51,7 +51,7 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, dataStore DataS
 					lpa.Tasks.CertificateProvider = TaskCompleted
 				}
 
-				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
 

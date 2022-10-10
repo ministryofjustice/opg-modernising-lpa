@@ -12,10 +12,10 @@ type whoIsTheLpaForData struct {
 	WhoFor string
 }
 
-func WhoIsTheLpaFor(tmpl template.Template, dataStore DataStore) Handler {
+func WhoIsTheLpaFor(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		var lpa Lpa
-		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
+		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		if err != nil {
 			return err
 		}
 
@@ -30,7 +30,7 @@ func WhoIsTheLpaFor(tmpl template.Template, dataStore DataStore) Handler {
 
 			if len(data.Errors) == 0 {
 				lpa.WhoFor = form.WhoFor
-				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
 				appData.Lang.Redirect(w, r, lpaTypePath, http.StatusFound)
