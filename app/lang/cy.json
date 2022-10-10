@@ -261,5 +261,10 @@
     "finalSteps": "Welsh",
     "beforeYourLpaCanBeRegisteredContent": "<p class=\"govuk-body\"><strong>Welsh</strong></p>",
     "thisMustAllBeDoneBy": "Welsh {{.DueDate}} {{.CertificateProviderFirstNames}}",
-    "onceAttorneyHasSigned": "Welsh {{.AttorneyFirstNames}}"
+    "onceAttorneyHasSigned": "Welsh {{.AttorneyFirstNames}}",
+
+    "myLastingPowersOfAttorney": "Welsh",
+    "signed": "Welsh",
+    "applicationNumber": "Welsh",
+    "viewTheLpaProgress": "Welsh"
 }

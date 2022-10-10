@@ -1,3 +1,12 @@
 /* Modernising Patterns */
 @import "patterns/task_list";
 @import "patterns/trans_switch";
+
+.moj-ticket-panel {
+    .govuk-tag,
+    .moj-badge {
+        position: absolute;
+        top: govuk-spacing(4);
+        right: govuk-spacing(4);
+    }
+}
