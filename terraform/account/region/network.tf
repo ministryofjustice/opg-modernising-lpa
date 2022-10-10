@@ -19,3 +19,15 @@ resource "aws_default_security_group" "default" {
   ingress  = []
   egress   = []
 }
+
+data "aws_availability_zones" "available" {
+  state    = "available"
+  provider = aws.region
+}
+
+resource "aws_default_subnet" "default" {
+  for_each                = toset(data.aws_availability_zones.available.names)
+  availability_zone       = each.value
+  map_public_ip_on_launch = false
+  provider                = aws.region
+}
