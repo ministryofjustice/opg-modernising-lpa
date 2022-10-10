@@ -2,7 +2,6 @@ package page
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -27,18 +26,16 @@ var (
 	appData       = AppData{SessionID: "session-id", Lang: En}
 )
 
-type mockDataStore struct {
-	data interface{}
+type mockLpaStore struct {
 	mock.Mock
 }
 
-func (m *mockDataStore) Get(ctx context.Context, id string, v interface{}) error {
-	data, _ := json.Marshal(m.data)
-	json.Unmarshal(data, v)
-	return m.Called(ctx, id).Error(0)
+func (m *mockLpaStore) Get(ctx context.Context, sessionID string) (Lpa, error) {
+	args := m.Called(ctx, sessionID)
+	return args.Get(0).(Lpa), args.Error(1)
 }
 
-func (m *mockDataStore) Put(ctx context.Context, id string, v interface{}) error {
+func (m *mockLpaStore) Put(ctx context.Context, id string, v Lpa) error {
 	return m.Called(ctx, id, v).Error(0)
 }
 

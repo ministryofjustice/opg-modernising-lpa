@@ -260,5 +260,10 @@
     "finalSteps": "Final steps",
     "beforeYourLpaCanBeRegisteredContent": "<p class=\"govuk-body\"><strong>Before your LPA can be registered there are three more steps.</strong></p> <ol class=\"govuk-list govuk-list--number\"> <li>{{.CertificateProviderFirstNames}} will ask you some questions to make sure you understand the LPA and aren't being pressured to make it agaisnt your will</li> <li>{{.CertificateProviderFirstNames}} needs to give a statement that you understand the LPA and want to make it</li> <li>We'll ask {{.AttorneyFirstNames}} to sign</li> <li>Then your LPA will be submitted to the Office of the Public Guardian automatically</li> </ol>",
     "thisMustAllBeDoneBy": "This must all be done by {{.DueDate}}. If this deadline is missed, you will have to sign the LPA and meet with {{.CertificateProviderFirstNames}} again.",
-    "onceAttorneyHasSigned": "Once {{.AttorneyFirstNames}} has signed, we'll notify all parities and must legally wait two weeks for any objections. Then we'll add the LPA to the register and send you a copy of the LPA."
+    "onceAttorneyHasSigned": "Once {{.AttorneyFirstNames}} has signed, we'll notify all parities and must legally wait two weeks for any objections. Then we'll add the LPA to the register and send you a copy of the LPA.",
+
+    "myLastingPowersOfAttorney": "My lasting powers of attorney",
+    "signed": "Signed",
+    "applicationNumber": "Application number",
+    "viewTheLpaProgress": "View the LPA progress"
 }

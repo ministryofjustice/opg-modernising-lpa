@@ -12,10 +12,10 @@ type whoDoYouWantToBeCertificateProviderGuidanceData struct {
 	NotStarted bool
 }
 
-func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, dataStore DataStore) Handler {
+func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		var lpa Lpa
-		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
+		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		if err != nil {
 			return err
 		}
 
@@ -33,7 +33,7 @@ func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, dataSto
 			if data.NotStarted {
 				lpa.Tasks.CertificateProvider = TaskInProgress
 			}
-			if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+			if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 				return err
 			}
 			appData.Lang.Redirect(w, r, certificateProviderDetailsPath, http.StatusFound)
