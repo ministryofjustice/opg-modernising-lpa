@@ -1,5 +1,6 @@
 module "network" {
-  source                         = "github.com/ministryofjustice/opg-terraform-aws-network?ref=v1.1.0-MLPAB-284.9"
+  # source = "github.com/ministryofjustice/opg-terraform-aws-network?ref=v1.0.0"
+  source                         = "github.com/ministryofjustice/opg-terraform-aws-network?ref=v1.1.0-MLPAB-284.20"
   cidr                           = var.network_cidr_block
   default_security_group_ingress = []
   default_security_group_egress  = []
