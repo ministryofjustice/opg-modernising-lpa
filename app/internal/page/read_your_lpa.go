@@ -1,16 +1,18 @@
 package page
 
 import (
+	"crypto/subtle"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 )
 
 type readYourLpaData struct {
-	App    AppData
-	Errors map[string]string
-	Lpa    Lpa
-	Form   *readYourLpaForm
+	App              AppData
+	Errors           map[string]string
+	Lpa              Lpa
+	EnteredSignature bool
+	Form             *readYourLpaForm
 }
 
 func ReadYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -26,7 +28,7 @@ func ReadYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 			Form: &readYourLpaForm{
 				Checked:   lpa.CheckedAgain,
 				Confirm:   lpa.ConfirmFreeWill,
-				Signature: lpa.SignatureCode,
+				Signature: lpa.EnteredSignatureCode,
 			},
 		}
 
@@ -35,9 +37,14 @@ func ReadYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
+				if cmp := subtle.ConstantTimeCompare([]byte(lpa.SignatureCode), []byte(data.Form.Signature)); cmp != 1 {
+					data.Errors["signature"] = "enterCorrectSignatureCode"
+					return tmpl(w, data)
+				}
+
 				lpa.CheckedAgain = data.Form.Checked
 				lpa.ConfirmFreeWill = data.Form.Confirm
-				lpa.SignatureCode = data.Form.Signature
+				lpa.EnteredSignatureCode = data.Form.Signature
 				lpa.Tasks.ConfirmYourIdentityAndSign = TaskCompleted
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
