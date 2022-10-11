@@ -122,6 +122,9 @@ func (a Address) String() string {
 	if a.Line2 != "" {
 		parts = append(parts, a.Line2)
 	}
+	if a.Line3 != "" {
+		parts = append(parts, a.Line3)
+	}
 	if a.TownOrCity != "" {
 		parts = append(parts, a.TownOrCity)
 	}

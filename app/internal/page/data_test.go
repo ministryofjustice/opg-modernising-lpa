@@ -20,9 +20,9 @@ func TestReadDate(t *testing.T) {
 
 func TestTransformAddressDetailsToAddress(t *testing.T) {
 	testCases := []struct {
-		name   string
-		ad     ordnance_survey.AddressDetails
-		wanted Address
+		name string
+		ad   ordnance_survey.AddressDetails
+		want Address
 	}{
 		{
 			"Building number no building name",
@@ -106,9 +106,51 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			assert.Equal(t, tc.wanted, TransformAddressDetailsToAddress(tc.ad))
+			assert.Equal(t, tc.want, TransformAddressDetailsToAddress(tc.ad))
 		})
 	}
+}
+
+func TestAddress(t *testing.T) {
+	t.Run("String", func(t *testing.T) {
+		testCases := []struct {
+			name    string
+			address Address
+			want    string
+		}{
+			{
+				"All props set",
+				Address{
+					Line1:      "Line 1",
+					Line2:      "Line 2",
+					Line3:      "Line 3",
+					TownOrCity: "Town",
+					Postcode:   "Postcode",
+				},
+				"Line 1, Line 2, Line 3, Town, Postcode",
+			},
+			{"Some props set",
+				Address{
+					Line1:      "Line 1",
+					Line2:      "",
+					Line3:      "Line 3",
+					TownOrCity: "Town",
+					Postcode:   "",
+				},
+				"Line 1, Line 3, Town",
+			},
+			{"No props set",
+				Address{},
+				"",
+			},
+		}
+
+		for _, tc := range testCases {
+			t.Run(tc.name, func(t *testing.T) {
+				assert.Equal(t, tc.want, tc.address.String())
+			})
+		}
+	})
 }
 
 type mockDataStore struct {
