@@ -1,5 +1,24 @@
 [
  {
+  "Description": "JSON Web Token",
+  "StartLine": 59,
+  "EndLine": 59,
+  "StartColumn": 27,
+  "EndColumn": 192,
+  "Match": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmMzM1MTdmZi0yYTg4LTRmNmUtYjg1NS1jNTUwMjY4Y2UwOGEiLCJpYXQiOjE1Nzc5MzQyNDV9.V0iR-Foo_twZdWttAxy4koJoSYJzyZHMr-tJIBwZj8k\"",
+  "Secret": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmMzM1MTdmZi0yYTg4LTRmNmUtYjg1NS1jNTUwMjY4Y2UwOGEiLCJpYXQiOjE1Nzc5MzQyNDV9.V0iR-Foo_twZdWttAxy4koJoSYJzyZHMr-tJIBwZj8k\"",
+  "File": "app/internal/notify/client_test.go",
+  "Commit": "9c2fabcda472f058cbdd87fa2418aee9d1d63976",
+  "Entropy": 5.50842,
+  "Author": "Joshua Hawxwell",
+  "Email": "m@hawx.me",
+  "Date": "2022-10-11T11:02:01Z",
+  "Message": "Add notify client",
+  "Tags": [],
+  "RuleID": "jwt",
+  "Fingerprint": "9c2fabcda472f058cbdd87fa2418aee9d1d63976:app/internal/notify/client_test.go:jwt:59"
+ },
+ {
   "Description": "Generic API Key",
   "StartLine": 14,
   "EndLine": 14,
