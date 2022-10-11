@@ -63,10 +63,15 @@ func (c fakeAddressClient) LookupPostcode(postcode string) ([]Address, error) {
 	}, nil
 }
 
-type yotiClient interface {
+type YotiClient interface {
 	IsTest() bool
 	SdkID() string
 	User(string) (identity.UserData, error)
+}
+
+type PayClient interface {
+	CreatePayment(body pay.CreatePaymentBody) (pay.CreatePaymentResponse, error)
+	GetPayment(paymentId string) (pay.GetPaymentResponse, error)
 }
 
 func postFormString(r *http.Request, name string) string {
@@ -92,8 +97,8 @@ func App(
 	sessionStore sessions.Store,
 	dataStore DataStore,
 	appPublicUrl string,
-	payClient *pay.Client,
-	yotiClient yotiClient,
+	payClient PayClient,
+	yotiClient YotiClient,
 	yotiScenarioID string,
 ) http.Handler {
 	mux := http.NewServeMux()
