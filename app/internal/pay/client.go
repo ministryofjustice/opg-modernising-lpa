@@ -7,11 +7,6 @@ import (
 	"time"
 )
 
-type PayClient interface {
-	CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, error)
-	GetPayment(paymentId string) (GetPaymentResponse, error)
-}
-
 type Doer interface {
 	Do(r *http.Request) (*http.Response, error)
 }
