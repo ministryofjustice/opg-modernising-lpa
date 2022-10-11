@@ -18,15 +18,7 @@ repos:
       - id: no-commit-to-branch
         args:
         - --branch=main
-  - repo: https://github.com/awslabs/git-secrets
-    rev: master
-    hooks:
-    - id: git-secrets
-  - repo: https://github.com/zricethezav/gitleaks
-    rev: v8.14.1
-    hooks:
-    -   id: gitleaks
-        entry: gitleaks detect --baseline-path gitleaks-baseline.json
+
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.76.0
     hooks:
@@ -40,7 +32,15 @@ repos:
       - id: go-fmt # Runs gofmt
       - id: go-imports # Runs gofmt
       - id: go-mod-tidy # Tidies up and removes unused requires in go.mod using go mod tidy
+
   - repo: https://github.com/renovatebot/pre-commit-hooks
     rev: 32.221.1
     hooks:
       - id: renovate-config-validator
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+    -   id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: package.lock.json
