@@ -164,6 +164,11 @@ func (s *lpaStore) Get(ctx context.Context, sessionID string) (Lpa, error) {
 		lpa.ID = "10" + strconv.Itoa(s.randomInt(100000))
 	}
 
+	// we don't ask for this yet but it is needed for emailing a signature code
+	if lpa.You.Email == "" {
+		lpa.You.Email = "simulate-delivered@notifications.service.gov.uk"
+	}
+
 	return lpa, nil
 }
 
