@@ -42,6 +42,8 @@ type Lpa struct {
 	CheckedAgain             bool
 	ConfirmFreeWill          bool
 	SignatureCode            string
+	EnteredSignatureCode     string
+	SignatureEmailID         string
 	IdentityOptions          IdentityOptions
 	YotiUserData             identity.UserData
 }
@@ -160,6 +162,11 @@ func (s *lpaStore) Get(ctx context.Context, sessionID string) (Lpa, error) {
 
 	if lpa.ID == "" {
 		lpa.ID = "10" + strconv.Itoa(s.randomInt(100000))
+	}
+
+	// we don't ask for this yet but it is needed for emailing a signature code
+	if lpa.You.Email == "" {
+		lpa.You.Email = "testing@example.com"
 	}
 
 	return lpa, nil

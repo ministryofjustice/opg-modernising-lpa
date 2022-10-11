@@ -57,3 +57,10 @@ services:
       - '4010:4010'
     volumes:
       - ./mocks/GOVUKPay:/tmp
+
+  notify-mock:
+    build:
+      context: mocks/GOVUKNotify
+    container_name: notify-mock
+    ports:
+      - "8080:8080"
