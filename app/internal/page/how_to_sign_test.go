@@ -102,7 +102,7 @@ func TestPostHowToSign(t *testing.T) {
 	notifyClient.
 		On("Email", mock.Anything, notify.Email{
 			EmailAddress:    "me@example.com",
-			TemplateID:      "5555-555-5555",
+			TemplateID:      "7e8564a0-2635-4f61-9155-0166ddbe5607",
 			Personalisation: map[string]string{"code": "1234"},
 		}).
 		Return("email-id", nil)
