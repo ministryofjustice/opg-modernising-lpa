@@ -14,7 +14,7 @@ type identityWithYotiCallbackData struct {
 	ConfirmedAt time.Time
 }
 
-func IdentityWithYotiCallback(tmpl template.Template, yotiClient yotiClient, lpaStore LpaStore) Handler {
+func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
 		if err != nil {
