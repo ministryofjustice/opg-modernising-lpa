@@ -43,7 +43,3 @@ endif
 
 run-cypress-parallel: ##@testing Runs cypress e2e tests in parallel across 4 processor threads
 	yarn run cypress:parallel
-
-update-gitleaks-baseline: ##@security Updates gitleaks baseline file for false possible and dummy secrets added to version control (requires gitleaks local installation)
-	$(info ${YELLOW}Ensure any newly added leaks in the baseline are false positives or dummy secrets before committing an updated baseline) @echo "\n"  ${WHITE}
-	gitleaks detect --report-path gitleaks-baseline.json
