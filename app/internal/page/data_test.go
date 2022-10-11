@@ -1,12 +1,15 @@
 package page
 
 import (
+	"context"
+	"encoding/json"
 	"testing"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/ordnance_survey"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestReadDate(t *testing.T) {
@@ -106,4 +109,71 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 			assert.Equal(t, tc.wanted, TransformAddressDetailsToAddress(tc.ad))
 		})
 	}
+}
+
+type mockDataStore struct {
+	data interface{}
+	mock.Mock
+}
+
+func (m *mockDataStore) Get(ctx context.Context, id string, v interface{}) error {
+	data, _ := json.Marshal(m.data)
+	json.Unmarshal(data, v)
+	return m.Called(ctx, id).Error(0)
+}
+
+func (m *mockDataStore) Put(ctx context.Context, id string, v interface{}) error {
+	return m.Called(ctx, id, v).Error(0)
+}
+
+func TestLpaStoreGet(t *testing.T) {
+	ctx := context.Background()
+
+	dataStore := &mockDataStore{}
+	dataStore.On("Get", ctx, "an-id").Return(nil)
+
+	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
+
+	lpa, err := lpaStore.Get(ctx, "an-id")
+	assert.Nil(t, err)
+	assert.Equal(t, Lpa{ID: "10100000"}, lpa)
+}
+
+func TestLpaStoreGetWhenExists(t *testing.T) {
+	ctx := context.Background()
+	existingLpa := Lpa{ID: "5"}
+
+	dataStore := &mockDataStore{data: existingLpa}
+	dataStore.On("Get", ctx, "an-id").Return(nil)
+
+	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
+
+	lpa, err := lpaStore.Get(ctx, "an-id")
+	assert.Nil(t, err)
+	assert.Equal(t, existingLpa, lpa)
+}
+
+func TestLpaStoreGetWhenDataStoreError(t *testing.T) {
+	ctx := context.Background()
+
+	dataStore := &mockDataStore{}
+	dataStore.On("Get", ctx, "an-id").Return(expectedError)
+
+	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
+
+	_, err := lpaStore.Get(ctx, "an-id")
+	assert.Equal(t, expectedError, err)
+}
+
+func TestLpaStorePut(t *testing.T) {
+	ctx := context.Background()
+	lpa := Lpa{ID: "5"}
+
+	dataStore := &mockDataStore{}
+	dataStore.On("Put", ctx, "an-id", lpa).Return(expectedError)
+
+	lpaStore := &lpaStore{dataStore: dataStore}
+
+	err := lpaStore.Put(ctx, "an-id", lpa)
+	assert.Equal(t, expectedError, err)
 }

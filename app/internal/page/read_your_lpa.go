@@ -13,10 +13,10 @@ type readYourLpaData struct {
 	Form   *readYourLpaForm
 }
 
-func ReadYourLpa(tmpl template.Template, dataStore DataStore) Handler {
+func ReadYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		var lpa Lpa
-		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
+		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		if err != nil {
 			return err
 		}
 
@@ -40,7 +40,7 @@ func ReadYourLpa(tmpl template.Template, dataStore DataStore) Handler {
 				lpa.SignatureCode = data.Form.Signature
 				lpa.Tasks.ConfirmYourIdentityAndSign = TaskCompleted
 
-				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
 

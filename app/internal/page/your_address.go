@@ -13,10 +13,10 @@ type yourAddressData struct {
 	Form      *yourAddressForm
 }
 
-func YourAddress(logger Logger, tmpl template.Template, addressClient AddressClient, dataStore DataStore) Handler {
+func YourAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		var lpa Lpa
-		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
+		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		if err != nil {
 			return err
 		}
 
@@ -36,7 +36,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 
 			if (data.Form.Action == "manual" || data.Form.Action == "select") && len(data.Errors) == 0 {
 				lpa.You.Address = *data.Form.Address
-				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
 				appData.Lang.Redirect(w, r, whoIsTheLpaForPath, http.StatusFound)

@@ -14,10 +14,10 @@ import (
 func TestGetHowWouldYouLikeToBeContacted(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(nil)
+		Return(Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -28,37 +28,37 @@ func TestGetHowWouldYouLikeToBeContacted(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := HowWouldYouLikeToBeContacted(template.Func, dataStore)(appData, w, r)
+	err := HowWouldYouLikeToBeContacted(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, dataStore)
+	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
 
 func TestGetHowWouldYouLikeToBeContactedWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(expectedError)
+		Return(Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := HowWouldYouLikeToBeContacted(nil, dataStore)(appData, w, r)
+	err := HowWouldYouLikeToBeContacted(nil, lpaStore)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, dataStore)
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestGetHowWouldYouLikeToBeContactedFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{data: Lpa{Contact: []string{"email"}}}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(nil)
+		Return(Lpa{Contact: []string{"email"}}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -70,7 +70,7 @@ func TestGetHowWouldYouLikeToBeContactedFromStore(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := HowWouldYouLikeToBeContacted(template.Func, dataStore)(appData, w, r)
+	err := HowWouldYouLikeToBeContacted(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -81,10 +81,10 @@ func TestGetHowWouldYouLikeToBeContactedFromStore(t *testing.T) {
 func TestGetHowWouldYouLikeToBeContactedWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(nil)
+		Return(Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -95,7 +95,7 @@ func TestGetHowWouldYouLikeToBeContactedWhenTemplateErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := HowWouldYouLikeToBeContacted(template.Func, dataStore)(appData, w, r)
+	err := HowWouldYouLikeToBeContacted(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -106,11 +106,11 @@ func TestGetHowWouldYouLikeToBeContactedWhenTemplateErrors(t *testing.T) {
 func TestPostHowWouldYouLikeToBeContacted(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(nil)
-	dataStore.
+		Return(Lpa{}, nil)
+	lpaStore.
 		On("Put", mock.Anything, "session-id", Lpa{Contact: []string{"email", "post"}}).
 		Return(nil)
 
@@ -121,23 +121,23 @@ func TestPostHowWouldYouLikeToBeContacted(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := HowWouldYouLikeToBeContacted(nil, dataStore)(appData, w, r)
+	err := HowWouldYouLikeToBeContacted(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, taskListPath, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, dataStore)
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostHowWouldYouLikeToBeContactedWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(nil)
-	dataStore.
+		Return(Lpa{}, nil)
+	lpaStore.
 		On("Put", mock.Anything, "session-id", Lpa{Contact: []string{"email", "post"}}).
 		Return(expectedError)
 
@@ -148,19 +148,19 @@ func TestPostHowWouldYouLikeToBeContactedWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := HowWouldYouLikeToBeContacted(nil, dataStore)(appData, w, r)
+	err := HowWouldYouLikeToBeContacted(nil, lpaStore)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, dataStore)
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostHowWouldYouLikeToBeContactedWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(nil)
+		Return(Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -175,7 +175,7 @@ func TestPostHowWouldYouLikeToBeContactedWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := HowWouldYouLikeToBeContacted(template.Func, dataStore)(appData, w, r)
+	err := HowWouldYouLikeToBeContacted(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
