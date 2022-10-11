@@ -174,6 +174,7 @@ func TestYotiPrivateKeyWhenGetSecretError(t *testing.T) {
 	_, err := c.YotiPrivateKey()
 	assert.Equal(t, expectedError, errors.Unwrap(err))
 }
+
 func TestYotiPrivateKeyWhenNotBase64(t *testing.T) {
 	secretsCache := &mockSecretsCache{}
 	secretsCache.
@@ -184,4 +185,30 @@ func TestYotiPrivateKeyWhenNotBase64(t *testing.T) {
 
 	_, err := c.YotiPrivateKey()
 	assert.NotNil(t, err)
+}
+
+func TestNotifyApiKey(t *testing.T) {
+	secretsCache := &mockSecretsCache{}
+	secretsCache.
+		On("GetSecretString", "gov-uk-notify-api-key").
+		Return("a-fake-key", nil)
+
+	c := &Client{cache: secretsCache}
+
+	result, err := c.NotifyApiKey()
+	assert.Nil(t, err)
+	assert.Equal(t, "a-fake-key", result)
+}
+
+func TestNotifyApiKeyWhenError(t *testing.T) {
+	secretsCache := &mockSecretsCache{}
+	secretsCache.
+		On("GetSecretString", "gov-uk-notify-api-key").
+		Return("", expectedError)
+
+	c := &Client{cache: secretsCache}
+
+	result, err := c.NotifyApiKey()
+	assert.Equal(t, "", result)
+	assert.Equal(t, expectedError, err)
 }

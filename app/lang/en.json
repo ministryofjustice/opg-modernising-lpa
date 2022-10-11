@@ -222,6 +222,7 @@
     "selectReadAndCheckedLpa": "Select that you have read and checked this LPA",
     "selectConfirmMadeThisLpaOfOwnFreeWill": "Select that you have made this LPA of your own free will",
     "enterSignatureCode": "Enter your signature code",
+    "enterCorrectSignatureCode": "Enter the signature code you received",
 
     "selectYourIdentityOptions": "Select your identity options",
     "selectAllAtLeastThree": "Select all that apply. You must select at least three options.",

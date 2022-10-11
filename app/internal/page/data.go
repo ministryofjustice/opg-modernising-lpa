@@ -42,6 +42,8 @@ type Lpa struct {
 	CheckedAgain             bool
 	ConfirmFreeWill          bool
 	SignatureCode            string
+	EnteredSignatureCode     string
+	SignatureEmailID         string
 	IdentityOptions          IdentityOptions
 	YotiUserData             identity.UserData
 }
