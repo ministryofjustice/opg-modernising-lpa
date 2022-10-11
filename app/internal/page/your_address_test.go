@@ -372,8 +372,23 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 		"lookup-postcode": {"NG1"},
 	}
 
+	response := ordnance_survey.PostcodeLookupResponse{
+		TotalResults: 1,
+		Results: []ordnance_survey.AddressDetails{
+			{
+				Address:           "",
+				BuildingName:      "",
+				BuildingNumber:    "1",
+				ThoroughFareName:  "Road Way",
+				DependentLocality: "",
+				Town:              "Townville",
+				Postcode:          "",
+			},
+		},
+	}
+
 	addresses := []Address{
-		{Line1: "a", Line2: "b"},
+		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
 
 	lpaStore := &mockLpaStore{}
@@ -384,7 +399,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", "NG1").
-		Return(addresses, nil)
+		Return(response, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -415,14 +430,29 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 func TestPostYourAddressLookup(t *testing.T) {
 	w := httptest.NewRecorder()
 
+	response := ordnance_survey.PostcodeLookupResponse{
+		TotalResults: 1,
+		Results: []ordnance_survey.AddressDetails{
+			{
+				Address:           "",
+				BuildingName:      "",
+				BuildingNumber:    "1",
+				ThoroughFareName:  "Road Way",
+				DependentLocality: "",
+				Town:              "Townville",
+				Postcode:          "",
+			},
+		},
+	}
+
 	addresses := []Address{
-		{Line1: "a", Line2: "b"},
+		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
 
 	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", "NG1").
-		Return(addresses, nil)
+		Return(response, nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -473,7 +503,7 @@ func TestPostYourAddressLookupError(t *testing.T) {
 	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", "NG1").
-		Return([]Address{}, expectedError)
+		Return(ordnance_survey.PostcodeLookupResponse{TotalResults: 0}, expectedError)
 
 	template := &mockTemplate{}
 	template.

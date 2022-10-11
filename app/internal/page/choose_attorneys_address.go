@@ -49,13 +49,17 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 
 			if data.Form.Action == "lookup" && len(data.Errors) == 0 ||
 				data.Form.Action == "select" && len(data.Errors) > 0 {
-				//addresses, err := addressClient.LookupPostcode(data.Form.LookupPostcode)
-				//if err != nil {
-				//	logger.Print(err)
-				//	data.Errors["lookup-postcode"] = "couldNotLookupPostcode"
-				//}
-				//
-				//data.Addresses = addresses
+				response, err := addressClient.LookupPostcode(data.Form.LookupPostcode)
+				if err != nil {
+					logger.Print(err)
+					data.Errors["lookup-postcode"] = "couldNotLookupPostcode"
+				}
+
+				if response.TotalResults > 0 {
+					data.Addresses = TransformAddressDetailsToAddresses(response.Results)
+				} else {
+					data.Addresses = []Address{}
+				}
 			}
 		}
 
