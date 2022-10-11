@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/ordnance_survey"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -15,9 +17,9 @@ type mockAddressClient struct {
 	mock.Mock
 }
 
-func (m *mockAddressClient) LookupPostcode(postcode string) ([]Address, error) {
+func (m *mockAddressClient) LookupPostcode(postcode string) (ordnance_survey.PostcodeLookupResponse, error) {
 	args := m.Called(postcode)
-	return args.Get(0).([]Address), args.Error(1)
+	return args.Get(0).(ordnance_survey.PostcodeLookupResponse), args.Error(1)
 }
 
 func TestGetYourAddress(t *testing.T) {

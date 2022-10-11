@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+type Client interface {
+	LookupPostcode(postcode string) (PostcodeLookupResponse, error)
+}
+
 type AddressClient struct {
 	BaseUrl    string
 	ApiKey     string

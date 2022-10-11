@@ -159,6 +159,16 @@ func TransformAddressDetailsToAddress(ad ordnance_survey.AddressDetails) Address
 	return a
 }
 
+func TransformAddressDetailsToAddresses(ads []ordnance_survey.AddressDetails) []Address {
+	var addresses []Address
+
+	for _, ad := range ads {
+		addresses = append(addresses, TransformAddressDetailsToAddress(ad))
+	}
+
+	return addresses
+}
+
 type Date struct {
 	Day   string
 	Month string

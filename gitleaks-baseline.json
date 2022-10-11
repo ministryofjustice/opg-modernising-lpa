@@ -8,7 +8,7 @@
   "Match": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmMzM1MTdmZi0yYTg4LTRmNmUtYjg1NS1jNTUwMjY4Y2UwOGEiLCJpYXQiOjE1Nzc5MzQyNDV9.V0iR-Foo_twZdWttAxy4koJoSYJzyZHMr-tJIBwZj8k\"",
   "Secret": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmMzM1MTdmZi0yYTg4LTRmNmUtYjg1NS1jNTUwMjY4Y2UwOGEiLCJpYXQiOjE1Nzc5MzQyNDV9.V0iR-Foo_twZdWttAxy4koJoSYJzyZHMr-tJIBwZj8k\"",
   "File": "app/internal/notify/client_test.go",
-  "Commit": "9c2fabcda472f058cbdd87fa2418aee9d1d63976",
+  "Commit": "7a80cbea211dcc1b13ec805c36e4733f2a2d9351",
   "Entropy": 5.50842,
   "Author": "Joshua Hawxwell",
   "Email": "m@hawx.me",
@@ -16,7 +16,7 @@
   "Message": "Add notify client",
   "Tags": [],
   "RuleID": "jwt",
-  "Fingerprint": "9c2fabcda472f058cbdd87fa2418aee9d1d63976:app/internal/notify/client_test.go:jwt:59"
+  "Fingerprint": "7a80cbea211dcc1b13ec805c36e4733f2a2d9351:app/internal/notify/client_test.go:jwt:59"
  },
  {
   "Description": "Generic API Key",

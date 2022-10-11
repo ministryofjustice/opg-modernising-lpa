@@ -3,6 +3,8 @@ package page
 import (
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/ordnance_survey"
+
 	"github.com/ministryofjustice/opg-go-common/template"
 )
 
@@ -13,7 +15,7 @@ type yourAddressData struct {
 	Form      *yourAddressForm
 }
 
-func YourAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) Handler {
+func YourAddress(logger Logger, tmpl template.Template, addressClient ordnance_survey.Client, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
 		if err != nil {
@@ -45,12 +47,12 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 
 			if data.Form.Action == "lookup" && len(data.Errors) == 0 ||
 				data.Form.Action == "select" && len(data.Errors) > 0 {
-				addresses, err := addressClient.LookupPostcode(data.Form.LookupPostcode)
-				if err != nil {
-					logger.Print(err)
-					data.Errors["lookup-postcode"] = "couldNotLookupPostcode"
-				}
-				data.Addresses = addresses
+				//addresses, err := addressClient.LookupPostcode(data.Form.LookupPostcode)
+				//if err != nil {
+				//	logger.Print(err)
+				//	data.Errors["lookup-postcode"] = "couldNotLookupPostcode"
+				//}
+				//data.Addresses = addresses
 			}
 		}
 

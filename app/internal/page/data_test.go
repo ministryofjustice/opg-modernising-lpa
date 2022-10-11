@@ -111,6 +111,48 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 	}
 }
 
+func TestTransformAddressDetailsToAddresses(t *testing.T) {
+	//testCases := []struct {
+	//	name string
+	//	ads []ordnance_survey.AddressDetails
+	//	want []Address
+	//}{
+	//	{
+	//
+	//	},
+	//}
+
+	ads := []ordnance_survey.AddressDetails{
+		{
+			Address:           "1, MELTON ROAD, BIRMINGHAM, B14 7ET",
+			BuildingName:      "",
+			BuildingNumber:    "1",
+			ThoroughFareName:  "MELTON ROAD",
+			DependentLocality: "",
+			Town:              "BIRMINGHAM",
+			Postcode:          "B14 7ET",
+		},
+		{
+			Address:           "2, MELTON ROAD, BIRMINGHAM, B14 7ET",
+			BuildingName:      "",
+			BuildingNumber:    "2",
+			ThoroughFareName:  "MELTON ROAD",
+			DependentLocality: "",
+			Town:              "BIRMINGHAM",
+			Postcode:          "B14 7ET",
+		},
+	}
+
+	want := []Address{
+		{Line1: "1 MELTON ROAD", Line2: "", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+		{Line1: "2 MELTON ROAD", Line2: "", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+	}
+
+	got := TransformAddressDetailsToAddresses(ads)
+
+	assert.Equal(t, want, got)
+}
+
 func TestAddress(t *testing.T) {
 	t.Run("String", func(t *testing.T) {
 		testCases := []struct {
