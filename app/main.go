@@ -48,7 +48,7 @@ func main() {
 		yotiClientSdkID     = env.Get("YOTI_CLIENT_SDK_ID", "")
 		yotiScenarioID      = env.Get("YOTI_SCENARIO_ID", "")
 		yotiSandbox         = env.Get("YOTI_SANDBOX", "") == "1"
-		notifyBaseURL       = env.Get("GOVUK_NOTIFY_BASE_URL", "http://notify-mock:8080")
+		notifyBaseURL       = env.Get("GOVUK_NOTIFY_BASE_URL", "")
 	)
 
 	tmpls, err := template.Parse(webDir+"/template", map[string]interface{}{
