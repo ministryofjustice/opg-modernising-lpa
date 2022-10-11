@@ -26,7 +26,7 @@ func HowToSign(tmpl template.Template, lpaStore LpaStore, notifyClient NotifyCli
 
 			emailID, err := notifyClient.Email(r.Context(), notify.Email{
 				EmailAddress: lpa.You.Email,
-				TemplateID:   "5555-555-5555",
+				TemplateID:   "7e8564a0-2635-4f61-9155-0166ddbe5607",
 				Personalisation: map[string]string{
 					"code": code,
 				},
