@@ -13,7 +13,7 @@ describe('Donor address', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.get('#f-select-address').select('123 Fake Street, Someville, NG1');
+        cy.get('#f-select-address').select('123 FAKE STREET, FAKETON, SOMEVILLE, NG1');
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/who-is-the-lpa-for');
     });

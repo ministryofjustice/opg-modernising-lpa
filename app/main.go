@@ -45,12 +45,11 @@ func main() {
 		clientID              = env.Get("CLIENT_ID", "client-id-value")
 		issuer                = env.Get("ISSUER", "http://sign-in-mock:7012")
 		dynamoTableLpas       = env.Get("DYNAMODB_TABLE_LPAS", "")
+		ordnanceSurveyBaseUrl = env.Get("ORDNANCE_SURVEY_BASE_URL", "http://ordnance-survey-mock:4011")
 		payBaseUrl            = env.Get("GOVUK_PAY_BASE_URL", "http://pay-mock:4010")
 		yotiClientSdkID       = env.Get("YOTI_CLIENT_SDK_ID", "")
 		yotiScenarioID        = env.Get("YOTI_SCENARIO_ID", "")
 		yotiSandbox           = env.Get("YOTI_SANDBOX", "") == "1"
-		ordnanceSurveyApiKey  = env.Get("ORDNANCE_SURVEY_API_KEY", "")
-		ordnanceSurveyBaseUrl = env.Get("ORDNANCE_SURVEY_BASE_URL", "")
 	)
 
 	tmpls, err := template.Parse(webDir+"/template", map[string]interface{}{
@@ -273,7 +272,12 @@ func main() {
 		}
 	}
 
-	addressClient := ordnance_survey.NewClient(ordnanceSurveyBaseUrl, ordnanceSurveyApiKey, http.DefaultClient)
+	osApiKey, err := secretsClient.OrdnanceSurveyApiKey()
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	addressClient := ordnance_survey.NewClient(ordnanceSurveyBaseUrl, osApiKey, http.DefaultClient)
 
 	mux := http.NewServeMux()
 	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir(webDir+"/static/"))))
