@@ -111,10 +111,10 @@ func TestGetTaskList(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 
-			dataStore := &mockDataStore{data: tc.lpa}
-			dataStore.
+			lpaStore := &mockLpaStore{}
+			lpaStore.
 				On("Get", mock.Anything, "session-id").
-				Return(nil)
+				Return(tc.lpa, nil)
 
 			template := &mockTemplate{}
 			template.
@@ -163,12 +163,12 @@ func TestGetTaskList(t *testing.T) {
 
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			err := TaskList(template.Func, dataStore)(appData, w, r)
+			err := TaskList(template.Func, lpaStore)(appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-			mock.AssertExpectationsForObjects(t, template, dataStore)
+			mock.AssertExpectationsForObjects(t, template, lpaStore)
 		})
 	}
 }
@@ -176,26 +176,26 @@ func TestGetTaskList(t *testing.T) {
 func TestGetTaskListWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(expectedError)
+		Return(Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := TaskList(nil, dataStore)(appData, w, r)
+	err := TaskList(nil, lpaStore)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, dataStore)
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(nil)
+		Return(Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -204,10 +204,10 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := TaskList(template.Func, dataStore)(appData, w, r)
+	err := TaskList(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, dataStore)
+	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }

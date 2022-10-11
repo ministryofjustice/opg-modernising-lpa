@@ -13,10 +13,10 @@ func TestGuidance(t *testing.T) {
 	w := httptest.NewRecorder()
 	lpa := Lpa{}
 
-	dataStore := &mockDataStore{data: lpa}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(nil)
+		Return(lpa, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -25,12 +25,12 @@ func TestGuidance(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := Guidance(template.Func, "/somewhere", dataStore)(appData, w, r)
+	err := Guidance(template.Func, "/somewhere", lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, dataStore, template)
+	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
 func TestGuidanceWhenNilDataStore(t *testing.T) {
@@ -55,26 +55,26 @@ func TestGuidanceWhenDataStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	lpa := Lpa{}
 
-	dataStore := &mockDataStore{data: lpa}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(expectedError)
+		Return(lpa, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := Guidance(nil, "/somewhere", dataStore)(appData, w, r)
+	err := Guidance(nil, "/somewhere", lpaStore)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, dataStore)
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestGuidanceWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(nil)
+		Return(Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -83,8 +83,8 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := Guidance(template.Func, "/somewhere", dataStore)(appData, w, r)
+	err := Guidance(template.Func, "/somewhere", lpaStore)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, dataStore, template)
+	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
