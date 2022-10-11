@@ -41,12 +41,12 @@ func TestLpaStoreGet(t *testing.T) {
 
 	lpa, err := lpaStore.Get(ctx, "an-id")
 	assert.Nil(t, err)
-	assert.Equal(t, Lpa{ID: "10100000"}, lpa)
+	assert.Equal(t, Lpa{ID: "10100000", You: Person{Email: "testing@example.com"}}, lpa)
 }
 
 func TestLpaStoreGetWhenExists(t *testing.T) {
 	ctx := context.Background()
-	existingLpa := Lpa{ID: "5"}
+	existingLpa := Lpa{ID: "5", You: Person{Email: "what"}}
 
 	dataStore := &mockDataStore{data: existingLpa}
 	dataStore.On("Get", ctx, "an-id").Return(nil)
