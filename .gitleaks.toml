@@ -8,7 +8,7 @@ useDefault = true
 [allowlist]
 description = "global allow lists"
 paths = [
-    '''gitleaks.toml''',
+    '''.gitleaks.toml''',
     '''(.*?)(jpg|gif|doc|docx|zip|xls|pdf|bin|svg|socket)$''',
     '''(go.mod|go.sum)$''',
     '''node_modules''',
