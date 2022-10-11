@@ -33,37 +33,35 @@ func TestGetIdentityWithTodo(t *testing.T) {
 func TestPostIdentityWithTodo(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{
-		data: Lpa{
-			IdentityOptions: IdentityOptions{
-				First:  Passport,
-				Second: GovernmentGatewayAccount,
-			},
+	lpaStore := &mockLpaStore{}
+	lpaStore.On("Get", mock.Anything, "session-id").Return(Lpa{
+		IdentityOptions: IdentityOptions{
+			First:  Passport,
+			Second: GovernmentGatewayAccount,
 		},
-	}
-	dataStore.On("Get", mock.Anything, "session-id").Return(nil)
+	}, nil)
 
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := IdentityWithTodo(nil, dataStore, Passport)(appData, w, r)
+	err := IdentityWithTodo(nil, lpaStore, Passport)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, identityWithGovernmentGatewayAccountPath, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, dataStore)
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostIdentityWithTodoWhenDataStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.On("Get", mock.Anything, "session-id").Return(expectedError)
+	lpaStore := &mockLpaStore{}
+	lpaStore.On("Get", mock.Anything, "session-id").Return(Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := IdentityWithTodo(nil, dataStore, Passport)(appData, w, r)
+	err := IdentityWithTodo(nil, lpaStore, Passport)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, dataStore)
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }

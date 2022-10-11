@@ -13,7 +13,7 @@ import (
 
 func TestGetWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 	testCases := map[string]struct {
-		data       interface{}
+		data       Lpa
 		notStarted bool
 	}{
 		"unset": {
@@ -33,10 +33,10 @@ func TestGetWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 
-			dataStore := &mockDataStore{data: tc.data}
-			dataStore.
+			lpaStore := &mockLpaStore{}
+			lpaStore.
 				On("Get", mock.Anything, "session-id").
-				Return(nil)
+				Return(tc.data, nil)
 
 			template := &mockTemplate{}
 			template.
@@ -48,12 +48,12 @@ func TestGetWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			err := WhoDoYouWantToBeCertificateProviderGuidance(template.Func, dataStore)(appData, w, r)
+			err := WhoDoYouWantToBeCertificateProviderGuidance(template.Func, lpaStore)(appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-			mock.AssertExpectationsForObjects(t, template, dataStore)
+			mock.AssertExpectationsForObjects(t, template, lpaStore)
 		})
 	}
 }
@@ -61,28 +61,28 @@ func TestGetWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 func TestGetWhoDoYouWantToBeCertificateProviderGuidanceWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(expectedError)
+		Return(Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, dataStore)(appData, w, r)
+	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, dataStore)
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestGetWhoDoYouWantToBeCertificateProviderGuidanceWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(nil)
+		Return(Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -91,7 +91,7 @@ func TestGetWhoDoYouWantToBeCertificateProviderGuidanceWhenTemplateErrors(t *tes
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := WhoDoYouWantToBeCertificateProviderGuidance(template.Func, dataStore)(appData, w, r)
+	err := WhoDoYouWantToBeCertificateProviderGuidance(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -102,64 +102,64 @@ func TestGetWhoDoYouWantToBeCertificateProviderGuidanceWhenTemplateErrors(t *tes
 func TestPostWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(nil)
-	dataStore.
+		Return(Lpa{}, nil)
+	lpaStore.
 		On("Put", mock.Anything, "session-id", Lpa{Tasks: Tasks{CertificateProvider: TaskInProgress}}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, dataStore)(appData, w, r)
+	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, certificateProviderDetailsPath, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, dataStore)
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostWhoDoYouWantToBeCertificateProviderGuidanceWhenWillDoLater(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(nil)
+		Return(Lpa{}, nil)
 
 	form := url.Values{"will-do-this-later": {"1"}}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, dataStore)(appData, w, r)
+	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, taskListPath, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, dataStore)
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostWhoDoYouWantToBeCertificateProviderGuidanceWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(nil)
-	dataStore.
+		Return(Lpa{}, nil)
+	lpaStore.
 		On("Put", mock.Anything, "session-id", mock.Anything).
 		Return(expectedError)
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, dataStore)(appData, w, r)
+	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, lpaStore)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, dataStore)
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }

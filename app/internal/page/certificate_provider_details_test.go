@@ -15,10 +15,10 @@ import (
 func TestGetCertificateProviderDetails(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(nil)
+		Return(Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -30,45 +30,43 @@ func TestGetCertificateProviderDetails(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := CertificateProviderDetails(template.Func, dataStore)(appData, w, r)
+	err := CertificateProviderDetails(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, dataStore)
+	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
 
 func TestGetCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(expectedError)
+		Return(Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := CertificateProviderDetails(nil, dataStore)(appData, w, r)
+	err := CertificateProviderDetails(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, dataStore)
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{
-		data: Lpa{
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(Lpa{
 			CertificateProvider: CertificateProvider{
 				FirstNames: "John",
 			},
-		},
-	}
-	dataStore.
-		On("Get", mock.Anything, "session-id").
-		Return(nil)
+		}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -82,21 +80,21 @@ func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := CertificateProviderDetails(template.Func, dataStore)(appData, w, r)
+	err := CertificateProviderDetails(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, dataStore)
+	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
 
 func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(nil)
+		Return(Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -108,28 +106,26 @@ func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := CertificateProviderDetails(template.Func, dataStore)(appData, w, r)
+	err := CertificateProviderDetails(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, dataStore)
+	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
 
 func TestPostCertificateProviderDetails(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{
-		data: Lpa{
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(Lpa{
 			CertificateProvider: CertificateProvider{
 				FirstNames: "John",
 			},
-		},
-	}
-	dataStore.
-		On("Get", mock.Anything, "session-id").
-		Return(nil)
-	dataStore.
+		}, nil)
+	lpaStore.
 		On("Put", mock.Anything, "session-id", Lpa{
 			CertificateProvider: CertificateProvider{
 				FirstNames:  "John",
@@ -152,23 +148,23 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := CertificateProviderDetails(nil, dataStore)(appData, w, r)
+	err := CertificateProviderDetails(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, howDoYouKnowYourCertificateProviderPath, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, dataStore)
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(nil)
-	dataStore.
+		Return(Lpa{}, nil)
+	lpaStore.
 		On("Put", mock.Anything, "session-id", mock.Anything).
 		Return(expectedError)
 
@@ -184,19 +180,19 @@ func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := CertificateProviderDetails(nil, dataStore)(appData, w, r)
+	err := CertificateProviderDetails(nil, lpaStore)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, dataStore)
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostCertificateProviderDetailsWhenValidationError(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	dataStore := &mockDataStore{}
-	dataStore.
+	lpaStore := &mockLpaStore{}
+	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(nil)
+		Return(Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -216,7 +212,7 @@ func TestPostCertificateProviderDetailsWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := CertificateProviderDetails(template.Func, dataStore)(appData, w, r)
+	err := CertificateProviderDetails(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

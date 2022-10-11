@@ -13,10 +13,10 @@ type restrictionsData struct {
 	Completed    bool
 }
 
-func Restrictions(tmpl template.Template, dataStore DataStore) Handler {
+func Restrictions(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		var lpa Lpa
-		if err := dataStore.Get(r.Context(), appData.SessionID, &lpa); err != nil {
+		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		if err != nil {
 			return err
 		}
 
@@ -38,7 +38,7 @@ func Restrictions(tmpl template.Template, dataStore DataStore) Handler {
 					lpa.Tasks.Restrictions = TaskCompleted
 					lpa.Restrictions = form.Restrictions
 				}
-				if err := dataStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
 				appData.Lang.Redirect(w, r, whoDoYouWantToBeCertificateProviderGuidancePath, http.StatusFound)

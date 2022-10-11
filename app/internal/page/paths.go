@@ -9,6 +9,7 @@ const (
 	checkYourLpaPath                                = "/check-your-lpa"
 	chooseAttorneysAddressPath                      = "/choose-attorneys-address"
 	chooseAttorneysPath                             = "/choose-attorneys"
+	dashboardPath                                   = "/dashboard"
 	howDoYouKnowYourCertificateProviderPath         = "/how-do-you-know-your-certificate-provider"
 	howLongHaveYouKnownCertificateProviderPath      = "/how-long-have-you-known-certificate-provider"
 	howToSignPath                                   = "/how-to-sign"
