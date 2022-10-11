@@ -5,9 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/sessions"
-
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 )
 
 type paymentConfirmationData struct {
@@ -17,7 +15,7 @@ type paymentConfirmationData struct {
 	Continue         string
 }
 
-func PaymentConfirmation(logger Logger, tmpl template.Template, client pay.PayClient, lpaStore LpaStore, sessionStore sessions.Store) Handler {
+func PaymentConfirmation(logger Logger, tmpl template.Template, client PayClient, lpaStore LpaStore, sessionStore sessions.Store) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
 		if err != nil {
