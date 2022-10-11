@@ -1,0 +1,50 @@
+openapi: 3.0.1
+info:
+  description: Purely for generating a mock server for integration tests
+  title: Ordnance Survey - Places API
+  version: 1.0.0
+servers:
+  - url: https://api.ordnancesurvey.co.uk
+paths:
+  /search/places/v1/postcode:
+    get:
+      description: Get a list of addresses by postcode
+      operationId: Get by postcode
+      parameters:
+        - description: Postcode to search on.
+          in: query
+          name: postcode
+          schema:
+            type: string
+        - description: OS API key.
+          in: query
+          name: key
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  header:
+                    totalresults: 2
+                  results:
+                    - DPA:
+                        ADDRESS: >-
+                          123, FAKE STREET, FAKETON, SOMEVILLE, NG1
+                        BUILDING_NUMBER: '123'
+                        THOROUGHFARE_NAME: FAKE STREET
+                        DEPENDENT_LOCALITY: FAKETON
+                        POST_TOWN: SOMEVILLE
+                        POSTCODE: NG1
+                    - DPA:
+                        ADDRESS: >-
+                          456, FAKE STREET, FAKETON, SOMEVILLE, NG1
+                        BUILDING_NUMBER: '456'
+                        THOROUGHFARE_NAME: FAKE STREET
+                        DEPENDENT_LOCALITY: FAKETON
+                        POST_TOWN: SOMEVILLE
+                        POSTCODE: NG1
+          description: OK

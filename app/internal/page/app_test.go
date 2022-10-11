@@ -9,6 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/ordnance_survey"
+
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 
@@ -57,7 +59,7 @@ func (m *mockLogger) Print(v ...interface{}) {
 }
 
 func TestApp(t *testing.T) {
-	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &identity.YotiClient{}, "yoti-scenario-id")
+	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &identity.YotiClient{}, "yoti-scenario-id", &ordnance_survey.AddressClient{})
 
 	assert.Implements(t, (*http.Handler)(nil), app)
 }
