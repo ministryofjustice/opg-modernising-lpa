@@ -15,7 +15,9 @@
         </strong>
       </div>
 
-      <a class="govuk-button" href="{{ link .App .Continue }}">{{ tr .App "continue" }}</a>
+      <form novalidate method="post">
+        {{ template "continue-button" . }}
+      </form>
     </div>
   </div>
 {{ end }}
