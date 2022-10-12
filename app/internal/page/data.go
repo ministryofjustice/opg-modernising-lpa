@@ -101,7 +101,7 @@ type Address struct {
 }
 
 type AddressClient interface {
-	LookupPostcode(postcode string) (ordnance_survey.PostcodeLookupResponse, error)
+	LookupPostcode(ctx context.Context, postcode string) (ordnance_survey.PostcodeLookupResponse, error)
 }
 
 func (a Address) Encode() string {

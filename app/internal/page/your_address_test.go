@@ -1,6 +1,7 @@
 package page
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -17,8 +18,8 @@ type mockAddressClient struct {
 	mock.Mock
 }
 
-func (m *mockAddressClient) LookupPostcode(postcode string) (ordnance_survey.PostcodeLookupResponse, error) {
-	args := m.Called(postcode)
+func (m *mockAddressClient) LookupPostcode(ctx context.Context, postcode string) (ordnance_survey.PostcodeLookupResponse, error) {
+	args := m.Called(ctx, postcode)
 	return args.Get(0).(ordnance_survey.PostcodeLookupResponse), args.Error(1)
 }
 
@@ -398,7 +399,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", "NG1").
+		On("LookupPostcode", mock.Anything, "NG1").
 		Return(response, nil)
 
 	template := &mockTemplate{}
@@ -451,7 +452,7 @@ func TestPostYourAddressLookup(t *testing.T) {
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", "NG1").
+		On("LookupPostcode", mock.Anything, "NG1").
 		Return(response, nil)
 
 	lpaStore := &mockLpaStore{}
@@ -502,7 +503,7 @@ func TestPostYourAddressLookupError(t *testing.T) {
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", "NG1").
+		On("LookupPostcode", mock.Anything, "NG1").
 		Return(ordnance_survey.PostcodeLookupResponse{TotalResults: 0}, expectedError)
 
 	template := &mockTemplate{}

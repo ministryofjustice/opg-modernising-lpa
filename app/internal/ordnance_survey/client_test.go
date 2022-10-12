@@ -1,9 +1,13 @@
 package ordnance_survey
 
 import (
+	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/mock"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -110,7 +114,18 @@ const noResultsJson = `
 }
 `
 
+type mockDoer struct {
+	mock.Mock
+}
+
+func (m *mockDoer) Do(req *http.Request) (*http.Response, error) {
+	args := m.Called(req)
+	return args.Get(0).(*http.Response), args.Error(1)
+}
+
 func TestFindAddress(t *testing.T) {
+	ctx := context.Background()
+
 	testCases := []struct {
 		name                   string
 		postcode               string
@@ -169,22 +184,38 @@ func TestFindAddress(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient(server.URL, "fake-api-key", server.Client())
-			results, err := client.LookupPostcode(tc.postcode)
+			results, err := client.LookupPostcode(ctx, tc.postcode)
 
 			assert.Equal(t, tc.expectedResponseObject, results)
 			assert.Nil(t, err)
 		})
 	}
 
-	t.Run("returns an error on request errors", func(t *testing.T) {
+	t.Run("returns an error on request initialisation errors", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {}))
 
 		defer server.Close()
 
 		client := NewClient("not an url", "fake-api-key", server.Client())
-		_, err := client.LookupPostcode("ABC")
+		_, err := client.LookupPostcode(ctx, "ABC")
 
 		assert.ErrorContains(t, err, "unsupported protocol scheme")
+	})
+
+	t.Run("returns an error on making a request error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {}))
+
+		defer server.Close()
+
+		mockDoer := mockDoer{}
+		mockDoer.
+			On("Do", mock.Anything).
+			Return(&http.Response{}, errors.New("an error occurred"))
+
+		client := NewClient(server.URL, "fake-api-key", &mockDoer)
+		_, err := client.LookupPostcode(ctx, "ABC")
+
+		assert.ErrorContains(t, err, "an error occurred")
 	})
 
 	t.Run("returns an error on json marshalling errors", func(t *testing.T) {
@@ -195,43 +226,8 @@ func TestFindAddress(t *testing.T) {
 		defer server.Close()
 
 		client := NewClient(server.URL, "fake-api-key", server.Client())
-		_, err := client.LookupPostcode("ABC")
+		_, err := client.LookupPostcode(ctx, "ABC")
 
 		assert.ErrorContains(t, err, "invalid character")
-	})
-}
-
-func TestPostcodeLookupResponse(t *testing.T) {
-	t.Run("GetAddresses", func(t *testing.T) {
-		plr := PostcodeLookupResponse{
-			TotalResults: 2,
-			Results: []AddressDetails{
-				{
-					Address:           "123, MELTON ROAD, BIRMINGHAM, B14 7ET",
-					BuildingName:      "",
-					BuildingNumber:    "123",
-					ThoroughFareName:  "MELTON ROAD",
-					DependentLocality: "",
-					Town:              "BIRMINGHAM",
-					Postcode:          "B14 7ET",
-				},
-				{
-					Address:           "87A, MELTON ROAD, BIRMINGHAM, B14 7ET",
-					BuildingName:      "87A",
-					BuildingNumber:    "",
-					ThoroughFareName:  "MELTON ROAD",
-					DependentLocality: "KINGS HEATH",
-					Town:              "BIRMINGHAM",
-					Postcode:          "B14 7ET",
-				},
-			},
-		}
-
-		expectedAddresses := []Address{
-			{Line1: "123 MELTON ROAD", Line2: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
-			{Line1: "87A MELTON ROAD", Line2: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
-		}
-
-		assert.Equal(t, expectedAddresses, plr.GetAddresses())
 	})
 }

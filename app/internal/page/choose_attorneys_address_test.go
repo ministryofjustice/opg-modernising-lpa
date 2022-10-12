@@ -394,7 +394,7 @@ func TestPostChooseAttorneysAddressSelectWhenValidationError(t *testing.T) {
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", "NG1").
+		On("LookupPostcode", mock.Anything, "NG1").
 		Return(response, nil)
 
 	template := &mockTemplate{}
@@ -447,7 +447,7 @@ func TestPostChooseAttorneysAddressLookup(t *testing.T) {
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", "NG1").
+		On("LookupPostcode", mock.Anything, "NG1").
 		Return(response, nil)
 
 	lpaStore := &mockLpaStore{}
@@ -498,7 +498,7 @@ func TestPostChooseAttorneysAddressLookupError(t *testing.T) {
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", "NG1").
+		On("LookupPostcode", mock.Anything, "NG1").
 		Return(ordnance_survey.PostcodeLookupResponse{TotalResults: 0}, expectedError)
 
 	template := &mockTemplate{}

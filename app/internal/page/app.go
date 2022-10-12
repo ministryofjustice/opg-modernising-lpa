@@ -108,7 +108,7 @@ func App(
 	yotiClient YotiClient,
 	yotiScenarioID string,
 	notifyClient NotifyClient,
-	addressClient *ordnance_survey.AddressClient,
+	addressClient *ordnance_survey.Client,
 ) http.Handler {
 	mux := http.NewServeMux()
 
