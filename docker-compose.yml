@@ -10,6 +10,8 @@ services:
       - localstack
       - sign-in-mock
       - pay-mock
+      - ordnance-survey-mock
+      - notify-mock
     restart: on-failure
     ports:
       - "5050:8080"
@@ -26,7 +28,7 @@ services:
       - GOVUK_NOTIFY_BASE_URL=http://notify-mock:8080
       - GOVUK_PAY_BASE_URL=http://pay-mock:4010
       - ISSUER=http://sign-in-mock:8080
-      - ORDNANCE_SURVEY_BASE_URL=http://ordnance-survey-mock:4010
+      - ORDNANCE_SURVEY_BASE_URL=http://ordnance-survey-mock:8080
 
   localstack:
     build:
@@ -60,18 +62,16 @@ services:
     volumes:
       - ./mocks/GOVUKPay:/tmp
 
-  ordnance-survey-mock:
-    image: stoplight/prism:4.11.0
-    command: 'mock /tmp/publicapi_spec.yaml -h 0.0.0.0'
-    container_name: ordnance-survey-mock
-    ports:
-      - '4011:4010'
-    volumes:
-      - ./mocks/OrdnanceSurveyPlacesAPI:/tmp
-
   notify-mock:
     build:
       context: mocks/GOVUKNotify
     container_name: notify-mock
     ports:
       - "8080:8080"
+
+  ordnance-survey-mock:
+    build:
+      context: mocks/OrdnanceSurveyPlacesAPI
+    container_name: ordnance-survey-mock
+    ports:
+      - "8081:8080"

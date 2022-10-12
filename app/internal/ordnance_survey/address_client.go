@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+const postcodeEndpoint = "/search/places/v1/postcode?"
+
 type Client interface {
 	LookupPostcode(postcode string) (PostcodeLookupResponse, error)
 }
@@ -111,7 +113,7 @@ func (ac *AddressClient) LookupPostcode(postcode string) (PostcodeLookupResponse
 		"key":      {ac.ApiKey},
 	}
 
-	reqUrl := ac.BaseUrl + "/search/places/v1/postcode?" + query.Encode()
+	reqUrl := ac.BaseUrl + postcodeEndpoint + query.Encode()
 
 	req, _ := http.NewRequest("GET", reqUrl, nil)
 	req.Header.Add("accept", "application/json")
