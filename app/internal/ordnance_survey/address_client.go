@@ -10,10 +10,6 @@ import (
 
 const postcodeEndpoint = "/search/places/v1/postcode?"
 
-type Client interface {
-	LookupPostcode(postcode string) (PostcodeLookupResponse, error)
-}
-
 type AddressClient struct {
 	BaseUrl    string
 	ApiKey     string
