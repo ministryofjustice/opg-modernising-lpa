@@ -13,3 +13,17 @@ func TestRandomString(t *testing.T) {
 		assert.Len(t, got, length)
 	}
 }
+
+func TestRandomCode(t *testing.T) {
+	for _, length := range []int{1, 10, 100, 999} {
+		got := Code(length)
+
+		assert.Len(t, got, length)
+	}
+}
+
+func TestRandomCodeUseTestCode(t *testing.T) {
+	UseTestCode = true
+
+	assert.Equal(t, "1234", Code(10))
+}

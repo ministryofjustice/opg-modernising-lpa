@@ -7,10 +7,8 @@ import (
 	"time"
 
 	"github.com/gorilla/sessions"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
-
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 )
 
 type aboutPaymentData struct {
@@ -18,7 +16,7 @@ type aboutPaymentData struct {
 	Errors map[string]string
 }
 
-func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.Store, payClient pay.PayClient, appPublicUrl string, randomString func(int) string) Handler {
+func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.Store, payClient PayClient, appPublicUrl string, randomString func(int) string) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &aboutPaymentData{
 			App: appData,
