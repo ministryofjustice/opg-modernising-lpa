@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -11,8 +10,8 @@ import (
 var resultsJsonString = `
 {
 	"header": {
-		"uri": "https://api.os.uk/search/places/v1/postcode?postcode=%[1]s",
-		"query": "postcode=%[1]s",
+		"uri": "https://api.os.uk/search/places/v1/postcode?postcode=B14 7ED",
+		"query": "postcode=B14 7ED",
 		"offset": 0,
 		"totalresults": 2,
 		"format": "JSON",
@@ -26,11 +25,11 @@ var resultsJsonString = `
 		"DPA" : {
 		  "UPRN" : "100071428503",
 		  "UDPRN" : "431891",
-		  "ADDRESS" : "1, RICHMOND PLACE, BIRMINGHAM, %[1]s",
+		  "ADDRESS" : "1, RICHMOND PLACE, BIRMINGHAM, B14 7ED",
 		  "BUILDING_NUMBER" : "1",
 		  "THOROUGHFARE_NAME" : "RICHMOND PLACE",
 		  "POST_TOWN" : "BIRMINGHAM",
-		  "POSTCODE" : "%[1]s",
+		  "POSTCODE" : "B14 7ED",
 		  "RPC" : "1",
 		  "X_COORDINATE" : 407823.0,
 		  "Y_COORDINATE" : 281658.0,
@@ -59,11 +58,11 @@ var resultsJsonString = `
 		"DPA" : {
 		  "UPRN" : "100071428504",
 		  "UDPRN" : "431892",
-		  "ADDRESS" : "2, RICHMOND PLACE, BIRMINGHAM, %[1]s",
+		  "ADDRESS" : "2, RICHMOND PLACE, BIRMINGHAM, B14 7ED",
 		  "BUILDING_NUMBER" : "2",
 		  "THOROUGHFARE_NAME" : "RICHMOND PLACE",
 		  "POST_TOWN" : "BIRMINGHAM",
-		  "POSTCODE" : "%[1]s",
+		  "POSTCODE" : "B14 7ED",
 		  "RPC" : "1",
 		  "X_COORDINATE" : 407823.0,
 		  "Y_COORDINATE" : 281663.0,
@@ -92,11 +91,11 @@ var resultsJsonString = `
 		"DPA" : {
 		  "UPRN" : "100071428505",
 		  "UDPRN" : "431893",
-		  "ADDRESS" : "3, RICHMOND PLACE, BIRMINGHAM, %[1]s",
+		  "ADDRESS" : "3, RICHMOND PLACE, BIRMINGHAM, B14 7ED",
 		  "BUILDING_NUMBER" : "3",
 		  "THOROUGHFARE_NAME" : "RICHMOND PLACE",
 		  "POST_TOWN" : "BIRMINGHAM",
-		  "POSTCODE" : "%[1]s",
+		  "POSTCODE" : "B14 7ED",
 		  "RPC" : "1",
 		  "X_COORDINATE" : 407822.0,
 		  "Y_COORDINATE" : 281667.0,
@@ -125,11 +124,11 @@ var resultsJsonString = `
 		"DPA" : {
 		  "UPRN" : "100071428506",
 		  "UDPRN" : "431894",
-		  "ADDRESS" : "4, RICHMOND PLACE, BIRMINGHAM, %[1]s",
+		  "ADDRESS" : "4, RICHMOND PLACE, BIRMINGHAM, B14 7ED",
 		  "BUILDING_NUMBER" : "4",
 		  "THOROUGHFARE_NAME" : "RICHMOND PLACE",
 		  "POST_TOWN" : "BIRMINGHAM",
-		  "POSTCODE" : "%[1]s",
+		  "POSTCODE" : "B14 7ED",
 		  "RPC" : "1",
 		  "X_COORDINATE" : 407823.0,
 		  "Y_COORDINATE" : 281674.0,
@@ -158,11 +157,11 @@ var resultsJsonString = `
 		"DPA" : {
 		  "UPRN" : "100071428507",
 		  "UDPRN" : "431895",
-		  "ADDRESS" : "5, RICHMOND PLACE, BIRMINGHAM, %[1]s",
+		  "ADDRESS" : "5, RICHMOND PLACE, BIRMINGHAM, B14 7ED",
 		  "BUILDING_NUMBER" : "5",
 		  "THOROUGHFARE_NAME" : "RICHMOND PLACE",
 		  "POST_TOWN" : "BIRMINGHAM",
-		  "POSTCODE" : "%[1]s",
+		  "POSTCODE" : "B14 7ED",
 		  "RPC" : "1",
 		  "X_COORDINATE" : 407823.0,
 		  "Y_COORDINATE" : 281678.0,
@@ -197,7 +196,8 @@ func main() {
 	http.HandleFunc("/search/places/v1/postcode", func(w http.ResponseWriter, r *http.Request) {
 		postcode := r.URL.Query().Get("postcode")
 		log.Println("postcode searched:", postcode)
-		w.Write([]byte(fmt.Sprintf(resultsJsonString, postcode)))
+
+		w.Write([]byte(resultsJsonString))
 	})
 
 	if err := http.ListenAndServe(":"+port, nil); err != nil {

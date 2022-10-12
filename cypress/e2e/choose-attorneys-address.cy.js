@@ -13,7 +13,7 @@ describe('Choose attorneys address', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.get('#f-select-address').select('2 RICHMOND PLACE, BIRMINGHAM, B147ED');
+        cy.get('#f-select-address').select('2 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/want-replacement-attorneys');
     });
