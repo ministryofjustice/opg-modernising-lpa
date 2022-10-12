@@ -231,3 +231,46 @@ func TestFindAddress(t *testing.T) {
 		assert.ErrorContains(t, err, "invalid character")
 	})
 }
+
+func TestPostcodeLookupResponse(t *testing.T) {
+	t.Run("UnmarshalJSON", func(t *testing.T) {
+		t.Run("simplifies JSON structure in PostcodeLookupResponse object", func(t *testing.T) {
+			want := PostcodeLookupResponse{
+				TotalResults: 2,
+				Results: []AddressDetails{
+					{
+						Address:           "123, MELTON ROAD, BIRMINGHAM, B14 7ET",
+						BuildingName:      "",
+						BuildingNumber:    "123",
+						ThoroughFareName:  "MELTON ROAD",
+						DependentLocality: "",
+						Town:              "BIRMINGHAM",
+						Postcode:          "B14 7ET",
+					},
+					{
+						Address:           "87A, MELTON ROAD, KINGS HEATH, BIRMINGHAM, B14 7ET",
+						BuildingName:      "87A",
+						BuildingNumber:    "",
+						ThoroughFareName:  "MELTON ROAD",
+						DependentLocality: "KINGS HEATH",
+						Town:              "BIRMINGHAM",
+						Postcode:          "B14 7ET",
+					},
+				},
+			}
+
+			plr := PostcodeLookupResponse{}
+			plr.UnmarshalJSON([]byte(multipleResultsJson))
+
+			assert.Equal(t, want, plr)
+		})
+
+		t.Run("returns an error on unsuccessful an unmarshal", func(t *testing.T) {
+			plr := PostcodeLookupResponse{}
+			err := plr.UnmarshalJSON([]byte("not json"))
+
+			assert.ErrorContains(t, err, "invalid character")
+		})
+	})
+
+}
