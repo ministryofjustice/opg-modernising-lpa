@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
@@ -65,10 +66,19 @@ func (c fakeAddressClient) LookupPostcode(postcode string) ([]Address, error) {
 	}, nil
 }
 
-type yotiClient interface {
+type YotiClient interface {
 	IsTest() bool
 	SdkID() string
 	User(string) (identity.UserData, error)
+}
+
+type PayClient interface {
+	CreatePayment(body pay.CreatePaymentBody) (pay.CreatePaymentResponse, error)
+	GetPayment(paymentId string) (pay.GetPaymentResponse, error)
+}
+
+type NotifyClient interface {
+	Email(ctx context.Context, email notify.Email) (string, error)
 }
 
 func postFormString(r *http.Request, name string) string {
@@ -94,9 +104,10 @@ func App(
 	sessionStore sessions.Store,
 	dataStore DataStore,
 	appPublicUrl string,
-	payClient *pay.Client,
-	yotiClient yotiClient,
+	payClient PayClient,
+	yotiClient YotiClient,
 	yotiScenarioID string,
+	notifyClient NotifyClient,
 	addressClient *ordnance_survey.AddressClient,
 ) http.Handler {
 	mux := http.NewServeMux()
@@ -176,7 +187,7 @@ func App(
 	handle(whatHappensWhenSigningPath, RequireSession|CanGoBack,
 		Guidance(tmpls.Get("what_happens_when_signing.gohtml"), howToSignPath, lpaStore))
 	handle(howToSignPath, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("how_to_sign.gohtml"), readYourLpaPath, lpaStore))
+		HowToSign(tmpls.Get("how_to_sign.gohtml"), lpaStore, notifyClient, random.Code))
 	handle(readYourLpaPath, RequireSession|CanGoBack,
 		ReadYourLpa(tmpls.Get("read_your_lpa.gohtml"), lpaStore))
 	handle(signingConfirmationPath, RequireSession|CanGoBack,
@@ -198,6 +209,8 @@ func testingStart(store sessions.Store) http.HandlerFunc {
 			paySession.Values = map[interface{}]interface{}{PayCookiePaymentIdValueKey: random.String(12)}
 			_ = store.Save(r, w, paySession)
 		}
+
+		random.UseTestCode = true
 
 		http.Redirect(w, r, r.FormValue("redirect"), http.StatusFound)
 	}

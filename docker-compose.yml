@@ -23,6 +23,7 @@ services:
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
       - CLIENT_ID=client-id-value
       - DYNAMODB_TABLE_LPAS=lpas
+      - GOVUK_NOTIFY_BASE_URL=http://notify-mock:8080
       - GOVUK_PAY_BASE_URL=http://pay-mock:4010
       - ISSUER=http://sign-in-mock:8080
       - ORDNANCE_SURVEY_BASE_URL=http://ordnance-survey-mock:4010
@@ -67,3 +68,10 @@ services:
       - '4011:4010'
     volumes:
       - ./mocks/OrdnanceSurveyPlacesAPI:/tmp
+
+  notify-mock:
+    build:
+      context: mocks/GOVUKNotify
+    container_name: notify-mock
+    ports:
+      - "8080:8080"

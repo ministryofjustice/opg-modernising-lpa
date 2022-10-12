@@ -97,3 +97,12 @@ func (c *Client) OrdnanceSurveyApiKey() (string, error) {
 
 	return secret, nil
 }
+
+func (c *Client) NotifyApiKey() (string, error) {
+	secret, err := c.cache.GetSecretString("gov-uk-notify-api-key")
+	if err != nil {
+		return "", err
+	}
+
+	return secret, nil
+}

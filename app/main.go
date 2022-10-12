@@ -24,6 +24,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -37,7 +38,6 @@ func main() {
 	logger := logging.New(os.Stdout, "opg-modernising-lpa")
 
 	var (
-		port                  = env.Get("APP_PORT", "8080")
 		appPublicURL          = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
 		authRedirectBaseURL   = env.Get("AUTH_REDIRECT_BASE_URL", "http://localhost:5050")
 		webDir                = env.Get("WEB_DIR", "web")
@@ -45,8 +45,10 @@ func main() {
 		clientID              = env.Get("CLIENT_ID", "client-id-value")
 		issuer                = env.Get("ISSUER", "http://sign-in-mock:7012")
 		dynamoTableLpas       = env.Get("DYNAMODB_TABLE_LPAS", "")
+		notifyBaseURL         = env.Get("GOVUK_NOTIFY_BASE_URL", "")
 		ordnanceSurveyBaseUrl = env.Get("ORDNANCE_SURVEY_BASE_URL", "http://ordnance-survey-mock:4011")
 		payBaseUrl            = env.Get("GOVUK_PAY_BASE_URL", "http://pay-mock:4010")
+		port                  = env.Get("APP_PORT", "8080")
 		yotiClientSdkID       = env.Get("YOTI_CLIENT_SDK_ID", "")
 		yotiScenarioID        = env.Get("YOTI_SCENARIO_ID", "")
 		yotiSandbox           = env.Get("YOTI_SANDBOX", "") == "1"
@@ -279,13 +281,23 @@ func main() {
 
 	addressClient := ordnance_survey.NewClient(ordnanceSurveyBaseUrl, osApiKey, http.DefaultClient)
 
+	notifyApiKey, err := secretsClient.NotifyApiKey()
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	notifyClient, err := notify.New(notifyBaseURL, notifyApiKey, http.DefaultClient)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
 	mux := http.NewServeMux()
 	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir(webDir+"/static/"))))
 	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies))
 	mux.Handle(page.AuthPath, page.Login(logger, signInClient, sessionStore, secureCookies, random.String))
 	mux.Handle("/cookies-consent", page.CookieConsent())
-	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, &addressClient)))
-	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, &addressClient))
+	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, &addressClient)))
+	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, &addressClient))
 
 	server := &http.Server{
 		Addr:              ":" + port,

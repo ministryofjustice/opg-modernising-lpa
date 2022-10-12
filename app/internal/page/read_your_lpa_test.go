@@ -58,9 +58,10 @@ func TestGetReadYourLpaWhenStoreErrors(t *testing.T) {
 func TestGetReadYourLpaFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	lpa := Lpa{
-		CheckedAgain:    true,
-		ConfirmFreeWill: true,
-		SignatureCode:   "1234",
+		CheckedAgain:         true,
+		ConfirmFreeWill:      true,
+		SignatureCode:        "1234",
+		EnteredSignatureCode: "4567",
 	}
 
 	lpaStore := &mockLpaStore{}
@@ -76,7 +77,7 @@ func TestGetReadYourLpaFromStore(t *testing.T) {
 			Form: &readYourLpaForm{
 				Checked:   true,
 				Confirm:   true,
-				Signature: "1234",
+				Signature: "4567",
 			},
 		}).
 		Return(nil)
@@ -97,15 +98,16 @@ func TestPostReadYourLpa(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(Lpa{SignatureCode: "1234"}, nil)
 	lpaStore.
 		On("Put", mock.Anything, "session-id", Lpa{
 			Tasks: Tasks{
 				ConfirmYourIdentityAndSign: TaskCompleted,
 			},
-			CheckedAgain:    true,
-			ConfirmFreeWill: true,
-			SignatureCode:   "1234",
+			CheckedAgain:         true,
+			ConfirmFreeWill:      true,
+			SignatureCode:        "1234",
+			EnteredSignatureCode: "1234",
 		}).
 		Return(nil)
 
@@ -127,13 +129,45 @@ func TestPostReadYourLpa(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
+func TestPostReadYourLpaWhenSignatureCodeWrong(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(Lpa{SignatureCode: "1234"}, nil)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, mock.MatchedBy(func(data *readYourLpaData) bool {
+			return assert.Equal(t, map[string]string{"signature": "enterCorrectSignatureCode"}, data.Errors)
+		})).
+		Return(nil)
+
+	form := url.Values{
+		"checked":   {"1"},
+		"confirm":   {"1"},
+		"signature": {"4567"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := ReadYourLpa(template.Func, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, lpaStore)
+}
+
 func TestPostReadYourLpaWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(Lpa{SignatureCode: "1234"}, nil)
 	lpaStore.
 		On("Put", mock.Anything, "session-id", mock.Anything).
 		Return(expectedError)
