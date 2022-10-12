@@ -6,14 +6,6 @@ on:
       - main
     types:
       - closed
-    paths:
-      - 'app/**'
-      - 'web/**'
-      - 'codecept/**'
-      - 'cypress/**'
-      - 'terraform/**'
-      - 'scripts/**'
-      - '.github/workflows/**'
 
 permissions:
   contents: read
