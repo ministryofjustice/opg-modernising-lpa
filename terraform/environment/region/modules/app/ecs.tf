@@ -276,7 +276,11 @@ locals {
         {
           name  = "YOTI_SANDBOX",
           value = var.app_env_vars.yoti_sandbox
-        }
+        },
+        {
+          name  = "ORDNANCE_SURVEY_BASE_URL",
+          value = "https://api.os.uk"
+        },
       ]
     }
   )
