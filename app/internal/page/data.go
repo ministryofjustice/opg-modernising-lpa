@@ -3,9 +3,12 @@ package page
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/ordnance_survey"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 )
@@ -92,6 +95,7 @@ type CertificateProvider struct {
 type Address struct {
 	Line1      string
 	Line2      string
+	Line3      string
 	TownOrCity string
 	Postcode   string
 }
@@ -120,6 +124,9 @@ func (a Address) String() string {
 	if a.Line2 != "" {
 		parts = append(parts, a.Line2)
 	}
+	if a.Line3 != "" {
+		parts = append(parts, a.Line3)
+	}
 	if a.TownOrCity != "" {
 		parts = append(parts, a.TownOrCity)
 	}
@@ -128,6 +135,40 @@ func (a Address) String() string {
 	}
 
 	return strings.Join(parts, ", ")
+}
+
+func TransformAddressDetailsToAddress(ad ordnance_survey.AddressDetails) Address {
+	a := Address{}
+
+	if len(ad.BuildingName) > 0 {
+		a.Line1 = ad.BuildingName
+
+		if len(ad.BuildingNumber) > 0 {
+			a.Line2 = fmt.Sprintf("%s %s", ad.BuildingNumber, ad.ThoroughFareName)
+		} else {
+			a.Line2 = ad.ThoroughFareName
+		}
+
+		a.Line3 = ad.DependentLocality
+	} else {
+		a.Line1 = fmt.Sprintf("%s %s", ad.BuildingNumber, ad.ThoroughFareName)
+		a.Line2 = ad.DependentLocality
+	}
+
+	a.TownOrCity = ad.Town
+	a.Postcode = ad.Postcode
+
+	return a
+}
+
+func TransformAddressDetailsToAddresses(ads []ordnance_survey.AddressDetails) []Address {
+	var addresses []Address
+
+	for _, ad := range ads {
+		addresses = append(addresses, TransformAddressDetailsToAddress(ad))
+	}
+
+	return addresses
 }
 
 type Date struct {
