@@ -1,7 +1,8 @@
 module "eu_west_1" {
-  source             = "./region"
-  count              = contains(local.account.regions, "eu-west-1") ? 1 : 0
-  network_cidr_block = "10.162.0.0/16"
+  source                                   = "./region"
+  count                                    = contains(local.account.regions, "eu-west-1") ? 1 : 0
+  network_cidr_block                       = "10.162.0.0/16"
+  flow_log_cloudwatch_log_group_kms_key_id = aws_kms_key.cloudwatch.id
   providers = {
     aws.region     = aws.eu_west_1
     aws.management = aws.management_eu_west_1
