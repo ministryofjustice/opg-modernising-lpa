@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/ordnance_survey"
+
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -106,10 +108,10 @@ func App(
 	yotiClient YotiClient,
 	yotiScenarioID string,
 	notifyClient NotifyClient,
+	addressClient *ordnance_survey.AddressClient,
 ) http.Handler {
 	mux := http.NewServeMux()
 
-	addressClient := fakeAddressClient{}
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
 
 	handle := makeHandle(mux, logger, sessionStore, localizer, lang)
