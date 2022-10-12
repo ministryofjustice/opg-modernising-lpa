@@ -46,4 +46,7 @@ run-cypress-parallel: ##@testing Runs cypress e2e tests in parallel across 4 pro
 
 update-secrets-baseline: ##@security Updates detect-secrets baseline file for false possible and dummy secrets added to version control (requires yelp/detect-secrets local installation)
 	$(info ${YELLOW}Ensure any newly added leaks in the baseline are false positives or dummy secrets before committing an updated baseline) @echo "\n"  ${WHITE}
-	detect-secrets scan > .secrets.baseline
+	detect-secrets scan --baseline .secrets.baseline
+
+audit-secrets: ##@security Interactive CLI tool for marking discovered as in/valid (requires yelp/detect-secrets local installation)
+	detect-secrets audit .secrets.baseline
