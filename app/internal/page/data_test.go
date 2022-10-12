@@ -112,16 +112,6 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 }
 
 func TestTransformAddressDetailsToAddresses(t *testing.T) {
-	//testCases := []struct {
-	//	name string
-	//	ads []ordnance_survey.AddressDetails
-	//	want []Address
-	//}{
-	//	{
-	//
-	//	},
-	//}
-
 	ads := []ordnance_survey.AddressDetails{
 		{
 			Address:           "1, MELTON ROAD, BIRMINGHAM, B14 7ET",
@@ -171,7 +161,8 @@ func TestAddress(t *testing.T) {
 				},
 				"Line 1, Line 2, Line 3, Town, Postcode",
 			},
-			{"Some props set",
+			{
+				"Some props set",
 				Address{
 					Line1:      "Line 1",
 					Line2:      "",
@@ -181,7 +172,8 @@ func TestAddress(t *testing.T) {
 				},
 				"Line 1, Line 3, Town",
 			},
-			{"No props set",
+			{
+				"No props set",
 				Address{},
 				"",
 			},
