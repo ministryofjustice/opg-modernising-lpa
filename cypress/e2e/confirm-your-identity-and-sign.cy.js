@@ -45,7 +45,7 @@ describe('Confirm your identity and sign', () => {
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
         cy.url().should('contain', '/how-to-sign');
-        cy.contains('a', 'Continue').click();
+        cy.contains('button', 'Continue').click();
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
@@ -60,7 +60,7 @@ describe('Confirm your identity and sign', () => {
 
         cy.get('#f-checked').check();
         cy.get('#f-confirm').check();
-        cy.get('#f-signature').type('anything');
+        cy.get('#f-signature').type('1234');
         cy.contains('button', 'Continue').click();
 
         cy.injectAxe();
