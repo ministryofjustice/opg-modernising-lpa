@@ -23,10 +23,10 @@ type Client struct {
 
 type addressDetails struct {
 	Address           string `json:"ADDRESS"`
-	BuildingName      string `json:"BUILDING_NAME,omitempty"`
-	BuildingNumber    string `json:"BUILDING_NUMBER,omitempty"`
+	BuildingName      string `json:"BUILDING_NAME"`
+	BuildingNumber    string `json:"BUILDING_NUMBER"`
 	ThoroughFareName  string `json:"THOROUGHFARE_NAME"`
-	DependentLocality string `json:"DEPENDENT_LOCALITY,omitempty"`
+	DependentLocality string `json:"DEPENDENT_LOCALITY"`
 	Town              string `json:"POST_TOWN"`
 	Postcode          string `json:"POSTCODE"`
 }
