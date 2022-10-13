@@ -1,8 +1,8 @@
 module "eu_west_1" {
-  source                                   = "./region"
-  count                                    = contains(local.account.regions, "eu-west-1") ? 1 : 0
-  network_cidr_block                       = "10.162.0.0/16"
-  flow_log_cloudwatch_log_group_kms_key_id = aws_kms_key.cloudwatch.id
+  source                             = "./region"
+  count                              = contains(local.account.regions, "eu-west-1") ? 1 : 0
+  network_cidr_block                 = "10.162.0.0/16"
+  cloudwatch_log_group_kms_key_alias = "alias/${local.default_tags.application}_cloudwatch_application_logs_encryption"
   providers = {
     aws.region     = aws.eu_west_1
     aws.management = aws.management_eu_west_1
@@ -10,9 +10,10 @@ module "eu_west_1" {
 }
 
 module "eu_west_2" {
-  source             = "./region"
-  count              = contains(local.account.regions, "eu-west-2") ? 1 : 0
-  network_cidr_block = "10.162.0.0/16"
+  source                             = "./region"
+  count                              = contains(local.account.regions, "eu-west-2") ? 1 : 0
+  network_cidr_block                 = "10.162.0.0/16"
+  cloudwatch_log_group_kms_key_alias = "alias/${local.default_tags.application}_cloudwatch_application_logs_encryption"
   providers = {
     aws.region     = aws.eu_west_2
     aws.management = aws.management_eu_west_2

@@ -91,11 +91,16 @@ resource "aws_flow_log" "default_vpc" {
   max_aggregation_interval = 600
 }
 
+data "aws_kms_alias" "cloudwatch_application_logs_encryption" {
+  name     = var.cloudwatch_log_group_kms_key_alias
+  provider = aws.region
+}
+
 resource "aws_cloudwatch_log_group" "default_vpc_flow_log" {
   provider          = aws.region
   name              = "/aws/vpc-flow-log/${data.aws_vpc.default.id}"
   retention_in_days = 400
-  kms_key_id        = var.flow_log_cloudwatch_log_group_kms_key_id
+  kms_key_id        = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
 }
 
 resource "aws_iam_role" "default_vpc_flow_log_cloudwatch" {
