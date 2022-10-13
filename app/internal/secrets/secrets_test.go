@@ -187,6 +187,36 @@ func TestYotiPrivateKeyWhenNotBase64(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
+func TestOrdnanceSurveyApiKey(t *testing.T) {
+	t.Run("Returns OS API key string", func(t *testing.T) {
+		secretsCache := &mockSecretsCache{}
+
+		secretsCache.
+			On("GetSecretString", "os-postcode-lookup-api-key").
+			Return("a-fake-key", nil)
+
+		c := &Client{cache: secretsCache}
+
+		result, err := c.OrdnanceSurveyApiKey()
+		assert.Nil(t, err)
+		assert.Equal(t, "a-fake-key", result)
+	})
+
+	t.Run("Returns an error when an error occurs during GetSecretString", func(t *testing.T) {
+		secretsCache := &mockSecretsCache{}
+
+		secretsCache.
+			On("GetSecretString", "os-postcode-lookup-api-key").
+			Return("", expectedError)
+
+		c := &Client{cache: secretsCache}
+
+		result, err := c.OrdnanceSurveyApiKey()
+		assert.Equal(t, "", result)
+		assert.Equal(t, expectedError, err)
+	})
+}
+
 func TestNotifyApiKey(t *testing.T) {
 	secretsCache := &mockSecretsCache{}
 	secretsCache.
