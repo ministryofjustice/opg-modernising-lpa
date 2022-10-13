@@ -187,11 +187,7 @@ func TestLookupPostcode(t *testing.T) {
 	}
 
 	t.Run("returns an error on request initialisation errors", func(t *testing.T) {
-		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {}))
-
-		defer server.Close()
-
-		client := NewClient("not an url", "fake-api-key", server.Client())
+		client := NewClient("not an url", "fake-api-key", http.DefaultClient)
 		_, err := client.LookupPostcode(ctx, "ABC")
 
 		assert.ErrorContains(t, err, "unsupported protocol scheme")
