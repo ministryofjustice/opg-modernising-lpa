@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -123,7 +125,7 @@ func TestPostChooseAttorneys(t *testing.T) {
 		Return(Lpa{
 			Attorney: Attorney{
 				FirstNames: "John",
-				Address:    Address{Line1: "abc"},
+				Address:    place.Address{Line1: "abc"},
 			},
 		}, nil)
 	lpaStore.
@@ -133,7 +135,7 @@ func TestPostChooseAttorneys(t *testing.T) {
 				LastName:    "Doe",
 				Email:       "john@example.com",
 				DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
-				Address:     Address{Line1: "abc"},
+				Address:     place.Address{Line1: "abc"},
 			},
 		}).
 		Return(nil)
