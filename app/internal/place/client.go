@@ -70,8 +70,8 @@ type resultSet struct {
 	AddressDetails AddressDetails `json:"DPA"`
 }
 
-func NewClient(baseUrl, apiKey string, httpClient Doer) Client {
-	return Client{
+func NewClient(baseUrl, apiKey string, httpClient Doer) *Client {
+	return &Client{
 		baseUrl: baseUrl,
 		apiKey:  apiKey,
 		doer:    httpClient,

@@ -13,8 +13,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var addressClient = mockAddressClient{}
-
 func TestGetChooseAttorneysAddress(t *testing.T) {
 	w := httptest.NewRecorder()
 
