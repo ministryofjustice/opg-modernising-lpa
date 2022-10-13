@@ -79,3 +79,73 @@ resource "aws_default_network_acl" "default" {
   }
 
 }
+
+resource "aws_flow_log" "default_vpc" {
+  provider                 = aws.region
+  log_destination_type     = "cloud-watch-logs"
+  log_destination          = aws_cloudwatch_log_group.default_vpc_flow_log.arn
+  log_format               = null
+  iam_role_arn             = aws_iam_role.default_vpc_flow_log_cloudwatch.arn
+  traffic_type             = "ALL"
+  vpc_id                   = data.aws_vpc.default.id
+  max_aggregation_interval = 600
+}
+
+resource "aws_cloudwatch_log_group" "default_vpc_flow_log" {
+  provider          = aws.region
+  name              = "/aws/vpc-flow-log/${data.aws_vpc.default.id}"
+  retention_in_days = 400
+  kms_key_id        = var.flow_log_cloudwatch_log_group_kms_key_id
+}
+
+resource "aws_iam_role" "default_vpc_flow_log_cloudwatch" {
+  provider           = aws.region
+  name_prefix        = "default-vpc-flow-log-role-"
+  assume_role_policy = data.aws_iam_policy_document.default_vpc_flow_log_cloudwatch_assume_role.json
+}
+
+data "aws_iam_policy_document" "default_vpc_flow_log_cloudwatch_assume_role" {
+  provider = aws.region
+  statement {
+    principals {
+      type        = "Service"
+      identifiers = ["vpc-flow-logs.amazonaws.com"]
+    }
+
+    effect = "Allow"
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "default_vpc_flow_log_cloudwatch" {
+  provider   = aws.region
+  role       = aws_iam_role.default_vpc_flow_log_cloudwatch.name
+  policy_arn = aws_iam_policy.default_vpc_flow_log_cloudwatch.arn
+}
+
+resource "aws_iam_policy" "default_vpc_flow_log_cloudwatch" {
+  provider    = aws.region
+  name_prefix = "vpc-flow-log-to-cloudwatch-"
+  policy      = data.aws_iam_policy_document.default_vpc_flow_log_cloudwatch.json
+}
+
+#tfsec:ignore:aws-iam-no-policy-wildcards
+data "aws_iam_policy_document" "default_vpc_flow_log_cloudwatch" {
+  provider = aws.region
+  statement {
+    sid = "AWSDefaultVPCFlowLogsPushToCloudWatch"
+
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:DescribeLogGroups",
+      "logs:DescribeLogStreams",
+    ]
+
+    resources = ["*"]
+  }
+}
