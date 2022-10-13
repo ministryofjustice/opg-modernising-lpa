@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/ordnance_survey"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -108,7 +108,7 @@ func App(
 	yotiClient YotiClient,
 	yotiScenarioID string,
 	notifyClient NotifyClient,
-	addressClient *ordnance_survey.Client,
+	addressClient *place.Client,
 ) http.Handler {
 	mux := http.NewServeMux()
 

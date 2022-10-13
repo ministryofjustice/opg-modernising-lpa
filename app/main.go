@@ -13,7 +13,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/ordnance_survey"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -279,7 +279,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	addressClient := ordnance_survey.NewClient(ordnanceSurveyBaseUrl, osApiKey, http.DefaultClient)
+	addressClient := place.NewClient(ordnanceSurveyBaseUrl, osApiKey, http.DefaultClient)
 
 	notifyApiKey, err := secretsClient.NotifyApiKey()
 	if err != nil {

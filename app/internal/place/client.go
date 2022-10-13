@@ -1,4 +1,4 @@
-package ordnance_survey
+package place
 
 import (
 	"context"

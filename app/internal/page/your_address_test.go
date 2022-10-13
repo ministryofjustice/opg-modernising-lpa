@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/ordnance_survey"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,9 +18,9 @@ type mockAddressClient struct {
 	mock.Mock
 }
 
-func (m *mockAddressClient) LookupPostcode(ctx context.Context, postcode string) (ordnance_survey.PostcodeLookupResponse, error) {
+func (m *mockAddressClient) LookupPostcode(ctx context.Context, postcode string) (place.PostcodeLookupResponse, error) {
 	args := m.Called(ctx, postcode)
-	return args.Get(0).(ordnance_survey.PostcodeLookupResponse), args.Error(1)
+	return args.Get(0).(place.PostcodeLookupResponse), args.Error(1)
 }
 
 func TestGetYourAddress(t *testing.T) {
@@ -373,9 +373,9 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 		"lookup-postcode": {"NG1"},
 	}
 
-	response := ordnance_survey.PostcodeLookupResponse{
+	response := place.PostcodeLookupResponse{
 		TotalResults: 1,
-		Results: []ordnance_survey.AddressDetails{
+		Results: []place.AddressDetails{
 			{
 				Address:           "",
 				BuildingName:      "",
@@ -431,9 +431,9 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 func TestPostYourAddressLookup(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	response := ordnance_survey.PostcodeLookupResponse{
+	response := place.PostcodeLookupResponse{
 		TotalResults: 1,
-		Results: []ordnance_survey.AddressDetails{
+		Results: []place.AddressDetails{
 			{
 				Address:           "",
 				BuildingName:      "",
@@ -504,7 +504,7 @@ func TestPostYourAddressLookupError(t *testing.T) {
 	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
-		Return(ordnance_survey.PostcodeLookupResponse{TotalResults: 0}, expectedError)
+		Return(place.PostcodeLookupResponse{TotalResults: 0}, expectedError)
 
 	template := &mockTemplate{}
 	template.

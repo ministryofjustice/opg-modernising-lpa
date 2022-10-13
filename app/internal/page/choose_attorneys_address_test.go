@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/ordnance_survey"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -368,9 +368,9 @@ func TestPostChooseAttorneysAddressSelectWhenValidationError(t *testing.T) {
 		"lookup-postcode": {"NG1"},
 	}
 
-	response := ordnance_survey.PostcodeLookupResponse{
+	response := place.PostcodeLookupResponse{
 		TotalResults: 1,
-		Results: []ordnance_survey.AddressDetails{
+		Results: []place.AddressDetails{
 			{
 				Address:           "",
 				BuildingName:      "",
@@ -426,9 +426,9 @@ func TestPostChooseAttorneysAddressSelectWhenValidationError(t *testing.T) {
 func TestPostChooseAttorneysAddressLookup(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	response := ordnance_survey.PostcodeLookupResponse{
+	response := place.PostcodeLookupResponse{
 		TotalResults: 1,
-		Results: []ordnance_survey.AddressDetails{
+		Results: []place.AddressDetails{
 			{
 				Address:           "",
 				BuildingName:      "",
@@ -499,7 +499,7 @@ func TestPostChooseAttorneysAddressLookupError(t *testing.T) {
 	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
-		Return(ordnance_survey.PostcodeLookupResponse{TotalResults: 0}, expectedError)
+		Return(place.PostcodeLookupResponse{TotalResults: 0}, expectedError)
 
 	template := &mockTemplate{}
 	template.

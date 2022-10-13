@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/ordnance_survey"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 )
@@ -101,7 +101,7 @@ type Address struct {
 }
 
 type AddressClient interface {
-	LookupPostcode(ctx context.Context, postcode string) (ordnance_survey.PostcodeLookupResponse, error)
+	LookupPostcode(ctx context.Context, postcode string) (place.PostcodeLookupResponse, error)
 }
 
 func (a Address) Encode() string {
@@ -137,7 +137,7 @@ func (a Address) String() string {
 	return strings.Join(parts, ", ")
 }
 
-func TransformAddressDetailsToAddress(ad ordnance_survey.AddressDetails) Address {
+func TransformAddressDetailsToAddress(ad place.AddressDetails) Address {
 	a := Address{}
 
 	if len(ad.BuildingName) > 0 {
@@ -161,7 +161,7 @@ func TransformAddressDetailsToAddress(ad ordnance_survey.AddressDetails) Address
 	return a
 }
 
-func TransformAddressDetailsToAddresses(ads []ordnance_survey.AddressDetails) []Address {
+func TransformAddressDetailsToAddresses(ads []place.AddressDetails) []Address {
 	var addresses []Address
 
 	for _, ad := range ads {

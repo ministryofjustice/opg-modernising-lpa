@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/ordnance_survey"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -21,12 +21,12 @@ func TestReadDate(t *testing.T) {
 func TestTransformAddressDetailsToAddress(t *testing.T) {
 	testCases := []struct {
 		name string
-		ad   ordnance_survey.AddressDetails
+		ad   place.AddressDetails
 		want Address
 	}{
 		{
 			"Building number no building name",
-			ordnance_survey.AddressDetails{
+			place.AddressDetails{
 				Address:           "1, MELTON ROAD, BIRMINGHAM, B14 7ET",
 				BuildingName:      "",
 				BuildingNumber:    "1",
@@ -39,7 +39,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 		},
 		{
 			"Building name no building number",
-			ordnance_survey.AddressDetails{
+			place.AddressDetails{
 				Address:           "1A, MELTON ROAD, BIRMINGHAM, B14 7ET",
 				BuildingName:      "1A",
 				BuildingNumber:    "",
@@ -52,7 +52,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 		},
 		{
 			"Building name and building number",
-			ordnance_survey.AddressDetails{
+			place.AddressDetails{
 				Address:           "MELTON HOUSE, 2 MELTON ROAD, BIRMINGHAM, B14 7ET",
 				BuildingName:      "MELTON HOUSE",
 				BuildingNumber:    "2",
@@ -65,7 +65,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 		},
 		{
 			"Dependent Locality building number",
-			ordnance_survey.AddressDetails{
+			place.AddressDetails{
 				Address:           "3, MELTON ROAD, BIRMINGHAM, B14 7ET",
 				BuildingName:      "",
 				BuildingNumber:    "3",
@@ -78,7 +78,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 		},
 		{
 			"Dependent Locality building name",
-			ordnance_survey.AddressDetails{
+			place.AddressDetails{
 				Address:           "MELTON HOUSE, MELTON ROAD, KINGS HEATH, BIRMINGHAM, B14 7ET",
 				BuildingName:      "MELTON HOUSE",
 				BuildingNumber:    "",
@@ -91,7 +91,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 		},
 		{
 			"Dependent Locality building name and building number",
-			ordnance_survey.AddressDetails{
+			place.AddressDetails{
 				Address:           "MELTON HOUSE, 5 MELTON ROAD, KINGS HEATH BIRMINGHAM, B14 7ET",
 				BuildingName:      "MELTON HOUSE",
 				BuildingNumber:    "5",
@@ -112,7 +112,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 }
 
 func TestTransformAddressDetailsToAddresses(t *testing.T) {
-	ads := []ordnance_survey.AddressDetails{
+	ads := []place.AddressDetails{
 		{
 			Address:           "1, MELTON ROAD, BIRMINGHAM, B14 7ET",
 			BuildingName:      "",
