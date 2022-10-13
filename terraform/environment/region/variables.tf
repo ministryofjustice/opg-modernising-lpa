@@ -53,3 +53,8 @@ variable "app_env_vars" {
   type        = any
   description = "Environment variable values for app"
 }
+
+variable "public_access_enabled" {
+  type        = bool
+  description = "Enable access to the Modernising LPA service from the public internet"
+}
