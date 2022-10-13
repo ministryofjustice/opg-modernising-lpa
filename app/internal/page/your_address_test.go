@@ -1,11 +1,14 @@
 package page
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -15,9 +18,9 @@ type mockAddressClient struct {
 	mock.Mock
 }
 
-func (m *mockAddressClient) LookupPostcode(postcode string) ([]Address, error) {
-	args := m.Called(postcode)
-	return args.Get(0).([]Address), args.Error(1)
+func (m *mockAddressClient) LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error) {
+	args := m.Called(ctx, postcode)
+	return args.Get(0).([]place.Address), args.Error(1)
 }
 
 func TestGetYourAddress(t *testing.T) {
@@ -67,7 +70,7 @@ func TestGetYourAddressWhenStoreErrors(t *testing.T) {
 func TestGetYourAddressFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	address := Address{Line1: "abc"}
+	address := place.Address{Line1: "abc"}
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
@@ -112,7 +115,7 @@ func TestGetYourAddressManual(t *testing.T) {
 			App: appData,
 			Form: &yourAddressForm{
 				Action:  "manual",
-				Address: &Address{},
+				Address: &place.Address{},
 			},
 		}).
 		Return(nil)
@@ -163,7 +166,7 @@ func TestPostYourAddressManual(t *testing.T) {
 	lpaStore.
 		On("Put", mock.Anything, "session-id", Lpa{
 			You: Person{
-				Address: Address{
+				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
 					TownOrCity: "c",
@@ -203,7 +206,7 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 	lpaStore.
 		On("Put", mock.Anything, "session-id", Lpa{
 			You: Person{
-				Address: Address{
+				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
 					TownOrCity: "c",
@@ -239,7 +242,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 		Return(Lpa{
 			You: Person{
 				FirstNames: "John",
-				Address:    Address{Line1: "abc"},
+				Address:    place.Address{Line1: "abc"},
 			},
 			WhoFor: "me",
 		}, nil)
@@ -247,7 +250,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 		On("Put", mock.Anything, "session-id", Lpa{
 			You: Person{
 				FirstNames: "John",
-				Address: Address{
+				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
 					TownOrCity: "c",
@@ -299,7 +302,7 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 			App: appData,
 			Form: &yourAddressForm{
 				Action: "manual",
-				Address: &Address{
+				Address: &place.Address{
 					Line2:      "b",
 					TownOrCity: "c",
 					Postcode:   "d",
@@ -325,7 +328,7 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 func TestPostYourAddressSelect(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	expectedAddress := &Address{
+	expectedAddress := &place.Address{
 		Line1:      "a",
 		Line2:      "b",
 		TownOrCity: "c",
@@ -370,8 +373,8 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 		"lookup-postcode": {"NG1"},
 	}
 
-	addresses := []Address{
-		{Line1: "a", Line2: "b"},
+	addresses := []place.Address{
+		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
 
 	lpaStore := &mockLpaStore{}
@@ -381,7 +384,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", "NG1").
+		On("LookupPostcode", mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	template := &mockTemplate{}
@@ -413,13 +416,13 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 func TestPostYourAddressLookup(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	addresses := []Address{
-		{Line1: "a", Line2: "b"},
+	addresses := []place.Address{
+		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", "NG1").
+		On("LookupPostcode", mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	lpaStore := &mockLpaStore{}
@@ -470,8 +473,8 @@ func TestPostYourAddressLookupError(t *testing.T) {
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", "NG1").
-		Return([]Address{}, expectedError)
+		On("LookupPostcode", mock.Anything, "NG1").
+		Return([]place.Address{}, expectedError)
 
 	template := &mockTemplate{}
 	template.
@@ -481,7 +484,7 @@ func TestPostYourAddressLookupError(t *testing.T) {
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
-			Addresses: []Address{},
+			Addresses: []place.Address{},
 			Errors: map[string]string{
 				"lookup-postcode": "couldNotLookupPostcode",
 			},
@@ -541,7 +544,7 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 }
 
 func TestReadYourAddressForm(t *testing.T) {
-	expectedAddress := &Address{
+	expectedAddress := &place.Address{
 		Line1:      "a",
 		Line2:      "b",
 		TownOrCity: "c",
@@ -631,7 +634,7 @@ func TestYourAddressFormValidate(t *testing.T) {
 		"select-valid": {
 			form: &yourAddressForm{
 				Action:  "select",
-				Address: &Address{},
+				Address: &place.Address{},
 			},
 			errors: map[string]string{},
 		},
@@ -647,7 +650,7 @@ func TestYourAddressFormValidate(t *testing.T) {
 		"manual-valid": {
 			form: &yourAddressForm{
 				Action: "manual",
-				Address: &Address{
+				Address: &place.Address{
 					Line1:      "a",
 					TownOrCity: "b",
 					Postcode:   "c",
@@ -658,7 +661,7 @@ func TestYourAddressFormValidate(t *testing.T) {
 		"manual-missing-all": {
 			form: &yourAddressForm{
 				Action:  "manual",
-				Address: &Address{},
+				Address: &place.Address{},
 			},
 			errors: map[string]string{
 				"address-line-1":   "enterAddress",
