@@ -3,6 +3,8 @@ package page
 import (
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+
 	"github.com/ministryofjustice/opg-go-common/template"
 )
 
@@ -10,7 +12,7 @@ type chooseAttorneysAddressData struct {
 	App       AppData
 	Errors    map[string]string
 	Attorney  Attorney
-	Addresses []Address
+	Addresses []place.Address
 	Form      *chooseAttorneysAddressForm
 }
 
@@ -56,7 +58,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 				if response.TotalResults > 0 {
 					data.Addresses = TransformAddressDetailsToAddresses(response.Results)
 				} else {
-					data.Addresses = []Address{}
+					data.Addresses = []place.Address{}
 				}
 			}
 		}
@@ -65,7 +67,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			action := r.FormValue("action")
 			if action == "manual" {
 				data.Form.Action = "manual"
-				data.Form.Address = &Address{}
+				data.Form.Address = &place.Address{}
 			}
 		}
 
@@ -76,7 +78,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 type chooseAttorneysAddressForm struct {
 	Action         string
 	LookupPostcode string
-	Address        *Address
+	Address        *place.Address
 }
 
 func readChooseAttorneysAddressForm(r *http.Request) *chooseAttorneysAddressForm {
@@ -95,7 +97,7 @@ func readChooseAttorneysAddressForm(r *http.Request) *chooseAttorneysAddressForm
 		}
 
 	case "manual":
-		d.Address = &Address{
+		d.Address = &place.Address{
 			Line1:      postFormString(r, "address-line-1"),
 			Line2:      postFormString(r, "address-line-2"),
 			TownOrCity: postFormString(r, "address-town"),

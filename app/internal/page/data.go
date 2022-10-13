@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -71,7 +70,7 @@ type Person struct {
 	Email       string
 	OtherNames  string
 	DateOfBirth time.Time
-	Address     Address
+	Address     place.Address
 }
 
 type Attorney struct {
@@ -79,7 +78,7 @@ type Attorney struct {
 	LastName    string
 	Email       string
 	DateOfBirth time.Time
-	Address     Address
+	Address     place.Address
 }
 
 type CertificateProvider struct {
@@ -92,53 +91,12 @@ type CertificateProvider struct {
 	RelationshipLength      string
 }
 
-type Address struct {
-	Line1      string
-	Line2      string
-	Line3      string
-	TownOrCity string
-	Postcode   string
-}
-
 type AddressClient interface {
 	LookupPostcode(ctx context.Context, postcode string) (place.PostcodeLookupResponse, error)
 }
 
-func (a Address) Encode() string {
-	x, _ := json.Marshal(a)
-	return string(x)
-}
-
-func DecodeAddress(s string) *Address {
-	var v Address
-	json.Unmarshal([]byte(s), &v)
-	return &v
-}
-
-func (a Address) String() string {
-	var parts []string
-
-	if a.Line1 != "" {
-		parts = append(parts, a.Line1)
-	}
-	if a.Line2 != "" {
-		parts = append(parts, a.Line2)
-	}
-	if a.Line3 != "" {
-		parts = append(parts, a.Line3)
-	}
-	if a.TownOrCity != "" {
-		parts = append(parts, a.TownOrCity)
-	}
-	if a.Postcode != "" {
-		parts = append(parts, a.Postcode)
-	}
-
-	return strings.Join(parts, ", ")
-}
-
-func TransformAddressDetailsToAddress(ad place.AddressDetails) Address {
-	a := Address{}
+func TransformAddressDetailsToAddress(ad place.AddressDetails) place.Address {
+	a := place.Address{}
 
 	if len(ad.BuildingName) > 0 {
 		a.Line1 = ad.BuildingName
@@ -161,8 +119,8 @@ func TransformAddressDetailsToAddress(ad place.AddressDetails) Address {
 	return a
 }
 
-func TransformAddressDetailsToAddresses(ads []place.AddressDetails) []Address {
-	var addresses []Address
+func TransformAddressDetailsToAddresses(ads []place.AddressDetails) []place.Address {
+	var addresses []place.Address
 
 	for _, ad := range ads {
 		addresses = append(addresses, TransformAddressDetailsToAddress(ad))
@@ -215,4 +173,10 @@ func (s *lpaStore) Get(ctx context.Context, sessionID string) (Lpa, error) {
 
 func (s *lpaStore) Put(ctx context.Context, sessionID string, lpa Lpa) error {
 	return s.dataStore.Put(ctx, sessionID, lpa)
+}
+
+func DecodeAddress(s string) *place.Address {
+	var v place.Address
+	json.Unmarshal([]byte(s), &v)
+	return &v
 }

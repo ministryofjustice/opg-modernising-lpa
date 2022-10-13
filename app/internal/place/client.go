@@ -110,3 +110,38 @@ func (c *Client) LookupPostcode(ctx context.Context, postcode string) (PostcodeL
 
 	return postcodeLookupResponse, nil
 }
+
+type Address struct {
+	Line1      string
+	Line2      string
+	Line3      string
+	TownOrCity string
+	Postcode   string
+}
+
+func (a Address) Encode() string {
+	x, _ := json.Marshal(a)
+	return string(x)
+}
+
+func (a Address) String() string {
+	var parts []string
+
+	if a.Line1 != "" {
+		parts = append(parts, a.Line1)
+	}
+	if a.Line2 != "" {
+		parts = append(parts, a.Line2)
+	}
+	if a.Line3 != "" {
+		parts = append(parts, a.Line3)
+	}
+	if a.TownOrCity != "" {
+		parts = append(parts, a.TownOrCity)
+	}
+	if a.Postcode != "" {
+		parts = append(parts, a.Postcode)
+	}
+
+	return strings.Join(parts, ", ")
+}

@@ -70,7 +70,7 @@ func TestGetYourAddressWhenStoreErrors(t *testing.T) {
 func TestGetYourAddressFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	address := Address{Line1: "abc"}
+	address := place.Address{Line1: "abc"}
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
@@ -115,7 +115,7 @@ func TestGetYourAddressManual(t *testing.T) {
 			App: appData,
 			Form: &yourAddressForm{
 				Action:  "manual",
-				Address: &Address{},
+				Address: &place.Address{},
 			},
 		}).
 		Return(nil)
@@ -166,7 +166,7 @@ func TestPostYourAddressManual(t *testing.T) {
 	lpaStore.
 		On("Put", mock.Anything, "session-id", Lpa{
 			You: Person{
-				Address: Address{
+				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
 					TownOrCity: "c",
@@ -206,7 +206,7 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 	lpaStore.
 		On("Put", mock.Anything, "session-id", Lpa{
 			You: Person{
-				Address: Address{
+				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
 					TownOrCity: "c",
@@ -242,7 +242,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 		Return(Lpa{
 			You: Person{
 				FirstNames: "John",
-				Address:    Address{Line1: "abc"},
+				Address:    place.Address{Line1: "abc"},
 			},
 			WhoFor: "me",
 		}, nil)
@@ -250,7 +250,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 		On("Put", mock.Anything, "session-id", Lpa{
 			You: Person{
 				FirstNames: "John",
-				Address: Address{
+				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
 					TownOrCity: "c",
@@ -302,7 +302,7 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 			App: appData,
 			Form: &yourAddressForm{
 				Action: "manual",
-				Address: &Address{
+				Address: &place.Address{
 					Line2:      "b",
 					TownOrCity: "c",
 					Postcode:   "d",
@@ -328,7 +328,7 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 func TestPostYourAddressSelect(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	expectedAddress := &Address{
+	expectedAddress := &place.Address{
 		Line1:      "a",
 		Line2:      "b",
 		TownOrCity: "c",
@@ -388,7 +388,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 		},
 	}
 
-	addresses := []Address{
+	addresses := []place.Address{
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
 
@@ -446,7 +446,7 @@ func TestPostYourAddressLookup(t *testing.T) {
 		},
 	}
 
-	addresses := []Address{
+	addresses := []place.Address{
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
 
@@ -514,7 +514,7 @@ func TestPostYourAddressLookupError(t *testing.T) {
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
-			Addresses: []Address{},
+			Addresses: []place.Address{},
 			Errors: map[string]string{
 				"lookup-postcode": "couldNotLookupPostcode",
 			},
@@ -574,7 +574,7 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 }
 
 func TestReadYourAddressForm(t *testing.T) {
-	expectedAddress := &Address{
+	expectedAddress := &place.Address{
 		Line1:      "a",
 		Line2:      "b",
 		TownOrCity: "c",
@@ -664,7 +664,7 @@ func TestYourAddressFormValidate(t *testing.T) {
 		"select-valid": {
 			form: &yourAddressForm{
 				Action:  "select",
-				Address: &Address{},
+				Address: &place.Address{},
 			},
 			errors: map[string]string{},
 		},
@@ -680,7 +680,7 @@ func TestYourAddressFormValidate(t *testing.T) {
 		"manual-valid": {
 			form: &yourAddressForm{
 				Action: "manual",
-				Address: &Address{
+				Address: &place.Address{
 					Line1:      "a",
 					TownOrCity: "b",
 					Postcode:   "c",
@@ -691,7 +691,7 @@ func TestYourAddressFormValidate(t *testing.T) {
 		"manual-missing-all": {
 			form: &yourAddressForm{
 				Action:  "manual",
-				Address: &Address{},
+				Address: &place.Address{},
 			},
 			errors: map[string]string{
 				"address-line-1":   "enterAddress",

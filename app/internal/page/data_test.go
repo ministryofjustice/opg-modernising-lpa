@@ -22,7 +22,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 	testCases := []struct {
 		name string
 		ad   place.AddressDetails
-		want Address
+		want place.Address
 	}{
 		{
 			"Building number no building name",
@@ -35,7 +35,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			Address{Line1: "1 MELTON ROAD", Line2: "", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			place.Address{Line1: "1 MELTON ROAD", Line2: "", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
 		},
 		{
 			"Building name no building number",
@@ -48,7 +48,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			Address{Line1: "1A", Line2: "MELTON ROAD", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			place.Address{Line1: "1A", Line2: "MELTON ROAD", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
 		},
 		{
 			"Building name and building number",
@@ -61,7 +61,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			Address{Line1: "MELTON HOUSE", Line2: "2 MELTON ROAD", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			place.Address{Line1: "MELTON HOUSE", Line2: "2 MELTON ROAD", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
 		},
 		{
 			"Dependent Locality building number",
@@ -74,7 +74,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			Address{Line1: "3 MELTON ROAD", Line2: "KINGS HEATH", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			place.Address{Line1: "3 MELTON ROAD", Line2: "KINGS HEATH", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
 		},
 		{
 			"Dependent Locality building name",
@@ -87,7 +87,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			Address{Line1: "MELTON HOUSE", Line2: "MELTON ROAD", Line3: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			place.Address{Line1: "MELTON HOUSE", Line2: "MELTON ROAD", Line3: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
 		},
 		{
 			"Dependent Locality building name and building number",
@@ -100,7 +100,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			Address{Line1: "MELTON HOUSE", Line2: "5 MELTON ROAD", Line3: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			place.Address{Line1: "MELTON HOUSE", Line2: "5 MELTON ROAD", Line3: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
 		},
 	}
 
@@ -133,7 +133,7 @@ func TestTransformAddressDetailsToAddresses(t *testing.T) {
 		},
 	}
 
-	want := []Address{
+	want := []place.Address{
 		{Line1: "1 MELTON ROAD", Line2: "", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
 		{Line1: "2 MELTON ROAD", Line2: "", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
 	}
@@ -147,12 +147,12 @@ func TestAddress(t *testing.T) {
 	t.Run("String", func(t *testing.T) {
 		testCases := []struct {
 			name    string
-			address Address
+			address place.Address
 			want    string
 		}{
 			{
 				"All props set",
-				Address{
+				place.Address{
 					Line1:      "Line 1",
 					Line2:      "Line 2",
 					Line3:      "Line 3",
@@ -163,7 +163,7 @@ func TestAddress(t *testing.T) {
 			},
 			{
 				"Some props set",
-				Address{
+				place.Address{
 					Line1:      "Line 1",
 					Line2:      "",
 					Line3:      "Line 3",
@@ -174,7 +174,7 @@ func TestAddress(t *testing.T) {
 			},
 			{
 				"No props set",
-				Address{},
+				place.Address{},
 				"",
 			},
 		}
