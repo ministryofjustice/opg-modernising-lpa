@@ -366,21 +366,6 @@ func TestPostChooseAttorneysAddressSelectWhenValidationError(t *testing.T) {
 		"lookup-postcode": {"NG1"},
 	}
 
-	response := place.PostcodeLookupResponse{
-		TotalResults: 1,
-		Results: []place.AddressDetails{
-			{
-				Address:           "",
-				BuildingName:      "",
-				BuildingNumber:    "1",
-				ThoroughFareName:  "Road Way",
-				DependentLocality: "",
-				Town:              "Townville",
-				Postcode:          "",
-			},
-		},
-	}
-
 	addresses := []place.Address{
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
@@ -393,7 +378,7 @@ func TestPostChooseAttorneysAddressSelectWhenValidationError(t *testing.T) {
 	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
-		Return(response, nil)
+		Return(addresses, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -424,21 +409,6 @@ func TestPostChooseAttorneysAddressSelectWhenValidationError(t *testing.T) {
 func TestPostChooseAttorneysAddressLookup(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	response := place.PostcodeLookupResponse{
-		TotalResults: 1,
-		Results: []place.AddressDetails{
-			{
-				Address:           "",
-				BuildingName:      "",
-				BuildingNumber:    "1",
-				ThoroughFareName:  "Road Way",
-				DependentLocality: "",
-				Town:              "Townville",
-				Postcode:          "",
-			},
-		},
-	}
-
 	addresses := []place.Address{
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
@@ -446,7 +416,7 @@ func TestPostChooseAttorneysAddressLookup(t *testing.T) {
 	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
-		Return(response, nil)
+		Return(addresses, nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -497,7 +467,7 @@ func TestPostChooseAttorneysAddressLookupError(t *testing.T) {
 	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
-		Return(place.PostcodeLookupResponse{TotalResults: 0}, expectedError)
+		Return([]place.Address{}, expectedError)
 
 	template := &mockTemplate{}
 	template.

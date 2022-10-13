@@ -18,9 +18,9 @@ type mockAddressClient struct {
 	mock.Mock
 }
 
-func (m *mockAddressClient) LookupPostcode(ctx context.Context, postcode string) (place.PostcodeLookupResponse, error) {
+func (m *mockAddressClient) LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error) {
 	args := m.Called(ctx, postcode)
-	return args.Get(0).(place.PostcodeLookupResponse), args.Error(1)
+	return args.Get(0).([]place.Address), args.Error(1)
 }
 
 func TestGetYourAddress(t *testing.T) {
@@ -373,21 +373,6 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 		"lookup-postcode": {"NG1"},
 	}
 
-	response := place.PostcodeLookupResponse{
-		TotalResults: 1,
-		Results: []place.AddressDetails{
-			{
-				Address:           "",
-				BuildingName:      "",
-				BuildingNumber:    "1",
-				ThoroughFareName:  "Road Way",
-				DependentLocality: "",
-				Town:              "Townville",
-				Postcode:          "",
-			},
-		},
-	}
-
 	addresses := []place.Address{
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
@@ -400,7 +385,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
-		Return(response, nil)
+		Return(addresses, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -431,21 +416,6 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 func TestPostYourAddressLookup(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	response := place.PostcodeLookupResponse{
-		TotalResults: 1,
-		Results: []place.AddressDetails{
-			{
-				Address:           "",
-				BuildingName:      "",
-				BuildingNumber:    "1",
-				ThoroughFareName:  "Road Way",
-				DependentLocality: "",
-				Town:              "Townville",
-				Postcode:          "",
-			},
-		},
-	}
-
 	addresses := []place.Address{
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
@@ -453,7 +423,7 @@ func TestPostYourAddressLookup(t *testing.T) {
 	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
-		Return(response, nil)
+		Return(addresses, nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -504,7 +474,7 @@ func TestPostYourAddressLookupError(t *testing.T) {
 	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
-		Return(place.PostcodeLookupResponse{TotalResults: 0}, expectedError)
+		Return([]place.Address{}, expectedError)
 
 	template := &mockTemplate{}
 	template.

@@ -3,7 +3,6 @@ package page
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -92,41 +91,7 @@ type CertificateProvider struct {
 }
 
 type AddressClient interface {
-	LookupPostcode(ctx context.Context, postcode string) (place.PostcodeLookupResponse, error)
-}
-
-func TransformAddressDetailsToAddress(ad place.AddressDetails) place.Address {
-	a := place.Address{}
-
-	if len(ad.BuildingName) > 0 {
-		a.Line1 = ad.BuildingName
-
-		if len(ad.BuildingNumber) > 0 {
-			a.Line2 = fmt.Sprintf("%s %s", ad.BuildingNumber, ad.ThoroughFareName)
-		} else {
-			a.Line2 = ad.ThoroughFareName
-		}
-
-		a.Line3 = ad.DependentLocality
-	} else {
-		a.Line1 = fmt.Sprintf("%s %s", ad.BuildingNumber, ad.ThoroughFareName)
-		a.Line2 = ad.DependentLocality
-	}
-
-	a.TownOrCity = ad.Town
-	a.Postcode = ad.Postcode
-
-	return a
-}
-
-func TransformAddressDetailsToAddresses(ads []place.AddressDetails) []place.Address {
-	var addresses []place.Address
-
-	for _, ad := range ads {
-		addresses = append(addresses, TransformAddressDetailsToAddress(ad))
-	}
-
-	return addresses
+	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
 }
 
 type Date struct {

@@ -3,6 +3,7 @@ package place
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -20,7 +21,7 @@ type Client struct {
 	doer    Doer
 }
 
-type AddressDetails struct {
+type addressDetails struct {
 	Address           string `json:"ADDRESS"`
 	BuildingName      string `json:"BUILDING_NAME,omitempty"`
 	BuildingNumber    string `json:"BUILDING_NUMBER,omitempty"`
@@ -30,44 +31,12 @@ type AddressDetails struct {
 	Postcode          string `json:"POSTCODE"`
 }
 
-type PostcodeLookupResponse struct {
-	TotalResults int
-	Results      []AddressDetails
-}
-
-// Implemented to flatten the struct returned (see test for nested results structure)
-func (plr *PostcodeLookupResponse) UnmarshalJSON(b []byte) error {
-	var originalPlr postcodeLookupResponse
-	if err := json.Unmarshal(b, &originalPlr); err != nil {
-		return err
-	}
-
-	plr.TotalResults = originalPlr.Header.TotalResults
-
-	if plr.TotalResults > 0 {
-		var addressDetails []AddressDetails
-
-		for _, result := range originalPlr.Results {
-			addressDetails = append(addressDetails, result.AddressDetails)
-		}
-
-		plr.Results = addressDetails
-	}
-
-	return nil
-}
-
-type PostcodeLookupResponseHeader struct {
-	TotalResults int `json:"totalresults"`
-}
-
 type postcodeLookupResponse struct {
-	Header  PostcodeLookupResponseHeader `json:"header"`
-	Results []resultSet                  `json:"results"`
+	Results []ResultSet `json:"results"`
 }
 
-type resultSet struct {
-	AddressDetails AddressDetails `json:"DPA"`
+type ResultSet struct {
+	AddressDetails addressDetails `json:"DPA"`
 }
 
 func NewClient(baseUrl, apiKey string, httpClient Doer) *Client {
@@ -78,7 +47,7 @@ func NewClient(baseUrl, apiKey string, httpClient Doer) *Client {
 	}
 }
 
-func (c *Client) LookupPostcode(ctx context.Context, postcode string) (PostcodeLookupResponse, error) {
+func (c *Client) LookupPostcode(ctx context.Context, postcode string) ([]Address, error) {
 	query := url.Values{
 		"postcode": {strings.ReplaceAll(postcode, " ", "")},
 		"key":      {c.apiKey},
@@ -89,7 +58,7 @@ func (c *Client) LookupPostcode(ctx context.Context, postcode string) (PostcodeL
 	req, err := http.NewRequestWithContext(ctx, "GET", reqUrl, nil)
 
 	if err != nil {
-		return PostcodeLookupResponse{}, err
+		return []Address{}, err
 	}
 
 	req.Header.Add("accept", "application/json")
@@ -97,18 +66,24 @@ func (c *Client) LookupPostcode(ctx context.Context, postcode string) (PostcodeL
 	resp, err := c.doer.Do(req)
 
 	if err != nil {
-		return PostcodeLookupResponse{}, err
+		return []Address{}, err
 	}
 
 	defer resp.Body.Close()
 
-	var postcodeLookupResponse PostcodeLookupResponse
+	var postcodeLookupResponse postcodeLookupResponse
 
 	if err := json.NewDecoder(resp.Body).Decode(&postcodeLookupResponse); err != nil {
-		return PostcodeLookupResponse{}, err
+		return []Address{}, err
 	}
 
-	return postcodeLookupResponse, nil
+	var addresses []Address
+
+	for _, resultSet := range postcodeLookupResponse.Results {
+		addresses = append(addresses, resultSet.AddressDetails.transformToAddress())
+	}
+
+	return addresses, nil
 }
 
 type Address struct {
@@ -144,4 +119,28 @@ func (a Address) String() string {
 	}
 
 	return strings.Join(parts, ", ")
+}
+
+func (ad *addressDetails) transformToAddress() Address {
+	a := Address{}
+
+	if len(ad.BuildingName) > 0 {
+		a.Line1 = ad.BuildingName
+
+		if len(ad.BuildingNumber) > 0 {
+			a.Line2 = fmt.Sprintf("%s %s", ad.BuildingNumber, ad.ThoroughFareName)
+		} else {
+			a.Line2 = ad.ThoroughFareName
+		}
+
+		a.Line3 = ad.DependentLocality
+	} else {
+		a.Line1 = fmt.Sprintf("%s %s", ad.BuildingNumber, ad.ThoroughFareName)
+		a.Line2 = ad.DependentLocality
+	}
+
+	a.TownOrCity = ad.Town
+	a.Postcode = ad.Postcode
+
+	return a
 }
