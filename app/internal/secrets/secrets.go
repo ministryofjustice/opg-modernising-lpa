@@ -89,6 +89,15 @@ func (c *Client) YotiPrivateKey() ([]byte, error) {
 	return keyBytes, nil
 }
 
+func (c *Client) OrdnanceSurveyApiKey() (string, error) {
+	secret, err := c.cache.GetSecretString("os-postcode-lookup-api-key")
+	if err != nil {
+		return "", err
+	}
+
+	return secret, nil
+}
+
 func (c *Client) NotifyApiKey() (string, error) {
 	secret, err := c.cache.GetSecretString("gov-uk-notify-api-key")
 	if err != nil {
