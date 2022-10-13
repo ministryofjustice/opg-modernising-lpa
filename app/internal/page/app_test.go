@@ -85,15 +85,6 @@ func TestLangRedirect(t *testing.T) {
 	}
 }
 
-func TestFakeAddressClient(t *testing.T) {
-	addresses, _ := fakeAddressClient{}.LookupPostcode("xyz")
-
-	assert.Equal(t, []Address{
-		{Line1: "123 Fake Street", TownOrCity: "Someville", Postcode: "xyz"},
-		{Line1: "456 Fake Street", TownOrCity: "Someville", Postcode: "xyz"},
-	}, addresses)
-}
-
 func TestMakeHandle(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)

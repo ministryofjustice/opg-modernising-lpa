@@ -57,15 +57,6 @@ type DataStore interface {
 	Put(context.Context, string, interface{}) error
 }
 
-type fakeAddressClient struct{}
-
-func (c fakeAddressClient) LookupPostcode(postcode string) ([]Address, error) {
-	return []Address{
-		{Line1: "123 Fake Street", TownOrCity: "Someville", Postcode: postcode},
-		{Line1: "456 Fake Street", TownOrCity: "Someville", Postcode: postcode},
-	}, nil
-}
-
 type YotiClient interface {
 	IsTest() bool
 	SdkID() string
