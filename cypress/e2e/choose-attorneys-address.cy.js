@@ -35,6 +35,7 @@ describe('Choose attorneys address', () => {
 
         cy.get('#f-address-line-1').type('Flat 2');
         cy.get('#f-address-line-2').type('123 Fake Street');
+        cy.get('#f-address-line-3').type('Pretendingham');
         cy.get('#f-address-town').type('Someville');
         cy.get('#f-address-postcode').type('NG1');
 

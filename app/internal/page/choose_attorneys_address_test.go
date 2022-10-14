@@ -162,8 +162,9 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
-					TownOrCity: "c",
-					Postcode:   "d",
+					Line3:      "c",
+					TownOrCity: "d",
+					Postcode:   "e",
 				},
 			},
 		}).
@@ -173,8 +174,9 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 		"action":           {"manual"},
 		"address-line-1":   {"a"},
 		"address-line-2":   {"b"},
-		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		"address-line-3":   {"c"},
+		"address-town":     {"d"},
+		"address-postcode": {"e"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -202,8 +204,9 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
-					TownOrCity: "c",
-					Postcode:   "d",
+					Line3:      "c",
+					TownOrCity: "d",
+					Postcode:   "e",
 				},
 			},
 		}).
@@ -213,8 +216,9 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 		"action":           {"manual"},
 		"address-line-1":   {"a"},
 		"address-line-2":   {"b"},
-		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		"address-line-3":   {"c"},
+		"address-town":     {"d"},
+		"address-postcode": {"e"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -246,8 +250,9 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
-					TownOrCity: "c",
-					Postcode:   "d",
+					Line3:      "c",
+					TownOrCity: "d",
+					Postcode:   "e",
 				},
 			},
 			WhoFor: "me",
@@ -258,8 +263,9 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 		"action":           {"manual"},
 		"address-line-1":   {"a"},
 		"address-line-2":   {"b"},
-		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		"address-line-3":   {"c"},
+		"address-town":     {"d"},
+		"address-postcode": {"e"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -540,8 +546,9 @@ func TestReadChooseAttorneysAddressForm(t *testing.T) {
 	expectedAddress := &place.Address{
 		Line1:      "a",
 		Line2:      "b",
-		TownOrCity: "c",
-		Postcode:   "d",
+		Line3:      "c",
+		TownOrCity: "d",
+		Postcode:   "e",
 	}
 
 	testCases := map[string]struct {
@@ -583,8 +590,9 @@ func TestReadChooseAttorneysAddressForm(t *testing.T) {
 				"action":           {"manual"},
 				"address-line-1":   {"a"},
 				"address-line-2":   {"b"},
-				"address-town":     {"c"},
-				"address-postcode": {"d"},
+				"address-line-3":   {"c"},
+				"address-town":     {"d"},
+				"address-postcode": {"e"},
 			},
 			result: &chooseAttorneysAddressForm{
 				Action:  "manual",

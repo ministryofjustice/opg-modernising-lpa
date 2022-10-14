@@ -169,8 +169,9 @@ func TestPostYourAddressManual(t *testing.T) {
 				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
-					TownOrCity: "c",
-					Postcode:   "d",
+					Line3:      "c",
+					TownOrCity: "d",
+					Postcode:   "e",
 				},
 			},
 		}).
@@ -180,8 +181,9 @@ func TestPostYourAddressManual(t *testing.T) {
 		"action":           {"manual"},
 		"address-line-1":   {"a"},
 		"address-line-2":   {"b"},
-		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		"address-line-3":   {"c"},
+		"address-town":     {"d"},
+		"address-postcode": {"e"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -209,8 +211,9 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
-					TownOrCity: "c",
-					Postcode:   "d",
+					Line3:      "c",
+					TownOrCity: "d",
+					Postcode:   "e",
 				},
 			},
 		}).
@@ -220,8 +223,9 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 		"action":           {"manual"},
 		"address-line-1":   {"a"},
 		"address-line-2":   {"b"},
-		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		"address-line-3":   {"c"},
+		"address-town":     {"d"},
+		"address-postcode": {"e"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -253,8 +257,9 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
-					TownOrCity: "c",
-					Postcode:   "d",
+					Line3:      "c",
+					TownOrCity: "d",
+					Postcode:   "e",
 				},
 			},
 			WhoFor: "me",
@@ -265,8 +270,9 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 		"action":           {"manual"},
 		"address-line-1":   {"a"},
 		"address-line-2":   {"b"},
-		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		"address-line-3":   {"c"},
+		"address-town":     {"d"},
+		"address-postcode": {"e"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -547,8 +553,9 @@ func TestReadYourAddressForm(t *testing.T) {
 	expectedAddress := &place.Address{
 		Line1:      "a",
 		Line2:      "b",
-		TownOrCity: "c",
-		Postcode:   "d",
+		Line3:      "c",
+		TownOrCity: "d",
+		Postcode:   "e",
 	}
 
 	testCases := map[string]struct {
@@ -590,8 +597,9 @@ func TestReadYourAddressForm(t *testing.T) {
 				"action":           {"manual"},
 				"address-line-1":   {"a"},
 				"address-line-2":   {"b"},
-				"address-town":     {"c"},
-				"address-postcode": {"d"},
+				"address-line-3":   {"c"},
+				"address-town":     {"d"},
+				"address-postcode": {"e"},
 			},
 			result: &yourAddressForm{
 				Action:  "manual",

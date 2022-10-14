@@ -96,6 +96,7 @@ func readChooseAttorneysAddressForm(r *http.Request) *chooseAttorneysAddressForm
 		d.Address = &place.Address{
 			Line1:      postFormString(r, "address-line-1"),
 			Line2:      postFormString(r, "address-line-2"),
+			Line3:      postFormString(r, "address-line-3"),
 			TownOrCity: postFormString(r, "address-town"),
 			Postcode:   postFormString(r, "address-postcode"),
 		}
