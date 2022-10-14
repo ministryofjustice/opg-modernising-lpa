@@ -22,6 +22,7 @@ module "eu_west_1" {
   alb_deletion_protection_enabled = local.environment.application_load_balancer.deletion_protection_enabled
   lpas_table                      = aws_dynamodb_table.lpas_table
   app_env_vars                    = local.environment.app.env
+  public_access_enabled           = local.environment.app.public_access_enabled
   providers = {
     aws.region = aws.eu_west_1
   }
@@ -42,6 +43,7 @@ module "eu_west_2" {
   alb_deletion_protection_enabled = local.environment.application_load_balancer.deletion_protection_enabled
   lpas_table                      = aws_dynamodb_table.lpas_table
   app_env_vars                    = local.environment.app.env
+  public_access_enabled           = local.environment.app.public_access_enabled
   providers = {
     aws.region = aws.eu_west_2
   }
