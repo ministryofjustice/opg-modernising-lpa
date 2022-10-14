@@ -106,7 +106,7 @@ jobs:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
           TF_VAR_container_version: ${{ inputs.version_tag }}
         run: |
-          echo ::set-output name=workspace_name::$(terraform output -raw workspace_name)
-          echo ::set-output name=container_version::$(terraform output -raw container_version)
-          echo ::set-output name=url::$(terraform output -raw app_fqdn)
+          echo "workspace_name=$(terraform output -raw workspace_name)" >> $GITHUB_OUTPUT
+          echo "container_version=$(terraform output -raw container_version)" >> $GITHUB_OUTPUT
+          echo "url=$(terraform output -raw app_fqdn)" >> $GITHUB_OUTPUT
         working-directory: ./terraform/environment
