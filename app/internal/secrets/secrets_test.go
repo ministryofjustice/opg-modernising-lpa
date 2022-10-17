@@ -1,11 +1,7 @@
 package secrets
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/x509"
 	"encoding/base64"
-	"encoding/pem"
 	"errors"
 	"testing"
 
@@ -24,46 +20,78 @@ func (m *mockSecretsCache) GetSecretString(name string) (string, error) {
 	return args.String(0), args.Error(1)
 }
 
-func TestPrivateKey(t *testing.T) {
-	priv, _ := rsa.GenerateKey(rand.Reader, 2048)
-	b, _ := x509.MarshalPKCS8PrivateKey(priv)
-	k := pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: b})
-
-	b64PrivatePem := base64.StdEncoding.EncodeToString(k)
+func TestSecret(t *testing.T) {
+	name := "a-test"
 
 	secretsCache := &mockSecretsCache{}
 	secretsCache.
-		On("GetSecretString", "private-jwt-key-base64").
-		Return(b64PrivatePem, nil)
+		On("GetSecretString", name).
+		Return("a-fake-key", nil)
 
 	c := &Client{cache: secretsCache}
 
-	result, err := c.PrivateKey()
+	result, err := c.Secret(name)
 	assert.Nil(t, err)
-	assert.Equal(t, priv, result)
+	assert.Equal(t, "a-fake-key", result)
 }
 
-func TestPrivateKeyWhenGetSecretError(t *testing.T) {
+func TestSecretWhenError(t *testing.T) {
+	name := "a-test"
+
 	secretsCache := &mockSecretsCache{}
 	secretsCache.
-		On("GetSecretString", "private-jwt-key-base64").
+		On("GetSecretString", name).
 		Return("", expectedError)
 
 	c := &Client{cache: secretsCache}
 
-	_, err := c.PrivateKey()
-	assert.Equal(t, expectedError, err)
+	result, err := c.Secret(name)
+	assert.Equal(t, "", result)
+	assert.True(t, errors.Is(err, expectedError))
 }
 
-func TestPrivateKeyWhenNotBase64(t *testing.T) {
+func TestSecretBytes(t *testing.T) {
+	name := "a-test"
+	key := []byte("hello")
+
 	secretsCache := &mockSecretsCache{}
 	secretsCache.
-		On("GetSecretString", "private-jwt-key-base64").
+		On("GetSecretString", name).
+		Return(base64.StdEncoding.EncodeToString(key), nil)
+
+	c := &Client{cache: secretsCache}
+
+	result, err := c.SecretBytes(name)
+	assert.Nil(t, err)
+	assert.Equal(t, key, result)
+}
+
+func TestSecretBytesWhenGetSecretError(t *testing.T) {
+	name := "a-test"
+	key := []byte("hello")
+
+	secretsCache := &mockSecretsCache{}
+	secretsCache.
+		On("GetSecretString", name).
+		Return(base64.StdEncoding.EncodeToString(key), expectedError)
+
+	c := &Client{cache: secretsCache}
+
+	_, err := c.SecretBytes(name)
+	assert.True(t, errors.Is(err, expectedError))
+}
+
+func TestSecretBytesWhenNotBase64(t *testing.T) {
+	name := "a-test"
+
+	secretsCache := &mockSecretsCache{}
+	secretsCache.
+		On("GetSecretString", name).
 		Return("hello", nil)
 
 	c := &Client{cache: secretsCache}
 
-	_, err := c.PrivateKey()
+	_, err := c.SecretBytes(name)
 	assert.NotNil(t, err)
 }
 
@@ -89,7 +117,7 @@ func TestCookieSessionKeysWhenGetSecretError(t *testing.T) {
 	c := &Client{cache: secretsCache}
 
 	_, err := c.CookieSessionKeys()
-	assert.Equal(t, expectedError, err)
+	assert.True(t, errors.Is(err, expectedError))
 }
 
 func TestCookieSessionKeysWhenNotJSON(t *testing.T) {
@@ -114,101 +142,4 @@ func TestCookieSessionKeysNotBase64(t *testing.T) {
 
 	_, err := c.CookieSessionKeys()
 	assert.NotNil(t, err)
-}
-
-func TestPayApiKey(t *testing.T) {
-	t.Run("Returns GOV UK Pay API key string", func(t *testing.T) {
-		secretsCache := &mockSecretsCache{}
-
-		secretsCache.
-			On("GetSecretString", "gov-uk-pay-api-key").
-			Return("a-fake-key", nil)
-
-		c := &Client{cache: secretsCache}
-
-		result, err := c.PayApiKey()
-		assert.Nil(t, err)
-		assert.Equal(t, "a-fake-key", result)
-	})
-
-	t.Run("Returns an error when an error occurs during GetSecretString", func(t *testing.T) {
-		secretsCache := &mockSecretsCache{}
-
-		secretsCache.
-			On("GetSecretString", "gov-uk-pay-api-key").
-			Return("", expectedError)
-
-		c := &Client{cache: secretsCache}
-
-		result, err := c.PayApiKey()
-		assert.Equal(t, "", result)
-		assert.Equal(t, expectedError, err)
-	})
-}
-
-func TestYotiPrivateKey(t *testing.T) {
-	key := []byte("hello")
-
-	secretsCache := &mockSecretsCache{}
-	secretsCache.
-		On("GetSecretString", "yoti-private-key").
-		Return(base64.StdEncoding.EncodeToString(key), nil)
-
-	c := &Client{cache: secretsCache}
-
-	result, err := c.YotiPrivateKey()
-	assert.Nil(t, err)
-	assert.Equal(t, key, result)
-}
-
-func TestYotiPrivateKeyWhenGetSecretError(t *testing.T) {
-	key := []byte("hello")
-
-	secretsCache := &mockSecretsCache{}
-	secretsCache.
-		On("GetSecretString", "yoti-private-key").
-		Return(base64.StdEncoding.EncodeToString(key), expectedError)
-
-	c := &Client{cache: secretsCache}
-
-	_, err := c.YotiPrivateKey()
-	assert.Equal(t, expectedError, errors.Unwrap(err))
-}
-
-func TestYotiPrivateKeyWhenNotBase64(t *testing.T) {
-	secretsCache := &mockSecretsCache{}
-	secretsCache.
-		On("GetSecretString", "yoti-private-key").
-		Return("hello", nil)
-
-	c := &Client{cache: secretsCache}
-
-	_, err := c.YotiPrivateKey()
-	assert.NotNil(t, err)
-}
-
-func TestNotifyApiKey(t *testing.T) {
-	secretsCache := &mockSecretsCache{}
-	secretsCache.
-		On("GetSecretString", "gov-uk-notify-api-key").
-		Return("a-fake-key", nil)
-
-	c := &Client{cache: secretsCache}
-
-	result, err := c.NotifyApiKey()
-	assert.Nil(t, err)
-	assert.Equal(t, "a-fake-key", result)
-}
-
-func TestNotifyApiKeyWhenError(t *testing.T) {
-	secretsCache := &mockSecretsCache{}
-	secretsCache.
-		On("GetSecretString", "gov-uk-notify-api-key").
-		Return("", expectedError)
-
-	c := &Client{cache: secretsCache}
-
-	result, err := c.NotifyApiKey()
-	assert.Equal(t, "", result)
-	assert.Equal(t, expectedError, err)
 }

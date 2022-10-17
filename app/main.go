@@ -245,7 +245,7 @@ func main() {
 
 	secureCookies := strings.HasPrefix(appPublicURL, "https:")
 
-	payApiKey, err := secretsClient.PayApiKey()
+	payApiKey, err := secretsClient.Secret(secrets.GovUkPay)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -256,7 +256,7 @@ func main() {
 		HttpClient: http.DefaultClient,
 	}
 
-	yotiPrivateKey, err := secretsClient.YotiPrivateKey()
+	yotiPrivateKey, err := secretsClient.SecretBytes(secrets.YotiPrivateKey)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -271,7 +271,7 @@ func main() {
 		}
 	}
 
-	notifyApiKey, err := secretsClient.NotifyApiKey()
+	notifyApiKey, err := secretsClient.Secret(secrets.GovUkNotify)
 	if err != nil {
 		logger.Fatal(err)
 	}
