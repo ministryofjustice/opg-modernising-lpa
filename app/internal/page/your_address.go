@@ -3,13 +3,15 @@ package page
 import (
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+
 	"github.com/ministryofjustice/opg-go-common/template"
 )
 
 type yourAddressData struct {
 	App       AppData
 	Errors    map[string]string
-	Addresses []Address
+	Addresses []place.Address
 	Form      *yourAddressForm
 }
 
@@ -45,11 +47,12 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 
 			if data.Form.Action == "lookup" && len(data.Errors) == 0 ||
 				data.Form.Action == "select" && len(data.Errors) > 0 {
-				addresses, err := addressClient.LookupPostcode(data.Form.LookupPostcode)
+				addresses, err := addressClient.LookupPostcode(r.Context(), data.Form.LookupPostcode)
 				if err != nil {
 					logger.Print(err)
 					data.Errors["lookup-postcode"] = "couldNotLookupPostcode"
 				}
+
 				data.Addresses = addresses
 			}
 		}
@@ -58,7 +61,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			action := r.FormValue("action")
 			if action == "manual" {
 				data.Form.Action = "manual"
-				data.Form.Address = &Address{}
+				data.Form.Address = &place.Address{}
 			}
 		}
 
@@ -69,7 +72,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 type yourAddressForm struct {
 	Action         string
 	LookupPostcode string
-	Address        *Address
+	Address        *place.Address
 }
 
 func readYourAddressForm(r *http.Request) *yourAddressForm {
@@ -88,9 +91,10 @@ func readYourAddressForm(r *http.Request) *yourAddressForm {
 		}
 
 	case "manual":
-		d.Address = &Address{
+		d.Address = &place.Address{
 			Line1:      postFormString(r, "address-line-1"),
 			Line2:      postFormString(r, "address-line-2"),
+			Line3:      postFormString(r, "address-line-3"),
 			TownOrCity: postFormString(r, "address-town"),
 			Postcode:   postFormString(r, "address-postcode"),
 		}

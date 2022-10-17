@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -55,15 +57,6 @@ type DataStore interface {
 	Put(context.Context, string, interface{}) error
 }
 
-type fakeAddressClient struct{}
-
-func (c fakeAddressClient) LookupPostcode(postcode string) ([]Address, error) {
-	return []Address{
-		{Line1: "123 Fake Street", TownOrCity: "Someville", Postcode: postcode},
-		{Line1: "456 Fake Street", TownOrCity: "Someville", Postcode: postcode},
-	}, nil
-}
-
 type YotiClient interface {
 	IsTest() bool
 	SdkID() string
@@ -106,10 +99,10 @@ func App(
 	yotiClient YotiClient,
 	yotiScenarioID string,
 	notifyClient NotifyClient,
+	AddressClient *place.Client,
 ) http.Handler {
 	mux := http.NewServeMux()
 
-	addressClient := fakeAddressClient{}
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
 
 	handle := makeHandle(mux, logger, sessionStore, localizer, lang)
@@ -127,7 +120,7 @@ func App(
 	handle(yourDetailsPath, RequireSession,
 		YourDetails(tmpls.Get("your_details.gohtml"), lpaStore))
 	handle(yourAddressPath, RequireSession,
-		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
+		YourAddress(logger, tmpls.Get("your_address.gohtml"), AddressClient, lpaStore))
 	handle(howWouldYouLikeToBeContactedPath, RequireSession,
 		HowWouldYouLikeToBeContacted(tmpls.Get("how_would_you_like_to_be_contacted.gohtml"), lpaStore))
 	handle(taskListPath, RequireSession,
@@ -135,7 +128,7 @@ func App(
 	handle(chooseAttorneysPath, RequireSession|CanGoBack,
 		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), lpaStore))
 	handle(chooseAttorneysAddressPath, RequireSession|CanGoBack,
-		ChooseAttorneysAddress(logger, tmpls.Get("choose_attorneys_address.gohtml"), addressClient, lpaStore))
+		ChooseAttorneysAddress(logger, tmpls.Get("choose_attorneys_address.gohtml"), AddressClient, lpaStore))
 	handle(wantReplacementAttorneysPath, RequireSession|CanGoBack,
 		WantReplacementAttorneys(tmpls.Get("want_replacement_attorneys.gohtml"), lpaStore))
 	handle(whenCanTheLpaBeUsedPath, RequireSession|CanGoBack,
