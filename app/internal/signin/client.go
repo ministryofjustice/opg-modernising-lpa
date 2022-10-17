@@ -2,7 +2,6 @@ package signin
 
 import (
 	"context"
-	"crypto/rsa"
 	"encoding/json"
 	"net/http"
 	"net/url"
@@ -31,7 +30,7 @@ type Logger interface {
 }
 
 type SecretsClient interface {
-	PrivateKey() (*rsa.PrivateKey, error)
+	SecretBytes(name string) ([]byte, error)
 }
 
 type Client struct {
