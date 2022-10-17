@@ -1,7 +1,6 @@
 package secrets
 
 import (
-	"crypto/rsa"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -9,7 +8,15 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/aws/aws-secretsmanager-caching-go/secretcache"
-	"github.com/golang-jwt/jwt"
+)
+
+const (
+	GovUkNotify           = "gov-uk-notify-api-key"
+	GovUkPay              = "gov-uk-pay-api-key"
+	GovUkSignInPrivateKey = "private-jwt-key-base64"
+	YotiPrivateKey        = "yoti-private-key"
+
+	cookieSessionKeys = "cookie-session-keys"
 )
 
 type secretsCache interface {
@@ -29,22 +36,31 @@ func NewClient(sess *session.Session) (*Client, error) {
 	return &Client{cache: cache}, nil
 }
 
-func (c *Client) PrivateKey() (*rsa.PrivateKey, error) {
-	secret, err := c.cache.GetSecretString("private-jwt-key-base64")
+func (c *Client) Secret(name string) (string, error) {
+	secret, err := c.cache.GetSecretString(name)
+	if err != nil {
+		return "", fmt.Errorf("error retrieving secret '%s': %w", name, err)
+	}
+
+	return secret, nil
+}
+
+func (c *Client) SecretBytes(name string) ([]byte, error) {
+	secret, err := c.Secret(name)
 	if err != nil {
 		return nil, err
 	}
 
 	keyBytes, err := base64.StdEncoding.DecodeString(secret)
 	if err != nil {
-		return nil, fmt.Errorf("error decoding base64 secret: %w", err)
+		return nil, fmt.Errorf("error decoding base64 secret '%s': %w", name, err)
 	}
 
-	return jwt.ParseRSAPrivateKeyFromPEM(keyBytes)
+	return keyBytes, nil
 }
 
 func (c *Client) CookieSessionKeys() ([][]byte, error) {
-	secret, err := c.cache.GetSecretString("cookie-session-keys")
+	secret, err := c.Secret(cookieSessionKeys)
 	if err != nil {
 		return nil, err
 	}
@@ -64,36 +80,4 @@ func (c *Client) CookieSessionKeys() ([][]byte, error) {
 	}
 
 	return keys, nil
-}
-
-func (c *Client) PayApiKey() (string, error) {
-	secret, err := c.cache.GetSecretString("gov-uk-pay-api-key")
-	if err != nil {
-		return "", err
-	}
-
-	return secret, nil
-}
-
-func (c *Client) YotiPrivateKey() ([]byte, error) {
-	secret, err := c.cache.GetSecretString("yoti-private-key")
-	if err != nil {
-		return nil, fmt.Errorf("get yoti sandbox key: %w", err)
-	}
-
-	keyBytes, err := base64.StdEncoding.DecodeString(secret)
-	if err != nil {
-		return nil, fmt.Errorf("error decoding base64 yoti key: %w", err)
-	}
-
-	return keyBytes, nil
-}
-
-func (c *Client) NotifyApiKey() (string, error) {
-	secret, err := c.cache.GetSecretString("gov-uk-notify-api-key")
-	if err != nil {
-		return "", err
-	}
-
-	return secret, nil
 }
