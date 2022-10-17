@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -123,7 +125,7 @@ func TestPostYourDetails(t *testing.T) {
 		Return(Lpa{
 			You: Person{
 				FirstNames: "John",
-				Address:    Address{Line1: "abc"},
+				Address:    place.Address{Line1: "abc"},
 			},
 		}, nil)
 	lpaStore.
@@ -132,7 +134,7 @@ func TestPostYourDetails(t *testing.T) {
 				FirstNames:  "John",
 				LastName:    "Doe",
 				DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
-				Address:     Address{Line1: "abc"},
+				Address:     place.Address{Line1: "abc"},
 			},
 		}).
 		Return(nil)
@@ -166,7 +168,7 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 		Return(Lpa{
 			You: Person{
 				FirstNames: "John",
-				Address:    Address{Line1: "abc"},
+				Address:    place.Address{Line1: "abc"},
 			},
 		}, nil)
 	lpaStore.
@@ -175,7 +177,7 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 				FirstNames:  "John",
 				LastName:    "Doe",
 				DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
-				Address:     Address{Line1: "abc"},
+				Address:     place.Address{Line1: "abc"},
 			},
 		}).
 		Return(expectedError)

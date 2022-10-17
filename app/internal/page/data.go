@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"strconv"
-	"strings"
 	"time"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 )
@@ -68,7 +69,7 @@ type Person struct {
 	Email       string
 	OtherNames  string
 	DateOfBirth time.Time
-	Address     Address
+	Address     place.Address
 }
 
 type Attorney struct {
@@ -76,7 +77,7 @@ type Attorney struct {
 	LastName    string
 	Email       string
 	DateOfBirth time.Time
-	Address     Address
+	Address     place.Address
 }
 
 type CertificateProvider struct {
@@ -89,45 +90,8 @@ type CertificateProvider struct {
 	RelationshipLength      string
 }
 
-type Address struct {
-	Line1      string
-	Line2      string
-	TownOrCity string
-	Postcode   string
-}
-
 type AddressClient interface {
-	LookupPostcode(string) ([]Address, error)
-}
-
-func (a Address) Encode() string {
-	x, _ := json.Marshal(a)
-	return string(x)
-}
-
-func DecodeAddress(s string) *Address {
-	var v Address
-	json.Unmarshal([]byte(s), &v)
-	return &v
-}
-
-func (a Address) String() string {
-	var parts []string
-
-	if a.Line1 != "" {
-		parts = append(parts, a.Line1)
-	}
-	if a.Line2 != "" {
-		parts = append(parts, a.Line2)
-	}
-	if a.TownOrCity != "" {
-		parts = append(parts, a.TownOrCity)
-	}
-	if a.Postcode != "" {
-		parts = append(parts, a.Postcode)
-	}
-
-	return strings.Join(parts, ", ")
+	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
 }
 
 type Date struct {
@@ -174,4 +138,10 @@ func (s *lpaStore) Get(ctx context.Context, sessionID string) (Lpa, error) {
 
 func (s *lpaStore) Put(ctx context.Context, sessionID string, lpa Lpa) error {
 	return s.dataStore.Put(ctx, sessionID, lpa)
+}
+
+func DecodeAddress(s string) *place.Address {
+	var v place.Address
+	json.Unmarshal([]byte(s), &v)
+	return &v
 }

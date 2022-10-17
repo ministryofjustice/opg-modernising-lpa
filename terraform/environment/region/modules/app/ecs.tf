@@ -129,6 +129,11 @@ data "aws_secretsmanager_secret" "gov_uk_notify_api_key" {
   provider = aws.region
 }
 
+data "aws_secretsmanager_secret" "os_postcode_lookup_api_key" {
+  name     = "os-postcode-lookup-api-key"
+  provider = aws.region
+}
+
 data "aws_iam_policy_document" "task_role_access_policy" {
   statement {
     sid    = "XrayAccess"
@@ -189,6 +194,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
       data.aws_secretsmanager_secret.gov_uk_pay_api_key.arn,
       data.aws_secretsmanager_secret.yoti_private_key.arn,
       data.aws_secretsmanager_secret.gov_uk_notify_api_key.arn,
+      data.aws_secretsmanager_secret.os_postcode_lookup_api_key.arn,
     ]
   }
 
@@ -276,7 +282,11 @@ locals {
         {
           name  = "YOTI_SANDBOX",
           value = var.app_env_vars.yoti_sandbox
-        }
+        },
+        {
+          name  = "ORDNANCE_SURVEY_BASE_URL",
+          value = "https://api.os.uk"
+        },
       ]
     }
   )

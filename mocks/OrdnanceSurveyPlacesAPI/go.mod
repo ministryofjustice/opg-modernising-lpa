@@ -1,4 +1,4 @@
-module github.com/ministryofjustice/opg-modernising-lpa/mocks/GOVUKNotify
+module github.com/ministryofjustice/opg-modernising-lpa/mocks/OrdnanceSurveyPlacesAPI
 
 go 1.19
 

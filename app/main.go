@@ -13,6 +13,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/gorilla/sessions"
@@ -36,19 +38,20 @@ func main() {
 	logger := logging.New(os.Stdout, "opg-modernising-lpa")
 
 	var (
-		port                = env.Get("APP_PORT", "8080")
-		appPublicURL        = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
-		authRedirectBaseURL = env.Get("AUTH_REDIRECT_BASE_URL", "http://localhost:5050")
-		webDir              = env.Get("WEB_DIR", "web")
-		awsBaseURL          = env.Get("AWS_BASE_URL", "")
-		clientID            = env.Get("CLIENT_ID", "client-id-value")
-		issuer              = env.Get("ISSUER", "http://sign-in-mock:7012")
-		dynamoTableLpas     = env.Get("DYNAMODB_TABLE_LPAS", "")
-		payBaseUrl          = env.Get("GOVUK_PAY_BASE_URL", "http://pay-mock:4010")
-		yotiClientSdkID     = env.Get("YOTI_CLIENT_SDK_ID", "")
-		yotiScenarioID      = env.Get("YOTI_SCENARIO_ID", "")
-		yotiSandbox         = env.Get("YOTI_SANDBOX", "") == "1"
-		notifyBaseURL       = env.Get("GOVUK_NOTIFY_BASE_URL", "")
+		appPublicURL          = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
+		authRedirectBaseURL   = env.Get("AUTH_REDIRECT_BASE_URL", "http://localhost:5050")
+		webDir                = env.Get("WEB_DIR", "web")
+		awsBaseURL            = env.Get("AWS_BASE_URL", "")
+		clientID              = env.Get("CLIENT_ID", "client-id-value")
+		issuer                = env.Get("ISSUER", "http://sign-in-mock:7012")
+		dynamoTableLpas       = env.Get("DYNAMODB_TABLE_LPAS", "")
+		notifyBaseURL         = env.Get("GOVUK_NOTIFY_BASE_URL", "")
+		ordnanceSurveyBaseUrl = env.Get("ORDNANCE_SURVEY_BASE_URL", "http://ordnance-survey-mock:4011")
+		payBaseUrl            = env.Get("GOVUK_PAY_BASE_URL", "http://pay-mock:4010")
+		port                  = env.Get("APP_PORT", "8080")
+		yotiClientSdkID       = env.Get("YOTI_CLIENT_SDK_ID", "")
+		yotiScenarioID        = env.Get("YOTI_SCENARIO_ID", "")
+		yotiSandbox           = env.Get("YOTI_SANDBOX", "") == "1"
 	)
 
 	tmpls, err := template.Parse(webDir+"/template", map[string]interface{}{
@@ -245,7 +248,7 @@ func main() {
 
 	secureCookies := strings.HasPrefix(appPublicURL, "https:")
 
-	payApiKey, err := secretsClient.PayApiKey()
+	payApiKey, err := secretsClient.Secret(secrets.GovUkPay)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -256,7 +259,7 @@ func main() {
 		HttpClient: http.DefaultClient,
 	}
 
-	yotiPrivateKey, err := secretsClient.YotiPrivateKey()
+	yotiPrivateKey, err := secretsClient.SecretBytes(secrets.YotiPrivateKey)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -271,7 +274,14 @@ func main() {
 		}
 	}
 
-	notifyApiKey, err := secretsClient.NotifyApiKey()
+	osApiKey, err := secretsClient.Secret(secrets.OrdnanceSurvey)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	addressClient := place.NewClient(ordnanceSurveyBaseUrl, osApiKey, http.DefaultClient)
+
+	notifyApiKey, err := secretsClient.Secret(secrets.GovUkNotify)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -286,8 +296,8 @@ func main() {
 	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies))
 	mux.Handle(page.AuthPath, page.Login(logger, signInClient, sessionStore, secureCookies, random.String))
 	mux.Handle("/cookies-consent", page.CookieConsent())
-	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient)))
-	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient))
+	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient)))
+	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient))
 
 	server := &http.Server{
 		Addr:              ":" + port,
