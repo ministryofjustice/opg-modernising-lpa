@@ -21,11 +21,11 @@
     },
     "devDependencies": {
         "axe-core": "4.4.3",
-        "cypress": "10.9.0",
+        "cypress": "10.10.0",
         "cypress-axe": "1.0.0",
         "cypress-multi-reporters": "1.6.1",
         "cypress-parallel": "0.9.1",
-        "esbuild": "0.15.10",
+        "esbuild": "0.15.11",
         "sass": "1.55.0"
     }
 }
