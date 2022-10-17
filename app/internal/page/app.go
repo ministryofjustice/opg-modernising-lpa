@@ -99,7 +99,7 @@ func App(
 	yotiClient YotiClient,
 	yotiScenarioID string,
 	notifyClient NotifyClient,
-	addressClient *place.Client,
+	AddressClient *place.Client,
 ) http.Handler {
 	mux := http.NewServeMux()
 
@@ -120,7 +120,7 @@ func App(
 	handle(yourDetailsPath, RequireSession,
 		YourDetails(tmpls.Get("your_details.gohtml"), lpaStore))
 	handle(yourAddressPath, RequireSession,
-		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
+		YourAddress(logger, tmpls.Get("your_address.gohtml"), AddressClient, lpaStore))
 	handle(howWouldYouLikeToBeContactedPath, RequireSession,
 		HowWouldYouLikeToBeContacted(tmpls.Get("how_would_you_like_to_be_contacted.gohtml"), lpaStore))
 	handle(taskListPath, RequireSession,
@@ -128,7 +128,7 @@ func App(
 	handle(chooseAttorneysPath, RequireSession|CanGoBack,
 		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), lpaStore))
 	handle(chooseAttorneysAddressPath, RequireSession|CanGoBack,
-		ChooseAttorneysAddress(logger, tmpls.Get("choose_attorneys_address.gohtml"), addressClient, lpaStore))
+		ChooseAttorneysAddress(logger, tmpls.Get("choose_attorneys_address.gohtml"), AddressClient, lpaStore))
 	handle(wantReplacementAttorneysPath, RequireSession|CanGoBack,
 		WantReplacementAttorneys(tmpls.Get("want_replacement_attorneys.gohtml"), lpaStore))
 	handle(whenCanTheLpaBeUsedPath, RequireSession|CanGoBack,
