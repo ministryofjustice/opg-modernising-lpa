@@ -50,6 +50,7 @@
     },
     "addressLine1": "Address line 1",
     "addressLine2": "Address line 2 (optional)",
+    "addressLine3": "Address line 3 (optional)",
     "townOrCity": "Town or city",
     "enterPostcode": "Enter a postcode",
     "selectAddress": "Select address",

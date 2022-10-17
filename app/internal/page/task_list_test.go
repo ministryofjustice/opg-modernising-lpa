@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -61,12 +63,12 @@ func TestGetTaskList(t *testing.T) {
 		"complete": {
 			lpa: Lpa{
 				You: Person{
-					Address: Address{
+					Address: place.Address{
 						Line1: "this",
 					},
 				},
 				Attorney: Attorney{
-					Address: Address{
+					Address: place.Address{
 						Line1: "this",
 					},
 				},
