@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 )
 
 type tokenRequestBody struct {
@@ -26,7 +27,12 @@ type tokenResponseBody struct {
 }
 
 func (c *Client) Exchange(code, nonce string) (string, error) {
-	privateKey, err := c.secretsClient.PrivateKey()
+	privateKeyBytes, err := c.secretsClient.SecretBytes(secrets.GovUkSignInPrivateKey)
+	if err != nil {
+		return "", err
+	}
+
+	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKeyBytes)
 	if err != nil {
 		return "", err
 	}
