@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -58,7 +60,7 @@ func TestGetChooseAttorneysAddressWhenStoreErrors(t *testing.T) {
 func TestGetChooseAttorneysAddressFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	address := Address{Line1: "abc"}
+	address := place.Address{Line1: "abc"}
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
@@ -106,7 +108,7 @@ func TestGetChooseAttorneysAddressManual(t *testing.T) {
 			App: appData,
 			Form: &chooseAttorneysAddressForm{
 				Action:  "manual",
-				Address: &Address{},
+				Address: &place.Address{},
 			},
 		}).
 		Return(nil)
@@ -157,11 +159,12 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 	lpaStore.
 		On("Put", mock.Anything, "session-id", Lpa{
 			Attorney: Attorney{
-				Address: Address{
+				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
-					TownOrCity: "c",
-					Postcode:   "d",
+					Line3:      "c",
+					TownOrCity: "d",
+					Postcode:   "e",
 				},
 			},
 		}).
@@ -171,8 +174,9 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 		"action":           {"manual"},
 		"address-line-1":   {"a"},
 		"address-line-2":   {"b"},
-		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		"address-line-3":   {"c"},
+		"address-town":     {"d"},
+		"address-postcode": {"e"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -197,11 +201,12 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 	lpaStore.
 		On("Put", mock.Anything, "session-id", Lpa{
 			Attorney: Attorney{
-				Address: Address{
+				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
-					TownOrCity: "c",
-					Postcode:   "d",
+					Line3:      "c",
+					TownOrCity: "d",
+					Postcode:   "e",
 				},
 			},
 		}).
@@ -211,8 +216,9 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 		"action":           {"manual"},
 		"address-line-1":   {"a"},
 		"address-line-2":   {"b"},
-		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		"address-line-3":   {"c"},
+		"address-town":     {"d"},
+		"address-postcode": {"e"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -233,7 +239,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 		Return(Lpa{
 			Attorney: Attorney{
 				FirstNames: "John",
-				Address:    Address{Line1: "abc"},
+				Address:    place.Address{Line1: "abc"},
 			},
 			WhoFor: "me",
 		}, nil)
@@ -241,11 +247,12 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 		On("Put", mock.Anything, "session-id", Lpa{
 			Attorney: Attorney{
 				FirstNames: "John",
-				Address: Address{
+				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
-					TownOrCity: "c",
-					Postcode:   "d",
+					Line3:      "c",
+					TownOrCity: "d",
+					Postcode:   "e",
 				},
 			},
 			WhoFor: "me",
@@ -256,8 +263,9 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 		"action":           {"manual"},
 		"address-line-1":   {"a"},
 		"address-line-2":   {"b"},
-		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		"address-line-3":   {"c"},
+		"address-town":     {"d"},
+		"address-postcode": {"e"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -293,7 +301,7 @@ func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 			App: appData,
 			Form: &chooseAttorneysAddressForm{
 				Action: "manual",
-				Address: &Address{
+				Address: &place.Address{
 					Line2:      "b",
 					TownOrCity: "c",
 					Postcode:   "d",
@@ -319,7 +327,7 @@ func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 func TestPostChooseAttorneysAddressSelect(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	expectedAddress := &Address{
+	expectedAddress := &place.Address{
 		Line1:      "a",
 		Line2:      "b",
 		TownOrCity: "c",
@@ -364,8 +372,8 @@ func TestPostChooseAttorneysAddressSelectWhenValidationError(t *testing.T) {
 		"lookup-postcode": {"NG1"},
 	}
 
-	addresses := []Address{
-		{Line1: "a", Line2: "b"},
+	addresses := []place.Address{
+		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
 
 	lpaStore := &mockLpaStore{}
@@ -375,7 +383,7 @@ func TestPostChooseAttorneysAddressSelectWhenValidationError(t *testing.T) {
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", "NG1").
+		On("LookupPostcode", mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	template := &mockTemplate{}
@@ -407,13 +415,13 @@ func TestPostChooseAttorneysAddressSelectWhenValidationError(t *testing.T) {
 func TestPostChooseAttorneysAddressLookup(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	addresses := []Address{
-		{Line1: "a", Line2: "b"},
+	addresses := []place.Address{
+		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", "NG1").
+		On("LookupPostcode", mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	lpaStore := &mockLpaStore{}
@@ -464,8 +472,8 @@ func TestPostChooseAttorneysAddressLookupError(t *testing.T) {
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", "NG1").
-		Return([]Address{}, expectedError)
+		On("LookupPostcode", mock.Anything, "NG1").
+		Return([]place.Address{}, expectedError)
 
 	template := &mockTemplate{}
 	template.
@@ -475,7 +483,7 @@ func TestPostChooseAttorneysAddressLookupError(t *testing.T) {
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
-			Addresses: []Address{},
+			Addresses: []place.Address{},
 			Errors: map[string]string{
 				"lookup-postcode": "couldNotLookupPostcode",
 			},
@@ -535,11 +543,12 @@ func TestPostChooseAttorneysAddressLookupWhenValidationError(t *testing.T) {
 }
 
 func TestReadChooseAttorneysAddressForm(t *testing.T) {
-	expectedAddress := &Address{
+	expectedAddress := &place.Address{
 		Line1:      "a",
 		Line2:      "b",
-		TownOrCity: "c",
-		Postcode:   "d",
+		Line3:      "c",
+		TownOrCity: "d",
+		Postcode:   "e",
 	}
 
 	testCases := map[string]struct {
@@ -581,8 +590,9 @@ func TestReadChooseAttorneysAddressForm(t *testing.T) {
 				"action":           {"manual"},
 				"address-line-1":   {"a"},
 				"address-line-2":   {"b"},
-				"address-town":     {"c"},
-				"address-postcode": {"d"},
+				"address-line-3":   {"c"},
+				"address-town":     {"d"},
+				"address-postcode": {"e"},
 			},
 			result: &chooseAttorneysAddressForm{
 				Action:  "manual",
@@ -625,7 +635,7 @@ func TestChooseAttorneysAddressFormValidate(t *testing.T) {
 		"select-valid": {
 			form: &chooseAttorneysAddressForm{
 				Action:  "select",
-				Address: &Address{},
+				Address: &place.Address{},
 			},
 			errors: map[string]string{},
 		},
@@ -641,7 +651,7 @@ func TestChooseAttorneysAddressFormValidate(t *testing.T) {
 		"manual-valid": {
 			form: &chooseAttorneysAddressForm{
 				Action: "manual",
-				Address: &Address{
+				Address: &place.Address{
 					Line1:      "a",
 					TownOrCity: "b",
 					Postcode:   "c",
@@ -652,7 +662,7 @@ func TestChooseAttorneysAddressFormValidate(t *testing.T) {
 		"manual-missing-all": {
 			form: &chooseAttorneysAddressForm{
 				Action:  "manual",
-				Address: &Address{},
+				Address: &place.Address{},
 			},
 			errors: map[string]string{
 				"address-line-1":   "enterAddress",
