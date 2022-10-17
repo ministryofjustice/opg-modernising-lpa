@@ -1,0 +1,8 @@
+{
+    "message-id": "hi",
+    "with-format": "hi {{.name}}",
+    "with-count": {
+        "one": "hi one",
+        "other": "hi other"
+    }
+}
