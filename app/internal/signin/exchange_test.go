@@ -3,7 +3,9 @@ package signin
 import (
 	"bytes"
 	"crypto/rsa"
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"errors"
 	"io/ioutil"
 	"math/rand"
@@ -13,6 +15,7 @@ import (
 
 	"github.com/MicahParks/keyfunc"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -21,9 +24,9 @@ type mockSecretsClient struct {
 	mock.Mock
 }
 
-func (m *mockSecretsClient) PrivateKey() (*rsa.PrivateKey, error) {
-	args := m.Called()
-	return args.Get(0).(*rsa.PrivateKey), args.Error(1)
+func (m *mockSecretsClient) SecretBytes(name string) ([]byte, error) {
+	args := m.Called(name)
+	return args.Get(0).([]byte), args.Error(1)
 }
 
 func TestExchange(t *testing.T) {
@@ -57,8 +60,13 @@ func TestExchange(t *testing.T) {
 
 	secretsClient := &mockSecretsClient{}
 	secretsClient.
-		On("PrivateKey").
-		Return(privateKey, nil)
+		On("SecretBytes", secrets.GovUkSignInPrivateKey).
+		Return(pem.EncodeToMemory(
+			&pem.Block{
+				Type:  "RSA PRIVATE KEY",
+				Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
+			},
+		), nil)
 
 	httpClient := &mockHttpClient{}
 	httpClient.
@@ -112,8 +120,8 @@ func TestExchangeWhenPrivateKeyError(t *testing.T) {
 
 	secretsClient := &mockSecretsClient{}
 	secretsClient.
-		On("PrivateKey").
-		Return(&rsa.PrivateKey{}, expectedError)
+		On("SecretBytes", secrets.GovUkSignInPrivateKey).
+		Return([]byte{}, expectedError)
 
 	client := &Client{
 		secretsClient: secretsClient,
@@ -132,8 +140,13 @@ func TestExchangeWhenTokenRequestError(t *testing.T) {
 
 	secretsClient := &mockSecretsClient{}
 	secretsClient.
-		On("PrivateKey").
-		Return(privateKey, nil)
+		On("SecretBytes", secrets.GovUkSignInPrivateKey).
+		Return(pem.EncodeToMemory(
+			&pem.Block{
+				Type:  "RSA PRIVATE KEY",
+				Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
+			},
+		), nil)
 
 	httpClient := &mockHttpClient{}
 	httpClient.
@@ -260,8 +273,13 @@ func TestExchangeWhenInvalidToken(t *testing.T) {
 
 			secretsClient := &mockSecretsClient{}
 			secretsClient.
-				On("PrivateKey").
-				Return(privateKey, nil)
+				On("SecretBytes", secrets.GovUkSignInPrivateKey).
+				Return(pem.EncodeToMemory(
+					&pem.Block{
+						Type:  "RSA PRIVATE KEY",
+						Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
+					},
+				), nil)
 
 			httpClient := &mockHttpClient{}
 			httpClient.
