@@ -13,7 +13,7 @@ fi
 export TF_EXIT_CODE="0"
 
 in_use_workspaces=( "$@" )
-reserved_workspaces=( "default" "production" "preproduction")
+reserved_workspaces=( "default" "production" "preproduction" "ur")
 
 protected_workspaces=( "${in_use_workspaces[@]} ${reserved_workspaces[@]}" )
 all_workspaces=$(terraform workspace list|sed 's/*//g')
