@@ -3,15 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
-	html "html/template"
 	"net/http"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 	"time"
-	"unicode"
-	"unicode/utf8"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
@@ -30,7 +27,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
-	"golang.org/x/exp/slices"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
 )
 
 func main() {
@@ -54,158 +51,7 @@ func main() {
 		yotiSandbox           = env.Get("YOTI_SANDBOX", "") == "1"
 	)
 
-	tmpls, err := template.Parse(webDir+"/template", map[string]interface{}{
-		"isEnglish": func(lang page.Lang) bool {
-			return lang == page.En
-		},
-		"isWelsh": func(lang page.Lang) bool {
-			return lang == page.Cy
-		},
-		"input": func(top interface{}, name, label string, value interface{}, attrs ...interface{}) map[string]interface{} {
-			field := map[string]interface{}{
-				"top":   top,
-				"name":  name,
-				"label": label,
-				"value": value,
-			}
-
-			if len(attrs)%2 != 0 {
-				panic("must have even number of attrs")
-			}
-
-			for i := 0; i < len(attrs); i += 2 {
-				field[attrs[i].(string)] = attrs[i+1]
-			}
-
-			return field
-		},
-		"items": func(top interface{}, name string, value interface{}, items ...interface{}) map[string]interface{} {
-			return map[string]interface{}{
-				"top":   top,
-				"name":  name,
-				"value": value,
-				"items": items,
-			}
-		},
-		"item": func(value, label string, attrs ...interface{}) map[string]interface{} {
-			item := map[string]interface{}{
-				"value": value,
-				"label": label,
-			}
-
-			if len(attrs)%2 != 0 {
-				panic("must have even number of attrs")
-			}
-
-			for i := 0; i < len(attrs); i += 2 {
-				item[attrs[i].(string)] = attrs[i+1]
-			}
-
-			return item
-		},
-		"fieldID": func(name string, i int) string {
-			if i == 0 {
-				return name
-			}
-
-			return fmt.Sprintf("%s-%d", name, i+1)
-		},
-		"errorMessage": func(top interface{}, name string) map[string]interface{} {
-			return map[string]interface{}{
-				"top":  top,
-				"name": name,
-			}
-		},
-		"details": func(top interface{}, name, detail string) map[string]interface{} {
-			return map[string]interface{}{
-				"top":    top,
-				"name":   name,
-				"detail": detail,
-			}
-		},
-		"inc": func(i int) int {
-			return i + 1
-		},
-		"link": func(app page.AppData, path string) string {
-			if app.Lang == page.Cy {
-				return "/cy" + path
-			}
-
-			return path
-		},
-		"contains": func(needle string, list interface{}) bool {
-			if slist, ok := list.([]string); ok {
-				return slices.Contains(slist, needle)
-			}
-
-			if slist, ok := list.([]page.IdentityOption); ok {
-				for _, item := range slist {
-					if item.String() == needle {
-						return true
-					}
-				}
-			}
-
-			return false
-		},
-		"tr": func(app page.AppData, messageID string) string {
-			return app.Localizer.T(messageID)
-		},
-		"trFormat": func(app page.AppData, messageID string, args ...interface{}) string {
-			if len(args)%2 != 0 {
-				panic("must have even number of args")
-			}
-
-			data := map[string]interface{}{}
-			for i := 0; i < len(args); i += 2 {
-				data[args[i].(string)] = args[i+1]
-			}
-
-			return app.Localizer.Format(messageID, data)
-		},
-		"trFormatHtml": func(app page.AppData, messageID string, args ...interface{}) html.HTML {
-			if len(args)%2 != 0 {
-				panic("must have even number of args")
-			}
-
-			data := map[string]interface{}{}
-			for i := 0; i < len(args); i += 2 {
-				data[args[i].(string)] = args[i+1]
-			}
-
-			return html.HTML(app.Localizer.Format(messageID, data))
-		},
-		"trHtml": func(app page.AppData, messageID string) html.HTML {
-			return html.HTML(app.Localizer.T(messageID))
-		},
-		"trCount": func(app page.AppData, messageID string, count int) string {
-			return app.Localizer.Count(messageID, count)
-		},
-		"now": func() time.Time {
-			return time.Now()
-		},
-		"addDays": func(days int, t time.Time) time.Time {
-			return t.AddDate(0, 0, days)
-		},
-		"formatDate": func(t time.Time) string {
-			if t.IsZero() {
-				return ""
-			}
-
-			return t.Format("2 January 2006")
-		},
-		"formatDateTime": func(t time.Time) string {
-			if t.IsZero() {
-				return ""
-			}
-
-			return t.Format("15:04:05, 2 January 2006")
-		},
-		"lowerFirst": func(s string) string {
-			r, n := utf8.DecodeRuneInString(s)
-			return string(unicode.ToLower(r)) + s[n:]
-		},
-	})
+	tmpls, err := template.Parse(webDir+"/template", templatefn.All)
 	if err != nil {
 		logger.Fatal(err)
 	}
