@@ -61,6 +61,9 @@
     "enterAddress": "Enter address",
     "enterTownOrCity": "Enter town or city",
     "couldNotLookupPostcode": "Could not lookup postcode",
+    "addressLine1TooLong": "Change address line 1 so that it has fewer than 51 characters",
+    "addressLine2TooLong": "Change address line 2 so that it has fewer than 51 characters",
+    "addressLine3TooLong": "Change address line 3 so that it has fewer than 51 characters",
 
     "whoIsThisLpaFor": "Who is this LPA for?",
     "forMe": "For me",
