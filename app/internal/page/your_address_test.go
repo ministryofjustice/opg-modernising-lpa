@@ -661,7 +661,6 @@ func TestYourAddressFormValidate(t *testing.T) {
 				Address: &place.Address{
 					Line1:      "a",
 					TownOrCity: "b",
-					Postcode:   "c",
 				},
 			},
 			errors: map[string]string{},
@@ -672,9 +671,38 @@ func TestYourAddressFormValidate(t *testing.T) {
 				Address: &place.Address{},
 			},
 			errors: map[string]string{
-				"address-line-1":   "enterAddress",
-				"address-town":     "enterTownOrCity",
-				"address-postcode": "enterPostcode",
+				"address-line-1": "enterAddress",
+				"address-town":   "enterTownOrCity",
+			},
+		},
+		"manual-max-length": {
+			form: &yourAddressForm{
+				Action: "manual",
+				Address: &place.Address{
+					Line1:      strings.Repeat("x", 50),
+					Line2:      strings.Repeat("x", 50),
+					Line3:      strings.Repeat("x", 50),
+					TownOrCity: "b",
+					Postcode:   "c",
+				},
+			},
+			errors: map[string]string{},
+		},
+		"manual-too-long": {
+			form: &yourAddressForm{
+				Action: "manual",
+				Address: &place.Address{
+					Line1:      strings.Repeat("x", 51),
+					Line2:      strings.Repeat("x", 51),
+					Line3:      strings.Repeat("x", 51),
+					TownOrCity: "b",
+					Postcode:   "c",
+				},
+			},
+			errors: map[string]string{
+				"address-line-1": "addressLine1TooLong",
+				"address-line-2": "addressLine2TooLong",
+				"address-line-3": "addressLine3TooLong",
 			},
 		},
 	}

@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -159,6 +158,107 @@ func TestPostYourDetails(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
+func TestPostYourDetailsWhenDobWarning(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(Lpa{}, nil)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, mock.MatchedBy(func(data *yourDetailsData) bool {
+			return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
+		})).
+		Return(nil)
+
+	form := url.Values{
+		"first-names":         {"John"},
+		"last-name":           {"Doe"},
+		"date-of-birth-day":   {"2"},
+		"date-of-birth-month": {"1"},
+		"date-of-birth-year":  {"1900"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := YourDetails(template.Func, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, lpaStore, template)
+}
+
+func TestPostYourDetailsWhenDobWarningIgnored(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(Lpa{}, nil)
+	lpaStore.
+		On("Put", mock.Anything, "session-id", mock.Anything).
+		Return(nil)
+
+	form := url.Values{
+		"first-names":         {"John"},
+		"last-name":           {"Doe"},
+		"date-of-birth-day":   {"2"},
+		"date-of-birth-month": {"1"},
+		"date-of-birth-year":  {"1900"},
+		"ignore-warning":      {"dateOfBirthIsOver100"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := YourDetails(nil, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, yourAddressPath, resp.Header.Get("Location"))
+	mock.AssertExpectationsForObjects(t, lpaStore)
+}
+
+func TestPostYourDetailsWhenDobWarningNotIgnored(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(Lpa{}, nil)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, mock.MatchedBy(func(data *yourDetailsData) bool {
+			return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
+		})).
+		Return(nil)
+
+	form := url.Values{
+		"first-names":         {"John"},
+		"last-name":           {"Doe"},
+		"date-of-birth-day":   {"2"},
+		"date-of-birth-month": {"1"},
+		"date-of-birth-year":  {"1900"},
+		"ignore-warning":      {"dateOfBirthIsUnder18"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := YourDetails(template.Func, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, lpaStore, template)
+}
+
 func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
@@ -242,6 +342,7 @@ func TestReadYourDetailsForm(t *testing.T) {
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {"1990"},
+		"ignore-warning":      {"xyz"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -257,9 +358,13 @@ func TestReadYourDetailsForm(t *testing.T) {
 	assert.Equal("1990", result.Dob.Year)
 	assert.Equal(time.Date(1990, 1, 2, 0, 0, 0, 0, time.UTC), result.DateOfBirth)
 	assert.Nil(result.DateOfBirthError)
+	assert.Equal("xyz", result.IgnoreWarning)
 }
 
 func TestYourDetailsFormValidate(t *testing.T) {
+	now := time.Now().UTC().Round(24 * time.Hour)
+	validDob := now.AddDate(-18, 0, -1)
+
 	testCases := map[string]struct {
 		form   *yourDetailsForm
 		errors map[string]string
@@ -273,7 +378,21 @@ func TestYourDetailsFormValidate(t *testing.T) {
 					Month: "D",
 					Year:  "E",
 				},
-				DateOfBirth: time.Now(),
+				DateOfBirth: validDob,
+			},
+			errors: map[string]string{},
+		},
+		"max-length": {
+			form: &yourDetailsForm{
+				FirstNames: strings.Repeat("x", 53),
+				LastName:   strings.Repeat("x", 61),
+				OtherNames: strings.Repeat("x", 50),
+				Dob: Date{
+					Day:   "C",
+					Month: "D",
+					Year:  "E",
+				},
+				DateOfBirth: validDob,
 			},
 			errors: map[string]string{},
 		},
@@ -282,7 +401,40 @@ func TestYourDetailsFormValidate(t *testing.T) {
 			errors: map[string]string{
 				"first-names":   "enterFirstNames",
 				"last-name":     "enterLastName",
-				"date-of-birth": "dateOfBirthYear",
+				"date-of-birth": "enterDateOfBirth",
+			},
+		},
+		"too-long": {
+			form: &yourDetailsForm{
+				FirstNames: strings.Repeat("x", 54),
+				LastName:   strings.Repeat("x", 62),
+				OtherNames: strings.Repeat("x", 51),
+				Dob: Date{
+					Day:   "C",
+					Month: "D",
+					Year:  "E",
+				},
+				DateOfBirth: validDob,
+			},
+			errors: map[string]string{
+				"first-names": "firstNamesTooLong",
+				"last-name":   "lastNameTooLong",
+				"other-names": "otherNamesTooLong",
+			},
+		},
+		"future-dob": {
+			form: &yourDetailsForm{
+				FirstNames: "A",
+				LastName:   "B",
+				Dob: Date{
+					Day:   "C",
+					Month: "D",
+					Year:  "E",
+				},
+				DateOfBirth: now.AddDate(0, 0, 1),
+			},
+			errors: map[string]string{
+				"date-of-birth": "dateOfBirthIsFuture",
 			},
 		},
 		"invalid-dob": {
@@ -311,7 +463,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 				DateOfBirthError: expectedError,
 			},
 			errors: map[string]string{
-				"date-of-birth": "dateOfBirthMonth",
+				"date-of-birth": "enterDateOfBirth",
 			},
 		},
 	}
@@ -319,6 +471,55 @@ func TestYourDetailsFormValidate(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			assert.Equal(t, tc.errors, tc.form.Validate())
+		})
+	}
+}
+
+func TestYourDetailsFormDobWarning(t *testing.T) {
+	now := time.Now().UTC().Round(24 * time.Hour)
+	validDob := now.AddDate(-18, 0, -1)
+
+	testCases := map[string]struct {
+		form    *yourDetailsForm
+		warning string
+	}{
+		"valid": {
+			form: &yourDetailsForm{
+				DateOfBirth: validDob,
+			},
+		},
+		"future-dob": {
+			form: &yourDetailsForm{
+				DateOfBirth: now.AddDate(0, 0, 1),
+			},
+		},
+		"dob-is-18": {
+			form: &yourDetailsForm{
+				DateOfBirth: now.AddDate(-18, 0, 0),
+			},
+		},
+		"dob-under-18": {
+			form: &yourDetailsForm{
+				DateOfBirth: now.AddDate(-18, 0, 1),
+			},
+			warning: "dateOfBirthIsUnder18",
+		},
+		"dob-is-100": {
+			form: &yourDetailsForm{
+				DateOfBirth: now.AddDate(-100, 0, 0),
+			},
+		},
+		"dob-over-100": {
+			form: &yourDetailsForm{
+				DateOfBirth: now.AddDate(-100, 0, -1),
+			},
+			warning: "dateOfBirthIsOver100",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.warning, tc.form.DobWarning())
 		})
 	}
 }
