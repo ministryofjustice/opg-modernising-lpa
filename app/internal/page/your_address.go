@@ -3,9 +3,8 @@ package page
 import (
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 type yourAddressData struct {
