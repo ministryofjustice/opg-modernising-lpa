@@ -1,0 +1,104 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+
+        <h2 class="govuk-heading-l">Option 1</h2>
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Sarah Philips
+                    <p class="govuk-body-s">29/06/1986</p>
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    Address Line 1, ABC 123
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link govuk-body-s" href="#">
+                        Change details<span class="govuk-visually-hidden"> Sarah Philips</span>
+                    </a>
+                    <a class="govuk-link govuk-body-s" href="#">
+                        Change address<span class="govuk-visually-hidden"> Sarah Philips</span>
+                    </a>
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link govuk-body-s" href="#">
+                        Remove<span class="govuk-visually-hidden"> Sarah Philips</span>
+                    </a>
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    John Smith
+                    <p class="govuk-body-s">01/01/1996</p>
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    Address Line 1, ABC 123
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link govuk-body-s" href="#">
+                        Change details<span class="govuk-visually-hidden"> Sarah Philips</span>
+                    </a>
+                    <a class="govuk-link govuk-body-s" href="#">
+                        Change address<span class="govuk-visually-hidden"> Sarah Philips</span>
+                    </a>
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link govuk-body-s" href="#">
+                        Remove<span class="govuk-visually-hidden"> Sarah Philips</span>
+                    </a>
+                </dd>
+            </div>
+        </dl>
+
+        <hr class="govuk-section-break govuk-section-break--xl">
+
+        <h2 class="govuk-heading-l">Option 2</h2>
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Sarah Philips<br>
+                    <span class="govuk-body-s">29/06/1986</span><br>
+                    <a class="govuk-link govuk-body-s" href="#">
+                        Change <span class="govuk-visually-hidden"> Sarah Philips</span>
+                    </a>
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    Address Line 1, ABC 123<br>
+                    <a class="govuk-link govuk-body-s" href="#">
+                        Change<span class="govuk-visually-hidden"> Sarah Philips</span>
+                    </a>
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link govuk-body-s" href="#">
+                        Remove<span class="govuk-visually-hidden"> Sarah Philips</span>
+                    </a>
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    John Smith<br>
+                    <span class="govuk-body-s">01/01/1996</span><br>
+                    <a class="govuk-link govuk-body-s" href="#">
+                        Change <span class="govuk-visually-hidden"> Sarah Philips</span>
+                    </a>
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    Address Line 1, ABC 123<br>
+                    <a class="govuk-link govuk-body-s" href="#">
+                        Change<span class="govuk-visually-hidden"> Sarah Philips</span>
+                    </a>
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link govuk-body-s" href="#">
+                        Remove<span class="govuk-visually-hidden"> Sarah Philips</span>
+                    </a>
+                </dd>
+            </div>
+        </dl>
+
+    </div>
+</div>
+{{ end }}

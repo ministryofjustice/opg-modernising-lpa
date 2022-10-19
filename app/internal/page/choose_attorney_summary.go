@@ -8,9 +8,10 @@ import (
 )
 
 type chooseAttorneysSummaryData struct {
-	App  AppData
-	Form *chooseAttorneysSummaryForm
-	Lpa  Lpa
+	App    AppData
+	Form   *chooseAttorneysSummaryForm
+	Lpa    Lpa
+	Errors map[string]string
 }
 
 type chooseAttorneysSummaryForm struct {
