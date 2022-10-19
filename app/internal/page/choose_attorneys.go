@@ -21,16 +21,8 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore) Handler {
 		}
 
 		data := &chooseAttorneysData{
-			App: appData,
-			Form: &chooseAttorneysForm{
-				FirstNames: lpa.Attorney.FirstNames,
-				LastName:   lpa.Attorney.LastName,
-				Email:      lpa.Attorney.Email,
-			},
-		}
-
-		if !lpa.Attorney.DateOfBirth.IsZero() {
-			data.Form.Dob = readDate(lpa.Attorney.DateOfBirth)
+			App:  appData,
+			Form: &chooseAttorneysForm{},
 		}
 
 		if r.Method == http.MethodPost {
@@ -38,10 +30,14 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				lpa.Attorney.FirstNames = data.Form.FirstNames
-				lpa.Attorney.LastName = data.Form.LastName
-				lpa.Attorney.Email = data.Form.Email
-				lpa.Attorney.DateOfBirth = data.Form.DateOfBirth
+				attorney := Attorney{
+					FirstNames:  data.Form.FirstNames,
+					LastName:    data.Form.LastName,
+					Email:       data.Form.Email,
+					DateOfBirth: data.Form.DateOfBirth,
+				}
+
+				_ = append(lpa.Attorneys, attorney)
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err

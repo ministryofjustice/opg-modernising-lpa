@@ -82,3 +82,30 @@ func TestLpaStorePut(t *testing.T) {
 	err := lpaStore.Put(ctx, "an-id", lpa)
 	assert.Equal(t, expectedError, err)
 }
+
+func TestGetAttorney(t *testing.T) {
+	want := Attorney{ID: "1"}
+	lpa := Lpa{
+		Attorneys: []Attorney{
+			want,
+		},
+	}
+
+	got, err := lpa.GetAttorney("1")
+
+	assert.Nil(t, err)
+	assert.Equal(t, want, got)
+}
+
+func TestGetAttorneyIdDoesNotMatch(t *testing.T) {
+	want := Attorney{ID: "1"}
+	lpa := Lpa{
+		Attorneys: []Attorney{
+			want,
+		},
+	}
+
+	_, err := lpa.GetAttorney("2")
+
+	assert.NotNil(t, err)
+}

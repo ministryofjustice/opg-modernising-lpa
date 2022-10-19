@@ -23,15 +23,18 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			return err
 		}
 
+		attorneyId := r.URL.Query().Get("id")
+		attorney, _ := lpa.GetAttorney(attorneyId)
+
 		data := &chooseAttorneysAddressData{
 			App:      appData,
-			Attorney: lpa.Attorney,
+			Attorney: attorney,
 			Form:     &chooseAttorneysAddressForm{},
 		}
 
-		if lpa.Attorney.Address.Line1 != "" {
+		if attorney.Address.Line1 != "" {
 			data.Form.Action = "manual"
-			data.Form.Address = &lpa.Attorney.Address
+			data.Form.Address = &attorney.Address
 		}
 
 		if r.Method == http.MethodPost {
@@ -39,7 +42,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			data.Errors = data.Form.Validate()
 
 			if (data.Form.Action == "manual" || data.Form.Action == "select") && len(data.Errors) == 0 {
-				lpa.Attorney.Address = *data.Form.Address
+				attorney.Address = *data.Form.Address
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}

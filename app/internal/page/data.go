@@ -3,8 +3,11 @@ package page
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"time"
+
+	"golang.org/x/exp/slices"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
@@ -28,7 +31,7 @@ const (
 type Lpa struct {
 	ID                       string
 	You                      Person
-	Attorney                 Attorney
+	Attorneys                []Attorney
 	CertificateProvider      CertificateProvider
 	WhoFor                   string
 	Contact                  []string
@@ -73,6 +76,7 @@ type Person struct {
 }
 
 type Attorney struct {
+	ID          string
 	FirstNames  string
 	LastName    string
 	Email       string
@@ -133,6 +137,12 @@ func (s *lpaStore) Get(ctx context.Context, sessionID string) (Lpa, error) {
 		lpa.You.Email = "simulate-delivered@notifications.service.gov.uk"
 	}
 
+	for _, attorney := range lpa.Attorneys {
+		if attorney.ID == "" {
+			attorney.ID = "10" + strconv.Itoa(s.randomInt(100000))
+		}
+	}
+
 	return lpa, nil
 }
 
@@ -144,4 +154,14 @@ func DecodeAddress(s string) *place.Address {
 	var v place.Address
 	json.Unmarshal([]byte(s), &v)
 	return &v
+}
+
+func (l *Lpa) GetAttorney(id string) (Attorney, error) {
+	idx := slices.IndexFunc(l.Attorneys, func(a Attorney) bool { return a.ID == id })
+
+	if idx == -1 {
+		return Attorney{}, fmt.Errorf("attorney with ID '%s' could not be found", id)
+	}
+
+	return l.Attorneys[idx], nil
 }

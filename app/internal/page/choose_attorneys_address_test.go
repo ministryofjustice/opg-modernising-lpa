@@ -65,8 +65,8 @@ func TestGetChooseAttorneysAddressFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
 		Return(Lpa{
-			Attorney: Attorney{
-				Address: address,
+			Attorneys: []Attorney{
+				{Address: address},
 			},
 		}, nil)
 
@@ -158,13 +158,15 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 		Return(Lpa{}, nil)
 	lpaStore.
 		On("Put", mock.Anything, "session-id", Lpa{
-			Attorney: Attorney{
-				Address: place.Address{
-					Line1:      "a",
-					Line2:      "b",
-					Line3:      "c",
-					TownOrCity: "d",
-					Postcode:   "e",
+			Attorneys: []Attorney{
+				{
+					Address: place.Address{
+						Line1:      "a",
+						Line2:      "b",
+						Line3:      "c",
+						TownOrCity: "d",
+						Postcode:   "e",
+					},
 				},
 			},
 		}).
@@ -200,13 +202,15 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 		Return(Lpa{}, nil)
 	lpaStore.
 		On("Put", mock.Anything, "session-id", Lpa{
-			Attorney: Attorney{
-				Address: place.Address{
-					Line1:      "a",
-					Line2:      "b",
-					Line3:      "c",
-					TownOrCity: "d",
-					Postcode:   "e",
+			Attorneys: []Attorney{
+				{
+					Address: place.Address{
+						Line1:      "a",
+						Line2:      "b",
+						Line3:      "c",
+						TownOrCity: "d",
+						Postcode:   "e",
+					},
 				},
 			},
 		}).
@@ -237,22 +241,26 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
 		Return(Lpa{
-			Attorney: Attorney{
-				FirstNames: "John",
-				Address:    place.Address{Line1: "abc"},
+			Attorneys: []Attorney{
+				{
+					FirstNames: "John",
+					Address:    place.Address{Line1: "abc"},
+				},
 			},
 			WhoFor: "me",
 		}, nil)
 	lpaStore.
 		On("Put", mock.Anything, "session-id", Lpa{
-			Attorney: Attorney{
-				FirstNames: "John",
-				Address: place.Address{
-					Line1:      "a",
-					Line2:      "b",
-					Line3:      "c",
-					TownOrCity: "d",
-					Postcode:   "e",
+			Attorneys: []Attorney{
+				{
+					FirstNames: "John",
+					Address: place.Address{
+						Line1:      "a",
+						Line2:      "b",
+						Line3:      "c",
+						TownOrCity: "d",
+						Postcode:   "e",
+					},
 				},
 			},
 			WhoFor: "me",
@@ -340,8 +348,8 @@ func TestPostChooseAttorneysAddressSelect(t *testing.T) {
 		Return(Lpa{}, nil)
 	lpaStore.
 		On("Put", mock.Anything, "session-id", Lpa{
-			Attorney: Attorney{
-				Address: *expectedAddress,
+			Attorneys: []Attorney{
+				{Address: *expectedAddress},
 			},
 		}).
 		Return(nil)

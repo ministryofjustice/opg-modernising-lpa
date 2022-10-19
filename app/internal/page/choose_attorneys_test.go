@@ -65,8 +65,8 @@ func TestGetChooseAttorneysFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
 		Return(Lpa{
-			Attorney: Attorney{
-				FirstNames: "John",
+			Attorneys: []Attorney{
+				{FirstNames: "John"},
 			},
 		}, nil)
 
@@ -123,19 +123,20 @@ func TestPostChooseAttorneys(t *testing.T) {
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
 		Return(Lpa{
-			Attorney: Attorney{
-				FirstNames: "John",
-				Address:    place.Address{Line1: "abc"},
+			Attorneys: []Attorney{
+				{FirstNames: "John", Address: place.Address{Line1: "abc"}},
 			},
 		}, nil)
 	lpaStore.
 		On("Put", mock.Anything, "session-id", Lpa{
-			Attorney: Attorney{
-				FirstNames:  "John",
-				LastName:    "Doe",
-				Email:       "john@example.com",
-				DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
-				Address:     place.Address{Line1: "abc"},
+			Attorneys: []Attorney{
+				{
+					FirstNames:  "John",
+					LastName:    "Doe",
+					Email:       "john@example.com",
+					DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+					Address:     place.Address{Line1: "abc"},
+				},
 			},
 		}).
 		Return(nil)
