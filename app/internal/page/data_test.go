@@ -85,9 +85,12 @@ func TestLpaStorePut(t *testing.T) {
 
 func TestGetAttorney(t *testing.T) {
 	want := Attorney{ID: "1"}
+	otherAttorney := Attorney{ID: "2"}
+
 	lpa := Lpa{
 		Attorneys: []Attorney{
 			want,
+			otherAttorney,
 		},
 	}
 
@@ -98,14 +101,47 @@ func TestGetAttorney(t *testing.T) {
 }
 
 func TestGetAttorneyIdDoesNotMatch(t *testing.T) {
-	want := Attorney{ID: "1"}
+	attorney := Attorney{ID: "1"}
 	lpa := Lpa{
 		Attorneys: []Attorney{
-			want,
+			attorney,
 		},
 	}
 
 	_, err := lpa.GetAttorney("2")
+
+	assert.NotNil(t, err)
+}
+
+func TestPutAttorney(t *testing.T) {
+	attorney := Attorney{ID: "1"}
+
+	lpa := Lpa{
+		Attorneys: []Attorney{
+			attorney,
+		},
+	}
+
+	updatedAttorney := Attorney{ID: "1", FirstNames: "Bob"}
+
+	updatedLpa, err := lpa.PutAttorney(updatedAttorney)
+
+	assert.Nil(t, err)
+	assert.Equal(t, updatedLpa.Attorneys[0], updatedAttorney)
+}
+
+func TestPutAttorneyIdDoesNotMatch(t *testing.T) {
+	attorney := Attorney{ID: "2"}
+
+	lpa := Lpa{
+		Attorneys: []Attorney{
+			attorney,
+		},
+	}
+
+	updatedAttorney := Attorney{ID: "1", FirstNames: "Bob"}
+
+	_, err := lpa.PutAttorney(updatedAttorney)
 
 	assert.NotNil(t, err)
 }

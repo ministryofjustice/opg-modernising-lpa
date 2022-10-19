@@ -20,9 +20,20 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore) Handler {
 			return err
 		}
 
+		attorneyId := r.URL.Query().Get("id")
+		attorney, err := lpa.GetAttorney(attorneyId)
+
 		data := &chooseAttorneysData{
-			App:  appData,
-			Form: &chooseAttorneysForm{},
+			App: appData,
+			Form: &chooseAttorneysForm{
+				FirstNames: attorney.FirstNames,
+				LastName:   attorney.LastName,
+				Email:      attorney.Email,
+			},
+		}
+
+		if !attorney.DateOfBirth.IsZero() {
+			data.Form.Dob = readDate(attorney.DateOfBirth)
 		}
 
 		if r.Method == http.MethodPost {
@@ -30,14 +41,23 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				attorney := Attorney{
-					FirstNames:  data.Form.FirstNames,
-					LastName:    data.Form.LastName,
-					Email:       data.Form.Email,
-					DateOfBirth: data.Form.DateOfBirth,
-				}
+				if err != nil {
+					attorney = Attorney{
+						FirstNames:  data.Form.FirstNames,
+						LastName:    data.Form.LastName,
+						Email:       data.Form.Email,
+						DateOfBirth: data.Form.DateOfBirth,
+					}
 
-				_ = append(lpa.Attorneys, attorney)
+					_ = append(lpa.Attorneys, attorney)
+				} else {
+					attorney.FirstNames = data.Form.FirstNames
+					attorney.LastName = data.Form.LastName
+					attorney.Email = data.Form.Email
+					attorney.DateOfBirth = data.Form.DateOfBirth
+
+					lpa.PutAttorney(attorney)
+				}
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err

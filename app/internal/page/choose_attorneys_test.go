@@ -66,7 +66,7 @@ func TestGetChooseAttorneysFromStore(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(Lpa{
 			Attorneys: []Attorney{
-				{FirstNames: "John"},
+				{FirstNames: "John", ID: "1"},
 			},
 		}, nil)
 
@@ -80,7 +80,7 @@ func TestGetChooseAttorneysFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?id=1", nil)
 
 	err := ChooseAttorneys(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -158,7 +158,7 @@ func TestPostChooseAttorneys(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/choose-attorneys-address", resp.Header.Get("Location"))
+	assert.Equal(t, "/choose-attorneys-address?", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 

@@ -43,7 +43,13 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 
 			if (data.Form.Action == "manual" || data.Form.Action == "select") && len(data.Errors) == 0 {
 				attorney.Address = *data.Form.Address
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				lpa, err := lpa.PutAttorney(attorney)
+
+				if err != nil {
+					lpa.Attorneys = append(lpa.Attorneys, attorney)
+				}
+
+				if err := lpaStore.Put(r.Context(), appData.SessionID, *lpa); err != nil {
 					return err
 				}
 				appData.Lang.Redirect(w, r, wantReplacementAttorneysPath, http.StatusFound)

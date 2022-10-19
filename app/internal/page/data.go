@@ -165,3 +165,15 @@ func (l *Lpa) GetAttorney(id string) (Attorney, error) {
 
 	return l.Attorneys[idx], nil
 }
+
+func (l *Lpa) PutAttorney(attorney Attorney) (*Lpa, error) {
+	idx := slices.IndexFunc(l.Attorneys, func(a Attorney) bool { return a.ID == attorney.ID })
+
+	if idx == -1 {
+		return l, fmt.Errorf("attorney with ID '%s' could not be found", attorney.ID)
+	}
+
+	l.Attorneys[idx] = attorney
+
+	return l, nil
+}

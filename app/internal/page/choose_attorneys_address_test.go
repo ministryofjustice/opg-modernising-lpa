@@ -243,6 +243,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 		Return(Lpa{
 			Attorneys: []Attorney{
 				{
+					ID:         "1",
 					FirstNames: "John",
 					Address:    place.Address{Line1: "abc"},
 				},
@@ -253,6 +254,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 		On("Put", mock.Anything, "session-id", Lpa{
 			Attorneys: []Attorney{
 				{
+					ID:         "1",
 					FirstNames: "John",
 					Address: place.Address{
 						Line1:      "a",
@@ -276,7 +278,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 		"address-postcode": {"e"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=1", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
 	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(appData, w, r)
