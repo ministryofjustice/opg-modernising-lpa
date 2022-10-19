@@ -39,7 +39,7 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore) Handler {
 			data.Errors = data.Form.Validate()
 			dobWarning := data.Form.DobWarning()
 
-			if data.Form.IgnoreWarning != dobWarning {
+			if len(data.Errors) != 0 || data.Form.IgnoreWarning != dobWarning {
 				data.DobWarning = dobWarning
 			}
 
