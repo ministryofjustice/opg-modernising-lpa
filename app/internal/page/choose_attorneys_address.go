@@ -123,11 +123,17 @@ func (d *chooseAttorneysAddressForm) Validate() map[string]string {
 		if d.Address.Line1 == "" {
 			errors["address-line-1"] = "enterAddress"
 		}
+		if len(d.Address.Line1) > 50 {
+			errors["address-line-1"] = "addressLine1TooLong"
+		}
+		if len(d.Address.Line2) > 50 {
+			errors["address-line-2"] = "addressLine2TooLong"
+		}
+		if len(d.Address.Line3) > 50 {
+			errors["address-line-3"] = "addressLine3TooLong"
+		}
 		if d.Address.TownOrCity == "" {
 			errors["address-town"] = "enterTownOrCity"
-		}
-		if d.Address.Postcode == "" {
-			errors["address-postcode"] = "enterPostcode"
 		}
 	}
 
