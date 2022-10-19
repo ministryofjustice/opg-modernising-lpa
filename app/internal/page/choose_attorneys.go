@@ -8,9 +8,10 @@ import (
 )
 
 type chooseAttorneysData struct {
-	App    AppData
-	Errors map[string]string
-	Form   *chooseAttorneysForm
+	App         AppData
+	Errors      map[string]string
+	Form        *chooseAttorneysForm
+	ShowDetails bool
 }
 
 func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -30,6 +31,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore) Handler {
 				LastName:   attorney.LastName,
 				Email:      attorney.Email,
 			},
+			ShowDetails: err != nil,
 		}
 
 		if !attorney.DateOfBirth.IsZero() {

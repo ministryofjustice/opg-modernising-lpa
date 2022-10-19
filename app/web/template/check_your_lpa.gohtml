@@ -24,7 +24,7 @@
             {{ .Lpa.Type }}
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
             {{ tr .App "WhenTheLpaCanBeUsed" }}
@@ -38,7 +38,7 @@
             </a>
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
             {{ tr .App "whoAreTheAttorneys" }}
@@ -52,7 +52,7 @@
             </a>
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
             {{ tr .App "howTheAttorneysMustWorkTogether" }}
@@ -66,7 +66,7 @@
             </a>
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
             {{ tr .App "whoIsTheReplacementAttorney" }}
@@ -103,7 +103,7 @@
       <h3 class="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-2">
         {{ tr .App "donor" }}
       </h3>
-      
+
       <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
@@ -122,7 +122,7 @@
             {{ formatDate .Lpa.You.DateOfBirth }}
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
             {{ tr .App "email" }}
@@ -131,7 +131,7 @@
             {{ .Lpa.You.Email }}
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
             {{ tr .App "address" }}
@@ -148,7 +148,7 @@
       <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
         {{ tr .App "certificateProvider" }}
       </h3>
-      
+
       <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
@@ -163,7 +163,7 @@
             </a>
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
             {{ tr .App "email" }}
@@ -182,7 +182,7 @@
       <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
         {{ tr .App "attorneys" }}
       </h3>
-      
+
       <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
@@ -197,7 +197,7 @@
             </a>
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
             {{ tr .App "dateOfBirth" }}
@@ -211,7 +211,7 @@
             </a>
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
             {{ tr .App "email" }}
@@ -225,12 +225,12 @@
             </a>
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
             {{ tr .App "address" }}
           </dt>
-          <dd class="govuk-summary-list__value">            
+          <dd class="govuk-summary-list__value">
             <div>{{ .Lpa.Attorney.Address.Line1 }}</div>
             <div>{{ .Lpa.Attorney.Address.Line2 }}</div>
             <div>{{ .Lpa.Attorney.Address.TownOrCity }}</div>
@@ -257,7 +257,7 @@
             We haven't done this yet
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
           <dt class="govuk-summary-list__key">
             {{ tr .App "dateOfBirth" }}
@@ -266,7 +266,7 @@
             We haven't done this yet
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
           <dt class="govuk-summary-list__key">
             {{ tr .App "email" }}
@@ -275,7 +275,7 @@
             We haven't done this yet
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
           <dt class="govuk-summary-list__key">
             {{ tr .App "address" }}
@@ -285,7 +285,7 @@
           </dd>
         </div>
       </dl>
-      
+
       <form novalidate method="post">
         <div class="govuk-form-group  {{ if index .Errors "checked" }}govuk-form-group--error{{ end }}">
           {{ template "error-message" (errorMessage . "checked") }}
@@ -311,7 +311,7 @@
           </div>
         </div>
 
-        {{ template "details" (details . "whatHappensIfIChange" "whatHappensIfIChangeDetails") }}
+        {{ template "details" (details . "whatHappensIfIChange" "whatHappensIfIChangeDetails" false) }}
 
         <div class="govuk-warning-text">
           <span class="govuk-warning-text__icon" aria-hidden="true">!</span>

@@ -10,7 +10,19 @@
               <h1 class="govuk-fieldset__heading">{{ tr .App "whoWouldYouLikeToBeTheAttorneys" }}</h1>
             </legend>
 
-            {{ trHtml .App "whoWouldYouLikeToBeTheAttorneysContent" }}
+            {{ template "details" (details . "whoWouldYouLikeToBeTheAttorneysDetailsTitle" "whoWouldYouLikeToBeTheAttorneysDetailsContent" .ShowDetails) }}
+
+
+{{/*            <details class="govuk-details" data-module="govuk-details" {{ ShowDetails }}>*/}}
+{{/*              <summary class="govuk-details__summary">*/}}
+{{/*                <span class="govuk-details__summary-text">*/}}
+{{/*                  {{ tr .App "whoWouldYouLikeToBeTheAttorneysDetailsTitle" }}*/}}
+{{/*                </span>*/}}
+{{/*              </summary>*/}}
+{{/*              <div class="govuk-details__text">*/}}
+{{/*                {{ trHtml .App "whoWouldYouLikeToBeTheAttorneysDetailsContent" }}*/}}
+{{/*              </div>*/}}
+{{/*            </details>*/}}
 
             <legend class="govuk-fieldset__legend  govuk-fieldset__legend--l">{{ tr .App "attorney" }}</legend>
 

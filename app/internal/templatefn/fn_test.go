@@ -115,12 +115,14 @@ func TestDetails(t *testing.T) {
 	top := 1
 	name := "name"
 	detail := "detail"
+	open := true
 
-	v := details(top, name, detail)
+	v := details(top, name, detail, open)
 
 	assert.Equal(t, top, v["top"])
 	assert.Equal(t, name, v["name"])
 	assert.Equal(t, detail, v["detail"])
+	assert.Equal(t, open, v["open"])
 }
 
 func TestInc(t *testing.T) {

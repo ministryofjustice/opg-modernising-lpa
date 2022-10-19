@@ -103,11 +103,12 @@ func errorMessage(top interface{}, name string) map[string]interface{} {
 	}
 }
 
-func details(top interface{}, name, detail string) map[string]interface{} {
+func details(top interface{}, name, detail string, open bool) map[string]interface{} {
 	return map[string]interface{}{
 		"top":    top,
 		"name":   name,
 		"detail": detail,
+		"open":   open,
 	}
 }
 
