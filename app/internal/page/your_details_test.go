@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -116,147 +117,159 @@ func TestGetYourDetailsWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostYourDetails(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(Lpa{
-			You: Person{
-				FirstNames: "John",
-				Address:    place.Address{Line1: "abc"},
+	testCases := map[string]struct {
+		form   url.Values
+		person Person
+	}{
+		"valid": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {strconv.Itoa(time.Now().Year() - 40)},
 			},
-		}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{
-			You: Person{
+			person: Person{
 				FirstNames:  "John",
 				LastName:    "Doe",
-				DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+				DateOfBirth: time.Date(time.Now().Year()-40, time.January, 2, 0, 0, 0, 0, time.UTC),
 				Address:     place.Address{Line1: "abc"},
 			},
-		}).
-		Return(nil)
-
-	form := url.Values{
-		"first-names":         {"John"},
-		"last-name":           {"Doe"},
-		"date-of-birth-day":   {"2"},
-		"date-of-birth-month": {"1"},
-		"date-of-birth-year":  {"1990"},
+		},
+		"warning ignored": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1900"},
+				"ignore-warning":      {"dateOfBirthIsOver100"},
+			},
+			person: Person{
+				FirstNames:  "John",
+				LastName:    "Doe",
+				DateOfBirth: time.Date(1900, time.January, 2, 0, 0, 0, 0, time.UTC),
+				Address:     place.Address{Line1: "abc"},
+			},
+		},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
 
-	err := YourDetails(nil, lpaStore)(appData, w, r)
-	resp := w.Result()
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(Lpa{
+					You: Person{
+						FirstNames: "John",
+						Address:    place.Address{Line1: "abc"},
+					},
+				}, nil)
+			lpaStore.
+				On("Put", mock.Anything, "session-id", Lpa{
+					You: tc.person,
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, yourAddressPath, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
+
+			err := YourDetails(nil, lpaStore)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, yourAddressPath, resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, lpaStore)
+		})
+	}
 }
 
-func TestPostYourDetailsWhenDobWarning(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
-
-	template := &mockTemplate{}
-	template.
-		On("Func", w, mock.MatchedBy(func(data *yourDetailsData) bool {
-			return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
-		})).
-		Return(nil)
-
-	form := url.Values{
-		"first-names":         {"John"},
-		"last-name":           {"Doe"},
-		"date-of-birth-day":   {"2"},
-		"date-of-birth-month": {"1"},
-		"date-of-birth-year":  {"1900"},
+func TestPostYourDetailsWhenInputRequired(t *testing.T) {
+	testCases := map[string]struct {
+		form        url.Values
+		dataMatcher func(t *testing.T, data *yourDetailsData) bool
+	}{
+		"validation error": {
+			form: url.Values{
+				"last-name":           {"Doe"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1990"},
+			},
+			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
+				return assert.Equal(t, map[string]string{"first-names": "enterFirstNames"}, data.Errors)
+			},
+		},
+		"dob warning": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1900"},
+			},
+			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
+				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
+			},
+		},
+		"dob warning ignored but other errors": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1900"},
+				"ignore-warning":      {"dateOfBirthIsOver100"},
+			},
+			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
+				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
+			},
+		},
+		"other dob warning ignored": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1900"},
+				"ignore-warning":      {"dateOfBirthIsUnder18"},
+			},
+			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
+				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
+			},
+		},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
 
-	err := YourDetails(template.Func, lpaStore)(appData, w, r)
-	resp := w.Result()
+			w := httptest.NewRecorder()
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
-}
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(Lpa{}, nil)
 
-func TestPostYourDetailsWhenDobWarningIgnored(t *testing.T) {
-	w := httptest.NewRecorder()
+			template := &mockTemplate{}
+			template.
+				On("Func", w, mock.MatchedBy(func(data *yourDetailsData) bool {
+					return tc.dataMatcher(t, data)
+				})).
+				Return(nil)
 
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", mock.Anything).
-		Return(nil)
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
 
-	form := url.Values{
-		"first-names":         {"John"},
-		"last-name":           {"Doe"},
-		"date-of-birth-day":   {"2"},
-		"date-of-birth-month": {"1"},
-		"date-of-birth-year":  {"1900"},
-		"ignore-warning":      {"dateOfBirthIsOver100"},
+			err := YourDetails(template.Func, lpaStore)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+			mock.AssertExpectationsForObjects(t, lpaStore, template)
+		})
 	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
-	err := YourDetails(nil, lpaStore)(appData, w, r)
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, yourAddressPath, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
-}
-
-func TestPostYourDetailsWhenDobWarningNotIgnored(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
-
-	template := &mockTemplate{}
-	template.
-		On("Func", w, mock.MatchedBy(func(data *yourDetailsData) bool {
-			return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
-		})).
-		Return(nil)
-
-	form := url.Values{
-		"first-names":         {"John"},
-		"last-name":           {"Doe"},
-		"date-of-birth-day":   {"2"},
-		"date-of-birth-month": {"1"},
-		"date-of-birth-year":  {"1900"},
-		"ignore-warning":      {"dateOfBirthIsUnder18"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
-	err := YourDetails(template.Func, lpaStore)(appData, w, r)
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
 func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
@@ -297,39 +310,6 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
-}
-
-func TestPostYourDetailsWhenValidationError(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
-
-	template := &mockTemplate{}
-	template.
-		On("Func", w, mock.MatchedBy(func(data *yourDetailsData) bool {
-			return assert.Equal(t, map[string]string{"first-names": "enterFirstNames"}, data.Errors)
-		})).
-		Return(nil)
-
-	form := url.Values{
-		"last-name":           {"Doe"},
-		"date-of-birth-day":   {"2"},
-		"date-of-birth-month": {"1"},
-		"date-of-birth-year":  {"1990"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
-	err := YourDetails(template.Func, lpaStore)(appData, w, r)
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestReadYourDetailsForm(t *testing.T) {
