@@ -7,6 +7,6 @@
       </div>
     {{ end }}
     {{ template "error-message" (errorMessage .top .name) }}
-    <input class="govuk-input {{ .classes }} {{ if index .top.Errors .name }}govuk-input--error{{ end }}" id="f-{{ .name }}" name="{{ .name }}" value="{{ .value }}" {{ if .autocomplete }}autocomplete="{{ .autocomplete }}"{{ end }} {{ if .type }}type="{{ .type }}"{{ end }} />
+    <input class="govuk-input {{ .classes }} {{ if index .top.Errors .name }}govuk-input--error{{ end }}" id="f-{{ .name }}" name="{{ .name }}" value="{{ .value }}" {{ if .autocomplete }}autocomplete="{{ .autocomplete }}"{{ end }} {{ if .spellcheck }}spellcheck="{{ .spellcheck }}"{{ end }} {{ if .type }}type="{{ .type }}"{{ end }} />
   </div>
 {{ end }}
