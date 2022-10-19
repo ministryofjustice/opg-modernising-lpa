@@ -44,12 +44,17 @@ func TestChooseAttorneySummaryWhenStoreErrors(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(Lpa{}, expectedError)
 
+	logger := &mockLogger{}
+	logger.
+		On("Print", "error getting lpa from store: err").
+		Return(nil)
+
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneySummary(nil, nil, lpaStore)(appData, w, r)
+	err := ChooseAttorneySummary(logger, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore)
+	mock.AssertExpectationsForObjects(t, lpaStore, logger)
 }
