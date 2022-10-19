@@ -35,3 +35,21 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
+
+func TestChooseAttorneySummaryWhenStoreErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(Lpa{}, expectedError)
+
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	err := ChooseAttorneySummary(nil, nil, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, lpaStore)
+}
