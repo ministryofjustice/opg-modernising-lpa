@@ -1,14 +1,13 @@
 package page
 
 import (
+	"fmt"
 	"net/http"
-	"regexp"
+	"net/mail"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 )
-
-var emailPattern = regexp.MustCompile(".+@.+")
 
 type chooseAttorneysData struct {
 	App        AppData
@@ -111,7 +110,7 @@ func (d *chooseAttorneysForm) Validate() map[string]string {
 
 	if d.Email == "" {
 		errors["email"] = "enterEmail"
-	} else if !emailPattern.MatchString(d.Email) {
+	} else if _, err := mail.ParseAddress(fmt.Sprintf("<%s>", d.Email)); err != nil {
 		errors["email"] = "emailIncorrectFormat"
 	}
 
