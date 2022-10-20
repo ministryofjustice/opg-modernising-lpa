@@ -16,6 +16,18 @@
 
             {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
 
+            {{ if .DobWarning }}
+              <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                  <span class="govuk-warning-text__assistive">Warning</span>
+                  {{ tr .App .DobWarning }}
+                </strong>
+              </div>
+
+              <input type="hidden" name="ignore-warning" value="{{ .DobWarning }}" />
+            {{ end }}
+
             {{ template "continue-button" . }}
           </fieldset>
         </div>
