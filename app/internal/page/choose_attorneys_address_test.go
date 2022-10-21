@@ -189,7 +189,7 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, wantReplacementAttorneysPath, resp.Header.Get("Location"))
+	assert.Equal(t, "/choose-attorneys-summary", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -286,7 +286,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, wantReplacementAttorneysPath, resp.Header.Get("Location"))
+	assert.Equal(t, "/choose-attorneys-summary", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -370,7 +370,7 @@ func TestPostChooseAttorneysAddressSelect(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, wantReplacementAttorneysPath, resp.Header.Get("Location"))
+	assert.Equal(t, "/choose-attorneys-summary", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
