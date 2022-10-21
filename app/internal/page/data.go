@@ -3,7 +3,6 @@ package page
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -156,24 +155,24 @@ func DecodeAddress(s string) *place.Address {
 	return &v
 }
 
-func (l *Lpa) GetAttorney(id string) (Attorney, error) {
+func (l *Lpa) GetAttorney(id string) (Attorney, bool) {
 	idx := slices.IndexFunc(l.Attorneys, func(a Attorney) bool { return a.ID == id })
 
 	if idx == -1 {
-		return Attorney{}, fmt.Errorf("attorney with ID '%s' could not be found", id)
+		return Attorney{}, false
 	}
 
-	return l.Attorneys[idx], nil
+	return l.Attorneys[idx], true
 }
 
-func (l *Lpa) PutAttorney(attorney Attorney) (*Lpa, error) {
+func (l *Lpa) PutAttorney(attorney Attorney) (*Lpa, bool) {
 	idx := slices.IndexFunc(l.Attorneys, func(a Attorney) bool { return a.ID == attorney.ID })
 
 	if idx == -1 {
-		return l, fmt.Errorf("attorney with ID '%s' could not be found", attorney.ID)
+		return l, false
 	}
 
 	l.Attorneys[idx] = attorney
 
-	return l, nil
+	return l, true
 }

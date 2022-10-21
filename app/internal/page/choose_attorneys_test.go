@@ -122,50 +122,76 @@ func TestGetChooseAttorneysWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostChooseAttorneys(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(Lpa{
-			Attorneys: []Attorney{
-				{FirstNames: "John", Address: place.Address{Line1: "abc"}, ID: "123"},
-			},
-		}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{
-			Attorneys: []Attorney{
-				{
-					ID:          "123",
-					FirstNames:  "John",
-					LastName:    "Doe",
-					Email:       "john@example.com",
-					DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
-					Address:     place.Address{Line1: "abc"},
-				},
-			},
-		}).
-		Return(nil)
-
-	form := url.Values{
-		"first-names":         {"John"},
-		"last-name":           {"Doe"},
-		"email":               {"john@example.com"},
-		"date-of-birth-day":   {"2"},
-		"date-of-birth-month": {"1"},
-		"date-of-birth-year":  {"1990"},
+	testcases := map[string]struct {
+		requestUrl      string
+		expectedNextUrl string
+	}{
+		"from summary page": {
+			requestUrl:      "/?id=123&from=summary",
+			expectedNextUrl: "/choose-attorneys-summary",
+		},
+		"from another page": {
+			requestUrl:      "/?id=123&from=random-page",
+			expectedNextUrl: "/choose-attorneys-address?id=123",
+		},
+		"from has no value": {
+			requestUrl:      "/?id=123&from=",
+			expectedNextUrl: "/choose-attorneys-address?id=123",
+		},
+		"not from another page": {
+			requestUrl:      "/?id=123",
+			expectedNextUrl: "/choose-attorneys-address?id=123",
+		},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	for testname, tc := range testcases {
+		t.Run(testname, func(t *testing.T) {
+			w := httptest.NewRecorder()
 
-	err := ChooseAttorneys(nil, lpaStore, mockRandom)(appData, w, r)
-	resp := w.Result()
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(Lpa{
+					Attorneys: []Attorney{
+						{FirstNames: "John", Address: place.Address{Line1: "abc"}, ID: "123"},
+					},
+				}, nil)
+			lpaStore.
+				On("Put", mock.Anything, "session-id", Lpa{
+					Attorneys: []Attorney{
+						{
+							ID:          "123",
+							FirstNames:  "John",
+							LastName:    "Doe",
+							Email:       "john@example.com",
+							DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+							Address:     place.Address{Line1: "abc"},
+						},
+					},
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/choose-attorneys-address?id=123", resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
+			form := url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"email":               {"john@example.com"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1990"},
+			}
+
+			r, _ := http.NewRequest(http.MethodPost, tc.requestUrl, strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
+
+			err := ChooseAttorneys(nil, lpaStore, mockRandom)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.expectedNextUrl, resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, lpaStore)
+		})
+	}
 }
 
 func TestPostChooseAttorneysWhenStoreErrors(t *testing.T) {

@@ -94,9 +94,9 @@ func TestGetAttorney(t *testing.T) {
 		},
 	}
 
-	got, err := lpa.GetAttorney("1")
+	got, found := lpa.GetAttorney("1")
 
-	assert.Nil(t, err)
+	assert.True(t, found)
 	assert.Equal(t, want, got)
 }
 
@@ -108,9 +108,9 @@ func TestGetAttorneyIdDoesNotMatch(t *testing.T) {
 		},
 	}
 
-	_, err := lpa.GetAttorney("2")
+	_, found := lpa.GetAttorney("2")
 
-	assert.NotNil(t, err)
+	assert.False(t, found)
 }
 
 func TestPutAttorney(t *testing.T) {
@@ -124,9 +124,9 @@ func TestPutAttorney(t *testing.T) {
 
 	updatedAttorney := Attorney{ID: "1", FirstNames: "Bob"}
 
-	updatedLpa, err := lpa.PutAttorney(updatedAttorney)
+	updatedLpa, updated := lpa.PutAttorney(updatedAttorney)
 
-	assert.Nil(t, err)
+	assert.True(t, updated)
 	assert.Equal(t, updatedLpa.Attorneys[0], updatedAttorney)
 }
 
@@ -141,7 +141,7 @@ func TestPutAttorneyIdDoesNotMatch(t *testing.T) {
 
 	updatedAttorney := Attorney{ID: "1", FirstNames: "Bob"}
 
-	_, err := lpa.PutAttorney(updatedAttorney)
+	_, updated := lpa.PutAttorney(updatedAttorney)
 
-	assert.NotNil(t, err)
+	assert.False(t, updated)
 }

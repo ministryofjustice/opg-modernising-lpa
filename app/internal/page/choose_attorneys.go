@@ -23,7 +23,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 		}
 
 		attorneyId := r.URL.Query().Get("id")
-		attorney, attorneyNotFoundErr := lpa.GetAttorney(attorneyId)
+		attorney, attorneyFound := lpa.GetAttorney(attorneyId)
 
 		data := &chooseAttorneysData{
 			App: appData,
@@ -32,7 +32,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 				LastName:   attorney.LastName,
 				Email:      attorney.Email,
 			},
-			ShowDetails: attorneyNotFoundErr != nil,
+			ShowDetails: attorneyFound == false,
 		}
 
 		if !attorney.DateOfBirth.IsZero() {
@@ -44,7 +44,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				if attorneyNotFoundErr != nil {
+				if attorneyFound == false {
 					attorney = Attorney{
 						FirstNames:  data.Form.FirstNames,
 						LastName:    data.Form.LastName,

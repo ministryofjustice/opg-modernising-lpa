@@ -43,9 +43,9 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 
 			if (data.Form.Action == "manual" || data.Form.Action == "select") && len(data.Errors) == 0 {
 				attorney.Address = *data.Form.Address
-				lpa, err := lpa.PutAttorney(attorney)
+				lpa, attorneyUpdated := lpa.PutAttorney(attorney)
 
-				if err != nil {
+				if attorneyUpdated == false {
 					lpa.Attorneys = append(lpa.Attorneys, attorney)
 				}
 
