@@ -27,8 +27,9 @@ func TestGetChooseAttorneys(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysData{
-			App:  appData,
-			Form: &chooseAttorneysForm{},
+			App:         appData,
+			Form:        &chooseAttorneysForm{},
+			ShowDetails: true,
 		}).
 		Return(nil)
 
@@ -79,6 +80,7 @@ func TestGetChooseAttorneysFromStore(t *testing.T) {
 			Form: &chooseAttorneysForm{
 				FirstNames: "John",
 			},
+			ShowDetails: false,
 		}).
 		Return(nil)
 
@@ -103,8 +105,9 @@ func TestGetChooseAttorneysWhenTemplateErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysData{
-			App:  appData,
-			Form: &chooseAttorneysForm{},
+			App:         appData,
+			Form:        &chooseAttorneysForm{},
+			ShowDetails: true,
 		}).
 		Return(expectedError)
 
@@ -126,13 +129,14 @@ func TestPostChooseAttorneys(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(Lpa{
 			Attorneys: []Attorney{
-				{FirstNames: "John", Address: place.Address{Line1: "abc"}},
+				{FirstNames: "John", Address: place.Address{Line1: "abc"}, ID: "123"},
 			},
 		}, nil)
 	lpaStore.
 		On("Put", mock.Anything, "session-id", Lpa{
 			Attorneys: []Attorney{
 				{
+					ID:          "123",
 					FirstNames:  "John",
 					LastName:    "Doe",
 					Email:       "john@example.com",
@@ -152,7 +156,7 @@ func TestPostChooseAttorneys(t *testing.T) {
 		"date-of-birth-year":  {"1990"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
 	err := ChooseAttorneys(nil, lpaStore, mockRandom)(appData, w, r)
@@ -160,7 +164,7 @@ func TestPostChooseAttorneys(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/choose-attorneys-address", resp.Header.Get("Location"))
+	assert.Equal(t, "/choose-attorneys-address?id=123", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 

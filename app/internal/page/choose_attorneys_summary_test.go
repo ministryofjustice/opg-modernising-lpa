@@ -77,39 +77,42 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testcases {
-		w := httptest.NewRecorder()
+	for testname, tc := range testcases {
+		t.Run(testname, func(t *testing.T) {
+			w := httptest.NewRecorder()
 
-		lpaStore := &mockLpaStore{}
-		lpaStore.
-			On("Get", mock.Anything, "session-id").
-			Return(Lpa{}, nil)
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(Lpa{}, nil)
 
-		template := &mockTemplate{}
-		template.
-			On("Func", w, &chooseAttorneysSummaryData{
-				App:                 appData,
-				Lpa:                 Lpa{},
-				AttorneyAddressPath: chooseAttorneysAddressPath,
-				AttorneyDetailsPath: chooseAttorneysPath,
-				Form:                chooseAttorneysSummaryForm{AddAttorney: tc.addMoreFormValue},
-			}).
-			Return(nil)
+			template := &mockTemplate{}
+			template.
+				On("Func", w, &chooseAttorneysSummaryData{
+					App:                 appData,
+					Lpa:                 Lpa{},
+					AttorneyAddressPath: chooseAttorneysAddressPath,
+					AttorneyDetailsPath: chooseAttorneysPath,
+					Form:                chooseAttorneysSummaryForm{AddAttorney: tc.addMoreFormValue},
+					Errors:              map[string]string{},
+				}).
+				Return(nil)
 
-		form := url.Values{
-			"add-attorney": {tc.addMoreFormValue},
-		}
+			form := url.Values{
+				"add-attorney": {tc.addMoreFormValue},
+			}
 
-		r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-		r.Header.Add("Content-Type", formUrlEncoded)
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
 
-		err := ChooseAttorneySummary(nil, template.Func, lpaStore)(appData, w, r)
-		resp := w.Result()
+			err := ChooseAttorneySummary(nil, template.Func, lpaStore)(appData, w, r)
+			resp := w.Result()
 
-		assert.Nil(t, err)
-		assert.Equal(t, http.StatusFound, resp.StatusCode)
-		assert.Equal(t, tc.expectedUrl, resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, lpaStore, template)
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.expectedUrl, resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, lpaStore, template)
+		})
 	}
 }
 

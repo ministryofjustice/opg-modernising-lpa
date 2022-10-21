@@ -51,7 +51,6 @@ func ChooseAttorneySummary(logger Logger, tmpl template.Template, lpaStore LpaSt
 				}
 
 				appData.Lang.Redirect(w, r, redirectUrl, http.StatusFound)
-				return nil
 			}
 
 		}
