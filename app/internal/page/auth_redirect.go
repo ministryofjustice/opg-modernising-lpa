@@ -53,11 +53,10 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, sec
 
 		session := sessions.NewSession(store, "session")
 		session.Values = map[interface{}]interface{}{
-			"sub": userInfo.Sub,
+			"sub":   userInfo.Sub,
+			"email": userInfo.Email,
 		}
 		session.Options = cookieOptions
-
-		session.Values = map[interface{}]interface{}{"sub": userInfo.Sub}
 		if err := store.Save(r, w, session); err != nil {
 			logger.Print(err)
 			return

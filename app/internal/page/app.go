@@ -116,7 +116,7 @@ func App(
 		WhoIsTheLpaFor(tmpls.Get("who_is_the_lpa_for.gohtml"), lpaStore))
 
 	handle(yourDetailsPath, RequireSession,
-		YourDetails(tmpls.Get("your_details.gohtml"), lpaStore))
+		YourDetails(tmpls.Get("your_details.gohtml"), lpaStore, sessionStore))
 	handle(yourAddressPath, RequireSession,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
 	handle(howWouldYouLikeToBeContactedPath, RequireSession,
