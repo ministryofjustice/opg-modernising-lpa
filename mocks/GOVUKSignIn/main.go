@@ -168,7 +168,7 @@ func userInfo() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(UserInfoResponse{
 			Sub:           randomString(12),
-			Email:         "gideon.felix@example.org",
+			Email:         "simulate-delivered@notifications.service.gov.uk",
 			EmailVerified: true,
 			Phone:         "01406946277",
 			PhoneVerified: true,

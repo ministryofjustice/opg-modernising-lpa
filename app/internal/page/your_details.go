@@ -1,9 +1,11 @@
 package page
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 )
 
@@ -14,7 +16,7 @@ type yourDetailsData struct {
 	DobWarning string
 }
 
-func YourDetails(tmpl template.Template, lpaStore LpaStore) Handler {
+func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore sessions.Store) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
 		if err != nil {
@@ -35,6 +37,16 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore) Handler {
 		}
 
 		if r.Method == http.MethodPost {
+			session, err := sessionStore.Get(r, "session")
+			if err != nil {
+				return err
+			}
+
+			email, ok := session.Values["email"].(string)
+			if !ok {
+				return fmt.Errorf("no email found in session")
+			}
+
 			data.Form = readYourDetailsForm(r)
 			data.Errors = data.Form.Validate()
 			dobWarning := data.Form.DobWarning()
@@ -48,6 +60,7 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore) Handler {
 				lpa.You.LastName = data.Form.LastName
 				lpa.You.OtherNames = data.Form.OtherNames
 				lpa.You.DateOfBirth = data.Form.DateOfBirth
+				lpa.You.Email = email
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
