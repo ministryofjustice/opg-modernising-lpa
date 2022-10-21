@@ -65,6 +65,7 @@ locals {
 
   optional_tags = {
     infrastructure-support = "OPG Webops: opgteam+modernising-lpa@digital.justice.gov.uk"
+    account-name           = local.environment.account_name
   }
 
   default_tags = merge(local.mandatory_moj_tags, local.optional_tags)
