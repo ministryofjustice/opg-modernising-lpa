@@ -74,24 +74,15 @@ func TestGetChooseAttorneysFromStore(t *testing.T) {
 		}, nil)
 
 	template := &mockTemplate{}
-	template.
-		On("Func", w, &chooseAttorneysData{
-			App: appData,
-			Form: &chooseAttorneysForm{
-				FirstNames: "John",
-			},
-			ShowDetails: false,
-		}).
-		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/?id=1", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := ChooseAttorneys(template.Func, lpaStore, mockRandom)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, lpaStore)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestGetChooseAttorneysWhenTemplateErrors(t *testing.T) {

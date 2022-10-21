@@ -25,6 +25,11 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 		attorneyId := r.URL.Query().Get("id")
 		attorney, attorneyFound := lpa.GetAttorney(attorneyId)
 
+		if r.Method == http.MethodGet && len(lpa.Attorneys) > 0 && attorneyFound == false {
+			appData.Lang.Redirect(w, r, chooseAttorneysSummaryPath, http.StatusFound)
+			return nil
+		}
+
 		data := &chooseAttorneysData{
 			App: appData,
 			Form: &chooseAttorneysForm{
