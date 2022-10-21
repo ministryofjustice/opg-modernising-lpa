@@ -124,7 +124,7 @@ func App(
 	handle(taskListPath, RequireSession,
 		TaskList(tmpls.Get("task_list.gohtml"), lpaStore))
 	handle(chooseAttorneysPath, RequireSession|CanGoBack,
-		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), lpaStore))
+		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), lpaStore, random.String))
 	handle(chooseAttorneysAddressPath, RequireSession|CanGoBack,
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_attorneys_address.gohtml"), addressClient, lpaStore))
 	handle(chooseAttorneysSummaryPath, RequireSession|CanGoBack,

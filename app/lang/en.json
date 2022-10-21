@@ -102,6 +102,14 @@
     "payForTheLpa": "Pay for the LPA",
     "confirmYourIdentityAndSign": "Confirm your identity and sign the LPA",
     "registerTheLpa": "Register the LPA",
+    "attorneysAdded": {
+        "one": "You have added {{.PluralCount}} attorney",
+        "other": "You have added {{.PluralCount}} attorneys"
+    },
+    "changeLink": "Change<span class=\"govuk-visually-hidden\"> details for {{ $a.FirstNames }} {{ $a.LastName }}</span>",
+    "removeLink": "Remove",
+    "doYouWantToAddAnotherAttorney": "Do you want to add another attorney?",
+    "selectAddMoreAttorneys": "Select whether you want to add any more attorneys",
 
     "whoWouldYouLikeToBeTheAttorneys": "Who would you like to be the attorneys?",
     "whoWouldYouLikeToBeTheAttorneysDetailsTitle": "Guidance on choosing an attorney",

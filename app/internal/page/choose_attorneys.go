@@ -1,6 +1,7 @@
 package page
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -14,7 +15,7 @@ type chooseAttorneysData struct {
 	ShowDetails bool
 }
 
-func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore) Handler {
+func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
 		if err != nil {
@@ -22,7 +23,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore) Handler {
 		}
 
 		attorneyId := r.URL.Query().Get("id")
-		attorney, err := lpa.GetAttorney(attorneyId)
+		attorney, attorneyNotFoundErr := lpa.GetAttorney(attorneyId)
 
 		data := &chooseAttorneysData{
 			App: appData,
@@ -31,7 +32,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore) Handler {
 				LastName:   attorney.LastName,
 				Email:      attorney.Email,
 			},
-			ShowDetails: err != nil,
+			ShowDetails: attorneyNotFoundErr != nil,
 		}
 
 		if !attorney.DateOfBirth.IsZero() {
@@ -43,15 +44,16 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				if err != nil {
+				if attorneyNotFoundErr != nil {
 					attorney = Attorney{
 						FirstNames:  data.Form.FirstNames,
 						LastName:    data.Form.LastName,
 						Email:       data.Form.Email,
 						DateOfBirth: data.Form.DateOfBirth,
+						ID:          randomString(8),
 					}
 
-					_ = append(lpa.Attorneys, attorney)
+					lpa.Attorneys = append(lpa.Attorneys, attorney)
 				} else {
 					attorney.FirstNames = data.Form.FirstNames
 					attorney.LastName = data.Form.LastName
@@ -64,7 +66,18 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore) Handler {
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, chooseAttorneysAddressPath, http.StatusFound)
+
+				from := r.URL.Query().Get("from")
+
+				var redirectPath string
+
+				if from == "summary" {
+					redirectPath = chooseAttorneysSummaryPath
+				} else {
+					redirectPath = fmt.Sprintf("%s?id=%s", chooseAttorneysAddressPath, attorney.ID)
+				}
+
+				appData.Lang.Redirect(w, r, redirectPath, http.StatusFound)
 				return nil
 			}
 		}

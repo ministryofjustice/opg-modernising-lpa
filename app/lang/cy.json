@@ -104,6 +104,14 @@
     "confirmYourIdentityAndSign": "Welsh",
     "signAndRegisterTheLpa": "Welsh",
     "signTheLpa": "Welsh",
+    "attorneysAdded": {
+        "one": "Welsh {{.PluralCount}} welsh",
+        "other": "YWelsh {{.PluralCount}} welsh"
+    },
+    "changeLink": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ $a.FirstNames }} {{ $a.LastName }}</span>",
+    "removeLink": "Welsh",
+    "doYouWantToAddAnotherAttorney": "Welsh?",
+    "selectAddMoreAttorneys": "Welsh",
 
     "whoWouldYouLikeToBeTheAttorneysDetailsTitle": "Welsh",
     "whoWouldYouLikeToBeTheAttorneysDetailsContent": "<p class=\"govuk-body\">Welsh</p>",

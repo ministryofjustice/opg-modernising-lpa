@@ -3,101 +3,53 @@
 {{ define "main" }}
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl">{{ trCount .App "attorneysAdded" (len .Lpa.Attorneys) }}</h1>
 
-
-        <h2 class="govuk-heading-l">Option 1</h2>
         <dl class="govuk-summary-list">
+        {{range $i, $a := .Lpa.Attorneys}}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
-                    Sarah Philips
-                    <p class="govuk-body-s">29/06/1986</p>
+                    {{ $a.FirstNames }} {{ $a.LastName }}<br>
+                    <span class="govuk-body-s">{{ formatDate $a.DateOfBirth }}</span><br>
+                    <a class="govuk-link govuk-body-s" href="{{ $.AttorneyDetailsPath }}?id={{ $a.ID }}&from=summary">
+                        Change<span class="govuk-visually-hidden"> details for {{ $a.FirstNames }} {{ $a.LastName }}</span>
+                    </a>
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    Address Line 1, ABC 123
-                </dd>
-                <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link govuk-body-s" href="#">
-                        Change details<span class="govuk-visually-hidden"> Sarah Philips</span>
-                    </a>
-                    <a class="govuk-link govuk-body-s" href="#">
-                        Change address<span class="govuk-visually-hidden"> Sarah Philips</span>
+                    {{ $a.Address.Line1 }}, {{ $a.Address.Postcode }}<br>
+                    <a class="govuk-link govuk-body-s" href="{{ $.AttorneyAddressPath }}?id={{ $a.ID }}&from=summary">
+                        Change<span class="govuk-visually-hidden"> address for {{ $a.FirstNames }} {{ $a.LastName }}</span>
                     </a>
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link govuk-body-s" href="#">
-                        Remove<span class="govuk-visually-hidden"> Sarah Philips</span>
+                        Remove<span class="govuk-visually-hidden"> {{ $a.FirstNames }} {{ $a.LastName }}</span>
                     </a>
                 </dd>
             </div>
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                    John Smith
-                    <p class="govuk-body-s">01/01/1996</p>
-                </dt>
-                <dd class="govuk-summary-list__value">
-                    Address Line 1, ABC 123
-                </dd>
-                <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link govuk-body-s" href="#">
-                        Change details<span class="govuk-visually-hidden"> Sarah Philips</span>
-                    </a>
-                    <a class="govuk-link govuk-body-s" href="#">
-                        Change address<span class="govuk-visually-hidden"> Sarah Philips</span>
-                    </a>
-                </dd>
-                <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link govuk-body-s" href="#">
-                        Remove<span class="govuk-visually-hidden"> Sarah Philips</span>
-                    </a>
-                </dd>
-            </div>
+        {{end}}
         </dl>
 
-        <hr class="govuk-section-break govuk-section-break--xl">
+        <form novalidate method="post">
+            <div class="govuk-form-group">
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                    {{ tr .App "doYouWantToAddAnotherAttorney" }}
+                </legend>
 
-        <h2 class="govuk-heading-l">Option 2</h2>
-        <dl class="govuk-summary-list">
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                    Sarah Philips<br>
-                    <span class="govuk-body-s">29/06/1986</span><br>
-                    <a class="govuk-link govuk-body-s" href="#">
-                        Change <span class="govuk-visually-hidden"> Sarah Philips</span>
-                    </a>
-                </dt>
-                <dd class="govuk-summary-list__value">
-                    Address Line 1, ABC 123<br>
-                    <a class="govuk-link govuk-body-s" href="#">
-                        Change<span class="govuk-visually-hidden"> Sarah Philips</span>
-                    </a>
-                </dd>
-                <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link govuk-body-s" href="#">
-                        Remove<span class="govuk-visually-hidden"> Sarah Philips</span>
-                    </a>
-                </dd>
+                <div class="govuk-form-group {{ if index .Errors "add-attorney" }}govuk-form-group--error{{ end }}">
+                    {{ template "error-message" (errorMessage . "add-attorney") }}
+
+                    {{ template "radios" (items . "add-attorney" ""
+                    (item "yes" "yes")
+                    (item "no" "no")
+                    ) }}
+                </div>
             </div>
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                    John Smith<br>
-                    <span class="govuk-body-s">01/01/1996</span><br>
-                    <a class="govuk-link govuk-body-s" href="#">
-                        Change <span class="govuk-visually-hidden"> Sarah Philips</span>
-                    </a>
-                </dt>
-                <dd class="govuk-summary-list__value">
-                    Address Line 1, ABC 123<br>
-                    <a class="govuk-link govuk-body-s" href="#">
-                        Change<span class="govuk-visually-hidden"> Sarah Philips</span>
-                    </a>
-                </dd>
-                <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link govuk-body-s" href="#">
-                        Remove<span class="govuk-visually-hidden"> Sarah Philips</span>
-                    </a>
-                </dd>
+
+            <div class="govuk-button-group">
+                {{ template "continue-button" . }}
             </div>
-        </dl>
+        </form>
 
     </div>
 </div>

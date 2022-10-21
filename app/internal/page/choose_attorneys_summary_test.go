@@ -3,6 +3,8 @@ package page
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -20,9 +22,10 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysSummaryData{
-			App:  appData,
-			Form: &chooseAttorneysSummaryForm{},
-			Lpa:  Lpa{},
+			App:                 appData,
+			Lpa:                 Lpa{},
+			AttorneyAddressPath: chooseAttorneysAddressPath,
+			AttorneyDetailsPath: chooseAttorneysPath,
 		}).
 		Return(nil)
 
@@ -57,4 +60,129 @@ func TestChooseAttorneySummaryWhenStoreErrors(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore, logger)
+}
+
+func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
+	testcases := map[string]struct {
+		addMoreFormValue string
+		expectedUrl      string
+	}{
+		"add-attorney": {
+			"yes",
+			"/choose-attorneys",
+		},
+		"do-not-add-attorney": {
+			"no",
+			"/want-replacement-attorneys",
+		},
+	}
+
+	for _, tc := range testcases {
+		w := httptest.NewRecorder()
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Get", mock.Anything, "session-id").
+			Return(Lpa{}, nil)
+
+		template := &mockTemplate{}
+		template.
+			On("Func", w, &chooseAttorneysSummaryData{
+				App:                 appData,
+				Lpa:                 Lpa{},
+				AttorneyAddressPath: chooseAttorneysAddressPath,
+				AttorneyDetailsPath: chooseAttorneysPath,
+				Form:                chooseAttorneysSummaryForm{AddAttorney: tc.addMoreFormValue},
+			}).
+			Return(nil)
+
+		form := url.Values{
+			"add-attorney": {tc.addMoreFormValue},
+		}
+
+		r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+		r.Header.Add("Content-Type", formUrlEncoded)
+
+		err := ChooseAttorneySummary(nil, template.Func, lpaStore)(appData, w, r)
+		resp := w.Result()
+
+		assert.Nil(t, err)
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, tc.expectedUrl, resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, lpaStore, template)
+	}
+}
+
+func TestChooseAttorneySummaryFormValidation(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(Lpa{}, nil)
+
+	validationError := map[string]string{
+		"add-attorney": "selectAddMoreAttorneys",
+	}
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, mock.MatchedBy(func(data *chooseAttorneysSummaryData) bool {
+			return assert.Equal(t, validationError, data.Errors)
+		})).
+		Return(nil)
+
+	form := url.Values{
+		"add-attorney": {""},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := ChooseAttorneySummary(nil, template.Func, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, lpaStore, template)
+}
+
+func TestChooseAttorneySummaryFormValidate(t *testing.T) {
+	testCases := map[string]struct {
+		form   *chooseAttorneysSummaryForm
+		errors map[string]string
+	}{
+		"yes": {
+			form: &chooseAttorneysSummaryForm{
+				AddAttorney: "yes",
+			},
+			errors: map[string]string{},
+		},
+		"no": {
+			form: &chooseAttorneysSummaryForm{
+				AddAttorney: "no",
+			},
+			errors: map[string]string{},
+		},
+		"missing": {
+			form: &chooseAttorneysSummaryForm{},
+			errors: map[string]string{
+				"add-attorney": "selectAddMoreAttorneys",
+			},
+		},
+		"invalid": {
+			form: &chooseAttorneysSummaryForm{
+				AddAttorney: "what",
+			},
+			errors: map[string]string{
+				"add-attorney": "selectAddMoreAttorneys",
+			},
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.errors, tc.form.Validate())
+		})
+	}
 }

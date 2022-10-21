@@ -8,13 +8,16 @@ import (
 )
 
 type chooseAttorneysSummaryData struct {
-	App    AppData
-	Form   *chooseAttorneysSummaryForm
-	Lpa    Lpa
-	Errors map[string]string
+	App                 AppData
+	AttorneyAddressPath string
+	AttorneyDetailsPath string
+	Errors              map[string]string
+	Lpa                 Lpa
+	Form                chooseAttorneysSummaryForm
 }
 
 type chooseAttorneysSummaryForm struct {
+	AddAttorney string
 }
 
 func ChooseAttorneySummary(logger Logger, tmpl template.Template, lpaStore LpaStore) Handler {
@@ -26,11 +29,45 @@ func ChooseAttorneySummary(logger Logger, tmpl template.Template, lpaStore LpaSt
 		}
 
 		data := &chooseAttorneysSummaryData{
-			App:  appData,
-			Form: &chooseAttorneysSummaryForm{},
-			Lpa:  lpa,
+			App:                 appData,
+			Lpa:                 lpa,
+			AttorneyDetailsPath: chooseAttorneysPath,
+			AttorneyAddressPath: chooseAttorneysAddressPath,
+			Form:                chooseAttorneysSummaryForm{},
+		}
+
+		if r.Method == http.MethodPost {
+			data.Form = chooseAttorneysSummaryForm{
+				AddAttorney: postFormString(r, "add-attorney"),
+			}
+
+			data.Errors = data.Form.Validate()
+
+			if len(data.Errors) == 0 {
+				redirectUrl := wantReplacementAttorneysPath
+
+				if data.Form.AddAttorney == "yes" {
+					redirectUrl = data.AttorneyDetailsPath
+				}
+
+				appData.Lang.Redirect(w, r, redirectUrl, http.StatusFound)
+				return nil
+			}
+
 		}
 
 		return tmpl(w, data)
 	}
+}
+
+func (f *chooseAttorneysSummaryForm) Validate() map[string]string {
+	errors := map[string]string{}
+
+	if f.AddAttorney != "yes" && f.AddAttorney != "no" {
+		errors = map[string]string{
+			"add-attorney": "selectAddMoreAttorneys",
+		}
+	}
+
+	return errors
 }

@@ -14,6 +14,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+var mockRandom = func(int) string { return "123" }
+
 func TestGetChooseAttorneys(t *testing.T) {
 	w := httptest.NewRecorder()
 
@@ -32,7 +34,7 @@ func TestGetChooseAttorneys(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneys(template.Func, lpaStore)(appData, w, r)
+	err := ChooseAttorneys(template.Func, lpaStore, mockRandom)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -50,7 +52,7 @@ func TestGetChooseAttorneysWhenStoreErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneys(nil, lpaStore)(appData, w, r)
+	err := ChooseAttorneys(nil, lpaStore, mockRandom)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -82,7 +84,7 @@ func TestGetChooseAttorneysFromStore(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/?id=1", nil)
 
-	err := ChooseAttorneys(template.Func, lpaStore)(appData, w, r)
+	err := ChooseAttorneys(template.Func, lpaStore, mockRandom)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -108,7 +110,7 @@ func TestGetChooseAttorneysWhenTemplateErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneys(template.Func, lpaStore)(appData, w, r)
+	err := ChooseAttorneys(template.Func, lpaStore, mockRandom)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -153,7 +155,7 @@ func TestPostChooseAttorneys(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := ChooseAttorneys(nil, lpaStore)(appData, w, r)
+	err := ChooseAttorneys(nil, lpaStore, mockRandom)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -185,7 +187,7 @@ func TestPostChooseAttorneysWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := ChooseAttorneys(nil, lpaStore)(appData, w, r)
+	err := ChooseAttorneys(nil, lpaStore, mockRandom)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
@@ -217,7 +219,7 @@ func TestPostChooseAttorneysWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := ChooseAttorneys(template.Func, lpaStore)(appData, w, r)
+	err := ChooseAttorneys(template.Func, lpaStore, mockRandom)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
