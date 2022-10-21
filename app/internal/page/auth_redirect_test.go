@@ -35,7 +35,7 @@ func TestAuthRedirect(t *testing.T) {
 		Return("a JWT", nil)
 	client.
 		On("UserInfo", "a JWT").
-		Return(signin.UserInfo{Sub: "random"}, nil)
+		Return(signin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
 
 	sessionsStore := &mockSessionsStore{}
 
@@ -47,7 +47,7 @@ func TestAuthRedirect(t *testing.T) {
 		HttpOnly: true,
 		Secure:   true,
 	}
-	session.Values = map[interface{}]interface{}{"sub": "random"}
+	session.Values = map[interface{}]interface{}{"sub": "random", "email": "name@example.com"}
 
 	sessionsStore.
 		On("Get", r, "params").
