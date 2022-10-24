@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/MicahParks/keyfunc v1.5.1
-	github.com/aws/aws-sdk-go v1.44.116
+	github.com/aws/aws-sdk-go v1.44.121
 	github.com/aws/aws-secretsmanager-caching-go v1.1.0
 	github.com/getyoti/yoti-go-sdk/v3 v3.6.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
@@ -14,7 +14,7 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.2.0
 	github.com/stretchr/testify v1.8.0
 	golang.org/x/exp v0.0.0-20221012211006-4de253d81b95
-	golang.org/x/text v0.3.8
+	golang.org/x/text v0.4.0
 )
 
 require (
