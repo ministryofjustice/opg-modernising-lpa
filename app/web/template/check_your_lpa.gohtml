@@ -44,7 +44,7 @@
             {{ tr .App "whoAreTheAttorneys" }}
           </dt>
           <dd class="govuk-summary-list__value">
-            {{ .Lpa.Attorney.FirstNames }} {{ .Lpa.Attorney.LastName }}
+            {{ concatSentence .Lpa.AttorneyNames }}
           </dd>
           <dd class="govuk-summary-list__actions">
             <a class="govuk-link" href="{{ link .App "/choose-attorneys" }}">
@@ -184,64 +184,75 @@
       </h3>
 
       <dl class="govuk-summary-list">
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">
-            {{ tr .App "name" }}
-          </dt>
-          <dd class="govuk-summary-list__value">
-            {{ .Lpa.Attorney.FirstNames }} {{ .Lpa.Attorney.LastName }}
-          </dd>
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App "/choose-attorneys" }}">
-              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "name") }}</span>
-            </a>
-          </dd>
-        </div>
 
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">
-            {{ tr .App "dateOfBirth" }}
-          </dt>
-          <dd class="govuk-summary-list__value">
-            {{ formatDate .Lpa.Attorney.DateOfBirth }}
-          </dd>
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App "/choose-attorneys" }}">
-              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "dateOfBirth") }}</span>
-            </a>
-          </dd>
-        </div>
+        {{range $i, $a := .Lpa.Attorneys}}
+          {{ $detailsLink := print "/choose-attorneys?from=check&id=" $a.ID }}
+          {{ $addressLink := print "/choose-attorneys-address?from=check&id=" $a.ID }}
 
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">
-            {{ tr .App "email" }}
-          </dt>
-          <dd class="govuk-summary-list__value">
-            {{ .Lpa.Attorney.Email }}
-          </dd>
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App "/choose-attorneys" }}">
-              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "email") }}</span>
-            </a>
-          </dd>
-        </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+              {{ tr $.App "name" }}
+            </dt>
+            <dd class="govuk-summary-list__value">
+              {{ $a.FirstNames }} {{ $a.LastName }}
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link" href="{{ link $.App $detailsLink }}">
+                {{ tr $.App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr $.App "name") }}</span>
+              </a>
+            </dd>
+          </div>
 
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">
-            {{ tr .App "address" }}
-          </dt>
-          <dd class="govuk-summary-list__value">
-            <div>{{ .Lpa.Attorney.Address.Line1 }}</div>
-            <div>{{ .Lpa.Attorney.Address.Line2 }}</div>
-            <div>{{ .Lpa.Attorney.Address.TownOrCity }}</div>
-            <div>{{ .Lpa.Attorney.Address.Postcode }}</div>
-          </dd>
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App "/choose-attorneys-address" }}">
-              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "address") }}</span>
-            </a>
-          </dd>
-        </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+              {{ tr $.App "dateOfBirth" }}
+            </dt>
+            <dd class="govuk-summary-list__value">
+              {{ formatDate $a.DateOfBirth }}
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link" href="{{ link $.App $detailsLink }}">
+                {{ tr $.App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr $.App "dateOfBirth") }}</span>
+              </a>
+            </dd>
+          </div>
+
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+              {{ tr $.App "email" }}
+            </dt>
+            <dd class="govuk-summary-list__value">
+              {{ $a.Email }}
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link" href="{{ link $.App $detailsLink }}">
+                {{ tr $.App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr $.App "email") }}</span>
+              </a>
+            </dd>
+          </div>
+
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+              {{ tr $.App "address" }}
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <div>{{ $a.Address.Line1 }}</div>
+              <div>{{ $a.Address.Line2 }}</div>
+              <div>{{ $a.Address.Line3 }}</div>
+              <div>{{ $a.Address.TownOrCity }}</div>
+              <div>{{ $a.Address.Postcode }}</div>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link" href="{{ link $.App $addressLink }}">
+                {{ tr $.App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr $.App "address") }}</span>
+              </a>
+            </dd>
+          </div>
+
+          <hr class="govuk-section-break govuk-section-break--m">
+
+        {{end}}
+
       </dl>
 
       <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">

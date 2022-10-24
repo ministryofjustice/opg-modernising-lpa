@@ -3,6 +3,7 @@ package page
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -175,4 +176,14 @@ func (l *Lpa) PutAttorney(attorney Attorney) (*Lpa, bool) {
 	l.Attorneys[idx] = attorney
 
 	return l, true
+}
+
+func (l *Lpa) AttorneyNames() []string {
+	var names []string
+
+	for _, a := range l.Attorneys {
+		names = append(names, fmt.Sprintf("%s %s", a.FirstNames, a.LastName))
+	}
+
+	return names
 }

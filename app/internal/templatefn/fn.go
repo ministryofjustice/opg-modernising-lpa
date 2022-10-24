@@ -33,6 +33,7 @@ var All = map[string]interface{}{
 	"formatDate":     formatDate,
 	"formatDateTime": formatDateTime,
 	"lowerFirst":     lowerFirst,
+	"concatSentence": concatSentence,
 }
 
 func isEnglish(lang page.Lang) bool {
@@ -205,4 +206,31 @@ func formatDateTime(t time.Time) string {
 func lowerFirst(s string) string {
 	r, n := utf8.DecodeRuneInString(s)
 	return string(unicode.ToLower(r)) + s[n:]
+}
+
+func concatSentence(strings []string) string {
+	combined := ""
+
+	if len(strings) == 1 {
+		return strings[0]
+	}
+
+	if len(strings) == 2 {
+		return fmt.Sprintf("%s and %s", strings[0], strings[1])
+	}
+
+	for idx, str := range strings {
+		if idx == 0 {
+			combined = str
+			continue
+		}
+
+		if len(strings) == idx+1 {
+			combined = fmt.Sprintf("%s, and %s", combined, str)
+		} else {
+			combined = fmt.Sprintf("%s, %s", combined, str)
+		}
+	}
+
+	return combined
 }

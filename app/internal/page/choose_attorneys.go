@@ -22,10 +22,10 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 			return err
 		}
 
-		attorneyId := r.URL.Query().Get("id")
-		attorney, attorneyFound := lpa.GetAttorney(attorneyId)
+		addAnother := r.URL.Query().Get("addAnother") == "1"
+		attorney, attorneyFound := lpa.GetAttorney(r.URL.Query().Get("id"))
 
-		if r.Method == http.MethodGet && len(lpa.Attorneys) > 0 && attorneyFound == false {
+		if r.Method == http.MethodGet && len(lpa.Attorneys) > 0 && attorneyFound == false && addAnother == false {
 			appData.Lang.Redirect(w, r, chooseAttorneysSummaryPath, http.StatusFound)
 			return nil
 		}
@@ -37,7 +37,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 				LastName:   attorney.LastName,
 				Email:      attorney.Email,
 			},
-			ShowDetails: attorneyFound == false,
+			ShowDetails: attorneyFound == false && addAnother == false,
 		}
 
 		if !attorney.DateOfBirth.IsZero() {
@@ -76,9 +76,12 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 
 				var redirectPath string
 
-				if from == "summary" {
+				switch from {
+				case "summary":
 					redirectPath = chooseAttorneysSummaryPath
-				} else {
+				case "check":
+					redirectPath = checkYourLpaPath
+				default:
 					redirectPath = fmt.Sprintf("%s?id=%s", chooseAttorneysAddressPath, attorney.ID)
 				}
 

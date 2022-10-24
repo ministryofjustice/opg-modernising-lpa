@@ -52,7 +52,21 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 				if err := lpaStore.Put(r.Context(), appData.SessionID, *lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, chooseAttorneysSummaryPath, http.StatusFound)
+
+				from := r.URL.Query().Get("from")
+
+				var redirectPath string
+
+				switch from {
+				case "summary":
+					redirectPath = chooseAttorneysSummaryPath
+				case "check":
+					redirectPath = checkYourLpaPath
+				default:
+					redirectPath = chooseAttorneysSummaryPath
+				}
+
+				appData.Lang.Redirect(w, r, redirectPath, http.StatusFound)
 				return nil
 			}
 

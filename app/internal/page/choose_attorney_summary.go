@@ -47,7 +47,7 @@ func ChooseAttorneySummary(logger Logger, tmpl template.Template, lpaStore LpaSt
 				redirectUrl := wantReplacementAttorneysPath
 
 				if data.Form.AddAttorney == "yes" {
-					redirectUrl = data.AttorneyDetailsPath
+					redirectUrl = fmt.Sprintf("%s?addAnother=1", data.AttorneyDetailsPath)
 				}
 
 				appData.Lang.Redirect(w, r, redirectUrl, http.StatusFound)
