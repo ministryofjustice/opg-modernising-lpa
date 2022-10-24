@@ -178,11 +178,21 @@ func (l *Lpa) PutAttorney(attorney Attorney) (*Lpa, bool) {
 	return l, true
 }
 
-func (l *Lpa) AttorneyNames() []string {
+func (l *Lpa) AttorneysFullNames() []string {
 	var names []string
 
 	for _, a := range l.Attorneys {
 		names = append(names, fmt.Sprintf("%s %s", a.FirstNames, a.LastName))
+	}
+
+	return names
+}
+
+func (l *Lpa) AttorneysFirstNames() []string {
+	var names []string
+
+	for _, a := range l.Attorneys {
+		names = append(names, a.FirstNames)
 	}
 
 	return names

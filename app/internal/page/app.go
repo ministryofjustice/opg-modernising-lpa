@@ -105,7 +105,7 @@ func App(
 
 	handle := makeHandle(mux, logger, sessionStore, localizer, lang)
 
-	mux.Handle("/testing-start", testingStart(sessionStore))
+	mux.Handle("/testing-start", testingStart(sessionStore, lpaStore))
 	mux.Handle("/", Root())
 
 	handle(startPath, None,
@@ -189,7 +189,7 @@ func App(
 	return mux
 }
 
-func testingStart(store sessions.Store) http.HandlerFunc {
+func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		session, _ := store.Get(r, "session")
 		session.Values = map[interface{}]interface{}{"sub": random.String(12)}
@@ -199,6 +199,17 @@ func testingStart(store sessions.Store) http.HandlerFunc {
 			paySession, _ := store.Get(r, PayCookieName)
 			paySession.Values = map[interface{}]interface{}{PayCookiePaymentIdValueKey: random.String(12)}
 			_ = store.Save(r, w, paySession)
+		}
+
+		if r.FormValue("withAttorneys") == "1" {
+			lpa, _ := lpaStore.Get(r.Context(), "session")
+
+			lpa.Attorneys = []Attorney{
+				{ID: "abc123"},
+				{ID: "xyz789"},
+			}
+
+			_ = lpaStore.Put(r.Context(), session.ID, lpa)
 		}
 
 		random.UseTestCode = true

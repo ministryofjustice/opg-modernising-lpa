@@ -5,13 +5,15 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "whatHappensWhenSigning" }}</h1>
 
-      {{ trFormatHtml .App "whatHappensWhenSigningContent" "AttorneyFirstNames" .Lpa.Attorney.FirstNames "AttorneyLastName" .Lpa.Attorney.LastName }}
+      {{ $allAttorneysFirstNames := concatSentence .Lpa.AttorneysFirstNames }}
+      {{ $allAttorneysFullNames := concatSentence .Lpa.AttorneysFullNames }}
+      {{ trFormatHtml .App "whatHappensWhenSigningContent" "AllAttorneysFullNames" .Lpa.AttorneysFullNames "AllAttorneysFirstNames" $allAttorneysFirstNames }}
 
       <div class="govuk-warning-text">
         <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
         <strong class="govuk-warning-text__text">
           <span class="govuk-warning-text__assistive"></span>
-          {{ trFormat .App "whileYouHaveMentalCapacity" "AttorneyFirstNames" .Lpa.Attorney.FirstNames }}
+          {{ trFormat .App "whileYouHaveMentalCapacity" "AllAttorneysFirstNames" $allAttorneysFirstNames }}
         </strong>
       </div>
 
@@ -21,7 +23,7 @@
 
       <h2 class="govuk-heading-m">{{ tr .App "registeringYourLpa" }}</h2>
 
-      {{ trFormatHtml .App "registeringYourLpaContent" "AttorneyFirstNames" .Lpa.Attorney.FirstNames "AttorneyLastName" .Lpa.Attorney.LastName "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames }}
+      {{ trFormatHtml .App "registeringYourLpaContent" "AllAttorneysFullNames" $allAttorneysFullNames "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames }}
 
       <a class="govuk-button" href="{{ link .App .Continue }}">{{ tr .App "continue" }}</a>
     </div>

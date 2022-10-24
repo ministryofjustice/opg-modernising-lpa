@@ -12,28 +12,29 @@ import (
 )
 
 var All = map[string]interface{}{
-	"isEnglish":      isEnglish,
-	"isWelsh":        isWelsh,
-	"input":          input,
-	"items":          items,
-	"item":           item,
-	"fieldID":        fieldID,
-	"errorMessage":   errorMessage,
-	"details":        details,
-	"inc":            inc,
-	"link":           link,
-	"contains":       contains,
-	"tr":             tr,
-	"trFormat":       trFormat,
-	"trFormatHtml":   trFormatHtml,
-	"trHtml":         trHtml,
-	"trCount":        trCount,
-	"now":            now,
-	"addDays":        addDays,
-	"formatDate":     formatDate,
-	"formatDateTime": formatDateTime,
-	"lowerFirst":     lowerFirst,
-	"concatSentence": concatSentence,
+	"isEnglish":       isEnglish,
+	"isWelsh":         isWelsh,
+	"input":           input,
+	"items":           items,
+	"item":            item,
+	"fieldID":         fieldID,
+	"errorMessage":    errorMessage,
+	"details":         details,
+	"inc":             inc,
+	"link":            link,
+	"contains":        contains,
+	"tr":              tr,
+	"trFormat":        trFormat,
+	"trFormatHtml":    trFormatHtml,
+	"trHtml":          trHtml,
+	"trCount":         trCount,
+	"now":             now,
+	"addDays":         addDays,
+	"formatDate":      formatDate,
+	"formatDateTime":  formatDateTime,
+	"lowerFirst":      lowerFirst,
+	"concatSentence":  concatSentence,
+	"attorneyDetails": attorneyDetails,
 }
 
 func isEnglish(lang page.Lang) bool {
@@ -233,4 +234,12 @@ func concatSentence(strings []string) string {
 	}
 
 	return combined
+}
+
+func attorneyDetails(attorneys []page.Attorney, from string, app page.AppData) map[string]interface{} {
+	return map[string]interface{}{
+		"Attorneys": attorneys,
+		"From":      from,
+		"App":       app,
+	}
 }

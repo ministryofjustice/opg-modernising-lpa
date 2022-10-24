@@ -237,7 +237,7 @@ func TestTestingStart(t *testing.T) {
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		testingStart(sessionsStore).ServeHTTP(w, r)
+		testingStart(sessionsStore, &mockLpaStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -260,12 +260,50 @@ func TestTestingStart(t *testing.T) {
 			On("Get", r, "pay").
 			Return(&sessions.Session{}, nil)
 
-		testingStart(sessionsStore).ServeHTTP(w, r)
+		testingStart(sessionsStore, &mockLpaStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
 		mock.AssertExpectationsForObjects(t, sessionsStore)
+	})
+
+	t.Run("with attorneys", func(t *testing.T) {
+		ctx := context.Background()
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withAttorneys=1", nil)
+		r = r.WithContext(ctx)
+
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpa := Lpa{}
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Get", mock.Anything, "session").
+			Return(lpa, nil)
+
+		lpa.Attorneys = []Attorney{
+			{ID: "abc123"},
+			{ID: "xyz789"},
+		}
+
+		lpaStore.
+			On("Put", mock.Anything, mock.Anything, lpa).
+			Return(nil)
+
+		testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
 	})
 }
 

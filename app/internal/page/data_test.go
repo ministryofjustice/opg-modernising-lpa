@@ -146,7 +146,7 @@ func TestPutAttorneyIdDoesNotMatch(t *testing.T) {
 	assert.False(t, updated)
 }
 
-func TestAttorneyNames(t *testing.T) {
+func TestAttorneysFullNames(t *testing.T) {
 	l := Lpa{
 		Attorneys: []Attorney{
 			{
@@ -160,5 +160,22 @@ func TestAttorneyNames(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, []string{"Bob Alan George Jones", "Samantha Smith"}, l.AttorneyNames())
+	assert.Equal(t, []string{"Bob Alan George Jones", "Samantha Smith"}, l.AttorneysFullNames())
+}
+
+func TestAttorneysFirstNames(t *testing.T) {
+	l := Lpa{
+		Attorneys: []Attorney{
+			{
+				FirstNames: "Bob Alan George",
+				LastName:   "Jones",
+			},
+			{
+				FirstNames: "Samantha",
+				LastName:   "Smith",
+			},
+		},
+	}
+
+	assert.Equal(t, []string{"Bob Alan George", "Samantha"}, l.AttorneysFirstNames())
 }
