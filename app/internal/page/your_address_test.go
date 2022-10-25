@@ -341,17 +341,23 @@ func TestPostYourAddressSelect(t *testing.T) {
 		Postcode:   "d",
 	}
 
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &yourAddressData{
+			App: appData,
+			Form: &yourAddressForm{
+				Action:         "manual",
+				LookupPostcode: "NG1",
+				Address:        expectedAddress,
+			},
+			Errors: map[string]string{},
+		}).
+		Return(nil)
+
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
 		Return(Lpa{}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{
-			You: Person{
-				Address: *expectedAddress,
-			},
-		}).
-		Return(nil)
 
 	form := url.Values{
 		"action":          {"select"},
@@ -362,13 +368,12 @@ func TestPostYourAddressSelect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := YourAddress(nil, nil, nil, lpaStore)(appData, w, r)
+	err := YourAddress(nil, template.Func, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, whoIsTheLpaForPath, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
 func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
@@ -661,7 +666,6 @@ func TestYourAddressFormValidate(t *testing.T) {
 				Address: &place.Address{
 					Line1:      "a",
 					TownOrCity: "b",
-					Postcode:   "c",
 				},
 			},
 			errors: map[string]string{},
@@ -672,9 +676,38 @@ func TestYourAddressFormValidate(t *testing.T) {
 				Address: &place.Address{},
 			},
 			errors: map[string]string{
-				"address-line-1":   "enterAddress",
-				"address-town":     "enterTownOrCity",
-				"address-postcode": "enterPostcode",
+				"address-line-1": "enterAddress",
+				"address-town":   "enterTownOrCity",
+			},
+		},
+		"manual-max-length": {
+			form: &yourAddressForm{
+				Action: "manual",
+				Address: &place.Address{
+					Line1:      strings.Repeat("x", 50),
+					Line2:      strings.Repeat("x", 50),
+					Line3:      strings.Repeat("x", 50),
+					TownOrCity: "b",
+					Postcode:   "c",
+				},
+			},
+			errors: map[string]string{},
+		},
+		"manual-too-long": {
+			form: &yourAddressForm{
+				Action: "manual",
+				Address: &place.Address{
+					Line1:      strings.Repeat("x", 51),
+					Line2:      strings.Repeat("x", 51),
+					Line3:      strings.Repeat("x", 51),
+					TownOrCity: "b",
+					Postcode:   "c",
+				},
+			},
+			errors: map[string]string{
+				"address-line-1": "addressLine1TooLong",
+				"address-line-2": "addressLine2TooLong",
+				"address-line-3": "addressLine3TooLong",
 			},
 		},
 	}

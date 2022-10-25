@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -112,7 +113,157 @@ func TestGetChooseAttorneysWhenTemplateErrors(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
 
-func TestPostChooseAttorneys(t *testing.T) {
+func TestPostChooseAttorneysAttorneyDoesNotExists(t *testing.T) {
+	testCases := map[string]struct {
+		form     url.Values
+		attorney Attorney
+	}{
+		"valid": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"email":               {"john@example.com"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {strconv.Itoa(time.Now().Year() - 40)},
+			},
+			attorney: Attorney{
+				FirstNames:  "John",
+				LastName:    "Doe",
+				Email:       "john@example.com",
+				DateOfBirth: time.Date(time.Now().Year()-40, time.January, 2, 0, 0, 0, 0, time.UTC),
+				ID:          "123",
+			},
+		},
+		"warning ignored": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"email":               {"john@example.com"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1900"},
+				"ignore-warning":      {"dateOfBirthIsOver100"},
+			},
+			attorney: Attorney{
+				FirstNames:  "John",
+				LastName:    "Doe",
+				Email:       "john@example.com",
+				DateOfBirth: time.Date(1900, time.January, 2, 0, 0, 0, 0, time.UTC),
+				ID:          "123",
+			},
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(Lpa{}, nil)
+			lpaStore.
+				On("Put", mock.Anything, "session-id", Lpa{
+					Attorneys: []Attorney{tc.attorney},
+				}).
+				Return(nil)
+
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
+
+			err := ChooseAttorneys(nil, lpaStore, mockRandom)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, "/choose-attorneys-address?id=123", resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, lpaStore)
+		})
+	}
+}
+
+func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
+	testCases := map[string]struct {
+		form     url.Values
+		attorney Attorney
+	}{
+		"valid": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"email":               {"john@example.com"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {strconv.Itoa(time.Now().Year() - 40)},
+			},
+			attorney: Attorney{
+				FirstNames:  "John",
+				LastName:    "Doe",
+				Email:       "john@example.com",
+				DateOfBirth: time.Date(time.Now().Year()-40, time.January, 2, 0, 0, 0, 0, time.UTC),
+				Address:     place.Address{Line1: "abc"},
+				ID:          "123",
+			},
+		},
+		"warning ignored": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"email":               {"john@example.com"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1900"},
+				"ignore-warning":      {"dateOfBirthIsOver100"},
+			},
+			attorney: Attorney{
+				FirstNames:  "John",
+				LastName:    "Doe",
+				Email:       "john@example.com",
+				DateOfBirth: time.Date(1900, time.January, 2, 0, 0, 0, 0, time.UTC),
+				Address:     place.Address{Line1: "abc"},
+				ID:          "123",
+			},
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(Lpa{
+					Attorneys: []Attorney{
+						{
+							FirstNames: "John",
+							ID:         "123",
+							Address:    place.Address{Line1: "abc"},
+						},
+					},
+				}, nil)
+			lpaStore.
+				On("Put", mock.Anything, "session-id", Lpa{
+					Attorneys: []Attorney{tc.attorney},
+				}).
+				Return(nil)
+
+			r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(tc.form.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
+
+			err := ChooseAttorneys(nil, lpaStore, mockRandom)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, "/choose-attorneys-address?id=123", resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, lpaStore)
+		})
+	}
+}
+
+func TestPostChooseAttorneysFromAnotherPage(t *testing.T) {
 	testcases := map[string]struct {
 		requestUrl      string
 		expectedNextUrl string
@@ -189,6 +340,95 @@ func TestPostChooseAttorneys(t *testing.T) {
 	}
 }
 
+func TestPostChooseAttorneysWhenInputRequired(t *testing.T) {
+	testCases := map[string]struct {
+		form        url.Values
+		dataMatcher func(t *testing.T, data *chooseAttorneysData) bool
+	}{
+		"validation error": {
+			form: url.Values{
+				"last-name":           {"Doe"},
+				"email":               {"name@example.com"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1990"},
+			},
+			dataMatcher: func(t *testing.T, data *chooseAttorneysData) bool {
+				return assert.Equal(t, map[string]string{"first-names": "enterFirstNames"}, data.Errors)
+			},
+		},
+		"dob warning": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"email":               {"name@example.com"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1900"},
+			},
+			dataMatcher: func(t *testing.T, data *chooseAttorneysData) bool {
+				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
+			},
+		},
+		"dob warning ignored but other errors": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"email":               {"name@example.com"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1900"},
+				"ignore-warning":      {"dateOfBirthIsOver100"},
+			},
+			dataMatcher: func(t *testing.T, data *chooseAttorneysData) bool {
+				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
+			},
+		},
+		"other dob warning ignored": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"email":               {"name@example.com"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1900"},
+				"ignore-warning":      {"dateOfBirthIsUnder18"},
+			},
+			dataMatcher: func(t *testing.T, data *chooseAttorneysData) bool {
+				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
+			},
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+
+			w := httptest.NewRecorder()
+
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(Lpa{}, nil)
+
+			template := &mockTemplate{}
+			template.
+				On("Func", w, mock.MatchedBy(func(data *chooseAttorneysData) bool {
+					return tc.dataMatcher(t, data)
+				})).
+				Return(nil)
+
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
+
+			err := ChooseAttorneys(template.Func, lpaStore, mockRandom)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+			mock.AssertExpectationsForObjects(t, lpaStore, template)
+		})
+	}
+}
+
 func TestPostChooseAttorneysWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
@@ -216,40 +456,6 @@ func TestPostChooseAttorneysWhenStoreErrors(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
-}
-
-func TestPostChooseAttorneysWhenValidationError(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
-
-	template := &mockTemplate{}
-	template.
-		On("Func", w, mock.MatchedBy(func(data *chooseAttorneysData) bool {
-			return assert.Equal(t, map[string]string{"first-names": "enterFirstNames"}, data.Errors)
-		})).
-		Return(nil)
-
-	form := url.Values{
-		"last-name":           {"Doe"},
-		"email":               {"john@example.com"},
-		"date-of-birth-day":   {"2"},
-		"date-of-birth-month": {"1"},
-		"date-of-birth-year":  {"1990"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
-	err := ChooseAttorneys(template.Func, lpaStore, mockRandom)(appData, w, r)
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestReadChooseAttorneysForm(t *testing.T) {
@@ -280,6 +486,9 @@ func TestReadChooseAttorneysForm(t *testing.T) {
 }
 
 func TestChooseAttorneysFormValidate(t *testing.T) {
+	now := time.Now().UTC().Round(24 * time.Hour)
+	validDob := now.AddDate(-18, 0, -1)
+
 	testCases := map[string]struct {
 		form   *chooseAttorneysForm
 		errors map[string]string
@@ -288,30 +497,77 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 			form: &chooseAttorneysForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Email:      "H",
+				Email:      "person@example.com",
 				Dob: Date{
 					Day:   "C",
 					Month: "D",
 					Year:  "E",
 				},
-				DateOfBirth: time.Now(),
+				DateOfBirth: validDob,
 			},
 			errors: map[string]string{},
 		},
-		"missing-all": {
+		"max length": {
+			form: &chooseAttorneysForm{
+				FirstNames: strings.Repeat("x", 53),
+				LastName:   strings.Repeat("x", 61),
+				Email:      "person@example.com",
+				Dob: Date{
+					Day:   "C",
+					Month: "D",
+					Year:  "E",
+				},
+				DateOfBirth: validDob,
+			},
+			errors: map[string]string{},
+		},
+		"missing all": {
 			form: &chooseAttorneysForm{},
 			errors: map[string]string{
 				"first-names":   "enterFirstNames",
 				"last-name":     "enterLastName",
-				"date-of-birth": "dateOfBirthYear",
+				"date-of-birth": "enterDateOfBirth",
 				"email":         "enterEmail",
 			},
 		},
-		"invalid-dob": {
+		"too long": {
+			form: &chooseAttorneysForm{
+				FirstNames: strings.Repeat("x", 54),
+				LastName:   strings.Repeat("x", 62),
+				Email:      "person@example.com",
+				Dob: Date{
+					Day:   "C",
+					Month: "D",
+					Year:  "E",
+				},
+				DateOfBirth: validDob,
+			},
+			errors: map[string]string{
+				"first-names": "firstNamesTooLong",
+				"last-name":   "lastNameTooLong",
+			},
+		},
+		"future dob": {
 			form: &chooseAttorneysForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Email:      "C",
+				Email:      "person@example.com",
+				Dob: Date{
+					Day:   "1",
+					Month: "1",
+					Year:  "1",
+				},
+				DateOfBirth: now.AddDate(0, 0, 1),
+			},
+			errors: map[string]string{
+				"date-of-birth": "dateOfBirthIsFuture",
+			},
+		},
+		"invalid dob": {
+			form: &chooseAttorneysForm{
+				FirstNames: "A",
+				LastName:   "B",
+				Email:      "person@example.com",
 				Dob: Date{
 					Day:   "1",
 					Month: "1",
@@ -323,11 +579,11 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 				"date-of-birth": "dateOfBirthMustBeReal",
 			},
 		},
-		"invalid-missing-dob": {
+		"invalid missing dob": {
 			form: &chooseAttorneysForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Email:      "C",
+				Email:      "person@example.com",
 				Dob: Date{
 					Day:  "1",
 					Year: "1",
@@ -335,7 +591,23 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 				DateOfBirthError: expectedError,
 			},
 			errors: map[string]string{
-				"date-of-birth": "dateOfBirthMonth",
+				"date-of-birth": "enterDateOfBirth",
+			},
+		},
+		"invalid email": {
+			form: &chooseAttorneysForm{
+				FirstNames: "A",
+				LastName:   "B",
+				Email:      "person@",
+				Dob: Date{
+					Day:   "1",
+					Month: "1",
+					Year:  "1",
+				},
+				DateOfBirth: validDob,
+			},
+			errors: map[string]string{
+				"email": "emailIncorrectFormat",
 			},
 		},
 	}
@@ -343,6 +615,54 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			assert.Equal(t, tc.errors, tc.form.Validate())
+		})
+	}
+}
+func TestChooseAttorneysFormDobWarning(t *testing.T) {
+	now := time.Now().UTC().Round(24 * time.Hour)
+	validDob := now.AddDate(-18, 0, -1)
+
+	testCases := map[string]struct {
+		form    *chooseAttorneysForm
+		warning string
+	}{
+		"valid": {
+			form: &chooseAttorneysForm{
+				DateOfBirth: validDob,
+			},
+		},
+		"future dob": {
+			form: &chooseAttorneysForm{
+				DateOfBirth: now.AddDate(0, 0, 1),
+			},
+		},
+		"dob is 18": {
+			form: &chooseAttorneysForm{
+				DateOfBirth: now.AddDate(-18, 0, 0),
+			},
+		},
+		"dob under 18": {
+			form: &chooseAttorneysForm{
+				DateOfBirth: now.AddDate(-18, 0, 1),
+			},
+			warning: "dateOfBirthIsUnder18",
+		},
+		"dob is 100": {
+			form: &chooseAttorneysForm{
+				DateOfBirth: now.AddDate(-100, 0, 0),
+			},
+		},
+		"dob over 100": {
+			form: &chooseAttorneysForm{
+				DateOfBirth: now.AddDate(-100, 0, -1),
+			},
+			warning: "dateOfBirthIsOver100",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.warning, tc.form.DobWarning())
 		})
 	}
 }

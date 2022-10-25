@@ -41,7 +41,7 @@ func TestLpaStoreGet(t *testing.T) {
 
 	lpa, err := lpaStore.Get(ctx, "an-id")
 	assert.Nil(t, err)
-	assert.Equal(t, Lpa{ID: "10100000", You: Person{Email: "simulate-delivered@notifications.service.gov.uk"}}, lpa)
+	assert.Equal(t, Lpa{ID: "10100000"}, lpa)
 }
 
 func TestLpaStoreGetWhenExists(t *testing.T) {

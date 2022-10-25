@@ -30,6 +30,7 @@ module "app" {
   alb_deletion_protection_enabled = var.alb_deletion_protection_enabled
   lpas_table                      = var.lpas_table
   container_port                  = 8080
+  public_access_enabled           = var.public_access_enabled
   network = {
     vpc_id              = data.aws_vpc.main.id
     application_subnets = data.aws_subnet.application.*.id

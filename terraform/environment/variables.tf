@@ -19,6 +19,7 @@ variable "environments" {
       is_production = bool
       regions       = list(string)
       app = object({
+        public_access_enabled = bool
         env = object({
           app_public_url         = string
           auth_redirect_base_url = string
@@ -64,6 +65,7 @@ locals {
 
   optional_tags = {
     infrastructure-support = "OPG Webops: opgteam+modernising-lpa@digital.justice.gov.uk"
+    account-name           = local.environment.account_name
   }
 
   default_tags = merge(local.mandatory_moj_tags, local.optional_tags)

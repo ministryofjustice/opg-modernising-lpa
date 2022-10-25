@@ -40,8 +40,13 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 		if r.Method == http.MethodPost {
 			data.Form = readChooseAttorneysAddressForm(r)
 			data.Errors = data.Form.Validate()
+			from := r.URL.Query().Get("from")
 
-			if (data.Form.Action == "manual" || data.Form.Action == "select") && len(data.Errors) == 0 {
+			if data.Form.Action == "select" && len(data.Errors) == 0 {
+				data.Form.Action = "manual"
+			}
+
+			if data.Form.Action == "manual" && len(data.Errors) == 0 {
 				attorney.Address = *data.Form.Address
 				lpa, attorneyUpdated := lpa.PutAttorney(attorney)
 
@@ -53,20 +58,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 					return err
 				}
 
-				from := r.URL.Query().Get("from")
-
-				var redirectPath string
-
-				switch from {
-				case "summary":
-					redirectPath = chooseAttorneysSummaryPath
-				case "check":
-					redirectPath = checkYourLpaPath
-				default:
-					redirectPath = chooseAttorneysSummaryPath
-				}
-
-				appData.Lang.Redirect(w, r, redirectPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, redirectPath(from), http.StatusFound)
 				return nil
 			}
 
@@ -92,6 +84,21 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 
 		return tmpl(w, data)
 	}
+}
+
+func redirectPath(from string) string {
+	var path string
+
+	switch from {
+	case "summary":
+		path = chooseAttorneysSummaryPath
+	case "check":
+		path = checkYourLpaPath
+	default:
+		path = chooseAttorneysSummaryPath
+	}
+
+	return path
 }
 
 type chooseAttorneysAddressForm struct {
@@ -146,11 +153,17 @@ func (d *chooseAttorneysAddressForm) Validate() map[string]string {
 		if d.Address.Line1 == "" {
 			errors["address-line-1"] = "enterAddress"
 		}
+		if len(d.Address.Line1) > 50 {
+			errors["address-line-1"] = "addressLine1TooLong"
+		}
+		if len(d.Address.Line2) > 50 {
+			errors["address-line-2"] = "addressLine2TooLong"
+		}
+		if len(d.Address.Line3) > 50 {
+			errors["address-line-3"] = "addressLine3TooLong"
+		}
 		if d.Address.TownOrCity == "" {
 			errors["address-town"] = "enterTownOrCity"
-		}
-		if d.Address.Postcode == "" {
-			errors["address-postcode"] = "enterPostcode"
 		}
 	}
 

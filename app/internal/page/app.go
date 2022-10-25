@@ -119,7 +119,7 @@ func App(
 		WhoIsTheLpaFor(tmpls.Get("who_is_the_lpa_for.gohtml"), lpaStore))
 
 	handle(yourDetailsPath, RequireSession,
-		YourDetails(tmpls.Get("your_details.gohtml"), lpaStore))
+		YourDetails(tmpls.Get("your_details.gohtml"), lpaStore, sessionStore))
 	handle(yourAddressPath, RequireSession,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
 	handle(howWouldYouLikeToBeContactedPath, RequireSession,
@@ -195,7 +195,7 @@ func App(
 func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		session, _ := store.Get(r, "session")
-		session.Values = map[interface{}]interface{}{"sub": random.String(12)}
+		session.Values = map[interface{}]interface{}{"sub": random.String(12), "email": "simulate-delivered@notifications.service.gov.uk"}
 		_ = store.Save(r, w, session)
 
 		if r.FormValue("paymentComplete") == "1" {

@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -356,6 +355,8 @@ func TestPostChooseAttorneysAddressSelect(t *testing.T) {
 		}).
 		Return(nil)
 
+	template := &mockTemplate{}
+
 	form := url.Values{
 		"action":          {"select"},
 		"lookup-postcode": {"NG1"},
@@ -365,13 +366,12 @@ func TestPostChooseAttorneysAddressSelect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(appData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Func, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/choose-attorneys-summary", resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
+	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
 func TestPostChooseAttorneysAddressSelectWhenValidationError(t *testing.T) {
@@ -585,7 +585,7 @@ func TestReadChooseAttorneysAddressForm(t *testing.T) {
 				Address: expectedAddress,
 			},
 		},
-		"select-not-selected": {
+		"select not selected": {
 			form: url.Values{
 				"action":         {"select"},
 				"select-address": {""},
@@ -627,14 +627,14 @@ func TestChooseAttorneysAddressFormValidate(t *testing.T) {
 		form   *chooseAttorneysAddressForm
 		errors map[string]string
 	}{
-		"lookup-valid": {
+		"lookup valid": {
 			form: &chooseAttorneysAddressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
 			errors: map[string]string{},
 		},
-		"lookup-missing-postcode": {
+		"lookup missing postcode": {
 			form: &chooseAttorneysAddressForm{
 				Action: "lookup",
 			},
@@ -642,14 +642,14 @@ func TestChooseAttorneysAddressFormValidate(t *testing.T) {
 				"lookup-postcode": "enterPostcode",
 			},
 		},
-		"select-valid": {
+		"select valid": {
 			form: &chooseAttorneysAddressForm{
 				Action:  "select",
 				Address: &place.Address{},
 			},
 			errors: map[string]string{},
 		},
-		"select-not-selected": {
+		"select not selected": {
 			form: &chooseAttorneysAddressForm{
 				Action:  "select",
 				Address: nil,
@@ -658,7 +658,7 @@ func TestChooseAttorneysAddressFormValidate(t *testing.T) {
 				"select-address": "selectAddress",
 			},
 		},
-		"manual-valid": {
+		"manual valid": {
 			form: &chooseAttorneysAddressForm{
 				Action: "manual",
 				Address: &place.Address{
@@ -669,15 +669,44 @@ func TestChooseAttorneysAddressFormValidate(t *testing.T) {
 			},
 			errors: map[string]string{},
 		},
-		"manual-missing-all": {
+		"manual missing all": {
 			form: &chooseAttorneysAddressForm{
 				Action:  "manual",
 				Address: &place.Address{},
 			},
 			errors: map[string]string{
-				"address-line-1":   "enterAddress",
-				"address-town":     "enterTownOrCity",
-				"address-postcode": "enterPostcode",
+				"address-line-1": "enterAddress",
+				"address-town":   "enterTownOrCity",
+			},
+		},
+		"manual max length": {
+			form: &chooseAttorneysAddressForm{
+				Action: "manual",
+				Address: &place.Address{
+					Line1:      strings.Repeat("x", 50),
+					Line2:      strings.Repeat("x", 50),
+					Line3:      strings.Repeat("x", 50),
+					TownOrCity: "b",
+					Postcode:   "c",
+				},
+			},
+			errors: map[string]string{},
+		},
+		"manual too long": {
+			form: &chooseAttorneysAddressForm{
+				Action: "manual",
+				Address: &place.Address{
+					Line1:      strings.Repeat("x", 51),
+					Line2:      strings.Repeat("x", 51),
+					Line3:      strings.Repeat("x", 51),
+					TownOrCity: "b",
+					Postcode:   "c",
+				},
+			},
+			errors: map[string]string{
+				"address-line-1": "addressLine1TooLong",
+				"address-line-2": "addressLine2TooLong",
+				"address-line-3": "addressLine3TooLong",
 			},
 		},
 	}
