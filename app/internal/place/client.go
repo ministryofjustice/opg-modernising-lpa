@@ -23,6 +23,7 @@ type Client struct {
 
 type addressDetails struct {
 	Address           string `json:"ADDRESS"`
+	SubBuildingName   string `json:"SUB_BUILDING_NAME"`
 	BuildingName      string `json:"BUILDING_NAME"`
 	BuildingNumber    string `json:"BUILDING_NUMBER"`
 	ThoroughFareName  string `json:"THOROUGHFARE_NAME"`
@@ -125,7 +126,11 @@ func (ad *addressDetails) transformToAddress() Address {
 	a := Address{}
 
 	if len(ad.BuildingName) > 0 {
-		a.Line1 = ad.BuildingName
+		if len(ad.SubBuildingName) > 0 {
+			a.Line1 = fmt.Sprintf("%s, %s", ad.SubBuildingName, ad.BuildingName)
+		} else {
+			a.Line1 = ad.BuildingName
+		}
 
 		if len(ad.BuildingNumber) > 0 {
 			a.Line2 = fmt.Sprintf("%s %s", ad.BuildingNumber, ad.ThoroughFareName)

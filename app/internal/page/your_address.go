@@ -35,13 +35,17 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			data.Form = readYourAddressForm(r)
 			data.Errors = data.Form.Validate()
 
-			if (data.Form.Action == "manual" || data.Form.Action == "select") && len(data.Errors) == 0 {
+			if data.Form.Action == "manual" && len(data.Errors) == 0 {
 				lpa.You.Address = *data.Form.Address
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
 				appData.Lang.Redirect(w, r, whoIsTheLpaForPath, http.StatusFound)
 				return nil
+			}
+
+			if data.Form.Action == "select" && len(data.Errors) == 0 {
+				data.Form.Action = "manual"
 			}
 
 			if data.Form.Action == "lookup" && len(data.Errors) == 0 ||

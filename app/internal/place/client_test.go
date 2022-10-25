@@ -28,19 +28,17 @@ func TestLookupPostcode(t *testing.T) {
 
 	ctx := context.Background()
 
-	testCases := []struct {
-		name          string
+	testCases := map[string]struct {
 		postcode      string
 		queryPostcode string
 		responseJson  string
 		want          []Address
 	}{
-		{
-			"Multiple results",
-			"B14 7ET",
-			"B147ET",
-			string(multipleAddressJson),
-			[]Address{
+		"multiple": {
+			postcode:      "B14 7ET",
+			queryPostcode: "B147ET",
+			responseJson:  string(multipleAddressJson),
+			want: []Address{
 				{
 					Line1:      "123 MELTON ROAD",
 					TownOrCity: "BIRMINGHAM",
@@ -55,17 +53,15 @@ func TestLookupPostcode(t *testing.T) {
 				},
 			},
 		},
-		{
-			"No results",
-			"  X XX XX X ",
-			"XXXXXX",
-			string(noAddressJson),
-			nil,
+		"no results": {
+			postcode:      "  X XX XX X ",
+			queryPostcode: "XXXXXX",
+			responseJson:  string(noAddressJson),
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 				assert.Equal(t, tc.queryPostcode, req.URL.Query().Get("postcode"), "Request was missing 'postcode' query with expected value")
 				assert.Equal(t, "fake-api-key", req.URL.Query().Get("key"), "Request was missing 'key' query with expected value")
@@ -166,14 +162,12 @@ func TestAddress(t *testing.T) {
 }
 
 func TestTransformAddressDetailsToAddress(t *testing.T) {
-	testCases := []struct {
-		name string
+	testCases := map[string]struct {
 		ad   addressDetails
 		want Address
 	}{
-		{
-			"Building number no building name",
-			addressDetails{
+		"building number no building name": {
+			ad: addressDetails{
 				Address:           "1, MELTON ROAD, BIRMINGHAM, B14 7ET",
 				BuildingName:      "",
 				BuildingNumber:    "1",
@@ -182,11 +176,10 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			Address{Line1: "1 MELTON ROAD", Line2: "", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			want: Address{Line1: "1 MELTON ROAD", Line2: "", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
 		},
-		{
-			"Building name no building number",
-			addressDetails{
+		"building name no building number": {
+			ad: addressDetails{
 				Address:           "1A, MELTON ROAD, BIRMINGHAM, B14 7ET",
 				BuildingName:      "1A",
 				BuildingNumber:    "",
@@ -195,11 +188,10 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			Address{Line1: "1A", Line2: "MELTON ROAD", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			want: Address{Line1: "1A", Line2: "MELTON ROAD", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
 		},
-		{
-			"Building name and building number",
-			addressDetails{
+		"building name and building number": {
+			ad: addressDetails{
 				Address:           "MELTON HOUSE, 2 MELTON ROAD, BIRMINGHAM, B14 7ET",
 				BuildingName:      "MELTON HOUSE",
 				BuildingNumber:    "2",
@@ -208,11 +200,10 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			Address{Line1: "MELTON HOUSE", Line2: "2 MELTON ROAD", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			want: Address{Line1: "MELTON HOUSE", Line2: "2 MELTON ROAD", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
 		},
-		{
-			"Dependent Locality building number",
-			addressDetails{
+		"dependent locality building number": {
+			ad: addressDetails{
 				Address:           "3, MELTON ROAD, BIRMINGHAM, B14 7ET",
 				BuildingName:      "",
 				BuildingNumber:    "3",
@@ -221,11 +212,10 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			Address{Line1: "3 MELTON ROAD", Line2: "KINGS HEATH", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			want: Address{Line1: "3 MELTON ROAD", Line2: "KINGS HEATH", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
 		},
-		{
-			"Dependent Locality building name",
-			addressDetails{
+		"dependent locality building name": {
+			ad: addressDetails{
 				Address:           "MELTON HOUSE, MELTON ROAD, KINGS HEATH, BIRMINGHAM, B14 7ET",
 				BuildingName:      "MELTON HOUSE",
 				BuildingNumber:    "",
@@ -234,11 +224,10 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			Address{Line1: "MELTON HOUSE", Line2: "MELTON ROAD", Line3: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			want: Address{Line1: "MELTON HOUSE", Line2: "MELTON ROAD", Line3: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
 		},
-		{
-			"Dependent Locality building name and building number",
-			addressDetails{
+		"dependent locality building name and building number": {
+			ad: addressDetails{
 				Address:           "MELTON HOUSE, 5 MELTON ROAD, KINGS HEATH BIRMINGHAM, B14 7ET",
 				BuildingName:      "MELTON HOUSE",
 				BuildingNumber:    "5",
@@ -247,12 +236,23 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			Address{Line1: "MELTON HOUSE", Line2: "5 MELTON ROAD", Line3: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			want: Address{Line1: "MELTON HOUSE", Line2: "5 MELTON ROAD", Line3: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+		},
+		"building name and sub building name": {
+			ad: addressDetails{
+				Address:          "APARTMENT 34, CHARLES HOUSE, PARK ROW, NOTTINGHAM, NG1 6GR",
+				SubBuildingName:  "APARTMENT 34",
+				BuildingName:     "CHARLES HOUSE",
+				ThoroughFareName: "PARK ROW",
+				Town:             "NOTTINGHAM",
+				Postcode:         "NG1 6GR",
+			},
+			want: Address{Line1: "APARTMENT 34, CHARLES HOUSE", Line2: "PARK ROW", TownOrCity: "NOTTINGHAM", Postcode: "NG1 6GR"},
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
 			assert.Equal(t, tc.want, tc.ad.transformToAddress())
 		})
 	}
