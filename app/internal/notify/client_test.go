@@ -23,7 +23,7 @@ func (m *mockDoer) Do(req *http.Request) (*http.Response, error) {
 }
 
 func TestNew(t *testing.T) {
-	client, err := New("http://base", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", http.DefaultClient)
+	client, err := New(true, "http://base", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", http.DefaultClient)
 
 	assert.Nil(t, err)
 	assert.Equal(t, "http://base", client.baseURL)
@@ -32,13 +32,13 @@ func TestNew(t *testing.T) {
 }
 
 func TestNewWithInvalidApiKey(t *testing.T) {
-	_, err := New("", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f", http.DefaultClient)
+	_, err := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f", http.DefaultClient)
 
 	assert.NotNil(t, err)
 }
 
 func TestNewWithEmptyBaseURL(t *testing.T) {
-	client, _ := New("", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", http.DefaultClient)
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", http.DefaultClient)
 
 	assert.Equal(t, "https://api.notifications.service.gov.uk", client.baseURL)
 }
@@ -64,7 +64,7 @@ func TestEmail(t *testing.T) {
 			Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`)),
 		}, nil)
 
-	client, _ := New("", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	id, err := client.Email(ctx, Email{EmailAddress: "me@example.com", TemplateID: "template-123"})
@@ -83,8 +83,16 @@ func TestEmailWhenError(t *testing.T) {
 			Body: io.NopCloser(strings.NewReader(`{"errors":[{"error":"SomeError","message":"This happened"}, {"error":"AndError","message":"Plus this"}]}`)),
 		}, nil)
 
-	client, _ := New("", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 
 	_, err := client.Email(ctx, Email{EmailAddress: "me@example.com", TemplateID: "template-123"})
 	assert.Equal(`error sending email: This happened: Plus this`, err.Error())
+}
+
+func TestTemplateID(t *testing.T) {
+	production, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil)
+	assert.Equal(t, "95f7b0a2-1c3a-4ad9-818b-b358c549c88b", production.TemplateID("MLPA Beta signature code"))
+
+	test, _ := New(false, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil)
+	assert.Equal(t, "7e8564a0-2635-4f61-9155-0166ddbe5607", test.TemplateID("MLPA Beta signature code"))
 }
