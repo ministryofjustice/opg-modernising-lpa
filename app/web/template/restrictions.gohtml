@@ -9,9 +9,9 @@
         </h1>
 
         {{ trHtml .App "restrictionsOnYourAttorneysPowerContent" }}
-        
-        {{ template "details" (details . "restrictionExamples" "restrictionExamplesContent") }}
-        
+
+        {{ template "details" (details . "restrictionExamples" "restrictionExamplesContent" false) }}
+
         <div class="govuk-form-group {{ if index .Errors "restrictions" }}govuk-form-group--error{{ end }}">
           <label class="govuk-label govuk-label--s" for="f-restrictions">
             {{ tr .App "restrictions" }}

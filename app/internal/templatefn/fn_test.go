@@ -115,12 +115,14 @@ func TestDetails(t *testing.T) {
 	top := 1
 	name := "name"
 	detail := "detail"
+	open := true
 
-	v := details(top, name, detail)
+	v := details(top, name, detail, open)
 
 	assert.Equal(t, top, v["top"])
 	assert.Equal(t, name, v["name"])
 	assert.Equal(t, detail, v["detail"])
+	assert.Equal(t, open, v["open"])
 }
 
 func TestInc(t *testing.T) {
@@ -203,4 +205,11 @@ func TestFormatDateTime(t *testing.T) {
 func TestLowerFirst(t *testing.T) {
 	assert.Equal(t, "hELLO", lowerFirst("HELLO"))
 	assert.Equal(t, "hello", lowerFirst("hello"))
+}
+
+func TestConcatSentence(t *testing.T) {
+	assert.Equal(t, "Bob Smith, Alice Jones, John Doe, and Paul Compton", concatSentence([]string{"Bob Smith", "Alice Jones", "John Doe", "Paul Compton"}))
+	assert.Equal(t, "Bob Smith, Alice Jones, and John Doe", concatSentence([]string{"Bob Smith", "Alice Jones", "John Doe"}))
+	assert.Equal(t, "Bob Smith and John Doe", concatSentence([]string{"Bob Smith", "John Doe"}))
+	assert.Equal(t, "Bob Smith", concatSentence([]string{"Bob Smith"}))
 }
