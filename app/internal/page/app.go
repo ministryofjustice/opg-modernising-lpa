@@ -68,6 +68,7 @@ type PayClient interface {
 
 type NotifyClient interface {
 	Email(ctx context.Context, email notify.Email) (string, error)
+	TemplateID(string) string
 }
 
 func postFormString(r *http.Request, name string) string {
