@@ -213,3 +213,23 @@ func TestConcatSentence(t *testing.T) {
 	assert.Equal(t, "Bob Smith and John Doe", concatSentence([]string{"Bob Smith", "John Doe"}))
 	assert.Equal(t, "Bob Smith", concatSentence([]string{"Bob Smith"}))
 }
+
+func TestAttorneyDetails(t *testing.T) {
+	attorneys := []page.Attorney{
+		{ID: "123"},
+		{ID: "123"},
+	}
+
+	from := "somewhere"
+	app := page.AppData{SessionID: "abc"}
+
+	want := map[string]interface{}{
+		"Attorneys": attorneys,
+		"From":      from,
+		"App":       app,
+	}
+
+	got := attorneyDetails(attorneys, from, app)
+
+	assert.Equal(t, want, got)
+}
