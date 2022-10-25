@@ -69,7 +69,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	}{
 		"add-attorney": {
 			"yes",
-			"/choose-attorneys",
+			"/choose-attorneys?addAnother=1",
 		},
 		"do-not-add-attorney": {
 			"no",

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
@@ -286,12 +287,38 @@ func TestTestingStart(t *testing.T) {
 
 		lpaStore := &mockLpaStore{}
 		lpaStore.
-			On("Get", mock.Anything, "session").
+			On("Get", mock.Anything, mock.Anything).
 			Return(lpa, nil)
 
 		lpa.Attorneys = []Attorney{
-			{ID: "abc123"},
-			{ID: "xyz789"},
+			{
+				ID:          "xyz789",
+				FirstNames:  "John",
+				LastName:    "Smith",
+				Email:       "aa@example.org",
+				DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				Address: place.Address{
+					Line1:      "2 RICHMOND PLACE",
+					Line2:      "KINGS HEATH",
+					Line3:      "WEST MIDLANDS",
+					TownOrCity: "BIRMINGHAM",
+					Postcode:   "B14 7ED",
+				},
+			},
+			{
+				ID:          "abc123",
+				FirstNames:  "Joan",
+				LastName:    "Smith",
+				Email:       "bb@example.org",
+				DateOfBirth: time.Date(1998, time.January, 2, 3, 4, 5, 6, time.UTC),
+				Address: place.Address{
+					Line1:      "3 RICHMOND PLACE",
+					Line2:      "KINGS HEATH",
+					Line3:      "WEST MIDLANDS",
+					TownOrCity: "BIRMINGHAM",
+					Postcode:   "B14 7EE",
+				},
+			},
 		}
 
 		lpaStore.
