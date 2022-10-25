@@ -47,25 +47,43 @@ resource "aws_default_network_acl" "default" {
     to_port    = 0
   }
   ingress {
+    action     = "deny"
+    cidr_block = "0.0.0.0/0" #tfsec:ignore:aws-ec2-no-public-ingress-acl
+    from_port  = 22
+    icmp_code  = 0
+    icmp_type  = 0
+    protocol   = "6"
+    rule_no    = 120
+    to_port    = 22
+  }
+  ingress {
+    action     = "deny"
+    cidr_block = "0.0.0.0/0" #tfsec:ignore:aws-ec2-no-public-ingress-acl
+    from_port  = 3389
+    icmp_code  = 0
+    icmp_type  = 0
+    protocol   = "6"
+    rule_no    = 130
+    to_port    = 3389
+  }
+  ingress {
     action          = "deny"
-    cidr_block      = "0.0.0.0/0" #tfsec:ignore:aws-ec2-no-public-ingress-acl
     ipv6_cidr_block = "::/0"
     from_port       = 22
     icmp_code       = 0
     icmp_type       = 0
     protocol        = "6"
-    rule_no         = 120
+    rule_no         = 125
     to_port         = 22
   }
   ingress {
     action          = "deny"
-    cidr_block      = "0.0.0.0/0" #tfsec:ignore:aws-ec2-no-public-ingress-acl
     ipv6_cidr_block = "::/0"
     from_port       = 3389
     icmp_code       = 0
     icmp_type       = 0
     protocol        = "6"
-    rule_no         = 130
+    rule_no         = 135
     to_port         = 3389
   }
   ingress {
