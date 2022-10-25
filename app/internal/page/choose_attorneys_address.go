@@ -42,10 +42,6 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			data.Errors = data.Form.Validate()
 			from := r.URL.Query().Get("from")
 
-			if data.Form.Action == "select" && len(data.Errors) == 0 {
-				data.Form.Action = "manual"
-			}
-
 			if data.Form.Action == "manual" && len(data.Errors) == 0 {
 				attorney.Address = *data.Form.Address
 				lpa, attorneyUpdated := lpa.PutAttorney(attorney)
@@ -60,6 +56,22 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 
 				appData.Lang.Redirect(w, r, redirectPath(from), http.StatusFound)
 				return nil
+			}
+
+			// Force the manual address view after selecting
+			if data.Form.Action == "select" && len(data.Errors) == 0 {
+				data.Form.Action = "manual"
+
+				attorney.Address = *data.Form.Address
+				lpa, attorneyUpdated := lpa.PutAttorney(attorney)
+
+				if attorneyUpdated == false {
+					lpa.Attorneys = append(lpa.Attorneys, attorney)
+				}
+
+				if err := lpaStore.Put(r.Context(), appData.SessionID, *lpa); err != nil {
+					return err
+				}
 			}
 
 			if data.Form.Action == "lookup" && len(data.Errors) == 0 ||

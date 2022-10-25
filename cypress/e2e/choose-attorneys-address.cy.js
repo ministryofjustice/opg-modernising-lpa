@@ -1,6 +1,6 @@
 describe('Choose attorneys address', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/choose-attorneys-address&withAttorneys=1');
+        cy.visit('/testing-start?redirect=/choose-attorneys-address?id=does-not-exist');
     });
 
     it('address can be looked up', () => {

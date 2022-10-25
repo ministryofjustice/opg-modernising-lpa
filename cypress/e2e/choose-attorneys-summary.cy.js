@@ -1,4 +1,4 @@
-describe('Choose attorneys confirmation', () => {
+describe('Choose attorneys summary', () => {
     beforeEach(() => {
         cy.visit('/testing-start?redirect=/choose-attorneys-summary&withAttorneys=1&cookiesAccepted=1');
     });
@@ -79,6 +79,10 @@ describe('Choose attorneys confirmation', () => {
         cy.contains('button', 'Find address').click();
 
         cy.get('#f-select-address').select('5 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
+        cy.contains('button', 'Continue').click();
+
+        cy.url().should('contain', '/choose-attorneys-address');
+        cy.get('#f-address-line-1').should('have.value', '5 RICHMOND PLACE');
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/choose-attorneys-summary');

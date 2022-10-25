@@ -14,6 +14,7 @@ describe('Donor address', () => {
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
         cy.get('#f-select-address').select('2 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
+        cy.contains('button', 'Continue').click();
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });

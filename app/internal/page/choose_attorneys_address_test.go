@@ -356,6 +356,17 @@ func TestPostChooseAttorneysAddressSelect(t *testing.T) {
 		Return(nil)
 
 	template := &mockTemplate{}
+	template.
+		On("Func", w, &chooseAttorneysAddressData{
+			App: appData,
+			Form: &chooseAttorneysAddressForm{
+				Action:         "manual",
+				LookupPostcode: "NG1",
+				Address:        expectedAddress,
+			},
+			Errors: map[string]string{},
+		}).
+		Return(nil)
 
 	form := url.Values{
 		"action":          {"select"},
@@ -370,7 +381,7 @@ func TestPostChooseAttorneysAddressSelect(t *testing.T) {
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
@@ -718,25 +729,25 @@ func TestChooseAttorneysAddressFormValidate(t *testing.T) {
 	}
 }
 
-func TestPostChooseAttorneysAddressSelectFromAnotherPage(t *testing.T) {
+func TestPostChooseAttorneysManuallyFromAnotherPage(t *testing.T) {
 	testcases := map[string]struct {
 		requestUrl      string
 		expectedNextUrl string
 	}{
 		"from-summary-page": {
-			"/?from=summary",
+			"/?from=summary&id=123",
 			"/choose-attorneys-summary",
 		},
 		"from-check-page": {
-			"/?from=check",
+			"/?from=check&id=123",
 			"/check-your-lpa",
 		},
 		"from-any-other-page": {
-			"/?from=xyz",
+			"/?from=xyz&id=123",
 			"/choose-attorneys-summary",
 		},
 		"missing-page-value": {
-			"/?from=",
+			"/?from=&id=123",
 			"/choose-attorneys-summary",
 		},
 	}
@@ -745,24 +756,32 @@ func TestPostChooseAttorneysAddressSelectFromAnotherPage(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			w := httptest.NewRecorder()
 
-			expectedAddress := &place.Address{
-				Line1:      "a",
-				TownOrCity: "c",
-				Postcode:   "d",
+			lpa := Lpa{
+				ID: "123",
+				Attorneys: []Attorney{
+					{
+						Address: place.Address{
+							Line1:      "a",
+							TownOrCity: "b",
+							Postcode:   "c",
+						},
+					},
+				},
 			}
 
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
-				Return(Lpa{}, nil)
+				Return(lpa, nil)
 			lpaStore.
-				On("Put", mock.Anything, "session-id", mock.Anything).
+				On("Put", mock.Anything, "session-id", lpa).
 				Return(nil)
 
 			form := url.Values{
-				"action":          {"select"},
-				"lookup-postcode": {"NG1"},
-				"select-address":  {expectedAddress.Encode()},
+				"action":           {"manual"},
+				"address-line-1":   {"a"},
+				"address-town":     {"b"},
+				"address-postcode": {"c"},
 			}
 
 			r, _ := http.NewRequest(http.MethodPost, tc.requestUrl, strings.NewReader(form.Encode()))
