@@ -337,11 +337,17 @@ func TestPostChooseAttorneysAddressSelect(t *testing.T) {
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
 		Return(Lpa{}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{
-			Attorney: Attorney{
-				Address: *expectedAddress,
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &chooseAttorneysAddressData{
+			App: appData,
+			Form: &chooseAttorneysAddressForm{
+				Action:         "manual",
+				LookupPostcode: "NG1",
+				Address:        expectedAddress,
 			},
+			Errors: map[string]string{},
 		}).
 		Return(nil)
 
@@ -354,13 +360,12 @@ func TestPostChooseAttorneysAddressSelect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(appData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Func, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, wantReplacementAttorneysPath, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
 func TestPostChooseAttorneysAddressSelectWhenValidationError(t *testing.T) {
