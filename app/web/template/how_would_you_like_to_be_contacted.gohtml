@@ -9,8 +9,8 @@
             <h1 class="govuk-heading-xl govuk-!-margin-bottom-3">{{ tr .App "howWouldYouLikeToBeContacted" }}</h1>
             <p class="govuk-body">{{ tr .App "howWouldYouLikeToBeContactedDetail" }}</p>
 
-            {{ template "details" (details . "whatIfWantToChangeMyContactPreferences" "whatIfWantToChangeMyContactPreferencesDetail") }}
-            
+            {{ template "details" (details . "whatIfWantToChangeMyContactPreferences" "whatIfWantToChangeMyContactPreferencesDetail" false) }}
+
             <p class="govuk-body">{{ tr .App "selectOneOrMoreOptions" }}</p>
 
             <div class="govuk-form-group {{ if index .Errors "contact" }}govuk-form-group--error{{ end }}">

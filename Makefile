@@ -50,3 +50,15 @@ update-secrets-baseline: ##@security Updates detect-secrets baseline file for fa
 
 audit-secrets: ##@security Interactive CLI tool for marking discovered as in/valid (requires yelp/detect-secrets local installation)
 	detect-secrets audit .secrets.baseline
+
+coverage:
+ifdef package
+	$(eval t="/tmp/go-cover.$(package).tmp")
+	$(eval path="./app/internal/$(package)/...")
+else
+	$(eval t="/tmp/go-cover.tmp")
+	$(eval path="./app/...")
+endif
+
+	echo $(t)
+	go test -coverprofile=$(t) $(path) && go tool cover -html=$(t) && unlink $(t)

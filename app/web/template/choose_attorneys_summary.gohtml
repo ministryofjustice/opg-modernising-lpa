@@ -1,0 +1,56 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl">{{ trCount .App "attorneysAdded" (len .Lpa.Attorneys) }}</h1>
+
+        <dl class="govuk-summary-list">
+        {{range $i, $a := .Lpa.Attorneys}}
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    {{ $a.FirstNames }} {{ $a.LastName }}<br>
+                    <span class="govuk-body-s">{{ formatDate $a.DateOfBirth }}</span><br>
+                    <a class="govuk-link govuk-body-s" href="{{ $.AttorneyDetailsPath }}?id={{ $a.ID }}&from=summary">
+                        Change<span class="govuk-visually-hidden"> details for {{ $a.FirstNames }} {{ $a.LastName }}</span>
+                    </a>
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ $a.Address.Line1 }}, {{ $a.Address.Postcode }}<br>
+                    <a class="govuk-link govuk-body-s" href="{{ $.AttorneyAddressPath }}?id={{ $a.ID }}&from=summary">
+                        Change<span class="govuk-visually-hidden"> address for {{ $a.FirstNames }} {{ $a.LastName }}</span>
+                    </a>
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link govuk-body-s" href="#">
+                        Remove<span class="govuk-visually-hidden"> {{ $a.FirstNames }} {{ $a.LastName }}</span>
+                    </a>
+                </dd>
+            </div>
+        {{end}}
+        </dl>
+
+        <form novalidate method="post">
+            <div class="govuk-form-group">
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                    {{ tr .App "doYouWantToAddAnotherAttorney" }}
+                </legend>
+
+                <div class="govuk-form-group {{ if index .Errors "add-attorney" }}govuk-form-group--error{{ end }}">
+                    {{ template "error-message" (errorMessage . "add-attorney") }}
+
+                    {{ template "radios" (items . "add-attorney" ""
+                    (item "yes" "yes")
+                    (item "no" "no")
+                    ) }}
+                </div>
+            </div>
+
+            <div class="govuk-button-group">
+                {{ template "continue-button" . }}
+            </div>
+        </form>
+
+    </div>
+</div>
+{{ end }}

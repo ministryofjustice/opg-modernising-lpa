@@ -10,30 +10,40 @@ import (
 )
 
 type chooseAttorneysData struct {
-	App        AppData
-	Errors     map[string]string
-	Form       *chooseAttorneysForm
-	DobWarning string
+	App         AppData
+	Errors      map[string]string
+	Form        *chooseAttorneysForm
+	ShowDetails bool
+	DobWarning  string
 }
 
-func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore) Handler {
+func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
 		if err != nil {
 			return err
 		}
 
+		addAnother := r.URL.Query().Get("addAnother") == "1"
+		attorney, attorneyFound := lpa.GetAttorney(r.URL.Query().Get("id"))
+
+		if r.Method == http.MethodGet && len(lpa.Attorneys) > 0 && attorneyFound == false && addAnother == false {
+			appData.Lang.Redirect(w, r, chooseAttorneysSummaryPath, http.StatusFound)
+			return nil
+		}
+
 		data := &chooseAttorneysData{
 			App: appData,
 			Form: &chooseAttorneysForm{
-				FirstNames: lpa.Attorney.FirstNames,
-				LastName:   lpa.Attorney.LastName,
-				Email:      lpa.Attorney.Email,
+				FirstNames: attorney.FirstNames,
+				LastName:   attorney.LastName,
+				Email:      attorney.Email,
 			},
+			ShowDetails: attorneyFound == false && addAnother == false,
 		}
 
-		if !lpa.Attorney.DateOfBirth.IsZero() {
-			data.Form.Dob = readDate(lpa.Attorney.DateOfBirth)
+		if !attorney.DateOfBirth.IsZero() {
+			data.Form.Dob = readDate(attorney.DateOfBirth)
 		}
 
 		if r.Method == http.MethodPost {
@@ -46,15 +56,43 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore) Handler {
 			}
 
 			if len(data.Errors) == 0 && data.DobWarning == "" {
-				lpa.Attorney.FirstNames = data.Form.FirstNames
-				lpa.Attorney.LastName = data.Form.LastName
-				lpa.Attorney.Email = data.Form.Email
-				lpa.Attorney.DateOfBirth = data.Form.DateOfBirth
+				if attorneyFound == false {
+					attorney = Attorney{
+						FirstNames:  data.Form.FirstNames,
+						LastName:    data.Form.LastName,
+						Email:       data.Form.Email,
+						DateOfBirth: data.Form.DateOfBirth,
+						ID:          randomString(8),
+					}
+
+					lpa.Attorneys = append(lpa.Attorneys, attorney)
+				} else {
+					attorney.FirstNames = data.Form.FirstNames
+					attorney.LastName = data.Form.LastName
+					attorney.Email = data.Form.Email
+					attorney.DateOfBirth = data.Form.DateOfBirth
+
+					lpa.PutAttorney(attorney)
+				}
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, chooseAttorneysAddressPath, http.StatusFound)
+
+				from := r.URL.Query().Get("from")
+
+				var redirectPath string
+
+				switch from {
+				case "summary":
+					redirectPath = chooseAttorneysSummaryPath
+				case "check":
+					redirectPath = checkYourLpaPath
+				default:
+					redirectPath = fmt.Sprintf("%s?id=%s", chooseAttorneysAddressPath, attorney.ID)
+				}
+
+				appData.Lang.Redirect(w, r, redirectPath, http.StatusFound)
 				return nil
 			}
 		}
