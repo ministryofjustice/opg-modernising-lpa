@@ -54,9 +54,11 @@ audit-secrets: ##@security Interactive CLI tool for marking discovered as in/val
 coverage:
 ifdef package
 	$(eval t="/tmp/go-cover.$(package).tmp")
+	$(eval path="./app/internal/$(package)/...")
 else
 	$(eval t="/tmp/go-cover.tmp")
+	$(eval path="./app/...")
 endif
 
 	echo $(t)
-	go test -coverprofile=$(t) ./app/... && go tool cover -html=$(t) && unlink $(t)
+	go test -coverprofile=$(t) $(path) && go tool cover -html=$(t) && unlink $(t)
