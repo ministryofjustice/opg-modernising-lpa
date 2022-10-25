@@ -15,6 +15,17 @@ describe('Donor address', () => {
 
         cy.get('#f-select-address').select('2 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
         cy.contains('button', 'Continue').click();
+
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+        cy.get('#f-address-line-1').should('have.value', '2 RICHMOND PLACE');
+        cy.get('#f-address-line-2').should('have.value', '');
+        cy.get('#f-address-line-3').should('have.value', '');
+        cy.get('#f-address-town').should('have.value', 'BIRMINGHAM');
+        cy.get('#f-address-postcode').should('have.value', 'B14 7ED');
+
+        cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/who-is-the-lpa-for');
     });
 

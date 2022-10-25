@@ -341,17 +341,23 @@ func TestPostYourAddressSelect(t *testing.T) {
 		Postcode:   "d",
 	}
 
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &yourAddressData{
+			App: appData,
+			Form: &yourAddressForm{
+				Action:         "manual",
+				LookupPostcode: "NG1",
+				Address:        expectedAddress,
+			},
+			Errors: map[string]string{},
+		}).
+		Return(nil)
+
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
 		Return(Lpa{}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{
-			You: Person{
-				Address: *expectedAddress,
-			},
-		}).
-		Return(nil)
 
 	form := url.Values{
 		"action":          {"select"},
@@ -362,13 +368,12 @@ func TestPostYourAddressSelect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := YourAddress(nil, nil, nil, lpaStore)(appData, w, r)
+	err := YourAddress(nil, template.Func, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, whoIsTheLpaForPath, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
 func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
