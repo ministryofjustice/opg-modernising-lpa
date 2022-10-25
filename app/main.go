@@ -43,6 +43,7 @@ func main() {
 		issuer                = env.Get("ISSUER", "http://sign-in-mock:7012")
 		dynamoTableLpas       = env.Get("DYNAMODB_TABLE_LPAS", "")
 		notifyBaseURL         = env.Get("GOVUK_NOTIFY_BASE_URL", "")
+		notifyIsProduction    = env.Get("GOVUK_NOTIFY_IS_PRODUCTION", "") == "1"
 		ordnanceSurveyBaseUrl = env.Get("ORDNANCE_SURVEY_BASE_URL", "http://ordnance-survey-mock:4011")
 		payBaseUrl            = env.Get("GOVUK_PAY_BASE_URL", "http://pay-mock:4010")
 		port                  = env.Get("APP_PORT", "8080")
@@ -132,7 +133,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	notifyClient, err := notify.New(notifyBaseURL, notifyApiKey, http.DefaultClient)
+	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, http.DefaultClient)
 	if err != nil {
 		logger.Fatal(err)
 	}
