@@ -15,6 +15,10 @@ type mockNotifyClient struct {
 	mock.Mock
 }
 
+func (m *mockNotifyClient) TemplateID(name string) string {
+	return m.Called(name).String(0)
+}
+
 func (m *mockNotifyClient) Email(ctx context.Context, email notify.Email) (string, error) {
 	args := m.Called(ctx, email)
 	return args.String(0), args.Error(1)
@@ -100,9 +104,12 @@ func TestPostHowToSign(t *testing.T) {
 
 	notifyClient := &mockNotifyClient{}
 	notifyClient.
+		On("TemplateID", "MLPA Beta signature code").
+		Return("xyz")
+	notifyClient.
 		On("Email", mock.Anything, notify.Email{
 			EmailAddress:    "me@example.com",
-			TemplateID:      "7e8564a0-2635-4f61-9155-0166ddbe5607",
+			TemplateID:      "xyz",
 			Personalisation: map[string]string{"code": "1234"},
 		}).
 		Return("email-id", nil)
@@ -129,6 +136,9 @@ func TestPostHowToSignWhenNotifyErrors(t *testing.T) {
 
 	notifyClient := &mockNotifyClient{}
 	notifyClient.
+		On("TemplateID", "MLPA Beta signature code").
+		Return("xyz")
+	notifyClient.
 		On("Email", mock.Anything, mock.Anything).
 		Return("", expectedError)
 
@@ -153,6 +163,9 @@ func TestPostHowToSignWhenLpaStoreErrors(t *testing.T) {
 		Return(expectedError)
 
 	notifyClient := &mockNotifyClient{}
+	notifyClient.
+		On("TemplateID", "MLPA Beta signature code").
+		Return("xyz")
 	notifyClient.
 		On("Email", mock.Anything, mock.Anything).
 		Return("email-id", nil)
