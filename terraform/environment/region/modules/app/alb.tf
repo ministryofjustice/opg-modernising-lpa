@@ -24,11 +24,11 @@ resource "aws_lb" "app" {
   enable_deletion_protection = var.alb_deletion_protection_enabled
   security_groups            = [aws_security_group.app_loadbalancer.id]
 
-  # access_logs {
-  #   bucket  = data.aws_s3_bucket.access_log.bucket
-  #   prefix  = "app-${data.aws_default_tags.current.tags.environment-name}"
-  #   enabled = true
-  # }
+  access_logs {
+    bucket  = data.aws_s3_bucket.access_log.bucket
+    prefix  = "app-${data.aws_default_tags.current.tags.environment-name}"
+    enabled = true
+  }
   provider = aws.region
 }
 
