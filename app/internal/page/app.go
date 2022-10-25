@@ -7,6 +7,9 @@ import (
 	"math/rand"
 	"net/http"
 	"strings"
+	"time"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -202,14 +205,51 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 		}
 
 		if r.FormValue("withAttorneys") == "1" {
-			lpa, _ := lpaStore.Get(r.Context(), "session")
+			sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
+
+			lpa, _ := lpaStore.Get(r.Context(), sessionID)
 
 			lpa.Attorneys = []Attorney{
-				{ID: "abc123"},
-				{ID: "xyz789"},
+				{
+					ID:          "xyz789",
+					FirstNames:  "John",
+					LastName:    "Smith",
+					Email:       "aa@example.org",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+					Address: place.Address{
+						Line1:      "2 RICHMOND PLACE",
+						Line2:      "KINGS HEATH",
+						Line3:      "WEST MIDLANDS",
+						TownOrCity: "BIRMINGHAM",
+						Postcode:   "B14 7ED",
+					},
+				},
+				{
+					ID:          "abc123",
+					FirstNames:  "Joan",
+					LastName:    "Smith",
+					Email:       "bb@example.org",
+					DateOfBirth: time.Date(1998, time.January, 2, 3, 4, 5, 6, time.UTC),
+					Address: place.Address{
+						Line1:      "3 RICHMOND PLACE",
+						Line2:      "KINGS HEATH",
+						Line3:      "WEST MIDLANDS",
+						TownOrCity: "BIRMINGHAM",
+						Postcode:   "B14 7EE",
+					},
+				},
 			}
 
-			_ = lpaStore.Put(r.Context(), session.ID, lpa)
+			_ = lpaStore.Put(r.Context(), sessionID, lpa)
+		}
+
+		if r.FormValue("cookiesAccepted") == "1" {
+			http.SetCookie(w, &http.Cookie{
+				Name:   "cookies-consent",
+				Value:  "accept",
+				MaxAge: 365 * 24 * 60 * 60,
+				Path:   "/",
+			})
 		}
 
 		random.UseTestCode = true
