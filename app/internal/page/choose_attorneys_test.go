@@ -121,6 +121,10 @@ func TestPostChooseAttorneys(t *testing.T) {
 			requestUrl:      "/?id=123&from=summary",
 			expectedNextUrl: "/choose-attorneys-summary",
 		},
+		"from check your LPA page": {
+			requestUrl:      "/?id=123&from=check",
+			expectedNextUrl: "/check-your-lpa",
+		},
 		"from another page": {
 			requestUrl:      "/?id=123&from=random-page",
 			expectedNextUrl: "/choose-attorneys-address?id=123",

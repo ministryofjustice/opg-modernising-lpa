@@ -688,3 +688,64 @@ func TestChooseAttorneysAddressFormValidate(t *testing.T) {
 		})
 	}
 }
+
+func TestPostChooseAttorneysAddressSelectFromAnotherPage(t *testing.T) {
+	testcases := map[string]struct {
+		requestUrl      string
+		expectedNextUrl string
+	}{
+		"from-summary-page": {
+			"/?from=summary",
+			"/choose-attorneys-summary",
+		},
+		"from-check-page": {
+			"/?from=check",
+			"/check-your-lpa",
+		},
+		"from-any-other-page": {
+			"/?from=xyz",
+			"/choose-attorneys-summary",
+		},
+		"missing-page-value": {
+			"/?from=",
+			"/choose-attorneys-summary",
+		},
+	}
+
+	for testname, tc := range testcases {
+		t.Run(testname, func(t *testing.T) {
+			w := httptest.NewRecorder()
+
+			expectedAddress := &place.Address{
+				Line1:      "a",
+				TownOrCity: "c",
+				Postcode:   "d",
+			}
+
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(Lpa{}, nil)
+			lpaStore.
+				On("Put", mock.Anything, "session-id", mock.Anything).
+				Return(nil)
+
+			form := url.Values{
+				"action":          {"select"},
+				"lookup-postcode": {"NG1"},
+				"select-address":  {expectedAddress.Encode()},
+			}
+
+			r, _ := http.NewRequest(http.MethodPost, tc.requestUrl, strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
+
+			err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.expectedNextUrl, resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, lpaStore)
+		})
+	}
+}
