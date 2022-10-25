@@ -17,14 +17,15 @@ type Doer interface {
 }
 
 type Client struct {
-	baseURL   string
-	doer      Doer
-	issuer    string
-	secretKey []byte
-	now       func() time.Time
+	isProduction bool
+	baseURL      string
+	doer         Doer
+	issuer       string
+	secretKey    []byte
+	now          func() time.Time
 }
 
-func New(baseURL, apiKey string, httpClient Doer) (*Client, error) {
+func New(isProduction bool, baseURL, apiKey string, httpClient Doer) (*Client, error) {
 	keyParts := strings.Split(apiKey, "-")
 	if len(keyParts) != 11 {
 		return nil, errors.New("invalid apiKey format")
@@ -35,11 +36,12 @@ func New(baseURL, apiKey string, httpClient Doer) (*Client, error) {
 	}
 
 	return &Client{
-		baseURL:   baseURL,
-		doer:      httpClient,
-		issuer:    strings.Join(keyParts[1:6], "-"),
-		secretKey: []byte(strings.Join(keyParts[6:11], "-")),
-		now:       time.Now,
+		isProduction: isProduction,
+		baseURL:      baseURL,
+		doer:         httpClient,
+		issuer:       strings.Join(keyParts[1:6], "-"),
+		secretKey:    []byte(strings.Join(keyParts[6:11], "-")),
+		now:          time.Now,
 	}, nil
 }
 
@@ -70,6 +72,22 @@ func (es errorsList) Error() string {
 type errorItem struct {
 	Error   string `json:"error"`
 	Message string `json:"message"`
+}
+
+func (c *Client) TemplateID(name string) string {
+	if c.isProduction {
+		switch name {
+		case "MLPA Beta signature code":
+			return "95f7b0a2-1c3a-4ad9-818b-b358c549c88b"
+		}
+	} else {
+		switch name {
+		case "MLPA Beta signature code":
+			return "7e8564a0-2635-4f61-9155-0166ddbe5607"
+		}
+	}
+
+	return ""
 }
 
 func (c *Client) Email(ctx context.Context, email Email) (string, error) {
