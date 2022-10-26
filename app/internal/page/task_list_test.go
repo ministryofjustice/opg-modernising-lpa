@@ -26,8 +26,8 @@ func TestGetTaskList(t *testing.T) {
 				You: Person{
 					FirstNames: "this",
 				},
-				Attorney: Attorney{
-					FirstNames: "this",
+				Attorneys: []Attorney{
+					{FirstNames: "this"},
 				},
 				Tasks: Tasks{
 					WhenCanTheLpaBeUsed:        TaskInProgress,
@@ -67,9 +67,11 @@ func TestGetTaskList(t *testing.T) {
 						Line1: "this",
 					},
 				},
-				Attorney: Attorney{
-					Address: place.Address{
-						Line1: "this",
+				Attorneys: []Attorney{
+					{
+						Address: place.Address{
+							Line1: "this",
+						},
 					},
 				},
 				Contact:                  []string{"this"},

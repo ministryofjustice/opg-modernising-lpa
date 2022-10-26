@@ -3,8 +3,11 @@ package page
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"time"
+
+	"golang.org/x/exp/slices"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
@@ -28,7 +31,7 @@ const (
 type Lpa struct {
 	ID                       string
 	You                      Person
-	Attorney                 Attorney
+	Attorneys                []Attorney
 	CertificateProvider      CertificateProvider
 	WhoFor                   string
 	Contact                  []string
@@ -73,6 +76,7 @@ type Person struct {
 }
 
 type Attorney struct {
+	ID          string
 	FirstNames  string
 	LastName    string
 	Email       string
@@ -128,6 +132,12 @@ func (s *lpaStore) Get(ctx context.Context, sessionID string) (Lpa, error) {
 		lpa.ID = "10" + strconv.Itoa(s.randomInt(100000))
 	}
 
+	for _, attorney := range lpa.Attorneys {
+		if attorney.ID == "" {
+			attorney.ID = "10" + strconv.Itoa(s.randomInt(100000))
+		}
+	}
+
 	return lpa, nil
 }
 
@@ -139,4 +149,46 @@ func DecodeAddress(s string) *place.Address {
 	var v place.Address
 	json.Unmarshal([]byte(s), &v)
 	return &v
+}
+
+func (l *Lpa) GetAttorney(id string) (Attorney, bool) {
+	idx := slices.IndexFunc(l.Attorneys, func(a Attorney) bool { return a.ID == id })
+
+	if idx == -1 {
+		return Attorney{}, false
+	}
+
+	return l.Attorneys[idx], true
+}
+
+func (l *Lpa) PutAttorney(attorney Attorney) (*Lpa, bool) {
+	idx := slices.IndexFunc(l.Attorneys, func(a Attorney) bool { return a.ID == attorney.ID })
+
+	if idx == -1 {
+		return l, false
+	}
+
+	l.Attorneys[idx] = attorney
+
+	return l, true
+}
+
+func (l *Lpa) AttorneysFullNames() []string {
+	var names []string
+
+	for _, a := range l.Attorneys {
+		names = append(names, fmt.Sprintf("%s %s", a.FirstNames, a.LastName))
+	}
+
+	return names
+}
+
+func (l *Lpa) AttorneysFirstNames() []string {
+	var names []string
+
+	for _, a := range l.Attorneys {
+		names = append(names, a.FirstNames)
+	}
+
+	return names
 }

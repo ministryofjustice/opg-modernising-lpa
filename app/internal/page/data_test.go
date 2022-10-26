@@ -45,17 +45,62 @@ func TestLpaStoreGet(t *testing.T) {
 }
 
 func TestLpaStoreGetWhenExists(t *testing.T) {
-	ctx := context.Background()
-	existingLpa := Lpa{ID: "5", You: Person{Email: "what"}}
+	testCases := map[string]struct {
+		existingLpa Lpa
+		expectedLpa Lpa
+	}{
+		"attorneys with IDs": {
+			Lpa{
+				ID:  "abc",
+				You: Person{Email: "what"},
+				Attorneys: []Attorney{
+					{ID: "123"},
+					{ID: "456"},
+				},
+			},
+			Lpa{
+				ID:  "abc",
+				You: Person{Email: "what"},
+				Attorneys: []Attorney{
+					{ID: "123"},
+					{ID: "456"},
+				},
+			},
+		},
+		"attorneys without IDs": {
+			Lpa{
+				ID:  "abc",
+				You: Person{Email: "what"},
+				Attorneys: []Attorney{
+					{ID: ""},
+					{ID: ""},
+				},
+			},
+			Lpa{
+				ID:  "abc",
+				You: Person{Email: "what"},
+				Attorneys: []Attorney{
+					{ID: "10100000"},
+					{ID: "10100000"},
+				},
+			},
+		},
+	}
 
-	dataStore := &mockDataStore{data: existingLpa}
-	dataStore.On("Get", ctx, "an-id").Return(nil)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			ctx := context.Background()
 
-	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
+			dataStore := &mockDataStore{data: tc.existingLpa}
+			dataStore.On("Get", ctx, "an-id").Return(nil)
 
-	lpa, err := lpaStore.Get(ctx, "an-id")
-	assert.Nil(t, err)
-	assert.Equal(t, existingLpa, lpa)
+			lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
+
+			lpa, err := lpaStore.Get(ctx, "an-id")
+			assert.Nil(t, err)
+			assert.Equal(t, tc.existingLpa, lpa)
+		})
+	}
 }
 
 func TestLpaStoreGetWhenDataStoreError(t *testing.T) {
@@ -81,4 +126,101 @@ func TestLpaStorePut(t *testing.T) {
 
 	err := lpaStore.Put(ctx, "an-id", lpa)
 	assert.Equal(t, expectedError, err)
+}
+
+func TestGetAttorney(t *testing.T) {
+	want := Attorney{ID: "1"}
+	otherAttorney := Attorney{ID: "2"}
+
+	lpa := Lpa{
+		Attorneys: []Attorney{
+			want,
+			otherAttorney,
+		},
+	}
+
+	got, found := lpa.GetAttorney("1")
+
+	assert.True(t, found)
+	assert.Equal(t, want, got)
+}
+
+func TestGetAttorneyIdDoesNotMatch(t *testing.T) {
+	attorney := Attorney{ID: "1"}
+	lpa := Lpa{
+		Attorneys: []Attorney{
+			attorney,
+		},
+	}
+
+	_, found := lpa.GetAttorney("2")
+
+	assert.False(t, found)
+}
+
+func TestPutAttorney(t *testing.T) {
+	attorney := Attorney{ID: "1"}
+
+	lpa := Lpa{
+		Attorneys: []Attorney{
+			attorney,
+		},
+	}
+
+	updatedAttorney := Attorney{ID: "1", FirstNames: "Bob"}
+
+	updatedLpa, updated := lpa.PutAttorney(updatedAttorney)
+
+	assert.True(t, updated)
+	assert.Equal(t, updatedLpa.Attorneys[0], updatedAttorney)
+}
+
+func TestPutAttorneyIdDoesNotMatch(t *testing.T) {
+	attorney := Attorney{ID: "2"}
+
+	lpa := Lpa{
+		Attorneys: []Attorney{
+			attorney,
+		},
+	}
+
+	updatedAttorney := Attorney{ID: "1", FirstNames: "Bob"}
+
+	_, updated := lpa.PutAttorney(updatedAttorney)
+
+	assert.False(t, updated)
+}
+
+func TestAttorneysFullNames(t *testing.T) {
+	l := Lpa{
+		Attorneys: []Attorney{
+			{
+				FirstNames: "Bob Alan George",
+				LastName:   "Jones",
+			},
+			{
+				FirstNames: "Samantha",
+				LastName:   "Smith",
+			},
+		},
+	}
+
+	assert.Equal(t, []string{"Bob Alan George Jones", "Samantha Smith"}, l.AttorneysFullNames())
+}
+
+func TestAttorneysFirstNames(t *testing.T) {
+	l := Lpa{
+		Attorneys: []Attorney{
+			{
+				FirstNames: "Bob Alan George",
+				LastName:   "Jones",
+			},
+			{
+				FirstNames: "Samantha",
+				LastName:   "Smith",
+			},
+		},
+	}
+
+	assert.Equal(t, []string{"Bob Alan George", "Samantha"}, l.AttorneysFirstNames())
 }

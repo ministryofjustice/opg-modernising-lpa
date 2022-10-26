@@ -12,27 +12,29 @@ import (
 )
 
 var All = map[string]interface{}{
-	"isEnglish":      isEnglish,
-	"isWelsh":        isWelsh,
-	"input":          input,
-	"items":          items,
-	"item":           item,
-	"fieldID":        fieldID,
-	"errorMessage":   errorMessage,
-	"details":        details,
-	"inc":            inc,
-	"link":           link,
-	"contains":       contains,
-	"tr":             tr,
-	"trFormat":       trFormat,
-	"trFormatHtml":   trFormatHtml,
-	"trHtml":         trHtml,
-	"trCount":        trCount,
-	"now":            now,
-	"addDays":        addDays,
-	"formatDate":     formatDate,
-	"formatDateTime": formatDateTime,
-	"lowerFirst":     lowerFirst,
+	"isEnglish":       isEnglish,
+	"isWelsh":         isWelsh,
+	"input":           input,
+	"items":           items,
+	"item":            item,
+	"fieldID":         fieldID,
+	"errorMessage":    errorMessage,
+	"details":         details,
+	"inc":             inc,
+	"link":            link,
+	"contains":        contains,
+	"tr":              tr,
+	"trFormat":        trFormat,
+	"trFormatHtml":    trFormatHtml,
+	"trHtml":          trHtml,
+	"trCount":         trCount,
+	"now":             now,
+	"addDays":         addDays,
+	"formatDate":      formatDate,
+	"formatDateTime":  formatDateTime,
+	"lowerFirst":      lowerFirst,
+	"concatSentence":  concatSentence,
+	"attorneyDetails": attorneyDetails,
 }
 
 func isEnglish(lang page.Lang) bool {
@@ -103,11 +105,12 @@ func errorMessage(top interface{}, name string) map[string]interface{} {
 	}
 }
 
-func details(top interface{}, name, detail string) map[string]interface{} {
+func details(top interface{}, name, detail string, open bool) map[string]interface{} {
 	return map[string]interface{}{
 		"top":    top,
 		"name":   name,
 		"detail": detail,
+		"open":   open,
 	}
 }
 
@@ -204,4 +207,39 @@ func formatDateTime(t time.Time) string {
 func lowerFirst(s string) string {
 	r, n := utf8.DecodeRuneInString(s)
 	return string(unicode.ToLower(r)) + s[n:]
+}
+
+func concatSentence(strings []string) string {
+	combined := ""
+
+	if len(strings) == 1 {
+		return strings[0]
+	}
+
+	if len(strings) == 2 {
+		return fmt.Sprintf("%s and %s", strings[0], strings[1])
+	}
+
+	for idx, str := range strings {
+		if idx == 0 {
+			combined = str
+			continue
+		}
+
+		if len(strings) == idx+1 {
+			combined = fmt.Sprintf("%s, and %s", combined, str)
+		} else {
+			combined = fmt.Sprintf("%s, %s", combined, str)
+		}
+	}
+
+	return combined
+}
+
+func attorneyDetails(attorneys []page.Attorney, from string, app page.AppData) map[string]interface{} {
+	return map[string]interface{}{
+		"Attorneys": attorneys,
+		"From":      from,
+		"App":       app,
+	}
 }
