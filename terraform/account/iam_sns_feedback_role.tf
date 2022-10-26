@@ -1,12 +1,12 @@
 resource "aws_iam_role" "sns_success_feedback" {
   provider           = aws.global
-  name               = "sns-success-feedback-role"
+  name               = "SNSSuccessFeedback"
   assume_role_policy = data.aws_iam_policy_document.sns_feedback_assume_policy.json
 }
 
 resource "aws_iam_role" "sns_failure_feedback" {
   provider           = aws.global
-  name               = "sns-failure-feedback-role"
+  name               = "SNSFailureFeedback"
   assume_role_policy = data.aws_iam_policy_document.sns_feedback_assume_policy.json
 }
 
@@ -31,7 +31,7 @@ data "aws_iam_policy_document" "sns_feedback_assume_policy" {
     actions = ["sts:AssumeRole"]
 
     principals {
-      identifiers = ["ecs-tasks.amazonaws.com"]
+      identifiers = ["sns.amazonaws.com"]
       type        = "Service"
     }
   }
