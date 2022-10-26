@@ -1,7 +1,8 @@
 resource "aws_security_group" "vpc_endpoints_private" {
-  name   = "vpc-endpoint-access-private-subnets-${data.aws_region.current.name}"
-  vpc_id = module.network.vpc.id
-  tags   = { Name = "vpc-endpoint-access-private-subnets-${data.aws_region.current.name}" }
+  name        = "vpc-endpoint-access-private-subnets-${data.aws_region.current.name}"
+  description = "VPC Interface Endpoints Security Group"
+  vpc_id      = module.network.vpc.id
+  tags        = { Name = "vpc-endpoint-access-private-subnets-${data.aws_region.current.name}" }
 }
 
 resource "aws_security_group_rule" "vpc_endpoints_private_subnet_ingress" {
