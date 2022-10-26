@@ -1,5 +1,9 @@
 {{ define "details" }}
-  <details class="govuk-details" data-module="govuk-details">
+  {{ if .open }}
+    <details class="govuk-details" data-module="govuk-details" open>
+  {{ else }}
+    <details class="govuk-details" data-module="govuk-details">
+  {{ end }}
     <summary class="govuk-details__summary">
       <span class="govuk-details__summary-text">
         {{ tr .top.App .name }}

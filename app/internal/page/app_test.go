@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
@@ -237,7 +238,7 @@ func TestTestingStart(t *testing.T) {
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		testingStart(sessionsStore).ServeHTTP(w, r)
+		testingStart(sessionsStore, &mockLpaStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -260,12 +261,76 @@ func TestTestingStart(t *testing.T) {
 			On("Get", r, "pay").
 			Return(&sessions.Session{}, nil)
 
-		testingStart(sessionsStore).ServeHTTP(w, r)
+		testingStart(sessionsStore, &mockLpaStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
 		mock.AssertExpectationsForObjects(t, sessionsStore)
+	})
+
+	t.Run("with attorneys", func(t *testing.T) {
+		ctx := context.Background()
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withAttorneys=1", nil)
+		r = r.WithContext(ctx)
+
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpa := Lpa{}
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Get", mock.Anything, mock.Anything).
+			Return(lpa, nil)
+
+		lpa.Attorneys = []Attorney{
+			{
+				ID:          "xyz789",
+				FirstNames:  "John",
+				LastName:    "Smith",
+				Email:       "aa@example.org",
+				DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				Address: place.Address{
+					Line1:      "2 RICHMOND PLACE",
+					Line2:      "KINGS HEATH",
+					Line3:      "WEST MIDLANDS",
+					TownOrCity: "BIRMINGHAM",
+					Postcode:   "B14 7ED",
+				},
+			},
+			{
+				ID:          "abc123",
+				FirstNames:  "Joan",
+				LastName:    "Smith",
+				Email:       "bb@example.org",
+				DateOfBirth: time.Date(1998, time.January, 2, 3, 4, 5, 6, time.UTC),
+				Address: place.Address{
+					Line1:      "3 RICHMOND PLACE",
+					Line2:      "KINGS HEATH",
+					Line3:      "WEST MIDLANDS",
+					TownOrCity: "BIRMINGHAM",
+					Postcode:   "B14 7EE",
+				},
+			},
+		}
+
+		lpaStore.
+			On("Put", mock.Anything, mock.Anything, lpa).
+			Return(nil)
+
+		testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
 	})
 }
 

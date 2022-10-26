@@ -9,7 +9,7 @@
 
       <p class="govuk-body">{{ tr .App "readAndCheckYourLpa" }}</p>
 
-      {{ template "details" (details . "whatHappensIfIWantToMakeChanges" "whatHappensIfIWantToMakeChangesContent") }}
+      {{ template "details" (details . "whatHappensIfIWantToMakeChanges" "whatHappensIfIWantToMakeChangesContent" false) }}
     </div>
 
     <div class="govuk-grid-column-two-thirds">
@@ -26,7 +26,7 @@
             {{ .Lpa.Type }}
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
             {{ tr .App "WhenTheLpaCanBeUsed" }}
@@ -40,21 +40,21 @@
             </a>
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
             {{ tr .App "whoAreTheAttorneys" }}
           </dt>
           <dd class="govuk-summary-list__value">
-            {{ .Lpa.Attorney.FirstNames }} {{ .Lpa.Attorney.LastName }}
+            {{ concatSentence .Lpa.AttorneysFullNames }}
           </dd>
           <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App "/choose-attorneys" }}">
+            <a class="govuk-link" href="{{ link .App "/choose-attorneys-summary" }}">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "yourAttorneys" }}</span>
             </a>
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
             {{ tr .App "howTheAttorneysMustWorkTogether" }}
@@ -68,7 +68,7 @@
             </a>
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
             {{ tr .App "whoIsTheReplacementAttorney" }}
@@ -105,7 +105,7 @@
       <h3 class="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-2">
         {{ tr .App "donor" }}
       </h3>
-      
+
       <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
@@ -127,7 +127,7 @@
             {{ formatDate .Lpa.You.DateOfBirth }}
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
             {{ tr .App "email" }}
@@ -136,7 +136,7 @@
             {{ .Lpa.You.Email }}
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">
             {{ tr .App "address" }}
@@ -153,67 +153,9 @@
       <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
         {{ tr .App "attorneys" }}
       </h3>
-      
-      <dl class="govuk-summary-list">
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">
-            {{ tr .App "name" }}
-          </dt>
-          <dd class="govuk-summary-list__value">
-            {{ .Lpa.Attorney.FirstNames }} {{ .Lpa.Attorney.LastName }}
-          </dd>
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App "/choose-attorneys" }}">
-              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "name") }}</span>
-            </a>
-          </dd>
-        </div>
-        
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">
-            {{ tr .App "dateOfBirth" }}
-          </dt>
-          <dd class="govuk-summary-list__value">
-            {{ formatDate .Lpa.Attorney.DateOfBirth }}
-          </dd>
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App "/choose-attorneys" }}">
-              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "dateOfBirth") }}</span>
-            </a>
-          </dd>
-        </div>
-        
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">
-            {{ tr .App "email" }}
-          </dt>
-          <dd class="govuk-summary-list__value">
-            {{ .Lpa.Attorney.Email }}
-          </dd>
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App "/choose-attorneys" }}">
-              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "email") }}</span>
-            </a>
-          </dd>
-        </div>
-        
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">
-            {{ tr .App "address" }}
-          </dt>
-          <dd class="govuk-summary-list__value">            
-            <div>{{ .Lpa.Attorney.Address.Line1 }}</div>
-            <div>{{ .Lpa.Attorney.Address.Line2 }}</div>
-            <div>{{ .Lpa.Attorney.Address.TownOrCity }}</div>
-            <div>{{ .Lpa.Attorney.Address.Postcode }}</div>
-          </dd>
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App "/choose-attorneys-address" }}">
-              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "address") }}</span>
-            </a>
-          </dd>
-        </div>
-      </dl>
+
+
+      {{ template "attorney-details" (attorneyDetails .Lpa.Attorneys "read" .App) }}
 
       <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
         {{ tr .App "replacementAttorney" }}
@@ -228,7 +170,7 @@
             We haven't done this yet
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
           <dt class="govuk-summary-list__key">
             {{ tr .App "dateOfBirth" }}
@@ -237,7 +179,7 @@
             We haven't done this yet
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
           <dt class="govuk-summary-list__key">
             {{ tr .App "email" }}
@@ -246,7 +188,7 @@
             We haven't done this yet
           </dd>
         </div>
-        
+
         <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
           <dt class="govuk-summary-list__key">
             {{ tr .App "address" }}
@@ -256,7 +198,7 @@
           </dd>
         </div>
       </dl>
-      
+
       <form novalidate method="post">
         <div class="govuk-form-group {{ if index .Errors "checked" }}govuk-form-group--error{{ end }}">
           {{ template "error-message" (errorMessage . "checked") }}
@@ -287,7 +229,7 @@
         <p class="govuk-body">
           <a class="govuk-link" href="#">{{ tr .App "iHaventReceivedSignatureCode" }}</a>
         </p>
-        
+
         {{ template "continue-button" . }}
       </form>
     </div>
