@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-xray-sdk-go/xray"
 )
 
 type dynamoDB interface {
@@ -21,7 +22,9 @@ type Client struct {
 }
 
 func NewClient(sess *session.Session, tableName string) (*Client, error) {
-	return &Client{table: tableName, svc: dynamodb.New(sess)}, nil
+	svc := dynamodb.New(sess)
+	xray.AWS(svc.Client)
+	return &Client{table: tableName, svc: svc}, nil
 }
 
 func (c *Client) Get(ctx context.Context, id string, v interface{}) error {
