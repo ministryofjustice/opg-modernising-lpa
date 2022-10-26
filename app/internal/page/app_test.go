@@ -238,7 +238,7 @@ func TestTestingStart(t *testing.T) {
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		testingStart(sessionsStore, &mockLpaStore{}).ServeHTTP(w, r)
+		testingStart(sessionsStore, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -261,7 +261,7 @@ func TestTestingStart(t *testing.T) {
 			On("Get", r, "pay").
 			Return(&sessions.Session{}, nil)
 
-		testingStart(sessionsStore, &mockLpaStore{}).ServeHTTP(w, r)
+		testingStart(sessionsStore, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
