@@ -26,6 +26,16 @@ help: ##@other Show this help.
 go-test: ##@testing Runs full go test suite
 	find . -name go.mod -execdir go test ./... -race -covermode=atomic -coverprofile=coverage.out \;
 
+coverage: ##@testing Produces coverage report and launches browser line based coverage explorer. To test a specific internal package pass in the package name e.g. make coverage package=page
+ifdef package
+	$(eval t="/tmp/go-cover.$(package).tmp")
+	$(eval path="./app/internal/$(package)/...")
+else
+	$(eval t="/tmp/go-cover.tmp")
+	$(eval path="./app/...")
+endif
+	go test -coverprofile=$(t) $(path) && go tool cover -html=$(t) && unlink $(t)
+
 build-up-app: ##@build Builds the app
 	docker compose up -d --build --remove-orphans app
 
@@ -50,15 +60,3 @@ update-secrets-baseline: ##@security Updates detect-secrets baseline file for fa
 
 audit-secrets: ##@security Interactive CLI tool for marking discovered as in/valid (requires yelp/detect-secrets local installation)
 	detect-secrets audit .secrets.baseline
-
-coverage:
-ifdef package
-	$(eval t="/tmp/go-cover.$(package).tmp")
-	$(eval path="./app/internal/$(package)/...")
-else
-	$(eval t="/tmp/go-cover.tmp")
-	$(eval path="./app/...")
-endif
-
-	echo $(t)
-	go test -coverprofile=$(t) $(path) && go tool cover -html=$(t) && unlink $(t)
