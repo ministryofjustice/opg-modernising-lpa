@@ -1,4 +1,5 @@
 resource "aws_security_group" "vpc_endpoints_private" {
+  provider    = aws.region
   name        = "vpc-endpoint-access-private-subnets-${data.aws_region.current.name}"
   description = "VPC Interface Endpoints Security Group"
   vpc_id      = module.network.vpc.id
@@ -6,6 +7,7 @@ resource "aws_security_group" "vpc_endpoints_private" {
 }
 
 resource "aws_security_group_rule" "vpc_endpoints_private_subnet_ingress" {
+  provider          = aws.region
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
@@ -16,6 +18,7 @@ resource "aws_security_group_rule" "vpc_endpoints_private_subnet_ingress" {
 }
 
 resource "aws_security_group_rule" "vpc_endpoints_public_subnet_ingress" {
+  provider          = aws.region
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
@@ -32,6 +35,7 @@ locals {
 }
 
 resource "aws_vpc_endpoint" "private" {
+  provider = aws.region
   for_each = local.interface_endpoint
 
   vpc_id              = module.network.vpc.id
@@ -39,11 +43,12 @@ resource "aws_vpc_endpoint" "private" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   security_group_ids  = aws_security_group.vpc_endpoints_private[*].id
-  subnet_ids          = module.network.application_subnets[*].cidr_block
+  subnet_ids          = module.network.application_subnets[*].id
   tags                = { Name = "${each.value}-private-${data.aws_region.current.name}" }
 }
 
 resource "aws_vpc_endpoint_policy" "ec2" {
+  provider        = aws.region
   vpc_endpoint_id = aws_vpc_endpoint.private["ec2"].id
   policy = jsonencode({
     "Version" : "2012-10-17",
