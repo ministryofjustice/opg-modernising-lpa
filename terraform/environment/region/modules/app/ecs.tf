@@ -288,8 +288,8 @@ locals {
           value = "https://api.os.uk"
         },
         {
-          name  = "GOVUK_NOTIFY_IS_PRODUCTION",
-          value = var.app_env_vars.notify_is_production
+          name  = "ENVIRONMENT",
+          value = var.app_env_vars.environment
         }
       ]
     }

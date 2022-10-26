@@ -10,10 +10,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-xray-sdk-go/awsplugins/ecs"
+	"github.com/aws/aws-xray-sdk-go/xray"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-go-common/logging"
@@ -24,15 +24,21 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
 )
 
+const (
+	appName    = "opg-modernising-lpa"
+	production = "production"
+)
+
 func main() {
 	ctx := context.Background()
-	logger := logging.New(os.Stdout, "opg-modernising-lpa")
+	logger := logging.New(os.Stdout, appName)
 
 	var (
 		appPublicURL          = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
@@ -43,14 +49,22 @@ func main() {
 		issuer                = env.Get("ISSUER", "http://sign-in-mock:7012")
 		dynamoTableLpas       = env.Get("DYNAMODB_TABLE_LPAS", "")
 		notifyBaseURL         = env.Get("GOVUK_NOTIFY_BASE_URL", "")
-		notifyIsProduction    = env.Get("GOVUK_NOTIFY_IS_PRODUCTION", "") == "1"
 		ordnanceSurveyBaseUrl = env.Get("ORDNANCE_SURVEY_BASE_URL", "http://ordnance-survey-mock:4011")
 		payBaseUrl            = env.Get("GOVUK_PAY_BASE_URL", "http://pay-mock:4010")
 		port                  = env.Get("APP_PORT", "8080")
 		yotiClientSdkID       = env.Get("YOTI_CLIENT_SDK_ID", "")
 		yotiScenarioID        = env.Get("YOTI_SCENARIO_ID", "")
 		yotiSandbox           = env.Get("YOTI_SANDBOX", "") == "1"
+		environment           = env.Get("ENVIRONMENT", "local")
 	)
+
+	if environment == production {
+		ecs.Init()
+	}
+
+	xray.Configure(xray.Config{
+		ServiceVersion: "1.0.0",
+	})
 
 	tmpls, err := template.Parse(webDir+"/template", templatefn.All)
 	if err != nil {
@@ -133,7 +147,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, http.DefaultClient)
+	notifyClient, err := notify.New(environment == production, notifyBaseURL, notifyApiKey, http.DefaultClient)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -148,7 +162,7 @@ func main() {
 
 	server := &http.Server{
 		Addr:              ":" + port,
-		Handler:           mux,
+		Handler:           xray.HandlerWithContext(ctx, xray.NewFixedSegmentNamer(appName), mux),
 		ReadHeaderTimeout: 20 * time.Second,
 	}
 
