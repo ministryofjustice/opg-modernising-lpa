@@ -24,7 +24,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 			return err
 		}
 
-		addAnother := r.URL.Query().Get("addAnother") == "1"
+		addAnother := r.FormValue("addAnother") == "1"
 		attorney, attorneyFound := lpa.GetAttorney(r.URL.Query().Get("id"))
 
 		if r.Method == http.MethodGet && len(lpa.Attorneys) > 0 && attorneyFound == false && addAnother == false {

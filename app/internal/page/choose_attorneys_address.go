@@ -23,8 +23,13 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			return err
 		}
 
-		attorneyId := r.URL.Query().Get("id")
-		attorney, _ := lpa.GetAttorney(attorneyId)
+		attorneyId := r.FormValue("id")
+		attorney, found := lpa.GetAttorney(attorneyId)
+
+		if found == false {
+			appData.Lang.Redirect(w, r, redirectPath(chooseAttorneysPath), http.StatusFound)
+			return nil
+		}
 
 		data := &chooseAttorneysAddressData{
 			App:      appData,
@@ -40,7 +45,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 		if r.Method == http.MethodPost {
 			data.Form = readChooseAttorneysAddressForm(r)
 			data.Errors = data.Form.Validate()
-			from := r.URL.Query().Get("from")
+			from := r.FormValue("from")
 
 			if data.Form.Action == "manual" && len(data.Errors) == 0 {
 				attorney.Address = *data.Form.Address
