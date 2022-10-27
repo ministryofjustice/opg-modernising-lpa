@@ -290,6 +290,10 @@ locals {
         {
           name  = "GOVUK_NOTIFY_IS_PRODUCTION",
           value = var.app_env_vars.notify_is_production
+        },
+        {
+          name  = "XRAY_ENABLED",
+          value = "1"
         }
       ]
     }
