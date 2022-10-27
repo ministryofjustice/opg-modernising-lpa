@@ -78,7 +78,7 @@ data "aws_kms_alias" "sns_encryption_key_eu_west_1" {
 
 resource "aws_sns_topic" "aws_backup_failure_events" {
   count             = local.environment.backups.backup_plan_enabled ? 1 : 0
-  name              = "backup-vault-failure-events"
+  name              = "${local.environment_name}-backup-vault-failure-events"
   kms_master_key_id = data.aws_kms_alias.sns_encryption_key_eu_west_1.target_key_arn
   provider          = aws.eu_west_1
 }
