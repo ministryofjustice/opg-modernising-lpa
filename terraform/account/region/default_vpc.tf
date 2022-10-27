@@ -209,7 +209,7 @@ resource "aws_vpc_endpoint" "default_private" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   security_group_ids  = aws_security_group.default_vpc_endpoints[*].id
-  subnet_ids          = module.network.application_subnets[*].id
+  subnet_ids          = [for subnet in aws_default_subnet.default : subnet.id]
   tags                = { Name = "default-vpc-${each.value}-private-${data.aws_region.current.name}" }
 }
 
