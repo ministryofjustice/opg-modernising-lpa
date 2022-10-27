@@ -212,7 +212,7 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 
 			lpa.Attorneys = []Attorney{
 				{
-					ID:          "xyz789",
+					ID:          "completed-address",
 					FirstNames:  "John",
 					LastName:    "Smith",
 					Email:       "aa@example.org",
@@ -226,18 +226,12 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 					},
 				},
 				{
-					ID:          "abc123",
+					ID:          "empty-address",
 					FirstNames:  "Joan",
 					LastName:    "Smith",
 					Email:       "bb@example.org",
 					DateOfBirth: time.Date(1998, time.January, 2, 3, 4, 5, 6, time.UTC),
-					Address: place.Address{
-						Line1:      "3 RICHMOND PLACE",
-						Line2:      "KINGS HEATH",
-						Line3:      "WEST MIDLANDS",
-						TownOrCity: "BIRMINGHAM",
-						Postcode:   "B14 7EE",
-					},
+					Address:     place.Address{},
 				},
 			}
 

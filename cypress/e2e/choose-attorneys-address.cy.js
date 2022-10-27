@@ -1,9 +1,7 @@
 describe('Choose attorneys address', () => {
-    beforeEach(() => {
-        cy.visit('/testing-start?redirect=/choose-attorneys-address?id=does-not-exist');
-    });
-
     it('address can be looked up', () => {
+        cy.visit('/testing-start?redirect=/choose-attorneys-address?id=empty-address&withAttorneys=1');
+
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
@@ -30,6 +28,8 @@ describe('Choose attorneys address', () => {
     });
 
     it('address can be entered manually', () => {
+        cy.visit('/testing-start?redirect=/choose-attorneys-address?id=empty-address&withAttorneys=1');
+
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
