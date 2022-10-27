@@ -29,7 +29,7 @@ func TestGetYourAddress(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -55,7 +55,7 @@ func TestGetYourAddressWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, expectedError)
+		Return(&Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -74,7 +74,7 @@ func TestGetYourAddressFromStore(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{
+		Return(&Lpa{
 			You: Person{
 				Address: address,
 			},
@@ -107,7 +107,7 @@ func TestGetYourAddressManual(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -136,7 +136,7 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -162,9 +162,9 @@ func TestPostYourAddressManual(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{
+		On("Put", mock.Anything, "session-id", &Lpa{
 			You: Person{
 				Address: place.Address{
 					Line1:      "a",
@@ -204,9 +204,9 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{
+		On("Put", mock.Anything, "session-id", &Lpa{
 			You: Person{
 				Address: place.Address{
 					Line1:      "a",
@@ -243,7 +243,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{
+		Return(&Lpa{
 			You: Person{
 				FirstNames: "John",
 				Address:    place.Address{Line1: "abc"},
@@ -251,7 +251,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 			WhoFor: "me",
 		}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{
+		On("Put", mock.Anything, "session-id", &Lpa{
 			You: Person{
 				FirstNames: "John",
 				Address: place.Address{
@@ -300,7 +300,7 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -357,7 +357,7 @@ func TestPostYourAddressSelect(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	form := url.Values{
 		"action":          {"select"},
@@ -391,7 +391,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	addressClient := &mockAddressClient{}
 	addressClient.
@@ -439,7 +439,7 @@ func TestPostYourAddressLookup(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -480,7 +480,7 @@ func TestPostYourAddressLookupError(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	addressClient := &mockAddressClient{}
 	addressClient.
@@ -528,7 +528,7 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.

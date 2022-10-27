@@ -32,6 +32,28 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 			return err
 		}
 
+		var attorneyAddressCompleted bool
+
+		for _, a := range lpa.Attorneys {
+			if a.Address.Line1 == "" {
+				attorneyAddressCompleted = false
+				break
+			}
+
+			attorneyAddressCompleted = true
+		}
+
+		var attorneyDetailsCompleted bool
+
+		for _, a := range lpa.Attorneys {
+			if a.FirstNames == "" {
+				attorneyDetailsCompleted = false
+				break
+			}
+
+			attorneyDetailsCompleted = true
+		}
+
 		data := &taskListData{
 			App: appData,
 			Sections: []taskListSection{
@@ -47,8 +69,8 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 						{
 							Name:       "chooseYourAttorneys",
 							Path:       chooseAttorneysPath,
-							Completed:  lpa.Attorney.Address.Line1 != "",
-							InProgress: lpa.Attorney.FirstNames != "",
+							Completed:  attorneyAddressCompleted,
+							InProgress: attorneyDetailsCompleted,
 						},
 						{
 							Name:      "chooseYourReplacementAttorneys",

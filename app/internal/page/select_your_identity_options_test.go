@@ -17,7 +17,7 @@ func TestGetSelectYourIdentityOptions(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -43,7 +43,7 @@ func TestGetSelectYourIdentityOptionsWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, expectedError)
+		Return(&Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -59,7 +59,7 @@ func TestGetSelectYourIdentityOptionsFromStore(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{
+		Return(&Lpa{
 			IdentityOptions: IdentityOptions{
 				Selected: []IdentityOption{Passport},
 			},
@@ -89,7 +89,7 @@ func TestGetSelectYourIdentityOptionsWhenTemplateErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -112,9 +112,9 @@ func TestPostSelectYourIdentityOptions(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{
+		On("Put", mock.Anything, "session-id", &Lpa{
 			IdentityOptions: IdentityOptions{
 				Selected: []IdentityOption{Passport, DwpAccount, UtilityBill},
 				First:    Passport,
@@ -148,7 +148,7 @@ func TestPostSelectYourIdentityOptionsWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
 		On("Put", mock.Anything, "session-id", mock.Anything).
 		Return(expectedError)
@@ -172,7 +172,7 @@ func TestPostSelectYourIdentityOptionsWhenValidationErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.

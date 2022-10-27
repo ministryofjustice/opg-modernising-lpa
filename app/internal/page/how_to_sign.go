@@ -10,7 +10,7 @@ import (
 type howToSignData struct {
 	App    AppData
 	Errors map[string]string
-	Lpa    Lpa
+	Lpa    *Lpa
 }
 
 func HowToSign(tmpl template.Template, lpaStore LpaStore, notifyClient NotifyClient, randomCode func(int) string) Handler {

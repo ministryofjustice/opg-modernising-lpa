@@ -17,7 +17,7 @@ func TestGetWantReplacementAttorneys(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -42,7 +42,7 @@ func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{WantReplacementAttorneys: "yes"}, nil)
+		Return(&Lpa{WantReplacementAttorneys: "yes"}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -68,7 +68,7 @@ func TestGetWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, expectedError)
+		Return(&Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -86,7 +86,7 @@ func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -111,9 +111,9 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{WantReplacementAttorneys: "yes"}).
+		On("Put", mock.Anything, "session-id", &Lpa{WantReplacementAttorneys: "yes"}).
 		Return(nil)
 
 	form := url.Values{
@@ -138,9 +138,9 @@ func TestPostWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{WantReplacementAttorneys: "yes"}).
+		On("Put", mock.Anything, "session-id", &Lpa{WantReplacementAttorneys: "yes"}).
 		Return(expectedError)
 
 	form := url.Values{
@@ -162,7 +162,7 @@ func TestPostWantReplacementAttorneysWhenValidationErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.

@@ -18,7 +18,7 @@ func TestGetRestrictions(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -43,7 +43,7 @@ func TestGetRestrictionsFromStore(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{Restrictions: "blah"}, nil)
+		Return(&Lpa{Restrictions: "blah"}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -69,7 +69,7 @@ func TestGetRestrictionsWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, expectedError)
+		Return(&Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -87,7 +87,7 @@ func TestGetRestrictionsWhenTemplateErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -112,9 +112,9 @@ func TestPostRestrictions(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{Restrictions: "blah", Tasks: Tasks{Restrictions: TaskCompleted}}).
+		On("Put", mock.Anything, "session-id", &Lpa{Restrictions: "blah", Tasks: Tasks{Restrictions: TaskCompleted}}).
 		Return(nil)
 
 	form := url.Values{
@@ -139,9 +139,9 @@ func TestPostRestrictionsWhenAnswerLater(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{Tasks: Tasks{Restrictions: TaskInProgress}}).
+		On("Put", mock.Anything, "session-id", &Lpa{Tasks: Tasks{Restrictions: TaskInProgress}}).
 		Return(nil)
 
 	form := url.Values{
@@ -167,9 +167,9 @@ func TestPostRestrictionsWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{Restrictions: "blah", Tasks: Tasks{Restrictions: TaskCompleted}}).
+		On("Put", mock.Anything, "session-id", &Lpa{Restrictions: "blah", Tasks: Tasks{Restrictions: TaskCompleted}}).
 		Return(expectedError)
 
 	form := url.Values{
@@ -192,7 +192,7 @@ func TestPostRestrictionsWhenValidationErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.

@@ -17,7 +17,7 @@ func TestGetHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -44,7 +44,7 @@ func TestGetHowLongHaveYouKnownCertificateProviderFromStore(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{CertificateProvider: certificateProvider}, nil)
+		Return(&Lpa{CertificateProvider: certificateProvider}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -71,7 +71,7 @@ func TestGetHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T) 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, expectedError)
+		Return(&Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -89,7 +89,7 @@ func TestGetHowLongHaveYouKnownCertificateProviderWhenTemplateErrors(t *testing.
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -114,9 +114,9 @@ func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{
+		On("Put", mock.Anything, "session-id", &Lpa{
 			CertificateProvider: CertificateProvider{RelationshipLength: "gte-2-years"},
 			Tasks:               Tasks{CertificateProvider: TaskCompleted},
 		}).
@@ -144,7 +144,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T)
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
 		On("Put", mock.Anything, "session-id", mock.Anything).
 		Return(expectedError)
@@ -168,7 +168,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderWhenValidationErrors(t *testi
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.

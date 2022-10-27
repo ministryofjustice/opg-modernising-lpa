@@ -7,6 +7,9 @@ import (
 	"math/rand"
 	"net/http"
 	"strings"
+	"time"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -106,7 +109,7 @@ func App(
 
 	handle := makeHandle(mux, logger, sessionStore, localizer, lang)
 
-	mux.Handle("/testing-start", testingStart(sessionStore))
+	mux.Handle("/testing-start", testingStart(sessionStore, lpaStore))
 	mux.Handle("/", Root())
 
 	handle(startPath, None,
@@ -125,9 +128,11 @@ func App(
 	handle(taskListPath, RequireSession,
 		TaskList(tmpls.Get("task_list.gohtml"), lpaStore))
 	handle(chooseAttorneysPath, RequireSession|CanGoBack,
-		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), lpaStore))
+		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), lpaStore, random.String))
 	handle(chooseAttorneysAddressPath, RequireSession|CanGoBack,
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_attorneys_address.gohtml"), addressClient, lpaStore))
+	handle(chooseAttorneysSummaryPath, RequireSession|CanGoBack,
+		ChooseAttorneySummary(logger, tmpls.Get("choose_attorneys_summary.gohtml"), lpaStore))
 	handle(wantReplacementAttorneysPath, RequireSession|CanGoBack,
 		WantReplacementAttorneys(tmpls.Get("want_replacement_attorneys.gohtml"), lpaStore))
 	handle(whenCanTheLpaBeUsedPath, RequireSession|CanGoBack,
@@ -188,7 +193,7 @@ func App(
 	return mux
 }
 
-func testingStart(store sessions.Store) http.HandlerFunc {
+func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		session, _ := store.Get(r, "session")
 		session.Values = map[interface{}]interface{}{"sub": random.String(12), "email": "simulate-delivered@notifications.service.gov.uk"}
@@ -198,6 +203,48 @@ func testingStart(store sessions.Store) http.HandlerFunc {
 			paySession, _ := store.Get(r, PayCookieName)
 			paySession.Values = map[interface{}]interface{}{PayCookiePaymentIdValueKey: random.String(12)}
 			_ = store.Save(r, w, paySession)
+		}
+
+		if r.FormValue("withAttorneys") == "1" {
+			sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
+
+			lpa, _ := lpaStore.Get(r.Context(), sessionID)
+
+			lpa.Attorneys = []Attorney{
+				{
+					ID:          "completed-address",
+					FirstNames:  "John",
+					LastName:    "Smith",
+					Email:       "aa@example.org",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+					Address: place.Address{
+						Line1:      "2 RICHMOND PLACE",
+						Line2:      "KINGS HEATH",
+						Line3:      "WEST MIDLANDS",
+						TownOrCity: "BIRMINGHAM",
+						Postcode:   "B14 7ED",
+					},
+				},
+				{
+					ID:          "empty-address",
+					FirstNames:  "Joan",
+					LastName:    "Smith",
+					Email:       "bb@example.org",
+					DateOfBirth: time.Date(1998, time.January, 2, 3, 4, 5, 6, time.UTC),
+					Address:     place.Address{},
+				},
+			}
+
+			_ = lpaStore.Put(r.Context(), sessionID, lpa)
+		}
+
+		if r.FormValue("cookiesAccepted") == "1" {
+			http.SetCookie(w, &http.Cookie{
+				Name:   "cookies-consent",
+				Value:  "accept",
+				MaxAge: 365 * 24 * 60 * 60,
+				Path:   "/",
+			})
 		}
 
 		random.UseTestCode = true

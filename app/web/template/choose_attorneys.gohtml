@@ -10,7 +10,7 @@
               <h1 class="govuk-fieldset__heading">{{ tr .App "whoWouldYouLikeToBeTheAttorneys" }}</h1>
             </legend>
 
-            {{ trHtml .App "whoWouldYouLikeToBeTheAttorneysContent" }}
+            {{ template "details" (details . "whoWouldYouLikeToBeTheAttorneysDetailsTitle" "whoWouldYouLikeToBeTheAttorneysDetailsContent" .ShowDetails) }}
 
             <legend class="govuk-fieldset__legend  govuk-fieldset__legend--l">{{ tr .App "attorney" }}</legend>
 
