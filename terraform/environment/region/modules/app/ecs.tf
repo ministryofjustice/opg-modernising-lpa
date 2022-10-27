@@ -81,7 +81,7 @@ resource "aws_ecs_task_definition" "app" {
   network_mode             = "awsvpc"
   cpu                      = 512
   memory                   = 1024
-  container_definitions    = "[${local.app}, ${local.aws_otel_collector}]"
+  container_definitions    = "[${local.aws_otel_collector}, ${local.app}]"
   task_role_arn            = var.ecs_task_role.arn
   execution_role_arn       = var.ecs_execution_role.arn
   provider                 = aws.region
@@ -140,11 +140,17 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     effect = "Allow"
 
     actions = [
+      "logs:PutLogEvents",
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:DescribeLogStreams",
+      "logs:DescribeLogGroups",
       "xray:PutTraceSegments",
       "xray:PutTelemetryRecords",
       "xray:GetSamplingRules",
       "xray:GetSamplingTargets",
       "xray:GetSamplingStatisticSummaries",
+      "ssm:GetParameters"
     ]
 
     resources = ["*"]
@@ -291,22 +297,22 @@ locals {
           name  = "GOVUK_NOTIFY_IS_PRODUCTION",
           value = var.app_env_vars.notify_is_production
         }
+      ],
+      dependsOn = [
+        {
+          containerName = "aws-otel-collector",
+          condition     = "START"
+        }
       ]
     }
   )
 
   aws_otel_collector = jsonencode(
     {
-      cpu         = 0,
-      essential   = true,
-      image       = "public.ecr.aws/aws-observability/aws-otel-collector:v0.21.0",
-      mountPoints = [],
-      name        = "aws-otel-collector",
-      command = [
-        "--config=/etc/ecs/ecs-default-config.yaml"
-      ],
-      portMappings = [],
-      volumesFrom  = [],
+      name      = "aws-otel-collector",
+      image     = "amazon/aws-otel-collector",
+      command   = ["{{command}}"],
+      essential = true,
       logConfiguration = {
         logDriver = "awslogs",
         options = {
@@ -315,6 +321,16 @@ locals {
           awslogs-stream-prefix = "${data.aws_default_tags.current.tags.environment-name}.otel.app"
         }
       },
-      environment = []
+      healthCheck = {
+        command     = ["/healthcheck"],
+        interval    = 5,
+        timeout     = 6,
+        retries     = 5,
+        startPeriod = 1
+      },
+      mountPoints  = [],
+      portMappings = [],
+      volumesFrom  = [],
+      environment  = []
   })
 }
