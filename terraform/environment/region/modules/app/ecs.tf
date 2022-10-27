@@ -81,7 +81,7 @@ resource "aws_ecs_task_definition" "app" {
   network_mode             = "awsvpc"
   cpu                      = 512
   memory                   = 1024
-  container_definitions    = "[${local.app}]"
+  container_definitions    = "[${local.app}, ${local.aws_otel_collector}]"
   task_role_arn            = var.ecs_task_role.arn
   execution_role_arn       = var.ecs_execution_role.arn
   provider                 = aws.region
@@ -294,4 +294,27 @@ locals {
       ]
     }
   )
+
+  aws_otel_collector = jsonencode(
+    {
+      cpu         = 1,
+      essential   = true,
+      image       = "public.ecr.aws/aws-observability/aws-otel-collector:v0.21.0",
+      mountPoints = [],
+      name        = "aws-otel-collector",
+      command = [
+        "--config=/etc/ecs/ecs-default-config.yaml"
+      ],
+      portMappings = [],
+      volumesFrom  = [],
+      logConfiguration = {
+        logDriver = "awslogs",
+        options = {
+          awslogs-group         = var.ecs_application_log_group_name,
+          awslogs-region        = data.aws_region.current.name,
+          awslogs-stream-prefix = "${data.aws_default_tags.current.tags.environment-name}.otel.app"
+        }
+      },
+      environment = []
+  })
 }
