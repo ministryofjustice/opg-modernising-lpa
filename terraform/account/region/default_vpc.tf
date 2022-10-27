@@ -172,3 +172,64 @@ data "aws_iam_policy_document" "default_vpc_flow_log_cloudwatch" {
     resources = ["*"]
   }
 }
+
+
+#  Default VPC Endpoint
+resource "aws_security_group" "default_vpc_endpoints" {
+  provider    = aws.region
+  name        = "default-vpc-endpoint-access-private-subnets-${data.aws_region.current.name}"
+  description = "Default VPC Interface Endpoints Security Group"
+  vpc_id      = data.aws_vpc.default.id
+  tags        = { Name = "default-vpc-endpoint-access-private-subnets-${data.aws_region.current.name}" }
+}
+
+resource "aws_security_group_rule" "default_vpc_endpoints_subnet_ingress" {
+  provider          = aws.region
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  security_group_id = aws_security_group.default_vpc_endpoints.id
+  type              = "ingress"
+  cidr_blocks       = [for subnet in aws_default_subnet.default : subnet.cidr_block]
+  description       = "Allow Services in Private Subnets of ${data.aws_region.current.name} to connect to Default VPC Interface Endpoints"
+}
+
+locals {
+  default_vpc_interface_endpoint = toset([
+    "ec2",
+  ])
+}
+
+resource "aws_vpc_endpoint" "default_private" {
+  provider = aws.region
+  for_each = local.default_vpc_interface_endpoint
+
+  vpc_id              = data.aws_vpc.default.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.${each.value}"
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  security_group_ids  = aws_security_group.default_vpc_endpoints[*].id
+  subnet_ids          = module.network.application_subnets[*].id
+  tags                = { Name = "default-vpc-${each.value}-private-${data.aws_region.current.name}" }
+}
+
+resource "aws_vpc_endpoint_policy" "default_vpc_ec2" {
+  provider        = aws.region
+  vpc_endpoint_id = aws_vpc_endpoint.default_private["ec2"].id
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "AllowAll",
+        "Effect" : "Allow",
+        "Principal" : {
+          "AWS" : "*"
+        },
+        "Action" : [
+          "ec2:*"
+        ],
+        "Resource" : "*"
+      }
+    ]
+  })
+}
