@@ -10,8 +10,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/gorilla/sessions"
@@ -24,10 +22,20 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
+	"go.opentelemetry.io/contrib/detectors/aws/ecs"
+	"go.opentelemetry.io/contrib/propagators/aws/xray"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/sdk/trace"
+	trace2 "go.opentelemetry.io/otel/trace"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 func main() {
@@ -51,6 +59,21 @@ func main() {
 		yotiScenarioID        = env.Get("YOTI_SCENARIO_ID", "")
 		yotiSandbox           = env.Get("YOTI_SANDBOX", "") == "1"
 	)
+
+	secureCookies := strings.HasPrefix(appPublicURL, "https:")
+
+	var span trace2.Span
+	if secureCookies {
+		tracer, shutdown, err := makeTracer(ctx, secureCookies)
+		if err != nil {
+			logger.Fatal(err)
+		}
+		defer shutdown(ctx)
+
+		ctx, span = tracer.Start(ctx, "segment",
+			trace2.WithSpanKind(trace2.SpanKindServer),
+			trace2.WithAttributes(attribute.String("a", "1")))
+	}
 
 	tmpls, err := template.Parse(webDir+"/template", templatefn.All)
 	if err != nil {
@@ -92,8 +115,6 @@ func main() {
 	if err != nil {
 		logger.Fatal(err)
 	}
-
-	secureCookies := strings.HasPrefix(appPublicURL, "https:")
 
 	payApiKey, err := secretsClient.Secret(secrets.GovUkPay)
 	if err != nil {
@@ -152,6 +173,10 @@ func main() {
 		ReadHeaderTimeout: 20 * time.Second,
 	}
 
+	if span != nil {
+		span.End()
+	}
+
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
 			logger.Fatal(err)
@@ -172,4 +197,40 @@ func main() {
 	if err := server.Shutdown(tc); err != nil {
 		logger.Print(err)
 	}
+}
+
+func makeTracer(ctx context.Context, secure bool) (trace2.Tracer, func(context.Context) error, error) {
+	secureOption := otlptracegrpc.WithInsecure()
+	if secure {
+		secureOption = otlptracegrpc.WithTLSCredentials(credentials.NewClientTLSFromCert(nil, ""))
+	}
+
+	traceExporter, err := otlptracegrpc.New(ctx,
+		secureOption,
+		otlptracegrpc.WithEndpoint("0.0.0.0:4317"),
+		otlptracegrpc.WithDialOption(grpc.WithBlock()))
+	if err != nil {
+		return nil, func(context.Context) error { return nil }, fmt.Errorf("failed to create new OTLP trace exporter: %w", err)
+	}
+
+	ecsResourceDetector := ecs.NewResourceDetector()
+	resource, err := ecsResourceDetector.Detect(ctx)
+	if err != nil {
+		traceExporter.Shutdown(ctx)
+		return nil, func(context.Context) error { return nil }, err
+	}
+
+	idg := xray.NewIDGenerator()
+
+	tp := trace.NewTracerProvider(
+		trace.WithResource(resource),
+		trace.WithSampler(trace.AlwaysSample()),
+		trace.WithBatcher(traceExporter),
+		trace.WithIDGenerator(idg),
+	)
+
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(xray.Propagator{})
+
+	return otel.Tracer("demo"), traceExporter.Shutdown, nil
 }
