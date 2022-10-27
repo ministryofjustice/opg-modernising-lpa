@@ -210,7 +210,7 @@ resource "aws_vpc_endpoint" "default_private" {
   private_dns_enabled = true
   security_group_ids  = aws_security_group.default_vpc_endpoints[*].id
   subnet_ids          = module.network.application_subnets[*].id
-  tags                = { Name = "${each.value}-private-${data.aws_region.current.name}" }
+  tags                = { Name = "default-vpc-${each.value}-private-${data.aws_region.current.name}" }
 }
 
 resource "aws_vpc_endpoint_policy" "default_vpc_ec2" {
