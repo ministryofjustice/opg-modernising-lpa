@@ -132,12 +132,6 @@ func (s *lpaStore) Get(ctx context.Context, sessionID string) (Lpa, error) {
 		lpa.ID = "10" + strconv.Itoa(s.randomInt(100000))
 	}
 
-	for _, attorney := range lpa.Attorneys {
-		if attorney.ID == "" {
-			attorney.ID = "10" + strconv.Itoa(s.randomInt(100000))
-		}
-	}
-
 	return lpa, nil
 }
 

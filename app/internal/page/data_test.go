@@ -45,62 +45,17 @@ func TestLpaStoreGet(t *testing.T) {
 }
 
 func TestLpaStoreGetWhenExists(t *testing.T) {
-	testCases := map[string]struct {
-		existingLpa Lpa
-		expectedLpa Lpa
-	}{
-		"attorneys with IDs": {
-			Lpa{
-				ID:  "abc",
-				You: Person{Email: "what"},
-				Attorneys: []Attorney{
-					{ID: "123"},
-					{ID: "456"},
-				},
-			},
-			Lpa{
-				ID:  "abc",
-				You: Person{Email: "what"},
-				Attorneys: []Attorney{
-					{ID: "123"},
-					{ID: "456"},
-				},
-			},
-		},
-		"attorneys without IDs": {
-			Lpa{
-				ID:  "abc",
-				You: Person{Email: "what"},
-				Attorneys: []Attorney{
-					{ID: ""},
-					{ID: ""},
-				},
-			},
-			Lpa{
-				ID:  "abc",
-				You: Person{Email: "what"},
-				Attorneys: []Attorney{
-					{ID: "10100000"},
-					{ID: "10100000"},
-				},
-			},
-		},
-	}
+	existingLpa := Lpa{ID: "an-id"}
+	ctx := context.Background()
 
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			ctx := context.Background()
+	dataStore := &mockDataStore{data: existingLpa}
+	dataStore.On("Get", ctx, "an-id").Return(nil)
 
-			dataStore := &mockDataStore{data: tc.existingLpa}
-			dataStore.On("Get", ctx, "an-id").Return(nil)
+	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
 
-			lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
-
-			lpa, err := lpaStore.Get(ctx, "an-id")
-			assert.Nil(t, err)
-			assert.Equal(t, tc.existingLpa, lpa)
-		})
-	}
+	lpa, err := lpaStore.Get(ctx, "an-id")
+	assert.Nil(t, err)
+	assert.Equal(t, existingLpa, lpa)
 }
 
 func TestLpaStoreGetWhenDataStoreError(t *testing.T) {
