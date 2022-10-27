@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"golang.org/x/exp/slices"
@@ -167,22 +168,34 @@ func (l *Lpa) PutAttorney(attorney Attorney) (*Lpa, bool) {
 	return l, true
 }
 
-func (l *Lpa) AttorneysFullNames() []string {
+func (l *Lpa) AttorneysFullNames() string {
 	var names []string
 
 	for _, a := range l.Attorneys {
 		names = append(names, fmt.Sprintf("%s %s", a.FirstNames, a.LastName))
 	}
 
-	return names
+	return concatSentence(names)
 }
 
-func (l *Lpa) AttorneysFirstNames() []string {
+func (l *Lpa) AttorneysFirstNames() string {
 	var names []string
 
 	for _, a := range l.Attorneys {
 		names = append(names, a.FirstNames)
 	}
 
-	return names
+	return concatSentence(names)
+}
+
+func concatSentence(list []string) string {
+	switch len(list) {
+	case 0:
+		return ""
+	case 1:
+		return list[0]
+	default:
+		last := len(list) - 1
+		return fmt.Sprintf("%s and %s", strings.Join(list[:last], ", "), list[last])
+	}
 }

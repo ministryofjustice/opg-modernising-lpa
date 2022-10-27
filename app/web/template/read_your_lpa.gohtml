@@ -46,7 +46,7 @@
             {{ tr .App "whoAreTheAttorneys" }}
           </dt>
           <dd class="govuk-summary-list__value">
-            {{ concatSentence .Lpa.AttorneysFullNames }}
+            {{ .Lpa.AttorneysFullNames }}
           </dd>
           <dd class="govuk-summary-list__actions">
             <a class="govuk-link" href="{{ link .App "/choose-attorneys-summary" }}">

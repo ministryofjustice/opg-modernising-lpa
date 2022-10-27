@@ -157,10 +157,14 @@ func TestAttorneysFullNames(t *testing.T) {
 				FirstNames: "Samantha",
 				LastName:   "Smith",
 			},
+			{
+				FirstNames: "Abby Helen",
+				LastName:   "Burns-Simpson",
+			},
 		},
 	}
 
-	assert.Equal(t, []string{"Bob Alan George Jones", "Samantha Smith"}, l.AttorneysFullNames())
+	assert.Equal(t, "Bob Alan George Jones, Samantha Smith and Abby Helen Burns-Simpson", l.AttorneysFullNames())
 }
 
 func TestAttorneysFirstNames(t *testing.T) {
@@ -174,8 +178,19 @@ func TestAttorneysFirstNames(t *testing.T) {
 				FirstNames: "Samantha",
 				LastName:   "Smith",
 			},
+			{
+				FirstNames: "Abby Helen",
+				LastName:   "Burns-Simpson",
+			},
 		},
 	}
 
-	assert.Equal(t, []string{"Bob Alan George", "Samantha"}, l.AttorneysFirstNames())
+	assert.Equal(t, "Bob Alan George, Samantha and Abby Helen", l.AttorneysFirstNames())
+}
+
+func TestConcatSentence(t *testing.T) {
+	assert.Equal(t, "Bob Smith, Alice Jones, John Doe and Paul Compton", concatSentence([]string{"Bob Smith", "Alice Jones", "John Doe", "Paul Compton"}))
+	assert.Equal(t, "Bob Smith, Alice Jones and John Doe", concatSentence([]string{"Bob Smith", "Alice Jones", "John Doe"}))
+	assert.Equal(t, "Bob Smith and John Doe", concatSentence([]string{"Bob Smith", "John Doe"}))
+	assert.Equal(t, "Bob Smith", concatSentence([]string{"Bob Smith"}))
 }

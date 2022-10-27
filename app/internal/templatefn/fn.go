@@ -3,7 +3,6 @@ package templatefn
 import (
 	"fmt"
 	"html/template"
-	"strings"
 	"time"
 	"unicode"
 	"unicode/utf8"
@@ -34,7 +33,6 @@ var All = map[string]interface{}{
 	"formatDate":      formatDate,
 	"formatDateTime":  formatDateTime,
 	"lowerFirst":      lowerFirst,
-	"concatSentence":  concatSentence,
 	"attorneyDetails": attorneyDetails,
 }
 
@@ -208,18 +206,6 @@ func formatDateTime(t time.Time) string {
 func lowerFirst(s string) string {
 	r, n := utf8.DecodeRuneInString(s)
 	return string(unicode.ToLower(r)) + s[n:]
-}
-
-func concatSentence(list []string) string {
-	switch len(list) {
-	case 0:
-		return ""
-	case 1:
-		return list[0]
-	default:
-		last := len(list) - 1
-		return fmt.Sprintf("%s and %s", strings.Join(list[:last], ", "), list[last])
-	}
 }
 
 func attorneyDetails(attorneys []page.Attorney, from string, app page.AppData) map[string]interface{} {
