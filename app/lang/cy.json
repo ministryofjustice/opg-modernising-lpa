@@ -112,8 +112,9 @@
         "one": "Welsh {{.PluralCount}} welsh",
         "other": "YWelsh {{.PluralCount}} welsh"
     },
-    "changeLink": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ $a.FirstNames }} {{ $a.LastName }}</span>",
-    "removeLink": "Welsh",
+    "changeDetailsLink": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ .FirstNames }} {{ .LastName }}</span>",
+    "changeAddressLink": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ .FirstNames }} {{ .LastName }}</span>",
+    "removeLink": "Welsh<span class=\"govuk-visually-hidden\"> {{ .FirstNames }} {{ .LastName }}</span>",
     "doYouWantToAddAnotherAttorney": "Welsh?",
     "selectAddMoreAttorneys": "Welsh",
 

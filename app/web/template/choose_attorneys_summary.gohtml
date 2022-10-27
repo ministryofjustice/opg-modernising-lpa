@@ -6,24 +6,24 @@
         <h1 class="govuk-heading-xl">{{ trCount .App "attorneysAdded" (len .Lpa.Attorneys) }}</h1>
 
         <dl class="govuk-summary-list">
-        {{range $i, $a := .Lpa.Attorneys}}
+        {{range .Lpa.Attorneys}}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
-                    {{ $a.FirstNames }} {{ $a.LastName }}<br>
-                    <span class="govuk-body-s">{{ formatDate $a.DateOfBirth }}</span><br>
-                    <a class="govuk-link govuk-body-s" href="{{ $.AttorneyDetailsPath }}?id={{ $a.ID }}&from=summary">
-                        Change<span class="govuk-visually-hidden"> details for {{ $a.FirstNames }} {{ $a.LastName }}</span>
+                    {{ .FirstNames }} {{ .LastName }}<br>
+                    <span class="govuk-body-s">{{ formatDate .DateOfBirth }}</span><br>
+                    <a class="govuk-link govuk-body-s" href="{{ $.AttorneyDetailsPath }}?id={{ .ID }}&from=summary">
+                        {{ trFormatHtml $.App "changeDetailsLink" "FirstNames" .FirstNames "LastName" .LastName }}
                     </a>
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ $a.Address.Line1 }}, {{ $a.Address.Postcode }}<br>
-                    <a class="govuk-link govuk-body-s" href="{{ $.AttorneyAddressPath }}?id={{ $a.ID }}&from=summary">
-                        Change<span class="govuk-visually-hidden"> address for {{ $a.FirstNames }} {{ $a.LastName }}</span>
+                    {{ .Address.Line1 }}, {{ .Address.Postcode }}<br>
+                    <a class="govuk-link govuk-body-s" href="{{ $.AttorneyAddressPath }}?id={{ .ID }}&from=summary">
+                        {{ trFormatHtml $.App "changeAddressLink" "FirstNames" .FirstNames "LastName" .LastName }}
                     </a>
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link govuk-body-s" href="#">
-                        Remove<span class="govuk-visually-hidden"> {{ $a.FirstNames }} {{ $a.LastName }}</span>
+                        {{ trFormatHtml $.App "removeLink" "FirstNames" .FirstNames "LastName" .LastName }}
                     </a>
                 </dd>
             </div>

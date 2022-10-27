@@ -113,8 +113,9 @@
         "one": "You have added {{.PluralCount}} attorney",
         "other": "You have added {{.PluralCount}} attorneys"
     },
-    "changeLink": "Change<span class=\"govuk-visually-hidden\"> details for {{ $a.FirstNames }} {{ $a.LastName }}</span>",
-    "removeLink": "Remove",
+    "changeDetailsLink": "Change<span class=\"govuk-visually-hidden\"> details for {{ .FirstNames }} {{ .LastName }}</span>",
+    "changeAddressLink": "Change<span class=\"govuk-visually-hidden\"> address for {{ .FirstNames }} {{ .LastName }}</span>",
+    "removeLink": "Remove<span class=\"govuk-visually-hidden\"> {{ .FirstNames }} {{ .LastName }}</span>",
     "doYouWantToAddAnotherAttorney": "Do you want to add another attorney?",
     "selectAddMoreAttorneys": "Select whether you want to add any more attorneys",
 
