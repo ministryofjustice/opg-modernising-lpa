@@ -58,22 +58,21 @@ func main() {
 		yotiClientSdkID       = env.Get("YOTI_CLIENT_SDK_ID", "")
 		yotiScenarioID        = env.Get("YOTI_SCENARIO_ID", "")
 		yotiSandbox           = env.Get("YOTI_SANDBOX", "") == "1"
+		xrayEnabled           = env.Get("XRAY_ENABLED", "") == "1"
 	)
 
-	secureCookies := strings.HasPrefix(appPublicURL, "https:")
-
-	var span trace2.Span
-	if secureCookies {
-		tracer, shutdown, err := makeTracer(ctx, secureCookies)
+	var tracer trace2.Tracer
+	if xrayEnabled {
+		logger.Print("creating tracer, hopefully")
+		tr, shutdown, err := makeTracer(ctx, xrayEnabled)
 		if err != nil {
 			logger.Fatal(err)
 		}
 		defer shutdown(ctx)
 
-		ctx, span = tracer.Start(ctx, "segment",
-			trace2.WithSpanKind(trace2.SpanKindServer),
-			trace2.WithAttributes(attribute.String("a", "1")))
+		tracer = tr
 	}
+	logger.Print("tracer", tracer)
 
 	tmpls, err := template.Parse(webDir+"/template", templatefn.All)
 	if err != nil {
@@ -159,6 +158,8 @@ func main() {
 		logger.Fatal(err)
 	}
 
+	secureCookies := strings.HasPrefix(appPublicURL, "https:")
+
 	mux := http.NewServeMux()
 	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir(webDir+"/static/"))))
 	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies))
@@ -167,14 +168,15 @@ func main() {
 	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient)))
 	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient))
 
-	server := &http.Server{
-		Addr:              ":" + port,
-		Handler:           mux,
-		ReadHeaderTimeout: 20 * time.Second,
+	var handler http.Handler = mux
+	if tracer != nil {
+		handler = traceHandler(logger, tracer, mux)
 	}
 
-	if span != nil {
-		span.End()
+	server := &http.Server{
+		Addr:              ":" + port,
+		Handler:           handler,
+		ReadHeaderTimeout: 20 * time.Second,
 	}
 
 	go func() {
@@ -207,7 +209,7 @@ func makeTracer(ctx context.Context, secure bool) (trace2.Tracer, func(context.C
 
 	traceExporter, err := otlptracegrpc.New(ctx,
 		secureOption,
-		otlptracegrpc.WithEndpoint("0.0.0.0:4317"),
+		otlptracegrpc.WithEndpoint("0.0.0.0:2000"),
 		otlptracegrpc.WithDialOption(grpc.WithBlock()))
 	if err != nil {
 		return nil, func(context.Context) error { return nil }, fmt.Errorf("failed to create new OTLP trace exporter: %w", err)
@@ -232,5 +234,18 @@ func makeTracer(ctx context.Context, secure bool) (trace2.Tracer, func(context.C
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(xray.Propagator{})
 
-	return otel.Tracer("demo"), traceExporter.Shutdown, nil
+	return otel.Tracer("mlpa"), traceExporter.Shutdown, nil
+}
+
+func traceHandler(logger *logging.Logger, tracer trace2.Tracer, handler http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "handle-request",
+			trace2.WithSpanKind(trace2.SpanKindServer),
+			trace2.WithAttributes(attribute.String("path", r.URL.Path)))
+		defer span.End()
+
+		logger.Print("span", span)
+
+		handler.ServeHTTP(w, r.WithContext(ctx))
+	}
 }
