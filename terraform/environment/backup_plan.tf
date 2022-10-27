@@ -77,10 +77,25 @@ data "aws_kms_alias" "sns_encryption_key_eu_west_1" {
 }
 
 resource "aws_sns_topic" "aws_backup_failure_events" {
-  count             = local.environment.backups.backup_plan_enabled ? 1 : 0
-  name              = "backup-vault-failure-events"
-  kms_master_key_id = data.aws_kms_alias.sns_encryption_key_eu_west_1.target_key_arn
-  provider          = aws.eu_west_1
+  count                                    = local.environment.backups.backup_plan_enabled ? 1 : 0
+  name                                     = "${local.environment_name}-backup-vault-failure-events"
+  kms_master_key_id                        = data.aws_kms_alias.sns_encryption_key_eu_west_1.target_key_arn
+  application_failure_feedback_role_arn    = data.aws_iam_role.sns_failure_feedback.arn
+  application_success_feedback_role_arn    = data.aws_iam_role.sns_success_feedback.arn
+  application_success_feedback_sample_rate = 100
+  firehose_failure_feedback_role_arn       = data.aws_iam_role.sns_failure_feedback.arn
+  firehose_success_feedback_role_arn       = data.aws_iam_role.sns_success_feedback.arn
+  firehose_success_feedback_sample_rate    = 100
+  http_failure_feedback_role_arn           = data.aws_iam_role.sns_failure_feedback.arn
+  http_success_feedback_role_arn           = data.aws_iam_role.sns_success_feedback.arn
+  http_success_feedback_sample_rate        = 100
+  lambda_failure_feedback_role_arn         = data.aws_iam_role.sns_failure_feedback.arn
+  lambda_success_feedback_role_arn         = data.aws_iam_role.sns_success_feedback.arn
+  lambda_success_feedback_sample_rate      = 100
+  sqs_failure_feedback_role_arn            = data.aws_iam_role.sns_failure_feedback.arn
+  sqs_success_feedback_role_arn            = data.aws_iam_role.sns_success_feedback.arn
+  sqs_success_feedback_sample_rate         = 100
+  provider                                 = aws.eu_west_1
 }
 
 data "aws_iam_policy_document" "aws_backup_sns" {
