@@ -31,11 +31,10 @@ import (
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
-	"go.opentelemetry.io/otel/sdk/trace"
-	trace2 "go.opentelemetry.io/otel/trace"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func main() {
@@ -61,10 +60,9 @@ func main() {
 		xrayEnabled           = env.Get("XRAY_ENABLED", "") == "1"
 	)
 
-	var tracer trace2.Tracer
 	if xrayEnabled {
 		logger.Print("creating tracer, hopefully")
-		tr, shutdown, err := makeTracer(ctx, xrayEnabled)
+		shutdown, err := makeTracer(ctx, xrayEnabled)
 		logger.Print("make tracer call finished")
 
 		if err != nil {
@@ -75,10 +73,7 @@ func main() {
 				logger.Fatal(fmt.Errorf("shutdown err: %w", err))
 			}
 		}(ctx)
-
-		tracer = tr
 	}
-	logger.Print("tracer", tracer)
 
 	tmpls, err := template.Parse(webDir+"/template", templatefn.All)
 	if err != nil {
@@ -175,8 +170,8 @@ func main() {
 	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient))
 
 	var handler http.Handler = mux
-	if tracer != nil {
-		handler = traceHandler(logger, tracer, mux)
+	if xrayEnabled {
+		handler = traceHandler(logger, mux)
 	}
 
 	server := &http.Server{
@@ -207,47 +202,56 @@ func main() {
 	}
 }
 
-func makeTracer(ctx context.Context, secure bool) (trace2.Tracer, func(context.Context) error, error) {
-	secureOption := otlptracegrpc.WithInsecure()
-	if secure {
-		secureOption = otlptracegrpc.WithTLSCredentials(credentials.NewClientTLSFromCert(nil, ""))
-	}
+func makeTracer(ctx context.Context, secure bool) (func(context.Context) error, error) {
+	// secureOption := otlptracegrpc.WithInsecure()
+	// if secure {
+	//	secureOption = otlptracegrpc.WithTLSCredentials(credentials.NewClientTLSFromCert(nil, ""))
+	// }
 
-	traceExporter, err := otlptracegrpc.New(ctx,
-		secureOption,
-		otlptracegrpc.WithEndpoint("0.0.0.0:4317"),
-		otlptracegrpc.WithDialOption(grpc.WithBlock()))
-	if err != nil {
-		return nil, func(context.Context) error { return nil }, fmt.Errorf("failed to create new OTLP trace exporter: %w", err)
-	}
+	// traceExporter, err := otlptracegrpc.New(ctx,
+	//	secureOption,
+	//	otlptracegrpc.WithEndpoint("0.0.0.0:4317"),
+	//	otlptracegrpc.WithDialOption(grpc.WithBlock()))
+	// if err != nil {
+	//	return nil, func(context.Context) error { return nil }, fmt.Errorf("failed to create new OTLP trace exporter: %w", err)
+	// }
 
 	ecsResourceDetector := ecs.NewResourceDetector()
 	resource, err := ecsResourceDetector.Detect(ctx)
 	if err != nil {
-		traceExporter.Shutdown(ctx)
-		return nil, func(context.Context) error { return nil }, err
+		return nil, err
+	}
+
+	client := otlptracehttp.NewClient(otlptracehttp.WithInsecure())
+	traceExporter, err := otlptrace.New(ctx, client)
+	if err != nil {
+		return nil, fmt.Errorf("creating OTLP trace exporter: %w", err)
 	}
 
 	idg := xray.NewIDGenerator()
 
-	tp := trace.NewTracerProvider(
-		trace.WithResource(resource),
-		trace.WithSampler(trace.AlwaysSample()),
-		trace.WithBatcher(traceExporter),
-		trace.WithIDGenerator(idg),
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithResource(resource),
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		sdktrace.WithBatcher(traceExporter),
+		sdktrace.WithIDGenerator(idg),
 	)
 
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(xray.Propagator{})
 
-	return otel.Tracer("mlpa"), traceExporter.Shutdown, nil
+	return traceExporter.Shutdown, nil
 }
 
-func traceHandler(logger *logging.Logger, tracer trace2.Tracer, handler http.Handler) http.HandlerFunc {
+func traceHandler(logger *logging.Logger, handler http.Handler) http.HandlerFunc {
+	provider := otel.GetTracerProvider()
+	logger.Print(provider)
+	tracer := provider.Tracer("mlpa")
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx, span := tracer.Start(r.Context(), "handle-request",
-			trace2.WithSpanKind(trace2.SpanKindServer),
-			trace2.WithAttributes(attribute.String("path", r.URL.Path)))
+			trace.WithSpanKind(trace.SpanKindServer),
+			trace.WithAttributes(attribute.String("path", r.URL.Path)))
 		defer span.End()
 
 		logger.Print("span", span)
