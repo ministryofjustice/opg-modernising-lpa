@@ -297,7 +297,7 @@ locals {
 
   aws_otel_collector = jsonencode(
     {
-      cpu         = 0,
+      cpu         = 1,
       essential   = true,
       image       = "public.ecr.aws/aws-observability/aws-otel-collector:v0.21.0",
       mountPoints = [],
