@@ -3,6 +3,7 @@ package templatefn
 import (
 	"fmt"
 	"html/template"
+	"strings"
 	"time"
 	"unicode"
 	"unicode/utf8"
@@ -209,31 +210,16 @@ func lowerFirst(s string) string {
 	return string(unicode.ToLower(r)) + s[n:]
 }
 
-func concatSentence(strings []string) string {
-	combined := ""
-
-	if len(strings) == 1 {
-		return strings[0]
+func concatSentence(list []string) string {
+	switch len(list) {
+	case 0:
+		return ""
+	case 1:
+		return list[0]
+	default:
+		last := len(list) - 1
+		return fmt.Sprintf("%s and %s", strings.Join(list[:last], ", "), list[last])
 	}
-
-	if len(strings) == 2 {
-		return fmt.Sprintf("%s and %s", strings[0], strings[1])
-	}
-
-	for idx, str := range strings {
-		if idx == 0 {
-			combined = str
-			continue
-		}
-
-		if len(strings) == idx+1 {
-			combined = fmt.Sprintf("%s, and %s", combined, str)
-		} else {
-			combined = fmt.Sprintf("%s, %s", combined, str)
-		}
-	}
-
-	return combined
 }
 
 func attorneyDetails(attorneys []page.Attorney, from string, app page.AppData) map[string]interface{} {

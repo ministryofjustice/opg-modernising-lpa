@@ -208,8 +208,8 @@ func TestLowerFirst(t *testing.T) {
 }
 
 func TestConcatSentence(t *testing.T) {
-	assert.Equal(t, "Bob Smith, Alice Jones, John Doe, and Paul Compton", concatSentence([]string{"Bob Smith", "Alice Jones", "John Doe", "Paul Compton"}))
-	assert.Equal(t, "Bob Smith, Alice Jones, and John Doe", concatSentence([]string{"Bob Smith", "Alice Jones", "John Doe"}))
+	assert.Equal(t, "Bob Smith, Alice Jones, John Doe and Paul Compton", concatSentence([]string{"Bob Smith", "Alice Jones", "John Doe", "Paul Compton"}))
+	assert.Equal(t, "Bob Smith, Alice Jones and John Doe", concatSentence([]string{"Bob Smith", "Alice Jones", "John Doe"}))
 	assert.Equal(t, "Bob Smith and John Doe", concatSentence([]string{"Bob Smith", "John Doe"}))
 	assert.Equal(t, "Bob Smith", concatSentence([]string{"Bob Smith"}))
 }
