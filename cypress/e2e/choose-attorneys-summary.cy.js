@@ -15,7 +15,7 @@ describe('Choose attorneys summary', () => {
 
         cy.contains('Joan Smith');
         cy.contains('2 January 1998');
-        cy.contains('3 RICHMOND PLACE, B14 7EE');
+        cy.contains(',');
     });
 
     it('can amend attorney details', () => {
@@ -25,7 +25,7 @@ describe('Choose attorneys summary', () => {
         cy.contains('dt', 'John Smith').contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-attorneys');
-        cy.url().should('contain', 'from=summary');
+        cy.url().should('contain', 'from=%2fchoose-attorneys-summary');
         cy.url().should('match', /id=\w*/);
 
         cy.get('#f-first-names').type('Mark');
@@ -41,10 +41,10 @@ describe('Choose attorneys summary', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.contains('dd', '3 RICHMOND PLACE').contains('a', 'Change').click();
+        cy.contains('dd', '2 RICHMOND PLACE').contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-attorneys-address');
-        cy.url().should('contain', 'from=summary');
+        cy.url().should('contain', 'from=%2fchoose-attorneys-summary');
         cy.url().should('match', /id=\w*/);
 
         cy.get('#f-address-line-1').type('4 RICHMOND PLACE');
