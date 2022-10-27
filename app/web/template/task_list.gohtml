@@ -7,7 +7,7 @@
         {{ tr .App "taskListHeading" }}
       </h1>
 
-      {{ template "details" (details . "taskListHelp" "taskListHelpContent") }}
+      {{ template "details" (details . "taskListHelp" "taskListHelpContent" false) }}
 
       <ol class="app-task-list govuk-!-margin-top-0" style="position: relative;">
         {{ range $i, $e := .Sections }}

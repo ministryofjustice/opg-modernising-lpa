@@ -13,18 +13,19 @@ import (
 
 func TestGetWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 	testCases := map[string]struct {
-		data       Lpa
+		data       *Lpa
 		notStarted bool
 	}{
 		"unset": {
+			data:       &Lpa{},
 			notStarted: true,
 		},
 		"in-progress": {
-			data:       Lpa{Tasks: Tasks{CertificateProvider: TaskInProgress}},
+			data:       &Lpa{Tasks: Tasks{CertificateProvider: TaskInProgress}},
 			notStarted: false,
 		},
 		"completed": {
-			data:       Lpa{Tasks: Tasks{CertificateProvider: TaskCompleted}},
+			data:       &Lpa{Tasks: Tasks{CertificateProvider: TaskCompleted}},
 			notStarted: false,
 		},
 	}
@@ -64,7 +65,7 @@ func TestGetWhoDoYouWantToBeCertificateProviderGuidanceWhenStoreErrors(t *testin
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, expectedError)
+		Return(&Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -82,7 +83,7 @@ func TestGetWhoDoYouWantToBeCertificateProviderGuidanceWhenTemplateErrors(t *tes
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -105,9 +106,9 @@ func TestPostWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{Tasks: Tasks{CertificateProvider: TaskInProgress}}).
+		On("Put", mock.Anything, "session-id", &Lpa{Tasks: Tasks{CertificateProvider: TaskInProgress}}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
@@ -128,7 +129,7 @@ func TestPostWhoDoYouWantToBeCertificateProviderGuidanceWhenWillDoLater(t *testi
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	form := url.Values{"will-do-this-later": {"1"}}
 
@@ -150,7 +151,7 @@ func TestPostWhoDoYouWantToBeCertificateProviderGuidanceWhenStoreErrors(t *testi
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
 		On("Put", mock.Anything, "session-id", mock.Anything).
 		Return(expectedError)

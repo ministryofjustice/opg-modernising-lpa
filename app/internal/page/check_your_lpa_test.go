@@ -17,13 +17,14 @@ func TestGetCheckYourLpa(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &checkYourLpaData{
 			App:  appData,
 			Form: &checkYourLpaForm{},
+			Lpa:  &Lpa{},
 		}).
 		Return(nil)
 
@@ -43,7 +44,7 @@ func TestGetCheckYourLpaWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, expectedError)
+		Return(&Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -57,7 +58,7 @@ func TestGetCheckYourLpaWhenStoreErrors(t *testing.T) {
 
 func TestGetCheckYourLpaFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
-	lpa := Lpa{
+	lpa := &Lpa{
 		Checked:      true,
 		HappyToShare: true,
 	}
@@ -91,7 +92,7 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 
 func TestPostCheckYourLpa(t *testing.T) {
 	w := httptest.NewRecorder()
-	lpa := Lpa{
+	lpa := &Lpa{
 		Checked:      false,
 		HappyToShare: false,
 		Tasks:        Tasks{CheckYourLpa: TaskInProgress},
@@ -102,7 +103,7 @@ func TestPostCheckYourLpa(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(lpa, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{
+		On("Put", mock.Anything, "session-id", &Lpa{
 			Checked:      true,
 			HappyToShare: true,
 			Tasks:        Tasks{CheckYourLpa: TaskCompleted},
@@ -132,9 +133,9 @@ func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{
+		On("Put", mock.Anything, "session-id", &Lpa{
 			Checked:      true,
 			HappyToShare: true,
 			Tasks:        Tasks{CheckYourLpa: TaskCompleted},
@@ -161,7 +162,7 @@ func TestPostCheckYourLpaWhenValidationErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.

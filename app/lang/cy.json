@@ -108,9 +108,19 @@
     "confirmYourIdentityAndSign": "Welsh",
     "signAndRegisterTheLpa": "Welsh",
     "signTheLpa": "Welsh",
+    "attorneysAdded": {
+        "one": "Welsh {{.PluralCount}} welsh",
+        "other": "YWelsh {{.PluralCount}} welsh"
+    },
+    "changeDetailsLink": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ .FirstNames }} {{ .LastName }}</span>",
+    "changeAddressLink": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ .FirstNames }} {{ .LastName }}</span>",
+    "removeLink": "Welsh<span class=\"govuk-visually-hidden\"> {{ .FirstNames }} {{ .LastName }}</span>",
+    "doYouWantToAddAnotherAttorney": "Welsh?",
+    "selectAddMoreAttorneys": "Welsh",
 
-    "whoWouldYouLikeToBeTheAttorneys": "Welsh",
-    "whoWouldYouLikeToBeTheAttorneysContent": "<p class=\"govuk-body\">Welsh</p>",
+    "whoWouldYouLikeToBeTheAttorneysDetailsTitle": "Welsh",
+    "whoWouldYouLikeToBeTheAttorneysDetailsContent": "<p class=\"govuk-body\">Welsh</p>",
+
     "attorney": "Welsh",
     "enterEmail": "Welsh",
     "attorneyAddress": "{{.FirstNames}} {{.LastName}}'s Welsh",

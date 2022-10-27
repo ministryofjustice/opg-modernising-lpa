@@ -17,7 +17,7 @@ func TestGetHowWouldYouLikeToBeContacted(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -42,7 +42,7 @@ func TestGetHowWouldYouLikeToBeContactedWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, expectedError)
+		Return(&Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -58,7 +58,7 @@ func TestGetHowWouldYouLikeToBeContactedFromStore(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{Contact: []string{"email"}}, nil)
+		Return(&Lpa{Contact: []string{"email"}}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -84,7 +84,7 @@ func TestGetHowWouldYouLikeToBeContactedWhenTemplateErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -109,9 +109,9 @@ func TestPostHowWouldYouLikeToBeContacted(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{Contact: []string{"email", "post"}}).
+		On("Put", mock.Anything, "session-id", &Lpa{Contact: []string{"email", "post"}}).
 		Return(nil)
 
 	form := url.Values{
@@ -136,9 +136,9 @@ func TestPostHowWouldYouLikeToBeContactedWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{Contact: []string{"email", "post"}}).
+		On("Put", mock.Anything, "session-id", &Lpa{Contact: []string{"email", "post"}}).
 		Return(expectedError)
 
 	form := url.Values{
@@ -160,7 +160,7 @@ func TestPostHowWouldYouLikeToBeContactedWhenValidationErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
