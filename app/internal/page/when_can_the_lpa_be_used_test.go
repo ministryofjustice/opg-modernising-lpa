@@ -17,7 +17,7 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -42,7 +42,7 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{WhenCanTheLpaBeUsed: "when-registered"}, nil)
+		Return(&Lpa{WhenCanTheLpaBeUsed: "when-registered"}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -68,7 +68,7 @@ func TestGetWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, expectedError)
+		Return(&Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -86,7 +86,7 @@ func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -111,9 +111,9 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{WhenCanTheLpaBeUsed: "when-registered", Tasks: Tasks{WhenCanTheLpaBeUsed: TaskCompleted}}).
+		On("Put", mock.Anything, "session-id", &Lpa{WhenCanTheLpaBeUsed: "when-registered", Tasks: Tasks{WhenCanTheLpaBeUsed: TaskCompleted}}).
 		Return(nil)
 
 	form := url.Values{
@@ -138,9 +138,9 @@ func TestPostWhenCanTheLpaBeUsedWhenAnswerLater(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{Tasks: Tasks{WhenCanTheLpaBeUsed: TaskInProgress}}).
+		On("Put", mock.Anything, "session-id", &Lpa{Tasks: Tasks{WhenCanTheLpaBeUsed: TaskInProgress}}).
 		Return(nil)
 
 	form := url.Values{
@@ -166,9 +166,9 @@ func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{WhenCanTheLpaBeUsed: "when-registered", Tasks: Tasks{WhenCanTheLpaBeUsed: TaskCompleted}}).
+		On("Put", mock.Anything, "session-id", &Lpa{WhenCanTheLpaBeUsed: "when-registered", Tasks: Tasks{WhenCanTheLpaBeUsed: TaskCompleted}}).
 		Return(expectedError)
 
 	form := url.Values{
@@ -190,7 +190,7 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.

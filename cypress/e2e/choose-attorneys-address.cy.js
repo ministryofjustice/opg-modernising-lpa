@@ -1,6 +1,6 @@
 describe('Choose attorneys address', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/choose-attorneys-address');
+        cy.visit('/testing-start?redirect=/choose-attorneys-address?id=does-not-exist');
     });
 
     it('address can be looked up', () => {
@@ -26,7 +26,7 @@ describe('Choose attorneys address', () => {
         cy.get('#f-address-postcode').should('have.value', 'B14 7ED');
 
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/want-replacement-attorneys');
+        cy.url().should('contain', '/choose-attorneys-summary');
     });
 
     it('address can be entered manually', () => {
@@ -51,6 +51,6 @@ describe('Choose attorneys address', () => {
         cy.get('#f-address-postcode').type('NG1');
 
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/want-replacement-attorneys');
+        cy.url().should('contain', '/choose-attorneys-summary');
     });
 });

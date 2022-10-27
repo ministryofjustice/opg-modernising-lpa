@@ -10,7 +10,7 @@ type guidanceData struct {
 	App      AppData
 	Errors   map[string]string
 	Continue string
-	Lpa      Lpa
+	Lpa      *Lpa
 }
 
 func Guidance(tmpl template.Template, continuePath string, lpaStore LpaStore) Handler {
