@@ -79,20 +79,13 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 					return err
 				}
 
-				from := r.URL.Query().Get("from")
+				from := r.FormValue("from")
 
-				var redirectPath string
-
-				switch from {
-				case "summary":
-					redirectPath = chooseAttorneysSummaryPath
-				case "check":
-					redirectPath = checkYourLpaPath
-				default:
-					redirectPath = fmt.Sprintf("%s?id=%s", chooseAttorneysAddressPath, attorney.ID)
+				if from == "" {
+					from = fmt.Sprintf("%s?id=%s", chooseAttorneysAddressPath, attorney.ID)
 				}
 
-				appData.Lang.Redirect(w, r, redirectPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, from, http.StatusFound)
 				return nil
 			}
 		}

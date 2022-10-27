@@ -27,7 +27,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 		attorney, found := lpa.GetAttorney(attorneyId)
 
 		if found == false {
-			appData.Lang.Redirect(w, r, redirectPath(chooseAttorneysPath), http.StatusFound)
+			appData.Lang.Redirect(w, r, chooseAttorneysPath, http.StatusFound)
 			return nil
 		}
 
@@ -45,7 +45,6 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 		if r.Method == http.MethodPost {
 			data.Form = readChooseAttorneysAddressForm(r)
 			data.Errors = data.Form.Validate()
-			from := r.FormValue("from")
 
 			if data.Form.Action == "manual" && len(data.Errors) == 0 {
 				attorney.Address = *data.Form.Address
@@ -59,7 +58,13 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 					return err
 				}
 
-				appData.Lang.Redirect(w, r, redirectPath(from), http.StatusFound)
+				from := r.FormValue("from")
+
+				if from == "" {
+					from = chooseAttorneysSummaryPath
+				}
+
+				appData.Lang.Redirect(w, r, from, http.StatusFound)
 				return nil
 			}
 
@@ -101,21 +106,6 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 
 		return tmpl(w, data)
 	}
-}
-
-func redirectPath(from string) string {
-	var path string
-
-	switch from {
-	case "summary":
-		path = chooseAttorneysSummaryPath
-	case "check":
-		path = checkYourLpaPath
-	default:
-		path = chooseAttorneysSummaryPath
-	}
-
-	return path
 }
 
 type chooseAttorneysAddressForm struct {

@@ -715,20 +715,16 @@ func TestPostChooseAttorneysManuallyFromAnotherPage(t *testing.T) {
 		requestUrl      string
 		expectedNextUrl string
 	}{
-		"from-summary-page": {
-			"/?from=summary&id=123",
-			"/choose-attorneys-summary",
+		"with from value": {
+			"/?from=/test&id=123",
+			"/test",
 		},
-		"from-check-page": {
-			"/?from=check&id=123",
-			"/check-your-lpa",
-		},
-		"from-any-other-page": {
-			"/?from=xyz&id=123",
-			"/choose-attorneys-summary",
-		},
-		"missing-page-value": {
+		"without from value": {
 			"/?from=&id=123",
+			"/choose-attorneys-summary",
+		},
+		"missing from key": {
+			"/?id=123",
 			"/choose-attorneys-summary",
 		},
 	}

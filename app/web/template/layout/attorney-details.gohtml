@@ -1,16 +1,16 @@
 {{ define "attorney-details" }}
     <dl class="govuk-summary-list">
 
-        {{ range $i, $a := .Attorneys }}
-            {{ $detailsLink := printf "/choose-attorneys?from=%s&id=%s" $.From $a.ID }}
-            {{ $addressLink := printf "/choose-attorneys-address?from=%s&id=%s" $.From $a.ID }}
+        {{ range .Attorneys }}
+            {{ $detailsLink := printf "/choose-attorneys?from=%s&id=%s" $.App.Page .ID }}
+            {{ $addressLink := printf "/choose-attorneys-address?from=%s&id=%s" $.App.Page .ID }}
 
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
                     {{ tr $.App "name" }}
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ $a.FirstNames }} {{ $a.LastName }}
+                    {{ .FirstNames }} {{ .LastName }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link" href="{{ link $.App $detailsLink }}">
@@ -24,7 +24,7 @@
                     {{ tr $.App "dateOfBirth" }}
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ formatDate $a.DateOfBirth }}
+                    {{ formatDate .DateOfBirth }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link" href="{{ link $.App $detailsLink }}">
@@ -38,7 +38,7 @@
                     {{ tr $.App "email" }}
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ $a.Email }}
+                    {{ .Email }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link" href="{{ link $.App $detailsLink }}">
@@ -52,11 +52,11 @@
                     {{ tr $.App "address" }}
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    <div>{{ $a.Address.Line1 }}</div>
-                    <div>{{ $a.Address.Line2 }}</div>
-                    <div>{{ $a.Address.Line3 }}</div>
-                    <div>{{ $a.Address.TownOrCity }}</div>
-                    <div>{{ $a.Address.Postcode }}</div>
+                    <div>{{ .Address.Line1 }}</div>
+                    <div>{{ .Address.Line2 }}</div>
+                    <div>{{ .Address.Line3 }}</div>
+                    <div>{{ .Address.TownOrCity }}</div>
+                    <div>{{ .Address.Postcode }}</div>
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link" href="{{ link $.App $addressLink }}">

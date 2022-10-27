@@ -268,25 +268,17 @@ func TestPostChooseAttorneysFromAnotherPage(t *testing.T) {
 		requestUrl      string
 		expectedNextUrl string
 	}{
-		"from summary page": {
-			requestUrl:      "/?id=123&from=summary",
-			expectedNextUrl: "/choose-attorneys-summary",
+		"with from value": {
+			"/?from=/test&id=123",
+			"/test",
 		},
-		"from check your LPA page": {
-			requestUrl:      "/?id=123&from=check",
-			expectedNextUrl: "/check-your-lpa",
+		"without from value": {
+			"/?from=&id=123",
+			"/choose-attorneys-address?id=123",
 		},
-		"from another page": {
-			requestUrl:      "/?id=123&from=random-page",
-			expectedNextUrl: "/choose-attorneys-address?id=123",
-		},
-		"from has no value": {
-			requestUrl:      "/?id=123&from=",
-			expectedNextUrl: "/choose-attorneys-address?id=123",
-		},
-		"not from another page": {
-			requestUrl:      "/?id=123",
-			expectedNextUrl: "/choose-attorneys-address?id=123",
+		"missing from key": {
+			"/?id=123",
+			"/choose-attorneys-address?id=123",
 		},
 	}
 
