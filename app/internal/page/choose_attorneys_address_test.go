@@ -37,14 +37,14 @@ func TestGetChooseAttorneysAddress(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{Attorneys: []Attorney{attorneyWithAddress}}, nil)
+		Return(Lpa{Attorneys: []Attorney{attorneyWithoutAddress}}, nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysAddressData{
 			App:      appData,
 			Form:     &chooseAttorneysAddressForm{},
-			Attorney: attorneyWithAddress,
+			Attorney: attorneyWithoutAddress,
 		}).
 		Return(nil)
 
