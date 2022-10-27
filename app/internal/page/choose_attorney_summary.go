@@ -12,7 +12,7 @@ type chooseAttorneysSummaryData struct {
 	AttorneyAddressPath string
 	AttorneyDetailsPath string
 	Errors              map[string]string
-	Lpa                 Lpa
+	Lpa                 *Lpa
 	Form                chooseAttorneysSummaryForm
 }
 

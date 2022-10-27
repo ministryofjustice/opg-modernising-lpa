@@ -23,7 +23,7 @@ func TestGetChooseAttorneys(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -50,7 +50,7 @@ func TestGetChooseAttorneysWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, expectedError)
+		Return(&Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -68,7 +68,7 @@ func TestGetChooseAttorneysFromStore(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{
+		Return(&Lpa{
 			Attorneys: []Attorney{
 				{FirstNames: "John", ID: "1"},
 			},
@@ -92,7 +92,7 @@ func TestGetChooseAttorneysWhenTemplateErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -162,9 +162,9 @@ func TestPostChooseAttorneysAttorneyDoesNotExists(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
-				Return(Lpa{}, nil)
+				Return(&Lpa{}, nil)
 			lpaStore.
-				On("Put", mock.Anything, "session-id", Lpa{
+				On("Put", mock.Anything, "session-id", &Lpa{
 					Attorneys: []Attorney{tc.attorney},
 				}).
 				Return(nil)
@@ -234,7 +234,7 @@ func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
-				Return(Lpa{
+				Return(&Lpa{
 					Attorneys: []Attorney{
 						{
 							FirstNames: "John",
@@ -244,7 +244,7 @@ func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
 					},
 				}, nil)
 			lpaStore.
-				On("Put", mock.Anything, "session-id", Lpa{
+				On("Put", mock.Anything, "session-id", &Lpa{
 					Attorneys: []Attorney{tc.attorney},
 				}).
 				Return(nil)
@@ -297,13 +297,13 @@ func TestPostChooseAttorneysFromAnotherPage(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
-				Return(Lpa{
+				Return(&Lpa{
 					Attorneys: []Attorney{
 						{FirstNames: "John", Address: place.Address{Line1: "abc"}, ID: "123"},
 					},
 				}, nil)
 			lpaStore.
-				On("Put", mock.Anything, "session-id", Lpa{
+				On("Put", mock.Anything, "session-id", &Lpa{
 					Attorneys: []Attorney{
 						{
 							ID:          "123",
@@ -407,7 +407,7 @@ func TestPostChooseAttorneysWhenInputRequired(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
-				Return(Lpa{}, nil)
+				Return(&Lpa{}, nil)
 
 			template := &mockTemplate{}
 			template.
@@ -435,7 +435,7 @@ func TestPostChooseAttorneysWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
 		On("Put", mock.Anything, "session-id", mock.Anything).
 		Return(expectedError)

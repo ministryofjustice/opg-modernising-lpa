@@ -17,13 +17,14 @@ func TestGetReadYourLpa(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &readYourLpaData{
 			App:  appData,
 			Form: &readYourLpaForm{},
+			Lpa:  &Lpa{},
 		}).
 		Return(nil)
 
@@ -43,7 +44,7 @@ func TestGetReadYourLpaWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, expectedError)
+		Return(&Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -57,7 +58,7 @@ func TestGetReadYourLpaWhenStoreErrors(t *testing.T) {
 
 func TestGetReadYourLpaFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
-	lpa := Lpa{
+	lpa := &Lpa{
 		CheckedAgain:         true,
 		ConfirmFreeWill:      true,
 		SignatureCode:        "1234",
@@ -98,9 +99,9 @@ func TestPostReadYourLpa(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{SignatureCode: "1234"}, nil)
+		Return(&Lpa{SignatureCode: "1234"}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{
+		On("Put", mock.Anything, "session-id", &Lpa{
 			Tasks: Tasks{
 				ConfirmYourIdentityAndSign: TaskCompleted,
 			},
@@ -135,7 +136,7 @@ func TestPostReadYourLpaWhenSignatureCodeWrong(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{SignatureCode: "1234"}, nil)
+		Return(&Lpa{SignatureCode: "1234"}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -167,7 +168,7 @@ func TestPostReadYourLpaWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{SignatureCode: "1234"}, nil)
+		Return(&Lpa{SignatureCode: "1234"}, nil)
 	lpaStore.
 		On("Put", mock.Anything, "session-id", mock.Anything).
 		Return(expectedError)
@@ -193,7 +194,7 @@ func TestPostReadYourLpaWhenValidationErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.

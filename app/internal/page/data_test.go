@@ -41,11 +41,11 @@ func TestLpaStoreGet(t *testing.T) {
 
 	lpa, err := lpaStore.Get(ctx, "an-id")
 	assert.Nil(t, err)
-	assert.Equal(t, Lpa{ID: "10100000"}, lpa)
+	assert.Equal(t, &Lpa{ID: "10100000"}, lpa)
 }
 
 func TestLpaStoreGetWhenExists(t *testing.T) {
-	existingLpa := Lpa{ID: "an-id"}
+	existingLpa := &Lpa{ID: "an-id"}
 	ctx := context.Background()
 
 	dataStore := &mockDataStore{data: existingLpa}
@@ -72,7 +72,7 @@ func TestLpaStoreGetWhenDataStoreError(t *testing.T) {
 
 func TestLpaStorePut(t *testing.T) {
 	ctx := context.Background()
-	lpa := Lpa{ID: "5"}
+	lpa := &Lpa{ID: "5"}
 
 	dataStore := &mockDataStore{}
 	dataStore.On("Put", ctx, "an-id", lpa).Return(expectedError)
@@ -87,7 +87,7 @@ func TestGetAttorney(t *testing.T) {
 	want := Attorney{ID: "1"}
 	otherAttorney := Attorney{ID: "2"}
 
-	lpa := Lpa{
+	lpa := &Lpa{
 		Attorneys: []Attorney{
 			want,
 			otherAttorney,
@@ -102,7 +102,7 @@ func TestGetAttorney(t *testing.T) {
 
 func TestGetAttorneyIdDoesNotMatch(t *testing.T) {
 	attorney := Attorney{ID: "1"}
-	lpa := Lpa{
+	lpa := &Lpa{
 		Attorneys: []Attorney{
 			attorney,
 		},
@@ -116,7 +116,7 @@ func TestGetAttorneyIdDoesNotMatch(t *testing.T) {
 func TestPutAttorney(t *testing.T) {
 	attorney := Attorney{ID: "1"}
 
-	lpa := Lpa{
+	lpa := &Lpa{
 		Attorneys: []Attorney{
 			attorney,
 		},
@@ -133,7 +133,7 @@ func TestPutAttorney(t *testing.T) {
 func TestPutAttorneyIdDoesNotMatch(t *testing.T) {
 	attorney := Attorney{ID: "2"}
 
-	lpa := Lpa{
+	lpa := &Lpa{
 		Attorneys: []Attorney{
 			attorney,
 		},
@@ -147,7 +147,7 @@ func TestPutAttorneyIdDoesNotMatch(t *testing.T) {
 }
 
 func TestAttorneysFullNames(t *testing.T) {
-	l := Lpa{
+	l := &Lpa{
 		Attorneys: []Attorney{
 			{
 				FirstNames: "Bob Alan George",
@@ -164,7 +164,7 @@ func TestAttorneysFullNames(t *testing.T) {
 }
 
 func TestAttorneysFirstNames(t *testing.T) {
-	l := Lpa{
+	l := &Lpa{
 		Attorneys: []Attorney{
 			{
 				FirstNames: "Bob Alan George",

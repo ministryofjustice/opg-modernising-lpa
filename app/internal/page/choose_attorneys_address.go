@@ -55,7 +55,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 					lpa.Attorneys = append(lpa.Attorneys, attorney)
 				}
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, *lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
 
@@ -74,7 +74,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 					lpa.Attorneys = append(lpa.Attorneys, attorney)
 				}
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, *lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
 			}

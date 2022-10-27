@@ -10,7 +10,7 @@ import (
 type readYourLpaData struct {
 	App              AppData
 	Errors           map[string]string
-	Lpa              Lpa
+	Lpa              *Lpa
 	EnteredSignature bool
 	Form             *readYourLpaForm
 }

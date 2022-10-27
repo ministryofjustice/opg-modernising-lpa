@@ -11,7 +11,7 @@ import (
 
 func TestGuidance(t *testing.T) {
 	w := httptest.NewRecorder()
-	lpa := Lpa{}
+	lpa := &Lpa{}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -53,7 +53,7 @@ func TestGuidanceWhenNilDataStore(t *testing.T) {
 
 func TestGuidanceWhenDataStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	lpa := Lpa{}
+	lpa := &Lpa{}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -74,11 +74,11 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &guidanceData{App: appData, Continue: "/somewhere"}).
+		On("Func", w, &guidanceData{App: appData, Continue: "/somewhere", Lpa: &Lpa{}}).
 		Return(expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)

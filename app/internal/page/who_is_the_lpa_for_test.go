@@ -17,7 +17,7 @@ func TestGetWhoIsTheLpaFor(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -42,7 +42,7 @@ func TestGetWhoIsTheLpaForWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, expectedError)
+		Return(&Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -60,7 +60,7 @@ func TestGetWhoIsTheLpaForFromStore(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{WhoFor: "me"}, nil)
+		Return(&Lpa{WhoFor: "me"}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -86,7 +86,7 @@ func TestGetWhoIsTheLpaForWhenTemplateErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -111,9 +111,9 @@ func TestPostWhoIsTheLpaFor(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{WhoFor: "me"}).
+		On("Put", mock.Anything, "session-id", &Lpa{WhoFor: "me"}).
 		Return(nil)
 
 	form := url.Values{
@@ -138,9 +138,9 @@ func TestPostWhoIsTheLpaForWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{WhoFor: "me"}).
+		On("Put", mock.Anything, "session-id", &Lpa{WhoFor: "me"}).
 		Return(expectedError)
 
 	form := url.Values{
@@ -162,7 +162,7 @@ func TestPostWhoIsTheLpaForWhenValidationErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.

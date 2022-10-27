@@ -113,8 +113,8 @@ func readDate(t time.Time) Date {
 }
 
 type LpaStore interface {
-	Get(context.Context, string) (Lpa, error)
-	Put(context.Context, string, Lpa) error
+	Get(context.Context, string) (*Lpa, error)
+	Put(context.Context, string, *Lpa) error
 }
 
 type lpaStore struct {
@@ -122,20 +122,20 @@ type lpaStore struct {
 	randomInt func(int) int
 }
 
-func (s *lpaStore) Get(ctx context.Context, sessionID string) (Lpa, error) {
+func (s *lpaStore) Get(ctx context.Context, sessionID string) (*Lpa, error) {
 	var lpa Lpa
 	if err := s.dataStore.Get(ctx, sessionID, &lpa); err != nil {
-		return lpa, err
+		return &lpa, err
 	}
 
 	if lpa.ID == "" {
 		lpa.ID = "10" + strconv.Itoa(s.randomInt(100000))
 	}
 
-	return lpa, nil
+	return &lpa, nil
 }
 
-func (s *lpaStore) Put(ctx context.Context, sessionID string, lpa Lpa) error {
+func (s *lpaStore) Put(ctx context.Context, sessionID string, lpa *Lpa) error {
 	return s.dataStore.Put(ctx, sessionID, lpa)
 }
 

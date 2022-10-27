@@ -34,12 +34,12 @@ type mockLpaStore struct {
 	mock.Mock
 }
 
-func (m *mockLpaStore) Get(ctx context.Context, sessionID string) (Lpa, error) {
+func (m *mockLpaStore) Get(ctx context.Context, sessionID string) (*Lpa, error) {
 	args := m.Called(ctx, sessionID)
-	return args.Get(0).(Lpa), args.Error(1)
+	return args.Get(0).(*Lpa), args.Error(1)
 }
 
-func (m *mockLpaStore) Put(ctx context.Context, id string, v Lpa) error {
+func (m *mockLpaStore) Put(ctx context.Context, id string, v *Lpa) error {
 	return m.Called(ctx, id, v).Error(0)
 }
 
@@ -283,7 +283,7 @@ func TestTestingStart(t *testing.T) {
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpa := Lpa{}
+		lpa := &Lpa{}
 
 		lpaStore := &mockLpaStore{}
 		lpaStore.

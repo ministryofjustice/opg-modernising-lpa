@@ -49,7 +49,7 @@ func TestGetPaymentConfirmationWhenDataStoreError(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, expectedError)
+		Return(&Lpa{}, expectedError)
 
 	logger := &mockLogger{}
 	logger.
@@ -157,14 +157,14 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 }
 
 func (m *mockLpaStore) willReturnEmptyLpa() *mockLpaStore {
-	m.On("Get", mock.Anything, "session-id").Return(Lpa{}, nil)
+	m.On("Get", mock.Anything, "session-id").Return(&Lpa{}, nil)
 
 	return m
 }
 
 func (m *mockLpaStore) withCompletedPaymentLpaData(paymentId, paymentReference string) *mockLpaStore {
 	m.
-		On("Put", mock.Anything, "session-id", Lpa{
+		On("Put", mock.Anything, "session-id", &Lpa{
 			PaymentDetails: PaymentDetails{
 				PaymentId:        paymentId,
 				PaymentReference: paymentReference,

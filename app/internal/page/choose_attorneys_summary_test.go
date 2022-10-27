@@ -17,13 +17,13 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysSummaryData{
 			App:                 appData,
-			Lpa:                 Lpa{},
+			Lpa:                 &Lpa{},
 			AttorneyAddressPath: chooseAttorneysAddressPath,
 			AttorneyDetailsPath: chooseAttorneysPath,
 		}).
@@ -45,7 +45,7 @@ func TestChooseAttorneySummaryWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, expectedError)
+		Return(&Lpa{}, expectedError)
 
 	logger := &mockLogger{}
 	logger.
@@ -84,13 +84,13 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
-				Return(Lpa{}, nil)
+				Return(&Lpa{}, nil)
 
 			template := &mockTemplate{}
 			template.
 				On("Func", w, &chooseAttorneysSummaryData{
 					App:                 appData,
-					Lpa:                 Lpa{},
+					Lpa:                 &Lpa{},
 					AttorneyAddressPath: chooseAttorneysAddressPath,
 					AttorneyDetailsPath: chooseAttorneysPath,
 					Form:                chooseAttorneysSummaryForm{AddAttorney: tc.addMoreFormValue},
@@ -122,7 +122,7 @@ func TestChooseAttorneySummaryFormValidation(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	validationError := map[string]string{
 		"add-attorney": "selectAddMoreAttorneys",

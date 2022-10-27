@@ -13,16 +13,17 @@ import (
 
 func TestGetTaskList(t *testing.T) {
 	testCases := map[string]struct {
-		lpa      Lpa
+		lpa      *Lpa
 		expected func([]taskListSection) []taskListSection
 	}{
 		"start": {
+			lpa: &Lpa{},
 			expected: func(sections []taskListSection) []taskListSection {
 				return sections
 			},
 		},
 		"in-progress": {
-			lpa: Lpa{
+			lpa: &Lpa{
 				You: Person{
 					FirstNames: "this",
 				},
@@ -61,7 +62,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"complete": {
-			lpa: Lpa{
+			lpa: &Lpa{
 				You: Person{
 					Address: place.Address{
 						Line1: "this",
@@ -183,7 +184,7 @@ func TestGetTaskListWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, expectedError)
+		Return(&Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -199,7 +200,7 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
