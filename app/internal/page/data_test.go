@@ -124,10 +124,9 @@ func TestPutAttorney(t *testing.T) {
 
 	updatedAttorney := Attorney{ID: "1", FirstNames: "Bob"}
 
-	updatedLpa, updated := lpa.PutAttorney(updatedAttorney)
+	updated := lpa.PutAttorney(updatedAttorney)
 
 	assert.True(t, updated)
-	assert.Equal(t, updatedLpa.Attorneys[0], updatedAttorney)
 }
 
 func TestPutAttorneyIdDoesNotMatch(t *testing.T) {
@@ -141,7 +140,7 @@ func TestPutAttorneyIdDoesNotMatch(t *testing.T) {
 
 	updatedAttorney := Attorney{ID: "1", FirstNames: "Bob"}
 
-	_, updated := lpa.PutAttorney(updatedAttorney)
+	updated := lpa.PutAttorney(updatedAttorney)
 
 	assert.False(t, updated)
 }

@@ -156,16 +156,16 @@ func (l *Lpa) GetAttorney(id string) (Attorney, bool) {
 	return l.Attorneys[idx], true
 }
 
-func (l *Lpa) PutAttorney(attorney Attorney) (*Lpa, bool) {
+func (l *Lpa) PutAttorney(attorney Attorney) bool {
 	idx := slices.IndexFunc(l.Attorneys, func(a Attorney) bool { return a.ID == attorney.ID })
 
 	if idx == -1 {
-		return l, false
+		return false
 	}
 
 	l.Attorneys[idx] = attorney
 
-	return l, true
+	return true
 }
 
 func (l *Lpa) AttorneysFullNames() string {
