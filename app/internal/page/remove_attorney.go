@@ -27,7 +27,12 @@ func RemoveAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) Ha
 		}
 
 		id := r.FormValue("id")
-		attorney, _ := lpa.GetAttorney(id)
+		attorney, found := lpa.GetAttorney(id)
+
+		if found == false {
+			appData.Lang.Redirect(w, r, chooseAttorneysSummaryPath, http.StatusFound)
+			return nil
+		}
 
 		data := &removeAttorneyData{
 			App:      appData,
