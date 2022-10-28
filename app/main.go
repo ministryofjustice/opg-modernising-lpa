@@ -29,6 +29,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 )
 
 func main() {
@@ -78,6 +79,8 @@ func main() {
 	if err != nil {
 		logger.Fatal(fmt.Errorf("unable to load SDK config: %w", err))
 	}
+
+	otelaws.AppendMiddlewares(&cfg.APIOptions)
 
 	if len(awsBaseURL) > 0 {
 		cfg.EndpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
