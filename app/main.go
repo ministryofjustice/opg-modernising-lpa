@@ -32,11 +32,11 @@ import (
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"go.opentelemetry.io/otel/trace"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -205,18 +205,18 @@ func main() {
 }
 
 func makeTracer(ctx context.Context, secure bool) (func(context.Context) error, error) {
-	// secureOption := otlptracegrpc.WithInsecure()
+	secureOption := otlptracegrpc.WithInsecure()
 	// if secure {
 	//	secureOption = otlptracegrpc.WithTLSCredentials(credentials.NewClientTLSFromCert(nil, ""))
 	// }
 
-	// traceExporter, err := otlptracegrpc.New(ctx,
-	//	secureOption,
-	//	otlptracegrpc.WithEndpoint("0.0.0.0:4317"),
-	//	otlptracegrpc.WithDialOption(grpc.WithBlock()))
-	// if err != nil {
-	//	return nil, func(context.Context) error { return nil }, fmt.Errorf("failed to create new OTLP trace exporter: %w", err)
-	// }
+	traceExporter, err := otlptracegrpc.New(ctx,
+		secureOption,
+		otlptracegrpc.WithEndpoint("0.0.0.0:4317"),
+		otlptracegrpc.WithDialOption(grpc.WithBlock()))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create new OTLP trace exporter: %w", err)
+	}
 
 	ecsResourceDetector := ecs.NewResourceDetector()
 	resource, err := ecsResourceDetector.Detect(ctx)
@@ -224,11 +224,11 @@ func makeTracer(ctx context.Context, secure bool) (func(context.Context) error, 
 		return nil, err
 	}
 
-	client := otlptracehttp.NewClient(otlptracehttp.WithInsecure())
-	traceExporter, err := otlptrace.New(ctx, client)
-	if err != nil {
-		return nil, fmt.Errorf("creating OTLP trace exporter: %w", err)
-	}
+	// client := otlptracehttp.NewClient(otlptracehttp.WithInsecure())
+	// traceExporter, err := otlptrace.New(ctx, client)
+	// if err != nil {
+	//	return nil, fmt.Errorf("creating OTLP trace exporter: %w", err)
+	// }
 
 	idg := xray.NewIDGenerator()
 
