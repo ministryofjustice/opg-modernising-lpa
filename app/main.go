@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-go-common/logging"
@@ -29,6 +29,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 )
 
 func main() {
@@ -74,27 +75,34 @@ func main() {
 
 	bundle := localize.NewBundle("lang/en.json", "lang/cy.json")
 
-	config := &aws.Config{}
+	cfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		logger.Fatal(fmt.Errorf("unable to load SDK config: %w", err))
+	}
+
+	otelaws.AppendMiddlewares(&cfg.APIOptions)
+
 	if len(awsBaseURL) > 0 {
-		config.Endpoint = aws.String(awsBaseURL)
+		cfg.EndpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+			return aws.Endpoint{
+				PartitionID:   "aws",
+				URL:           awsBaseURL,
+				SigningRegion: "eu-west-1",
+			}, nil
+		})
 	}
 
-	sess, err := session.NewSession(config)
-	if err != nil {
-		logger.Fatal(fmt.Errorf("error initialising new AWS session: %w", err))
-	}
-
-	dynamoClient, err := dynamo.NewClient(sess, dynamoTableLpas)
-	if err != nil {
-		logger.Fatal(err)
-	}
-
-	secretsClient, err := secrets.NewClient(sess)
+	dynamoClient, err := dynamo.NewClient(cfg, dynamoTableLpas)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	sessionKeys, err := secretsClient.CookieSessionKeys()
+	secretsClient, err := secrets.NewClient(cfg)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	sessionKeys, err := secretsClient.CookieSessionKeys(ctx)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -108,7 +116,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	payApiKey, err := secretsClient.Secret(secrets.GovUkPay)
+	payApiKey, err := secretsClient.Secret(ctx, secrets.GovUkPay)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -119,7 +127,7 @@ func main() {
 		HttpClient: http.DefaultClient,
 	}
 
-	yotiPrivateKey, err := secretsClient.SecretBytes(secrets.YotiPrivateKey)
+	yotiPrivateKey, err := secretsClient.SecretBytes(ctx, secrets.YotiPrivateKey)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -134,14 +142,14 @@ func main() {
 		}
 	}
 
-	osApiKey, err := secretsClient.Secret(secrets.OrdnanceSurvey)
+	osApiKey, err := secretsClient.Secret(ctx, secrets.OrdnanceSurvey)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
 	addressClient := place.NewClient(ordnanceSurveyBaseUrl, osApiKey, http.DefaultClient)
 
-	notifyApiKey, err := secretsClient.Secret(secrets.GovUkNotify)
+	notifyApiKey, err := secretsClient.Secret(ctx, secrets.GovUkNotify)
 	if err != nil {
 		logger.Fatal(err)
 	}

@@ -2,6 +2,7 @@ package signin
 
 import (
 	"bytes"
+	"context"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/json"
@@ -20,12 +21,14 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+var ctx = context.TODO()
+
 type mockSecretsClient struct {
 	mock.Mock
 }
 
-func (m *mockSecretsClient) SecretBytes(name string) ([]byte, error) {
-	args := m.Called(name)
+func (m *mockSecretsClient) SecretBytes(ctx context.Context, name string) ([]byte, error) {
+	args := m.Called(ctx, name)
 	return args.Get(0).([]byte), args.Error(1)
 }
 
@@ -60,7 +63,7 @@ func TestExchange(t *testing.T) {
 
 	secretsClient := &mockSecretsClient{}
 	secretsClient.
-		On("SecretBytes", secrets.GovUkSignInPrivateKey).
+		On("SecretBytes", ctx, secrets.GovUkSignInPrivateKey).
 		Return(pem.EncodeToMemory(
 			&pem.Block{
 				Type:  "RSA PRIVATE KEY",
@@ -108,7 +111,7 @@ func TestExchange(t *testing.T) {
 		jwks:         jwks,
 	}
 
-	result, err := client.Exchange("my-code", "my-nonce")
+	result, err := client.Exchange(ctx, "my-code", "my-nonce")
 	assert.Nil(t, err)
 	assert.Equal(t, "a", result)
 
@@ -120,14 +123,14 @@ func TestExchangeWhenPrivateKeyError(t *testing.T) {
 
 	secretsClient := &mockSecretsClient{}
 	secretsClient.
-		On("SecretBytes", secrets.GovUkSignInPrivateKey).
+		On("SecretBytes", ctx, secrets.GovUkSignInPrivateKey).
 		Return([]byte{}, expectedError)
 
 	client := &Client{
 		secretsClient: secretsClient,
 	}
 
-	_, err := client.Exchange("my-code", "my-nonce")
+	_, err := client.Exchange(ctx, "my-code", "my-nonce")
 	assert.Equal(t, expectedError, err)
 
 	mock.AssertExpectationsForObjects(t, secretsClient)
@@ -140,7 +143,7 @@ func TestExchangeWhenTokenRequestError(t *testing.T) {
 
 	secretsClient := &mockSecretsClient{}
 	secretsClient.
-		On("SecretBytes", secrets.GovUkSignInPrivateKey).
+		On("SecretBytes", ctx, secrets.GovUkSignInPrivateKey).
 		Return(pem.EncodeToMemory(
 			&pem.Block{
 				Type:  "RSA PRIVATE KEY",
@@ -162,7 +165,7 @@ func TestExchangeWhenTokenRequestError(t *testing.T) {
 		randomString: func(i int) string { return "this-is-random" },
 	}
 
-	_, err := client.Exchange("my-code", "my-nonce")
+	_, err := client.Exchange(ctx, "my-code", "my-nonce")
 	assert.Equal(t, expectedError, err)
 
 	mock.AssertExpectationsForObjects(t, httpClient, secretsClient)
@@ -273,7 +276,7 @@ func TestExchangeWhenInvalidToken(t *testing.T) {
 
 			secretsClient := &mockSecretsClient{}
 			secretsClient.
-				On("SecretBytes", secrets.GovUkSignInPrivateKey).
+				On("SecretBytes", ctx, secrets.GovUkSignInPrivateKey).
 				Return(pem.EncodeToMemory(
 					&pem.Block{
 						Type:  "RSA PRIVATE KEY",
@@ -321,7 +324,7 @@ func TestExchangeWhenInvalidToken(t *testing.T) {
 				jwks:         jwks,
 			}
 
-			_, err = client.Exchange("my-code", "my-nonce")
+			_, err = client.Exchange(ctx, "my-code", "my-nonce")
 			assert.NotNil(t, err)
 
 			mock.AssertExpectationsForObjects(t, httpClient, secretsClient)
