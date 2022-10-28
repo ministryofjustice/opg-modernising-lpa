@@ -34,6 +34,7 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -244,14 +245,23 @@ func makeTracer(ctx context.Context, secure bool) (func(context.Context) error, 
 }
 
 func traceHandler(logger *logging.Logger, handler http.Handler) http.HandlerFunc {
-	provider := otel.GetTracerProvider()
-	logger.Print("tracer", provider)
-	tracer := provider.Tracer("mlpa")
+	tracer := otel.GetTracerProvider().Tracer("mlpab")
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		ctx, span := tracer.Start(r.Context(), "handle-request",
+		path := r.URL.Path
+		isWelsh := false
+		if strings.HasPrefix(r.URL.Path, "/cy/") {
+			path = path[3:]
+			isWelsh = true
+		}
+
+		ctx, span := tracer.Start(r.Context(), path,
 			trace.WithSpanKind(trace.SpanKindServer),
-			trace.WithAttributes(attribute.String("path", r.URL.Path)))
+			trace.WithAttributes(attribute.Bool("welsh", isWelsh)),
+			trace.WithAttributes(semconv.NetAttributesFromHTTPRequest("tcp", r)...),
+			trace.WithAttributes(semconv.EndUserAttributesFromHTTPRequest(r)...),
+			trace.WithAttributes(semconv.HTTPServerAttributesFromHTTPRequest("mlpab", path, r)...),
+		)
 		defer span.End()
 
 		logger.Print("span", span)
