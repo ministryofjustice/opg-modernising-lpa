@@ -12,6 +12,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/felixge/httpsnoop"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-go-common/logging"
@@ -248,24 +249,32 @@ func traceHandler(logger *logging.Logger, handler http.Handler) http.HandlerFunc
 	tracer := otel.GetTracerProvider().Tracer("mlpab")
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		path := r.URL.Path
+		route := r.URL.Path
 		isWelsh := false
 		if strings.HasPrefix(r.URL.Path, "/cy/") {
-			path = path[3:]
+			route = route[3:]
 			isWelsh = true
 		}
 
-		ctx, span := tracer.Start(r.Context(), path,
+		target := r.URL.Path
+		if len(r.URL.RawQuery) > 0 {
+			target += "?" + r.URL.RawQuery
+		}
+
+		ctx, span := tracer.Start(r.Context(), route,
 			trace.WithSpanKind(trace.SpanKindServer),
-			trace.WithAttributes(attribute.Bool("welsh", isWelsh)),
+			trace.WithAttributes(attribute.Bool("mlpab.welsh", isWelsh)),
+			trace.WithAttributes(semconv.HTTPTargetKey.String(target)),
 			trace.WithAttributes(semconv.NetAttributesFromHTTPRequest("tcp", r)...),
 			trace.WithAttributes(semconv.EndUserAttributesFromHTTPRequest(r)...),
-			trace.WithAttributes(semconv.HTTPServerAttributesFromHTTPRequest("mlpab", path, r)...),
+			trace.WithAttributes(semconv.HTTPServerAttributesFromHTTPRequest("mlpab", route, r)...),
 		)
 		defer span.End()
 
-		logger.Print("span", span)
+		m := httpsnoop.CaptureMetrics(handler, w, r.WithContext(ctx))
 
-		handler.ServeHTTP(w, r.WithContext(ctx))
+		span.SetAttributes(semconv.HTTPAttributesFromHTTPStatusCode(m.Code)...)
+		span.SetStatus(semconv.SpanStatusFromHTTPStatusCodeAndSpanKind(m.Code, trace.SpanKindServer))
+		span.SetAttributes(semconv.HTTPResponseContentLengthKey.Int64(m.Written))
 	}
 }
