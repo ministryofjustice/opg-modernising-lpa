@@ -11,7 +11,11 @@ type removeAttorneyData struct {
 	App      AppData
 	Attorney Attorney
 	Errors   map[string]string
-	Lpa      *Lpa
+	Form     removeAttorneyForm
+}
+
+type removeAttorneyForm struct {
+	RemoveAttorney string
 }
 
 func RemoveAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) Handler {
@@ -28,7 +32,7 @@ func RemoveAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) Ha
 		data := &removeAttorneyData{
 			App:      appData,
 			Attorney: attorney,
-			Lpa:      lpa,
+			Form:     removeAttorneyForm{},
 		}
 
 		return tmpl(w, data)
