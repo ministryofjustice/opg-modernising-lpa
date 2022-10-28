@@ -12,6 +12,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/felixge/httpsnoop"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-go-common/logging"
@@ -266,6 +267,11 @@ func traceHandler(logger *logging.Logger, handler http.Handler) http.HandlerFunc
 
 		logger.Print("span", span)
 
-		handler.ServeHTTP(w, r.WithContext(ctx))
+		m := httpsnoop.CaptureMetrics(handler, w, r.WithContext(ctx))
+
+		span.SetAttributes(semconv.HTTPAttributesFromHTTPStatusCode(m.Code)...)
+		span.SetStatus(semconv.SpanStatusFromHTTPStatusCodeAndSpanKind(m.Code, trace.SpanKindServer))
+		span.SetAttributes(attribute.Int64("h-written", m.Written))
+		span.SetAttributes(attribute.Int64("h-duration", m.Duration.Milliseconds()))
 	}
 }
