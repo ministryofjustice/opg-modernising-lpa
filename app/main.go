@@ -167,6 +167,7 @@ func main() {
 	secureCookies := strings.HasPrefix(appPublicURL, "https:")
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/health-check", func(w http.ResponseWriter, r *http.Request) {})
 	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir(webDir+"/static/"))))
 	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies))
 	mux.Handle(page.AuthPath, page.Login(logger, signInClient, sessionStore, secureCookies, random.String))
