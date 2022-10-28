@@ -7,6 +7,7 @@ terraform {
       configuration_aliases = [
         aws.region,
         aws.management,
+        aws.global,
       ]
     }
   }
