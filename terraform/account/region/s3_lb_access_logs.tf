@@ -166,7 +166,7 @@ data "aws_iam_role" "sns_failure_feedback" {
 
 module "s3_event_notifications" {
   providers = { aws = aws.region }
-  source    = "./s3_bucket_event_notifications"
+  source    = "./modules/s3_bucket_event_notifications"
   s3_bucket_event_types = [
     "s3:ObjectRemoved:*",
     "s3:ObjectAcl:Put",
