@@ -10,8 +10,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/gorilla/sessions"
@@ -24,10 +22,13 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
+	"go.opentelemetry.io/contrib/detectors/aws/ecs"
 )
 
 func main() {
@@ -50,7 +51,21 @@ func main() {
 		yotiClientSdkID       = env.Get("YOTI_CLIENT_SDK_ID", "")
 		yotiScenarioID        = env.Get("YOTI_SCENARIO_ID", "")
 		yotiSandbox           = env.Get("YOTI_SANDBOX", "") == "1"
+		xrayEnabled           = env.Get("XRAY_ENABLED", "") == "1"
 	)
+
+	if xrayEnabled {
+		resource, err := ecs.NewResourceDetector().Detect(ctx)
+		if err != nil {
+			logger.Fatal(err)
+		}
+
+		shutdown, err := telemetry.Setup(ctx, resource)
+		if err != nil {
+			logger.Fatal(err)
+		}
+		defer shutdown(ctx)
+	}
 
 	tmpls, err := template.Parse(webDir+"/template", templatefn.All)
 	if err != nil {
@@ -92,8 +107,6 @@ func main() {
 	if err != nil {
 		logger.Fatal(err)
 	}
-
-	secureCookies := strings.HasPrefix(appPublicURL, "https:")
 
 	payApiKey, err := secretsClient.Secret(secrets.GovUkPay)
 	if err != nil {
@@ -138,6 +151,8 @@ func main() {
 		logger.Fatal(err)
 	}
 
+	secureCookies := strings.HasPrefix(appPublicURL, "https:")
+
 	mux := http.NewServeMux()
 	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir(webDir+"/static/"))))
 	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies))
@@ -146,9 +161,14 @@ func main() {
 	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient)))
 	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient))
 
+	var handler http.Handler = mux
+	if xrayEnabled {
+		handler = telemetry.WrapHandler(mux)
+	}
+
 	server := &http.Server{
 		Addr:              ":" + port,
-		Handler:           mux,
+		Handler:           handler,
 		ReadHeaderTimeout: 20 * time.Second,
 	}
 
