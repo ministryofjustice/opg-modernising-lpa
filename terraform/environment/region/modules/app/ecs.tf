@@ -301,11 +301,12 @@ locals {
 
   aws_otel_collector = jsonencode(
     {
-      cpu         = 0,
-      essential   = true,
-      image       = "public.ecr.aws/aws-observability/aws-otel-collector:v0.21.0",
-      mountPoints = [],
-      name        = "aws-otel-collector",
+      cpu                    = 0,
+      essential              = true,
+      image                  = "public.ecr.aws/aws-observability/aws-otel-collector:v0.21.0",
+      mountPoints            = [],
+      readonlyRootFilesystem = true
+      name                   = "aws-otel-collector",
       command = [
         "--config=/etc/ecs/ecs-default-config.yaml"
       ],
