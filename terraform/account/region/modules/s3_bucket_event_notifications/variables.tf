@@ -21,3 +21,8 @@ variable "sns_success_feedback_role_arn" {
   description = "The ARN of the IAM role that Amazon SNS can assume when it needs to access your AWS resources to process your success feedback"
   type        = string
 }
+
+variable "sns_kms_key_alias" {
+  description = "The alias of the KMS key used to encrypt the SNS topic"
+  type        = string
+}

@@ -171,6 +171,7 @@ module "s3_event_notifications" {
     "s3:ObjectRemoved:*",
     "s3:ObjectAcl:Put",
   ]
+  sns_kms_key_alias             = var.sns_kms_key_alias
   s3_bucket_id                  = aws_s3_bucket.access_log.id
   sns_failure_feedback_role_arn = data.aws_iam_role.sns_failure_feedback.arn
   sns_success_feedback_role_arn = data.aws_iam_role.sns_success_feedback.arn
