@@ -12,7 +12,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/felixge/httpsnoop"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-go-common/logging"
@@ -27,16 +26,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
-	"go.opentelemetry.io/contrib/propagators/aws/xray"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
-	"go.opentelemetry.io/otel/trace"
-	"google.golang.org/grpc"
 )
 
 func main() {
@@ -63,18 +55,16 @@ func main() {
 	)
 
 	if xrayEnabled {
-		logger.Print("creating tracer, hopefully")
-		shutdown, err := makeTracer(ctx, xrayEnabled)
-		logger.Print("make tracer call finished")
-
+		resource, err := ecs.NewResourceDetector().Detect(ctx)
 		if err != nil {
 			logger.Fatal(err)
 		}
-		defer func(ctx context.Context) {
-			if err := shutdown(ctx); err != nil {
-				logger.Fatal(fmt.Errorf("shutdown err: %w", err))
-			}
-		}(ctx)
+
+		shutdown, err := telemetry.Setup(ctx, resource)
+		if err != nil {
+			logger.Fatal(err)
+		}
+		defer shutdown(ctx)
 	}
 
 	tmpls, err := template.Parse(webDir+"/template", templatefn.All)
@@ -173,7 +163,7 @@ func main() {
 
 	var handler http.Handler = mux
 	if xrayEnabled {
-		handler = traceHandler(logger, mux)
+		handler = telemetry.WrapHandler(mux)
 	}
 
 	server := &http.Server{
@@ -201,80 +191,5 @@ func main() {
 
 	if err := server.Shutdown(tc); err != nil {
 		logger.Print(err)
-	}
-}
-
-func makeTracer(ctx context.Context, secure bool) (func(context.Context) error, error) {
-	secureOption := otlptracegrpc.WithInsecure()
-	// if secure {
-	//	secureOption = otlptracegrpc.WithTLSCredentials(credentials.NewClientTLSFromCert(nil, ""))
-	// }
-
-	traceExporter, err := otlptracegrpc.New(ctx,
-		secureOption,
-		otlptracegrpc.WithEndpoint("0.0.0.0:4317"),
-		otlptracegrpc.WithDialOption(grpc.WithBlock()))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create new OTLP trace exporter: %w", err)
-	}
-
-	ecsResourceDetector := ecs.NewResourceDetector()
-	resource, err := ecsResourceDetector.Detect(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	// client := otlptracehttp.NewClient(otlptracehttp.WithInsecure())
-	// traceExporter, err := otlptrace.New(ctx, client)
-	// if err != nil {
-	//	return nil, fmt.Errorf("creating OTLP trace exporter: %w", err)
-	// }
-
-	idg := xray.NewIDGenerator()
-
-	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithResource(resource),
-		sdktrace.WithSampler(sdktrace.AlwaysSample()),
-		sdktrace.WithBatcher(traceExporter),
-		sdktrace.WithIDGenerator(idg),
-	)
-
-	otel.SetTracerProvider(tp)
-	otel.SetTextMapPropagator(xray.Propagator{})
-
-	return traceExporter.Shutdown, nil
-}
-
-func traceHandler(logger *logging.Logger, handler http.Handler) http.HandlerFunc {
-	tracer := otel.GetTracerProvider().Tracer("mlpab")
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		route := r.URL.Path
-		isWelsh := false
-		if strings.HasPrefix(r.URL.Path, "/cy/") {
-			route = route[3:]
-			isWelsh = true
-		}
-
-		target := r.URL.Path
-		if len(r.URL.RawQuery) > 0 {
-			target += "?" + r.URL.RawQuery
-		}
-
-		ctx, span := tracer.Start(r.Context(), route,
-			trace.WithSpanKind(trace.SpanKindServer),
-			trace.WithAttributes(attribute.Bool("mlpab.welsh", isWelsh)),
-			trace.WithAttributes(semconv.HTTPTargetKey.String(target)),
-			trace.WithAttributes(semconv.NetAttributesFromHTTPRequest("tcp", r)...),
-			trace.WithAttributes(semconv.EndUserAttributesFromHTTPRequest(r)...),
-			trace.WithAttributes(semconv.HTTPServerAttributesFromHTTPRequest("mlpab", route, r)...),
-		)
-		defer span.End()
-
-		m := httpsnoop.CaptureMetrics(handler, w, r.WithContext(ctx))
-
-		span.SetAttributes(semconv.HTTPAttributesFromHTTPStatusCode(m.Code)...)
-		span.SetStatus(semconv.SpanStatusFromHTTPStatusCodeAndSpanKind(m.Code, trace.SpanKindServer))
-		span.SetAttributes(semconv.HTTPResponseContentLengthKey.Int64(m.Written))
 	}
 }

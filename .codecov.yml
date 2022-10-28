@@ -6,6 +6,7 @@ coverage:
     - "*_test.go"
     - "./mocks/*"
     - "./app/internal/identity/yoti*"
+    - "./app/internal/telemetry"
   status:
     project:
       default:
