@@ -1,13 +1,14 @@
 package secrets
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"sync"
 
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/secretsmanager"
-	"github.com/aws/aws-secretsmanager-caching-go/secretcache"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
 )
 
 const (
@@ -20,34 +21,46 @@ const (
 	cookieSessionKeys = "cookie-session-keys"
 )
 
-type secretsCache interface {
-	GetSecretString(secretId string) (string, error)
+type secretsManager interface {
+	GetSecretValue(ctx context.Context, params *secretsmanager.GetSecretValueInput, optFns ...func(*secretsmanager.Options)) (*secretsmanager.GetSecretValueOutput, error)
 }
 
 type Client struct {
-	cache secretsCache
+	svc secretsManager
+
+	mu    sync.Mutex
+	cache map[string]string
 }
 
-func NewClient(sess *session.Session) (*Client, error) {
-	cache, err := secretcache.New(func(c *secretcache.Cache) { c.Client = secretsmanager.New(sess) })
-	if err != nil {
-		return nil, err
+func NewClient(cfg aws.Config) (*Client, error) {
+	svc := secretsmanager.NewFromConfig(cfg)
+
+	return &Client{svc: svc, cache: map[string]string{}}, nil
+}
+
+func (c *Client) Secret(ctx context.Context, name string) (string, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	value, ok := c.cache[name]
+	if ok {
+		return value, nil
 	}
 
-	return &Client{cache: cache}, nil
-}
-
-func (c *Client) Secret(name string) (string, error) {
-	secret, err := c.cache.GetSecretString(name)
+	result, err := c.svc.GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{
+		SecretId: aws.String(name),
+	})
 	if err != nil {
 		return "", fmt.Errorf("error retrieving secret '%s': %w", name, err)
 	}
 
-	return secret, nil
+	c.cache[name] = *result.SecretString
+
+	return *result.SecretString, nil
 }
 
-func (c *Client) SecretBytes(name string) ([]byte, error) {
-	secret, err := c.Secret(name)
+func (c *Client) SecretBytes(ctx context.Context, name string) ([]byte, error) {
+	secret, err := c.Secret(ctx, name)
 	if err != nil {
 		return nil, err
 	}
@@ -60,8 +73,8 @@ func (c *Client) SecretBytes(name string) ([]byte, error) {
 	return keyBytes, nil
 }
 
-func (c *Client) CookieSessionKeys() ([][]byte, error) {
-	secret, err := c.Secret(cookieSessionKeys)
+func (c *Client) CookieSessionKeys(ctx context.Context) ([][]byte, error) {
+	secret, err := c.Secret(ctx, cookieSessionKeys)
 	if err != nil {
 		return nil, err
 	}
