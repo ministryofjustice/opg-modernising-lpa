@@ -1,6 +1,7 @@
 package page
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,8 +16,8 @@ type mockAuthRedirectClient struct {
 	mock.Mock
 }
 
-func (m *mockAuthRedirectClient) Exchange(code, nonce string) (string, error) {
-	args := m.Called(code, nonce)
+func (m *mockAuthRedirectClient) Exchange(ctx context.Context, code, nonce string) (string, error) {
+	args := m.Called(ctx, code, nonce)
 	return args.Get(0).(string), args.Error(1)
 }
 
@@ -31,7 +32,7 @@ func TestAuthRedirect(t *testing.T) {
 
 	client := &mockAuthRedirectClient{}
 	client.
-		On("Exchange", "auth-code", "my-nonce").
+		On("Exchange", r.Context(), "auth-code", "my-nonce").
 		Return("a JWT", nil)
 	client.
 		On("UserInfo", "a JWT").
@@ -147,7 +148,7 @@ func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 
 	client := &mockAuthRedirectClient{}
 	client.
-		On("Exchange", "auth-code", "my-nonce").
+		On("Exchange", r.Context(), "auth-code", "my-nonce").
 		Return("", expectedError)
 
 	sessionsStore := &mockSessionsStore{}
@@ -170,7 +171,7 @@ func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 
 	client := &mockAuthRedirectClient{}
 	client.
-		On("Exchange", "auth-code", "my-nonce").
+		On("Exchange", r.Context(), "auth-code", "my-nonce").
 		Return("a JWT", nil)
 	client.
 		On("UserInfo", "a JWT").

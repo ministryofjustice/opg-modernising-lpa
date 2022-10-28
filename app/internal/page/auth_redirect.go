@@ -1,6 +1,7 @@
 package page
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -8,7 +9,7 @@ import (
 )
 
 type authRedirectClient interface {
-	Exchange(code, nonce string) (string, error)
+	Exchange(ctx context.Context, code, nonce string) (string, error)
 	UserInfo(string) (signin.UserInfo, error)
 }
 
@@ -39,7 +40,7 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, sec
 			return
 		}
 
-		jwt, err := c.Exchange(r.FormValue("code"), nonce)
+		jwt, err := c.Exchange(r.Context(), r.FormValue("code"), nonce)
 		if err != nil {
 			logger.Print(err)
 			return

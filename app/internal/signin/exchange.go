@@ -1,6 +1,7 @@
 package signin
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -26,8 +27,8 @@ type tokenResponseBody struct {
 	IdToken     string `json:"id_token"`
 }
 
-func (c *Client) Exchange(code, nonce string) (string, error) {
-	privateKeyBytes, err := c.secretsClient.SecretBytes(secrets.GovUkSignInPrivateKey)
+func (c *Client) Exchange(ctx context.Context, code, nonce string) (string, error) {
+	privateKeyBytes, err := c.secretsClient.SecretBytes(ctx, secrets.GovUkSignInPrivateKey)
 	if err != nil {
 		return "", err
 	}
