@@ -1,0 +1,73 @@
+{{ define "attorney-details" }}
+    <dl class="govuk-summary-list">
+
+        {{ range .Attorneys }}
+            {{ $detailsLink := printf "/choose-attorneys?from=%s&id=%s" $.App.Page .ID }}
+            {{ $addressLink := printf "/choose-attorneys-address?from=%s&id=%s" $.App.Page .ID }}
+
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    {{ tr $.App "name" }}
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ .FirstNames }} {{ .LastName }}
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link" href="{{ link $.App $detailsLink }}">
+                        {{ tr $.App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr $.App "name") }}</span>
+                    </a>
+                </dd>
+            </div>
+
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    {{ tr $.App "dateOfBirth" }}
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ formatDate .DateOfBirth }}
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link" href="{{ link $.App $detailsLink }}">
+                        {{ tr $.App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr $.App "dateOfBirth") }}</span>
+                    </a>
+                </dd>
+            </div>
+
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    {{ tr $.App "email" }}
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ .Email }}
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link" href="{{ link $.App $detailsLink }}">
+                        {{ tr $.App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr $.App "email") }}</span>
+                    </a>
+                </dd>
+            </div>
+
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    {{ tr $.App "address" }}
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    <div>{{ .Address.Line1 }}</div>
+                    <div>{{ .Address.Line2 }}</div>
+                    <div>{{ .Address.Line3 }}</div>
+                    <div>{{ .Address.TownOrCity }}</div>
+                    <div>{{ .Address.Postcode }}</div>
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link" href="{{ link $.App $addressLink }}">
+                        {{ tr $.App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr $.App "address") }}</span>
+                    </a>
+                </dd>
+            </div>
+
+            <hr class="govuk-section-break govuk-section-break--m">
+
+        {{end}}
+
+    </dl>
+{{ end }}

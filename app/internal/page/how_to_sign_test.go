@@ -26,7 +26,7 @@ func (m *mockNotifyClient) Email(ctx context.Context, email notify.Email) (strin
 
 func TestGetHowToSign(t *testing.T) {
 	w := httptest.NewRecorder()
-	lpa := Lpa{You: Person{Email: "me@example.com"}}
+	lpa := &Lpa{You: Person{Email: "me@example.com"}}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -54,7 +54,7 @@ func TestGetHowToSignWhenLpaStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, expectedError)
+		Return(&Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -66,7 +66,7 @@ func TestGetHowToSignWhenLpaStoreErrors(t *testing.T) {
 
 func TestGetHowToSignWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	lpa := Lpa{You: Person{Email: "me@example.com"}}
+	lpa := &Lpa{You: Person{Email: "me@example.com"}}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -88,14 +88,14 @@ func TestGetHowToSignWhenTemplateErrors(t *testing.T) {
 
 func TestPostHowToSign(t *testing.T) {
 	w := httptest.NewRecorder()
-	lpa := Lpa{You: Person{Email: "me@example.com"}}
+	lpa := &Lpa{You: Person{Email: "me@example.com"}}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
 		Return(lpa, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", Lpa{
+		On("Put", mock.Anything, "session-id", &Lpa{
 			You:              Person{Email: "me@example.com"},
 			SignatureCode:    "1234",
 			SignatureEmailID: "email-id",
@@ -127,7 +127,7 @@ func TestPostHowToSign(t *testing.T) {
 
 func TestPostHowToSignWhenNotifyErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	lpa := Lpa{You: Person{Email: "me@example.com"}}
+	lpa := &Lpa{You: Person{Email: "me@example.com"}}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -152,7 +152,7 @@ func TestPostHowToSignWhenNotifyErrors(t *testing.T) {
 
 func TestPostHowToSignWhenLpaStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	lpa := Lpa{You: Person{Email: "me@example.com"}}
+	lpa := &Lpa{You: Person{Email: "me@example.com"}}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.

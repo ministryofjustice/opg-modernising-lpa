@@ -34,7 +34,7 @@ func TestPostIdentityWithTodo(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	lpaStore := &mockLpaStore{}
-	lpaStore.On("Get", mock.Anything, "session-id").Return(Lpa{
+	lpaStore.On("Get", mock.Anything, "session-id").Return(&Lpa{
 		IdentityOptions: IdentityOptions{
 			First:  Passport,
 			Second: GovernmentGatewayAccount,
@@ -56,7 +56,7 @@ func TestPostIdentityWithTodoWhenDataStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	lpaStore := &mockLpaStore{}
-	lpaStore.On("Get", mock.Anything, "session-id").Return(Lpa{}, expectedError)
+	lpaStore.On("Get", mock.Anything, "session-id").Return(&Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
