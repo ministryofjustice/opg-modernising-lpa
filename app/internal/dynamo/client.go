@@ -2,17 +2,16 @@ package dynamo
 
 import (
 	"context"
-	"encoding/json"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
 type dynamoDB interface {
-	GetItemWithContext(aws.Context, *dynamodb.GetItemInput, ...request.Option) (*dynamodb.GetItemOutput, error)
-	PutItemWithContext(aws.Context, *dynamodb.PutItemInput, ...request.Option) (*dynamodb.PutItemOutput, error)
+	GetItem(context.Context, *dynamodb.GetItemInput, ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
+	PutItem(context.Context, *dynamodb.PutItemInput, ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
 }
 
 type Client struct {
@@ -20,17 +19,20 @@ type Client struct {
 	svc   dynamoDB
 }
 
-func NewClient(sess *session.Session, tableName string) (*Client, error) {
-	return &Client{table: tableName, svc: dynamodb.New(sess)}, nil
+func NewClient(cfg aws.Config, tableName string) (*Client, error) {
+	return &Client{table: tableName, svc: dynamodb.NewFromConfig(cfg)}, nil
 }
 
 func (c *Client) Get(ctx context.Context, id string, v interface{}) error {
-	result, err := c.svc.GetItemWithContext(ctx, &dynamodb.GetItemInput{
+	keyID, err := attributevalue.Marshal(id)
+	if err != nil {
+		return err
+	}
+
+	result, err := c.svc.GetItem(ctx, &dynamodb.GetItemInput{
 		TableName: aws.String(c.table),
-		Key: map[string]*dynamodb.AttributeValue{
-			"Id": {
-				S: aws.String(id),
-			},
+		Key: map[string]types.AttributeValue{
+			"Id": keyID,
 		},
 	})
 	if err != nil {
@@ -40,21 +42,23 @@ func (c *Client) Get(ctx context.Context, id string, v interface{}) error {
 		return nil
 	}
 
-	return json.Unmarshal(result.Item["Data"].B, v)
+	return attributevalue.Unmarshal(result.Item["Data"], v)
 }
 
 func (c *Client) Put(ctx context.Context, id string, v interface{}) error {
-	data, err := json.Marshal(v)
+	keyID, err := attributevalue.Marshal(id)
 	if err != nil {
 		return err
 	}
 
-	_, err = c.svc.PutItemWithContext(ctx, &dynamodb.PutItemInput{
+	data, err := attributevalue.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.svc.PutItem(ctx, &dynamodb.PutItemInput{
 		TableName: aws.String(c.table),
-		Item: map[string]*dynamodb.AttributeValue{
-			"Id":   {S: aws.String(id)},
-			"Data": {B: data},
-		},
+		Item:      map[string]types.AttributeValue{"Id": keyID, "Data": data},
 	})
 
 	return err

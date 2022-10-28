@@ -30,7 +30,7 @@ type Logger interface {
 }
 
 type SecretsClient interface {
-	SecretBytes(name string) ([]byte, error)
+	SecretBytes(ctx context.Context, name string) ([]byte, error)
 }
 
 type Client struct {
