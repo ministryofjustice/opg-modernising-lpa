@@ -11,7 +11,7 @@
 
       <h2 class="govuk-heading-m">{{ tr .App "finalSteps" }}</h2>
 
-      {{ trFormatHtml .App "beforeYourLpaCanBeRegisteredContent" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "AttorneyFirstNames" .Lpa.Attorney.FirstNames}}
+      {{ trFormatHtml .App "beforeYourLpaCanBeRegisteredContent" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames}}
 
       <div class="govuk-warning-text">
         <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
@@ -21,7 +21,7 @@
         </strong>
       </div>
 
-      <p class="govuk-body">{{ trFormat .App "onceAttorneyHasSigned" "AttorneyFirstNames" .Lpa.Attorney.FirstNames}}</p>
+      <p class="govuk-body">{{ trFormat .App "onceAttorneyHasSigned" "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames}}</p>
 
       <a class="govuk-button" href="{{ link .App .Continue }}">{{ tr .App "continue" }}</a>
     </div>

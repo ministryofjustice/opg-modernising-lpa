@@ -9,7 +9,7 @@ import (
 type checkYourLpaData struct {
 	App       AppData
 	Errors    map[string]string
-	Lpa       Lpa
+	Lpa       *Lpa
 	Form      *checkYourLpaForm
 	Completed bool
 }

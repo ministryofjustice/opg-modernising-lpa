@@ -21,7 +21,7 @@ func TestGetYourDetails(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -47,7 +47,7 @@ func TestGetYourDetailsWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, expectedError)
+		Return(&Lpa{}, expectedError)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -65,7 +65,7 @@ func TestGetYourDetailsFromStore(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{
+		Return(&Lpa{
 			You: Person{
 				FirstNames: "John",
 			},
@@ -97,7 +97,7 @@ func TestGetYourDetailsWhenTemplateErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{}, nil)
+		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -167,14 +167,14 @@ func TestPostYourDetails(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
-				Return(Lpa{
+				Return(&Lpa{
 					You: Person{
 						FirstNames: "John",
 						Address:    place.Address{Line1: "abc"},
 					},
 				}, nil)
 			lpaStore.
-				On("Put", mock.Anything, "session-id", Lpa{
+				On("Put", mock.Anything, "session-id", &Lpa{
 					You: tc.person,
 				}).
 				Return(nil)
@@ -264,7 +264,7 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
-				Return(Lpa{}, nil)
+				Return(&Lpa{}, nil)
 
 			sessionStore := &mockSessionsStore{}
 			sessionStore.
@@ -290,7 +290,7 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(Lpa{
+		Return(&Lpa{
 			You: Person{
 				FirstNames: "John",
 				Address:    place.Address{Line1: "abc"},
@@ -344,7 +344,7 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
-				Return(Lpa{}, nil)
+				Return(&Lpa{}, nil)
 
 			sessionStore := &mockSessionsStore{}
 			sessionStore.
