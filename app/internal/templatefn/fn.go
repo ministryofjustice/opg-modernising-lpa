@@ -12,27 +12,28 @@ import (
 )
 
 var All = map[string]interface{}{
-	"isEnglish":      isEnglish,
-	"isWelsh":        isWelsh,
-	"input":          input,
-	"items":          items,
-	"item":           item,
-	"fieldID":        fieldID,
-	"errorMessage":   errorMessage,
-	"details":        details,
-	"inc":            inc,
-	"link":           link,
-	"contains":       contains,
-	"tr":             tr,
-	"trFormat":       trFormat,
-	"trFormatHtml":   trFormatHtml,
-	"trHtml":         trHtml,
-	"trCount":        trCount,
-	"now":            now,
-	"addDays":        addDays,
-	"formatDate":     formatDate,
-	"formatDateTime": formatDateTime,
-	"lowerFirst":     lowerFirst,
+	"isEnglish":       isEnglish,
+	"isWelsh":         isWelsh,
+	"input":           input,
+	"items":           items,
+	"item":            item,
+	"fieldID":         fieldID,
+	"errorMessage":    errorMessage,
+	"details":         details,
+	"inc":             inc,
+	"link":            link,
+	"contains":        contains,
+	"tr":              tr,
+	"trFormat":        trFormat,
+	"trFormatHtml":    trFormatHtml,
+	"trHtml":          trHtml,
+	"trCount":         trCount,
+	"now":             now,
+	"addDays":         addDays,
+	"formatDate":      formatDate,
+	"formatDateTime":  formatDateTime,
+	"lowerFirst":      lowerFirst,
+	"attorneyDetails": attorneyDetails,
 }
 
 func isEnglish(lang page.Lang) bool {
@@ -103,11 +104,12 @@ func errorMessage(top interface{}, name string) map[string]interface{} {
 	}
 }
 
-func details(top interface{}, name, detail string) map[string]interface{} {
+func details(top interface{}, name, detail string, open bool) map[string]interface{} {
 	return map[string]interface{}{
 		"top":    top,
 		"name":   name,
 		"detail": detail,
+		"open":   open,
 	}
 }
 
@@ -204,4 +206,12 @@ func formatDateTime(t time.Time) string {
 func lowerFirst(s string) string {
 	r, n := utf8.DecodeRuneInString(s)
 	return string(unicode.ToLower(r)) + s[n:]
+}
+
+func attorneyDetails(attorneys []page.Attorney, from string, app page.AppData) map[string]interface{} {
+	return map[string]interface{}{
+		"Attorneys": attorneys,
+		"From":      from,
+		"App":       app,
+	}
 }

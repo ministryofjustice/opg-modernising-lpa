@@ -41,12 +41,12 @@ func TestLpaStoreGet(t *testing.T) {
 
 	lpa, err := lpaStore.Get(ctx, "an-id")
 	assert.Nil(t, err)
-	assert.Equal(t, Lpa{ID: "10100000"}, lpa)
+	assert.Equal(t, &Lpa{ID: "10100000"}, lpa)
 }
 
 func TestLpaStoreGetWhenExists(t *testing.T) {
+	existingLpa := &Lpa{ID: "an-id"}
 	ctx := context.Background()
-	existingLpa := Lpa{ID: "5", You: Person{Email: "what"}}
 
 	dataStore := &mockDataStore{data: existingLpa}
 	dataStore.On("Get", ctx, "an-id").Return(nil)
@@ -72,7 +72,7 @@ func TestLpaStoreGetWhenDataStoreError(t *testing.T) {
 
 func TestLpaStorePut(t *testing.T) {
 	ctx := context.Background()
-	lpa := Lpa{ID: "5"}
+	lpa := &Lpa{ID: "5"}
 
 	dataStore := &mockDataStore{}
 	dataStore.On("Put", ctx, "an-id", lpa).Return(expectedError)
@@ -81,4 +81,115 @@ func TestLpaStorePut(t *testing.T) {
 
 	err := lpaStore.Put(ctx, "an-id", lpa)
 	assert.Equal(t, expectedError, err)
+}
+
+func TestGetAttorney(t *testing.T) {
+	want := Attorney{ID: "1"}
+	otherAttorney := Attorney{ID: "2"}
+
+	lpa := &Lpa{
+		Attorneys: []Attorney{
+			want,
+			otherAttorney,
+		},
+	}
+
+	got, found := lpa.GetAttorney("1")
+
+	assert.True(t, found)
+	assert.Equal(t, want, got)
+}
+
+func TestGetAttorneyIdDoesNotMatch(t *testing.T) {
+	attorney := Attorney{ID: "1"}
+	lpa := &Lpa{
+		Attorneys: []Attorney{
+			attorney,
+		},
+	}
+
+	_, found := lpa.GetAttorney("2")
+
+	assert.False(t, found)
+}
+
+func TestPutAttorney(t *testing.T) {
+	attorney := Attorney{ID: "1"}
+
+	lpa := &Lpa{
+		Attorneys: []Attorney{
+			attorney,
+		},
+	}
+
+	updatedAttorney := Attorney{ID: "1", FirstNames: "Bob"}
+
+	updated := lpa.PutAttorney(updatedAttorney)
+
+	assert.True(t, updated)
+}
+
+func TestPutAttorneyIdDoesNotMatch(t *testing.T) {
+	attorney := Attorney{ID: "2"}
+
+	lpa := &Lpa{
+		Attorneys: []Attorney{
+			attorney,
+		},
+	}
+
+	updatedAttorney := Attorney{ID: "1", FirstNames: "Bob"}
+
+	updated := lpa.PutAttorney(updatedAttorney)
+
+	assert.False(t, updated)
+}
+
+func TestAttorneysFullNames(t *testing.T) {
+	l := &Lpa{
+		Attorneys: []Attorney{
+			{
+				FirstNames: "Bob Alan George",
+				LastName:   "Jones",
+			},
+			{
+				FirstNames: "Samantha",
+				LastName:   "Smith",
+			},
+			{
+				FirstNames: "Abby Helen",
+				LastName:   "Burns-Simpson",
+			},
+		},
+	}
+
+	assert.Equal(t, "Bob Alan George Jones, Samantha Smith and Abby Helen Burns-Simpson", l.AttorneysFullNames())
+}
+
+func TestAttorneysFirstNames(t *testing.T) {
+	l := &Lpa{
+		Attorneys: []Attorney{
+			{
+				FirstNames: "Bob Alan George",
+				LastName:   "Jones",
+			},
+			{
+				FirstNames: "Samantha",
+				LastName:   "Smith",
+			},
+			{
+				FirstNames: "Abby Helen",
+				LastName:   "Burns-Simpson",
+			},
+		},
+	}
+
+	assert.Equal(t, "Bob Alan George, Samantha and Abby Helen", l.AttorneysFirstNames())
+}
+
+func TestConcatSentence(t *testing.T) {
+	assert.Equal(t, "Bob Smith, Alice Jones, John Doe and Paul Compton", concatSentence([]string{"Bob Smith", "Alice Jones", "John Doe", "Paul Compton"}))
+	assert.Equal(t, "Bob Smith, Alice Jones and John Doe", concatSentence([]string{"Bob Smith", "Alice Jones", "John Doe"}))
+	assert.Equal(t, "Bob Smith and John Doe", concatSentence([]string{"Bob Smith", "John Doe"}))
+	assert.Equal(t, "Bob Smith", concatSentence([]string{"Bob Smith"}))
 }

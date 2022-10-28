@@ -115,12 +115,14 @@ func TestDetails(t *testing.T) {
 	top := 1
 	name := "name"
 	detail := "detail"
+	open := true
 
-	v := details(top, name, detail)
+	v := details(top, name, detail, open)
 
 	assert.Equal(t, top, v["top"])
 	assert.Equal(t, name, v["name"])
 	assert.Equal(t, detail, v["detail"])
+	assert.Equal(t, open, v["open"])
 }
 
 func TestInc(t *testing.T) {
@@ -203,4 +205,24 @@ func TestFormatDateTime(t *testing.T) {
 func TestLowerFirst(t *testing.T) {
 	assert.Equal(t, "hELLO", lowerFirst("HELLO"))
 	assert.Equal(t, "hello", lowerFirst("hello"))
+}
+
+func TestAttorneyDetails(t *testing.T) {
+	attorneys := []page.Attorney{
+		{ID: "123"},
+		{ID: "123"},
+	}
+
+	from := "somewhere"
+	app := page.AppData{SessionID: "abc"}
+
+	want := map[string]interface{}{
+		"Attorneys": attorneys,
+		"From":      from,
+		"App":       app,
+	}
+
+	got := attorneyDetails(attorneys, from, app)
+
+	assert.Equal(t, want, got)
 }

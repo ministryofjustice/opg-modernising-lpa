@@ -23,15 +23,23 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			return err
 		}
 
+		attorneyId := r.FormValue("id")
+		attorney, found := lpa.GetAttorney(attorneyId)
+
+		if found == false {
+			appData.Lang.Redirect(w, r, chooseAttorneysPath, http.StatusFound)
+			return nil
+		}
+
 		data := &chooseAttorneysAddressData{
 			App:      appData,
-			Attorney: lpa.Attorney,
+			Attorney: attorney,
 			Form:     &chooseAttorneysAddressForm{},
 		}
 
-		if lpa.Attorney.Address.Line1 != "" {
+		if attorney.Address.Line1 != "" {
 			data.Form.Action = "manual"
-			data.Form.Address = &lpa.Attorney.Address
+			data.Form.Address = &attorney.Address
 		}
 
 		if r.Method == http.MethodPost {
@@ -39,16 +47,41 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			data.Errors = data.Form.Validate()
 
 			if data.Form.Action == "manual" && len(data.Errors) == 0 {
-				lpa.Attorney.Address = *data.Form.Address
+				attorney.Address = *data.Form.Address
+				attorneyUpdated := lpa.PutAttorney(attorney)
+
+				if attorneyUpdated == false {
+					lpa.Attorneys = append(lpa.Attorneys, attorney)
+				}
+
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, wantReplacementAttorneysPath, http.StatusFound)
+
+				from := r.FormValue("from")
+
+				if from == "" {
+					from = chooseAttorneysSummaryPath
+				}
+
+				appData.Lang.Redirect(w, r, from, http.StatusFound)
 				return nil
 			}
 
+			// Force the manual address view after selecting
 			if data.Form.Action == "select" && len(data.Errors) == 0 {
 				data.Form.Action = "manual"
+
+				attorney.Address = *data.Form.Address
+				attorneyUpdated := lpa.PutAttorney(attorney)
+
+				if attorneyUpdated == false {
+					lpa.Attorneys = append(lpa.Attorneys, attorney)
+				}
+
+				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+					return err
+				}
 			}
 
 			if data.Form.Action == "lookup" && len(data.Errors) == 0 ||
