@@ -45,7 +45,9 @@ func RemoveAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) Ha
 				RemoveAttorney: postFormString(r, "remove-attorney"),
 			}
 
-			if data.Form.RemoveAttorney == "yes" {
+			data.Errors = data.Form.Validate()
+
+			if data.Form.RemoveAttorney == "yes" && len(data.Errors) == 0 {
 				lpa.DeleteAttorney(attorney)
 
 				err = lpaStore.Put(r.Context(), appData.SessionID, lpa)
@@ -54,12 +56,22 @@ func RemoveAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) Ha
 					logger.Print(fmt.Sprintf("error removing Attorney from LPA: %s", err.Error()))
 					return err
 				}
-			}
 
-			appData.Lang.Redirect(w, r, chooseAttorneysSummaryPath, http.StatusFound)
-			return nil
+				appData.Lang.Redirect(w, r, chooseAttorneysSummaryPath, http.StatusFound)
+				return nil
+			}
 		}
 
 		return tmpl(w, data)
 	}
+}
+
+func (f *removeAttorneyForm) Validate() map[string]string {
+	errors := map[string]string{}
+
+	if f.RemoveAttorney != "yes" && f.RemoveAttorney != "no" {
+		errors["remove-attorney"] = "selectRemoveAttorney"
+	}
+
+	return errors
 }

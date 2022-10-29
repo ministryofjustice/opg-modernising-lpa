@@ -610,6 +610,7 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 		})
 	}
 }
+
 func TestChooseAttorneysFormDobWarning(t *testing.T) {
 	now := time.Now().UTC().Round(24 * time.Hour)
 	validDob := now.AddDate(-18, 0, -1)

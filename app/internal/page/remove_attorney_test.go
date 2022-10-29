@@ -184,3 +184,79 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore, template, logger)
 }
+
+func TestRemoveAttorneyFormValidation(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(&Lpa{Attorneys: []Attorney{attorneyWithoutAddress}}, nil)
+
+	validationError := map[string]string{
+		"remove-attorney": "selectRemoveAttorneys",
+	}
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, mock.MatchedBy(func(data *removeAttorneyData) bool {
+			return assert.Equal(t, validationError, data.Errors)
+		})).
+		Return(nil)
+
+	form := url.Values{
+		"remove-attorney": {""},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := RemoveAttorney(nil, template.Func, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, lpaStore, template)
+}
+
+func TestRemoveAttorneyFormValidate(t *testing.T) {
+	testCases := map[string]struct {
+		form   *removeAttorneyForm
+		errors map[string]string
+	}{
+		"valid - yes": {
+			form: &removeAttorneyForm{
+				RemoveAttorney: "yes",
+			},
+			errors: map[string]string{},
+		},
+		"valid - no": {
+			form: &removeAttorneyForm{
+				RemoveAttorney: "no",
+			},
+			errors: map[string]string{},
+		},
+		"missing-value": {
+			form: &removeAttorneyForm{
+				RemoveAttorney: "",
+			},
+			errors: map[string]string{
+				"remove-attorney": "selectRemoveAttorneys",
+			},
+		},
+		"unexpected-value": {
+			form: &removeAttorneyForm{
+				RemoveAttorney: "not expected",
+			},
+			errors: map[string]string{
+				"remove-attorney": "selectRemoveAttorneys",
+			},
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.errors, tc.form.Validate())
+		})
+	}
+}
