@@ -40,6 +40,26 @@ func RemoveAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) Ha
 			Form:     removeAttorneyForm{},
 		}
 
+		if r.Method == http.MethodPost {
+			data.Form = removeAttorneyForm{
+				RemoveAttorney: postFormString(r, "remove-attorney"),
+			}
+
+			if data.Form.RemoveAttorney == "yes" {
+				lpa.DeleteAttorney(attorney)
+
+				err = lpaStore.Put(r.Context(), appData.SessionID, lpa)
+
+				if err != nil {
+					logger.Print(fmt.Sprintf("error removing Attorney from LPA: %s", err.Error()))
+					return err
+				}
+			}
+
+			appData.Lang.Redirect(w, r, chooseAttorneysSummaryPath, http.StatusFound)
+			return nil
+		}
+
 		return tmpl(w, data)
 	}
 }
