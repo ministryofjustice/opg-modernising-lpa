@@ -117,6 +117,9 @@
     "removeLink": "Welsh<span class=\"govuk-visually-hidden\"> {{ .FirstNames }} {{ .LastName }}</span>",
     "doYouWantToAddAnotherAttorney": "Welsh?",
     "selectAddMoreAttorneys": "Welsh",
+    "removeAnAttorney": "Welsh",
+    "doYouWantToRemove": "Welsh {{ .FirstNames }} {{ .LastName }}?",
+    "selectRemoveAttorney": "Welsh",
 
     "whoWouldYouLikeToBeTheAttorneysDetailsTitle": "Welsh",
     "whoWouldYouLikeToBeTheAttorneysDetailsContent": "<p class=\"govuk-body\">Welsh</p>",
