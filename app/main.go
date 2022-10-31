@@ -30,6 +30,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 func main() {
@@ -55,6 +56,8 @@ func main() {
 		xrayEnabled           = env.Get("XRAY_ENABLED", "") == "1"
 	)
 
+	httpClient := &http.Client{Timeout: 10 * time.Second}
+
 	if xrayEnabled {
 		resource, err := ecs.NewResourceDetector().Detect(ctx)
 		if err != nil {
@@ -66,6 +69,8 @@ func main() {
 			logger.Fatal(err)
 		}
 		defer shutdown(ctx)
+
+		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
 	}
 
 	tmpls, err := template.Parse(webDir+"/template", templatefn.All)
@@ -111,7 +116,7 @@ func main() {
 
 	redirectURL := authRedirectBaseURL + page.AuthRedirectPath
 
-	signInClient, err := signin.Discover(ctx, logger, http.DefaultClient, secretsClient, issuer, clientID, redirectURL)
+	signInClient, err := signin.Discover(ctx, logger, httpClient, secretsClient, issuer, clientID, redirectURL)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -124,7 +129,7 @@ func main() {
 	payClient := &pay.Client{
 		BaseURL:    payBaseUrl,
 		ApiKey:     payApiKey,
-		HttpClient: http.DefaultClient,
+		HttpClient: httpClient,
 	}
 
 	yotiPrivateKey, err := secretsClient.SecretBytes(ctx, secrets.YotiPrivateKey)
@@ -147,14 +152,14 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	addressClient := place.NewClient(ordnanceSurveyBaseUrl, osApiKey, http.DefaultClient)
+	addressClient := place.NewClient(ordnanceSurveyBaseUrl, osApiKey, httpClient)
 
 	notifyApiKey, err := secretsClient.Secret(ctx, secrets.GovUkNotify)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, http.DefaultClient)
+	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -162,6 +167,7 @@ func main() {
 	secureCookies := strings.HasPrefix(appPublicURL, "https:")
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/health-check", func(w http.ResponseWriter, r *http.Request) {})
 	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir(webDir+"/static/"))))
 	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies))
 	mux.Handle(page.AuthPath, page.Login(logger, signInClient, sessionStore, secureCookies, random.String))
