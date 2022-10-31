@@ -173,9 +173,15 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{Attorneys: []Attorney{attorneyWithoutAddress}}, nil)
 
+	attorneyWithoutAddress.Address.Line1 = "a"
+	attorneyWithoutAddress.Address.Line2 = "b"
+	attorneyWithoutAddress.Address.Line3 = "c"
+	attorneyWithoutAddress.Address.TownOrCity = "d"
+	attorneyWithoutAddress.Address.Postcode = "e"
+
 	lpaStore.
 		On("Put", mock.Anything, "session-id", &Lpa{
-			Attorneys: []Attorney{attorneyWithAddress},
+			Attorneys: []Attorney{attorneyWithoutAddress},
 		}).
 		Return(nil)
 
@@ -207,9 +213,16 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{Attorneys: []Attorney{attorneyWithoutAddress}}, nil)
+
+	attorneyWithoutAddress.Address.Line1 = "a"
+	attorneyWithoutAddress.Address.Line2 = "b"
+	attorneyWithoutAddress.Address.Line3 = "c"
+	attorneyWithoutAddress.Address.TownOrCity = "d"
+	attorneyWithoutAddress.Address.Postcode = "e"
+
 	lpaStore.
 		On("Put", mock.Anything, "session-id", &Lpa{
-			Attorneys: []Attorney{attorneyWithAddress},
+			Attorneys: []Attorney{attorneyWithoutAddress},
 		}).
 		Return(expectedError)
 
@@ -240,7 +253,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 		Return(&Lpa{
 			Attorneys: []Attorney{
 				{
-					ID:         "123",
+					ID:         "with-address",
 					FirstNames: "John",
 					Address:    place.Address{Line1: "abc"},
 				},
@@ -263,7 +276,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 		"address-postcode": {"e"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=with-address", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
 	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(appData, w, r)
@@ -327,8 +340,21 @@ func TestPostChooseAttorneysAddressSelect(t *testing.T) {
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{Attorneys: []Attorney{attorneyWithoutAddress}}, nil)
+
+	updatedAttorney := Attorney{
+		ID:         "without-address",
+		FirstNames: "John",
+		Address: place.Address{
+			Line1:      "a",
+			Line2:      "b",
+			Line3:      "c",
+			TownOrCity: "d",
+			Postcode:   "e",
+		},
+	}
+
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{Attorneys: []Attorney{attorneyWithAddress}}).
+		On("Put", mock.Anything, "session-id", &Lpa{Attorneys: []Attorney{updatedAttorney}}).
 		Return(nil)
 
 	template := &mockTemplate{}

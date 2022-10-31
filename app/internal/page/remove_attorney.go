@@ -60,6 +60,12 @@ func RemoveAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) Ha
 				appData.Lang.Redirect(w, r, chooseAttorneysSummaryPath, http.StatusFound)
 				return nil
 			}
+
+			if data.Form.RemoveAttorney == "no" {
+				appData.Lang.Redirect(w, r, chooseAttorneysSummaryPath, http.StatusFound)
+				return nil
+			}
+
 		}
 
 		return tmpl(w, data)

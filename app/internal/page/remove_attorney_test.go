@@ -31,7 +31,7 @@ func TestGetRemoveAttorney(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{Attorneys: []Attorney{attorneyWithAddress}}, nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?id=with-address", nil)
 
 	err := RemoveAttorney(logger, template.Func, lpaStore)(appData, w, r)
 
@@ -194,7 +194,7 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 		Return(&Lpa{Attorneys: []Attorney{attorneyWithoutAddress}}, nil)
 
 	validationError := map[string]string{
-		"remove-attorney": "selectRemoveAttorneys",
+		"remove-attorney": "selectRemoveAttorney",
 	}
 
 	template := &mockTemplate{}
@@ -241,7 +241,7 @@ func TestRemoveAttorneyFormValidate(t *testing.T) {
 				RemoveAttorney: "",
 			},
 			errors: map[string]string{
-				"remove-attorney": "selectRemoveAttorneys",
+				"remove-attorney": "selectRemoveAttorney",
 			},
 		},
 		"unexpected-value": {
@@ -249,7 +249,7 @@ func TestRemoveAttorneyFormValidate(t *testing.T) {
 				RemoveAttorney: "not expected",
 			},
 			errors: map[string]string{
-				"remove-attorney": "selectRemoveAttorneys",
+				"remove-attorney": "selectRemoveAttorney",
 			},
 		},
 	}
