@@ -28,6 +28,7 @@ const (
 	lpaTypePath                                     = "/lpa-type"
 	paymentConfirmationPath                         = "/payment-confirmation"
 	readYourLpaPath                                 = "/read-your-lpa"
+	removeAttorneyPath                              = "/remove-attorney"
 	restrictionsPath                                = "/restrictions"
 	selectYourIdentityOptionsPath                   = "/select-your-identity-options"
 	signingConfirmationPath                         = "/signing-confirmation"

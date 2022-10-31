@@ -84,65 +84,116 @@ func TestLpaStorePut(t *testing.T) {
 }
 
 func TestGetAttorney(t *testing.T) {
-	want := Attorney{ID: "1"}
-	otherAttorney := Attorney{ID: "2"}
-
-	lpa := &Lpa{
-		Attorneys: []Attorney{
-			want,
-			otherAttorney,
+	testCases := map[string]struct {
+		lpa              *Lpa
+		expectedAttorney Attorney
+		id               string
+		expectedFound    bool
+	}{
+		"attorney exists": {
+			&Lpa{
+				Attorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
+			},
+			Attorney{ID: "1", FirstNames: "Bob"},
+			"1",
+			true,
+		},
+		"attorney does not exist": {
+			&Lpa{
+				Attorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
+			},
+			Attorney{},
+			"4",
+			false,
 		},
 	}
 
-	got, found := lpa.GetAttorney("1")
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			a, found := tc.lpa.GetAttorney(tc.id)
 
-	assert.True(t, found)
-	assert.Equal(t, want, got)
-}
-
-func TestGetAttorneyIdDoesNotMatch(t *testing.T) {
-	attorney := Attorney{ID: "1"}
-	lpa := &Lpa{
-		Attorneys: []Attorney{
-			attorney,
-		},
+			assert.Equal(t, tc.expectedFound, found)
+			assert.Equal(t, tc.expectedAttorney, a)
+		})
 	}
-
-	_, found := lpa.GetAttorney("2")
-
-	assert.False(t, found)
 }
 
 func TestPutAttorney(t *testing.T) {
-	attorney := Attorney{ID: "1"}
-
-	lpa := &Lpa{
-		Attorneys: []Attorney{
-			attorney,
+	testCases := map[string]struct {
+		lpa             *Lpa
+		expectedLpa     *Lpa
+		updatedAttorney Attorney
+		expectedUpdated bool
+	}{
+		"attorney exists": {
+			&Lpa{
+				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
+			},
+			&Lpa{
+				Attorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
+			},
+			Attorney{ID: "1", FirstNames: "Bob"},
+			true,
+		},
+		"attorney does not exist": {
+			&Lpa{
+				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
+			},
+			&Lpa{
+				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
+			},
+			Attorney{ID: "3", FirstNames: "Bob"},
+			false,
 		},
 	}
 
-	updatedAttorney := Attorney{ID: "1", FirstNames: "Bob"}
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			deleted := tc.lpa.PutAttorney(tc.updatedAttorney)
 
-	updated := lpa.PutAttorney(updatedAttorney)
-
-	assert.True(t, updated)
+			assert.Equal(t, tc.expectedUpdated, deleted)
+			assert.Equal(t, tc.expectedLpa, tc.lpa)
+		})
+	}
 }
 
-func TestPutAttorneyIdDoesNotMatch(t *testing.T) {
-	attorney := Attorney{ID: "2"}
-
-	lpa := &Lpa{
-		Attorneys: []Attorney{
-			attorney,
+func TestDeleteAttorney(t *testing.T) {
+	testCases := map[string]struct {
+		lpa              *Lpa
+		expectedLpa      *Lpa
+		attorneyToDelete Attorney
+		expectedDeleted  bool
+	}{
+		"attorney exists": {
+			&Lpa{
+				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
+			},
+			&Lpa{
+				Attorneys: []Attorney{{ID: "1"}},
+			},
+			Attorney{ID: "2"},
+			true,
+		},
+		"attorney does not exist": {
+			&Lpa{
+				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
+			},
+			&Lpa{
+				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
+			},
+			Attorney{ID: "3"},
+			false,
 		},
 	}
 
-	updatedAttorney := Attorney{ID: "1", FirstNames: "Bob"}
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			deleted := tc.lpa.DeleteAttorney(tc.attorneyToDelete)
 
-	updated := lpa.PutAttorney(updatedAttorney)
-
-	assert.False(t, updated)
+			assert.Equal(t, tc.expectedDeleted, deleted)
+			assert.Equal(t, tc.expectedLpa, tc.lpa)
+		})
+	}
 }
 
 func TestAttorneysFullNames(t *testing.T) {
