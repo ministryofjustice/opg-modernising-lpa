@@ -22,7 +22,7 @@
                     </a>
                 </dd>
                 <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link govuk-body-s" href="#">
+                    <a class="govuk-link govuk-body-s" href="{{ $.RemoveAttorneyPath }}?id={{ .ID }}">
                         {{ trFormatHtml $.App "removeLink" "FirstNames" .FirstNames "LastName" .LastName }}
                     </a>
                 </dd>
