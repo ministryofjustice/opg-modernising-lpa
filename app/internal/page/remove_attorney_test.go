@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -16,11 +18,18 @@ func TestGetRemoveAttorney(t *testing.T) {
 
 	logger := &mockLogger{}
 
+	attorney := Attorney{
+		ID: "123",
+		Address: place.Address{
+			Line1: "1 Road way",
+		},
+	}
+
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &removeAttorneyData{
 			App:      appData,
-			Attorney: attorneyWithAddress,
+			Attorney: attorney,
 			Errors:   nil,
 			Form:     removeAttorneyForm{},
 		}).
@@ -29,9 +38,9 @@ func TestGetRemoveAttorney(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{Attorneys: []Attorney{attorneyWithAddress}}, nil)
+		Return(&Lpa{Attorneys: []Attorney{attorney}}, nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/?id=with-address", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
 
 	err := RemoveAttorney(logger, template.Func, lpaStore)(appData, w, r)
 
@@ -75,10 +84,17 @@ func TestGetRemoveAttorneyAttorneyDoesNotExist(t *testing.T) {
 
 	template := &mockTemplate{}
 
+	attorney := Attorney{
+		ID: "123",
+		Address: place.Address{
+			Line1: "1 Road way",
+		},
+	}
+
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{Attorneys: []Attorney{attorneyWithAddress}}, nil)
+		Return(&Lpa{Attorneys: []Attorney{attorney}}, nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/?id=invalid-id", nil)
 
@@ -97,6 +113,18 @@ func TestPostRemoveAttorney(t *testing.T) {
 
 	logger := &mockLogger{}
 	template := &mockTemplate{}
+
+	attorneyWithAddress := Attorney{
+		ID: "with-address",
+		Address: place.Address{
+			Line1: "1 Road way",
+		},
+	}
+
+	attorneyWithoutAddress := Attorney{
+		ID:      "without-address",
+		Address: place.Address{},
+	}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -128,6 +156,18 @@ func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 
 	logger := &mockLogger{}
 	template := &mockTemplate{}
+
+	attorneyWithAddress := Attorney{
+		ID: "with-address",
+		Address: place.Address{
+			Line1: "1 Road way",
+		},
+	}
+
+	attorneyWithoutAddress := Attorney{
+		ID:      "without-address",
+		Address: place.Address{},
+	}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -161,6 +201,18 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 		On("Print", "error removing Attorney from LPA: err").
 		Return(nil)
 
+	attorneyWithAddress := Attorney{
+		ID: "with-address",
+		Address: place.Address{
+			Line1: "1 Road way",
+		},
+	}
+
+	attorneyWithoutAddress := Attorney{
+		ID:      "without-address",
+		Address: place.Address{},
+	}
+
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
@@ -187,6 +239,11 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 
 func TestRemoveAttorneyFormValidation(t *testing.T) {
 	w := httptest.NewRecorder()
+
+	attorneyWithoutAddress := Attorney{
+		ID:      "without-address",
+		Address: place.Address{},
+	}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
