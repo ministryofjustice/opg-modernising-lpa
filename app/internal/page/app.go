@@ -133,6 +133,8 @@ func App(
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_attorneys_address.gohtml"), addressClient, lpaStore))
 	handle(chooseAttorneysSummaryPath, RequireSession|CanGoBack,
 		ChooseAttorneySummary(logger, tmpls.Get("choose_attorneys_summary.gohtml"), lpaStore))
+	handle(removeAttorneyPath, RequireSession|CanGoBack,
+		RemoveAttorney(logger, tmpls.Get("remove_attorney.gohtml"), lpaStore))
 	handle(wantReplacementAttorneysPath, RequireSession|CanGoBack,
 		WantReplacementAttorneys(tmpls.Get("want_replacement_attorneys.gohtml"), lpaStore))
 	handle(whenCanTheLpaBeUsedPath, RequireSession|CanGoBack,
