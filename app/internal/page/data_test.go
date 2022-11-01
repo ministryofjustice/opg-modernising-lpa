@@ -91,20 +91,20 @@ func TestGetAttorney(t *testing.T) {
 		expectedFound    bool
 	}{
 		"attorney exists": {
-			&Lpa{
+			lpa: &Lpa{
 				Attorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
 			},
-			Attorney{ID: "1", FirstNames: "Bob"},
-			"1",
-			true,
+			expectedAttorney: Attorney{ID: "1", FirstNames: "Bob"},
+			id:               "1",
+			expectedFound:    true,
 		},
 		"attorney does not exist": {
-			&Lpa{
+			lpa: &Lpa{
 				Attorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
 			},
-			Attorney{},
-			"4",
-			false,
+			expectedAttorney: Attorney{},
+			id:               "4",
+			expectedFound:    false,
 		},
 	}
 
@@ -126,24 +126,24 @@ func TestPutAttorney(t *testing.T) {
 		expectedUpdated bool
 	}{
 		"attorney exists": {
-			&Lpa{
+			lpa: &Lpa{
 				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
 			},
-			&Lpa{
+			expectedLpa: &Lpa{
 				Attorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
 			},
-			Attorney{ID: "1", FirstNames: "Bob"},
-			true,
+			updatedAttorney: Attorney{ID: "1", FirstNames: "Bob"},
+			expectedUpdated: true,
 		},
 		"attorney does not exist": {
-			&Lpa{
+			lpa: &Lpa{
 				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
 			},
-			&Lpa{
+			expectedLpa: &Lpa{
 				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
 			},
-			Attorney{ID: "3", FirstNames: "Bob"},
-			false,
+			updatedAttorney: Attorney{ID: "3", FirstNames: "Bob"},
+			expectedUpdated: false,
 		},
 	}
 
@@ -165,24 +165,24 @@ func TestDeleteAttorney(t *testing.T) {
 		expectedDeleted  bool
 	}{
 		"attorney exists": {
-			&Lpa{
+			lpa: &Lpa{
 				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
 			},
-			&Lpa{
+			expectedLpa: &Lpa{
 				Attorneys: []Attorney{{ID: "1"}},
 			},
-			Attorney{ID: "2"},
-			true,
+			attorneyToDelete: Attorney{ID: "2"},
+			expectedDeleted:  true,
 		},
 		"attorney does not exist": {
-			&Lpa{
+			lpa: &Lpa{
 				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
 			},
-			&Lpa{
+			expectedLpa: &Lpa{
 				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
 			},
-			Attorney{ID: "3"},
-			false,
+			attorneyToDelete: Attorney{ID: "3"},
+			expectedDeleted:  false,
 		},
 	}
 
