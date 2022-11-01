@@ -152,3 +152,27 @@ resource "aws_s3_bucket_lifecycle_configuration" "log_retention_policy" {
 
   }
 }
+
+data "aws_iam_role" "sns_success_feedback" {
+  name     = "SNSSuccessFeedback"
+  provider = aws.global
+}
+
+data "aws_iam_role" "sns_failure_feedback" {
+  provider = aws.global
+  name     = "SNSFailureFeedback"
+}
+
+
+module "s3_event_notifications" {
+  providers = { aws = aws.region }
+  source    = "./modules/s3_bucket_event_notifications"
+  s3_bucket_event_types = [
+    "s3:ObjectRemoved:*",
+    "s3:ObjectAcl:Put",
+  ]
+  sns_kms_key_alias             = var.sns_kms_key_alias
+  s3_bucket_id                  = aws_s3_bucket.access_log.id
+  sns_failure_feedback_role_arn = data.aws_iam_role.sns_failure_feedback.arn
+  sns_success_feedback_role_arn = data.aws_iam_role.sns_success_feedback.arn
+}
