@@ -110,13 +110,17 @@
     "signTheLpa": "Welsh",
     "attorneysAdded": {
         "one": "Welsh {{.PluralCount}} welsh",
-        "other": "YWelsh {{.PluralCount}} welsh"
+        "two": "Welsh {{.PluralCount}} welsh",
+        "few": "Welsh {{.PluralCount}} welsh"
     },
     "changeDetailsLink": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ .FirstNames }} {{ .LastName }}</span>",
     "changeAddressLink": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ .FirstNames }} {{ .LastName }}</span>",
     "removeLink": "Welsh<span class=\"govuk-visually-hidden\"> {{ .FirstNames }} {{ .LastName }}</span>",
     "doYouWantToAddAnotherAttorney": "Welsh?",
     "selectAddMoreAttorneys": "Welsh",
+    "removeAnAttorney": "Welsh",
+    "doYouWantToRemove": "Welsh {{ .FirstNames }} {{ .LastName }}?",
+    "selectRemoveAttorney": "Welsh",
 
     "whoWouldYouLikeToBeTheAttorneysDetailsTitle": "Welsh",
     "whoWouldYouLikeToBeTheAttorneysDetailsContent": "<p class=\"govuk-body\">Welsh</p>",

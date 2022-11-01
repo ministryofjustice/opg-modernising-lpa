@@ -26,6 +26,7 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 			Lpa:                 &Lpa{},
 			AttorneyAddressPath: chooseAttorneysAddressPath,
 			AttorneyDetailsPath: chooseAttorneysPath,
+			RemoveAttorneyPath:  removeAttorneyPath,
 		}).
 		Return(nil)
 
@@ -93,6 +94,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 					Lpa:                 &Lpa{},
 					AttorneyAddressPath: chooseAttorneysAddressPath,
 					AttorneyDetailsPath: chooseAttorneysPath,
+					RemoveAttorneyPath:  removeAttorneyPath,
 					Form:                chooseAttorneysSummaryForm{AddAttorney: tc.addMoreFormValue},
 					Errors:              map[string]string{},
 				}).

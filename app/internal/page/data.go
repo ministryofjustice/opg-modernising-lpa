@@ -168,6 +168,18 @@ func (l *Lpa) PutAttorney(attorney Attorney) bool {
 	return true
 }
 
+func (l *Lpa) DeleteAttorney(attorney Attorney) bool {
+	idx := slices.IndexFunc(l.Attorneys, func(a Attorney) bool { return a.ID == attorney.ID })
+
+	if idx == -1 {
+		return false
+	}
+
+	l.Attorneys = slices.Delete(l.Attorneys, idx, idx+1)
+
+	return true
+}
+
 func (l *Lpa) AttorneysFullNames() string {
 	var names []string
 

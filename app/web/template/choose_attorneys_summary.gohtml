@@ -11,18 +11,18 @@
                 <dt class="govuk-summary-list__key">
                     {{ .FirstNames }} {{ .LastName }}<br>
                     <span class="govuk-body-s">{{ formatDate .DateOfBirth }}</span><br>
-                    <a class="govuk-link govuk-body-s" href="{{ $.AttorneyDetailsPath }}?id={{ .ID }}&from={{ $.App.Page }}">
+                    <a class="govuk-link govuk-body-s" href="{{ link $.App $.AttorneyDetailsPath }}?id={{ .ID }}&from={{ $.App.Page }}">
                         {{ trFormatHtml $.App "changeDetailsLink" "FirstNames" .FirstNames "LastName" .LastName }}
                     </a>
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {{ .Address.Line1 }}, {{ .Address.Postcode }}<br>
-                    <a class="govuk-link govuk-body-s" href="{{ $.AttorneyAddressPath }}?id={{ .ID }}&from={{ $.App.Page }}">
+                    <a class="govuk-link govuk-body-s" href="{{ link $.App $.AttorneyAddressPath }}?id={{ .ID }}&from={{ $.App.Page }}">
                         {{ trFormatHtml $.App "changeAddressLink" "FirstNames" .FirstNames "LastName" .LastName }}
                     </a>
                 </dd>
                 <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link govuk-body-s" href="#">
+                    <a class="govuk-link govuk-body-s" href="{{ link $.App $.RemoveAttorneyPath }}?id={{ .ID }}">
                         {{ trFormatHtml $.App "removeLink" "FirstNames" .FirstNames "LastName" .LastName }}
                     </a>
                 </dd>
