@@ -91,4 +91,35 @@ describe('Choose attorneys summary', () => {
         cy.contains('31 December 1995');
         cy.contains('5 RICHMOND PLACE, B14 7ED');
     });
+
+    it('can remove an attorney', () => {
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+        cy.contains('dt', 'John Smith').parent().contains('a', 'Remove').click();
+
+        cy.url().should('contain', '/remove-attorney');
+        cy.url().should('match', /id=\w*/);
+
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+        cy.contains('Are you sure you want to remove John Smith?');
+
+        cy.get('#f-remove-attorney').check('yes');
+        cy.contains('button', 'Continue').click();
+
+        cy.url().should('contain', '/choose-attorneys-summary');
+
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+        cy.get('main').should('not.contain', 'John Smith');
+
+        cy.contains('dt', 'Joan Smith').parent().contains('a', 'Remove').click();
+        cy.get('#f-remove-attorney').check('yes');
+        cy.contains('button', 'Continue').click();
+
+        cy.url().should('contain', '/choose-attorneys');
+    });
 });

@@ -118,6 +118,9 @@
     "removeLink": "Remove<span class=\"govuk-visually-hidden\"> {{ .FirstNames }} {{ .LastName }}</span>",
     "doYouWantToAddAnotherAttorney": "Do you want to add another attorney?",
     "selectAddMoreAttorneys": "Select whether you want to add any more attorneys",
+    "removeAnAttorney": "Remove an attorney",
+    "doYouWantToRemove": "Are you sure you want to remove {{ .FirstNames }} {{ .LastName }}?",
+    "selectRemoveAttorney": "Select whether you want to remove this attorney",
 
     "whoWouldYouLikeToBeTheAttorneys": "Who would you like to be the attorneys?",
     "whoWouldYouLikeToBeTheAttorneysDetailsTitle": "Guidance on choosing an attorney",
