@@ -12,8 +12,9 @@ type chooseAttorneysSummaryData struct {
 	AttorneyAddressPath string
 	AttorneyDetailsPath string
 	Errors              map[string]string
-	Lpa                 *Lpa
 	Form                chooseAttorneysSummaryForm
+	Lpa                 *Lpa
+	RemoveAttorneyPath  string
 }
 
 type chooseAttorneysSummaryForm struct {
@@ -34,6 +35,7 @@ func ChooseAttorneySummary(logger Logger, tmpl template.Template, lpaStore LpaSt
 			AttorneyDetailsPath: chooseAttorneysPath,
 			AttorneyAddressPath: chooseAttorneysAddressPath,
 			Form:                chooseAttorneysSummaryForm{},
+			RemoveAttorneyPath:  removeAttorneyPath,
 		}
 
 		if r.Method == http.MethodPost {
