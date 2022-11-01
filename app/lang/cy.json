@@ -110,7 +110,8 @@
     "signTheLpa": "Welsh",
     "attorneysAdded": {
         "one": "Welsh {{.PluralCount}} welsh",
-        "other": "Welsh {{.PluralCount}} welsh"
+        "two": "Welsh {{.PluralCount}} welsh",
+        "few": "Welsh {{.PluralCount}} welsh"
     },
     "changeDetailsLink": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ .FirstNames }} {{ .LastName }}</span>",
     "changeAddressLink": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ .FirstNames }} {{ .LastName }}</span>",
