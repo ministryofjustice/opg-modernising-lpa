@@ -276,6 +276,42 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
+func TestRemoveAttorneyRemoveLastAttorneyRedirectsToChooseAttorney(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	logger := &mockLogger{}
+	template := &mockTemplate{}
+
+	attorneyWithoutAddress := Attorney{
+		ID:      "without-address",
+		Address: place.Address{},
+	}
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(&Lpa{Attorneys: []Attorney{attorneyWithoutAddress}}, nil)
+	lpaStore.
+		On("Put", mock.Anything, "session-id", &Lpa{Attorneys: []Attorney{}}).
+		Return(nil)
+
+	form := url.Values{
+		"remove-attorney": {"yes"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := RemoveAttorney(logger, template.Func, lpaStore)(appData, w, r)
+
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "/choose-attorneys", resp.Header.Get("Location"))
+	mock.AssertExpectationsForObjects(t, lpaStore, template)
+}
+
 func TestRemoveAttorneyFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *removeAttorneyForm

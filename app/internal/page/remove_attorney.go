@@ -57,7 +57,12 @@ func RemoveAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) Ha
 					return err
 				}
 
-				appData.Lang.Redirect(w, r, chooseAttorneysSummaryPath, http.StatusFound)
+				if len(lpa.Attorneys) == 0 {
+					appData.Lang.Redirect(w, r, chooseAttorneysPath, http.StatusFound)
+				} else {
+					appData.Lang.Redirect(w, r, chooseAttorneysSummaryPath, http.StatusFound)
+				}
+
 				return nil
 			}
 

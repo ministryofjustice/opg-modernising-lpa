@@ -115,5 +115,11 @@ describe('Choose attorneys summary', () => {
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
         cy.get('main').should('not.contain', 'John Smith');
+
+        cy.contains('dt', 'Joan Smith').parent().contains('a', 'Remove').click();
+        cy.get('#f-remove-attorney').check('yes');
+        cy.contains('button', 'Continue').click();
+
+        cy.url().should('contain', '/choose-attorneys');
     });
 });
