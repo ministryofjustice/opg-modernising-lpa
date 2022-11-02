@@ -46,6 +46,7 @@ variable "environments" {
       application_load_balancer = object({
         deletion_protection_enabled = bool
       })
+      cloudwatch_application_insights_enabled = bool
     })
   )
 }
