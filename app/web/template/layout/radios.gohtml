@@ -25,9 +25,9 @@
                     <label class="govuk-label" for="{{ $e.conditionalInputName }}-conditional-input">
                         {{ tr $.top.App $e.conditionalLabel }}
                     </label>
-                    {{ if index $.top.Errors $.name }}
+                    {{ if index $.top.Errors $e.conditionalInputName }}
                         <p id="{{ fieldID $.name $i }}-error" class="govuk-error-message">
-                            {{ index $.top.Errors $.name }}
+                            {{ tr $.top.App (index $.top.Errors $e.conditionalInputName) }}
                         </p>
                     {{ end }}
                     <textarea class="govuk-textarea {{ if index $.top.Errors $.name }}govuk-input--error{{ end }}" id="{{ $e.conditionalInputName }}" name="{{ $e.conditionalInputName }}" rows="10">{{ $e.conditionalValue }}</textarea>

@@ -20,7 +20,7 @@
                     <div class="govuk-form-group {{ if index .Errors "decision-type" }}govuk-form-group--error{{ end }}">
                         {{ template "error-message" (errorMessage . "decision-type") }}
 
-                        {{ template "radios" (items . "decision-type" ""
+                        {{ template "radios" (items . "decision-type" .DecisionsType
                         (item "jointly-and-severally" "jointlyAndSeverally" "hint" "jointlyAndSeverallyHint")
                         (item "jointly" "jointly" "hint" "jointlyHint")
                         (item "mixed" "jointlyAndSeverallyMixed" "hint" "jointlyAndSeverallyMixedHint" "conditionalLabel" "details" "conditionalValue" .DecisionsDetails "conditionalInputName" "mixed-details")

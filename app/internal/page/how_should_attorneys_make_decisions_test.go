@@ -143,6 +143,66 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
+func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
+	testCases := map[string]struct {
+		existingType    string
+		existingDetails string
+		updatedType     string
+		updatedDetails  string
+		formType        string
+		formDetails     string
+	}{
+		"existing details not set": {
+			existingType:    "jointly-and-severally",
+			existingDetails: "",
+			updatedType:     "mixed",
+			updatedDetails:  "some details",
+			formType:        "mixed",
+			formDetails:     "some details",
+		},
+		"existing details set": {
+			existingType:    "mixed",
+			existingDetails: "some details",
+			updatedType:     "jointly",
+			updatedDetails:  "",
+			formType:        "jointly",
+			formDetails:     "some details",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(&Lpa{DecisionsDetails: tc.existingDetails, DecisionsType: tc.existingType}, nil)
+			lpaStore.
+				On("Put", mock.Anything, "session-id", &Lpa{DecisionsDetails: tc.updatedDetails, DecisionsType: tc.updatedType}).
+				Return(nil)
+
+			template := &mockTemplate{}
+
+			form := url.Values{
+				"decision-type": {tc.formType},
+				"mixed-details": {tc.formDetails},
+			}
+
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
+
+			err := HowShouldAttorneysMakeDecisions(template.Func, lpaStore)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, wantReplacementAttorneysPath, resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, lpaStore)
+		})
+	}
+}
+
 func TestPostHowShouldAttorneysMakeDecisionsWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
@@ -200,7 +260,7 @@ func TestPostHowShouldAttorneysMakeDecisionsWhenValidationErrors(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
-func TestValiateForm(t *testing.T) {
+func TestValidateForm(t *testing.T) {
 	testCases := map[string]struct {
 		DecisionType   string
 		DecisionDetail string
@@ -230,11 +290,6 @@ func TestValiateForm(t *testing.T) {
 			DecisionType:   "mixed",
 			DecisionDetail: "",
 			ExpectedErrors: map[string]string{"mixed-details": "provideDecisionDetails"},
-		},
-		"details provided when not mixed": {
-			DecisionType:   "jointly",
-			DecisionDetail: "some details",
-			ExpectedErrors: map[string]string{"mixed-details": "removeDetails"},
 		},
 	}
 

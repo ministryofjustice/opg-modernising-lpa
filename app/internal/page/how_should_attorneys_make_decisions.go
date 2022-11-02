@@ -38,9 +38,14 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) 
 			data.Errors = form.Validate()
 
 			if len(data.Errors) == 0 {
-				//	lpa.Tasks.CertificateProvider = TaskCompleted
 				lpa.DecisionsType = form.DecisionsType
-				lpa.DecisionsDetails = form.DecisionsDetails
+
+				if form.DecisionsType != "mixed" {
+					lpa.DecisionsDetails = ""
+				} else {
+					lpa.DecisionsDetails = form.DecisionsDetails
+				}
+
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
@@ -69,10 +74,6 @@ func (f *howShouldAttorneysMakeDecisionsForm) Validate() map[string]string {
 
 	if f.DecisionsType == "mixed" && f.DecisionsDetails == "" {
 		errors["mixed-details"] = "provideDecisionDetails"
-	}
-
-	if f.DecisionsType != "mixed" && f.DecisionsDetails != "" {
-		errors["mixed-details"] = "removeDetails"
 	}
 
 	return errors
