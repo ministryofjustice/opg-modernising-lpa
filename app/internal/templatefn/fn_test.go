@@ -238,3 +238,38 @@ func TestAttorneyDetails(t *testing.T) {
 
 	assert.Equal(t, want, got)
 }
+
+func TestJoin(t *testing.T) {
+	testCases := map[string]struct {
+		separator string
+		strings   []string
+		want      string
+	}{
+		"space separator": {
+			separator: " ",
+			strings:   []string{"a", "b"},
+			want:      "a b",
+		},
+		"character separator": {
+			separator: ", ",
+			strings:   []string{"a", "b"},
+			want:      "a, b",
+		},
+		"no separator": {
+			separator: "",
+			strings:   []string{"a", "b"},
+			want:      "ab",
+		},
+		"no strings": {
+			separator: " ",
+			strings:   []string{},
+			want:      "",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.want, join(tc.separator, tc.strings...))
+		})
+	}
+}
