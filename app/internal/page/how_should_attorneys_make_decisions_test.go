@@ -114,21 +114,14 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{DecisionsDetails: "", DecisionsType: ""}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{DecisionsDetails: "some decisions", DecisionsType: "jointly"}).
+		On("Put", mock.Anything, "session-id", &Lpa{DecisionsDetails: "", DecisionsType: "jointly"}).
 		Return(nil)
 
 	template := &mockTemplate{}
-	template.
-		On("Func", w, &howShouldAttorneysMakeDecisionsData{
-			App:              appData,
-			DecisionsType:    "jointly",
-			DecisionsDetails: "some decisions",
-		}).
-		Return(nil)
 
 	form := url.Values{
 		"decision-type": {"jointly"},
-		"mixed-details": {"some decisions"},
+		"mixed-details": {""},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -140,7 +133,7 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, wantReplacementAttorneysPath, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {

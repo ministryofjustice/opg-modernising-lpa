@@ -22,9 +22,14 @@ func TestGetCheckYourLpa(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &checkYourLpaData{
-			App:  appData,
-			Form: &checkYourLpaForm{},
-			Lpa:  &Lpa{},
+			App:                           appData,
+			Form:                          &checkYourLpaForm{},
+			Lpa:                           &Lpa{},
+			HowAttorneysMakeDecisionsPath: howShouldAttorneysMakeDecisionsPath,
+			ChooseAttorneysPath:           chooseAttorneysPath,
+			WhenCanLpaBeUsedPath:          whenCanTheLpaBeUsedPath,
+			RestrictionsPath:              restrictionsPath,
+			CertificatesProviderPath:      certificateProviderDetailsPath,
 		}).
 		Return(nil)
 
@@ -77,6 +82,11 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 				Checked: true,
 				Happy:   true,
 			},
+			HowAttorneysMakeDecisionsPath: howShouldAttorneysMakeDecisionsPath,
+			ChooseAttorneysPath:           chooseAttorneysPath,
+			WhenCanLpaBeUsedPath:          whenCanTheLpaBeUsedPath,
+			RestrictionsPath:              restrictionsPath,
+			CertificatesProviderPath:      certificateProviderDetailsPath,
 		}).
 		Return(nil)
 

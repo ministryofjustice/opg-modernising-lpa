@@ -7,11 +7,16 @@ import (
 )
 
 type checkYourLpaData struct {
-	App       AppData
-	Errors    map[string]string
-	Lpa       *Lpa
-	Form      *checkYourLpaForm
-	Completed bool
+	App                           AppData
+	Errors                        map[string]string
+	Lpa                           *Lpa
+	Form                          *checkYourLpaForm
+	Completed                     bool
+	HowAttorneysMakeDecisionsPath string
+	ChooseAttorneysPath           string
+	WhenCanLpaBeUsedPath          string
+	RestrictionsPath              string
+	CertificatesProviderPath      string
 }
 
 func CheckYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -28,7 +33,12 @@ func CheckYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 				Checked: lpa.Checked,
 				Happy:   lpa.HappyToShare,
 			},
-			Completed: lpa.Tasks.CheckYourLpa == TaskCompleted,
+			Completed:                     lpa.Tasks.CheckYourLpa == TaskCompleted,
+			HowAttorneysMakeDecisionsPath: howShouldAttorneysMakeDecisionsPath,
+			ChooseAttorneysPath:           chooseAttorneysPath,
+			WhenCanLpaBeUsedPath:          whenCanTheLpaBeUsedPath,
+			RestrictionsPath:              restrictionsPath,
+			CertificatesProviderPath:      certificateProviderDetailsPath,
 		}
 
 		if r.Method == http.MethodPost {
