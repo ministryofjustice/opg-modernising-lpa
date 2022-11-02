@@ -34,7 +34,6 @@ var All = map[string]interface{}{
 	"formatDateTime":  formatDateTime,
 	"lowerFirst":      lowerFirst,
 	"attorneyDetails": attorneyDetails,
-	"join":            join,
 }
 
 func isEnglish(lang page.Lang) bool {
