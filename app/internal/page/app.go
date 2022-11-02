@@ -80,6 +80,7 @@ func postFormString(r *http.Request, name string) string {
 
 type AppData struct {
 	Page             string
+	Query            string
 	Localizer        localize.Localizer
 	Lang             Lang
 	CookieConsentSet bool
@@ -290,6 +291,7 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 
 			if err := h(AppData{
 				Page:             path,
+				Query:            queryString(r),
 				Localizer:        localizer,
 				Lang:             lang,
 				SessionID:        sessionID,
@@ -302,5 +304,13 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 				http.Error(w, "Encountered an error", http.StatusInternalServerError)
 			}
 		})
+	}
+}
+
+func queryString(r *http.Request) string {
+	if r.URL.RawQuery != "" {
+		return fmt.Sprintf("?%s", r.URL.RawQuery)
+	} else {
+		return ""
 	}
 }
