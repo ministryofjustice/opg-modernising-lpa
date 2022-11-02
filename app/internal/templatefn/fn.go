@@ -3,7 +3,6 @@ package templatefn
 import (
 	"fmt"
 	"html/template"
-	"strings"
 	"time"
 	"unicode"
 	"unicode/utf8"
@@ -216,8 +215,4 @@ func attorneyDetails(attorneys []page.Attorney, from string, app page.AppData) m
 		"From":      from,
 		"App":       app,
 	}
-}
-
-func join(separator string, s ...string) string {
-	return strings.Join(s, separator)
 }
