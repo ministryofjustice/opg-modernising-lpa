@@ -178,12 +178,24 @@ func TestTrFormatHtml(t *testing.T) {
 }
 
 func TestTrCount(t *testing.T) {
-	app := page.AppData{
+	enApp := page.AppData{
 		Localizer: localize.NewBundle("testdata/en.json").For("en"),
 	}
 
-	assert.Equal(t, "hi one", trCount(app, "with-count", 1))
-	assert.Equal(t, "hi other", trCount(app, "with-count", 2))
+	assert.Equal(t, "hi one", trCount(enApp, "with-count", 1))
+	assert.Equal(t, "hi other", trCount(enApp, "with-count", 2))
+
+	cyApp := page.AppData{
+		Localizer: localize.NewBundle("testdata/cy.json").For("cy"),
+	}
+
+	assert.Equal(t, "cy one", trCount(cyApp, "with-count", 1))
+	assert.Equal(t, "cy two", trCount(cyApp, "with-count", 2))
+	assert.Equal(t, "cy few", trCount(cyApp, "with-count", 3))
+	assert.Equal(t, "cy other", trCount(cyApp, "with-count", 4))
+	assert.Equal(t, "cy other", trCount(cyApp, "with-count", 5))
+	assert.Equal(t, "cy many", trCount(cyApp, "with-count", 6))
+	assert.Equal(t, "cy other", trCount(cyApp, "with-count", 7))
 }
 
 func TestNow(t *testing.T) {
@@ -225,4 +237,39 @@ func TestAttorneyDetails(t *testing.T) {
 	got := attorneyDetails(attorneys, from, app)
 
 	assert.Equal(t, want, got)
+}
+
+func TestJoin(t *testing.T) {
+	testCases := map[string]struct {
+		separator string
+		strings   []string
+		want      string
+	}{
+		"space separator": {
+			separator: " ",
+			strings:   []string{"a", "b"},
+			want:      "a b",
+		},
+		"character separator": {
+			separator: ", ",
+			strings:   []string{"a", "b"},
+			want:      "a, b",
+		},
+		"no separator": {
+			separator: "",
+			strings:   []string{"a", "b"},
+			want:      "ab",
+		},
+		"no strings": {
+			separator: " ",
+			strings:   []string{},
+			want:      "",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.want, join(tc.separator, tc.strings...))
+		})
+	}
 }

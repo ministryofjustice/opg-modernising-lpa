@@ -1,0 +1,11 @@
+{
+  "message-id": "cy",
+  "with-format": "cy {{.name}}",
+  "with-count": {
+    "one": "cy one",
+    "two": "cy two",
+    "few": "cy few",
+    "many": "cy many",
+    "other": "cy other"
+  }
+}
