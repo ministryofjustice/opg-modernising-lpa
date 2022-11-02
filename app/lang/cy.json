@@ -132,6 +132,7 @@
 
     "attorney": "Welsh",
     "enterEmail": "Welsh",
+    "emailIncorrectFormat": "Welsh",
     "attorneyAddress": "{{.FirstNames}} {{.LastName}}'s Welsh",
 
     "wantReplacementAttorneys": "Welsh",
