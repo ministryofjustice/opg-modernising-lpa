@@ -140,5 +140,112 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, wantReplacementAttorneysPath, resp.Header.Get("Location"))
+	mock.AssertExpectationsForObjects(t, lpaStore, template)
+}
+
+func TestPostHowShouldAttorneysMakeDecisionsWhenStoreErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(&Lpa{}, expectedError)
+
+	form := url.Values{
+		"decision-type": {"jointly"},
+		"mixed-details": {"some decisions"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := HowShouldAttorneysMakeDecisions(nil, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore)
+}
+
+func TestPostHowShouldAttorneysMakeDecisionsWhenValidationErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(&Lpa{DecisionsDetails: "", DecisionsType: ""}, nil)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &howShouldAttorneysMakeDecisionsData{
+			App: appData,
+			Errors: map[string]string{
+				"decision-type": "chooseADecisionType",
+			},
+		}).
+		Return(nil)
+
+	form := url.Values{
+		"decision-type": {""},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := HowShouldAttorneysMakeDecisions(template.Func, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, lpaStore, template)
+}
+
+func TestValiateForm(t *testing.T) {
+	testCases := map[string]struct {
+		DecisionType   string
+		DecisionDetail string
+		ExpectedErrors map[string]string
+	}{
+		"valid": {
+			DecisionType:   "jointly-and-severally",
+			DecisionDetail: "",
+			ExpectedErrors: map[string]string{},
+		},
+		"valid with detail": {
+			DecisionType:   "mixed",
+			DecisionDetail: "some details",
+			ExpectedErrors: map[string]string{},
+		},
+		"unsupported decision type": {
+			DecisionType:   "not-supported",
+			DecisionDetail: "",
+			ExpectedErrors: map[string]string{"decision-type": "chooseADecisionType"},
+		},
+		"missing decision type": {
+			DecisionType:   "",
+			DecisionDetail: "",
+			ExpectedErrors: map[string]string{"decision-type": "chooseADecisionType"},
+		},
+		"missing decision detail when mixed": {
+			DecisionType:   "mixed",
+			DecisionDetail: "",
+			ExpectedErrors: map[string]string{"mixed-details": "provideDecisionDetails"},
+		},
+		"details provided when not mixed": {
+			DecisionType:   "jointly",
+			DecisionDetail: "some details",
+			ExpectedErrors: map[string]string{"mixed-details": "removeDetails"},
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			form := howShouldAttorneysMakeDecisionsForm{
+				DecisionsType:    tc.DecisionType,
+				DecisionsDetails: tc.DecisionDetail,
+			}
+
+			assert.Equal(t, tc.ExpectedErrors, form.Validate())
+		})
+	}
 }
