@@ -29,9 +29,9 @@
                         {{ template "error-message" (errorMessage . "decision-type") }}
 
                         {{ template "radios" (items . "decision-type" ""
-                        (item "jointly-and-severally" "jointlyAndSeverally")
-                        (item "jointly" "jointly")
-                        (item "mixed" "jointlyAndSeverallyMixed")
+                        (item "jointly-and-severally" "jointlyAndSeverally" "hint" "jointlyAndSeverallyHint")
+                        (item "jointly" "jointly" "hint" "jointlyHint")
+                        (item "mixed" "jointlyAndSeverallyMixed" "hint" "jointlyAndSeverallyMixedHint")
                         ) }}
                     </div>
                 </div>
