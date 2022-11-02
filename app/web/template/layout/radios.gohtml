@@ -2,7 +2,15 @@
   <div class="govuk-radios {{ if index .top.Errors .name }}govuk-radios--error{{ end }}" data-module="govuk-radios">
     {{ range $i, $e := .items }}
       <div class="govuk-radios__item">
-        <input class="govuk-radios__input" id="f-{{ fieldID $.name $i }}" name="{{ $.name }}" type="radio" value="{{ $e.value }}" {{ if eq $.value $e.value }}checked{{ end }} {{ if $e.hint }}aria-describedby="{{ fieldID $.name $i }}-item-hint"{{ end }}>
+        <input class="govuk-radios__input"
+               id="f-{{ fieldID $.name $i }}"
+               name="{{ $.name }}"
+               type="radio"
+               value="{{ $e.value }}"
+               {{ if eq $.value $e.value }}checked{{ end }}
+               {{ if $e.hint }}aria-describedby="{{ fieldID $.name $i }}-item-hint"{{ end }}
+               {{ if $e.conditionalLabel }}data-aria-controls="{{ fieldID $.name $i }}-conditional-div"{{ end }}
+        >
         <label class="govuk-label govuk-radios__label" for="f-{{ $.name }}{{ if ne $i 0 }}-{{ inc $i }}{{ end }}">
           {{ tr $.top.App $e.label }}
         </label>
@@ -10,6 +18,21 @@
           <div id="{{ fieldID $.name $i }}-item-hint" class="govuk-hint govuk-radios__hint">
             {{ tr $.top.App $e.hint }}
           </div>
+        {{ end }}
+        {{ if $e.conditionalLabel }}
+            <div class="govuk-radios__conditional" id="{{ fieldID $.name $i }}-conditional-div">
+                <div class="govuk-form-group {{ if index $.top.Errors $.name }}govuk-form-group--error{{ end }}">
+                    <label class="govuk-label" for="{{ fieldID $.name $i }}-conditional-input">
+                        {{ tr $.top.App $e.conditionalLabel }}
+                    </label>
+                    {{ if index $.top.Errors $.name }}
+                        <p id="{{ fieldID $.name $i }}-error" class="govuk-error-message">
+                            {{ index $.top.Errors $.name }}
+                        </p>
+                    {{ end }}
+                    <textarea class="govuk-textarea {{ if index $.top.Errors $.name }}govuk-input--error{{ end }}" id="{{ fieldID $.name $i }}-conditional-input" name="{{ fieldID $.name $i }}-conditional-input" rows="10"></textarea>
+                </div>
+            </div>
         {{ end }}
       </div>
     {{ end }}
