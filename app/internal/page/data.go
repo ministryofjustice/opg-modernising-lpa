@@ -51,6 +51,7 @@ type Lpa struct {
 	SignatureEmailID         string
 	IdentityOptions          IdentityOptions
 	YotiUserData             identity.UserData
+	DecisionsDetails         string
 }
 
 type PaymentDetails struct {

@@ -288,5 +288,12 @@
     "myLastingPowersOfAttorney": "My lasting powers of attorney",
     "signed": "Signed",
     "applicationNumber": "Application number",
-    "viewTheLpaProgress": "View the LPA progress"
+    "viewTheLpaProgress": "View the LPA progress",
+
+    "howShouldAttorneysMakeDecisions": "How should the attorneys make decisions?",
+    "howShouldAttorneysMakeDecisionsDetail": "The donor's choice here is very important as it affects how their LPA can be used. Whichever option the donor chooses, the attorneys must always act in the donor's best interests.",
+    "getHelpMakingDecision": "Get help with making this decision",
+    "jointlyAndSeverally": "Jointly and severally",
+    "jointly": "Jointly",
+    "jointlyAndSeverallyMixed": "Jointly for some decisions, and jointly and severally for other decisions"
 }
