@@ -11,14 +11,6 @@
                 <a href="#" class="govuk-link">{{ tr .App "getHelpMakingDecision" }}</a>
             </p>
 
-{{/*            <div class="govuk-warning-text">*/}}
-{{/*                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>*/}}
-{{/*                <strong class="govuk-warning-text__text">*/}}
-{{/*                    <span class="govuk-warning-text__assistive"></span>*/}}
-{{/*                    {{ trFormat .App "whenYouSignWarning" "YouFirstNames" .Lpa.You.FirstNames "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames }}*/}}
-{{/*                </strong>*/}}
-{{/*            </div>*/}}
-
             <form novalidate method="post">
                 <div class="govuk-form-group">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
@@ -31,7 +23,7 @@
                         {{ template "radios" (items . "decision-type" ""
                         (item "jointly-and-severally" "jointlyAndSeverally" "hint" "jointlyAndSeverallyHint")
                         (item "jointly" "jointly" "hint" "jointlyHint")
-                        (item "mixed" "jointlyAndSeverallyMixed" "hint" "jointlyAndSeverallyMixedHint" "conditionalLabel" "details")
+                        (item "mixed" "jointlyAndSeverallyMixed" "hint" "jointlyAndSeverallyMixedHint" "conditionalLabel" "details" "conditionalValue" .DecisionsDetails "conditionalInputName" "mixed-details")
                         ) }}
                     </div>
                 </div>

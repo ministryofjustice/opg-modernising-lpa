@@ -9,8 +9,14 @@ import (
 
 type howShouldAttorneysMakeDecisionsData struct {
 	App              AppData
+	DecisionsType    string
 	DecisionsDetails string
 	Errors           map[string]string
+}
+
+type howShouldAttorneysMakeDecisionsForm struct {
+	DecisionsType    string
+	DecisionsDetails string
 }
 
 func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -23,9 +29,33 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) 
 
 		data := &howShouldAttorneysMakeDecisionsData{
 			App:              appData,
+			DecisionsType:    lpa.DecisionsType,
 			DecisionsDetails: lpa.DecisionsDetails,
 		}
 
+		if r.Method == http.MethodPost {
+			form := readHowShouldAttorneysMakeDecisionsForm(r)
+			//data.Errors = form.Validate()
+
+			//if len(data.Errors) == 0 {
+			//	lpa.Tasks.CertificateProvider = TaskCompleted
+			lpa.DecisionsType = form.DecisionsType
+			lpa.DecisionsDetails = form.DecisionsDetails
+			if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				return err
+			}
+			appData.Lang.Redirect(w, r, wantReplacementAttorneysPath, http.StatusFound)
+			return nil
+			//}
+		}
+
 		return tmpl(w, data)
+	}
+}
+
+func readHowShouldAttorneysMakeDecisionsForm(r *http.Request) *howShouldAttorneysMakeDecisionsForm {
+	return &howShouldAttorneysMakeDecisionsForm{
+		DecisionsType:    postFormString(r, "decision-type"),
+		DecisionsDetails: postFormString(r, "mixed-details"),
 	}
 }
