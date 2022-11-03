@@ -32,7 +32,7 @@
     "day": "Welsh",
     "month": "Welsh",
     "year": "Welsh",
-    "enterFirstName": "Welsh",
+    "enterFirstNames": "Welsh",
     "firstNamesTooLong": "Welsh",
     "enterLastName": "Welsh",
     "lastNameTooLong": "Welsh",
@@ -64,6 +64,9 @@
     "enterAddress": "Welsh",
     "enterTownOrCity": "Welsh",
     "couldNotLookupPostcode": "Welsh",
+    "addressLine1TooLong": "Welsh",
+    "addressLine2TooLong": "Welsh",
+    "addressLine3TooLong": "Welsh",
 
     "whoIsThisLpaFor": "Welsh",
     "forMe": "Welsh",
@@ -108,8 +111,7 @@
     "checkAndSendToYourCertificateProvider": "Welsh",
     "payForTheLpa": "Welsh",
     "confirmYourIdentityAndSign": "Welsh",
-    "signAndRegisterTheLpa": "Welsh",
-    "signTheLpa": "Welsh",
+    "registerTheLpa": "Welsh",
     "attorneysAdded": {
         "one": "Welsh {{.PluralCount}} welsh",
         "two": "Welsh {{.PluralCount}} welsh",
@@ -129,7 +131,6 @@
     "whoWouldYouLikeToBeTheAttorneys": "Welsh?",
     "whoWouldYouLikeToBeTheAttorneysDetailsTitle": "Welsh",
     "whoWouldYouLikeToBeTheAttorneysDetailsContent": "<p class=\"govuk-body\">Welsh</p>",
-
     "attorney": "Welsh",
     "enterEmail": "Welsh",
     "emailIncorrectFormat": "Welsh",
@@ -253,6 +254,7 @@
 
     "selectYourIdentityOptions": "Welsh",
     "selectAllAtLeastThree": "Welsh",
+    "theYoti": "Welsh",
     "aPassport": "Welsh",
     "aDrivingLicence": "Welsh",
     "aGovernmentGatewayAccount": "Welsh",
