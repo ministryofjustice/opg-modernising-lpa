@@ -32,7 +32,7 @@
     "day": "Welsh",
     "month": "Welsh",
     "year": "Welsh",
-    "enterFirstName": "Welsh",
+    "enterFirstNames": "Welsh",
     "firstNamesTooLong": "Welsh",
     "enterLastName": "Welsh",
     "lastNameTooLong": "Welsh",
@@ -51,7 +51,9 @@
     "addressesFound": {
         "one": "{{.PluralCount}} Welsh",
         "two": "{{.PluralCount}} Welsh",
-        "few": "{{.PluralCount}} Welsh"
+        "few": "{{.PluralCount}} Welsh",
+        "many": "{{.PluralCount}} Welsh",
+        "other": "{{.PluralCount}} Welsh"
     },
     "addressLine1": "Welsh",
     "addressLine2": "Welsh",
@@ -62,6 +64,9 @@
     "enterAddress": "Welsh",
     "enterTownOrCity": "Welsh",
     "couldNotLookupPostcode": "Welsh",
+    "addressLine1TooLong": "Welsh",
+    "addressLine2TooLong": "Welsh",
+    "addressLine3TooLong": "Welsh",
 
     "whoIsThisLpaFor": "Welsh",
     "forMe": "Welsh",
@@ -106,12 +111,13 @@
     "checkAndSendToYourCertificateProvider": "Welsh",
     "payForTheLpa": "Welsh",
     "confirmYourIdentityAndSign": "Welsh",
-    "signAndRegisterTheLpa": "Welsh",
-    "signTheLpa": "Welsh",
+    "registerTheLpa": "Welsh",
     "attorneysAdded": {
         "one": "Welsh {{.PluralCount}} welsh",
         "two": "Welsh {{.PluralCount}} welsh",
-        "few": "Welsh {{.PluralCount}} welsh"
+        "few": "Welsh {{.PluralCount}} welsh",
+        "many": "Welsh {{.PluralCount}} welsh",
+        "other": "Welsh {{.PluralCount}} welsh"
     },
     "changeDetailsLink": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ .FirstNames }} {{ .LastName }}</span>",
     "changeAddressLink": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ .FirstNames }} {{ .LastName }}</span>",
@@ -122,11 +128,12 @@
     "doYouWantToRemove": "Welsh {{ .FirstNames }} {{ .LastName }}?",
     "selectRemoveAttorney": "Welsh",
 
+    "whoWouldYouLikeToBeTheAttorneys": "Welsh?",
     "whoWouldYouLikeToBeTheAttorneysDetailsTitle": "Welsh",
     "whoWouldYouLikeToBeTheAttorneysDetailsContent": "<p class=\"govuk-body\">Welsh</p>",
-
     "attorney": "Welsh",
     "enterEmail": "Welsh",
+    "emailIncorrectFormat": "Welsh",
     "attorneyAddress": "{{.FirstNames}} {{.LastName}}'s Welsh",
 
     "wantReplacementAttorneys": "Welsh",
@@ -247,6 +254,7 @@
 
     "selectYourIdentityOptions": "Welsh",
     "selectAllAtLeastThree": "Welsh",
+    "theYoti": "Welsh",
     "aPassport": "Welsh",
     "aDrivingLicence": "Welsh",
     "aGovernmentGatewayAccount": "Welsh",
