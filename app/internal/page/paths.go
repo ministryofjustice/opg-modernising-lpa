@@ -13,6 +13,7 @@ const (
 	dashboardPath                                   = "/dashboard"
 	howDoYouKnowYourCertificateProviderPath         = "/how-do-you-know-your-certificate-provider"
 	howLongHaveYouKnownCertificateProviderPath      = "/how-long-have-you-known-certificate-provider"
+	howShouldAttorneysMakeDecisionsPath             = "/how-should-attorneys-make-decisions"
 	howToSignPath                                   = "/how-to-sign"
 	howWouldYouLikeToBeContactedPath                = "/how-would-you-like-to-be-contacted"
 	identityConfirmedPath                           = "/identity-confirmed"

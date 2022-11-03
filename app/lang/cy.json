@@ -294,5 +294,19 @@
     "myLastingPowersOfAttorney": "Welsh",
     "signed": "Welsh",
     "applicationNumber": "Welsh",
-    "viewTheLpaProgress": "Welsh"
+    "viewTheLpaProgress": "Welsh",
+
+    "howShouldAttorneysMakeDecisions": "Welsh?",
+    "howShouldAttorneysMakeDecisionsDetail": "Welsh",
+    "getHelpMakingDecision": "Welsh",
+    "jointlyAndSeverally": "Welsh",
+    "jointlyAndSeverallyHint": "Welsh",
+    "jointly": "Welsh",
+    "jointlyHint": "Welsh",
+    "jointlyAndSeverallyMixed": "Welsh",
+    "jointlyAndSeverallyMixedHint": "Welsh",
+    "details": "Welsh",
+    "chooseADecisionType": "Welsh",
+    "provideDecisionDetails": "Welsh",
+    "removeDetails": "Welsh"
 }

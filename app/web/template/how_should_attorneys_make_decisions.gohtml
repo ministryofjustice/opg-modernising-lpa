@@ -1,0 +1,37 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "howShouldAttorneysMakeDecisions" }}</h1>
+
+            <p class="govuk-body">{{ tr .App "howShouldAttorneysMakeDecisionsDetail" }}</p>
+
+            <p class="govuk-body">
+                <a href="#" class="govuk-link">{{ tr .App "getHelpMakingDecision" }}</a>
+            </p>
+
+            <form novalidate method="post">
+                <div class="govuk-form-group">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                        {{ tr .App "howShouldAttorneysMakeDecisions" }}
+                    </legend>
+
+                    <div class="govuk-form-group {{ if index .Errors "decision-type" }}govuk-form-group--error{{ end }}">
+                        {{ template "error-message" (errorMessage . "decision-type") }}
+
+                        {{ template "radios" (items . "decision-type" .DecisionsType
+                        (item "jointly-and-severally" "jointlyAndSeverally" "hint" "jointlyAndSeverallyHint")
+                        (item "jointly" "jointly" "hint" "jointlyHint")
+                        (item "mixed" "jointlyAndSeverallyMixed" "hint" "jointlyAndSeverallyMixedHint" "conditionalLabel" "details" "conditionalValue" .DecisionsDetails "conditionalInputName" "mixed-details")
+                        ) }}
+                    </div>
+                </div>
+
+                <div class="govuk-button-group">
+                    {{ template "continue-button" . }}
+                </div>
+            </form>
+        </div>
+    </div>
+{{ end }}

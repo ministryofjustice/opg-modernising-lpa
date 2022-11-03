@@ -22,9 +22,14 @@ func TestGetReadYourLpa(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &readYourLpaData{
-			App:  appData,
-			Form: &readYourLpaForm{},
-			Lpa:  &Lpa{},
+			App:                           appData,
+			Form:                          &readYourLpaForm{},
+			Lpa:                           &Lpa{},
+			HowAttorneysMakeDecisionsPath: howShouldAttorneysMakeDecisionsPath,
+			ChooseAttorneysPath:           chooseAttorneysPath,
+			WhenCanLpaBeUsedPath:          whenCanTheLpaBeUsedPath,
+			RestrictionsPath:              restrictionsPath,
+			CertificatesProviderPath:      certificateProviderDetailsPath,
 		}).
 		Return(nil)
 
@@ -80,6 +85,11 @@ func TestGetReadYourLpaFromStore(t *testing.T) {
 				Confirm:   true,
 				Signature: "4567",
 			},
+			HowAttorneysMakeDecisionsPath: howShouldAttorneysMakeDecisionsPath,
+			ChooseAttorneysPath:           chooseAttorneysPath,
+			WhenCanLpaBeUsedPath:          whenCanTheLpaBeUsedPath,
+			RestrictionsPath:              restrictionsPath,
+			CertificatesProviderPath:      certificateProviderDetailsPath,
 		}).
 		Return(nil)
 
