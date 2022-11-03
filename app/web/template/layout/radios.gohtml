@@ -22,7 +22,7 @@
         {{ if $e.conditionalLabel }}
             <div class="govuk-radios__conditional" id="{{ fieldID $.name $i }}-conditional-div">
                 <div class="govuk-form-group {{ if index $.top.Errors $.name }}govuk-form-group--error{{ end }}">
-                    <label class="govuk-label" for="{{ $e.conditionalInputName }}-conditional-input">
+                    <label class="govuk-label" for="{{ $e.conditionalInputName }}">
                         {{ tr $.top.App $e.conditionalLabel }}
                     </label>
                     {{ if index $.top.Errors $e.conditionalInputName }}

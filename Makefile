@@ -51,6 +51,13 @@ else
 	yarn run cypress:run
 endif
 
+run-cypress-headed: ##@testing Runs cypress e2e tests in a browser. To run a specific spec file pass in spec e.g. make run-cypress spec=start
+ifdef spec
+	yarn run cypress:run --spec "cypress/e2e/$(spec).cy.js" --headed --no-exit
+else
+	yarn run cypress:run --headed --no-exit
+endif
+
 run-cypress-parallel: ##@testing Runs cypress e2e tests in parallel across 4 processor threads
 	yarn run cypress:parallel
 
