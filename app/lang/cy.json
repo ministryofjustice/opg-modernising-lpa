@@ -51,7 +51,9 @@
     "addressesFound": {
         "one": "{{.PluralCount}} Welsh",
         "two": "{{.PluralCount}} Welsh",
-        "few": "{{.PluralCount}} Welsh"
+        "few": "{{.PluralCount}} Welsh",
+        "many": "{{.PluralCount}} Welsh",
+        "other": "{{.PluralCount}} Welsh"
     },
     "addressLine1": "Welsh",
     "addressLine2": "Welsh",
@@ -113,7 +115,9 @@
     "attorneysAdded": {
         "one": "Welsh {{.PluralCount}} welsh",
         "two": "Welsh {{.PluralCount}} welsh",
-        "few": "Welsh {{.PluralCount}} welsh"
+        "few": "Welsh {{.PluralCount}} welsh",
+        "many": "Welsh {{.PluralCount}} welsh",
+        "other": "Welsh {{.PluralCount}} welsh"
     },
     "changeDetailsLink": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ .FirstNames }} {{ .LastName }}</span>",
     "changeAddressLink": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ .FirstNames }} {{ .LastName }}</span>",
@@ -124,7 +128,7 @@
     "doYouWantToRemove": "Welsh {{ .FirstNames }} {{ .LastName }}?",
     "selectRemoveAttorney": "Welsh",
 
-    "whoWouldYouLikeToBeTheAttorneys": "Welsh",
+    "whoWouldYouLikeToBeTheAttorneys": "Welsh?",
     "whoWouldYouLikeToBeTheAttorneysDetailsTitle": "Welsh",
     "whoWouldYouLikeToBeTheAttorneysDetailsContent": "<p class=\"govuk-body\">Welsh</p>",
     "attorney": "Welsh",
