@@ -27,7 +27,7 @@ jobs:
           docker build -t app .
       - name: Trivy Image Vulnerability Scanner
         id: trivy_scan
-        uses: aquasecurity/trivy-action@0.7.1
+        uses: aquasecurity/trivy-action@0.8.0
         with:
           image-ref: app:latest
           severity: 'HIGH,CRITICAL'
@@ -49,7 +49,7 @@ jobs:
           role-session-name: GithubActionsECRPushMLPAB
       - name: ECR Login
         id: login_ecr
-        uses: aws-actions/amazon-ecr-login@v1.5.2
+        uses: aws-actions/amazon-ecr-login@v1.5.3
         with:
           registries: 311462405659
       - name: Push Container
@@ -58,8 +58,4 @@ jobs:
           ECR_REPOSITORY: modernising-lpa/app
         run: |
           docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.tag }}
-          if [ ${{ github.head_ref }} == "main" ]; then
-            docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.tag }}
-            docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          fi
-            docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
+          docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
