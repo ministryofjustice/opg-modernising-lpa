@@ -136,6 +136,8 @@ func App(
 		ChooseAttorneySummary(logger, tmpls.Get("choose_attorneys_summary.gohtml"), lpaStore))
 	handle(removeAttorneyPath, RequireSession|CanGoBack,
 		RemoveAttorney(logger, tmpls.Get("remove_attorney.gohtml"), lpaStore))
+	handle(howShouldAttorneysMakeDecisionsPath, RequireSession|CanGoBack,
+		HowShouldAttorneysMakeDecisions(tmpls.Get("how_should_attorneys_make_decisions.gohtml"), lpaStore))
 	handle(wantReplacementAttorneysPath, RequireSession|CanGoBack,
 		WantReplacementAttorneys(tmpls.Get("want_replacement_attorneys.gohtml"), lpaStore))
 	handle(whenCanTheLpaBeUsedPath, RequireSession|CanGoBack,

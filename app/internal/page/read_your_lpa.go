@@ -8,11 +8,16 @@ import (
 )
 
 type readYourLpaData struct {
-	App              AppData
-	Errors           map[string]string
-	Lpa              *Lpa
-	EnteredSignature bool
-	Form             *readYourLpaForm
+	App                           AppData
+	Errors                        map[string]string
+	Lpa                           *Lpa
+	EnteredSignature              bool
+	Form                          *readYourLpaForm
+	HowAttorneysMakeDecisionsPath string
+	ChooseAttorneysPath           string
+	WhenCanLpaBeUsedPath          string
+	RestrictionsPath              string
+	CertificatesProviderPath      string
 }
 
 func ReadYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -30,6 +35,11 @@ func ReadYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 				Confirm:   lpa.ConfirmFreeWill,
 				Signature: lpa.EnteredSignatureCode,
 			},
+			HowAttorneysMakeDecisionsPath: howShouldAttorneysMakeDecisionsPath,
+			ChooseAttorneysPath:           chooseAttorneysPath,
+			WhenCanLpaBeUsedPath:          whenCanTheLpaBeUsedPath,
+			RestrictionsPath:              restrictionsPath,
+			CertificatesProviderPath:      certificateProviderDetailsPath,
 		}
 
 		if r.Method == http.MethodPost {

@@ -48,11 +48,16 @@ func ChooseAttorneySummary(logger Logger, tmpl template.Template, lpaStore LpaSt
 			if len(data.Errors) == 0 {
 				redirectUrl := wantReplacementAttorneysPath
 
+				if len(lpa.Attorneys) > 1 {
+					redirectUrl = howShouldAttorneysMakeDecisionsPath
+				}
+
 				if data.Form.AddAttorney == "yes" {
 					redirectUrl = fmt.Sprintf("%s?addAnother=1", data.AttorneyDetailsPath)
 				}
 
 				appData.Lang.Redirect(w, r, redirectUrl, http.StatusFound)
+				return nil
 			}
 
 		}
