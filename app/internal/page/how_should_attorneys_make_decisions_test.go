@@ -22,7 +22,8 @@ func TestGetHowShouldAttorneysMakeDecisions(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howShouldAttorneysMakeDecisionsData{
-			App: appData,
+			App:  appData,
+			Form: &howShouldAttorneysMakeDecisionsForm{},
 		}).
 		Return(nil)
 
@@ -47,9 +48,11 @@ func TestGetHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howShouldAttorneysMakeDecisionsData{
-			App:              appData,
-			DecisionsType:    "jointly",
-			DecisionsDetails: "some decisions",
+			App: appData,
+			Form: &howShouldAttorneysMakeDecisionsForm{
+				DecisionsType:    "jointly",
+				DecisionsDetails: "some decisions",
+			},
 		}).
 		Return(nil)
 
@@ -93,6 +96,10 @@ func TestGetHowShouldAttorneysMakeDecisionsWhenTemplateErrors(t *testing.T) {
 	template.
 		On("Func", w, &howShouldAttorneysMakeDecisionsData{
 			App: appData,
+			Form: &howShouldAttorneysMakeDecisionsForm{
+				DecisionsType:    "",
+				DecisionsDetails: "",
+			},
 		}).
 		Return(expectedError)
 
@@ -234,6 +241,10 @@ func TestPostHowShouldAttorneysMakeDecisionsWhenValidationErrors(t *testing.T) {
 			App: appData,
 			Errors: map[string]string{
 				"decision-type": "chooseADecisionType",
+			},
+			Form: &howShouldAttorneysMakeDecisionsForm{
+				DecisionsType:    "",
+				DecisionsDetails: "",
 			},
 		}).
 		Return(nil)

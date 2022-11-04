@@ -7,11 +7,9 @@ import (
 )
 
 type howShouldAttorneysMakeDecisionsData struct {
-	App              AppData
-	DecisionsType    string
-	DecisionsDetails string
-	Errors           map[string]string
-	Form             *howShouldAttorneysMakeDecisionsForm
+	App    AppData
+	Errors map[string]string
+	Form   *howShouldAttorneysMakeDecisionsForm
 }
 
 type howShouldAttorneysMakeDecisionsForm struct {
@@ -27,9 +25,7 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) 
 		}
 
 		data := &howShouldAttorneysMakeDecisionsData{
-			App:              appData,
-			DecisionsType:    lpa.DecisionsType,
-			DecisionsDetails: lpa.DecisionsDetails,
+			App: appData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
 				DecisionsType:    lpa.DecisionsType,
 				DecisionsDetails: lpa.DecisionsDetails,
