@@ -58,8 +58,4 @@ jobs:
           ECR_REPOSITORY: modernising-lpa/app
         run: |
           docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.tag }}
-          if [ ${{ github.head_ref }} == "main" ]; then
-            docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.tag }}
-            docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          fi
-            docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
+          docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
