@@ -35,7 +35,7 @@
             {{ .Lpa.WhenCanTheLpaBeUsed }}
           </dd>
           <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App "/when-can-the-lpa-be-used" }}">
+            <a class="govuk-link" href="{{ link .App .WhenCanLpaBeUsedPath }}">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "whenTheLpaCanBeUsed" }}</span>
             </a>
           </dd>
@@ -49,7 +49,7 @@
             {{ .Lpa.AttorneysFullNames }}
           </dd>
           <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App "/choose-attorneys-summary" }}">
+            <a class="govuk-link" href="{{ link .App .ChooseAttorneysPath }}">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "yourAttorneys" }}</span>
             </a>
           </dd>
@@ -60,10 +60,10 @@
             {{ tr .App "howTheAttorneysMustWorkTogether" }}
           </dt>
           <dd class="govuk-summary-list__value">
-            We haven't done this bit yet
+            {{ .Lpa.WhenCanTheLpaBeUsed }}
           </dd>
           <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="#">
+            <a class="govuk-link" href="{{ link .App .HowAttorneysMakeDecisionsPath }}">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">  we haven't done this bit yet</span>
             </a>
           </dd>
@@ -91,7 +91,7 @@
             <p style="white-space: pre-line;">{{ .Lpa.Restrictions }}</p>
           </dd>
           <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App "/restrictions" }}">
+            <a class="govuk-link" href="{{ link .App .RestrictionsPath }}">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "yourRestrictions" }}</span>
             </a>
           </dd>
