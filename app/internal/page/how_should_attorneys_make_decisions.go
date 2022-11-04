@@ -12,6 +12,7 @@ type howShouldAttorneysMakeDecisionsData struct {
 	DecisionsType    string
 	DecisionsDetails string
 	Errors           map[string]string
+	Form             *howShouldAttorneysMakeDecisionsForm
 }
 
 type howShouldAttorneysMakeDecisionsForm struct {
@@ -31,19 +32,23 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) 
 			App:              appData,
 			DecisionsType:    lpa.DecisionsType,
 			DecisionsDetails: lpa.DecisionsDetails,
+			Form: &howShouldAttorneysMakeDecisionsForm{
+				DecisionsType:    lpa.DecisionsType,
+				DecisionsDetails: lpa.DecisionsDetails,
+			},
 		}
 
 		if r.Method == http.MethodPost {
-			form := readHowShouldAttorneysMakeDecisionsForm(r)
-			data.Errors = form.Validate()
+			data.Form = readHowShouldAttorneysMakeDecisionsForm(r)
+			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				lpa.DecisionsType = form.DecisionsType
+				lpa.DecisionsType = data.Form.DecisionsType
 
-				if form.DecisionsType != "mixed" {
+				if data.Form.DecisionsType != "mixed" {
 					lpa.DecisionsDetails = ""
 				} else {
-					lpa.DecisionsDetails = form.DecisionsDetails
+					lpa.DecisionsDetails = data.Form.DecisionsDetails
 				}
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {

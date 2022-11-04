@@ -22,7 +22,7 @@
 
                         <div class="govuk-radios {{ if index .Errors "decision-type" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
                             <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="f-decision-type" name="decision-type" type="radio" value="jointly-and-severally" aria-describedby="decision-type-item-hint" {{ if eq "jointly-and-severally" .DecisionsType }}checked{{ end }}>
+                                <input class="govuk-radios__input" id="f-decision-type" name="decision-type" type="radio" value="jointly-and-severally" aria-describedby="decision-type-item-hint" {{ if eq "jointly-and-severally" .Form.DecisionsType }}checked{{ end }}>
                                 <label class="govuk-label govuk-radios__label" for="f-decision-type">
                                     {{ tr .App "jointlyAndSeverally" }}
                                 </label>
@@ -32,7 +32,7 @@
                                 </div>
                             </div>
                             <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="f-decision-type-2" name="decision-type" type="radio" value="jointly" aria-describedby="decision-type-2-item-hint" {{ if eq "jointly" .DecisionsType }}checked{{ end }}>
+                                <input class="govuk-radios__input" id="f-decision-type-2" name="decision-type" type="radio" value="jointly" aria-describedby="decision-type-2-item-hint" {{ if eq "jointly" .Form.DecisionsType }}checked{{ end }}>
                                 <label class="govuk-label govuk-radios__label" for="f-decision-type-2">
                                     {{ tr .App "jointly" }}
                                 </label>
@@ -42,7 +42,7 @@
                                 </div>
                             </div>
                             <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="f-decision-type-3" name="decision-type" type="radio" value="mixed" aria-describedby="decision-type-3-item-hint" aria-controls="decision-type-3-conditional-div" {{ if or (eq "mixed" .DecisionsType) (index .Errors "mixed-details") }}checked{{ end }}>
+                                <input class="govuk-radios__input" id="f-decision-type-3" name="decision-type" type="radio" value="mixed" aria-describedby="decision-type-3-item-hint" aria-controls="decision-type-3-conditional-div" {{ if or (eq "mixed" .Form.DecisionsType) (index .Errors "mixed-details") }}checked{{ end }}>
                                 <label class="govuk-label govuk-radios__label" for="f-decision-type-3">
                                     {{ tr .App "jointlyAndSeverallyMixed" }}
                                 </label>
@@ -63,7 +63,7 @@
                                             </p>
                                         {{ end }}
 
-                                        <textarea class="govuk-textarea {{ if index .Errors "mixed-details" }}govuk-input--error{{ end }}" id="mixed-details" name="mixed-details" rows="10">{{ .DecisionsDetails }}</textarea>
+                                        <textarea class="govuk-textarea {{ if index .Errors "mixed-details" }}govuk-input--error{{ end }}" id="mixed-details" name="mixed-details" rows="10">{{ .Form.DecisionsDetails }}</textarea>
                                     </div>
                                 </div>
                             </div>
