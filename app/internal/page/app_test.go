@@ -88,7 +88,7 @@ func TestLangRedirect(t *testing.T) {
 
 func TestMakeHandle(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 	localizer := localize.Localizer{}
 
 	sessionsStore := &mockSessionsStore{}
@@ -101,6 +101,7 @@ func TestMakeHandle(t *testing.T) {
 	handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, AppData{
 			Page:             "/path",
+			Query:            "?a=b",
 			Localizer:        localizer,
 			Lang:             En,
 			SessionID:        "cmFuZG9t",
@@ -373,6 +374,33 @@ func TestLangBuildUrl(t *testing.T) {
 		t.Run(tc.language, func(t *testing.T) {
 			builtUrl := tc.lang.BuildUrl(tc.url)
 			assert.Equal(t, tc.want, builtUrl)
+		})
+	}
+}
+
+func TestQueryString(t *testing.T) {
+	testCases := map[string]struct {
+		url           string
+		expectedQuery string
+	}{
+		"with query": {
+			url:           "http://example.org/?a=query&b=string",
+			expectedQuery: "?a=query&b=string",
+		},
+		"with empty query": {
+			url:           "http://example.org/?",
+			expectedQuery: "",
+		},
+		"without query": {
+			url:           "http://example.org/",
+			expectedQuery: "",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
+			assert.Equal(t, tc.expectedQuery, queryString(r))
 		})
 	}
 }

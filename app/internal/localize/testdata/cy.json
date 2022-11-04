@@ -5,6 +5,8 @@
     "c": {
         "one": "{{.PluralCount}} one",
         "two": "{{.PluralCount}} two",
-        "few": "{{.PluralCount}} few"
+        "few": "{{.PluralCount}} few",
+        "many": "{{.PluralCount}} many",
+        "other": "{{.PluralCount}} other"
     }
 }

@@ -22,4 +22,8 @@ func TestNewBundle(t *testing.T) {
 	assert.Equal("1 one", cy.Count("c", 1))
 	assert.Equal("2 two", cy.Count("c", 2))
 	assert.Equal("3 few", cy.Count("c", 3))
+	assert.Equal("4 other", cy.Count("c", 4))
+	assert.Equal("5 other", cy.Count("c", 5))
+	assert.Equal("6 many", cy.Count("c", 6))
+	assert.Equal("7 other", cy.Count("c", 7))
 }
