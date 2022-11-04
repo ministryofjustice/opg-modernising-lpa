@@ -1,7 +1,6 @@
 package page
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -24,7 +23,6 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) 
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
 		if err != nil {
-			fmt.Print(lpa.ID)
 			return err
 		}
 
