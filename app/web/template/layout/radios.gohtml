@@ -9,7 +9,6 @@
                value="{{ $e.value }}"
                {{ if eq $.value $e.value }}checked{{ end }}
                {{ if $e.hint }}aria-describedby="{{ fieldID $.name $i }}-item-hint"{{ end }}
-               {{ if $e.conditionalLabel }}data-aria-controls="{{ fieldID $.name $i }}-conditional-div"{{ end }}
         >
         <label class="govuk-label govuk-radios__label" for="f-{{ $.name }}{{ if ne $i 0 }}-{{ inc $i }}{{ end }}">
           {{ tr $.top.App $e.label }}
@@ -18,21 +17,6 @@
           <div id="{{ fieldID $.name $i }}-item-hint" class="govuk-hint govuk-radios__hint">
             {{ tr $.top.App $e.hint }}
           </div>
-        {{ end }}
-        {{ if $e.conditionalLabel }}
-            <div class="govuk-radios__conditional" id="{{ fieldID $.name $i }}-conditional-div">
-                <div class="govuk-form-group {{ if index $.top.Errors $.name }}govuk-form-group--error{{ end }}">
-                    <label class="govuk-label" for="{{ $e.conditionalInputName }}">
-                        {{ tr $.top.App $e.conditionalLabel }}
-                    </label>
-                    {{ if index $.top.Errors $e.conditionalInputName }}
-                        <p id="{{ fieldID $.name $i }}-error" class="govuk-error-message">
-                            {{ tr $.top.App (index $.top.Errors $e.conditionalInputName) }}
-                        </p>
-                    {{ end }}
-                    <textarea class="govuk-textarea {{ if index $.top.Errors $.name }}govuk-input--error{{ end }}" id="{{ $e.conditionalInputName }}" name="{{ $e.conditionalInputName }}" rows="10">{{ $e.conditionalValue }}</textarea>
-                </div>
-            </div>
         {{ end }}
       </div>
     {{ end }}
