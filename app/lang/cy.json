@@ -309,5 +309,11 @@
     "details": "Welsh",
     "chooseADecisionType": "Welsh",
     "provideDecisionDetails": "Welsh",
-    "removeDetails": "Welsh"
+    "removeDetails": "Welsh",
+
+    "warning": "Welsh",
+    "jointlyReplacementWarning": "Welsh",
+    "jointlyReplacementWarningContent": "<p class=\"govuk-body\">Welsh</p>",
+    "mixedReplacementWarning": "Welsh",
+    "mixedReplacementWarningContent": "<p class=\"govuk-body\">Welsh</p>"
 }
