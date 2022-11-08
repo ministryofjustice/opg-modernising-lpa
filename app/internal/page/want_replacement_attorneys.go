@@ -10,6 +10,7 @@ type wantReplacementAttorneysData struct {
 	App    AppData
 	Errors map[string]string
 	Want   string
+	Lpa    *Lpa
 }
 
 func WantReplacementAttorneys(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -22,6 +23,7 @@ func WantReplacementAttorneys(tmpl template.Template, lpaStore LpaStore) Handler
 		data := &wantReplacementAttorneysData{
 			App:  appData,
 			Want: lpa.WantReplacementAttorneys,
+			Lpa:  lpa,
 		}
 
 		if r.Method == http.MethodPost {
@@ -33,7 +35,7 @@ func WantReplacementAttorneys(tmpl template.Template, lpaStore LpaStore) Handler
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, whenCanTheLpaBeUsedPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, chooseReplacementAttorneysPath, http.StatusFound)
 				return nil
 			}
 		}
