@@ -53,6 +53,7 @@ type Lpa struct {
 	YotiUserData             identity.UserData
 	DecisionsType            string
 	DecisionsDetails         string
+	ReplacementAttorneys     []Attorney
 }
 
 type PaymentDetails struct {
@@ -180,6 +181,16 @@ func (l *Lpa) DeleteAttorney(attorney Attorney) bool {
 	l.Attorneys = slices.Delete(l.Attorneys, idx, idx+1)
 
 	return true
+}
+
+func (l *Lpa) GetReplacementAttorney(id string) (Attorney, bool) {
+	idx := slices.IndexFunc(l.ReplacementAttorneys, func(a Attorney) bool { return a.ID == id })
+
+	if idx == -1 {
+		return Attorney{}, false
+	}
+
+	return l.ReplacementAttorneys[idx], true
 }
 
 func (l *Lpa) AttorneysFullNames() string {

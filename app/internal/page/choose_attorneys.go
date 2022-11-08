@@ -17,6 +17,16 @@ type chooseAttorneysData struct {
 	DobWarning  string
 }
 
+type chooseAttorneysForm struct {
+	FirstNames       string
+	LastName         string
+	Email            string
+	Dob              Date
+	DateOfBirth      time.Time
+	DateOfBirthError error
+	IgnoreWarning    string
+}
+
 func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
@@ -92,16 +102,6 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 
 		return tmpl(w, data)
 	}
-}
-
-type chooseAttorneysForm struct {
-	FirstNames       string
-	LastName         string
-	Email            string
-	Dob              Date
-	DateOfBirth      time.Time
-	DateOfBirthError error
-	IgnoreWarning    string
 }
 
 func readChooseAttorneysForm(r *http.Request) *chooseAttorneysForm {
