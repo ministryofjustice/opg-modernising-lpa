@@ -7,19 +7,32 @@
         <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
           <h1 class="govuk-fieldset__heading govuk-!-margin-bottom-6">{{ tr .App "wantReplacementAttorneys" }}</h1>
         </legend>
+          {{ trHtml .App "wantReplacementAttorneysContent" }}
 
-        {{ trHtml .App "wantReplacementAttorneysContent" }}
+        <div>
+          {{ if eq .Lpa.DecisionsType "jointly" }}
+            {{ template "warning" (warning .App "jointlyReplacementWarning") }}
+            {{ trHtml .App "jointlyReplacementWarningContent" }}
+          {{ end }}
 
-        <div class="govuk-form-group {{ if index .Errors "want" }}govuk-form-group--error{{ end }}">
-          {{ template "error-message" (errorMessage . "want") }}
+          {{ if eq .Lpa.DecisionsType "mixed" }}
+            {{ template "warning" (warning .App "mixedReplacementWarning") }}
+            {{ trHtml .App "mixedReplacementWarningContent" }}
+          {{ end }}
 
-          {{ template "radios" (items . "want" .Want
+
+          <div class="govuk-form-group {{ if index .Errors "want" }}govuk-form-group--error{{ end }}">
+            {{ template "error-message" (errorMessage . "want") }}
+
+            {{ template "radios" (items . "want" .Want
             (item "yes" "yes")
             (item "no" "no")
-          ) }}
+            ) }}
+          </div>
+
+          {{ template "continue-button" . }}
         </div>
 
-        {{ template "continue-button" . }}
       </form>
     </div>
   </div>
