@@ -217,9 +217,9 @@ func attorneyDetails(attorneys []page.Attorney, from string, app page.AppData) m
 	}
 }
 
-func warning(app page.AppData, warningContent string) map[string]interface{} {
+func warning(app page.AppData, content string) map[string]interface{} {
 	return map[string]interface{}{
 		"app":     app,
-		"content": warningContent,
+		"content": content,
 	}
 }
