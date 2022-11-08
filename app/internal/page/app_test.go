@@ -333,6 +333,55 @@ func TestTestingStart(t *testing.T) {
 		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
 		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
 	})
+
+	t.Run("how attorneys act", func(t *testing.T) {
+		testCases := []struct {
+			DecisionsType    string
+			DecisionsDetails string
+		}{
+			{DecisionsType: "jointly", DecisionsDetails: ""},
+			{DecisionsType: "jointly-and-severally", DecisionsDetails: ""},
+			{DecisionsType: "mixed", DecisionsDetails: "some details"},
+		}
+
+		for _, tc := range testCases {
+			t.Run(tc.DecisionsType, func(t *testing.T) {
+				ctx := context.Background()
+				w := httptest.NewRecorder()
+				r, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/?redirect=/somewhere&howAttorneysAct=%s", tc.DecisionsType), nil)
+				r = r.WithContext(ctx)
+
+				sessionsStore := &mockSessionsStore{}
+				sessionsStore.
+					On("Get", r, "session").
+					Return(&sessions.Session{}, nil)
+				sessionsStore.
+					On("Save", r, w, mock.Anything).
+					Return(nil)
+
+				lpa := &Lpa{}
+
+				lpaStore := &mockLpaStore{}
+				lpaStore.
+					On("Get", ctx, mock.Anything).
+					Return(lpa, nil)
+
+				lpa.DecisionsType = tc.DecisionsType
+				lpa.DecisionsType = tc.DecisionsDetails
+
+				lpaStore.
+					On("Put", ctx, mock.Anything, lpa).
+					Return(nil)
+
+				testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)
+				resp := w.Result()
+
+				assert.Equal(t, http.StatusFound, resp.StatusCode)
+				assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+				mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+			})
+		}
+	})
 }
 
 func TestLangAbbreviation(t *testing.T) {
