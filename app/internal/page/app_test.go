@@ -284,16 +284,15 @@ func TestTestingStart(t *testing.T) {
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpa := &Lpa{}
-
 		lpaStore := &mockLpaStore{}
 		lpaStore.
-			On("Get", mock.Anything, mock.Anything).
-			Return(lpa, nil)
+			On("Get", ctx, mock.Anything).
+			Return(&Lpa{}, nil)
 
-		lpa.Attorneys = []Attorney{
+		updatedLpa := &Lpa{}
+		updatedLpa.Attorneys = []Attorney{
 			{
-				ID:          "xyz789",
+				ID:          "completed-address",
 				FirstNames:  "John",
 				LastName:    "Smith",
 				Email:       "aa@example.org",
@@ -307,23 +306,17 @@ func TestTestingStart(t *testing.T) {
 				},
 			},
 			{
-				ID:          "abc123",
+				ID:          "empty-address",
 				FirstNames:  "Joan",
 				LastName:    "Smith",
 				Email:       "bb@example.org",
 				DateOfBirth: time.Date(1998, time.January, 2, 3, 4, 5, 6, time.UTC),
-				Address: place.Address{
-					Line1:      "3 RICHMOND PLACE",
-					Line2:      "KINGS HEATH",
-					Line3:      "WEST MIDLANDS",
-					TownOrCity: "BIRMINGHAM",
-					Postcode:   "B14 7EE",
-				},
+				Address:     place.Address{},
 			},
 		}
 
 		lpaStore.
-			On("Put", mock.Anything, mock.Anything, lpa).
+			On("Put", ctx, mock.Anything, updatedLpa).
 			Return(nil)
 
 		testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)
@@ -359,18 +352,13 @@ func TestTestingStart(t *testing.T) {
 					On("Save", r, w, mock.Anything).
 					Return(nil)
 
-				lpa := &Lpa{}
-
 				lpaStore := &mockLpaStore{}
 				lpaStore.
 					On("Get", ctx, mock.Anything).
-					Return(lpa, nil)
-
-				lpa.DecisionsType = tc.DecisionsType
-				lpa.DecisionsType = tc.DecisionsDetails
+					Return(&Lpa{}, nil)
 
 				lpaStore.
-					On("Put", ctx, mock.Anything, lpa).
+					On("Put", ctx, mock.Anything, &Lpa{DecisionsType: tc.DecisionsType, DecisionsDetails: tc.DecisionsDetails}).
 					Return(nil)
 
 				testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)
