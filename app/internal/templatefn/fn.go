@@ -34,6 +34,7 @@ var All = map[string]interface{}{
 	"formatDateTime":  formatDateTime,
 	"lowerFirst":      lowerFirst,
 	"attorneyDetails": attorneyDetails,
+	"warning":         warning,
 }
 
 func isEnglish(lang page.Lang) bool {
@@ -213,5 +214,12 @@ func attorneyDetails(attorneys []page.Attorney, from string, app page.AppData) m
 		"Attorneys": attorneys,
 		"From":      from,
 		"App":       app,
+	}
+}
+
+func warning(app page.AppData, warningContent string) map[string]interface{} {
+	return map[string]interface{}{
+		"app":     app,
+		"content": warningContent,
 	}
 }

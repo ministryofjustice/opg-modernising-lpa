@@ -303,5 +303,11 @@
     "details": "Details",
     "chooseADecisionType": "Select from the listed decision options",
     "provideDecisionDetails": "Provide details on how your attorneys should act",
-    "removeDetails": "Only provide details on how attorneys should act if selecting Jointly for some decisions, and jointly and severally for other decisions"
+    "removeDetails": "Only provide details on how attorneys should act if selecting Jointly for some decisions, and jointly and severally for other decisions",
+
+    "warning": "Warning",
+    "jointlyReplacementWarning": "Replacement attorneys are an important backup when attorneys are appointed to act jointly.",
+    "jointlyReplacementWarningContent": "<p class=\"govuk-body\">If the donor does not appoint any replacement attorneys and one of the original attorneys dies or can no longer act, the LPA will stop working.</p><p class=\"govuk-body\">If the donor does appoint replacement attorneys and one of the original attorneys dies or can no longer act:</p><ul class=\"govuk-list govuk-list--bullet\"><li>ALL the original attorneys will be replaced by the replacement attorneys, unless the donor states otherwise in their instructions</li><li>the original attorneys will not be able to make any decisions on the donor's behalf anymore</li></ul>",
+    "mixedReplacementWarning": "The donor appointed their attorneys to act jointly for some decisions, and jointly and severally for others.",
+    "mixedReplacementWarningContent": "<p class=\"govuk-body\">This means that if an original attorney dies or can no longer act:</p><ul class=\"govuk-list govuk-list--bullet\"><li>all the replacement attorneys step in and take over making the joint decisions</li><li>the remaining original attorneys will not be able to make the joint decisions anymore, unless the donor states otherwise in their instructions</li><li>the replacement and remaining original attorneys can make all other decisions together or individually</li></ul>"
 }

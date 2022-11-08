@@ -110,7 +110,7 @@ func App(
 
 	handle := makeHandle(mux, logger, sessionStore, localizer, lang)
 
-	mux.Handle("/testing-start", testingStart(sessionStore, lpaStore, logger))
+	mux.Handle("/testing-start", testingStart(sessionStore, lpaStore))
 	mux.Handle("/", Root())
 
 	handle(startPath, None,
@@ -200,7 +200,7 @@ func App(
 	return mux
 }
 
-func testingStart(store sessions.Store, lpaStore LpaStore, logger Logger) http.HandlerFunc {
+func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		session, _ := store.Get(r, "session")
 		session.Values = map[interface{}]interface{}{"sub": random.String(12), "email": "simulate-delivered@notifications.service.gov.uk"}
@@ -244,23 +244,16 @@ func testingStart(store sessions.Store, lpaStore LpaStore, logger Logger) http.H
 			_ = lpaStore.Put(r.Context(), sessionID, lpa)
 		}
 
-		logger.Print("before setting how act")
-
 		if r.FormValue("howAttorneysAct") != "" {
-			logger.Print("setting how act")
-
 			sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
 			lpa, _ := lpaStore.Get(r.Context(), sessionID)
 
 			switch r.FormValue("howAttorneysAct") {
 			case "jointly":
-				logger.Print("setting jointly")
 				lpa.DecisionsType = "jointly"
 			case "jointly-and-severally":
-				logger.Print("setting severally")
 				lpa.DecisionsType = "jointly-and-severally"
 			default:
-				logger.Print("setting mixed")
 				lpa.DecisionsType = "mixed"
 				lpa.DecisionsDetails = "some details"
 			}
