@@ -13,13 +13,10 @@
           {{ if eq .Lpa.DecisionsType "jointly" }}
             {{ template "warning" (warning .App "jointlyReplacementWarning") }}
             {{ trHtml .App "jointlyReplacementWarningContent" }}
-          {{ end }}
-
-          {{ if eq .Lpa.DecisionsType "mixed" }}
+          {{ else if eq .Lpa.DecisionsType "mixed" }}
             {{ template "warning" (warning .App "mixedReplacementWarning") }}
             {{ trHtml .App "mixedReplacementWarningContent" }}
           {{ end }}
-
 
           <div class="govuk-form-group {{ if index .Errors "want" }}govuk-form-group--error{{ end }}">
             {{ template "error-message" (errorMessage . "want") }}
