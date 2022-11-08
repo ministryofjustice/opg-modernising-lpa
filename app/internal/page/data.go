@@ -193,6 +193,18 @@ func (l *Lpa) GetReplacementAttorney(id string) (Attorney, bool) {
 	return l.ReplacementAttorneys[idx], true
 }
 
+func (l *Lpa) PutReplacementAttorney(attorney Attorney) bool {
+	idx := slices.IndexFunc(l.ReplacementAttorneys, func(a Attorney) bool { return a.ID == attorney.ID })
+
+	if idx == -1 {
+		return false
+	}
+
+	l.ReplacementAttorneys[idx] = attorney
+
+	return true
+}
+
 func (l *Lpa) AttorneysFullNames() string {
 	var names []string
 

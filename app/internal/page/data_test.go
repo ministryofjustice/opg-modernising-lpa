@@ -157,6 +157,80 @@ func TestPutAttorney(t *testing.T) {
 	}
 }
 
+func TestGetReplacementAttorney(t *testing.T) {
+	testCases := map[string]struct {
+		lpa              *Lpa
+		expectedAttorney Attorney
+		id               string
+		expectedFound    bool
+	}{
+		"attorney exists": {
+			lpa: &Lpa{
+				ReplacementAttorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
+			},
+			expectedAttorney: Attorney{ID: "1", FirstNames: "Bob"},
+			id:               "1",
+			expectedFound:    true,
+		},
+		"attorney does not exist": {
+			lpa: &Lpa{
+				ReplacementAttorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
+			},
+			expectedAttorney: Attorney{},
+			id:               "4",
+			expectedFound:    false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			a, found := tc.lpa.GetReplacementAttorney(tc.id)
+
+			assert.Equal(t, tc.expectedFound, found)
+			assert.Equal(t, tc.expectedAttorney, a)
+		})
+	}
+}
+
+func TestPutReplacementAttorney(t *testing.T) {
+	testCases := map[string]struct {
+		lpa             *Lpa
+		expectedLpa     *Lpa
+		updatedAttorney Attorney
+		expectedUpdated bool
+	}{
+		"attorney exists": {
+			lpa: &Lpa{
+				ReplacementAttorneys: []Attorney{{ID: "1"}, {ID: "2"}},
+			},
+			expectedLpa: &Lpa{
+				ReplacementAttorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
+			},
+			updatedAttorney: Attorney{ID: "1", FirstNames: "Bob"},
+			expectedUpdated: true,
+		},
+		"attorney does not exist": {
+			lpa: &Lpa{
+				ReplacementAttorneys: []Attorney{{ID: "1"}, {ID: "2"}},
+			},
+			expectedLpa: &Lpa{
+				ReplacementAttorneys: []Attorney{{ID: "1"}, {ID: "2"}},
+			},
+			updatedAttorney: Attorney{ID: "3", FirstNames: "Bob"},
+			expectedUpdated: false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			deleted := tc.lpa.PutReplacementAttorney(tc.updatedAttorney)
+
+			assert.Equal(t, tc.expectedUpdated, deleted)
+			assert.Equal(t, tc.expectedLpa, tc.lpa)
+		})
+	}
+}
+
 func TestDeleteAttorney(t *testing.T) {
 	testCases := map[string]struct {
 		lpa              *Lpa

@@ -11,6 +11,7 @@ const (
 	chooseAttorneysPath                             = "/choose-attorneys"
 	chooseAttorneysSummaryPath                      = "/choose-attorneys-summary"
 	chooseReplacementAttorneysPath                  = "/choose-replacement-attorneys"
+	chooseReplacementAttorneysAddressPath           = "/choose-replacement-attorneys-address"
 	dashboardPath                                   = "/dashboard"
 	howDoYouKnowYourCertificateProviderPath         = "/how-do-you-know-your-certificate-provider"
 	howLongHaveYouKnownCertificateProviderPath      = "/how-long-have-you-known-certificate-provider"
