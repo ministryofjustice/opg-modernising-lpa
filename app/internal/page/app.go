@@ -110,7 +110,7 @@ func App(
 
 	handle := makeHandle(mux, logger, sessionStore, localizer, lang)
 
-	mux.Handle("/testing-start", testingStart(sessionStore, lpaStore))
+	mux.Handle("/testing-start", testingStart(sessionStore, lpaStore, logger))
 	mux.Handle("/", Root())
 
 	handle(startPath, None,
@@ -136,6 +136,8 @@ func App(
 		ChooseAttorneySummary(logger, tmpls.Get("choose_attorneys_summary.gohtml"), lpaStore))
 	handle(removeAttorneyPath, RequireSession|CanGoBack,
 		RemoveAttorney(logger, tmpls.Get("remove_attorney.gohtml"), lpaStore))
+	handle(chooseReplacementAttorneysPath, RequireSession|CanGoBack,
+		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml")))
 	handle(howShouldAttorneysMakeDecisionsPath, RequireSession|CanGoBack,
 		HowShouldAttorneysMakeDecisions(tmpls.Get("how_should_attorneys_make_decisions.gohtml"), lpaStore))
 	handle(wantReplacementAttorneysPath, RequireSession|CanGoBack,
@@ -198,7 +200,7 @@ func App(
 	return mux
 }
 
-func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
+func testingStart(store sessions.Store, lpaStore LpaStore, logger Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		session, _ := store.Get(r, "session")
 		session.Values = map[interface{}]interface{}{"sub": random.String(12), "email": "simulate-delivered@notifications.service.gov.uk"}
@@ -212,7 +214,6 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 
 		if r.FormValue("withAttorneys") == "1" {
 			sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
-
 			lpa, _ := lpaStore.Get(r.Context(), sessionID)
 
 			lpa.Attorneys = []Attorney{
@@ -238,6 +239,30 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 					DateOfBirth: time.Date(1998, time.January, 2, 3, 4, 5, 6, time.UTC),
 					Address:     place.Address{},
 				},
+			}
+
+			_ = lpaStore.Put(r.Context(), sessionID, lpa)
+		}
+
+		logger.Print("before setting how act")
+
+		if r.FormValue("howAttorneysAct") != "" {
+			logger.Print("setting how act")
+
+			sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
+			lpa, _ := lpaStore.Get(r.Context(), sessionID)
+
+			switch r.FormValue("howAttorneysAct") {
+			case "jointly":
+				logger.Print("setting jointly")
+				lpa.DecisionsType = "jointly"
+			case "jointly-and-severally":
+				logger.Print("setting severally")
+				lpa.DecisionsType = "jointly-and-severally"
+			default:
+				logger.Print("setting mixed")
+				lpa.DecisionsType = "mixed"
+				lpa.DecisionsDetails = "some details"
 			}
 
 			_ = lpaStore.Put(r.Context(), sessionID, lpa)
