@@ -238,3 +238,13 @@ func TestAttorneyDetails(t *testing.T) {
 
 	assert.Equal(t, want, got)
 }
+
+func TestWarning(t *testing.T) {
+	app := page.AppData{SessionID: "abc"}
+	content := "content"
+
+	v := warning(app, content)
+
+	assert.Equal(t, app, v["app"])
+	assert.Equal(t, content, v["content"])
+}

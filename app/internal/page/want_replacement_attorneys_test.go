@@ -23,6 +23,7 @@ func TestGetWantReplacementAttorneys(t *testing.T) {
 	template.
 		On("Func", w, &wantReplacementAttorneysData{
 			App: appData,
+			Lpa: &Lpa{},
 		}).
 		Return(nil)
 
@@ -49,6 +50,7 @@ func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
 		On("Func", w, &wantReplacementAttorneysData{
 			App:  appData,
 			Want: "yes",
+			Lpa:  &Lpa{WantReplacementAttorneys: "yes"},
 		}).
 		Return(nil)
 
@@ -92,6 +94,7 @@ func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 	template.
 		On("Func", w, &wantReplacementAttorneysData{
 			App: appData,
+			Lpa: &Lpa{},
 		}).
 		Return(expectedError)
 
@@ -128,7 +131,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, whenCanTheLpaBeUsedPath, resp.Header.Get("Location"))
+	assert.Equal(t, chooseReplacementAttorneysPath, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -171,6 +174,7 @@ func TestPostWantReplacementAttorneysWhenValidationErrors(t *testing.T) {
 			Errors: map[string]string{
 				"want": "selectWantReplacementAttorneys",
 			},
+			Lpa: &Lpa{},
 		}).
 		Return(nil)
 

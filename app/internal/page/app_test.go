@@ -284,16 +284,15 @@ func TestTestingStart(t *testing.T) {
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpa := &Lpa{}
-
 		lpaStore := &mockLpaStore{}
 		lpaStore.
-			On("Get", mock.Anything, mock.Anything).
-			Return(lpa, nil)
+			On("Get", ctx, mock.Anything).
+			Return(&Lpa{}, nil)
 
-		lpa.Attorneys = []Attorney{
+		updatedLpa := &Lpa{}
+		updatedLpa.Attorneys = []Attorney{
 			{
-				ID:          "xyz789",
+				ID:          "completed-address",
 				FirstNames:  "John",
 				LastName:    "Smith",
 				Email:       "aa@example.org",
@@ -307,23 +306,17 @@ func TestTestingStart(t *testing.T) {
 				},
 			},
 			{
-				ID:          "abc123",
+				ID:          "empty-address",
 				FirstNames:  "Joan",
 				LastName:    "Smith",
 				Email:       "bb@example.org",
 				DateOfBirth: time.Date(1998, time.January, 2, 3, 4, 5, 6, time.UTC),
-				Address: place.Address{
-					Line1:      "3 RICHMOND PLACE",
-					Line2:      "KINGS HEATH",
-					Line3:      "WEST MIDLANDS",
-					TownOrCity: "BIRMINGHAM",
-					Postcode:   "B14 7EE",
-				},
+				Address:     place.Address{},
 			},
 		}
 
 		lpaStore.
-			On("Put", mock.Anything, mock.Anything, lpa).
+			On("Put", ctx, mock.Anything, updatedLpa).
 			Return(nil)
 
 		testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)
@@ -332,6 +325,50 @@ func TestTestingStart(t *testing.T) {
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
 		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+	})
+
+	t.Run("how attorneys act", func(t *testing.T) {
+		testCases := []struct {
+			DecisionsType    string
+			DecisionsDetails string
+		}{
+			{DecisionsType: "jointly", DecisionsDetails: ""},
+			{DecisionsType: "jointly-and-severally", DecisionsDetails: ""},
+			{DecisionsType: "mixed", DecisionsDetails: "some details"},
+		}
+
+		for _, tc := range testCases {
+			t.Run(tc.DecisionsType, func(t *testing.T) {
+				ctx := context.Background()
+				w := httptest.NewRecorder()
+				r, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/?redirect=/somewhere&howAttorneysAct=%s", tc.DecisionsType), nil)
+				r = r.WithContext(ctx)
+
+				sessionsStore := &mockSessionsStore{}
+				sessionsStore.
+					On("Get", r, "session").
+					Return(&sessions.Session{}, nil)
+				sessionsStore.
+					On("Save", r, w, mock.Anything).
+					Return(nil)
+
+				lpaStore := &mockLpaStore{}
+				lpaStore.
+					On("Get", ctx, mock.Anything).
+					Return(&Lpa{}, nil)
+
+				lpaStore.
+					On("Put", ctx, mock.Anything, &Lpa{DecisionsType: tc.DecisionsType, DecisionsDetails: tc.DecisionsDetails}).
+					Return(nil)
+
+				testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)
+				resp := w.Result()
+
+				assert.Equal(t, http.StatusFound, resp.StatusCode)
+				assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+				mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+			})
+		}
 	})
 }
 
