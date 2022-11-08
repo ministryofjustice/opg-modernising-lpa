@@ -136,6 +136,8 @@ func App(
 		ChooseAttorneySummary(logger, tmpls.Get("choose_attorneys_summary.gohtml"), lpaStore))
 	handle(removeAttorneyPath, RequireSession|CanGoBack,
 		RemoveAttorney(logger, tmpls.Get("remove_attorney.gohtml"), lpaStore))
+	handle(chooseReplacementAttorneysPath, RequireSession|CanGoBack,
+		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml")))
 	handle(howShouldAttorneysMakeDecisionsPath, RequireSession|CanGoBack,
 		HowShouldAttorneysMakeDecisions(tmpls.Get("how_should_attorneys_make_decisions.gohtml"), lpaStore))
 	handle(wantReplacementAttorneysPath, RequireSession|CanGoBack,
@@ -212,7 +214,6 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 
 		if r.FormValue("withAttorneys") == "1" {
 			sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
-
 			lpa, _ := lpaStore.Get(r.Context(), sessionID)
 
 			lpa.Attorneys = []Attorney{
@@ -238,6 +239,23 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 					DateOfBirth: time.Date(1998, time.January, 2, 3, 4, 5, 6, time.UTC),
 					Address:     place.Address{},
 				},
+			}
+
+			_ = lpaStore.Put(r.Context(), sessionID, lpa)
+		}
+
+		if r.FormValue("howAttorneysAct") != "" {
+			sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
+			lpa, _ := lpaStore.Get(r.Context(), sessionID)
+
+			switch r.FormValue("howAttorneysAct") {
+			case "jointly":
+				lpa.DecisionsType = "jointly"
+			case "jointly-and-severally":
+				lpa.DecisionsType = "jointly-and-severally"
+			default:
+				lpa.DecisionsType = "mixed"
+				lpa.DecisionsDetails = "some details"
 			}
 
 			_ = lpaStore.Put(r.Context(), sessionID, lpa)
