@@ -42,7 +42,7 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				redirectUrl := howReplacementAttorneysStepInPath
+				redirectUrl := howShouldReplacementAttorneysStepInPath
 
 				if data.Form.AddAttorney == "yes" {
 					redirectUrl = fmt.Sprintf("%s?addAnother=1", data.ReplacementAttorneyDetailsPath)

@@ -32,7 +32,7 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneySummary(nil, template.Func, lpaStore)(appData, w, r)
+	err := ChooseAttorneysSummary(nil, template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -55,7 +55,7 @@ func TestGetChooseAttorneySummaryWhenStoreErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneySummary(logger, nil, lpaStore)(appData, w, r)
+	err := ChooseAttorneysSummary(logger, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -102,7 +102,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", formUrlEncoded)
 
-			err := ChooseAttorneySummary(nil, nil, lpaStore)(appData, w, r)
+			err := ChooseAttorneysSummary(nil, nil, lpaStore)(appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -139,7 +139,7 @@ func TestPostChooseAttorneySummaryFormValidation(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := ChooseAttorneySummary(nil, template.Func, lpaStore)(appData, w, r)
+	err := ChooseAttorneysSummary(nil, template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

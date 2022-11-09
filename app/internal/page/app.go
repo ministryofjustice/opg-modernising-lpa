@@ -135,7 +135,7 @@ func App(
 	handle(chooseAttorneysAddressPath, RequireSession|CanGoBack,
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_attorneys_address.gohtml"), addressClient, lpaStore))
 	handle(chooseAttorneysSummaryPath, RequireSession|CanGoBack,
-		ChooseAttorneySummary(logger, tmpls.Get("choose_attorneys_summary.gohtml"), lpaStore))
+		ChooseAttorneysSummary(logger, tmpls.Get("choose_attorneys_summary.gohtml"), lpaStore))
 	handle(removeAttorneyPath, RequireSession|CanGoBack,
 		RemoveAttorney(logger, tmpls.Get("remove_attorney.gohtml"), lpaStore))
 	handle(howShouldAttorneysMakeDecisionsPath, RequireSession|CanGoBack,
@@ -151,6 +151,8 @@ func App(
 		ChooseReplacementAttorneysSummary(logger, tmpls.Get("choose_replacement_attorneys_summary.gohtml"), lpaStore))
 	handle(removeReplacementAttorneyPath, RequireSession|CanGoBack,
 		RemoveReplacementAttorney(logger, tmpls.Get("remove_replacement_attorney.gohtml"), lpaStore))
+	handle(howShouldReplacementAttorneysStepInPath, RequireSession|CanGoBack,
+		HowShouldReplacementAttorneysStepIn(tmpls.Get("how_should_replacement_attorneys_step_in.gohtml"), lpaStore))
 
 	handle(whenCanTheLpaBeUsedPath, RequireSession|CanGoBack,
 		WhenCanTheLpaBeUsed(tmpls.Get("when_can_the_lpa_be_used.gohtml"), lpaStore))
@@ -252,6 +254,8 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 					Address:     place.Address{},
 				},
 			}
+
+			lpa.ReplacementAttorneys = lpa.Attorneys
 
 			_ = lpaStore.Put(r.Context(), sessionID, lpa)
 		}
