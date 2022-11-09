@@ -126,8 +126,10 @@ func App(
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
 	handle(howWouldYouLikeToBeContactedPath, RequireSession,
 		HowWouldYouLikeToBeContacted(tmpls.Get("how_would_you_like_to_be_contacted.gohtml"), lpaStore))
+
 	handle(taskListPath, RequireSession,
 		TaskList(tmpls.Get("task_list.gohtml"), lpaStore))
+
 	handle(chooseAttorneysPath, RequireSession|CanGoBack,
 		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), lpaStore, random.String))
 	handle(chooseAttorneysAddressPath, RequireSession|CanGoBack,
@@ -136,14 +138,20 @@ func App(
 		ChooseAttorneySummary(logger, tmpls.Get("choose_attorneys_summary.gohtml"), lpaStore))
 	handle(removeAttorneyPath, RequireSession|CanGoBack,
 		RemoveAttorney(logger, tmpls.Get("remove_attorney.gohtml"), lpaStore))
+	handle(howShouldAttorneysMakeDecisionsPath, RequireSession|CanGoBack,
+		HowShouldAttorneysMakeDecisions(tmpls.Get("how_should_attorneys_make_decisions.gohtml"), lpaStore))
+
+	handle(wantReplacementAttorneysPath, RequireSession|CanGoBack,
+		WantReplacementAttorneys(tmpls.Get("want_replacement_attorneys.gohtml"), lpaStore))
 	handle(chooseReplacementAttorneysPath, RequireSession|CanGoBack,
 		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), lpaStore, random.String))
 	handle(chooseReplacementAttorneysAddressPath, RequireSession|CanGoBack,
 		ChooseReplacementAttorneysAddress(logger, tmpls.Get("choose_replacement_attorneys_address.gohtml"), addressClient, lpaStore))
-	handle(howShouldAttorneysMakeDecisionsPath, RequireSession|CanGoBack,
-		HowShouldAttorneysMakeDecisions(tmpls.Get("how_should_attorneys_make_decisions.gohtml"), lpaStore))
-	handle(wantReplacementAttorneysPath, RequireSession|CanGoBack,
-		WantReplacementAttorneys(tmpls.Get("want_replacement_attorneys.gohtml"), lpaStore))
+	handle(chooseReplacementAttorneysSummaryPath, RequireSession|CanGoBack,
+		ChooseReplacementAttorneysSummary(logger, tmpls.Get("choose_replacement_attorneys_summary.gohtml"), lpaStore))
+	handle(removeReplacementAttorneyPath, RequireSession|CanGoBack,
+		RemoveReplacementAttorney(logger, tmpls.Get("remove_replacement_attorney.gohtml"), lpaStore))
+
 	handle(whenCanTheLpaBeUsedPath, RequireSession|CanGoBack,
 		WhenCanTheLpaBeUsed(tmpls.Get("when_can_the_lpa_be_used.gohtml"), lpaStore))
 	handle(restrictionsPath, RequireSession|CanGoBack,
@@ -156,13 +164,15 @@ func App(
 		HowDoYouKnowYourCertificateProvider(tmpls.Get("how_do_you_know_your_certificate_provider.gohtml"), lpaStore))
 	handle(howLongHaveYouKnownCertificateProviderPath, RequireSession|CanGoBack,
 		HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), lpaStore))
+
 	handle(aboutPaymentPath, RequireSession|CanGoBack,
 		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String))
+	handle(paymentConfirmationPath, RequireSession|CanGoBack,
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, lpaStore, sessionStore))
+
 	handle(checkYourLpaPath, RequireSession|CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), lpaStore))
 
-	handle(paymentConfirmationPath, RequireSession|CanGoBack,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, lpaStore, sessionStore))
 	handle(whatHappensNextPath, RequireSession|CanGoBack,
 		Guidance(tmpls.Get("what_happens_next.gohtml"), aboutPaymentPath, lpaStore))
 

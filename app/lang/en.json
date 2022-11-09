@@ -311,5 +311,11 @@
     "mixedReplacementWarning": "The donor appointed their attorneys to act jointly for some decisions, and jointly and severally for others.",
     "mixedReplacementWarningContent": "<p class=\"govuk-body\">This means that if an original attorney dies or can no longer act:</p><ul class=\"govuk-list govuk-list--bullet\"><li>all the replacement attorneys step in and take over making the joint decisions</li><li>the remaining original attorneys will not be able to make the joint decisions anymore, unless the donor states otherwise in their instructions</li><li>the replacement and remaining original attorneys can make all other decisions together or individually</li></ul>",
 
-    "whoWouldYouLikeToBeTheReplacementAttorneys": "Who would you like to be the replacement attorneys?"
+    "whoWouldYouLikeToBeTheReplacementAttorneys": "Who would you like to be the replacement attorneys?",
+    "doYouWantToAddAnotherReplacementAttorney": "Do you want to add another replacement attorney?",
+    "removeAReplacementAttorney": "Remove a replacement attorney",
+    "replacementAttorneysAdded": {
+        "one": "You have added {{.PluralCount}} replacement attorney",
+        "other": "You have added {{.PluralCount}} replacement attorneys"
+    }
 }

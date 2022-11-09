@@ -315,5 +315,16 @@
     "jointlyReplacementWarning": "Welsh",
     "jointlyReplacementWarningContent": "<p class=\"govuk-body\">Welsh</p>",
     "mixedReplacementWarning": "Welsh",
-    "mixedReplacementWarningContent": "<p class=\"govuk-body\">Welsh</p>"
+    "mixedReplacementWarningContent": "<p class=\"govuk-body\">Welsh</p>",
+
+    "whoWouldYouLikeToBeTheReplacementAttorneys": "Welsh?",
+    "doYouWantToAddAnotherReplacementAttorney": "Welsh?",
+    "removeAReplacementAttorney": "Welsh",
+    "replacementAttorneysAdded": {
+        "one": "Welsh {{.PluralCount}} welsh",
+        "two": "Welsh {{.PluralCount}} welsh",
+        "few": "Welsh {{.PluralCount}} welsh",
+        "many": "Welsh {{.PluralCount}} welsh",
+        "other": "Welsh {{.PluralCount}} welsh"
+    }
 }

@@ -26,7 +26,8 @@ func TestGetChooseReplacementAttorneys(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseReplacementAttorneysData{
-			App: appData,
+			App:  appData,
+			Form: &chooseAttorneysForm{},
 		}).
 		Return(nil)
 
@@ -79,7 +80,7 @@ func TestGetChooseReplacementAttorneysFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/choose-attorneys-summary", resp.Header.Get("Location"))
+	assert.Equal(t, "/choose-replacement-attorneys-summary", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 

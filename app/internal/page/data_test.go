@@ -270,6 +270,45 @@ func TestDeleteAttorney(t *testing.T) {
 	}
 }
 
+func TestDeleteReplacementAttorney(t *testing.T) {
+	testCases := map[string]struct {
+		lpa              *Lpa
+		expectedLpa      *Lpa
+		attorneyToDelete Attorney
+		expectedDeleted  bool
+	}{
+		"attorney exists": {
+			lpa: &Lpa{
+				ReplacementAttorneys: []Attorney{{ID: "1"}, {ID: "2"}},
+			},
+			expectedLpa: &Lpa{
+				ReplacementAttorneys: []Attorney{{ID: "1"}},
+			},
+			attorneyToDelete: Attorney{ID: "2"},
+			expectedDeleted:  true,
+		},
+		"attorney does not exist": {
+			lpa: &Lpa{
+				ReplacementAttorneys: []Attorney{{ID: "1"}, {ID: "2"}},
+			},
+			expectedLpa: &Lpa{
+				ReplacementAttorneys: []Attorney{{ID: "1"}, {ID: "2"}},
+			},
+			attorneyToDelete: Attorney{ID: "3"},
+			expectedDeleted:  false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			deleted := tc.lpa.DeleteReplacementAttorney(tc.attorneyToDelete)
+
+			assert.Equal(t, tc.expectedDeleted, deleted)
+			assert.Equal(t, tc.expectedLpa, tc.lpa)
+		})
+	}
+}
+
 func TestAttorneysFullNames(t *testing.T) {
 	l := &Lpa{
 		Attorneys: []Attorney{

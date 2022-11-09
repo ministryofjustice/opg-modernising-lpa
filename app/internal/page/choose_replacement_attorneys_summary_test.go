@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetChooseAttorneysSummary(t *testing.T) {
+func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	lpaStore := &mockLpaStore{}
@@ -21,18 +21,18 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &chooseAttorneysSummaryData{
-			App:                 appData,
-			Lpa:                 &Lpa{},
-			AttorneyAddressPath: chooseAttorneysAddressPath,
-			AttorneyDetailsPath: chooseAttorneysPath,
-			RemoveAttorneyPath:  removeAttorneyPath,
+		On("Func", w, &chooseReplacementAttorneysSummaryData{
+			App:                            appData,
+			Lpa:                            &Lpa{},
+			ReplacementAttorneyAddressPath: chooseReplacementAttorneysAddressPath,
+			ReplacementAttorneyDetailsPath: chooseReplacementAttorneysPath,
+			RemoveReplacementAttorneyPath:  removeReplacementAttorneyPath,
 		}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneySummary(nil, template.Func, lpaStore)(appData, w, r)
+	err := ChooseReplacementAttorneysSummary(nil, template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -40,7 +40,7 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
-func TestGetChooseAttorneySummaryWhenStoreErrors(t *testing.T) {
+func TestGetChooseReplacementAttorneySummaryWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	lpaStore := &mockLpaStore{}
@@ -55,7 +55,7 @@ func TestGetChooseAttorneySummaryWhenStoreErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneySummary(logger, nil, lpaStore)(appData, w, r)
+	err := ChooseReplacementAttorneysSummary(logger, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -63,7 +63,7 @@ func TestGetChooseAttorneySummaryWhenStoreErrors(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, logger)
 }
 
-func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
+func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 	testcases := map[string]struct {
 		addMoreFormValue string
 		expectedUrl      string
@@ -71,17 +71,17 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	}{
 		"add attorney": {
 			addMoreFormValue: "yes",
-			expectedUrl:      "/choose-attorneys?addAnother=1",
+			expectedUrl:      "/choose-replacement-attorneys?addAnother=1",
 			Attorneys:        []Attorney{},
 		},
 		"do not add attorney - with single attorney": {
 			addMoreFormValue: "no",
-			expectedUrl:      "/want-replacement-attorneys",
+			expectedUrl:      "/how-should-replacement-attorneys-step-in",
 			Attorneys:        []Attorney{{ID: "123"}},
 		},
 		"do not add attorney - with multiple attorneys": {
 			addMoreFormValue: "no",
-			expectedUrl:      "/how-should-attorneys-make-decisions",
+			expectedUrl:      "/how-should-replacement-attorneys-step-in",
 			Attorneys:        []Attorney{{ID: "123"}, {ID: "456"}},
 		},
 	}
@@ -93,7 +93,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
-				Return(&Lpa{Attorneys: tc.Attorneys}, nil)
+				Return(&Lpa{ReplacementAttorneys: tc.Attorneys}, nil)
 
 			form := url.Values{
 				"add-attorney": {tc.addMoreFormValue},
@@ -102,7 +102,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", formUrlEncoded)
 
-			err := ChooseAttorneySummary(nil, nil, lpaStore)(appData, w, r)
+			err := ChooseReplacementAttorneysSummary(nil, nil, lpaStore)(appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -113,7 +113,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	}
 }
 
-func TestPostChooseAttorneySummaryFormValidation(t *testing.T) {
+func TestPostChooseReplacementAttorneySummaryFormValidation(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	lpaStore := &mockLpaStore{}
@@ -127,7 +127,7 @@ func TestPostChooseAttorneySummaryFormValidation(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, mock.MatchedBy(func(data *chooseAttorneysSummaryData) bool {
+		On("Func", w, mock.MatchedBy(func(data *chooseReplacementAttorneysSummaryData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)
@@ -139,50 +139,10 @@ func TestPostChooseAttorneySummaryFormValidation(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := ChooseAttorneySummary(nil, template.Func, lpaStore)(appData, w, r)
+	err := ChooseReplacementAttorneysSummary(nil, template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
-}
-
-func TestChooseAttorneySummaryFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *chooseAttorneysSummaryForm
-		errors map[string]string
-	}{
-		"yes": {
-			form: &chooseAttorneysSummaryForm{
-				AddAttorney: "yes",
-			},
-			errors: map[string]string{},
-		},
-		"no": {
-			form: &chooseAttorneysSummaryForm{
-				AddAttorney: "no",
-			},
-			errors: map[string]string{},
-		},
-		"missing": {
-			form: &chooseAttorneysSummaryForm{},
-			errors: map[string]string{
-				"add-attorney": "selectAddMoreAttorneys",
-			},
-		},
-		"invalid": {
-			form: &chooseAttorneysSummaryForm{
-				AddAttorney: "what",
-			},
-			errors: map[string]string{
-				"add-attorney": "selectAddMoreAttorneys",
-			},
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }

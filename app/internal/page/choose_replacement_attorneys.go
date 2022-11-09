@@ -25,7 +25,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 		ra, attorneyFound := lpa.GetReplacementAttorney(r.URL.Query().Get("id"))
 
 		if r.Method == http.MethodGet && len(lpa.ReplacementAttorneys) > 0 && attorneyFound == false && addAnother == false {
-			appData.Lang.Redirect(w, r, chooseAttorneysSummaryPath, http.StatusFound)
+			appData.Lang.Redirect(w, r, chooseReplacementAttorneysSummaryPath, http.StatusFound)
 			return nil
 		}
 
