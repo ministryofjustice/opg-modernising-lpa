@@ -3,7 +3,7 @@ describe('Choose replacement attorneys summary', () => {
         cy.visit('/testing-start?redirect=/choose-replacement-attorneys-summary&withAttorneys=1&cookiesAccepted=1');
     });
 
-    it('multiple attorneys details are listed and can submit', () => {
+    it('multiple attorneys details are listed', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
@@ -17,10 +17,8 @@ describe('Choose replacement attorneys summary', () => {
         cy.contains('2 January 1998');
         cy.contains(',');
 
-        cy.get('input[name="add-attorney"]').check('no')
-        cy.contains('button', 'Continue').click();
-
-        cy.url().should('contain', '/how-should-replacement-attorneys-step-in');
+        cy.visit('/task-list')
+        cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('In progress 2')
     });
 
     it('can amend attorney details', () => {
@@ -46,19 +44,28 @@ describe('Choose replacement attorneys summary', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.contains('dd', '2 RICHMOND PLACE').contains('a', 'Change').click();
+        cy.contains('dd', ' , ').contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys-address');
         cy.url().should('contain', 'from=%2fchoose-replacement-attorneys-summary');
         cy.url().should('match', /id=\w*/);
 
-        cy.get('#f-address-line-1').type('4 RICHMOND PLACE');
+        cy.get('#f-lookup-postcode').type('B14 7ED');
+        cy.contains('button', 'Find address').click();
 
+        cy.get('#f-select-address').select('4 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
+        cy.contains('button', 'Continue').click();
+
+        cy.url().should('contain', '/choose-replacement-attorneys-address');
+        cy.get('#f-address-line-1').should('have.value', '4 RICHMOND PLACE');
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys-summary');
 
         cy.contains('dd', '4 RICHMOND PLACE');
+
+        cy.visit('/task-list')
+        cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('Completed 2')
     });
 
     it('can add another attorney from summary page', () => {
@@ -125,6 +132,6 @@ describe('Choose replacement attorneys summary', () => {
         cy.get('#f-remove-attorney').check('yes');
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/choose-replacement-attorneys');
+        cy.url().should('contain', '/want-replacement-attorneys');
     });
 });

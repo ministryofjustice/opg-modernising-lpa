@@ -64,16 +64,35 @@ func TestGetChooseReplacementAttorneySummaryWhenStoreErrors(t *testing.T) {
 }
 
 func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(&Lpa{ReplacementAttorneys: []Attorney{}}, nil)
+
+	form := url.Values{
+		"add-attorney": {"yes"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := ChooseReplacementAttorneysSummary(nil, nil, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "/choose-replacement-attorneys?addAnother=1", resp.Header.Get("Location"))
+	mock.AssertExpectationsForObjects(t, lpaStore)
+}
+
+func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 	testcases := map[string]struct {
 		addMoreFormValue string
 		expectedUrl      string
 		Attorneys        []Attorney
 	}{
-		"add attorney": {
-			addMoreFormValue: "yes",
-			expectedUrl:      "/choose-replacement-attorneys?addAnother=1",
-			Attorneys:        []Attorney{},
-		},
 		"do not add attorney - with single attorney": {
 			addMoreFormValue: "no",
 			expectedUrl:      "/how-should-replacement-attorneys-step-in",
