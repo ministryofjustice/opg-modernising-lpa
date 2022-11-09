@@ -36,6 +36,60 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 			data.Form.Address = &ra.Address
 		}
 
+		if r.Method == http.MethodPost {
+			data.Form = readChooseAttorneysAddressForm(r)
+			data.Errors = data.Form.Validate()
+
+			if data.Form.Action == "manual" && len(data.Errors) == 0 {
+				ra.Address = *data.Form.Address
+				attorneyUpdated := lpa.PutReplacementAttorney(ra)
+
+				if attorneyUpdated == false {
+					lpa.ReplacementAttorneys = append(lpa.ReplacementAttorneys, ra)
+				}
+
+				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+					return err
+				}
+
+				from := r.FormValue("from")
+
+				if from == "" {
+					from = chooseReplacementAttorneysSummaryPath
+				}
+
+				appData.Lang.Redirect(w, r, from, http.StatusFound)
+				return nil
+			}
+
+			// Force the manual address view after selecting
+			if data.Form.Action == "select" && len(data.Errors) == 0 {
+				data.Form.Action = "manual"
+
+				ra.Address = *data.Form.Address
+				attorneyUpdated := lpa.PutReplacementAttorney(ra)
+
+				if attorneyUpdated == false {
+					lpa.ReplacementAttorneys = append(lpa.ReplacementAttorneys, ra)
+				}
+
+				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+					return err
+				}
+			}
+
+			if data.Form.Action == "lookup" && len(data.Errors) == 0 ||
+				data.Form.Action == "select" && len(data.Errors) > 0 {
+				addresses, err := addressClient.LookupPostcode(r.Context(), data.Form.LookupPostcode)
+				if err != nil {
+					logger.Print(err)
+					data.Errors["lookup-postcode"] = "couldNotLookupPostcode"
+				}
+
+				data.Addresses = addresses
+			}
+		}
+
 		if r.Method == http.MethodGet {
 			action := r.FormValue("action")
 			if action == "manual" {

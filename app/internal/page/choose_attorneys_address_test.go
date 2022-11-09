@@ -232,9 +232,7 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 	attorney.Address = address
 
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{
-			Attorneys: []Attorney{attorney},
-		}).
+		On("Put", mock.Anything, "session-id", &Lpa{Attorneys: []Attorney{attorney}}).
 		Return(expectedError)
 
 	form := url.Values{
