@@ -18,7 +18,7 @@ describe('Choose attorneys summary', () => {
         cy.contains(',');
 
         cy.visit('/task-list')
-        cy.contains('a', 'Choose your attorneys').parent().parent().contains('In progress 2')
+        cy.contains('a', 'Choose your attorneys').parent().parent().contains('In progress (2)')
     });
 
     it('can amend attorney details', () => {
@@ -66,7 +66,7 @@ describe('Choose attorneys summary', () => {
         cy.contains('dd', '1 RICHMOND PLACE');
 
         cy.visit('/task-list')
-        cy.contains('a', 'Choose your attorneys').parent().parent().contains('Completed 2')
+        cy.contains('a', 'Choose your attorneys').parent().parent().contains('Completed (2)')
     });
 
     it('can add another attorney from summary page', () => {
