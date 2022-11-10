@@ -94,72 +94,36 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 		ReplacementAttorneys []Attorney
 		HowAttorneysAct      string
 	}{
-		//GIVEN I have created more than one attorney
-		//AND they are acting ‘Jointly and Severally’
-		//AND I have created one replacement attorney
-		//WHEN I click continue
-		//THEN I am taken to MLPAB-406: How should the replacement attorneys step in?
 		"with multiple attorneys acting jointly and severally and single replacement attorney": {
 			expectedUrl:          "/how-should-replacement-attorneys-step-in",
 			Attorneys:            []Attorney{{ID: "123"}, {ID: "456"}},
 			ReplacementAttorneys: []Attorney{{ID: "123"}},
 			HowAttorneysAct:      "jointly-and-severally",
 		},
-		//GIVEN I have created more than one attorney
-		//AND they are acting ‘Jointly and Severally’
-		//AND I have created more than one replacement attorney
-		//WHEN I click continue
-		//THEN I am taken to MLPAB-406: How should the replacement attorneys step in?
 		"with multiple attorneys acting jointly and severally and multiple replacement attorney": {
 			expectedUrl:          "/how-should-replacement-attorneys-step-in",
 			Attorneys:            []Attorney{{ID: "123"}, {ID: "456"}},
 			ReplacementAttorneys: []Attorney{{ID: "123"}, {ID: "456"}},
 			HowAttorneysAct:      "jointly-and-severally",
 		},
-		//GIVEN I have created more than one attorney
-		//AND they are acting ‘Jointly for some decisions, and jointly and severally for other decisions’
-		//AND I have created one replacement attorney
-		//WHEN I click continue
-		//THEN I am returned to the Task List page
-		//AND Replacement Attorneys section is marked as complete on Task List
-		//AND an indication is given that I have one replacement attorney on Task List
 		"with multiple attorneys acting jointly for some decisions and jointly and severally for other decisions and single replacement attorney": {
 			expectedUrl:          "/task-list",
 			Attorneys:            []Attorney{{ID: "123"}, {ID: "456"}},
 			ReplacementAttorneys: []Attorney{{ID: "123"}},
 			HowAttorneysAct:      "mixed",
 		},
-		//	GIVEN I have created more than one attorney
-		//	AND they are acting ‘Jointly for some decisions, and jointly and severally for other decisions’
-		//	AND I have created more than one replacement attorney
-		//	WHEN I click continue
-		//	THEN I am returned to the Task List page
-		//	AND Replacement Attorneys section is marked as complete on Task List
-		//	AND an indication is given to the number of replacement attorney I have on Task List
 		"with multiple attorneys acting jointly for some decisions, and jointly and severally for other decisions and multiple replacement attorneys": {
 			expectedUrl:          "/task-list",
 			Attorneys:            []Attorney{{ID: "123"}, {ID: "456"}},
 			ReplacementAttorneys: []Attorney{{ID: "123"}, {ID: "123"}},
 			HowAttorneysAct:      "mixed",
 		},
-		//GIVEN I have created more than one attorney
-		//AND they are acting ‘Jointly’
-		//AND I have created one replacement attorney
-		//WHEN I click continue
-		//THEN I am returned to the Task List page
-		//AND Replacement Attorneys section is marked as complete on Task List
-		//AND an indication is given that I have one replacement attorney on Task List
 		"with multiple attorneys acting jointly and single replacement attorneys": {
 			expectedUrl:          "/task-list",
 			Attorneys:            []Attorney{{ID: "123"}, {ID: "456"}},
 			ReplacementAttorneys: []Attorney{{ID: "123"}},
 			HowAttorneysAct:      "jointly",
 		},
-		//GIVEN I have created more than one attorney
-		//AND they are acting ‘Jointly’
-		//AND I have created more than one replacement attorney
-		//WHEN I click continue
-		//THEN I am taken to MLPAB-405: How should the replacement attorneys make decisions?
 		"with multiple attorneys acting jointly and multiple replacement attorneys": {
 			expectedUrl:          "/how-should-replacement-attorneys-make-decisions",
 			Attorneys:            []Attorney{{ID: "123"}, {ID: "456"}},
