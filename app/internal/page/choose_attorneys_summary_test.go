@@ -40,7 +40,7 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
-func TestGetChooseAttorneySummaryWhenStoreErrors(t *testing.T) {
+func TestGetChooseAttorneysSummaryWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	lpaStore := &mockLpaStore{}
@@ -113,7 +113,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	}
 }
 
-func TestPostChooseAttorneySummaryFormValidation(t *testing.T) {
+func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	lpaStore := &mockLpaStore{}
@@ -147,7 +147,7 @@ func TestPostChooseAttorneySummaryFormValidation(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
-func TestChooseAttorneySummaryFormValidate(t *testing.T) {
+func TestChooseAttorneysSummaryFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *chooseAttorneysSummaryForm
 		errors map[string]string
