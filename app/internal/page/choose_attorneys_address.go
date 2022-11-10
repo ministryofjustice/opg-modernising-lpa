@@ -54,11 +54,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 
 			if data.Form.Action == "manual" && len(data.Errors) == 0 {
 				attorney.Address = *data.Form.Address
-				attorneyUpdated := lpa.PutAttorney(attorney)
-
-				if attorneyUpdated == false {
-					lpa.Attorneys = append(lpa.Attorneys, attorney)
-				}
+				lpa.PutAttorney(attorney)
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
@@ -79,11 +75,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 				data.Form.Action = "manual"
 
 				attorney.Address = *data.Form.Address
-				attorneyUpdated := lpa.PutAttorney(attorney)
-
-				if attorneyUpdated == false {
-					lpa.Attorneys = append(lpa.Attorneys, attorney)
-				}
+				lpa.PutAttorney(attorney)
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
