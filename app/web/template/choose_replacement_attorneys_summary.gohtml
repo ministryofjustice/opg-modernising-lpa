@@ -1,0 +1,56 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ trCount .App "replacementAttorneysAdded" (len .Lpa.ReplacementAttorneys) }}</h1>
+
+            <dl class="govuk-summary-list">
+                {{range .Lpa.ReplacementAttorneys}}
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            {{ .FirstNames }} {{ .LastName }}<br>
+                            <span class="govuk-body-s">{{ formatDate .DateOfBirth }}</span><br>
+                            <a class="govuk-link govuk-body-s" href="{{ link $.App $.ReplacementAttorneyDetailsPath }}?id={{ .ID }}&from={{ $.App.Page }}">
+                                {{ trFormatHtml $.App "changeDetailsLink" "FirstNames" .FirstNames "LastName" .LastName }}
+                            </a>
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            {{ .Address.Line1 }}, {{ .Address.Postcode }}<br>
+                            <a class="govuk-link govuk-body-s" href="{{ link $.App $.ReplacementAttorneyAddressPath }}?id={{ .ID }}&from={{ $.App.Page }}">
+                                {{ trFormatHtml $.App "changeAddressLink" "FirstNames" .FirstNames "LastName" .LastName }}
+                            </a>
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link govuk-body-s" href="{{ link $.App $.RemoveReplacementAttorneyPath }}?id={{ .ID }}">
+                                {{ trFormatHtml $.App "removeLink" "FirstNames" .FirstNames "LastName" .LastName }}
+                            </a>
+                        </dd>
+                    </div>
+                {{end}}
+            </dl>
+
+            <form novalidate method="post">
+                <div class="govuk-form-group">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                        {{ tr .App "doYouWantToAddAnotherReplacementAttorney" }}
+                    </legend>
+
+                    <div class="govuk-form-group {{ if index .Errors "add-attorney" }}govuk-form-group--error{{ end }}">
+                        {{ template "error-message" (errorMessage . "add-attorney") }}
+
+                        {{ template "radios" (items . "add-attorney" ""
+                        (item "yes" "yes")
+                        (item "no" "no")
+                        ) }}
+                    </div>
+                </div>
+
+                <div class="govuk-button-group">
+                    {{ template "continue-button" . }}
+                </div>
+            </form>
+
+        </div>
+    </div>
+{{ end }}

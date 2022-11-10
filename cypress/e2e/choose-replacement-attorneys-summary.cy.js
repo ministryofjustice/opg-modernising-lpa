@@ -1,13 +1,13 @@
-describe('Choose attorneys summary', () => {
+describe('Choose replacement attorneys summary', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/choose-attorneys-summary&withAttorneys=1&cookiesAccepted=1');
+        cy.visit('/testing-start?redirect=/choose-replacement-attorneys-summary&withAttorneys=1&cookiesAccepted=1');
     });
 
     it('multiple attorneys details are listed', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.contains('You have added 2 attorneys');
+        cy.contains('You have added 2 replacement attorneys');
 
         cy.contains('John Smith');
         cy.contains('2 January 2000');
@@ -18,7 +18,7 @@ describe('Choose attorneys summary', () => {
         cy.contains(',');
 
         cy.visit('/task-list')
-        cy.contains('a', 'Choose your attorneys').parent().parent().contains('In progress 2')
+        cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('In progress 2')
     });
 
     it('can amend attorney details', () => {
@@ -27,15 +27,15 @@ describe('Choose attorneys summary', () => {
 
         cy.contains('dt', 'John Smith').contains('a', 'Change').click();
 
-        cy.url().should('contain', '/choose-attorneys');
-        cy.url().should('contain', 'from=%2fchoose-attorneys-summary');
+        cy.url().should('contain', '/choose-replacement-attorneys');
+        cy.url().should('contain', 'from=%2fchoose-replacement-attorneys-summary');
         cy.url().should('match', /id=\w*/);
 
         cy.get('#f-first-names').type('Mark');
 
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/choose-attorneys-summary');
+        cy.url().should('contain', '/choose-replacement-attorneys-summary');
 
         cy.contains('Mark Smith');
     });
@@ -46,27 +46,26 @@ describe('Choose attorneys summary', () => {
 
         cy.contains('dd', ' , ').contains('a', 'Change').click();
 
-        cy.url().should('contain', '/choose-attorneys-address');
-        cy.url().should('contain', 'from=%2fchoose-attorneys-summary');
+        cy.url().should('contain', '/choose-replacement-attorneys-address');
+        cy.url().should('contain', 'from=%2fchoose-replacement-attorneys-summary');
         cy.url().should('match', /id=\w*/);
 
         cy.get('#f-lookup-postcode').type('B14 7ED');
         cy.contains('button', 'Find address').click();
 
-        cy.get('#f-select-address').select('1 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
+        cy.get('#f-select-address').select('4 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/choose-attorneys-address');
-        cy.get('#f-address-line-1').should('have.value', '1 RICHMOND PLACE');
-
+        cy.url().should('contain', '/choose-replacement-attorneys-address');
+        cy.get('#f-address-line-1').should('have.value', '4 RICHMOND PLACE');
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/choose-attorneys-summary');
+        cy.url().should('contain', '/choose-replacement-attorneys-summary');
 
-        cy.contains('dd', '1 RICHMOND PLACE');
+        cy.contains('dd', '4 RICHMOND PLACE');
 
         cy.visit('/task-list')
-        cy.contains('a', 'Choose your attorneys').parent().parent().contains('Completed 2')
+        cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('Completed 2')
     });
 
     it('can add another attorney from summary page', () => {
@@ -76,7 +75,7 @@ describe('Choose attorneys summary', () => {
         cy.get('#f-add-attorney').check('yes');
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/choose-attorneys');
+        cy.url().should('contain', '/choose-replacement-attorneys');
 
         cy.get('#f-first-names').type('Bob Arnold');
         cy.get('#f-last-name').type('Jones');
@@ -86,7 +85,7 @@ describe('Choose attorneys summary', () => {
         cy.get('input[name="date-of-birth-year"]').type('1995');
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/choose-attorneys-address');
+        cy.url().should('contain', '/choose-replacement-attorneys-address');
 
         cy.get('#f-lookup-postcode').type('B14 7ED');
         cy.contains('button', 'Find address').click();
@@ -94,11 +93,11 @@ describe('Choose attorneys summary', () => {
         cy.get('#f-select-address').select('5 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/choose-attorneys-address');
+        cy.url().should('contain', '/choose-replacement-attorneys-address');
         cy.get('#f-address-line-1').should('have.value', '5 RICHMOND PLACE');
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/choose-attorneys-summary');
+        cy.url().should('contain', '/choose-replacement-attorneys-summary');
 
         cy.contains('Bob Arnold Jones');
         cy.contains('31 December 1995');
@@ -111,7 +110,7 @@ describe('Choose attorneys summary', () => {
 
         cy.contains('dt', 'John Smith').parent().contains('a', 'Remove').click();
 
-        cy.url().should('contain', '/remove-attorney');
+        cy.url().should('contain', '/remove-replacement-attorney');
         cy.url().should('match', /id=\w*/);
 
         cy.injectAxe();
@@ -122,7 +121,7 @@ describe('Choose attorneys summary', () => {
         cy.get('#f-remove-attorney').check('yes');
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/choose-attorneys-summary');
+        cy.url().should('contain', '/choose-replacement-attorneys-summary');
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
@@ -133,6 +132,6 @@ describe('Choose attorneys summary', () => {
         cy.get('#f-remove-attorney').check('yes');
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/choose-attorneys');
+        cy.url().should('contain', '/want-replacement-attorneys');
     });
 });
