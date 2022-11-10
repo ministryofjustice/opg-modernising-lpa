@@ -49,7 +49,6 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 				} else if len(lpa.Attorneys) > 1 && lpa.DecisionsType == "jointly-and-severally" {
 					redirectUrl = howShouldReplacementAttorneysStepInPath
 				} else {
-					// covers jointly and severally
 					redirectUrl = taskListPath
 				}
 
