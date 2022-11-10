@@ -290,7 +290,7 @@ func TestTestingStart(t *testing.T) {
 			Return(&Lpa{}, nil)
 
 		updatedLpa := &Lpa{}
-		updatedLpa.Attorneys = []Attorney{
+		attorneys := []Attorney{
 			{
 				ID:          "completed-address",
 				FirstNames:  "John",
@@ -314,6 +314,9 @@ func TestTestingStart(t *testing.T) {
 				Address:     place.Address{},
 			},
 		}
+
+		updatedLpa.Attorneys = attorneys
+		updatedLpa.ReplacementAttorneys = attorneys
 
 		lpaStore.
 			On("Put", ctx, mock.Anything, updatedLpa).
