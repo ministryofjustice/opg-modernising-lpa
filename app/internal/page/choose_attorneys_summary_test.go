@@ -32,7 +32,7 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneySummary(nil, template.Func, lpaStore)(appData, w, r)
+	err := ChooseAttorneysSummary(nil, template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -40,7 +40,7 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
-func TestChooseAttorneySummaryWhenStoreErrors(t *testing.T) {
+func TestGetChooseAttorneysSummaryWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	lpaStore := &mockLpaStore{}
@@ -55,7 +55,7 @@ func TestChooseAttorneySummaryWhenStoreErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneySummary(logger, nil, lpaStore)(appData, w, r)
+	err := ChooseAttorneysSummary(logger, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -102,7 +102,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", formUrlEncoded)
 
-			err := ChooseAttorneySummary(nil, nil, lpaStore)(appData, w, r)
+			err := ChooseAttorneysSummary(nil, nil, lpaStore)(appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -113,7 +113,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	}
 }
 
-func TestChooseAttorneySummaryFormValidation(t *testing.T) {
+func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	lpaStore := &mockLpaStore{}
@@ -139,7 +139,7 @@ func TestChooseAttorneySummaryFormValidation(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := ChooseAttorneySummary(nil, template.Func, lpaStore)(appData, w, r)
+	err := ChooseAttorneysSummary(nil, template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -147,7 +147,7 @@ func TestChooseAttorneySummaryFormValidation(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
-func TestChooseAttorneySummaryFormValidate(t *testing.T) {
+func TestChooseAttorneysSummaryFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *chooseAttorneysSummaryForm
 		errors map[string]string

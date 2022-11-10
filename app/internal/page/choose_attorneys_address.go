@@ -16,6 +16,12 @@ type chooseAttorneysAddressData struct {
 	Form      *chooseAttorneysAddressForm
 }
 
+type chooseAttorneysAddressForm struct {
+	Action         string
+	LookupPostcode string
+	Address        *place.Address
+}
+
 func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
@@ -48,11 +54,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 
 			if data.Form.Action == "manual" && len(data.Errors) == 0 {
 				attorney.Address = *data.Form.Address
-				attorneyUpdated := lpa.PutAttorney(attorney)
-
-				if attorneyUpdated == false {
-					lpa.Attorneys = append(lpa.Attorneys, attorney)
-				}
+				lpa.PutAttorney(attorney)
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
@@ -73,11 +75,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 				data.Form.Action = "manual"
 
 				attorney.Address = *data.Form.Address
-				attorneyUpdated := lpa.PutAttorney(attorney)
-
-				if attorneyUpdated == false {
-					lpa.Attorneys = append(lpa.Attorneys, attorney)
-				}
+				lpa.PutAttorney(attorney)
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
@@ -106,12 +104,6 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 
 		return tmpl(w, data)
 	}
-}
-
-type chooseAttorneysAddressForm struct {
-	Action         string
-	LookupPostcode string
-	Address        *place.Address
 }
 
 func readChooseAttorneysAddressForm(r *http.Request) *chooseAttorneysAddressForm {
