@@ -40,6 +40,11 @@ func WantReplacementAttorneys(tmpl template.Template, lpaStore LpaStore) Handler
 			}
 		}
 
+		if len(lpa.ReplacementAttorneys) > 0 {
+			appData.Lang.Redirect(w, r, chooseReplacementAttorneysSummaryPath, http.StatusFound)
+			return nil
+		}
+
 		return tmpl(w, data)
 	}
 }

@@ -30,6 +30,9 @@ func TestGetTaskList(t *testing.T) {
 				Attorneys: []Attorney{
 					{FirstNames: "this"},
 				},
+				ReplacementAttorneys: []Attorney{
+					{FirstNames: "this"},
+				},
 				Tasks: Tasks{
 					WhenCanTheLpaBeUsed:        TaskInProgress,
 					Restrictions:               TaskInProgress,
@@ -37,13 +40,15 @@ func TestGetTaskList(t *testing.T) {
 					CheckYourLpa:               TaskInProgress,
 					PayForLpa:                  TaskInProgress,
 					ConfirmYourIdentityAndSign: TaskInProgress,
+					Attorneys:                  TaskInProgress,
+					ReplacementAttorneys:       TaskInProgress,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
 					{Name: "provideDonorDetails", Path: yourDetailsPath, InProgress: true},
-					{Name: "chooseYourAttorneys", Path: chooseAttorneysPath, InProgress: true},
-					{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath},
+					{Name: "chooseYourAttorneys", Path: chooseAttorneysPath, InProgress: true, Count: 1},
+					{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath, InProgress: true, Count: 1},
 					{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath, InProgress: true},
 					{Name: "addRestrictionsToTheLpa", Path: restrictionsPath, InProgress: true},
 					{Name: "chooseYourCertificateProvider", Path: whoDoYouWantToBeCertificateProviderGuidancePath, InProgress: true},
@@ -70,6 +75,21 @@ func TestGetTaskList(t *testing.T) {
 				},
 				Attorneys: []Attorney{
 					{
+						FirstNames: "this",
+						Address: place.Address{
+							Line1: "this",
+						},
+					},
+					{
+						FirstNames: "this",
+						Address: place.Address{
+							Line1: "this",
+						},
+					},
+				},
+				ReplacementAttorneys: []Attorney{
+					{
+						FirstNames: "this",
 						Address: place.Address{
 							Line1: "this",
 						},
@@ -86,13 +106,15 @@ func TestGetTaskList(t *testing.T) {
 					CheckYourLpa:               TaskCompleted,
 					PayForLpa:                  TaskCompleted,
 					ConfirmYourIdentityAndSign: TaskCompleted,
+					Attorneys:                  TaskCompleted,
+					ReplacementAttorneys:       TaskCompleted,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
 					{Name: "provideDonorDetails", Path: yourDetailsPath, Completed: true},
-					{Name: "chooseYourAttorneys", Path: chooseAttorneysPath, Completed: true},
-					{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath, Completed: true},
+					{Name: "chooseYourAttorneys", Path: chooseAttorneysPath, Completed: true, Count: 2},
+					{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath, Completed: true, Count: 1},
 					{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath, Completed: true},
 					{Name: "addRestrictionsToTheLpa", Path: restrictionsPath, Completed: true},
 					{Name: "chooseYourCertificateProvider", Path: whoDoYouWantToBeCertificateProviderGuidancePath, Completed: true},
