@@ -16,6 +16,7 @@ const (
 	dashboardPath                                   = "/dashboard"
 	howDoYouKnowYourCertificateProviderPath         = "/how-do-you-know-your-certificate-provider"
 	howLongHaveYouKnownCertificateProviderPath      = "/how-long-have-you-known-certificate-provider"
+	howShouldReplacementAttorneysMakeDecisionsPath  = "/how-should-replacement-attorneys-make-decisions"
 	howShouldReplacementAttorneysStepInPath         = "/how-should-replacement-attorneys-step-in"
 	howShouldAttorneysMakeDecisionsPath             = "/how-should-attorneys-make-decisions"
 	howToSignPath                                   = "/how-to-sign"

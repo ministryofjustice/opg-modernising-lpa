@@ -42,7 +42,16 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				redirectUrl := howShouldReplacementAttorneysStepInPath
+				var redirectUrl string
+
+				if len(lpa.ReplacementAttorneys) > 1 && len(lpa.Attorneys) > 1 && lpa.DecisionsType == "jointly" {
+					redirectUrl = howShouldReplacementAttorneysMakeDecisionsPath
+				} else if len(lpa.Attorneys) > 1 && lpa.DecisionsType == "jointly-and-severally" {
+					redirectUrl = howShouldReplacementAttorneysStepInPath
+				} else {
+					// covers jointly and severally
+					redirectUrl = taskListPath
+				}
 
 				if data.Form.AddAttorney == "yes" {
 					redirectUrl = fmt.Sprintf("%s?addAnother=1", data.ReplacementAttorneyDetailsPath)
