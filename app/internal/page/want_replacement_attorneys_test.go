@@ -37,6 +37,32 @@ func TestGetWantReplacementAttorneys(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
 
+func TestGetWantReplacementAttorneysWithExistingReplacementAttorneys(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(&Lpa{
+			ReplacementAttorneys: []Attorney{
+				{FirstNames: "this"},
+			},
+		}, nil)
+
+	template := &mockTemplate{}
+
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	err := WantReplacementAttorneys(template.Func, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, chooseReplacementAttorneysSummaryPath, resp.Header.Get("Location"))
+
+	mock.AssertExpectationsForObjects(t, template, lpaStore)
+}
+
 func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
@@ -109,30 +135,43 @@ func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostWantReplacementAttorneys(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{WantReplacementAttorneys: "yes"}).
-		Return(nil)
-
-	form := url.Values{
-		"want": {"yes"},
+	testCases := []struct {
+		Want             string
+		ExpectedRedirect string
+	}{
+		{Want: "yes", ExpectedRedirect: chooseReplacementAttorneysPath},
+		{Want: "no", ExpectedRedirect: taskListPath},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	for _, tc := range testCases {
+		t.Run(tc.Want, func(t *testing.T) {
+			w := httptest.NewRecorder()
 
-	err := WantReplacementAttorneys(nil, lpaStore)(appData, w, r)
-	resp := w.Result()
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(&Lpa{}, nil)
+			lpaStore.
+				On("Put", mock.Anything, "session-id", &Lpa{WantReplacementAttorneys: tc.Want}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, chooseReplacementAttorneysPath, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
+			form := url.Values{
+				"want": {tc.Want},
+			}
+
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
+
+			err := WantReplacementAttorneys(nil, lpaStore)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.ExpectedRedirect, resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, lpaStore)
+		})
+
+	}
 }
 
 func TestPostWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
