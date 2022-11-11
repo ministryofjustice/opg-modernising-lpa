@@ -75,6 +75,20 @@ data "aws_iam_policy_document" "access_log" {
   }
 
   statement {
+    sid = "accessLogBucketAccess"
+    resources = [
+      aws_s3_bucket.access_log.arn,
+      "${aws_s3_bucket.access_log.arn}/*",
+    ]
+    effect  = "Allow"
+    actions = ["s3:PutObject"]
+    principals {
+      identifiers = [data.aws_elb_service_account.main.id]
+      type        = "AWS"
+    }
+  }
+
+  statement {
     sid = "accessGetAcl"
     resources = [
       aws_s3_bucket.access_log.arn
