@@ -56,6 +56,24 @@ data "aws_elb_service_account" "main" {
 data "aws_iam_policy_document" "access_log" {
   provider = aws.region
   statement {
+    sid = "DenyUnEncryptedObjectUploads"
+    resources = [
+      "${aws_s3_bucket.access_log.arn}/*",
+    ]
+    effect  = "Deny"
+    actions = ["s3:PutObject"]
+    principals {
+      identifiers = [data.aws_elb_service_account.main.id]
+      type        = "AWS"
+    }
+    condition {
+      test     = "StringNotEquals"
+      values   = ["aws:kms"]
+      variable = "s3:x-amz-server-side-encryption"
+    }
+  }
+
+  statement {
     sid = "accessLogBucketAccess"
     resources = [
       aws_s3_bucket.access_log.arn,
