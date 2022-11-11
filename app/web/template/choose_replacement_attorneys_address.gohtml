@@ -1,0 +1,69 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <form novalidate method="post">
+        <div class="govuk-form-group">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+              <h1 class="govuk-fieldset__heading">{{ trFormat .App "attorneyAddress" "FirstNames" .Attorney.FirstNames "LastName" .Attorney.LastName }}</h1>
+            </legend>
+
+            {{ if eq "manual" .Form.Action }}
+              {{ template "input" (input . "address-line-1" "addressLine1" .Form.Address.Line1 "autocomplete" "address-line1") }}
+              {{ template "input" (input . "address-line-2" "addressLine2" .Form.Address.Line2 "autocomplete" "address-line2") }}
+              {{ template "input" (input . "address-line-3" "addressLine3" .Form.Address.Line3 "autocomplete" "address-line3") }}
+              {{ template "input" (input . "address-town" "townOrCity" .Form.Address.TownOrCity "classes" "govuk-!-width-two-thirds" "autocomplete" "address-level1") }}
+              {{ template "input" (input . "address-postcode" "postcode" .Form.Address.Postcode "classes" "govuk-input--width-10" "autocomplete" "postal-code") }}
+
+              <button name="action" value="manual" class="govuk-button govuk-!-margin-top-6" data-module="govuk-button">
+                {{ tr .App "continue" }}
+              </button>
+
+            {{ else if .Addresses }}
+              <input type="hidden" name="lookup-postcode" value="{{ .Form.LookupPostcode }}" />
+
+              <div id="select" class="govuk-form-group govuk-!-margin-bottom-6 {{ if index .Errors "select-address" }}govuk-form-group--error{{ end }}">
+                <label class="govuk-label" for="f-select-address">
+                  {{ tr .App "selectAnAddress" }}
+                </label>
+                {{ template "error-message" (errorMessage . "select-address") }}
+                <select class="govuk-select {{ if index .Errors "select-address" }}govuk-select--error{{ end }}" id="f-select-address" name="select-address">
+                  <option value="">{{ trCount .App "addressesFound" (len .Addresses) }}</option>
+                  {{ range .Addresses }}
+                    <option value="{{ .Encode }}">{{ .String }}</option>
+                  {{ end }}
+                </select>
+              </div>
+
+              <p class="govuk-body">
+                <a href="?action=manual&id={{ .Attorney.ID }}" class="govuk-link govuk-link--no-visited-state">
+                  {{ tr .App "cantFindAddress" }}
+                </a>
+              </p>
+
+              <button name="action" value="select" class="govuk-button" data-module="govuk-button">
+                {{ tr .App "continue" }}
+              </button>
+
+            {{ else }}
+              <div id="find" class="govuk-form-group govuk-!-margin-bottom-6  {{ if index .Errors "lookup-postcode" }}govuk-form-group--error{{ end }}">
+                <label class="govuk-label" for="f-lookup-postcode">
+                  {{ tr .App "postcode" }}
+                </label>
+                {{ template "error-message" (errorMessage . "lookup-postcode") }}
+                <input class="govuk-input govuk-input--width-10  {{ if index .Errors "lookup-postcode" }}govuk-input--error{{ end }}" id="f-lookup-postcode" name="lookup-postcode" type="text" autocomplete="postal-code" value="{{ .Form.LookupPostcode }}">
+              </div>
+
+              <button name="action" value="lookup" class="govuk-button" data-module="govuk-button">
+                {{ tr .App "findAddress" }}
+              </button>
+            {{ end }}
+
+          </fieldset>
+        </div>
+      </form>
+    </div>
+  </div>
+{{ end }}
