@@ -14,10 +14,9 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "access_log" {
   bucket   = aws_s3_bucket.access_log.id
   rule {
     apply_server_side_encryption_by_default {
-      kms_master_key_id = data.aws_kms_alias.s3_encryption.target_key_arn
-      sse_algorithm     = "aws:kms"
+      # kms_master_key_id = data.aws_kms_alias.s3_encryption.target_key_arn
+      sse_algorithm = "aws:kms"
     }
-    bucket_key_enabled = false
   }
 }
 
@@ -55,37 +54,6 @@ data "aws_elb_service_account" "main" {
 
 data "aws_iam_policy_document" "access_log" {
   provider = aws.region
-  statement {
-    sid = "DenyUnEncryptedObjectUploads"
-    resources = [
-      "${aws_s3_bucket.access_log.arn}/*",
-    ]
-    effect  = "Deny"
-    actions = ["s3:PutObject"]
-    principals {
-      identifiers = [data.aws_elb_service_account.main.id]
-      type        = "AWS"
-    }
-    condition {
-      test     = "StringNotEquals"
-      values   = ["aws:kms"]
-      variable = "s3:x-amz-server-side-encryption"
-    }
-  }
-
-  statement {
-    sid = "accessLogBucketAccess"
-    resources = [
-      aws_s3_bucket.access_log.arn,
-      "${aws_s3_bucket.access_log.arn}/*",
-    ]
-    effect  = "Allow"
-    actions = ["s3:PutObject"]
-    principals {
-      identifiers = [data.aws_elb_service_account.main.id]
-      type        = "AWS"
-    }
-  }
 
   statement {
     sid = "accessLogDelivery"
@@ -137,6 +105,25 @@ data "aws_iam_policy_document" "access_log" {
       type        = "AWS"
     }
   }
+
+  # statement {
+  #   sid = "DenyUnEncryptedObjectUploads"
+  #   resources = [
+  #     aws_s3_bucket.access_log.arn,
+  #     "${aws_s3_bucket.access_log.arn}/*",
+  #   ]
+  #   effect  = "Deny"
+  #   actions = ["s3:PutObject"]
+  #   principals {
+  #     identifiers = ["*"]
+  #     type        = "AWS"
+  #   }
+  #   condition {
+  #     test     = "StringNotEquals"
+  #     values   = ["aws:kms"]
+  #     variable = "s3:x-amz-server-side-encryption"
+  #   }
+  # }
 }
 
 resource "aws_s3_bucket_public_access_block" "access_log" {
