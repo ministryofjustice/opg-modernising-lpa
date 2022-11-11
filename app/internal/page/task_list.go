@@ -99,7 +99,7 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 						{
 							Name:       "chooseYourReplacementAttorneys",
 							Path:       wantReplacementAttorneysPath,
-							Completed:  replacementAttorneyAddressCompleted && replacementAttorneyDetailsCompleted,
+							Completed:  (replacementAttorneyAddressCompleted && replacementAttorneyDetailsCompleted) || lpa.WantReplacementAttorneys == "no",
 							InProgress: replacementAttorneyDetailsCompleted && !replacementAttorneyAddressCompleted,
 							Count:      len(lpa.ReplacementAttorneys),
 						},

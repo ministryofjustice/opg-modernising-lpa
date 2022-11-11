@@ -35,7 +35,13 @@ func WantReplacementAttorneys(tmpl template.Template, lpaStore LpaStore) Handler
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, chooseReplacementAttorneysPath, http.StatusFound)
+
+				if form.Want == "yes" {
+					appData.Lang.Redirect(w, r, chooseReplacementAttorneysPath, http.StatusFound)
+				} else {
+					appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
+				}
+
 				return nil
 			}
 		}
