@@ -18,6 +18,7 @@ type taskListItem struct {
 	Completed  bool
 	InProgress bool
 	Disabled   bool
+	Count      int
 }
 
 type taskListSection struct {
@@ -54,6 +55,28 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 			attorneyDetailsCompleted = true
 		}
 
+		var replacementAttorneyAddressCompleted bool
+
+		for _, ra := range lpa.ReplacementAttorneys {
+			if ra.Address.Line1 == "" {
+				replacementAttorneyAddressCompleted = false
+				break
+			}
+
+			replacementAttorneyAddressCompleted = true
+		}
+
+		var replacementAttorneyDetailsCompleted bool
+
+		for _, ra := range lpa.ReplacementAttorneys {
+			if ra.FirstNames == "" {
+				replacementAttorneyDetailsCompleted = false
+				break
+			}
+
+			replacementAttorneyDetailsCompleted = true
+		}
+
 		data := &taskListData{
 			App: appData,
 			Sections: []taskListSection{
@@ -69,13 +92,16 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 						{
 							Name:       "chooseYourAttorneys",
 							Path:       chooseAttorneysPath,
-							Completed:  attorneyAddressCompleted,
-							InProgress: attorneyDetailsCompleted,
+							Completed:  attorneyAddressCompleted && attorneyDetailsCompleted,
+							InProgress: attorneyDetailsCompleted && !attorneyAddressCompleted,
+							Count:      len(lpa.Attorneys),
 						},
 						{
-							Name:      "chooseYourReplacementAttorneys",
-							Path:      wantReplacementAttorneysPath,
-							Completed: lpa.WantReplacementAttorneys != "",
+							Name:       "chooseYourReplacementAttorneys",
+							Path:       wantReplacementAttorneysPath,
+							Completed:  (replacementAttorneyAddressCompleted && replacementAttorneyDetailsCompleted) || lpa.WantReplacementAttorneys == "no",
+							InProgress: replacementAttorneyDetailsCompleted && !replacementAttorneyAddressCompleted,
+							Count:      len(lpa.ReplacementAttorneys),
 						},
 						{
 							Name:       "chooseWhenTheLpaCanBeUsed",
