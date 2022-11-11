@@ -36,6 +36,15 @@ data "aws_iam_policy_document" "s3_kms_merged" {
   ]
 }
 
+data "aws_elb_service_account" "eu_west_1" {
+  provider = aws.eu_west_1
+  region   = data.aws_region.eu_west_1.name
+}
+data "aws_elb_service_account" "eu_west_2" {
+  provider = aws.eu_west_2
+  region   = data.aws_region.eu_west_2.name
+}
+
 data "aws_iam_policy_document" "s3_kms" {
   provider = aws.global
   statement {
@@ -46,19 +55,17 @@ data "aws_iam_policy_document" "s3_kms" {
     ]
     actions = [
       "kms:Encrypt",
-      "kms:Decrypt",
       "kms:ReEncrypt*",
       "kms:GenerateDataKey*",
       "kms:DescribeKey",
     ]
 
     principals {
-      type = "Service"
       identifiers = [
-        "logs.${data.aws_region.eu_west_1.name}.amazonaws.com",
-        "logs.${data.aws_region.eu_west_2.name}.amazonaws.com",
-        "events.amazonaws.com"
+        data.aws_elb_service_account.eu_west_1.id,
+        data.aws_elb_service_account.eu_west_2.id,
       ]
+      type = "AWS"
     }
   }
 
