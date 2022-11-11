@@ -14,8 +14,10 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "access_log" {
   bucket   = aws_s3_bucket.access_log.id
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "aws:kms"
+      kms_master_key_id = data.aws_kms_alias.s3_encryption.target_key_arn
+      sse_algorithm     = "aws:kms"
     }
+    bucket_key_enabled = true
   }
 }
 
@@ -53,6 +55,24 @@ data "aws_elb_service_account" "main" {
 
 data "aws_iam_policy_document" "access_log" {
   provider = aws.region
+  statement {
+    sid = "DenyUnEncryptedObjectUploads"
+    resources = [
+      "${aws_s3_bucket.access_log.arn}/*",
+    ]
+    effect  = "Deny"
+    actions = ["s3:PutObject"]
+    principals {
+      identifiers = [data.aws_elb_service_account.main.id]
+      type        = "AWS"
+    }
+    condition {
+      test     = "StringNotEquals"
+      values   = ["aws:kms"]
+      variable = "s3:x-amz-server-side-encryption"
+    }
+  }
+
   statement {
     sid = "accessLogBucketAccess"
     resources = [
