@@ -323,5 +323,12 @@
     "howShouldReplacementAttorneysMakeDecisionsDetail": "The donor's choice here is very important as it affects how their LPA can be used. Whichever option the donor chooses, their replacement attorneys must always act in the donor's best interests.",
     "jointlyAndSeverallyHintReplacementAttorneys": "Replacement attorneys can make decisions on their own or together. Most people choose this option because it's the most practical.",
     "jointlyHintReplacementAttorneys": "Replacement attorneys must agree unanimously on every decision, however big or small. If one replacement attorney can no longer act, the others will not be able to act either, unless the donor states otherwise in their instructions.",
-    "jointlyAndSeverallyMixedHintReplacementAttorneys": "Replacement attorneys must agree unanimously on some decisions, but can make others on their own. The donor must state which decisions need to be agreed unanimously."
+    "jointlyAndSeverallyMixedHintReplacementAttorneys": "Replacement attorneys must agree unanimously on some decisions, but can make others on their own. The donor must state which decisions need to be agreed unanimously.",
+
+    "howShouldReplacementAttorneysStepIn": "How should the replacement attorneys step in?",
+    "howShouldReplacementAttorneysStepInDetail": "<p class=\"govuk-body\">The donor can choose when their replacement attorneys step in and in what order.</p><p class=\"govuk-body\">Once they've stepped in, the replacement attorneys will be able to make any decision jointly and severally along with the remaining original attorneys.</p><p class=\"govuk-body\">Most donors choose for all the replacement attorneys to step in together as soon as 1 of the original attorneys can no longer act.</p><p class=\"govuk-body\">If the donor would prefer the replacement attorneys to step in later or in a specific order, select 1 of the other 2 options.</p>",
+    "whenOneCanNoLongerAct": "As soon as <span class=\"govuk-!-font-weight-bold\">one</span> of the original attorneys can no longer act, all the replacement attorneys should step in together",
+    "whenNoneCanNoLongerAct": "When <span class=\"govuk-!-font-weight-bold\">none</span> of the original attorneys can act, all the replacement attorneys should step in together",
+    "other": "In some other way",
+    "otherHint": "<p class=\"govuk--body\">Describe below how the donor would like this to happen. Be careful- the more specific the instructions, the greater the chance that they will not be able to be followed. If in doubt, seek legal advice. <a class=\"govuk-link\" href=\"#\">Not sure what to put?</a></p>"
 }

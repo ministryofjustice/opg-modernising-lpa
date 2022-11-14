@@ -3,7 +3,65 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            Not done yet
+            <h1 class="govuk-heading-xl">{{ tr .App "howShouldReplacementAttorneysStepIn" }}</h1>
+
+            {{ trHtml .App "howShouldReplacementAttorneysStepInDetail" }}
+
+            <form novalidate method="post">
+                <div class="govuk-form-group">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                        {{ tr .App "howShouldReplacementAttorneysStepIn" }}
+                    </legend>
+
+                    <div class="govuk-form-group {{ if index .Errors "when-to-step-in" }}govuk-form-group--error{{ end }}">
+                        {{ template "error-message" (errorMessage . "when-to-step-in") }}
+
+                        <div class="govuk-radios {{ if index .Errors "when-to-step-in" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="f-when-to-step-in" name="when-to-step-in" type="radio" value="one" aria-describedby="when-to-step-in-item-hint" {{ if eq "one" .Form.WhenToStepIn }}checked{{ end }}>
+                                <label class="govuk-label govuk-radios__label" for="f-when-to-step-in">
+                                    {{ tr .App "whenOneCanNoLongerAct" }}
+                                </label>
+                            </div>
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="f-when-to-step-in-2" name="when-to-step-in" type="radio" value="none" aria-describedby="when-to-step-in-2-item-hint" {{ if eq "none" .Form.WhenToStepIn }}checked{{ end }}>
+                                <label class="govuk-label govuk-radios__label" for="f-when-to-step-in-2">
+                                    {{ tr .App "whenNoneCanNoLongerAct" }}
+                                </label>
+                            </div>
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="f-when-to-step-in-3" name="when-to-step-in" type="radio" value="other" aria-describedby="when-to-step-in-3-item-hint" aria-controls="when-to-step-in-3-conditional-div" {{ if or (eq "other" .Form.WhenToStepIn) (index .Errors "other-details") }}checked{{ end }}>
+                                <label class="govuk-label govuk-radios__label" for="f-when-to-step-in-3">
+                                    {{ tr .App "other" }}
+                                </label>
+
+                                <div class="govuk-radios__conditional" id="when-to-step-in-3-conditional-div">
+                                    <div class="govuk-form-group {{ if index .Errors "other-details" }}govuk-form-group--error{{ end }}">
+                                        {{ trHtml .App "otherHint" }}
+                                        <label class="govuk-label" for="other-details">
+                                            {{ tr .App "details" }}
+                                        </label>
+                                        {{ if index .Errors "other-details" }}
+                                            <p id="when-to-step-in-3-error" class="govuk-error-message">
+                                                {{ tr .App (index .Errors "other-details") }}
+                                            </p>
+                                        {{ end }}
+
+                                        <textarea class="govuk-textarea {{ if index .Errors "other-details" }}govuk-input--error{{ end }}" id="other-details" name="other-details" rows="10">{{ .Form.OtherDetails }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="govuk-button-group">
+                        {{ template "continue-button" . }}
+                    </div>
+                </div>
+            </form>
+
+
+
         </div>
     </div>
 {{ end }}
