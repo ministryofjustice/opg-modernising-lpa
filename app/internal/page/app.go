@@ -153,6 +153,8 @@ func App(
 		RemoveReplacementAttorney(logger, tmpls.Get("remove_replacement_attorney.gohtml"), lpaStore))
 	handle(howShouldReplacementAttorneysStepInPath, RequireSession|CanGoBack,
 		HowShouldReplacementAttorneysStepIn(tmpls.Get("how_should_replacement_attorneys_step_in.gohtml"), lpaStore))
+	handle(howShouldReplacementAttorneysMakeDecisionsPath, RequireSession|CanGoBack,
+		HowShouldReplacementAttorneysMakeDecisions(tmpls.Get("how_should_replacement_attorneys_make_decisions.gohtml"), lpaStore))
 
 	handle(whenCanTheLpaBeUsedPath, RequireSession|CanGoBack,
 		WhenCanTheLpaBeUsed(tmpls.Get("when_can_the_lpa_be_used.gohtml"), lpaStore))
@@ -266,12 +268,12 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 
 			switch r.FormValue("howAttorneysAct") {
 			case "jointly":
-				lpa.DecisionsType = "jointly"
+				lpa.HowAttorneysMakeDecisions = "jointly"
 			case "jointly-and-severally":
-				lpa.DecisionsType = "jointly-and-severally"
+				lpa.HowAttorneysMakeDecisions = "jointly-and-severally"
 			default:
-				lpa.DecisionsType = "mixed"
-				lpa.DecisionsDetails = "some details"
+				lpa.HowAttorneysMakeDecisions = "mixed"
+				lpa.HowAttorneysMakeDecisionsDetails = "some details"
 			}
 
 			_ = lpaStore.Put(r.Context(), sessionID, lpa)
