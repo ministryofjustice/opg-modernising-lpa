@@ -300,11 +300,11 @@
     "howShouldAttorneysMakeDecisionsDetail": "Welsh",
     "getHelpMakingDecision": "Welsh",
     "jointlyAndSeverally": "Welsh",
-    "jointlyAndSeverallyHint": "Welsh",
+    "jointlyAndSeverallyHintAttorneys": "Welsh",
     "jointly": "Welsh",
-    "jointlyHint": "Welsh",
+    "jointlyHintAttorneys": "Welsh",
     "jointlyAndSeverallyMixed": "Welsh",
-    "jointlyAndSeverallyMixedHint": "Welsh",
+    "jointlyAndSeverallyMixedHintAttorneys": "Welsh",
     "decisionDetailsHint": "Welsh",
     "details": "Welsh",
     "chooseADecisionType": "Welsh",
@@ -326,5 +326,11 @@
         "few": "Welsh {{.PluralCount}} welsh",
         "many": "Welsh {{.PluralCount}} welsh",
         "other": "Welsh {{.PluralCount}} welsh"
-    }
+    },
+
+    "howShouldReplacementAttorneysMakeDecisions": "Welsh?",
+    "howShouldReplacementAttorneysMakeDecisionsDetail": "Welsh",
+    "jointlyAndSeverallyHintReplacementAttorneys": "Welsh",
+    "jointlyHintReplacementAttorneys": "Welsh",
+    "jointlyAndSeverallyMixedHintReplacementAttorneys": "Welsh"
 }

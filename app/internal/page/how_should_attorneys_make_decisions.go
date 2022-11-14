@@ -27,8 +27,8 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) 
 		data := &howShouldAttorneysMakeDecisionsData{
 			App: appData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    lpa.DecisionsType,
-				DecisionsDetails: lpa.DecisionsDetails,
+				DecisionsType:    lpa.HowAttorneysMakeDecisions,
+				DecisionsDetails: lpa.HowAttorneysMakeDecisionsDetails,
 			},
 		}
 
@@ -37,12 +37,12 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) 
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				lpa.DecisionsType = data.Form.DecisionsType
+				lpa.HowAttorneysMakeDecisions = data.Form.DecisionsType
 
 				if data.Form.DecisionsType != "mixed" {
-					lpa.DecisionsDetails = ""
+					lpa.HowAttorneysMakeDecisionsDetails = ""
 				} else {
-					lpa.DecisionsDetails = data.Form.DecisionsDetails
+					lpa.HowAttorneysMakeDecisionsDetails = data.Form.DecisionsDetails
 				}
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
