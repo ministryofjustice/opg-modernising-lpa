@@ -10,10 +10,10 @@
           {{ trHtml .App "wantReplacementAttorneysContent" }}
 
         <div>
-          {{ if eq .Lpa.DecisionsType "jointly" }}
+          {{ if eq .Lpa.HowAttorneysMakeDecisions "jointly" }}
             {{ template "warning" (warning .App "jointlyReplacementWarning") }}
             {{ trHtml .App "jointlyReplacementWarningContent" }}
-          {{ else if eq .Lpa.DecisionsType "mixed" }}
+          {{ else if eq .Lpa.HowAttorneysMakeDecisions "mixed" }}
             {{ template "warning" (warning .App "mixedReplacementWarning") }}
             {{ trHtml .App "mixedReplacementWarningContent" }}
           {{ end }}

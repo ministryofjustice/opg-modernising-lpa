@@ -44,9 +44,9 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 			if len(data.Errors) == 0 {
 				var redirectUrl string
 
-				if len(lpa.ReplacementAttorneys) > 1 && len(lpa.Attorneys) > 1 && lpa.DecisionsType == "jointly" {
+				if len(lpa.ReplacementAttorneys) > 1 && len(lpa.Attorneys) > 1 && lpa.HowAttorneysMakeDecisions == "jointly" {
 					redirectUrl = howShouldReplacementAttorneysMakeDecisionsPath
-				} else if len(lpa.Attorneys) > 1 && lpa.DecisionsType == "jointly-and-severally" {
+				} else if len(lpa.Attorneys) > 1 && lpa.HowAttorneysMakeDecisions == "jointly-and-severally" {
 					redirectUrl = howShouldReplacementAttorneysStepInPath
 				} else {
 					redirectUrl = taskListPath

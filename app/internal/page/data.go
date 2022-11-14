@@ -30,30 +30,32 @@ const (
 )
 
 type Lpa struct {
-	ID                       string
-	You                      Person
-	Attorneys                []Attorney
-	CertificateProvider      CertificateProvider
-	WhoFor                   string
-	Contact                  []string
-	Type                     string
-	WantReplacementAttorneys string
-	WhenCanTheLpaBeUsed      string
-	Restrictions             string
-	Tasks                    Tasks
-	Checked                  bool
-	HappyToShare             bool
-	PaymentDetails           PaymentDetails
-	CheckedAgain             bool
-	ConfirmFreeWill          bool
-	SignatureCode            string
-	EnteredSignatureCode     string
-	SignatureEmailID         string
-	IdentityOptions          IdentityOptions
-	YotiUserData             identity.UserData
-	DecisionsType            string
-	DecisionsDetails         string
-	ReplacementAttorneys     []Attorney
+	ID                                          string
+	You                                         Person
+	Attorneys                                   []Attorney
+	CertificateProvider                         CertificateProvider
+	WhoFor                                      string
+	Contact                                     []string
+	Type                                        string
+	WantReplacementAttorneys                    string
+	WhenCanTheLpaBeUsed                         string
+	Restrictions                                string
+	Tasks                                       Tasks
+	Checked                                     bool
+	HappyToShare                                bool
+	PaymentDetails                              PaymentDetails
+	CheckedAgain                                bool
+	ConfirmFreeWill                             bool
+	SignatureCode                               string
+	EnteredSignatureCode                        string
+	SignatureEmailID                            string
+	IdentityOptions                             IdentityOptions
+	YotiUserData                                identity.UserData
+	HowAttorneysMakeDecisions                   string
+	HowAttorneysMakeDecisionsDetails            string
+	ReplacementAttorneys                        []Attorney
+	HowReplacementAttorneysMakeDecisions        string
+	HowReplacementAttorneysMakeDecisionsDetails string
 }
 
 type PaymentDetails struct {

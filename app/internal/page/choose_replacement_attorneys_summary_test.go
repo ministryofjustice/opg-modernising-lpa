@@ -140,9 +140,9 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
 				Return(&Lpa{
-					ReplacementAttorneys: tc.ReplacementAttorneys,
-					DecisionsType:        tc.HowAttorneysAct,
-					Attorneys:            tc.Attorneys,
+					ReplacementAttorneys:      tc.ReplacementAttorneys,
+					HowAttorneysMakeDecisions: tc.HowAttorneysAct,
+					Attorneys:                 tc.Attorneys,
 				}, nil)
 
 			form := url.Values{
