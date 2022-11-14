@@ -56,6 +56,8 @@ type Lpa struct {
 	ReplacementAttorneys                        []Attorney
 	HowReplacementAttorneysMakeDecisions        string
 	HowReplacementAttorneysMakeDecisionsDetails string
+	HowShouldReplacementAttorneysStepIn         string
+	HowShouldReplacementAttorneysStepInDetails  string
 }
 
 type PaymentDetails struct {
