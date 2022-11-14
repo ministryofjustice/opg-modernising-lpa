@@ -43,7 +43,7 @@ func TestGetHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{DecisionsDetails: "some decisions", DecisionsType: "jointly"}, nil)
+		Return(&Lpa{HowAttorneysMakeDecisionsDetails: "some decisions", HowAttorneysMakeDecisions: "jointly"}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -119,9 +119,9 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{DecisionsDetails: "", DecisionsType: ""}, nil)
+		Return(&Lpa{HowAttorneysMakeDecisionsDetails: "", HowAttorneysMakeDecisions: ""}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{DecisionsDetails: "", DecisionsType: "jointly"}).
+		On("Put", mock.Anything, "session-id", &Lpa{HowAttorneysMakeDecisionsDetails: "", HowAttorneysMakeDecisions: "jointly"}).
 		Return(nil)
 
 	template := &mockTemplate{}
@@ -177,9 +177,9 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
-				Return(&Lpa{DecisionsDetails: tc.existingDetails, DecisionsType: tc.existingType}, nil)
+				Return(&Lpa{HowAttorneysMakeDecisionsDetails: tc.existingDetails, HowAttorneysMakeDecisions: tc.existingType}, nil)
 			lpaStore.
-				On("Put", mock.Anything, "session-id", &Lpa{DecisionsDetails: tc.updatedDetails, DecisionsType: tc.updatedType}).
+				On("Put", mock.Anything, "session-id", &Lpa{HowAttorneysMakeDecisionsDetails: tc.updatedDetails, HowAttorneysMakeDecisions: tc.updatedType}).
 				Return(nil)
 
 			template := &mockTemplate{}
@@ -233,7 +233,7 @@ func TestPostHowShouldAttorneysMakeDecisionsWhenValidationErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{DecisionsDetails: "", DecisionsType: ""}, nil)
+		Return(&Lpa{HowAttorneysMakeDecisionsDetails: "", HowAttorneysMakeDecisions: ""}, nil)
 
 	template := &mockTemplate{}
 	template.

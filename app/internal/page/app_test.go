@@ -361,7 +361,7 @@ func TestTestingStart(t *testing.T) {
 					Return(&Lpa{}, nil)
 
 				lpaStore.
-					On("Put", ctx, mock.Anything, &Lpa{DecisionsType: tc.DecisionsType, DecisionsDetails: tc.DecisionsDetails}).
+					On("Put", ctx, mock.Anything, &Lpa{HowAttorneysMakeDecisions: tc.DecisionsType, HowAttorneysMakeDecisionsDetails: tc.DecisionsDetails}).
 					Return(nil)
 
 				testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)

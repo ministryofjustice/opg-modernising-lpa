@@ -268,12 +268,12 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 
 			switch r.FormValue("howAttorneysAct") {
 			case "jointly":
-				lpa.DecisionsType = "jointly"
+				lpa.HowAttorneysMakeDecisions = "jointly"
 			case "jointly-and-severally":
-				lpa.DecisionsType = "jointly-and-severally"
+				lpa.HowAttorneysMakeDecisions = "jointly-and-severally"
 			default:
-				lpa.DecisionsType = "mixed"
-				lpa.DecisionsDetails = "some details"
+				lpa.HowAttorneysMakeDecisions = "mixed"
+				lpa.HowAttorneysMakeDecisionsDetails = "some details"
 			}
 
 			_ = lpaStore.Put(r.Context(), sessionID, lpa)
