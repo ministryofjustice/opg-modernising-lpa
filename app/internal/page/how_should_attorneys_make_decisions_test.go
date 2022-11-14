@@ -308,3 +308,32 @@ func TestValidateForm(t *testing.T) {
 		})
 	}
 }
+
+func TestPostHowShouldAttorneysMakeDecisionsErrorOnPutStore(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(&Lpa{HowAttorneysMakeDecisionsDetails: "", HowAttorneysMakeDecisions: ""}, nil)
+	lpaStore.
+		On("Put", mock.Anything, "session-id", &Lpa{HowAttorneysMakeDecisionsDetails: "", HowAttorneysMakeDecisions: "jointly"}).
+		Return(expectedError)
+
+	template := &mockTemplate{}
+
+	form := url.Values{
+		"decision-type": {"jointly"},
+		"mixed-details": {""},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := HowShouldAttorneysMakeDecisions(template.Func, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, lpaStore)
+}
