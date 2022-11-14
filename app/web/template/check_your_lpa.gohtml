@@ -58,11 +58,11 @@
             {{ tr .App "howTheAttorneysMustWorkTogether" }}
           </dt>
           <dd class="govuk-summary-list__value">
-            {{ .Lpa.DecisionsType }}
+            {{ .Lpa.HowAttorneysMakeDecisions }}
           </dd>
           <dd class="govuk-summary-list__actions">
             <a class="govuk-link" href="{{ link .App .HowAttorneysMakeDecisionsPath }}">
-              {{ tr .App "change" }}<span class="govuk-visually-hidden">  we haven't done this bit yet</span>
+              {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ .Lpa.HowAttorneysMakeDecisionsDetails }}</span>
             </a>
           </dd>
         </div>
