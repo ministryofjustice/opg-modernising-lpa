@@ -153,6 +153,8 @@ func App(
 		RemoveReplacementAttorney(logger, tmpls.Get("remove_replacement_attorney.gohtml"), lpaStore))
 	handle(howShouldReplacementAttorneysStepInPath, RequireSession|CanGoBack,
 		HowShouldReplacementAttorneysStepIn(tmpls.Get("how_should_replacement_attorneys_step_in.gohtml"), lpaStore))
+	handle(howShouldReplacementAttorneysMakeDecisionsPath, RequireSession|CanGoBack,
+		HowShouldReplacementAttorneysMakeDecisions(tmpls.Get("how_should_replacement_attorneys_step_in.gohtml"), lpaStore))
 
 	handle(whenCanTheLpaBeUsedPath, RequireSession|CanGoBack,
 		WhenCanTheLpaBeUsed(tmpls.Get("when_can_the_lpa_be_used.gohtml"), lpaStore))
