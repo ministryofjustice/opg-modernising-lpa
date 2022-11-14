@@ -24,6 +24,6 @@
         "cypress-multi-reporters": "1.6.1",
         "cypress-parallel": "0.9.1",
         "esbuild": "0.15.13",
-        "sass": "1.56.0"
+        "sass": "1.56.1"
     }
 }
