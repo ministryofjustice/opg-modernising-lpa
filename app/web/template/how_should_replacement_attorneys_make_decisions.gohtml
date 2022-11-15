@@ -3,9 +3,9 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ tr .App "howShouldAttorneysMakeDecisions" }}</h1>
+            <h1 class="govuk-heading-xl">{{ tr .App "howShouldReplacementAttorneysMakeDecisions" }}</h1>
 
-            <p class="govuk-body">{{ tr .App "howShouldAttorneysMakeDecisionsDetail" }}</p>
+            <p class="govuk-body">{{ tr .App "howShouldReplacementAttorneysMakeDecisionsDetail" }}</p>
 
             <p class="govuk-body">
                 <a href="#" class="govuk-link">{{ tr .App "getHelpMakingDecision" }}</a>
@@ -14,7 +14,7 @@
             <form novalidate method="post">
                 <div class="govuk-form-group">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                        {{ tr .App "howShouldAttorneysMakeDecisions" }}
+                        {{ tr .App "howShouldReplacementAttorneysMakeDecisions" }}
                     </legend>
 
                     <div class="govuk-form-group {{ if index .Errors "decision-type" }}govuk-form-group--error{{ end }}">
@@ -28,7 +28,7 @@
                                 </label>
 
                                 <div id="decision-type-item-hint" class="govuk-hint govuk-radios__hint">
-                                    {{ tr .App "jointlyAndSeverallyHintAttorneys" }}
+                                    {{ tr .App "jointlyAndSeverallyHintReplacementAttorneys" }}
                                 </div>
                             </div>
                             <div class="govuk-radios__item">
@@ -38,7 +38,7 @@
                                 </label>
 
                                 <div id="decision-type-2-item-hint" class="govuk-hint govuk-radios__hint">
-                                    {{ tr .App "jointlyHintAttorneys" }}
+                                    {{ tr .App "jointlyHintReplacementAttorneys" }}
                                 </div>
                             </div>
                             <div class="govuk-radios__item">
@@ -48,7 +48,7 @@
                                 </label>
 
                                 <div id="decision-type-3-item-hint" class="govuk-hint govuk-radios__hint">
-                                    {{ tr .App "jointlyAndSeverallyMixedHintAttorneys" }}
+                                    {{ tr .App "jointlyAndSeverallyMixedHintReplacementAttorneys" }}
                                 </div>
 
                                 <div class="govuk-radios__conditional" id="decision-type-3-conditional-div">
