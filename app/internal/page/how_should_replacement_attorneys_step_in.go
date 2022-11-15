@@ -51,7 +51,13 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 					return err
 				}
 
-				appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
+				redirectUrl := taskListPath
+
+				if len(lpa.Attorneys) > 1 && lpa.HowAttorneysMakeDecisions == "jointly-and-severally" && lpa.HowShouldReplacementAttorneysStepIn == "none" {
+					redirectUrl = howShouldReplacementAttorneysMakeDecisionsPath
+				}
+
+				appData.Lang.Redirect(w, r, redirectUrl, http.StatusFound)
 				return nil
 			}
 		}

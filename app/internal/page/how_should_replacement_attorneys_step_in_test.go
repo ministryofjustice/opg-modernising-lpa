@@ -124,6 +124,88 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
 
+func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
+	testCases := map[string]struct {
+		Attorneys                           []Attorney
+		HowAttorneysMakeDecisions           string
+		HowShouldReplacementAttorneysStepIn string
+		ExpectedRedirectUrl                 string
+	}{
+		"single attorney": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+			},
+			HowAttorneysMakeDecisions:           "doesnt matter",
+			HowShouldReplacementAttorneysStepIn: "doesnt matter",
+			ExpectedRedirectUrl:                 taskListPath,
+		},
+		"multiple attorneys acting jointly and severally replacements step in when none left": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+				{ID: "123"},
+			},
+			HowAttorneysMakeDecisions:           "jointly-and-severally",
+			HowShouldReplacementAttorneysStepIn: "none",
+			ExpectedRedirectUrl:                 howShouldReplacementAttorneysMakeDecisionsPath,
+		},
+		"multiple attorneys acting jointly and severally replacements step in when one loses capacity": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+				{ID: "123"},
+			},
+			HowAttorneysMakeDecisions:           "jointly-and-severally",
+			HowShouldReplacementAttorneysStepIn: "one",
+			ExpectedRedirectUrl:                 taskListPath,
+		},
+		"multiple attorneys acting jointly": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+				{ID: "123"},
+			},
+			HowAttorneysMakeDecisions:           "jointly-and-severally",
+			HowShouldReplacementAttorneysStepIn: "doesnt matter",
+			ExpectedRedirectUrl:                 taskListPath,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, mock.Anything).
+				Return(&Lpa{
+					HowAttorneysMakeDecisions: tc.HowAttorneysMakeDecisions,
+					Attorneys:                 tc.Attorneys,
+				}, nil)
+			lpaStore.
+				On("Put", mock.Anything, mock.Anything, &Lpa{
+					Attorneys:                           tc.Attorneys,
+					HowAttorneysMakeDecisions:           tc.HowAttorneysMakeDecisions,
+					HowShouldReplacementAttorneysStepIn: tc.HowShouldReplacementAttorneysStepIn}).
+				Return(nil)
+
+			template := &mockTemplate{}
+
+			formValues := url.Values{
+				"when-to-step-in": {tc.HowShouldReplacementAttorneysStepIn},
+			}
+
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
+
+			err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.ExpectedRedirectUrl, resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, template, lpaStore)
+		})
+	}
+}
+
 func TestPostHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 	testCases := map[string]struct {
 		existingWhenStepIn   string
