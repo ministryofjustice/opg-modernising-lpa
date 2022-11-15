@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -356,4 +358,388 @@ func TestConcatSentence(t *testing.T) {
 	assert.Equal(t, "Bob Smith, Alice Jones and John Doe", concatSentence([]string{"Bob Smith", "Alice Jones", "John Doe"}))
 	assert.Equal(t, "Bob Smith and John Doe", concatSentence([]string{"Bob Smith", "John Doe"}))
 	assert.Equal(t, "Bob Smith", concatSentence([]string{"Bob Smith"}))
+}
+
+func TestReplacementAttorneysTaskComplete(t *testing.T) {
+	testCases := map[string]struct {
+		Attorneys                            []Attorney
+		ReplacementAttorneys                 []Attorney
+		WantReplacementAttorneys             string
+		HowAttorneysAct                      string
+		HowReplacementAttorneysAct           string
+		HowReplacementAttorneysActDetails    string
+		HowReplacementAttorneysStepIn        string
+		HowReplacementAttorneysStepInDetails string
+		ExpectedComplete                     bool
+	}{
+		"replacement attorneys not required": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+			},
+			ReplacementAttorneys:     []Attorney{},
+			WantReplacementAttorneys: "no",
+			ExpectedComplete:         true,
+		},
+		"single attorney and single replacement attorney": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+			},
+			ReplacementAttorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			WantReplacementAttorneys: "yes",
+			ExpectedComplete:         true,
+		},
+		"single attorney and multiple replacement attorney acting jointly": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+			},
+			ReplacementAttorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			WantReplacementAttorneys:   "yes",
+			HowReplacementAttorneysAct: "jointly",
+			ExpectedComplete:           true,
+		},
+		"single attorney and multiple replacement attorney acting jointly and severally": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+			},
+			ReplacementAttorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			WantReplacementAttorneys:   "yes",
+			HowReplacementAttorneysAct: "jointly-and-severally",
+			ExpectedComplete:           true,
+		},
+		"single attorney and multiple replacement attorney acting mixed with details": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+			},
+			ReplacementAttorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			WantReplacementAttorneys:          "yes",
+			HowReplacementAttorneysAct:        "mixed",
+			HowReplacementAttorneysActDetails: "some details",
+			ExpectedComplete:                  true,
+		},
+		"single attorney and multiple replacement attorney acting mixed without details": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+			},
+			ReplacementAttorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			WantReplacementAttorneys:          "yes",
+			HowReplacementAttorneysAct:        "mixed",
+			HowReplacementAttorneysActDetails: "",
+			ExpectedComplete:                  false,
+		},
+		"multiple attorneys acting jointly and severally and single replacement attorney steps in when there a no attorneys left to act": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+				{ID: "123"},
+			},
+			HowAttorneysAct: "jointly-and-severally",
+			ReplacementAttorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			WantReplacementAttorneys:      "yes",
+			HowReplacementAttorneysStepIn: "none",
+			ExpectedComplete:              true,
+		},
+		"multiple attorneys acting jointly and severally and multiple replacement attorney steps in when there a no attorneys left to act": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+				{ID: "123"},
+			},
+			HowAttorneysAct: "jointly-and-severally",
+			ReplacementAttorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			WantReplacementAttorneys:      "yes",
+			HowReplacementAttorneysStepIn: "none",
+			ExpectedComplete:              true,
+		},
+		"multiple attorneys acting jointly and severally and single replacement attorney steps in when one attorney cannot act": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+				{ID: "123"},
+			},
+			HowAttorneysAct: "jointly-and-severally",
+			ReplacementAttorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			WantReplacementAttorneys:      "yes",
+			HowReplacementAttorneysStepIn: "one",
+			ExpectedComplete:              true,
+		},
+		"multiple attorneys acting jointly and severally and multiple replacement attorney steps in when one attorney cannot act": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+				{ID: "123"},
+			},
+			HowAttorneysAct: "jointly-and-severally",
+			ReplacementAttorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			WantReplacementAttorneys:      "yes",
+			HowReplacementAttorneysStepIn: "one",
+			ExpectedComplete:              true,
+		},
+		"multiple attorneys acting jointly and severally and single replacement attorney steps in in some other way with details": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+				{ID: "123"},
+			},
+			HowAttorneysAct: "jointly-and-severally",
+			ReplacementAttorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysStepIn:        "other",
+			HowReplacementAttorneysStepInDetails: "some details",
+			ExpectedComplete:                     true,
+		},
+		"multiple attorneys acting jointly and severally and multiple replacement attorney steps in in some other way with details": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+				{ID: "123"},
+			},
+			HowAttorneysAct: "jointly-and-severally",
+			ReplacementAttorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysStepIn:        "other",
+			HowReplacementAttorneysStepInDetails: "some details",
+			ExpectedComplete:                     true,
+		},
+		"multiple attorneys acting jointly and severally and multiple replacement attorney steps in in some other way without details": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+				{ID: "123"},
+			},
+			HowAttorneysAct: "jointly-and-severally",
+			ReplacementAttorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysStepIn:        "other",
+			HowReplacementAttorneysStepInDetails: "",
+			ExpectedComplete:                     false,
+		},
+		"replacement attorneys with missing address line 1": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+			},
+			ReplacementAttorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    place.Address{},
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			WantReplacementAttorneys:   "yes",
+			HowReplacementAttorneysAct: "jointly",
+			ExpectedComplete:           false,
+		},
+		"replacement attorneys with missing first name": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+			},
+			ReplacementAttorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			WantReplacementAttorneys:   "yes",
+			HowReplacementAttorneysAct: "jointly",
+			ExpectedComplete:           false,
+		},
+		"replacement attorneys with missing last name": {
+			Attorneys: []Attorney{
+				{ID: "123"},
+			},
+			ReplacementAttorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			WantReplacementAttorneys:   "yes",
+			HowReplacementAttorneysAct: "jointly",
+			ExpectedComplete:           false,
+		},
+	}
+
+	//Lpa.WantReplacementAttorneys == 'yes' &&
+	//	len(Lpa.Attorneys) > 1 &&
+	//	Lpa.HowAttorneysMakeDecisions == 'jointly-and-severally' &&
+	//	Lpa.Tasks.Attorneys == Completed
+	//	len(Lpa.ReplacementAttorneys) > 1 &&
+	//	Lpa.HowShouldReplacementAttorneysStepIn == one &&
+	//	each replacement attorney has details and address
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := Lpa{
+				Attorneys:                                   tc.Attorneys,
+				HowAttorneysMakeDecisions:                   tc.HowAttorneysAct,
+				WantReplacementAttorneys:                    tc.WantReplacementAttorneys,
+				ReplacementAttorneys:                        tc.ReplacementAttorneys,
+				HowReplacementAttorneysMakeDecisions:        tc.HowReplacementAttorneysAct,
+				HowReplacementAttorneysMakeDecisionsDetails: tc.HowReplacementAttorneysActDetails,
+				HowShouldReplacementAttorneysStepIn:         tc.HowReplacementAttorneysStepIn,
+				HowShouldReplacementAttorneysStepInDetails:  tc.HowReplacementAttorneysStepInDetails,
+			}
+
+			assert.Equal(t, tc.ExpectedComplete, lpa.ReplacementAttorneysTaskComplete())
+		})
+	}
 }

@@ -60,6 +60,54 @@ type Lpa struct {
 	HowShouldReplacementAttorneysStepInDetails  string
 }
 
+func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
+	if l.WantReplacementAttorneys == "no" && len(l.ReplacementAttorneys) == 0 {
+		return true
+	}
+
+	complete := false
+
+	if l.WantReplacementAttorneys == "yes" {
+		if len(l.Attorneys) == 1 && len(l.ReplacementAttorneys) == 1 {
+			complete = true
+		}
+
+		if len(l.Attorneys) > 1 &&
+			l.HowAttorneysMakeDecisions == "jointly-and-severally" &&
+			len(l.ReplacementAttorneys) > 0 &&
+			slices.Contains([]string{"one", "none"}, l.HowShouldReplacementAttorneysStepIn) {
+			complete = true
+		}
+
+		if len(l.Attorneys) > 1 &&
+			l.HowAttorneysMakeDecisions == "jointly-and-severally" &&
+			len(l.ReplacementAttorneys) > 0 &&
+			l.HowShouldReplacementAttorneysStepIn == "other" &&
+			l.HowShouldReplacementAttorneysStepInDetails != "" {
+			complete = true
+		}
+
+		if len(l.ReplacementAttorneys) > 1 && slices.Contains([]string{"jointly", "jointly-and-severally"}, l.HowReplacementAttorneysMakeDecisions) {
+			complete = true
+		}
+
+		if len(l.ReplacementAttorneys) > 0 &&
+			l.HowReplacementAttorneysMakeDecisions == "mixed" &&
+			l.HowReplacementAttorneysMakeDecisionsDetails != "" {
+			complete = true
+		}
+
+		for _, ra := range l.ReplacementAttorneys {
+			if ra.Address.Line1 == "" || (ra.FirstNames == "" || ra.LastName == "") {
+				complete = false
+				break
+			}
+		}
+	}
+
+	return complete
+}
+
 type PaymentDetails struct {
 	PaymentReference string
 	PaymentId        string
