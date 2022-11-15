@@ -1,15 +1,15 @@
-data "aws_caller_identity" "eu_west_1" {
-  provider = aws.eu_west_1
+data "aws_caller_identity" "global" {
+  provider = aws.global
 }
 
-data "aws_region" "eu_west_1" {
-  provider = aws.eu_west_1
+data "aws_region" "global" {
+  provider = aws.global
 }
 
 data "aws_iam_role" "rum_monitor_unauthenticated" {
   count    = local.environment.app.rum_enabled ? 1 : 0
-  name     = "RUM-Monitor-${data.aws_region.eu_west_1.name}"
-  provider = aws.eu_west_1
+  name     = "RUM-Monitor-Unauthenticated"
+  provider = aws.global
 }
 
 # create this policy and attachment for each environment
@@ -18,7 +18,7 @@ resource "aws_iam_role_policy" "rum_monitor_unauthenticated" {
   name     = "RUMPutBatchMetrics-${local.environment_name}"
   policy   = data.aws_iam_policy_document.rum_monitor_unauthenticated[0].json
   role     = data.aws_iam_role.rum_monitor_unauthenticated[0].id
-  provider = aws.eu_west_1
+  provider = aws.global
 }
 
 data "aws_iam_policy_document" "rum_monitor_unauthenticated" {
@@ -26,13 +26,14 @@ data "aws_iam_policy_document" "rum_monitor_unauthenticated" {
   statement {
     effect = "Allow"
     resources = [
-      "arn:aws:rum:${data.aws_region.eu_west_1.name}:${data.aws_caller_identity.eu_west_1.account_id}:appmonitor/${local.environment_name}"
+      "arn:aws:rum:eu-west-1:${data.aws_caller_identity.global.account_id}:appmonitor/${local.environment_name}",
+      "arn:aws:rum:eu-west-2:${data.aws_caller_identity.global.account_id}:appmonitor/${local.environment_name}"
     ]
     actions = [
       "rum:PutRumEvents",
     ]
   }
-  provider = aws.eu_west_1
+  provider = aws.global
 }
 
 data "aws_ssm_parameter" "rum_monitor_identity_pool_id" {
