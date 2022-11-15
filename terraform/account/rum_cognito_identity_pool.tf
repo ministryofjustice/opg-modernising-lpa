@@ -7,11 +7,10 @@ resource "aws_cognito_identity_pool" "rum_monitor" {
 
 resource "aws_iam_role" "rum_monitor_unauthenticated" {
   count              = local.account.rum_enabled ? 1 : 0
-  name               = "RUM-Monitor-${data.aws_region.eu_west_1.name}"
+  name               = "RUM-Monitor-Unauthenticated"
   assume_role_policy = data.aws_iam_policy_document.rum_monitor_unauthenticated_role_assume_policy[0].json
-  provider           = aws.eu_west_1
+  provider           = aws.global
 }
-
 
 data "aws_iam_policy_document" "rum_monitor_unauthenticated_role_assume_policy" {
   count = local.account.rum_enabled ? 1 : 0
@@ -20,8 +19,8 @@ data "aws_iam_policy_document" "rum_monitor_unauthenticated_role_assume_policy" 
     actions = ["sts:AssumeRoleWithWebIdentity"]
 
     principals {
-      identifiers = ["cognito-identity.amazonaws.com"]
       type        = "Federated"
+      identifiers = ["cognito-identity.amazonaws.com"]
     }
     condition {
       test     = "StringEquals"
@@ -34,11 +33,10 @@ data "aws_iam_policy_document" "rum_monitor_unauthenticated_role_assume_policy" 
     condition {
       test     = "ForAnyValue:StringLike"
       variable = "cognito-identity.amazonaws.com:amr"
-
-      values = ["unauthenticated"]
+      values   = ["unauthenticated"]
     }
   }
-  provider = aws.eu_west_1
+  provider = aws.global
 }
 
 resource "aws_cognito_identity_pool_roles_attachment" "rum_monitor" {
