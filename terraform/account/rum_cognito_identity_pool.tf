@@ -8,12 +8,13 @@ resource "aws_cognito_identity_pool" "rum_monitor" {
 resource "aws_iam_role" "rum_monitor_unauthenticated" {
   count              = local.account.rum_enabled ? 1 : 0
   name               = "RUM-Monitor-${data.aws_region.eu_west_1.name}"
-  assume_role_policy = data.aws_iam_policy_document.rum_monitor_unauthenticated_role_assume_policy.json
+  assume_role_policy = data.aws_iam_policy_document.rum_monitor_unauthenticated_role_assume_policy[0].json
   provider           = aws.eu_west_1
 }
 
 
 data "aws_iam_policy_document" "rum_monitor_unauthenticated_role_assume_policy" {
+  count = local.account.rum_enabled ? 1 : 0
   statement {
     effect  = "Allow"
     actions = ["sts:AssumeRoleWithWebIdentity"]
@@ -50,6 +51,7 @@ resource "aws_cognito_identity_pool_roles_attachment" "rum_monitor" {
 }
 
 resource "aws_ssm_parameter" "rum_monitor_identity_pool_id" {
+  count    = local.account.rum_enabled ? 1 : 0
   name     = "rum_monitor_identity_pool_id"
   type     = "String"
   value    = aws_cognito_identity_pool.rum_monitor[0].id
