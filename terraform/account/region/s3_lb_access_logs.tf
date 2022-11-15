@@ -79,6 +79,7 @@ data "aws_iam_policy_document" "access_log" {
     resources = [
       aws_s3_bucket.access_log.arn,
       "${aws_s3_bucket.access_log.arn}/*",
+      "${aws_s3_bucket.access_log.arn}/*/AWSLogs/your-aws-account-id/*",
     ]
     effect  = "Allow"
     actions = ["s3:PutObject"]

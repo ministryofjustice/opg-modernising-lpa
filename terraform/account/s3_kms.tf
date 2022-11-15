@@ -62,10 +62,31 @@ data "aws_iam_policy_document" "s3_kms" {
 
     principals {
       identifiers = [
-        data.aws_elb_service_account.eu_west_1.id,
-        data.aws_elb_service_account.eu_west_2.id,
+        "arn:aws:iam::${data.aws_elb_service_account.eu_west_1.id}:root",
+        "arn:aws:iam::${data.aws_elb_service_account.eu_west_2.id}:root",
       ]
       type = "AWS"
+    }
+  }
+
+  statement {
+    sid    = "Allow Key to be used for Encryption"
+    effect = "Allow"
+    resources = [
+      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+    ]
+    actions = [
+      "kms:Encrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey",
+    ]
+
+    principals {
+      identifiers = [
+        "elasticloadbalancing.amazonaws.com",
+      ]
+      type = "Service"
     }
   }
 
