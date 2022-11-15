@@ -48,3 +48,10 @@ resource "aws_cognito_identity_pool_roles_attachment" "rum_monitor" {
   }
   provider = aws.eu_west_1
 }
+
+resource "aws_ssm_parameter" "rum_monitor_identity_pool_id" {
+  name     = "rum_monitor_identity_pool_id"
+  type     = "String"
+  value    = aws_cognito_identity_pool.rum_monitor[0].id
+  provider = aws.eu_west_1
+}
