@@ -13,8 +13,3 @@ variable "sns_kms_key_alias" {
   description = "The alias of the KMS key used to encrypt the SNS topic"
   type        = string
 }
-
-variable "s3_kms_key_alias" {
-  description = "The alias of the KMS key used to encrypt S3 buckets"
-  type        = string
-}
