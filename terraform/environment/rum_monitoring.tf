@@ -7,7 +7,7 @@ data "aws_region" "eu_west_1" {
 }
 
 data "aws_iam_role" "rum_monitor_unauthenticated" {
-  name     = "RUM-Monitor-eu-west-1-653761790766-0155138158661-Unauth"
+  name     = "RUM-Monitor-${data.aws_region.eu_west_1.name}"
   provider = aws.eu_west_1
 }
 
