@@ -1,6 +1,6 @@
 describe('How should replacement attorneys step in', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/how-should-replacement-attorneys-step-in?cookiesAccepted=1');
+        cy.visit('/testing-start?redirect=/how-should-replacement-attorneys-step-in&cookiesAccepted=1');
         cy.injectAxe();
     });
 
@@ -10,7 +10,7 @@ describe('How should replacement attorneys step in', () => {
         // see https://github.com/alphagov/govuk-frontend/issues/979
         cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
 
-        cy.get('input[name="when-to-step-in"]').check('one-can-no-longer-act');
+        cy.get('input[name="when-to-step-in"]').check('one');
 
         cy.contains('button', 'Continue').click();
 

@@ -32,12 +32,12 @@
                             <div class="govuk-radios__item">
                                 <input class="govuk-radios__input" id="f-when-to-step-in-3" name="when-to-step-in" type="radio" value="other" aria-describedby="when-to-step-in-3-item-hint" aria-controls="when-to-step-in-3-conditional-div" {{ if or (eq "other" .Form.WhenToStepIn) (index .Errors "other-details") }}checked{{ end }}>
                                 <label class="govuk-label govuk-radios__label" for="f-when-to-step-in-3">
-                                    {{ tr .App "other" }}
+                                    {{ tr .App "otherWay" }}
                                 </label>
 
                                 <div class="govuk-radios__conditional" id="when-to-step-in-3-conditional-div">
                                     <div class="govuk-form-group {{ if index .Errors "other-details" }}govuk-form-group--error{{ end }}">
-                                        {{ trHtml .App "otherHint" }}
+                                        {{ trHtml .App "otherWayHint" }}
                                         <label class="govuk-label" for="other-details">
                                             {{ tr .App "details" }}
                                         </label>
