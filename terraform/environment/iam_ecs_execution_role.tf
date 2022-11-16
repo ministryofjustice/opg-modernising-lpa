@@ -24,6 +24,17 @@ resource "aws_iam_role_policy" "execution_role" {
   provider = aws.global
 }
 
+data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id_eu_west_1" {
+  name     = "rum-monitor-identity-pool-id"
+  provider = aws.eu_west_1
+}
+
+data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id_eu_west_2" {
+  name     = "rum-monitor-identity-pool-id"
+  provider = aws.eu_west_2
+}
+
+
 data "aws_iam_policy_document" "execution_role" {
   statement {
     effect    = "Allow"
@@ -41,6 +52,36 @@ data "aws_iam_policy_document" "execution_role" {
     actions = [
       "logs:CreateLogStream",
       "logs:PutLogEvents",
+    ]
+  }
+  statement {
+    effect = "Allow"
+
+    resources = [
+      data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_1.arn,
+      data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_2.arn,
+      aws_secretsmanager_secret.rum_monitor_application_id.arn,
+    ]
+
+    actions = [
+      "secretsmanager:GetSecretValue",
+    ]
+  }
+  statement {
+    effect = "Allow"
+
+    resources = [
+      data.aws_kms_alias.secrets_manager_secret_encryption_key_eu_west_1.target_key_arn,
+      data.aws_kms_alias.secrets_manager_secret_encryption_key_eu_west_2.target_key_arn,
+    ]
+
+    actions = [
+      "kms:Decrypt",
+      "kms:GenerateDataKey",
+      "kms:GenerateDataKeyPair",
+      "kms:GenerateDataKeyPairWithoutPlaintext",
+      "kms:GenerateDataKeyWithoutPlaintext",
+      "kms:DescribeKey",
     ]
   }
   provider = aws.global
