@@ -90,15 +90,18 @@ func TestGetTaskList(t *testing.T) {
 				ReplacementAttorneys: []Attorney{
 					{
 						FirstNames: "this",
+						LastName:   "this",
 						Address: place.Address{
 							Line1: "this",
 						},
 					},
 				},
-				Contact:                  []string{"this"},
-				WantReplacementAttorneys: "this",
-				Checked:                  true,
-				HappyToShare:             true,
+				Contact:                                     []string{"this"},
+				WantReplacementAttorneys:                    "yes",
+				HowReplacementAttorneysMakeDecisions:        "mixed",
+				HowReplacementAttorneysMakeDecisionsDetails: "some details",
+				Checked:      true,
+				HappyToShare: true,
 				Tasks: Tasks{
 					WhenCanTheLpaBeUsed:        TaskCompleted,
 					Restrictions:               TaskCompleted,

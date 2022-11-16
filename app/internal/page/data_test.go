@@ -718,14 +718,6 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 		},
 	}
 
-	//Lpa.WantReplacementAttorneys == 'yes' &&
-	//	len(Lpa.Attorneys) > 1 &&
-	//	Lpa.HowAttorneysMakeDecisions == 'jointly-and-severally' &&
-	//	Lpa.Tasks.Attorneys == Completed
-	//	len(Lpa.ReplacementAttorneys) > 1 &&
-	//	Lpa.HowShouldReplacementAttorneysStepIn == one &&
-	//	each replacement attorney has details and address
-
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			lpa := Lpa{
