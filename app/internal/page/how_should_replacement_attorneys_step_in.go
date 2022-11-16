@@ -45,8 +45,6 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 					lpa.HowShouldReplacementAttorneysStepInDetails = data.Form.OtherDetails
 				}
 
-				lpa.HowShouldReplacementAttorneysStepInDetails = data.Form.OtherDetails
-
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
