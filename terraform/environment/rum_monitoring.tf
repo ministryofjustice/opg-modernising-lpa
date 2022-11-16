@@ -60,3 +60,46 @@ resource "aws_rum_app_monitor" "main" {
   }
   provider = aws.eu_west_1
 }
+
+data "aws_kms_alias" "secrets_manager_secret_encryption_key_eu_west_1" {
+  name     = "alias/${local.default_tags.application}_secrets_manager_secret_encryption_key"
+  provider = aws.eu_west_1
+}
+
+data "aws_kms_alias" "secrets_manager_secret_encryption_key_eu_west_2" {
+  name     = "alias/${local.default_tags.application}_secrets_manager_secret_encryption_key"
+  provider = aws.eu_west_2
+}
+
+resource "aws_secretsmanager_secret" "rum_monitor_application_id" {
+  name       = "rum_monitor_application_id"
+  kms_key_id = data.aws_kms_alias.secrets_manager_secret_encryption_key_eu_west_1.target_key_id
+  replica {
+    kms_key_id = data.aws_kms_alias.secrets_manager_secret_encryption_key_eu_west_2.target_key_id
+    region     = "eu-west-2"
+  }
+  provider = aws.eu_west_1
+}
+
+resource "aws_secretsmanager_secret_version" "rum_monitor_application_id" {
+  secret_id     = aws_secretsmanager_secret.rum_monitor_application_id.id
+  secret_string = aws_rum_app_monitor.main[0].app_monitor_id
+  provider      = aws.eu_west_1
+}
+
+
+# locals {
+#   rum_config = {
+#     sessionSampleRate = 1,
+#     guestRoleArn      = data.aws_iam_role.rum_monitor_unauthenticated[0].arn,
+#     identityPoolId    = data.aws_ssm_parameter.rum_monitor_identity_pool_id[0].value,
+#     endpoint          = "https://dataplane.rum.eu-west-1.amazonaws.com",
+#     telemetries = [
+#       "errors",
+#       "http",
+#       "performance",
+#     ]
+#     allowCookies = true,
+#     enableXRay   = true,
+#   }
+# }
