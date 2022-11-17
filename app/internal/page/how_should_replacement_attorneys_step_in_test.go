@@ -356,11 +356,6 @@ func TestHowShouldReplacementAttorneysStepInFormValidate(t *testing.T) {
 			otherDetails:   "",
 			expectedErrors: map[string]string{"other-details": "provideDetailsOfWhenToStepIn"},
 		},
-		"otherDetails provided with whenToStepIn value is not other": {
-			whenToStepIn:   "none",
-			otherDetails:   "some details",
-			expectedErrors: map[string]string{"other-details": "removeOtherDetails"},
-		},
 	}
 
 	for name, tc := range testCases {

@@ -82,9 +82,5 @@ func (f *howShouldReplacementAttorneysStepInForm) Validate() map[string]string {
 		errors["other-details"] = "provideDetailsOfWhenToStepIn"
 	}
 
-	if f.WhenToStepIn != "other" && f.OtherDetails != "" {
-		errors["other-details"] = "removeOtherDetails"
-	}
-
 	return errors
 }
