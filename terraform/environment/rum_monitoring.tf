@@ -86,20 +86,3 @@ resource "aws_secretsmanager_secret_version" "rum_monitor_application_id" {
   secret_string = aws_rum_app_monitor.main[0].app_monitor_id
   provider      = aws.eu_west_1
 }
-
-
-# locals {
-#   rum_config = {
-#     sessionSampleRate = 1,
-#     guestRoleArn      = data.aws_iam_role.rum_monitor_unauthenticated[0].arn,
-#     identityPoolId    = data.aws_ssm_parameter.rum_monitor_identity_pool_id[0].value,
-#     endpoint          = "https://dataplane.rum.eu-west-1.amazonaws.com",
-#     telemetries = [
-#       "errors",
-#       "http",
-#       "performance",
-#     ]
-#     allowCookies = true,
-#     enableXRay   = true,
-#   }
-# }
