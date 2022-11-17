@@ -31,5 +31,5 @@ try {
   );
 } catch (error) {
   console.log(error);
-  // Ignore errors thrown during CloudWatch RUM web client initialization
+  // handle error
 }
