@@ -155,7 +155,7 @@
       </h3>
 
 
-      {{ template "attorney-details" (attorneyDetails .Lpa.Attorneys "read" .App) }}
+      {{ template "attorney-details" (listAttorneys .Lpa.Attorneys .App ) }}
 
       <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
         {{ tr .App "replacementAttorney" }}

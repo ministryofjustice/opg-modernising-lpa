@@ -1,11 +1,10 @@
 {{ define "attorney-summary" }}
-
-    {{range $i, $a := .Lpa.Attorneys}}
+    {{range $i, $a := .Attorneys}}
         {{ $attorneyNumber := inc $i }}
 
         <h2 class="govuk-heading-m">Attorney {{ $attorneyNumber }}</h2>
         <dl class="govuk-summary-list">
-            <div class="govuk-summary-list__row">
+            <div class="govuk-summary-list__row" id="name-{{ $attorneyNumber }}">
                 <dt class="govuk-summary-list__key">
                     {{ tr $.App "name" }}
                 </dt>
@@ -13,12 +12,12 @@
                     {{ $a.FirstNames }} {{ $a.LastName }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link" href="{{ link $.App $.AttorneyDetailsPath }}?id={{ $a.ID }}&from={{ $.App.Page }}&#f-first-names">
+                    <a class="govuk-link" href="{{ link $.App $.DetailsPath }}?id={{ $a.ID }}&from={{ $.App.Page }}&#f-first-names">
                         {{ trFormatHtml $.App "changeNameLinkText" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
                     </a>
                 </dd>
             </div>
-            <div class="govuk-summary-list__row">
+            <div class="govuk-summary-list__row" id="date-of-birth-{{ $attorneyNumber }}">
                 <dt class="govuk-summary-list__key">
                     {{ tr $.App "dateOfBirth" }}
                 </dt>
@@ -26,12 +25,12 @@
                     {{ formatDate $a.DateOfBirth }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link" href="{{ link $.App $.AttorneyDetailsPath }}?id={{ $a.ID }}&from={{ $.App.Page }}&#f-date-of-birth">
+                    <a class="govuk-link" href="{{ link $.App $.DetailsPath }}?id={{ $a.ID }}&from={{ $.App.Page }}&#f-date-of-birth">
                         {{ trFormatHtml $.App "changeDOBLinkText" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
                     </a>
                 </dd>
             </div>
-            <div class="govuk-summary-list__row govuk-!-padding-top-1">
+            <div class="govuk-summary-list__row govuk-!-padding-top-1" id="email-{{ $attorneyNumber }}">
                 <dt class="govuk-summary-list__key govuk-!-padding-top-1 ">
                     {{ tr $.App "email" }}
                 </dt>
@@ -39,12 +38,12 @@
                     {{ $a.Email }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link" href="{{ link $.App $.AttorneyDetailsPath }}?id={{ $a.ID }}&from={{ $.App.Page }}&#f-email">
+                    <a class="govuk-link" href="{{ link $.App $.DetailsPath }}?id={{ $a.ID }}&from={{ $.App.Page }}&#f-email">
                         {{ trFormatHtml $.App "changeEmailLinkText" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
                     </a>
                 </dd>
             </div>
-            <div class="govuk-summary-list__row">
+            <div class="govuk-summary-list__row" id="address-{{ $attorneyNumber }}">
                 <dt class="govuk-summary-list__key">
                     {{ tr $.App "address" }}
                 </dt>
@@ -55,17 +54,17 @@
                     {{ $a.Address.Postcode }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link" href="{{ link $.App $.AttorneyAddressPath }}?id={{ $a.ID }}&from={{ $.App.Page }}&#f-address-line-1">
+                    <a class="govuk-link" href="{{ link $.App $.AddressPath }}?id={{ $a.ID }}&from={{ $.App.Page }}&#f-address-line-1">
                         {{ trFormatHtml $.App "changeAddressLink" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
                     </a>
                 </dd>
             </div>
         </dl>
 
-        <div class="govuk-grid-row">
+        <div class="govuk-grid-row" id="remove-attorney-{{ $attorneyNumber }}">
             <div class="govuk-grid-column-full">
                 <div class="app-float-right">
-                    <a class="govuk-button govuk-button--secondary" href="{{ link $.App $.RemoveAttorneyPath }}?id={{ .ID }}" data-module="govuk-button">
+                    <a class="govuk-button govuk-button--secondary" href="{{ link $.App $.RemovePath }}?id={{ .ID }}" data-module="govuk-button">
                         {{ trFormatHtml $.App "removeAttorneyButtonLink" "AttorneyNumber" $attorneyNumber "FirstNames" $a.FirstNames "LastName" $a.LastName  }}
                     </a>
                 </div>
