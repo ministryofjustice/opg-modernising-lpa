@@ -34,8 +34,8 @@ func ChooseAttorneysSummary(logger Logger, tmpl template.Template, lpaStore LpaS
 			Lpa:                 lpa,
 			AttorneyDetailsPath: chooseAttorneysPath,
 			AttorneyAddressPath: chooseAttorneysAddressPath,
-			Form:                chooseAttorneysSummaryForm{},
 			RemoveAttorneyPath:  removeAttorneyPath,
+			Form:                chooseAttorneysSummaryForm{},
 		}
 
 		if r.Method == http.MethodPost {

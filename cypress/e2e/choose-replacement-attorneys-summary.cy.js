@@ -11,11 +11,11 @@ describe('Choose replacement attorneys summary', () => {
 
         cy.contains('John Smith');
         cy.contains('2 January 2000');
-        cy.contains('2 RICHMOND PLACE, B14 7ED');
+        cy.contains('2 RICHMOND PLACE');
+        cy.contains('B14 7ED');
 
         cy.contains('Joan Smith');
         cy.contains('2 January 1998');
-        cy.contains(',');
 
         cy.visit('/task-list')
         cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('In progress (2)')
@@ -25,13 +25,13 @@ describe('Choose replacement attorneys summary', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.contains('dt', 'John Smith').contains('a', 'Change').click();
+        cy.get('#name-1').contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys');
         cy.url().should('contain', 'from=%2fchoose-replacement-attorneys-summary');
         cy.url().should('match', /id=\w*/);
 
-        cy.get('#f-first-names').type('Mark');
+        cy.get('#f-first-names').clear().type('Mark');
 
         cy.contains('button', 'Continue').click();
 
@@ -44,7 +44,7 @@ describe('Choose replacement attorneys summary', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.contains('dd', ' , ').contains('a', 'Change').click();
+        cy.get('#address-2').contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys-address');
         cy.url().should('contain', 'from=%2fchoose-replacement-attorneys-summary');
@@ -77,12 +77,12 @@ describe('Choose replacement attorneys summary', () => {
 
         cy.url().should('contain', '/choose-replacement-attorneys');
 
-        cy.get('#f-first-names').type('Bob Arnold');
-        cy.get('#f-last-name').type('Jones');
-        cy.get('#f-email').type('dd@example.org');
-        cy.get('input[name="date-of-birth-day"]').type('31');
-        cy.get('input[name="date-of-birth-month"]').type('12');
-        cy.get('input[name="date-of-birth-year"]').type('1995');
+        cy.get('#f-first-names').clear().type('Bob Arnold');
+        cy.get('#f-last-name').clear().type('Jones');
+        cy.get('#f-email').clear().type('dd@example.org');
+        cy.get('input[name="date-of-birth-day"]').clear().type('31');
+        cy.get('input[name="date-of-birth-month"]').clear().type('12');
+        cy.get('input[name="date-of-birth-year"]').clear().type('1995');
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys-address');
@@ -101,14 +101,15 @@ describe('Choose replacement attorneys summary', () => {
 
         cy.contains('Bob Arnold Jones');
         cy.contains('31 December 1995');
-        cy.contains('5 RICHMOND PLACE, B14 7ED');
+        cy.contains('5 RICHMOND PLACE');
+        cy.contains('B14 7ED');
     });
 
     it('can remove an attorney', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.contains('dt', 'John Smith').parent().contains('a', 'Remove').click();
+        cy.get('#remove-attorney-1').contains('a', 'Remove').click();
 
         cy.url().should('contain', '/remove-replacement-attorney');
         cy.url().should('match', /id=\w*/);
@@ -128,7 +129,7 @@ describe('Choose replacement attorneys summary', () => {
 
         cy.get('main').should('not.contain', 'John Smith');
 
-        cy.contains('dt', 'Joan Smith').parent().contains('a', 'Remove').click();
+        cy.get('#remove-attorney-1').contains('a', 'Remove').click();
         cy.get('#f-remove-attorney').check('yes');
         cy.contains('button', 'Continue').click();
 
