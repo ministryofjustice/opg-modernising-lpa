@@ -332,5 +332,12 @@
     "howShouldReplacementAttorneysMakeDecisionsDetail": "Welsh",
     "jointlyAndSeverallyHintReplacementAttorneys": "Welsh",
     "jointlyHintReplacementAttorneys": "Welsh",
-    "jointlyAndSeverallyMixedHintReplacementAttorneys": "Welsh"
+    "jointlyAndSeverallyMixedHintReplacementAttorneys": "Welsh",
+
+    "howShouldReplacementAttorneysStepIn": "Welsh?",
+    "howShouldReplacementAttorneysStepInDetail": "<p class=\"govuk-body\">Welsh.</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh.</p><p class=\"govuk-body\">Welsh.</p>",
+    "whenOneCanNoLongerAct": "Welsh <span class=\"govuk-!-font-weight-bold\">welsh</span> welsh",
+    "whenNoneCanNoLongerAct": "Welsh <span class=\"govuk-!-font-weight-bold\">welsh</span> welsh",
+    "otherWay": "Welsh",
+    "otherWayHint": "<p class=\"govuk--body\">Welsh.<a class=\"govuk-link\" href=\"#\">Welsh?</a></p>"
 }
