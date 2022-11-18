@@ -2,6 +2,10 @@
 @import "patterns/task_list";
 @import "patterns/trans_switch";
 
+.app-float-right {
+    float: right;
+}
+
 .moj-ticket-panel {
     .govuk-tag,
     .moj-badge {
