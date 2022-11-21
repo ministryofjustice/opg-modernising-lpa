@@ -97,11 +97,8 @@ func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
 			complete = true
 		}
 
-		for _, ra := range l.ReplacementAttorneys {
-			if ra.Address.Line1 == "" || (ra.FirstNames == "" || ra.LastName == "") {
-				complete = false
-				break
-			}
+		if !allAttorneysAddressesComplete(l.ReplacementAttorneys) || !allAttorneysNamesComplete(l.ReplacementAttorneys) {
+			complete = false
 		}
 	}
 
@@ -113,28 +110,45 @@ func (l *Lpa) AttorneysTaskComplete() bool {
 		return false
 	}
 
-	completed := false
+	complete := false
 
 	if len(l.Attorneys) == 1 {
-		completed = true
+		complete = true
 	}
 
 	if slices.Contains([]string{"jointly", "jointly-and-severally"}, l.HowAttorneysMakeDecisions) {
-		completed = true
+		complete = true
 	}
 
 	if l.HowAttorneysMakeDecisions == "mixed" && l.HowAttorneysMakeDecisionsDetails != "" {
-		completed = true
+		complete = true
 	}
 
-	for _, ra := range l.Attorneys {
-		if ra.Address.Line1 == "" || (ra.FirstNames == "" || ra.LastName == "") {
-			completed = false
-			break
+	if !allAttorneysAddressesComplete(l.Attorneys) || !allAttorneysNamesComplete(l.Attorneys) {
+		complete = false
+	}
+
+	return complete
+}
+
+func allAttorneysAddressesComplete(attorneys []Attorney) bool {
+	for _, a := range attorneys {
+		if a.Address.Line1 == "" {
+			return false
 		}
 	}
 
-	return completed
+	return true
+}
+
+func allAttorneysNamesComplete(attorneys []Attorney) bool {
+	for _, a := range attorneys {
+		if a.FirstNames == "" || a.LastName == "" {
+			return false
+		}
+	}
+
+	return true
 }
 
 type PaymentDetails struct {

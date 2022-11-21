@@ -965,3 +965,110 @@ func TestAttorneysTaskComplete(t *testing.T) {
 		})
 	}
 }
+
+func TestAllAttorneysAddressesComplete(t *testing.T) {
+	testCases := map[string]struct {
+		Attorneys              []Attorney
+		ExpectedCompleteStatus bool
+	}{
+		"Addresses complete": {
+			Attorneys: []Attorney{
+				{
+					Address: address,
+				},
+				{
+					Address: address,
+				},
+				{
+					Address: address,
+				},
+			},
+			ExpectedCompleteStatus: true,
+		},
+		"Addresses incomplete": {
+			Attorneys: []Attorney{
+				{
+					Address: address,
+				},
+				{
+					ID: "123",
+				},
+				{
+					Address: address,
+				},
+			},
+			ExpectedCompleteStatus: false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.ExpectedCompleteStatus, allAttorneysAddressesComplete(tc.Attorneys))
+		})
+	}
+}
+
+func TestAllAttorneysNamesComplete(t *testing.T) {
+	testCases := map[string]struct {
+		Attorneys              []Attorney
+		ExpectedCompleteStatus bool
+	}{
+		"All names complete": {
+			Attorneys: []Attorney{
+				{
+					FirstNames: "Joey",
+					LastName:   "Jones",
+				},
+				{
+					FirstNames: "Joey",
+					LastName:   "Jones",
+				},
+				{
+					FirstNames: "Joey",
+					LastName:   "Jones",
+				},
+			},
+			ExpectedCompleteStatus: true,
+		},
+		"Missing firstnames": {
+			Attorneys: []Attorney{
+				{
+					FirstNames: "Joey",
+					LastName:   "Jones",
+				},
+				{
+					FirstNames: "",
+					LastName:   "Jones",
+				},
+				{
+					FirstNames: "Joey",
+					LastName:   "Jones",
+				},
+			},
+			ExpectedCompleteStatus: false,
+		},
+		"Missing last names": {
+			Attorneys: []Attorney{
+				{
+					FirstNames: "Joey",
+					LastName:   "Jones",
+				},
+				{
+					FirstNames: "Joey",
+					LastName:   "",
+				},
+				{
+					FirstNames: "Joey",
+					LastName:   "Jones",
+				},
+			},
+			ExpectedCompleteStatus: false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.ExpectedCompleteStatus, allAttorneysNamesComplete(tc.Attorneys))
+		})
+	}
+}
