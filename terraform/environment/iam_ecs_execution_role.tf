@@ -25,11 +25,13 @@ resource "aws_iam_role_policy" "execution_role" {
 }
 
 data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id_eu_west_1" {
+  count    = local.environment.app.rum_enabled ? 1 : 0
   name     = "rum-monitor-identity-pool-id"
   provider = aws.eu_west_1
 }
 
 data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id_eu_west_2" {
+  count    = local.environment.app.rum_enabled ? 1 : 0
   name     = "rum-monitor-identity-pool-id"
   provider = aws.eu_west_2
 }
@@ -58,9 +60,9 @@ data "aws_iam_policy_document" "execution_role" {
     effect = "Allow"
 
     resources = [
-      data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_1.arn,
-      data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_2.arn,
-      aws_secretsmanager_secret.rum_monitor_application_id.arn,
+      data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_1[0].arn,
+      data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_2[0].arn,
+      aws_secretsmanager_secret.rum_monitor_application_id[0].arn,
     ]
 
     actions = [
@@ -71,8 +73,8 @@ data "aws_iam_policy_document" "execution_role" {
     effect = "Allow"
 
     resources = [
-      data.aws_kms_alias.secrets_manager_secret_encryption_key_eu_west_1.target_key_arn,
-      data.aws_kms_alias.secrets_manager_secret_encryption_key_eu_west_2.target_key_arn,
+      data.aws_kms_alias.secrets_manager_secret_encryption_key_eu_west_1[0].target_key_arn,
+      data.aws_kms_alias.secrets_manager_secret_encryption_key_eu_west_2[0].target_key_arn,
     ]
 
     actions = [

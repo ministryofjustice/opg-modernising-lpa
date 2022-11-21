@@ -24,7 +24,7 @@ module "eu_west_1" {
   app_env_vars                                         = local.environment.app.env
   public_access_enabled                                = local.environment.app.public_access_enabled
   aws_rum_guest_role_arn                               = local.environment.app.rum_enabled ? data.aws_iam_role.rum_monitor_unauthenticated[0].arn : null
-  rum_monitor_application_id_secretsmanager_secret_arn = local.environment.app.rum_enabled ? aws_secretsmanager_secret_version.rum_monitor_application_id.arn : null
+  rum_monitor_application_id_secretsmanager_secret_arn = local.environment.app.rum_enabled ? aws_secretsmanager_secret_version.rum_monitor_application_id[0].arn : null
   providers = {
     aws.region = aws.eu_west_1
   }
@@ -47,7 +47,7 @@ module "eu_west_2" {
   app_env_vars                                         = local.environment.app.env
   public_access_enabled                                = local.environment.app.public_access_enabled
   aws_rum_guest_role_arn                               = local.environment.app.rum_enabled ? data.aws_iam_role.rum_monitor_unauthenticated[0].arn : null
-  rum_monitor_application_id_secretsmanager_secret_arn = local.environment.app.rum_enabled ? aws_secretsmanager_secret_version.rum_monitor_application_id.arn : null
+  rum_monitor_application_id_secretsmanager_secret_arn = local.environment.app.rum_enabled ? aws_secretsmanager_secret_version.rum_monitor_application_id[0].arn : null
   providers = {
     aws.region = aws.eu_west_2
   }
