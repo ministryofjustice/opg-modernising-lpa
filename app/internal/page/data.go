@@ -108,6 +108,35 @@ func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
 	return complete
 }
 
+func (l *Lpa) AttorneysTaskComplete() bool {
+	if len(l.Attorneys) == 0 {
+		return false
+	}
+
+	completed := false
+
+	if len(l.Attorneys) == 1 {
+		completed = true
+	}
+
+	if slices.Contains([]string{"jointly", "jointly-and-severally"}, l.HowAttorneysMakeDecisions) {
+		completed = true
+	}
+
+	if l.HowAttorneysMakeDecisions == "mixed" && l.HowAttorneysMakeDecisionsDetails != "" {
+		completed = true
+	}
+
+	for _, ra := range l.Attorneys {
+		if ra.Address.Line1 == "" || (ra.FirstNames == "" || ra.LastName == "") {
+			completed = false
+			break
+		}
+	}
+
+	return completed
+}
+
 type PaymentDetails struct {
 	PaymentReference string
 	PaymentId        string

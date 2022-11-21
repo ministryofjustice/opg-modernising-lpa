@@ -735,3 +735,233 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 		})
 	}
 }
+
+func TestAttorneysTaskComplete(t *testing.T) {
+	testCases := map[string]struct {
+		Attorneys                        []Attorney
+		HowAttorneysMakeDecisions        string
+		HowAttorneysMakeDecisionsDetails string
+		ExpectedCompleteStatus           bool
+	}{
+		"1 attorney": {
+			Attorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			ExpectedCompleteStatus: true,
+		},
+		"Multiple attorneys acting jointly": {
+			Attorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			HowAttorneysMakeDecisions: "jointly",
+			ExpectedCompleteStatus:    true,
+		},
+		"Multiple attorneys acting jointly and severally": {
+			Attorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			HowAttorneysMakeDecisions: "jointly-and-severally",
+			ExpectedCompleteStatus:    true,
+		},
+		"Multiple attorneys acting jointly for some and severally for others with details on how they act": {
+			Attorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			HowAttorneysMakeDecisions:        "mixed",
+			HowAttorneysMakeDecisionsDetails: "some details",
+			ExpectedCompleteStatus:           true,
+		},
+		"Multiple attorneys acting jointly for some and severally for others without details on how they act": {
+			Attorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			HowAttorneysMakeDecisions:        "mixed",
+			HowAttorneysMakeDecisionsDetails: "",
+			ExpectedCompleteStatus:           false,
+		},
+		"Multiple attorneys unexpected value for how they act": {
+			Attorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			HowAttorneysMakeDecisions:        "totally-not-expected",
+			HowAttorneysMakeDecisionsDetails: "",
+			ExpectedCompleteStatus:           false,
+		},
+		"1 attorney - missing address": {
+			Attorneys: []Attorney{
+				{
+					ID:         "123",
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			ExpectedCompleteStatus: false,
+		},
+		"1 attorney - missing last name": {
+			Attorneys: []Attorney{
+				{
+					ID:         "123",
+					FirstNames: "",
+					LastName:   "Jones",
+				},
+			},
+			ExpectedCompleteStatus: false,
+		},
+		"1 attorney - missing first name": {
+			Attorneys: []Attorney{
+				{
+					ID:         "123",
+					FirstNames: "",
+					LastName:   "Jones",
+				},
+			},
+			ExpectedCompleteStatus: false,
+		},
+		"Multiple attorneys - missing first name": {
+			Attorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			HowAttorneysMakeDecisions:        "jointly",
+			HowAttorneysMakeDecisionsDetails: "",
+			ExpectedCompleteStatus:           false,
+		},
+		"Multiple attorneys - missing last name": {
+			Attorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			HowAttorneysMakeDecisions:        "jointly",
+			HowAttorneysMakeDecisionsDetails: "",
+			ExpectedCompleteStatus:           false,
+		},
+		"Multiple attorneys - missing address": {
+			Attorneys: []Attorney{
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+				{
+					ID:         "123",
+					Address:    address,
+					FirstNames: "Joan",
+					LastName:   "Jones",
+				},
+			},
+			HowAttorneysMakeDecisions:        "jointly",
+			HowAttorneysMakeDecisionsDetails: "",
+			ExpectedCompleteStatus:           false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := Lpa{
+				Attorneys:                        tc.Attorneys,
+				HowAttorneysMakeDecisions:        tc.HowAttorneysMakeDecisions,
+				HowAttorneysMakeDecisionsDetails: tc.HowAttorneysMakeDecisionsDetails,
+			}
+
+			assert.Equal(t, tc.ExpectedCompleteStatus, lpa.AttorneysTaskComplete())
+		})
+	}
+}
