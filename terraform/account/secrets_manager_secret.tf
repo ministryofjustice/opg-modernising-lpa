@@ -57,19 +57,3 @@ resource "aws_secretsmanager_secret" "gov_uk_notify_api_key" {
   }
   provider = aws.eu_west_1
 }
-
-resource "aws_secretsmanager_secret" "rum_monitor_identity_pool_id" {
-  name       = "rum-monitor-identity-pool-id"
-  kms_key_id = aws_kms_key.secrets_manager.key_id
-  replica {
-    kms_key_id = aws_kms_replica_key.secrets_manager_replica.key_id
-    region     = data.aws_region.eu_west_2.name
-  }
-  provider = aws.eu_west_1
-}
-
-resource "aws_secretsmanager_secret_version" "rum_monitor_identity_pool_id" {
-  secret_id     = aws_secretsmanager_secret.rum_monitor_identity_pool_id.id
-  secret_string = aws_cognito_identity_pool.rum_monitor[0].id
-  provider      = aws.eu_west_1
-}
