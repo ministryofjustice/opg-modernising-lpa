@@ -60,97 +60,6 @@ type Lpa struct {
 	HowShouldReplacementAttorneysStepInDetails  string
 }
 
-func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
-	if l.WantReplacementAttorneys == "no" && len(l.ReplacementAttorneys) == 0 {
-		return true
-	}
-
-	complete := false
-
-	if l.WantReplacementAttorneys == "yes" {
-		if len(l.Attorneys) == 1 && len(l.ReplacementAttorneys) == 1 {
-			complete = true
-		}
-
-		if len(l.Attorneys) > 1 &&
-			l.HowAttorneysMakeDecisions == "jointly-and-severally" &&
-			len(l.ReplacementAttorneys) > 0 &&
-			slices.Contains([]string{"one", "none"}, l.HowShouldReplacementAttorneysStepIn) {
-			complete = true
-		}
-
-		if len(l.Attorneys) > 1 &&
-			l.HowAttorneysMakeDecisions == "jointly-and-severally" &&
-			len(l.ReplacementAttorneys) > 0 &&
-			l.HowShouldReplacementAttorneysStepIn == "other" &&
-			l.HowShouldReplacementAttorneysStepInDetails != "" {
-			complete = true
-		}
-
-		if len(l.ReplacementAttorneys) > 1 && slices.Contains([]string{"jointly", "jointly-and-severally"}, l.HowReplacementAttorneysMakeDecisions) {
-			complete = true
-		}
-
-		if len(l.ReplacementAttorneys) > 0 &&
-			l.HowReplacementAttorneysMakeDecisions == "mixed" &&
-			l.HowReplacementAttorneysMakeDecisionsDetails != "" {
-			complete = true
-		}
-
-		if !allAttorneysAddressesComplete(l.ReplacementAttorneys) || !allAttorneysNamesComplete(l.ReplacementAttorneys) {
-			complete = false
-		}
-	}
-
-	return complete
-}
-
-func (l *Lpa) AttorneysTaskComplete() bool {
-	if len(l.Attorneys) == 0 {
-		return false
-	}
-
-	complete := false
-
-	if len(l.Attorneys) == 1 {
-		complete = true
-	}
-
-	if slices.Contains([]string{"jointly", "jointly-and-severally"}, l.HowAttorneysMakeDecisions) {
-		complete = true
-	}
-
-	if l.HowAttorneysMakeDecisions == "mixed" && l.HowAttorneysMakeDecisionsDetails != "" {
-		complete = true
-	}
-
-	if !allAttorneysAddressesComplete(l.Attorneys) || !allAttorneysNamesComplete(l.Attorneys) {
-		complete = false
-	}
-
-	return complete
-}
-
-func allAttorneysAddressesComplete(attorneys []Attorney) bool {
-	for _, a := range attorneys {
-		if a.Address.Line1 == "" {
-			return false
-		}
-	}
-
-	return true
-}
-
-func allAttorneysNamesComplete(attorneys []Attorney) bool {
-	for _, a := range attorneys {
-		if a.FirstNames == "" || a.LastName == "" {
-			return false
-		}
-	}
-
-	return true
-}
-
 type PaymentDetails struct {
 	PaymentReference string
 	PaymentId        string
@@ -342,4 +251,95 @@ func concatSentence(list []string) string {
 		last := len(list) - 1
 		return fmt.Sprintf("%s and %s", strings.Join(list[:last], ", "), list[last])
 	}
+}
+
+func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
+	if l.WantReplacementAttorneys == "no" && len(l.ReplacementAttorneys) == 0 {
+		return true
+	}
+
+	complete := false
+
+	if l.WantReplacementAttorneys == "yes" {
+		if len(l.Attorneys) == 1 && len(l.ReplacementAttorneys) == 1 {
+			complete = true
+		}
+
+		if len(l.Attorneys) > 1 &&
+			l.HowAttorneysMakeDecisions == "jointly-and-severally" &&
+			len(l.ReplacementAttorneys) > 0 &&
+			slices.Contains([]string{"one", "none"}, l.HowShouldReplacementAttorneysStepIn) {
+			complete = true
+		}
+
+		if len(l.Attorneys) > 1 &&
+			l.HowAttorneysMakeDecisions == "jointly-and-severally" &&
+			len(l.ReplacementAttorneys) > 0 &&
+			l.HowShouldReplacementAttorneysStepIn == "other" &&
+			l.HowShouldReplacementAttorneysStepInDetails != "" {
+			complete = true
+		}
+
+		if len(l.ReplacementAttorneys) > 1 && slices.Contains([]string{"jointly", "jointly-and-severally"}, l.HowReplacementAttorneysMakeDecisions) {
+			complete = true
+		}
+
+		if len(l.ReplacementAttorneys) > 0 &&
+			l.HowReplacementAttorneysMakeDecisions == "mixed" &&
+			l.HowReplacementAttorneysMakeDecisionsDetails != "" {
+			complete = true
+		}
+
+		if !allAttorneysAddressesComplete(l.ReplacementAttorneys) || !allAttorneysNamesComplete(l.ReplacementAttorneys) {
+			complete = false
+		}
+	}
+
+	return complete
+}
+
+func (l *Lpa) AttorneysTaskComplete() bool {
+	if len(l.Attorneys) == 0 {
+		return false
+	}
+
+	complete := false
+
+	if len(l.Attorneys) == 1 {
+		complete = true
+	}
+
+	if slices.Contains([]string{"jointly", "jointly-and-severally"}, l.HowAttorneysMakeDecisions) {
+		complete = true
+	}
+
+	if l.HowAttorneysMakeDecisions == "mixed" && l.HowAttorneysMakeDecisionsDetails != "" {
+		complete = true
+	}
+
+	if !allAttorneysAddressesComplete(l.Attorneys) || !allAttorneysNamesComplete(l.Attorneys) {
+		complete = false
+	}
+
+	return complete
+}
+
+func allAttorneysAddressesComplete(attorneys []Attorney) bool {
+	for _, a := range attorneys {
+		if a.Address.Line1 == "" {
+			return false
+		}
+	}
+
+	return true
+}
+
+func allAttorneysNamesComplete(attorneys []Attorney) bool {
+	for _, a := range attorneys {
+		if a.FirstNames == "" || a.LastName == "" {
+			return false
+		}
+	}
+
+	return true
 }
