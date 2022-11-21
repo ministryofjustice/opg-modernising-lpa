@@ -40,8 +40,6 @@ func TestGetTaskList(t *testing.T) {
 					CheckYourLpa:               TaskInProgress,
 					PayForLpa:                  TaskInProgress,
 					ConfirmYourIdentityAndSign: TaskInProgress,
-					Attorneys:                  TaskInProgress,
-					ReplacementAttorneys:       TaskInProgress,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
@@ -76,12 +74,14 @@ func TestGetTaskList(t *testing.T) {
 				Attorneys: []Attorney{
 					{
 						FirstNames: "this",
+						LastName:   "that",
 						Address: place.Address{
 							Line1: "this",
 						},
 					},
 					{
 						FirstNames: "this",
+						LastName:   "that",
 						Address: place.Address{
 							Line1: "this",
 						},
@@ -90,13 +90,14 @@ func TestGetTaskList(t *testing.T) {
 				ReplacementAttorneys: []Attorney{
 					{
 						FirstNames: "this",
-						LastName:   "this",
+						LastName:   "that",
 						Address: place.Address{
 							Line1: "this",
 						},
 					},
 				},
 				Contact:                                     []string{"this"},
+				HowAttorneysMakeDecisions:                   "jointly",
 				WantReplacementAttorneys:                    "yes",
 				HowReplacementAttorneysMakeDecisions:        "mixed",
 				HowReplacementAttorneysMakeDecisionsDetails: "some details",
@@ -109,8 +110,6 @@ func TestGetTaskList(t *testing.T) {
 					CheckYourLpa:               TaskCompleted,
 					PayForLpa:                  TaskCompleted,
 					ConfirmYourIdentityAndSign: TaskCompleted,
-					Attorneys:                  TaskCompleted,
-					ReplacementAttorneys:       TaskCompleted,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {

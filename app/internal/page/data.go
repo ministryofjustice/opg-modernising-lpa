@@ -163,8 +163,6 @@ type Tasks struct {
 	CheckYourLpa               TaskState
 	PayForLpa                  TaskState
 	ConfirmYourIdentityAndSign TaskState
-	Attorneys                  TaskState
-	ReplacementAttorneys       TaskState
 }
 
 type Person struct {
