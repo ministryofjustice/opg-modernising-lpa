@@ -74,9 +74,10 @@ data "aws_kms_alias" "secrets_manager_secret_encryption_key_eu_west_2" {
 }
 
 resource "aws_secretsmanager_secret" "rum_monitor_application_id" {
-  count      = local.environment.app.rum_enabled ? 1 : 0
-  name       = "${local.environment_name}_rum_monitor_application_id"
-  kms_key_id = data.aws_kms_alias.secrets_manager_secret_encryption_key_eu_west_1[0].target_key_id
+  count                   = local.environment.app.rum_enabled ? 1 : 0
+  name                    = "${local.environment_name}_rum_monitor_application_id"
+  recovery_window_in_days = 0
+  kms_key_id              = data.aws_kms_alias.secrets_manager_secret_encryption_key_eu_west_1[0].target_key_id
   replica {
     kms_key_id = data.aws_kms_alias.secrets_manager_secret_encryption_key_eu_west_2[0].target_key_id
     region     = "eu-west-2"
