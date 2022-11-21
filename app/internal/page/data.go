@@ -16,9 +16,12 @@ import (
 )
 
 const (
-	PayCookieName              = "pay"
-	PayCookiePaymentIdValueKey = "paymentId"
-	CostOfLpaPence             = 8200
+	PayCookieName                    = "pay"
+	PayCookiePaymentIdValueKey       = "paymentId"
+	CostOfLpaPence                   = 8200
+	JointlyForSomeSeverallyForOthers = "mixed"
+	Jointly                          = "jointly"
+	JointlyAndSeverally              = "jointly-and-severally"
 )
 
 type TaskState int
@@ -266,26 +269,26 @@ func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
 		}
 
 		if len(l.Attorneys) > 1 &&
-			l.HowAttorneysMakeDecisions == "jointly-and-severally" &&
+			l.HowAttorneysMakeDecisions == JointlyAndSeverally &&
 			len(l.ReplacementAttorneys) > 0 &&
 			slices.Contains([]string{"one", "none"}, l.HowShouldReplacementAttorneysStepIn) {
 			complete = true
 		}
 
 		if len(l.Attorneys) > 1 &&
-			l.HowAttorneysMakeDecisions == "jointly-and-severally" &&
+			l.HowAttorneysMakeDecisions == JointlyAndSeverally &&
 			len(l.ReplacementAttorneys) > 0 &&
 			l.HowShouldReplacementAttorneysStepIn == "other" &&
 			l.HowShouldReplacementAttorneysStepInDetails != "" {
 			complete = true
 		}
 
-		if len(l.ReplacementAttorneys) > 1 && slices.Contains([]string{"jointly", "jointly-and-severally"}, l.HowReplacementAttorneysMakeDecisions) {
+		if len(l.ReplacementAttorneys) > 1 && slices.Contains([]string{Jointly, JointlyAndSeverally}, l.HowReplacementAttorneysMakeDecisions) {
 			complete = true
 		}
 
 		if len(l.ReplacementAttorneys) > 0 &&
-			l.HowReplacementAttorneysMakeDecisions == "mixed" &&
+			l.HowReplacementAttorneysMakeDecisions == JointlyForSomeSeverallyForOthers &&
 			l.HowReplacementAttorneysMakeDecisionsDetails != "" {
 			complete = true
 		}
@@ -309,11 +312,11 @@ func (l *Lpa) AttorneysTaskComplete() bool {
 		complete = true
 	}
 
-	if slices.Contains([]string{"jointly", "jointly-and-severally"}, l.HowAttorneysMakeDecisions) {
+	if slices.Contains([]string{Jointly, JointlyAndSeverally}, l.HowAttorneysMakeDecisions) {
 		complete = true
 	}
 
-	if l.HowAttorneysMakeDecisions == "mixed" && l.HowAttorneysMakeDecisionsDetails != "" {
+	if l.HowAttorneysMakeDecisions == JointlyForSomeSeverallyForOthers && l.HowAttorneysMakeDecisionsDetails != "" {
 		complete = true
 	}
 

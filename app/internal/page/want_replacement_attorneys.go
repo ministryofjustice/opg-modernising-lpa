@@ -46,7 +46,6 @@ func WantReplacementAttorneys(tmpl template.Template, lpaStore LpaStore) Handler
 				}
 
 				appData.Lang.Redirect(w, r, redirectUrl, http.StatusFound)
-
 				return nil
 			}
 		}
