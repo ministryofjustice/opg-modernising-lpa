@@ -155,49 +155,13 @@
       </h3>
 
 
-      {{ template "attorney-details" (attorneyDetails .Lpa.Attorneys "read" .App) }}
+      {{ template "attorney-details" (listAttorneys .Lpa.Attorneys .App .AttorneyDetailsPath .AttorneyAddressPath .RemoveAttorneyPath) }}
 
       <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
         {{ tr .App "replacementAttorney" }}
       </h3>
 
-      <dl class="govuk-summary-list">
-        <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
-          <dt class="govuk-summary-list__key">
-            {{ tr .App "name" }}
-          </dt>
-          <dd class="govuk-summary-list__value">
-            We haven't done this yet
-          </dd>
-        </div>
-
-        <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
-          <dt class="govuk-summary-list__key">
-            {{ tr .App "dateOfBirth" }}
-          </dt>
-          <dd class="govuk-summary-list__value">
-            We haven't done this yet
-          </dd>
-        </div>
-
-        <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
-          <dt class="govuk-summary-list__key">
-            {{ tr .App "email" }}
-          </dt>
-          <dd class="govuk-summary-list__value">
-            We haven't done this yet
-          </dd>
-        </div>
-
-        <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
-          <dt class="govuk-summary-list__key">
-            {{ tr .App "address" }}
-          </dt>
-          <dd class="govuk-summary-list__value">
-            We haven't done this yet
-          </dd>
-        </div>
-      </dl>
+      {{ template "attorney-details" (listAttorneys .Lpa.ReplacementAttorneys .App .ReplacementAttorneyDetailsPath .ReplacementAttorneyAddressPath .RemoveReplacementAttorneyPath) }}
 
       <form novalidate method="post">
         <div class="govuk-form-group {{ if index .Errors "checked" }}govuk-form-group--error{{ end }}">

@@ -234,7 +234,7 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 
 			lpa.Attorneys = []Attorney{
 				{
-					ID:          "completed-address",
+					ID:          "with-address",
 					FirstNames:  "John",
 					LastName:    "Smith",
 					Email:       "aa@example.org",
@@ -248,7 +248,7 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 					},
 				},
 				{
-					ID:          "empty-address",
+					ID:          "without-address",
 					FirstNames:  "Joan",
 					LastName:    "Smith",
 					Email:       "bb@example.org",
