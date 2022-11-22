@@ -40,15 +40,17 @@ data "aws_kms_alias" "secrets_manager_secret_encryption_key_eu_west_2" {
 }
 
 resource "aws_secretsmanager_secret" "rum_monitor_application_id_eu_west_1" {
-  name       = "${local.environment_name}_rum_monitor_application_id"
-  kms_key_id = data.aws_kms_alias.secrets_manager_secret_encryption_key_eu_west_1.target_key_id
-  provider   = aws.eu_west_1
+  name                    = "${local.environment_name}_rum_monitor_application_id"
+  kms_key_id              = data.aws_kms_alias.secrets_manager_secret_encryption_key_eu_west_1.target_key_id
+  recovery_window_in_days = 0
+  provider                = aws.eu_west_1
 }
 
 resource "aws_secretsmanager_secret" "rum_monitor_application_id_eu_west_2" {
-  name       = "${local.environment_name}_rum_monitor_application_id"
-  kms_key_id = data.aws_kms_alias.secrets_manager_secret_encryption_key_eu_west_1.target_key_id
-  provider   = aws.eu_west_2
+  name                    = "${local.environment_name}_rum_monitor_application_id"
+  kms_key_id              = data.aws_kms_alias.secrets_manager_secret_encryption_key_eu_west_1.target_key_id
+  recovery_window_in_days = 0
+  provider                = aws.eu_west_2
 }
 
 data "aws_iam_policy_document" "execution_role" {
