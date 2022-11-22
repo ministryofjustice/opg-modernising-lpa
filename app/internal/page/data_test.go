@@ -370,16 +370,16 @@ func TestConcatSentence(t *testing.T) {
 
 func TestReplacementAttorneysTaskComplete(t *testing.T) {
 	testCases := map[string]struct {
-		Attorneys                            []Attorney
-		ReplacementAttorneys                 []Attorney
-		WantReplacementAttorneys             string
-		HowAttorneysAct                      string
-		HowAttorneysActDetails               string
-		HowReplacementAttorneysAct           string
-		HowReplacementAttorneysActDetails    string
-		HowReplacementAttorneysStepIn        string
-		HowReplacementAttorneysStepInDetails string
-		ExpectedComplete                     bool
+		Attorneys                                   []Attorney
+		ReplacementAttorneys                        []Attorney
+		WantReplacementAttorneys                    string
+		HowAttorneysMakeDecisions                   string
+		HowAttorneysMakeDecisionsDetails            string
+		HowReplacementAttorneysMakeDecisions        string
+		HowReplacementAttorneysMakeDecisionsDetails string
+		HowReplacementAttorneysStepIn               string
+		HowReplacementAttorneysStepInDetails        string
+		ExpectedComplete                            bool
 	}{
 		"replacement attorneys not required": {
 			Attorneys: []Attorney{
@@ -405,9 +405,9 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				validAttorney,
 				validAttorney,
 			},
-			WantReplacementAttorneys:   "yes",
-			HowReplacementAttorneysAct: "jointly",
-			ExpectedComplete:           true,
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly",
+			ExpectedComplete:                     true,
 		},
 		"single attorney and multiple replacement attorney acting jointly and severally": {
 			Attorneys: []Attorney{
@@ -417,9 +417,9 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				validAttorney,
 				validAttorney,
 			},
-			WantReplacementAttorneys:   "yes",
-			HowReplacementAttorneysAct: "jointly-and-severally",
-			ExpectedComplete:           true,
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly-and-severally",
+			ExpectedComplete:                     true,
 		},
 		"single attorney and multiple replacement attorneys acting mixed with details": {
 			Attorneys: []Attorney{
@@ -429,17 +429,17 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				validAttorney,
 				validAttorney,
 			},
-			WantReplacementAttorneys:          "yes",
-			HowReplacementAttorneysAct:        "mixed",
-			HowReplacementAttorneysActDetails: "some details",
-			ExpectedComplete:                  true,
+			WantReplacementAttorneys:                    "yes",
+			HowReplacementAttorneysMakeDecisions:        "mixed",
+			HowReplacementAttorneysMakeDecisionsDetails: "some details",
+			ExpectedComplete:                            true,
 		},
 		"multiple attorneys acting jointly and severally and single replacement attorney steps in when there are no attorneys left to act": {
 			Attorneys: []Attorney{
 				validAttorney,
 				validAttorney,
 			},
-			HowAttorneysAct: "jointly-and-severally",
+			HowAttorneysMakeDecisions: "jointly-and-severally",
 			ReplacementAttorneys: []Attorney{
 				validAttorney,
 			},
@@ -452,7 +452,7 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				validAttorney,
 				validAttorney,
 			},
-			HowAttorneysAct: "jointly-and-severally",
+			HowAttorneysMakeDecisions: "jointly-and-severally",
 			ReplacementAttorneys: []Attorney{
 				validAttorney,
 			},
@@ -465,53 +465,53 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				validAttorney,
 				validAttorney,
 			},
-			HowAttorneysAct: "jointly-and-severally",
+			HowAttorneysMakeDecisions: "jointly-and-severally",
 			ReplacementAttorneys: []Attorney{
 				validAttorney,
 				validAttorney,
 			},
-			WantReplacementAttorneys:      "yes",
-			HowReplacementAttorneysAct:    "jointly",
-			HowReplacementAttorneysStepIn: "none",
-			ExpectedComplete:              true,
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly",
+			HowReplacementAttorneysStepIn:        "none",
+			ExpectedComplete:                     true,
 		},
 		"multiple attorneys acting jointly and severally and multiple replacement attorney acting jointly and severally steps in when there are no attorneys left to act": {
 			Attorneys: []Attorney{
 				validAttorney,
 				validAttorney,
 			},
-			HowAttorneysAct: "jointly-and-severally",
+			HowAttorneysMakeDecisions: "jointly-and-severally",
 			ReplacementAttorneys: []Attorney{
 				validAttorney,
 				validAttorney,
 			},
-			WantReplacementAttorneys:      "yes",
-			HowReplacementAttorneysAct:    "jointly-and-severally",
-			HowReplacementAttorneysStepIn: "none",
-			ExpectedComplete:              true,
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly-and-severally",
+			HowReplacementAttorneysStepIn:        "none",
+			ExpectedComplete:                     true,
 		},
 		"multiple attorneys acting jointly and severally and multiple replacement attorney acting mixed with details steps in when there are no attorneys left to act": {
 			Attorneys: []Attorney{
 				validAttorney,
 				validAttorney,
 			},
-			HowAttorneysAct: "jointly-and-severally",
+			HowAttorneysMakeDecisions: "jointly-and-severally",
 			ReplacementAttorneys: []Attorney{
 				validAttorney,
 				validAttorney,
 			},
-			WantReplacementAttorneys:          "yes",
-			HowReplacementAttorneysAct:        "mixed",
-			HowReplacementAttorneysActDetails: "some details",
-			HowReplacementAttorneysStepIn:     "none",
-			ExpectedComplete:                  true,
+			WantReplacementAttorneys:                    "yes",
+			HowReplacementAttorneysMakeDecisions:        "mixed",
+			HowReplacementAttorneysMakeDecisionsDetails: "some details",
+			HowReplacementAttorneysStepIn:               "none",
+			ExpectedComplete:                            true,
 		},
 		"multiple attorneys acting jointly and severally and multiple replacement attorneys steps in when one attorney cannot act": {
 			Attorneys: []Attorney{
 				validAttorney,
 				validAttorney,
 			},
-			HowAttorneysAct: "jointly-and-severally",
+			HowAttorneysMakeDecisions: "jointly-and-severally",
 			ReplacementAttorneys: []Attorney{
 				validAttorney,
 				validAttorney,
@@ -525,7 +525,7 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				validAttorney,
 				validAttorney,
 			},
-			HowAttorneysAct: "jointly-and-severally",
+			HowAttorneysMakeDecisions: "jointly-and-severally",
 			ReplacementAttorneys: []Attorney{
 				validAttorney,
 			},
@@ -539,8 +539,8 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				validAttorney,
 				validAttorney,
 			},
-			HowAttorneysAct:        "mixed",
-			HowAttorneysActDetails: "some details",
+			HowAttorneysMakeDecisions:        "mixed",
+			HowAttorneysMakeDecisionsDetails: "some details",
 			ReplacementAttorneys: []Attorney{
 				validAttorney,
 			},
@@ -553,8 +553,8 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				validAttorney,
 				validAttorney,
 			},
-			HowAttorneysAct:        "mixed",
-			HowAttorneysActDetails: "some details",
+			HowAttorneysMakeDecisions:        "mixed",
+			HowAttorneysMakeDecisionsDetails: "some details",
 			ReplacementAttorneys: []Attorney{
 				validAttorney,
 				validAttorney,
@@ -568,53 +568,53 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				validAttorney,
 				validAttorney,
 			},
-			HowAttorneysAct: "jointly",
+			HowAttorneysMakeDecisions: "jointly",
 			ReplacementAttorneys: []Attorney{
 				validAttorney,
 				validAttorney,
 			},
-			WantReplacementAttorneys:      "yes",
-			HowReplacementAttorneysAct:    "jointly",
-			HowReplacementAttorneysStepIn: "",
-			ExpectedComplete:              true,
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly",
+			HowReplacementAttorneysStepIn:        "",
+			ExpectedComplete:                     true,
 		},
 		"multiple attorneys acting jointly and multiple replacement attorneys acting jointly and severally and blank how to step in": {
 			Attorneys: []Attorney{
 				validAttorney,
 				validAttorney,
 			},
-			HowAttorneysAct: "jointly",
+			HowAttorneysMakeDecisions: "jointly",
 			ReplacementAttorneys: []Attorney{
 				validAttorney,
 				validAttorney,
 			},
-			WantReplacementAttorneys:      "yes",
-			HowReplacementAttorneysAct:    "jointly-and-severally",
-			HowReplacementAttorneysStepIn: "",
-			ExpectedComplete:              true,
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly-and-severally",
+			HowReplacementAttorneysStepIn:        "",
+			ExpectedComplete:                     true,
 		},
 		"multiple attorneys acting jointly and multiple replacement attorneys acting mixed with details and blank how to step in": {
 			Attorneys: []Attorney{
 				validAttorney,
 				validAttorney,
 			},
-			HowAttorneysAct: "jointly",
+			HowAttorneysMakeDecisions: "jointly",
 			ReplacementAttorneys: []Attorney{
 				validAttorney,
 				validAttorney,
 			},
-			WantReplacementAttorneys:          "yes",
-			HowReplacementAttorneysAct:        "mixed",
-			HowReplacementAttorneysActDetails: "some details",
-			HowReplacementAttorneysStepIn:     "",
-			ExpectedComplete:                  true,
+			WantReplacementAttorneys:                    "yes",
+			HowReplacementAttorneysMakeDecisions:        "mixed",
+			HowReplacementAttorneysMakeDecisionsDetails: "some details",
+			HowReplacementAttorneysStepIn:               "",
+			ExpectedComplete:                            true,
 		},
 		"multiple attorneys acting jointly and single replacement attorneys and blank how to step in": {
 			Attorneys: []Attorney{
 				validAttorney,
 				validAttorney,
 			},
-			HowAttorneysAct: "jointly",
+			HowAttorneysMakeDecisions: "jointly",
 			ReplacementAttorneys: []Attorney{
 				validAttorney,
 			},
@@ -637,9 +637,9 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				},
 				validAttorney,
 			},
-			WantReplacementAttorneys:   "yes",
-			HowReplacementAttorneysAct: "jointly",
-			ExpectedComplete:           false,
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly",
+			ExpectedComplete:                     false,
 		},
 		"replacement attorneys with missing first name": {
 			Attorneys: []Attorney{
@@ -656,9 +656,9 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				},
 				validAttorney,
 			},
-			WantReplacementAttorneys:   "yes",
-			HowReplacementAttorneysAct: "jointly",
-			ExpectedComplete:           false,
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly",
+			ExpectedComplete:                     false,
 		},
 		"replacement attorneys with missing last name": {
 			Attorneys: []Attorney{
@@ -675,9 +675,9 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				},
 				validAttorney,
 			},
-			WantReplacementAttorneys:   "yes",
-			HowReplacementAttorneysAct: "jointly",
-			ExpectedComplete:           false,
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly",
+			ExpectedComplete:                     false,
 		},
 		"replacement attorneys with missing date of birth": {
 			Attorneys: []Attorney{
@@ -694,9 +694,9 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				},
 				validAttorney,
 			},
-			WantReplacementAttorneys:   "yes",
-			HowReplacementAttorneysAct: "jointly",
-			ExpectedComplete:           false,
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly",
+			ExpectedComplete:                     false,
 		},
 		"replacement attorneys acting mixed with missing how act details": {
 			Attorneys: []Attorney{
@@ -706,10 +706,10 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				validAttorney,
 				validAttorney,
 			},
-			WantReplacementAttorneys:          "yes",
-			HowReplacementAttorneysAct:        "mixed",
-			HowReplacementAttorneysActDetails: "",
-			ExpectedComplete:                  false,
+			WantReplacementAttorneys:                    "yes",
+			HowReplacementAttorneysMakeDecisions:        "mixed",
+			HowReplacementAttorneysMakeDecisionsDetails: "",
+			ExpectedComplete:                            false,
 		},
 	}
 
@@ -717,11 +717,11 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			lpa := Lpa{
 				Attorneys:                                   tc.Attorneys,
-				HowAttorneysMakeDecisions:                   tc.HowAttorneysAct,
+				HowAttorneysMakeDecisions:                   tc.HowAttorneysMakeDecisions,
 				WantReplacementAttorneys:                    tc.WantReplacementAttorneys,
 				ReplacementAttorneys:                        tc.ReplacementAttorneys,
-				HowReplacementAttorneysMakeDecisions:        tc.HowReplacementAttorneysAct,
-				HowReplacementAttorneysMakeDecisionsDetails: tc.HowReplacementAttorneysActDetails,
+				HowReplacementAttorneysMakeDecisions:        tc.HowReplacementAttorneysMakeDecisions,
+				HowReplacementAttorneysMakeDecisionsDetails: tc.HowReplacementAttorneysMakeDecisionsDetails,
 				HowShouldReplacementAttorneysStepIn:         tc.HowReplacementAttorneysStepIn,
 				HowShouldReplacementAttorneysStepInDetails:  tc.HowReplacementAttorneysStepInDetails,
 			}
