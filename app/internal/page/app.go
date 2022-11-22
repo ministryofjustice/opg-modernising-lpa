@@ -20,6 +20,14 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
 
+type RumConfig struct {
+	GuestRoleArn      string
+	Endpoint          string
+	ApplicationRegion string
+	IdentityPoolID    string
+	ApplicationID     string
+}
+
 type Lang int
 
 func (l Lang) Redirect(w http.ResponseWriter, r *http.Request, url string, code int) {
@@ -86,6 +94,7 @@ type AppData struct {
 	CookieConsentSet bool
 	CanGoBack        bool
 	SessionID        string
+	RumConfig        RumConfig
 }
 
 type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
@@ -103,12 +112,13 @@ func App(
 	yotiScenarioID string,
 	notifyClient NotifyClient,
 	addressClient AddressClient,
+	rumConfig RumConfig,
 ) http.Handler {
 	mux := http.NewServeMux()
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
 
-	handle := makeHandle(mux, logger, sessionStore, localizer, lang)
+	handle := makeHandle(mux, logger, sessionStore, localizer, lang, rumConfig)
 
 	mux.Handle("/testing-start", testingStart(sessionStore, lpaStore))
 	mux.Handle("/", Root())
@@ -302,7 +312,7 @@ const (
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang) func(string, handleOpt, Handler) {
+func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang, rumConfig RumConfig) func(string, handleOpt, Handler) {
 	return func(path string, opt handleOpt, h Handler) {
 		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 			sessionID := ""
@@ -335,6 +345,7 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 				SessionID:        sessionID,
 				CookieConsentSet: cookieErr != http.ErrNoCookie,
 				CanGoBack:        opt&CanGoBack != 0,
+				RumConfig:        rumConfig,
 			}, w, r); err != nil {
 				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
 
