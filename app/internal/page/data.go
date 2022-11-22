@@ -290,14 +290,12 @@ func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
 		//"single attorney and multiple replacement attorney acting jointly"
 		//"single attorney and multiple replacement attorney acting jointly and severally"
 		if len(l.ReplacementAttorneys) > 1 &&
-			slices.Contains([]string{Jointly, JointlyAndSeverally}, l.HowReplacementAttorneysMakeDecisions) {
+			l.ReplacementAttorneysActingJointlyOrJointlyAndSeverally() {
 			complete = true
 		}
 
 		//"single attorney and multiple replacement attorneys acting mixed with details"
-		if len(l.ReplacementAttorneys) > 1 &&
-			l.HowReplacementAttorneysMakeDecisions == JointlyForSomeSeverallyForOthers &&
-			l.HowReplacementAttorneysMakeDecisionsDetails != "" {
+		if len(l.ReplacementAttorneys) > 1 && l.ReplacementAttorneysActingJointlyForSomeSeverallyForOthersWithDetails() {
 			complete = true
 		}
 	}
@@ -308,8 +306,7 @@ func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
 		//"multiple attorneys acting jointly and severally and single replacement attorney steps in in some other way with details"
 		if l.HowAttorneysMakeDecisions == JointlyAndSeverally &&
 			len(l.ReplacementAttorneys) == 1 {
-			complete = slices.Contains([]string{"one", "none"}, l.HowShouldReplacementAttorneysStepIn) ||
-				(l.HowShouldReplacementAttorneysStepIn == "other" && l.HowShouldReplacementAttorneysStepInDetails != "")
+			complete = l.ReplacementAttorneysStepInWhenOneOrAllAttorneysCannotAct() || l.ReplacementAttorneysStepInSomeOtherWayWithDetails()
 		}
 
 		//"multiple attorneys acting jointly and severally and multiple replacement attorneys acting jointly steps in when there are no attorneys left to act"
@@ -318,13 +315,12 @@ func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
 		//"multiple attorneys acting jointly and severally and multiple replacement attorneys steps in when one attorney cannot act"
 		if l.HowAttorneysMakeDecisions == JointlyAndSeverally &&
 			len(l.ReplacementAttorneys) > 1 {
-			complete = slices.Contains([]string{"one", "none"}, l.HowShouldReplacementAttorneysStepIn) ||
-				(l.HowShouldReplacementAttorneysStepIn == "other" && l.HowShouldReplacementAttorneysStepInDetails != "")
+			complete = l.ReplacementAttorneysStepInWhenOneOrAllAttorneysCannotAct() || l.ReplacementAttorneysStepInSomeOtherWayWithDetails()
 		}
 
 		//"multiple attorneys acting mixed with details and single replacement attorney with blank how to step in"
 		//"multiple attorneys acting mixed with details and multiple replacement attorney with blank how to step in"
-		if (l.HowAttorneysMakeDecisions == JointlyForSomeSeverallyForOthers && l.HowAttorneysMakeDecisionsDetails != "") &&
+		if l.AttorneysActingJointlyForSomeSeverallyForOthersWithDetails() &&
 			len(l.ReplacementAttorneys) > 0 &&
 			l.HowShouldReplacementAttorneysStepIn == "" {
 			complete = true
@@ -335,8 +331,7 @@ func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
 			//"multiple attorneys acting jointly and multiple replacement attorneys acting jointly and severally and blank how to step in"
 			//"multiple attorneys acting jointly and multiple replacement attorneys acting mixed with details and blank how to step in"
 			if len(l.ReplacementAttorneys) > 1 &&
-				(slices.Contains([]string{Jointly, JointlyAndSeverally}, l.HowReplacementAttorneysMakeDecisions) || l.HowReplacementAttorneysMakeDecisions == JointlyForSomeSeverallyForOthers &&
-					l.HowReplacementAttorneysMakeDecisionsDetails != "") &&
+				(l.ReplacementAttorneysActingJointlyOrJointlyAndSeverally() || l.ReplacementAttorneysActingJointlyForSomeSeverallyForOthersWithDetails()) &&
 				l.HowShouldReplacementAttorneysStepIn == "" {
 				complete = true
 			}
@@ -370,11 +365,11 @@ func (l *Lpa) AttorneysTaskComplete() bool {
 		complete = true
 	}
 
-	if slices.Contains([]string{Jointly, JointlyAndSeverally}, l.HowAttorneysMakeDecisions) {
+	if l.AttorneysActingJointlyOrJointlyAndSeverally() {
 		complete = true
 	}
 
-	if l.HowAttorneysMakeDecisions == JointlyForSomeSeverallyForOthers && l.HowAttorneysMakeDecisionsDetails != "" {
+	if l.AttorneysActingJointlyForSomeSeverallyForOthersWithDetails() {
 		complete = true
 	}
 
@@ -413,4 +408,29 @@ func allAttorneysDateOfBirthComplete(attorneys []Attorney) bool {
 	}
 
 	return true
+}
+
+func (l *Lpa) AttorneysActingJointlyOrJointlyAndSeverally() bool {
+	return slices.Contains([]string{Jointly, JointlyAndSeverally}, l.HowAttorneysMakeDecisions)
+}
+
+func (l *Lpa) AttorneysActingJointlyForSomeSeverallyForOthersWithDetails() bool {
+	return l.HowAttorneysMakeDecisions == JointlyForSomeSeverallyForOthers && l.HowAttorneysMakeDecisionsDetails != ""
+}
+
+func (l *Lpa) ReplacementAttorneysActingJointlyOrJointlyAndSeverally() bool {
+	return slices.Contains([]string{Jointly, JointlyAndSeverally}, l.HowReplacementAttorneysMakeDecisions)
+}
+
+func (l *Lpa) ReplacementAttorneysActingJointlyForSomeSeverallyForOthersWithDetails() bool {
+	return l.HowReplacementAttorneysMakeDecisions == JointlyForSomeSeverallyForOthers &&
+		l.HowReplacementAttorneysMakeDecisionsDetails != ""
+}
+
+func (l *Lpa) ReplacementAttorneysStepInWhenOneOrAllAttorneysCannotAct() bool {
+	return slices.Contains([]string{"one", "none"}, l.HowShouldReplacementAttorneysStepIn)
+}
+
+func (l *Lpa) ReplacementAttorneysStepInSomeOtherWayWithDetails() bool {
+	return l.HowShouldReplacementAttorneysStepIn == "other" && l.HowShouldReplacementAttorneysStepInDetails != ""
 }
