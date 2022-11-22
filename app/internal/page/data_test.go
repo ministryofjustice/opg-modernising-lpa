@@ -1110,3 +1110,176 @@ func TestAllAttorneysDateOfBirthComplete(t *testing.T) {
 		})
 	}
 }
+
+func TestAttorneysActingJointlyOrJointlyAndSeverally(t *testing.T) {
+	testCases := map[string]struct {
+		HowAct   string
+		Expected bool
+	}{
+		"Jointly":                               {HowAct: Jointly, Expected: true},
+		"Jointly and severally":                 {HowAct: JointlyAndSeverally, Expected: true},
+		"Jointly for some severally for others": {HowAct: JointlyForSomeSeverallyForOthers, Expected: false},
+		"Unexpected":                            {HowAct: "what", Expected: false},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := &Lpa{HowAttorneysMakeDecisions: tc.HowAct}
+			assert.Equal(t, tc.Expected, lpa.AttorneysActingJointlyOrJointlyAndSeverally())
+		})
+	}
+}
+
+func TestAttorneysActingJointlyForSomeSeverallyForOthersWithDetails(t *testing.T) {
+	testCases := map[string]struct {
+		HowAct        string
+		HowActDetails string
+		Expected      bool
+	}{
+		"With how acting": {
+			HowAct:        JointlyForSomeSeverallyForOthers,
+			HowActDetails: "",
+			Expected:      false,
+		},
+		"With details": {
+			HowAct:        "",
+			HowActDetails: "some details",
+			Expected:      false,
+		},
+		"With both": {
+			HowAct:        JointlyForSomeSeverallyForOthers,
+			HowActDetails: "some details",
+			Expected:      true,
+		},
+		"Mismatch status": {
+			HowAct:        Jointly,
+			HowActDetails: "some details",
+			Expected:      false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := &Lpa{HowAttorneysMakeDecisions: tc.HowAct, HowAttorneysMakeDecisionsDetails: tc.HowActDetails}
+			assert.Equal(t, tc.Expected, lpa.AttorneysActingJointlyForSomeSeverallyForOthersWithDetails())
+		})
+	}
+}
+
+func TestReplacementAttorneysActingJointlyOrJointlyAndSeverally(t *testing.T) {
+	testCases := map[string]struct {
+		HowAct   string
+		Expected bool
+	}{
+		"Jointly":                               {HowAct: Jointly, Expected: true},
+		"Jointly and severally":                 {HowAct: JointlyAndSeverally, Expected: true},
+		"Jointly for some severally for others": {HowAct: JointlyForSomeSeverallyForOthers, Expected: false},
+		"Unexpected":                            {HowAct: "what", Expected: false},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := &Lpa{HowReplacementAttorneysMakeDecisions: tc.HowAct}
+			assert.Equal(t, tc.Expected, lpa.ReplacementAttorneysActingJointlyOrJointlyAndSeverally())
+		})
+	}
+}
+
+func TestReplacementAttorneysActingJointlyForSomeSeverallyForOthersWithDetails(t *testing.T) {
+	testCases := map[string]struct {
+		HowAct        string
+		HowActDetails string
+		Expected      bool
+	}{
+		"With how acting": {
+			HowAct:        JointlyForSomeSeverallyForOthers,
+			HowActDetails: "",
+			Expected:      false,
+		},
+		"With details": {
+			HowAct:        "",
+			HowActDetails: "some details",
+			Expected:      false,
+		},
+		"With both": {
+			HowAct:        JointlyForSomeSeverallyForOthers,
+			HowActDetails: "some details",
+			Expected:      true,
+		},
+		"Mismatch status": {
+			HowAct:        Jointly,
+			HowActDetails: "some details",
+			Expected:      false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := &Lpa{
+				HowReplacementAttorneysMakeDecisions:        tc.HowAct,
+				HowReplacementAttorneysMakeDecisionsDetails: tc.HowActDetails,
+			}
+
+			assert.Equal(t, tc.Expected, lpa.ReplacementAttorneysActingJointlyForSomeSeverallyForOthersWithDetails())
+		})
+	}
+}
+
+func TestReplacementAttorneysStepInWhenOneOrAllAttorneysCannotAct(t *testing.T) {
+	testCases := map[string]struct {
+		WhenStepIn string
+		Expected   bool
+	}{
+		"One attorney cannot act":  {WhenStepIn: "one", Expected: true},
+		"All attorneys cannot act": {WhenStepIn: "none", Expected: true},
+		"Some other way":           {WhenStepIn: "other", Expected: false},
+		"Unexpected":               {WhenStepIn: "what", Expected: false},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := &Lpa{HowShouldReplacementAttorneysStepIn: tc.WhenStepIn}
+			assert.Equal(t, tc.Expected, lpa.ReplacementAttorneysStepInWhenOneOrAllAttorneysCannotAct())
+		})
+	}
+}
+
+func TestReplacementAttorneysStepInSomeOtherWayWithDetails(t *testing.T) {
+	testCases := map[string]struct {
+		WhenStepIn        string
+		WhenStepInDetails string
+		Expected          bool
+	}{
+		"With when step in only": {
+			WhenStepIn:        "other",
+			WhenStepInDetails: "",
+			Expected:          false,
+		},
+		"With details only": {
+			WhenStepIn:        "",
+			WhenStepInDetails: "some details",
+			Expected:          false,
+		},
+		"With both": {
+			WhenStepIn:        "other",
+			WhenStepInDetails: "some details",
+			Expected:          true,
+		},
+		"Mismatch status": {
+			WhenStepIn:        "one",
+			WhenStepInDetails: "some details",
+			Expected:          false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := &Lpa{
+				HowShouldReplacementAttorneysStepIn:        tc.WhenStepIn,
+				HowShouldReplacementAttorneysStepInDetails: tc.WhenStepInDetails,
+			}
+
+			assert.Equal(t, tc.Expected, lpa.ReplacementAttorneysStepInSomeOtherWayWithDetails())
+		})
+	}
+}
