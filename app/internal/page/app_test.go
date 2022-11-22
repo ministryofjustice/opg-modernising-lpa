@@ -10,15 +10,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
-
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -61,7 +59,7 @@ func (m *mockLogger) Print(v ...interface{}) {
 }
 
 func TestApp(t *testing.T) {
-	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &identity.YotiClient{}, "yoti-scenario-id", &notify.Client{}, &place.Client{})
+	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &identity.YotiClient{}, "yoti-scenario-id", &notify.Client{}, &place.Client{}, RumConfig{})
 
 	assert.Implements(t, (*http.Handler)(nil), app)
 }
@@ -97,7 +95,7 @@ func TestMakeHandle(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, sessionsStore, localizer, En)
+	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"})
 	handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, AppData{
 			Page:             "/path",
@@ -107,6 +105,7 @@ func TestMakeHandle(t *testing.T) {
 			SessionID:        "cmFuZG9t",
 			CookieConsentSet: false,
 			CanGoBack:        true,
+			RumConfig:        RumConfig{ApplicationID: "xyz"},
 		}, appData)
 		assert.Equal(t, w, hw)
 		assert.Equal(t, r, hr)
@@ -136,7 +135,7 @@ func TestMakeHandleErrors(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, localizer, En)
+	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{})
 	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
@@ -163,7 +162,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, localizer, En)
+	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{})
 	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -189,7 +188,7 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, localizer, En)
+	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{})
 	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -206,7 +205,7 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	localizer := localize.Localizer{}
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, nil, localizer, En)
+	handle := makeHandle(mux, nil, nil, localizer, En, RumConfig{})
 	handle("/path", None, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, AppData{
 			Page:             "/path",
