@@ -309,7 +309,9 @@ func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
 			complete = true
 		}
 
-		if !allAttorneysAddressesComplete(l.ReplacementAttorneys) || !allAttorneysNamesComplete(l.ReplacementAttorneys) {
+		if !allAttorneysAddressesComplete(l.ReplacementAttorneys) ||
+			!allAttorneysNamesComplete(l.ReplacementAttorneys) ||
+			!allAttorneysDateOfBirthComplete(l.ReplacementAttorneys) {
 			complete = false
 		}
 	}
@@ -356,6 +358,16 @@ func allAttorneysAddressesComplete(attorneys []Attorney) bool {
 func allAttorneysNamesComplete(attorneys []Attorney) bool {
 	for _, a := range attorneys {
 		if a.FirstNames == "" || a.LastName == "" {
+			return false
+		}
+	}
+
+	return true
+}
+
+func allAttorneysDateOfBirthComplete(attorneys []Attorney) bool {
+	for _, a := range attorneys {
+		if a.DateOfBirth.IsZero() {
 			return false
 		}
 	}

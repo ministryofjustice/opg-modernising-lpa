@@ -1067,3 +1067,45 @@ func TestAllAttorneysNamesComplete(t *testing.T) {
 		})
 	}
 }
+
+func TestAllAttorneysDateOfBirthComplete(t *testing.T) {
+	testCases := map[string]struct {
+		Attorneys              []Attorney
+		ExpectedCompleteStatus bool
+	}{
+		"All date of birth complete": {
+			Attorneys: []Attorney{
+				{
+					DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+				},
+				{
+					DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+				},
+				{
+					DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+				},
+			},
+			ExpectedCompleteStatus: true,
+		},
+		"Missing date of birth": {
+			Attorneys: []Attorney{
+				{
+					DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+				},
+				{
+					DateOfBirth: time.Time{},
+				},
+				{
+					DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+				},
+			},
+			ExpectedCompleteStatus: false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.ExpectedCompleteStatus, allAttorneysDateOfBirthComplete(tc.Attorneys))
+		})
+	}
+}
