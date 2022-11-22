@@ -9,7 +9,6 @@ variable "accounts" {
       account_name  = string
       is_production = bool
       regions       = list(string)
-      rum_enabled   = bool
     })
   )
 }

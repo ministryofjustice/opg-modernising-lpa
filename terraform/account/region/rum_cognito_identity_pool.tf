@@ -1,12 +1,10 @@
 resource "aws_iam_role" "rum_monitor_unauthenticated" {
-  count              = var.rum_enabled ? 1 : 0
   name               = "RUM-Monitor-Unauthenticated-${data.aws_region.current.name}"
-  assume_role_policy = data.aws_iam_policy_document.rum_monitor_unauthenticated_role_assume_policy[0].json
+  assume_role_policy = data.aws_iam_policy_document.rum_monitor_unauthenticated_role_assume_policy.json
   provider           = aws.global
 }
 
 data "aws_iam_policy_document" "rum_monitor_unauthenticated_role_assume_policy" {
-  count = var.rum_enabled ? 1 : 0
   statement {
     effect  = "Allow"
     actions = ["sts:AssumeRoleWithWebIdentity"]
@@ -20,7 +18,7 @@ data "aws_iam_policy_document" "rum_monitor_unauthenticated_role_assume_policy" 
       variable = "cognito-identity.amazonaws.com:aud"
 
       values = [
-        aws_cognito_identity_pool.rum_monitor[0].id
+        aws_cognito_identity_pool.rum_monitor.id
       ]
     }
     condition {
@@ -33,7 +31,6 @@ data "aws_iam_policy_document" "rum_monitor_unauthenticated_role_assume_policy" 
 }
 
 resource "aws_cognito_identity_pool" "rum_monitor" {
-  count                            = var.rum_enabled ? 1 : 0
   identity_pool_name               = "RUM-Monitor-${data.aws_region.current.name}"
   allow_unauthenticated_identities = true
   allow_classic_flow               = true
@@ -41,16 +38,14 @@ resource "aws_cognito_identity_pool" "rum_monitor" {
 }
 
 resource "aws_cognito_identity_pool_roles_attachment" "rum_monitor" {
-  count            = var.rum_enabled ? 1 : 0
-  identity_pool_id = aws_cognito_identity_pool.rum_monitor[0].id
+  identity_pool_id = aws_cognito_identity_pool.rum_monitor.id
   roles = {
-    unauthenticated = aws_iam_role.rum_monitor_unauthenticated[0].arn
+    unauthenticated = aws_iam_role.rum_monitor_unauthenticated.arn
   }
   provider = aws.region
 }
 
 resource "aws_secretsmanager_secret" "rum_monitor_identity_pool_id" {
-  count                   = var.rum_enabled ? 1 : 0
   name                    = "rum-monitor-identity-pool-id-${data.aws_region.current.name}"
   kms_key_id              = data.aws_kms_alias.secrets_manager.target_key_id
   recovery_window_in_days = 0
@@ -58,8 +53,7 @@ resource "aws_secretsmanager_secret" "rum_monitor_identity_pool_id" {
 }
 
 resource "aws_secretsmanager_secret_version" "rum_monitor_identity_pool_id" {
-  count         = var.rum_enabled ? 1 : 0
-  secret_id     = aws_secretsmanager_secret.rum_monitor_identity_pool_id[0].id
-  secret_string = aws_cognito_identity_pool.rum_monitor[0].id
+  secret_id     = aws_secretsmanager_secret.rum_monitor_identity_pool_id.id
+  secret_string = aws_cognito_identity_pool.rum_monitor.id
   provider      = aws.region
 }

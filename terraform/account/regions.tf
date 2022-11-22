@@ -5,7 +5,6 @@ module "eu_west_1" {
   cloudwatch_log_group_kms_key_alias = aws_kms_alias.cloudwatch_alias_eu_west_1.name
   sns_kms_key_alias                  = aws_kms_alias.sns_alias_eu_west_1.name
   secrets_manager_kms_key_alias      = aws_kms_alias.secrets_manager_alias_eu_west_1.name
-  rum_enabled                        = local.account.rum_enabled
   providers = {
     aws.region     = aws.eu_west_1
     aws.management = aws.management_eu_west_1
@@ -20,7 +19,6 @@ module "eu_west_2" {
   cloudwatch_log_group_kms_key_alias = aws_kms_alias.cloudwatch_alias_eu_west_2.name
   sns_kms_key_alias                  = aws_kms_alias.sns_alias_eu_west_2.name
   secrets_manager_kms_key_alias      = aws_kms_alias.secrets_manager_alias_eu_west_2.name
-  rum_enabled                        = local.account.rum_enabled
   providers = {
     aws.region     = aws.eu_west_2
     aws.management = aws.management_eu_west_2

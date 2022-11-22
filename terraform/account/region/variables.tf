@@ -18,8 +18,3 @@ variable "secrets_manager_kms_key_alias" {
   description = "The alias of the KMS key used to encrypt Secrets Manager secrets"
   type        = string
 }
-
-variable "rum_enabled" {
-  description = "Enable RUM monitoring Cognito Identity Pool"
-  type        = bool
-}
