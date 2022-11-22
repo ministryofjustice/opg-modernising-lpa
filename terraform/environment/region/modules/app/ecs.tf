@@ -73,8 +73,6 @@ resource "aws_security_group_rule" "app_ecs_service_egress" {
   provider = aws.region
 }
 
-
-
 resource "aws_ecs_task_definition" "app" {
   family                   = local.name_prefix
   requires_compatibilities = ["FARGATE"]
@@ -135,7 +133,7 @@ data "aws_secretsmanager_secret" "os_postcode_lookup_api_key" {
 }
 
 data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id" {
-  name     = "rum-monitor-identity-pool-id"
+  name     = "rum-monitor-identity-pool-id-${data.aws_region.current.name}"
   provider = aws.region
 }
 

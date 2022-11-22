@@ -26,16 +26,9 @@ resource "aws_iam_role_policy" "execution_role" {
 
 data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id_eu_west_1" {
   count    = local.environment.app.rum_enabled ? 1 : 0
-  name     = "rum-monitor-identity-pool-id"
+  name     = "rum-monitor-identity-pool-id-eu-west-1"
   provider = aws.eu_west_1
 }
-
-data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id_eu_west_2" {
-  count    = local.environment.app.rum_enabled ? 1 : 0
-  name     = "rum-monitor-identity-pool-id"
-  provider = aws.eu_west_2
-}
-
 
 data "aws_iam_policy_document" "execution_role" {
   statement {
@@ -61,7 +54,6 @@ data "aws_iam_policy_document" "execution_role" {
 
     resources = [
       data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_1[0].arn,
-      data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_2[0].arn,
       aws_secretsmanager_secret.rum_monitor_application_id[0].arn,
     ]
 
