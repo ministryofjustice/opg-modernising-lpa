@@ -73,8 +73,6 @@ resource "aws_security_group_rule" "app_ecs_service_egress" {
   provider = aws.region
 }
 
-
-
 resource "aws_ecs_task_definition" "app" {
   family                   = local.name_prefix
   requires_compatibilities = ["FARGATE"]
@@ -133,6 +131,12 @@ data "aws_secretsmanager_secret" "os_postcode_lookup_api_key" {
   name     = "os-postcode-lookup-api-key"
   provider = aws.region
 }
+
+data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id" {
+  name     = "rum-monitor-identity-pool-id-${data.aws_region.current.name}"
+  provider = aws.region
+}
+
 
 data "aws_iam_policy_document" "task_role_access_policy" {
   statement {
@@ -212,6 +216,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
   provider = aws.region
 }
 
+
 locals {
   app = jsonencode(
     {
@@ -237,6 +242,16 @@ locals {
           awslogs-stream-prefix = data.aws_default_tags.current.tags.environment-name
         }
       },
+      secrets = [
+        {
+          name      = "AWS_RUM_IDENTITY_POOL_ID",
+          valueFrom = data.aws_secretsmanager_secret.rum_monitor_identity_pool_id.arn
+        },
+        {
+          name      = "AWS_RUM_APPLICATION_ID",
+          valueFrom = var.rum_monitor_application_id_secretsmanager_secret_arn
+        }
+      ],
       environment = [
         {
           name  = "LOGGING_LEVEL",
@@ -294,6 +309,18 @@ locals {
         {
           name  = "XRAY_ENABLED",
           value = "1"
+        },
+        {
+          name  = "AWS_RUM_GUEST_ROLE_ARN",
+          value = var.aws_rum_guest_role_arn
+        },
+        {
+          name  = "AWS_RUM_ENDPOINT",
+          value = "https://dataplane.rum.${data.aws_region.current.name}.amazonaws.com"
+        },
+        {
+          name  = "AWS_RUM_APPLICATION_REGION",
+          value = data.aws_region.current.name
         }
       ]
     }
