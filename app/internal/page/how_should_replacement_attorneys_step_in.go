@@ -39,6 +39,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 			if len(data.Errors) == 0 {
 				lpa.HowShouldReplacementAttorneysStepIn = data.Form.WhenToStepIn
 
+				// extract to consts
 				if data.Form.WhenToStepIn != "other" {
 					lpa.HowShouldReplacementAttorneysStepInDetails = ""
 				} else {

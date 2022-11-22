@@ -256,6 +256,22 @@ func concatSentence(list []string) string {
 	}
 }
 
+//1 attorney, 1 replacement attorney
+//1 attorney, multiple replacement attorneys acting Joint or joint and several
+//1 attorney, multiple replacement attorneys, acting jointly for some with details
+//Multiple attorneys acting jointly and severally, 1 replacement attorney that steps in when one or all attorneys can no longer act
+//Multiple attorneys acting jointly and severally, Multiple replacement attorney that steps in when all attorneys can no longer act, acting either Joint or J&S
+//Multiple attorneys acting jointly and severally, Multiple replacement attorneys that steps in when one attorney can no longer act
+//Multiple attorneys acting jointly and severally, Multiple replacement attorney that steps in when all attorneys can no longer act, acting Jointly for some… with details added
+//Multiple attorneys acting jointly and severally, 1 replacement attorneys that step in some other way with details on how they will step in provided
+//Multiple attorneys acting joint for some…, 1 or more replacement attorneys
+//Multiple attorneys acting jointly, multiple replacement attorneys acting J&S or Joint
+//Multiple attorneys acting jointly, multiple replacement attorneys acting joint for some and details
+
+//Multiple attorneys acting jointly, single replacement attorney
+
+// add in falses
+
 func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
 	if l.WantReplacementAttorneys == "no" && len(l.ReplacementAttorneys) == 0 {
 		return true
