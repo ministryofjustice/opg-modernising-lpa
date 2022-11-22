@@ -2,6 +2,7 @@ resource "aws_cognito_identity_pool" "rum_monitor" {
   count                            = local.account.rum_enabled ? 1 : 0
   identity_pool_name               = "RUM-Monitor-${data.aws_region.eu_west_1.name}"
   allow_unauthenticated_identities = true
+  allow_classic_flow               = true
   provider                         = aws.eu_west_1
 }
 
