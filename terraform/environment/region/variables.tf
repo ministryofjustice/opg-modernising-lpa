@@ -59,11 +59,6 @@ variable "public_access_enabled" {
   description = "Enable access to the Modernising LPA service from the public internet"
 }
 
-variable "rum_enabled" {
-  description = "Enable RUM monitoring Cognito Identity Pool"
-  type        = bool
-}
-
 variable "rum_monitor_identity_pool_id_secretsmanager_secret_id" {
   type        = string
   description = "ARN of the AWS Secrets Manager secret containing the RUM monitor identity pool ID"

@@ -20,7 +20,6 @@ variable "environments" {
       regions       = list(string)
       app = object({
         public_access_enabled = bool
-        rum_enabled           = bool
         env = object({
           app_public_url         = string
           auth_redirect_base_url = string
