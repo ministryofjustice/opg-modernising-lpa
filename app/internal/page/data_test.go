@@ -460,6 +460,20 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 			HowReplacementAttorneysStepIn: "one",
 			ExpectedComplete:              true,
 		},
+		"multiple attorneys acting jointly and severally and single replacement attorney steps in in some other way with details": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions: "jointly-and-severally",
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+			},
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysStepIn:        "other",
+			HowReplacementAttorneysStepInDetails: "some details",
+			ExpectedComplete:                     true,
+		},
 		"multiple attorneys acting jointly and severally and multiple replacement attorneys acting jointly steps in when there are no attorneys left to act": {
 			Attorneys: []Attorney{
 				validAttorney,
@@ -519,20 +533,6 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 			WantReplacementAttorneys:      "yes",
 			HowReplacementAttorneysStepIn: "one",
 			ExpectedComplete:              true,
-		},
-		"multiple attorneys acting jointly and severally and single replacement attorney steps in in some other way with details": {
-			Attorneys: []Attorney{
-				validAttorney,
-				validAttorney,
-			},
-			HowAttorneysMakeDecisions: "jointly-and-severally",
-			ReplacementAttorneys: []Attorney{
-				validAttorney,
-			},
-			WantReplacementAttorneys:             "yes",
-			HowReplacementAttorneysStepIn:        "other",
-			HowReplacementAttorneysStepInDetails: "some details",
-			ExpectedComplete:                     true,
 		},
 		"multiple attorneys acting mixed with details and single replacement attorney with blank how to step in": {
 			Attorneys: []Attorney{
@@ -718,6 +718,7 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 			lpa := Lpa{
 				Attorneys:                                   tc.Attorneys,
 				HowAttorneysMakeDecisions:                   tc.HowAttorneysMakeDecisions,
+				HowAttorneysMakeDecisionsDetails:            tc.HowAttorneysMakeDecisionsDetails,
 				WantReplacementAttorneys:                    tc.WantReplacementAttorneys,
 				ReplacementAttorneys:                        tc.ReplacementAttorneys,
 				HowReplacementAttorneysMakeDecisions:        tc.HowReplacementAttorneysMakeDecisions,

@@ -273,6 +273,7 @@ func concatSentence(list []string) string {
 // add in falses
 
 func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
+	//"replacement attorneys not required"
 	if l.WantReplacementAttorneys == "no" && len(l.ReplacementAttorneys) == 0 {
 		return true
 	}
@@ -280,40 +281,79 @@ func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
 	complete := false
 
 	if l.WantReplacementAttorneys == "yes" {
-		if len(l.Attorneys) == 1 && len(l.ReplacementAttorneys) == 1 {
+		//"single attorney and single replacement attorney"
+		if len(l.Attorneys) == 1 &&
+			len(l.ReplacementAttorneys) == 1 {
 			complete = true
 		}
 
-		if len(l.Attorneys) > 1 &&
-			l.HowAttorneysMakeDecisions == JointlyAndSeverally &&
-			len(l.ReplacementAttorneys) > 0 &&
-			slices.Contains([]string{"one", "none"}, l.HowShouldReplacementAttorneysStepIn) {
+		//"single attorney and multiple replacement attorney acting jointly"
+		//"single attorney and multiple replacement attorney acting jointly and severally"
+		if len(l.ReplacementAttorneys) > 1 &&
+			slices.Contains([]string{Jointly, JointlyAndSeverally}, l.HowReplacementAttorneysMakeDecisions) {
 			complete = true
 		}
 
-		if len(l.Attorneys) > 1 &&
-			l.HowAttorneysMakeDecisions == JointlyAndSeverally &&
-			len(l.ReplacementAttorneys) > 0 &&
-			l.HowShouldReplacementAttorneysStepIn == "other" &&
-			l.HowShouldReplacementAttorneysStepInDetails != "" {
-			complete = true
-		}
-
-		if len(l.ReplacementAttorneys) > 1 && slices.Contains([]string{Jointly, JointlyAndSeverally}, l.HowReplacementAttorneysMakeDecisions) {
-			complete = true
-		}
-
-		if len(l.ReplacementAttorneys) > 0 &&
+		//"single attorney and multiple replacement attorneys acting mixed with details"
+		if len(l.ReplacementAttorneys) > 1 &&
 			l.HowReplacementAttorneysMakeDecisions == JointlyForSomeSeverallyForOthers &&
 			l.HowReplacementAttorneysMakeDecisionsDetails != "" {
 			complete = true
 		}
+	}
 
-		if !allAttorneysAddressesComplete(l.ReplacementAttorneys) ||
-			!allAttorneysNamesComplete(l.ReplacementAttorneys) ||
-			!allAttorneysDateOfBirthComplete(l.ReplacementAttorneys) {
-			complete = false
+	if len(l.Attorneys) > 1 {
+		//"multiple attorneys acting jointly and severally and single replacement attorney steps in when there are no attorneys left to act"
+		//"multiple attorneys acting jointly and severally and single replacement attorney steps in when one attorney can no longer act"
+		//"multiple attorneys acting jointly and severally and single replacement attorney steps in in some other way with details"
+		if l.HowAttorneysMakeDecisions == JointlyAndSeverally &&
+			len(l.ReplacementAttorneys) == 1 {
+			complete = slices.Contains([]string{"one", "none"}, l.HowShouldReplacementAttorneysStepIn) ||
+				(l.HowShouldReplacementAttorneysStepIn == "other" && l.HowShouldReplacementAttorneysStepInDetails != "")
 		}
+
+		//"multiple attorneys acting jointly and severally and multiple replacement attorneys acting jointly steps in when there are no attorneys left to act"
+		//"multiple attorneys acting jointly and severally and multiple replacement attorney acting jointly and severally steps in when there are no attorneys left to act"
+		//"multiple attorneys acting jointly and severally and multiple replacement attorney acting mixed with details steps in when there are no attorneys left to act"
+		//"multiple attorneys acting jointly and severally and multiple replacement attorneys steps in when one attorney cannot act"
+		if l.HowAttorneysMakeDecisions == JointlyAndSeverally &&
+			len(l.ReplacementAttorneys) > 1 {
+			complete = slices.Contains([]string{"one", "none"}, l.HowShouldReplacementAttorneysStepIn) ||
+				(l.HowShouldReplacementAttorneysStepIn == "other" && l.HowShouldReplacementAttorneysStepInDetails != "")
+		}
+
+		//"multiple attorneys acting mixed with details and single replacement attorney with blank how to step in"
+		//"multiple attorneys acting mixed with details and multiple replacement attorney with blank how to step in"
+		if (l.HowAttorneysMakeDecisions == JointlyForSomeSeverallyForOthers && l.HowAttorneysMakeDecisionsDetails != "") &&
+			len(l.ReplacementAttorneys) > 0 &&
+			l.HowShouldReplacementAttorneysStepIn == "" {
+			complete = true
+		}
+
+		if l.HowAttorneysMakeDecisions == Jointly {
+			//"multiple attorneys acting jointly and multiple replacement attorneys acting jointly and blank how to step in"
+			//"multiple attorneys acting jointly and multiple replacement attorneys acting jointly and severally and blank how to step in"
+			//"multiple attorneys acting jointly and multiple replacement attorneys acting mixed with details and blank how to step in"
+			if len(l.ReplacementAttorneys) > 1 &&
+				(slices.Contains([]string{Jointly, JointlyAndSeverally}, l.HowReplacementAttorneysMakeDecisions) || l.HowReplacementAttorneysMakeDecisions == JointlyForSomeSeverallyForOthers &&
+					l.HowReplacementAttorneysMakeDecisionsDetails != "") &&
+				l.HowShouldReplacementAttorneysStepIn == "" {
+				complete = true
+			}
+
+			//"multiple attorneys acting jointly and single replacement attorneys and blank how to step in"
+			if len(l.ReplacementAttorneys) == 1 &&
+				l.HowShouldReplacementAttorneysStepIn == "" {
+				complete = true
+			}
+
+		}
+	}
+
+	if !allAttorneysAddressesComplete(l.ReplacementAttorneys) ||
+		!allAttorneysNamesComplete(l.ReplacementAttorneys) ||
+		!allAttorneysDateOfBirthComplete(l.ReplacementAttorneys) {
+		complete = false
 	}
 
 	return complete
