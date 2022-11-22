@@ -292,7 +292,7 @@ func TestTestingStart(t *testing.T) {
 		updatedLpa := &Lpa{}
 		attorneys := []Attorney{
 			{
-				ID:          "completed-address",
+				ID:          "with-address",
 				FirstNames:  "John",
 				LastName:    "Smith",
 				Email:       "aa@example.org",
@@ -306,7 +306,7 @@ func TestTestingStart(t *testing.T) {
 				},
 			},
 			{
-				ID:          "empty-address",
+				ID:          "without-address",
 				FirstNames:  "Joan",
 				LastName:    "Smith",
 				Email:       "bb@example.org",

@@ -12,29 +12,29 @@ import (
 )
 
 var All = map[string]interface{}{
-	"isEnglish":       isEnglish,
-	"isWelsh":         isWelsh,
-	"input":           input,
-	"items":           items,
-	"item":            item,
-	"fieldID":         fieldID,
-	"errorMessage":    errorMessage,
-	"details":         details,
-	"inc":             inc,
-	"link":            link,
-	"contains":        contains,
-	"tr":              tr,
-	"trFormat":        trFormat,
-	"trFormatHtml":    trFormatHtml,
-	"trHtml":          trHtml,
-	"trCount":         trCount,
-	"now":             now,
-	"addDays":         addDays,
-	"formatDate":      formatDate,
-	"formatDateTime":  formatDateTime,
-	"lowerFirst":      lowerFirst,
-	"attorneyDetails": attorneyDetails,
-	"warning":         warning,
+	"isEnglish":      isEnglish,
+	"isWelsh":        isWelsh,
+	"input":          input,
+	"items":          items,
+	"item":           item,
+	"fieldID":        fieldID,
+	"errorMessage":   errorMessage,
+	"details":        details,
+	"inc":            inc,
+	"link":           link,
+	"contains":       contains,
+	"tr":             tr,
+	"trFormat":       trFormat,
+	"trFormatHtml":   trFormatHtml,
+	"trHtml":         trHtml,
+	"trCount":        trCount,
+	"now":            now,
+	"addDays":        addDays,
+	"formatDate":     formatDate,
+	"formatDateTime": formatDateTime,
+	"lowerFirst":     lowerFirst,
+	"listAttorneys":  listAttorneys,
+	"warning":        warning,
 }
 
 func isEnglish(lang page.Lang) bool {
@@ -209,11 +209,13 @@ func lowerFirst(s string) string {
 	return string(unicode.ToLower(r)) + s[n:]
 }
 
-func attorneyDetails(attorneys []page.Attorney, from string, app page.AppData) map[string]interface{} {
+func listAttorneys(attorneys []page.Attorney, app page.AppData, detailsPath, addressPath, removePath string) map[string]interface{} {
 	return map[string]interface{}{
-		"Attorneys": attorneys,
-		"From":      from,
-		"App":       app,
+		"Attorneys":   attorneys,
+		"App":         app,
+		"DetailsPath": detailsPath,
+		"AddressPath": addressPath,
+		"RemovePath":  removePath,
 	}
 }
 
