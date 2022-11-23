@@ -58,3 +58,15 @@ variable "public_access_enabled" {
   type        = bool
   description = "Enable access to the Modernising LPA service from the public internet"
 }
+
+variable "rum_monitor_identity_pool_id_secretsmanager_secret_id" {
+  type        = string
+  description = "ARN of the AWS Secrets Manager secret containing the RUM monitor identity pool ID"
+  nullable    = true
+}
+
+variable "rum_monitor_application_id_secretsmanager_secret_id" {
+  type        = string
+  description = "ARN of the AWS Secrets Manager secret containing the RUM monitor identity pool ID"
+  nullable    = true
+}

@@ -54,6 +54,13 @@ func main() {
 		yotiScenarioID        = env.Get("YOTI_SCENARIO_ID", "")
 		yotiSandbox           = env.Get("YOTI_SANDBOX", "") == "1"
 		xrayEnabled           = env.Get("XRAY_ENABLED", "") == "1"
+		rumConfig             = page.RumConfig{
+			GuestRoleArn:      env.Get("AWS_RUM_GUEST_ROLE_ARN", ""),
+			Endpoint:          env.Get("AWS_RUM_ENDPOINT", ""),
+			ApplicationRegion: env.Get("AWS_RUM_APPLICATION_REGION", ""),
+			IdentityPoolID:    env.Get("AWS_RUM_IDENTITY_POOL_ID", ""),
+			ApplicationID:     env.Get("AWS_RUM_APPLICATION_ID", ""),
+		}
 	)
 
 	httpClient := &http.Client{Timeout: 10 * time.Second}
@@ -172,8 +179,8 @@ func main() {
 	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies))
 	mux.Handle(page.AuthPath, page.Login(logger, signInClient, sessionStore, secureCookies, random.String))
 	mux.Handle("/cookies-consent", page.CookieConsent())
-	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient)))
-	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient))
+	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig)))
+	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig))
 
 	var handler http.Handler = mux
 	if xrayEnabled {

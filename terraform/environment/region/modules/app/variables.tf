@@ -83,3 +83,15 @@ variable "public_access_enabled" {
   type        = bool
   description = "Enable access to the Modernising LPA service from the public internet"
 }
+
+variable "aws_rum_guest_role_arn" {
+  type        = string
+  description = "ARN of the AWS RUM guest role"
+  nullable    = true
+}
+
+variable "rum_monitor_application_id_secretsmanager_secret_arn" {
+  type        = string
+  description = "ARN of the AWS Secrets Manager secret containing the RUM monitor application ID"
+  nullable    = true
+}
