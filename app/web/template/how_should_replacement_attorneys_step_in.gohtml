@@ -24,7 +24,7 @@
                                 </label>
                             </div>
                             <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="f-when-to-step-in-2" name="when-to-step-in" type="radio" value="none" aria-describedby="when-to-step-in-2-item-hint" {{ if eq "none" .Form.WhenToStepIn }}checked{{ end }}>
+                                <input class="govuk-radios__input" id="f-when-to-step-in-2" name="when-to-step-in" type="radio" value="all" aria-describedby="when-to-step-in-2-item-hint" {{ if eq "all" .Form.WhenToStepIn }}checked{{ end }}>
                                 <label class="govuk-label govuk-radios__label" for="f-when-to-step-in-2">
                                     {{ trHtml .App "whenNoneCanNoLongerAct" }}
                                 </label>

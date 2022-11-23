@@ -34,7 +34,7 @@ func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, lpaStore
 			if len(data.Errors) == 0 {
 				lpa.HowReplacementAttorneysMakeDecisions = data.Form.DecisionsType
 
-				if data.Form.DecisionsType != "mixed" {
+				if data.Form.DecisionsType != JointlyForSomeSeverallyForOthers {
 					lpa.HowReplacementAttorneysMakeDecisionsDetails = ""
 				} else {
 					lpa.HowReplacementAttorneysMakeDecisionsDetails = data.Form.DecisionsDetails
