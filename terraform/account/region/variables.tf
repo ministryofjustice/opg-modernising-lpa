@@ -13,3 +13,8 @@ variable "sns_kms_key_alias" {
   description = "The alias of the KMS key used to encrypt the SNS topic"
   type        = string
 }
+
+variable "secrets_manager_kms_key_alias" {
+  description = "The alias of the KMS key used to encrypt Secrets Manager secrets"
+  type        = string
+}
