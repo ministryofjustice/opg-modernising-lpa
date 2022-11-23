@@ -444,7 +444,7 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				validAttorney,
 			},
 			WantReplacementAttorneys:      "yes",
-			HowReplacementAttorneysStepIn: "none",
+			HowReplacementAttorneysStepIn: AllCanNoLongerAct,
 			ExpectedComplete:              true,
 		},
 		"multiple attorneys acting jointly and severally and single replacement attorney steps in when one attorney can no longer act": {
@@ -457,7 +457,7 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				validAttorney,
 			},
 			WantReplacementAttorneys:      "yes",
-			HowReplacementAttorneysStepIn: "one",
+			HowReplacementAttorneysStepIn: OneCanNoLongerAct,
 			ExpectedComplete:              true,
 		},
 		"multiple attorneys acting jointly and severally and single replacement attorney steps in in some other way with details": {
@@ -470,7 +470,7 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				validAttorney,
 			},
 			WantReplacementAttorneys:             "yes",
-			HowReplacementAttorneysStepIn:        "other",
+			HowReplacementAttorneysStepIn:        SomeOtherWay,
 			HowReplacementAttorneysStepInDetails: "some details",
 			ExpectedComplete:                     true,
 		},
@@ -486,7 +486,7 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 			},
 			WantReplacementAttorneys:             "yes",
 			HowReplacementAttorneysMakeDecisions: "jointly",
-			HowReplacementAttorneysStepIn:        "none",
+			HowReplacementAttorneysStepIn:        AllCanNoLongerAct,
 			ExpectedComplete:                     true,
 		},
 		"multiple attorneys acting jointly and severally and multiple replacement attorney acting jointly and severally steps in when there are no attorneys left to act": {
@@ -501,7 +501,7 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 			},
 			WantReplacementAttorneys:             "yes",
 			HowReplacementAttorneysMakeDecisions: "jointly-and-severally",
-			HowReplacementAttorneysStepIn:        "none",
+			HowReplacementAttorneysStepIn:        AllCanNoLongerAct,
 			ExpectedComplete:                     true,
 		},
 		"multiple attorneys acting jointly and severally and multiple replacement attorney acting mixed with details steps in when there are no attorneys left to act": {
@@ -517,7 +517,7 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 			WantReplacementAttorneys:                    "yes",
 			HowReplacementAttorneysMakeDecisions:        "mixed",
 			HowReplacementAttorneysMakeDecisionsDetails: "some details",
-			HowReplacementAttorneysStepIn:               "none",
+			HowReplacementAttorneysStepIn:               AllCanNoLongerAct,
 			ExpectedComplete:                            true,
 		},
 		"multiple attorneys acting jointly and severally and multiple replacement attorneys steps in when one attorney cannot act": {
@@ -531,7 +531,7 @@ func TestReplacementAttorneysTaskComplete(t *testing.T) {
 				validAttorney,
 			},
 			WantReplacementAttorneys:      "yes",
-			HowReplacementAttorneysStepIn: "one",
+			HowReplacementAttorneysStepIn: OneCanNoLongerAct,
 			ExpectedComplete:              true,
 		},
 		"multiple attorneys acting mixed with details and single replacement attorney with blank how to step in": {
@@ -1146,9 +1146,9 @@ func TestReplacementAttorneysStepInWhenOneOrAllAttorneysCannotAct(t *testing.T) 
 		WhenStepIn string
 		Expected   bool
 	}{
-		"One attorney cannot act":  {WhenStepIn: "one", Expected: true},
-		"All attorneys cannot act": {WhenStepIn: "none", Expected: true},
-		"Some other way":           {WhenStepIn: "other", Expected: false},
+		"One attorney cannot act":  {WhenStepIn: OneCanNoLongerAct, Expected: true},
+		"All attorneys cannot act": {WhenStepIn: AllCanNoLongerAct, Expected: true},
+		"Some other way":           {WhenStepIn: SomeOtherWay, Expected: false},
 		"Unexpected":               {WhenStepIn: "what", Expected: false},
 	}
 
@@ -1167,7 +1167,7 @@ func TestReplacementAttorneysStepInSomeOtherWayWithDetails(t *testing.T) {
 		Expected          bool
 	}{
 		"With when step in only": {
-			WhenStepIn:        "other",
+			WhenStepIn:        SomeOtherWay,
 			WhenStepInDetails: "",
 			Expected:          false,
 		},
@@ -1177,12 +1177,12 @@ func TestReplacementAttorneysStepInSomeOtherWayWithDetails(t *testing.T) {
 			Expected:          false,
 		},
 		"With both": {
-			WhenStepIn:        "other",
+			WhenStepIn:        SomeOtherWay,
 			WhenStepInDetails: "some details",
 			Expected:          true,
 		},
 		"Mismatch status": {
-			WhenStepIn:        "one",
+			WhenStepIn:        OneCanNoLongerAct,
 			WhenStepInDetails: "some details",
 			Expected:          false,
 		},

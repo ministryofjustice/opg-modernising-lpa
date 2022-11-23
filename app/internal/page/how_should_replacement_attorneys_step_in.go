@@ -40,7 +40,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 				lpa.HowShouldReplacementAttorneysStepIn = data.Form.WhenToStepIn
 
 				// extract to consts
-				if data.Form.WhenToStepIn != "other" {
+				if data.Form.WhenToStepIn != SomeOtherWay {
 					lpa.HowShouldReplacementAttorneysStepInDetails = ""
 				} else {
 					lpa.HowShouldReplacementAttorneysStepInDetails = data.Form.OtherDetails
@@ -52,7 +52,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 
 				redirectUrl := taskListPath
 
-				if len(lpa.Attorneys) > 1 && lpa.HowAttorneysMakeDecisions == JointlyAndSeverally && lpa.HowShouldReplacementAttorneysStepIn == "none" {
+				if len(lpa.Attorneys) > 1 && lpa.HowAttorneysMakeDecisions == JointlyAndSeverally && lpa.HowShouldReplacementAttorneysStepIn == AllCanNoLongerAct {
 					redirectUrl = howShouldReplacementAttorneysMakeDecisionsPath
 				}
 
@@ -79,7 +79,7 @@ func (f *howShouldReplacementAttorneysStepInForm) Validate() map[string]string {
 		errors["when-to-step-in"] = "selectWhenToStepIn"
 	}
 
-	if f.WhenToStepIn == "other" && f.OtherDetails == "" {
+	if f.WhenToStepIn == SomeOtherWay && f.OtherDetails == "" {
 		errors["other-details"] = "provideDetailsOfWhenToStepIn"
 	}
 

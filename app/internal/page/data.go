@@ -22,6 +22,9 @@ const (
 	JointlyForSomeSeverallyForOthers = "mixed"
 	Jointly                          = "jointly"
 	JointlyAndSeverally              = "jointly-and-severally"
+	OneCanNoLongerAct                = "one"
+	AllCanNoLongerAct                = "all"
+	SomeOtherWay                     = "other"
 )
 
 type TaskState int
@@ -399,9 +402,9 @@ func (l *Lpa) ReplacementAttorneysActJointlyForSomeSeverallyForOthersWithDetails
 }
 
 func (l *Lpa) ReplacementAttorneysStepInWhenOneOrAllAttorneysCannotAct() bool {
-	return slices.Contains([]string{"one", "none"}, l.HowShouldReplacementAttorneysStepIn)
+	return slices.Contains([]string{OneCanNoLongerAct, AllCanNoLongerAct}, l.HowShouldReplacementAttorneysStepIn)
 }
 
 func (l *Lpa) ReplacementAttorneysStepInSomeOtherWayWithDetails() bool {
-	return l.HowShouldReplacementAttorneysStepIn == "other" && l.HowShouldReplacementAttorneysStepInDetails != ""
+	return l.HowShouldReplacementAttorneysStepIn == SomeOtherWay && l.HowShouldReplacementAttorneysStepInDetails != ""
 }

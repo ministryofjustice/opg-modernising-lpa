@@ -322,7 +322,7 @@ func TestTestingStart(t *testing.T) {
 
 		updatedLpa.WantReplacementAttorneys = "yes"
 		updatedLpa.HowReplacementAttorneysMakeDecisions = JointlyAndSeverally
-		updatedLpa.HowShouldReplacementAttorneysStepIn = "one"
+		updatedLpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
 
 		lpaStore.
 			On("Put", ctx, mock.Anything, updatedLpa).
