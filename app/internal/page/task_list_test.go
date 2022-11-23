@@ -72,29 +72,11 @@ func TestGetTaskList(t *testing.T) {
 					},
 				},
 				Attorneys: []Attorney{
-					{
-						FirstNames: "this",
-						LastName:   "that",
-						Address: place.Address{
-							Line1: "this",
-						},
-					},
-					{
-						FirstNames: "this",
-						LastName:   "that",
-						Address: place.Address{
-							Line1: "this",
-						},
-					},
+					validAttorney,
+					validAttorney,
 				},
 				ReplacementAttorneys: []Attorney{
-					{
-						FirstNames: "this",
-						LastName:   "that",
-						Address: place.Address{
-							Line1: "this",
-						},
-					},
+					validAttorney,
 				},
 				Contact:                                     []string{"this"},
 				HowAttorneysMakeDecisions:                   "jointly",

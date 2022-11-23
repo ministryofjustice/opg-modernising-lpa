@@ -741,65 +741,30 @@ func TestAttorneysTaskComplete(t *testing.T) {
 	}{
 		"1 attorney": {
 			Attorneys: []Attorney{
-				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "Jones",
-				},
+				validAttorney,
 			},
 			ExpectedCompleteStatus: true,
 		},
 		"Multiple attorneys acting jointly": {
 			Attorneys: []Attorney{
-				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "Jones",
-				},
-				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "Jones",
-				},
+				validAttorney,
+				validAttorney,
 			},
 			HowAttorneysMakeDecisions: "jointly",
 			ExpectedCompleteStatus:    true,
 		},
 		"Multiple attorneys acting jointly and severally": {
 			Attorneys: []Attorney{
-				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "Jones",
-				},
-				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "Jones",
-				},
+				validAttorney,
+				validAttorney,
 			},
 			HowAttorneysMakeDecisions: "jointly-and-severally",
 			ExpectedCompleteStatus:    true,
 		},
 		"Multiple attorneys acting jointly for some and severally for others with details on how they act": {
 			Attorneys: []Attorney{
-				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "Jones",
-				},
-				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "Jones",
-				},
+				validAttorney,
+				validAttorney,
 			},
 			HowAttorneysMakeDecisions:        "mixed",
 			HowAttorneysMakeDecisionsDetails: "some details",
@@ -807,18 +772,8 @@ func TestAttorneysTaskComplete(t *testing.T) {
 		},
 		"Multiple attorneys acting jointly for some and severally for others without details on how they act": {
 			Attorneys: []Attorney{
-				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "Jones",
-				},
-				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "Jones",
-				},
+				validAttorney,
+				validAttorney,
 			},
 			HowAttorneysMakeDecisions:        "mixed",
 			HowAttorneysMakeDecisionsDetails: "",
@@ -826,18 +781,8 @@ func TestAttorneysTaskComplete(t *testing.T) {
 		},
 		"Multiple attorneys unexpected value for how they act": {
 			Attorneys: []Attorney{
-				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "Jones",
-				},
-				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "Jones",
-				},
+				validAttorney,
+				validAttorney,
 			},
 			HowAttorneysMakeDecisions:        "totally-not-expected",
 			HowAttorneysMakeDecisionsDetails: "",
@@ -846,19 +791,10 @@ func TestAttorneysTaskComplete(t *testing.T) {
 		"1 attorney - missing address": {
 			Attorneys: []Attorney{
 				{
-					ID:         "123",
-					FirstNames: "Joan",
-					LastName:   "Jones",
-				},
-			},
-			ExpectedCompleteStatus: false,
-		},
-		"1 attorney - missing last name": {
-			Attorneys: []Attorney{
-				{
-					ID:         "123",
-					FirstNames: "",
-					LastName:   "Jones",
+					ID:          "123",
+					FirstNames:  "Joan",
+					LastName:    "Jones",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				},
 			},
 			ExpectedCompleteStatus: false,
@@ -866,86 +802,66 @@ func TestAttorneysTaskComplete(t *testing.T) {
 		"1 attorney - missing first name": {
 			Attorneys: []Attorney{
 				{
-					ID:         "123",
-					FirstNames: "",
-					LastName:   "Jones",
+					ID:          "123",
+					LastName:    "Jones",
+					Address:     address,
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				},
+			},
+			ExpectedCompleteStatus: false,
+		},
+		"1 attorney - missing last name": {
+			Attorneys: []Attorney{
+				{
+					ID:          "123",
+					FirstNames:  "John",
+					Address:     address,
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				},
 			},
 			ExpectedCompleteStatus: false,
 		},
 		"Multiple attorneys - missing first name": {
 			Attorneys: []Attorney{
+				validAttorney,
 				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "Jones",
+					ID:          "123",
+					Address:     address,
+					LastName:    "Jones",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				},
-				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "",
-				},
-				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "Jones",
-				},
+				validAttorney,
 			},
-			HowAttorneysMakeDecisions:        "jointly",
-			HowAttorneysMakeDecisionsDetails: "",
-			ExpectedCompleteStatus:           false,
+			HowAttorneysMakeDecisions: "jointly",
+			ExpectedCompleteStatus:    false,
 		},
 		"Multiple attorneys - missing last name": {
 			Attorneys: []Attorney{
+				validAttorney,
 				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "Jones",
+					ID:          "123",
+					Address:     address,
+					FirstNames:  "Joan",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				},
-				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "",
-				},
-				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "Jones",
-				},
+				validAttorney,
 			},
-			HowAttorneysMakeDecisions:        "jointly",
-			HowAttorneysMakeDecisionsDetails: "",
-			ExpectedCompleteStatus:           false,
+			HowAttorneysMakeDecisions: "jointly",
+			ExpectedCompleteStatus:    false,
 		},
 		"Multiple attorneys - missing address": {
 			Attorneys: []Attorney{
+				validAttorney,
 				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "Jones",
+					ID:          "123",
+					FirstNames:  "Joan",
+					LastName:    "Jones",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				},
-				{
-					ID:         "123",
-					FirstNames: "Joan",
-					LastName:   "Jones",
-				},
-				{
-					ID:         "123",
-					Address:    address,
-					FirstNames: "Joan",
-					LastName:   "Jones",
-				},
+				validAttorney,
 			},
-			HowAttorneysMakeDecisions:        "jointly",
-			HowAttorneysMakeDecisionsDetails: "",
-			ExpectedCompleteStatus:           false,
+			HowAttorneysMakeDecisions: "jointly",
+			ExpectedCompleteStatus:    false,
 		},
 	}
 
@@ -962,7 +878,7 @@ func TestAttorneysTaskComplete(t *testing.T) {
 	}
 }
 
-func TestAllAttorneysAddressesComplete(t *testing.T) {
+func TestAllAddressesComplete(t *testing.T) {
 	testCases := map[string]struct {
 		Attorneys              []Attorney
 		ExpectedCompleteStatus bool
@@ -999,12 +915,12 @@ func TestAllAttorneysAddressesComplete(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.ExpectedCompleteStatus, allAttorneysAddressesComplete(tc.Attorneys))
+			assert.Equal(t, tc.ExpectedCompleteStatus, allAddressesComplete(tc.Attorneys))
 		})
 	}
 }
 
-func TestAllAttorneysNamesComplete(t *testing.T) {
+func TestAllNamesComplete(t *testing.T) {
 	testCases := map[string]struct {
 		Attorneys              []Attorney
 		ExpectedCompleteStatus bool
@@ -1064,12 +980,12 @@ func TestAllAttorneysNamesComplete(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.ExpectedCompleteStatus, allAttorneysNamesComplete(tc.Attorneys))
+			assert.Equal(t, tc.ExpectedCompleteStatus, allNamesComplete(tc.Attorneys))
 		})
 	}
 }
 
-func TestAllAttorneysDateOfBirthComplete(t *testing.T) {
+func TestAllDateOfBirthComplete(t *testing.T) {
 	testCases := map[string]struct {
 		Attorneys              []Attorney
 		ExpectedCompleteStatus bool
@@ -1106,7 +1022,7 @@ func TestAllAttorneysDateOfBirthComplete(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.ExpectedCompleteStatus, allAttorneysDateOfBirthComplete(tc.Attorneys))
+			assert.Equal(t, tc.ExpectedCompleteStatus, allDateOfBirthComplete(tc.Attorneys))
 		})
 	}
 }

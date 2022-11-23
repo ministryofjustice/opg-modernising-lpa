@@ -319,9 +319,9 @@ func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
 		}
 	}
 
-	if !allAttorneysAddressesComplete(l.ReplacementAttorneys) ||
-		!allAttorneysNamesComplete(l.ReplacementAttorneys) ||
-		!allAttorneysDateOfBirthComplete(l.ReplacementAttorneys) {
+	if !allAddressesComplete(l.ReplacementAttorneys) ||
+		!allNamesComplete(l.ReplacementAttorneys) ||
+		!allDateOfBirthComplete(l.ReplacementAttorneys) {
 		complete = false
 	}
 
@@ -335,28 +335,22 @@ func (l *Lpa) AttorneysTaskComplete() bool {
 
 	complete := false
 
-	if len(l.Attorneys) == 1 {
+	if l.AttorneysActJointlyOrJointlyAndSeverally() ||
+		l.AttorneysActJointlyForSomeSeverallyForOthersWithDetails() ||
+		len(l.Attorneys) == 1 {
 		complete = true
 	}
 
-	if l.AttorneysActJointlyOrJointlyAndSeverally() {
-		complete = true
-	}
-
-	if l.AttorneysActJointlyForSomeSeverallyForOthersWithDetails() {
-		complete = true
-	}
-
-	if !allAttorneysAddressesComplete(l.Attorneys) ||
-		!allAttorneysNamesComplete(l.Attorneys) ||
-		!allAttorneysDateOfBirthComplete(l.Attorneys) {
+	if !allAddressesComplete(l.Attorneys) ||
+		!allNamesComplete(l.Attorneys) ||
+		!allDateOfBirthComplete(l.Attorneys) {
 		complete = false
 	}
 
 	return complete
 }
 
-func allAttorneysAddressesComplete(attorneys []Attorney) bool {
+func allAddressesComplete(attorneys []Attorney) bool {
 	for _, a := range attorneys {
 		if a.Address.Line1 == "" {
 			return false
@@ -366,7 +360,7 @@ func allAttorneysAddressesComplete(attorneys []Attorney) bool {
 	return true
 }
 
-func allAttorneysNamesComplete(attorneys []Attorney) bool {
+func allNamesComplete(attorneys []Attorney) bool {
 	for _, a := range attorneys {
 		if a.FirstNames == "" || a.LastName == "" {
 			return false
@@ -376,7 +370,7 @@ func allAttorneysNamesComplete(attorneys []Attorney) bool {
 	return true
 }
 
-func allAttorneysDateOfBirthComplete(attorneys []Attorney) bool {
+func allDateOfBirthComplete(attorneys []Attorney) bool {
 	for _, a := range attorneys {
 		if a.DateOfBirth.IsZero() {
 			return false
