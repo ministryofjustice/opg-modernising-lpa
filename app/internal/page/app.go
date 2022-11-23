@@ -259,6 +259,12 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 
 			lpa.ReplacementAttorneys = lpa.Attorneys
 
+			lpa.HowAttorneysMakeDecisions = JointlyAndSeverally
+
+			lpa.WantReplacementAttorneys = "yes"
+			lpa.HowReplacementAttorneysMakeDecisions = JointlyAndSeverally
+			lpa.HowShouldReplacementAttorneysStepIn = "one"
+
 			_ = lpaStore.Put(r.Context(), sessionID, lpa)
 		}
 

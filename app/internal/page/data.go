@@ -265,57 +265,58 @@ func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
 	complete := false
 
 	if l.WantReplacementAttorneys == "yes" {
-		//"single attorney and single replacement attorney"
-		if len(l.Attorneys) == 1 &&
-			len(l.ReplacementAttorneys) == 1 {
-			complete = true
+		if len(l.Attorneys) == 1 {
+			//"single attorney and single replacement attorney"
+			if len(l.ReplacementAttorneys) == 1 {
+				complete = true
+			}
+
+			//"single attorney and multiple replacement attorney acting jointly"
+			//"single attorney and multiple replacement attorney acting jointly and severally"
+			//"single attorney and multiple replacement attorneys acting mixed with details"
+			if len(l.ReplacementAttorneys) > 1 {
+				complete = l.ReplacementAttorneysActJointlyOrJointlyAndSeverally() || l.ReplacementAttorneysActJointlyForSomeSeverallyForOthersWithDetails()
+			}
 		}
 
-		//"single attorney and multiple replacement attorney acting jointly"
-		//"single attorney and multiple replacement attorney acting jointly and severally"
-		//"single attorney and multiple replacement attorneys acting mixed with details"
-		if len(l.ReplacementAttorneys) > 1 {
-			complete = l.ReplacementAttorneysActJointlyOrJointlyAndSeverally() || l.ReplacementAttorneysActJointlyForSomeSeverallyForOthersWithDetails()
-		}
-	}
+		if len(l.Attorneys) > 1 {
+			//"multiple attorneys acting jointly and severally and single replacement attorney steps in when there are no attorneys left to act"
+			//"multiple attorneys acting jointly and severally and single replacement attorney steps in when one attorney can no longer act"
+			//"multiple attorneys acting jointly and severally and single replacement attorney steps in in some other way with details"
+			//"multiple attorneys acting jointly and severally and multiple replacement attorneys acting jointly steps in when there are no attorneys left to act"
+			//"multiple attorneys acting jointly and severally and multiple replacement attorney acting jointly and severally steps in when there are no attorneys left to act"
+			//"multiple attorneys acting jointly and severally and multiple replacement attorney acting mixed with details steps in when there are no attorneys left to act"
+			//"multiple attorneys acting jointly and severally and multiple replacement attorneys steps in when one attorney cannot act"
+			if l.HowAttorneysMakeDecisions == JointlyAndSeverally &&
+				len(l.ReplacementAttorneys) > 0 {
+				complete = l.ReplacementAttorneysStepInWhenOneOrAllAttorneysCannotAct() || l.ReplacementAttorneysStepInSomeOtherWayWithDetails()
+			}
 
-	if len(l.Attorneys) > 1 {
-		//"multiple attorneys acting jointly and severally and single replacement attorney steps in when there are no attorneys left to act"
-		//"multiple attorneys acting jointly and severally and single replacement attorney steps in when one attorney can no longer act"
-		//"multiple attorneys acting jointly and severally and single replacement attorney steps in in some other way with details"
-		//"multiple attorneys acting jointly and severally and multiple replacement attorneys acting jointly steps in when there are no attorneys left to act"
-		//"multiple attorneys acting jointly and severally and multiple replacement attorney acting jointly and severally steps in when there are no attorneys left to act"
-		//"multiple attorneys acting jointly and severally and multiple replacement attorney acting mixed with details steps in when there are no attorneys left to act"
-		//"multiple attorneys acting jointly and severally and multiple replacement attorneys steps in when one attorney cannot act"
-		if l.HowAttorneysMakeDecisions == JointlyAndSeverally &&
-			len(l.ReplacementAttorneys) > 0 {
-			complete = l.ReplacementAttorneysStepInWhenOneOrAllAttorneysCannotAct() || l.ReplacementAttorneysStepInSomeOtherWayWithDetails()
-		}
-
-		//"multiple attorneys acting mixed with details and single replacement attorney with blank how to step in"
-		//"multiple attorneys acting mixed with details and multiple replacement attorney with blank how to step in"
-		if l.AttorneysActJointlyForSomeSeverallyForOthersWithDetails() &&
-			len(l.ReplacementAttorneys) > 0 &&
-			l.HowShouldReplacementAttorneysStepIn == "" {
-			complete = true
-		}
-
-		if l.HowAttorneysMakeDecisions == Jointly {
-			//"multiple attorneys acting jointly and multiple replacement attorneys acting jointly and blank how to step in"
-			//"multiple attorneys acting jointly and multiple replacement attorneys acting jointly and severally and blank how to step in"
-			//"multiple attorneys acting jointly and multiple replacement attorneys acting mixed with details and blank how to step in"
-			if len(l.ReplacementAttorneys) > 1 &&
-				(l.ReplacementAttorneysActJointlyOrJointlyAndSeverally() || l.ReplacementAttorneysActJointlyForSomeSeverallyForOthersWithDetails()) &&
+			//"multiple attorneys acting mixed with details and single replacement attorney with blank how to step in"
+			//"multiple attorneys acting mixed with details and multiple replacement attorney with blank how to step in"
+			if l.AttorneysActJointlyForSomeSeverallyForOthersWithDetails() &&
+				len(l.ReplacementAttorneys) > 0 &&
 				l.HowShouldReplacementAttorneysStepIn == "" {
 				complete = true
 			}
 
-			//"multiple attorneys acting jointly and single replacement attorneys and blank how to step in"
-			if len(l.ReplacementAttorneys) == 1 &&
-				l.HowShouldReplacementAttorneysStepIn == "" {
-				complete = true
-			}
+			if l.HowAttorneysMakeDecisions == Jointly {
+				//"multiple attorneys acting jointly and multiple replacement attorneys acting jointly and blank how to step in"
+				//"multiple attorneys acting jointly and multiple replacement attorneys acting jointly and severally and blank how to step in"
+				//"multiple attorneys acting jointly and multiple replacement attorneys acting mixed with details and blank how to step in"
+				if len(l.ReplacementAttorneys) > 1 &&
+					(l.ReplacementAttorneysActJointlyOrJointlyAndSeverally() || l.ReplacementAttorneysActJointlyForSomeSeverallyForOthersWithDetails()) &&
+					l.HowShouldReplacementAttorneysStepIn == "" {
+					complete = true
+				}
 
+				//"multiple attorneys acting jointly and single replacement attorneys and blank how to step in"
+				if len(l.ReplacementAttorneys) == 1 &&
+					l.HowShouldReplacementAttorneysStepIn == "" {
+					complete = true
+				}
+
+			}
 		}
 	}
 
