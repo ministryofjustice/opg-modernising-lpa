@@ -46,8 +46,6 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 					lpa.HowShouldReplacementAttorneysStepInDetails = data.Form.OtherDetails
 				}
 
-				lpa.HowShouldReplacementAttorneysStepInDetails = data.Form.OtherDetails
-
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
@@ -83,10 +81,6 @@ func (f *howShouldReplacementAttorneysStepInForm) Validate() map[string]string {
 
 	if f.WhenToStepIn == "other" && f.OtherDetails == "" {
 		errors["other-details"] = "provideDetailsOfWhenToStepIn"
-	}
-
-	if f.WhenToStepIn != "other" && f.OtherDetails != "" {
-		errors["other-details"] = "removeOtherDetails"
 	}
 
 	return errors

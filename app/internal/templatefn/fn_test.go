@@ -219,22 +219,26 @@ func TestLowerFirst(t *testing.T) {
 	assert.Equal(t, "hello", lowerFirst("hello"))
 }
 
-func TestAttorneyDetails(t *testing.T) {
+func TestListAttorneys(t *testing.T) {
 	attorneys := []page.Attorney{
 		{ID: "123"},
 		{ID: "123"},
 	}
 
-	from := "somewhere"
+	detailsPath := "/some-path"
+	addressPath := "/some-other-path"
+	removePath := "/more-path?"
 	app := page.AppData{SessionID: "abc"}
 
 	want := map[string]interface{}{
-		"Attorneys": attorneys,
-		"From":      from,
-		"App":       app,
+		"Attorneys":   attorneys,
+		"App":         app,
+		"DetailsPath": detailsPath,
+		"AddressPath": addressPath,
+		"RemovePath":  removePath,
 	}
 
-	got := attorneyDetails(attorneys, from, app)
+	got := listAttorneys(attorneys, app, detailsPath, addressPath, removePath)
 
 	assert.Equal(t, want, got)
 }

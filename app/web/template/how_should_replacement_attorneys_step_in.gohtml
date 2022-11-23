@@ -20,13 +20,13 @@
                             <div class="govuk-radios__item">
                                 <input class="govuk-radios__input" id="f-when-to-step-in" name="when-to-step-in" type="radio" value="one" aria-describedby="when-to-step-in-item-hint" {{ if eq "one" .Form.WhenToStepIn }}checked{{ end }}>
                                 <label class="govuk-label govuk-radios__label" for="f-when-to-step-in">
-                                    {{ tr .App "whenOneCanNoLongerAct" }}
+                                    {{ trHtml .App "whenOneCanNoLongerAct" }}
                                 </label>
                             </div>
                             <div class="govuk-radios__item">
                                 <input class="govuk-radios__input" id="f-when-to-step-in-2" name="when-to-step-in" type="radio" value="none" aria-describedby="when-to-step-in-2-item-hint" {{ if eq "none" .Form.WhenToStepIn }}checked{{ end }}>
                                 <label class="govuk-label govuk-radios__label" for="f-when-to-step-in-2">
-                                    {{ tr .App "whenNoneCanNoLongerAct" }}
+                                    {{ trHtml .App "whenNoneCanNoLongerAct" }}
                                 </label>
                             </div>
                             <div class="govuk-radios__item">
