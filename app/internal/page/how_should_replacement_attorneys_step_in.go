@@ -39,6 +39,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 			if len(data.Errors) == 0 {
 				lpa.HowShouldReplacementAttorneysStepIn = data.Form.WhenToStepIn
 
+				// extract to consts
 				if data.Form.WhenToStepIn != "other" {
 					lpa.HowShouldReplacementAttorneysStepInDetails = ""
 				} else {
@@ -51,7 +52,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 
 				redirectUrl := taskListPath
 
-				if len(lpa.Attorneys) > 1 && lpa.HowAttorneysMakeDecisions == "jointly-and-severally" && lpa.HowShouldReplacementAttorneysStepIn == "none" {
+				if len(lpa.Attorneys) > 1 && lpa.HowAttorneysMakeDecisions == JointlyAndSeverally && lpa.HowShouldReplacementAttorneysStepIn == "none" {
 					redirectUrl = howShouldReplacementAttorneysMakeDecisionsPath
 				}
 
