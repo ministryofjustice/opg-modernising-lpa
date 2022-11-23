@@ -1111,7 +1111,7 @@ func TestAllAttorneysDateOfBirthComplete(t *testing.T) {
 	}
 }
 
-func TestAttorneysActingJointlyOrJointlyAndSeverally(t *testing.T) {
+func TestAttorneysActJointlyOrJointlyAndSeverally(t *testing.T) {
 	testCases := map[string]struct {
 		HowAct   string
 		Expected bool
@@ -1125,12 +1125,12 @@ func TestAttorneysActingJointlyOrJointlyAndSeverally(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			lpa := &Lpa{HowAttorneysMakeDecisions: tc.HowAct}
-			assert.Equal(t, tc.Expected, lpa.AttorneysActingJointlyOrJointlyAndSeverally())
+			assert.Equal(t, tc.Expected, lpa.AttorneysActJointlyOrJointlyAndSeverally())
 		})
 	}
 }
 
-func TestAttorneysActingJointlyForSomeSeverallyForOthersWithDetails(t *testing.T) {
+func TestAttorneysActJointlyForSomeSeverallyForOthersWithDetails(t *testing.T) {
 	testCases := map[string]struct {
 		HowAct        string
 		HowActDetails string
@@ -1161,12 +1161,12 @@ func TestAttorneysActingJointlyForSomeSeverallyForOthersWithDetails(t *testing.T
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			lpa := &Lpa{HowAttorneysMakeDecisions: tc.HowAct, HowAttorneysMakeDecisionsDetails: tc.HowActDetails}
-			assert.Equal(t, tc.Expected, lpa.AttorneysActingJointlyForSomeSeverallyForOthersWithDetails())
+			assert.Equal(t, tc.Expected, lpa.AttorneysActJointlyForSomeSeverallyForOthersWithDetails())
 		})
 	}
 }
 
-func TestReplacementAttorneysActingJointlyOrJointlyAndSeverally(t *testing.T) {
+func TestReplacementAttorneysActJointlyOrJointlyAndSeverally(t *testing.T) {
 	testCases := map[string]struct {
 		HowAct   string
 		Expected bool
@@ -1180,12 +1180,12 @@ func TestReplacementAttorneysActingJointlyOrJointlyAndSeverally(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			lpa := &Lpa{HowReplacementAttorneysMakeDecisions: tc.HowAct}
-			assert.Equal(t, tc.Expected, lpa.ReplacementAttorneysActingJointlyOrJointlyAndSeverally())
+			assert.Equal(t, tc.Expected, lpa.ReplacementAttorneysActJointlyOrJointlyAndSeverally())
 		})
 	}
 }
 
-func TestReplacementAttorneysActingJointlyForSomeSeverallyForOthersWithDetails(t *testing.T) {
+func TestReplacementAttorneysActJointlyForSomeSeverallyForOthersWithDetails(t *testing.T) {
 	testCases := map[string]struct {
 		HowAct        string
 		HowActDetails string
@@ -1220,7 +1220,7 @@ func TestReplacementAttorneysActingJointlyForSomeSeverallyForOthersWithDetails(t
 				HowReplacementAttorneysMakeDecisionsDetails: tc.HowActDetails,
 			}
 
-			assert.Equal(t, tc.Expected, lpa.ReplacementAttorneysActingJointlyForSomeSeverallyForOthersWithDetails())
+			assert.Equal(t, tc.Expected, lpa.ReplacementAttorneysActJointlyForSomeSeverallyForOthersWithDetails())
 		})
 	}
 }
