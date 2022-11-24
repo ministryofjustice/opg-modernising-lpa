@@ -51,6 +51,7 @@
                     {{ $a.Address.Line1 }}<br>
                     {{ if $a.Address.Line2 }}{{ $a.Address.Line2 }}<br>{{end}}
                     {{ if $a.Address.Line3 }}{{ $a.Address.Line3 }}<br>{{end}}
+                    {{ if $a.Address.TownOrCity }}{{ $a.Address.TownOrCity }}<br>{{end}}
                     {{ $a.Address.Postcode }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
