@@ -22,6 +22,7 @@
     "selectOneOrMoreOptions": "Select one or more options.",
     "answerLater": "Answer later",
     "willDoThisLater": "I will do this later",
+    "pfa": "Finances and affairs",
 
     "yourDetails": "Your details",
     "firstNames": "First names",
@@ -198,6 +199,7 @@
     "whoIsTheReplacementAttorney": "Who is the replacement attorney",
     "change": "Change",
     "yourAttorneys": "your attorneys",
+    "yourReplacementAttorneys": "your replacement attorneys",
     "yourRestrictions": "your restrictions",
     "peopleNamedOnTheLpa": "People named on the LPA",
     "donor": "Donor",

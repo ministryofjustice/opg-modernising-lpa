@@ -29,6 +29,8 @@ const (
 	TaskCompleted
 )
 
+type Translatable string
+
 type Lpa struct {
 	ID                                          string
 	You                                         Person
@@ -37,7 +39,7 @@ type Lpa struct {
 	WhoFor                                      string
 	Contact                                     []string
 	Type                                        string
-	WantReplacementAttorneys                    string
+	WantReplacementAttorneys                    Translatable
 	WhenCanTheLpaBeUsed                         string
 	Restrictions                                string
 	Tasks                                       Tasks
@@ -243,6 +245,26 @@ func (l *Lpa) AttorneysFirstNames() string {
 	return concatSentence(names)
 }
 
+func (l *Lpa) ReplacementAttorneysFullNames() string {
+	var names []string
+
+	for _, a := range l.ReplacementAttorneys {
+		names = append(names, fmt.Sprintf("%s %s", a.FirstNames, a.LastName))
+	}
+
+	return concatSentence(names)
+}
+
+func (l *Lpa) ReplacementAttorneysFirstNames() string {
+	var names []string
+
+	for _, a := range l.ReplacementAttorneys {
+		names = append(names, a.FirstNames)
+	}
+
+	return concatSentence(names)
+}
+
 func concatSentence(list []string) string {
 	switch len(list) {
 	case 0:
@@ -252,5 +274,24 @@ func concatSentence(list []string) string {
 	default:
 		last := len(list) - 1
 		return fmt.Sprintf("%s and %s", strings.Join(list[:last], ", "), list[last])
+	}
+}
+
+func (t Translatable) TransKey() string {
+	switch t {
+	case "pfa":
+		return "lpaTypePfa"
+	case "jointly":
+		return "jointly"
+	case "jointly-and-severally":
+		return "jointlyAndSeverally"
+	case "mixed":
+		return "jointlyAndSeverallyMixed"
+	case "when-registered":
+		return "asSoonAsItsRegistered"
+	case "when-capacity-lost":
+		return "onlyWhenIDoNotHaveMentalCapacity"
+	default:
+		return string(t)
 	}
 }

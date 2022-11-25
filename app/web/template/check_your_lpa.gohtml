@@ -21,7 +21,7 @@
             {{ tr .App "typeOfLpa" }}
           </dt>
           <dd class="govuk-summary-list__value">
-            {{ .Lpa.Type }}
+            {{ tr .App .Lpa.Type.TransKey }}
           </dd>
         </div>
 
@@ -30,7 +30,7 @@
             {{ tr .App "WhenTheLpaCanBeUsed" }}
           </dt>
           <dd class="govuk-summary-list__value">
-            {{ .Lpa.WhenCanTheLpaBeUsed }}
+            {{ tr .App .Lpa.WhenCanTheLpaBeUsed.TransKey }}
           </dd>
           <dd class="govuk-summary-list__actions">
             <a class="govuk-link" href="{{ link .App .WhenCanLpaBeUsedPath }}">
@@ -58,7 +58,7 @@
             {{ tr .App "howTheAttorneysMustWorkTogether" }}
           </dt>
           <dd class="govuk-summary-list__value">
-            {{ .Lpa.HowAttorneysMakeDecisions }}
+            {{ tr .App .Lpa.HowAttorneysMakeDecisions.TransKey }}
           </dd>
           <dd class="govuk-summary-list__actions">
             <a class="govuk-link" href="{{ link .App .HowAttorneysMakeDecisionsPath }}">
@@ -72,11 +72,11 @@
             {{ tr .App "whoIsTheReplacementAttorney" }}
           </dt>
           <dd class="govuk-summary-list__value">
-            We haven't done this bit yet
+            {{ .Lpa.ReplacementAttorneysFullNames }}
           </dd>
           <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="#">
-              {{ tr .App "change" }}<span class="govuk-visually-hidden">  we haven't done this bit yet</span>
+            <a class="govuk-link" href="{{ link .App .ChooseReplacementAttorneysPath }}">
+              {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ tr .App yourReplacementAttorneys }}</span>
             </a>
           </dd>
         </div>
