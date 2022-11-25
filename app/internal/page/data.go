@@ -29,8 +29,6 @@ const (
 	TaskCompleted
 )
 
-type Translatable string
-
 type Lpa struct {
 	ID                                          string
 	You                                         Person
@@ -39,7 +37,7 @@ type Lpa struct {
 	WhoFor                                      string
 	Contact                                     []string
 	Type                                        string
-	WantReplacementAttorneys                    Translatable
+	WantReplacementAttorneys                    string
 	WhenCanTheLpaBeUsed                         string
 	Restrictions                                string
 	Tasks                                       Tasks
@@ -274,24 +272,5 @@ func concatSentence(list []string) string {
 	default:
 		last := len(list) - 1
 		return fmt.Sprintf("%s and %s", strings.Join(list[:last], ", "), list[last])
-	}
-}
-
-func (t Translatable) TransKey() string {
-	switch t {
-	case "pfa":
-		return "lpaTypePfa"
-	case "jointly":
-		return "jointly"
-	case "jointly-and-severally":
-		return "jointlyAndSeverally"
-	case "mixed":
-		return "jointlyAndSeverallyMixed"
-	case "when-registered":
-		return "asSoonAsItsRegistered"
-	case "when-capacity-lost":
-		return "onlyWhenIDoNotHaveMentalCapacity"
-	default:
-		return string(t)
 	}
 }
