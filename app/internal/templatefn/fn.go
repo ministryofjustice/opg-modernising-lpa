@@ -28,6 +28,7 @@ var All = map[string]interface{}{
 	"trFormatHtml":   trFormatHtml,
 	"trHtml":         trHtml,
 	"trCount":        trCount,
+	"trLpaProp":      trLpaProp,
 	"now":            now,
 	"addDays":        addDays,
 	"formatDate":     formatDate,
@@ -35,6 +36,15 @@ var All = map[string]interface{}{
 	"lowerFirst":     lowerFirst,
 	"listAttorneys":  listAttorneys,
 	"warning":        warning,
+}
+
+var LpaPropertyToTransKey = map[string]string{
+	"pfa":                   "lpaTypePfa",
+	"jointly":               "jointly",
+	"jointly-and-severally": "jointlyAndSeverally",
+	"mixed":                 "jointlyAndSeverallyMixed",
+	"when-registered":       "asSoonAsItsRegistered",
+	"when-capacity-lost":    "onlyWhenIDoNotHaveMentalCapacity",
 }
 
 func isEnglish(lang page.Lang) bool {
@@ -178,6 +188,14 @@ func trHtml(app page.AppData, messageID string) template.HTML {
 
 func trCount(app page.AppData, messageID string, count int) string {
 	return app.Localizer.Count(messageID, count)
+}
+
+func trLpaProp(app page.AppData, propValue string) string {
+	if translationKey, ok := LpaPropertyToTransKey[propValue]; ok {
+		return tr(app, translationKey)
+	}
+
+	return ""
 }
 
 func now() time.Time {

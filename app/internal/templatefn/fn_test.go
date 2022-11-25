@@ -252,3 +252,11 @@ func TestWarning(t *testing.T) {
 	assert.Equal(t, app, v["app"])
 	assert.Equal(t, content, v["content"])
 }
+
+func TestTrLpaProp(t *testing.T) {
+	app := page.AppData{
+		Localizer: localize.NewBundle("testdata/en.json").For("en"),
+	}
+
+	assert.Equal(t, "Finance and affairs", trLpaProp(app, "pfa"))
+}
