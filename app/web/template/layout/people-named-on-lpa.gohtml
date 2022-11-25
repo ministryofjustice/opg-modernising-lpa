@@ -1,0 +1,25 @@
+{{ define "people-named-on-lpa" }}
+    <h3 class="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-2">
+        {{ tr .App "donor" }}
+    </h3>
+
+    {{ template "donor-details" . }}
+
+    <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
+        {{ tr .App "certificateProvider" }}
+    </h3>
+
+    {{ template "certificate-provider-details" . }}
+
+    <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
+        {{ tr .App "attorneys" }}
+    </h3>
+
+    {{ template "attorney-details" (listAttorneys .Lpa.Attorneys .App .AttorneyDetailsPath .AttorneyAddressPath .RemoveAttorneyPath) }}
+
+    <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
+        {{ tr .App "replacementAttorney" }}
+    </h3>
+
+    {{ template "attorney-details" (listAttorneys .Lpa.ReplacementAttorneys .App .ReplacementAttorneyDetailsPath .ReplacementAttorneyAddressPath .RemoveReplacementAttorneyPath) }}
+{{ end }}
