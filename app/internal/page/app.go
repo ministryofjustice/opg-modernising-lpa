@@ -95,6 +95,7 @@ type AppData struct {
 	CanGoBack        bool
 	SessionID        string
 	RumConfig        RumConfig
+	PreviousPath     string
 }
 
 type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
@@ -346,6 +347,7 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 				CookieConsentSet: cookieErr != http.ErrNoCookie,
 				CanGoBack:        opt&CanGoBack != 0,
 				RumConfig:        rumConfig,
+				PreviousPath:     r.Header.Get("Referer"),
 			}, w, r); err != nil {
 				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
 
