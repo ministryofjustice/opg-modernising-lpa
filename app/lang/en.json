@@ -134,7 +134,12 @@
     "attorneyAddress": "{{.FirstNames}} {{.LastName}}'s address",
 
     "wantReplacementAttorneys": "Do you want any replacement attorneys?",
-    "wantReplacementAttorneysContent": "<p class=\"govuk-body-l\">Replacement attorneys step in if one of your original attorneys dies or has to step down from the role.</p> <p class=\"govuk-body\">Having replacement attorneys is optional, however, having 1 or more helps make sure your LPA will keep working if Pat Taylor (your original attorney) has to step down.</p> <p class=\"govuk-body\">A replacement attorney must meet the same requirements as an original attorney. This includes being 18 or over.</p>",
+    "replacementAttorneysStepIn": "Replacement attorneys step in if one of your original attorneys dies or has to step down from the role.",
+    "replacementAttorneysStepInExplanation": {
+        "one": "Having replacement attorneys is optional, however, having 1 or more helps make sure your LPA will keep working if {{ .AttorneysFullNames }} (your original attorney) has to step down.",
+        "other": "Having replacement attorneys is optional, however, having 1 or more helps make sure your LPA will keep working if {{ .AttorneysFullNames }} (your original attorneys) have to step down."
+    },
+    "replacementAttorneyRequirements": "A replacement attorney must meet the same requirements as an original attorney. This includes being 18 or over.",
     "yes": "Yes",
     "no": "No",
     "selectWantReplacementAttorneys": "Select whether you want any replacement attorneys",
