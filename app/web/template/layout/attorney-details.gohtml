@@ -1,7 +1,8 @@
 {{ define "attorney-details" }}
-    <dl class="govuk-summary-list">
 
-        {{ range .Attorneys }}
+    {{ range .Attorneys }}
+        <dl class="govuk-summary-list">
+
             {{ $detailsLink := printf "/choose-attorneys?from=%s&id=%s" $.App.Page .ID }}
             {{ $addressLink := printf "/choose-attorneys-address?from=%s&id=%s" $.App.Page .ID }}
 
@@ -47,7 +48,7 @@
                 </dd>
             </div>
 
-            <div class="govuk-summary-list__row">
+            <div class="govuk-summary-list__row govuk-!-padding-bottom-10">
                 <dt class="govuk-summary-list__key">
                     {{ tr $.App "address" }}
                 </dt>
@@ -64,9 +65,7 @@
                     </a>
                 </dd>
             </div>
+        </dl>
+    {{end}}
 
-            <hr class="govuk-section-break govuk-section-break--m">
-        {{end}}
-
-    </dl>
 {{ end }}

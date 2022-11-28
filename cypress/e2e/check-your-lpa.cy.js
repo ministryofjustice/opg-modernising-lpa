@@ -1,6 +1,6 @@
 describe('Check the LPA', () => {
     it("can submit the completed LPA", () => {
-        cy.visit('/testing-start?redirect=/check-your-lpa');
+        cy.visit('/testing-start?redirect=/check-your-lpa&withAttorneys=1');
 
         cy.contains('h1', "Check your LPA")
 

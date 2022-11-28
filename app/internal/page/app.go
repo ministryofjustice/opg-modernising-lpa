@@ -269,6 +269,8 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 			}
 
 			lpa.ReplacementAttorneys = lpa.Attorneys
+			lpa.Type = "pfa"
+			lpa.WhenCanTheLpaBeUsed = "when-registered"
 
 			_ = lpaStore.Put(r.Context(), sessionID, lpa)
 		}
