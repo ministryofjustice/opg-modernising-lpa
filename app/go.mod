@@ -3,12 +3,12 @@ module github.com/ministryofjustice/opg-modernising-lpa
 go 1.19
 
 require (
-	github.com/MicahParks/keyfunc v1.5.3
+	github.com/MicahParks/keyfunc v1.6.0
 	github.com/aws/aws-sdk-go-v2 v1.17.1
-	github.com/aws/aws-sdk-go-v2/config v1.18.0
-	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.10.3
-	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.17.4
-	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.16.5
+	github.com/aws/aws-sdk-go-v2/config v1.18.3
+	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.10.6
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.17.7
+	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.16.8
 	github.com/felixge/httpsnoop v1.0.3
 	github.com/getyoti/yoti-go-sdk/v3 v3.6.0
 	github.com/golang-jwt/jwt/v4 v4.4.2
@@ -26,22 +26,22 @@ require (
 	go.opentelemetry.io/otel/trace v1.11.1
 	golang.org/x/exp v0.0.0-20221126150942-6ab00d035af9
 	golang.org/x/text v0.4.0
-	google.golang.org/grpc v1.50.1
+	google.golang.org/grpc v1.51.0
 )
 
 require (
-	github.com/aws/aws-sdk-go-v2/credentials v1.13.0 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.13.3 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.12.19 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.25 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.19 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.3.26 // indirect
-	github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.13.23 // indirect
+	github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.13.26 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.9.10 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/endpoint-discovery v1.7.19 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.19 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.11.25 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.13.8 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sts v1.17.2 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.17.5 // indirect
 	github.com/aws/smithy-go v1.13.4 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
