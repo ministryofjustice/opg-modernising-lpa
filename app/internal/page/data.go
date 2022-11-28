@@ -265,20 +265,24 @@ func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
 		return true
 	}
 
-	complete := false
+	if !allAddressesComplete(l.ReplacementAttorneys) ||
+		!allNamesComplete(l.ReplacementAttorneys) ||
+		!allDateOfBirthComplete(l.ReplacementAttorneys) {
+		return false
+	}
 
 	if l.WantReplacementAttorneys == "yes" {
 		if len(l.Attorneys) == 1 {
 			//"single attorney and single replacement attorney"
 			if len(l.ReplacementAttorneys) == 1 {
-				complete = true
+				return true
 			}
 
 			//"single attorney and multiple replacement attorney acting jointly"
 			//"single attorney and multiple replacement attorney acting jointly and severally"
 			//"single attorney and multiple replacement attorneys acting mixed with details"
 			if len(l.ReplacementAttorneys) > 1 {
-				complete = l.ReplacementAttorneysActJointlyOrJointlyAndSeverally() || l.ReplacementAttorneysActJointlyForSomeSeverallyForOthersWithDetails()
+				return l.ReplacementAttorneysActJointlyOrJointlyAndSeverally() || l.ReplacementAttorneysActJointlyForSomeSeverallyForOthersWithDetails()
 			}
 		}
 
@@ -292,7 +296,7 @@ func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
 			//"multiple attorneys acting jointly and severally and multiple replacement attorneys steps in when one attorney cannot act"
 			if l.HowAttorneysMakeDecisions == JointlyAndSeverally &&
 				len(l.ReplacementAttorneys) > 0 {
-				complete = l.ReplacementAttorneysStepInWhenOneOrAllAttorneysCannotAct() || l.ReplacementAttorneysStepInSomeOtherWayWithDetails()
+				return l.ReplacementAttorneysStepInWhenOneOrAllAttorneysCannotAct() || l.ReplacementAttorneysStepInSomeOtherWayWithDetails()
 			}
 
 			//"multiple attorneys acting mixed with details and single replacement attorney with blank how to step in"
@@ -300,7 +304,7 @@ func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
 			if l.AttorneysActJointlyForSomeSeverallyForOthersWithDetails() &&
 				len(l.ReplacementAttorneys) > 0 &&
 				l.HowShouldReplacementAttorneysStepIn == "" {
-				complete = true
+				return true
 			}
 
 			if l.HowAttorneysMakeDecisions == Jointly {
@@ -310,26 +314,20 @@ func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
 				if len(l.ReplacementAttorneys) > 1 &&
 					(l.ReplacementAttorneysActJointlyOrJointlyAndSeverally() || l.ReplacementAttorneysActJointlyForSomeSeverallyForOthersWithDetails()) &&
 					l.HowShouldReplacementAttorneysStepIn == "" {
-					complete = true
+					return true
 				}
 
 				//"multiple attorneys acting jointly and single replacement attorneys and blank how to step in"
 				if len(l.ReplacementAttorneys) == 1 &&
 					l.HowShouldReplacementAttorneysStepIn == "" {
-					complete = true
+					return true
 				}
 
 			}
 		}
 	}
 
-	if !allAddressesComplete(l.ReplacementAttorneys) ||
-		!allNamesComplete(l.ReplacementAttorneys) ||
-		!allDateOfBirthComplete(l.ReplacementAttorneys) {
-		complete = false
-	}
-
-	return complete
+	return false
 }
 
 func (l *Lpa) AttorneysTaskComplete() bool {
@@ -337,21 +335,19 @@ func (l *Lpa) AttorneysTaskComplete() bool {
 		return false
 	}
 
-	complete := false
+	if !allAddressesComplete(l.Attorneys) ||
+		!allNamesComplete(l.Attorneys) ||
+		!allDateOfBirthComplete(l.Attorneys) {
+		return false
+	}
 
 	if l.AttorneysActJointlyOrJointlyAndSeverally() ||
 		l.AttorneysActJointlyForSomeSeverallyForOthersWithDetails() ||
 		len(l.Attorneys) == 1 {
-		complete = true
+		return true
 	}
 
-	if !allAddressesComplete(l.Attorneys) ||
-		!allNamesComplete(l.Attorneys) ||
-		!allDateOfBirthComplete(l.Attorneys) {
-		complete = false
-	}
-
-	return complete
+	return false
 }
 
 func allAddressesComplete(attorneys []Attorney) bool {
