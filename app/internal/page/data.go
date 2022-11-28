@@ -243,6 +243,26 @@ func (l *Lpa) AttorneysFirstNames() string {
 	return concatSentence(names)
 }
 
+func (l *Lpa) ReplacementAttorneysFullNames() string {
+	var names []string
+
+	for _, a := range l.ReplacementAttorneys {
+		names = append(names, fmt.Sprintf("%s %s", a.FirstNames, a.LastName))
+	}
+
+	return concatSentence(names)
+}
+
+func (l *Lpa) ReplacementAttorneysFirstNames() string {
+	var names []string
+
+	for _, a := range l.ReplacementAttorneys {
+		names = append(names, a.FirstNames)
+	}
+
+	return concatSentence(names)
+}
+
 func concatSentence(list []string) string {
 	switch len(list) {
 	case 0:
