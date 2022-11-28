@@ -341,5 +341,7 @@
     "whenOneCanNoLongerAct": "Welsh <span class=\"govuk-!-font-weight-bold\">welsh</span> welsh",
     "whenNoneCanNoLongerAct": "Welsh <span class=\"govuk-!-font-weight-bold\">welsh</span> welsh",
     "otherWay": "Welsh",
-    "otherWayHint": "<p class=\"govuk--body\">Welsh.<a class=\"govuk-link\" href=\"#\">Welsh?</a></p>"
+    "otherWayHint": "<p class=\"govuk--body\">Welsh.<a class=\"govuk-link\" href=\"#\">Welsh?</a></p>",
+    "selectWhenToStepIn": "Welsh",
+    "provideDetailsOfWhenToStepIn": "Welsh"
 }

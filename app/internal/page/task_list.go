@@ -33,50 +33,6 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 			return err
 		}
 
-		var attorneyAddressCompleted bool
-
-		for _, a := range lpa.Attorneys {
-			if a.Address.Line1 == "" {
-				attorneyAddressCompleted = false
-				break
-			}
-
-			attorneyAddressCompleted = true
-		}
-
-		var attorneyDetailsCompleted bool
-
-		for _, a := range lpa.Attorneys {
-			if a.FirstNames == "" {
-				attorneyDetailsCompleted = false
-				break
-			}
-
-			attorneyDetailsCompleted = true
-		}
-
-		var replacementAttorneyAddressCompleted bool
-
-		for _, ra := range lpa.ReplacementAttorneys {
-			if ra.Address.Line1 == "" {
-				replacementAttorneyAddressCompleted = false
-				break
-			}
-
-			replacementAttorneyAddressCompleted = true
-		}
-
-		var replacementAttorneyDetailsCompleted bool
-
-		for _, ra := range lpa.ReplacementAttorneys {
-			if ra.FirstNames == "" {
-				replacementAttorneyDetailsCompleted = false
-				break
-			}
-
-			replacementAttorneyDetailsCompleted = true
-		}
-
 		data := &taskListData{
 			App: appData,
 			Sections: []taskListSection{
@@ -92,15 +48,15 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 						{
 							Name:       "chooseYourAttorneys",
 							Path:       chooseAttorneysPath,
-							Completed:  attorneyAddressCompleted && attorneyDetailsCompleted,
-							InProgress: attorneyDetailsCompleted && !attorneyAddressCompleted,
+							Completed:  lpa.AttorneysTaskComplete(),
+							InProgress: len(lpa.Attorneys) > 0 && !lpa.AttorneysTaskComplete(),
 							Count:      len(lpa.Attorneys),
 						},
 						{
 							Name:       "chooseYourReplacementAttorneys",
 							Path:       wantReplacementAttorneysPath,
-							Completed:  (replacementAttorneyAddressCompleted && replacementAttorneyDetailsCompleted) || lpa.WantReplacementAttorneys == "no",
-							InProgress: replacementAttorneyDetailsCompleted && !replacementAttorneyAddressCompleted,
+							Completed:  lpa.ReplacementAttorneysTaskComplete(),
+							InProgress: len(lpa.ReplacementAttorneys) > 0 && !lpa.ReplacementAttorneysTaskComplete(),
 							Count:      len(lpa.ReplacementAttorneys),
 						},
 						{
