@@ -5,5 +5,9 @@
     "c": {
         "one": "{{.PluralCount}} ONE",
         "other": "{{.PluralCount}} OTHER"
+    },
+    "d": {
+        "one": "{{.PluralCount}} ONE {{.x}}",
+        "other": "{{.PluralCount}} OTHER {{.x}}"
     }
 }

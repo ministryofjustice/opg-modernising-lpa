@@ -10,6 +10,7 @@ type whoDoYouWantToBeCertificateProviderGuidanceData struct {
 	App        AppData
 	Errors     map[string]string
 	NotStarted bool
+	Lpa        *Lpa
 }
 
 func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -22,6 +23,7 @@ func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, lpaStor
 		data := &whoDoYouWantToBeCertificateProviderGuidanceData{
 			App:        appData,
 			NotStarted: lpa.Tasks.CertificateProvider == TaskNotStarted,
+			Lpa:        lpa,
 		}
 
 		if r.Method == http.MethodPost {

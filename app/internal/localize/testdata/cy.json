@@ -8,5 +8,12 @@
         "few": "{{.PluralCount}} few",
         "many": "{{.PluralCount}} many",
         "other": "{{.PluralCount}} other"
+    },
+    "d": {
+        "one": "{{.PluralCount}} one {{.x}}",
+        "two": "{{.PluralCount}} two {{.x}}",
+        "few": "{{.PluralCount}} few {{.x}}",
+        "many": "{{.PluralCount}} many {{.x}}",
+        "other": "{{.PluralCount}} other {{.x}}"
     }
 }

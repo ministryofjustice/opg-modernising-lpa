@@ -20,7 +20,7 @@ func TestGetPaymentConfirmation(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &paymentConfirmationData{App: appData, PaymentReference: "123456789012", Continue: selectYourIdentityOptionsPath}).
+		On("Func", w, &paymentConfirmationData{App: appData, PaymentReference: "123456789012", Continue: taskListPath}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)

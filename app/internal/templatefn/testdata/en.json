@@ -4,5 +4,10 @@
     "with-count": {
         "one": "hi one",
         "other": "hi other"
-    }
+    },
+    "with-format-count": {
+        "one": "hi {{.PluralCount}} one {{.name}}",
+        "other": "hi {{.PluralCount}} other {{.name}}"
+    },
+    "lpaTypePfa": "Finance and affairs"
 }
