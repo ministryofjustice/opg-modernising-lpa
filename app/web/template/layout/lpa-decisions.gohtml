@@ -5,7 +5,7 @@
                 {{ tr .App "typeOfLpa" }}
             </dt>
             <dd class="govuk-summary-list__value">
-                {{ trLpaProp .App .Lpa.Type }}
+                {{ tr .App .Lpa.Type }}
             </dd>
         </div>
 
@@ -14,7 +14,7 @@
                 {{ tr .App "WhenTheLpaCanBeUsed" }}
             </dt>
             <dd class="govuk-summary-list__value">
-                {{ trLpaProp .App .Lpa.WhenCanTheLpaBeUsed }}
+                {{ tr .App .Lpa.WhenCanTheLpaBeUsed }}
             </dd>
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link" href="{{ link .App .WhenCanLpaBeUsedPath }}">
@@ -42,7 +42,7 @@
                 {{ tr .App "howTheAttorneysMustWorkTogether" }}
             </dt>
             <dd class="govuk-summary-list__value">
-                {{ trLpaProp .App .Lpa.HowAttorneysMakeDecisions }}
+                {{ tr .App .Lpa.HowAttorneysMakeDecisions }}
             </dd>
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link" href="{{ link .App .HowAttorneysMakeDecisionsPath }}">
