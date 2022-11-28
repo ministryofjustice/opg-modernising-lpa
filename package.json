@@ -13,18 +13,18 @@
     },
     "license": "MIT",
     "dependencies": {
-        "@ministryofjustice/frontend": "1.6.2",
+        "@ministryofjustice/frontend": "1.6.3",
         "aws-rum-web": "^1.11.0",
-        "govuk-frontend": "4.3.1",
+        "govuk-frontend": "4.4.0",
         "jquery": "3.6.1"
     },
     "devDependencies": {
-        "axe-core": "4.5.1",
+        "axe-core": "4.5.2",
         "cypress": "10.11.0",
         "cypress-axe": "1.0.0",
         "cypress-multi-reporters": "1.6.1",
         "cypress-parallel": "0.9.1",
-        "esbuild": "0.15.13",
+        "esbuild": "0.15.16",
         "sass": "1.56.1"
     }
 }
