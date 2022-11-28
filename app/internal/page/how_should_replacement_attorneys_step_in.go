@@ -51,8 +51,12 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 
 				redirectUrl := taskListPath
 
-				if len(lpa.Attorneys) > 1 && lpa.HowAttorneysMakeDecisions == JointlyAndSeverally && lpa.HowShouldReplacementAttorneysStepIn == AllCanNoLongerAct {
+				if len(lpa.Attorneys) > 1 &&
+					lpa.HowAttorneysMakeDecisions == JointlyAndSeverally &&
+					lpa.HowShouldReplacementAttorneysStepIn == AllCanNoLongerAct &&
+					len(lpa.ReplacementAttorneys) > 1 {
 					redirectUrl = howShouldReplacementAttorneysMakeDecisionsPath
+
 				}
 
 				appData.Lang.Redirect(w, r, redirectUrl, http.StatusFound)

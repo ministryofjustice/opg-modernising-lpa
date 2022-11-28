@@ -127,6 +127,7 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 	testCases := map[string]struct {
 		Attorneys                           []Attorney
+		ReplacementAttorneys                []Attorney
 		HowAttorneysMakeDecisions           string
 		HowShouldReplacementAttorneysStepIn string
 		ExpectedRedirectUrl                 string
@@ -141,6 +142,10 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 		},
 		"multiple attorneys acting jointly and severally replacements step in when none left": {
 			Attorneys: []Attorney{
+				{ID: "123"},
+				{ID: "123"},
+			},
+			ReplacementAttorneys: []Attorney{
 				{ID: "123"},
 				{ID: "123"},
 			},
@@ -178,10 +183,12 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 				Return(&Lpa{
 					HowAttorneysMakeDecisions: tc.HowAttorneysMakeDecisions,
 					Attorneys:                 tc.Attorneys,
+					ReplacementAttorneys:      tc.ReplacementAttorneys,
 				}, nil)
 			lpaStore.
 				On("Put", mock.Anything, mock.Anything, &Lpa{
 					Attorneys:                           tc.Attorneys,
+					ReplacementAttorneys:                tc.ReplacementAttorneys,
 					HowAttorneysMakeDecisions:           tc.HowAttorneysMakeDecisions,
 					HowShouldReplacementAttorneysStepIn: tc.HowShouldReplacementAttorneysStepIn}).
 				Return(nil)
