@@ -143,6 +143,7 @@
     "yes": "Yes",
     "no": "No",
     "selectWantReplacementAttorneys": "Select whether you want any replacement attorneys",
+    "replacementAttorneys": "Replacement attorneys",
 
     "whenCanTheLpaBeUsed": "When can the LPA can be used?",
     "youCanDecideHeader": "<p class=\"govuk-body-l\">You can decide whether you want your attorney to be able to use the LPA as soon as it's registered or only once you've lost mental capacity.</p>",

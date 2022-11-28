@@ -18,7 +18,7 @@
     {{ template "attorney-details" (listAttorneys .Lpa.Attorneys .App .AttorneyDetailsPath .AttorneyAddressPath .RemoveAttorneyPath) }}
 
     <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
-        {{ tr .App "replacementAttorney" }}
+        {{ tr .App "replacementAttorneys" }}
     </h3>
 
     {{ template "attorney-details" (listAttorneys .Lpa.ReplacementAttorneys .App .ReplacementAttorneyDetailsPath .ReplacementAttorneyAddressPath .RemoveReplacementAttorneyPath) }}
