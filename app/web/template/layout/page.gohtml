@@ -4,6 +4,9 @@
     <head>
       <meta charset="utf-8">
       <title>{{ if .Errors }}Error: {{ end }}{{ tr .App "serviceName" }}</title>
+      <link rel="preload" href="/static/stylesheets/all.css" as="style">
+      <link rel="preload" href="/static/javascript/main.js" as="script">
+      <link rel="preconnect" href="//dataplane.rum.eu-west-1.amazonaws.com">
       <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
       <meta name="theme-color" content="blue">
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -14,6 +17,7 @@
       <link rel="apple-touch-icon" sizes="152x152" href="/static/assets/images/govuk-apple-touch-icon-152x152.png" >
       <link rel="apple-touch-icon" href="/static/assets/images/govuk-apple-touch-icon.png" >
       <link href="/static/stylesheets/all.css" rel="stylesheet">
+      <script async src="/static/javascript/main.js"></script>
       <meta name="rum-guest-role-arn" content="{{ .App.RumConfig.GuestRoleArn }}" />
       <meta name="rum-endpoint" content="{{ .App.RumConfig.Endpoint }}" />
       <meta name="rum-application-region" content="{{ .App.RumConfig.ApplicationRegion }}" />
@@ -163,8 +167,6 @@
           </div>
         </div>
       </footer>
-
-      <script src="/static/javascript/main.js"></script>
     </body>
   </html>
 {{ end }}
