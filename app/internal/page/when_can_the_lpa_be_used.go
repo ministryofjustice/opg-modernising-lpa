@@ -11,6 +11,7 @@ type whenCanTheLpaBeUsedData struct {
 	Errors    map[string]string
 	When      string
 	Completed bool
+	Lpa       *Lpa
 }
 
 func WhenCanTheLpaBeUsed(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -24,6 +25,7 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, lpaStore LpaStore) Handler {
 			App:       appData,
 			When:      lpa.WhenCanTheLpaBeUsed,
 			Completed: lpa.Tasks.WhenCanTheLpaBeUsed == TaskCompleted,
+			Lpa:       lpa,
 		}
 
 		if r.Method == http.MethodPost {

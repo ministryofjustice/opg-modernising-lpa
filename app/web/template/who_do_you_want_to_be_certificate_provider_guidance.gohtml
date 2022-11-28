@@ -3,7 +3,7 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      {{ trHtml .App "whoDoYouWantToBeCertificateProviderGuidance" }}
+      {{ trFormatHtml .App "whoDoYouWantToBeCertificateProviderGuidance" "AttorneysFirstNames" .Lpa.AttorneysFirstNames }}
 
       <form novalidate method="post">
         <div class="govuk-button-group">
