@@ -23,6 +23,7 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 	template.
 		On("Func", w, &whenCanTheLpaBeUsedData{
 			App: appData,
+			Lpa: &Lpa{},
 		}).
 		Return(nil)
 
@@ -49,6 +50,7 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 		On("Func", w, &whenCanTheLpaBeUsedData{
 			App:  appData,
 			When: "when-registered",
+			Lpa:  &Lpa{WhenCanTheLpaBeUsed: "when-registered"},
 		}).
 		Return(nil)
 
@@ -92,6 +94,7 @@ func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 	template.
 		On("Func", w, &whenCanTheLpaBeUsedData{
 			App: appData,
+			Lpa: &Lpa{},
 		}).
 		Return(expectedError)
 
@@ -199,6 +202,7 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 			Errors: map[string]string{
 				"when": "selectWhenCanTheLpaBeUsed",
 			},
+			Lpa: &Lpa{},
 		}).
 		Return(nil)
 

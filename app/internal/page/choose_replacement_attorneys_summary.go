@@ -49,7 +49,7 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 				} else if len(lpa.Attorneys) > 1 && lpa.HowAttorneysMakeDecisions == "jointly-and-severally" {
 					redirectUrl = howShouldReplacementAttorneysStepInPath
 				} else {
-					redirectUrl = taskListPath
+					redirectUrl = whenCanTheLpaBeUsedPath
 				}
 
 				if data.Form.AddAttorney == "yes" {

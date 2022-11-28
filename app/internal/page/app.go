@@ -95,6 +95,7 @@ type AppData struct {
 	CanGoBack        bool
 	SessionID        string
 	RumConfig        RumConfig
+	PreviousPath     string
 }
 
 type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
@@ -188,7 +189,7 @@ func App(
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), lpaStore))
 
 	handle(whatHappensNextPath, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("what_happens_next.gohtml"), aboutPaymentPath, lpaStore))
+		Guidance(tmpls.Get("what_happens_next.gohtml"), taskListPath, lpaStore))
 
 	handle(selectYourIdentityOptionsPath, RequireSession|CanGoBack,
 		SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), lpaStore))
@@ -346,6 +347,7 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 				CookieConsentSet: cookieErr != http.ErrNoCookie,
 				CanGoBack:        opt&CanGoBack != 0,
 				RumConfig:        rumConfig,
+				PreviousPath:     r.Header.Get("Referer"),
 			}, w, r); err != nil {
 				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
 
