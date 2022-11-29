@@ -42,13 +42,13 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{Type: "pfa"}, nil)
+		Return(&Lpa{Type: LpaTypePropertyFinance}, nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &lpaTypeData{
 			App:  appData,
-			Type: "pfa",
+			Type: LpaTypePropertyFinance,
 		}).
 		Return(nil)
 
@@ -113,11 +113,11 @@ func TestPostLpaType(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{Type: "pfa"}).
+		On("Put", mock.Anything, "session-id", &Lpa{Type: LpaTypePropertyFinance}).
 		Return(nil)
 
 	form := url.Values{
-		"lpa-type": {"pfa"},
+		"lpa-type": {LpaTypePropertyFinance},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -140,11 +140,11 @@ func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{Type: "pfa"}).
+		On("Put", mock.Anything, "session-id", &Lpa{Type: LpaTypePropertyFinance}).
 		Return(expectedError)
 
 	form := url.Values{
-		"lpa-type": {"pfa"},
+		"lpa-type": {LpaTypePropertyFinance},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -187,7 +187,7 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 
 func TestReadLpaTypeForm(t *testing.T) {
 	form := url.Values{
-		"lpa-type": {"pfa"},
+		"lpa-type": {LpaTypePropertyFinance},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -195,7 +195,7 @@ func TestReadLpaTypeForm(t *testing.T) {
 
 	result := readLpaTypeForm(r)
 
-	assert.Equal(t, "pfa", result.LpaType)
+	assert.Equal(t, LpaTypePropertyFinance, result.LpaType)
 }
 
 func TestLpaTypeFormValidate(t *testing.T) {
@@ -205,7 +205,7 @@ func TestLpaTypeFormValidate(t *testing.T) {
 	}{
 		"pfa": {
 			form: &lpaTypeForm{
-				LpaType: "pfa",
+				LpaType: LpaTypePropertyFinance,
 			},
 			errors: map[string]string{},
 		},

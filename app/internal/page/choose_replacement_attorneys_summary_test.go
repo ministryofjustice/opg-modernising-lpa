@@ -107,19 +107,19 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			HowAttorneysAct:      "jointly-and-severally",
 		},
 		"with multiple attorneys acting jointly for some decisions and jointly and severally for other decisions and single replacement attorney": {
-			expectedUrl:          "/task-list",
+			expectedUrl:          "/when-can-the-lpa-be-used",
 			Attorneys:            []Attorney{{ID: "123"}, {ID: "456"}},
 			ReplacementAttorneys: []Attorney{{ID: "123"}},
 			HowAttorneysAct:      "mixed",
 		},
 		"with multiple attorneys acting jointly for some decisions, and jointly and severally for other decisions and multiple replacement attorneys": {
-			expectedUrl:          "/task-list",
+			expectedUrl:          "/when-can-the-lpa-be-used",
 			Attorneys:            []Attorney{{ID: "123"}, {ID: "456"}},
 			ReplacementAttorneys: []Attorney{{ID: "123"}, {ID: "123"}},
 			HowAttorneysAct:      "mixed",
 		},
 		"with multiple attorneys acting jointly and single replacement attorneys": {
-			expectedUrl:          "/task-list",
+			expectedUrl:          "/when-can-the-lpa-be-used",
 			Attorneys:            []Attorney{{ID: "123"}, {ID: "456"}},
 			ReplacementAttorneys: []Attorney{{ID: "123"}},
 			HowAttorneysAct:      "jointly",

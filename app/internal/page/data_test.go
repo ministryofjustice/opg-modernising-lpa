@@ -6,9 +6,19 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
+var validAttorney = Attorney{
+	ID:          "123",
+	Address:     address,
+	FirstNames:  "Joan",
+	LastName:    "Jones",
+	DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+}
 
 func TestReadDate(t *testing.T) {
 	date := readDate(time.Date(2020, time.March, 12, 0, 0, 0, 0, time.Local))
@@ -351,9 +361,883 @@ func TestAttorneysFirstNames(t *testing.T) {
 	assert.Equal(t, "Bob Alan George, Samantha and Abby Helen", l.AttorneysFirstNames())
 }
 
+func TestReplacementAttorneysFullNames(t *testing.T) {
+	l := &Lpa{
+		ReplacementAttorneys: []Attorney{
+			{
+				FirstNames: "Bob Alan George",
+				LastName:   "Jones",
+			},
+			{
+				FirstNames: "Samantha",
+				LastName:   "Smith",
+			},
+			{
+				FirstNames: "Abby Helen",
+				LastName:   "Burns-Simpson",
+			},
+		},
+	}
+
+	assert.Equal(t, "Bob Alan George Jones, Samantha Smith and Abby Helen Burns-Simpson", l.ReplacementAttorneysFullNames())
+}
+
+func TestReplacementAttorneysFirstNames(t *testing.T) {
+	l := &Lpa{
+		ReplacementAttorneys: []Attorney{
+			{
+				FirstNames: "Bob Alan George",
+				LastName:   "Jones",
+			},
+			{
+				FirstNames: "Samantha",
+				LastName:   "Smith",
+			},
+			{
+				FirstNames: "Abby Helen",
+				LastName:   "Burns-Simpson",
+			},
+		},
+	}
+
+	assert.Equal(t, "Bob Alan George, Samantha and Abby Helen", l.ReplacementAttorneysFirstNames())
+}
+
 func TestConcatSentence(t *testing.T) {
 	assert.Equal(t, "Bob Smith, Alice Jones, John Doe and Paul Compton", concatSentence([]string{"Bob Smith", "Alice Jones", "John Doe", "Paul Compton"}))
 	assert.Equal(t, "Bob Smith, Alice Jones and John Doe", concatSentence([]string{"Bob Smith", "Alice Jones", "John Doe"}))
 	assert.Equal(t, "Bob Smith and John Doe", concatSentence([]string{"Bob Smith", "John Doe"}))
 	assert.Equal(t, "Bob Smith", concatSentence([]string{"Bob Smith"}))
+}
+
+func TestReplacementAttorneysTaskComplete(t *testing.T) {
+	testCases := map[string]struct {
+		Attorneys                                   []Attorney
+		ReplacementAttorneys                        []Attorney
+		WantReplacementAttorneys                    string
+		HowAttorneysMakeDecisions                   string
+		HowAttorneysMakeDecisionsDetails            string
+		HowReplacementAttorneysMakeDecisions        string
+		HowReplacementAttorneysMakeDecisionsDetails string
+		HowReplacementAttorneysStepIn               string
+		HowReplacementAttorneysStepInDetails        string
+		ExpectedComplete                            bool
+	}{
+		"replacement attorneys not required": {
+			Attorneys: []Attorney{
+				validAttorney,
+			},
+			ReplacementAttorneys:     []Attorney{},
+			WantReplacementAttorneys: "no",
+			ExpectedComplete:         true,
+		},
+		"single attorney and single replacement attorney": {
+			Attorneys: []Attorney{
+				validAttorney,
+			},
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+			},
+			WantReplacementAttorneys: "yes",
+			ExpectedComplete:         true,
+		},
+		"single attorney and multiple replacement attorney acting jointly": {
+			Attorneys: []Attorney{validAttorney},
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly",
+			ExpectedComplete:                     true,
+		},
+		"single attorney and multiple replacement attorney acting jointly and severally": {
+			Attorneys: []Attorney{
+				validAttorney,
+			},
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly-and-severally",
+			ExpectedComplete:                     true,
+		},
+		"single attorney and multiple replacement attorneys acting mixed with details": {
+			Attorneys: []Attorney{
+				validAttorney,
+			},
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			WantReplacementAttorneys:                    "yes",
+			HowReplacementAttorneysMakeDecisions:        "mixed",
+			HowReplacementAttorneysMakeDecisionsDetails: "some details",
+			ExpectedComplete:                            true,
+		},
+		"multiple attorneys acting jointly and severally and single replacement attorney steps in when there are no attorneys left to act": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions: "jointly-and-severally",
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+			},
+			WantReplacementAttorneys:      "yes",
+			HowReplacementAttorneysStepIn: AllCanNoLongerAct,
+			ExpectedComplete:              true,
+		},
+		"multiple attorneys acting jointly and severally and single replacement attorney steps in when one attorney can no longer act": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions: "jointly-and-severally",
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+			},
+			WantReplacementAttorneys:      "yes",
+			HowReplacementAttorneysStepIn: OneCanNoLongerAct,
+			ExpectedComplete:              true,
+		},
+		"multiple attorneys acting jointly and severally and single replacement attorney steps in in some other way with details": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions: "jointly-and-severally",
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+			},
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysStepIn:        SomeOtherWay,
+			HowReplacementAttorneysStepInDetails: "some details",
+			ExpectedComplete:                     true,
+		},
+		"multiple attorneys acting jointly and severally and multiple replacement attorneys acting jointly steps in when there are no attorneys left to act": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions: "jointly-and-severally",
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly",
+			HowReplacementAttorneysStepIn:        AllCanNoLongerAct,
+			ExpectedComplete:                     true,
+		},
+		"multiple attorneys acting jointly and severally and multiple replacement attorney acting jointly and severally steps in when there are no attorneys left to act": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions: "jointly-and-severally",
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly-and-severally",
+			HowReplacementAttorneysStepIn:        AllCanNoLongerAct,
+			ExpectedComplete:                     true,
+		},
+		"multiple attorneys acting jointly and severally and multiple replacement attorney acting mixed with details steps in when there are no attorneys left to act": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions: "jointly-and-severally",
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			WantReplacementAttorneys:                    "yes",
+			HowReplacementAttorneysMakeDecisions:        "mixed",
+			HowReplacementAttorneysMakeDecisionsDetails: "some details",
+			HowReplacementAttorneysStepIn:               AllCanNoLongerAct,
+			ExpectedComplete:                            true,
+		},
+		"multiple attorneys acting jointly and severally and multiple replacement attorneys steps in when one attorney cannot act": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions: "jointly-and-severally",
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			WantReplacementAttorneys:      "yes",
+			HowReplacementAttorneysStepIn: OneCanNoLongerAct,
+			ExpectedComplete:              true,
+		},
+		"multiple attorneys acting mixed with details and single replacement attorney with blank how to step in": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions:        "mixed",
+			HowAttorneysMakeDecisionsDetails: "some details",
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+			},
+			WantReplacementAttorneys:      "yes",
+			HowReplacementAttorneysStepIn: "",
+			ExpectedComplete:              true,
+		},
+		"multiple attorneys acting mixed with details and multiple replacement attorney with blank how to step in": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions:        "mixed",
+			HowAttorneysMakeDecisionsDetails: "some details",
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			WantReplacementAttorneys:      "yes",
+			HowReplacementAttorneysStepIn: "",
+			ExpectedComplete:              true,
+		},
+		"multiple attorneys acting jointly and multiple replacement attorneys acting jointly and blank how to step in": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions: "jointly",
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly",
+			HowReplacementAttorneysStepIn:        "",
+			ExpectedComplete:                     true,
+		},
+		"multiple attorneys acting jointly and multiple replacement attorneys acting jointly and severally and blank how to step in": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions: "jointly",
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly-and-severally",
+			HowReplacementAttorneysStepIn:        "",
+			ExpectedComplete:                     true,
+		},
+		"multiple attorneys acting jointly and multiple replacement attorneys acting mixed with details and blank how to step in": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions: "jointly",
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			WantReplacementAttorneys:                    "yes",
+			HowReplacementAttorneysMakeDecisions:        "mixed",
+			HowReplacementAttorneysMakeDecisionsDetails: "some details",
+			HowReplacementAttorneysStepIn:               "",
+			ExpectedComplete:                            true,
+		},
+		"multiple attorneys acting jointly and single replacement attorneys and blank how to step in": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions: "jointly",
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+			},
+			WantReplacementAttorneys:      "yes",
+			HowReplacementAttorneysStepIn: "",
+			ExpectedComplete:              true,
+		},
+		"replacement attorneys with missing address line 1": {
+			Attorneys: []Attorney{
+				validAttorney,
+			},
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+				{
+					ID:          "123",
+					Address:     place.Address{},
+					FirstNames:  "Joan",
+					LastName:    "Jones",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				},
+				validAttorney,
+			},
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly",
+			ExpectedComplete:                     false,
+		},
+		"replacement attorneys with missing first name": {
+			Attorneys: []Attorney{
+				validAttorney,
+			},
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+				{
+					ID:          "123",
+					Address:     address,
+					FirstNames:  "",
+					LastName:    "Jones",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				},
+				validAttorney,
+			},
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly",
+			ExpectedComplete:                     false,
+		},
+		"replacement attorneys with missing last name": {
+			Attorneys: []Attorney{
+				validAttorney,
+			},
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+				{
+					ID:          "123",
+					Address:     address,
+					FirstNames:  "Joan",
+					LastName:    "",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				},
+				validAttorney,
+			},
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly",
+			ExpectedComplete:                     false,
+		},
+		"replacement attorneys with missing date of birth": {
+			Attorneys: []Attorney{
+				validAttorney,
+			},
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+				{
+					ID:          "123",
+					Address:     address,
+					FirstNames:  "Joan",
+					LastName:    "Jones",
+					DateOfBirth: time.Time{},
+				},
+				validAttorney,
+			},
+			WantReplacementAttorneys:             "yes",
+			HowReplacementAttorneysMakeDecisions: "jointly",
+			ExpectedComplete:                     false,
+		},
+		"replacement attorneys acting mixed with missing how act details": {
+			Attorneys: []Attorney{
+				validAttorney,
+			},
+			ReplacementAttorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			WantReplacementAttorneys:                    "yes",
+			HowReplacementAttorneysMakeDecisions:        "mixed",
+			HowReplacementAttorneysMakeDecisionsDetails: "",
+			ExpectedComplete:                            false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := Lpa{
+				Attorneys:                                   tc.Attorneys,
+				HowAttorneysMakeDecisions:                   tc.HowAttorneysMakeDecisions,
+				HowAttorneysMakeDecisionsDetails:            tc.HowAttorneysMakeDecisionsDetails,
+				WantReplacementAttorneys:                    tc.WantReplacementAttorneys,
+				ReplacementAttorneys:                        tc.ReplacementAttorneys,
+				HowReplacementAttorneysMakeDecisions:        tc.HowReplacementAttorneysMakeDecisions,
+				HowReplacementAttorneysMakeDecisionsDetails: tc.HowReplacementAttorneysMakeDecisionsDetails,
+				HowShouldReplacementAttorneysStepIn:         tc.HowReplacementAttorneysStepIn,
+				HowShouldReplacementAttorneysStepInDetails:  tc.HowReplacementAttorneysStepInDetails,
+			}
+
+			assert.Equal(t, tc.ExpectedComplete, lpa.ReplacementAttorneysTaskComplete())
+		})
+	}
+}
+
+func TestAttorneysTaskComplete(t *testing.T) {
+	testCases := map[string]struct {
+		Attorneys                        []Attorney
+		HowAttorneysMakeDecisions        string
+		HowAttorneysMakeDecisionsDetails string
+		ExpectedCompleteStatus           bool
+	}{
+		"1 attorney": {
+			Attorneys: []Attorney{
+				validAttorney,
+			},
+			ExpectedCompleteStatus: true,
+		},
+		"Multiple attorneys acting jointly": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions: "jointly",
+			ExpectedCompleteStatus:    true,
+		},
+		"Multiple attorneys acting jointly and severally": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions: "jointly-and-severally",
+			ExpectedCompleteStatus:    true,
+		},
+		"Multiple attorneys acting jointly for some and severally for others with details on how they act": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions:        "mixed",
+			HowAttorneysMakeDecisionsDetails: "some details",
+			ExpectedCompleteStatus:           true,
+		},
+		"Multiple attorneys acting jointly for some and severally for others without details on how they act": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions:        "mixed",
+			HowAttorneysMakeDecisionsDetails: "",
+			ExpectedCompleteStatus:           false,
+		},
+		"Multiple attorneys unexpected value for how they act": {
+			Attorneys: []Attorney{
+				validAttorney,
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions:        "totally-not-expected",
+			HowAttorneysMakeDecisionsDetails: "",
+			ExpectedCompleteStatus:           false,
+		},
+		"1 attorney - missing address": {
+			Attorneys: []Attorney{
+				{
+					ID:          "123",
+					FirstNames:  "Joan",
+					LastName:    "Jones",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				},
+			},
+			ExpectedCompleteStatus: false,
+		},
+		"1 attorney - missing first name": {
+			Attorneys: []Attorney{
+				{
+					ID:          "123",
+					LastName:    "Jones",
+					Address:     address,
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				},
+			},
+			ExpectedCompleteStatus: false,
+		},
+		"1 attorney - missing last name": {
+			Attorneys: []Attorney{
+				{
+					ID:          "123",
+					FirstNames:  "John",
+					Address:     address,
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				},
+			},
+			ExpectedCompleteStatus: false,
+		},
+		"Multiple attorneys - missing first name": {
+			Attorneys: []Attorney{
+				validAttorney,
+				{
+					ID:          "123",
+					Address:     address,
+					LastName:    "Jones",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				},
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions: "jointly",
+			ExpectedCompleteStatus:    false,
+		},
+		"Multiple attorneys - missing last name": {
+			Attorneys: []Attorney{
+				validAttorney,
+				{
+					ID:          "123",
+					Address:     address,
+					FirstNames:  "Joan",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				},
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions: "jointly",
+			ExpectedCompleteStatus:    false,
+		},
+		"Multiple attorneys - missing address": {
+			Attorneys: []Attorney{
+				validAttorney,
+				{
+					ID:          "123",
+					FirstNames:  "Joan",
+					LastName:    "Jones",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				},
+				validAttorney,
+			},
+			HowAttorneysMakeDecisions: "jointly",
+			ExpectedCompleteStatus:    false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := Lpa{
+				Attorneys:                        tc.Attorneys,
+				HowAttorneysMakeDecisions:        tc.HowAttorneysMakeDecisions,
+				HowAttorneysMakeDecisionsDetails: tc.HowAttorneysMakeDecisionsDetails,
+			}
+
+			assert.Equal(t, tc.ExpectedCompleteStatus, lpa.AttorneysTaskComplete())
+		})
+	}
+}
+
+func TestAllAddressesComplete(t *testing.T) {
+	testCases := map[string]struct {
+		Attorneys              []Attorney
+		ExpectedCompleteStatus bool
+	}{
+		"Addresses complete": {
+			Attorneys: []Attorney{
+				{
+					Address: address,
+				},
+				{
+					Address: address,
+				},
+				{
+					Address: address,
+				},
+			},
+			ExpectedCompleteStatus: true,
+		},
+		"Addresses incomplete": {
+			Attorneys: []Attorney{
+				{
+					Address: address,
+				},
+				{
+					ID: "123",
+				},
+				{
+					Address: address,
+				},
+			},
+			ExpectedCompleteStatus: false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.ExpectedCompleteStatus, allAddressesComplete(tc.Attorneys))
+		})
+	}
+}
+
+func TestAllNamesComplete(t *testing.T) {
+	testCases := map[string]struct {
+		Attorneys              []Attorney
+		ExpectedCompleteStatus bool
+	}{
+		"All names complete": {
+			Attorneys: []Attorney{
+				{
+					FirstNames: "Joey",
+					LastName:   "Jones",
+				},
+				{
+					FirstNames: "Joey",
+					LastName:   "Jones",
+				},
+				{
+					FirstNames: "Joey",
+					LastName:   "Jones",
+				},
+			},
+			ExpectedCompleteStatus: true,
+		},
+		"Missing firstnames": {
+			Attorneys: []Attorney{
+				{
+					FirstNames: "Joey",
+					LastName:   "Jones",
+				},
+				{
+					FirstNames: "",
+					LastName:   "Jones",
+				},
+				{
+					FirstNames: "Joey",
+					LastName:   "Jones",
+				},
+			},
+			ExpectedCompleteStatus: false,
+		},
+		"Missing last names": {
+			Attorneys: []Attorney{
+				{
+					FirstNames: "Joey",
+					LastName:   "Jones",
+				},
+				{
+					FirstNames: "Joey",
+					LastName:   "",
+				},
+				{
+					FirstNames: "Joey",
+					LastName:   "Jones",
+				},
+			},
+			ExpectedCompleteStatus: false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.ExpectedCompleteStatus, allNamesComplete(tc.Attorneys))
+		})
+	}
+}
+
+func TestAllDateOfBirthComplete(t *testing.T) {
+	testCases := map[string]struct {
+		Attorneys              []Attorney
+		ExpectedCompleteStatus bool
+	}{
+		"All date of birth complete": {
+			Attorneys: []Attorney{
+				{
+					DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+				},
+				{
+					DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+				},
+				{
+					DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+				},
+			},
+			ExpectedCompleteStatus: true,
+		},
+		"Missing date of birth": {
+			Attorneys: []Attorney{
+				{
+					DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+				},
+				{
+					DateOfBirth: time.Time{},
+				},
+				{
+					DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+				},
+			},
+			ExpectedCompleteStatus: false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.ExpectedCompleteStatus, allDateOfBirthComplete(tc.Attorneys))
+		})
+	}
+}
+
+func TestAttorneysActJointlyOrJointlyAndSeverally(t *testing.T) {
+	testCases := map[string]struct {
+		HowAct   string
+		Expected bool
+	}{
+		"Jointly":                               {HowAct: Jointly, Expected: true},
+		"Jointly and severally":                 {HowAct: JointlyAndSeverally, Expected: true},
+		"Jointly for some severally for others": {HowAct: JointlyForSomeSeverallyForOthers, Expected: false},
+		"Unexpected":                            {HowAct: "what", Expected: false},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := &Lpa{HowAttorneysMakeDecisions: tc.HowAct}
+			assert.Equal(t, tc.Expected, lpa.AttorneysActJointlyOrJointlyAndSeverally())
+		})
+	}
+}
+
+func TestAttorneysActJointlyForSomeSeverallyForOthersWithDetails(t *testing.T) {
+	testCases := map[string]struct {
+		HowAct        string
+		HowActDetails string
+		Expected      bool
+	}{
+		"With how acting": {
+			HowAct:        JointlyForSomeSeverallyForOthers,
+			HowActDetails: "",
+			Expected:      false,
+		},
+		"With details": {
+			HowAct:        "",
+			HowActDetails: "some details",
+			Expected:      false,
+		},
+		"With both": {
+			HowAct:        JointlyForSomeSeverallyForOthers,
+			HowActDetails: "some details",
+			Expected:      true,
+		},
+		"Mismatch status": {
+			HowAct:        Jointly,
+			HowActDetails: "some details",
+			Expected:      false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := &Lpa{HowAttorneysMakeDecisions: tc.HowAct, HowAttorneysMakeDecisionsDetails: tc.HowActDetails}
+			assert.Equal(t, tc.Expected, lpa.AttorneysActJointlyForSomeSeverallyForOthersWithDetails())
+		})
+	}
+}
+
+func TestReplacementAttorneysActJointlyOrJointlyAndSeverally(t *testing.T) {
+	testCases := map[string]struct {
+		HowAct   string
+		Expected bool
+	}{
+		"Jointly":                               {HowAct: Jointly, Expected: true},
+		"Jointly and severally":                 {HowAct: JointlyAndSeverally, Expected: true},
+		"Jointly for some severally for others": {HowAct: JointlyForSomeSeverallyForOthers, Expected: false},
+		"Unexpected":                            {HowAct: "what", Expected: false},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := &Lpa{HowReplacementAttorneysMakeDecisions: tc.HowAct}
+			assert.Equal(t, tc.Expected, lpa.ReplacementAttorneysActJointlyOrJointlyAndSeverally())
+		})
+	}
+}
+
+func TestReplacementAttorneysActJointlyForSomeSeverallyForOthersWithDetails(t *testing.T) {
+	testCases := map[string]struct {
+		HowAct        string
+		HowActDetails string
+		Expected      bool
+	}{
+		"With how acting": {
+			HowAct:        JointlyForSomeSeverallyForOthers,
+			HowActDetails: "",
+			Expected:      false,
+		},
+		"With details": {
+			HowAct:        "",
+			HowActDetails: "some details",
+			Expected:      false,
+		},
+		"With both": {
+			HowAct:        JointlyForSomeSeverallyForOthers,
+			HowActDetails: "some details",
+			Expected:      true,
+		},
+		"Mismatch status": {
+			HowAct:        Jointly,
+			HowActDetails: "some details",
+			Expected:      false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := &Lpa{
+				HowReplacementAttorneysMakeDecisions:        tc.HowAct,
+				HowReplacementAttorneysMakeDecisionsDetails: tc.HowActDetails,
+			}
+
+			assert.Equal(t, tc.Expected, lpa.ReplacementAttorneysActJointlyForSomeSeverallyForOthersWithDetails())
+		})
+	}
+}
+
+func TestReplacementAttorneysStepInWhenOneOrAllAttorneysCannotAct(t *testing.T) {
+	testCases := map[string]struct {
+		WhenStepIn string
+		Expected   bool
+	}{
+		"One attorney cannot act":  {WhenStepIn: OneCanNoLongerAct, Expected: true},
+		"All attorneys cannot act": {WhenStepIn: AllCanNoLongerAct, Expected: true},
+		"Some other way":           {WhenStepIn: SomeOtherWay, Expected: false},
+		"Unexpected":               {WhenStepIn: "what", Expected: false},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := &Lpa{HowShouldReplacementAttorneysStepIn: tc.WhenStepIn}
+			assert.Equal(t, tc.Expected, lpa.ReplacementAttorneysStepInWhenOneOrAllAttorneysCannotAct())
+		})
+	}
+}
+
+func TestReplacementAttorneysStepInSomeOtherWayWithDetails(t *testing.T) {
+	testCases := map[string]struct {
+		WhenStepIn        string
+		WhenStepInDetails string
+		Expected          bool
+	}{
+		"With when step in only": {
+			WhenStepIn:        SomeOtherWay,
+			WhenStepInDetails: "",
+			Expected:          false,
+		},
+		"With details only": {
+			WhenStepIn:        "",
+			WhenStepInDetails: "some details",
+			Expected:          false,
+		},
+		"With both": {
+			WhenStepIn:        SomeOtherWay,
+			WhenStepInDetails: "some details",
+			Expected:          true,
+		},
+		"Mismatch status": {
+			WhenStepIn:        OneCanNoLongerAct,
+			WhenStepInDetails: "some details",
+			Expected:          false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := &Lpa{
+				HowShouldReplacementAttorneysStepIn:        tc.WhenStepIn,
+				HowShouldReplacementAttorneysStepInDetails: tc.WhenStepInDetails,
+			}
+
+			assert.Equal(t, tc.Expected, lpa.ReplacementAttorneysStepInSomeOtherWayWithDetails())
+		})
+	}
 }

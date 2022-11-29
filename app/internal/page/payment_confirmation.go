@@ -44,7 +44,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, client PayClient
 		data := &paymentConfirmationData{
 			App:              appData,
 			PaymentReference: payment.Reference,
-			Continue:         selectYourIdentityOptionsPath,
+			Continue:         taskListPath,
 		}
 
 		payCookie.Options.MaxAge = -1

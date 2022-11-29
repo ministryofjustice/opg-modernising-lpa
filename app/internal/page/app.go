@@ -195,7 +195,7 @@ func App(
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), lpaStore))
 
 	handle(whatHappensNextPath, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("what_happens_next.gohtml"), aboutPaymentPath, lpaStore))
+		Guidance(tmpls.Get("what_happens_next.gohtml"), taskListPath, lpaStore))
 
 	handle(selectYourIdentityOptionsPath, RequireSession|CanGoBack,
 		SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), lpaStore))
@@ -275,6 +275,14 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 			}
 
 			lpa.ReplacementAttorneys = lpa.Attorneys
+			lpa.Type = LpaTypePropertyFinance
+			lpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
+
+			lpa.HowAttorneysMakeDecisions = JointlyAndSeverally
+
+			lpa.WantReplacementAttorneys = "yes"
+			lpa.HowReplacementAttorneysMakeDecisions = JointlyAndSeverally
+			lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
 
 			_ = lpaStore.Put(r.Context(), sessionID, lpa)
 		}
@@ -284,12 +292,12 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 			lpa, _ := lpaStore.Get(r.Context(), sessionID)
 
 			switch r.FormValue("howAttorneysAct") {
-			case "jointly":
-				lpa.HowAttorneysMakeDecisions = "jointly"
-			case "jointly-and-severally":
-				lpa.HowAttorneysMakeDecisions = "jointly-and-severally"
+			case Jointly:
+				lpa.HowAttorneysMakeDecisions = Jointly
+			case JointlyAndSeverally:
+				lpa.HowAttorneysMakeDecisions = JointlyAndSeverally
 			default:
-				lpa.HowAttorneysMakeDecisions = "mixed"
+				lpa.HowAttorneysMakeDecisions = JointlyForSomeSeverallyForOthers
 				lpa.HowAttorneysMakeDecisionsDetails = "some details"
 			}
 

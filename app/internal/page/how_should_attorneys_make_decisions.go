@@ -39,7 +39,7 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) 
 			if len(data.Errors) == 0 {
 				lpa.HowAttorneysMakeDecisions = data.Form.DecisionsType
 
-				if data.Form.DecisionsType != "mixed" {
+				if data.Form.DecisionsType != JointlyForSomeSeverallyForOthers {
 					lpa.HowAttorneysMakeDecisionsDetails = ""
 				} else {
 					lpa.HowAttorneysMakeDecisionsDetails = data.Form.DecisionsDetails
@@ -67,11 +67,11 @@ func readHowShouldAttorneysMakeDecisionsForm(r *http.Request) *howShouldAttorney
 func (f *howShouldAttorneysMakeDecisionsForm) Validate() map[string]string {
 	errors := map[string]string{}
 
-	if f.DecisionsType != "jointly-and-severally" && f.DecisionsType != "jointly" && f.DecisionsType != "mixed" {
+	if f.DecisionsType != JointlyAndSeverally && f.DecisionsType != Jointly && f.DecisionsType != JointlyForSomeSeverallyForOthers {
 		errors["decision-type"] = "chooseADecisionType"
 	}
 
-	if f.DecisionsType == "mixed" && f.DecisionsDetails == "" {
+	if f.DecisionsType == JointlyForSomeSeverallyForOthers && f.DecisionsDetails == "" {
 		errors["mixed-details"] = "provideDecisionDetails"
 	}
 

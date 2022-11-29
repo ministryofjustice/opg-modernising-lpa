@@ -39,7 +39,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 			if len(data.Errors) == 0 {
 				lpa.HowShouldReplacementAttorneysStepIn = data.Form.WhenToStepIn
 
-				if data.Form.WhenToStepIn != "other" {
+				if data.Form.WhenToStepIn != SomeOtherWay {
 					lpa.HowShouldReplacementAttorneysStepInDetails = ""
 				} else {
 					lpa.HowShouldReplacementAttorneysStepInDetails = data.Form.OtherDetails
@@ -51,8 +51,12 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 
 				redirectUrl := taskListPath
 
-				if len(lpa.Attorneys) > 1 && lpa.HowAttorneysMakeDecisions == "jointly-and-severally" && lpa.HowShouldReplacementAttorneysStepIn == "none" {
+				if len(lpa.Attorneys) > 1 &&
+					lpa.HowAttorneysMakeDecisions == JointlyAndSeverally &&
+					lpa.HowShouldReplacementAttorneysStepIn == AllCanNoLongerAct &&
+					len(lpa.ReplacementAttorneys) > 1 {
 					redirectUrl = howShouldReplacementAttorneysMakeDecisionsPath
+
 				}
 
 				appData.Lang.Redirect(w, r, redirectUrl, http.StatusFound)
@@ -78,7 +82,7 @@ func (f *howShouldReplacementAttorneysStepInForm) Validate() map[string]string {
 		errors["when-to-step-in"] = "selectWhenToStepIn"
 	}
 
-	if f.WhenToStepIn == "other" && f.OtherDetails == "" {
+	if f.WhenToStepIn == SomeOtherWay && f.OtherDetails == "" {
 		errors["other-details"] = "provideDetailsOfWhenToStepIn"
 	}
 

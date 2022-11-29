@@ -6,7 +6,13 @@
       <h1 class="govuk-heading-xl">{{ tr .App "whenCanTheLpaBeUsed" }}</h1>
 
       <form novalidate method="post">
-        {{ trHtml .App "whenCanTheLpaBeUsedContent" }}
+        {{ trHtml .App "youCanDecideHeader" }}
+        {{ trHtml .App "asSoonAsRegisteredTitle" }}
+
+        <p class="govuk-body">{{ trFormatCount .App "asSoonAsRegisteredIntro" (len .Lpa.Attorneys) "AttorneysFullNames" .Lpa.AttorneysFullNames }}</p>
+
+        {{ trFormatHtml .App "asSoonAsRegisteredContent" "AttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+        {{ trFormatHtml .App "afterLosingCapacityContent" "AttorneysFirstNames" .Lpa.AttorneysFirstNames }}
 
         <div class="govuk-form-group {{ if index .Errors "when" }}govuk-form-group--error{{ end }}">
           <fieldset class="govuk-fieldset">

@@ -314,8 +314,17 @@ func TestTestingStart(t *testing.T) {
 			},
 		}
 
+		updatedLpa.Type = LpaTypePropertyFinance
+		updatedLpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
+
 		updatedLpa.Attorneys = attorneys
 		updatedLpa.ReplacementAttorneys = attorneys
+
+		updatedLpa.HowAttorneysMakeDecisions = JointlyAndSeverally
+
+		updatedLpa.WantReplacementAttorneys = "yes"
+		updatedLpa.HowReplacementAttorneysMakeDecisions = JointlyAndSeverally
+		updatedLpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
 
 		lpaStore.
 			On("Put", ctx, mock.Anything, updatedLpa).

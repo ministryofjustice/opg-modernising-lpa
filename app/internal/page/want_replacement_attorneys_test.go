@@ -136,11 +136,26 @@ func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 
 func TestPostWantReplacementAttorneys(t *testing.T) {
 	testCases := []struct {
-		Want             string
-		ExpectedRedirect string
+		Want                         string
+		ExpectedRedirect             string
+		ExistingReplacementAttorneys []Attorney
+		ExpectedReplacementAttorneys []Attorney
 	}{
-		{Want: "yes", ExpectedRedirect: chooseReplacementAttorneysPath},
-		{Want: "no", ExpectedRedirect: taskListPath},
+		{
+			Want:                         "yes",
+			ExpectedRedirect:             chooseReplacementAttorneysPath,
+			ExistingReplacementAttorneys: []Attorney{{ID: "123"}},
+			ExpectedReplacementAttorneys: []Attorney{{ID: "123"}},
+		},
+		{
+			Want:             "no",
+			ExpectedRedirect: taskListPath,
+			ExistingReplacementAttorneys: []Attorney{
+				{ID: "123"},
+				{ID: "345"},
+			},
+			ExpectedReplacementAttorneys: []Attorney{},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -150,9 +165,14 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
-				Return(&Lpa{}, nil)
+				Return(&Lpa{
+					ReplacementAttorneys: tc.ExistingReplacementAttorneys,
+				}, nil)
 			lpaStore.
-				On("Put", mock.Anything, "session-id", &Lpa{WantReplacementAttorneys: tc.Want}).
+				On("Put", mock.Anything, "session-id", &Lpa{
+					WantReplacementAttorneys: tc.Want,
+					ReplacementAttorneys:     tc.ExpectedReplacementAttorneys,
+				}).
 				Return(nil)
 
 			form := url.Values{

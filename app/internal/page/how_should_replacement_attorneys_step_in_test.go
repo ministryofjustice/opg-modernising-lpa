@@ -44,7 +44,7 @@ func TestGetHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", mock.Anything, mock.Anything).
 		Return(&Lpa{
-			HowShouldReplacementAttorneysStepIn:        "other",
+			HowShouldReplacementAttorneysStepIn:        SomeOtherWay,
 			HowShouldReplacementAttorneysStepInDetails: "some details",
 		}, nil)
 
@@ -53,7 +53,7 @@ func TestGetHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 		On("Func", w, &howShouldReplacementAttorneysStepInData{
 			App: appData,
 			Form: &howShouldReplacementAttorneysStepInForm{
-				WhenToStepIn: "other",
+				WhenToStepIn: SomeOtherWay,
 				OtherDetails: "some details",
 			},
 		}).
@@ -101,14 +101,14 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 		}, nil)
 	lpaStore.
 		On("Put", mock.Anything, mock.Anything, &Lpa{
-			HowShouldReplacementAttorneysStepIn:        "other",
+			HowShouldReplacementAttorneysStepIn:        SomeOtherWay,
 			HowShouldReplacementAttorneysStepInDetails: "some details"}).
 		Return(nil)
 
 	template := &mockTemplate{}
 
 	formValues := url.Values{
-		"when-to-step-in": {"other"},
+		"when-to-step-in": {SomeOtherWay},
 		"other-details":   {"some details"},
 	}
 
@@ -127,6 +127,7 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 	testCases := map[string]struct {
 		Attorneys                           []Attorney
+		ReplacementAttorneys                []Attorney
 		HowAttorneysMakeDecisions           string
 		HowShouldReplacementAttorneysStepIn string
 		ExpectedRedirectUrl                 string
@@ -144,8 +145,12 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 				{ID: "123"},
 				{ID: "123"},
 			},
+			ReplacementAttorneys: []Attorney{
+				{ID: "123"},
+				{ID: "123"},
+			},
 			HowAttorneysMakeDecisions:           "jointly-and-severally",
-			HowShouldReplacementAttorneysStepIn: "none",
+			HowShouldReplacementAttorneysStepIn: AllCanNoLongerAct,
 			ExpectedRedirectUrl:                 howShouldReplacementAttorneysMakeDecisionsPath,
 		},
 		"multiple attorneys acting jointly and severally replacements step in when one loses capacity": {
@@ -154,7 +159,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 				{ID: "123"},
 			},
 			HowAttorneysMakeDecisions:           "jointly-and-severally",
-			HowShouldReplacementAttorneysStepIn: "one",
+			HowShouldReplacementAttorneysStepIn: OneCanNoLongerAct,
 			ExpectedRedirectUrl:                 taskListPath,
 		},
 		"multiple attorneys acting jointly": {
@@ -178,10 +183,12 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 				Return(&Lpa{
 					HowAttorneysMakeDecisions: tc.HowAttorneysMakeDecisions,
 					Attorneys:                 tc.Attorneys,
+					ReplacementAttorneys:      tc.ReplacementAttorneys,
 				}, nil)
 			lpaStore.
 				On("Put", mock.Anything, mock.Anything, &Lpa{
 					Attorneys:                           tc.Attorneys,
+					ReplacementAttorneys:                tc.ReplacementAttorneys,
 					HowAttorneysMakeDecisions:           tc.HowAttorneysMakeDecisions,
 					HowShouldReplacementAttorneysStepIn: tc.HowShouldReplacementAttorneysStepIn}).
 				Return(nil)
@@ -216,19 +223,19 @@ func TestPostHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 		formOtherDetails     string
 	}{
 		"existing otherDetails not set": {
-			existingWhenStepIn:   "none",
+			existingWhenStepIn:   AllCanNoLongerAct,
 			existingOtherDetails: "",
-			updatedWhenStepIn:    "other",
+			updatedWhenStepIn:    SomeOtherWay,
 			updatedOtherDetails:  "some details",
-			formWhenStepIn:       "other",
+			formWhenStepIn:       SomeOtherWay,
 			formOtherDetails:     "some details",
 		},
 		"existing otherDetails set": {
-			existingWhenStepIn:   "other",
+			existingWhenStepIn:   SomeOtherWay,
 			existingOtherDetails: "some details",
-			updatedWhenStepIn:    "one",
+			updatedWhenStepIn:    OneCanNoLongerAct,
 			updatedOtherDetails:  "",
-			formWhenStepIn:       "one",
+			formWhenStepIn:       OneCanNoLongerAct,
 			formOtherDetails:     "",
 		},
 	}
@@ -318,14 +325,14 @@ func TestPostHowShouldReplacementAttorneysStepInWhenPutStoreError(t *testing.T) 
 		}, nil)
 	lpaStore.
 		On("Put", mock.Anything, mock.Anything, &Lpa{
-			HowShouldReplacementAttorneysStepIn:        "other",
+			HowShouldReplacementAttorneysStepIn:        SomeOtherWay,
 			HowShouldReplacementAttorneysStepInDetails: "some details"}).
 		Return(expectedError)
 
 	template := &mockTemplate{}
 
 	formValues := url.Values{
-		"when-to-step-in": {"other"},
+		"when-to-step-in": {SomeOtherWay},
 		"other-details":   {"some details"},
 	}
 
@@ -352,7 +359,7 @@ func TestHowShouldReplacementAttorneysStepInFormValidate(t *testing.T) {
 			expectedErrors: map[string]string{"when-to-step-in": "selectWhenToStepIn"},
 		},
 		"other missing otherDetail": {
-			whenToStepIn:   "other",
+			whenToStepIn:   SomeOtherWay,
 			otherDetails:   "",
 			expectedErrors: map[string]string{"other-details": "provideDetailsOfWhenToStepIn"},
 		},
