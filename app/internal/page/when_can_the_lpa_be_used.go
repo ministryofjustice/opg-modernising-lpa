@@ -11,6 +11,7 @@ type whenCanTheLpaBeUsedData struct {
 	Errors    map[string]string
 	When      string
 	Completed bool
+	Lpa       *Lpa
 }
 
 func WhenCanTheLpaBeUsed(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -24,6 +25,7 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, lpaStore LpaStore) Handler {
 			App:       appData,
 			When:      lpa.WhenCanTheLpaBeUsed,
 			Completed: lpa.Tasks.WhenCanTheLpaBeUsed == TaskCompleted,
+			Lpa:       lpa,
 		}
 
 		if r.Method == http.MethodPost {
@@ -64,7 +66,7 @@ func readWhenCanTheLpaBeUsedForm(r *http.Request) *whenCanTheLpaBeUsedForm {
 func (f *whenCanTheLpaBeUsedForm) Validate() map[string]string {
 	errors := map[string]string{}
 
-	if f.When != "when-registered" && f.When != "when-capacity-lost" {
+	if f.When != UsedWhenRegistered && f.When != UsedWhenCapacityLost {
 		errors["when"] = "selectWhenCanTheLpaBeUsed"
 	}
 

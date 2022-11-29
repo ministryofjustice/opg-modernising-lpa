@@ -40,3 +40,8 @@ func (l Localizer) Format(messageID string, data map[string]interface{}) string 
 func (l Localizer) Count(messageID string, count int) string {
 	return l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, PluralCount: count})
 }
+
+func (l Localizer) FormatCount(messageID string, count int, data map[string]interface{}) string {
+	data["PluralCount"] = count
+	return l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, PluralCount: count, TemplateData: data})
+}

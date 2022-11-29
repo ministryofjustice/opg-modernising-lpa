@@ -44,6 +44,7 @@ func TestGetWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 				On("Func", w, &whoDoYouWantToBeCertificateProviderGuidanceData{
 					App:        appData,
 					NotStarted: tc.notStarted,
+					Lpa:        tc.data,
 				}).
 				Return(nil)
 

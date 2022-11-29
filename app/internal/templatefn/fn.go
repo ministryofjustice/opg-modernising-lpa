@@ -28,6 +28,7 @@ var All = map[string]interface{}{
 	"trFormatHtml":   trFormatHtml,
 	"trHtml":         trHtml,
 	"trCount":        trCount,
+	"trFormatCount":  trFormatCount,
 	"now":            now,
 	"addDays":        addDays,
 	"formatDate":     formatDate,
@@ -143,10 +144,18 @@ func contains(needle string, list interface{}) bool {
 }
 
 func tr(app page.AppData, messageID string) string {
+	if messageID == "" {
+		return ""
+	}
+
 	return app.Localizer.T(messageID)
 }
 
 func trFormat(app page.AppData, messageID string, args ...interface{}) string {
+	if messageID == "" {
+		return ""
+	}
+
 	if len(args)%2 != 0 {
 		panic("must have even number of args")
 	}
@@ -160,6 +169,10 @@ func trFormat(app page.AppData, messageID string, args ...interface{}) string {
 }
 
 func trFormatHtml(app page.AppData, messageID string, args ...interface{}) template.HTML {
+	if messageID == "" {
+		return ""
+	}
+
 	if len(args)%2 != 0 {
 		panic("must have even number of args")
 	}
@@ -173,11 +186,36 @@ func trFormatHtml(app page.AppData, messageID string, args ...interface{}) templ
 }
 
 func trHtml(app page.AppData, messageID string) template.HTML {
+	if messageID == "" {
+		return ""
+	}
+
 	return template.HTML(app.Localizer.T(messageID))
 }
 
 func trCount(app page.AppData, messageID string, count int) string {
+	if messageID == "" {
+		return ""
+	}
+
 	return app.Localizer.Count(messageID, count)
+}
+
+func trFormatCount(app page.AppData, messageID string, count int, args ...interface{}) string {
+	if messageID == "" {
+		return ""
+	}
+
+	if len(args)%2 != 0 {
+		panic("must have even number of args")
+	}
+
+	data := map[string]interface{}{}
+	for i := 0; i < len(args); i += 2 {
+		data[args[i].(string)] = args[i+1]
+	}
+
+	return app.Localizer.FormatCount(messageID, count, data)
 }
 
 func now() time.Time {

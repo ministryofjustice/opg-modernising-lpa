@@ -16,15 +16,20 @@ import (
 )
 
 const (
-	PayCookieName                    = "pay"
-	PayCookiePaymentIdValueKey       = "paymentId"
+	AllCanNoLongerAct                = "all"
 	CostOfLpaPence                   = 8200
-	JointlyForSomeSeverallyForOthers = "mixed"
 	Jointly                          = "jointly"
 	JointlyAndSeverally              = "jointly-and-severally"
+	JointlyForSomeSeverallyForOthers = "mixed"
+	LpaTypeCombined                  = "both"
+	LpaTypeHealthWelfare             = "hw"
+	LpaTypePropertyFinance           = "pfa"
+	PayCookieName                    = "pay"
+	PayCookiePaymentIdValueKey       = "paymentId"
 	OneCanNoLongerAct                = "one"
-	AllCanNoLongerAct                = "all"
 	SomeOtherWay                     = "other"
+	UsedWhenCapacityLost             = "when-capacity-lost"
+	UsedWhenRegistered               = "when-registered"
 )
 
 type TaskState int
@@ -241,6 +246,26 @@ func (l *Lpa) AttorneysFirstNames() string {
 	var names []string
 
 	for _, a := range l.Attorneys {
+		names = append(names, a.FirstNames)
+	}
+
+	return concatSentence(names)
+}
+
+func (l *Lpa) ReplacementAttorneysFullNames() string {
+	var names []string
+
+	for _, a := range l.ReplacementAttorneys {
+		names = append(names, fmt.Sprintf("%s %s", a.FirstNames, a.LastName))
+	}
+
+	return concatSentence(names)
+}
+
+func (l *Lpa) ReplacementAttorneysFirstNames() string {
+	var names []string
+
+	for _, a := range l.ReplacementAttorneys {
 		names = append(names, a.FirstNames)
 	}
 

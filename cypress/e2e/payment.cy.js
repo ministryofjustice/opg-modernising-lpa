@@ -27,7 +27,7 @@ describe('Payment', () => {
 
             cy.contains('a', 'Continue').click()
 
-            cy.url().should('contains', '/select-your-identity')
+            cy.url().should('contains', '/task-list')
 
             cy.getCookie('pay').should('not.exist')
         })
