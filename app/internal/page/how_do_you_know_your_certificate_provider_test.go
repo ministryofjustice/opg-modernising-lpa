@@ -122,7 +122,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				Relationship: "legal-professional",
 			},
 			taskState: TaskCompleted,
-			redirect:  taskListPath,
+			redirect:  checkYourLpaPath,
 		},
 		"health-professional": {
 			form: url.Values{"how": {"health-professional"}},
@@ -131,7 +131,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				Relationship: "health-professional",
 			},
 			taskState: TaskCompleted,
-			redirect:  taskListPath,
+			redirect:  checkYourLpaPath,
 		},
 		"other": {
 			form: url.Values{"how": {"other"}, "description": {"This"}},
