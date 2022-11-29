@@ -38,10 +38,9 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, lpaStore LpaSto
 				lpa.CertificateProvider.RelationshipDescription = data.Form.Description
 
 				requireLength := false
-				for _, relationship := range lpa.CertificateProvider.Relationship {
-					if relationship != "legal-professional" && relationship != "health-professional" {
-						requireLength = true
-					}
+
+				if lpa.CertificateProvider.Relationship != "legal-professional" && lpa.CertificateProvider.Relationship != "health-professional" {
+					requireLength = true
 				}
 
 				if requireLength {
@@ -70,7 +69,7 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, lpaStore LpaSto
 
 type howDoYouKnowYourCertificateProviderForm struct {
 	Description string
-	How         []string
+	How         string
 }
 
 func readHowDoYouKnowYourCertificateProviderForm(r *http.Request) *howDoYouKnowYourCertificateProviderForm {
@@ -78,25 +77,23 @@ func readHowDoYouKnowYourCertificateProviderForm(r *http.Request) *howDoYouKnowY
 
 	return &howDoYouKnowYourCertificateProviderForm{
 		Description: postFormString(r, "description"),
-		How:         r.PostForm["how"],
+		How:         postFormString(r, "how"),
 	}
 }
 
 func (f *howDoYouKnowYourCertificateProviderForm) Validate() map[string]string {
 	errors := map[string]string{}
 
-	if len(f.How) == 0 {
+	if f.How == "" {
 		errors["how"] = "selectHowYouKnowCertificateProvider"
 	}
 
-	for _, value := range f.How {
-		if value == "other" && f.Description == "" {
-			errors["description"] = "enterDescription"
-		}
-		if value != "friend" && value != "neighbour" && value != "colleague" && value != "health-professional" && value != "legal-professional" && value != "other" {
-			errors["how"] = "selectHowYouKnowCertificateProvider"
-			break
-		}
+	if f.How == "other" && f.Description == "" {
+		errors["description"] = "enterDescription"
+	}
+
+	if f.How != "friend" && f.How != "neighbour" && f.How != "colleague" && f.How != "health-professional" && f.How != "legal-professional" && f.How != "other" {
+		errors["how"] = "selectHowYouKnowCertificateProvider"
 	}
 
 	return errors

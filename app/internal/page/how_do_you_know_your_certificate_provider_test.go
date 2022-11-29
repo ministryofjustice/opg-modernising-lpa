@@ -57,7 +57,7 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	certificateProvider := CertificateProvider{
-		Relationship: []string{"friend"},
+		Relationship: "friend",
 	}
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -71,7 +71,7 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 		On("Func", w, &howDoYouKnowYourCertificateProviderData{
 			App:                 appData,
 			CertificateProvider: certificateProvider,
-			Form:                &howDoYouKnowYourCertificateProviderForm{How: []string{"friend"}},
+			Form:                &howDoYouKnowYourCertificateProviderForm{How: "friend"},
 		}).
 		Return(nil)
 
@@ -115,11 +115,20 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		taskState           TaskState
 		redirect            string
 	}{
-		"professional": {
-			form: url.Values{"how": {"legal-professional", "health-professional"}},
+		"legal-professional": {
+			form: url.Values{"how": {"legal-professional"}},
 			certificateProvider: CertificateProvider{
 				FirstNames:   "John",
-				Relationship: []string{"legal-professional", "health-professional"},
+				Relationship: "legal-professional",
+			},
+			taskState: TaskCompleted,
+			redirect:  taskListPath,
+		},
+		"health-professional": {
+			form: url.Values{"how": {"health-professional"}},
+			certificateProvider: CertificateProvider{
+				FirstNames:   "John",
+				Relationship: "health-professional",
 			},
 			taskState: TaskCompleted,
 			redirect:  taskListPath,
@@ -128,30 +137,39 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 			form: url.Values{"how": {"other"}, "description": {"This"}},
 			certificateProvider: CertificateProvider{
 				FirstNames:              "John",
-				Relationship:            []string{"other"},
+				Relationship:            "other",
 				RelationshipDescription: "This",
 				RelationshipLength:      "gte-2-years",
 			},
 			taskState: TaskInProgress,
 			redirect:  howLongHaveYouKnownCertificateProviderPath,
 		},
-		"lay": {
-			form: url.Values{"how": {"friend", "neighbour", "colleague"}},
+		"lay - friend": {
+			form: url.Values{"how": {"friend"}},
 			certificateProvider: CertificateProvider{
 				FirstNames:         "John",
-				Relationship:       []string{"friend", "neighbour", "colleague"},
+				Relationship:       "friend",
 				RelationshipLength: "gte-2-years",
 			},
 			taskState: TaskInProgress,
 			redirect:  howLongHaveYouKnownCertificateProviderPath,
 		},
-		"mixed": {
-			form: url.Values{"how": {"legal-professional", "friend", "other"}, "description": {"This"}},
+		"lay - neighbour": {
+			form: url.Values{"how": {"neighbour"}},
 			certificateProvider: CertificateProvider{
-				FirstNames:              "John",
-				Relationship:            []string{"legal-professional", "friend", "other"},
-				RelationshipDescription: "This",
-				RelationshipLength:      "gte-2-years",
+				FirstNames:         "John",
+				Relationship:       "neighbour",
+				RelationshipLength: "gte-2-years",
+			},
+			taskState: TaskInProgress,
+			redirect:  howLongHaveYouKnownCertificateProviderPath,
+		},
+		"lay - colleague": {
+			form: url.Values{"how": {"colleague"}},
+			certificateProvider: CertificateProvider{
+				FirstNames:         "John",
+				Relationship:       "colleague",
+				RelationshipLength: "gte-2-years",
 			},
 			taskState: TaskInProgress,
 			redirect:  howLongHaveYouKnownCertificateProviderPath,
@@ -166,7 +184,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
 				Return(&Lpa{
-					CertificateProvider: CertificateProvider{FirstNames: "John", Relationship: []string{"what"}, RelationshipLength: "gte-2-years"},
+					CertificateProvider: CertificateProvider{FirstNames: "John", Relationship: "what", RelationshipLength: "gte-2-years"},
 				}, nil)
 			lpaStore.
 				On("Put", mock.Anything, "session-id", &Lpa{
@@ -247,7 +265,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenValidationErrors(t *testing.
 
 func TestReadHowDoYouKnowYourCertificateProviderForm(t *testing.T) {
 	form := url.Values{
-		"how":         {"friend", "other"},
+		"how":         {"friend"},
 		"description": {"What"},
 	}
 
@@ -256,7 +274,7 @@ func TestReadHowDoYouKnowYourCertificateProviderForm(t *testing.T) {
 
 	result := readHowDoYouKnowYourCertificateProviderForm(r)
 
-	assert.Equal(t, []string{"friend", "other"}, result.How)
+	assert.Equal(t, "friend", result.How)
 	assert.Equal(t, "What", result.Description)
 }
 
@@ -265,9 +283,9 @@ func TestHowDoYouKnowYourCertificateProviderFormValidate(t *testing.T) {
 		form   *howDoYouKnowYourCertificateProviderForm
 		errors map[string]string
 	}{
-		"all": {
+		"valid": {
 			form: &howDoYouKnowYourCertificateProviderForm{
-				How:         []string{"friend", "neighbour", "colleague", "health-professional", "legal-professional", "other"},
+				How:         "friend",
 				Description: "This",
 			},
 			errors: map[string]string{},
@@ -280,7 +298,7 @@ func TestHowDoYouKnowYourCertificateProviderFormValidate(t *testing.T) {
 		},
 		"invalid-option": {
 			form: &howDoYouKnowYourCertificateProviderForm{
-				How: []string{"what"},
+				How: "what",
 			},
 			errors: map[string]string{
 				"how": "selectHowYouKnowCertificateProvider",
@@ -288,7 +306,7 @@ func TestHowDoYouKnowYourCertificateProviderFormValidate(t *testing.T) {
 		},
 		"other-missing-description": {
 			form: &howDoYouKnowYourCertificateProviderForm{
-				How: []string{"other"},
+				How: "other",
 			},
 			errors: map[string]string{
 				"description": "enterDescription",
