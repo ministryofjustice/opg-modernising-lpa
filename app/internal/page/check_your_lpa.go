@@ -66,7 +66,7 @@ func CheckYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 					return err
 				}
 
-				appData.Lang.Redirect(w, r, whatHappensNextPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
 				return nil
 			}
 		}
