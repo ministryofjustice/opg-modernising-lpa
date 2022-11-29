@@ -332,5 +332,7 @@
     "whenOneCanNoLongerAct": "As soon as <span class=\"govuk-!-font-weight-bold\">one</span> of the original attorneys can no longer act, all the replacement attorneys should step in together",
     "whenNoneCanNoLongerAct": "When <span class=\"govuk-!-font-weight-bold\">none</span> of the original attorneys can act, all the replacement attorneys should step in together",
     "otherWay": "In some other way",
-    "otherWayHint": "<p class=\"govuk--body\">Describe below how the donor would like this to happen. Be careful - the more specific the instructions, the greater the chance that they will not be able to be followed. If in doubt, seek legal advice. <a class=\"govuk-link\" href=\"#\">Not sure what to put?</a></p>"
+    "otherWayHint": "<p class=\"govuk--body\">Describe below how the donor would like this to happen. Be careful - the more specific the instructions, the greater the chance that they will not be able to be followed. If in doubt, seek legal advice. <a class=\"govuk-link\" href=\"#\">Not sure what to put?</a></p>",
+    "selectWhenToStepIn": "Select when your replacement attorneys should step in",
+    "provideDetailsOfWhenToStepIn": "Provide details on how your replacement attorneys should step in"
 }
