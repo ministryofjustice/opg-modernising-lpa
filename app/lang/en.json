@@ -211,9 +211,16 @@
     "typeOfLpa": "Type of LPA",
     "WhenTheLpaCanBeUsed": "When the LPA can be used",
     "whenTheLpaCanBeUsed": "when the LPA can be used",
-    "whoAreTheAttorneys": "Who are the attorneys",
+    "whoAreTheAttorneys": {
+        "one": "Who is the attorney",
+        "other": "Who are the attorneys"
+    },
     "howTheAttorneysMustWorkTogether": "How the attorneys must work together",
-    "whoIsTheReplacementAttorney": "Who is the replacement attorney",
+    "whoAreTheReplacementAttorneys": {
+        "one": "Who is the replacement attorney",
+        "other": "Who are the replacement attorneys"
+    },
+    "replacementAttorneysNotAppointed": "Replacement attorneys have not been appointed",
     "change": "Change",
     "yourAttorneys": "your attorneys",
     "yourReplacementAttorneys": "your replacement attorneys",

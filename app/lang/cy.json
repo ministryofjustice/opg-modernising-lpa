@@ -168,7 +168,7 @@
 
     "whenDoYouWantAttorneysToUse": {
         "one": "Welsh {{ .AttorneysFirstNames }} welsh",
-        "two": "Welsh {{ .AttorneysFirstNames }} welsh",
+        "two": "Welsh",
         "few": "Welsh",
         "many": "Welsh",
         "other": "Welsh"
@@ -225,9 +225,22 @@
     "typeOfLpa": "Welsh",
     "WhenTheLpaCanBeUsed": "Welsh",
     "whenTheLpaCanBeUsed": "Welsh",
-    "whoAreTheAttorneys": "Welsh",
+    "whoAreTheAttorneys": {
+        "one": "Welsh",
+        "two": "Welsh",
+        "few": "Welsh",
+        "many": "Welsh",
+        "other": "Welsh"
+    },
     "howTheAttorneysMustWorkTogether": "Welsh",
-    "whoIsTheReplacementAttorney": "Welsh",
+    "whoAreTheReplacementAttorneys": {
+        "one": "Welsh",
+        "two": "Welsh",
+        "few": "Welsh",
+        "many": "Welsh",
+        "other": "Welsh"
+    },
+    "replacementAttorneysNotAppointed": "Welsh",
     "change": "Welsh",
     "yourAttorneys": "Welsh",
     "yourReplacementAttorneys": "Welsh",
