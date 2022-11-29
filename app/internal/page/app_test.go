@@ -314,6 +314,9 @@ func TestTestingStart(t *testing.T) {
 			},
 		}
 
+		updatedLpa.Type = LpaTypePropertyFinance
+		updatedLpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
+
 		updatedLpa.Attorneys = attorneys
 		updatedLpa.ReplacementAttorneys = attorneys
 

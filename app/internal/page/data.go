@@ -16,15 +16,20 @@ import (
 )
 
 const (
-	PayCookieName                    = "pay"
-	PayCookiePaymentIdValueKey       = "paymentId"
+	AllCanNoLongerAct                = "all"
 	CostOfLpaPence                   = 8200
-	JointlyForSomeSeverallyForOthers = "mixed"
 	Jointly                          = "jointly"
 	JointlyAndSeverally              = "jointly-and-severally"
+	JointlyForSomeSeverallyForOthers = "mixed"
+	LpaTypeCombined                  = "both"
+	LpaTypeHealthWelfare             = "hw"
+	LpaTypePropertyFinance           = "pfa"
+	PayCookieName                    = "pay"
+	PayCookiePaymentIdValueKey       = "paymentId"
 	OneCanNoLongerAct                = "one"
-	AllCanNoLongerAct                = "all"
 	SomeOtherWay                     = "other"
+	UsedWhenCapacityLost             = "when-capacity-lost"
+	UsedWhenRegistered               = "when-registered"
 )
 
 type TaskState int

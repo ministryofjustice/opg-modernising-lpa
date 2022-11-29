@@ -66,7 +66,7 @@ func readWhenCanTheLpaBeUsedForm(r *http.Request) *whenCanTheLpaBeUsedForm {
 func (f *whenCanTheLpaBeUsedForm) Validate() map[string]string {
 	errors := map[string]string{}
 
-	if f.When != "when-registered" && f.When != "when-capacity-lost" {
+	if f.When != UsedWhenRegistered && f.When != UsedWhenCapacityLost {
 		errors["when"] = "selectWhenCanTheLpaBeUsed"
 	}
 
