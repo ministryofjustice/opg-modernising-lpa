@@ -244,9 +244,6 @@
     "thankYouHeader": "Welsh.",
     "paymentConfirmationContent": "<p class=\"govuk-body\">Welsh.</p><p class=\"govuk-body\">Welsh.</p><p class=\"govuk-body\">Welsh.</p>",
 
-    "whatHappensNext": "Welsh",
-    "whatHappensNextContent": "<p class=\"govuk-body\">Welsh {{.CertificateProviderFirstNames}} {{.CertificateProviderLastName}}</p>",
-
     "whatHappensWhenSigning": "Welsh",
     "whatHappensWhenSigningContent": "<p class=\"govuk-body\">Welsh {{.AttorneyFirstNames}} {{.AttorneyLastName}}</p>",
     "whileYouHaveMentalCapacity": "Welsh",

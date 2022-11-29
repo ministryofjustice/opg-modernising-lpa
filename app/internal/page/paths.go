@@ -42,7 +42,6 @@ const (
 	startPath                                       = "/start"
 	taskListPath                                    = "/task-list"
 	wantReplacementAttorneysPath                    = "/want-replacement-attorneys"
-	whatHappensNextPath                             = "/what-happens-next"
 	whatHappensWhenSigningPath                      = "/what-happens-when-signing"
 	whenCanTheLpaBeUsedPath                         = "/when-can-the-lpa-be-used"
 	whoDoYouWantToBeCertificateProviderGuidancePath = "/who-do-you-want-to-be-certificate-provider-guidance"

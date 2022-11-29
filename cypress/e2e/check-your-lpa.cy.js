@@ -20,6 +20,6 @@ describe('Check the LPA', () => {
 
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/what-happens-next');
+        cy.url().should('contain', '/task-list');
     })
 });
