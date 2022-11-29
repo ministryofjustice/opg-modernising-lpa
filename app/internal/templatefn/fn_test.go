@@ -151,6 +151,7 @@ func TestTr(t *testing.T) {
 	}
 
 	assert.Equal(t, "hi", tr(app, "message-id"))
+	assert.Equal(t, "", tr(app, ""))
 }
 
 func TestTrFormat(t *testing.T) {
@@ -159,6 +160,7 @@ func TestTrFormat(t *testing.T) {
 	}
 
 	assert.Equal(t, "hi Person", trFormat(app, "with-format", "name", "Person"))
+	assert.Equal(t, "", trFormat(app, "", "name", "Person"))
 }
 
 func TestTrHtml(t *testing.T) {
@@ -167,6 +169,7 @@ func TestTrHtml(t *testing.T) {
 	}
 
 	assert.Equal(t, template.HTML("hi"), trHtml(app, "message-id"))
+	assert.Equal(t, template.HTML(""), trHtml(app, ""))
 }
 
 func TestTrFormatHtml(t *testing.T) {
@@ -175,6 +178,7 @@ func TestTrFormatHtml(t *testing.T) {
 	}
 
 	assert.Equal(t, template.HTML("hi Person"), trFormatHtml(app, "with-format", "name", "Person"))
+	assert.Equal(t, template.HTML(""), trFormatHtml(app, "", "name", "Person"))
 }
 
 func TestTrCount(t *testing.T) {
@@ -184,6 +188,7 @@ func TestTrCount(t *testing.T) {
 
 	assert.Equal(t, "hi one", trCount(enApp, "with-count", 1))
 	assert.Equal(t, "hi other", trCount(enApp, "with-count", 2))
+	assert.Equal(t, "", trCount(enApp, "", 2))
 
 	cyApp := page.AppData{
 		Localizer: localize.NewBundle("testdata/cy.json").For("cy"),
@@ -196,6 +201,7 @@ func TestTrCount(t *testing.T) {
 	assert.Equal(t, "cy other", trCount(cyApp, "with-count", 5))
 	assert.Equal(t, "cy many", trCount(cyApp, "with-count", 6))
 	assert.Equal(t, "cy other", trCount(cyApp, "with-count", 7))
+	assert.Equal(t, "", trCount(cyApp, "", 7))
 }
 
 func TestTrFormatCount(t *testing.T) {
@@ -205,6 +211,7 @@ func TestTrFormatCount(t *testing.T) {
 
 	assert.Equal(t, "hi 1 one Person", trFormatCount(enApp, "with-format-count", 1, "name", "Person"))
 	assert.Equal(t, "hi 2 other Person", trFormatCount(enApp, "with-format-count", 2, "name", "Person"))
+	assert.Equal(t, "", trFormatCount(enApp, "", 2, "name", "Person"))
 
 	cyApp := page.AppData{
 		Localizer: localize.NewBundle("testdata/cy.json").For("cy"),
@@ -217,6 +224,7 @@ func TestTrFormatCount(t *testing.T) {
 	assert.Equal(t, "cy hi 5 other Person", trFormatCount(cyApp, "with-format-count", 5, "name", "Person"))
 	assert.Equal(t, "cy hi 6 many Person", trFormatCount(cyApp, "with-format-count", 6, "name", "Person"))
 	assert.Equal(t, "cy hi 7 other Person", trFormatCount(cyApp, "with-format-count", 7, "name", "Person"))
+	assert.Equal(t, "", trFormatCount(cyApp, "", 7, "name", "Person"))
 }
 
 func TestNow(t *testing.T) {
