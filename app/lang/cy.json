@@ -158,15 +158,21 @@
     "asSoonAsRegisteredTitle": "<h2 class=\"govuk-heading-m\">As soon as the LPA is registered</h2>",
     "asSoonAsRegisteredIntro": {
         "one": "Welsh {{ .AttorneysFullNames }} welsh:",
-        "two": "Welsh {{.AttorneysFullNames}} welsh:",
-        "few": "Welsh {{.AttorneysFullNames}} welsh:",
-        "many": "Welsh {{.AttorneysFullNames}} welsh:",
+        "two": "Welsh {{ .AttorneysFullNames }} welsh:",
+        "few": "Welsh {{ .AttorneysFullNames }} welsh:",
+        "many": "Welsh {{ .AttorneysFullNames }} welsh:",
         "other": "Welsh {{ .AttorneysFullNames }} welsh:"
     },
     "asSoonAsRegisteredContent": "<ul class=\"govuk-list govuk-list--bullet\"> <li>if you lose mental capacity</li> <li>when you have mental capacity, but only if you give them permission to do something</li> </ul> <p class=\"govuk-body\">This option is useful in case there are times in the future when you're able to make your own decisions, but need help with certain things. For example, if it ever became difficult for you to visit the bank or talk on the phone, you might ask {{ .AttorneysFirstNames }} to use the LPA to deal with the bank or pay bills.</p>",
     "afterLosingCapacityContent": "<h2 class=\"govuk-heading-m\">Only when you've lost mental capacity</h2> <p class=\"govuk-body\">This option means {{ .AttorneysFirstNames }} can only use the LPA if you have lost mental capacity.</p> <p class=\"govuk-body\">Be careful, as this can make the LPA a lot less useful. Each time {{ .AttorneysFirstNames }} tries to use the LPA, they might be asked to prove that you do not have mental capacity.</p>",
 
-    "whenDoYouWantAttorneysToUse": "Welsh",
+    "whenDoYouWantAttorneysToUse": {
+        "one": "Welsh {{ .AttorneysFirstNames }} welsh",
+        "two": "Welsh {{ .AttorneysFirstNames }} welsh",
+        "few": "Welsh",
+        "many": "Welsh",
+        "other": "Welsh"
+    },
     "asSoonAsItsRegistered": "Welsh",
     "onlyWhenIDoNotHaveMentalCapacity": "Welsh",
     "selectWhenCanTheLpaBeUsed": "Welsh",

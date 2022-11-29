@@ -155,7 +155,10 @@
     },
     "asSoonAsRegisteredContent": "<ul class=\"govuk-list govuk-list--bullet\"> <li>if you lose mental capacity</li> <li>when you have mental capacity, but only if you give them permission to do something</li> </ul> <p class=\"govuk-body\">This option is useful in case there are times in the future when you're able to make your own decisions, but need help with certain things. For example, if it ever became difficult for you to visit the bank or talk on the phone, you might ask {{ .AttorneysFirstNames }} to use the LPA to deal with the bank or pay bills.</p>",
     "afterLosingCapacityContent": "<h2 class=\"govuk-heading-m\">Only when you've lost mental capacity</h2> <p class=\"govuk-body\">This option means {{ .AttorneysFirstNames }} can only use the LPA if you have lost mental capacity.</p> <p class=\"govuk-body\">Be careful, as this can make the LPA a lot less useful. Each time {{ .AttorneysFirstNames }} tries to use the LPA, they might be asked to prove that you do not have mental capacity.</p>",
-    "whenDoYouWantAttorneysToUse": "When do you want the attorneys to be able to use the LPA?",
+    "whenDoYouWantAttorneysToUse": {
+        "one": "When do you want {{ .AttorneysFirstNames }} to be able to use the LPA?",
+        "other": "When do you want your attorneys to be able to use the LPA?"
+    },
     "asSoonAsItsRegistered": "As soon as it's registered",
     "onlyWhenIDoNotHaveMentalCapacity": "Only when I do not have mental capacity",
     "selectWhenCanTheLpaBeUsed": "Select when the LPA can be used",
@@ -307,7 +310,7 @@
     "howShouldAttorneysMakeDecisions": "How should the attorneys make decisions?",
     "howShouldAttorneysMakeDecisionsDetail": "Your choice here is very important as it affects how your LPA can be used. Whichever option you choose, your attorneys must always act in your best interests.",
     "getHelpMakingDecision": "Get help with making this decision",
-    "jointlyAndSeverally": "Jointly and severally",
+    "jointlyAndSeverally": "Together (Jointly and severally)",
     "jointlyAndSeverallyHintAttorneys": "Attorneys can make decisions on their own or together. Most people choose this option because it's the most practical.",
     "jointly": "Jointly",
     "jointlyHintAttorneys": "Attorneys must agree unanimously on every decision, however big or small. Be careful - if one of the attorneys can no longer act, none of the other attorneys will be able to act either, unless you state otherwise in your instructions.",
