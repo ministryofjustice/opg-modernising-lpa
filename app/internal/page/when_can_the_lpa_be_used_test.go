@@ -23,6 +23,7 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 	template.
 		On("Func", w, &whenCanTheLpaBeUsedData{
 			App: appData,
+			Lpa: &Lpa{},
 		}).
 		Return(nil)
 
@@ -42,13 +43,14 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{WhenCanTheLpaBeUsed: "when-registered"}, nil)
+		Return(&Lpa{WhenCanTheLpaBeUsed: UsedWhenRegistered}, nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &whenCanTheLpaBeUsedData{
 			App:  appData,
-			When: "when-registered",
+			When: UsedWhenRegistered,
+			Lpa:  &Lpa{WhenCanTheLpaBeUsed: UsedWhenRegistered},
 		}).
 		Return(nil)
 
@@ -92,6 +94,7 @@ func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 	template.
 		On("Func", w, &whenCanTheLpaBeUsedData{
 			App: appData,
+			Lpa: &Lpa{},
 		}).
 		Return(expectedError)
 
@@ -113,11 +116,11 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{WhenCanTheLpaBeUsed: "when-registered", Tasks: Tasks{WhenCanTheLpaBeUsed: TaskCompleted}}).
+		On("Put", mock.Anything, "session-id", &Lpa{WhenCanTheLpaBeUsed: UsedWhenRegistered, Tasks: Tasks{WhenCanTheLpaBeUsed: TaskCompleted}}).
 		Return(nil)
 
 	form := url.Values{
-		"when": {"when-registered"},
+		"when": {UsedWhenRegistered},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -168,11 +171,11 @@ func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{WhenCanTheLpaBeUsed: "when-registered", Tasks: Tasks{WhenCanTheLpaBeUsed: TaskCompleted}}).
+		On("Put", mock.Anything, "session-id", &Lpa{WhenCanTheLpaBeUsed: UsedWhenRegistered, Tasks: Tasks{WhenCanTheLpaBeUsed: TaskCompleted}}).
 		Return(expectedError)
 
 	form := url.Values{
-		"when": {"when-registered"},
+		"when": {UsedWhenRegistered},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -199,6 +202,7 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 			Errors: map[string]string{
 				"when": "selectWhenCanTheLpaBeUsed",
 			},
+			Lpa: &Lpa{},
 		}).
 		Return(nil)
 
@@ -215,7 +219,7 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 
 func TestReadWhenCanTheLpaBeUsedForm(t *testing.T) {
 	form := url.Values{
-		"when":         {"when-registered"},
+		"when":         {UsedWhenRegistered},
 		"answer-later": {"1"},
 	}
 
@@ -224,7 +228,7 @@ func TestReadWhenCanTheLpaBeUsedForm(t *testing.T) {
 
 	result := readWhenCanTheLpaBeUsedForm(r)
 
-	assert.Equal(t, "when-registered", result.When)
+	assert.Equal(t, UsedWhenRegistered, result.When)
 	assert.True(t, result.AnswerLater)
 }
 
@@ -235,13 +239,13 @@ func TestWhenCanTheLpaBeUsedFormValidate(t *testing.T) {
 	}{
 		"when-registered": {
 			form: &whenCanTheLpaBeUsedForm{
-				When: "when-registered",
+				When: UsedWhenRegistered,
 			},
 			errors: map[string]string{},
 		},
 		"when-capacity-lost": {
 			form: &whenCanTheLpaBeUsedForm{
-				When: "when-capacity-lost",
+				When: UsedWhenCapacityLost,
 			},
 			errors: map[string]string{},
 		},

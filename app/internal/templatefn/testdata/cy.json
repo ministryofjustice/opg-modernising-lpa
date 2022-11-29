@@ -7,5 +7,12 @@
     "few": "cy few",
     "many": "cy many",
     "other": "cy other"
+  },
+  "with-format-count": {
+    "one": "cy hi {{.PluralCount}} one {{.name}}",
+    "two": "cy hi {{.PluralCount}} two {{.name}}",
+    "few": "cy hi {{.PluralCount}} few {{.name}}",
+    "many": "cy hi {{.PluralCount}} many {{.name}}",
+    "other": "cy hi {{.PluralCount}} other {{.name}}"
   }
 }

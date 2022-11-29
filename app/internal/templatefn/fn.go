@@ -28,6 +28,7 @@ var All = map[string]interface{}{
 	"trFormatHtml":   trFormatHtml,
 	"trHtml":         trHtml,
 	"trCount":        trCount,
+	"trFormatCount":  trFormatCount,
 	"now":            now,
 	"addDays":        addDays,
 	"formatDate":     formatDate,
@@ -178,6 +179,19 @@ func trHtml(app page.AppData, messageID string) template.HTML {
 
 func trCount(app page.AppData, messageID string, count int) string {
 	return app.Localizer.Count(messageID, count)
+}
+
+func trFormatCount(app page.AppData, messageID string, count int, args ...interface{}) string {
+	if len(args)%2 != 0 {
+		panic("must have even number of args")
+	}
+
+	data := map[string]interface{}{}
+	for i := 0; i < len(args); i += 2 {
+		data[args[i].(string)] = args[i+1]
+	}
+
+	return app.Localizer.FormatCount(messageID, count, data)
 }
 
 func now() time.Time {

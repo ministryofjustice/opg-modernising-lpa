@@ -198,6 +198,27 @@ func TestTrCount(t *testing.T) {
 	assert.Equal(t, "cy other", trCount(cyApp, "with-count", 7))
 }
 
+func TestTrFormatCount(t *testing.T) {
+	enApp := page.AppData{
+		Localizer: localize.NewBundle("testdata/en.json").For("en"),
+	}
+
+	assert.Equal(t, "hi 1 one Person", trFormatCount(enApp, "with-format-count", 1, "name", "Person"))
+	assert.Equal(t, "hi 2 other Person", trFormatCount(enApp, "with-format-count", 2, "name", "Person"))
+
+	cyApp := page.AppData{
+		Localizer: localize.NewBundle("testdata/cy.json").For("cy"),
+	}
+
+	assert.Equal(t, "cy hi 1 one Person", trFormatCount(cyApp, "with-format-count", 1, "name", "Person"))
+	assert.Equal(t, "cy hi 2 two Person", trFormatCount(cyApp, "with-format-count", 2, "name", "Person"))
+	assert.Equal(t, "cy hi 3 few Person", trFormatCount(cyApp, "with-format-count", 3, "name", "Person"))
+	assert.Equal(t, "cy hi 4 other Person", trFormatCount(cyApp, "with-format-count", 4, "name", "Person"))
+	assert.Equal(t, "cy hi 5 other Person", trFormatCount(cyApp, "with-format-count", 5, "name", "Person"))
+	assert.Equal(t, "cy hi 6 many Person", trFormatCount(cyApp, "with-format-count", 6, "name", "Person"))
+	assert.Equal(t, "cy hi 7 other Person", trFormatCount(cyApp, "with-format-count", 7, "name", "Person"))
+}
+
 func TestNow(t *testing.T) {
 	assert.WithinDuration(t, time.Now(), now(), time.Millisecond)
 }

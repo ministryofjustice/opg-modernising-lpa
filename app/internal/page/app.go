@@ -188,7 +188,7 @@ func App(
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), lpaStore))
 
 	handle(whatHappensNextPath, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("what_happens_next.gohtml"), aboutPaymentPath, lpaStore))
+		Guidance(tmpls.Get("what_happens_next.gohtml"), taskListPath, lpaStore))
 
 	handle(selectYourIdentityOptionsPath, RequireSession|CanGoBack,
 		SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), lpaStore))
@@ -268,6 +268,8 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 			}
 
 			lpa.ReplacementAttorneys = lpa.Attorneys
+			lpa.Type = LpaTypePropertyFinance
+			lpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
 
 			lpa.HowAttorneysMakeDecisions = JointlyAndSeverally
 
