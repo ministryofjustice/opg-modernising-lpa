@@ -40,8 +40,6 @@ func TestGetTaskList(t *testing.T) {
 					CheckYourLpa:               TaskInProgress,
 					PayForLpa:                  TaskInProgress,
 					ConfirmYourIdentityAndSign: TaskInProgress,
-					Attorneys:                  TaskInProgress,
-					ReplacementAttorneys:       TaskInProgress,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
@@ -74,31 +72,19 @@ func TestGetTaskList(t *testing.T) {
 					},
 				},
 				Attorneys: []Attorney{
-					{
-						FirstNames: "this",
-						Address: place.Address{
-							Line1: "this",
-						},
-					},
-					{
-						FirstNames: "this",
-						Address: place.Address{
-							Line1: "this",
-						},
-					},
+					validAttorney,
+					validAttorney,
 				},
 				ReplacementAttorneys: []Attorney{
-					{
-						FirstNames: "this",
-						Address: place.Address{
-							Line1: "this",
-						},
-					},
+					validAttorney,
 				},
-				Contact:                  []string{"this"},
-				WantReplacementAttorneys: "this",
-				Checked:                  true,
-				HappyToShare:             true,
+				Contact:                                     []string{"this"},
+				HowAttorneysMakeDecisions:                   "jointly",
+				WantReplacementAttorneys:                    "yes",
+				HowReplacementAttorneysMakeDecisions:        "mixed",
+				HowReplacementAttorneysMakeDecisionsDetails: "some details",
+				Checked:      true,
+				HappyToShare: true,
 				Tasks: Tasks{
 					WhenCanTheLpaBeUsed:        TaskCompleted,
 					Restrictions:               TaskCompleted,
@@ -106,8 +92,6 @@ func TestGetTaskList(t *testing.T) {
 					CheckYourLpa:               TaskCompleted,
 					PayForLpa:                  TaskCompleted,
 					ConfirmYourIdentityAndSign: TaskCompleted,
-					Attorneys:                  TaskCompleted,
-					ReplacementAttorneys:       TaskCompleted,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {

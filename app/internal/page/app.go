@@ -272,6 +272,12 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 			lpa.Type = "pfa"
 			lpa.WhenCanTheLpaBeUsed = "when-registered"
 
+			lpa.HowAttorneysMakeDecisions = JointlyAndSeverally
+
+			lpa.WantReplacementAttorneys = "yes"
+			lpa.HowReplacementAttorneysMakeDecisions = JointlyAndSeverally
+			lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
+
 			_ = lpaStore.Put(r.Context(), sessionID, lpa)
 		}
 
@@ -280,12 +286,12 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 			lpa, _ := lpaStore.Get(r.Context(), sessionID)
 
 			switch r.FormValue("howAttorneysAct") {
-			case "jointly":
-				lpa.HowAttorneysMakeDecisions = "jointly"
-			case "jointly-and-severally":
-				lpa.HowAttorneysMakeDecisions = "jointly-and-severally"
+			case Jointly:
+				lpa.HowAttorneysMakeDecisions = Jointly
+			case JointlyAndSeverally:
+				lpa.HowAttorneysMakeDecisions = JointlyAndSeverally
 			default:
-				lpa.HowAttorneysMakeDecisions = "mixed"
+				lpa.HowAttorneysMakeDecisions = JointlyForSomeSeverallyForOthers
 				lpa.HowAttorneysMakeDecisionsDetails = "some details"
 			}
 
