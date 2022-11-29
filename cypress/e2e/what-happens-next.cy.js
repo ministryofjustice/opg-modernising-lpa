@@ -9,6 +9,6 @@ describe('What happens next', () => {
 
         cy.contains('a', 'Continue').click();
 
-        cy.url().should('contain', '/about-payment');
+        cy.url().should('contain', '/task-list');
     });
 });

@@ -31,9 +31,8 @@ describe('Certificate provider task', () => {
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/certificate-provider-details');
 
-        cy.contains('a', 'Back').click();
+        cy.visit('/task-list');
 
-        cy.url().should('contain', '/task-list');
         cy.contains('li', "Choose your certificate provider")
             .should('contain', 'In progress');
     });

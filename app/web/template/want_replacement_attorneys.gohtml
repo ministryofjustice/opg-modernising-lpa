@@ -7,7 +7,12 @@
         <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
           <h1 class="govuk-fieldset__heading govuk-!-margin-bottom-6">{{ tr .App "wantReplacementAttorneys" }}</h1>
         </legend>
-          {{ trHtml .App "wantReplacementAttorneysContent" }}
+
+        <p class="govuk-body-l">{{ tr .App "replacementAttorneysStepIn" }}</p>
+
+        <p class="govuk-body">{{ trFormatCount .App "replacementAttorneysStepInExplanation" (len .Lpa.ReplacementAttorneys) "AttorneysFullNames" .Lpa.AttorneysFullNames }}</p>
+
+        <p class="govuk-body">{{ tr .App "replacementAttorneyRequirements" }}</p>
 
         <div>
           {{ if eq .Lpa.HowAttorneysMakeDecisions "jointly" }}

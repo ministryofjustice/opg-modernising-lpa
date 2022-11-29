@@ -1,0 +1,84 @@
+{{ define "lpa-decisions" }}
+    <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
+            <dt class="govuk-summary-list__key">
+                {{ tr .App "typeOfLpa" }}
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ tr .App .Lpa.Type }}
+            </dd>
+        </div>
+
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                {{ tr .App "WhenTheLpaCanBeUsed" }}
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ tr .App .Lpa.WhenCanTheLpaBeUsed }}
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link" href="{{ link .App .WhenCanLpaBeUsedPath }}">
+                    {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "whenTheLpaCanBeUsed" }}</span>
+                </a>
+            </dd>
+        </div>
+
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                {{ tr .App "whoAreTheAttorneys" }}
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ .Lpa.AttorneysFullNames }}
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link" href="{{ link .App .ChooseAttorneysPath }}">
+                    {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "yourAttorneys" }}</span>
+                </a>
+            </dd>
+        </div>
+
+        {{ if gt 1 (len .Lpa.Attorneys) }}
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    {{ tr .App "howTheAttorneysMustWorkTogether" }}
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ tr .App .Lpa.HowAttorneysMakeDecisions }}
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link" href="{{ link .App .HowAttorneysMakeDecisionsPath }}">
+                        {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ .Lpa.HowAttorneysMakeDecisionsDetails }}</span>
+                    </a>
+                </dd>
+            </div>
+        {{ end }}
+
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                {{ tr .App "whoIsTheReplacementAttorney" }}
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ .Lpa.ReplacementAttorneysFullNames }}
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link" href="{{ link .App .ReplacementAttorneyDetailsPath }}">
+                    {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ tr .App "yourReplacementAttorneys" }}</span>
+                </a>
+            </dd>
+        </div>
+
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                {{ tr .App "restrictions" }}
+            </dt>
+            <dd class="govuk-summary-list__value">
+                <p style="white-space: pre-line;">{{ .Lpa.Restrictions }}</p>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link" href="{{ link .App .RestrictionsPath }}">
+                    {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "yourRestrictions" }}</span>
+                </a>
+            </dd>
+        </div>
+    </dl>
+{{ end }}
