@@ -90,6 +90,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "list videos"
+        if: failure()
         run: |
           ls ./cypress/e2e
           ls ./cypress/e2e/videos
@@ -102,6 +103,7 @@ jobs:
           path: ./cypress/screenshots/
 
       - name: Persist Cypress videos artifacts
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: cypress-run-videos
