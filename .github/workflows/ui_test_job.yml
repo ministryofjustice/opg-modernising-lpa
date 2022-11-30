@@ -89,6 +89,9 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name:
+        run: ls ./cypress/e2e/videos
+
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()
         uses: actions/upload-artifact@v3
