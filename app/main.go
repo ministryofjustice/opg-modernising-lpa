@@ -176,7 +176,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health-check", func(w http.ResponseWriter, r *http.Request) {})
-	mux.Handle("/static/", http.StripPrefix("/static", handlers.CompressHandler(page.CacheControlWrapper(http.FileServer(http.Dir(webDir+"/static/"))))))
+	mux.Handle("/static/", http.StripPrefix("/static", handlers.CompressHandler(page.CacheControlHeaders(http.FileServer(http.Dir(webDir+"/static/"))))))
 	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies))
 	mux.Handle(page.AuthPath, page.Login(logger, signInClient, sessionStore, secureCookies, random.String))
 	mux.Handle("/cookies-consent", page.CookieConsent())
