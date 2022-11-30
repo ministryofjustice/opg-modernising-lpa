@@ -97,8 +97,15 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: failure-screenshots
+          name: cypress-failure-screenshots
           path: ./cypress/screenshots/
+
+      - name: Persist Cypress videos artifacts
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: cypress-run-videos
+          path: ./cypress/videos/
 
       - name: Stop Docker Compose Service
         if: ${{ always() }}
