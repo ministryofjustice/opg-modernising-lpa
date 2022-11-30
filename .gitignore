@@ -19,7 +19,7 @@ query/s3_objects/**
 **/coverage.out
 **/node_modules
 **/yarn-error.log
-/cypress/video/*
+/cypress/videos/*
 /cypress/screenshots/*
 /cypress/parallel-weights.json
 multi-reporter-config.json
