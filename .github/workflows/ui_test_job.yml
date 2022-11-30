@@ -83,10 +83,25 @@ jobs:
         uses: cypress-io/github-action@v4
         with:
           record: true
+          config: video=true
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Persist Cypress failure screenshots as artifacts
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: cypress-failure-screenshots
+          path: ./cypress/screenshots/
+
+      - name: Persist Cypress videos artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: cypress-run-videos
+          path: ./cypress/videos/
 
       - name: Stop Docker Compose Service
         if: ${{ always() }}
