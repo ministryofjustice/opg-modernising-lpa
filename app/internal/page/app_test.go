@@ -64,6 +64,16 @@ func TestApp(t *testing.T) {
 	assert.Implements(t, (*http.Handler)(nil), app)
 }
 
+func TestCacheControlHeaders(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+
+	CacheControlHeaders(http.NotFoundHandler()).ServeHTTP(w, r)
+
+	resp := w.Result()
+	assert.Equal(t, "max-age=2592000", resp.Header.Get("Cache-Control"))
+}
+
 func TestLangRedirect(t *testing.T) {
 	testCases := map[Lang]string{
 		En: "/somewhere",

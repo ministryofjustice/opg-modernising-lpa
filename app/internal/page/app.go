@@ -30,7 +30,7 @@ type RumConfig struct {
 
 type Lang int
 
-func CacheControlWrapper(h http.Handler) http.Handler {
+func CacheControlHeaders(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "max-age=2592000")
 		h.ServeHTTP(w, r)
