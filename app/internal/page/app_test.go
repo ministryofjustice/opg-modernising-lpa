@@ -59,7 +59,7 @@ func (m *mockLogger) Print(v ...interface{}) {
 }
 
 func TestApp(t *testing.T) {
-	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &identity.YotiClient{}, "yoti-scenario-id", &notify.Client{}, &place.Client{}, RumConfig{})
+	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &identity.YotiClient{}, "yoti-scenario-id", &notify.Client{}, &place.Client{}, RumConfig{}, "?%3fNEI0t9MN")
 
 	assert.Implements(t, (*http.Handler)(nil), app)
 }
@@ -105,7 +105,7 @@ func TestMakeHandle(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"})
+	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN")
 	handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, AppData{
 			Page:             "/path",
@@ -116,6 +116,7 @@ func TestMakeHandle(t *testing.T) {
 			CookieConsentSet: false,
 			CanGoBack:        true,
 			RumConfig:        RumConfig{ApplicationID: "xyz"},
+			StaticHash:       "?%3fNEI0t9MN",
 		}, appData)
 		assert.Equal(t, w, hw)
 		assert.Equal(t, r, hr)
@@ -145,7 +146,7 @@ func TestMakeHandleErrors(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{})
+	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN")
 	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
@@ -172,7 +173,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{})
+	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN")
 	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -198,7 +199,7 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{})
+	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN")
 	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -215,13 +216,14 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	localizer := localize.Localizer{}
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, nil, localizer, En, RumConfig{})
+	handle := makeHandle(mux, nil, nil, localizer, En, RumConfig{}, "?%3fNEI0t9MN")
 	handle("/path", None, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, AppData{
 			Page:             "/path",
 			Localizer:        localizer,
 			Lang:             En,
 			CookieConsentSet: false,
+			StaticHash:       "?%3fNEI0t9MN",
 		}, appData)
 		assert.Equal(t, w, hw)
 		assert.Equal(t, r, hr)

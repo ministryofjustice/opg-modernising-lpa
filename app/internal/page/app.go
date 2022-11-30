@@ -102,6 +102,7 @@ type AppData struct {
 	CanGoBack        bool
 	SessionID        string
 	RumConfig        RumConfig
+	StaticHash       string
 }
 
 type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
@@ -120,12 +121,13 @@ func App(
 	notifyClient NotifyClient,
 	addressClient AddressClient,
 	rumConfig RumConfig,
+	staticHash string,
 ) http.Handler {
 	mux := http.NewServeMux()
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
 
-	handle := makeHandle(mux, logger, sessionStore, localizer, lang, rumConfig)
+	handle := makeHandle(mux, logger, sessionStore, localizer, lang, rumConfig, staticHash)
 
 	mux.Handle("/testing-start", testingStart(sessionStore, lpaStore))
 	mux.Handle("/", Root())
@@ -324,7 +326,7 @@ const (
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang, rumConfig RumConfig) func(string, handleOpt, Handler) {
+func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang, rumConfig RumConfig, staticHash string) func(string, handleOpt, Handler) {
 	return func(path string, opt handleOpt, h Handler) {
 		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 			sessionID := ""
@@ -358,6 +360,7 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 				CookieConsentSet: cookieErr != http.ErrNoCookie,
 				CanGoBack:        opt&CanGoBack != 0,
 				RumConfig:        rumConfig,
+				StaticHash:       staticHash,
 			}, w, r); err != nil {
 				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
 
