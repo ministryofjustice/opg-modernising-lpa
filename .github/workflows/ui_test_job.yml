@@ -83,16 +83,22 @@ jobs:
         uses: cypress-io/github-action@v4
         with:
           record: true
+          config: specPattern=cypress/e2e/certificate-provider.cy.js,video=true
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: List screenshots
+        run: |
+          ls ./cypress/screenshots/
+
       - name: Persist Cypress failure screenshots as artifacts
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: failure-screenshots
-          path: cypress/screenshots/
+          path: ./cypress/screenshots/
 
       - name: Stop Docker Compose Service
         if: ${{ always() }}
