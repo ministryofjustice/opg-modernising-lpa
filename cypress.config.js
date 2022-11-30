@@ -21,6 +21,6 @@ module.exports = defineConfig({
         }
       })
     },
-    video: false
+    video: true
   },
 });
