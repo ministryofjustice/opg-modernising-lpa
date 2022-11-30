@@ -7,6 +7,7 @@
     "skipToMainContent": "Skip to main content",
     "menu": "Menu",
     "newServiceContent": "This is a new service – your <a class=\"govuk-link\" href=\"#\">feedback</a> will help us to improve it.",
+    "urModeContent": "This is a prototype – this is not a real service.",
     "supportLinks": "Support links",
     "help": "Help",
     "cookies": "Cookies",
@@ -41,7 +42,7 @@
     "enterDateOfBirth": "Enter date of birth",
     "dateOfBirthMustBeReal": "Date of birth must be a real date",
     "dateOfBirthIsFuture": "Date of birth must be before today",
-    "dateOfBirthIsUnder18": "The donor is under 18. I understand that the donor must be at least 18 on the date they sign the LPA, otherwise the LPA will be rejected.",
+    "dateOfBirthIsUnder18": "You are under 18. I understand that I must be at least 18 on the date I sign the LPA, otherwise the LPA will be rejected.",
     "dateOfBirthIsOver100": "By saving this section, you confirm that the person is more than 100 years old. If not, please change the date.",
 
     "homeAddress": "Home address",
@@ -99,7 +100,7 @@
     "cannotStartYet": "Cannot start yet",
     "notStarted": "Not started",
     "fillInTheLpa": "Fill in the LPA",
-    "provideDonorDetails": "Provide the donor's details",
+    "provideYourDetails": "Provide your details",
     "chooseYourContactPreferences": "Choose your contact preferences",
     "chooseYourAttorneys": "Choose your attorneys",
     "chooseYourReplacementAttorneys": "Choose your replacement attorneys (optional)",
@@ -154,7 +155,10 @@
     },
     "asSoonAsRegisteredContent": "<ul class=\"govuk-list govuk-list--bullet\"> <li>if you lose mental capacity</li> <li>when you have mental capacity, but only if you give them permission to do something</li> </ul> <p class=\"govuk-body\">This option is useful in case there are times in the future when you're able to make your own decisions, but need help with certain things. For example, if it ever became difficult for you to visit the bank or talk on the phone, you might ask {{ .AttorneysFirstNames }} to use the LPA to deal with the bank or pay bills.</p>",
     "afterLosingCapacityContent": "<h2 class=\"govuk-heading-m\">Only when you've lost mental capacity</h2> <p class=\"govuk-body\">This option means {{ .AttorneysFirstNames }} can only use the LPA if you have lost mental capacity.</p> <p class=\"govuk-body\">Be careful, as this can make the LPA a lot less useful. Each time {{ .AttorneysFirstNames }} tries to use the LPA, they might be asked to prove that you do not have mental capacity.</p>",
-    "whenDoYouWantAttorneysToUse": "When do you want the attorneys to be able to use the LPA?",
+    "whenDoYouWantAttorneysToUse": {
+        "one": "When do you want {{ .AttorneysFirstNames }} to be able to use the LPA?",
+        "other": "When do you want your attorneys to be able to use the LPA?"
+    },
     "asSoonAsItsRegistered": "As soon as it's registered",
     "onlyWhenIDoNotHaveMentalCapacity": "Only when I do not have mental capacity",
     "selectWhenCanTheLpaBeUsed": "Select when the LPA can be used",
@@ -207,9 +211,16 @@
     "typeOfLpa": "Type of LPA",
     "WhenTheLpaCanBeUsed": "When the LPA can be used",
     "whenTheLpaCanBeUsed": "when the LPA can be used",
-    "whoAreTheAttorneys": "Who are the attorneys",
+    "whoAreTheAttorneys": {
+        "one": "Who is the attorney",
+        "other": "Who are the attorneys"
+    },
     "howTheAttorneysMustWorkTogether": "How the attorneys must work together",
-    "whoIsTheReplacementAttorney": "Who is the replacement attorney",
+    "whoAreTheReplacementAttorneys": {
+        "one": "Who is the replacement attorney",
+        "other": "Who are the replacement attorneys"
+    },
+    "replacementAttorneysNotAppointed": "Replacement attorneys have not been appointed",
     "change": "Change",
     "yourAttorneys": "your attorneys",
     "yourReplacementAttorneys": "your replacement attorneys",
@@ -232,9 +243,6 @@
     "yourRefNumber": "Your reference number",
     "thankYouHeader": "Thank you for your payment.",
     "paymentConfirmationContent": "<p class=\"govuk-body\">You have successfully paid for your finance and affairs LPA.</p><p class=\"govuk-body\">We've sent you an email to confirm we've received your LPA application fee.</p><p class=\"govuk-body\">If the email has not arrived in a few minutes, check your spam folder.</p>",
-
-    "whatHappensNext": "What happens next",
-    "whatHappensNextContent": "<p class=\"govuk-body-l\">We've sent an email to {{.CertificateProviderFirstNames}} {{.CertificateProviderLastName}}.</p> <p class=\"govuk-body\">We've asked {{.CertificateProviderFirstNames}} to read some information about the certificate provider's role, answer some eligibility questions and confirm their identity.</p> <p class=\"govuk-body\">Once {{.CertificateProviderFirstNames}} has done this, we'll send you both an email to let you know it's time to arrange to meet up.</p> <p class=\"govuk-body\">When you meet, {{.CertificateProviderFirstNames}} will ask you some important questions about the LPA - this is to make sure you understand the LPA and no one is pressuring you to making it.</p> <p class=\"govuk-body\">In the meantime, you can choose how you'd like to sign the LPA.</p>",
 
     "whatHappensWhenSigning": "What happens when you sign the LPA",
     "whatHappensWhenSigningContent": "<p class=\"govuk-body\">Signing the LPA is an important and powerful legal step.</p> <p class=\"govuk-body\"> When you do this you're officially saying that you want {{.AllAttorneysFullNames}} to be your finance and affairs attorney.</p> <p class=\"govuk-body\">This means that once the LPA has been registered, {{.AllAttorneysFirstNames}} will have the legal power to:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>help you make a decision about your money or property, or make a decision for you</li> <li>deal with organisations, like banks and utility companies, on your behalf</li> </ul>",
@@ -307,15 +315,15 @@
     "viewTheLpaProgress": "View the LPA progress",
 
     "howShouldAttorneysMakeDecisions": "How should the attorneys make decisions?",
-    "howShouldAttorneysMakeDecisionsDetail": "The donor's choice here is very important as it affects how their LPA can be used. Whichever option the donor chooses, the attorneys must always act in the donor's best interests.",
+    "howShouldAttorneysMakeDecisionsDetail": "Your choice here is very important as it affects how your LPA can be used. Whichever option you choose, your attorneys must always act in your best interests.",
     "getHelpMakingDecision": "Get help with making this decision",
-    "jointlyAndSeverally": "Jointly and severally",
+    "jointlyAndSeverally": "Together (Jointly and severally)",
     "jointlyAndSeverallyHintAttorneys": "Attorneys can make decisions on their own or together. Most people choose this option because it's the most practical.",
     "jointly": "Jointly",
-    "jointlyHintAttorneys": "Attorneys must agree unanimously on every decision, however big or small. Be careful - if one of the attorneys can no longer act, none of the other attorneys will be able to act either, unless the donor states otherwise in their instructions.",
+    "jointlyHintAttorneys": "Attorneys must agree unanimously on every decision, however big or small. Be careful - if one of the attorneys can no longer act, none of the other attorneys will be able to act either, unless you state otherwise in your instructions.",
     "jointlyAndSeverallyMixed": "Jointly for some decisions, and jointly and severally for other decisions",
-    "jointlyAndSeverallyMixedHintAttorneys": "Attorneys must agree unanimously on some decisions, but can make others on their own. The donor must state which decisions need to be agreed unanimously.",
-    "decisionDetailsHint": "Please tell us which decisions the donor wants to be made jointly. These decisions will be printed on a extra sheet that the donor will need to sign and date. Take a look at the guidance for examples of how the donor can make their wishes clear.",
+    "jointlyAndSeverallyMixedHintAttorneys": "Attorneys must agree unanimously on some decisions, but can make others on their own. You must state which decisions need to be agreed unanimously.",
+    "decisionDetailsHint": "Please tell us which decisions you want to be made jointly. Take a look at the guidance for examples of how you can make your wishes clear.",
     "details": "Details",
     "chooseADecisionType": "Select from the listed decision options",
     "provideDecisionDetails": "Provide details on how your attorneys should act",
@@ -323,9 +331,9 @@
 
     "warning": "Warning",
     "jointlyReplacementWarning": "Replacement attorneys are an important backup when attorneys are appointed to act jointly.",
-    "jointlyReplacementWarningContent": "<p class=\"govuk-body\">If the donor does not appoint any replacement attorneys and one of the original attorneys dies or can no longer act, the LPA will stop working.</p><p class=\"govuk-body\">If the donor does appoint replacement attorneys and one of the original attorneys dies or can no longer act:</p><ul class=\"govuk-list govuk-list--bullet\"><li>ALL the original attorneys will be replaced by the replacement attorneys, unless the donor states otherwise in their instructions</li><li>the original attorneys will not be able to make any decisions on the donor's behalf anymore</li></ul>",
-    "mixedReplacementWarning": "The donor appointed their attorneys to act jointly for some decisions, and jointly and severally for others.",
-    "mixedReplacementWarningContent": "<p class=\"govuk-body\">This means that if an original attorney dies or can no longer act:</p><ul class=\"govuk-list govuk-list--bullet\"><li>all the replacement attorneys step in and take over making the joint decisions</li><li>the remaining original attorneys will not be able to make the joint decisions anymore, unless the donor states otherwise in their instructions</li><li>the replacement and remaining original attorneys can make all other decisions together or individually</li></ul>",
+    "jointlyReplacementWarningContent": "<p class=\"govuk-body\">If you do not appoint any replacement attorneys and one of the original attorneys dies or can no longer act, the LPA will stop working.</p><p class=\"govuk-body\">If you appoint replacement attorneys and one of the original attorneys dies or can no longer act:</p><ul class=\"govuk-list govuk-list--bullet\"><li>ALL the original attorneys will be replaced by the replacement attorneys, unless you state otherwise in your instructions</li><li>the original attorneys will not be able to make any decisions on your behalf anymore</li></ul>",
+    "mixedReplacementWarning": "You appointed your attorneys to act jointly for some decisions, and jointly and severally for others.",
+    "mixedReplacementWarningContent": "<p class=\"govuk-body\">This means that if an original attorney dies or can no longer act:</p><ul class=\"govuk-list govuk-list--bullet\"><li>all the replacement attorneys step in and take over making the joint decisions</li><li>the remaining original attorneys will not be able to make the joint decisions anymore, unless you state otherwise in your instructions</li><li>the replacement and remaining original attorneys can make all other decisions together or individually</li></ul>",
 
     "whoWouldYouLikeToBeTheReplacementAttorneys": "Who would you like to be the replacement attorneys?",
     "doYouWantToAddAnotherReplacementAttorney": "Do you want to add another replacement attorney?",
@@ -336,17 +344,17 @@
     },
 
     "howShouldReplacementAttorneysMakeDecisions": "How should the replacement attorneys make decisions?",
-    "howShouldReplacementAttorneysMakeDecisionsDetail": "The donor's choice here is very important as it affects how their LPA can be used. Whichever option the donor chooses, their replacement attorneys must always act in the donor's best interests.",
+    "howShouldReplacementAttorneysMakeDecisionsDetail": "Your choice here is very important as it affects how your LPA can be used. Whichever option you choose, your replacement attorneys must always act in your best interests.",
     "jointlyAndSeverallyHintReplacementAttorneys": "Replacement attorneys can make decisions on their own or together. Most people choose this option because it's the most practical.",
-    "jointlyHintReplacementAttorneys": "Replacement attorneys must agree unanimously on every decision, however big or small. If one replacement attorney can no longer act, the others will not be able to act either, unless the donor states otherwise in their instructions.",
-    "jointlyAndSeverallyMixedHintReplacementAttorneys": "Replacement attorneys must agree unanimously on some decisions, but can make others on their own. The donor must state which decisions need to be agreed unanimously.",
+    "jointlyHintReplacementAttorneys": "Replacement attorneys must agree unanimously on every decision, however big or small. If one replacement attorney can no longer act, the others will not be able to act either, unless you states otherwise in your instructions.",
+    "jointlyAndSeverallyMixedHintReplacementAttorneys": "Replacement attorneys must agree unanimously on some decisions, but can make others on their own. You must state which decisions need to be agreed unanimously.",
 
     "howShouldReplacementAttorneysStepIn": "How should the replacement attorneys step in?",
-    "howShouldReplacementAttorneysStepInDetail": "<p class=\"govuk-body\">The donor can choose when their replacement attorneys step in and in what order.</p><p class=\"govuk-body\">Once they've stepped in, the replacement attorneys will be able to make any decision jointly and severally along with the remaining original attorneys.</p><p class=\"govuk-body\">Most donors choose for all the replacement attorneys to step in together as soon as 1 of the original attorneys can no longer act.</p><p class=\"govuk-body\">If the donor would prefer the replacement attorneys to step in later or in a specific order, select 1 of the other 2 options.</p>",
+    "howShouldReplacementAttorneysStepInDetail": "<p class=\"govuk-body\">You can choose when your replacement attorneys step in and in what order.</p><p class=\"govuk-body\">Once they've stepped in, the replacement attorneys will be able to make any decision jointly and severally along with the remaining original attorneys.</p><p class=\"govuk-body\">Most donors choose for all the replacement attorneys to step in together as soon as 1 of the original attorneys can no longer act.</p><p class=\"govuk-body\">If you would prefer the replacement attorneys to step in later or in a specific order, select 1 of the other 2 options.</p>",
     "whenOneCanNoLongerAct": "As soon as <span class=\"govuk-!-font-weight-bold\">one</span> of the original attorneys can no longer act, all the replacement attorneys should step in together",
     "whenNoneCanNoLongerAct": "When <span class=\"govuk-!-font-weight-bold\">none</span> of the original attorneys can act, all the replacement attorneys should step in together",
     "otherWay": "In some other way",
-    "otherWayHint": "<p class=\"govuk--body\">Describe below how the donor would like this to happen. Be careful - the more specific the instructions, the greater the chance that they will not be able to be followed. If in doubt, seek legal advice. <a class=\"govuk-link\" href=\"#\">Not sure what to put?</a></p>",
+    "otherWayHint": "<p class=\"govuk--body\">Describe below how you would like this to happen. Be careful - the more specific the instructions, the greater the chance that they will not be able to be followed. If in doubt, seek legal advice. <a class=\"govuk-link\" href=\"#\">Not sure what to put?</a></p>",
     "selectWhenToStepIn": "Select when your replacement attorneys should step in",
     "provideDetailsOfWhenToStepIn": "Provide details on how your replacement attorneys should step in",
 

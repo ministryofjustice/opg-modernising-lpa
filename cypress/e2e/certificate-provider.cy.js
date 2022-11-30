@@ -70,7 +70,9 @@ describe('Certificate provider task', () => {
 
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/task-list');
+        cy.url().should('contain', '/check-your-lpa');
+
+        cy.visit('/task-list')
         cy.contains('li', "Choose your certificate provider")
             .should('contain', 'Completed');
     });
@@ -116,7 +118,9 @@ describe('Certificate provider task', () => {
         cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
 
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/task-list');
+        cy.url().should('contain', '/check-your-lpa');
+
+        cy.visit('/task-list')
         cy.contains('li', "Choose your certificate provider")
             .should('contain', 'Completed');
     });

@@ -40,7 +40,7 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 					Heading: "fillInTheLpa",
 					Items: []taskListItem{
 						{
-							Name:       "provideDonorDetails",
+							Name:       "provideYourDetails",
 							Path:       yourDetailsPath,
 							Completed:  lpa.You.Address.Line1 != "",
 							InProgress: lpa.You.FirstNames != "",

@@ -196,9 +196,6 @@ func App(
 	handle(checkYourLpaPath, RequireSession|CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), lpaStore))
 
-	handle(whatHappensNextPath, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("what_happens_next.gohtml"), taskListPath, lpaStore))
-
 	handle(selectYourIdentityOptionsPath, RequireSession|CanGoBack,
 		SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), lpaStore))
 	handle(yourChosenIdentityOptionsPath, RequireSession|CanGoBack,
