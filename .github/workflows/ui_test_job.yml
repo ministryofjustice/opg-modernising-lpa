@@ -101,7 +101,6 @@ jobs:
           path: ./cypress/screenshots/
 
       - name: Persist Cypress videos artifacts
-        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: cypress-run-videos
