@@ -83,8 +83,8 @@ jobs:
         uses: cypress-io/github-action@v4
         with:
           record: true
-          config: video=true
         env:
+          CYPRESS_video: true
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
