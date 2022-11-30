@@ -44,7 +44,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
-					{Name: "provideDonorDetails", Path: yourDetailsPath, InProgress: true},
+					{Name: "provideYourDetails", Path: yourDetailsPath, InProgress: true},
 					{Name: "chooseYourAttorneys", Path: chooseAttorneysPath, InProgress: true, Count: 1},
 					{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath, InProgress: true, Count: 1},
 					{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath, InProgress: true},
@@ -96,7 +96,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
-					{Name: "provideDonorDetails", Path: yourDetailsPath, Completed: true},
+					{Name: "provideYourDetails", Path: yourDetailsPath, Completed: true},
 					{Name: "chooseYourAttorneys", Path: chooseAttorneysPath, Completed: true, Count: 2},
 					{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath, Completed: true, Count: 1},
 					{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath, Completed: true},
@@ -135,7 +135,7 @@ func TestGetTaskList(t *testing.T) {
 						{
 							Heading: "fillInTheLpa",
 							Items: []taskListItem{
-								{Name: "provideDonorDetails", Path: yourDetailsPath},
+								{Name: "provideYourDetails", Path: yourDetailsPath},
 								{Name: "chooseYourAttorneys", Path: chooseAttorneysPath},
 								{Name: "chooseYourReplacementAttorneys", Path: wantReplacementAttorneysPath},
 								{Name: "chooseWhenTheLpaCanBeUsed", Path: whenCanTheLpaBeUsedPath},

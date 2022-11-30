@@ -108,7 +108,7 @@ type CertificateProvider struct {
 	LastName                string
 	Email                   string
 	DateOfBirth             time.Time
-	Relationship            []string
+	Relationship            string
 	RelationshipDescription string
 	RelationshipLength      string
 }

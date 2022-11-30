@@ -17,7 +17,7 @@ describe('Do you want replacement attorneys', () => {
         cy.visit('/testing-start?redirect=/want-replacement-attorneys&howAttorneysAct=mixed');
         cy.injectAxe();
 
-        cy.get('div.govuk-warning-text').should('contain', 'The donor appointed their attorneys to act jointly for some decisions, and jointly and severally for others.')
+        cy.get('div.govuk-warning-text').should('contain', 'You appointed your attorneys to act jointly for some decisions, and jointly and severally for others.')
 
         cy.get('input[name="want"]').check('yes')
 
