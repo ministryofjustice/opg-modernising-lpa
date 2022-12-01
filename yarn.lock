@@ -755,7 +755,7 @@
   resolved "https://registry.yarnpkg.com/@esbuild/linux-loong64/-/linux-loong64-0.15.16.tgz#284522de76abe951e4ed2bd24a467e8d49c67933"
   integrity sha512-SDLfP1uoB0HZ14CdVYgagllgrG7Mdxhkt4jDJOKl/MldKrkQ6vDJMZKl2+5XsEY/Lzz37fjgLQoJBGuAw/x8kQ==
 
-"@ministryofjustice/frontend@1.6.3":
+"@ministryofjustice/frontend@^1.6.3":
   version "1.6.3"
   resolved "https://registry.yarnpkg.com/@ministryofjustice/frontend/-/frontend-1.6.3.tgz#1ff157291d93dfc5896bc8ebba614f943aab1c0e"
   integrity sha512-xbtK3cCAg+H2zY6S6foOjWwTf9Wh0PlMQ7cHaSJ8spj+88LBICEHG0qQ/5As/Xm3AEF4NhLiZR3xw0AvTUqvxA==
@@ -914,7 +914,7 @@ aws4@^1.8.0:
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.11.0.tgz#d61f46d83b2519250e2784daf5b09479a8b41c59"
   integrity sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==
 
-axe-core@4.5.2:
+axe-core@^4.5.2:
   version "4.5.2"
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.5.2.tgz#823fdf491ff717ac3c58a52631d4206930c1d9f7"
   integrity sha512-u2MVsXfew5HBvjsczCv+xlwdNnB1oQR9HlAcsejZttNjKKSkeDNVwB1vMThIUIFI9GoT57Vtk8iQLwqOfAkboA==
@@ -1162,12 +1162,12 @@ cross-spawn@^7.0.0, cross-spawn@^7.0.3:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
-cypress-axe@1.0.0:
+cypress-axe@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/cypress-axe/-/cypress-axe-1.0.0.tgz#ab4e9486eaa3bb956a90a1ae40d52df42827b4f0"
   integrity sha512-QBlNMAd5eZoyhG8RGGR/pLtpHGkvgWXm2tkP68scJ+AjYiNNOlJihxoEwH93RT+rWOLrefw4iWwEx8kpEcrvJA==
 
-cypress-multi-reporters@1.6.1:
+cypress-multi-reporters@^1.6.1:
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/cypress-multi-reporters/-/cypress-multi-reporters-1.6.1.tgz#515b891f6c80e0700068efb03ab9d55388399c95"
   integrity sha512-FPeC0xWF1N6Myrwc2m7KC0xxlrtG8+x4hlsPFBDRWP8u/veR2x90pGaH3BuJfweV7xoQ4Zo85Qjhu3fgZGrBQQ==
@@ -1175,7 +1175,7 @@ cypress-multi-reporters@1.6.1:
     debug "^4.1.1"
     lodash "^4.17.15"
 
-cypress-parallel@0.9.1:
+cypress-parallel@^0.9.1:
   version "0.9.1"
   resolved "https://registry.yarnpkg.com/cypress-parallel/-/cypress-parallel-0.9.1.tgz#590a46220fbfc9d0371f546afb5beb4c95615e75"
   integrity sha512-7VSfFr8HEEN6zkgo6SkG7pPoHK7VakFhEH1jbM4+Ire/I+O2jNzyd1bRUA+O3V2DIMow64ECDJKf13YHBon+BQ==
@@ -1190,10 +1190,10 @@ cypress-parallel@0.9.1:
     mocha "^8.2.1"
     yargs "15.3.1"
 
-cypress@10.11.0:
-  version "10.11.0"
-  resolved "https://registry.yarnpkg.com/cypress/-/cypress-10.11.0.tgz#e9fbdd7638bae3d8fb7619fd75a6330d11ebb4e8"
-  integrity sha512-lsaE7dprw5DoXM00skni6W5ElVVLGAdRUUdZjX2dYsGjbY/QnpzWZ95Zom1mkGg0hAaO/QVTZoFVS7Jgr/GUPA==
+cypress@^11.2:
+  version "11.2.0"
+  resolved "https://registry.yarnpkg.com/cypress/-/cypress-11.2.0.tgz#63edef8c387b687066c5493f6f0ad7b9ced4b2b7"
+  integrity sha512-u61UGwtu7lpsNWLUma/FKNOsrjcI6wleNmda/TyKHe0dOBcVjbCPlp1N6uwFZ0doXev7f/91YDpU9bqDCFeBLA==
   dependencies:
     "@cypress/request" "^2.88.10"
     "@cypress/xvfb" "^1.2.4"
@@ -1418,7 +1418,7 @@ esbuild-windows-arm64@0.15.16:
   resolved "https://registry.yarnpkg.com/esbuild-windows-arm64/-/esbuild-windows-arm64-0.15.16.tgz#77e804d60dec0390fe8f21401e39b435d5d1b863"
   integrity sha512-oCcUKrJaMn04Vxy9Ekd8x23O8LoU01+4NOkQ2iBToKgnGj5eo1vU9i27NQZ9qC8NFZgnQQZg5oZWAejmbsppNA==
 
-esbuild@0.15.16:
+esbuild@^0.15.16:
   version "0.15.16"
   resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.15.16.tgz#59324e5667985bf6aee8a91ea576baef6872cf21"
   integrity sha512-o6iS9zxdHrrojjlj6pNGC2NAg86ECZqIETswTM5KmJitq+R1YmahhWtMumeQp9lHqJaROGnsBi2RLawGnfo5ZQ==
@@ -1675,15 +1675,15 @@ global-dirs@^3.0.0:
   dependencies:
     ini "2.0.0"
 
-govuk-frontend@4.4.0:
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/govuk-frontend/-/govuk-frontend-4.4.0.tgz#36531ae3b12798267e5a72409c7e4b3b10565102"
-  integrity sha512-3Hg4GePCdlynd7F6a3YPOEJx0lDPPP6iBv1S893tv3+efYGWLGvsSFdCG0uob8Xc1O7ckL19dSsFpFhBWUkTNA==
-
 "govuk-frontend@^3.0.0 || ^4.0.0":
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/govuk-frontend/-/govuk-frontend-4.3.1.tgz#d9c581aca3d23bbfe9bd27c25fee65322b276393"
   integrity sha512-uD0KVFds7drOwLEvfp4zRBOXuHCxkWLYDQcYvlbG+2baZ9po2TGZz8WjfzhfueYjo9+Uwk+bM0NQT6g4cg/Q+A==
+
+govuk-frontend@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/govuk-frontend/-/govuk-frontend-4.4.0.tgz#36531ae3b12798267e5a72409c7e4b3b10565102"
+  integrity sha512-3Hg4GePCdlynd7F6a3YPOEJx0lDPPP6iBv1S893tv3+efYGWLGvsSFdCG0uob8Xc1O7ckL19dSsFpFhBWUkTNA==
 
 graceful-fs@^4.1.6, graceful-fs@^4.2.0:
   version "4.2.10"
@@ -1841,7 +1841,7 @@ isstream@~0.1.2:
   resolved "https://registry.yarnpkg.com/isstream/-/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
   integrity sha512-Yljz7ffyPbrLpLngrMtZ7NduUgVvi6wG9RJ9IUcyCd59YQ911PBJphODUcbOVbqYfxe1wuYf/LJ8PauMRwsM/g==
 
-jquery@3.6.1:
+jquery@^3.6.1:
   version "3.6.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.6.1.tgz#fab0408f8b45fc19f956205773b62b292c147a16"
   integrity sha512-opJeO4nCucVnsjiXOE+/PcCgYw9Gwpvs/a6B1LL/lQhwWwpbVEVYDZ1FokFr8PRc7ghYlrFPuyHuiiDNTQxmcw==
@@ -2278,7 +2278,7 @@ safer-buffer@^2.0.2, safer-buffer@^2.1.0, safer-buffer@~2.1.0:
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
-sass@1.56.1:
+sass@^1.56.1:
   version "1.56.1"
   resolved "https://registry.yarnpkg.com/sass/-/sass-1.56.1.tgz#94d3910cd468fd075fa87f5bb17437a0b617d8a7"
   integrity sha512-VpEyKpyBPCxE7qGDtOcdJ6fFbcpOM+Emu7uZLxVrkX8KVU/Dp5UF7WLvzqRuUhB6mqqQt1xffLoG+AndxTZrCQ==
