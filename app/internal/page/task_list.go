@@ -6,6 +6,23 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 )
 
+const (
+	FillInLpaSection                      = "fillInTheLpa"
+	ProvideYourDetailsTask                = "provideYourDetails"
+	ChooseYourAttorneysTask               = "chooseYourAttorneys"
+	ChooseYourReplacementAttorneysTask    = "chooseYourReplacementAttorneys"
+	ChooseWhenTheLpaCanBeUsedTask         = "chooseWhenTheLpaCanBeUsed"
+	AddRestrictionsToLpaTask              = "addRestrictionsToTheLpa"
+	ChooseCertificateProviderTask         = "chooseYourCertificateProvider"
+	CheckAndSendToCertificateProviderTask = "checkAndSendToYourCertificateProvider"
+	PayForLpaSection                      = "payForTheLpa"
+	PayForTheLpaTask                      = "payForTheLpa"
+	ConfirmYourIdentityAndSignSection     = "confirmYourIdentityAndSign"
+	ConfirmYourIdentityAndSignTask        = "confirmYourIdentityAndSign"
+	RegisterTheLpaSection                 = "registerTheLpa"
+	RegisterTheLpaTask                    = "registerTheLpa"
+)
+
 type taskListData struct {
 	App      AppData
 	Errors   map[string]string
@@ -37,48 +54,48 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 			App: appData,
 			Sections: []taskListSection{
 				{
-					Heading: "fillInTheLpa",
+					Heading: FillInLpaSection,
 					Items: []taskListItem{
 						{
-							Name:       "provideYourDetails",
+							Name:       ProvideYourDetailsTask,
 							Path:       yourDetailsPath,
 							Completed:  lpa.You.Address.Line1 != "",
 							InProgress: lpa.You.FirstNames != "",
 						},
 						{
-							Name:       "chooseYourAttorneys",
+							Name:       ChooseYourAttorneysTask,
 							Path:       chooseAttorneysPath,
 							Completed:  lpa.AttorneysTaskComplete(),
 							InProgress: len(lpa.Attorneys) > 0 && !lpa.AttorneysTaskComplete(),
 							Count:      len(lpa.Attorneys),
 						},
 						{
-							Name:       "chooseYourReplacementAttorneys",
+							Name:       ChooseYourReplacementAttorneysTask,
 							Path:       wantReplacementAttorneysPath,
 							Completed:  lpa.ReplacementAttorneysTaskComplete(),
 							InProgress: len(lpa.ReplacementAttorneys) > 0 && !lpa.ReplacementAttorneysTaskComplete(),
 							Count:      len(lpa.ReplacementAttorneys),
 						},
 						{
-							Name:       "chooseWhenTheLpaCanBeUsed",
+							Name:       ChooseWhenTheLpaCanBeUsedTask,
 							Path:       whenCanTheLpaBeUsedPath,
 							Completed:  lpa.Tasks.WhenCanTheLpaBeUsed == TaskCompleted,
 							InProgress: lpa.Tasks.WhenCanTheLpaBeUsed == TaskInProgress,
 						},
 						{
-							Name:       "addRestrictionsToTheLpa",
+							Name:       AddRestrictionsToLpaTask,
 							Path:       restrictionsPath,
 							Completed:  lpa.Tasks.Restrictions == TaskCompleted,
 							InProgress: lpa.Tasks.Restrictions == TaskInProgress,
 						},
 						{
-							Name:       "chooseYourCertificateProvider",
+							Name:       ChooseCertificateProviderTask,
 							Path:       whoDoYouWantToBeCertificateProviderGuidancePath,
 							Completed:  lpa.Tasks.CertificateProvider == TaskCompleted,
 							InProgress: lpa.Tasks.CertificateProvider == TaskInProgress,
 						},
 						{
-							Name:       "checkAndSendToYourCertificateProvider",
+							Name:       CheckAndSendToCertificateProviderTask,
 							Path:       checkYourLpaPath,
 							Completed:  lpa.Tasks.CheckYourLpa == TaskCompleted,
 							InProgress: lpa.Tasks.CheckYourLpa == TaskInProgress,
@@ -86,10 +103,10 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 					},
 				},
 				{
-					Heading: "payForTheLpa",
+					Heading: PayForLpaSection,
 					Items: []taskListItem{
 						{
-							Name:       "payForTheLpa",
+							Name:       PayForTheLpaTask,
 							Path:       aboutPaymentPath,
 							Completed:  lpa.Tasks.PayForLpa == TaskCompleted,
 							InProgress: lpa.Tasks.PayForLpa == TaskInProgress,
@@ -97,10 +114,10 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 					},
 				},
 				{
-					Heading: "confirmYourIdentityAndSign",
+					Heading: ConfirmYourIdentityAndSignSection,
 					Items: []taskListItem{
 						{
-							Name:       "confirmYourIdentityAndSign",
+							Name:       ConfirmYourIdentityAndSignTask,
 							Path:       selectYourIdentityOptionsPath,
 							Completed:  lpa.Tasks.ConfirmYourIdentityAndSign == TaskCompleted,
 							InProgress: lpa.Tasks.ConfirmYourIdentityAndSign == TaskInProgress,
@@ -108,9 +125,9 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 					},
 				},
 				{
-					Heading: "registerTheLpa",
+					Heading: RegisterTheLpaSection,
 					Items: []taskListItem{
-						{Name: "registerTheLpa", Disabled: true},
+						{Name: RegisterTheLpaTask, Disabled: true},
 					},
 				},
 			},
