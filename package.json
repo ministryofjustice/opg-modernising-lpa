@@ -8,8 +8,7 @@
         "build:images": "mkdir -p web/static/assets/images && cp node_modules/govuk-frontend/govuk/assets/images/* node_modules/@ministryofjustice/frontend/moj/assets/images/* web/static/assets/images",
         "build:fonts": "mkdir -p web/static/assets/fonts && cp node_modules/govuk-frontend/govuk/assets/fonts/* web/static/assets/fonts",
         "cypress:open": "node_modules/.bin/cypress open",
-        "cypress:run": "node_modules/.bin/cypress run -vvv",
-        "cypress:parallel": "cypress-parallel -s cypress:run -t 4 -d ./cypress/e2e"
+        "cypress:run": "node_modules/.bin/cypress run -vvv"
     },
     "license": "MIT",
     "dependencies": {
@@ -23,7 +22,6 @@
         "cypress": "^11.2",
         "cypress-axe": "^1.0.0",
         "cypress-multi-reporters": "^1.6.1",
-        "cypress-parallel": "^0.9.1",
         "esbuild": "^0.15.16",
         "sass": "^1.56.1"
     }
