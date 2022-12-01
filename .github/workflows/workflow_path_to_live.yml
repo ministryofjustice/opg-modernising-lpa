@@ -99,23 +99,23 @@ jobs:
       workspace_name: production
     secrets: inherit
 
-  production_deploy:
-    name: Production Deploy
-    needs: [create_tags, terraform_account_workflow_production, docker_build_scan_push]
-    uses: ./.github/workflows/terraform_environment_job.yml
-    with:
-      workspace_name: production
-      version_tag: ${{ needs.create_tags.outputs.version_tag }}
-    secrets: inherit
-
-
-  end_of_main_workflow:
-    name: End of Main Workflow
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    environment: production
-    needs: [production_deploy]
-    steps:
-      - name: End of Path to Live Workflow
-        run: |
-          echo "production environment tested, built and deployed"
+#  production_deploy:
+#    name: Production Deploy
+#    needs: [create_tags, terraform_account_workflow_production, docker_build_scan_push]
+#    uses: ./.github/workflows/terraform_environment_job.yml
+#    with:
+#      workspace_name: production
+#      version_tag: ${{ needs.create_tags.outputs.version_tag }}
+#    secrets: inherit
+#
+#
+#  end_of_main_workflow:
+#    name: End of Main Workflow
+#    if: github.ref == 'refs/heads/main'
+#    runs-on: ubuntu-latest
+#    environment: production
+#    needs: [production_deploy]
+#    steps:
+#      - name: End of Path to Live Workflow
+#        run: |
+#          echo "production environment tested, built and deployed"
