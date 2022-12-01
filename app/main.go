@@ -70,7 +70,7 @@ func main() {
 	if err != nil {
 		logger.Fatal(err)
 	}
-	staticHash = "?" + url.QueryEscape(staticHash[3:11])
+	staticHash = url.QueryEscape(staticHash[3:11])
 
 	httpClient := &http.Client{Timeout: 10 * time.Second}
 
