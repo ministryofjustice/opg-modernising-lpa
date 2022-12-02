@@ -3,7 +3,7 @@ module github.com/ministryofjustice/opg-modernising-lpa
 go 1.19
 
 require (
-	github.com/MicahParks/keyfunc v1.6.0
+	github.com/MicahParks/keyfunc v1.7.0
 	github.com/aws/aws-sdk-go-v2 v1.17.1
 	github.com/aws/aws-sdk-go-v2/config v1.18.3
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.10.6
@@ -11,7 +11,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.16.8
 	github.com/felixge/httpsnoop v1.0.3
 	github.com/getyoti/yoti-go-sdk/v3 v3.6.0
-	github.com/golang-jwt/jwt/v4 v4.4.2
+	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/gorilla/sessions v1.2.1
 	github.com/ministryofjustice/opg-go-common v0.0.0-20220816144329-763497f29f90
 	github.com/nicksnyder/go-i18n/v2 v2.2.1
@@ -25,7 +25,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.11.1
 	go.opentelemetry.io/otel/trace v1.11.1
 	golang.org/x/exp v0.0.0-20221126150942-6ab00d035af9
-	golang.org/x/mod v0.6.0
+	golang.org/x/mod v0.7.0
 	golang.org/x/text v0.4.0
 	google.golang.org/grpc v1.51.0
 )
