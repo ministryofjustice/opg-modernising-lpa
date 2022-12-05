@@ -8,22 +8,11 @@ import (
 )
 
 type readYourLpaData struct {
-	App                            AppData
-	Errors                         map[string]string
-	Lpa                            *Lpa
-	EnteredSignature               bool
-	Form                           *readYourLpaForm
-	HowAttorneysMakeDecisionsPath  string
-	ChooseAttorneysPath            string
-	WhenCanLpaBeUsedPath           string
-	RestrictionsPath               string
-	CertificatesProviderPath       string
-	AttorneyDetailsPath            string
-	AttorneyAddressPath            string
-	RemoveAttorneyPath             string
-	ReplacementAttorneyDetailsPath string
-	ReplacementAttorneyAddressPath string
-	RemoveReplacementAttorneyPath  string
+	App              AppData
+	Errors           map[string]string
+	Lpa              *Lpa
+	EnteredSignature bool
+	Form             *readYourLpaForm
 }
 
 func ReadYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -41,17 +30,6 @@ func ReadYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 				Confirm:   lpa.ConfirmFreeWill,
 				Signature: lpa.EnteredSignatureCode,
 			},
-			HowAttorneysMakeDecisionsPath:  howShouldAttorneysMakeDecisionsPath,
-			ChooseAttorneysPath:            chooseAttorneysPath,
-			WhenCanLpaBeUsedPath:           whenCanTheLpaBeUsedPath,
-			RestrictionsPath:               restrictionsPath,
-			CertificatesProviderPath:       certificateProviderDetailsPath,
-			AttorneyDetailsPath:            chooseAttorneysPath,
-			AttorneyAddressPath:            chooseAttorneysAddressPath,
-			RemoveAttorneyPath:             removeAttorneyPath,
-			ReplacementAttorneyDetailsPath: chooseReplacementAttorneysPath,
-			ReplacementAttorneyAddressPath: chooseReplacementAttorneysAddressPath,
-			RemoveReplacementAttorneyPath:  removeReplacementAttorneyPath,
 		}
 
 		if r.Method == http.MethodPost {
@@ -73,7 +51,7 @@ func ReadYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 					return err
 				}
 
-				appData.Lang.Redirect(w, r, signingConfirmationPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, appData.Paths.SigningConfirmation, http.StatusFound)
 				return nil
 			}
 		}

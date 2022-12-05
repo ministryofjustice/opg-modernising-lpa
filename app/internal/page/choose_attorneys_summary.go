@@ -32,9 +32,9 @@ func ChooseAttorneysSummary(logger Logger, tmpl template.Template, lpaStore LpaS
 		data := &chooseAttorneysSummaryData{
 			App:                 appData,
 			Lpa:                 lpa,
-			AttorneyDetailsPath: chooseAttorneysPath,
-			AttorneyAddressPath: chooseAttorneysAddressPath,
-			RemoveAttorneyPath:  removeAttorneyPath,
+			AttorneyDetailsPath: appData.Paths.ChooseAttorneys,
+			AttorneyAddressPath: appData.Paths.ChooseAttorneysAddress,
+			RemoveAttorneyPath:  appData.Paths.RemoveAttorney,
 			Form:                chooseAttorneysSummaryForm{},
 		}
 
@@ -46,10 +46,10 @@ func ChooseAttorneysSummary(logger Logger, tmpl template.Template, lpaStore LpaS
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				redirectUrl := wantReplacementAttorneysPath
+				redirectUrl := appData.Paths.WantReplacementAttorneys
 
 				if len(lpa.Attorneys) > 1 {
-					redirectUrl = howShouldAttorneysMakeDecisionsPath
+					redirectUrl = appData.Paths.HowShouldAttorneysMakeDecisions
 				}
 
 				if data.Form.AddAttorney == "yes" {

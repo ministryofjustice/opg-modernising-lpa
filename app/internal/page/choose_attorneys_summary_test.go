@@ -24,9 +24,9 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 		On("Func", w, &chooseAttorneysSummaryData{
 			App:                 appData,
 			Lpa:                 &Lpa{},
-			AttorneyAddressPath: chooseAttorneysAddressPath,
-			AttorneyDetailsPath: chooseAttorneysPath,
-			RemoveAttorneyPath:  removeAttorneyPath,
+			AttorneyAddressPath: appData.Paths.ChooseAttorneysAddress,
+			AttorneyDetailsPath: appData.Paths.ChooseAttorneys,
+			RemoveAttorneyPath:  appData.Paths.RemoveAttorney,
 		}).
 		Return(nil)
 

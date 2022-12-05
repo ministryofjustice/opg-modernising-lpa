@@ -58,45 +58,45 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 					Items: []taskListItem{
 						{
 							Name:       ProvideYourDetailsTask,
-							Path:       yourDetailsPath,
+							Path:       appData.Paths.YourDetails,
 							Completed:  lpa.You.Address.Line1 != "",
 							InProgress: lpa.You.FirstNames != "",
 						},
 						{
 							Name:       ChooseYourAttorneysTask,
-							Path:       chooseAttorneysPath,
+							Path:       appData.Paths.ChooseAttorneys,
 							Completed:  lpa.AttorneysTaskComplete(),
 							InProgress: len(lpa.Attorneys) > 0 && !lpa.AttorneysTaskComplete(),
 							Count:      len(lpa.Attorneys),
 						},
 						{
 							Name:       ChooseYourReplacementAttorneysTask,
-							Path:       wantReplacementAttorneysPath,
+							Path:       appData.Paths.WantReplacementAttorneys,
 							Completed:  lpa.ReplacementAttorneysTaskComplete(),
 							InProgress: len(lpa.ReplacementAttorneys) > 0 && !lpa.ReplacementAttorneysTaskComplete(),
 							Count:      len(lpa.ReplacementAttorneys),
 						},
 						{
 							Name:       ChooseWhenTheLpaCanBeUsedTask,
-							Path:       whenCanTheLpaBeUsedPath,
+							Path:       appData.Paths.WhenCanTheLpaBeUsed,
 							Completed:  lpa.Tasks.WhenCanTheLpaBeUsed == TaskCompleted,
 							InProgress: lpa.Tasks.WhenCanTheLpaBeUsed == TaskInProgress,
 						},
 						{
 							Name:       AddRestrictionsToLpaTask,
-							Path:       restrictionsPath,
+							Path:       appData.Paths.Restrictions,
 							Completed:  lpa.Tasks.Restrictions == TaskCompleted,
 							InProgress: lpa.Tasks.Restrictions == TaskInProgress,
 						},
 						{
 							Name:       ChooseCertificateProviderTask,
-							Path:       whoDoYouWantToBeCertificateProviderGuidancePath,
+							Path:       appData.Paths.WhoDoYouWantToBeCertificateProviderGuidance,
 							Completed:  lpa.Tasks.CertificateProvider == TaskCompleted,
 							InProgress: lpa.Tasks.CertificateProvider == TaskInProgress,
 						},
 						{
 							Name:       CheckAndSendToCertificateProviderTask,
-							Path:       checkYourLpaPath,
+							Path:       appData.Paths.CheckYourLpa,
 							Completed:  lpa.Tasks.CheckYourLpa == TaskCompleted,
 							InProgress: lpa.Tasks.CheckYourLpa == TaskInProgress,
 						},
@@ -107,7 +107,7 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 					Items: []taskListItem{
 						{
 							Name:       PayForTheLpaTask,
-							Path:       aboutPaymentPath,
+							Path:       appData.Paths.AboutPayment,
 							Completed:  lpa.Tasks.PayForLpa == TaskCompleted,
 							InProgress: lpa.Tasks.PayForLpa == TaskInProgress,
 						},
@@ -118,7 +118,7 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 					Items: []taskListItem{
 						{
 							Name:       ConfirmYourIdentityAndSignTask,
-							Path:       selectYourIdentityOptionsPath,
+							Path:       appData.Paths.SelectYourIdentityOptions,
 							Completed:  lpa.Tasks.ConfirmYourIdentityAndSign == TaskCompleted,
 							InProgress: lpa.Tasks.ConfirmYourIdentityAndSign == TaskInProgress,
 						},

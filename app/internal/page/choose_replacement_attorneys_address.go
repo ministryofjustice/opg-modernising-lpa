@@ -51,7 +51,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 				from := r.FormValue("from")
 
 				if from == "" {
-					from = chooseReplacementAttorneysSummaryPath
+					from = appData.Paths.ChooseReplacementAttorneysSummary
 				}
 
 				appData.Lang.Redirect(w, r, from, http.StatusFound)

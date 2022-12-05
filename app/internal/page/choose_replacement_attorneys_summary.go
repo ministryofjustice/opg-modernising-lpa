@@ -28,10 +28,10 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 		data := &chooseReplacementAttorneysSummaryData{
 			App:                            appData,
 			Lpa:                            lpa,
-			ReplacementAttorneyDetailsPath: chooseReplacementAttorneysPath,
-			ReplacementAttorneyAddressPath: chooseReplacementAttorneysAddressPath,
+			ReplacementAttorneyDetailsPath: appData.Paths.ChooseReplacementAttorneys,
+			ReplacementAttorneyAddressPath: appData.Paths.ChooseReplacementAttorneysAddress,
 			Form:                           chooseAttorneysSummaryForm{},
-			RemoveReplacementAttorneyPath:  removeReplacementAttorneyPath,
+			RemoveReplacementAttorneyPath:  appData.Paths.RemoveReplacementAttorney,
 		}
 
 		if r.Method == http.MethodPost {
@@ -45,11 +45,11 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 				var redirectUrl string
 
 				if len(lpa.ReplacementAttorneys) > 1 && len(lpa.Attorneys) > 1 && lpa.HowAttorneysMakeDecisions == Jointly {
-					redirectUrl = howShouldReplacementAttorneysMakeDecisionsPath
+					redirectUrl = appData.Paths.HowShouldReplacementAttorneysMakeDecisions
 				} else if len(lpa.Attorneys) > 1 && lpa.HowAttorneysMakeDecisions == JointlyAndSeverally {
-					redirectUrl = howShouldReplacementAttorneysStepInPath
+					redirectUrl = appData.Paths.HowShouldReplacementAttorneysStepIn
 				} else {
-					redirectUrl = whenCanTheLpaBeUsedPath
+					redirectUrl = appData.Paths.WhenCanTheLpaBeUsed
 				}
 
 				if data.Form.AddAttorney == "yes" {
