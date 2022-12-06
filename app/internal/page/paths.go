@@ -1,52 +1,55 @@
 package page
 
-const (
-	AuthPath         = "/auth"
-	AuthRedirectPath = "/auth/redirect"
-
-	aboutPaymentPath                                = "/about-payment"
-	certificateProviderDetailsPath                  = "/certificate-provider-details"
-	checkYourLpaPath                                = "/check-your-lpa"
-	chooseAttorneysAddressPath                      = "/choose-attorneys-address"
-	chooseAttorneysPath                             = "/choose-attorneys"
-	chooseAttorneysSummaryPath                      = "/choose-attorneys-summary"
-	chooseReplacementAttorneysPath                  = "/choose-replacement-attorneys"
-	chooseReplacementAttorneysAddressPath           = "/choose-replacement-attorneys-address"
-	chooseReplacementAttorneysSummaryPath           = "/choose-replacement-attorneys-summary"
-	dashboardPath                                   = "/dashboard"
-	howDoYouKnowYourCertificateProviderPath         = "/how-do-you-know-your-certificate-provider"
-	howLongHaveYouKnownCertificateProviderPath      = "/how-long-have-you-known-certificate-provider"
-	howShouldReplacementAttorneysMakeDecisionsPath  = "/how-should-replacement-attorneys-make-decisions"
-	howShouldReplacementAttorneysStepInPath         = "/how-should-replacement-attorneys-step-in"
-	howShouldAttorneysMakeDecisionsPath             = "/how-should-attorneys-make-decisions"
-	howToSignPath                                   = "/how-to-sign"
-	howWouldYouLikeToBeContactedPath                = "/how-would-you-like-to-be-contacted"
-	identityConfirmedPath                           = "/identity-confirmed"
-	identityWithCouncilTaxBillPath                  = "/id/council-tax-bill"
-	identityWithDrivingLicencePath                  = "/id/driving-licence"
-	identityWithDwpAccountPath                      = "/id/dwp-account"
-	identityWithGovernmentGatewayAccountPath        = "/id/government-gateway-account"
-	identityWithOnlineBankAccountPath               = "/id/online-bank-account"
-	identityWithPassportPath                        = "/id/passport"
-	identityWithUtilityBillPath                     = "/id/utility-bill"
-	identityWithYotiCallbackPath                    = "/id/yoti/callback"
-	identityWithYotiPath                            = "/id/yoti"
-	lpaTypePath                                     = "/lpa-type"
-	paymentConfirmationPath                         = "/payment-confirmation"
-	readYourLpaPath                                 = "/read-your-lpa"
-	removeAttorneyPath                              = "/remove-attorney"
-	removeReplacementAttorneyPath                   = "/remove-replacement-attorney"
-	restrictionsPath                                = "/restrictions"
-	selectYourIdentityOptionsPath                   = "/select-your-identity-options"
-	signingConfirmationPath                         = "/signing-confirmation"
-	startPath                                       = "/start"
-	taskListPath                                    = "/task-list"
-	wantReplacementAttorneysPath                    = "/want-replacement-attorneys"
-	whatHappensWhenSigningPath                      = "/what-happens-when-signing"
-	whenCanTheLpaBeUsedPath                         = "/when-can-the-lpa-be-used"
-	whoDoYouWantToBeCertificateProviderGuidancePath = "/who-do-you-want-to-be-certificate-provider-guidance"
-	whoIsTheLpaForPath                              = "/who-is-the-lpa-for"
-	yourAddressPath                                 = "/your-address"
-	yourChosenIdentityOptionsPath                   = "/your-chosen-identity-options"
-	yourDetailsPath                                 = "/your-details"
-)
+type AppPaths struct {
+	Auth                                        string
+	AuthRedirect                                string
+	AboutPayment                                string
+	CertificateProviderDetails                  string
+	CheckYourLpa                                string
+	ChooseAttorneysAddress                      string
+	ChooseAttorneys                             string
+	ChooseAttorneysSummary                      string
+	ChooseReplacementAttorneys                  string
+	ChooseReplacementAttorneysAddress           string
+	ChooseReplacementAttorneysSummary           string
+	CookiesConsent                              string
+	Dashboard                                   string
+	HealthCheck                                 string
+	HowDoYouKnowYourCertificateProvider         string
+	HowLongHaveYouKnownCertificateProvider      string
+	HowShouldReplacementAttorneysMakeDecisions  string
+	HowShouldReplacementAttorneysStepIn         string
+	HowShouldAttorneysMakeDecisions             string
+	HowToSign                                   string
+	HowWouldYouLikeToBeContacted                string
+	IdentityConfirmed                           string
+	IdentityWithCouncilTaxBill                  string
+	IdentityWithDrivingLicence                  string
+	IdentityWithDwpAccount                      string
+	IdentityWithGovernmentGatewayAccount        string
+	IdentityWithOnlineBankAccount               string
+	IdentityWithPassport                        string
+	IdentityWithUtilityBill                     string
+	IdentityWithYotiCallback                    string
+	IdentityWithYoti                            string
+	LpaType                                     string
+	PaymentConfirmation                         string
+	ReadYourLpa                                 string
+	RemoveAttorney                              string
+	RemoveReplacementAttorney                   string
+	Restrictions                                string
+	Root                                        string
+	SelectYourIdentityOptions                   string
+	SigningConfirmation                         string
+	Start                                       string
+	TaskList                                    string
+	TestingStart                                string
+	WantReplacementAttorneys                    string
+	WhatHappensWhenSigning                      string
+	WhenCanTheLpaBeUsed                         string
+	WhoDoYouWantToBeCertificateProviderGuidance string
+	WhoIsTheLpaFor                              string
+	YourAddress                                 string
+	YourChosenIdentityOptions                   string
+	YourDetails                                 string
+}

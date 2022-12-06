@@ -22,20 +22,9 @@ func TestGetCheckYourLpa(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &checkYourLpaData{
-			App:                            appData,
-			Form:                           &checkYourLpaForm{},
-			Lpa:                            &Lpa{},
-			HowAttorneysMakeDecisionsPath:  howShouldAttorneysMakeDecisionsPath,
-			ChooseAttorneysPath:            chooseAttorneysPath,
-			WhenCanLpaBeUsedPath:           whenCanTheLpaBeUsedPath,
-			RestrictionsPath:               restrictionsPath,
-			CertificatesProviderPath:       certificateProviderDetailsPath,
-			AttorneyDetailsPath:            chooseAttorneysPath,
-			AttorneyAddressPath:            chooseAttorneysAddressPath,
-			RemoveAttorneyPath:             removeAttorneyPath,
-			ReplacementAttorneyDetailsPath: chooseReplacementAttorneysPath,
-			ReplacementAttorneyAddressPath: chooseReplacementAttorneysAddressPath,
-			RemoveReplacementAttorneyPath:  removeReplacementAttorneyPath,
+			App:  appData,
+			Form: &checkYourLpaForm{},
+			Lpa:  &Lpa{},
 		}).
 		Return(nil)
 
@@ -88,17 +77,6 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 				Checked: true,
 				Happy:   true,
 			},
-			HowAttorneysMakeDecisionsPath:  howShouldAttorneysMakeDecisionsPath,
-			ChooseAttorneysPath:            chooseAttorneysPath,
-			WhenCanLpaBeUsedPath:           whenCanTheLpaBeUsedPath,
-			RestrictionsPath:               restrictionsPath,
-			CertificatesProviderPath:       certificateProviderDetailsPath,
-			AttorneyDetailsPath:            chooseAttorneysPath,
-			AttorneyAddressPath:            chooseAttorneysAddressPath,
-			RemoveAttorneyPath:             removeAttorneyPath,
-			ReplacementAttorneyDetailsPath: chooseReplacementAttorneysPath,
-			ReplacementAttorneyAddressPath: chooseReplacementAttorneysAddressPath,
-			RemoveReplacementAttorneyPath:  removeReplacementAttorneyPath,
 		}).
 		Return(nil)
 
@@ -145,7 +123,7 @@ func TestPostCheckYourLpa(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, taskListPath, resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.TaskList, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 

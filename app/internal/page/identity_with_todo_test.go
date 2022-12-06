@@ -38,6 +38,7 @@ func TestPostIdentityWithTodo(t *testing.T) {
 		IdentityOptions: IdentityOptions{
 			First:  Passport,
 			Second: GovernmentGatewayAccount,
+			Paths:  appData.Paths,
 		},
 	}, nil)
 
@@ -48,7 +49,7 @@ func TestPostIdentityWithTodo(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, identityWithGovernmentGatewayAccountPath, resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.IdentityWithGovernmentGatewayAccount, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 

@@ -97,22 +97,23 @@ type IdentityOptions struct {
 	Selected []IdentityOption
 	First    IdentityOption
 	Second   IdentityOption
+	Paths    AppPaths
 }
 
 func (o IdentityOptions) NextPath(current IdentityOption) string {
 	identityOptionPaths := map[IdentityOption]string{
-		Yoti:                     identityWithYotiPath,
-		Passport:                 identityWithPassportPath,
-		DrivingLicence:           identityWithDrivingLicencePath,
-		GovernmentGatewayAccount: identityWithGovernmentGatewayAccountPath,
-		DwpAccount:               identityWithDwpAccountPath,
-		OnlineBankAccount:        identityWithOnlineBankAccountPath,
-		UtilityBill:              identityWithUtilityBillPath,
-		CouncilTaxBill:           identityWithCouncilTaxBillPath,
+		Yoti:                     o.Paths.IdentityWithYoti,
+		Passport:                 o.Paths.IdentityWithPassport,
+		DrivingLicence:           o.Paths.IdentityWithDrivingLicence,
+		GovernmentGatewayAccount: o.Paths.IdentityWithGovernmentGatewayAccount,
+		DwpAccount:               o.Paths.IdentityWithDwpAccount,
+		OnlineBankAccount:        o.Paths.IdentityWithOnlineBankAccount,
+		UtilityBill:              o.Paths.IdentityWithUtilityBill,
+		CouncilTaxBill:           o.Paths.IdentityWithCouncilTaxBill,
 	}
 
 	if current == o.Second {
-		return whatHappensWhenSigningPath
+		return o.Paths.WhatHappensWhenSigning
 	}
 
 	if current == o.First {

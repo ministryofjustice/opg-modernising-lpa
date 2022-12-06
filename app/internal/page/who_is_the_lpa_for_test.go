@@ -128,7 +128,7 @@ func TestPostWhoIsTheLpaFor(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, lpaTypePath, resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.LpaType, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 

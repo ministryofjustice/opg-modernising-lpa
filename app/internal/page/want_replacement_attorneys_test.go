@@ -58,7 +58,7 @@ func TestGetWantReplacementAttorneysWithExistingReplacementAttorneys(t *testing.
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, chooseReplacementAttorneysSummaryPath, resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.ChooseReplacementAttorneysSummary, resp.Header.Get("Location"))
 
 	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
@@ -143,13 +143,13 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 	}{
 		{
 			Want:                         "yes",
-			ExpectedRedirect:             chooseReplacementAttorneysPath,
+			ExpectedRedirect:             appData.Paths.ChooseReplacementAttorneys,
 			ExistingReplacementAttorneys: []Attorney{{ID: "123"}},
 			ExpectedReplacementAttorneys: []Attorney{{ID: "123"}},
 		},
 		{
 			Want:             "no",
-			ExpectedRedirect: taskListPath,
+			ExpectedRedirect: appData.Paths.TaskList,
 			ExistingReplacementAttorneys: []Attorney{
 				{ID: "123"},
 				{ID: "345"},
