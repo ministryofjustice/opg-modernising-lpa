@@ -8,13 +8,10 @@ import (
 )
 
 type chooseReplacementAttorneysSummaryData struct {
-	App                            AppData
-	ReplacementAttorneyAddressPath string
-	ReplacementAttorneyDetailsPath string
-	Errors                         map[string]string
-	Form                           chooseAttorneysSummaryForm
-	Lpa                            *Lpa
-	RemoveReplacementAttorneyPath  string
+	App    AppData
+	Errors map[string]string
+	Form   chooseAttorneysSummaryForm
+	Lpa    *Lpa
 }
 
 func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lpaStore LpaStore) Handler {
@@ -26,12 +23,9 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 		}
 
 		data := &chooseReplacementAttorneysSummaryData{
-			App:                            appData,
-			Lpa:                            lpa,
-			ReplacementAttorneyDetailsPath: appData.Paths.ChooseReplacementAttorneys,
-			ReplacementAttorneyAddressPath: appData.Paths.ChooseReplacementAttorneysAddress,
-			Form:                           chooseAttorneysSummaryForm{},
-			RemoveReplacementAttorneyPath:  appData.Paths.RemoveReplacementAttorney,
+			App:  appData,
+			Lpa:  lpa,
+			Form: chooseAttorneysSummaryForm{},
 		}
 
 		if r.Method == http.MethodPost {
@@ -53,7 +47,7 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 				}
 
 				if data.Form.AddAttorney == "yes" {
-					redirectUrl = fmt.Sprintf("%s?addAnother=1", data.ReplacementAttorneyDetailsPath)
+					redirectUrl = fmt.Sprintf("%s?addAnother=1", appData.Paths.ChooseReplacementAttorneys)
 				}
 
 				appData.Lang.Redirect(w, r, redirectUrl, http.StatusFound)

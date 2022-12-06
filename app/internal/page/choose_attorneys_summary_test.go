@@ -22,11 +22,8 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysSummaryData{
-			App:                 appData,
-			Lpa:                 &Lpa{},
-			AttorneyAddressPath: appData.Paths.ChooseAttorneysAddress,
-			AttorneyDetailsPath: appData.Paths.ChooseAttorneys,
-			RemoveAttorneyPath:  appData.Paths.RemoveAttorney,
+			App: appData,
+			Lpa: &Lpa{},
 		}).
 		Return(nil)
 

@@ -8,13 +8,10 @@ import (
 )
 
 type chooseAttorneysSummaryData struct {
-	App                 AppData
-	AttorneyAddressPath string
-	AttorneyDetailsPath string
-	Errors              map[string]string
-	Form                chooseAttorneysSummaryForm
-	Lpa                 *Lpa
-	RemoveAttorneyPath  string
+	App    AppData
+	Errors map[string]string
+	Form   chooseAttorneysSummaryForm
+	Lpa    *Lpa
 }
 
 type chooseAttorneysSummaryForm struct {
@@ -30,12 +27,9 @@ func ChooseAttorneysSummary(logger Logger, tmpl template.Template, lpaStore LpaS
 		}
 
 		data := &chooseAttorneysSummaryData{
-			App:                 appData,
-			Lpa:                 lpa,
-			AttorneyDetailsPath: appData.Paths.ChooseAttorneys,
-			AttorneyAddressPath: appData.Paths.ChooseAttorneysAddress,
-			RemoveAttorneyPath:  appData.Paths.RemoveAttorney,
-			Form:                chooseAttorneysSummaryForm{},
+			App:  appData,
+			Lpa:  lpa,
+			Form: chooseAttorneysSummaryForm{},
 		}
 
 		if r.Method == http.MethodPost {
@@ -53,7 +47,7 @@ func ChooseAttorneysSummary(logger Logger, tmpl template.Template, lpaStore LpaS
 				}
 
 				if data.Form.AddAttorney == "yes" {
-					redirectUrl = fmt.Sprintf("%s?addAnother=1", data.AttorneyDetailsPath)
+					redirectUrl = fmt.Sprintf("%s?addAnother=1", appData.Paths.ChooseAttorneys)
 				}
 
 				appData.Lang.Redirect(w, r, redirectUrl, http.StatusFound)
