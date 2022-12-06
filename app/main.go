@@ -115,6 +115,7 @@ func main() {
 		WhenCanTheLpaBeUsed:                         "/when-can-the-lpa-be-used",
 		WhoDoYouWantToBeCertificateProviderGuidance: "/who-do-you-want-to-be-certificate-provider-guidance",
 		WhoIsTheLpaFor:                              "/who-is-the-lpa-for",
+		WhoShouldBeNotified:                         "/who-should-be-notified",
 		YourAddress:                                 "/your-address",
 		YourChosenIdentityOptions:                   "/your-chosen-identity-options",
 		YourDetails:                                 "/your-details",

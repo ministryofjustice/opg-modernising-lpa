@@ -69,6 +69,7 @@ type Lpa struct {
 	HowReplacementAttorneysMakeDecisionsDetails string
 	HowShouldReplacementAttorneysStepIn         string
 	HowShouldReplacementAttorneysStepInDetails  string
+	DoYouWantToNotifyPeople                     string
 }
 
 type PaymentDetails struct {
