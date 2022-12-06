@@ -120,7 +120,7 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, taskListPath, resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.TaskList, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
 
@@ -138,7 +138,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			},
 			HowAttorneysMakeDecisions:           "doesnt matter",
 			HowShouldReplacementAttorneysStepIn: "doesnt matter",
-			ExpectedRedirectUrl:                 taskListPath,
+			ExpectedRedirectUrl:                 appData.Paths.TaskList,
 		},
 		"multiple attorneys acting jointly and severally replacements step in when none left": {
 			Attorneys: []Attorney{
@@ -151,7 +151,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			},
 			HowAttorneysMakeDecisions:           "jointly-and-severally",
 			HowShouldReplacementAttorneysStepIn: AllCanNoLongerAct,
-			ExpectedRedirectUrl:                 howShouldReplacementAttorneysMakeDecisionsPath,
+			ExpectedRedirectUrl:                 appData.Paths.HowShouldReplacementAttorneysMakeDecisions,
 		},
 		"multiple attorneys acting jointly and severally replacements step in when one loses capacity": {
 			Attorneys: []Attorney{
@@ -160,7 +160,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			},
 			HowAttorneysMakeDecisions:           "jointly-and-severally",
 			HowShouldReplacementAttorneysStepIn: OneCanNoLongerAct,
-			ExpectedRedirectUrl:                 taskListPath,
+			ExpectedRedirectUrl:                 appData.Paths.TaskList,
 		},
 		"multiple attorneys acting jointly": {
 			Attorneys: []Attorney{
@@ -169,7 +169,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			},
 			HowAttorneysMakeDecisions:           "jointly-and-severally",
 			HowShouldReplacementAttorneysStepIn: "doesnt matter",
-			ExpectedRedirectUrl:                 taskListPath,
+			ExpectedRedirectUrl:                 appData.Paths.TaskList,
 		},
 	}
 
@@ -272,7 +272,7 @@ func TestPostHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, taskListPath, resp.Header.Get("Location"))
+			assert.Equal(t, appData.Paths.TaskList, resp.Header.Get("Location"))
 			mock.AssertExpectationsForObjects(t, template, lpaStore)
 		})
 	}

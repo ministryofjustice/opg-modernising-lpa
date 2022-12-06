@@ -6,6 +6,23 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 )
 
+const (
+	FillInLpaSection                      = "fillInTheLpa"
+	ProvideYourDetailsTask                = "provideYourDetails"
+	ChooseYourAttorneysTask               = "chooseYourAttorneys"
+	ChooseYourReplacementAttorneysTask    = "chooseYourReplacementAttorneys"
+	ChooseWhenTheLpaCanBeUsedTask         = "chooseWhenTheLpaCanBeUsed"
+	AddRestrictionsToLpaTask              = "addRestrictionsToTheLpa"
+	ChooseCertificateProviderTask         = "chooseYourCertificateProvider"
+	CheckAndSendToCertificateProviderTask = "checkAndSendToYourCertificateProvider"
+	PayForLpaSection                      = "payForTheLpa"
+	PayForTheLpaTask                      = "payForTheLpa"
+	ConfirmYourIdentityAndSignSection     = "confirmYourIdentityAndSign"
+	ConfirmYourIdentityAndSignTask        = "confirmYourIdentityAndSign"
+	RegisterTheLpaSection                 = "registerTheLpa"
+	RegisterTheLpaTask                    = "registerTheLpa"
+)
+
 type taskListData struct {
 	App      AppData
 	Errors   map[string]string
@@ -37,80 +54,80 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 			App: appData,
 			Sections: []taskListSection{
 				{
-					Heading: "fillInTheLpa",
+					Heading: FillInLpaSection,
 					Items: []taskListItem{
 						{
-							Name:       "provideYourDetails",
-							Path:       yourDetailsPath,
+							Name:       ProvideYourDetailsTask,
+							Path:       appData.Paths.YourDetails,
 							Completed:  lpa.You.Address.Line1 != "",
 							InProgress: lpa.You.FirstNames != "",
 						},
 						{
-							Name:       "chooseYourAttorneys",
-							Path:       chooseAttorneysPath,
+							Name:       ChooseYourAttorneysTask,
+							Path:       appData.Paths.ChooseAttorneys,
 							Completed:  lpa.AttorneysTaskComplete(),
 							InProgress: len(lpa.Attorneys) > 0 && !lpa.AttorneysTaskComplete(),
 							Count:      len(lpa.Attorneys),
 						},
 						{
-							Name:       "chooseYourReplacementAttorneys",
-							Path:       wantReplacementAttorneysPath,
+							Name:       ChooseYourReplacementAttorneysTask,
+							Path:       appData.Paths.WantReplacementAttorneys,
 							Completed:  lpa.ReplacementAttorneysTaskComplete(),
 							InProgress: len(lpa.ReplacementAttorneys) > 0 && !lpa.ReplacementAttorneysTaskComplete(),
 							Count:      len(lpa.ReplacementAttorneys),
 						},
 						{
-							Name:       "chooseWhenTheLpaCanBeUsed",
-							Path:       whenCanTheLpaBeUsedPath,
+							Name:       ChooseWhenTheLpaCanBeUsedTask,
+							Path:       appData.Paths.WhenCanTheLpaBeUsed,
 							Completed:  lpa.Tasks.WhenCanTheLpaBeUsed == TaskCompleted,
 							InProgress: lpa.Tasks.WhenCanTheLpaBeUsed == TaskInProgress,
 						},
 						{
-							Name:       "addRestrictionsToTheLpa",
-							Path:       restrictionsPath,
+							Name:       AddRestrictionsToLpaTask,
+							Path:       appData.Paths.Restrictions,
 							Completed:  lpa.Tasks.Restrictions == TaskCompleted,
 							InProgress: lpa.Tasks.Restrictions == TaskInProgress,
 						},
 						{
-							Name:       "chooseYourCertificateProvider",
-							Path:       whoDoYouWantToBeCertificateProviderGuidancePath,
+							Name:       ChooseCertificateProviderTask,
+							Path:       appData.Paths.WhoDoYouWantToBeCertificateProviderGuidance,
 							Completed:  lpa.Tasks.CertificateProvider == TaskCompleted,
 							InProgress: lpa.Tasks.CertificateProvider == TaskInProgress,
 						},
 						{
-							Name:       "checkAndSendToYourCertificateProvider",
-							Path:       checkYourLpaPath,
+							Name:       CheckAndSendToCertificateProviderTask,
+							Path:       appData.Paths.CheckYourLpa,
 							Completed:  lpa.Tasks.CheckYourLpa == TaskCompleted,
 							InProgress: lpa.Tasks.CheckYourLpa == TaskInProgress,
 						},
 					},
 				},
 				{
-					Heading: "payForTheLpa",
+					Heading: PayForLpaSection,
 					Items: []taskListItem{
 						{
-							Name:       "payForTheLpa",
-							Path:       aboutPaymentPath,
+							Name:       PayForTheLpaTask,
+							Path:       appData.Paths.AboutPayment,
 							Completed:  lpa.Tasks.PayForLpa == TaskCompleted,
 							InProgress: lpa.Tasks.PayForLpa == TaskInProgress,
 						},
 					},
 				},
 				{
-					Heading: "confirmYourIdentityAndSign",
+					Heading: ConfirmYourIdentityAndSignSection,
 					Items: []taskListItem{
 						{
-							Name:       "confirmYourIdentityAndSign",
-							Path:       selectYourIdentityOptionsPath,
+							Name:       ConfirmYourIdentityAndSignTask,
+							Path:       appData.Paths.SelectYourIdentityOptions,
 							Completed:  lpa.Tasks.ConfirmYourIdentityAndSign == TaskCompleted,
 							InProgress: lpa.Tasks.ConfirmYourIdentityAndSign == TaskInProgress,
 						},
 					},
 				},
 				{
-					Heading: "registerTheLpa",
+					Heading: RegisterTheLpaSection,
 					Items: []taskListItem{
-						{Name: "registerTheLpa", Disabled: true},
+						{Name: RegisterTheLpaTask, Disabled: true},
 					},
 				},
 			},

@@ -25,7 +25,61 @@ const formUrlEncoded = "application/x-www-form-urlencoded"
 
 var (
 	expectedError = errors.New("err")
-	appData       = AppData{SessionID: "session-id", Lang: En}
+	appData       = AppData{
+		SessionID: "session-id",
+		Lang:      En,
+		Paths: AppPaths{
+			Auth:                                        "/auth",
+			AuthRedirect:                                "/auth/redirect",
+			AboutPayment:                                "/about-payment",
+			CertificateProviderDetails:                  "/certificate-provider-details",
+			CheckYourLpa:                                "/check-your-lpa",
+			ChooseAttorneysAddress:                      "/choose-attorneys-address",
+			ChooseAttorneys:                             "/choose-attorneys",
+			ChooseAttorneysSummary:                      "/choose-attorneys-summary",
+			ChooseReplacementAttorneys:                  "/choose-replacement-attorneys",
+			ChooseReplacementAttorneysAddress:           "/choose-replacement-attorneys-address",
+			ChooseReplacementAttorneysSummary:           "/choose-replacement-attorneys-summary",
+			Dashboard:                                   "/dashboard",
+			HowDoYouKnowYourCertificateProvider:         "/how-do-you-know-your-certificate-provider",
+			HowLongHaveYouKnownCertificateProvider:      "/how-long-have-you-known-certificate-provider",
+			HowShouldReplacementAttorneysMakeDecisions:  "/how-should-replacement-attorneys-make-decisions",
+			HowShouldReplacementAttorneysStepIn:         "/how-should-replacement-attorneys-step-in",
+			HowShouldAttorneysMakeDecisions:             "/how-should-attorneys-make-decisions",
+			HowToSign:                                   "/how-to-sign",
+			HowWouldYouLikeToBeContacted:                "/how-would-you-like-to-be-contacted",
+			IdentityConfirmed:                           "/identity-confirmed",
+			IdentityWithCouncilTaxBill:                  "/id/council-tax-bill",
+			IdentityWithDrivingLicence:                  "/id/driving-licence",
+			IdentityWithDwpAccount:                      "/id/dwp-account",
+			IdentityWithGovernmentGatewayAccount:        "/id/government-gateway-account",
+			IdentityWithOnlineBankAccount:               "/id/online-bank-account",
+			IdentityWithPassport:                        "/id/passport",
+			IdentityWithUtilityBill:                     "/id/utility-bill",
+			IdentityWithYotiCallback:                    "/id/yoti/callback",
+			IdentityWithYoti:                            "/id/yoti",
+			LpaType:                                     "/lpa-type",
+			PaymentConfirmation:                         "/payment-confirmation",
+			ReadYourLpa:                                 "/read-your-lpa",
+			RemoveAttorney:                              "/remove-attorney",
+			RemoveReplacementAttorney:                   "/remove-replacement-attorney",
+			Restrictions:                                "/restrictions",
+			Root:                                        "/",
+			SelectYourIdentityOptions:                   "/select-your-identity-options",
+			SigningConfirmation:                         "/signing-confirmation",
+			Start:                                       "/start",
+			TaskList:                                    "/task-list",
+			TestingStart:                                "/testing-start",
+			WantReplacementAttorneys:                    "/want-replacement-attorneys",
+			WhatHappensWhenSigning:                      "/what-happens-when-signing",
+			WhenCanTheLpaBeUsed:                         "/when-can-the-lpa-be-used",
+			WhoDoYouWantToBeCertificateProviderGuidance: "/who-do-you-want-to-be-certificate-provider-guidance",
+			WhoIsTheLpaFor:                              "/who-is-the-lpa-for",
+			YourAddress:                                 "/your-address",
+			YourChosenIdentityOptions:                   "/your-chosen-identity-options",
+			YourDetails:                                 "/your-details",
+		},
+	}
 )
 
 type mockLpaStore struct {
@@ -59,7 +113,7 @@ func (m *mockLogger) Print(v ...interface{}) {
 }
 
 func TestApp(t *testing.T) {
-	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &identity.YotiClient{}, "yoti-scenario-id", &notify.Client{}, &place.Client{}, RumConfig{}, "?%3fNEI0t9MN")
+	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &identity.YotiClient{}, "yoti-scenario-id", &notify.Client{}, &place.Client{}, RumConfig{}, "?%3fNEI0t9MN", appData.Paths)
 
 	assert.Implements(t, (*http.Handler)(nil), app)
 }
@@ -105,7 +159,7 @@ func TestMakeHandle(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN")
+	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{})
 	handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, AppData{
 			Page:             "/path",
@@ -117,6 +171,7 @@ func TestMakeHandle(t *testing.T) {
 			CanGoBack:        true,
 			RumConfig:        RumConfig{ApplicationID: "xyz"},
 			StaticHash:       "?%3fNEI0t9MN",
+			Paths:            AppPaths{},
 		}, appData)
 		assert.Equal(t, w, hw)
 		assert.Equal(t, r, hr)
@@ -146,7 +201,7 @@ func TestMakeHandleErrors(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN")
+	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{})
 	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
@@ -173,14 +228,14 @@ func TestMakeHandleSessionError(t *testing.T) {
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN")
+	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{Start: "/this"})
 	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, startPath, resp.Header.Get("Location"))
+	assert.Equal(t, "/this", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, sessionsStore, logger)
 }
 
@@ -199,14 +254,14 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN")
+	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{Start: "/this"})
 	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, startPath, resp.Header.Get("Location"))
+	assert.Equal(t, "/this", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, sessionsStore, logger)
 }
 
@@ -216,7 +271,7 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	localizer := localize.Localizer{}
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, nil, localizer, En, RumConfig{}, "?%3fNEI0t9MN")
+	handle := makeHandle(mux, nil, nil, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{})
 	handle("/path", None, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, AppData{
 			Page:             "/path",

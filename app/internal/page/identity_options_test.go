@@ -22,11 +22,11 @@ func TestIdentityOptionLabel(t *testing.T) {
 }
 
 func TestIdentityOptionNextPath(t *testing.T) {
-	options := IdentityOptions{First: Yoti, Second: GovernmentGatewayAccount}
+	options := IdentityOptions{First: Yoti, Second: GovernmentGatewayAccount, Paths: appData.Paths}
 
-	assert.Equal(t, identityWithYotiPath, options.NextPath(IdentityOptionUnknown))
-	assert.Equal(t, identityWithGovernmentGatewayAccountPath, options.NextPath(Yoti))
-	assert.Equal(t, whatHappensWhenSigningPath, options.NextPath(GovernmentGatewayAccount))
+	assert.Equal(t, options.Paths.IdentityWithYoti, options.NextPath(IdentityOptionUnknown))
+	assert.Equal(t, options.Paths.IdentityWithGovernmentGatewayAccount, options.NextPath(Yoti))
+	assert.Equal(t, options.Paths.WhatHappensWhenSigning, options.NextPath(GovernmentGatewayAccount))
 }
 
 func TestIdentityOptionsRanked(t *testing.T) {

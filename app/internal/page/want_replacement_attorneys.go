@@ -36,9 +36,9 @@ func WantReplacementAttorneys(tmpl template.Template, lpaStore LpaStore) Handler
 
 				if form.Want == "no" {
 					lpa.ReplacementAttorneys = []Attorney{}
-					redirectUrl = taskListPath
+					redirectUrl = appData.Paths.TaskList
 				} else {
-					redirectUrl = chooseReplacementAttorneysPath
+					redirectUrl = appData.Paths.ChooseReplacementAttorneys
 				}
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
@@ -51,7 +51,7 @@ func WantReplacementAttorneys(tmpl template.Template, lpaStore LpaStore) Handler
 		}
 
 		if len(lpa.ReplacementAttorneys) > 0 {
-			appData.Lang.Redirect(w, r, chooseReplacementAttorneysSummaryPath, http.StatusFound)
+			appData.Lang.Redirect(w, r, appData.Paths.ChooseReplacementAttorneysSummary, http.StatusFound)
 			return nil
 		}
 

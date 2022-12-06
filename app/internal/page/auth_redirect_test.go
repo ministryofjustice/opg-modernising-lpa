@@ -57,11 +57,11 @@ func TestAuthRedirect(t *testing.T) {
 		On("Save", r, w, session).
 		Return(nil)
 
-	AuthRedirect(nil, client, sessionsStore, true)(w, r)
+	AuthRedirect(nil, client, sessionsStore, true, appData.Paths)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, yourDetailsPath, resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.YourDetails, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, client, sessionsStore)
 }
 
@@ -109,7 +109,7 @@ func TestAuthRedirectSessionMissing(t *testing.T) {
 				On("Get", r, "params").
 				Return(tc.session, tc.getErr)
 
-			AuthRedirect(logger, nil, sessionsStore, true)(w, r)
+			AuthRedirect(logger, nil, sessionsStore, true, appData.Paths)(w, r)
 			resp := w.Result()
 
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -131,7 +131,7 @@ func TestAuthRedirectStateIncorrect(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state"}}, nil)
 
-	AuthRedirect(logger, nil, sessionsStore, true)(w, r)
+	AuthRedirect(logger, nil, sessionsStore, true, appData.Paths)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -156,7 +156,7 @@ func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce"}}, nil)
 
-	AuthRedirect(logger, client, sessionsStore, true)(w, r)
+	AuthRedirect(logger, client, sessionsStore, true, appData.Paths)(w, r)
 
 	mock.AssertExpectationsForObjects(t, client, logger)
 }
@@ -182,7 +182,7 @@ func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce"}}, nil)
 
-	AuthRedirect(logger, client, sessionsStore, true)(w, r)
+	AuthRedirect(logger, client, sessionsStore, true, appData.Paths)(w, r)
 
 	mock.AssertExpectationsForObjects(t, client, logger)
 }
