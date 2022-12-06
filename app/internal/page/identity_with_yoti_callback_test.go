@@ -124,7 +124,12 @@ func TestPostIdentityWithYotiCallback(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	lpaStore := &mockLpaStore{}
-	lpaStore.On("Get", mock.Anything, "session-id").Return(&Lpa{IdentityOptions: IdentityOptions{First: Yoti, Second: Passport}}, nil)
+	lpaStore.On("Get", mock.Anything, "session-id").Return(&Lpa{
+		IdentityOptions: IdentityOptions{
+			First:  Yoti,
+			Second: Passport,
+			Paths:  appData.Paths,
+		}}, nil)
 
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
@@ -133,5 +138,5 @@ func TestPostIdentityWithYotiCallback(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, identityWithPassportPath, resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.IdentityWithPassport, resp.Header.Get("Location"))
 }

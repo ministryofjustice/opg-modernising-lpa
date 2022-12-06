@@ -46,7 +46,7 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, howDoYouKnowYourCertificateProviderPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, appData.Paths.HowDoYouKnowYourCertificateProvider, http.StatusFound)
 				return nil
 			}
 		}

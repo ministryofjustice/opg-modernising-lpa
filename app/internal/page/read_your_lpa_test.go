@@ -22,20 +22,9 @@ func TestGetReadYourLpa(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &readYourLpaData{
-			App:                            appData,
-			Form:                           &readYourLpaForm{},
-			Lpa:                            &Lpa{},
-			HowAttorneysMakeDecisionsPath:  howShouldAttorneysMakeDecisionsPath,
-			ChooseAttorneysPath:            chooseAttorneysPath,
-			WhenCanLpaBeUsedPath:           whenCanTheLpaBeUsedPath,
-			RestrictionsPath:               restrictionsPath,
-			CertificatesProviderPath:       certificateProviderDetailsPath,
-			AttorneyDetailsPath:            chooseAttorneysPath,
-			AttorneyAddressPath:            chooseAttorneysAddressPath,
-			RemoveAttorneyPath:             removeAttorneyPath,
-			ReplacementAttorneyDetailsPath: chooseReplacementAttorneysPath,
-			ReplacementAttorneyAddressPath: chooseReplacementAttorneysAddressPath,
-			RemoveReplacementAttorneyPath:  removeReplacementAttorneyPath,
+			App:  appData,
+			Form: &readYourLpaForm{},
+			Lpa:  &Lpa{},
 		}).
 		Return(nil)
 
@@ -91,17 +80,6 @@ func TestGetReadYourLpaFromStore(t *testing.T) {
 				Confirm:   true,
 				Signature: "4567",
 			},
-			HowAttorneysMakeDecisionsPath:  howShouldAttorneysMakeDecisionsPath,
-			ChooseAttorneysPath:            chooseAttorneysPath,
-			WhenCanLpaBeUsedPath:           whenCanTheLpaBeUsedPath,
-			RestrictionsPath:               restrictionsPath,
-			CertificatesProviderPath:       certificateProviderDetailsPath,
-			AttorneyDetailsPath:            chooseAttorneysPath,
-			AttorneyAddressPath:            chooseAttorneysAddressPath,
-			RemoveAttorneyPath:             removeAttorneyPath,
-			ReplacementAttorneyDetailsPath: chooseReplacementAttorneysPath,
-			ReplacementAttorneyAddressPath: chooseReplacementAttorneysAddressPath,
-			RemoveReplacementAttorneyPath:  removeReplacementAttorneyPath,
 		}).
 		Return(nil)
 
@@ -148,7 +126,7 @@ func TestPostReadYourLpa(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, signingConfirmationPath, resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.SigningConfirmation, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 

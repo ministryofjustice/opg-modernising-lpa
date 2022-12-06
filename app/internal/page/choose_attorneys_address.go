@@ -33,7 +33,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 		attorney, found := lpa.GetAttorney(attorneyId)
 
 		if found == false {
-			appData.Lang.Redirect(w, r, chooseAttorneysPath, http.StatusFound)
+			appData.Lang.Redirect(w, r, appData.Paths.ChooseAttorneys, http.StatusFound)
 			return nil
 		}
 
@@ -63,7 +63,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 				from := r.FormValue("from")
 
 				if from == "" {
-					from = chooseAttorneysSummaryPath
+					from = appData.Paths.ChooseAttorneysSummary
 				}
 
 				appData.Lang.Redirect(w, r, from, http.StatusFound)

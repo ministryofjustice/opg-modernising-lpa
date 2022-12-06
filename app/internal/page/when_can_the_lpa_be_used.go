@@ -42,7 +42,7 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, lpaStore LpaStore) Handler {
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, restrictionsPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, appData.Paths.Restrictions, http.StatusFound)
 				return nil
 			}
 		}

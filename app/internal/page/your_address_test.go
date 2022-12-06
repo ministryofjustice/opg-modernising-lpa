@@ -194,7 +194,7 @@ func TestPostYourAddressManual(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, whoIsTheLpaForPath, resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.WhoIsTheLpaFor, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -283,7 +283,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, whoIsTheLpaForPath, resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.WhoIsTheLpaFor, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 

@@ -17,7 +17,7 @@
                 {{ tr .App .Lpa.WhenCanTheLpaBeUsed }}
             </dd>
             <dd class="govuk-summary-list__actions">
-                <a class="govuk-link" href="{{ link .App .WhenCanLpaBeUsedPath }}">
+                <a class="govuk-link" href="{{ link .App .App.Paths.WhenCanTheLpaBeUsed }}">
                     {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "whenTheLpaCanBeUsed" }}</span>
                 </a>
             </dd>
@@ -31,7 +31,7 @@
                 {{ .Lpa.AttorneysFullNames }}
             </dd>
             <dd class="govuk-summary-list__actions">
-                <a class="govuk-link" href="{{ link .App .ChooseAttorneysPath }}">
+                <a class="govuk-link" href="{{ link .App .App.Paths.ChooseAttorneys }}">
                     {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "yourAttorneys" }}</span>
                 </a>
             </dd>
@@ -46,7 +46,7 @@
                     {{ tr .App .Lpa.HowAttorneysMakeDecisions }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link" href="{{ link .App .HowAttorneysMakeDecisionsPath }}">
+                    <a class="govuk-link" href="{{ link .App .App.Paths.HowShouldAttorneysMakeDecisions }}">
                         {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ .Lpa.HowAttorneysMakeDecisionsDetails }}</span>
                     </a>
                 </dd>
@@ -65,7 +65,7 @@
                 {{ end }}
             </dd>
             <dd class="govuk-summary-list__actions">
-                <a class="govuk-link" href="{{ link .App .ReplacementAttorneyDetailsPath }}">
+                <a class="govuk-link" href="{{ link .App .App.Paths.ChooseReplacementAttorneys }}">
                     {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ tr .App "yourReplacementAttorneys" }}</span>
                 </a>
             </dd>
@@ -79,7 +79,7 @@
                 <p style="white-space: pre-line;">{{ .Lpa.Restrictions }}</p>
             </dd>
             <dd class="govuk-summary-list__actions">
-                <a class="govuk-link" href="{{ link .App .RestrictionsPath }}">
+                <a class="govuk-link" href="{{ link .App .App.Paths.Restrictions }}">
                     {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "yourRestrictions" }}</span>
                 </a>
             </dd>
