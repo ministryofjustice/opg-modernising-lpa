@@ -80,10 +80,10 @@ func TestGetTaskList(t *testing.T) {
 				ReplacementAttorneys: []Attorney{
 					validAttorney,
 				},
-				PeopleToNotify: []Person{
-					validPerson,
-					validPerson,
-					validPerson,
+				PeopleToNotify: []PersonToNotify{
+					validPersonToNotify,
+					validPersonToNotify,
+					validPersonToNotify,
 				},
 				Contact:                                     []string{"this"},
 				HowAttorneysMakeDecisions:                   "jointly",

@@ -6,9 +6,12 @@ type AppPaths struct {
 	AboutPayment                                string
 	CertificateProviderDetails                  string
 	CheckYourLpa                                string
-	ChooseAttorneysAddress                      string
 	ChooseAttorneys                             string
+	ChooseAttorneysAddress                      string
 	ChooseAttorneysSummary                      string
+	ChoosePeopleToNotify                        string
+	ChoosePeopleToNotifyAddress                 string
+	ChoosePeopleToNotifySummary                 string
 	ChooseReplacementAttorneys                  string
 	ChooseReplacementAttorneysAddress           string
 	ChooseReplacementAttorneysSummary           string
@@ -37,6 +40,7 @@ type AppPaths struct {
 	PaymentConfirmation                         string
 	ReadYourLpa                                 string
 	RemoveAttorney                              string
+	RemovePersonToNotify                        string
 	RemoveReplacementAttorney                   string
 	Restrictions                                string
 	Root                                        string

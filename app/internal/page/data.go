@@ -70,7 +70,7 @@ type Lpa struct {
 	HowShouldReplacementAttorneysStepIn         string
 	HowShouldReplacementAttorneysStepInDetails  string
 	DoYouWantToNotifyPeople                     string
-	PeopleToNotify                              []Person
+	PeopleToNotify                              []PersonToNotify
 }
 
 type PaymentDetails struct {
@@ -95,6 +95,14 @@ type Person struct {
 	OtherNames  string
 	DateOfBirth time.Time
 	Address     place.Address
+}
+
+type PersonToNotify struct {
+	FirstNames string
+	LastName   string
+	Email      string
+	Address    place.Address
+	ID         string
 }
 
 type Attorney struct {
@@ -231,6 +239,28 @@ func (l *Lpa) DeleteReplacementAttorney(attorney Attorney) bool {
 	}
 
 	l.ReplacementAttorneys = slices.Delete(l.ReplacementAttorneys, idx, idx+1)
+
+	return true
+}
+
+func (l *Lpa) GetPersonToNotify(id string) (PersonToNotify, bool) {
+	idx := slices.IndexFunc(l.PeopleToNotify, func(p PersonToNotify) bool { return p.ID == id })
+
+	if idx == -1 {
+		return PersonToNotify{}, false
+	}
+
+	return l.PeopleToNotify[idx], true
+}
+
+func (l *Lpa) PutPersonToNotify(person PersonToNotify) bool {
+	idx := slices.IndexFunc(l.PeopleToNotify, func(p PersonToNotify) bool { return p.ID == person.ID })
+
+	if idx == -1 {
+		return false
+	}
+
+	l.PeopleToNotify[idx] = person
 
 	return true
 }
