@@ -8,13 +8,10 @@ import (
 )
 
 type chooseReplacementAttorneysSummaryData struct {
-	App                            AppData
-	ReplacementAttorneyAddressPath string
-	ReplacementAttorneyDetailsPath string
-	Errors                         map[string]string
-	Form                           chooseAttorneysSummaryForm
-	Lpa                            *Lpa
-	RemoveReplacementAttorneyPath  string
+	App    AppData
+	Errors map[string]string
+	Form   chooseAttorneysSummaryForm
+	Lpa    *Lpa
 }
 
 func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lpaStore LpaStore) Handler {
@@ -26,12 +23,9 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 		}
 
 		data := &chooseReplacementAttorneysSummaryData{
-			App:                            appData,
-			Lpa:                            lpa,
-			ReplacementAttorneyDetailsPath: chooseReplacementAttorneysPath,
-			ReplacementAttorneyAddressPath: chooseReplacementAttorneysAddressPath,
-			Form:                           chooseAttorneysSummaryForm{},
-			RemoveReplacementAttorneyPath:  removeReplacementAttorneyPath,
+			App:  appData,
+			Lpa:  lpa,
+			Form: chooseAttorneysSummaryForm{},
 		}
 
 		if r.Method == http.MethodPost {
@@ -45,15 +39,15 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 				var redirectUrl string
 
 				if len(lpa.ReplacementAttorneys) > 1 && len(lpa.Attorneys) > 1 && lpa.HowAttorneysMakeDecisions == Jointly {
-					redirectUrl = howShouldReplacementAttorneysMakeDecisionsPath
+					redirectUrl = appData.Paths.HowShouldReplacementAttorneysMakeDecisions
 				} else if len(lpa.Attorneys) > 1 && lpa.HowAttorneysMakeDecisions == JointlyAndSeverally {
-					redirectUrl = howShouldReplacementAttorneysStepInPath
+					redirectUrl = appData.Paths.HowShouldReplacementAttorneysStepIn
 				} else {
-					redirectUrl = whenCanTheLpaBeUsedPath
+					redirectUrl = appData.Paths.WhenCanTheLpaBeUsed
 				}
 
 				if data.Form.AddAttorney == "yes" {
-					redirectUrl = fmt.Sprintf("%s?addAnother=1", data.ReplacementAttorneyDetailsPath)
+					redirectUrl = fmt.Sprintf("%s?addAnother=1", appData.Paths.ChooseReplacementAttorneys)
 				}
 
 				appData.Lang.Redirect(w, r, redirectUrl, http.StatusFound)

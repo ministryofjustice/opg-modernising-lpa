@@ -122,7 +122,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				Relationship: "legal-professional",
 			},
 			taskState: TaskCompleted,
-			redirect:  checkYourLpaPath,
+			redirect:  appData.Paths.CheckYourLpa,
 		},
 		"health-professional": {
 			form: url.Values{"how": {"health-professional"}},
@@ -131,7 +131,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				Relationship: "health-professional",
 			},
 			taskState: TaskCompleted,
-			redirect:  checkYourLpaPath,
+			redirect:  appData.Paths.CheckYourLpa,
 		},
 		"other": {
 			form: url.Values{"how": {"other"}, "description": {"This"}},
@@ -142,7 +142,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				RelationshipLength:      "gte-2-years",
 			},
 			taskState: TaskInProgress,
-			redirect:  howLongHaveYouKnownCertificateProviderPath,
+			redirect:  appData.Paths.HowLongHaveYouKnownCertificateProvider,
 		},
 		"lay - friend": {
 			form: url.Values{"how": {"friend"}},
@@ -152,7 +152,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				RelationshipLength: "gte-2-years",
 			},
 			taskState: TaskInProgress,
-			redirect:  howLongHaveYouKnownCertificateProviderPath,
+			redirect:  appData.Paths.HowLongHaveYouKnownCertificateProvider,
 		},
 		"lay - neighbour": {
 			form: url.Values{"how": {"neighbour"}},
@@ -162,7 +162,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				RelationshipLength: "gte-2-years",
 			},
 			taskState: TaskInProgress,
-			redirect:  howLongHaveYouKnownCertificateProviderPath,
+			redirect:  appData.Paths.HowLongHaveYouKnownCertificateProvider,
 		},
 		"lay - colleague": {
 			form: url.Values{"how": {"colleague"}},
@@ -172,7 +172,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				RelationshipLength: "gte-2-years",
 			},
 			taskState: TaskInProgress,
-			redirect:  howLongHaveYouKnownCertificateProviderPath,
+			redirect:  appData.Paths.HowLongHaveYouKnownCertificateProvider,
 		},
 	}
 

@@ -13,7 +13,7 @@ type authRedirectClient interface {
 	UserInfo(string) (signin.UserInfo, error)
 }
 
-func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, secure bool) http.HandlerFunc {
+func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, secure bool, paths AppPaths) http.HandlerFunc {
 	cookieOptions := &sessions.Options{
 		Path:     "/",
 		MaxAge:   24 * 60 * 60,
@@ -63,6 +63,6 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, sec
 			return
 		}
 
-		http.Redirect(w, r, yourDetailsPath, http.StatusFound)
+		http.Redirect(w, r, paths.YourDetails, http.StatusFound)
 	}
 }

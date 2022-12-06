@@ -7,22 +7,11 @@ import (
 )
 
 type checkYourLpaData struct {
-	App                            AppData
-	Errors                         map[string]string
-	Lpa                            *Lpa
-	Form                           *checkYourLpaForm
-	Completed                      bool
-	HowAttorneysMakeDecisionsPath  string
-	ChooseAttorneysPath            string
-	WhenCanLpaBeUsedPath           string
-	RestrictionsPath               string
-	CertificatesProviderPath       string
-	AttorneyDetailsPath            string
-	AttorneyAddressPath            string
-	RemoveAttorneyPath             string
-	ReplacementAttorneyDetailsPath string
-	ReplacementAttorneyAddressPath string
-	RemoveReplacementAttorneyPath  string
+	App       AppData
+	Errors    map[string]string
+	Lpa       *Lpa
+	Form      *checkYourLpaForm
+	Completed bool
 }
 
 func CheckYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -39,18 +28,7 @@ func CheckYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 				Checked: lpa.Checked,
 				Happy:   lpa.HappyToShare,
 			},
-			Completed:                      lpa.Tasks.CheckYourLpa == TaskCompleted,
-			HowAttorneysMakeDecisionsPath:  howShouldAttorneysMakeDecisionsPath,
-			ChooseAttorneysPath:            chooseAttorneysPath,
-			WhenCanLpaBeUsedPath:           whenCanTheLpaBeUsedPath,
-			RestrictionsPath:               restrictionsPath,
-			CertificatesProviderPath:       certificateProviderDetailsPath,
-			AttorneyDetailsPath:            chooseAttorneysPath,
-			AttorneyAddressPath:            chooseAttorneysAddressPath,
-			RemoveAttorneyPath:             removeAttorneyPath,
-			ReplacementAttorneyDetailsPath: chooseReplacementAttorneysPath,
-			ReplacementAttorneyAddressPath: chooseReplacementAttorneysAddressPath,
-			RemoveReplacementAttorneyPath:  removeReplacementAttorneyPath,
+			Completed: lpa.Tasks.CheckYourLpa == TaskCompleted,
 		}
 
 		if r.Method == http.MethodPost {
@@ -66,7 +44,7 @@ func CheckYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 					return err
 				}
 
-				appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, appData.Paths.TaskList, http.StatusFound)
 				return nil
 			}
 		}

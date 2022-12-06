@@ -40,7 +40,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, whoIsTheLpaForPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, appData.Paths.WhoIsTheLpaFor, http.StatusFound)
 				return nil
 			}
 
