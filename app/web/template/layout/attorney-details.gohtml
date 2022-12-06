@@ -3,8 +3,8 @@
     {{ range .Attorneys }}
         <dl class="govuk-summary-list">
 
-            {{ $detailsLink := printf "/choose-attorneys?from=%s&id=%s" $.App.Page .ID }}
-            {{ $addressLink := printf "/choose-attorneys-address?from=%s&id=%s" $.App.Page .ID }}
+            {{ $detailsLink := printf "%s?from=%s&id=%s" $.App.Paths.ChooseAttorneys $.App.Page .ID }}
+            {{ $addressLink := printf "%s?from=%s&id=%s" $.App.Paths.ChooseAttorneysAddress $.App.Page .ID }}
 
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">

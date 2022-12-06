@@ -21,7 +21,7 @@ func IdentityWithYoti(tmpl template.Template, lpaStore LpaStore, yotiClient Yoti
 		}
 
 		if lpa.YotiUserData.OK || yotiClient.IsTest() {
-			appData.Lang.Redirect(w, r, identityWithYotiCallbackPath, http.StatusFound)
+			appData.Lang.Redirect(w, r, appData.Paths.IdentityWithYotiCallback, http.StatusFound)
 			return nil
 		}
 

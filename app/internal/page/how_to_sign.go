@@ -40,7 +40,7 @@ func HowToSign(tmpl template.Template, lpaStore LpaStore, notifyClient NotifyCli
 				return err
 			}
 
-			appData.Lang.Redirect(w, r, readYourLpaPath, http.StatusFound)
+			appData.Lang.Redirect(w, r, appData.Paths.ReadYourLpa, http.StatusFound)
 			return nil
 		}
 
