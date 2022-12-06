@@ -5,7 +5,7 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ trCount .App "replacementAttorneysAdded" (len .Lpa.ReplacementAttorneys) }}</h1>
 
-            {{ template "attorney-summary" (listAttorneys .Lpa.ReplacementAttorneys .App .ReplacementAttorneyDetailsPath .ReplacementAttorneyAddressPath .RemoveReplacementAttorneyPath) }}
+            {{ template "attorney-summary" (listAttorneys .Lpa.ReplacementAttorneys .App .App.Paths.ChooseReplacementAttorneys .App.Paths.ChooseReplacementAttorneysAddress .App.Paths.RemoveReplacementAttorney) }}
 
             <form novalidate method="post">
                 <div class="govuk-form-group">

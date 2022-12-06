@@ -108,5 +108,5 @@ func TestPostYourChosenIdentityOptions(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, identityWithPassportPath, resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.IdentityWithPassport, resp.Header.Get("Location"))
 }

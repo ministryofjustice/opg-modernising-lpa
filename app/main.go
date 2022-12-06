@@ -66,6 +66,60 @@ func main() {
 		}
 	)
 
+	paths := page.AppPaths{
+		Auth:                                        "/auth",
+		AuthRedirect:                                "/auth/redirect",
+		AboutPayment:                                "/about-payment",
+		CertificateProviderDetails:                  "/certificate-provider-details",
+		CheckYourLpa:                                "/check-your-lpa",
+		ChooseAttorneysAddress:                      "/choose-attorneys-address",
+		ChooseAttorneys:                             "/choose-attorneys",
+		ChooseAttorneysSummary:                      "/choose-attorneys-summary",
+		ChooseReplacementAttorneys:                  "/choose-replacement-attorneys",
+		ChooseReplacementAttorneysAddress:           "/choose-replacement-attorneys-address",
+		ChooseReplacementAttorneysSummary:           "/choose-replacement-attorneys-summary",
+		CookiesConsent:                              "/cookies-consent",
+		Dashboard:                                   "/dashboard",
+		HealthCheck:                                 "/health-check",
+		HowDoYouKnowYourCertificateProvider:         "/how-do-you-know-your-certificate-provider",
+		HowLongHaveYouKnownCertificateProvider:      "/how-long-have-you-known-certificate-provider",
+		HowShouldReplacementAttorneysMakeDecisions:  "/how-should-replacement-attorneys-make-decisions",
+		HowShouldReplacementAttorneysStepIn:         "/how-should-replacement-attorneys-step-in",
+		HowShouldAttorneysMakeDecisions:             "/how-should-attorneys-make-decisions",
+		HowToSign:                                   "/how-to-sign",
+		HowWouldYouLikeToBeContacted:                "/how-would-you-like-to-be-contacted",
+		IdentityConfirmed:                           "/identity-confirmed",
+		IdentityWithCouncilTaxBill:                  "/id/council-tax-bill",
+		IdentityWithDrivingLicence:                  "/id/driving-licence",
+		IdentityWithDwpAccount:                      "/id/dwp-account",
+		IdentityWithGovernmentGatewayAccount:        "/id/government-gateway-account",
+		IdentityWithOnlineBankAccount:               "/id/online-bank-account",
+		IdentityWithPassport:                        "/id/passport",
+		IdentityWithUtilityBill:                     "/id/utility-bill",
+		IdentityWithYotiCallback:                    "/id/yoti/callback",
+		IdentityWithYoti:                            "/id/yoti",
+		LpaType:                                     "/lpa-type",
+		PaymentConfirmation:                         "/payment-confirmation",
+		ReadYourLpa:                                 "/read-your-lpa",
+		RemoveAttorney:                              "/remove-attorney",
+		RemoveReplacementAttorney:                   "/remove-replacement-attorney",
+		Restrictions:                                "/restrictions",
+		Root:                                        "/",
+		SelectYourIdentityOptions:                   "/select-your-identity-options",
+		SigningConfirmation:                         "/signing-confirmation",
+		Start:                                       "/start",
+		TaskList:                                    "/task-list",
+		TestingStart:                                "/testing-start",
+		WantReplacementAttorneys:                    "/want-replacement-attorneys",
+		WhatHappensWhenSigning:                      "/what-happens-when-signing",
+		WhenCanTheLpaBeUsed:                         "/when-can-the-lpa-be-used",
+		WhoDoYouWantToBeCertificateProviderGuidance: "/who-do-you-want-to-be-certificate-provider-guidance",
+		WhoIsTheLpaFor:                              "/who-is-the-lpa-for",
+		YourAddress:                                 "/your-address",
+		YourChosenIdentityOptions:                   "/your-chosen-identity-options",
+		YourDetails:                                 "/your-details",
+	}
+
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
 	if err != nil {
 		logger.Fatal(err)
@@ -130,7 +184,7 @@ func main() {
 
 	sessionStore := sessions.NewCookieStore(sessionKeys...)
 
-	redirectURL := authRedirectBaseURL + page.AuthRedirectPath
+	redirectURL := authRedirectBaseURL + paths.AuthRedirect
 
 	signInClient, err := signin.Discover(ctx, logger, httpClient, secretsClient, issuer, clientID, redirectURL)
 	if err != nil {
@@ -183,16 +237,16 @@ func main() {
 	secureCookies := strings.HasPrefix(appPublicURL, "https:")
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/health-check", func(w http.ResponseWriter, r *http.Request) {})
+	mux.HandleFunc(paths.HealthCheck, func(w http.ResponseWriter, r *http.Request) {})
 	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, webDir+"/robots.txt")
 	})
 	mux.Handle("/static/", http.StripPrefix("/static", handlers.CompressHandler(page.CacheControlHeaders(http.FileServer(http.Dir(webDir+"/static/"))))))
-	mux.Handle(page.AuthRedirectPath, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies))
-	mux.Handle(page.AuthPath, page.Login(logger, signInClient, sessionStore, secureCookies, random.String))
-	mux.Handle("/cookies-consent", page.CookieConsent())
-	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig, staticHash)))
-	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig, staticHash))
+	mux.Handle(paths.AuthRedirect, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies, paths))
+	mux.Handle(paths.Auth, page.Login(logger, signInClient, sessionStore, secureCookies, random.String))
+	mux.Handle(paths.CookiesConsent, page.CookieConsent(paths))
+	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig, staticHash, paths)))
+	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig, staticHash, paths))
 
 	var handler http.Handler = mux
 	if xrayEnabled {

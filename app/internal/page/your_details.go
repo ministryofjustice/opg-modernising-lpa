@@ -65,7 +65,7 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, yourAddressPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, appData.Paths.YourAddress, http.StatusFound)
 				return nil
 			}
 		}

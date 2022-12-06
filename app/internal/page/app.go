@@ -103,6 +103,7 @@ type AppData struct {
 	SessionID        string
 	RumConfig        RumConfig
 	StaticHash       string
+	Paths            AppPaths
 }
 
 type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
@@ -122,111 +123,112 @@ func App(
 	addressClient AddressClient,
 	rumConfig RumConfig,
 	staticHash string,
+	paths AppPaths,
 ) http.Handler {
 	mux := http.NewServeMux()
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
 
-	handle := makeHandle(mux, logger, sessionStore, localizer, lang, rumConfig, staticHash)
+	handle := makeHandle(mux, logger, sessionStore, localizer, lang, rumConfig, staticHash, paths)
 
-	mux.Handle("/testing-start", testingStart(sessionStore, lpaStore))
-	mux.Handle("/", Root())
+	mux.Handle(paths.TestingStart, testingStart(sessionStore, lpaStore))
+	mux.Handle(paths.Root, Root(paths))
 
-	handle(startPath, None,
-		Guidance(tmpls.Get("start.gohtml"), AuthPath, nil))
-	handle(lpaTypePath, RequireSession,
+	handle(paths.Start, None,
+		Guidance(tmpls.Get("start.gohtml"), paths.Auth, nil))
+	handle(paths.LpaType, RequireSession,
 		LpaType(tmpls.Get("lpa_type.gohtml"), lpaStore))
-	handle(whoIsTheLpaForPath, RequireSession,
+	handle(paths.WhoIsTheLpaFor, RequireSession,
 		WhoIsTheLpaFor(tmpls.Get("who_is_the_lpa_for.gohtml"), lpaStore))
 
-	handle(yourDetailsPath, RequireSession,
+	handle(paths.YourDetails, RequireSession,
 		YourDetails(tmpls.Get("your_details.gohtml"), lpaStore, sessionStore))
-	handle(yourAddressPath, RequireSession,
+	handle(paths.YourAddress, RequireSession,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
-	handle(howWouldYouLikeToBeContactedPath, RequireSession,
+	handle(paths.HowWouldYouLikeToBeContacted, RequireSession,
 		HowWouldYouLikeToBeContacted(tmpls.Get("how_would_you_like_to_be_contacted.gohtml"), lpaStore))
 
-	handle(taskListPath, RequireSession,
+	handle(paths.TaskList, RequireSession,
 		TaskList(tmpls.Get("task_list.gohtml"), lpaStore))
 
-	handle(chooseAttorneysPath, RequireSession|CanGoBack,
+	handle(paths.ChooseAttorneys, RequireSession|CanGoBack,
 		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), lpaStore, random.String))
-	handle(chooseAttorneysAddressPath, RequireSession|CanGoBack,
+	handle(paths.ChooseAttorneysAddress, RequireSession|CanGoBack,
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_attorneys_address.gohtml"), addressClient, lpaStore))
-	handle(chooseAttorneysSummaryPath, RequireSession|CanGoBack,
+	handle(paths.ChooseAttorneysSummary, RequireSession|CanGoBack,
 		ChooseAttorneysSummary(logger, tmpls.Get("choose_attorneys_summary.gohtml"), lpaStore))
-	handle(removeAttorneyPath, RequireSession|CanGoBack,
+	handle(paths.RemoveAttorney, RequireSession|CanGoBack,
 		RemoveAttorney(logger, tmpls.Get("remove_attorney.gohtml"), lpaStore))
-	handle(howShouldAttorneysMakeDecisionsPath, RequireSession|CanGoBack,
+	handle(paths.HowShouldAttorneysMakeDecisions, RequireSession|CanGoBack,
 		HowShouldAttorneysMakeDecisions(tmpls.Get("how_should_attorneys_make_decisions.gohtml"), lpaStore))
 
-	handle(wantReplacementAttorneysPath, RequireSession|CanGoBack,
+	handle(paths.WantReplacementAttorneys, RequireSession|CanGoBack,
 		WantReplacementAttorneys(tmpls.Get("want_replacement_attorneys.gohtml"), lpaStore))
-	handle(chooseReplacementAttorneysPath, RequireSession|CanGoBack,
+	handle(paths.ChooseReplacementAttorneys, RequireSession|CanGoBack,
 		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), lpaStore, random.String))
-	handle(chooseReplacementAttorneysAddressPath, RequireSession|CanGoBack,
+	handle(paths.ChooseReplacementAttorneysAddress, RequireSession|CanGoBack,
 		ChooseReplacementAttorneysAddress(logger, tmpls.Get("choose_replacement_attorneys_address.gohtml"), addressClient, lpaStore))
-	handle(chooseReplacementAttorneysSummaryPath, RequireSession|CanGoBack,
+	handle(paths.ChooseReplacementAttorneysSummary, RequireSession|CanGoBack,
 		ChooseReplacementAttorneysSummary(logger, tmpls.Get("choose_replacement_attorneys_summary.gohtml"), lpaStore))
-	handle(removeReplacementAttorneyPath, RequireSession|CanGoBack,
+	handle(paths.RemoveReplacementAttorney, RequireSession|CanGoBack,
 		RemoveReplacementAttorney(logger, tmpls.Get("remove_replacement_attorney.gohtml"), lpaStore))
-	handle(howShouldReplacementAttorneysStepInPath, RequireSession|CanGoBack,
+	handle(paths.HowShouldReplacementAttorneysStepIn, RequireSession|CanGoBack,
 		HowShouldReplacementAttorneysStepIn(tmpls.Get("how_should_replacement_attorneys_step_in.gohtml"), lpaStore))
-	handle(howShouldReplacementAttorneysMakeDecisionsPath, RequireSession|CanGoBack,
+	handle(paths.HowShouldReplacementAttorneysMakeDecisions, RequireSession|CanGoBack,
 		HowShouldReplacementAttorneysMakeDecisions(tmpls.Get("how_should_replacement_attorneys_make_decisions.gohtml"), lpaStore))
 
-	handle(whenCanTheLpaBeUsedPath, RequireSession|CanGoBack,
+	handle(paths.WhenCanTheLpaBeUsed, RequireSession|CanGoBack,
 		WhenCanTheLpaBeUsed(tmpls.Get("when_can_the_lpa_be_used.gohtml"), lpaStore))
-	handle(restrictionsPath, RequireSession|CanGoBack,
+	handle(paths.Restrictions, RequireSession|CanGoBack,
 		Restrictions(tmpls.Get("restrictions.gohtml"), lpaStore))
-	handle(whoDoYouWantToBeCertificateProviderGuidancePath, RequireSession|CanGoBack,
+	handle(paths.WhoDoYouWantToBeCertificateProviderGuidance, RequireSession|CanGoBack,
 		WhoDoYouWantToBeCertificateProviderGuidance(tmpls.Get("who_do_you_want_to_be_certificate_provider_guidance.gohtml"), lpaStore))
-	handle(certificateProviderDetailsPath, RequireSession|CanGoBack,
+	handle(paths.CertificateProviderDetails, RequireSession|CanGoBack,
 		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), lpaStore))
-	handle(howDoYouKnowYourCertificateProviderPath, RequireSession|CanGoBack,
+	handle(paths.HowDoYouKnowYourCertificateProvider, RequireSession|CanGoBack,
 		HowDoYouKnowYourCertificateProvider(tmpls.Get("how_do_you_know_your_certificate_provider.gohtml"), lpaStore))
-	handle(howLongHaveYouKnownCertificateProviderPath, RequireSession|CanGoBack,
+	handle(paths.HowLongHaveYouKnownCertificateProvider, RequireSession|CanGoBack,
 		HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), lpaStore))
 
-	handle(aboutPaymentPath, RequireSession|CanGoBack,
+	handle(paths.AboutPayment, RequireSession|CanGoBack,
 		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String))
-	handle(paymentConfirmationPath, RequireSession|CanGoBack,
+	handle(paths.PaymentConfirmation, RequireSession|CanGoBack,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, lpaStore, sessionStore))
 
-	handle(checkYourLpaPath, RequireSession|CanGoBack,
+	handle(paths.CheckYourLpa, RequireSession|CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), lpaStore))
 
-	handle(selectYourIdentityOptionsPath, RequireSession|CanGoBack,
+	handle(paths.SelectYourIdentityOptions, RequireSession|CanGoBack,
 		SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), lpaStore))
-	handle(yourChosenIdentityOptionsPath, RequireSession|CanGoBack,
+	handle(paths.YourChosenIdentityOptions, RequireSession|CanGoBack,
 		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), lpaStore))
-	handle(identityWithYotiPath, RequireSession|CanGoBack,
+	handle(paths.IdentityWithYoti, RequireSession|CanGoBack,
 		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), lpaStore, yotiClient, yotiScenarioID))
-	handle(identityWithYotiCallbackPath, RequireSession|CanGoBack,
+	handle(paths.IdentityWithYotiCallback, RequireSession|CanGoBack,
 		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, lpaStore))
-	handle(identityWithPassportPath, RequireSession|CanGoBack,
+	handle(paths.IdentityWithPassport, RequireSession|CanGoBack,
 		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, Passport))
-	handle(identityWithDrivingLicencePath, RequireSession|CanGoBack,
+	handle(paths.IdentityWithDrivingLicence, RequireSession|CanGoBack,
 		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, DrivingLicence))
-	handle(identityWithGovernmentGatewayAccountPath, RequireSession|CanGoBack,
+	handle(paths.IdentityWithGovernmentGatewayAccount, RequireSession|CanGoBack,
 		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, GovernmentGatewayAccount))
-	handle(identityWithDwpAccountPath, RequireSession|CanGoBack,
+	handle(paths.IdentityWithDwpAccount, RequireSession|CanGoBack,
 		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, DwpAccount))
-	handle(identityWithOnlineBankAccountPath, RequireSession|CanGoBack,
+	handle(paths.IdentityWithOnlineBankAccount, RequireSession|CanGoBack,
 		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, OnlineBankAccount))
-	handle(identityWithUtilityBillPath, RequireSession|CanGoBack,
+	handle(paths.IdentityWithUtilityBill, RequireSession|CanGoBack,
 		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, UtilityBill))
-	handle(identityWithCouncilTaxBillPath, RequireSession|CanGoBack,
+	handle(paths.IdentityWithCouncilTaxBill, RequireSession|CanGoBack,
 		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, CouncilTaxBill))
-	handle(whatHappensWhenSigningPath, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("what_happens_when_signing.gohtml"), howToSignPath, lpaStore))
-	handle(howToSignPath, RequireSession|CanGoBack,
+	handle(paths.WhatHappensWhenSigning, RequireSession|CanGoBack,
+		Guidance(tmpls.Get("what_happens_when_signing.gohtml"), paths.HowToSign, lpaStore))
+	handle(paths.HowToSign, RequireSession|CanGoBack,
 		HowToSign(tmpls.Get("how_to_sign.gohtml"), lpaStore, notifyClient, random.Code))
-	handle(readYourLpaPath, RequireSession|CanGoBack,
+	handle(paths.ReadYourLpa, RequireSession|CanGoBack,
 		ReadYourLpa(tmpls.Get("read_your_lpa.gohtml"), lpaStore))
-	handle(signingConfirmationPath, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("signing_confirmation.gohtml"), taskListPath, lpaStore))
-	handle(dashboardPath, RequireSession|CanGoBack,
+	handle(paths.SigningConfirmation, RequireSession|CanGoBack,
+		Guidance(tmpls.Get("signing_confirmation.gohtml"), paths.TaskList, lpaStore))
+	handle(paths.Dashboard, RequireSession|CanGoBack,
 		Guidance(tmpls.Get("dashboard.gohtml"), "", lpaStore))
 
 	return mux
@@ -326,7 +328,7 @@ const (
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang, rumConfig RumConfig, staticHash string) func(string, handleOpt, Handler) {
+func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang, rumConfig RumConfig, staticHash string, paths AppPaths) func(string, handleOpt, Handler) {
 	return func(path string, opt handleOpt, h Handler) {
 		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 			sessionID := ""
@@ -335,14 +337,14 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 				session, err := store.Get(r, "session")
 				if err != nil {
 					logger.Print(err)
-					http.Redirect(w, r, startPath, http.StatusFound)
+					http.Redirect(w, r, paths.Start, http.StatusFound)
 					return
 				}
 
 				sub, ok := session.Values["sub"].(string)
 				if !ok {
 					logger.Print("sub missing from session")
-					http.Redirect(w, r, startPath, http.StatusFound)
+					http.Redirect(w, r, paths.Start, http.StatusFound)
 					return
 				}
 
@@ -361,6 +363,7 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 				CanGoBack:        opt&CanGoBack != 0,
 				RumConfig:        rumConfig,
 				StaticHash:       staticHash,
+				Paths:            paths,
 			}, w, r); err != nil {
 				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
 
