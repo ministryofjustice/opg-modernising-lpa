@@ -33,7 +33,7 @@ func HowWouldYouLikeToBeContacted(tmpl template.Template, lpaStore LpaStore) Han
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, taskListPath, http.StatusFound)
+				appData.Lang.Redirect(w, r, appData.Paths.TaskList, http.StatusFound)
 				return nil
 			}
 		}

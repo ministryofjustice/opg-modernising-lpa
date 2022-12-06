@@ -138,7 +138,7 @@ func TestPostSelectYourIdentityOptions(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, yourChosenIdentityOptionsPath, resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.YourChosenIdentityOptions, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 

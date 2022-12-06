@@ -23,7 +23,7 @@ func YourChosenIdentityOptions(tmpl template.Template, lpaStore LpaStore) Handle
 		}
 
 		if r.Method == http.MethodPost {
-			appData.Lang.Redirect(w, r, lpa.IdentityOptions.NextPath(IdentityOptionUnknown), http.StatusFound)
+			appData.Lang.Redirect(w, r, lpa.IdentityOptions.NextPath(IdentityOptionUnknown, appData.Paths), http.StatusFound)
 			return nil
 		}
 

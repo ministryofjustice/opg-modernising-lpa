@@ -20,7 +20,7 @@ func IdentityWithTodo(tmpl template.Template, lpaStore LpaStore, identityOption 
 				return err
 			}
 
-			appData.Lang.Redirect(w, r, lpa.IdentityOptions.NextPath(identityOption), http.StatusFound)
+			appData.Lang.Redirect(w, r, lpa.IdentityOptions.NextPath(identityOption, appData.Paths), http.StatusFound)
 			return nil
 		}
 
