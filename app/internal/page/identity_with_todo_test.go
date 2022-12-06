@@ -38,7 +38,6 @@ func TestPostIdentityWithTodo(t *testing.T) {
 		IdentityOptions: IdentityOptions{
 			First:  Passport,
 			Second: GovernmentGatewayAccount,
-			Paths:  appData.Paths,
 		},
 	}, nil)
 

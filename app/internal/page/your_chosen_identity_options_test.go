@@ -22,7 +22,6 @@ func TestGetYourChosenIdentityOptions(t *testing.T) {
 				Selected: selected,
 				First:    Passport,
 				Second:   DwpAccount,
-				Paths:    appData.Paths,
 			},
 		}, nil)
 
@@ -71,7 +70,6 @@ func TestGetYourChosenIdentityOptionsWhenTemplateErrors(t *testing.T) {
 		Return(&Lpa{
 			IdentityOptions: IdentityOptions{
 				Selected: []IdentityOption{Passport, DwpAccount, UtilityBill},
-				Paths:    appData.Paths,
 			},
 		}, nil)
 
@@ -100,7 +98,6 @@ func TestPostYourChosenIdentityOptions(t *testing.T) {
 			IdentityOptions: IdentityOptions{
 				First:  Passport,
 				Second: DwpAccount,
-				Paths:  appData.Paths,
 			},
 		}, nil)
 

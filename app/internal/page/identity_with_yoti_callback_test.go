@@ -128,7 +128,6 @@ func TestPostIdentityWithYotiCallback(t *testing.T) {
 		IdentityOptions: IdentityOptions{
 			First:  Yoti,
 			Second: Passport,
-			Paths:  appData.Paths,
 		}}, nil)
 
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)

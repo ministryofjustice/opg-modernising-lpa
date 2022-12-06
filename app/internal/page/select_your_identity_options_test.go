@@ -62,7 +62,6 @@ func TestGetSelectYourIdentityOptionsFromStore(t *testing.T) {
 		Return(&Lpa{
 			IdentityOptions: IdentityOptions{
 				Selected: []IdentityOption{Passport},
-				Paths:    appData.Paths,
 			},
 		}, nil)
 
@@ -120,7 +119,6 @@ func TestPostSelectYourIdentityOptions(t *testing.T) {
 				Selected: []IdentityOption{Passport, DwpAccount, UtilityBill},
 				First:    Passport,
 				Second:   DwpAccount,
-				Paths:    appData.Paths,
 			},
 			Tasks: Tasks{
 				ConfirmYourIdentityAndSign: TaskInProgress,
