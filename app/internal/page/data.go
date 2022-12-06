@@ -70,6 +70,7 @@ type Lpa struct {
 	HowShouldReplacementAttorneysStepIn         string
 	HowShouldReplacementAttorneysStepInDetails  string
 	DoYouWantToNotifyPeople                     string
+	PeopleToNotify                              []Person
 }
 
 type PaymentDetails struct {
@@ -84,6 +85,7 @@ type Tasks struct {
 	CheckYourLpa               TaskState
 	PayForLpa                  TaskState
 	ConfirmYourIdentityAndSign TaskState
+	PeopleToNotify             TaskState
 }
 
 type Person struct {

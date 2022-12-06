@@ -21,6 +21,7 @@ const (
 	ConfirmYourIdentityAndSignTask        = "confirmYourIdentityAndSign"
 	RegisterTheLpaSection                 = "registerTheLpa"
 	RegisterTheLpaTask                    = "registerTheLpa"
+	PeopleToNotifyTask                    = "peopleToNotify"
 )
 
 type taskListData struct {
@@ -93,6 +94,13 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 							Path:       appData.Paths.WhoDoYouWantToBeCertificateProviderGuidance,
 							Completed:  lpa.Tasks.CertificateProvider == TaskCompleted,
 							InProgress: lpa.Tasks.CertificateProvider == TaskInProgress,
+						},
+						{
+							Name:       PeopleToNotifyTask,
+							Path:       appData.Paths.DoYouWantToNotifyPeople,
+							Completed:  lpa.Tasks.PeopleToNotify == TaskCompleted,
+							InProgress: lpa.Tasks.PeopleToNotify == TaskInProgress,
+							Count:      len(lpa.PeopleToNotify),
 						},
 						{
 							Name:       CheckAndSendToCertificateProviderTask,
