@@ -1,4 +1,4 @@
-data "" "main" {
+data "aws_wafv2_web_acl" "main" {
   provider = aws.region
   name     = "${data.aws_default_tags.current.tags.account-name}-web-acl"
   scope    = "REGIONAL"
