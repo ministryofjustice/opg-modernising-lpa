@@ -30,6 +30,14 @@ var validPersonToNotify = PersonToNotify{
 
 var mockRandom = func(int) string { return "123" }
 
+var address = place.Address{
+	Line1:      "a",
+	Line2:      "b",
+	Line3:      "c",
+	TownOrCity: "d",
+	Postcode:   "e",
+}
+
 func TestReadDate(t *testing.T) {
 	date := readDate(time.Date(2020, time.March, 12, 0, 0, 0, 0, time.Local))
 
