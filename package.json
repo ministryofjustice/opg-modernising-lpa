@@ -22,7 +22,7 @@
         "cypress": "^11.2",
         "cypress-axe": "^1.0.0",
         "cypress-multi-reporters": "^1.6.1",
-        "esbuild": "^0.15.16",
+        "esbuild": "^0.16.0",
         "sass": "^1.56.1"
     }
 }
