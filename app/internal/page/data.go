@@ -265,6 +265,18 @@ func (l *Lpa) PutPersonToNotify(person PersonToNotify) bool {
 	return true
 }
 
+func (l *Lpa) DeletePersonToNotify(personToNotify PersonToNotify) bool {
+	idx := slices.IndexFunc(l.PeopleToNotify, func(p PersonToNotify) bool { return p.ID == personToNotify.ID })
+
+	if idx == -1 {
+		return false
+	}
+
+	l.PeopleToNotify = slices.Delete(l.PeopleToNotify, idx, idx+1)
+
+	return true
+}
+
 func (l *Lpa) AttorneysFullNames() string {
 	var names []string
 

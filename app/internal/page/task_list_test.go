@@ -47,7 +47,7 @@ func TestGetTaskList(t *testing.T) {
 				sections[0].Items = []taskListItem{
 					{Name: ProvideYourDetailsTask, Path: appData.Paths.YourDetails, InProgress: true},
 					{Name: ChooseYourAttorneysTask, Path: appData.Paths.ChooseAttorneys, InProgress: true, Count: 1},
-					{Name: ChooseYourReplacementAttorneysTask, Path: appData.Paths.WantReplacementAttorneys, InProgress: true, Count: 1},
+					{Name: ChooseYourReplacementAttorneysTask, Path: appData.Paths.DoYouWantReplacementAttorneys, InProgress: true, Count: 1},
 					{Name: ChooseWhenTheLpaCanBeUsedTask, Path: appData.Paths.WhenCanTheLpaBeUsed, InProgress: true},
 					{Name: AddRestrictionsToLpaTask, Path: appData.Paths.Restrictions, InProgress: true},
 					{Name: ChooseCertificateProviderTask, Path: appData.Paths.WhoDoYouWantToBeCertificateProviderGuidance, InProgress: true},
@@ -106,7 +106,7 @@ func TestGetTaskList(t *testing.T) {
 				sections[0].Items = []taskListItem{
 					{Name: ProvideYourDetailsTask, Path: appData.Paths.YourDetails, Completed: true},
 					{Name: ChooseYourAttorneysTask, Path: appData.Paths.ChooseAttorneys, Completed: true, Count: 2},
-					{Name: ChooseYourReplacementAttorneysTask, Path: appData.Paths.WantReplacementAttorneys, Completed: true, Count: 1},
+					{Name: ChooseYourReplacementAttorneysTask, Path: appData.Paths.DoYouWantReplacementAttorneys, Completed: true, Count: 1},
 					{Name: ChooseWhenTheLpaCanBeUsedTask, Path: appData.Paths.WhenCanTheLpaBeUsed, Completed: true},
 					{Name: AddRestrictionsToLpaTask, Path: appData.Paths.Restrictions, Completed: true},
 					{Name: ChooseCertificateProviderTask, Path: appData.Paths.WhoDoYouWantToBeCertificateProviderGuidance, Completed: true},
@@ -146,7 +146,7 @@ func TestGetTaskList(t *testing.T) {
 							Items: []taskListItem{
 								{Name: ProvideYourDetailsTask, Path: appData.Paths.YourDetails},
 								{Name: ChooseYourAttorneysTask, Path: appData.Paths.ChooseAttorneys},
-								{Name: ChooseYourReplacementAttorneysTask, Path: appData.Paths.WantReplacementAttorneys},
+								{Name: ChooseYourReplacementAttorneysTask, Path: appData.Paths.DoYouWantReplacementAttorneys},
 								{Name: ChooseWhenTheLpaCanBeUsedTask, Path: appData.Paths.WhenCanTheLpaBeUsed},
 								{Name: AddRestrictionsToLpaTask, Path: appData.Paths.Restrictions},
 								{Name: ChooseCertificateProviderTask, Path: appData.Paths.WhoDoYouWantToBeCertificateProviderGuidance},

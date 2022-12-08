@@ -40,7 +40,7 @@ func DoYouWantToNotifyPeople(tmpl template.Template, lpaStore LpaStore) Handler 
 					return err
 				}
 
-				redirectPath := appData.Paths.WhoShouldBeNotified
+				redirectPath := appData.Paths.ChoosePeopleToNotify
 
 				if data.Form.WantToNotify == "no" {
 					redirectPath = appData.Paths.CheckYourLpa

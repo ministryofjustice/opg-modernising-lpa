@@ -117,7 +117,7 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 		{
 			WantToNotify:     "yes",
 			ExistingAnswer:   "no",
-			ExpectedRedirect: appData.Paths.WhoShouldBeNotified,
+			ExpectedRedirect: appData.Paths.ChoosePeopleToNotify,
 		},
 		{
 			WantToNotify:     "no",

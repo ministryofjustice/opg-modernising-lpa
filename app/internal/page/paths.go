@@ -17,6 +17,7 @@ type AppPaths struct {
 	ChooseReplacementAttorneysSummary           string
 	CookiesConsent                              string
 	Dashboard                                   string
+	DoYouWantReplacementAttorneys               string
 	DoYouWantToNotifyPeople                     string
 	HealthCheck                                 string
 	HowDoYouKnowYourCertificateProvider         string
@@ -49,7 +50,6 @@ type AppPaths struct {
 	Start                                       string
 	TaskList                                    string
 	TestingStart                                string
-	WantReplacementAttorneys                    string
 	WhatHappensWhenSigning                      string
 	WhenCanTheLpaBeUsed                         string
 	WhoDoYouWantToBeCertificateProviderGuidance string

@@ -40,7 +40,7 @@ func ChooseAttorneysSummary(logger Logger, tmpl template.Template, lpaStore LpaS
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				redirectUrl := appData.Paths.WantReplacementAttorneys
+				redirectUrl := appData.Paths.DoYouWantReplacementAttorneys
 
 				if len(lpa.Attorneys) > 1 {
 					redirectUrl = appData.Paths.HowShouldAttorneysMakeDecisions

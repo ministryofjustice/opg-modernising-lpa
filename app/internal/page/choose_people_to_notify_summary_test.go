@@ -62,48 +62,57 @@ func TestGetChoosePeopleToNotifySummaryWhenStoreErrors(t *testing.T) {
 }
 
 func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
-	testcases := map[string]struct {
-		addMoreFormValue string
-		expectedUrl      string
-		PeopleToNotify   []PersonToNotify
-	}{
-		"add person to notify": {
-			addMoreFormValue: "yes",
-			expectedUrl:      fmt.Sprintf("%s?addAnother=1", appData.Paths.ChoosePeopleToNotify),
-			PeopleToNotify:   []PersonToNotify{},
-		},
-		"do not add person to notify": {
-			addMoreFormValue: "no",
-			expectedUrl:      appData.Paths.CheckYourLpa,
-			PeopleToNotify:   []PersonToNotify{{ID: "123"}},
-		},
+	w := httptest.NewRecorder()
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(&Lpa{PeopleToNotify: []PersonToNotify{{ID: "123"}}}, nil)
+
+	form := url.Values{
+		"add-person-to-notify": {"yes"},
 	}
 
-	for testname, tc := range testcases {
-		t.Run(testname, func(t *testing.T) {
-			w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
-			lpaStore := &mockLpaStore{}
-			lpaStore.
-				On("Get", mock.Anything, "session-id").
-				Return(&Lpa{PeopleToNotify: tc.PeopleToNotify}, nil)
+	err := ChoosePeopleToNotifySummary(nil, nil, lpaStore)(appData, w, r)
+	resp := w.Result()
 
-			form := url.Values{
-				"add-person-to-notify": {tc.addMoreFormValue},
-			}
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, fmt.Sprintf("%s?addAnother=1", appData.Paths.ChoosePeopleToNotify), resp.Header.Get("Location"))
+	mock.AssertExpectationsForObjects(t, lpaStore)
+}
 
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
+func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
+	w := httptest.NewRecorder()
 
-			err := ChoosePeopleToNotifySummary(nil, nil, lpaStore)(appData, w, r)
-			resp := w.Result()
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(&Lpa{PeopleToNotify: []PersonToNotify{{ID: "123"}}}, nil)
+	lpaStore.
+		On("Put", mock.Anything, "session-id", &Lpa{
+			PeopleToNotify: []PersonToNotify{{ID: "123"}},
+			Tasks:          Tasks{PeopleToNotify: TaskCompleted},
+		}).
+		Return(nil)
 
-			assert.Nil(t, err)
-			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, tc.expectedUrl, resp.Header.Get("Location"))
-			mock.AssertExpectationsForObjects(t, lpaStore)
-		})
+	form := url.Values{
+		"add-person-to-notify": {"no"},
 	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := ChoosePeopleToNotifySummary(nil, nil, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, appData.Paths.CheckYourLpa, resp.Header.Get("Location"))
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
