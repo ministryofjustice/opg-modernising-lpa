@@ -39,12 +39,12 @@ jobs:
       - name: No changes detected condition
         if: steps.detect_changes.outputs.changes == 'false'
         run: |
-          echo "there were no changes
+          echo "there were no changes"
 
       - name: Changes detected condition
         if: steps.detect_changes.outputs.changes == 'true'
         run: |
-          echo "there were changes
+          echo "there were changes"
 
       - name: Bump version
         id: bump_version
