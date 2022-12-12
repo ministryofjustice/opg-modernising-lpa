@@ -33,8 +33,8 @@ jobs:
         if: github.ref != 'refs/heads/main'
         run: |
           git diff --quiet HEAD origin/main -- app && \
-          echo "changes=false" >> $GITHUB_OUPUT || \
-          echo "changes=true" >> $GITHUB_OUPUT
+          echo "changes=false" >> $GITHUB_OUTPUT || \
+          echo "changes=true" >> $GITHUB_OUTPUT
 
       - name: No changes detected condition
         if: steps.detect_changes.outputs.changes == 'false'
