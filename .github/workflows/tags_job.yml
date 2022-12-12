@@ -27,11 +27,23 @@ jobs:
           fi
 
       - name: Output prod env image tag using git diff
+        id: detect_changes
         if: github.ref != 'refs/heads/main'
-        run: /
+        run: |
           git diff --quiet HEAD main -- app && \
-          echo "no change, tag set to prod env tag" || \
-          echo "changed app, new tag created"
+          echo "workspace_name=$(terraform output -raw workspace_name)" >> $GITHUB_OUTPUT
+          echo "changes=false" >> $GITHUB_OUPUT || \
+          echo "changes=true" >> $GITHUB_OUPUT
+
+      - name: No changes detected condition
+        if: steps.detect_changes.outputs.changes == 'false'
+        run: |
+          echo "there were no changes
+
+      - name: Changes detected condition
+        if: steps.detect_changes.outputs.changes == 'true'
+        run: |
+          echo "there were changes
 
       - name: Bump version
         id: bump_version
