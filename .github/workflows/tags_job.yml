@@ -30,7 +30,7 @@ jobs:
         id: detect_changes
         if: github.ref != 'refs/heads/main'
         run: |
-          git diff --quiet HEAD main -- app && \
+          git diff --quiet HEAD 'refs/heads/main' -- app && \
           echo "changes=false" >> $GITHUB_OUPUT || \
           echo "changes=true" >> $GITHUB_OUPUT
 
