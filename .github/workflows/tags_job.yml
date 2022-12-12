@@ -25,6 +25,14 @@ jobs:
             branch=${branch//\/}
             echo BRANCH_NAME=${branch} >> $GITHUB_ENV
           fi
+
+      - name: Output prod env image tag using git diff
+        if: github.ref != 'refs/heads/main'
+        run: /
+          git diff --quiet HEAD main -- app && \
+          echo "no change, tag set to prod env tag" || \
+          echo "changed app, new tag created"
+
       - name: Bump version
         id: bump_version
         uses: anothrNick/github-tag-action@1.36.0
