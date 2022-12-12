@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Extract branch name
         id: extract_branch
         run: |
@@ -25,6 +27,25 @@ jobs:
             branch=${branch//\/}
             echo BRANCH_NAME=${branch} >> $GITHUB_ENV
           fi
+
+      - name: Detect changes in /app compared to main using git diff
+        id: detect_changes
+        if: github.ref != 'refs/heads/main'
+        run: |
+          git diff --quiet HEAD origin/main -- app && \
+          echo "changes=false" >> $GITHUB_OUTPUT || \
+          echo "changes=true" >> $GITHUB_OUTPUT
+
+      - name: No changes detected condition
+        if: steps.detect_changes.outputs.changes == 'false'
+        run: |
+          echo "there were no changes"
+
+      - name: Changes detected condition
+        if: steps.detect_changes.outputs.changes == 'true'
+        run: |
+          echo "there were changes"
+
       - name: Bump version
         id: bump_version
         uses: anothrNick/github-tag-action@1.36.0
