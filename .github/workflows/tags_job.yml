@@ -26,12 +26,11 @@ jobs:
             echo BRANCH_NAME=${branch} >> $GITHUB_ENV
           fi
 
-      - name: Output prod env image tag using git diff
+      - name: Detect changes in /app compared to main using git diff
         id: detect_changes
         if: github.ref != 'refs/heads/main'
         run: |
           git diff --quiet HEAD main -- app && \
-          echo "workspace_name=$(terraform output -raw workspace_name)" >> $GITHUB_OUTPUT
           echo "changes=false" >> $GITHUB_OUPUT || \
           echo "changes=true" >> $GITHUB_OUPUT
 
