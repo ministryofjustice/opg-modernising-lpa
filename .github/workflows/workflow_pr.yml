@@ -70,15 +70,15 @@ jobs:
       workspace_name: production
     secrets: inherit # pragma: allowlist secret
 
-  # ui_tests_image:
-  #   name: Run Cypress UI Tests On Images
-  #   uses: ./.github/workflows/ui_test_job.yml
-  #   needs: [docker_build_scan_push, create_tags]
-  #   with:
-  #     run_against_image: true
-  #     tag: ${{ needs.create_tags.outputs.version_tag }}
-  #     changes_detected: ${{ needs.create_tags.outputs.changes_detected }}
-  #   secrets: inherit # pragma: allowlist secret
+  ui_tests_image:
+    name: Run Cypress UI Tests On Images
+    uses: ./.github/workflows/ui_test_job.yml
+    needs: [docker_build_scan_push, create_tags]
+    with:
+      run_against_image: true
+      tag: ${{ needs.create_tags.outputs.version_tag }}
+      changes_detected: ${{ needs.create_tags.outputs.changes_detected }}
+    secrets: inherit # pragma: allowlist secret
 
   pr_deploy:
       name: PR Environment Deploy
