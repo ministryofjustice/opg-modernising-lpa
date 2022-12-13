@@ -10,3 +10,9 @@ locals {
     app_load_balancer_security_group_id = module.eu_west_1[0].app_load_balancer_security_group.id
   }
 }
+
+resource "aws_ssm_parameter" "container_version" {
+  name  = "${local.environment_name}-container-version"
+  type  = "String"
+  value = var.container_version
+}
