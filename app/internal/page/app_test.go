@@ -44,7 +44,7 @@ var (
 			ChooseReplacementAttorneysAddress:           "/choose-replacement-attorneys-address",
 			ChooseReplacementAttorneysSummary:           "/choose-replacement-attorneys-summary",
 			DoYouWantReplacementAttorneys:               "/want-replacement-attorneys",
-			DoYouWantToNotifyPeople:                     "/want-to-notify-people",
+			DoYouWantToNotifyPeople:                     "/do-you-want-to-notify-people",
 			Dashboard:                                   "/dashboard",
 			HowDoYouKnowYourCertificateProvider:         "/how-do-you-know-your-certificate-provider",
 			HowLongHaveYouKnownCertificateProvider:      "/how-long-have-you-known-certificate-provider",

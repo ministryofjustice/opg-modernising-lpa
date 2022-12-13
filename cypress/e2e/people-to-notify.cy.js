@@ -10,7 +10,7 @@ describe('People to notify', () => {
     })
 
     it('can add people to notify', () => {
-        cy.visit('/testing-start?redirect=/want-to-notify-people');
+        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people');
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
@@ -51,7 +51,7 @@ describe('People to notify', () => {
     });
 
     it('can modify a person to notifys details', () => {
-        cy.visit('/testing-start?redirect=/want-to-notify-people&withPeopleToNotify=1');
+        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people');
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
@@ -104,7 +104,7 @@ describe('People to notify', () => {
     });
 
     it('can remove a person to notify', () => {
-            cy.visit('/testing-start?redirect=/want-to-notify-people');
+            cy.visit('/testing-start?redirect=/do-you-want-to-notify-people');
 
             cy.injectAxe();
             cy.checkA11y(null, { rules: { region: { enabled: false } } });

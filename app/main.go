@@ -83,7 +83,7 @@ func main() {
 		ChooseReplacementAttorneysSummary:           "/choose-replacement-attorneys-summary",
 		CookiesConsent:                              "/cookies-consent",
 		DoYouWantReplacementAttorneys:               "/want-replacement-attorneys",
-		DoYouWantToNotifyPeople:                     "/want-to-notify-people",
+		DoYouWantToNotifyPeople:                     "/do-you-want-to-notify-people",
 		Dashboard:                                   "/dashboard",
 		HealthCheck:                                 "/health-check",
 		HowDoYouKnowYourCertificateProvider:         "/how-do-you-know-your-certificate-provider",
