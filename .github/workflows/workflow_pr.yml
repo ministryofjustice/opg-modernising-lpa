@@ -24,7 +24,7 @@ defaults:
 
 jobs:
   detect_changes:
-    name: Create Tags
+    name: Detect Changes
     uses: ./.github/workflows/detect_changes_to_app_job.yml
 
   create_tags:
