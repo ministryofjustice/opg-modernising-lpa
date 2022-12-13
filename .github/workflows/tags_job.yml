@@ -15,7 +15,6 @@ on:
 
 jobs:
   create_tags:
-    needs: detect_changes_compared_to_main
     if : inputs.changes_detected == 'true'
     runs-on: ubuntu-latest
     steps:
