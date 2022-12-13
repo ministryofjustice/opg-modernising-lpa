@@ -6,7 +6,7 @@ on:
         value: ${{ jobs.detect_changes_compared_to_main.outputs.changes_detected }}
       version_tag:
         description: "Docker Image Tag"
-        value: ${{ jobs.create_tags.outputs.docker_tag }}
+        value: ${{ jobs.consolidate_tags.outputs.docker_tag }}
       environment_workspace_name:
         description: "Terraform Environment Workspace Name"
         value: ${{ jobs.generate_environment_workspace_name.outputs.environment_workspace_name }}
@@ -98,3 +98,23 @@ jobs:
           echo "tag=${value}" >> $GITHUB_OUTPUT
     outputs:
       docker_tag: ${{ steps.pull_production_tag.outputs.tag }}
+
+  consolidate_tags:
+    needs: [
+      detect_changes_compared_to_main,
+      create_tags,
+      pull_tags,
+      ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: consolidate tags
+        id: consolidate_tags
+        run: |
+          if ${{needs.detect_changes_compared_to_main.outputs.changes_detected == 'false'}}; then
+            echo "tag=${{needs.pull_tags.outputs.docker_tag}}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{needs.create_tags.outputs.docker_tag}}" >> $GITHUB_OUTPUT
+          fi
+          value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/preproduction' | jq -r .Parameter.Value )
+    outputs:
+      docker_tag: ${{ steps.consolidate_tags.outputs.tag }}
