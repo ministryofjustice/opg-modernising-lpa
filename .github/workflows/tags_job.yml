@@ -65,12 +65,19 @@ jobs:
     if : needs.detect_changes_compared_to_main.outputs.changes_detected == 'false'
     runs-on: ubuntu-latest
     steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ssm-get-parameter
+          role-duration-seconds: 900
+          role-session-name: GithubActionsSSMGetParameter
       - name: Pull production environment tag
         id: pull_production_tag
         run: |
-          echo latest
+          echo "tag=${{ aws ssm get-parameters --names "/modernising-lpa/container-version/233mlpab518"}}" >> $GITHUB_OUTPUT
     outputs:
-      docker_tag: latest
+      docker_tag: ${{ steps.pull_tags.outputs.tag }}
 
   generate_environment_workspace_name:
     if: github.ref != 'refs/heads/main'
