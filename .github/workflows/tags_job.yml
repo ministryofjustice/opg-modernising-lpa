@@ -25,16 +25,6 @@ jobs:
           git diff --quiet HEAD origin/main -- app && \
           echo "changes=false" >> $GITHUB_OUTPUT || \
           echo "changes=true" >> $GITHUB_OUTPUT
-      # - name: No changes detected condition
-      #   if: steps.detect_changes.outputs.changes == 'false'
-      #   id: no_changes
-      #   run: |
-      #     echo "tag=latest" >> $GITHUB_OUTPUT
-
-      # - name: Changes detected condition
-      #   if: steps.detect_changes.outputs.changes == 'true'
-      #   run: |
-      #     echo "there were changes"
     outputs:
       changes_detected: ${{ steps.detect_changes.outputs.changes }}
 
