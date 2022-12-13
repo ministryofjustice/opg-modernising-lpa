@@ -51,7 +51,7 @@ jobs:
           ECR_REPOSITORY: modernising-lpa/app
           TAG: ${{ inputs.tag }}
         run: |
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml build
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml pull
           docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d
 
       - name: Manage Ingress/Configure AWS Credentials
@@ -81,8 +81,6 @@ jobs:
 
       - name: Cypress run
         uses: cypress-io/github-action@v4
-        with:
-          record: true
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
