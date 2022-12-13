@@ -94,7 +94,7 @@ jobs:
         id: pull_production_tag
         run: |
           value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/preproduction' | jq -r .Parameter.Value )
-          echo $(value)
-          echo "tag=$(value)" >> $GITHUB_OUTPUT
+          echo ${value}
+          echo "tag=${value}" >> $GITHUB_OUTPUT
     outputs:
       docker_tag: ${{ steps.pull_production_tag.outputs.tag }}
