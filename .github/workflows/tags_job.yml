@@ -27,6 +27,20 @@ jobs:
           echo "changes=true" >> $GITHUB_OUTPUT
     outputs:
       changes_detected: ${{ steps.detect_changes.outputs.changes }}
+  notify_jobs_will_be_skipped:
+    needs: detect_changes_compared_to_main
+    if: needs.detect_changes_compared_to_main.outputs.changes_detected == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify jobs will be skipped
+        run: |
+          echo '### No Changes Detected in /app!' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
+          echo "The following jobs will be skipped" >> $GITHUB_STEP_SUMMARY
+          echo "- Create Tags" >> $GITHUB_STEP_SUMMARY
+          echo "- Go Run Unit Tests" >> $GITHUB_STEP_SUMMARY
+          echo "- Docker Build, Scan and Push to ECR" >> $GITHUB_STEP_SUMMARY
+          echo "- Cypress Tests Against Docker Image" >> $GITHUB_STEP_SUMMARY
 
   create_tags:
     needs: detect_changes_compared_to_main

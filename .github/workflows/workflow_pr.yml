@@ -47,28 +47,28 @@ jobs:
       tag: ${{ needs.create_tags.outputs.version_tag }}
       changes_detected: ${{ needs.create_tags.outputs.changes_detected }}
 
-  # terraform_account_workflow_development:
-  #   name: TF Plan Dev Account
-  #   uses: ./.github/workflows/terraform_account_job.yml
-  #   with:
-  #     workspace_name: development
-  #   secrets: inherit
+  terraform_account_workflow_development:
+    name: TF Plan Dev Account
+    uses: ./.github/workflows/terraform_account_job.yml
+    with:
+      workspace_name: development
+    secrets: inherit # pragma: allowlist secret
 
-  # terraform_account_workflow_preproduction:
-  #   name: TF Plan Preprod Account
-  #   needs: terraform_account_workflow_development
-  #   uses: ./.github/workflows/terraform_account_job.yml
-  #   with:
-  #     workspace_name: preproduction
-  #   secrets: inherit
+  terraform_account_workflow_preproduction:
+    name: TF Plan Preprod Account
+    needs: terraform_account_workflow_development
+    uses: ./.github/workflows/terraform_account_job.yml
+    with:
+      workspace_name: preproduction
+    secrets: inherit # pragma: allowlist secret
 
-  # terraform_account_workflow_production:
-  #   name: TF Plan Prod Account
-  #   needs: terraform_account_workflow_development
-  #   uses: ./.github/workflows/terraform_account_job.yml
-  #   with:
-  #     workspace_name: production
-  #   secrets: inherit
+  terraform_account_workflow_production:
+    name: TF Plan Prod Account
+    needs: terraform_account_workflow_development
+    uses: ./.github/workflows/terraform_account_job.yml
+    with:
+      workspace_name: production
+    secrets: inherit # pragma: allowlist secret
 
   # ui_tests_image:
   #   name: Run Cypress UI Tests On Images
@@ -78,7 +78,7 @@ jobs:
   #     run_against_image: true
   #     tag: ${{ needs.create_tags.outputs.version_tag }}
   #     changes_detected: ${{ needs.create_tags.outputs.changes_detected }}
-  #   secrets: inherit
+  #   secrets: inherit # pragma: allowlist secret
 
   pr_deploy:
       name: PR Environment Deploy
@@ -101,14 +101,14 @@ jobs:
   #     run_against_image: false
   #     base_url: "https://${{ needs.pr_deploy.outputs.url }}"
   #     tag: ${{ needs.create_tags.outputs.version_tag }}
-  #   secrets: inherit
+  #   secrets: inherit # pragma: allowlist secret
 
   # always_remove_ingress:
   #   name: Remove CI ingress from environment
   #   if: ${{ always() }}
   #   uses: ./.github/workflows/remove_ingress_job.yml
   #   needs: [ui_tests_pr_env]
-  #   secrets: inherit
+  #   secrets: inherit # pragma: allowlist secret
 
   # end_of_pr_workflow:
   #   name: End of PR Workflow
