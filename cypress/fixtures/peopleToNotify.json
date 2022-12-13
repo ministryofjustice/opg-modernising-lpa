@@ -14,7 +14,7 @@
     "person2": {
       "firstNames": "Bill",
       "lastName": "Smith",
-      "email": "jsmith@example.org",
+      "email": "bsmith@example.org",
       "address": {
         "line1": "1 RICHMOND PLACE",
         "line2": "",
