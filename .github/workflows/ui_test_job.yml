@@ -26,7 +26,6 @@ defaults:
 
 jobs:
   run_ui_tests:
-    if: inputs.changes_detected == true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
