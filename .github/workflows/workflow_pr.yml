@@ -23,18 +23,23 @@ defaults:
     shell: bash
 
 jobs:
+  detect_changes:
+    name: Create Tags
+    uses: ./.github/workflows/detect_changes_to_app_job.yml
+
   create_tags:
     name: Create Tags
+    needs: detect_changes
     uses: ./.github/workflows/tags_job.yml
+    with:
+      changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
 
   go_unit_tests:
     name: Run Go unit tests
-    needs: [
-      create_tags
-      ]
+    needs: create_tags
     uses: ./.github/workflows/go-unit-tests.yml
     with:
-      changes_detected: ${{ needs.create_tags.outputs.changes_detected }}
+      changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
 
   docker_build_scan_push:
     name: Docker Build, Scan and Push
@@ -45,7 +50,7 @@ jobs:
       ]
     with:
       tag: ${{ needs.create_tags.outputs.version_tag }}
-      changes_detected: ${{ needs.create_tags.outputs.changes_detected }}
+      changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
 
   terraform_account_workflow_development:
     name: TF Plan Dev Account
@@ -77,7 +82,7 @@ jobs:
     with:
       run_against_image: true
       tag: ${{ needs.create_tags.outputs.version_tag }}
-      changes_detected: ${{ needs.create_tags.outputs.changes_detected }}
+      changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
     secrets: inherit # pragma: allowlist secret
 
   pr_deploy:
