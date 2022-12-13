@@ -60,6 +60,13 @@ jobs:
     outputs:
       docker_tag: ${{ steps.bump_version.outputs.tag }}
 
+  pull_tags:
+    needs: detect_changes_compared_to_main
+    if : needs.detect_changes_compared_to_main.outputs.changes_detected == 'false'
+    runs-on: ubuntu-latest
+    outputs:
+      docker_tag: latest
+
   generate_environment_workspace_name:
     if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
