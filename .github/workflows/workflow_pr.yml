@@ -85,7 +85,7 @@ jobs:
       needs: [
         create_tags,
         docker_build_scan_push,
-        # ui_tests_image
+        ui_tests_image
       ]
       uses: ./.github/workflows/terraform_environment_job.yml
       with:
