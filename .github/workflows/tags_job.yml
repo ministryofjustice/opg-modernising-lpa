@@ -116,6 +116,5 @@ jobs:
           else
             echo "tag=${{needs.create_tags.outputs.docker_tag}}" >> $GITHUB_OUTPUT
           fi
-          value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/preproduction' | jq -r .Parameter.Value )
     outputs:
       docker_tag: ${{ steps.consolidate_tags.outputs.tag }}
