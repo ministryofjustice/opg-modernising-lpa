@@ -39,7 +39,8 @@ jobs:
       changes_detected: ${{ steps.detect_changes.outputs.changes }}
 
   create_tags:
-    if : jobs.detect_changes_compared_to_main.outputs.changes_detected == 'true'
+    needs: detect_changes_compared_to_main
+    if : needs.detect_changes_compared_to_main.outputs.changes_detected == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
