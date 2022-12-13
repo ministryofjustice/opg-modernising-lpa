@@ -15,6 +15,10 @@ on:
         required: false
         type: string
         default: latest
+      changes_detected:
+        description: 'Boolean value for changes detected in /app'
+        required: true
+        type: string
 
 defaults:
   run:
@@ -22,6 +26,7 @@ defaults:
 
 jobs:
   run_ui_tests:
+    if: inputs.changes_detected == true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
