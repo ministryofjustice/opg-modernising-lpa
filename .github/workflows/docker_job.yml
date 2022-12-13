@@ -8,7 +8,7 @@ on:
       changes_detected:
         description: 'Boolean value for changes detected in /app'
         required: true
-        type: boolean
+        type: string
 
 defaults:
   run:
