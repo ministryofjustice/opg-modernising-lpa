@@ -20,6 +20,24 @@ var validAttorney = Attorney{
 	DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 }
 
+var validPersonToNotify = PersonToNotify{
+	ID:         "123",
+	Address:    address,
+	FirstNames: "Johnny",
+	LastName:   "Jones",
+	Email:      "user@example.org",
+}
+
+var mockRandom = func(int) string { return "123" }
+
+var address = place.Address{
+	Line1:      "a",
+	Line2:      "b",
+	Line3:      "c",
+	TownOrCity: "d",
+	Postcode:   "e",
+}
+
 func TestReadDate(t *testing.T) {
 	date := readDate(time.Date(2020, time.March, 12, 0, 0, 0, 0, time.Local))
 

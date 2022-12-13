@@ -6,14 +6,19 @@ type AppPaths struct {
 	AboutPayment                                string
 	CertificateProviderDetails                  string
 	CheckYourLpa                                string
-	ChooseAttorneysAddress                      string
 	ChooseAttorneys                             string
+	ChooseAttorneysAddress                      string
 	ChooseAttorneysSummary                      string
+	ChoosePeopleToNotify                        string
+	ChoosePeopleToNotifyAddress                 string
+	ChoosePeopleToNotifySummary                 string
 	ChooseReplacementAttorneys                  string
 	ChooseReplacementAttorneysAddress           string
 	ChooseReplacementAttorneysSummary           string
 	CookiesConsent                              string
 	Dashboard                                   string
+	DoYouWantReplacementAttorneys               string
+	DoYouWantToNotifyPeople                     string
 	HealthCheck                                 string
 	HowDoYouKnowYourCertificateProvider         string
 	HowLongHaveYouKnownCertificateProvider      string
@@ -36,6 +41,7 @@ type AppPaths struct {
 	PaymentConfirmation                         string
 	ReadYourLpa                                 string
 	RemoveAttorney                              string
+	RemovePersonToNotify                        string
 	RemoveReplacementAttorney                   string
 	Restrictions                                string
 	Root                                        string
@@ -44,11 +50,11 @@ type AppPaths struct {
 	Start                                       string
 	TaskList                                    string
 	TestingStart                                string
-	WantReplacementAttorneys                    string
 	WhatHappensWhenSigning                      string
 	WhenCanTheLpaBeUsed                         string
 	WhoDoYouWantToBeCertificateProviderGuidance string
 	WhoIsTheLpaFor                              string
+	WhoShouldBeNotified                         string
 	YourAddress                                 string
 	YourChosenIdentityOptions                   string
 	YourDetails                                 string

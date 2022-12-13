@@ -1,0 +1,26 @@
+{
+    "person1": {
+      "firstNames": "Joan",
+      "lastName": "Smith",
+      "email": "jsmith@example.org",
+      "address": {
+        "line1": "2 RICHMOND PLACE",
+        "line2": "",
+        "line3": "",
+        "town": "BIRMINGHAM",
+        "postcode": "B14 7ED"
+      }
+    },
+    "person2": {
+      "firstNames": "Bill",
+      "lastName": "Smith",
+      "email": "jsmith@example.org",
+      "address": {
+        "line1": "1 RICHMOND PLACE",
+        "line2": "",
+        "line3": "",
+        "town": "BIRMINGHAM",
+        "postcode": "B14 7ED"
+      }
+    }
+}

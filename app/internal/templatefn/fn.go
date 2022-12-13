@@ -12,30 +12,31 @@ import (
 )
 
 var All = map[string]interface{}{
-	"isEnglish":      isEnglish,
-	"isWelsh":        isWelsh,
-	"input":          input,
-	"items":          items,
-	"item":           item,
-	"fieldID":        fieldID,
-	"errorMessage":   errorMessage,
-	"details":        details,
-	"inc":            inc,
-	"link":           link,
-	"contains":       contains,
-	"tr":             tr,
-	"trFormat":       trFormat,
-	"trFormatHtml":   trFormatHtml,
-	"trHtml":         trHtml,
-	"trCount":        trCount,
-	"trFormatCount":  trFormatCount,
-	"now":            now,
-	"addDays":        addDays,
-	"formatDate":     formatDate,
-	"formatDateTime": formatDateTime,
-	"lowerFirst":     lowerFirst,
-	"listAttorneys":  listAttorneys,
-	"warning":        warning,
+	"isEnglish":          isEnglish,
+	"isWelsh":            isWelsh,
+	"input":              input,
+	"items":              items,
+	"item":               item,
+	"fieldID":            fieldID,
+	"errorMessage":       errorMessage,
+	"details":            details,
+	"inc":                inc,
+	"link":               link,
+	"contains":           contains,
+	"tr":                 tr,
+	"trFormat":           trFormat,
+	"trFormatHtml":       trFormatHtml,
+	"trHtml":             trHtml,
+	"trCount":            trCount,
+	"trFormatCount":      trFormatCount,
+	"now":                now,
+	"addDays":            addDays,
+	"formatDate":         formatDate,
+	"formatDateTime":     formatDateTime,
+	"lowerFirst":         lowerFirst,
+	"listAttorneys":      listAttorneys,
+	"warning":            warning,
+	"listPeopleToNotify": listPeopleToNotify,
 }
 
 func isEnglish(lang page.Lang) bool {
@@ -254,6 +255,16 @@ func listAttorneys(attorneys []page.Attorney, app page.AppData, detailsPath, add
 		"DetailsPath": detailsPath,
 		"AddressPath": addressPath,
 		"RemovePath":  removePath,
+	}
+}
+
+func listPeopleToNotify(peopleToNotify []page.PersonToNotify, app page.AppData, detailsPath, addressPath, removePath string) map[string]interface{} {
+	return map[string]interface{}{
+		"PeopleToNotify": peopleToNotify,
+		"App":            app,
+		"DetailsPath":    detailsPath,
+		"AddressPath":    addressPath,
+		"RemovePath":     removePath,
 	}
 }
 
