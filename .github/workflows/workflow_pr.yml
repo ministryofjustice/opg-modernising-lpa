@@ -27,15 +27,20 @@ jobs:
     name: Create Tags
     uses: ./.github/workflows/tags_job.yml
 
-  # go_unit_tests:
-  #   name: Run Go unit tests
-  #   uses: ./.github/workflows/go-unit-tests.yml
+  go_unit_tests:
+    name: Run Go unit tests
+    needs: [
+      create_tags
+      ]
+    uses: ./.github/workflows/go-unit-tests.yml
+    with:
+      changes_detected: ${{ needs.create_tags.outputs.changes_detected }}
 
   docker_build_scan_push:
     name: Docker Build, Scan and Push
     uses: ./.github/workflows/docker_job.yml
     needs: [
-      # go_unit_tests,
+      go_unit_tests,
       create_tags
       ]
     with:
