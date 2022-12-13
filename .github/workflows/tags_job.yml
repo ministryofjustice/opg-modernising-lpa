@@ -77,7 +77,7 @@ jobs:
         run: |
           echo "tag=${{ aws ssm get-parameters --names "/modernising-lpa/container-version/233mlpab518"}}" >> $GITHUB_OUTPUT
     outputs:
-      docker_tag: ${{ steps.pull_tags.outputs.tag }}
+      docker_tag: ${{ steps.pull_production_tag.outputs.tag }}
 
   generate_environment_workspace_name:
     if: github.ref != 'refs/heads/main'
