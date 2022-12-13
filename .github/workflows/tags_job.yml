@@ -76,6 +76,7 @@ jobs:
         id: pull_production_tag
         run: |
           echo "tag=latest" >> $GITHUB_OUTPUT
+          echo "tag=$(aws ssm get-parameters --names '/modernising-lpa/container-version/233mlpab518')" >> $GITHUB_OUTPUT
     outputs:
       docker_tag: ${{ steps.pull_production_tag.outputs.tag }}
 
