@@ -106,6 +106,7 @@ jobs:
       pull_tags,
       ]
     runs-on: ubuntu-latest
+    if: always()
     steps:
       - name: consolidate tags
         id: consolidate_tags
