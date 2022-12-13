@@ -51,6 +51,7 @@ jobs:
           ECR_REPOSITORY: modernising-lpa/app
           TAG: ${{ inputs.tag }}
         run: |
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml pull
           docker compose -f docker-compose.yml -f docker-compose.ci.yml build
           docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d
 
