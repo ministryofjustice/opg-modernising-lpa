@@ -85,7 +85,7 @@ jobs:
 
       - name: Cypress run
         uses: cypress-io/github-action@v4
-        if: inputs.changes_detected == 'true'
+        if: inputs.changes_detected == 'true' || inputs.run_against_image != true
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
