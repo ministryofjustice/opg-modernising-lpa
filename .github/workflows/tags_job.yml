@@ -60,26 +60,6 @@ jobs:
     outputs:
       docker_tag: ${{ steps.bump_version.outputs.tag }}
 
-  pull_tags:
-    needs: detect_changes_compared_to_main
-    if : needs.detect_changes_compared_to_main.outputs.changes_detected == 'false'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1.7.0
-        with:
-          aws-region: us-east-1
-          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ssm-get-parameter
-          role-duration-seconds: 900
-          role-session-name: GithubActionsSSMGetParameter
-      - name: Pull production environment tag
-        id: pull_production_tag
-        run: |
-          echo "tag=latest" >> $GITHUB_OUTPUT
-          echo "tag=$(aws ssm get-parameter --name '/modernising-lpa/container-version/233mlpab518' | jq -r .Parameter.Value )" >> $GITHUB_OUTPUT
-    outputs:
-      docker_tag: ${{ steps.pull_production_tag.outputs.tag }}
-
   generate_environment_workspace_name:
     if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -97,3 +77,22 @@ jobs:
           echo ${workspace}
     outputs:
       environment_workspace_name: ${{ steps.name_workspace.outputs.name }}
+
+  pull_tags:
+    needs: [ detect_changes_compared_to_main ]
+    if : needs.detect_changes_compared_to_main.outputs.changes_detected == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ssm-get-parameter
+          role-duration-seconds: 900
+          role-session-name: GithubActionsSSMGetParameter
+      - name: Pull production environment tag
+        id: pull_production_tag
+        run: |
+          echo "tag=$(aws ssm get-parameter --name '/modernising-lpa/container-version/233mlpab518' | jq -r .Parameter.Value)" >> $GITHUB_OUTPUT
+    outputs:
+      docker_tag: ${{ steps.pull_production_tag.outputs.tag }}
