@@ -45,8 +45,9 @@ jobs:
   docker_build_scan_push:
     name: Docker Build, Scan and Push
     if: |
-      needs.detect_changes.outputs.changes_detected == 'true' &&
-      needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped'
+      always() &&
+      (needs.detect_changes.outputs.changes_detected == 'true') &&
+      (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped')
     uses: ./.github/workflows/docker_job.yml
     needs: [
       go_unit_tests,
@@ -95,7 +96,8 @@ jobs:
   pr_deploy:
       name: PR Environment Deploy
       if: |
-        needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped'
+        always() &&
+        (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped')
       needs: [
         create_tags,
         docker_build_scan_push,
