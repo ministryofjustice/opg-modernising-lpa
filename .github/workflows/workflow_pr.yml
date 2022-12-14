@@ -29,6 +29,7 @@ jobs:
 
   create_tags:
     name: Create Tags
+    if: needs.detect_changes.outputs.changes_detected == 'true'
     needs: detect_changes
     uses: ./.github/workflows/tags_job.yml
     with:
@@ -43,6 +44,7 @@ jobs:
 
   docker_build_scan_push:
     name: Docker Build, Scan and Push
+    if: needs.detect_changes.outputs.changes_detected == 'true'
     uses: ./.github/workflows/docker_job.yml
     needs: [
       go_unit_tests,
@@ -77,6 +79,9 @@ jobs:
 
   ui_tests_image:
     name: Run Cypress UI Tests On Images
+    if: |
+      needs.detect_changes.outputs.changes_detected == 'true' &&
+      needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped'
     uses: ./.github/workflows/ui_test_job.yml
     needs: [docker_build_scan_push, create_tags]
     with:
