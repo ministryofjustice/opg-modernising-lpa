@@ -35,15 +35,17 @@ func DoYouWantToNotifyPeople(tmpl template.Template, lpaStore LpaStore) Handler 
 
 			if len(data.Errors) == 0 {
 				lpa.DoYouWantToNotifyPeople = data.Form.WantToNotify
-
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
-					return err
-				}
+				lpa.Tasks.PeopleToNotify = TaskInProgress
 
 				redirectPath := appData.Paths.ChoosePeopleToNotify
 
 				if data.Form.WantToNotify == "no" {
 					redirectPath = appData.Paths.CheckYourLpa
+					lpa.Tasks.PeopleToNotify = TaskCompleted
+				}
+
+				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+					return err
 				}
 
 				appData.Lang.Redirect(w, r, redirectPath, http.StatusFound)

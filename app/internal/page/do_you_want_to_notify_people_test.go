@@ -113,16 +113,19 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 		WantToNotify     string
 		ExistingAnswer   string
 		ExpectedRedirect string
+		ExpectedStatus   TaskState
 	}{
 		{
 			WantToNotify:     "yes",
 			ExistingAnswer:   "no",
 			ExpectedRedirect: appData.Paths.ChoosePeopleToNotify,
+			ExpectedStatus:   TaskInProgress,
 		},
 		{
 			WantToNotify:     "no",
 			ExistingAnswer:   "yes",
 			ExpectedRedirect: appData.Paths.CheckYourLpa,
+			ExpectedStatus:   TaskCompleted,
 		},
 	}
 
@@ -139,6 +142,7 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 			lpaStore.
 				On("Put", mock.Anything, "session-id", &Lpa{
 					DoYouWantToNotifyPeople: tc.WantToNotify,
+					Tasks:                   Tasks{PeopleToNotify: tc.ExpectedStatus},
 				}).
 				Return(nil)
 
