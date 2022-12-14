@@ -138,6 +138,6 @@ describe('People to notify', () => {
             cy.get('input[name="remove-person-to-notify"]').check('yes')
             cy.contains('button', 'Continue').click();
 
-            cy.url().should('contain', '/choose-people-to-notify');
+            cy.url().should('contain', '/do-you-want-to-notify-people');
     });
 });
