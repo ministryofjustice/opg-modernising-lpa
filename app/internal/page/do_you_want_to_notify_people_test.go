@@ -65,6 +65,32 @@ func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
 
+func TestGetDoYouWantToNotifyPeopleFromStoreWithPeople(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(&Lpa{
+			PeopleToNotify: []PersonToNotify{
+				{ID: "123"},
+			},
+		}, nil)
+
+	template := &mockTemplate{}
+
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	err := DoYouWantToNotifyPeople(template.Func, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, appData.Paths.ChoosePeopleToNotifySummary, resp.Header.Get("Location"))
+
+	mock.AssertExpectationsForObjects(t, template, lpaStore)
+}
+
 func TestGetDoYouWantToNotifyPeopleWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
