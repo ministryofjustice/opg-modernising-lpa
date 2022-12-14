@@ -306,6 +306,6 @@ func TestRemoveReplacementAttorneyRemoveLastAttorneyRedirectsToChooseReplacement
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/want-replacement-attorneys", resp.Header.Get("Location"))
+	assert.Equal(t, "/do-you-want-replacement-attorneys", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
