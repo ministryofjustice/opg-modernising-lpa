@@ -8,16 +8,17 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetRemoveReplacementAttorney(t *testing.T) {
+func TestGetRemovePersonToNotify(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	logger := &mockLogger{}
 
-	attorney := Attorney{
+	personToNotify := PersonToNotify{
 		ID: "123",
 		Address: place.Address{
 			Line1: "1 Road way",
@@ -26,22 +27,22 @@ func TestGetRemoveReplacementAttorney(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &removeReplacementAttorneyData{
-			App:      appData,
-			Attorney: attorney,
-			Errors:   nil,
-			Form:     removeAttorneyForm{},
+		On("Func", w, &removePersonToNotifyData{
+			App:            appData,
+			PersonToNotify: personToNotify,
+			Errors:         nil,
+			Form:           removePersonToNotifyForm{},
 		}).
 		Return(nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{ReplacementAttorneys: []Attorney{attorney}}, nil)
+		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
 
-	err := RemoveReplacementAttorney(logger, template.Func, lpaStore)(appData, w, r)
+	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
 
 	resp := w.Result()
 
@@ -50,7 +51,7 @@ func TestGetRemoveReplacementAttorney(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
-func TestGetRemoveReplacementAttorneyErrorOnStore(t *testing.T) {
+func TestGetRemovePersonToNotifyErrorOnStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	logger := &mockLogger{}
@@ -67,7 +68,7 @@ func TestGetRemoveReplacementAttorneyErrorOnStore(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
 
-	err := RemoveReplacementAttorney(logger, template.Func, lpaStore)(appData, w, r)
+	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
 
 	resp := w.Result()
 
@@ -76,13 +77,14 @@ func TestGetRemoveReplacementAttorneyErrorOnStore(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, logger)
 }
 
-func TestGetRemoveReplacementAttorneyAttorneyDoesNotExist(t *testing.T) {
+func TestGetRemovePersonToNotifyAttorneyDoesNotExist(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	logger := &mockLogger{}
+
 	template := &mockTemplate{}
 
-	attorney := Attorney{
+	personToNotify := PersonToNotify{
 		ID: "123",
 		Address: place.Address{
 			Line1: "1 Road way",
@@ -92,34 +94,34 @@ func TestGetRemoveReplacementAttorneyAttorneyDoesNotExist(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{ReplacementAttorneys: []Attorney{attorney}}, nil)
+		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/?id=invalid-id", nil)
 
-	err := RemoveReplacementAttorney(logger, template.Func, lpaStore)(appData, w, r)
+	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/choose-replacement-attorneys-summary", resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.ChoosePeopleToNotifySummary, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
-func TestPostRemoveReplacementAttorney(t *testing.T) {
+func TestPostRemovePersonToNotify(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	logger := &mockLogger{}
 	template := &mockTemplate{}
 
-	attorneyWithAddress := Attorney{
+	personToNotifyWithAddress := PersonToNotify{
 		ID: "with-address",
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
-	attorneyWithoutAddress := Attorney{
+	personToNotifyWithoutAddress := PersonToNotify{
 		ID:      "without-address",
 		Address: place.Address{},
 	}
@@ -127,42 +129,42 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{ReplacementAttorneys: []Attorney{attorneyWithoutAddress, attorneyWithAddress}}, nil)
+		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{ReplacementAttorneys: []Attorney{attorneyWithAddress}}).
+		On("Put", mock.Anything, "session-id", &Lpa{PeopleToNotify: []PersonToNotify{personToNotifyWithAddress}}).
 		Return(nil)
 
 	form := url.Values{
-		"remove-attorney": {"yes"},
+		"remove-person-to-notify": {"yes"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := RemoveReplacementAttorney(logger, template.Func, lpaStore)(appData, w, r)
+	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/choose-replacement-attorneys-summary", resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.ChoosePeopleToNotifySummary, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
-func TestPostRemoveReplacementAttorneyWithFormValueNo(t *testing.T) {
+func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	logger := &mockLogger{}
 	template := &mockTemplate{}
 
-	attorneyWithAddress := Attorney{
+	personToNotifyWithAddress := PersonToNotify{
 		ID: "with-address",
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
-	attorneyWithoutAddress := Attorney{
+	personToNotifyWithoutAddress := PersonToNotify{
 		ID:      "without-address",
 		Address: place.Address{},
 	}
@@ -170,43 +172,43 @@ func TestPostRemoveReplacementAttorneyWithFormValueNo(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{ReplacementAttorneys: []Attorney{attorneyWithoutAddress, attorneyWithAddress}}, nil)
+		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}}, nil)
 
 	form := url.Values{
-		"remove-attorney": {"no"},
+		"remove-person-to-notify": {"no"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := RemoveReplacementAttorney(logger, template.Func, lpaStore)(appData, w, r)
+	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/choose-replacement-attorneys-summary", resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.ChoosePeopleToNotifySummary, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
-func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
+func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	template := &mockTemplate{}
 
 	logger := &mockLogger{}
 	logger.
-		On("Print", "error removing replacement Attorney from LPA: err").
+		On("Print", "error removing PersonToNotify from LPA: err").
 		Return(nil)
 
-	attorneyWithAddress := Attorney{
+	personToNotifyWithAddress := PersonToNotify{
 		ID: "with-address",
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
-	attorneyWithoutAddress := Attorney{
+	personToNotifyWithoutAddress := PersonToNotify{
 		ID:      "without-address",
 		Address: place.Address{},
 	}
@@ -214,19 +216,19 @@ func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{ReplacementAttorneys: []Attorney{attorneyWithoutAddress, attorneyWithAddress}}, nil)
+		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{ReplacementAttorneys: []Attorney{attorneyWithAddress}}).
+		On("Put", mock.Anything, "session-id", &Lpa{PeopleToNotify: []PersonToNotify{personToNotifyWithAddress}}).
 		Return(expectedError)
 
 	form := url.Values{
-		"remove-attorney": {"yes"},
+		"remove-person-to-notify": {"yes"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := RemoveReplacementAttorney(logger, template.Func, lpaStore)(appData, w, r)
+	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
 
 	resp := w.Result()
 
@@ -235,10 +237,10 @@ func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, template, logger)
 }
 
-func TestRemoveReplacementAttorneyFormValidation(t *testing.T) {
+func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	attorneyWithoutAddress := Attorney{
+	personToNotifyWithoutAddress := PersonToNotify{
 		ID:      "without-address",
 		Address: place.Address{},
 	}
@@ -246,27 +248,27 @@ func TestRemoveReplacementAttorneyFormValidation(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{ReplacementAttorneys: []Attorney{attorneyWithoutAddress}}, nil)
+		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotifyWithoutAddress}}, nil)
 
 	validationError := map[string]string{
-		"remove-attorney": "selectRemoveAttorney",
+		"remove-person-to-notify": "selectRemovePersonToNotify",
 	}
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, mock.MatchedBy(func(data *removeReplacementAttorneyData) bool {
+		On("Func", w, mock.MatchedBy(func(data *removePersonToNotifyData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)
 
 	form := url.Values{
-		"remove-attorney": {""},
+		"remove-person-to-notify": {""},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := RemoveReplacementAttorney(nil, template.Func, lpaStore)(appData, w, r)
+	err := RemovePersonToNotify(nil, template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -274,13 +276,13 @@ func TestRemoveReplacementAttorneyFormValidation(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
-func TestRemoveReplacementAttorneyRemoveLastAttorneyRedirectsToChooseReplacementAttorney(t *testing.T) {
+func TestRemovePersonToNotifyRemoveLastPersonRedirectsToChoosePeopleToNotify(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	logger := &mockLogger{}
 	template := &mockTemplate{}
 
-	attorneyWithoutAddress := Attorney{
+	personToNotifyWithoutAddress := PersonToNotify{
 		ID:      "without-address",
 		Address: place.Address{},
 	}
@@ -288,24 +290,66 @@ func TestRemoveReplacementAttorneyRemoveLastAttorneyRedirectsToChooseReplacement
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{ReplacementAttorneys: []Attorney{attorneyWithoutAddress}}, nil)
+		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotifyWithoutAddress}}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{ReplacementAttorneys: []Attorney{}}).
+		On("Put", mock.Anything, "session-id", &Lpa{PeopleToNotify: []PersonToNotify{}}).
 		Return(nil)
 
 	form := url.Values{
-		"remove-attorney": {"yes"},
+		"remove-person-to-notify": {"yes"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := RemoveReplacementAttorney(logger, template.Func, lpaStore)(appData, w, r)
+	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/do-you-want-replacement-attorneys", resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.ChoosePeopleToNotify, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
+}
+
+func TestRemovePersonToNotifyFormValidate(t *testing.T) {
+	testCases := map[string]struct {
+		form   *removePersonToNotifyForm
+		errors map[string]string
+	}{
+		"valid - yes": {
+			form: &removePersonToNotifyForm{
+				RemovePersonToNotify: "yes",
+			},
+			errors: map[string]string{},
+		},
+		"valid - no": {
+			form: &removePersonToNotifyForm{
+				RemovePersonToNotify: "no",
+			},
+			errors: map[string]string{},
+		},
+		"missing-value": {
+			form: &removePersonToNotifyForm{
+				RemovePersonToNotify: "",
+			},
+			errors: map[string]string{
+				"remove-person-to-notify": "selectRemovePersonToNotify",
+			},
+		},
+		"unexpected-value": {
+			form: &removePersonToNotifyForm{
+				RemovePersonToNotify: "not expected",
+			},
+			errors: map[string]string{
+				"remove-person-to-notify": "selectRemovePersonToNotify",
+			},
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.errors, tc.form.Validate())
+		})
+	}
 }

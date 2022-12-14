@@ -14,7 +14,7 @@ describe('How should attorneys make decisions', () => {
 
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/want-replacement-attorneys');
+        cy.url().should('contain', '/do-you-want-replacement-attorneys');
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
@@ -31,7 +31,7 @@ describe('How should attorneys make decisions', () => {
 
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/want-replacement-attorneys');
+        cy.url().should('contain', '/do-you-want-replacement-attorneys');
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
