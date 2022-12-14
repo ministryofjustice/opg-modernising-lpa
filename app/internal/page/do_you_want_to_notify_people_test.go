@@ -172,7 +172,10 @@ func TestPostDoYouWantToNotifyPeopleWhenStoreErrors(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{DoYouWantToNotifyPeople: "yes"}).
+		On("Put", mock.Anything, "session-id", &Lpa{
+			DoYouWantToNotifyPeople: "yes",
+			Tasks:                   Tasks{PeopleToNotify: TaskInProgress},
+		}).
 		Return(expectedError)
 
 	form := url.Values{
