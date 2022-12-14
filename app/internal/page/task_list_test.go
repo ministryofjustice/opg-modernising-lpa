@@ -40,16 +40,18 @@ func TestGetTaskList(t *testing.T) {
 					CheckYourLpa:               TaskInProgress,
 					PayForLpa:                  TaskInProgress,
 					ConfirmYourIdentityAndSign: TaskInProgress,
+					PeopleToNotify:             TaskInProgress,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
 					{Name: ProvideYourDetailsTask, Path: appData.Paths.YourDetails, InProgress: true},
 					{Name: ChooseYourAttorneysTask, Path: appData.Paths.ChooseAttorneys, InProgress: true, Count: 1},
-					{Name: ChooseYourReplacementAttorneysTask, Path: appData.Paths.WantReplacementAttorneys, InProgress: true, Count: 1},
+					{Name: ChooseYourReplacementAttorneysTask, Path: appData.Paths.DoYouWantReplacementAttorneys, InProgress: true, Count: 1},
 					{Name: ChooseWhenTheLpaCanBeUsedTask, Path: appData.Paths.WhenCanTheLpaBeUsed, InProgress: true},
 					{Name: AddRestrictionsToLpaTask, Path: appData.Paths.Restrictions, InProgress: true},
 					{Name: ChooseCertificateProviderTask, Path: appData.Paths.WhoDoYouWantToBeCertificateProviderGuidance, InProgress: true},
+					{Name: PeopleToNotifyTask, Path: appData.Paths.DoYouWantToNotifyPeople, InProgress: true, Count: 0},
 					{Name: CheckAndSendToCertificateProviderTask, Path: appData.Paths.CheckYourLpa, InProgress: true},
 				}
 
@@ -78,6 +80,11 @@ func TestGetTaskList(t *testing.T) {
 				ReplacementAttorneys: []Attorney{
 					validAttorney,
 				},
+				PeopleToNotify: []PersonToNotify{
+					validPersonToNotify,
+					validPersonToNotify,
+					validPersonToNotify,
+				},
 				Contact:                                     []string{"this"},
 				HowAttorneysMakeDecisions:                   "jointly",
 				WantReplacementAttorneys:                    "yes",
@@ -92,16 +99,18 @@ func TestGetTaskList(t *testing.T) {
 					CheckYourLpa:               TaskCompleted,
 					PayForLpa:                  TaskCompleted,
 					ConfirmYourIdentityAndSign: TaskCompleted,
+					PeopleToNotify:             TaskCompleted,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
 					{Name: ProvideYourDetailsTask, Path: appData.Paths.YourDetails, Completed: true},
 					{Name: ChooseYourAttorneysTask, Path: appData.Paths.ChooseAttorneys, Completed: true, Count: 2},
-					{Name: ChooseYourReplacementAttorneysTask, Path: appData.Paths.WantReplacementAttorneys, Completed: true, Count: 1},
+					{Name: ChooseYourReplacementAttorneysTask, Path: appData.Paths.DoYouWantReplacementAttorneys, Completed: true, Count: 1},
 					{Name: ChooseWhenTheLpaCanBeUsedTask, Path: appData.Paths.WhenCanTheLpaBeUsed, Completed: true},
 					{Name: AddRestrictionsToLpaTask, Path: appData.Paths.Restrictions, Completed: true},
 					{Name: ChooseCertificateProviderTask, Path: appData.Paths.WhoDoYouWantToBeCertificateProviderGuidance, Completed: true},
+					{Name: PeopleToNotifyTask, Path: appData.Paths.DoYouWantToNotifyPeople, Completed: true, Count: 3},
 					{Name: CheckAndSendToCertificateProviderTask, Path: appData.Paths.CheckYourLpa, Completed: true},
 				}
 
@@ -137,10 +146,11 @@ func TestGetTaskList(t *testing.T) {
 							Items: []taskListItem{
 								{Name: ProvideYourDetailsTask, Path: appData.Paths.YourDetails},
 								{Name: ChooseYourAttorneysTask, Path: appData.Paths.ChooseAttorneys},
-								{Name: ChooseYourReplacementAttorneysTask, Path: appData.Paths.WantReplacementAttorneys},
+								{Name: ChooseYourReplacementAttorneysTask, Path: appData.Paths.DoYouWantReplacementAttorneys},
 								{Name: ChooseWhenTheLpaCanBeUsedTask, Path: appData.Paths.WhenCanTheLpaBeUsed},
 								{Name: AddRestrictionsToLpaTask, Path: appData.Paths.Restrictions},
 								{Name: ChooseCertificateProviderTask, Path: appData.Paths.WhoDoYouWantToBeCertificateProviderGuidance},
+								{Name: PeopleToNotifyTask, Path: appData.Paths.DoYouWantToNotifyPeople},
 								{Name: CheckAndSendToCertificateProviderTask, Path: appData.Paths.CheckYourLpa},
 							},
 						},

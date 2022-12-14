@@ -15,8 +15,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var mockRandom = func(int) string { return "123" }
-
 func TestGetChooseAttorneys(t *testing.T) {
 	w := httptest.NewRecorder()
 

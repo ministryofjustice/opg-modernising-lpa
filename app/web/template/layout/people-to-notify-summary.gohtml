@@ -1,0 +1,62 @@
+{{ define "people-to-notify-summary" }}
+    {{range $i, $p := .PeopleToNotify}}
+        {{ $personNumber := inc $i }}
+
+        <h2 class="govuk-heading-m">{{ trFormat $.App "personCount" "PersonNumber" $personNumber }}</h2>
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row" id="name-{{ $personNumber }}">
+                <dt class="govuk-summary-list__key">
+                    {{ tr $.App "name" }}
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ $p.FirstNames }} {{ $p.LastName }}
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link" href="{{ link $.App $.DetailsPath }}?id={{ $p.ID }}&from={{ $.App.Page }}#f-first-names">
+                        {{ trFormatHtml $.App "changeNameLinkText" "FirstNames" $p.FirstNames "LastName" $p.LastName }}
+                    </a>
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row" id="email-{{ $personNumber }}">
+                <dt class="govuk-summary-list__key ">
+                    {{ tr $.App "email" }}
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ $p.Email }}
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link" href="{{ link $.App $.DetailsPath }}?id={{ $p.ID }}&from={{ $.App.Page }}#f-email">
+                        {{ trFormatHtml $.App "changeEmailLinkText" "FirstNames" $p.FirstNames "LastName" $p.LastName }}
+                    </a>
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row" id="address-{{ $personNumber }}">
+                <dt class="govuk-summary-list__key">
+                    {{ tr $.App "address" }}
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ $p.Address.Line1 }}<br>
+                    {{ if $p.Address.Line2 }}{{ $p.Address.Line2 }}<br>{{end}}
+                    {{ if $p.Address.Line3 }}{{ $p.Address.Line3 }}<br>{{end}}
+                    {{ if $p.Address.TownOrCity }}{{ $p.Address.TownOrCity }}<br>{{end}}
+                    {{ $p.Address.Postcode }}
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link" href="{{ link $.App $.AddressPath }}?id={{ $p.ID }}&from={{ $.App.Page }}#f-address-line-1">
+                        {{ trFormatHtml $.App "changeAddressLink" "FirstNames" $p.FirstNames "LastName" $p.LastName }}
+                    </a>
+                </dd>
+            </div>
+        </dl>
+
+        <div class="govuk-grid-row" id="remove-person-to-notify-{{ $personNumber }}">
+            <div class="govuk-grid-column-full">
+                <div class="app-float-right">
+                    <a class="govuk-button govuk-button--secondary" href="{{ link $.App $.RemovePath }}?id={{ $p.ID }}" data-module="govuk-button">
+                        {{ trFormatHtml $.App "removePersonToNotifyButtonLink" "PersonNumber" $personNumber "FirstNames" $p.FirstNames "LastName" $p.LastName  }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    {{ end }}
+{{ end }}
