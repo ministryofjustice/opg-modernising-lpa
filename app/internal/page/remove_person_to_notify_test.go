@@ -290,9 +290,15 @@ func TestRemovePersonToNotifyRemoveLastPersonRedirectsToChoosePeopleToNotify(t *
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotifyWithoutAddress}}, nil)
+		Return(&Lpa{
+			PeopleToNotify: []PersonToNotify{personToNotifyWithoutAddress},
+			Tasks:          Tasks{PeopleToNotify: TaskCompleted},
+		}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{PeopleToNotify: []PersonToNotify{}}).
+		On("Put", mock.Anything, "session-id", &Lpa{
+			PeopleToNotify: []PersonToNotify{},
+			Tasks:          Tasks{PeopleToNotify: TaskNotStarted},
+		}).
 		Return(nil)
 
 	form := url.Values{
@@ -308,7 +314,7 @@ func TestRemovePersonToNotifyRemoveLastPersonRedirectsToChoosePeopleToNotify(t *
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.ChoosePeopleToNotify, resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.DoYouWantToNotifyPeople, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 

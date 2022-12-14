@@ -50,6 +50,15 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaSto
 			if data.Form.RemovePersonToNotify == "yes" && len(data.Errors) == 0 {
 				lpa.DeletePersonToNotify(attorney)
 
+				var redirect string
+
+				if len(lpa.PeopleToNotify) == 0 {
+					lpa.Tasks.PeopleToNotify = TaskNotStarted
+					redirect = appData.Paths.DoYouWantToNotifyPeople
+				} else {
+					redirect = appData.Paths.ChoosePeopleToNotifySummary
+				}
+
 				err = lpaStore.Put(r.Context(), appData.SessionID, lpa)
 
 				if err != nil {
@@ -57,11 +66,7 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaSto
 					return err
 				}
 
-				if len(lpa.PeopleToNotify) == 0 {
-					appData.Lang.Redirect(w, r, appData.Paths.ChoosePeopleToNotify, http.StatusFound)
-				} else {
-					appData.Lang.Redirect(w, r, appData.Paths.ChoosePeopleToNotifySummary, http.StatusFound)
-				}
+				appData.Lang.Redirect(w, r, redirect, http.StatusFound)
 
 				return nil
 			}
