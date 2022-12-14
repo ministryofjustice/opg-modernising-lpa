@@ -87,7 +87,6 @@ jobs:
     with:
       run_against_image: true
       tag: ${{ needs.create_tags.outputs.version_tag }}
-      changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
     secrets: inherit # pragma: allowlist secret
 
   pr_deploy:

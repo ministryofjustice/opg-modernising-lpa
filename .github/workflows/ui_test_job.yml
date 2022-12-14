@@ -15,10 +15,6 @@ on:
         required: false
         type: string
         default: latest
-      changes_detected:
-        description: 'Boolean value for changes detected in /app'
-        required: true
-        type: string
 
 defaults:
   run:
@@ -43,13 +39,13 @@ jobs:
           role-duration-seconds: 900
           role-session-name: OPGModernisingLPATerraformGithubAction
       - name: Run Against Image/ECR Login
-        if: inputs.run_against_image && inputs.changes_detected == 'true'
+        if: inputs.run_against_image
         id: login_ecr
         uses: aws-actions/amazon-ecr-login@v1.5.3
         with:
           registries: 311462405659
       - name: Run Against Image/Run Docker Compose Service
-        if: inputs.run_against_image && inputs.changes_detected == 'true'
+        if: inputs.run_against_image
         env:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
           ECR_REPOSITORY: modernising-lpa/app
@@ -85,7 +81,7 @@ jobs:
 
       - name: Cypress run
         uses: cypress-io/github-action@v4
-        if: inputs.changes_detected == 'true' || inputs.run_against_image != true
+        if: inputs.run_against_image != true
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
