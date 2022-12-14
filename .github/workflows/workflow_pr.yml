@@ -128,7 +128,11 @@ jobs:
 
   end_of_pr_workflow:
     name: End of PR Workflow
-    if: github.ref != 'refs/heads/main'
+    if: |
+      always() &&
+      needs.pr_deploy.result == 'success' &&
+      needs.create_tags.result == 'success' &&
+      needs.ui_tests_pr_env.result == 'success'
     runs-on: ubuntu-latest
     environment:
       name: "dev_${{ needs.create_tags.outputs.environment_workspace_name }}"
