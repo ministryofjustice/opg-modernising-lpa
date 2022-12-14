@@ -44,8 +44,9 @@ jobs:
 
   docker_build_scan_push:
     name: Docker Build, Scan and Push
-    if: needs.detect_changes.outputs.changes_detected == 'true' &&
-        needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped'
+    if: |
+      needs.detect_changes.outputs.changes_detected == 'true' &&
+      needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped'
     uses: ./.github/workflows/docker_job.yml
     needs: [
       go_unit_tests,
@@ -91,18 +92,20 @@ jobs:
   #     changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
   #   secrets: inherit # pragma: allowlist secret
 
-  # pr_deploy:
-  #     name: PR Environment Deploy
-  #     needs: [
-  #       create_tags,
-  #       docker_build_scan_push,
-  #       ui_tests_image
-  #     ]
-  #     uses: ./.github/workflows/terraform_environment_job.yml
-  #     with:
-  #       workspace_name: ${{ needs.create_tags.outputs.environment_workspace_name }}
-  #       version_tag: ${{ needs.create_tags.outputs.version_tag }}
-  #     secrets: inherit # pragma: allowlist secret
+  pr_deploy:
+      name: PR Environment Deploy
+      if: |
+        needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped'
+      needs: [
+        create_tags,
+        docker_build_scan_push,
+        # ui_tests_image
+      ]
+      uses: ./.github/workflows/terraform_environment_job.yml
+      with:
+        workspace_name: ${{ needs.create_tags.outputs.environment_workspace_name }}
+        version_tag: ${{ needs.create_tags.outputs.version_tag }}
+      secrets: inherit # pragma: allowlist secret
 
   # ui_tests_pr_env:
   #   name: Run Cypress UI Tests On PR Environment
