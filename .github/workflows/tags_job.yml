@@ -33,7 +33,6 @@ jobs:
           fi
       - name: Bump version
         id: bump_version
-        if: steps.detect_changes.outputs.changes == 'true'
         uses: anothrNick/github-tag-action@1.36.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
