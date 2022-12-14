@@ -938,151 +938,247 @@ func TestAttorneysTaskComplete(t *testing.T) {
 	}
 }
 
-func TestAllAddressesComplete(t *testing.T) {
-	testCases := map[string]struct {
-		Attorneys              []Attorney
-		ExpectedCompleteStatus bool
-	}{
-		"Addresses complete": {
-			Attorneys: []Attorney{
-				{
-					Address: address,
-				},
-				{
-					Address: address,
-				},
-				{
-					Address: address,
-				},
-			},
-			ExpectedCompleteStatus: true,
-		},
-		"Addresses incomplete": {
-			Attorneys: []Attorney{
-				{
-					Address: address,
-				},
-				{
-					ID: "123",
-				},
-				{
-					Address: address,
-				},
-			},
-			ExpectedCompleteStatus: false,
+func TestAttorneysValid(t *testing.T) {
+	lpa := Lpa{
+		Attorneys: []Attorney{
+			validAttorney,
+			validAttorney,
+			validAttorney,
 		},
 	}
 
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.ExpectedCompleteStatus, allAddressesComplete(tc.Attorneys))
-		})
-	}
+	assert.Equal(t, true, lpa.AttorneysValid())
 }
 
-func TestAllNamesComplete(t *testing.T) {
+func TestAttorneysValidInvalid(t *testing.T) {
 	testCases := map[string]struct {
-		Attorneys              []Attorney
-		ExpectedCompleteStatus bool
+		Attorneys []Attorney
 	}{
-		"All names complete": {
-			Attorneys: []Attorney{
-				{
-					FirstNames: "Joey",
-					LastName:   "Jones",
-				},
-				{
-					FirstNames: "Joey",
-					LastName:   "Jones",
-				},
-				{
-					FirstNames: "Joey",
-					LastName:   "Jones",
-				},
-			},
-			ExpectedCompleteStatus: true,
-		},
 		"Missing firstnames": {
 			Attorneys: []Attorney{
+				validAttorney,
 				{
-					FirstNames: "Joey",
-					LastName:   "Jones",
+					FirstNames:  "",
+					LastName:    "Jones",
+					ID:          "123",
+					Address:     address,
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				},
-				{
-					FirstNames: "",
-					LastName:   "Jones",
-				},
-				{
-					FirstNames: "Joey",
-					LastName:   "Jones",
-				},
+				validAttorney,
 			},
-			ExpectedCompleteStatus: false,
 		},
 		"Missing last names": {
 			Attorneys: []Attorney{
+				validAttorney,
 				{
-					FirstNames: "Joey",
-					LastName:   "Jones",
+					FirstNames:  "Joey",
+					LastName:    "",
+					ID:          "123",
+					Address:     address,
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				},
-				{
-					FirstNames: "Joey",
-					LastName:   "",
-				},
-				{
-					FirstNames: "Joey",
-					LastName:   "Jones",
-				},
+				validAttorney,
 			},
-			ExpectedCompleteStatus: false,
+		},
+		"Missing date of birth": {
+			Attorneys: []Attorney{
+				validAttorney,
+				{
+					FirstNames:  "Joey",
+					LastName:    "Jones",
+					ID:          "123",
+					Address:     address,
+					DateOfBirth: time.Time{},
+				},
+				validAttorney,
+			},
+		},
+		"Addresses incomplete": {
+			Attorneys: []Attorney{
+				validAttorney,
+				{
+					FirstNames: "Joey",
+					LastName:   "Jones",
+					ID:         "123",
+					Address: place.Address{
+						Line1:      "",
+						Line2:      "a",
+						Line3:      "b",
+						TownOrCity: "c",
+						Postcode:   "d",
+					},
+					DateOfBirth: time.Time{},
+				},
+				validAttorney,
+			},
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.ExpectedCompleteStatus, allNamesComplete(tc.Attorneys))
+			lpa := Lpa{
+				Attorneys: tc.Attorneys,
+			}
+
+			assert.Equal(t, false, lpa.AttorneysValid())
 		})
 	}
 }
 
-func TestAllDateOfBirthComplete(t *testing.T) {
+func TestReplacementAttorneysValid(t *testing.T) {
+	lpa := Lpa{
+		ReplacementAttorneys: []Attorney{
+			validAttorney,
+			validAttorney,
+			validAttorney,
+		},
+	}
+
+	assert.Equal(t, true, lpa.ReplacementAttorneysValid())
+}
+
+func TestReplacementAttorneysValidInvalid(t *testing.T) {
 	testCases := map[string]struct {
-		Attorneys              []Attorney
-		ExpectedCompleteStatus bool
+		Attorneys []Attorney
 	}{
-		"All date of birth complete": {
+		"Missing firstnames": {
 			Attorneys: []Attorney{
+				validAttorney,
 				{
-					DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+					FirstNames:  "",
+					LastName:    "Jones",
+					ID:          "123",
+					Address:     address,
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				},
-				{
-					DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
-				},
-				{
-					DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
-				},
+				validAttorney,
 			},
-			ExpectedCompleteStatus: true,
+		},
+		"Missing last names": {
+			Attorneys: []Attorney{
+				validAttorney,
+				{
+					FirstNames:  "Joey",
+					LastName:    "",
+					ID:          "123",
+					Address:     address,
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				},
+				validAttorney,
+			},
 		},
 		"Missing date of birth": {
 			Attorneys: []Attorney{
+				validAttorney,
 				{
-					DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
-				},
-				{
+					FirstNames:  "Joey",
+					LastName:    "Jones",
+					ID:          "123",
+					Address:     address,
 					DateOfBirth: time.Time{},
 				},
-				{
-					DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
-				},
+				validAttorney,
 			},
-			ExpectedCompleteStatus: false,
+		},
+		"Addresses incomplete": {
+			Attorneys: []Attorney{
+				validAttorney,
+				{
+					FirstNames: "Joey",
+					LastName:   "Jones",
+					ID:         "123",
+					Address: place.Address{
+						Line1:      "",
+						Line2:      "a",
+						Line3:      "b",
+						TownOrCity: "c",
+						Postcode:   "d",
+					},
+					DateOfBirth: time.Time{},
+				},
+				validAttorney,
+			},
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.ExpectedCompleteStatus, allDateOfBirthComplete(tc.Attorneys))
+			lpa := Lpa{
+				ReplacementAttorneys: tc.Attorneys,
+			}
+
+			assert.Equal(t, false, lpa.ReplacementAttorneysValid())
+		})
+	}
+}
+
+func TestPeopleToNotifyValid(t *testing.T) {
+	lpa := Lpa{
+		PeopleToNotify: []PersonToNotify{
+			validPersonToNotify,
+			validPersonToNotify,
+			validPersonToNotify,
+		},
+	}
+
+	assert.Equal(t, true, lpa.PeopleToNotifyValid())
+}
+
+func TestPeopleToNotifyValidInvalid(t *testing.T) {
+	testCases := map[string]struct {
+		PeopleToNotify []PersonToNotify
+	}{
+		"Missing firstnames": {
+			PeopleToNotify: []PersonToNotify{
+				validPersonToNotify,
+				{
+					FirstNames: "",
+					LastName:   "Jones",
+					ID:         "123",
+					Address:    address,
+				},
+				validPersonToNotify,
+			},
+		},
+		"Missing last names": {
+			PeopleToNotify: []PersonToNotify{
+				validPersonToNotify,
+				{
+					FirstNames: "Joey",
+					LastName:   "",
+					ID:         "123",
+					Address:    address,
+				},
+				validPersonToNotify,
+			},
+		},
+		"Addresses incomplete": {
+			PeopleToNotify: []PersonToNotify{
+				validPersonToNotify,
+				{
+					FirstNames: "Joey",
+					LastName:   "Jones",
+					ID:         "123",
+					Address: place.Address{
+						Line1:      "",
+						Line2:      "a",
+						Line3:      "b",
+						TownOrCity: "c",
+						Postcode:   "d",
+					},
+				},
+				validPersonToNotify,
+			},
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := Lpa{
+				PeopleToNotify: tc.PeopleToNotify,
+			}
+
+			assert.Equal(t, false, lpa.PeopleToNotifyValid())
 		})
 	}
 }
