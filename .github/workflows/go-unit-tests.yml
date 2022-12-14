@@ -1,11 +1,6 @@
 name: Run Go unit tests and Push coverage reports to Codecov
 on:
   workflow_call:
-    inputs:
-      changes_detected:
-        description: 'Boolean value for changes detected in /app'
-        required: true
-        type: string
 
 
 jobs:
@@ -16,18 +11,14 @@ jobs:
         working-directory: app
     steps:
       - uses: actions/checkout@v3
-        if: inputs.changes_detected == true
       - name: Setup Go
-        if: inputs.changes_detected == true
         uses: actions/setup-go@v3
         with:
           go-version: '^1.18'
       - name: Run tests and generate coverage report
-        if: inputs.changes_detected == true
         run: |
           go test ./... -race -covermode=atomic -coverprofile=coverage.out -v
       - name: Upload coverage to Codecov
-        if: inputs.changes_detected == true
         uses: codecov/codecov-action@v3
         with:
           flags: unittests
