@@ -98,7 +98,7 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 						{
 							Name:       PeopleToNotifyTask,
 							Path:       appData.Paths.DoYouWantToNotifyPeople,
-							Completed:  lpa.Tasks.PeopleToNotify == TaskCompleted,
+							Completed:  lpa.Tasks.PeopleToNotify == TaskCompleted && lpa.PeopleToNotifyValid(),
 							InProgress: lpa.Tasks.PeopleToNotify == TaskInProgress,
 							Count:      len(lpa.PeopleToNotify),
 						},
