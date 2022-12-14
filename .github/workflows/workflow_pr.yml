@@ -39,8 +39,6 @@ jobs:
     if: needs.detect_changes.outputs.changes_detected == 'true'
     needs: create_tags
     uses: ./.github/workflows/go-unit-tests.yml
-    with:
-      changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
 
   docker_build_scan_push:
     name: Docker Build, Scan and Push
