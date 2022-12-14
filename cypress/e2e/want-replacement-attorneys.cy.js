@@ -1,6 +1,6 @@
 describe('Do you want replacement attorneys', () => {
     it('wants replacement attorneys - acting jointly', () => {
-        cy.visit('/testing-start?redirect=/want-replacement-attorneys&howAttorneysAct=jointly');
+        cy.visit('/testing-start?redirect=/do-you-want-replacement-attorneys&howAttorneysAct=jointly');
         cy.injectAxe();
 
         cy.get('div.govuk-warning-text').should('contain', 'Replacement attorneys are an important backup when attorneys are appointed to act jointly.')
@@ -14,7 +14,7 @@ describe('Do you want replacement attorneys', () => {
     });
 
     it('wants replacement attorneys - acting jointly for some and severally for others', () => {
-        cy.visit('/testing-start?redirect=/want-replacement-attorneys&howAttorneysAct=mixed');
+        cy.visit('/testing-start?redirect=/do-you-want-replacement-attorneys&howAttorneysAct=mixed');
         cy.injectAxe();
 
         cy.get('div.govuk-warning-text').should('contain', 'You appointed your attorneys to act jointly for some decisions, and jointly and severally for others.')
@@ -28,7 +28,7 @@ describe('Do you want replacement attorneys', () => {
     });
 
     it('wants replacement attorneys - acting jointly and severally', () => {
-        cy.visit('/testing-start?redirect=/want-replacement-attorneys&howAttorneysAct=jointly-and-severally');
+        cy.visit('/testing-start?redirect=/do-you-want-replacement-attorneys&howAttorneysAct=jointly-and-severally');
         cy.injectAxe();
 
         cy.get('div.govuk-warning-text').should('not.exist')
@@ -42,7 +42,7 @@ describe('Do you want replacement attorneys', () => {
     });
 
     it('does not want replacement attorneys', () => {
-        cy.visit('/testing-start?redirect=/want-replacement-attorneys&howAttorneysAct=jointly-and-severally');
+        cy.visit('/testing-start?redirect=/do-you-want-replacement-attorneys&howAttorneysAct=jointly-and-severally');
         cy.injectAxe();
 
         cy.get('div.govuk-warning-text').should('not.exist')

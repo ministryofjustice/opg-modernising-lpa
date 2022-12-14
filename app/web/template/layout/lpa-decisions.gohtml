@@ -37,7 +37,7 @@
             </dd>
         </div>
 
-        {{ if gt 1 (len .Lpa.Attorneys) }}
+        {{ if gt (len .Lpa.Attorneys) 1 }}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
                     {{ tr .App "howTheAttorneysMustWorkTogether" }}

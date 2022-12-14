@@ -133,6 +133,6 @@ describe('Choose replacement attorneys summary', () => {
         cy.get('#f-remove-attorney').check('yes');
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/want-replacement-attorneys');
+        cy.url().should('contain', '/do-you-want-replacement-attorneys');
     });
 });

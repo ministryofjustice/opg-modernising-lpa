@@ -1,6 +1,6 @@
 describe('Confirm your identity and sign', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/your-details');
+        cy.visit('/testing-start?redirect=/your-details&withAttorneys=1');
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
         cy.get('#f-date-of-birth').type('1');
