@@ -5,10 +5,6 @@ on:
         description: 'Tag for docker image'
         required: true
         type: string
-      changes_detected:
-        description: 'Boolean value for changes detected in /app'
-        required: true
-        type: string
 
 defaults:
   run:
@@ -27,13 +23,11 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build Image
         id: build_image
-        if: inputs.changes_detected == true
         run: |
           docker build -t app .
       - name: Trivy Image Vulnerability Scanner
         id: trivy_scan
         uses: aquasecurity/trivy-action@0.8.0
-        if: inputs.changes_detected == true
         with:
           image-ref: app:latest
           severity: 'HIGH,CRITICAL'
@@ -42,15 +36,12 @@ jobs:
       - name: Upload Trivy scan results to GitHub Security tab
         id: trivy_upload_sarif
         uses: github/codeql-action/upload-sarif@v2
-        if: inputs.changes_detected == true
-        # if: always()
+        if: always()
         with:
           sarif_file: 'trivy-results.sarif'
       - uses: unfor19/install-aws-cli-action@v1
-        if: inputs.changes_detected == true
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1.7.0
-        if: inputs.changes_detected == true
         with:
           aws-region: eu-west-1
           role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ecr-push
@@ -59,11 +50,9 @@ jobs:
       - name: ECR Login
         id: login_ecr
         uses: aws-actions/amazon-ecr-login@v1.5.3
-        if: inputs.changes_detected == true
         with:
           registries: 311462405659
       - name: Push Container
-        if: inputs.changes_detected == true
         env:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
           ECR_REPOSITORY: modernising-lpa/app
