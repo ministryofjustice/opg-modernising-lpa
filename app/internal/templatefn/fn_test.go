@@ -281,3 +281,27 @@ func TestWarning(t *testing.T) {
 	assert.Equal(t, app, v["app"])
 	assert.Equal(t, content, v["content"])
 }
+
+func TestListPeopleToNotify(t *testing.T) {
+	peopleToNotify := []page.PersonToNotify{
+		{ID: "123"},
+		{ID: "123"},
+	}
+
+	detailsPath := "/some-path"
+	addressPath := "/some-other-path"
+	removePath := "/more-path?"
+	app := page.AppData{SessionID: "abc"}
+
+	want := map[string]interface{}{
+		"PeopleToNotify": peopleToNotify,
+		"App":            app,
+		"DetailsPath":    detailsPath,
+		"AddressPath":    addressPath,
+		"RemovePath":     removePath,
+	}
+
+	got := listPeopleToNotify(peopleToNotify, app, detailsPath, addressPath, removePath)
+
+	assert.Equal(t, want, got)
+}
