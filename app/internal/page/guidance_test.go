@@ -1,6 +1,7 @@
 package page
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -26,6 +27,36 @@ func TestGuidance(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := Guidance(template.Func, "/somewhere", lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, lpaStore, template)
+}
+
+func TestGuidanceWhenContinueIsAuthAndLangCy(t *testing.T) {
+	w := httptest.NewRecorder()
+	lpa := &Lpa{}
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(lpa, nil)
+
+	cyAppData := AppData{
+		Lang:      Cy,
+		Paths:     AppPaths{Auth: "/somewhere"},
+		SessionID: "session-id",
+	}
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &guidanceData{App: cyAppData, Continue: fmt.Sprintf("%s?locale=cy", cyAppData.Paths.Auth), Lpa: lpa}).
+		Return(nil)
+
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	err := Guidance(template.Func, cyAppData.Paths.Auth, lpaStore)(cyAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
