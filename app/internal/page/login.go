@@ -7,7 +7,7 @@ import (
 )
 
 type loginClient interface {
-	AuthCodeURL(state, nonce string) string
+	AuthCodeURL(state, nonce, locale string) string
 }
 
 func Login(logger Logger, c loginClient, store sessions.Store, secure bool, randomString func(int) string) http.HandlerFunc {
@@ -22,8 +22,13 @@ func Login(logger Logger, c loginClient, store sessions.Store, secure bool, rand
 	return func(w http.ResponseWriter, r *http.Request) {
 		state := randomString(12)
 		nonce := randomString(12)
+		locale := "en"
 
-		authCodeURL := c.AuthCodeURL(state, nonce)
+		if r.URL.Query().Has("locale") {
+			locale = r.URL.Query().Get("locale")
+		}
+
+		authCodeURL := c.AuthCodeURL(state, nonce, locale)
 
 		params := sessions.NewSession(store, "params")
 		params.Values = map[interface{}]interface{}{
