@@ -1,0 +1,27 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+                    <h1 class="govuk-fieldset__heading govuk-!-margin-bottom-6">{{ tr .App "wantPeopleToNotify" }}</h1>
+                </legend>
+
+                {{ trHtml .App "wantPeopleToNotifyContent" }}
+
+                <div class="govuk-form-group {{ if index .Errors "want-to-notify" }}govuk-form-group--error{{ end }}">
+                    {{ template "error-message" (errorMessage . "want-to-notify") }}
+
+                    {{ template "radios" (items . "want-to-notify" .WantToNotify
+                    (item "yes" "yes")
+                    (item "no" "no")
+                    ) }}
+                </div>
+
+                {{ template "continue-button" . }}
+
+            </form>
+        </div>
+    </div>
+{{ end }}
