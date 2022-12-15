@@ -1,15 +1,21 @@
 on:
   workflow_call:
+    inputs:
+      changes_detected:
+        description: 'Boolean value for changes detected in /app'
+        required: true
+        type: string
     outputs:
       version_tag:
         description: "Docker Image Tag"
-        value: ${{ jobs.create_tags.outputs.docker_tag }}
+        value: ${{ jobs.consolidate_tags.outputs.docker_tag }}
       environment_workspace_name:
         description: "Terraform Environment Workspace Name"
         value: ${{ jobs.generate_environment_workspace_name.outputs.environment_workspace_name }}
 
 jobs:
   create_tags:
+    if : inputs.changes_detected == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -55,3 +61,42 @@ jobs:
           echo ${workspace}
     outputs:
       environment_workspace_name: ${{ steps.name_workspace.outputs.name }}
+
+  pull_tags:
+    if : inputs.changes_detected == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ssm-get-parameter
+          role-duration-seconds: 900
+          role-session-name: GithubActionsSSMGetParameter
+      - name: Pull production environment tag
+        id: pull_production_tag
+        run: |
+          value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/preproduction' | jq -r .Parameter.Value )
+          echo ${value}
+          echo "tag=${value}" >> $GITHUB_OUTPUT
+    outputs:
+      docker_tag: ${{ steps.pull_production_tag.outputs.tag }}
+
+  consolidate_tags:
+    needs: [
+      create_tags,
+      pull_tags,
+      ]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: consolidate tags
+        id: consolidate_tags
+        run: |
+          if ${{inputs.changes_detected == 'false'}}; then
+            echo "tag=${{needs.pull_tags.outputs.docker_tag}}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{needs.create_tags.outputs.docker_tag}}" >> $GITHUB_OUTPUT
+          fi
+    outputs:
+      docker_tag: ${{ steps.consolidate_tags.outputs.tag }}
