@@ -45,6 +45,7 @@ COPY --from=asset-env /app/web/static web/static
 COPY app/web/template web/template
 COPY app/lang lang
 COPY app/web/robots.txt web/robots.txt
+COPY app/web/robots.txt web/robots.txt
 
 RUN addgroup -S app && \
   adduser -S -g app app && \
