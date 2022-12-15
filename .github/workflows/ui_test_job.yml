@@ -27,9 +27,9 @@ jobs:
       - uses: actions/checkout@v3
       - uses: unfor19/install-aws-cli-action@v1
         name: Run Against Image/aws-cli-action
-        if: ${{ inputs.run_against_image }}
+        if: inputs.run_against_image
       - name: Run Against Image/Configure AWS Credentials
-        if: ${{ inputs.run_against_image }}
+        if: inputs.run_against_image
         uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -39,13 +39,13 @@ jobs:
           role-duration-seconds: 900
           role-session-name: OPGModernisingLPATerraformGithubAction
       - name: Run Against Image/ECR Login
-        if: ${{ inputs.run_against_image }}
+        if: inputs.run_against_image
         id: login_ecr
         uses: aws-actions/amazon-ecr-login@v1.5.3
         with:
           registries: 311462405659
       - name: Run Against Image/Run Docker Compose Service
-        if: ${{ inputs.run_against_image }}
+        if: inputs.run_against_image
         env:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
           ECR_REPOSITORY: modernising-lpa/app
@@ -55,7 +55,7 @@ jobs:
           docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d
 
       - name: Manage Ingress/Configure AWS Credentials
-        if: ${{ inputs.run_against_image != true }}
+        if: inputs.run_against_image != true
         uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -64,19 +64,19 @@ jobs:
           role-duration-seconds: 900
           role-session-name: OPGModernisingLPATerraformGithubAction
       - name: Download environment config file
-        if: ${{ inputs.run_against_image != true }}
+        if: inputs.run_against_image != true
         uses: actions/download-artifact@v3
         with:
           name: environment_config_file
       - uses: actions/setup-python@v4
-        if: ${{ inputs.run_against_image != true }}
+        if: inputs.run_against_image != true
         with:
           python-version: '3.9'
           check-latest: true
       - run: pip install -r ./scripts/ci_ingress/requirements.txt
-        if: ${{ inputs.run_against_image != true }}
+        if: inputs.run_against_image != true
       - name: add_ingress
-        if: ${{ inputs.run_against_image != true }}
+        if: inputs.run_against_image != true
         run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json --add
 
       - name: Cypress run
@@ -87,13 +87,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Persist Cypress failure screenshots as artifacts
-        if: ${{ failure() }}
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: cypress-failure-screenshots
           path: ./cypress/screenshots/
 
       - name: Stop Docker Compose Service
-        if: ${{ always() }}
+        if: always()
         run:
           docker compose -f docker-compose.yml -f docker-compose.ci.yml down
