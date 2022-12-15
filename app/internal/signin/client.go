@@ -87,14 +87,22 @@ func Discover(ctx context.Context, logger Logger, httpClient *http.Client, secre
 	return c, err
 }
 
-func (c *Client) AuthCodeURL(state, nonce string) string {
+func (c *Client) AuthCodeURL(state, nonce, locale string) string {
+	redirectUrl, _ := url.Parse(c.redirectURL)
+
+	values := redirectUrl.Query()
+	values.Add("locale", locale)
+
+	redirectUrl.RawQuery = values.Encode()
+
 	q := url.Values{
 		"response_type": {"code"},
 		"scope":         {"openid email"},
-		"redirect_uri":  {c.redirectURL},
+		"redirect_uri":  {redirectUrl.String()},
 		"client_id":     {c.clientID},
 		"state":         {state},
 		"nonce":         {nonce},
+		"ui_locales":    {locale},
 	}
 
 	return c.openidConfiguration.AuthorizationEndpoint + "?" + q.Encode()
