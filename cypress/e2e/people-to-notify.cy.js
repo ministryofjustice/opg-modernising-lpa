@@ -18,7 +18,7 @@ describe('People to notify', () => {
         cy.get('input[name="want-to-notify"]').check('yes')
         cy.contains('button', 'Continue').click();
 
-        cy.addPersonToNotify(person1)
+        addPersonToNotify(person1)
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
@@ -33,7 +33,7 @@ describe('People to notify', () => {
         cy.get('input[name="add-person-to-notify"]').check('yes')
         cy.contains('button', 'Continue').click();
 
-        cy.addPersonToNotify(person2)
+        addPersonToNotify(person2)
 
         cy.contains('You have added 2 people to notify');
 
@@ -59,7 +59,7 @@ describe('People to notify', () => {
         cy.get('input[name="want-to-notify"]').check('yes')
         cy.contains('button', 'Continue').click();
 
-        cy.addPersonToNotify(person1)
+        addPersonToNotify(person1)
 
         cy.contains(`${person1.firstNames} ${person1.lastName}`).parent().contains('a', 'Change').click();
 
@@ -112,12 +112,12 @@ describe('People to notify', () => {
             cy.get('input[name="want-to-notify"]').check('yes')
             cy.contains('button', 'Continue').click();
 
-            cy.addPersonToNotify(person1)
+            addPersonToNotify(person1)
 
             cy.get('input[name="add-person-to-notify"]').check('yes')
             cy.contains('button', 'Continue').click();
 
-            cy.addPersonToNotify(person2)
+            addPersonToNotify(person2)
 
             cy.get('#remove-person-to-notify-2').contains('Remove person to notify 2').click();
 
@@ -141,3 +141,47 @@ describe('People to notify', () => {
             cy.url().should('contain', '/do-you-want-to-notify-people');
     });
 });
+
+function addPersonToNotify(p) {
+    cy.url().should('contain', '/choose-people-to-notify');
+
+    cy.injectAxe();
+    cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+    cy.get('#f-first-names').type(p.firstNames)
+    cy.get('#f-last-name').type(p.lastName)
+    cy.get('#f-email').type(p.email)
+
+    cy.contains('button', 'Continue').click();
+
+    cy.url().should('contain', '/choose-people-to-notify-address');
+
+    cy.injectAxe();
+    cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+    cy.get('#f-lookup-postcode').type(p.address.postcode)
+    cy.contains('button', 'Find address').click();
+
+    cy.url().should('contain', '/choose-people-to-notify-address');
+
+    cy.injectAxe();
+    cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+    cy.get('#f-select-address').select(`${p.address.line1}, ${p.address.town}, ${p.address.postcode}`);
+    cy.contains('button', 'Continue').click();
+
+    cy.url().should('contain', '/choose-people-to-notify-address');
+
+    cy.injectAxe();
+    cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+    cy.get('#f-address-line-1').should('have.value', p.address.line1);
+    cy.get('#f-address-line-2').should('have.value', p.address.line2);
+    cy.get('#f-address-line-3').should('have.value', p.address.line3);
+    cy.get('#f-address-town').should('have.value', p.address.town);
+    cy.get('#f-address-postcode').should('have.value', p.address.postcode);
+
+    cy.contains('button', 'Continue').click();
+
+    cy.url().should('contain', '/choose-people-to-notify-summary');
+}
