@@ -2,7 +2,6 @@
     {{range $i, $p := .PeopleToNotify}}
         {{ $personNumber := inc $i }}
 
-        <h2 class="govuk-heading-m">{{ trFormat $.App "personCount" "PersonNumber" $personNumber }}</h2>
         <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row" id="name-{{ $personNumber }}">
                 <dt class="govuk-summary-list__key">
