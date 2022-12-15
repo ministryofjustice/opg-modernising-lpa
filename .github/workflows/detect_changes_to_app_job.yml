@@ -16,7 +16,7 @@ jobs:
         id: detect_changes
         if: github.ref != 'refs/heads/main'
         run: |
-          git diff --quiet HEAD origin/main -- app && \
+          git diff --quiet HEAD origin/main -- app Dockerfile package.json yarn.lock && \
           echo "changes=false" >> $GITHUB_OUTPUT || \
           echo "changes=true" >> $GITHUB_OUTPUT
     outputs:
