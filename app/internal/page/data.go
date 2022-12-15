@@ -69,6 +69,8 @@ type Lpa struct {
 	HowReplacementAttorneysMakeDecisionsDetails string
 	HowShouldReplacementAttorneysStepIn         string
 	HowShouldReplacementAttorneysStepInDetails  string
+	DoYouWantToNotifyPeople                     string
+	PeopleToNotify                              []PersonToNotify
 }
 
 type PaymentDetails struct {
@@ -83,6 +85,7 @@ type Tasks struct {
 	CheckYourLpa               TaskState
 	PayForLpa                  TaskState
 	ConfirmYourIdentityAndSign TaskState
+	PeopleToNotify             TaskState
 }
 
 type Person struct {
@@ -92,6 +95,14 @@ type Person struct {
 	OtherNames  string
 	DateOfBirth time.Time
 	Address     place.Address
+}
+
+type PersonToNotify struct {
+	FirstNames string
+	LastName   string
+	Email      string
+	Address    place.Address
+	ID         string
 }
 
 type Attorney struct {
@@ -232,6 +243,40 @@ func (l *Lpa) DeleteReplacementAttorney(attorney Attorney) bool {
 	return true
 }
 
+func (l *Lpa) GetPersonToNotify(id string) (PersonToNotify, bool) {
+	idx := slices.IndexFunc(l.PeopleToNotify, func(p PersonToNotify) bool { return p.ID == id })
+
+	if idx == -1 {
+		return PersonToNotify{}, false
+	}
+
+	return l.PeopleToNotify[idx], true
+}
+
+func (l *Lpa) PutPersonToNotify(person PersonToNotify) bool {
+	idx := slices.IndexFunc(l.PeopleToNotify, func(p PersonToNotify) bool { return p.ID == person.ID })
+
+	if idx == -1 {
+		return false
+	}
+
+	l.PeopleToNotify[idx] = person
+
+	return true
+}
+
+func (l *Lpa) DeletePersonToNotify(personToNotify PersonToNotify) bool {
+	idx := slices.IndexFunc(l.PeopleToNotify, func(p PersonToNotify) bool { return p.ID == personToNotify.ID })
+
+	if idx == -1 {
+		return false
+	}
+
+	l.PeopleToNotify = slices.Delete(l.PeopleToNotify, idx, idx+1)
+
+	return true
+}
+
 func (l *Lpa) AttorneysFullNames() string {
 	var names []string
 
@@ -290,9 +335,7 @@ func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
 		return true
 	}
 
-	if !allAddressesComplete(l.ReplacementAttorneys) ||
-		!allNamesComplete(l.ReplacementAttorneys) ||
-		!allDateOfBirthComplete(l.ReplacementAttorneys) {
+	if !l.ReplacementAttorneysValid() {
 		return false
 	}
 
@@ -360,9 +403,7 @@ func (l *Lpa) AttorneysTaskComplete() bool {
 		return false
 	}
 
-	if !allAddressesComplete(l.Attorneys) ||
-		!allNamesComplete(l.Attorneys) ||
-		!allDateOfBirthComplete(l.Attorneys) {
+	if !l.AttorneysValid() {
 		return false
 	}
 
@@ -375,9 +416,9 @@ func (l *Lpa) AttorneysTaskComplete() bool {
 	return false
 }
 
-func allAddressesComplete(attorneys []Attorney) bool {
-	for _, a := range attorneys {
-		if a.Address.Line1 == "" {
+func (l *Lpa) AttorneysValid() bool {
+	for _, a := range l.Attorneys {
+		if a.Address.Line1 == "" || a.FirstNames == "" || a.LastName == "" || a.DateOfBirth.IsZero() {
 			return false
 		}
 	}
@@ -385,9 +426,9 @@ func allAddressesComplete(attorneys []Attorney) bool {
 	return true
 }
 
-func allNamesComplete(attorneys []Attorney) bool {
-	for _, a := range attorneys {
-		if a.FirstNames == "" || a.LastName == "" {
+func (l *Lpa) ReplacementAttorneysValid() bool {
+	for _, a := range l.ReplacementAttorneys {
+		if a.Address.Line1 == "" || a.FirstNames == "" || a.LastName == "" || a.DateOfBirth.IsZero() {
 			return false
 		}
 	}
@@ -395,9 +436,9 @@ func allNamesComplete(attorneys []Attorney) bool {
 	return true
 }
 
-func allDateOfBirthComplete(attorneys []Attorney) bool {
-	for _, a := range attorneys {
-		if a.DateOfBirth.IsZero() {
+func (l *Lpa) PeopleToNotifyValid() bool {
+	for _, a := range l.PeopleToNotify {
+		if a.Address.Line1 == "" || a.FirstNames == "" || a.LastName == "" {
 			return false
 		}
 	}

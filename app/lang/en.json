@@ -361,5 +361,20 @@
     "jointly-and-severally": "Jointly and severally",
     "mixed":                 "Jointly for some decisions, and jointly and severally for other decisions",
     "when-registered":       "As soon as it's registered",
-    "when-capacity-lost":    "Only when I do not have mental capacity"
+    "when-capacity-lost":    "Only when I do not have mental capacity",
+
+    "peopleToNotify": "People to notify",
+    "wantPeopleToNotify": "Do you want to notify anyone about your LPA?",
+    "selectDoYouWantToNotifyPeople": "Select whether you want to notify anyone about your LPA",
+    "wantPeopleToNotifyContent": "<p class=\"govuk-body-l\">Some content about people to notify</p>",
+    "whoWouldYouLikeNotify": "Add a person to notify about your LPA",
+    "personToNotifyAddress": "{{.FirstNames}} {{.LastName}}'s address",
+    "peopleToNotifyAdded": {
+        "one": "You have added {{.PluralCount}} person to notify",
+        "other": "You have added {{.PluralCount}} people to notify"
+    },
+    "personCount": "Person to notify {{.PersonNumber}}",
+    "removePersonToNotifyButtonLink": "Remove person to notify {{ .PersonNumber }}<span class=\"govuk-visually-hidden\"> {{ .FirstNames }} {{ .LastName }}</span>",
+    "doYouWantToAddAnotherPersonToNotify": "Do you want to add another person to notify?",
+    "removeAPersonToNotify": "Remove a person to notify"
 }
