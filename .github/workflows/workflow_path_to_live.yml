@@ -26,6 +26,8 @@ jobs:
   create_tags:
     name: Create Tags
     uses: ./.github/workflows/tags_job.yml
+    with:
+      changes_detected: 'true'
 
   go_unit_tests:
     name: Run Go unit tests
