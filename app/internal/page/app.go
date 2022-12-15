@@ -162,8 +162,8 @@ func App(
 	handle(paths.HowShouldAttorneysMakeDecisions, RequireSession|CanGoBack,
 		HowShouldAttorneysMakeDecisions(tmpls.Get("how_should_attorneys_make_decisions.gohtml"), lpaStore))
 
-	handle(paths.WantReplacementAttorneys, RequireSession|CanGoBack,
-		WantReplacementAttorneys(tmpls.Get("want_replacement_attorneys.gohtml"), lpaStore))
+	handle(paths.DoYouWantReplacementAttorneys, RequireSession|CanGoBack,
+		WantReplacementAttorneys(tmpls.Get("do_you_want_replacement_attorneys.gohtml"), lpaStore))
 	handle(paths.ChooseReplacementAttorneys, RequireSession|CanGoBack,
 		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), lpaStore, random.String))
 	handle(paths.ChooseReplacementAttorneysAddress, RequireSession|CanGoBack,
@@ -190,13 +190,24 @@ func App(
 	handle(paths.HowLongHaveYouKnownCertificateProvider, RequireSession|CanGoBack,
 		HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), lpaStore))
 
+	handle(paths.DoYouWantToNotifyPeople, RequireSession|CanGoBack,
+		DoYouWantToNotifyPeople(tmpls.Get("do_you_want_to_notify_people.gohtml"), lpaStore))
+	handle(paths.ChoosePeopleToNotify, RequireSession|CanGoBack,
+		ChoosePeopleToNotify(tmpls.Get("choose_people_to_notify.gohtml"), lpaStore, random.String))
+	handle(paths.ChoosePeopleToNotifyAddress, RequireSession|CanGoBack,
+		ChoosePeopleToNotifyAddress(logger, tmpls.Get("choose_people_to_notify_address.gohtml"), addressClient, lpaStore))
+	handle(paths.ChoosePeopleToNotifySummary, RequireSession|CanGoBack,
+		ChoosePeopleToNotifySummary(logger, tmpls.Get("choose_people_to_notify_summary.gohtml"), lpaStore))
+	handle(paths.RemovePersonToNotify, RequireSession|CanGoBack,
+		RemovePersonToNotify(logger, tmpls.Get("remove_person_to_notify.gohtml"), lpaStore))
+
+	handle(paths.CheckYourLpa, RequireSession|CanGoBack,
+		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), lpaStore))
+
 	handle(paths.AboutPayment, RequireSession|CanGoBack,
 		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String))
 	handle(paths.PaymentConfirmation, RequireSession|CanGoBack,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, lpaStore, sessionStore))
-
-	handle(paths.CheckYourLpa, RequireSession|CanGoBack,
-		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), lpaStore))
 
 	handle(paths.SelectYourIdentityOptions, RequireSession|CanGoBack,
 		SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), lpaStore))
