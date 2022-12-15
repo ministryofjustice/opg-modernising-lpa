@@ -384,5 +384,23 @@
     "jointly-and-severally": "Welsh",
     "mixed":                 "Welsh",
     "when-registered":       "Welsh",
-    "when-capacity-lost":    "Welsh"
+    "when-capacity-lost":    "Welsh",
+
+    "peopleToNotify": "Welsh",
+    "wantPeopleToNotify": "Welsh?",
+    "selectDoYouWantToNotifyPeople": "Welsh",
+    "wantPeopleToNotifyContent": "<p class=\"govuk-body-l\">Welsh</p>",
+    "whoWouldYouLikeNotify": "Welsh",
+    "personToNotifyAddress": "{{.FirstNames}} {{.LastName}}'s welsh",
+    "peopleToNotifyAdded": {
+        "one": "Welsh {{.PluralCount}} welsh",
+        "two": "Welsh {{.PluralCount}} welsh",
+        "few": "Welsh {{.PluralCount}} welsh",
+        "many": "Welsh {{.PluralCount}} welsh",
+        "other": "Welsh {{.PluralCount}} welsh"
+    },
+    "personCount": "Welsh {{.PersonNumber}}",
+    "removePersonToNotifyButtonLink": "Welsh {{ .PersonNumber }}<span class=\"govuk-visually-hidden\"> {{ .FirstNames }} {{ .LastName }}</span>",
+    "doYouWantToAddAnotherPersonToNotify": "Welsh?",
+    "removeAPersonToNotify": "Welsh"
 }
