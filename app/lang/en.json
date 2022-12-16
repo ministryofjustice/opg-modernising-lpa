@@ -196,7 +196,7 @@
     "continueToPayment": "Continue to payment",
 
     "howDoYouKnowYourCertificateProvider": "How do you know {{.FirstNames}} {{.LastName}}, your certificate provider?",
-    "pleaseDescribe": "Please describe",
+    "pleaseDescribe": "Briefly explain how you know {{.FirstNames}} {{.LastName}}",
     "friend": "Friend",
     "neighbour": "Neighbour",
     "colleague": "Colleague",

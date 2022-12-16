@@ -209,7 +209,7 @@
     "continueToPayment": "Welsh",
 
     "howDoYouKnowYourCertificateProvider": "Sut ydych chi'n nabod {{.FirstNames}} {{.LastName}}, eich darparwr tystysgrif? ",
-    "pleaseDescribe": "Welsh",
+    "pleaseDescribe": "Welsh {{.FirstNames}} {{.LastName}}",
     "friend": "Ffrind",
     "neighbour": "Cymydog",
     "colleague": "Cydweithiwr",
