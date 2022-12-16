@@ -18,11 +18,11 @@ import (
 )
 
 var (
-	port        = env.Get("PORT", "8080")
-	publicURL   = env.Get("PUBLIC_URL", "http://localhost:8080")
-	internalURL = env.Get("INTERNAL_URL", "http://sign-in-mock:8080")
-	clientId    = env.Get("CLIENT_ID", "theClientId")
-	awsBaseUrl  = env.Get("AWS_BASE_URL", "http://localstack:4566")
+	port               = env.Get("PORT", "8080")
+	publicURL          = env.Get("PUBLIC_URL", "http://localhost:8080")
+	internalURL        = env.Get("INTERNAL_URL", "http://sign-in-mock:8080")
+	clientId           = env.Get("CLIENT_ID", "theClientId")
+	serviceRedirectUrl = env.Get("REDIRECT_RUL", "http://localhost:5050/auth/redirect")
 
 	nonce         string
 	signingKid    = "my-kid"
@@ -139,6 +139,10 @@ func authorize() http.HandlerFunc {
 		redirectUri := r.URL.Query().Get("redirect_uri")
 		if redirectUri == "" {
 			log.Fatal("Required query param 'redirect_uri' missing from request")
+		}
+
+		if redirectUri != serviceRedirectUrl {
+			log.Fatalf("redirect_uri does not match pre-defined redirect URL (in RL this is set with GDS at a service level). Got %s, want %s", redirectUri, serviceRedirectUrl)
 		}
 
 		u, parseErr := url.Parse(redirectUri)
