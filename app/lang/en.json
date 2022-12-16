@@ -121,7 +121,7 @@
     "changeDOBLinkText": "Change<span class=\"govuk-visually-hidden\"> date of birth for {{ .FirstNames }} {{ .LastName }}</span>",
     "changeEmailLinkText": "Change<span class=\"govuk-visually-hidden\"> email for {{ .FirstNames }} {{ .LastName }}</span>",
     "changeAddressLink": "Change<span class=\"govuk-visually-hidden\"> address for {{ .FirstNames }} {{ .LastName }}</span>",
-    "removeAttorneyButtonLink": "Remove attorney {{ .AttorneyNumber }}<span class=\"govuk-visually-hidden\"> {{ .FirstNames }} {{ .LastName }}</span>",
+    "removeAttorneyButtonLink": "Remove {{ .FirstNames }} {{ .LastName }}",
     "doYouWantToAddAnotherAttorney": "Do you want to add another attorney?",
     "selectAddMoreAttorneys": "Select whether you want to add any more attorneys",
     "removeAnAttorney": "Remove an attorney",
