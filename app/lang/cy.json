@@ -24,6 +24,9 @@
     "answerLater": "Welsh",
     "willDoThisLater": "Welsh",
     "pfa": "Welsh",
+    "yes": "Ydw",
+    "no": "Na",
+    "confirm": "Welsh",
 
     "yourDetails": "Eich manylion",
     "firstNames": "Enwau cyntaf",
@@ -89,8 +92,10 @@
     "whichTypeOfLpaToMake": "Pa fath o LPA ydych chi am ei wneud?",
     "whichTypeOfLpaToMakeContent": "<p class=\"govuk-body\">Mae 2 fath o LPA:</p><ul class=\"govuk-list govuk-list--bullet\"><li>eiddo a materion ariannol</li><li>iechyd a lles</li></ul><p class=\"govuk-body\">Gallwch gael un neu'r ddau.</p><p class=\"govuk-body\">Nid oes rhaid iddynt gael eu gwneud ar yr un pryd. Gallwch ailddefnyddio unrhyw wybodaeth i wneud LPAs eraill yn hwyrach.</p><p class=\"govuk-body\">Gallwch ddewis gwahanol bobl i fod yn atwrneiod i chi ar gyfer pob LPA.</p><p class=\"govuk-body\"><a class=\"govuk-link\" href=\"#\">Dysgwch fwy am y 2 fath o LPAs</a></p>",
     "lpaTypePfa": "Eiddo a materion ariannol",
+    "lpaTypePfaHumanised": "Welsh",
     "lpaTypePfaHint": "Welsh",
     "lpaTypeHw": "Iechyd a lles",
+    "lpaTypeHwHumanised": "Welsh",
     "lpaTypeHwHint": "Welsh",
     "lpaTypeBoth": "Y ddau",
     "selectLpaType": "Welsh",
@@ -121,11 +126,11 @@
         "many": "Welsh {{.PluralCount}} welsh",
         "other": "Welsh {{.PluralCount}} welsh"
     },
-    "changeNameLinkText": "Change<span class=\"govuk-visually-hidden\"> name for {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeDOBLinkText": "Change<span class=\"govuk-visually-hidden\"> date of birth for {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeEmailLinkText": "Change<span class=\"govuk-visually-hidden\"> email for {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeAddressLink": "Change<span class=\"govuk-visually-hidden\"> address for {{ .FirstNames }} {{ .LastName }}</span>",
-    "removeAttorneyButtonLink": "Remove attorney {{ .AttorneyNumber }}<span class=\"govuk-visually-hidden\"> {{ .FirstNames }} {{ .LastName }}</span>",
+    "changeNameLinkText": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ .FirstNames }} {{ .LastName }}</span>",
+    "changeDOBLinkText": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ .FirstNames }} {{ .LastName }}</span>",
+    "changeEmailLinkText": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ .FirstNames }} {{ .LastName }}</span>",
+    "changeAddressLink": "Welsh<span class=\"govuk-visually-hidden\"> welsh {{ .FirstNames }} {{ .LastName }}</span>",
+    "removeAttorneyButtonLink": "Welsh {{ .FirstNames }} {{ .LastName }}",
     "doYouWantToAddAnotherAttorney": "Welsh?",
     "selectAddMoreAttorneys": "Welsh",
     "removeAnAttorney": "Welsh",
@@ -147,9 +152,10 @@
         "other": "Welsh {{ .AttorneysFullNames }} welsh"
     },
     "replacementAttorneyRequirements": "Rhaid i atwrnai wrth gefn gwrdd â'r un gofynion ag atwrnai gwreiddiol. Mae hyn yn cynnwys bod yn 18 oed neu'n hŷn.",
+    "findOutMoreAboutReplacementAttorneysContent": "<p class=\"govuk-body\"><a href=\"#\">Welsh</a></p>",
+    "yesReplacementAttorneys": "Welsh",
+    "noReplacementAttorneys": "Welsh",
 
-    "yes": "Ydw",
-    "no": "Na",
     "selectWantReplacementAttorneys": "Welsh",
     "replacementAttorneys": "Welsh",
 
@@ -163,8 +169,12 @@
         "many": "Welsh {{ .AttorneysFullNames }} welsh:",
         "other": "Welsh {{ .AttorneysFullNames }} welsh:"
     },
-    "asSoonAsRegisteredContent": "<ul class=\"govuk-list govuk-list--bullet\"> <li>os byddwch yn colli galluedd meddyliol</li> <li>pan fod gennych alluedd meddyliol, ond dim ond os byddwch yn rhoi caniatâd iddynt wneud rhywbeth</li> </ul> <p class=\"govuk-body\">Mae'r opsiwn hwn yn ddefnyddiol rhag ofn y bydd adegau yn y dyfodol pan fyddwch chi'n gallu gwneud eich penderfyniadau eich hun, ond angen help gyda rhai pethau.</p><p class=\"govuk-body\">Er enghraifft, pe bai’n dod yn anodd i chi ymweld â'r banc neu siarad ar y ffôn, efallai y byddwch yn gofyn i Pat ddefnyddio'r LPA i ddelio â'r banc neu dalu biliau.</p>",
-    "afterLosingCapacityContent": "<h2 class=\"govuk-heading-m\">Dim ond pe bai chi’n colli galluedd meddyliol</h2> <p class=\"govuk-body\">Mae’r opsiwn hwn yn golygu gall {{.AttorneysFullNames}} ddefnyddio’r LPA dim ond os ydych wedi colli galluedd meddyliol.</p> <p class=\"govuk-body\">Byddwch yn ofalus, oherwydd gall hyn wneud yr LPA yn llai defnyddiol. Bob tro y bydd {{.AttorneysFullNames}} yn ceisio defnyddio’r LPA, efallai bydd angen iddynt brofi nad oes gennych chi alluedd meddyliol.</p>",
+    "asSoonAsRegisteredContent": "<ul class=\"govuk-list govuk-list--bullet\"> <li>pan fod gennych alluedd meddyliol, ond dim ond os byddwch yn rhoi caniatâd iddynt wneud rhywbeth</li> <li>os byddwch yn colli galluedd meddyliol</li> </ul> <p class=\"govuk-body\">Mae'r opsiwn hwn yn ddefnyddiol rhag ofn y bydd adegau yn y dyfodol pan fyddwch chi'n gallu gwneud eich penderfyniadau eich hun, ond angen help gyda rhai pethau.</p><p class=\"govuk-body\">Er enghraifft, pe bai’n dod yn anodd i chi ymweld â'r banc neu siarad ar y ffôn, efallai y byddwch yn gofyn i Pat ddefnyddio'r LPA i ddelio â'r banc neu dalu biliau.</p>",
+    "afterLosingCapacityContent": "<h2 class=\"govuk-heading-m\">Dim ond pe bai chi’n colli galluedd meddyliol</h2> <p class=\"govuk-body\">Mae’r opsiwn hwn yn golygu gall {{.AttorneysFullNames}} ddefnyddio’r LPA dim ond os ydych wedi colli galluedd meddyliol.</p>",
+    "afterLosingCapacityExample": {
+        "one": "Welsh. Welsh {{ .AttorneysFirstNames }} welsh.",
+        "other": "Welsh. Welsh {{ .AttorneysFirstNames }} welsh."
+    },
 
     "whenDoYouWantAttorneysToUse": {
         "one": "Pryd ydych chi am i’r atwrneiod allu defnyddio’r LPA?",
@@ -184,7 +194,7 @@
     "restrictions": "Cyfyngiadau",
     "restrictionsTooLong": "Welsh",
 
-    "whoDoYouWantToBeCertificateProviderGuidance": "<h1 class=\"govuk-heading-xl\">Pwy hoffech ddewis fel eich darparwr tystysgrif?</h1><p class=\"govuk-body\">Mae darparwr tystysgrif yn berson annibynnol sy’n siarad â chi i wneud yn siŵr eich bod yn deall eich LPA a’ch bod am ei gwneud.</p><p class=\"govuk-body\">Mae'r rhan fwyaf o bobl yn dewis ffrind, cymydog neu gydweithiwr i fod yn ddarparwr tystysgrif iddynt.</p><h2 class=\"govuk-heading-m\">Beth sy'n rhaid i’ch darparwr tystysgrif ei wneud</h2><p class=\"govuk-body\">Mae'n rhaid i’ch darparwr tystysgrif:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>cadarnhau pwy ydyn nhw</li> <li>darllen yr LPA unwaith y byddwch wedi gorffen ei gwneud</li> <li>cwrdd â chi mewn person i siarad am eich LPA yn breifat</li> <li>fod yn dyst i chi’n llofnodi'r LPA</li> </ul> <p class=\"govuk-body\">Yna byddwn yn gofyn i’ch darparwr tystysgrif:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>cadarnhau eu bod wedi trafod yr LPA gyda chi</li> <li>dweud wrthym os oes ganddynt unrhyw bryderon am yr LPA - er enghraifft, os ydynt yn meddwl bod rhywun yn rhoi pwysau arnoch i'w gwneud</li> </ul> <p class=\"govuk-body\">Rydym yn galw hyn yn 'darparu tystysgrif'. Gallant wneud hyn gan ddefnyddio ein gwasanaeth ar-lein neu ffurflen bapur.</p> <p class=\"govuk-body\">Os bydd gennym byth unrhyw bryderon am yr LPA, efallai y byddwn yn gofyn i’ch darparwr tystysgrif ddweud mwy wrthym am eich sgwrs am yr LPA.</p> <h2 class=\"govuk-heading-m\">Pwy na all fod yn ddarparwr tystysgrif</h2> <p class=\"govuk-body\">Ni all eich darparwr tystysgrif fod yn:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>dan 18 oed</li> <li>atwrnai ar eich LPA</li> <li>perthyn i chi neu Pat (mae hyn yn cynnwys llys-berthnasau, perthnasau yng nghyfraith, gwŷr, gwragedd, partneriaid, a chariadon)</li> <li>partner busnes neu weithiwr i chi neu Pat</li> <li>rhywun sy'n gweithio i gartref gofal lle rydych chi'n byw, neu eu perthynas</li> </ul> <p class=\"govuk-body\"><a class=\"govuk-link\" href=\"#\">Darganfyddwch mwy am ddarparwyr tystysgrifau</a>, a phwy all gymryd y rôl ymlaen.</p> ",
+    "whoDoYouWantToBeCertificateProviderGuidance": "<h1 class=\"govuk-heading-xl\">Pwy hoffech ddewis fel eich darparwr tystysgrif?</h1><p class=\"govuk-body\">Mae darparwr tystysgrif yn berson annibynnol sy’n siarad â chi i wneud yn siŵr eich bod yn deall eich LPA a’ch bod am ei gwneud.</p><p class=\"govuk-body\">Mae'r rhan fwyaf o bobl yn dewis ffrind, cymydog neu gydweithiwr i fod yn ddarparwr tystysgrif iddynt.</p><h2 class=\"govuk-heading-m\">Beth sy'n rhaid i’ch darparwr tystysgrif ei wneud</h2><p class=\"govuk-body\">Mae'n rhaid i’ch darparwr tystysgrif:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>darllen yr LPA unwaith y byddwch wedi gorffen ei gwneud</li> <li>cwrdd â chi mewn person i siarad am eich LPA yn breifat</li> <li>fod yn dyst i chi’n llofnodi'r LPA</li> </ul> <p class=\"govuk-body\">Yna byddwn yn gofyn i’ch darparwr tystysgrif:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>cadarnhau pwy ydyn nhw</li> <li>cadarnhau eu bod wedi trafod yr LPA gyda chi</li> <li>dweud wrthym os oes ganddynt unrhyw bryderon am yr LPA - er enghraifft, os ydynt yn meddwl bod rhywun yn rhoi pwysau arnoch i'w gwneud</li> </ul> <p class=\"govuk-body\">Rydym yn galw hyn yn 'darparu tystysgrif'. Gallant wneud hyn gan ddefnyddio ein gwasanaeth ar-lein neu ffurflen bapur.</p> <p class=\"govuk-body\">Os bydd gennym byth unrhyw bryderon am yr LPA, efallai y byddwn yn gofyn i’ch darparwr tystysgrif ddweud mwy wrthym am eich sgwrs am yr LPA.</p> <h2 class=\"govuk-heading-m\">Pwy na all fod yn ddarparwr tystysgrif</h2> <p class=\"govuk-body\">Ni all eich darparwr tystysgrif fod yn:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>dan 18 oed</li> <li>atwrnai ar eich LPA</li> <li>perthyn i chi neu Pat (mae hyn yn cynnwys llys-berthnasau, perthnasau yng nghyfraith, gwŷr, gwragedd, partneriaid, a chariadon)</li> <li>partner busnes neu weithiwr i chi neu Pat</li> <li>rhywun sy'n gweithio i gartref gofal lle rydych chi'n byw, neu eu perthynas</li> </ul> <p class=\"govuk-body\"><a class=\"govuk-link\" href=\"#\">Darganfyddwch mwy am ddarparwyr tystysgrifau</a>, a phwy all gymryd y rôl ymlaen.</p> ",
 
     "certificateProviderDetails": "Manylion eich darparwr tystysgrif",
     "certificateProviderDetailsHint": "Cofiwch, rhaid i’ch darparwr tystysgrif fod yn 18 oed neu'n hŷn. Ni allant fod yn aelod o'ch teulu (mae hyn yn cynnwys llys-berthnasau a pherthnasau yng-nghyfraith) nac o deuluoedd eich atwrneiod.",
@@ -193,14 +203,14 @@
     "aboutPayment": "Welsh",
     "aboutPaymentContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
     "feeCoversContent": "Welsh:",
-    "feeCoversExamples": "<ul class=\"govuk-list govuk-list--bullet\"><li>welsh</li><li>welsh</li><li>welsh</li></ul>",
+    "feeCoversExamples": "<ul class=\"govuk-list govuk-list--bullet\"><li>welsh {{.CpFirstNames}} {{.CpLastName}}'s</li><li>welsh</li><li>welsh</li></ul>",
     "importantAssistive": "Welsh",
     "lowIncome": "Welsh",
     "qualifyingForReduction": "Welsh",
     "continueToPayment": "Welsh",
 
     "howDoYouKnowYourCertificateProvider": "Sut ydych chi'n nabod {{.FirstNames}} {{.LastName}}, eich darparwr tystysgrif? ",
-    "pleaseDescribe": "Welsh",
+    "pleaseDescribe": "Welsh {{.FirstNames}} {{.LastName}}",
     "friend": "Ffrind",
     "neighbour": "Cymydog",
     "colleague": "Cydweithiwr",
@@ -337,12 +347,12 @@
     "howShouldAttorneysMakeDecisions": "Welsh?",
     "howShouldAttorneysMakeDecisionsDetail": "Welsh",
     "getHelpMakingDecision": "Welsh",
-    "jointlyAndSeverally": "Welsh",
-    "jointlyAndSeverallyHintAttorneys": "Welsh",
-    "jointly": "Welsh",
-    "jointlyHintAttorneys": "Welsh",
-    "jointlyAndSeverallyMixed": "Welsh",
-    "jointlyAndSeverallyMixedHintAttorneys": "Welsh",
+    "jointlyAndSeverallyHumanised": "{{.AllAttorneysFirstNames}} welsh",
+    "jointlyAndSeverallyHint": "<p>Welsh {{.AllAttorneysFirstNames}}</p><p>Welsh</p>",
+    "jointlyHumanised": "{{.AllAttorneysFirstNames}} welsh",
+    "jointlyHintAttorneys": "<p>Welsh {{.AllAttorneysFirstNames}}</p><p>Welsh {{.AllAttorneysFirstNames}}</p><p>Welsh</p>",
+    "jointlyAndSeverallyMixedHumanised": "{{.AllAttorneysFirstNames}} Welsh",
+    "jointlyAndSeverallyMixedHint": "<p>Welsh {{.AllAttorneysFirstNames}}</p><p>Welsh</p><p>Welsh</p>",
     "decisionDetailsHint": "Welsh",
     "details": "Welsh",
     "chooseADecisionType": "Welsh",
@@ -382,6 +392,7 @@
     "provideDetailsOfWhenToStepIn": "Welsh",
 
     "jointly-and-severally": "Welsh",
+    "jointly": "Welsh",
     "mixed":                 "Welsh",
     "when-registered":       "Welsh",
     "when-capacity-lost":    "Welsh",

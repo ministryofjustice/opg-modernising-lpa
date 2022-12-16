@@ -9,7 +9,7 @@
 
             <p class="govuk-body">{{ tr .App "feeCoversContent" }}</p>
 
-            {{ trHtml .App "feeCoversExamples" }}
+            {{ trFormatHtml .App "feeCoversExamples" "CpFirstNames" .CertificateProvider.FirstNames "CpLastName" .CertificateProvider.LastName }}
 
             <div class="govuk-warning-text govuk-!-margin-bottom-2">
                 <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
