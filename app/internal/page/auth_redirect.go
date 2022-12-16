@@ -2,6 +2,8 @@ package page
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -64,9 +66,21 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, sec
 			return
 		}
 
+		stateJson, err := base64.StdEncoding.DecodeString(r.FormValue("state"))
+		if err != nil {
+			logger.Print(fmt.Sprintf("Error base64 decoding state: %s", err))
+			return
+		}
+
+		var state State
+		if err = json.Unmarshal(stateJson, &state); err != nil {
+			logger.Print(fmt.Sprintf("Error unmarshalling state JSON: %s", err))
+			return
+		}
+
 		redirectPath := paths.YourDetails
 
-		if r.URL.Query().Get("locale") == "cy" {
+		if state.Locale == "cy" {
 			redirectPath = fmt.Sprintf("/cy%s", redirectPath)
 		}
 
