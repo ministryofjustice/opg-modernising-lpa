@@ -168,8 +168,12 @@
         "many": "Welsh {{ .AttorneysFullNames }} welsh:",
         "other": "Welsh {{ .AttorneysFullNames }} welsh:"
     },
-    "asSoonAsRegisteredContent": "<ul class=\"govuk-list govuk-list--bullet\"> <li>os byddwch yn colli galluedd meddyliol</li> <li>pan fod gennych alluedd meddyliol, ond dim ond os byddwch yn rhoi caniatâd iddynt wneud rhywbeth</li> </ul> <p class=\"govuk-body\">Mae'r opsiwn hwn yn ddefnyddiol rhag ofn y bydd adegau yn y dyfodol pan fyddwch chi'n gallu gwneud eich penderfyniadau eich hun, ond angen help gyda rhai pethau.</p><p class=\"govuk-body\">Er enghraifft, pe bai’n dod yn anodd i chi ymweld â'r banc neu siarad ar y ffôn, efallai y byddwch yn gofyn i Pat ddefnyddio'r LPA i ddelio â'r banc neu dalu biliau.</p>",
-    "afterLosingCapacityContent": "<h2 class=\"govuk-heading-m\">Dim ond pe bai chi’n colli galluedd meddyliol</h2> <p class=\"govuk-body\">Mae’r opsiwn hwn yn golygu gall {{.AttorneysFullNames}} ddefnyddio’r LPA dim ond os ydych wedi colli galluedd meddyliol.</p> <p class=\"govuk-body\">Byddwch yn ofalus, oherwydd gall hyn wneud yr LPA yn llai defnyddiol. Bob tro y bydd {{.AttorneysFullNames}} yn ceisio defnyddio’r LPA, efallai bydd angen iddynt brofi nad oes gennych chi alluedd meddyliol.</p>",
+    "asSoonAsRegisteredContent": "<ul class=\"govuk-list govuk-list--bullet\"> <li>pan fod gennych alluedd meddyliol, ond dim ond os byddwch yn rhoi caniatâd iddynt wneud rhywbeth</li> <li>os byddwch yn colli galluedd meddyliol</li> </ul> <p class=\"govuk-body\">Mae'r opsiwn hwn yn ddefnyddiol rhag ofn y bydd adegau yn y dyfodol pan fyddwch chi'n gallu gwneud eich penderfyniadau eich hun, ond angen help gyda rhai pethau.</p><p class=\"govuk-body\">Er enghraifft, pe bai’n dod yn anodd i chi ymweld â'r banc neu siarad ar y ffôn, efallai y byddwch yn gofyn i Pat ddefnyddio'r LPA i ddelio â'r banc neu dalu biliau.</p>",
+    "afterLosingCapacityContent": "<h2 class=\"govuk-heading-m\">Dim ond pe bai chi’n colli galluedd meddyliol</h2> <p class=\"govuk-body\">Mae’r opsiwn hwn yn golygu gall {{.AttorneysFullNames}} ddefnyddio’r LPA dim ond os ydych wedi colli galluedd meddyliol.</p>",
+    "afterLosingCapacityExample": {
+        "one": "Welsh. Welsh {{ .AttorneysFirstNames }} welsh.",
+        "other": "Welsh. Welsh {{ .AttorneysFirstNames }} welsh."
+    },
 
     "whenDoYouWantAttorneysToUse": {
         "one": "Pryd ydych chi am i’r atwrneiod allu defnyddio’r LPA?",
