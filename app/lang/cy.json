@@ -203,7 +203,7 @@
     "aboutPayment": "Welsh",
     "aboutPaymentContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
     "feeCoversContent": "Welsh:",
-    "feeCoversExamples": "<ul class=\"govuk-list govuk-list--bullet\"><li>welsh</li><li>welsh</li><li>welsh</li></ul>",
+    "feeCoversExamples": "<ul class=\"govuk-list govuk-list--bullet\"><li>welsh {{.CpFirstNames}} {{.CpLastName}}'s</li><li>welsh</li><li>welsh</li></ul>",
     "importantAssistive": "Welsh",
     "lowIncome": "Welsh",
     "qualifyingForReduction": "Welsh",

@@ -205,7 +205,7 @@ func App(
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), lpaStore))
 
 	handle(paths.AboutPayment, RequireSession|CanGoBack,
-		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String))
+		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String, lpaStore))
 	handle(paths.PaymentConfirmation, RequireSession|CanGoBack,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, lpaStore, sessionStore))
 

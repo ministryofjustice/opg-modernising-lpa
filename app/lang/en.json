@@ -188,9 +188,9 @@
     "certificateProviderDobHint": "We need your certificate provider's date of birth to check they are over 18.",
 
     "aboutPayment": "About payment",
-    "aboutPaymentContent": "<p class=\"govuk-body\">Thank you for starting your application for an LPA.</p><p class=\"govuk-body\">It costs £82 to apply for an LPA. </p>",
+    "aboutPaymentContent": "<p class=\"govuk-body\">It costs £82 to apply for an LPA. </p>",
     "feeCoversContent": "The fee covers the cost of:",
-    "feeCoversExamples": "<ul class=\"govuk-list govuk-list--bullet\"><li>checking your identity and your certificate provider's identity - we do this to protect you and prevent fraud</li><li>checking and processing your LPA application</li></ul>",
+    "feeCoversExamples": "<ul class=\"govuk-list govuk-list--bullet\"><li>checking your identity and {{.CpFirstNames}} {{.CpLastName}}'s identity - we do this to protect you and prevent fraud</li><li>checking and processing your LPA application</li></ul>",
     "importantAssistive": "Important",
     "lowIncome": "If you have a low income or get certain means-tested benefits, you can apply to pay a lower fee or no fee",
     "qualifyingForReduction": "Find out more about qualifying for a reduction",
