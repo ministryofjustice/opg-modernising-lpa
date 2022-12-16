@@ -24,6 +24,8 @@
     "answerLater": "Welsh",
     "willDoThisLater": "Welsh",
     "pfa": "Welsh",
+    "yes": "Ydw",
+    "no": "Na",
 
     "yourDetails": "Eich manylion",
     "firstNames": "Enwau cyntaf",
@@ -149,9 +151,10 @@
         "other": "Welsh {{ .AttorneysFullNames }} welsh"
     },
     "replacementAttorneyRequirements": "Rhaid i atwrnai wrth gefn gwrdd â'r un gofynion ag atwrnai gwreiddiol. Mae hyn yn cynnwys bod yn 18 oed neu'n hŷn.",
+    "findOutMoreAboutReplacementAttorneysContent": "<p class=\"govuk-body\"><a href=\"#\">Welsh</a></p>",
+    "yesReplacementAttorneys": "Welsh",
+    "noReplacementAttorneys": "Welsh",
 
-    "yes": "Ydw",
-    "no": "Na",
     "selectWantReplacementAttorneys": "Welsh",
     "replacementAttorneys": "Welsh",
 
