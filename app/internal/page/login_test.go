@@ -10,6 +10,12 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+// {"uid":"i am random","locale":"cy"}
+const encodedStateCy = "eyJ1aWQiOiJpIGFtIHJhbmRvbSIsImxvY2FsZSI6ImN5In0=" //pragma: allowlist secret
+
+// {"uid":"i am random","locale":"en"}
+const encodedStateEn = "eyJ1aWQiOiJpIGFtIHJhbmRvbSIsImxvY2FsZSI6ImVuIn0=" //pragma: allowlist secret
+
 type mockLoginClient struct {
 	mock.Mock
 }
@@ -41,12 +47,12 @@ func (m *mockSessionsStore) Save(r *http.Request, w http.ResponseWriter, session
 
 func TestLogin(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?locale=blah", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?locale=cy", nil)
 
 	client := &mockLoginClient{}
 	client.
-		On("AuthCodeURL", "i am random", "i am random", "blah").
-		Return("http://auth?locale=blah")
+		On("AuthCodeURL", encodedStateCy, "i am random", "cy").
+		Return("http://auth")
 
 	sessionsStore := &mockSessionsStore{}
 
@@ -59,7 +65,7 @@ func TestLogin(t *testing.T) {
 		HttpOnly: true,
 		Secure:   true,
 	}
-	session.Values = map[interface{}]interface{}{"state": "i am random", "nonce": "i am random"}
+	session.Values = map[interface{}]interface{}{"state": encodedStateCy, "nonce": "i am random"}
 
 	sessionsStore.
 		On("Save", r, w, session).
@@ -69,7 +75,7 @@ func TestLogin(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "http://auth?locale=blah", resp.Header.Get("Location"))
+	assert.Equal(t, "http://auth", resp.Header.Get("Location"))
 
 	mock.AssertExpectationsForObjects(t, client, sessionsStore)
 }
@@ -80,8 +86,8 @@ func TestLoginDefaultLocale(t *testing.T) {
 
 	client := &mockLoginClient{}
 	client.
-		On("AuthCodeURL", "i am random", "i am random", "en").
-		Return("http://auth?locale=en")
+		On("AuthCodeURL", encodedStateEn, "i am random", "en").
+		Return("http://auth")
 
 	sessionsStore := &mockSessionsStore{}
 
@@ -94,7 +100,7 @@ func TestLoginDefaultLocale(t *testing.T) {
 		HttpOnly: true,
 		Secure:   true,
 	}
-	session.Values = map[interface{}]interface{}{"state": "i am random", "nonce": "i am random"}
+	session.Values = map[interface{}]interface{}{"state": encodedStateEn, "nonce": "i am random"}
 
 	sessionsStore.
 		On("Save", r, w, session).
@@ -104,7 +110,7 @@ func TestLoginDefaultLocale(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "http://auth?locale=en", resp.Header.Get("Location"))
+	assert.Equal(t, "http://auth", resp.Header.Get("Location"))
 
 	mock.AssertExpectationsForObjects(t, client, sessionsStore)
 }
@@ -119,7 +125,7 @@ func TestLoginWhenStoreSaveError(t *testing.T) {
 
 	client := &mockLoginClient{}
 	client.
-		On("AuthCodeURL", "i am random", "i am random", "en").
+		On("AuthCodeURL", encodedStateEn, "i am random", "en").
 		Return("http://auth?locale=en")
 
 	sessionsStore := &mockSessionsStore{}
