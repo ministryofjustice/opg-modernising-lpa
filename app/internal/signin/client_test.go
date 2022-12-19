@@ -54,7 +54,7 @@ func TestDiscover(t *testing.T) {
 }
 
 func TestAuthCodeURL(t *testing.T) {
-	expected := "http://auth?client_id=123&nonce=nonce&redirect_uri=http%3A%2F%2Fredirect&response_type=code&scope=openid+email&state=state"
+	expected := "http://auth?client_id=123&nonce=nonce&redirect_uri=http%3A%2F%2Fredirect&response_type=code&scope=openid+email&state=state&ui_locales=cy"
 
 	c := &Client{
 		redirectURL: "http://redirect",
@@ -63,7 +63,7 @@ func TestAuthCodeURL(t *testing.T) {
 			AuthorizationEndpoint: "http://auth",
 		},
 	}
-	actual := c.AuthCodeURL("state", "nonce")
+	actual := c.AuthCodeURL("state", "nonce", "cy")
 
 	assert.Equal(t, expected, actual)
 }
