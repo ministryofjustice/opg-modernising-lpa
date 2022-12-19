@@ -37,8 +37,9 @@ func CacheControlHeaders(h http.Handler) http.Handler {
 	})
 }
 
-func (l Lang) Redirect(w http.ResponseWriter, r *http.Request, url string, code int) {
+func (l Lang) Redirect(w http.ResponseWriter, r *http.Request, url string, code int) error {
 	http.Redirect(w, r, l.BuildUrl(url), code)
+	return nil
 }
 
 func (l Lang) String() string {
