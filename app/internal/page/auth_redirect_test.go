@@ -62,7 +62,7 @@ func TestAuthRedirect(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.YourDetails, resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.Dashboard, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, client, sessionsStore)
 }
 
@@ -100,7 +100,7 @@ func TestAuthRedirectWithCyLocale(t *testing.T) {
 	AuthRedirect(nil, client, sessionsStore, true, appData.Paths)(w, r)
 	resp := w.Result()
 
-	redirect := fmt.Sprintf("/cy%s", appData.Paths.YourDetails)
+	redirect := fmt.Sprintf("/cy%s", appData.Paths.Dashboard)
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, redirect, resp.Header.Get("Location"))
