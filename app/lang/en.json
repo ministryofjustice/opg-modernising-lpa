@@ -45,7 +45,7 @@
     "enterDateOfBirth": "Enter date of birth",
     "dateOfBirthMustBeReal": "Date of birth must be a real date",
     "dateOfBirthIsFuture": "Date of birth must be before today",
-    "dateOfBirthIsUnder18": "This attorney is under 18 years old. You will not be able to finish making this LPA until they are 18.",
+    "dateOfBirthIsUnder18": "You are under 18. I understand that I must be at least 18 on the date I sign the LPA, otherwise the LPA will be rejected.",
     "dateOfBirthIsOver100": "By saving this section, you confirm that the person is more than 100 years old. If not, please change the date.",
 
     "homeAddress": "Home address",
@@ -138,6 +138,7 @@
     "enterEmail": "Enter email",
     "emailIncorrectFormat": "Enter email in the correct format, like name@example.com",
     "attorneyAddress": "{{.FirstNames}} {{.LastName}}'s address",
+    "attorneyDateOfBirthIsUnder18": "This attorney is under 18 years old. You will not be able to finish making this LPA until they are 18.",
 
     "wantReplacementAttorneys": "Do you want any replacement attorneys?",
     "replacementAttorneysStepIn": "Replacement attorneys step in if one of your original attorneys dies or has to step down from the role.",

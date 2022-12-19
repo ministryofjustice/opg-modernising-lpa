@@ -144,6 +144,7 @@
     "enterEmail": "Welsh",
     "emailIncorrectFormat": "Welsh",
     "attorneyAddress": "{{.FirstNames}} {{.LastName}}'s Welsh",
+    "attorneyDateOfBirthIsUnder18": "Welsh",
 
     "wantReplacementAttorneys": "Ydych chi eisiau unrhyw atwrneiod wrth gefn?",
     "replacementAttorneysStepIn": "Mae atwrneiod wrth gefn yn camu i mewn os bydd un o’ch atwrneiod gwreiddiol yn marw neu’n gorfod rhoi’r gorau i’r rôl.",
