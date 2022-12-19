@@ -9,14 +9,6 @@
     </div>
 
     <div class="govuk-grid-column-two-thirds">
-      <div class="govuk-warning-text">
-        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-        <strong class="govuk-warning-text__text">
-          <span class="govuk-warning-text__assistive">{{}}</span>
-          {{ tr .App .DobWarning }}
-        </strong>
-      </div>
-
       {{ template "warning" (warning .App "readAndCheckYourLpa") }}
       {{ template "details" (details . "whatIfIWantToMakeChanges" "whatIfIWantToMakeChangesContent" false) }}
 
