@@ -113,6 +113,7 @@ func main() {
 		Root:                                        "/",
 		SelectYourIdentityOptions:                   "/select-your-identity-options",
 		SigningConfirmation:                         "/signing-confirmation",
+		SignYourLpa:                                 "/sign-your-lpa",
 		Start:                                       "/start",
 		TaskList:                                    "/task-list",
 		TestingStart:                                "/testing-start",

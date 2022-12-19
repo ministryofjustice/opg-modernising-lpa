@@ -1,18 +1,18 @@
 package page
 
 import (
-	"crypto/subtle"
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 )
 
 type readYourLpaData struct {
-	App              AppData
-	Errors           map[string]string
-	Lpa              *Lpa
-	EnteredSignature bool
-	Form             *readYourLpaForm
+	App    AppData
+	Errors map[string]string
+	Lpa    *Lpa
+	Json   string
 }
 
 func ReadYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -25,70 +25,15 @@ func ReadYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 		data := &readYourLpaData{
 			App: appData,
 			Lpa: lpa,
-			Form: &readYourLpaForm{
-				Checked:   lpa.CheckedAgain,
-				Confirm:   lpa.ConfirmFreeWill,
-				Signature: lpa.EnteredSignatureCode,
-			},
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = readReadYourLpaForm(r)
-			data.Errors = data.Form.Validate()
-
-			if len(data.Errors) == 0 {
-				if cmp := subtle.ConstantTimeCompare([]byte(lpa.SignatureCode), []byte(data.Form.Signature)); cmp != 1 {
-					data.Errors["signature"] = "enterCorrectSignatureCode"
-					return tmpl(w, data)
-				}
-
-				lpa.CheckedAgain = data.Form.Checked
-				lpa.ConfirmFreeWill = data.Form.Confirm
-				lpa.EnteredSignatureCode = data.Form.Signature
-				lpa.Tasks.ConfirmYourIdentityAndSign = TaskCompleted
-
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
-					return err
-				}
-
-				return appData.Lang.Redirect(w, r, appData.Paths.SigningConfirmation, http.StatusFound)
-			}
+		b, err := json.Marshal(lpa)
+		if err != nil {
+			fmt.Println(err)
 		}
+
+		data.Json = string(b)
 
 		return tmpl(w, data)
 	}
-}
-
-type readYourLpaForm struct {
-	Checked   bool
-	Confirm   bool
-	Signature string
-}
-
-func readReadYourLpaForm(r *http.Request) *readYourLpaForm {
-	r.ParseForm()
-
-	return &readYourLpaForm{
-		Checked:   postFormString(r, "checked") == "1",
-		Confirm:   postFormString(r, "confirm") == "1",
-		Signature: postFormString(r, "signature"),
-	}
-}
-
-func (f *readYourLpaForm) Validate() map[string]string {
-	errors := map[string]string{}
-
-	if !f.Checked {
-		errors["checked"] = "selectReadAndCheckedLpa"
-	}
-
-	if !f.Confirm {
-		errors["confirm"] = "selectConfirmMadeThisLpaOfOwnFreeWill"
-	}
-
-	if f.Signature == "" {
-		errors["signature"] = "enterSignatureCode"
-	}
-
-	return errors
 }

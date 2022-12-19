@@ -232,8 +232,6 @@
     "selectCheckedLpa": "Welsh",
     "selectHappyToShareLpa": "Welsh",
     "checkYourLpa": "Gwiriwch eich LPA",
-    "whatIfIWantToMakeChanges": "Welsh",
-    "whatIfIWantToMakeChangesContent": "<p>welsh</p>",
     "idVerifiedTag": "Welsh",
     "lpaDecisions": "Penderfyniadau LPA",
     "typeOfLpa": "Math o LPA",
@@ -303,6 +301,7 @@
     "selectConfirmMadeThisLpaOfOwnFreeWill": "Welsh",
     "enterSignatureCode": "Welsh",
     "enterCorrectSignatureCode": "Welsh",
+    "continueToSigningPage": "Welsh",
 
     "selectYourIdentityOptions": "Welsh",
     "selectAllAtLeastThree": "Welsh",
