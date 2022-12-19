@@ -33,8 +33,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 		personToNotify, found := lpa.GetPersonToNotify(personId)
 
 		if found == false {
-			appData.Lang.Redirect(w, r, appData.Paths.ChoosePeopleToNotify, http.StatusFound)
-			return nil
+			return appData.Lang.Redirect(w, r, appData.Paths.ChoosePeopleToNotify, http.StatusFound)
 		}
 
 		data := &choosePeopleToNotifyAddressData{
@@ -66,8 +65,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 					from = appData.Paths.ChoosePeopleToNotifySummary
 				}
 
-				appData.Lang.Redirect(w, r, from, http.StatusFound)
-				return nil
+				return appData.Lang.Redirect(w, r, from, http.StatusFound)
 			}
 
 			// Force the manual address view after selecting

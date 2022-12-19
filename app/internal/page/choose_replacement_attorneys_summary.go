@@ -50,8 +50,7 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 					redirectUrl = fmt.Sprintf("%s?addAnother=1", appData.Paths.ChooseReplacementAttorneys)
 				}
 
-				appData.Lang.Redirect(w, r, redirectUrl, http.StatusFound)
-				return nil
+				return appData.Lang.Redirect(w, r, redirectUrl, http.StatusFound)
 			}
 
 		}
