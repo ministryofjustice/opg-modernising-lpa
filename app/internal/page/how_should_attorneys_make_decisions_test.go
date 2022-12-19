@@ -24,6 +24,7 @@ func TestGetHowShouldAttorneysMakeDecisions(t *testing.T) {
 		On("Func", w, &howShouldAttorneysMakeDecisionsData{
 			App:  appData,
 			Form: &howShouldAttorneysMakeDecisionsForm{},
+			Lpa:  &Lpa{},
 		}).
 		Return(nil)
 
@@ -53,6 +54,7 @@ func TestGetHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 				DecisionsType:    "jointly",
 				DecisionsDetails: "some decisions",
 			},
+			Lpa: &Lpa{HowAttorneysMakeDecisionsDetails: "some decisions", HowAttorneysMakeDecisions: "jointly"},
 		}).
 		Return(nil)
 
@@ -100,6 +102,7 @@ func TestGetHowShouldAttorneysMakeDecisionsWhenTemplateErrors(t *testing.T) {
 				DecisionsType:    "",
 				DecisionsDetails: "",
 			},
+			Lpa: &Lpa{},
 		}).
 		Return(expectedError)
 
@@ -246,6 +249,7 @@ func TestPostHowShouldAttorneysMakeDecisionsWhenValidationErrors(t *testing.T) {
 				DecisionsType:    "",
 				DecisionsDetails: "",
 			},
+			Lpa: &Lpa{HowAttorneysMakeDecisionsDetails: "", HowAttorneysMakeDecisions: ""},
 		}).
 		Return(nil)
 

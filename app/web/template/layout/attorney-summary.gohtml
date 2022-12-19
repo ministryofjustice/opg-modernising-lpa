@@ -66,7 +66,7 @@
             <div class="govuk-grid-column-full">
                 <div class="app-float-right">
                     <a class="govuk-button govuk-button--secondary" href="{{ link $.App $.RemovePath }}?id={{ .ID }}" data-module="govuk-button">
-                        {{ trFormatHtml $.App "removeAttorneyButtonLink" "AttorneyNumber" $attorneyNumber "FirstNames" $a.FirstNames "LastName" $a.LastName  }}
+                        {{ trFormat $.App "removeAttorneyButtonLink" "FirstNames" $a.FirstNames "LastName" $a.LastName  }}
                     </a>
                 </div>
             </div>

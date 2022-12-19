@@ -5,10 +5,10 @@
     <div class="govuk-grid-column-two-thirds">
       <form novalidate method="post">
         <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">
-          {{ tr .App "restrictionsOnYourAttorneysPower" }}
+          {{ trFormat .App "restrictionsOnYourAttorneysPower" "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}
         </h1>
 
-        {{ trHtml .App "restrictionsOnYourAttorneysPowerContent" }}
+        {{ trFormatHtml .App "restrictionsOnYourAttorneysPowerContent" "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}
 
         {{ template "details" (details . "restrictionExamples" "restrictionExamplesContent" false) }}
 
@@ -16,8 +16,11 @@
           <label class="govuk-label govuk-label--s" for="f-restrictions">
             {{ tr .App "restrictions" }}
           </label>
+          <div class="govuk-hint">
+            {{ tr .App "restrictionsHint" }}
+          </div>
           {{ template "error-message" (errorMessage . "restrictions") }}
-          <textarea class="govuk-textarea {{ if index .Errors "restrictions" }}govuk-textarea--error{{ end }}" id="f-restrictions" name="restrictions" rows="5">{{ .Restrictions }}</textarea>
+          <textarea class="govuk-textarea {{ if index .Errors "restrictions" }}govuk-textarea--error{{ end }}" id="f-restrictions" name="restrictions" rows="5">{{ .Lpa.Restrictions }}</textarea>
         </div>
 
         <div class="govuk-button-group">

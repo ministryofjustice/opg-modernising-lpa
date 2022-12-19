@@ -35,6 +35,11 @@ func TestAboutPayment(t *testing.T) {
 
 	t.Run("GET", func(t *testing.T) {
 		t.Run("Handles page data", func(t *testing.T) {
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(&Lpa{CertificateProvider: CertificateProvider{}}, nil)
+
 			w := httptest.NewRecorder()
 
 			template := &mockTemplate{}
@@ -46,7 +51,7 @@ func TestAboutPayment(t *testing.T) {
 
 			payClient := mockPayClient{BaseURL: "http://base.url"}
 
-			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl, random)(appData, w, r)
+			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl, random, lpaStore)(appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -54,7 +59,34 @@ func TestAboutPayment(t *testing.T) {
 			mock.AssertExpectationsForObjects(t, template)
 		})
 
+		t.Run("Returns error when an cannot return LPA from store", func(t *testing.T) {
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(&Lpa{}, expectedError)
+
+			w := httptest.NewRecorder()
+
+			template := &mockTemplate{}
+
+			r, _ := http.NewRequest(http.MethodGet, "/about-payment", nil)
+
+			payClient := mockPayClient{BaseURL: "http://base.url"}
+
+			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl, random, lpaStore)(appData, w, r)
+			resp := w.Result()
+
+			assert.Equal(t, err, expectedError)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+			mock.AssertExpectationsForObjects(t, template)
+		})
+
 		t.Run("Returns an error when cannot render template", func(t *testing.T) {
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(&Lpa{CertificateProvider: CertificateProvider{}}, nil)
+
 			w := httptest.NewRecorder()
 
 			template := &mockTemplate{}
@@ -66,7 +98,7 @@ func TestAboutPayment(t *testing.T) {
 
 			payClient := mockPayClient{BaseURL: "http://base.url"}
 
-			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl, random)(appData, w, r)
+			err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl, random, lpaStore)(appData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -96,6 +128,11 @@ func TestAboutPayment(t *testing.T) {
 
 			for name, tc := range testCases {
 				t.Run(name, func(t *testing.T) {
+					lpaStore := &mockLpaStore{}
+					lpaStore.
+						On("Get", mock.Anything, "session-id").
+						Return(&Lpa{CertificateProvider: CertificateProvider{}}, nil)
+
 					w := httptest.NewRecorder()
 
 					template := &mockTemplate{}
@@ -142,7 +179,7 @@ func TestAboutPayment(t *testing.T) {
 							},
 						}, nil)
 
-					err := AboutPayment(&mockLogger{}, template.Func, sessionsStore, &payClient, publicUrl, random)(appData, w, r)
+					err := AboutPayment(&mockLogger{}, template.Func, sessionsStore, &payClient, publicUrl, random, lpaStore)(appData, w, r)
 					resp := w.Result()
 
 					assert.Nil(t, err)
@@ -155,6 +192,11 @@ func TestAboutPayment(t *testing.T) {
 		})
 
 		t.Run("Returns error when cannot create payment", func(t *testing.T) {
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(&Lpa{CertificateProvider: CertificateProvider{}}, nil)
+
 			w := httptest.NewRecorder()
 			template := &mockTemplate{}
 
@@ -172,13 +214,18 @@ func TestAboutPayment(t *testing.T) {
 				On("CreatePayment", mock.Anything).
 				Return(pay.CreatePaymentResponse{}, expectedError)
 
-			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl, random)(appData, w, r)
+			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl, random, lpaStore)(appData, w, r)
 
 			assert.Equal(t, expectedError, err, "Expected error was not returned")
 			mock.AssertExpectationsForObjects(t, logger, &payClient)
 		})
 
 		t.Run("Returns error when cannot save to session", func(t *testing.T) {
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(&Lpa{CertificateProvider: CertificateProvider{}}, nil)
+
 			w := httptest.NewRecorder()
 			template := &mockTemplate{}
 
@@ -198,7 +245,7 @@ func TestAboutPayment(t *testing.T) {
 				On("CreatePayment", mock.Anything).
 				Return(pay.CreatePaymentResponse{Links: map[string]pay.Link{"next_url": {Href: "http://example.url"}}}, nil)
 
-			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl, random)(appData, w, r)
+			err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl, random, lpaStore)(appData, w, r)
 
 			assert.Equal(t, expectedError, err, "Expected error was not returned")
 			mock.AssertExpectationsForObjects(t, sessionsStore, &payClient)
