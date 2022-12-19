@@ -5,7 +5,7 @@ describe('How should attorneys make decisions', () => {
     });
 
     it('can choose how attorneys act', () => {
-        cy.contains('h1', 'How should the attorneys make decisions?');
+        cy.contains('h1', 'How do you want your attorneys to make decisions?');
 
         // see https://github.com/alphagov/govuk-frontend/issues/979
         cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
@@ -22,7 +22,7 @@ describe('How should attorneys make decisions', () => {
     });
 
     it('can choose how attorneys act - Jointly for some decisions, and jointly and severally for other decisions', () => {
-        cy.contains('h1', 'How should the attorneys make decisions?');
+        cy.contains('h1', 'How do you want your attorneys to make decisions?');
 
         cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
 

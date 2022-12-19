@@ -4,16 +4,18 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "whichTypeOfLpaToMake" }}</h1>
-      
+
       <form novalidate method="post">
         {{ trHtml .App "whichTypeOfLpaToMakeContent" }}
-        
+
+        <h2 class="govuk-heading-m">{{ tr .App "whichTypeOfLpaToMake" }}</h2>
+
         <div class="govuk-form-group {{ if index .Errors "lpa-type" }}govuk-form-group--error{{ end }}">
           {{ template "error-message" (errorMessage . "lpa-type") }}
 
           {{ template "radios" (items . "lpa-type" .Type
-            (item "pfa" "lpaTypePfa" "hint" "lpaTypePfaHint")
-            (item "hw" "lpaTypeHw" "hint" "lpaTypeHwHint")
+            (item "pfa" "lpaTypePfaHumanised" "hint" "lpaTypePfaHint")
+            (item "hw" "lpaTypeHwHumanised" "hint" "lpaTypeHwHint")
             (item "both" "lpaTypeBoth")
           ) }}
         </div>

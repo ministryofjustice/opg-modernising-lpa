@@ -14,7 +14,7 @@
     "contact": "Contact",
     "termsAndConditions": "Terms and conditions",
     "serviceName": "Make a lasting power of attorney",
-    "startContent": "<p class=\"govuk-body\">You can make a lasting power of attorney (LPA) using our online service.</p> <p class=\"govuk-body\">If you want to, you can ask someone else to use the service for you, for example a family member, friend or solicitor. You will still need to make all the decisions about what goes on the LPA.</p> <p class=\"govuk-body\">We’ll save the LPA as you progress so you do not need to complete it in one go. You can sign out at any time and come back later.</p> <p class=\"govuk-body\">It costs £82 to apply for an LPA.</p> <h2 class=\"govuk-heading-m\">Information you'll need</h2> <p class=\"govuk-body\">You may find it useful to gather some information before you start.</p> <p class=\"govuk-body\">As well as your details, you’ll need the names, addresses and dates of birth of:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>the attorneys</li> <li>the replacement attorneys, if you decide to have any</li> </ul> <p class=\"govuk-body\">You’ll also need the name and address of your certificate provider.</p> <h2 class=\"govuk-heading-m\">Documents, equipment and other things you'll need</h2> <p class=\"govuk-body\">You'll also need:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>a debit or credit card to pay the application fee</li> <li>a mobile phone, so we can text you a security code</li> <li>documents or information to prove your identity</li> </ul> <details class=\"govuk-details\" data-module=\"govuk-details\"> <summary class=\"govuk-details__summary\"> <span class=\"govuk-details__summary-text\"> What you need to prove your identity </span> </summary> <div class=\"govuk-details__text\"> <p class=\"govuk-body\">When you make an LPA, we need to check your identity. We do this to protect you and prevent fraud.</p> <p class=\"govuk-body\">You can prove your identity by:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>entering details from your passport or driving licence</li> <li>entering details from, and uploading a photo of, a recent payslip or P60</li> <li>signing in to your Government Gateway, Department for Work and Pensions, or online banking account, and letting us confirm your details with those organisations</li> <li>taking documents to a Post Office</li> <li>asking a professional (like a teacher, civil servant or solicitor) to confirm your identity</li> </ul> </div> </details>",
+    "startContent": "<p class=\"govuk-body\">You can make a lasting power of attorney (LPA) using our online service.</p> <p class=\"govuk-body\">If you want to, you can ask someone else to use the service for you, for example a family member, friend or solicitor. You will still need to make all the decisions about what goes on the LPA.</p> <p class=\"govuk-body\">We’ll save the LPA as you progress so you do not need to complete it in one go. You can sign out at any time and come back later.</p> <p class=\"govuk-body\">It costs £82 to apply to register an LPA.</p> <h2 class=\"govuk-heading-m\">Information you'll need</h2> <p class=\"govuk-body\">You may find it useful to gather some information before you start.</p> <p class=\"govuk-body\">As well as your details, you’ll need the names, addresses and dates of birth of:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>the attorneys</li> <li>the replacement attorneys, if you decide to have any</li> </ul> <p class=\"govuk-body\">You’ll also need the name and address of your certificate provider.</p> <h2 class=\"govuk-heading-m\">Documents, equipment and other things you'll need</h2> <p class=\"govuk-body\">You'll also need:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>a debit or credit card to pay the application fee</li> <li>a mobile phone, so we can text you a security code</li> <li>documents or information to prove your identity</li> </ul> <details class=\"govuk-details\" data-module=\"govuk-details\"> <summary class=\"govuk-details__summary\"> <span class=\"govuk-details__summary-text\"> What you need to prove your identity </span> </summary> <div class=\"govuk-details__text\"> <p class=\"govuk-body\">When you make an LPA, we need to check your identity. We do this to protect you and prevent fraud.</p> <p class=\"govuk-body\">You can prove your identity by:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>entering details from your passport or driving licence</li> <li>entering details from, and uploading a photo of, a recent payslip or P60</li> <li>signing in to your Government Gateway, Department for Work and Pensions, or online banking account, and letting us confirm your details with those organisations</li> <li>taking documents to a Post Office</li> <li>asking a professional (like a teacher, civil servant or solicitor) to confirm your identity</li> </ul> </div> </details>",
     "start": "Start",
     "openGovernmentLicenceContent": "All content is available under the <a class=\"govuk-footer__link\" href=\"https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/\" rel=\"license\">Open Government Licence v3.0</a>, except where otherwise stated",
     "crownCopyright": "© Crown copyright",
@@ -24,6 +24,9 @@
     "answerLater": "Answer later",
     "willDoThisLater": "I will do this later",
     "pfa": "Finances and affairs",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
 
     "yourDetails": "Your details",
     "firstNames": "First names",
@@ -42,7 +45,7 @@
     "enterDateOfBirth": "Enter date of birth",
     "dateOfBirthMustBeReal": "Date of birth must be a real date",
     "dateOfBirthIsFuture": "Date of birth must be before today",
-    "dateOfBirthIsUnder18": "You are under 18. I understand that I must be at least 18 on the date I sign the LPA, otherwise the LPA will be rejected.",
+    "dateOfBirthIsUnder18": "This attorney is under 18 years old. You will not be able to finish making this LPA until they are 18.",
     "dateOfBirthIsOver100": "By saving this section, you confirm that the person is more than 100 years old. If not, please change the date.",
 
     "homeAddress": "Home address",
@@ -77,18 +80,20 @@
     "howWouldYouLikeToBeContactedDetail": "We'll contact you to keep you updated on the progress of the LPA application or we have any questions about it.",
     "whatIfWantToChangeMyContactPreferences": "What if I want to change my contact preferences?",
     "whatIfWantToChangeMyContactPreferencesDetail": "You can change your contact preferences at any time by signing into your account and selecting 'settings' in the top menu. Scroll down to 'contact preferences' and select your preferred contact methods.",
-    "email": "Email",
+    "email": "Email address",
     "phone": "Phone",
     "textMessage": "Text message",
     "post": "Post",
     "selectContact": "Select at least one way to be contacted",
 
     "whichTypeOfLpaToMake": "Which type of LPA do you want to make?",
-    "whichTypeOfLpaToMakeContent": "<p class=\"govuk-body\">There are 2 types of LPA: finance and affairs, and personal welfare. You can have one or both.</p> <p class=\"govuk-body\">They do not have to be made at the same time and you can choose different attorneys for each LPA.</p> <p class=\"govuk-body\">You'll be able to reuse any information you enter to make other LPAs later.</p> <p class=\"govuk-body\"><a class=\"govuk-link\" href=\"#\">Find out more about the 2 types of LPAs</a></p>",
+    "whichTypeOfLpaToMakeContent": "<p class=\"govuk-body\">There are 2 types of LPA. You can make an LPA that covers decisions about your:</p><ul class=\"govuk-list govuk-list--bullet\"><li>money, finances and any property you own</li><li>health care, medical treatment and personal welfare</li></ul><p class=\"govuk-body\">You can have one or both types of LPA.</p><p class=\"govuk-body\">They do not have to be made at the same time and you can reuse any information you enter to make other LPAs later.</p><p class=\"govuk-body\">You can choose different people to be your attorneys for each LPA.</p><p class=\"govuk-body\"><a class=\"govuk-link\" href=\"#\">Find out more about the 2 types of LPAs</a></p>",
     "lpaTypePfa": "Finance and affairs",
-    "lpaTypePfaHint": "This covers decisions about your money and property",
+    "lpaTypePfaHumanised": "An LPA that covers decisions about my money, finances and property",
+    "lpaTypePfaHint": "In legal terms, this is called a 'finance and affairs' LPA. You may also hear it called a 'property and financial affairs' LPA",
     "lpaTypeHw": "Personal welfare",
-    "lpaTypeHwHint": "This covers decisions about your health care, medical treatment and personal welfare",
+    "lpaTypeHwHumanised": "An LPA that covers decisions about my health care, medical treatment and personal welfare",
+    "lpaTypeHwHint": "In legal terms, this is called a 'personal welfare' LPA. You may also hear it called a 'health and welfare' LPA",
     "lpaTypeBoth": "Both",
     "selectLpaType": "Select the type of LPA to make",
 
@@ -119,16 +124,16 @@
     "changeDOBLinkText": "Change<span class=\"govuk-visually-hidden\"> date of birth for {{ .FirstNames }} {{ .LastName }}</span>",
     "changeEmailLinkText": "Change<span class=\"govuk-visually-hidden\"> email for {{ .FirstNames }} {{ .LastName }}</span>",
     "changeAddressLink": "Change<span class=\"govuk-visually-hidden\"> address for {{ .FirstNames }} {{ .LastName }}</span>",
-    "removeAttorneyButtonLink": "Remove attorney {{ .AttorneyNumber }}<span class=\"govuk-visually-hidden\"> {{ .FirstNames }} {{ .LastName }}</span>",
+    "removeAttorneyButtonLink": "Remove {{ .FirstNames }} {{ .LastName }}",
     "doYouWantToAddAnotherAttorney": "Do you want to add another attorney?",
     "selectAddMoreAttorneys": "Select whether you want to add any more attorneys",
     "removeAnAttorney": "Remove an attorney",
     "doYouWantToRemove": "Are you sure you want to remove {{ .FirstNames }} {{ .LastName }}?",
     "selectRemoveAttorney": "Select whether you want to remove this attorney",
 
-    "whoWouldYouLikeToBeTheAttorneys": "Who would you like to be the attorneys?",
+    "whoWouldYouLikeToBeTheAttorneys": "Who would you like to choose as your attorneys?",
     "whoWouldYouLikeToBeTheAttorneysDetailsTitle": "Guidance on choosing an attorney",
-    "whoWouldYouLikeToBeTheAttorneysDetailsContent": "<p class=\"govuk-body\">Your attorneys are the people who'll be able to help you make decisions about your finances, if you ever want or need their help in the future.</p> <p class=\"govuk-body\">It's important that you choose people you trust to respect your wishes and act in your best interests.</p> <p class=\"govuk-body\">You can have more than 1 attorney. Most people have between 1 and 3.</p><p class=\"govuk-body\">An attorney must:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>be aged 18 or over</li> <li>have mental capacity (be able to make decisions)</li> </ul> <p class=\"govuk-body\">Someone cannot be an attorney if they are:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>bankrupt or have a debt relief order</li> <li>on the Disclosure and Barring Service barred list (someone is normally put on this list if they have a criminal conviction or caution that means they’re not allowed to work with vulnerable people)</li> </ul> <p class=\"govuk-body\">You'll be asked if you would like to add <a href=\"#\">replacement attorneys</a> in a separate question. These would step in if the original attorneys are unable or unwilling to continue.</p> <p class=\"govuk-body\"><a href=\"#\">Find out more about attorneys</a></p>",
+    "whoWouldYouLikeToBeTheAttorneysDetailsContent": "<p class=\"govuk-body\">Your attorneys are the people who'll be able to help you make decisions about your finances, if you ever want or need their help in the future.</p> <p class=\"govuk-body\">It's important that you choose people you trust to respect your wishes and act in your best interests.</p> <p class=\"govuk-body\">You can have more than 1 attorney. Most people have between 1 and 3.</p><p class=\"govuk-body\">An attorney must:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>be aged 18 or over</li> <li>have mental capacity (be able to make decisions)</li> </ul> <p class=\"govuk-body\">Someone cannot be an attorney if they are:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>bankrupt or have a debt relief order</li> <li>on the Disclosure and Barring Service barred list (someone is normally put on this list if they have a criminal conviction or caution that means they’re not allowed to work with vulnerable people)</li> </ul> <p class=\"govuk-body\">You'll be asked if you would like to add <a href=\"#\">replacement attorneys</a> in a separate question. They step in if your original attorneys are unable or unwilling to continue.</p> <p class=\"govuk-body\"><a href=\"#\">Find out more about attorneys</a></p>",
     "attorney": "Attorney",
     "enterEmail": "Enter email",
     "emailIncorrectFormat": "Enter email in the correct format, like name@example.com",
@@ -137,24 +142,30 @@
     "wantReplacementAttorneys": "Do you want any replacement attorneys?",
     "replacementAttorneysStepIn": "Replacement attorneys step in if one of your original attorneys dies or has to step down from the role.",
     "replacementAttorneysStepInExplanation": {
-        "one": "Having replacement attorneys is optional, however, having 1 or more helps make sure your LPA will keep working if {{ .AttorneysFullNames }} (your original attorney) has to step down.",
-        "other": "Having replacement attorneys is optional, however, having 1 or more helps make sure your LPA will keep working if {{ .AttorneysFullNames }} (your original attorneys) have to step down."
+        "one": "Having replacement attorneys is optional. However, having 1 or more helps make sure your LPA will keep working if {{ .AttorneysFullNames }} (your original attorney) has to step down.",
+        "other": "Having replacement attorneys is optional. However, having 1 or more helps make sure your LPA will keep working if {{ .AttorneysFullNames }} (your original attorneys) have to step down."
     },
     "replacementAttorneyRequirements": "A replacement attorney must meet the same requirements as an original attorney. This includes being 18 or over.",
-    "yes": "Yes",
-    "no": "No",
+    "findOutMoreAboutReplacementAttorneysContent": "<p class=\"govuk-body\"><a href=\"#\">Find out more about replacement attorneys</a></p>",
+
+    "yesReplacementAttorneys": "Yes, I want replacement attorneys",
+    "noReplacementAttorneys": "No, I do not want replacement attorneys",
     "selectWantReplacementAttorneys": "Select whether you want any replacement attorneys",
     "replacementAttorneys": "Replacement attorneys",
 
-    "whenCanTheLpaBeUsed": "When can the LPA can be used?",
-    "youCanDecideHeader": "<p class=\"govuk-body-l\">You can decide whether you want your attorney to be able to use the LPA as soon as it's registered or only once you've lost mental capacity.</p>",
+    "whenCanTheLpaBeUsed": "When can your attorneys use your LPA",
+    "youCanDecideHeader": "<p class=\"govuk-body-l\">You can decide whether you want your attorney to be able to use the LPA as soon as it's registered or only if you lose mental capacity.</p>",
     "asSoonAsRegisteredTitle": "<h2 class=\"govuk-heading-m\">As soon as the LPA is registered</h2>",
     "asSoonAsRegisteredIntro": {
         "one": "Most people choose this option as it’s the most practical. It means {{ .AttorneysFullNames }} (your attorney) can use the LPA:",
         "other": "Most people choose this option as it’s the most practical. It means {{ .AttorneysFullNames }} (your attorneys) can use the LPA:"
     },
-    "asSoonAsRegisteredContent": "<ul class=\"govuk-list govuk-list--bullet\"> <li>if you lose mental capacity</li> <li>when you have mental capacity, but only if you give them permission to do something</li> </ul> <p class=\"govuk-body\">This option is useful in case there are times in the future when you're able to make your own decisions, but need help with certain things. For example, if it ever became difficult for you to visit the bank or talk on the phone, you might ask {{ .AttorneysFirstNames }} to use the LPA to deal with the bank or pay bills.</p>",
-    "afterLosingCapacityContent": "<h2 class=\"govuk-heading-m\">Only when you've lost mental capacity</h2> <p class=\"govuk-body\">This option means {{ .AttorneysFirstNames }} can only use the LPA if you have lost mental capacity.</p> <p class=\"govuk-body\">Be careful, as this can make the LPA a lot less useful. Each time {{ .AttorneysFirstNames }} tries to use the LPA, they might be asked to prove that you do not have mental capacity.</p>",
+    "asSoonAsRegisteredContent": "<ul class=\"govuk-list govuk-list--bullet\"> <li>when you have mental capacity, but only if you give them permission to do something</li> <li>if you lose mental capacity</li> </ul> <p class=\"govuk-body\">This option is useful in case there are times in the future when you're able to make your own decisions, but need help with certain things. For example, if it ever becomes difficult for you to visit the bank or talk on the phone, you might ask your attorneys to use your LPA to deal with certain organisations on your behalf.</p>",
+    "afterLosingCapacityContent": "<h2 class=\"govuk-heading-m\">Only if you lose mental capacity</h2> <p class=\"govuk-body\">This option means {{ .AttorneysFirstNames }} can only use the LPA if you have lost mental capacity.</p>",
+    "afterLosingCapacityExample": {
+        "one": "Be careful, as this can make the LPA a lot less useful. Each time {{ .AttorneysFirstNames }} tries to use the LPA, they might be asked to prove that you do not have mental capacity.",
+        "other": "Be careful, as this can make the LPA a lot less useful. Each time {{ .AttorneysFirstNames }} try to use the LPA, they might be asked to prove that you do not have mental capacity."
+    },
     "whenDoYouWantAttorneysToUse": {
         "one": "When do you want {{ .AttorneysFirstNames }} to be able to use the LPA?",
         "other": "When do you want your attorneys to be able to use the LPA?"
@@ -163,30 +174,31 @@
     "onlyWhenIDoNotHaveMentalCapacity": "Only when I do not have mental capacity",
     "selectWhenCanTheLpaBeUsed": "Select when the LPA can be used",
 
-    "restrictionsOnYourAttorneysPower": "Restrictions on your attorneys' power",
-    "restrictionsOnYourAttorneysPowerContent": "<p class=\"govuk-body\">You can add 'restrictions' to the LPA - this is optional.</p> <p class=\"govuk-body\">Restrictions guide the way the attorneys make decisions. They tell the attorneys what:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>they must or must not do, when they’re making certain decisions on your behalf</li> <li>you would like them to consider when they’re making certain decisions</li> </ul>",
+    "restrictionsOnYourAttorneysPower": "Restrict the decisions {{.AllAttorneysFirstNames}} can make",
+    "restrictionsOnYourAttorneysPowerContent": "<p class=\"govuk-body\">This optional section lets you add extra information for your attorneys, {{.AllAttorneysFirstNames}}, to guide the decisions they can make on your behalf. We call this adding 'restrictions and conditions' to your LPA.</p> <p class=\"govuk-body\">What you say here will tell {{.AllAttorneysFirstNames}} things they:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>must not do ('restrictions')</li> <li>can only do in certain circumstances ('conditions')</li> </ul> <p class=\"govuk-body\">You do not have to add restrictions or conditions to your LPA. You may prefer to talk to {{.AllAttorneysFirstNames}} about your wishes, rather than writing them into your LPA.</p> <p class=\"govuk-body\">There are legal rules about what you can and cannot tell your attorneys to do, so it's important to read our <a href=\"#\">guidance on writing restrictions and conditions.</a></p>",
     "restrictionExamples": "Show me some examples",
-    "restrictionExamplesContent": "<h2 class=\"govuk-heading-s\">Example restrictions: things the attorneys must or must not do</h2> <ul class=\"govuk-list govuk-list--bullet\"> <li>'My attorneys must only invest my money in ethical funds'</li> <li>'My attorneys must not sell my home unless, in my doctor's opinion, I can no longer live independently.'</li> </ul> <h2 class=\"govuk-heading-s\">Example restrictions: things the attorneys should consider</h2> <ul class=\"govuk-list govuk-list--bullet\"> <li>'I'd like my attorneys to consider ethical funds when investing my money'</li> <li>'I would like my attorneys to consult my doctor if they believe I may not have mental capacity to make decisions about my house.'</li> </ul>",
-    "restrictions": "Restrictions",
+    "restrictionExamplesContent": "<h2 class=\"govuk-heading-s\">Example restrictions: things the attorneys must not do</h2> <ul class=\"govuk-list govuk-list--bullet\"> <li>'My attorneys must not sell my home.'</li> </ul> <h2 class=\"govuk-heading-s\">Example restrictions: things your attorneys can only do in certain circumstances</h2> <ul class=\"govuk-list govuk-list--bullet\"> <li>'My attorneys must not sell my home unless, in my doctor's opinion, I can no longer live independently.'</li> </ul>",
+    "restrictions": "Restrictions and conditions",
+    "restrictionsHint": "It's important that you word any restrictions and conditions clearly and carefully.",
     "restrictionsTooLong": "Restrictions must be 10,000 or fewer characters",
 
-    "whoDoYouWantToBeCertificateProviderGuidance": "<h1 class=\"govuk-heading-xl\">Who do you want to be your certificate provider?</h1> <p class=\"govuk-body\">A certificate provider is an independent person who talks to you to check you understand your LPA and want to make it.</p> <p class=\"govuk-body\">Most people choose a friend to be their certificate provider.</p> <h2 class=\"govuk-heading-m\">What your certificate provider has to do</h2> <p class=\"govuk-body\">Your certificate provider has to:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>confirm their identity</li> <li>read the LPA once you've finished making it</li> <li>meet you in person to talk about the LPA in private</li> <li>witness you signing the LPA</li> </ul> <p class=\"govuk-body\">We’ll then ask the certificate provider to:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>confirm they’ve discussed the LPA with you</li> <li>tell us if they have any concerns about the LPA - for example, if they think someone is pressuring you to make it</li> </ul> <p class=\"govuk-body\">We call this 'providing a certificate'. They can do this using our online service or a paper form.</p> <p class=\"govuk-body\">If we ever have any concerns about the LPA, we may ask the certificate provider to tell us more about the conversation they had with you.</p> <h2 class=\"govuk-heading-m\">Who to choose as your certificate provider</h2> <p class=\"govuk-body\">You can choose either:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>someone you’ve known well for at least 2 years, for example, a friend or neighbour (but not a relative)</li> <li>a doctor, lawyer or another professional with the skills to check whether you understand the LPA</li> </ul> <p class=\"govuk-body\">Choose someone:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>you’re comfortable having an open, honest conversation with</li> <li>who will speak up if they think something is wrong</li> </ul> <h2 class=\"govuk-heading-m\">Who cannot be a certificate provider</h2> <p class=\"govuk-body\">Your certificate provider cannot be:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>under 18 years old</li> <li>an attorney on your LPA</li> <li>related to you or {{ .AttorneysFirstNames }} (this includes step-relations, in-laws, husbands, wives, partners, boyfriends and girlfriends)</li> <li>a business partner or employee of you or {{ .AttorneysFirstNames }}</li> <li>someone who works for a care home where you live, or their relative</li> </ul> <p class=\"govuk-body\"><a href=\"#\">Find our more about certificate providers</a>, and who can and cannot take on the role.</p>",
+    "whoDoYouWantToBeCertificateProviderGuidance": "<h1 class=\"govuk-heading-xl\">Who do you want to be your certificate provider?</h1> <p class=\"govuk-body\">A certificate provider is an independent person who talks to you to check you understand your LPA and want to make it.</p> <p class=\"govuk-body\">Most people choose a friend, neighbour or colleague to be their certificate provider.</p> <h2 class=\"govuk-heading-m\">What your certificate provider has to do</h2> <p class=\"govuk-body\">Your certificate provider has to:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>read the LPA once you've finished making it</li> <li>meet you in person to talk about the LPA in private</li> <li>witness you signing the LPA</li> </ul> <p class=\"govuk-body\">We’ll then ask your certificate provider to:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>confirm their identity</li> <li>confirm they’ve discussed the LPA with you</li> <li>tell us if they have any concerns about the LPA - for example, if they think someone is pressuring you to make it</li> </ul> <p class=\"govuk-body\">We call this 'providing a certificate'. They can do this using our online service or a paper form.</p> <p class=\"govuk-body\">If we ever have any concerns about the LPA, we may ask your certificate provider to tell us more about the conversation they had with you.</p> <h2 class=\"govuk-heading-m\">Who to choose as your certificate provider</h2> <p class=\"govuk-body\">You can choose either:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>someone you’ve known well for at least 2 years, for example, a friend or neighbour (but not a relative)</li> <li>a doctor, lawyer or another professional with the skills to check whether you understand the LPA</li> </ul> <p class=\"govuk-body\">Choose someone:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>you’re comfortable having an open, honest conversation with</li> <li>who will speak up if they think something is wrong</li> </ul> <h2 class=\"govuk-heading-m\">Who cannot be a certificate provider</h2> <p class=\"govuk-body\">Your certificate provider cannot be:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>under 18 years old</li> <li>an attorney on your LPA</li> <li>related to you or {{ .AttorneysFirstNames }} (this includes step-relations, in-laws, husbands, wives, partners, boyfriends and girlfriends)</li> <li>a business partner or employee of you or {{ .AttorneysFirstNames }}</li> <li>someone who works for a care home where you live, or their relative</li> </ul> <p class=\"govuk-body\"><a href=\"#\">Find our more about certificate providers</a>, and who can and cannot take on the role.</p>",
 
-    "certificateProviderDetails": "The certificate provider’s details",
-    "certificateProviderDetailsHint": "Remember, the certificate provider must be 18 or over. They cannot be a member of your family (this includes step-relations and in-laws) or of the attorneys' families.",
-    "certificateProviderDobHint": "We need the certificate provider's date of birth to check they are over 18.",
+    "certificateProviderDetails": "Your certificate provider’s details",
+    "certificateProviderDetailsHint": "Remember, your certificate provider must be 18 or over. They cannot be a member of your family (this includes step-relations and in-laws) or of the attorneys' families.",
+    "certificateProviderDobHint": "We need your certificate provider's date of birth to check they are over 18.",
 
     "aboutPayment": "About payment",
-    "aboutPaymentContent": "<p class=\"govuk-body\">Thank you for starting your application for an LPA.</p><p class=\"govuk-body\">It costs £82 to apply for an LPA. </p>",
+    "aboutPaymentContent": "<p class=\"govuk-body\">It costs £82 to apply for an LPA. </p>",
     "feeCoversContent": "The fee covers the cost of:",
-    "feeCoversExamples": "<ul class=\"govuk-list govuk-list--bullet\"><li>checking your identity and your certificate provider's identity - we do this to protect you and prevent fraud</li><li>checking the LPA as you’re making it - so we can let you know about possible mistakes before you submit the application</li><li>processing your application to register the LPA</li></ul>",
+    "feeCoversExamples": "<ul class=\"govuk-list govuk-list--bullet\"><li>checking your identity and {{.CpFirstNames}} {{.CpLastName}}'s identity - we do this to protect you and prevent fraud</li><li>checking and processing your LPA application</li></ul>",
     "importantAssistive": "Important",
     "lowIncome": "If you have a low income or get certain means-tested benefits, you can apply to pay a lower fee or no fee",
     "qualifyingForReduction": "Find out more about qualifying for a reduction",
     "continueToPayment": "Continue to payment",
 
     "howDoYouKnowYourCertificateProvider": "How do you know {{.FirstNames}} {{.LastName}}, your certificate provider?",
-    "pleaseDescribe": "Please describe",
+    "pleaseDescribe": "Briefly explain how you know {{.FirstNames}} {{.LastName}}",
     "friend": "Friend",
     "neighbour": "Neighbour",
     "colleague": "Colleague",
@@ -212,13 +224,13 @@
     "WhenTheLpaCanBeUsed": "When the LPA can be used",
     "whenTheLpaCanBeUsed": "when the LPA can be used",
     "whoAreTheAttorneys": {
-        "one": "Who is the attorney",
-        "other": "Who are the attorneys"
+        "one": "Who is your attorney",
+        "other": "Who are your attorneys"
     },
-    "howTheAttorneysMustWorkTogether": "How the attorneys must work together",
+    "howTheAttorneysMustWorkTogether": "How your attorneys must make decisions",
     "whoAreTheReplacementAttorneys": {
-        "one": "Who is the replacement attorney",
-        "other": "Who are the replacement attorneys"
+        "one": "Who is your replacement attorney",
+        "other": "Who are your replacement attorneys"
     },
     "replacementAttorneysNotAppointed": "Replacement attorneys have not been appointed",
     "change": "Change",
@@ -314,15 +326,15 @@
     "applicationNumber": "Application number",
     "viewTheLpaProgress": "View the LPA progress",
 
-    "howShouldAttorneysMakeDecisions": "How should the attorneys make decisions?",
+    "howShouldAttorneysMakeDecisions": "How do you want your attorneys to make decisions?",
     "howShouldAttorneysMakeDecisionsDetail": "Your choice here is very important as it affects how your LPA can be used. Whichever option you choose, your attorneys must always act in your best interests.",
     "getHelpMakingDecision": "Get help with making this decision",
-    "jointlyAndSeverally": "Together (Jointly and severally)",
-    "jointlyAndSeverallyHintAttorneys": "Attorneys can make decisions on their own or together. Most people choose this option because it's the most practical.",
-    "jointly": "Jointly",
-    "jointlyHintAttorneys": "Attorneys must agree unanimously on every decision, however big or small. Be careful - if one of the attorneys can no longer act, none of the other attorneys will be able to act either, unless you state otherwise in your instructions.",
-    "jointlyAndSeverallyMixed": "Jointly for some decisions, and jointly and severally for other decisions",
-    "jointlyAndSeverallyMixedHintAttorneys": "Attorneys must agree unanimously on some decisions, but can make others on their own. You must state which decisions need to be agreed unanimously.",
+    "jointlyAndSeverallyHumanised": "{{.AllAttorneysFirstNames}} can make decisions together or on their own",
+    "jointlyAndSeverallyHint": "<p>Most people choose this option as it's the most practical. It also means {{.AllAttorneysFirstNames}} can share tasks and responsibilities between them.</p><p>In legal terms, this is know as your attorneys working 'jointly and severally'.</p>",
+    "jointlyHumanised": "{{.AllAttorneysFirstNames}} must and agree make all decisions together",
+    "jointlyHintAttorneys": "<p>This means {{.AllAttorneysFirstNames}} must make all decisions together, however big or small. They must both agree on every decision.</p><p>This is the least popular option, because it can make the LPA harder to use. For example, if {{.AllAttorneysFirstNames}} cannot agree on a decision, it cannot be made without going to court.</p><p>In legal terms, this is know as your attorneys working 'jointly'.</p>",
+    "jointlyAndSeverallyMixedHumanised": "{{.AllAttorneysFirstNames}} must make certain decisions together",
+    "jointlyAndSeverallyMixedHint": "<p>You choose certain decisions that {{.AllAttorneysFirstNames}} must agree on and make together. They can make all other decisions together or on their own.</p><p>If they cannot agree on a decision you've said they must may together, they will have to go to court so a judge can decide.</p><p>In legal terms, this is know as your attorneys working 'jointly for some decisions, and jointly and severally for others'.</p>",
     "decisionDetailsHint": "Please tell us which decisions you want to be made jointly. Take a look at the guidance for examples of how you can make your wishes clear.",
     "details": "Details",
     "chooseADecisionType": "Select from the listed decision options",
@@ -335,7 +347,7 @@
     "mixedReplacementWarning": "You appointed your attorneys to act jointly for some decisions, and jointly and severally for others.",
     "mixedReplacementWarningContent": "<p class=\"govuk-body\">This means that if an original attorney dies or can no longer act:</p><ul class=\"govuk-list govuk-list--bullet\"><li>all the replacement attorneys step in and take over making the joint decisions</li><li>the remaining original attorneys will not be able to make the joint decisions anymore, unless you state otherwise in your instructions</li><li>the replacement and remaining original attorneys can make all other decisions together or individually</li></ul>",
 
-    "whoWouldYouLikeToBeTheReplacementAttorneys": "Who would you like to be the replacement attorneys?",
+    "whoWouldYouLikeToBeTheReplacementAttorneys": "Who would you like to be your replacement attorneys?",
     "doYouWantToAddAnotherReplacementAttorney": "Do you want to add another replacement attorney?",
     "removeAReplacementAttorney": "Remove a replacement attorney",
     "replacementAttorneysAdded": {
@@ -349,8 +361,8 @@
     "jointlyHintReplacementAttorneys": "Replacement attorneys must agree unanimously on every decision, however big or small. If one replacement attorney can no longer act, the others will not be able to act either, unless you states otherwise in your instructions.",
     "jointlyAndSeverallyMixedHintReplacementAttorneys": "Replacement attorneys must agree unanimously on some decisions, but can make others on their own. You must state which decisions need to be agreed unanimously.",
 
-    "howShouldReplacementAttorneysStepIn": "How should the replacement attorneys step in?",
-    "howShouldReplacementAttorneysStepInDetail": "<p class=\"govuk-body\">You can choose when your replacement attorneys step in and in what order.</p><p class=\"govuk-body\">Once they've stepped in, the replacement attorneys will be able to make any decision jointly and severally along with the remaining original attorneys.</p><p class=\"govuk-body\">Most donors choose for all the replacement attorneys to step in together as soon as 1 of the original attorneys can no longer act.</p><p class=\"govuk-body\">If you would prefer the replacement attorneys to step in later or in a specific order, select 1 of the other 2 options.</p>",
+    "howShouldReplacementAttorneysStepIn": "How should your replacement attorneys step in?",
+    "howShouldReplacementAttorneysStepInDetail": "<p class=\"govuk-body\">You can choose when your replacement attorneys step in and in what order.</p><p class=\"govuk-body\">Once they've stepped in, the replacement attorneys will be able to make any decision jointly and severally along with the remaining original attorneys.</p><p class=\"govuk-body\">Most donors choose for all the replacement attorneys to step in together as soon as 1 of the original attorneys can no longer act. However, If you would prefer the replacement attorneys to step in later or in a specific order, select 1 of the other 2 options.</p>",
     "whenOneCanNoLongerAct": "As soon as <span class=\"govuk-!-font-weight-bold\">one</span> of the original attorneys can no longer act, all the replacement attorneys should step in together",
     "whenNoneCanNoLongerAct": "When <span class=\"govuk-!-font-weight-bold\">none</span> of the original attorneys can act, all the replacement attorneys should step in together",
     "otherWay": "In some other way",
@@ -358,8 +370,9 @@
     "selectWhenToStepIn": "Select when your replacement attorneys should step in",
     "provideDetailsOfWhenToStepIn": "Provide details on how your replacement attorneys should step in",
 
-    "jointly-and-severally": "Jointly and severally",
-    "mixed":                 "Jointly for some decisions, and jointly and severally for other decisions",
+    "jointly-and-severally": "<p class=\"govuk--body\">Your attorneys can make decisions together or on their own.</p> <p class=\"govuk--body\">In legal terms, this is know as your attorneys working 'jointly and severally'.</p>",
+    "jointly": "<p class=\"govuk--body\">Your attorneys must and agree make and agree all decisions together.</p> <p class=\"govuk--body\">In legal terms, this is know as your attorneys working 'jointly'</p>",
+    "mixed":                 "<p class=\"govuk--body\">Your attorneys must make certain decisions together.</p> <p class=\"govuk--body\">In legal terms, this is know as your attorneys working 'jointly for some decisions and jointly and severally for others'.</p>",
     "when-registered":       "As soon as it's registered",
     "when-capacity-lost":    "Only when I do not have mental capacity",
 

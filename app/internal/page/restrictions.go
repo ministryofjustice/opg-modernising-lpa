@@ -11,6 +11,7 @@ type restrictionsData struct {
 	Errors       map[string]string
 	Restrictions string
 	Completed    bool
+	Lpa          *Lpa
 }
 
 func Restrictions(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -24,6 +25,7 @@ func Restrictions(tmpl template.Template, lpaStore LpaStore) Handler {
 			App:          appData,
 			Restrictions: lpa.Restrictions,
 			Completed:    lpa.Tasks.Restrictions == TaskCompleted,
+			Lpa:          lpa,
 		}
 
 		if r.Method == http.MethodPost {

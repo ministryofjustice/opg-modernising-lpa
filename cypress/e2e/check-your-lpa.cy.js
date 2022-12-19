@@ -18,7 +18,7 @@ describe('Check the LPA', () => {
         cy.get('#f-checked').check()
         cy.get('#f-happy').check()
 
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Confirm').click();
 
         cy.url().should('contain', '/task-list');
     })
