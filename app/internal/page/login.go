@@ -1,8 +1,6 @@
 package page
 
 import (
-	"encoding/base64"
-	"encoding/json"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -10,11 +8,6 @@ import (
 
 type loginClient interface {
 	AuthCodeURL(state, nonce, locale string) string
-}
-
-type State struct {
-	Uid    string `json:"uid"`
-	Locale string `json:"locale"`
 }
 
 func Login(logger Logger, c loginClient, store sessions.Store, secure bool, randomString func(int) string) http.HandlerFunc {
@@ -33,22 +26,16 @@ func Login(logger Logger, c loginClient, store sessions.Store, secure bool, rand
 			locale = r.URL.Query().Get("locale")
 		}
 
-		state := State{
-			Uid:    randomString(12),
-			Locale: locale,
-		}
-
-		j, _ := json.Marshal(state)
-		encodedState := base64.StdEncoding.EncodeToString(j)
-
+		state := randomString(12)
 		nonce := randomString(12)
 
-		authCodeURL := c.AuthCodeURL(encodedState, nonce, locale)
+		authCodeURL := c.AuthCodeURL(state, nonce, locale)
 
 		params := sessions.NewSession(store, "params")
 		params.Values = map[interface{}]interface{}{
-			"state": encodedState,
-			"nonce": nonce,
+			"state":  state,
+			"nonce":  nonce,
+			"locale": locale,
 		}
 		params.Options = cookieOptions
 

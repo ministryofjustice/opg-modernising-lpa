@@ -10,12 +10,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// {"uid":"i am random","locale":"cy"}
-const encodedStateCy = "eyJ1aWQiOiJpIGFtIHJhbmRvbSIsImxvY2FsZSI6ImN5In0=" //pragma: allowlist secret
-
-// {"uid":"i am random","locale":"en"}
-const encodedStateEn = "eyJ1aWQiOiJpIGFtIHJhbmRvbSIsImxvY2FsZSI6ImVuIn0=" //pragma: allowlist secret
-
 type mockLoginClient struct {
 	mock.Mock
 }
@@ -51,7 +45,7 @@ func TestLogin(t *testing.T) {
 
 	client := &mockLoginClient{}
 	client.
-		On("AuthCodeURL", encodedStateCy, "i am random", "cy").
+		On("AuthCodeURL", "i am random", "i am random", "cy").
 		Return("http://auth")
 
 	sessionsStore := &mockSessionsStore{}
@@ -65,7 +59,7 @@ func TestLogin(t *testing.T) {
 		HttpOnly: true,
 		Secure:   true,
 	}
-	session.Values = map[interface{}]interface{}{"state": encodedStateCy, "nonce": "i am random"}
+	session.Values = map[interface{}]interface{}{"state": "i am random", "nonce": "i am random", "locale": "cy"}
 
 	sessionsStore.
 		On("Save", r, w, session).
@@ -86,7 +80,7 @@ func TestLoginDefaultLocale(t *testing.T) {
 
 	client := &mockLoginClient{}
 	client.
-		On("AuthCodeURL", encodedStateEn, "i am random", "en").
+		On("AuthCodeURL", "i am random", "i am random", "en").
 		Return("http://auth")
 
 	sessionsStore := &mockSessionsStore{}
@@ -100,7 +94,7 @@ func TestLoginDefaultLocale(t *testing.T) {
 		HttpOnly: true,
 		Secure:   true,
 	}
-	session.Values = map[interface{}]interface{}{"state": encodedStateEn, "nonce": "i am random"}
+	session.Values = map[interface{}]interface{}{"state": "i am random", "nonce": "i am random", "locale": "en"}
 
 	sessionsStore.
 		On("Save", r, w, session).
@@ -125,7 +119,7 @@ func TestLoginWhenStoreSaveError(t *testing.T) {
 
 	client := &mockLoginClient{}
 	client.
-		On("AuthCodeURL", encodedStateEn, "i am random", "en").
+		On("AuthCodeURL", "i am random", "i am random", "en").
 		Return("http://auth?locale=en")
 
 	sessionsStore := &mockSessionsStore{}

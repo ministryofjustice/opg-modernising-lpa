@@ -29,7 +29,7 @@ func (m *mockAuthRedirectClient) UserInfo(jwt string) (signin.UserInfo, error) {
 
 func TestAuthRedirect(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/?code=auth-code&state=%s", encodedStateEn), nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
 	client := &mockAuthRedirectClient{}
 	client.
@@ -53,7 +53,7 @@ func TestAuthRedirect(t *testing.T) {
 
 	sessionsStore.
 		On("Get", r, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": encodedStateEn, "nonce": "my-nonce"}}, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce", "locale": "en"}}, nil)
 	sessionsStore.
 		On("Save", r, w, session).
 		Return(nil)
@@ -68,7 +68,7 @@ func TestAuthRedirect(t *testing.T) {
 
 func TestAuthRedirectWithCyLocale(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/?code=auth-code&state=%s", encodedStateCy), nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
 	client := &mockAuthRedirectClient{}
 	client.
@@ -92,7 +92,7 @@ func TestAuthRedirectWithCyLocale(t *testing.T) {
 
 	sessionsStore.
 		On("Get", r, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": encodedStateCy, "nonce": "my-nonce"}}, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce", "locale": "cy"}}, nil)
 	sessionsStore.
 		On("Save", r, w, session).
 		Return(nil)
@@ -115,13 +115,13 @@ func TestAuthRedirectSessionMissing(t *testing.T) {
 		expectedErr interface{}
 	}{
 		"missing session": {
-			url:         fmt.Sprintf("/?code=auth-code&state=%s", encodedStateEn),
+			url:         "/?code=auth-code&state=my-state",
 			session:     nil,
 			getErr:      expectedError,
 			expectedErr: expectedError,
 		},
 		"missing state": {
-			url:         fmt.Sprintf("/?code=auth-code&state=%s", encodedStateEn),
+			url:         "/?code=auth-code&state=my-state",
 			session:     &sessions.Session{Values: map[interface{}]interface{}{}},
 			expectedErr: "state missing from session or incorrect",
 		},
@@ -131,9 +131,14 @@ func TestAuthRedirectSessionMissing(t *testing.T) {
 			expectedErr: "state missing from session or incorrect",
 		},
 		"missing nonce": {
-			url:         fmt.Sprintf("/?code=auth-code&state=%s", encodedStateEn),
-			session:     &sessions.Session{Values: map[interface{}]interface{}{"state": encodedStateEn}},
+			url:         "/?code=auth-code&state=my-state",
+			session:     &sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "locale": "en"}},
 			expectedErr: "nonce missing from session",
+		},
+		"missing locale": {
+			url:         "/?code=auth-code&state=my-state",
+			session:     &sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce"}},
+			expectedErr: "locale missing from session",
 		},
 	}
 
@@ -182,7 +187,7 @@ func TestAuthRedirectStateIncorrect(t *testing.T) {
 
 func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/?code=auth-code&state=%s", encodedStateEn), nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
 	logger := &mockLogger{}
 	logger.
@@ -196,7 +201,7 @@ func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": encodedStateEn, "nonce": "my-nonce"}}, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce", "locale": "en"}}, nil)
 
 	AuthRedirect(logger, client, sessionsStore, true, appData.Paths)(w, r)
 
@@ -205,7 +210,7 @@ func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 
 func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/?code=auth-code&state=%s", encodedStateEn), nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
 	logger := &mockLogger{}
 	logger.
@@ -222,96 +227,9 @@ func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": encodedStateEn, "nonce": "my-nonce"}}, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce", "locale": "en"}}, nil)
 
 	AuthRedirect(logger, client, sessionsStore, true, appData.Paths)(w, r)
 
 	mock.AssertExpectationsForObjects(t, client, logger)
-}
-
-func TestAuthRedirectErrorBase64DecodeState(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=not-a-base64-string", nil)
-
-	client := &mockAuthRedirectClient{}
-	client.
-		On("Exchange", r.Context(), "auth-code", "my-nonce").
-		Return("a JWT", nil)
-	client.
-		On("UserInfo", "a JWT").
-		Return(signin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
-
-	sessionsStore := &mockSessionsStore{}
-
-	session := sessions.NewSession(sessionsStore, "session")
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	session.Values = map[interface{}]interface{}{"sub": "random", "email": "name@example.com"}
-
-	sessionsStore.
-		On("Get", r, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "not-a-base64-string", "nonce": "my-nonce"}}, nil)
-	sessionsStore.
-		On("Save", r, w, session).
-		Return(nil)
-
-	logger := &mockLogger{}
-	logger.
-		On("Print", "Error base64 decoding state: illegal base64 data at input byte 3")
-
-	AuthRedirect(logger, client, sessionsStore, true, appData.Paths)(w, r)
-	resp := w.Result()
-
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, client, sessionsStore, logger)
-}
-
-func TestAuthRedirectErrorJsonUnmarshall(t *testing.T) {
-	//{not valid json}
-	notJsonBase64 := "e25vdCB2YWxpZCBqc29ufQ=="
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/?code=auth-code&state=%s", notJsonBase64), nil)
-
-	client := &mockAuthRedirectClient{}
-	client.
-		On("Exchange", r.Context(), "auth-code", "my-nonce").
-		Return("a JWT", nil)
-	client.
-		On("UserInfo", "a JWT").
-		Return(signin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
-
-	sessionsStore := &mockSessionsStore{}
-
-	session := sessions.NewSession(sessionsStore, "session")
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	session.Values = map[interface{}]interface{}{"sub": "random", "email": "name@example.com"}
-
-	sessionsStore.
-		On("Get", r, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": notJsonBase64, "nonce": "my-nonce"}}, nil)
-	sessionsStore.
-		On("Save", r, w, session).
-		Return(nil)
-
-	logger := &mockLogger{}
-	logger.
-		On("Print", "Error unmarshalling state JSON: invalid character 'n' looking for beginning of object key string")
-
-	AuthRedirect(logger, client, sessionsStore, true, appData.Paths)(w, r)
-	resp := w.Result()
-
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, client, sessionsStore, logger)
 }
