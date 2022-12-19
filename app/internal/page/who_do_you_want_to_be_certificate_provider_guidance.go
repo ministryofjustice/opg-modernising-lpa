@@ -28,8 +28,7 @@ func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, lpaStor
 
 		if r.Method == http.MethodPost {
 			if postFormString(r, "will-do-this-later") == "1" {
-				appData.Lang.Redirect(w, r, appData.Paths.TaskList, http.StatusFound)
-				return nil
+				return appData.Lang.Redirect(w, r, appData.Paths.TaskList, http.StatusFound)
 			}
 
 			if data.NotStarted {
@@ -38,8 +37,8 @@ func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, lpaStor
 			if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 				return err
 			}
-			appData.Lang.Redirect(w, r, appData.Paths.CertificateProviderDetails, http.StatusFound)
-			return nil
+
+			return appData.Lang.Redirect(w, r, appData.Paths.CertificateProviderDetails, http.StatusFound)
 		}
 
 		return tmpl(w, data)

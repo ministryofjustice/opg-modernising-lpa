@@ -43,8 +43,8 @@ func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, lpaStore
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, appData.Paths.TaskList, http.StatusFound)
-				return nil
+
+				return appData.Lang.Redirect(w, r, appData.Paths.TaskList, http.StatusFound)
 			}
 		}
 

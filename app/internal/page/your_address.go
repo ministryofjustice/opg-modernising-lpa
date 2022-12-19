@@ -40,8 +40,8 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, appData.Paths.WhoIsTheLpaFor, http.StatusFound)
-				return nil
+
+				return appData.Lang.Redirect(w, r, appData.Paths.WhoIsTheLpaFor, http.StatusFound)
 			}
 
 			if data.Form.Action == "select" && len(data.Errors) == 0 {

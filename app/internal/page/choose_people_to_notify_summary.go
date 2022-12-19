@@ -51,8 +51,7 @@ func ChoosePeopleToNotifySummary(logger Logger, tmpl template.Template, lpaStore
 					}
 				}
 
-				appData.Lang.Redirect(w, r, redirectUrl, http.StatusFound)
-				return nil
+				return appData.Lang.Redirect(w, r, redirectUrl, http.StatusFound)
 			}
 
 		}
