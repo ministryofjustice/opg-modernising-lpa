@@ -7,9 +7,9 @@
         {{ tr .App "readYourLpa" }}
       </h1>
 
-      <p class="govuk-body">{{ tr .App "readAndCheckYourLpa" }}</p>
-
+      {{ template "warning" (warning .App "readAndCheckYourLpa") }}
       {{ template "details" (details . "whatHappensIfIWantToMakeChanges" "whatHappensIfIWantToMakeChangesContent" false) }}
+      {{ .Json }}
     </div>
 
     <div class="govuk-grid-column-two-thirds">
@@ -25,39 +25,11 @@
 
       {{ template "people-named-on-lpa" . }}
 
-      <form novalidate method="post">
-        <div class="govuk-form-group {{ if index .Errors "checked" }}govuk-form-group--error{{ end }}">
-          {{ template "error-message" (errorMessage . "checked") }}
-          <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-checked" name="checked" type="checkbox" value="1" {{ if .Form.Checked }}checked{{ end }}>
-              <label class="govuk-label govuk-checkboxes__label" for="f-checked">
-                {{ tr .App "iHaveReadAndCheckedThisLpa" }}
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="govuk-form-group {{ if index .Errors "confirm" }}govuk-form-group--error{{ end }}">
-          {{ template "error-message" (errorMessage . "confirm") }}
-          <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-confirm" name="confirm" type="checkbox" value="1" {{ if .Form.Confirm }}checked{{ end }}>
-              <label class="govuk-label govuk-checkboxes__label" for="f-confirm">
-                {{ tr .App "iConfirmIMadeThisLpaOfMyOwnFreeWill" }}
-              </label>
-            </div>
-          </div>
-        </div>
-
-        {{ template "input" (input . "signature" "typeSignatureCode" .Form.Signature "classes" "govuk-input--width-10") }}
-
-        <p class="govuk-body">
-          <a class="govuk-link" href="#">{{ tr .App "iHaventReceivedSignatureCode" }}</a>
-        </p>
-
-        {{ template "continue-button" . }}
-      </form>
+      <p class="govuk-body">
+        <a href="{{ .App.Paths.SignYourLpa }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
+          {{ tr .App "continueToSigningPage" }}
+        </a>
+      </p>
     </div>
   </div>
 {{ end }}
