@@ -10,6 +10,7 @@ type howShouldAttorneysMakeDecisionsData struct {
 	App    AppData
 	Errors map[string]string
 	Form   *howShouldAttorneysMakeDecisionsForm
+	Lpa    *Lpa
 }
 
 type howShouldAttorneysMakeDecisionsForm struct {
@@ -30,6 +31,7 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) 
 				DecisionsType:    lpa.HowAttorneysMakeDecisions,
 				DecisionsDetails: lpa.HowAttorneysMakeDecisionsDetails,
 			},
+			Lpa: lpa,
 		}
 
 		if r.Method == http.MethodPost {

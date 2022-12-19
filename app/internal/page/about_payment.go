@@ -12,14 +12,21 @@ import (
 )
 
 type aboutPaymentData struct {
-	App    AppData
-	Errors map[string]string
+	App                 AppData
+	Errors              map[string]string
+	CertificateProvider CertificateProvider
 }
 
-func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.Store, payClient PayClient, appPublicUrl string, randomString func(int) string) Handler {
+func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.Store, payClient PayClient, appPublicUrl string, randomString func(int) string, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		if err != nil {
+			return err
+		}
+
 		data := &aboutPaymentData{
-			App: appData,
+			App:                 appData,
+			CertificateProvider: lpa.CertificateProvider,
 		}
 
 		if r.Method == http.MethodPost {
