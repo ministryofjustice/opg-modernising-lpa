@@ -219,7 +219,9 @@
     "selectCheckedLpa": "Select that you have checked your LPA and don't wish to make changes",
     "selectHappyToShareLpa": "Select that you are happy to share your LPA with your certificate provider",
     "checkYourLpa": "Check your LPA",
-    "youveNowFinishedFillingInTheLpa": "You’ve now finished filling in the LPA. Before you continue, carefully check all the answers.",
+    "whatIfIWantToMakeChanges": "What if I want to make a change to the LPA?",
+    "whatIfIWantToMakeChangesContent": "<p></p>",
+    "idVerifiedTag": "ID Verified",
     "lpaDecisions": "LPA decisions",
     "typeOfLpa": "Type of LPA",
     "WhenTheLpaCanBeUsed": "When the LPA can be used",
@@ -228,7 +230,7 @@
         "one": "Who is your attorney",
         "other": "Who are your attorneys"
     },
-    "howTheAttorneysMustWorkTogether": "How your attorneys must make decisions",
+    "howTheAttorneysMustMakeDecisions": "How your attorneys must make decisions",
     "whoAreTheReplacementAttorneys": {
         "one": "Who is your replacement attorney",
         "other": "Who are your replacement attorneys"

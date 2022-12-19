@@ -232,7 +232,9 @@
     "selectCheckedLpa": "Welsh",
     "selectHappyToShareLpa": "Welsh",
     "checkYourLpa": "Gwiriwch eich LPA",
-    "youveNowFinishedFillingInTheLpa": "ych wedi gorffen llenwi’r LPA. Cyn i chi barhau, gwiriwch yr holl atebion yn ofalus.",
+    "whatIfIWantToMakeChanges": "Welsh",
+    "whatIfIWantToMakeChangesContent": "<p>welsh</p>",
+    "idVerifiedTag": "Welsh",
     "lpaDecisions": "Penderfyniadau LPA",
     "typeOfLpa": "Math o LPA",
     "WhenTheLpaCanBeUsed": "Pryd gall eich atwrneiod ddefnyddio eich LPA",
@@ -244,7 +246,7 @@
         "many": "Welsh",
         "other": "Welsh"
     },
-    "howTheAttorneysMustWorkTogether": "Sut y dylai'ch atwrneiod weithio gyda'i gilydd",
+    "howTheAttorneysMustMakeDecisions": "Sut y dylai'ch atwrneiod weithio gyda'i gilydd",
     "whoAreTheReplacementAttorneys": {
         "one": "Pwy yw eich atwrnai wrth gefn",
         "two": "Welsh",
