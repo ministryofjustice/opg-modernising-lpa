@@ -20,7 +20,7 @@
             {{ tr .App "restrictionsHint" }}
           </div>
           {{ template "error-message" (errorMessage . "restrictions") }}
-          <textarea class="govuk-textarea {{ if index .Errors "restrictions" }}govuk-textarea--error{{ end }}" id="f-restrictions" name="restrictions" rows="5">{{ .Restrictions }}</textarea>
+          <textarea class="govuk-textarea {{ if index .Errors "restrictions" }}govuk-textarea--error{{ end }}" id="f-restrictions" name="restrictions" rows="5">{{ .Lpa.Restrictions }}</textarea>
         </div>
 
         <div class="govuk-button-group">
