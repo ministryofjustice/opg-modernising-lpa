@@ -33,8 +33,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 		attorney, found := lpa.GetAttorney(attorneyId)
 
 		if found == false {
-			appData.Lang.Redirect(w, r, appData.Paths.ChooseAttorneys, http.StatusFound)
-			return nil
+			return appData.Lang.Redirect(w, r, appData.Paths.ChooseAttorneys, http.StatusFound)
 		}
 
 		data := &chooseAttorneysAddressData{
@@ -66,8 +65,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 					from = appData.Paths.ChooseAttorneysSummary
 				}
 
-				appData.Lang.Redirect(w, r, from, http.StatusFound)
-				return nil
+				return appData.Lang.Redirect(w, r, from, http.StatusFound)
 			}
 
 			// Force the manual address view after selecting

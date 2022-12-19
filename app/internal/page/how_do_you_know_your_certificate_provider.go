@@ -55,11 +55,10 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, lpaStore LpaSto
 				}
 
 				if requireLength {
-					appData.Lang.Redirect(w, r, appData.Paths.HowLongHaveYouKnownCertificateProvider, http.StatusFound)
-				} else {
-					appData.Lang.Redirect(w, r, appData.Paths.CheckYourLpa, http.StatusFound)
+					return appData.Lang.Redirect(w, r, appData.Paths.HowLongHaveYouKnownCertificateProvider, http.StatusFound)
 				}
-				return nil
+
+				return appData.Lang.Redirect(w, r, appData.Paths.CheckYourLpa, http.StatusFound)
 			}
 		}
 
