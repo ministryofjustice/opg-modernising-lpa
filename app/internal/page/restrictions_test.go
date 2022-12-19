@@ -24,6 +24,7 @@ func TestGetRestrictions(t *testing.T) {
 	template.
 		On("Func", w, &restrictionsData{
 			App: appData,
+			Lpa: &Lpa{},
 		}).
 		Return(nil)
 
@@ -48,8 +49,8 @@ func TestGetRestrictionsFromStore(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &restrictionsData{
-			App:          appData,
-			Restrictions: "blah",
+			App: appData,
+			Lpa: &Lpa{Restrictions: "blah"},
 		}).
 		Return(nil)
 
@@ -93,6 +94,7 @@ func TestGetRestrictionsWhenTemplateErrors(t *testing.T) {
 	template.
 		On("Func", w, &restrictionsData{
 			App: appData,
+			Lpa: &Lpa{},
 		}).
 		Return(expectedError)
 
@@ -197,11 +199,11 @@ func TestPostRestrictionsWhenValidationErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &restrictionsData{
-			App:          appData,
-			Restrictions: restrictions,
+			App: appData,
 			Errors: map[string]string{
 				"restrictions": "restrictionsTooLong",
 			},
+			Lpa: &Lpa{},
 		}).
 		Return(nil)
 

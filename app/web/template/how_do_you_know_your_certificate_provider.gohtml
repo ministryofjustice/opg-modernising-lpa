@@ -55,7 +55,7 @@
               <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-how">
                 <div class="govuk-form-group">
                   <label class="govuk-label" for="f-description">
-                    {{ tr .App "pleaseDescribe" }}
+                    {{ trFormat .App "pleaseDescribe" "FirstNames" .CertificateProvider.FirstNames "LastName" .CertificateProvider.LastName }}
                   </label>
                   {{ template "error-message" (errorMessage . "description") }}
                   <textarea class="govuk-textarea {{ if index .Errors "description" }}govuk-textarea--error{{ end }}" id="f-description" name="description" rows="5">{{ .Form.Description }}</textarea>

@@ -380,7 +380,7 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
-				"ignore-warning":      {"dateOfBirthIsUnder18"},
+				"ignore-warning":      {"attorneyDateOfBirthIsUnder18"},
 			},
 			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
 				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)

@@ -5,7 +5,7 @@ describe('How should replacement attorneys step in', () => {
     });
 
     it('can choose how replacement attorneys step in', () => {
-        cy.contains('h1', 'How should the replacement attorneys step in?');
+        cy.contains('h1', 'How should your replacement attorneys step in?');
 
         // see https://github.com/alphagov/govuk-frontend/issues/979
         cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
@@ -22,7 +22,7 @@ describe('How should replacement attorneys step in', () => {
     });
 
     it('can choose how replacement attorneys step in - some other way', () => {
-        cy.contains('h1', 'How should the replacement attorneys step in?');
+        cy.contains('h1', 'How should your replacement attorneys step in?');
 
         cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
 

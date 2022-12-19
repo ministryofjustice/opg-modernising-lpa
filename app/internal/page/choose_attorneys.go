@@ -170,7 +170,7 @@ func (d *chooseAttorneysForm) DobWarning() string {
 			return "dateOfBirthIsOver100"
 		}
 		if d.DateOfBirth.Before(today) && d.DateOfBirth.After(eighteenYearsEarlier) {
-			return "dateOfBirthIsUnder18"
+			return "attorneyDateOfBirthIsUnder18"
 		}
 	}
 

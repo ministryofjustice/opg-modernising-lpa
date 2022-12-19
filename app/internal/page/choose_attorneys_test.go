@@ -382,7 +382,7 @@ func TestPostChooseAttorneysWhenInputRequired(t *testing.T) {
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
-				"ignore-warning":      {"dateOfBirthIsUnder18"},
+				"ignore-warning":      {"attorneyDateOfBirthIsUnder18"},
 			},
 			dataMatcher: func(t *testing.T, data *chooseAttorneysData) bool {
 				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
@@ -637,7 +637,7 @@ func TestChooseAttorneysFormDobWarning(t *testing.T) {
 			form: &chooseAttorneysForm{
 				DateOfBirth: now.AddDate(-18, 0, 1),
 			},
-			warning: "dateOfBirthIsUnder18",
+			warning: "attorneyDateOfBirthIsUnder18",
 		},
 		"dob is 100": {
 			form: &chooseAttorneysForm{
