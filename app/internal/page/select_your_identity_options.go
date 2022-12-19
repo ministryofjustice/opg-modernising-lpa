@@ -42,8 +42,8 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore) Handle
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				appData.Lang.Redirect(w, r, appData.Paths.YourChosenIdentityOptions, http.StatusFound)
-				return nil
+
+				return appData.Lang.Redirect(w, r, appData.Paths.YourChosenIdentityOptions, http.StatusFound)
 			}
 		}
 
