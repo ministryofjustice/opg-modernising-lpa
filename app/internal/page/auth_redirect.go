@@ -2,6 +2,7 @@ package page
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -40,6 +41,12 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, sec
 			return
 		}
 
+		locale, ok := params.Values["locale"].(string)
+		if !ok {
+			logger.Print("locale missing from session")
+			return
+		}
+
 		jwt, err := c.Exchange(r.Context(), r.FormValue("code"), nonce)
 		if err != nil {
 			logger.Print(err)
@@ -63,6 +70,12 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, sec
 			return
 		}
 
-		http.Redirect(w, r, paths.YourDetails, http.StatusFound)
+		redirectPath := paths.YourDetails
+
+		if locale == "cy" {
+			redirectPath = fmt.Sprintf("/cy%s", redirectPath)
+		}
+
+		http.Redirect(w, r, redirectPath, http.StatusFound)
 	}
 }
