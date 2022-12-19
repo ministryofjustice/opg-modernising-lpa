@@ -2,6 +2,9 @@ package page
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -63,6 +66,24 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, sec
 			return
 		}
 
-		http.Redirect(w, r, paths.YourDetails, http.StatusFound)
+		stateJson, err := base64.StdEncoding.DecodeString(r.FormValue("state"))
+		if err != nil {
+			logger.Print(fmt.Sprintf("Error base64 decoding state: %s", err))
+			return
+		}
+
+		var state State
+		if err = json.Unmarshal(stateJson, &state); err != nil {
+			logger.Print(fmt.Sprintf("Error unmarshalling state JSON: %s", err))
+			return
+		}
+
+		redirectPath := paths.YourDetails
+
+		if state.Locale == "cy" {
+			redirectPath = fmt.Sprintf("/cy%s", redirectPath)
+		}
+
+		http.Redirect(w, r, redirectPath, http.StatusFound)
 	}
 }

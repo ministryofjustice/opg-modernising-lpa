@@ -10,12 +10,18 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+// {"uid":"i am random","locale":"cy"}
+const encodedStateCy = "eyJ1aWQiOiJpIGFtIHJhbmRvbSIsImxvY2FsZSI6ImN5In0=" //pragma: allowlist secret
+
+// {"uid":"i am random","locale":"en"}
+const encodedStateEn = "eyJ1aWQiOiJpIGFtIHJhbmRvbSIsImxvY2FsZSI6ImVuIn0=" //pragma: allowlist secret
+
 type mockLoginClient struct {
 	mock.Mock
 }
 
-func (m *mockLoginClient) AuthCodeURL(state, nonce string) string {
-	args := m.Called(state, nonce)
+func (m *mockLoginClient) AuthCodeURL(state, nonce, locale string) string {
+	args := m.Called(state, nonce, locale)
 
 	return args.String(0)
 }
@@ -41,11 +47,11 @@ func (m *mockSessionsStore) Save(r *http.Request, w http.ResponseWriter, session
 
 func TestLogin(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?locale=cy", nil)
 
 	client := &mockLoginClient{}
 	client.
-		On("AuthCodeURL", "i am random", "i am random").
+		On("AuthCodeURL", encodedStateCy, "i am random", "cy").
 		Return("http://auth")
 
 	sessionsStore := &mockSessionsStore{}
@@ -59,7 +65,42 @@ func TestLogin(t *testing.T) {
 		HttpOnly: true,
 		Secure:   true,
 	}
-	session.Values = map[interface{}]interface{}{"state": "i am random", "nonce": "i am random"}
+	session.Values = map[interface{}]interface{}{"state": encodedStateCy, "nonce": "i am random"}
+
+	sessionsStore.
+		On("Save", r, w, session).
+		Return(nil)
+
+	Login(nil, client, sessionsStore, true, func(int) string { return "i am random" })(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "http://auth", resp.Header.Get("Location"))
+
+	mock.AssertExpectationsForObjects(t, client, sessionsStore)
+}
+
+func TestLoginDefaultLocale(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	client := &mockLoginClient{}
+	client.
+		On("AuthCodeURL", encodedStateEn, "i am random", "en").
+		Return("http://auth")
+
+	sessionsStore := &mockSessionsStore{}
+
+	session := sessions.NewSession(sessionsStore, "params")
+
+	session.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   600,
+		SameSite: http.SameSiteLaxMode,
+		HttpOnly: true,
+		Secure:   true,
+	}
+	session.Values = map[interface{}]interface{}{"state": encodedStateEn, "nonce": "i am random"}
 
 	sessionsStore.
 		On("Save", r, w, session).
@@ -84,8 +125,8 @@ func TestLoginWhenStoreSaveError(t *testing.T) {
 
 	client := &mockLoginClient{}
 	client.
-		On("AuthCodeURL", "i am random", "i am random").
-		Return("http://auth")
+		On("AuthCodeURL", encodedStateEn, "i am random", "en").
+		Return("http://auth?locale=en")
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
