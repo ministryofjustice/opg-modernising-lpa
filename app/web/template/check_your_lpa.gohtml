@@ -9,7 +9,16 @@
     </div>
 
     <div class="govuk-grid-column-two-thirds">
-      <p class="govuk-body">{{ tr .App "youveNowFinishedFillingInTheLpa" }}</p>
+      <div class="govuk-warning-text">
+        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+        <strong class="govuk-warning-text__text">
+          <span class="govuk-warning-text__assistive">{{}}</span>
+          {{ tr .App .DobWarning }}
+        </strong>
+      </div>
+
+      {{ template "warning" (warning .App "readAndCheckYourLpa") }}
+      {{ template "details" (details . "whatIfIWantToMakeChanges" "whatIfIWantToMakeChangesContent" false) }}
 
       <h2 id="decisions" class="govuk-heading-l govuk-!-margin-bottom-2">
         {{ tr .App "lpaDecisions" }}
