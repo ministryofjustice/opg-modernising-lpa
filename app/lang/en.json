@@ -286,6 +286,19 @@
     "continueToSigningPage": "Continue to signing page",
 
     "signYourLpa": "Sign your LPA",
+    "signYourLpaContent": "<h2 class=\"govuk-heading-m\">Signing the LPA is an important and powerful legal step.</h2> <p class=\"govuk-body\">When you do this you're officially saying that you want {{ .AllAttorneysFullNames }} to be your finance and affairs attorneys.</p> <p class=\"govuk-body\">This means that once the LPA has been registered, {{ .AllAttorneysFirstNames }} will have the legal power to:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>help you make a decision about your money or property, or make a decision for you if you do not have the mental capacity to make it yourself</li> <li> deal with organisations, like banks and utility companies, on your behalf</li> </ul>",
+    "attorneysCanActOnlyIfAskedWarning": "While you have mental capacity, {{ .AllAttorneysFirstNames }} can only do these things if you ask them to.",
+    "attorneysMustFollowMCA": "<p class=\"govuk-body\">They must always follow the restrictions you made in your LPA and the rules set out in the <a class=\"govuk-link\" href=\"https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/921428/Mental-capacity-act-code-of-practice.pdf\">Mental Capacity Act and code of practice.</a> </p>",
+    "formPanelContent": "<h2 class=\"govuk-heading-m govuk-!-margin-bottom-2\">Sign your LPA</h2> <p class=\"govuk-body\">When you tick these boxes you are legally signing your LPA.</p>",
+    "iConfirmThat": "I, {{ .DonorFullName }}, confirm that:",
+    "cpIsWitnessingMeSign": "{{ .CertificateProviderFullName }} is witnessing me sign this LPA",
+    "wantToApply": "I want to apply to register this LPA",
+    "readMoreDigitalSignatures": "Read more about digital signatures",
+    "readMoreDigitalSignaturesContent": "User-friendly content to increase confidence in digital signatures.",
+    "submitSignature": "Submit my signature",
+    "selectBothBoxes": "You must check both boxes to confirm your signing of the LPA.",
+
+    "witnessingYourSignature": "Witnessing your signature",
 
     "selectYourIdentityOptions": "Select your identity options",
     "selectAllAtLeastThree": "Select all that apply. You must select at least three options.",
