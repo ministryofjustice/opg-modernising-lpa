@@ -240,7 +240,7 @@ func TestFormatDate(t *testing.T) {
 }
 
 func TestFormatDateTime(t *testing.T) {
-	assert.Equal(t, "03:04:05, 7 March 2020", formatDateTime(time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "7 March 2020 at 03:04", formatDateTime(time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
 }
 
 func TestLowerFirst(t *testing.T) {

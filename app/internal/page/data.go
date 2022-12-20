@@ -42,6 +42,7 @@ const (
 
 type Lpa struct {
 	ID                                          string
+	UpdatedAt                                   time.Time
 	You                                         Person
 	Attorneys                                   []Attorney
 	CertificateProvider                         CertificateProvider
@@ -166,6 +167,8 @@ func (s *lpaStore) Get(ctx context.Context, sessionID string) (*Lpa, error) {
 }
 
 func (s *lpaStore) Put(ctx context.Context, sessionID string, lpa *Lpa) error {
+	lpa.UpdatedAt = time.Now()
+
 	return s.dataStore.Put(ctx, sessionID, lpa)
 }
 

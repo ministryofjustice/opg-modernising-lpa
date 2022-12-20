@@ -137,6 +137,9 @@ func App(
 
 	handle(paths.Start, None,
 		Guidance(tmpls.Get("start.gohtml"), paths.Auth, nil))
+
+	handle(paths.Dashboard, RequireSession,
+		Dashboard(tmpls.Get("dashboard.gohtml"), lpaStore))
 	handle(paths.LpaType, RequireSession,
 		LpaType(tmpls.Get("lpa_type.gohtml"), lpaStore))
 	handle(paths.WhoIsTheLpaFor, RequireSession,
@@ -242,8 +245,6 @@ func App(
 		Guidance(tmpls.Get("sign_your_lpa.gohtml"), "", lpaStore))
 	handle(paths.SigningConfirmation, RequireSession|CanGoBack,
 		Guidance(tmpls.Get("signing_confirmation.gohtml"), paths.TaskList, lpaStore))
-	handle(paths.Dashboard, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("dashboard.gohtml"), "", lpaStore))
 
 	return mux
 }

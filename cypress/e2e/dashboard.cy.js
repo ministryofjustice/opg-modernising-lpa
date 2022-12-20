@@ -16,7 +16,10 @@ describe('Dashboard', () => {
     });
 
     it('shows my lasting power of attorney', () => {
-        cy.contains('John Doe: Finance and affairs');
-        cy.contains('Signed');
+        cy.contains('Finance and affairs');
+        cy.contains('John Doe');
+        cy.contains('a', 'Continue').click();
+
+        cy.url().should('contain', '/task-list');
     });
 });
