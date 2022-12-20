@@ -53,7 +53,14 @@ type Email struct {
 	EmailReplyToID  string            `json:"email_reply_to_id,omitempty"`
 }
 
-type emailResponse struct {
+type Sms struct {
+	PhoneNumber     string            `json:"phone_number"`
+	TemplateId      string            `json:"template_id"`
+	Personalisation map[string]string `json:"personalisation,omitempty"`
+	Reference       string            `json:"reference,omitempty"`
+}
+
+type response struct {
 	ID         string     `json:"id"`
 	StatusCode int        `json:"status_code"`
 	Errors     errorsList `json:"errors"`
@@ -62,7 +69,7 @@ type emailResponse struct {
 type errorsList []errorItem
 
 func (es errorsList) Error() string {
-	s := "error sending email"
+	s := "error sending message"
 	for _, e := range es {
 		s += ": " + e.Message
 	}
@@ -91,25 +98,12 @@ func (c *Client) TemplateID(name string) string {
 }
 
 func (c *Client) Email(ctx context.Context, email Email) (string, error) {
-	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.RegisteredClaims{
-		Issuer:   c.issuer,
-		IssuedAt: jwt.NewNumericDate(c.now()),
-	}).SignedString(c.secretKey)
-	if err != nil {
-		return "", err
-	}
-
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(email); err != nil {
 		return "", err
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/v2/notifications/email", &buf)
-	if err != nil {
-		return "", err
-	}
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Authorization", "Bearer "+token)
+	req, err := c.request(ctx, "/v2/notifications/email", buf)
 
 	resp, err := c.doer.Do(req)
 	if err != nil {
@@ -117,7 +111,7 @@ func (c *Client) Email(ctx context.Context, email Email) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	var v emailResponse
+	var v response
 	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
 		return "", err
 	}
@@ -127,4 +121,49 @@ func (c *Client) Email(ctx context.Context, email Email) (string, error) {
 	}
 
 	return v.ID, nil
+}
+
+func (c *Client) Sms(ctx context.Context, sms Sms) (string, error) {
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(sms); err != nil {
+		return "", err
+	}
+
+	req, err := c.request(ctx, "/v2/notifications/sms", buf)
+
+	resp, err := c.doer.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	var v response
+	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+		return "", err
+	}
+
+	if len(v.Errors) > 0 {
+		return "", v.Errors
+	}
+
+	return v.ID, nil
+}
+
+func (c *Client) request(ctx context.Context, url string, jsonBody bytes.Buffer) (*http.Request, error) {
+	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.RegisteredClaims{
+		Issuer:   c.issuer,
+		IssuedAt: jwt.NewNumericDate(c.now()),
+	}).SignedString(c.secretKey)
+	if err != nil {
+		return &http.Request{}, err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+url, &jsonBody)
+	if err != nil {
+		return &http.Request{}, err
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", "Bearer "+token)
+
+	return req, nil
 }
