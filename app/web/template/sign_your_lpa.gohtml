@@ -1,0 +1,35 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-panel govuk-panel--confirmation">
+                <h1 class="govuk-panel__title">
+                    {{ tr .App "signYourLpa" }}
+                </h1>
+            </div>
+
+            <h2 class="govuk-heading-m">Signing the LPA is an important and powerful legal step.</h2>
+            <p>When you do this you're officially saying that you want Pat Taylor and Jamie Taylor to be your finance and affairs attorneys.</p>
+            <p>This means that once the LPA has been registered, Pat and Jamie will have the legal power to:</p>
+            <ul class="govuk-list govuk-list--bullet"><li>help you make a decision about your money or property, or make a decision for you if you do not have the mental capacity to make it yourself</li><li> deal with organisations, like banks and utility companies, on your behalf</li>
+            </ul>
+            <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                    <span class="govuk-warning-text__assistive">Warning</span>
+                    While you have mental capacity, Pat and Jamie can only do these things if you ask them to.
+                </strong>
+            </div>
+            <p>They must always follow the restrictions you made in your LPA and the rules set out in the <a href="https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/921428/Mental-capacity-act-code-of-practice.pdf">Mental Capacity Act and code of practice.</a></p>
+
+            <details class="govuk-details" data-module="govuk-details">
+                <summary class="govuk-details__summary">
+                    <span class="govuk-details__summary-text">
+                      What happens if I want to make changes after I've signed?
+                    </span>
+                </summary>
+            </details>
+        </div>
+    </div>
+{{ end }}
