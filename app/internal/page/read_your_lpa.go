@@ -1,8 +1,6 @@
 package page
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -12,7 +10,6 @@ type readYourLpaData struct {
 	App    AppData
 	Errors map[string]string
 	Lpa    *Lpa
-	Json   string
 }
 
 func ReadYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -26,13 +23,6 @@ func ReadYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 			App: appData,
 			Lpa: lpa,
 		}
-
-		b, err := json.Marshal(lpa)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		data.Json = string(b)
 
 		return tmpl(w, data)
 	}
