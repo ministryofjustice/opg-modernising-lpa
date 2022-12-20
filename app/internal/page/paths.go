@@ -46,7 +46,6 @@ type AppPaths struct {
 	Restrictions                                string
 	Root                                        string
 	SelectYourIdentityOptions                   string
-	SignYourLpa                                 string
 	SigningConfirmation                         string
 	SignYourLpa                                 string
 	Start                                       string

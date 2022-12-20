@@ -3,6 +3,8 @@ package page
 import (
 	"net/http"
 
+	"golang.org/x/exp/slices"
+
 	"github.com/ministryofjustice/opg-go-common/template"
 )
 
@@ -13,9 +15,13 @@ type signYourLpaData struct {
 	Form   *signYourLpaForm
 }
 
+const (
+	CertificateProviderHasWitnessed = "cp-witnessed"
+	WantToApplyForLpa               = "want-to-apply"
+)
+
 type signYourLpaForm struct {
-	CPWitnessedSigning bool
-	WantToApply        bool
+	DonorSignatures []string
 }
 
 func SignYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -29,21 +35,21 @@ func SignYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 			App: appData,
 			Lpa: lpa,
 			Form: &signYourLpaForm{
-				CPWitnessedSigning: lpa.DonorConfirmedCPWitnessedSigning,
-				WantToApply:        lpa.WantToApplyForLpa,
+				DonorSignatures: lpa.DonorSignatures,
 			},
 		}
 
 		if r.Method == http.MethodPost {
+			r.ParseForm()
+
 			data.Form = readSignYourLpaForm(r)
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				lpa.DonorConfirmedCPWitnessedSigning = data.Form.CPWitnessedSigning
-				lpa.WantToApplyForLpa = data.Form.WantToApply
+				lpa.DonorSignatures = data.Form.DonorSignatures
 				lpa.Tasks.ConfirmYourIdentityAndSign = TaskCompleted
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err = lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
 
@@ -58,21 +64,32 @@ func SignYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 func readSignYourLpaForm(r *http.Request) *signYourLpaForm {
 	r.ParseForm()
 
-	return &signYourLpaForm{
-		CPWitnessedSigning: postFormString(r, "cp-witnessed") == "1",
-		WantToApply:        postFormString(r, "want-to-apply") == "1",
+	form := &signYourLpaForm{
+		DonorSignatures: []string{},
 	}
+
+	for _, checkBox := range r.PostForm["sign-lpa"] {
+		if checkBox == CertificateProviderHasWitnessed {
+			form.DonorSignatures = append(form.DonorSignatures, CertificateProviderHasWitnessed)
+		}
+
+		if checkBox == WantToApplyForLpa {
+			form.DonorSignatures = append(form.DonorSignatures, WantToApplyForLpa)
+		}
+	}
+
+	return form
 }
 
 func (f *signYourLpaForm) Validate() map[string]string {
 	errors := map[string]string{}
 
-	if !f.CPWitnessedSigning {
-		errors["cp-witnessed"] = "selectCPHasWitnessedSigning"
+	if !slices.Contains(f.DonorSignatures, CertificateProviderHasWitnessed) {
+		errors["sign-lpa"] = "selectBothBoxes"
 	}
 
-	if !f.WantToApply {
-		errors["want-to-apply"] = "selectWantToApply"
+	if !slices.Contains(f.DonorSignatures, WantToApplyForLpa) {
+		errors["sign-lpa"] = "selectBothBoxes"
 	}
 
 	return errors

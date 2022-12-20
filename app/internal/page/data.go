@@ -74,6 +74,7 @@ type Lpa struct {
 	PeopleToNotify                              []PersonToNotify
 	DonorConfirmedCPWitnessedSigning            bool
 	WantToApplyForLpa                           bool
+	DonorSignatures                             []string
 }
 
 type PaymentDetails struct {
@@ -474,4 +475,12 @@ func (l *Lpa) ReplacementAttorneysStepInWhenOneOrAllAttorneysCannotAct() bool {
 
 func (l *Lpa) ReplacementAttorneysStepInSomeOtherWayWithDetails() bool {
 	return l.HowShouldReplacementAttorneysStepIn == SomeOtherWay && l.HowShouldReplacementAttorneysStepInDetails != ""
+}
+
+func (l *Lpa) DonorFullName() string {
+	return fmt.Sprintf("%s %s", l.You.FirstNames, l.You.LastName)
+}
+
+func (l *Lpa) CertificateProviderFullName() string {
+	return fmt.Sprintf("%s %s", l.CertificateProvider.FirstNames, l.CertificateProvider.LastName)
 }
