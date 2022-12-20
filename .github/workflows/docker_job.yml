@@ -61,6 +61,6 @@ jobs:
           if github.ref == 'refs/heads/main'
           then
             docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
-            docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:main
+            docker tag app:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.tag }}
           fi
           docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
