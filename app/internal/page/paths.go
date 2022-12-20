@@ -55,6 +55,8 @@ type AppPaths struct {
 	WhenCanTheLpaBeUsed                         string
 	WhoDoYouWantToBeCertificateProviderGuidance string
 	WhoIsTheLpaFor                              string
+	WitnessingAsCertificateProvider             string
+	WitnessingYourSignature                     string
 	YourAddress                                 string
 	YourChosenIdentityOptions                   string
 	YourDetails                                 string

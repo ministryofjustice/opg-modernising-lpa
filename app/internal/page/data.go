@@ -61,6 +61,7 @@ type Lpa struct {
 	SignatureCode                               string
 	EnteredSignatureCode                        string
 	SignatureEmailID                            string
+	SignatureSmsID                              string
 	IdentityOptions                             IdentityOptions
 	YotiUserData                                identity.UserData
 	HowAttorneysMakeDecisions                   string
@@ -72,6 +73,7 @@ type Lpa struct {
 	HowShouldReplacementAttorneysStepInDetails  string
 	DoYouWantToNotifyPeople                     string
 	PeopleToNotify                              []PersonToNotify
+	WitnessCode                                 WitnessCode
 }
 
 type PaymentDetails struct {
@@ -119,6 +121,7 @@ type CertificateProvider struct {
 	FirstNames              string
 	LastName                string
 	Email                   string
+	Mobile                  string
 	DateOfBirth             time.Time
 	Relationship            string
 	RelationshipDescription string
@@ -151,6 +154,11 @@ type LpaStore interface {
 type lpaStore struct {
 	dataStore DataStore
 	randomInt func(int) int
+}
+
+type WitnessCode struct {
+	Code    string
+	Created time.Time
 }
 
 func (s *lpaStore) Get(ctx context.Context, sessionID string) (*Lpa, error) {

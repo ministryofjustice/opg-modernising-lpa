@@ -150,7 +150,7 @@ func TestSms(t *testing.T) {
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	id, err := client.Sms(ctx, Sms{PhoneNumber: "+447535111111", TemplateId: "template-123"})
+	id, err := client.Sms(ctx, Sms{PhoneNumber: "+447535111111", TemplateID: "template-123"})
 
 	assert.Nil(err)
 	assert.Equal("xyz", id)
@@ -169,6 +169,6 @@ func TestSmsWhenError(t *testing.T) {
 
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 
-	_, err := client.Sms(ctx, Sms{PhoneNumber: "+447535111111", TemplateId: "template-123"})
+	_, err := client.Sms(ctx, Sms{PhoneNumber: "+447535111111", TemplateID: "template-123"})
 	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
 }

@@ -87,6 +87,7 @@ type PayClient interface {
 
 type NotifyClient interface {
 	Email(ctx context.Context, email notify.Email) (string, error)
+	Sms(ctx context.Context, sms notify.Sms) (string, error)
 	TemplateID(string) string
 }
 
@@ -243,6 +244,8 @@ func App(
 		ReadYourLpa(tmpls.Get("read_your_lpa.gohtml"), lpaStore))
 	handle(paths.SignYourLpa, RequireSession|CanGoBack,
 		Guidance(tmpls.Get("sign_your_lpa.gohtml"), "", lpaStore))
+	handle(paths.WitnessingYourSignature, RequireSession|CanGoBack,
+		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), lpaStore, notifyClient, random.Code, time.Now))
 	handle(paths.SigningConfirmation, RequireSession|CanGoBack,
 		Guidance(tmpls.Get("signing_confirmation.gohtml"), paths.TaskList, lpaStore))
 

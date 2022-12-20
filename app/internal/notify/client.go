@@ -55,7 +55,7 @@ type Email struct {
 
 type Sms struct {
 	PhoneNumber     string            `json:"phone_number"`
-	TemplateId      string            `json:"template_id"`
+	TemplateID      string            `json:"template_id"`
 	Personalisation map[string]string `json:"personalisation,omitempty"`
 	Reference       string            `json:"reference,omitempty"`
 }
