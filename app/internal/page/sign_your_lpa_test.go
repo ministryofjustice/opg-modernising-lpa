@@ -59,8 +59,7 @@ func TestGetSignYourLpaWhenStoreErrors(t *testing.T) {
 func TestGetSignYourLpaFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	lpa := &Lpa{
-		DonorConfirmedCPWitnessedSigning: true,
-		WantToApplyForLpa:                true,
+		DonorSignatures: []string{"cp-witnessed", "want-to-apply"},
 	}
 
 	lpaStore := &mockLpaStore{}
@@ -74,8 +73,7 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 			App: appData,
 			Lpa: lpa,
 			Form: &signYourLpaForm{
-				CPWitnessedSigning: true,
-				WantToApply:        true,
+				DonorSignatures: []string{"cp-witnessed", "want-to-apply"},
 			},
 		}).
 		Return(nil)
@@ -102,14 +100,12 @@ func TestPostSignYourLpa(t *testing.T) {
 			Tasks: Tasks{
 				ConfirmYourIdentityAndSign: TaskCompleted,
 			},
-			DonorConfirmedCPWitnessedSigning: true,
-			WantToApplyForLpa:                true,
+			DonorSignatures: []string{"cp-witnessed", "want-to-apply"},
 		}).
 		Return(nil)
 
 	form := url.Values{
-		"cp-witnessed":  {"1"},
-		"want-to-apply": {"1"},
+		"sign-lpa": {"cp-witnessed", "want-to-apply"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -136,8 +132,7 @@ func TestPostSignYourLpaWhenStoreErrors(t *testing.T) {
 		Return(expectedError)
 
 	form := url.Values{
-		"cp-witnessed":  {"1"},
-		"want-to-apply": {"1"},
+		"sign-lpa": {"cp-witnessed", "want-to-apply"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -160,12 +155,12 @@ func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, mock.MatchedBy(func(data *signYourLpaData) bool {
-			return assert.Equal(t, map[string]string{"want-to-apply": "selectWantToApply"}, data.Errors)
+			return assert.Equal(t, map[string]string{"sign-lpa": "selectBothBoxes"}, data.Errors)
 		})).
 		Return(nil)
 
 	form := url.Values{
-		"cp-witnessed": {"1"},
+		"sign-lpa": {"unrecognised-signature", "another-unrecognised-signature"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -183,8 +178,7 @@ func TestReadSignYourLpaForm(t *testing.T) {
 	assert := assert.New(t)
 
 	form := url.Values{
-		"cp-witnessed":  {"1   "},
-		"want-to-apply": {" 0"},
+		"sign-lpa": {"cp-witnessed", "want-to-apply"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -192,8 +186,7 @@ func TestReadSignYourLpaForm(t *testing.T) {
 
 	result := readSignYourLpaForm(r)
 
-	assert.Equal(true, result.CPWitnessedSigning)
-	assert.Equal(false, result.WantToApply)
+	assert.Equal([]string{"cp-witnessed", "want-to-apply"}, result.DonorSignatures)
 }
 
 func TestSignYourLpaFormValidate(t *testing.T) {
@@ -203,16 +196,14 @@ func TestSignYourLpaFormValidate(t *testing.T) {
 	}{
 		"valid": {
 			form: &signYourLpaForm{
-				CPWitnessedSigning: true,
-				WantToApply:        true,
+				[]string{"cp-witnessed", "want-to-apply"},
 			},
 			errors: map[string]string{},
 		},
 		"invalid-all": {
 			form: &signYourLpaForm{},
 			errors: map[string]string{
-				"cp-witnessed":  "selectCPHasWitnessedSigning",
-				"want-to-apply": "selectWantToApply",
+				"sign-lpa": "selectBothBoxes",
 			},
 		},
 	}
