@@ -7,6 +7,11 @@
         <dd class="govuk-summary-list__value">
             {{ .Lpa.You.FirstNames }} {{ .Lpa.You.LastName }}
         </dd>
+        {{ if .Lpa.YotiUserData.OK }}
+            <dd class="govuk-summary-list__value">
+                <strong class="govuk-tag app-task-list__tag govuk-tag">{{ tr .App "idVerifiedTag" }}</strong>
+            </dd>
+        {{ end }}
     </div>
 
     <div class="govuk-summary-list__row">
