@@ -65,21 +65,13 @@ describe('Confirm your identity and sign', () => {
         cy.contains('h3', "Attorneys");
         cy.contains('h3', "Replacement attorney");
 
-        cy.get('#f-checked').check();
-        cy.get('#f-confirm').check();
-        cy.get('#f-signature').type('1234');
-        cy.contains('button', 'Continue').click();
+        cy.contains('a', 'Continue to signing page').click();
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.url().should('contain', '/signing-confirmation');
-        cy.contains("You've signed your LPA");
-        cy.contains('a', 'Continue').click();
-
-        cy.url().should('contain', '/task-list');
-        cy.contains('li', "Confirm your identity and sign")
-            .should('contain', 'Completed');
+        cy.url().should('contain', '/sign-your-lpa');
+        // assertions on signing and completing to follow in future tickets
     });
 
     it('can be restarted', () => {

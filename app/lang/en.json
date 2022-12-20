@@ -220,6 +220,7 @@
     "selectHappyToShareLpa": "Select that you are happy to share your LPA with your certificate provider",
     "checkYourLpa": "Check your LPA",
     "youveNowFinishedFillingInTheLpa": "You’ve now finished filling in the LPA. Before you continue, carefully check all the answers.",
+    "idVerifiedTag": "ID Verified",
     "lpaDecisions": "LPA decisions",
     "typeOfLpa": "Type of LPA",
     "WhenTheLpaCanBeUsed": "When the LPA can be used",
@@ -228,7 +229,7 @@
         "one": "Who is your attorney",
         "other": "Who are your attorneys"
     },
-    "howTheAttorneysMustWorkTogether": "How your attorneys must make decisions",
+    "howTheAttorneysMustMakeDecisions": "How your attorneys must make decisions",
     "whoAreTheReplacementAttorneys": {
         "one": "Who is your replacement attorney",
         "other": "Who are your replacement attorneys"
@@ -282,6 +283,9 @@
     "selectConfirmMadeThisLpaOfOwnFreeWill": "Select that you have made this LPA of your own free will",
     "enterSignatureCode": "Enter your signature code",
     "enterCorrectSignatureCode": "Enter the signature code you received",
+    "continueToSigningPage": "Continue to signing page",
+
+    "signYourLpa": "Sign your LPA",
 
     "selectYourIdentityOptions": "Select your identity options",
     "selectAllAtLeastThree": "Select all that apply. You must select at least three options.",
