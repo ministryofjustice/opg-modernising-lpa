@@ -1355,3 +1355,19 @@ func TestReplacementAttorneysStepInSomeOtherWayWithDetails(t *testing.T) {
 		})
 	}
 }
+
+func TestDonorFullName(t *testing.T) {
+	l := &Lpa{
+		You: Person{FirstNames: "Bob Alan George", LastName: "Smith Jones-Doe"},
+	}
+
+	assert.Equal(t, "Bob Alan George Smith Jones-Doe", l.DonorFullName())
+}
+
+func TestCertificateProviderFullName(t *testing.T) {
+	l := &Lpa{
+		CertificateProvider: CertificateProvider{FirstNames: "Bob Alan George", LastName: "Smith Jones-Doe"},
+	}
+
+	assert.Equal(t, "Bob Alan George Smith Jones-Doe", l.CertificateProviderFullName())
+}

@@ -6,6 +6,52 @@
             <h1 class="govuk-heading-xl">
                 {{ tr .App "signYourLpa" }}
             </h1>
+
+            {{ trFormatHtml .App "signYourLpaContent" "AllAttorneysFullNames" .Lpa.AttorneysFullNames "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+
+            <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                    <span class="govuk-warning-text__assistive">{{ tr .App "warning" }}</span>
+                    {{ trFormat .App "attorneysCanActOnlyIfAskedWarning" "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+                </strong>
+            </div>
+
+            {{ trFormatHtml .App "attorneysMustFollowMCA" }}
+
+            {{ template "details" (details . "whatHappensIfIWantToMakeChanges" "whatHappensIfIWantToMakeChangesContent" false) }}
+
+            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+            {{ trHtml .App "formPanelContent" }}
+
+            <form novalidate method="post">
+                <article class="moj-ticket-panel" aria-label="Sub navigation 1">
+                    <section class="moj-ticket-panel__content moj-ticket-panel__content--blue" aria-label="Section 1">
+                        <p class="govuk-body govuk-!-font-weight-bold">
+                            {{ trFormat .App "iConfirmThat" "DonorFullName" .Lpa.DonorFullName }}
+                        </p>
+
+                        {{ template "error-message" (errorMessage . "sign-lpa") }}
+
+                        {{ $wantToApplyRawLabel := trFormat .App "cpIsWitnessingMeSign" "CertificateProviderFullName" .Lpa.CertificateProviderFullName }}
+
+                        {{ template "checkboxes" (items . "sign-lpa" .Form.DonorSignatures
+                        (item "cp-witnessed" "cpIsWitnessingMeSign" "rawLabel" $wantToApplyRawLabel)
+                        (item "want-to-apply" "wantToApply")
+                        ) }}
+
+                    </section>
+                </article>
+
+                {{ template "details" (details . "readMoreDigitalSignatures" "readMoreDigitalSignaturesContent" false) }}
+
+                <div class="govuk-button-group">
+                    <button class="govuk-button" data-module="govuk-button">
+                        {{ tr .App "submitSignature" }}
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 {{ end }}

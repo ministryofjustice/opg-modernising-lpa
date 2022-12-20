@@ -305,6 +305,19 @@
     "continueToSigningPage": "Welsh",
 
     "signYourLpa": "Welsh",
+    "signYourLpaContent": "<h2 class=\"govuk-heading-m\">Welsh</h2> <p class=\"govuk-body\">Welsh {{ .AllAttorneysFullNames }} welsh</p> <p class=\"govuk-body\">Welsh {{ .AllAttorneysFirstNames }} welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>welsh</li> <li>welsh</li> </ul>",
+    "attorneysCanActOnlyIfAskedWarning": "Welsh {{ .AllAttorneysFullNames }} welsh",
+    "attorneysMustFollowMCA": "<p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/921428/Mental-capacity-act-code-of-practice.pdf\">Welsh</a> </p>",
+    "formPanelContent": "<h2 class=\"govuk-heading-m govuk-!-margin-bottom-2\">Welsh</h2> <p class=\"govuk-body\">Welsh</p>",
+    "iConfirmThat": "Welsh {{ .DonorFullName }} welsh:",
+    "cpIsWitnessingMeSign": "{{ .CertificateProviderFullName }} Welsh",
+    "wantToApply": "Welsh",
+    "readMoreDigitalSignatures": "Welsh",
+    "readMoreDigitalSignaturesContent": "Welsh",
+    "submitSignature": "Welsh",
+    "selectBothBoxes": "Welsh",
+
+    "witnessingYourSignature": "Welsh",
 
     "selectYourIdentityOptions": "Welsh",
     "selectAllAtLeastThree": "Welsh",
@@ -356,7 +369,7 @@
     "options": "Welsh",
     "lastSaved": "Welsh",
     "statusTag": "Welsh",
-    
+
     "howShouldAttorneysMakeDecisions": "Welsh?",
     "howShouldAttorneysMakeDecisionsDetail": "Welsh",
     "getHelpMakingDecision": "Welsh",
