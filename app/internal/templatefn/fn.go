@@ -240,7 +240,7 @@ func formatDateTime(t time.Time) string {
 		return ""
 	}
 
-	return t.Format("15:04:05, 2 January 2006")
+	return t.Format("2 January 2006 at 15:04")
 }
 
 func lowerFirst(s string) string {
