@@ -342,10 +342,17 @@
     "onceAttorneyHasSigned": "Welsh {{.AttorneyFirstNames}}",
 
     "myLastingPowersOfAttorney": "Welsh",
-    "signed": "Welsh",
+    "myLastingPowersOfAttorneyHint": "Welsh",
+    "youCanCreateANewLpa": "Welsh",
+    "createYourFirstLpa": "Welsh",
+    "createAnLpa": "Welsh",
+    "createAnotherLpa": "Welsh",
+    "lpasInProgress": "Welsh",
     "applicationNumber": "Welsh",
-    "viewTheLpaProgress": "Welsh",
-
+    "options": "Welsh",
+    "lastSaved": "Welsh",
+    "statusTag": "Welsh",
+    
     "howShouldAttorneysMakeDecisions": "Welsh?",
     "howShouldAttorneysMakeDecisionsDetail": "Welsh",
     "getHelpMakingDecision": "Welsh",
