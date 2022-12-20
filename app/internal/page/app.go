@@ -241,6 +241,8 @@ func App(
 		HowToSign(tmpls.Get("how_to_sign.gohtml"), lpaStore, notifyClient, random.Code))
 	handle(paths.ReadYourLpa, RequireSession|CanGoBack,
 		ReadYourLpa(tmpls.Get("read_your_lpa.gohtml"), lpaStore))
+	handle(paths.SignYourLpa, RequireSession|CanGoBack,
+		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), lpaStore))
 	handle(paths.SigningConfirmation, RequireSession|CanGoBack,
 		Guidance(tmpls.Get("signing_confirmation.gohtml"), paths.TaskList, lpaStore))
 
