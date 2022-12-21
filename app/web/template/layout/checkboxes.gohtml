@@ -4,11 +4,7 @@
       <div class="govuk-checkboxes__item">
         <input class="govuk-checkboxes__input" id="f-{{ fieldID $.name $i }}" name="{{ $.name }}" type="checkbox" value="{{ $e.value }}" {{ if contains $e.value $.value }}checked{{ end }} {{ if $e.hint }}aria-describedby="{{ fieldID $.name $i }}-item-hint"{{ end }}>
         <label class="govuk-label govuk-checkboxes__label" for="f-{{ $.name }}{{ if ne $i 0 }}-{{ inc $i }}{{ end }}">
-            {{ if $e.rawLabel}}
-                {{ $e.rawLabel }}
-            {{ else }}
-                {{ tr $.top.App $e.label }}
-            {{ end }}
+            {{ tr $.top.App $e.label }}
         </label>
         {{ if $e.hint }}
           <div id="{{ fieldID $.name $i }}-item-hint" class="govuk-hint govuk-checkboxes__hint">

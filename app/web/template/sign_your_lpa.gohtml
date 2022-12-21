@@ -34,10 +34,10 @@
 
                         {{ template "error-message" (errorMessage . "sign-lpa") }}
 
-                        {{ $wantToApplyRawLabel := trFormat .App "cpIsWitnessingMeSign" "CertificateProviderFullName" .Lpa.CertificateProviderFullName }}
+                        {{ $cpWitnessingLabel := trFormat .App "cpIsWitnessingMeSign" "CertificateProviderFullName" .Lpa.CertificateProviderFullName }}
 
                         {{ template "checkboxes" (items . "sign-lpa" .Form.DonorSignatures
-                        (item "cp-witnessed" "cpIsWitnessingMeSign" "rawLabel" $wantToApplyRawLabel)
+                        (item "cp-witnessed" $cpWitnessingLabel)
                         (item "want-to-apply" "wantToApply")
                         ) }}
 
