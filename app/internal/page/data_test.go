@@ -1371,3 +1371,38 @@ func TestCertificateProviderFullName(t *testing.T) {
 
 	assert.Equal(t, "Bob Alan George Smith Jones-Doe", l.CertificateProviderFullName())
 }
+
+func TestLpaLegalTerm(t *testing.T) {
+	testCases := map[string]struct {
+		LpaType           string
+		ExpectedLegalTerm string
+	}{
+		"PFA": {
+			LpaType:           LpaTypePropertyFinance,
+			ExpectedLegalTerm: "finance and affairs",
+		},
+		"HW": {
+			LpaType:           LpaTypeHealthWelfare,
+			ExpectedLegalTerm: "personal welfare",
+		},
+		"Combined": {
+			LpaType:           LpaTypeCombined,
+			ExpectedLegalTerm: "finance and affairs and personal welfare",
+		},
+		"unexpected": {
+			LpaType:           "not-a-type",
+			ExpectedLegalTerm: "",
+		},
+		"empty": {
+			LpaType:           "",
+			ExpectedLegalTerm: "",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := Lpa{Type: tc.LpaType}
+			assert.Equal(t, tc.ExpectedLegalTerm, lpa.LpaLegalTerm())
+		})
+	}
+}

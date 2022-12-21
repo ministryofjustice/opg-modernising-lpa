@@ -491,7 +491,7 @@ func (l *Lpa) LpaLegalTerm() string {
 	case LpaTypeHealthWelfare:
 		return "personal welfare"
 	case LpaTypeCombined:
-		return "combined"
+		return "finance and affairs and personal welfare"
 	}
 	return ""
 }
