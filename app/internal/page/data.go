@@ -482,3 +482,15 @@ func (l *Lpa) DonorFullName() string {
 func (l *Lpa) CertificateProviderFullName() string {
 	return fmt.Sprintf("%s %s", l.CertificateProvider.FirstNames, l.CertificateProvider.LastName)
 }
+
+func (l *Lpa) LpaLegalTerm() string {
+	switch l.Type {
+	case LpaTypePropertyFinance:
+		return "finance and affairs"
+	case LpaTypeHealthWelfare:
+		return "personal welfare"
+	case LpaTypeCombined:
+		return "combined"
+	}
+	return ""
+}

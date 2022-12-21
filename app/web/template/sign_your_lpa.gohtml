@@ -7,7 +7,17 @@
                 {{ tr .App "signYourLpa" }}
             </h1>
 
-            {{ trFormatHtml .App "signYourLpaContent" "AllAttorneysFullNames" .Lpa.AttorneysFullNames "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+            {{ trFormatHtml .App "signYourLpaHeader" }}
+
+            <p class="govuk-body govuk-!-font-weight-bold">
+                {{ trFormatCount .App "wantAttorneysToBeAppointed" (len .Lpa.Attorneys) "AllAttorneysFullNames" .Lpa.AttorneysFullNames "LpaType" .Lpa.LpaLegalTerm }}
+            </p>
+
+            {{ if eq .Lpa.Type "pfa" }}
+                {{ trFormatHtml .App "explainAttorneysPowersPfa" "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+            {{ else }}
+                {{ trFormatHtml .App "explainAttorneysPowersHw" "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+            {{ end }}
 
             <div class="govuk-warning-text">
                 <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
