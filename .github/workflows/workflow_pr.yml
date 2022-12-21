@@ -28,7 +28,8 @@ jobs:
     uses: ./.github/workflows/slack_job.yml
     with:
       channel-id: C03RDLFC799
-    secrets: inherit # pragma: allowlist secret
+    secrets:
+      slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }} # pragma: allowlist secret
 
   # detect_changes:
   #   name: Detect Changes
