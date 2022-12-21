@@ -6,6 +6,70 @@
             <h1 class="govuk-heading-xl">
                 {{ tr .App "signYourLpa" }}
             </h1>
+
+            {{ trFormatHtml .App "signYourLpaHeader" }}
+
+            <p class="govuk-body govuk-!-font-weight-bold">
+                {{ trFormatCount .App "wantAttorneysToBeAppointed" (len .Lpa.Attorneys) "AllAttorneysFullNames" .Lpa.AttorneysFullNames "LpaType" (tr .App .Lpa.LpaLegalTermTransKey) }}
+            </p>
+
+            {{ if eq .Lpa.Type "pfa" }}
+                {{ trFormatHtml .App "explainAttorneysPowersPfa" "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+            {{ else }}
+                {{ trFormatHtml .App "explainAttorneysPowersHw" "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+            {{ end }}
+
+            <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                    <span class="govuk-warning-text__assistive">{{ tr .App "warning" }}</span>
+                    {{ trFormat .App "attorneysCanActOnlyIfAskedWarning" "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+                </strong>
+            </div>
+
+            {{ trFormatHtml .App "attorneysMustFollowMCA" }}
+
+            {{ template "details" (details . "whatHappensIfIWantToMakeChanges" "whatHappensIfIWantToMakeChangesContent" false) }}
+
+            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+            {{ trHtml .App "formPanelContent" }}
+
+            <form novalidate method="post">
+                <div class="moj-ticket-panel">
+                    <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
+                        <p class="govuk-body govuk-!-font-weight-bold">
+                            {{ trFormat .App "iConfirmThat" "DonorFullName" .Lpa.DonorFullName }}
+                        </p>
+
+                        {{ template "error-message" (errorMessage . "sign-lpa") }}
+
+                        <div class="govuk-checkboxes {{ if index .Errors "sign-lpa" }}govuk-checkboxes--error{{ end }}">
+                            <div class="govuk-checkboxes__item">
+                                <input class="govuk-checkboxes__input" id="f-sign-lpa" name="sign-lpa" type="checkbox" value="{{ .CPWitnessedFormValue }}" {{ if eq .Lpa.CPWitnessedDonorSign true }}checked{{ end }}>
+                                <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa">
+                                    {{ trFormat .App "cpIsWitnessingMeSign" "CertificateProviderFullName" .Lpa.CertificateProviderFullName }}
+                                </label>
+                            </div>
+
+                            <div class="govuk-checkboxes__item">
+                                <input class="govuk-checkboxes__input" id="f-sign-lpa-2" name="sign-lpa" type="checkbox" value="{{ .WantFormValue }}" {{ if eq .Lpa.WantToApplyForLpa true }}checked{{ end }}>
+                                <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa-2">
+                                    {{ tr .App "wantToApply" }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{ template "details" (details . "readMoreDigitalSignatures" "readMoreDigitalSignaturesContent" false) }}
+
+                <div class="govuk-button-group">
+                    <button class="govuk-button" data-module="govuk-button">
+                        {{ tr .App "submitSignature" }}
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 {{ end }}
