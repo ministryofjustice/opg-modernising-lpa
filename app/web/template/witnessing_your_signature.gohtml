@@ -3,11 +3,17 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">Witnessing your signature</h1>
-        </div>
+            {{ tr .App "witnessYourSignatureHeader" }}
 
-        <form novalidate method="post">
-            {{ template "continue-button" . }}
-        </form>
+            {{ trFormatHtml .App "witnessYourSignatureContent" "CpFullName" .Lpa.CpFullName "CpFirstNames" .Lpa.CpFirstNames }}
+
+            {{ template "warning" (warning .App "witnessCodeTimeWarning")  }}
+
+            <form novalidate method="post">
+                <div class="govuk-button-group">
+                    {{ template "continue-button" . }}
+                </div>
+            </form>
+        </div>
     </div>
 {{ end }}

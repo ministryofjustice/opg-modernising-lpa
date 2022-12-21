@@ -278,19 +278,6 @@
     "thankYouHeader": "Welsh.",
     "paymentConfirmationContent": "<p class=\"govuk-body\">Welsh.</p><p class=\"govuk-body\">Welsh.</p><p class=\"govuk-body\">Welsh.</p>",
 
-    "whatHappensWhenSigning": "Welsh",
-    "whatHappensWhenSigningContent": "<p class=\"govuk-body\">Welsh {{.AttorneyFirstNames}} {{.AttorneyLastName}}</p>",
-    "whileYouHaveMentalCapacity": "Welsh",
-    "theyMustAlwaysFollowTheRules": "Welsh",
-    "whatHappensIfIChangeMyMind": "Welsh",
-    "whatHappensIfIChangeMyMindContent": "<p class=\"govuk-body\">Welsh</p>",
-    "registeringYourLpa": "Welsh",
-    "registeringYourLpaContent": "<p class=\"govuk-body\">Welsh {{.AttorneyFirstNames}} {{.AttorneyLastName}} {{.CertificateProviderFirstNames}}</p>",
-
-    "howToSign": "Welsh",
-    "howToSignContent": "<ol class=\"govuk-list govuk-list--number\"><li>Welsh {{.CertificateProviderFirstNames}} {{.CertificateProviderFirstNames}}</li> </ol>",
-    "whenYouSignWarning": "Welsh {{.YouFirstNames}} {{.CertificateProviderFirstNames}}",
-
     "readYourLpa": "Welsh",
     "readAndCheckYourLpa": "Welsh",
     "whatHappensIfIWantToMakeChanges": "Welsh",
