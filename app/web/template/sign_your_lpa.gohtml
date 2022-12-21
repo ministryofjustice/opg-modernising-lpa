@@ -10,7 +10,8 @@
             {{ trFormatHtml .App "signYourLpaHeader" }}
 
             <p class="govuk-body govuk-!-font-weight-bold">
-                {{ trFormatCount .App "wantAttorneysToBeAppointed" (len .Lpa.Attorneys) "AllAttorneysFullNames" .Lpa.AttorneysFullNames "LpaType" .Lpa.LpaLegalTerm }}
+                {{ $lpaTypeTranslated := tr .App .Lpa.LpaLegalTerm }}
+                {{ trFormatCount .App "wantAttorneysToBeAppointed" (len .Lpa.Attorneys) "AllAttorneysFullNames" .Lpa.AttorneysFullNames "LpaType" $lpaTypeTranslated }}
             </p>
 
             {{ if eq .Lpa.Type "pfa" }}
@@ -43,8 +44,6 @@
                         </p>
 
                         {{ template "error-message" (errorMessage . "sign-lpa") }}
-
-                        {{ $cpWitnessingLabel := trFormat .App "cpIsWitnessingMeSign" "CertificateProviderFullName" .Lpa.CertificateProviderFullName }}
 
                         <div class="govuk-checkboxes {{ if index .Errors "sign-lpa" }}govuk-checkboxes--error{{ end }}">
                             <div class="govuk-checkboxes__item">
