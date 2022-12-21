@@ -22,9 +22,11 @@ func TestGetSignYourLpa(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &signYourLpaData{
-			App:  appData,
-			Form: &signYourLpaForm{},
-			Lpa:  &Lpa{},
+			App:                  appData,
+			Form:                 &signYourLpaForm{},
+			Lpa:                  &Lpa{},
+			CPWitnessedFormValue: CertificateProviderHasWitnessed,
+			WantFormValue:        WantToApplyForLpa,
 		}).
 		Return(nil)
 
@@ -59,7 +61,8 @@ func TestGetSignYourLpaWhenStoreErrors(t *testing.T) {
 func TestGetSignYourLpaFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	lpa := &Lpa{
-		DonorSignatures: []string{"cp-witnessed", "want-to-apply"},
+		CPWitnessedDonorSign: true,
+		WantToApplyForLpa:    false,
 	}
 
 	lpaStore := &mockLpaStore{}
@@ -73,8 +76,11 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 			App: appData,
 			Lpa: lpa,
 			Form: &signYourLpaForm{
-				DonorSignatures: []string{"cp-witnessed", "want-to-apply"},
+				CPWitnessed: true,
+				WantToApply: false,
 			},
+			CPWitnessedFormValue: CertificateProviderHasWitnessed,
+			WantFormValue:        WantToApplyForLpa,
 		}).
 		Return(nil)
 
@@ -97,10 +103,17 @@ func TestPostSignYourLpa(t *testing.T) {
 		Return(&Lpa{}, nil)
 	lpaStore.
 		On("Put", mock.Anything, "session-id", &Lpa{
+			CPWitnessedDonorSign: true,
+			WantToApplyForLpa:    true,
+		}).
+		Return(nil)
+	lpaStore.
+		On("Put", mock.Anything, "session-id", &Lpa{
 			Tasks: Tasks{
 				ConfirmYourIdentityAndSign: TaskCompleted,
 			},
-			DonorSignatures: []string{"cp-witnessed", "want-to-apply"},
+			CPWitnessedDonorSign: true,
+			WantToApplyForLpa:    true,
 		}).
 		Return(nil)
 
@@ -151,6 +164,12 @@ func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{}, nil)
+	lpaStore.
+		On("Put", mock.Anything, "session-id", &Lpa{
+			CPWitnessedDonorSign: false,
+			WantToApplyForLpa:    false,
+		}).
+		Return(nil)
 
 	template := &mockTemplate{}
 	template.
@@ -186,7 +205,8 @@ func TestReadSignYourLpaForm(t *testing.T) {
 
 	result := readSignYourLpaForm(r)
 
-	assert.Equal([]string{"cp-witnessed", "want-to-apply"}, result.DonorSignatures)
+	assert.Equal(true, result.CPWitnessed)
+	assert.Equal(true, result.WantToApply)
 }
 
 func TestSignYourLpaFormValidate(t *testing.T) {
@@ -196,11 +216,30 @@ func TestSignYourLpaFormValidate(t *testing.T) {
 	}{
 		"valid": {
 			form: &signYourLpaForm{
-				[]string{"cp-witnessed", "want-to-apply"},
+				WantToApply: true,
+				CPWitnessed: true,
 			},
 			errors: map[string]string{},
 		},
-		"invalid-all": {
+		"only cp-witnessed selected": {
+			form: &signYourLpaForm{
+				WantToApply: false,
+				CPWitnessed: true,
+			},
+			errors: map[string]string{
+				"sign-lpa": "selectBothBoxes",
+			},
+		},
+		"only want-to-apply selected": {
+			form: &signYourLpaForm{
+				WantToApply: true,
+				CPWitnessed: false,
+			},
+			errors: map[string]string{
+				"sign-lpa": "selectBothBoxes",
+			},
+		},
+		"none selected": {
 			form: &signYourLpaForm{},
 			errors: map[string]string{
 				"sign-lpa": "selectBothBoxes",

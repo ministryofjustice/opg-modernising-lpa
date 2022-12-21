@@ -72,7 +72,8 @@ type Lpa struct {
 	HowShouldReplacementAttorneysStepInDetails  string
 	DoYouWantToNotifyPeople                     string
 	PeopleToNotify                              []PersonToNotify
-	DonorSignatures                             []string
+	CPWitnessedDonorSign                        bool
+	WantToApplyForLpa                           bool
 }
 
 type PaymentDetails struct {

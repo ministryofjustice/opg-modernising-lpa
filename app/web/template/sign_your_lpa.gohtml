@@ -46,11 +46,21 @@
 
                         {{ $cpWitnessingLabel := trFormat .App "cpIsWitnessingMeSign" "CertificateProviderFullName" .Lpa.CertificateProviderFullName }}
 
-                        {{ template "checkboxes" (items . "sign-lpa" .Form.DonorSignatures
-                        (item "cp-witnessed" $cpWitnessingLabel)
-                        (item "want-to-apply" "wantToApply")
-                        ) }}
+                        <div class="govuk-checkboxes {{ if index .Errors "sign-lpa" }}govuk-checkboxes--error{{ end }}">
+                            <div class="govuk-checkboxes__item">
+                                <input class="govuk-checkboxes__input" id="f-sign-lpa" name="sign-lpa" type="checkbox" value="{{ .CPWitnessedFormValue }}" {{ if eq .Lpa.CPWitnessedDonorSign true }}checked{{ end }}>
+                                <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa">
+                                    {{ trFormat .App "cpIsWitnessingMeSign" "CertificateProviderFullName" .Lpa.CertificateProviderFullName }}
+                                </label>
+                            </div>
 
+                            <div class="govuk-checkboxes__item">
+                                <input class="govuk-checkboxes__input" id="f-sign-lpa-2" name="sign-lpa" type="checkbox" value="{{ .WantFormValue }}" {{ if eq .Lpa.WantToApplyForLpa true }}checked{{ end }}>
+                                <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa-2">
+                                    {{ tr .App "wantToApply" }}
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
