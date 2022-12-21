@@ -27,14 +27,16 @@ func WitnessingYourSignature(tmpl template.Template, lpaStore LpaStore, notifyCl
 
 			smsID, err := notifyClient.Sms(r.Context(), notify.Sms{
 				PhoneNumber: lpa.CertificateProvider.Mobile,
-				TemplateID:  notifyClient.TemplateID("MLPA Beta signature code"),
+				TemplateID:  notifyClient.TemplateID("MLPA Beta signature code - SMS"),
 				Personalisation: map[string]string{
 					"code": code,
 				},
 			})
+
 			if err != nil {
 				return err
 			}
+
 			lpa.SignatureSmsID = smsID
 
 			if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {

@@ -115,7 +115,7 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 
 	notifyClient := &mockNotifyClient{}
 	notifyClient.
-		On("TemplateID", "MLPA Beta signature code").
+		On("TemplateID", "MLPA Beta signature code - SMS").
 		Return("xyz")
 	notifyClient.
 		On("Sms", mock.Anything, notify.Sms{
@@ -147,7 +147,7 @@ func TestPostWitnessingYourSignatureWhenNotifyErrors(t *testing.T) {
 
 	notifyClient := &mockNotifyClient{}
 	notifyClient.
-		On("TemplateID", "MLPA Beta signature code").
+		On("TemplateID", "MLPA Beta signature code - SMS").
 		Return("xyz")
 	notifyClient.
 		On("Sms", mock.Anything, mock.Anything).
@@ -175,7 +175,7 @@ func TestPostWitnessingYourSignatureWhenLpaStoreErrors(t *testing.T) {
 
 	notifyClient := &mockNotifyClient{}
 	notifyClient.
-		On("TemplateID", "MLPA Beta signature code").
+		On("TemplateID", "MLPA Beta signature code - SMS").
 		Return("xyz")
 	notifyClient.
 		On("Sms", mock.Anything, mock.Anything).
