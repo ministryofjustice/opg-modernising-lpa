@@ -144,6 +144,7 @@
     "whoWouldYouLikeToBeTheAttorneysDetailsContent": "<p class=\"govuk-body\">Eich atwrneiod yw'r bobl gall eich helpu i wneud penderfyniadau am eich arian, os byddwch chi eisiau neu angen eu help yn y dyfodol.</p> <p class=\"govuk-body\">Mae'n bwysig dewis pobl rydych yn ymddiried ynddynt i barchu eich dymuniadau a gweithredu er eich budd pennaf.</p> <p class=\"govuk-body\">Gallwch gael mwy nag 1 atwrnai. Mae gan y rhan fwyaf o bobl rhwng 1 a 3.</p> <p class=\"govuk-body\">Rhaid i atwrnai bod:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>yn 18 oed neu'n hŷn</li> <li>â galluedd meddyliol (gallu gwneud penderfyniadau)</li> </ul> <p class=\"govuk-body\">Ni all rhywun fod yn atwrnai os ydynt:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>yn fethdalwr neu os oes ganddynt orchymyn gostwng dyled</li> <li>ar restr wahardd y Gwasanaeth Datgelu a Gwahardd (bydd rhywun fel arfer yn cael ei roi ar y rhestr hon os oes ganddynt euogfarn droseddol neu rybuddiad sy’n golygu ni allant weithio gyda phobl sy’n agored i niwed)</li> </ul> <p class=\"govuk-body\">Bydd cyfle i chi ychwanegu atwrneiod wrth gefn mewn cwestiwn ar wahân. Gall y rhain gamu i mewn os yw’r atwrneiod gwreiddiol yn methu neu’n anfodlon parhau.</p> <p class=\"govuk-body\">Darganfod mwy am atwrneiod </p>",
     "attorney": "Atwrnai",
     "enterEmail": "Welsh",
+    "enterMobile": "Welsh",
     "emailIncorrectFormat": "Welsh",
     "attorneyAddress": "{{.FirstNames}} {{.LastName}}'s Welsh",
     "attorneyDateOfBirthIsUnder18": "Welsh",

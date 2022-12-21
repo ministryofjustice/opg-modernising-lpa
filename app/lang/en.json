@@ -139,6 +139,7 @@
     "attorney": "Attorney",
     "enterEmail": "Enter email",
     "emailIncorrectFormat": "Enter email in the correct format, like name@example.com",
+    "enterMobile": "Enter mobile phone number",
     "attorneyAddress": "{{.FirstNames}} {{.LastName}}'s address",
     "attorneyDateOfBirthIsUnder18": "This attorney is under 18 years old. You will not be able to finish making this LPA until they are 18.",
 

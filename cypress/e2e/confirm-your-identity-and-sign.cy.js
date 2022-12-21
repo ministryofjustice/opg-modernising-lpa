@@ -42,18 +42,6 @@ describe('Confirm your identity and sign', () => {
         cy.contains('confirmed with driving licence');
         cy.contains('button', 'Continue').click();
 
-        // cy.injectAxe();
-        // cy.checkA11y(null, { rules: { region: { enabled: false } } });
-        //
-        // cy.url().should('contain', '/what-happens-when-signing');
-        // cy.contains('a', 'Continue').click();
-        //
-        // cy.injectAxe();
-        // cy.checkA11y(null, { rules: { region: { enabled: false } } });
-        //
-        // cy.url().should('contain', '/how-to-sign');
-        // cy.contains('button', 'Continue').click();
-
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
