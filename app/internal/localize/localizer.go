@@ -30,7 +30,13 @@ type Localizer struct {
 }
 
 func (l Localizer) T(messageID string) string {
-	return l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID})
+	msg, err := l.Localize(&i18n.LocalizeConfig{MessageID: messageID})
+
+	if err != nil {
+		return messageID
+	}
+
+	return msg
 }
 
 func (l Localizer) Format(messageID string, data map[string]interface{}) string {

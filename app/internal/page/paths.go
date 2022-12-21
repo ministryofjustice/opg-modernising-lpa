@@ -46,8 +46,8 @@ type AppPaths struct {
 	Restrictions                                string
 	Root                                        string
 	SelectYourIdentityOptions                   string
-	SignYourLpa                                 string
 	SigningConfirmation                         string
+	SignYourLpa                                 string
 	Start                                       string
 	TaskList                                    string
 	TestingStart                                string
@@ -55,6 +55,7 @@ type AppPaths struct {
 	WhenCanTheLpaBeUsed                         string
 	WhoDoYouWantToBeCertificateProviderGuidance string
 	WhoIsTheLpaFor                              string
+	WitnessingYourSignature                     string
 	YourAddress                                 string
 	YourChosenIdentityOptions                   string
 	YourDetails                                 string
