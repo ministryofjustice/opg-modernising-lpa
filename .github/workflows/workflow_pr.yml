@@ -27,7 +27,7 @@ jobs:
     name: Post slack message
     uses: ./.github/workflows/slack_job.yml
     with:
-      channel-id: C03RDLFC799
+      channel-id: "C03RDLFC799"
     secrets:
       slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }} # pragma: allowlist secret
 
