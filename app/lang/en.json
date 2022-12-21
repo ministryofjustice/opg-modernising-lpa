@@ -294,11 +294,9 @@
     "submitSignature": "Submit my signature",
     "selectBothBoxes": "You must check both boxes to confirm your signing of the LPA.",
 
-    "witnessingYourSignature": "Witnessing your signature",
-
     "witnessYourSignatureHeader": "<h1 class=\"govuk-heading-xl\">Witnessing your signature</h1>",
     "witnessYourSignatureContent": "<p class=\"govuk-body govuk-!-font-weight-bold\">We now need {{ .CpFullName }}, your certificate provider to confirm that they are with you and have witnessed you signing your LPA.</p> <ol class=\"govuk-list govuk-list--number govuk-list--spaced\"> <li>When you press continue, we'll send {{ .CpFirstNames }} a text message containing a unique code</li> <li>{{ .CpFirstNames }} will need to type in this code on the next screen</li> </ol>",
-    "witnessCodeTimeWarning": "When Lesley receives this code, it is valid for 30 minutes. Please use the code within this time.",
+    "witnessCodeTimeWarning": "When {{ .CpFirstNames }} receives this code, it is valid for 30 minutes. Please use the code within this time.",
 
     "selectYourIdentityOptions": "Select your identity options",
     "selectAllAtLeastThree": "Select all that apply. You must select at least three options.",
