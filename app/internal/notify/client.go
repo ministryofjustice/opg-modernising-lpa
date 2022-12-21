@@ -62,8 +62,8 @@ type Sms struct {
 
 type response struct {
 	ID         string     `json:"id"`
-	StatusCode int        `json:"status_code"`
-	Errors     errorsList `json:"errors"`
+	StatusCode int        `json:"status_code,omitempty"`
+	Errors     errorsList `json:"errors,omitempty"`
 }
 
 type errorsList []errorItem
@@ -84,13 +84,18 @@ type errorItem struct {
 func (c *Client) TemplateID(name string) string {
 	if c.isProduction {
 		switch name {
-		case "MLPA Beta signature code":
+		case "MLPA Beta signature code - Email":
 			return "95f7b0a2-1c3a-4ad9-818b-b358c549c88b"
+		case "MLPA Beta signature code - SMS":
+			//TODO see if there is a live Sirius account I dont have access to
+			return ""
 		}
 	} else {
 		switch name {
-		case "MLPA Beta signature code":
+		case "MLPA Beta signature code - Email":
 			return "7e8564a0-2635-4f61-9155-0166ddbe5607"
+		case "MLPA Beta signature code - SMS":
+			return "0aa5b61c-ef30-410a-8473-915df9d343a5"
 		}
 	}
 
@@ -111,16 +116,16 @@ func (c *Client) Email(ctx context.Context, email Email) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	var v response
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	var r response
+	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
 		return "", err
 	}
 
-	if len(v.Errors) > 0 {
-		return "", v.Errors
+	if len(r.Errors) > 0 {
+		return "", r.Errors
 	}
 
-	return v.ID, nil
+	return r.ID, nil
 }
 
 func (c *Client) Sms(ctx context.Context, sms Sms) (string, error) {
@@ -137,16 +142,16 @@ func (c *Client) Sms(ctx context.Context, sms Sms) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	var v response
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	var r response
+	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
 		return "", err
 	}
 
-	if len(v.Errors) > 0 {
-		return "", v.Errors
+	if len(r.Errors) > 0 {
+		return "", r.Errors
 	}
 
-	return v.ID, nil
+	return r.ID, nil
 }
 
 func (c *Client) request(ctx context.Context, url string, jsonBody bytes.Buffer) (*http.Request, error) {
