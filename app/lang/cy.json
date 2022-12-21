@@ -201,6 +201,7 @@
     "certificateProviderDetails": "Manylion eich darparwr tystysgrif",
     "certificateProviderDetailsHint": "Cofiwch, rhaid i’ch darparwr tystysgrif fod yn 18 oed neu'n hŷn. Ni allant fod yn aelod o'ch teulu (mae hyn yn cynnwys llys-berthnasau a pherthnasau yng-nghyfraith) nac o deuluoedd eich atwrneiod.",
     "certificateProviderDobHint": "Mae angen dyddiad geni eich darparwr tystysgrif arnom i wirio eu bod dros 18 oed.",
+    "mobile": "Welsh",
 
     "aboutPayment": "Welsh",
     "aboutPaymentContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
@@ -356,7 +357,7 @@
     "options": "Welsh",
     "lastSaved": "Welsh",
     "statusTag": "Welsh",
-    
+
     "howShouldAttorneysMakeDecisions": "Welsh?",
     "howShouldAttorneysMakeDecisionsDetail": "Welsh",
     "getHelpMakingDecision": "Welsh",

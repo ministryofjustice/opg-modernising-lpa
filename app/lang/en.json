@@ -188,6 +188,7 @@
     "certificateProviderDetails": "Your certificate provider’s details",
     "certificateProviderDetailsHint": "Remember, your certificate provider must be 18 or over. They cannot be a member of your family (this includes step-relations and in-laws) or of the attorneys' families.",
     "certificateProviderDobHint": "We need your certificate provider's date of birth to check they are over 18.",
+    "mobile": "Mobile number",
 
     "aboutPayment": "About payment",
     "aboutPaymentContent": "<p class=\"govuk-body\">It costs £82 to apply for an LPA. </p>",
