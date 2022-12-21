@@ -14,7 +14,7 @@
     "contact": "Contact",
     "termsAndConditions": "Terms and conditions",
     "serviceName": "Make a lasting power of attorney",
-    "startContent": "<p class=\"govuk-body\">You can make a lasting power of attorney (LPA) using our online service.</p> <p class=\"govuk-body\">If you want to, you can ask someone else to use the service for you, for example a family member, friend or solicitor. You will still need to make all the decisions about what goes on the LPA.</p> <p class=\"govuk-body\">We’ll save the LPA as you progress so you do not need to complete it in one go. You can sign out at any time and come back later.</p> <p class=\"govuk-body\">It costs £82 to apply to register an LPA.</p> <h2 class=\"govuk-heading-m\">Information you'll need</h2> <p class=\"govuk-body\">You may find it useful to gather some information before you start.</p> <p class=\"govuk-body\">As well as your details, you’ll need the names, addresses and dates of birth of:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>the attorneys</li> <li>the replacement attorneys, if you decide to have any</li> </ul> <p class=\"govuk-body\">You’ll also need the name and address of your certificate provider.</p> <h2 class=\"govuk-heading-m\">Documents, equipment and other things you'll need</h2> <p class=\"govuk-body\">You'll also need:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>a debit or credit card to pay the application fee</li> <li>a mobile phone, so we can text you a security code</li> <li>documents or information to prove your identity</li> </ul> <details class=\"govuk-details\" data-module=\"govuk-details\"> <summary class=\"govuk-details__summary\"> <span class=\"govuk-details__summary-text\"> What you need to prove your identity </span> </summary> <div class=\"govuk-details__text\"> <p class=\"govuk-body\">When you make an LPA, we need to check your identity. We do this to protect you and prevent fraud.</p> <p class=\"govuk-body\">You can prove your identity by:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>entering details from your passport or driving licence</li> <li>entering details from, and uploading a photo of, a recent payslip or P60</li> <li>signing in to your Government Gateway, Department for Work and Pensions, or online banking account, and letting us confirm your details with those organisations</li> <li>taking documents to a Post Office</li> <li>asking a professional (like a teacher, civil servant or solicitor) to confirm your identity</li> </ul> </div> </details>",
+    "startContent": "<p class=\"govuk-body\">You can make a lasting power of attorney (LPA) using our online service.</p><p class=\"govuk-body\">If you want to, you can ask someone else to use the service for you, for example a family member, friend or solicitor. You will still need to make all the decisions about what goes on the LPA.</p><p class=\"govuk-body\">We’ll save the LPA as you progress so you do not need to complete it in one go. You can sign out at any time and come back later.</p><p class=\"govuk-body\">It costs £82 to apply to register an LPA.</p><h2 class=\"govuk-heading-m\">Information you'll need</h2><p class=\"govuk-body\">You may find it useful to gather some information before you start.</p><p class=\"govuk-body\">As well as your details, you’ll need the names, addresses and dates of birth of:</p><ul class=\"govuk-list govuk-list--bullet\"><li>the attorneys</li><li>the replacement attorneys, if you decide to have any</li></ul><p class=\"govuk-body\">You’ll also need the name and address of your certificate provider.</p><h2 class=\"govuk-heading-m\">Documents, equipment and other things you'll need</h2><p class=\"govuk-body\">You'll also need:</p><ul class=\"govuk-list govuk-list--bullet\"><li>a debit or credit card to pay the application fee</li><li>a mobile phone, so we can text you a security code</li><li>documents or information to prove your identity</li></ul><details class=\"govuk-details\" data-module=\"govuk-details\"><summary class=\"govuk-details__summary\"><span class=\"govuk-details__summary-text\"> What you need to prove your identity </span></summary><div class=\"govuk-details__text\"><p class=\"govuk-body\">When you make an LPA, we need to check your identity. We do this to protect you and prevent fraud.</p><p class=\"govuk-body\">You can prove your identity by:</p><ul class=\"govuk-list govuk-list--bullet\"><li>entering details from your passport or driving licence</li><li>entering details from, and uploading a photo of, a recent payslip or P60</li><li>signing in to your Government Gateway, Department for Work and Pensions, or online banking account, and letting us confirm your details with those organisations</li><li>taking documents to a Post Office</li><li>asking a professional (like a teacher, civil servant or solicitor) to confirm your identity</li></ul></div></details>",
     "start": "Start",
     "openGovernmentLicenceContent": "All content is available under the <a class=\"govuk-footer__link\" href=\"https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/\" rel=\"license\">Open Government Licence v3.0</a>, except where otherwise stated",
     "crownCopyright": "© Crown copyright",
@@ -52,7 +52,7 @@
     "postcode": "Postcode",
     "findAddress": "Find address",
     "selectAnAddress": "Select an address",
-    "cantFindAddress": "Can't find address?",
+    "cantFindAddress": "Can not find address?",
     "addressesFound": {
         "one": "{{.PluralCount}} address found",
         "other": "{{.PluralCount}} addresses found"
@@ -302,7 +302,7 @@
     "iWouldLikeToConfirmMyIdentityInPerson": "I would like to confirm my identity in person",
     "selectAtLeastThreeIdentityOptions": "Select at least three identity options",
     "selectValidIdentityOption": "Select from the listed identity options",
-    "selectMoreOptions": "Select more options so we can make accurately identify you",
+    "selectMoreOptions": "Select more options so we can accurately identify you",
 
     "yourChosenDocuments": "Your chosen documents",
     "yourChosenDocumentsContent": "You told us that you have the following documents:",
@@ -382,9 +382,9 @@
     "selectWhenToStepIn": "Select when your replacement attorneys should step in",
     "provideDetailsOfWhenToStepIn": "Provide details on how your replacement attorneys should step in",
 
-    "jointly-and-severally": "<p class=\"govuk--body\">Your attorneys can make decisions together or on their own.</p> <p class=\"govuk--body\">In legal terms, this is known as your attorneys working 'jointly and severally'.</p>",
-    "jointly": "<p class=\"govuk--body\">Your attorneys must and agree make and agree all decisions together.</p> <p class=\"govuk--body\">In legal terms, this is known as your attorneys working 'jointly'</p>",
-    "mixed":                 "<p class=\"govuk--body\">Your attorneys must make certain decisions together.</p> <p class=\"govuk--body\">In legal terms, this is known as your attorneys working 'jointly for some decisions and jointly and severally for others'.</p>",
+    "jointly-and-severally": "<p class=\"govuk-body\">Your attorneys can make decisions together or on their own.</p> <p class=\"govuk-body\">In legal terms, this is known as your attorneys working 'jointly and severally'.</p>",
+    "jointly": "<p class=\"govuk-body\">Your attorneys must make and agree all decisions together.</p> <p class=\"govuk-body\">In legal terms, this is known as your attorneys working 'jointly'</p>",
+    "mixed":                 "<p class=\"govuk-body\">Your attorneys must make certain decisions together.</p> <p class=\"govuk-body\">In legal terms, this is known as your attorneys working 'jointly for some decisions and jointly and severally for others'.</p>",
     "when-registered":       "As soon as it's registered",
     "when-capacity-lost":    "Only when I do not have mental capacity",
 
@@ -398,7 +398,6 @@
         "one": "You have added {{.PluralCount}} person to notify",
         "other": "You have added {{.PluralCount}} people to notify"
     },
-    "personCount": "Person to notify {{.PersonNumber}}",
     "removePersonToNotifyButtonLink": "Remove person to notify {{ .PersonNumber }}<span class=\"govuk-visually-hidden\"> {{ .FirstNames }} {{ .LastName }}</span>",
     "doYouWantToAddAnotherPersonToNotify": "Do you want to add another person to notify?",
     "removeAPersonToNotify": "Remove a person to notify"
