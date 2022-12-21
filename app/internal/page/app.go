@@ -236,10 +236,6 @@ func App(
 		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, UtilityBill))
 	handle(paths.IdentityWithCouncilTaxBill, RequireSession|CanGoBack,
 		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, CouncilTaxBill))
-	handle(paths.WhatHappensWhenSigning, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("what_happens_when_signing.gohtml"), paths.HowToSign, lpaStore))
-	handle(paths.HowToSign, RequireSession|CanGoBack,
-		HowToSign(tmpls.Get("how_to_sign.gohtml"), lpaStore, notifyClient, random.Code))
 	handle(paths.ReadYourLpa, RequireSession|CanGoBack,
 		ReadYourLpa(tmpls.Get("read_your_lpa.gohtml"), lpaStore))
 	handle(paths.SignYourLpa, RequireSession|CanGoBack,
