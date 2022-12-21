@@ -1,8 +1,10 @@
 package notify
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strings"
@@ -53,11 +55,7 @@ func TestEmail(t *testing.T) {
 			var v map[string]string
 			json.NewDecoder(req.Body).Decode(&v)
 
-			return assert.Equal(http.MethodPost, req.Method) &&
-				assert.Equal("https://api.notifications.service.gov.uk/v2/notifications/email", req.URL.String()) &&
-				assert.Equal("application/json", req.Header.Get("Content-Type")) &&
-				assert.Equal("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmMzM1MTdmZi0yYTg4LTRmNmUtYjg1NS1jNTUwMjY4Y2UwOGEiLCJpYXQiOjE1Nzc5MzQyNDV9.V0iR-Foo_twZdWttAxy4koJoSYJzyZHMr-tJIBwZj8k", req.Header.Get("Authorization")) &&
-				assert.Equal("me@example.com", v["email_address"]) &&
+			return assert.Equal("me@example.com", v["email_address"]) &&
 				assert.Equal("template-123", v["template_id"])
 		})).
 		Return(&http.Response{
@@ -86,13 +84,93 @@ func TestEmailWhenError(t *testing.T) {
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 
 	_, err := client.Email(ctx, Email{EmailAddress: "me@example.com", TemplateID: "template-123"})
-	assert.Equal(`error sending email: This happened: Plus this`, err.Error())
+	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
 }
 
 func TestTemplateID(t *testing.T) {
 	production, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil)
-	assert.Equal(t, "95f7b0a2-1c3a-4ad9-818b-b358c549c88b", production.TemplateID("MLPA Beta signature code"))
+	assert.Equal(t, "95f7b0a2-1c3a-4ad9-818b-b358c549c88b", production.TemplateID("MLPA Beta signature code - Email"))
+	assert.Equal(t, "", production.TemplateID("MLPA Beta signature code - SMS"))
 
 	test, _ := New(false, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil)
-	assert.Equal(t, "7e8564a0-2635-4f61-9155-0166ddbe5607", test.TemplateID("MLPA Beta signature code"))
+	assert.Equal(t, "7e8564a0-2635-4f61-9155-0166ddbe5607", test.TemplateID("MLPA Beta signature code - Email"))
+	assert.Equal(t, "0aa5b61c-ef30-410a-8473-915df9d343a5", test.TemplateID("MLPA Beta signature code - SMS"))
+}
+
+func TestRequest(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+	doer := &mockDoer{}
+
+	var jsonBody bytes.Buffer
+	jsonBody.WriteString(`{"some": "json"}`)
+
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
+
+	req, err := client.request(ctx, "/an/url", jsonBody)
+
+	assert.Nil(err)
+	assert.Equal(http.MethodPost, req.Method)
+	assert.Equal("https://api.notifications.service.gov.uk/an/url", req.URL.String())
+	assert.Equal("application/json", req.Header.Get("Content-Type"))
+	assert.Equal("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmMzM1MTdmZi0yYTg4LTRmNmUtYjg1NS1jNTUwMjY4Y2UwOGEiLCJpYXQiOjE1Nzc5MzQyNDV9.V0iR-Foo_twZdWttAxy4koJoSYJzyZHMr-tJIBwZj8k", req.Header.Get("Authorization"))
+}
+
+func TestRequestWhenNewRequestError(t *testing.T) {
+	assert := assert.New(t)
+	doer := &mockDoer{}
+
+	var jsonBody bytes.Buffer
+	jsonBody.WriteString(`{"some": "json"}`)
+
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client.now = func() time.Time { return time.Now().Add(-time.Minute) }
+
+	_, err := client.request(nil, "/an/url", jsonBody)
+
+	assert.Equal(errors.New("net/http: nil Context"), err)
+}
+
+func TestSms(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+
+	doer := &mockDoer{}
+	doer.
+		On("Do", mock.MatchedBy(func(req *http.Request) bool {
+			var v map[string]string
+			json.NewDecoder(req.Body).Decode(&v)
+
+			return assert.Equal("+447535111111", v["phone_number"]) &&
+				assert.Equal("template-123", v["template_id"])
+		})).
+		Return(&http.Response{
+			Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`)),
+		}, nil)
+
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
+
+	id, err := client.Sms(ctx, Sms{PhoneNumber: "+447535111111", TemplateID: "template-123"})
+
+	assert.Nil(err)
+	assert.Equal("xyz", id)
+}
+
+func TestSmsWhenError(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+
+	doer := &mockDoer{}
+	doer.
+		On("Do", mock.Anything).
+		Return(&http.Response{
+			Body: io.NopCloser(strings.NewReader(`{"errors":[{"error":"SomeError","message":"This happened"}, {"error":"AndError","message":"Plus this"}]}`)),
+		}, nil)
+
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+
+	_, err := client.Sms(ctx, Sms{PhoneNumber: "+447535111111", TemplateID: "template-123"})
+	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
 }
