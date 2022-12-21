@@ -1355,3 +1355,54 @@ func TestReplacementAttorneysStepInSomeOtherWayWithDetails(t *testing.T) {
 		})
 	}
 }
+
+func TestDonorFullName(t *testing.T) {
+	l := &Lpa{
+		You: Person{FirstNames: "Bob Alan George", LastName: "Smith Jones-Doe"},
+	}
+
+	assert.Equal(t, "Bob Alan George Smith Jones-Doe", l.DonorFullName())
+}
+
+func TestCertificateProviderFullName(t *testing.T) {
+	l := &Lpa{
+		CertificateProvider: CertificateProvider{FirstNames: "Bob Alan George", LastName: "Smith Jones-Doe"},
+	}
+
+	assert.Equal(t, "Bob Alan George Smith Jones-Doe", l.CertificateProviderFullName())
+}
+
+func TestLpaLegalTermTransKey(t *testing.T) {
+	testCases := map[string]struct {
+		LpaType           string
+		ExpectedLegalTerm string
+	}{
+		"PFA": {
+			LpaType:           LpaTypePropertyFinance,
+			ExpectedLegalTerm: "pfaLegalTerm",
+		},
+		"HW": {
+			LpaType:           LpaTypeHealthWelfare,
+			ExpectedLegalTerm: "hwLegalTerm",
+		},
+		"Combined": {
+			LpaType:           LpaTypeCombined,
+			ExpectedLegalTerm: "combinedLegalTerm",
+		},
+		"unexpected": {
+			LpaType:           "not-a-type",
+			ExpectedLegalTerm: "",
+		},
+		"empty": {
+			LpaType:           "",
+			ExpectedLegalTerm: "",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := Lpa{Type: tc.LpaType}
+			assert.Equal(t, tc.ExpectedLegalTerm, lpa.LpaLegalTermTransKey())
+		})
+	}
+}
