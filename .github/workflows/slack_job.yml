@@ -5,6 +5,10 @@ on:
         description: 'Slack channel id, channel name, or user id to post message.'
         required: true
         type: string
+    secrets:
+      slack-bot-token:
+        description: 'A token passed from the caller workflow'
+        required: false
 
 defaults:
   run:
@@ -42,4 +46,4 @@ jobs:
             ]
           }
       env:
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
