@@ -12,6 +12,7 @@ func TestNewBundle(t *testing.T) {
 
 	en := bundle.For("en")
 	assert.Equal("A", en.T("a"))
+	assert.Equal("key does not exist", en.T("key does not exist"))
 
 	assert.Equal("A person", en.Format("af", map[string]interface{}{"x": "person"}))
 
