@@ -10,12 +10,6 @@ defaults:
   run:
     shell: bash
 
-permissions:
-  id-token: write
-  contents: write
-  security-events: write
-  pull-requests: read
-
 jobs:
   post_to_slack:
     runs-on: ubuntu-latest
