@@ -239,9 +239,11 @@ func App(
 	handle(paths.ReadYourLpa, RequireSession|CanGoBack,
 		ReadYourLpa(tmpls.Get("read_your_lpa.gohtml"), lpaStore))
 	handle(paths.SignYourLpa, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("sign_your_lpa.gohtml"), "", lpaStore))
+		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), lpaStore))
 	handle(paths.WitnessingYourSignature, RequireSession|CanGoBack,
 		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), lpaStore, notifyClient, random.Code, time.Now))
+	handle(paths.WitnessingAsCertificateProvider, RequireSession|CanGoBack,
+		Guidance(tmpls.Get("witnessing_as_certificate_provider.gohtml"), "", lpaStore))
 	handle(paths.SigningConfirmation, RequireSession|CanGoBack,
 		Guidance(tmpls.Get("signing_confirmation.gohtml"), paths.TaskList, lpaStore))
 
@@ -300,6 +302,22 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 			lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
 
 			_ = lpaStore.Put(r.Context(), sessionID, lpa)
+		}
+
+		if r.FormValue("withCP") == "1" {
+			sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
+			lpa, _ := lpaStore.Get(r.Context(), sessionID)
+
+			lpa.CertificateProvider = CertificateProvider{
+				FirstNames:              "Barbara",
+				LastName:                "Smith",
+				Email:                   "b@example.org",
+				Mobile:                  "07535111111",
+				DateOfBirth:             time.Now(),
+				Relationship:            "friend",
+				RelationshipDescription: "",
+				RelationshipLength:      "gte-2-years",
+			}
 		}
 
 		if r.FormValue("howAttorneysAct") != "" {

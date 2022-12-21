@@ -1,6 +1,6 @@
 describe('Confirm your identity and sign', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/your-details&withAttorneys=1');
+        cy.visit('/testing-start?redirect=/your-details&withAttorneys=1&withCP=1');
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
         cy.get('#f-date-of-birth').type('1');
@@ -42,17 +42,17 @@ describe('Confirm your identity and sign', () => {
         cy.contains('confirmed with driving licence');
         cy.contains('button', 'Continue').click();
 
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
-
-        cy.url().should('contain', '/what-happens-when-signing');
-        cy.contains('a', 'Continue').click();
-
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
-
-        cy.url().should('contain', '/how-to-sign');
-        cy.contains('button', 'Continue').click();
+        // cy.injectAxe();
+        // cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        //
+        // cy.url().should('contain', '/what-happens-when-signing');
+        // cy.contains('a', 'Continue').click();
+        //
+        // cy.injectAxe();
+        // cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        //
+        // cy.url().should('contain', '/how-to-sign');
+        // cy.contains('button', 'Continue').click();
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
@@ -83,6 +83,12 @@ describe('Confirm your identity and sign', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
+        cy.contains('button', 'Continue').click();
+
+        cy.url().should('contain', '/witnessing-as-certificate-provider');
+
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
         // assertions on signing and completing to follow in future tickets
     });
 
