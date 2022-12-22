@@ -27,7 +27,7 @@ jobs:
     name: Post slack message
     uses: ./.github/workflows/slack_job.yml
     with:
-      channel-id: opg-mlpa-devs
+      channel-id: opg-mlpa-dev
     secrets:
       slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }} # pragma: allowlist secret
     # secrets: inherit # pragma: allowlist secret
