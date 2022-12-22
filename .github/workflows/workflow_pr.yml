@@ -30,7 +30,7 @@ jobs:
       channel-id: opg-mlpa-dev
       payload: |
         {
-          "text": "PR: ${{ github.event.pull_request.title }}",
+          "text": "Test message for PR: ${{ github.event.pull_request.title }}",
           "blocks": [
             {
               "type": "section",
