@@ -75,9 +75,9 @@ jobs:
           check-latest: true
       - run: pip install -r ./scripts/ci_ingress/requirements.txt
         if: inputs.run_against_image != true
-      - name: add_ingress
-        if: inputs.run_against_image != true
-        run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json --add
+      # - name: add_ingress
+      #   if: inputs.run_against_image != true
+      #   run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json --add
 
       - name: Cypress run
         uses: cypress-io/github-action@v4

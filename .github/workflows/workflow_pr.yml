@@ -145,7 +145,8 @@ jobs:
           echo "${{ needs.pr_deploy.outputs.terraform_workspace_name }} PR environment tested, built and deployed"
           echo "Tag Deployed: ${{ needs.pr_deploy.outputs.terraform_container_version }}"
           echo "URL: https://${{ needs.pr_deploy.outputs.url }}"
-  slack_notification:
+
+  path_to_live_failure_slack_notification:
     if: failure()
     name: Post slack message
     uses: ./.github/workflows/slack_job.yml
