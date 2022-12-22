@@ -37,7 +37,7 @@ jobs:
               "type": "header",
               "text": {
                 "type": "plain_text",
-                "text": "Test message from github actions",
+                "text": "Test message: Path to Live workflow is failing",
                 "emoji": true
               }
             },
@@ -58,7 +58,7 @@ jobs:
               "type": "section",
               "text": {
                 "type": "mrkdwn",
-                "text": "<https://github.com/ministryofjustice/opg-modernising-lpa/actions/runs/${{github.run_id}}|View workflow>"
+                "text": "<https://github.com/ministryofjustice/opg-modernising-lpa/actions/runs/${{github.run_id}}|View failing workflow>"
               }
             }
           ]
