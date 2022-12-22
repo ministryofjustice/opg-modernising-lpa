@@ -32,17 +32,38 @@ jobs:
         # For posting a rich message using Block Kit
         # payload: ${{ inputs.payload }}
         payload: |
-          {
-            "text": "Test message for PR: ${{ github.event.pull_request.title }}",
-            "blocks": [
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "PR: ${{ github.event.pull_request.title }}"
-                }
-              }
-            ]
-          }
+            {
+              "icon_emoji": ":robot_face:",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Test message from github actions",
+                    "emoji": true
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Status:*\nTesting messages for path to live failures"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Started by:*\n ${{ github.triggering_actor }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "<https://github.com/ministryofjustice/opg-modernising-lpa/actions/runs/${{github.run_id}}|View workflow>"
+                  }
+                },
+              ]
+            }
       env:
         SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
