@@ -1,6 +1,8 @@
+name: "Slack Notification of Workflow Failure"
+
 on:
   workflow_run:
-    workflows: ["[Workflow] PR"]
+    workflows: [PR]
     types: [completed]
 
 jobs:
