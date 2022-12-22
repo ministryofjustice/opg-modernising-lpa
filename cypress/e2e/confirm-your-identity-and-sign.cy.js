@@ -67,10 +67,22 @@ describe('Confirm your identity and sign', () => {
 
         cy.contains('a', 'Continue to signing page').click();
 
+        cy.url().should('contain', '/sign-your-lpa');
+
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.url().should('contain', '/sign-your-lpa');
+        cy.contains('h1', "Sign your LPA");
+
+        cy.contains('label', 'is witnessing me sign this LPA').click();
+        cy.contains('label', 'I want to apply to register this LPA').click();
+        cy.contains('button', 'Submit my signature').click();
+
+        cy.url().should('contain', '/witnessing-your-signature');
+
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
         // assertions on signing and completing to follow in future tickets
     });
 
