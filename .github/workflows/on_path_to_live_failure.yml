@@ -1,8 +1,8 @@
-name: "Slack Notification of Workflow Failure"
+name: "Slack Notification of Path to Live Workflow Failure"
 
 on:
   workflow_run:
-    workflows: [PR]
+    workflows: [Path to Live]
     types: [completed]
 
 jobs:
@@ -32,13 +32,6 @@ jobs:
               "text": {
                 "type": "mrkdwn",
                 "text": "Paging <!subteam^S03RPSWH0KF>"
-              }
-            },
-            {
-              "type": "section",
-              "text": {
-                "type": "mrkdwn",
-                "text": "<https://github.com/ministryofjustice/opg-modernising-lpa/actions/runs/${{github.run_id}}|View failing workflow>"
               }
             }
           ]
