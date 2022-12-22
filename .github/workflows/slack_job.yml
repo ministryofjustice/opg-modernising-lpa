@@ -25,19 +25,20 @@ jobs:
         # Slack channel id, channel name, or user id to post message.
         # See also: https://api.slack.com/methods/chat.postMessage#channels
         channel-id: ${{ inputs.channel-id }}
+        slack-message: "Test message from GitHub Action"
         # For posting a rich message using Block Kit
-        payload: |
-          {
-            "text": "GitHub Action build result:test",
-            "blocks": [
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "GitHub Action build result: test"
-                }
-              }
-            ]
-          }
+        # payload: |
+        #   {
+        #     "text": "GitHub Action build result:test",
+        #     "blocks": [
+        #       {
+        #         "type": "section",
+        #         "text": {
+        #           "type": "mrkdwn",
+        #           "text": "GitHub Action build result: test"
+        #         }
+        #       }
+        #     ]
+        #  }
       env:
         SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
