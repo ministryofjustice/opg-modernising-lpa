@@ -5,10 +5,10 @@ on:
         description: 'Slack channel id, channel name, or user id to post message.'
         required: true
         type: string
-      payload:
-        description: 'For posting a rich message using Block Kit'
-        required: true
-        type: string
+      # payload:
+      #   description: 'For posting a rich message using Block Kit'
+      #   required: true
+      #   type: string
     secrets:
       slack-bot-token:
         description: 'A token passed from the caller workflow'
@@ -30,6 +30,19 @@ jobs:
         # See also: https://api.slack.com/methods/chat.postMessage#channels
         channel-id: ${{ inputs.channel-id }}
         # For posting a rich message using Block Kit
-        payload: ${{ inputs.payload }}
+        # payload: ${{ inputs.payload }}
+        payload: |
+          {
+            "text": "Test message for PR: ${{ github.event.pull_request.title }}",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "PR: ${{ github.event.pull_request.title }}"
+                }
+              }
+            ]
+          }
       env:
         SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}

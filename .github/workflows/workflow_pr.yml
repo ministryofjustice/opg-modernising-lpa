@@ -27,20 +27,21 @@ jobs:
     name: Post slack message
     uses: ./.github/workflows/slack_job.yml
     with:
-      channel-id: opg-mlpa-dev
-      payload: |
-        {
-          "text": "Test message for PR: ${{ github.event.pull_request.title }}",
-          "blocks": [
-            {
-              "type": "section",
-              "text": {
-                "type": "mrkdwn",
-                "text": "PR: ${{ github.event.pull_request.title }}"
-              }
-            }
-          ]
-        }
+      # channel-id: opg-mlpa-dev
+      channel-id: opg-modernisinglpa-chat
+      # payload: |
+      #   {
+      #     "text": "Test message for PR: ${{ github.event.pull_request.title }}",
+      #     "blocks": [
+      #       {
+      #         "type": "section",
+      #         "text": {
+      #           "type": "mrkdwn",
+      #           "text": "PR: ${{ github.event.pull_request.title }}"
+      #         }
+      #       }
+      #     ]
+      #   }
     secrets:
       slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }} # pragma: allowlist secret
     # secrets: inherit # pragma: allowlist secret
