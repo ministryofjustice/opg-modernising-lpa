@@ -1,0 +1,45 @@
+on:
+  workflow_run:
+    workflows: ["[Workflow] PR"]
+    types: [completed]
+
+jobs:
+  on-success:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - run: echo 'The triggering workflow passed'
+  on-failure:
+    name: Post slack message
+    uses: ./.github/workflows/slack_job.yml
+    with:
+      channel-id: opg-mlpa-dev
+      payload: |
+        {
+          "blocks": [
+            {
+              "type": "header",
+              "text": {
+                "type": "plain_text",
+                "text": ":exclamation: Path to Live workflow is failing",
+                "emoji": true
+              }
+            },
+            {
+              "type": "section",
+              "text": {
+                "type": "mrkdwn",
+                "text": "Paging <!subteam^S03RPSWH0KF>"
+              }
+            },
+            {
+              "type": "section",
+              "text": {
+                "type": "mrkdwn",
+                "text": "<https://github.com/ministryofjustice/opg-modernising-lpa/actions/runs/${{github.run_id}}|View failing workflow>"
+              }
+            }
+          ]
+        }
+    secrets:
+      slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }} # pragma: allowlist secret
