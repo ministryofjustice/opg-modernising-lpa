@@ -33,7 +33,7 @@ jobs:
         # payload: ${{ inputs.payload }}
         payload: |
             {
-              "icon_emoji": ":robot_face:",
+              "icon_emoji": ":exclamation:",
               "blocks": [
                 {
                   "type": "header",
@@ -62,7 +62,7 @@ jobs:
                     "type": "mrkdwn",
                     "text": "<https://github.com/ministryofjustice/opg-modernising-lpa/actions/runs/${{github.run_id}}|View workflow>"
                   }
-                },
+                }
               ]
             }
       env:
