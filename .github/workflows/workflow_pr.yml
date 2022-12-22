@@ -31,13 +31,12 @@ jobs:
       # channel-id: opg-modernisinglpa-chat
       payload: |
         {
-          "icon_emoji": ":exclamation:",
           "blocks": [
             {
               "type": "header",
               "text": {
                 "type": "plain_text",
-                "text": "Test message: Path to Live workflow is failing",
+                "text": ":exclamation: Test message: Path to Live workflow is failing",
                 "emoji": true
               }
             },
