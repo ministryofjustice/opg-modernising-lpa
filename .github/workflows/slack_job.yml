@@ -30,40 +30,6 @@ jobs:
         # See also: https://api.slack.com/methods/chat.postMessage#channels
         channel-id: ${{ inputs.channel-id }}
         # For posting a rich message using Block Kit
-        # payload: ${{ inputs.payload }}
-        payload: |
-            {
-              "icon_emoji": ":exclamation:",
-              "blocks": [
-                {
-                  "type": "header",
-                  "text": {
-                    "type": "plain_text",
-                    "text": "Test message from github actions",
-                    "emoji": true
-                  }
-                },
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Status:*\nTesting messages for path to live failures"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Started by:*\n ${{ github.triggering_actor }}"
-                    }
-                  ]
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "<https://github.com/ministryofjustice/opg-modernising-lpa/actions/runs/${{github.run_id}}|View workflow>"
-                  }
-                }
-              ]
-            }
+        payload: ${{ inputs.payload }}
       env:
         SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
