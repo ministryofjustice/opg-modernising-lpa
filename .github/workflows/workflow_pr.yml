@@ -36,8 +36,15 @@ jobs:
               "type": "header",
               "text": {
                 "type": "plain_text",
-                "text": ":exclamation: Test message: <!subteam^S03RPSWH0KF> Path to Live workflow is failing",
+                "text": ":exclamation: Test message: Path to Live workflow is failing",
                 "emoji": true
+              }
+            },
+            {
+              "type": "section",
+              "text": {
+                "type": "mrkdwn",
+                "text": "Paging <!subteam^S03RPSWH0KF>"
               }
             },
             {
