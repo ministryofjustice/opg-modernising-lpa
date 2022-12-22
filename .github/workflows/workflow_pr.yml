@@ -28,6 +28,19 @@ jobs:
     uses: ./.github/workflows/slack_job.yml
     with:
       channel-id: opg-mlpa-dev
+      payload: |
+        {
+          "text": "PR: ${{ github.event.pull_request.title }}",
+          "blocks": [
+            {
+              "type": "section",
+              "text": {
+                "type": "mrkdwn",
+                "text": "PR: ${{ github.event.pull_request.title }}"
+              }
+            }
+          ]
+        }
     secrets:
       slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }} # pragma: allowlist secret
     # secrets: inherit # pragma: allowlist secret
