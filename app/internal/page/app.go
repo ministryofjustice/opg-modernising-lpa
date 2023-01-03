@@ -245,6 +245,8 @@ func App(
 		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), lpaStore))
 	handle(paths.WitnessingYourSignature, RequireSession|CanGoBack,
 		Guidance(tmpls.Get("witnessing_your_signature.gohtml"), "", lpaStore))
+	handle(paths.WitnessingAsCertificateProvider, RequireSession|CanGoBack,
+		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), lpaStore))
 	handle(paths.SigningConfirmation, RequireSession|CanGoBack,
 		Guidance(tmpls.Get("signing_confirmation.gohtml"), paths.TaskList, lpaStore))
 

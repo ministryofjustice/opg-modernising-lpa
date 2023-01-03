@@ -308,6 +308,11 @@
 
     "witnessingYourSignature": "Witnessing your signature",
 
+    "witnessingAsCPHeader": "<h1 class=\"govuk-heading-xl\">Witnessing as the certificate provider</h1>",
+    "enterUniqueCodeLabel": "Enter your unique code",
+    "enterUniqueCodeHint": "{{ .CpFirstName }}, please type in the code we have sent you, to prove that you are with {{ .DonorFullName }} and have witnessed them sign their LPA.",
+    "cpNotReceivedCodeLink": "<p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">{{ .CpFirstName }} has not received a text message with the code</a></p>",
+
     "selectYourIdentityOptions": "Select your identity options",
     "selectAllAtLeastThree": "Select all that apply. You must select at least three options.",
     "theYoti": "The Yoti app",

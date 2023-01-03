@@ -1,0 +1,33 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ trHtml .App "witnessingAsCPHeader" }}
+
+            <form novalidate method="post">
+                <div class="moj-ticket-panel">
+                    <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
+
+                        {{ $enterUniqueCodeHint := trFormat .App "enterUniqueCodeHint" "CpFirstName" .Lpa.CertificateProvider.FirstNames "DonorFullName" .Lpa.DonorFullName }}
+                        {{ template "input" (input . "witness-code" "enterUniqueCodeLabel" .Form.Code "hint" $enterUniqueCodeHint "classes" "govuk-input--width-5") }}
+
+{{/*                        <div class="govuk-form-group">*/}}
+{{/*                            <label class="govuk-label govuk-!-font-weight-bold" for="f-witness-code">Enter your unique code</label>*/}}
+{{/*                            <div id="cp-witnessed-hint" class="govuk-hint">*/}}
+{{/*                                Lesley, please type in the code we have sent you, to prove that you are with Sam Taylor and have witnessed them sign their LPA.*/}}
+{{/*                            </div>*/}}
+
+{{/*                            <input class="govuk-input govuk-input--width-5" id="f-cp-witnessed" name="witness-code" value="1234" />*/}}
+{{/*                        </div>*/}}
+                    </div>
+                </div>
+
+                {{ trFormatHtml .App "cpNotReceivedCodeLink" "CpFirstName" .Lpa.CertificateProvider.FirstNames }}
+
+                {{ template "continue-button" . }}
+            </form>
+        </div>
+
+    </div>
+{{ end }}

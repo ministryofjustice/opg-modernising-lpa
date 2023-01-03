@@ -330,6 +330,11 @@
 
     "witnessingYourSignature": "Welsh",
 
+    "witnessingAsCPHeader": "<h1 class=\"govuk-heading-xl\">Welsh</h1>",
+    "enterUniqueCodeLabel": "Welsh",
+    "enterUniqueCodeHint": "{{ .CpFirstName }}, welsh {{ .DonorFullName }} welsh.",
+    "cpNotReceivedCodeLink": "<p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">{{ .CpFirstName }} welsh</a></p>",
+
     "selectYourIdentityOptions": "Welsh",
     "selectAllAtLeastThree": "Welsh",
     "theYoti": "Welsh",
