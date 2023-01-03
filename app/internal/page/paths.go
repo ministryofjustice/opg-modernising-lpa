@@ -25,7 +25,6 @@ type AppPaths struct {
 	HowShouldReplacementAttorneysMakeDecisions  string
 	HowShouldReplacementAttorneysStepIn         string
 	HowShouldAttorneysMakeDecisions             string
-	HowToSign                                   string
 	HowWouldYouLikeToBeContacted                string
 	IdentityConfirmed                           string
 	IdentityWithCouncilTaxBill                  string
@@ -51,10 +50,10 @@ type AppPaths struct {
 	Start                                       string
 	TaskList                                    string
 	TestingStart                                string
-	WhatHappensWhenSigning                      string
 	WhenCanTheLpaBeUsed                         string
 	WhoDoYouWantToBeCertificateProviderGuidance string
 	WhoIsTheLpaFor                              string
+	WitnessingAsCertificateProvider             string
 	WitnessingYourSignature                     string
 	YourAddress                                 string
 	YourChosenIdentityOptions                   string
