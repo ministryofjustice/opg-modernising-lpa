@@ -72,6 +72,7 @@ type Lpa struct {
 	HowShouldReplacementAttorneysStepInDetails  string
 	DoYouWantToNotifyPeople                     string
 	PeopleToNotify                              []PersonToNotify
+	WitnessCode                                 WitnessCode
 	CPWitnessedDonorSign                        bool
 	WantToApplyForLpa                           bool
 }
@@ -125,6 +126,11 @@ type CertificateProvider struct {
 	Relationship            string
 	RelationshipDescription string
 	RelationshipLength      string
+}
+
+type WitnessCode struct {
+	Code    string
+	Created time.Time
 }
 
 type AddressClient interface {
