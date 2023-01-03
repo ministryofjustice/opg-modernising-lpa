@@ -87,8 +87,7 @@ func (c *Client) TemplateID(name string) string {
 		case "MLPA Beta signature code - Email":
 			return "95f7b0a2-1c3a-4ad9-818b-b358c549c88b"
 		case "MLPA Beta signature code - SMS":
-			//TODO see if there is a live Sirius account I dont have access to
-			return ""
+			return "a0997cbf-cfd9-4f01-acb2-f33b07074662"
 		}
 	} else {
 		switch name {
