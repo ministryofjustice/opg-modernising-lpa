@@ -1,0 +1,35 @@
+on:
+  workflow_call:
+    inputs:
+      channel-id:
+        description: 'Slack channel id, channel name, or user id to post message.'
+        required: true
+        type: string
+      payload:
+        description: 'For posting a rich message using Block Kit'
+        required: true
+        type: string
+    secrets:
+      slack-bot-token:
+        description: 'A token passed from the caller workflow'
+        required: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  post_to_slack:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Post to a Slack channel
+      id: slack
+      uses: slackapi/slack-github-action@v1.23.0
+      with:
+        # Slack channel id, channel name, or user id to post message.
+        # See also: https://api.slack.com/methods/chat.postMessage#channels
+        channel-id: ${{ inputs.channel-id }}
+        # For posting a rich message using Block Kit
+        payload: ${{ inputs.payload }}
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
