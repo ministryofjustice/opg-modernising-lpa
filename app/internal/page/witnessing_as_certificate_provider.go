@@ -33,8 +33,12 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore) 
 			data.Form = readWitnessingAsCertificateProviderForm(r)
 			data.Errors = data.Form.Validate()
 
+			if lpa.WitnessCode.HasExpired() {
+				data.Errors["witness-code"] = "witnessCodeExpired"
+			}
+
 			if len(data.Errors) == 0 {
-				// A check to make sure code was created less than 30 mins ago
+				lpa.CPWitnessCodeValidated = true
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}

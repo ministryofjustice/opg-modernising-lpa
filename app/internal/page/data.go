@@ -75,6 +75,7 @@ type Lpa struct {
 	WitnessCode                                 WitnessCode
 	CPWitnessedDonorSign                        bool
 	WantToApplyForLpa                           bool
+	CPWitnessCodeValidated                      bool
 }
 
 type PaymentDetails struct {
@@ -131,6 +132,10 @@ type CertificateProvider struct {
 type WitnessCode struct {
 	Code    string
 	Created time.Time
+}
+
+func (w *WitnessCode) HasExpired() bool {
+	return w.Created.Before(time.Now().Add(-30 * time.Minute))
 }
 
 type AddressClient interface {
