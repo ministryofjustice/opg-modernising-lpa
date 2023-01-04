@@ -312,6 +312,9 @@
     "enterUniqueCodeLabel": "Enter your unique code",
     "enterUniqueCodeHint": "{{ .CpFirstName }}, please type in the code we have sent you, to prove that you are with {{ .DonorFullName }} and have witnessed them sign their LPA.",
     "cpNotReceivedCodeLink": "<p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">{{ .CpFirstName }} has not received a text message with the code</a></p>",
+    "witnessCodeDoesNotMatch": "Incorrect certificate providers one-time code entered. Please check the code and try again.",
+    "witnessCodeExpired": "The certificate providers one-time code entered has expired.",
+    "enterWitnessCode": "Enter the certificate providers one-time code",
 
     "selectYourIdentityOptions": "Select your identity options",
     "selectAllAtLeastThree": "Select all that apply. You must select at least three options.",

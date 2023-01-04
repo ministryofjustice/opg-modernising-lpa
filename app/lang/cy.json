@@ -334,6 +334,9 @@
     "enterUniqueCodeLabel": "Welsh",
     "enterUniqueCodeHint": "{{ .CpFirstName }}, welsh {{ .DonorFullName }} welsh.",
     "cpNotReceivedCodeLink": "<p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">{{ .CpFirstName }} welsh</a></p>",
+    "witnessCodeDoesNotMatch": "Welsh",
+    "witnessCodeExpired": "Welsh",
+    "enterWitnessCode": "Welsh",
 
     "selectYourIdentityOptions": "Welsh",
     "selectAllAtLeastThree": "Welsh",

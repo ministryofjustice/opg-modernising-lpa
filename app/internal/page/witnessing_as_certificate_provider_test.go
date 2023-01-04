@@ -188,6 +188,46 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
+func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
+	w := httptest.NewRecorder()
+	now := time.Now()
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(&Lpa{
+			WitnessCode: WitnessCode{Code: "1234", Created: now},
+		}, nil)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &witnessingAsCertificateProviderData{
+			App: appData,
+			Lpa: &Lpa{
+				WitnessCode: WitnessCode{Code: "1234", Created: now},
+			},
+			Errors: map[string]string{
+				"witness-code": "witnessCodeDoesNotMatch",
+			},
+			Form: &witnessingAsCertificateProviderForm{Code: "4321"},
+		}).
+		Return(nil)
+
+	form := url.Values{
+		"witness-code": {"4321"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := WitnessingAsCertificateProvider(template.Func, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, lpaStore, template)
+}
+
 func TestReadWitnessingAsCertificateProviderForm(t *testing.T) {
 	form := url.Values{
 		"witness-code": {"1234"},
@@ -206,13 +246,13 @@ func TestWitnessingAsCertificateProviderValidate(t *testing.T) {
 		form   *witnessingAsCertificateProviderForm
 		errors map[string]string
 	}{
-		"valid - numeric": {
+		"valid numeric": {
 			form: &witnessingAsCertificateProviderForm{
 				Code: "1234",
 			},
 			errors: map[string]string{},
 		},
-		"valid - alpha": {
+		"valid alpha": {
 			form: &witnessingAsCertificateProviderForm{
 				Code: "aBcD",
 			},
@@ -222,22 +262,6 @@ func TestWitnessingAsCertificateProviderValidate(t *testing.T) {
 			form: &witnessingAsCertificateProviderForm{},
 			errors: map[string]string{
 				"witness-code": "enterWitnessCode",
-			},
-		},
-		"too long": {
-			form: &witnessingAsCertificateProviderForm{
-				Code: "12345",
-			},
-			errors: map[string]string{
-				"witness-code": "witnessCodeTooLong",
-			},
-		},
-		"too short": {
-			form: &witnessingAsCertificateProviderForm{
-				Code: "123",
-			},
-			errors: map[string]string{
-				"witness-code": "witnessCodeTooShort",
 			},
 		},
 	}
