@@ -454,6 +454,48 @@ func TestTestingStart(t *testing.T) {
 			})
 		}
 	})
+
+	t.Run("with Certificate Provider", func(t *testing.T) {
+		ctx := context.Background()
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withCP=1", nil)
+		r = r.WithContext(ctx)
+
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Get", ctx, mock.Anything).
+			Return(&Lpa{}, nil)
+
+		lpaStore.
+			On("Put", ctx, mock.Anything, &Lpa{
+				CertificateProvider: CertificateProvider{
+					FirstNames:              "Barbara",
+					LastName:                "Smith",
+					Email:                   "b@example.org",
+					Mobile:                  "07535111111",
+					DateOfBirth:             time.Date(1997, time.January, 2, 3, 4, 5, 6, time.UTC),
+					Relationship:            "friend",
+					RelationshipDescription: "",
+					RelationshipLength:      "gte-2-years",
+				},
+			}).
+			Return(nil)
+
+		testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+	})
 }
 
 func TestLangAbbreviation(t *testing.T) {
