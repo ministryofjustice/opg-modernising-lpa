@@ -51,7 +51,6 @@ var (
 			HowShouldReplacementAttorneysMakeDecisions:  "/how-should-replacement-attorneys-make-decisions",
 			HowShouldReplacementAttorneysStepIn:         "/how-should-replacement-attorneys-step-in",
 			HowShouldAttorneysMakeDecisions:             "/how-should-attorneys-make-decisions",
-			HowToSign:                                   "/how-to-sign",
 			HowWouldYouLikeToBeContacted:                "/how-would-you-like-to-be-contacted",
 			IdentityConfirmed:                           "/identity-confirmed",
 			IdentityWithCouncilTaxBill:                  "/id/council-tax-bill",
@@ -77,10 +76,10 @@ var (
 			Start:                                       "/start",
 			TaskList:                                    "/task-list",
 			TestingStart:                                "/testing-start",
-			WhatHappensWhenSigning:                      "/what-happens-when-signing",
 			WhenCanTheLpaBeUsed:                         "/when-can-the-lpa-be-used",
 			WhoDoYouWantToBeCertificateProviderGuidance: "/who-do-you-want-to-be-certificate-provider-guidance",
 			WhoIsTheLpaFor:                              "/who-is-the-lpa-for",
+			WitnessingAsCertificateProvider:             "/witnessing-as-certificate-provider",
 			WitnessingYourSignature:                     "/witnessing-your-signature",
 			YourAddress:                                 "/your-address",
 			YourChosenIdentityOptions:                   "/your-chosen-identity-options",
@@ -454,6 +453,48 @@ func TestTestingStart(t *testing.T) {
 				mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
 			})
 		}
+	})
+
+	t.Run("with Certificate Provider", func(t *testing.T) {
+		ctx := context.Background()
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withCP=1", nil)
+		r = r.WithContext(ctx)
+
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Get", ctx, mock.Anything).
+			Return(&Lpa{}, nil)
+
+		lpaStore.
+			On("Put", ctx, mock.Anything, &Lpa{
+				CertificateProvider: CertificateProvider{
+					FirstNames:              "Barbara",
+					LastName:                "Smith",
+					Email:                   "b@example.org",
+					Mobile:                  "07535111111",
+					DateOfBirth:             time.Date(1997, time.January, 2, 3, 4, 5, 6, time.UTC),
+					Relationship:            "friend",
+					RelationshipDescription: "",
+					RelationshipLength:      "gte-2-years",
+				},
+			}).
+			Return(nil)
+
+		testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
 	})
 }
 

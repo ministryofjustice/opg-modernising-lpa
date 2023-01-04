@@ -131,6 +131,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "john@example.com",
+				Mobile:      "07535111111",
 				DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
 			},
 		}).
@@ -140,6 +141,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 		"first-names":         {"John"},
 		"last-name":           {"Doe"},
 		"email":               {"john@example.com"},
+		"mobile":              {"07535111111"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {"1990"},
@@ -172,6 +174,7 @@ func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 		"first-names":         {"John"},
 		"last-name":           {"Doe"},
 		"email":               {"john@example.com"},
+		"mobile":              {"07535111111"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {"1990"},
@@ -204,6 +207,7 @@ func TestPostCertificateProviderDetailsWhenValidationError(t *testing.T) {
 	form := url.Values{
 		"last-name":           {"Doe"},
 		"email":               {"john@example.com"},
+		"mobile":              {"07535111111"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {"1990"},
@@ -227,6 +231,7 @@ func TestReadCertificateProviderDetailsForm(t *testing.T) {
 		"first-names":         {"  John "},
 		"last-name":           {"Doe"},
 		"email":               {"john@example.com"},
+		"mobile":              {"07535111111"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {"1990"},
@@ -243,6 +248,7 @@ func TestReadCertificateProviderDetailsForm(t *testing.T) {
 	assert.Equal("2", result.Dob.Day)
 	assert.Equal("1", result.Dob.Month)
 	assert.Equal("1990", result.Dob.Year)
+	assert.Equal("07535111111", result.Mobile)
 	assert.Equal(time.Date(1990, 1, 2, 0, 0, 0, 0, time.UTC), result.DateOfBirth)
 	assert.Nil(result.DateOfBirthError)
 }
@@ -257,6 +263,7 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 				FirstNames: "A",
 				LastName:   "B",
 				Email:      "H",
+				Mobile:     "07535111111",
 				Dob: Date{
 					Day:   "C",
 					Month: "D",
@@ -273,6 +280,7 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 				"last-name":     "enterLastName",
 				"date-of-birth": "dateOfBirthYear",
 				"email":         "enterEmail",
+				"mobile":        "enterMobile",
 			},
 		},
 		"invalid-dob": {
@@ -280,6 +288,7 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 				FirstNames: "A",
 				LastName:   "B",
 				Email:      "C",
+				Mobile:     "07535111111",
 				Dob: Date{
 					Day:   "1",
 					Month: "1",
@@ -296,6 +305,7 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 				FirstNames: "A",
 				LastName:   "B",
 				Email:      "C",
+				Mobile:     "07535111111",
 				Dob: Date{
 					Day:  "1",
 					Year: "1",
