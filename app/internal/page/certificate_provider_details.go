@@ -13,6 +13,16 @@ type certificateProviderDetailsData struct {
 	Form   *certificateProviderDetailsForm
 }
 
+type certificateProviderDetailsForm struct {
+	FirstNames       string
+	LastName         string
+	Email            string
+	Dob              Date
+	DateOfBirth      time.Time
+	DateOfBirthError error
+	Mobile           string
+}
+
 func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
@@ -26,6 +36,7 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 				FirstNames: lpa.CertificateProvider.FirstNames,
 				LastName:   lpa.CertificateProvider.LastName,
 				Email:      lpa.CertificateProvider.Email,
+				Mobile:     lpa.CertificateProvider.Mobile,
 			},
 		}
 
@@ -42,6 +53,7 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 				lpa.CertificateProvider.LastName = data.Form.LastName
 				lpa.CertificateProvider.Email = data.Form.Email
 				lpa.CertificateProvider.DateOfBirth = data.Form.DateOfBirth
+				lpa.CertificateProvider.Mobile = data.Form.Mobile
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
@@ -55,15 +67,6 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 	}
 }
 
-type certificateProviderDetailsForm struct {
-	FirstNames       string
-	LastName         string
-	Email            string
-	Dob              Date
-	DateOfBirth      time.Time
-	DateOfBirthError error
-}
-
 func readCertificateProviderDetailsForm(r *http.Request) *certificateProviderDetailsForm {
 	d := &certificateProviderDetailsForm{}
 	d.FirstNames = postFormString(r, "first-names")
@@ -74,6 +77,7 @@ func readCertificateProviderDetailsForm(r *http.Request) *certificateProviderDet
 		Month: postFormString(r, "date-of-birth-month"),
 		Year:  postFormString(r, "date-of-birth-year"),
 	}
+	d.Mobile = postFormString(r, "mobile")
 
 	d.DateOfBirth, d.DateOfBirthError = time.Parse("2006-1-2", d.Dob.Year+"-"+d.Dob.Month+"-"+d.Dob.Day)
 
@@ -103,6 +107,9 @@ func (d *certificateProviderDetailsForm) Validate() map[string]string {
 	}
 	if _, ok := errors["date-of-birth"]; !ok && d.DateOfBirthError != nil {
 		errors["date-of-birth"] = "dateOfBirthMustBeReal"
+	}
+	if d.Mobile == "" {
+		errors["mobile"] = "enterMobile"
 	}
 
 	return errors
