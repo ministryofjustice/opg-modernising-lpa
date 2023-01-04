@@ -25,7 +25,7 @@
       {{ template "people-named-on-lpa" . }}
 
       <p class="govuk-body">
-        <a href="{{ .App.Paths.SignYourLpa }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
+        <a href="{{ link .App.Paths.SignYourLpa }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
           {{ tr .App "continueToSigningPage" }}
         </a>
       </p>
