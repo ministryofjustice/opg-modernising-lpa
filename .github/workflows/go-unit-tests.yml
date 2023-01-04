@@ -16,7 +16,7 @@ jobs:
           go-version: '^1.18'
       - name: Run tests and generate coverage report
         run: |
-          go test ./... -race -covermode=atomic -coverprofile=coverage.out -v
+          go test ./... -race -covermode=atomic -coverprofile=coverage.out
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
