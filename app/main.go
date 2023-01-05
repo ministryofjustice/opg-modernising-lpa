@@ -91,7 +91,6 @@ func main() {
 		HowShouldReplacementAttorneysMakeDecisions:  "/how-should-replacement-attorneys-make-decisions",
 		HowShouldReplacementAttorneysStepIn:         "/how-should-replacement-attorneys-step-in",
 		HowShouldAttorneysMakeDecisions:             "/how-should-attorneys-make-decisions",
-		HowToSign:                                   "/how-to-sign",
 		HowWouldYouLikeToBeContacted:                "/how-would-you-like-to-be-contacted",
 		IdentityConfirmed:                           "/identity-confirmed",
 		IdentityWithCouncilTaxBill:                  "/id/council-tax-bill",
@@ -117,14 +116,15 @@ func main() {
 		Start:                                       "/start",
 		TaskList:                                    "/task-list",
 		TestingStart:                                "/testing-start",
-		WhatHappensWhenSigning:                      "/what-happens-when-signing",
 		WhenCanTheLpaBeUsed:                         "/when-can-the-lpa-be-used",
 		WhoDoYouWantToBeCertificateProviderGuidance: "/who-do-you-want-to-be-certificate-provider-guidance",
 		WhoIsTheLpaFor:                              "/who-is-the-lpa-for",
+		WitnessingAsCertificateProvider:             "/witnessing-as-certificate-provider",
 		WitnessingYourSignature:                     "/witnessing-your-signature",
 		YourAddress:                                 "/your-address",
 		YourChosenIdentityOptions:                   "/your-chosen-identity-options",
 		YourDetails:                                 "/your-details",
+		YouHaveSubmittedYourLpa:                     "/you-have-submitted-your-lpa",
 	}
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
