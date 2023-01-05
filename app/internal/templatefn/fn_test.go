@@ -140,11 +140,6 @@ func TestContains(t *testing.T) {
 	assert.False(t, contains("d", []string{"a", "b", "c"}))
 }
 
-func TestContainsWithIdentityOptions(t *testing.T) {
-	assert.True(t, contains(string(page.Passport), []page.IdentityOption{page.Passport, page.DrivingLicence, page.CouncilTaxBill}))
-	assert.False(t, contains(string(page.DwpAccount), []page.IdentityOption{page.Passport, page.DrivingLicence, page.CouncilTaxBill}))
-}
-
 func TestTr(t *testing.T) {
 	app := page.AppData{
 		Localizer: localize.NewBundle("testdata/en.json").For("en"),

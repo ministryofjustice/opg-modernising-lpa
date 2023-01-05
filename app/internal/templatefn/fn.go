@@ -128,20 +128,8 @@ func link(app page.AppData, path string) string {
 	return path
 }
 
-func contains(needle string, list interface{}) bool {
-	if slist, ok := list.([]string); ok {
-		return slices.Contains(slist, needle)
-	}
-
-	if slist, ok := list.([]page.IdentityOption); ok {
-		for _, item := range slist {
-			if item.String() == needle {
-				return true
-			}
-		}
-	}
-
-	return false
+func contains(needle string, list []string) bool {
+	return slices.Contains(list, needle)
 }
 
 func tr(app page.AppData, messageID string) string {
