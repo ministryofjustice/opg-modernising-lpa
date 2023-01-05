@@ -115,23 +115,16 @@ func (c *Client) Email(ctx context.Context, email Email) (string, error) {
 	}
 
 	req, err := c.request(ctx, "/v2/notifications/email", buf)
-
-	resp, err := c.doer.Do(req)
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
 
-	var r response
-	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
+	resp, err := c.doRequest(req)
+	if err != nil {
 		return "", err
 	}
 
-	if len(r.Errors) > 0 {
-		return "", r.Errors
-	}
-
-	return r.ID, nil
+	return resp.ID, nil
 }
 
 func (c *Client) Sms(ctx context.Context, sms Sms) (string, error) {
@@ -141,23 +134,16 @@ func (c *Client) Sms(ctx context.Context, sms Sms) (string, error) {
 	}
 
 	req, err := c.request(ctx, "/v2/notifications/sms", buf)
-
-	resp, err := c.doer.Do(req)
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
 
-	var r response
-	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
+	resp, err := c.doRequest(req)
+	if err != nil {
 		return "", err
 	}
 
-	if len(r.Errors) > 0 {
-		return "", r.Errors
-	}
-
-	return r.ID, nil
+	return resp.ID, nil
 }
 
 func (c *Client) request(ctx context.Context, url string, jsonBody bytes.Buffer) (*http.Request, error) {
@@ -177,4 +163,24 @@ func (c *Client) request(ctx context.Context, url string, jsonBody bytes.Buffer)
 	req.Header.Add("Authorization", "Bearer "+token)
 
 	return req, nil
+}
+
+func (c *Client) doRequest(req *http.Request) (response, error) {
+	var r response
+
+	resp, err := c.doer.Do(req)
+	if err != nil {
+		return r, err
+	}
+	defer resp.Body.Close()
+
+	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
+		return r, err
+	}
+
+	if len(r.Errors) > 0 {
+		return r, r.Errors
+	}
+
+	return r, nil
 }

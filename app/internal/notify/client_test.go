@@ -132,6 +132,129 @@ func TestRequestWhenNewRequestError(t *testing.T) {
 	assert.Equal(errors.New("net/http: nil Context"), err)
 }
 
+func TestDoRequest(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+	jsonString := `{"id": "123", "status_code": 400}`
+
+	doer := &mockDoer{}
+	doer.
+		On("Do", mock.Anything).
+		Return(&http.Response{
+			Body: io.NopCloser(strings.NewReader(jsonString)),
+		}, nil)
+
+	var jsonBody bytes.Buffer
+	jsonBody.WriteString(jsonString)
+
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
+
+	req, _ := client.request(ctx, "/an/url", jsonBody)
+
+	response, err := client.doRequest(req)
+
+	assert.Nil(err)
+	assert.Equal(response.ID, "123")
+	assert.Equal(response.StatusCode, 400)
+}
+
+func TestDoRequestWhenContainsErrorList(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+	jsonString := `{"id": "123", "status_code": 400, "errors": [{"error":"SomeError","message":"This happened"}, {"error":"AndError","message":"Plus this"}]}`
+
+	doer := &mockDoer{}
+	doer.
+		On("Do", mock.Anything).
+		Return(&http.Response{
+			Body: io.NopCloser(strings.NewReader(jsonString)),
+		}, nil)
+
+	var jsonBody bytes.Buffer
+	jsonBody.WriteString(jsonString)
+
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
+
+	req, _ := client.request(ctx, "/an/url", jsonBody)
+
+	response, err := client.doRequest(req)
+
+	assert.Equal(errorsList{
+		errorItem{
+			Error:   "SomeError",
+			Message: "This happened",
+		},
+		errorItem{
+			Error:   "AndError",
+			Message: "Plus this",
+		},
+	}, err)
+	assert.Equal("123", response.ID)
+	assert.Equal(400, response.StatusCode)
+	assert.Equal(errorsList{
+		errorItem{
+			Error:   "SomeError",
+			Message: "This happened",
+		},
+		errorItem{
+			Error:   "AndError",
+			Message: "Plus this",
+		},
+	}, response.Errors)
+}
+
+func TestDoRequestWhenRequestError(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+
+	doer := &mockDoer{}
+	doer.
+		On("Do", mock.Anything).
+		Return(&http.Response{
+			Body: io.NopCloser(strings.NewReader(`{"id": "123"}`)),
+		}, errors.New("err"))
+
+	var jsonBody bytes.Buffer
+	jsonBody.WriteString(`{"id": "123"}`)
+
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
+
+	req, _ := client.request(ctx, "/an/url", jsonBody)
+
+	resp, err := client.doRequest(req)
+
+	assert.Equal(errors.New("err"), err)
+	assert.Equal(response{}, resp)
+}
+
+func TestDoRequestWhenJsonDecodeFails(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+
+	doer := &mockDoer{}
+	doer.
+		On("Do", mock.Anything).
+		Return(&http.Response{
+			Body: io.NopCloser(strings.NewReader(`not json`)),
+		}, nil)
+
+	var jsonBody bytes.Buffer
+	jsonBody.WriteString(`not json`)
+
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
+
+	req, _ := client.request(ctx, "/an/url", jsonBody)
+
+	resp, err := client.doRequest(req)
+
+	assert.IsType(&json.SyntaxError{}, err)
+	assert.Equal(response{}, resp)
+}
+
 func TestSms(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
