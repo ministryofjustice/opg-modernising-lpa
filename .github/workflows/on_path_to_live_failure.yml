@@ -13,6 +13,7 @@ jobs:
       - run: echo 'The triggering workflow passed'
   on-failure:
     name: Post slack message
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
     uses: ./.github/workflows/slack_job.yml
     with:
       channel-id: opg-mlpa-dev
