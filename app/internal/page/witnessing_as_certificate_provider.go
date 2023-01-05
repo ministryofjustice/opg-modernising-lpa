@@ -25,8 +25,9 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore) 
 		}
 
 		data := &witnessingAsCertificateProviderData{
-			App: appData,
-			Lpa: lpa,
+			App:  appData,
+			Lpa:  lpa,
+			Form: &witnessingAsCertificateProviderForm{},
 		}
 
 		if r.Method == http.MethodPost {

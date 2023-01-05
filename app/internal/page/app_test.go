@@ -84,6 +84,7 @@ var (
 			YourAddress:                                 "/your-address",
 			YourChosenIdentityOptions:                   "/your-chosen-identity-options",
 			YourDetails:                                 "/your-details",
+			YouHaveSubmittedYourLpa:                     "/you-have-submitted-your-lpa",
 		},
 	}
 )

@@ -332,6 +332,14 @@
     "scanWithTheYotiApp": "Scan with the Yoti app",
     "yourIdentityConfirmedWithYoti": "Your identity details confirmed with Yoti",
 
+    "witnessingAsCPHeader": "<h1 class=\"govuk-heading-xl\">Witnessing as the certificate provider</h1>",
+    "enterUniqueCodeLabel": "Enter your unique code",
+    "enterUniqueCodeHint": "{{ .CpFirstName }}, please type in the code we have sent you, to prove that you are with {{ .DonorFullName }} and have witnessed them sign their LPA.",
+    "cpNotReceivedCodeLink": "<p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">{{ .CpFirstName }} has not received a text message with the code</a></p>",
+    "witnessCodeDoesNotMatch": "Incorrect certificate providers one-time code entered. Please check the code and try again.",
+    "witnessCodeExpired": "The certificate providers one-time code entered has expired.",
+    "enterWitnessCode": "Enter the certificate providers one-time code",
+
     "youveSignedYourLpa": "You've signed your LPA",
     "finalSteps": "Final steps",
     "beforeYourLpaCanBeRegisteredContent": "<p class=\"govuk-body\"><strong>Before your LPA can be registered there are three more steps.</strong></p> <ol class=\"govuk-list govuk-list--number\"> <li>{{.CertificateProviderFirstNames}} will ask you some questions to make sure you understand the LPA and aren't being pressured to make it against your will</li> <li>{{.CertificateProviderFirstNames}} needs to give a statement that you understand the LPA and want to make it</li> <li>We'll ask {{.AllAttorneysFirstNames}} to sign</li> <li>Then your LPA will be submitted to the Office of the Public Guardian automatically</li> </ol>",
