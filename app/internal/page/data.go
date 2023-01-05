@@ -61,7 +61,7 @@ type Lpa struct {
 	SignatureCode                               string
 	EnteredSignatureCode                        string
 	SignatureEmailID                            string
-	IdentityOptions                             IdentityOptions
+	IdentityOption                              IdentityOption
 	YotiUserData                                identity.UserData
 	HowAttorneysMakeDecisions                   string
 	HowAttorneysMakeDecisionsDetails            string

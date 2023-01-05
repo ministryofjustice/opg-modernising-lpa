@@ -4,7 +4,7 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <form novalidate method="post">
-        <div class="govuk-form-group {{ if index .Errors "options" }}govuk-form-group--error{{ end }}">
+        <div class="govuk-form-group {{ if index .Errors "option" }}govuk-form-group--error{{ end }}">
           <fieldset class="govuk-fieldset" aria-describedby="id-hint">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl govuk-!-margin-bottom-6">
               <h1 class="govuk-fieldset__heading">
@@ -13,31 +13,35 @@
             </legend>
 
             <div id="id-hint" class="govuk-hint">
-              {{ tr .App "selectAllAtLeastThree" }}
+              {{ tr .App "pleaseSelectOneFormOfIdentity" }}
             </div>
 
-            {{ template "error-message" (errorMessage . "options") }}
+            {{ template "error-message" (errorMessage . "option") }}
 
-            {{ template "checkboxes" (items . "options" .Form.Options
-              (item "yoti" "theYoti")
-              (item "passport" "aPassport")
-              (item "driving licence" "aDrivingLicence")
-              (item "government gateway account" "aGovernmentGatewayAccount")
-              (item "dwp account" "aDwpAccount")
-              (item "online bank account" "anOnlineBankAccount" "hint" "anOnlineBankAccountHint")
-              (item "utility bill" "aUtilityBill")
-              (item "council tax bill" "aCouncilTaxBill")
-            ) }}
+            {{ if eq .Page 0 }}
+              {{ template "radios" (items . "option" .Form.Selected
+                (item "one login" "yourOneLogin" "hint" "yourOneLoginHint")
+                (item "easy id" "postOfficeEasyID" "hint" "postOfficeEasyIDHint")
+                (item "none" "iDoNotHaveEitherOfTheseAccounts")
+              ) }}
+            {{ else if eq .Page 1 }}
+              {{ template "radios" (items . "option" .Form.Selected
+                (item "passport" "yourPassport" "hint" "yourPassportHint")
+                (item "biometric residence permit" "biometricResidencePermit" "hint" "biometricResidencePermitHint")
+                (item "driving licence photocard" "drivingLicencePhotocard" "hint" "drivingLicencePhotocardHint")
+                (item "driving licence paper" "drivingLicencePaper" "hint" "drivingLicencePaperHint")
+                (item "none" "iDoNotHaveAnyOfTheseTypesOfIdentity" "hint" "weWillAdviseOnOtherWays")
+              ) }}
+            {{ else }}
+              {{ template "radios" (items . "option" .Form.Selected
+                (item "driving licence photocard" "drivingLicencePhotocard" "hint" "drivingLicencePhotocardHint")
+                (item "driving licence paper" "drivingLicencePaper" "hint" "drivingLicencePaperHint")
+                (item "online bank account" "aBankAccount" "hint" "aBankAccountHint")
+                (item "none" "iDoNotHaveAnyOfTheseTypesOfIdentity" "hint" "weWillAdviseOnOtherWays")
+              ) }}
+            {{ end }}
           </fieldset>
         </div>
-
-        <p class="govuk-body">
-          <a href="#" class="govuk-link">{{ tr .App "iWouldLikeSomeoneElseToConfirmMyDetails" }}</a>
-        </p>
-
-        <p class="govuk-body">
-          <a href="#" class="govuk-link">{{ tr .App "iWouldLikeToConfirmMyIdentityInPerson" }}</a>
-        </p>
 
         {{ template "continue-button" . }}
       </form>

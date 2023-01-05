@@ -1,6 +1,7 @@
 package page
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -23,13 +24,14 @@ func TestGetSelectYourIdentityOptions(t *testing.T) {
 	template.
 		On("Func", w, &selectYourIdentityOptionsData{
 			App:  appData,
+			Page: 2,
 			Form: &selectYourIdentityOptionsForm{},
 		}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := SelectYourIdentityOptions(template.Func, lpaStore)(appData, w, r)
+	err := SelectYourIdentityOptions(template.Func, lpaStore, 2)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -47,7 +49,7 @@ func TestGetSelectYourIdentityOptionsWhenStoreErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := SelectYourIdentityOptions(nil, lpaStore)(appData, w, r)
+	err := SelectYourIdentityOptions(nil, lpaStore, 0)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
@@ -60,22 +62,20 @@ func TestGetSelectYourIdentityOptionsFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{
-			IdentityOptions: IdentityOptions{
-				Selected: []IdentityOption{Passport},
-			},
+			IdentityOption: Passport,
 		}, nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &selectYourIdentityOptionsData{
 			App:  appData,
-			Form: &selectYourIdentityOptionsForm{Options: []IdentityOption{Passport}},
+			Form: &selectYourIdentityOptionsForm{Selected: Passport},
 		}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := SelectYourIdentityOptions(template.Func, lpaStore)(appData, w, r)
+	err := SelectYourIdentityOptions(template.Func, lpaStore, 0)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -98,7 +98,7 @@ func TestGetSelectYourIdentityOptionsWhenTemplateErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := SelectYourIdentityOptions(template.Func, lpaStore)(appData, w, r)
+	err := SelectYourIdentityOptions(template.Func, lpaStore, 0)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -115,11 +115,7 @@ func TestPostSelectYourIdentityOptions(t *testing.T) {
 		Return(&Lpa{}, nil)
 	lpaStore.
 		On("Put", mock.Anything, "session-id", &Lpa{
-			IdentityOptions: IdentityOptions{
-				Selected: []IdentityOption{Passport, DwpAccount, UtilityBill},
-				First:    Passport,
-				Second:   DwpAccount,
-			},
+			IdentityOption: Passport,
 			Tasks: Tasks{
 				ConfirmYourIdentityAndSign: TaskInProgress,
 			},
@@ -127,19 +123,51 @@ func TestPostSelectYourIdentityOptions(t *testing.T) {
 		Return(nil)
 
 	form := url.Values{
-		"options": {"passport", "dwp account", "utility bill"},
+		"option": {"passport"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := SelectYourIdentityOptions(nil, lpaStore)(appData, w, r)
+	err := SelectYourIdentityOptions(nil, lpaStore, 0)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, appData.Paths.YourChosenIdentityOptions, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
+}
+
+func TestPostSelectYourIdentityOptionsNone(t *testing.T) {
+	for page, nextPath := range map[int]string{
+		0: appData.Paths.SelectYourIdentityOptions1,
+		1: appData.Paths.SelectYourIdentityOptions2,
+		2: appData.Paths.TaskList,
+	} {
+		t.Run(fmt.Sprintf("Page%d", page), func(t *testing.T) {
+			w := httptest.NewRecorder()
+
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(&Lpa{}, nil)
+
+			form := url.Values{
+				"option": {"none"},
+			}
+
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
+
+			err := SelectYourIdentityOptions(nil, lpaStore, page)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, nextPath, resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, lpaStore)
+		})
+	}
 }
 
 func TestPostSelectYourIdentityOptionsWhenStoreErrors(t *testing.T) {
@@ -154,13 +182,13 @@ func TestPostSelectYourIdentityOptionsWhenStoreErrors(t *testing.T) {
 		Return(expectedError)
 
 	form := url.Values{
-		"options": {"passport", "dwp account", "utility bill"},
+		"option": {"passport"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := SelectYourIdentityOptions(nil, lpaStore)(appData, w, r)
+	err := SelectYourIdentityOptions(nil, lpaStore, 0)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
@@ -178,9 +206,9 @@ func TestPostSelectYourIdentityOptionsWhenValidationErrors(t *testing.T) {
 	template.
 		On("Func", w, &selectYourIdentityOptionsData{
 			App:  appData,
-			Form: &selectYourIdentityOptionsForm{Options: []IdentityOption{}},
+			Form: &selectYourIdentityOptionsForm{},
 			Errors: map[string]string{
-				"options": "selectAtLeastThreeIdentityOptions",
+				"option": "selectAnIdentityOption",
 			},
 		}).
 		Return(nil)
@@ -188,7 +216,7 @@ func TestPostSelectYourIdentityOptionsWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := SelectYourIdentityOptions(template.Func, lpaStore)(appData, w, r)
+	err := SelectYourIdentityOptions(template.Func, lpaStore, 0)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -198,7 +226,7 @@ func TestPostSelectYourIdentityOptionsWhenValidationErrors(t *testing.T) {
 
 func TestReadSelectYourIdentityOptionsForm(t *testing.T) {
 	form := url.Values{
-		"options": {"passport", "driving licence", "council tax bill"},
+		"option": {"passport"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -206,7 +234,8 @@ func TestReadSelectYourIdentityOptionsForm(t *testing.T) {
 
 	result := readSelectYourIdentityOptionsForm(r)
 
-	assert.Equal(t, []IdentityOption{Passport, DrivingLicence, CouncilTaxBill}, result.Options)
+	assert.Equal(t, Passport, result.Selected)
+	assert.False(t, result.None)
 }
 
 func TestSelectYourIdentityOptionsFormValidate(t *testing.T) {
@@ -214,44 +243,31 @@ func TestSelectYourIdentityOptionsFormValidate(t *testing.T) {
 		form   *selectYourIdentityOptionsForm
 		errors map[string]string
 	}{
-		"all": {
+		"valid": {
 			form: &selectYourIdentityOptionsForm{
-				Options: []IdentityOption{Yoti, Passport, DrivingLicence, GovernmentGatewayAccount, DwpAccount, OnlineBankAccount, UtilityBill, CouncilTaxBill},
-				First:   Yoti,
-				Second:  DwpAccount,
+				Selected: EasyID,
+			},
+			errors: map[string]string{},
+		},
+		"none": {
+			form: &selectYourIdentityOptionsForm{
+				Selected: IdentityOptionUnknown,
+				None:     true,
 			},
 			errors: map[string]string{},
 		},
 		"missing": {
 			form: &selectYourIdentityOptionsForm{},
 			errors: map[string]string{
-				"options": "selectAtLeastThreeIdentityOptions",
-			},
-		},
-		"too-few": {
-			form: &selectYourIdentityOptionsForm{
-				Options: []IdentityOption{Passport, DwpAccount},
-			},
-			errors: map[string]string{
-				"options": "selectAtLeastThreeIdentityOptions",
-			},
-		},
-		"incompatible-second": {
-			form: &selectYourIdentityOptionsForm{
-				Options: []IdentityOption{Yoti, Passport, DrivingLicence},
-				First:   Yoti,
-				Second:  IdentityOptionUnknown,
-			},
-			errors: map[string]string{
-				"options": "selectMoreOptions",
+				"option": "selectAnIdentityOption",
 			},
 		},
 		"invalid": {
 			form: &selectYourIdentityOptionsForm{
-				Options: []IdentityOption{Passport, IdentityOptionUnknown},
+				Selected: IdentityOptionUnknown,
 			},
 			errors: map[string]string{
-				"options": "selectValidIdentityOption",
+				"option": "selectAnIdentityOption",
 			},
 		},
 	}
