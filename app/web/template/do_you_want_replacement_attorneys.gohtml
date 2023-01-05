@@ -10,7 +10,7 @@
 
         <p class="govuk-body-l">{{ tr .App "replacementAttorneysStepIn" }}</p>
 
-        <p class="govuk-body">{{ trFormatCount .App "replacementAttorneysStepInExplanation" (len .Lpa.ReplacementAttorneys) "AttorneysFullNames" .Lpa.AttorneysFullNames }}</p>
+        <p class="govuk-body">{{ trFormatCount .App "replacementAttorneysStepInExplanation" (len .Lpa.Attorneys) "AttorneysFullNames" .Lpa.AttorneysFullNames }}</p>
 
         <p class="govuk-body">{{ tr .App "replacementAttorneyRequirements" }}</p>
 
