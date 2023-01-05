@@ -4,16 +4,16 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"golang.org/x/exp/slices"
 )
 
 type selectYourIdentityOptionsData struct {
 	App    AppData
 	Errors map[string]string
 	Form   *selectYourIdentityOptionsForm
+	Page   int
 }
 
-func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore) Handler {
+func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, page int) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
 		if err != nil {
@@ -21,9 +21,10 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore) Handle
 		}
 
 		data := &selectYourIdentityOptionsData{
-			App: appData,
+			App:  appData,
+			Page: page,
 			Form: &selectYourIdentityOptionsForm{
-				Options: lpa.IdentityOptions.Selected,
+				Selected: lpa.IdentityOption,
 			},
 		}
 
@@ -32,11 +33,19 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore) Handle
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				lpa.IdentityOptions = IdentityOptions{
-					Selected: data.Form.Options,
-					First:    data.Form.First,
-					Second:   data.Form.Second,
+				if data.Form.None {
+					switch page {
+					case 0:
+						return appData.Lang.Redirect(w, r, appData.Paths.SelectYourIdentityOptions1, http.StatusFound)
+					case 1:
+						return appData.Lang.Redirect(w, r, appData.Paths.SelectYourIdentityOptions2, http.StatusFound)
+					default:
+						// will go to vouching flow when that is built
+						return appData.Lang.Redirect(w, r, appData.Paths.TaskList, http.StatusFound)
+					}
 				}
+
+				lpa.IdentityOption = data.Form.Selected
 				lpa.Tasks.ConfirmYourIdentityAndSign = TaskInProgress
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
@@ -52,40 +61,24 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore) Handle
 }
 
 type selectYourIdentityOptionsForm struct {
-	Options       []IdentityOption
-	First, Second IdentityOption
+	Selected IdentityOption
+	None     bool
 }
 
 func readSelectYourIdentityOptionsForm(r *http.Request) *selectYourIdentityOptionsForm {
-	r.ParseForm()
-
-	mappedOptions := make([]IdentityOption, len(r.PostForm["options"]))
-	for i, option := range r.PostForm["options"] {
-		mappedOptions[i] = readIdentityOption(option)
-	}
-
-	first, second := identityOptionsRanked(mappedOptions)
+	option := postFormString(r, "option")
 
 	return &selectYourIdentityOptionsForm{
-		Options: mappedOptions,
-		First:   first,
-		Second:  second,
+		Selected: readIdentityOption(option),
+		None:     option == "none",
 	}
 }
 
 func (f *selectYourIdentityOptionsForm) Validate() map[string]string {
 	errors := map[string]string{}
 
-	if f.First == IdentityOptionUnknown || f.Second == IdentityOptionUnknown {
-		errors["options"] = "selectMoreOptions"
-	}
-
-	if len(f.Options) < 3 {
-		errors["options"] = "selectAtLeastThreeIdentityOptions"
-	}
-
-	if slices.Contains(f.Options, IdentityOptionUnknown) {
-		errors["options"] = "selectValidIdentityOption"
+	if f.Selected == IdentityOptionUnknown && !f.None {
+		errors["option"] = "selectAnIdentityOption"
 	}
 
 	return errors

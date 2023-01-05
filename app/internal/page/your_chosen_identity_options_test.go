@@ -12,26 +12,18 @@ import (
 func TestGetYourChosenIdentityOptions(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	selected := []IdentityOption{Passport, DwpAccount, UtilityBill}
-
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{
-			IdentityOptions: IdentityOptions{
-				Selected: selected,
-				First:    Passport,
-				Second:   DwpAccount,
-			},
+			IdentityOption: Passport,
 		}, nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &yourChosenIdentityOptionsData{
-			App:          appData,
-			Selected:     selected,
-			FirstChoice:  Passport,
-			SecondChoice: DwpAccount,
+			App:            appData,
+			IdentityOption: Passport,
 		}).
 		Return(nil)
 
@@ -68,9 +60,7 @@ func TestGetYourChosenIdentityOptionsWhenTemplateErrors(t *testing.T) {
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{
-			IdentityOptions: IdentityOptions{
-				Selected: []IdentityOption{Passport, DwpAccount, UtilityBill},
-			},
+			IdentityOption: Passport,
 		}, nil)
 
 	template := &mockTemplate{}
@@ -95,10 +85,7 @@ func TestPostYourChosenIdentityOptions(t *testing.T) {
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{
-			IdentityOptions: IdentityOptions{
-				First:  Passport,
-				Second: DwpAccount,
-			},
+			IdentityOption: Passport,
 		}, nil)
 
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
