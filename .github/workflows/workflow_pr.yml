@@ -1,4 +1,4 @@
-name: "[Workflow] PR"
+name: "PR"
 
 on:
   pull_request:
@@ -23,6 +23,7 @@ defaults:
     shell: bash
 
 jobs:
+
   detect_changes:
     name: Detect Changes
     uses: ./.github/workflows/detect_changes_to_app_job.yml
