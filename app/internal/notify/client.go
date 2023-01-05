@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -114,7 +115,7 @@ func (c *Client) Email(ctx context.Context, email Email) (string, error) {
 		return "", err
 	}
 
-	req, err := c.request(ctx, "/v2/notifications/email", buf)
+	req, err := c.request(ctx, "/v2/notifications/email", &buf)
 	if err != nil {
 		return "", err
 	}
@@ -133,7 +134,7 @@ func (c *Client) Sms(ctx context.Context, sms Sms) (string, error) {
 		return "", err
 	}
 
-	req, err := c.request(ctx, "/v2/notifications/sms", buf)
+	req, err := c.request(ctx, "/v2/notifications/sms", &buf)
 	if err != nil {
 		return "", err
 	}
@@ -146,7 +147,7 @@ func (c *Client) Sms(ctx context.Context, sms Sms) (string, error) {
 	return resp.ID, nil
 }
 
-func (c *Client) request(ctx context.Context, url string, jsonBody bytes.Buffer) (*http.Request, error) {
+func (c *Client) request(ctx context.Context, url string, body io.Reader) (*http.Request, error) {
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.RegisteredClaims{
 		Issuer:   c.issuer,
 		IssuedAt: jwt.NewNumericDate(c.now()),
@@ -155,7 +156,7 @@ func (c *Client) request(ctx context.Context, url string, jsonBody bytes.Buffer)
 		return &http.Request{}, err
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+url, &jsonBody)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+url, body)
 	if err != nil {
 		return &http.Request{}, err
 	}

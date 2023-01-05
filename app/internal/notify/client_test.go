@@ -108,7 +108,7 @@ func TestRequest(t *testing.T) {
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	req, err := client.request(ctx, "/an/url", jsonBody)
+	req, err := client.request(ctx, "/an/url", &jsonBody)
 
 	assert.Nil(err)
 	assert.Equal(http.MethodPost, req.Method)
@@ -127,7 +127,7 @@ func TestRequestWhenNewRequestError(t *testing.T) {
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 	client.now = func() time.Time { return time.Now().Add(-time.Minute) }
 
-	_, err := client.request(nil, "/an/url", jsonBody)
+	_, err := client.request(nil, "/an/url", &jsonBody)
 
 	assert.Equal(errors.New("net/http: nil Context"), err)
 }
@@ -150,7 +150,7 @@ func TestDoRequest(t *testing.T) {
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	req, _ := client.request(ctx, "/an/url", jsonBody)
+	req, _ := client.request(ctx, "/an/url", &jsonBody)
 
 	response, err := client.doRequest(req)
 
@@ -177,7 +177,7 @@ func TestDoRequestWhenContainsErrorList(t *testing.T) {
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	req, _ := client.request(ctx, "/an/url", jsonBody)
+	req, _ := client.request(ctx, "/an/url", &jsonBody)
 
 	response, err := client.doRequest(req)
 
@@ -222,7 +222,7 @@ func TestDoRequestWhenRequestError(t *testing.T) {
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	req, _ := client.request(ctx, "/an/url", jsonBody)
+	req, _ := client.request(ctx, "/an/url", &jsonBody)
 
 	resp, err := client.doRequest(req)
 
@@ -247,7 +247,7 @@ func TestDoRequestWhenJsonDecodeFails(t *testing.T) {
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	req, _ := client.request(ctx, "/an/url", jsonBody)
+	req, _ := client.request(ctx, "/an/url", &jsonBody)
 
 	resp, err := client.doRequest(req)
 
