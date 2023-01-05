@@ -405,6 +405,18 @@ func TestUkMobileFormatValidation(t *testing.T) {
 				"mobile": "enterUkMobile",
 			},
 		},
+		"invalid local not uk": {
+			Mobile: "09535111222",
+			Error: map[string]string{
+				"mobile": "enterUkMobile",
+			},
+		},
+		"invalid international not uk": {
+			Mobile: "+449535111222",
+			Error: map[string]string{
+				"mobile": "enterUkMobile",
+			},
+		},
 	}
 
 	for name, tc := range testCases {

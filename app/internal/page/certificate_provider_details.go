@@ -111,7 +111,7 @@ func (d *certificateProviderDetailsForm) Validate() map[string]string {
 		errors["date-of-birth"] = "dateOfBirthMustBeReal"
 	}
 
-	isUkMobile, _ := regexp.MatchString("^(?:0|\\+?44)\\d{10}$", strings.ReplaceAll(d.Mobile, " ", ""))
+	isUkMobile, _ := regexp.MatchString(`^(?:07|\+?447)\d{9}$`, strings.ReplaceAll(d.Mobile, " ", ""))
 
 	if !isUkMobile {
 		errors["mobile"] = "enterUkMobile"
