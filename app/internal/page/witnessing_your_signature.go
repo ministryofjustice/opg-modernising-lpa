@@ -27,7 +27,7 @@ func WitnessingYourSignature(tmpl template.Template, lpaStore LpaStore, notifyCl
 
 			smsID, err := notifyClient.Sms(r.Context(), notify.Sms{
 				PhoneNumber: lpa.CertificateProvider.Mobile,
-				TemplateID:  notifyClient.TemplateID("MLPA Beta signature code - SMS"),
+				TemplateID:  notifyClient.TemplateID(notify.SignatureCodeSms),
 				Personalisation: map[string]string{
 					"code": code,
 				},

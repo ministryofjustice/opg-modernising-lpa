@@ -89,12 +89,12 @@ func TestEmailWhenError(t *testing.T) {
 
 func TestTemplateID(t *testing.T) {
 	production, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil)
-	assert.Equal(t, "95f7b0a2-1c3a-4ad9-818b-b358c549c88b", production.TemplateID("MLPA Beta signature code - Email"))
-	assert.Equal(t, "a0997cbf-cfd9-4f01-acb2-f33b07074662", production.TemplateID("MLPA Beta signature code - SMS"))
+	assert.Equal(t, "95f7b0a2-1c3a-4ad9-818b-b358c549c88b", production.TemplateID(SignatureCodeEmail))
+	assert.Equal(t, "a0997cbf-cfd9-4f01-acb2-f33b07074662", production.TemplateID(SignatureCodeSms))
 
 	test, _ := New(false, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil)
-	assert.Equal(t, "7e8564a0-2635-4f61-9155-0166ddbe5607", test.TemplateID("MLPA Beta signature code - Email"))
-	assert.Equal(t, "0aa5b61c-ef30-410a-8473-915df9d343a5", test.TemplateID("MLPA Beta signature code - SMS"))
+	assert.Equal(t, "7e8564a0-2635-4f61-9155-0166ddbe5607", test.TemplateID(SignatureCodeEmail))
+	assert.Equal(t, "0aa5b61c-ef30-410a-8473-915df9d343a5", test.TemplateID(SignatureCodeSms))
 }
 
 func TestRequest(t *testing.T) {

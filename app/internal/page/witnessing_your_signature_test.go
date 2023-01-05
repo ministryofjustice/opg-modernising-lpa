@@ -18,8 +18,8 @@ type mockNotifyClient struct {
 	mock.Mock
 }
 
-func (m *mockNotifyClient) TemplateID(name string) string {
-	return m.Called(name).String(0)
+func (m *mockNotifyClient) TemplateID(id notify.TemplateId) string {
+	return m.Called(id).String(0)
 }
 
 func (m *mockNotifyClient) Email(ctx context.Context, email notify.Email) (string, error) {
@@ -115,7 +115,7 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 
 	notifyClient := &mockNotifyClient{}
 	notifyClient.
-		On("TemplateID", "MLPA Beta signature code - SMS").
+		On("TemplateID", notify.SignatureCodeSms).
 		Return("xyz")
 	notifyClient.
 		On("Sms", mock.Anything, notify.Sms{
@@ -147,7 +147,7 @@ func TestPostWitnessingYourSignatureWhenNotifyErrors(t *testing.T) {
 
 	notifyClient := &mockNotifyClient{}
 	notifyClient.
-		On("TemplateID", "MLPA Beta signature code - SMS").
+		On("TemplateID", notify.SignatureCodeSms).
 		Return("xyz")
 	notifyClient.
 		On("Sms", mock.Anything, mock.Anything).
@@ -175,7 +175,7 @@ func TestPostWitnessingYourSignatureWhenLpaStoreErrors(t *testing.T) {
 
 	notifyClient := &mockNotifyClient{}
 	notifyClient.
-		On("TemplateID", "MLPA Beta signature code - SMS").
+		On("TemplateID", notify.SignatureCodeSms).
 		Return("xyz")
 	notifyClient.
 		On("Sms", mock.Anything, mock.Anything).

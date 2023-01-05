@@ -81,19 +81,26 @@ type errorItem struct {
 	Message string `json:"message"`
 }
 
-func (c *Client) TemplateID(name string) string {
+type TemplateId int
+
+const (
+	SignatureCodeEmail TemplateId = iota
+	SignatureCodeSms
+)
+
+func (c *Client) TemplateID(id TemplateId) string {
 	if c.isProduction {
-		switch name {
-		case "MLPA Beta signature code - Email":
+		switch id {
+		case SignatureCodeEmail:
 			return "95f7b0a2-1c3a-4ad9-818b-b358c549c88b"
-		case "MLPA Beta signature code - SMS":
+		case SignatureCodeSms:
 			return "a0997cbf-cfd9-4f01-acb2-f33b07074662"
 		}
 	} else {
-		switch name {
-		case "MLPA Beta signature code - Email":
+		switch id {
+		case SignatureCodeEmail:
 			return "7e8564a0-2635-4f61-9155-0166ddbe5607"
-		case "MLPA Beta signature code - SMS":
+		case SignatureCodeSms:
 			return "0aa5b61c-ef30-410a-8473-915df9d343a5"
 		}
 	}
