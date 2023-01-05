@@ -112,7 +112,7 @@ func (o IdentityOptions) NextPath(current IdentityOption, paths AppPaths) string
 	}
 
 	if current == o.Second {
-		return paths.WhatHappensWhenSigning
+		return paths.ReadYourLpa
 	}
 
 	if current == o.First {

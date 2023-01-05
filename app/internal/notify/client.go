@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -53,16 +54,23 @@ type Email struct {
 	EmailReplyToID  string            `json:"email_reply_to_id,omitempty"`
 }
 
-type emailResponse struct {
+type Sms struct {
+	PhoneNumber     string            `json:"phone_number"`
+	TemplateID      string            `json:"template_id"`
+	Personalisation map[string]string `json:"personalisation,omitempty"`
+	Reference       string            `json:"reference,omitempty"`
+}
+
+type response struct {
 	ID         string     `json:"id"`
-	StatusCode int        `json:"status_code"`
-	Errors     errorsList `json:"errors"`
+	StatusCode int        `json:"status_code,omitempty"`
+	Errors     errorsList `json:"errors,omitempty"`
 }
 
 type errorsList []errorItem
 
 func (es errorsList) Error() string {
-	s := "error sending email"
+	s := "error sending message"
 	for _, e := range es {
 		s += ": " + e.Message
 	}
@@ -74,16 +82,27 @@ type errorItem struct {
 	Message string `json:"message"`
 }
 
-func (c *Client) TemplateID(name string) string {
+type TemplateId int
+
+const (
+	SignatureCodeEmail TemplateId = iota
+	SignatureCodeSms
+)
+
+func (c *Client) TemplateID(id TemplateId) string {
 	if c.isProduction {
-		switch name {
-		case "MLPA Beta signature code":
+		switch id {
+		case SignatureCodeEmail:
 			return "95f7b0a2-1c3a-4ad9-818b-b358c549c88b"
+		case SignatureCodeSms:
+			return "a0997cbf-cfd9-4f01-acb2-f33b07074662"
 		}
 	} else {
-		switch name {
-		case "MLPA Beta signature code":
+		switch id {
+		case SignatureCodeEmail:
 			return "7e8564a0-2635-4f61-9155-0166ddbe5607"
+		case SignatureCodeSms:
+			return "0aa5b61c-ef30-410a-8473-915df9d343a5"
 		}
 	}
 
@@ -91,40 +110,78 @@ func (c *Client) TemplateID(name string) string {
 }
 
 func (c *Client) Email(ctx context.Context, email Email) (string, error) {
-	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.RegisteredClaims{
-		Issuer:   c.issuer,
-		IssuedAt: jwt.NewNumericDate(c.now()),
-	}).SignedString(c.secretKey)
-	if err != nil {
-		return "", err
-	}
-
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(email); err != nil {
 		return "", err
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/v2/notifications/email", &buf)
+	req, err := c.request(ctx, "/v2/notifications/email", &buf)
 	if err != nil {
 		return "", err
+	}
+
+	resp, err := c.doRequest(req)
+	if err != nil {
+		return "", err
+	}
+
+	return resp.ID, nil
+}
+
+func (c *Client) Sms(ctx context.Context, sms Sms) (string, error) {
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(sms); err != nil {
+		return "", err
+	}
+
+	req, err := c.request(ctx, "/v2/notifications/sms", &buf)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := c.doRequest(req)
+	if err != nil {
+		return "", err
+	}
+
+	return resp.ID, nil
+}
+
+func (c *Client) request(ctx context.Context, url string, body io.Reader) (*http.Request, error) {
+	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.RegisteredClaims{
+		Issuer:   c.issuer,
+		IssuedAt: jwt.NewNumericDate(c.now()),
+	}).SignedString(c.secretKey)
+	if err != nil {
+		return &http.Request{}, err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+url, body)
+	if err != nil {
+		return &http.Request{}, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", "Bearer "+token)
 
+	return req, nil
+}
+
+func (c *Client) doRequest(req *http.Request) (response, error) {
+	var r response
+
 	resp, err := c.doer.Do(req)
 	if err != nil {
-		return "", err
+		return r, err
 	}
 	defer resp.Body.Close()
 
-	var v emailResponse
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
-		return "", err
+	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
+		return r, err
 	}
 
-	if len(v.Errors) > 0 {
-		return "", v.Errors
+	if len(r.Errors) > 0 {
+		return r, r.Errors
 	}
 
-	return v.ID, nil
+	return r, nil
 }

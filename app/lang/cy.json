@@ -144,6 +144,7 @@
     "whoWouldYouLikeToBeTheAttorneysDetailsContent": "<p class=\"govuk-body\">Eich atwrneiod yw'r bobl a fydd yn gallu eich helpu i wneud penderfyniadau am eich sefyllfa ariannol, os byddwch chi eisiau neu angen eu help yn y dyfodol.</p> <p class=\"govuk-body\">Mae'n bwysig eich bod yn dewis pobl rydych yn ymddiried ynddynt i barchu eich dymuniadau a gweithredu er eich lles gorau.</p> <p class=\"govuk-body\">Gallwch gael mwy nag 1 atwrnai. Mae gan y rhan fwyaf o bobl rhwng 1 a 3.</p><p class=\"govuk-body\">Rhaid i atwrnai:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>bod yn 18 oed neu'n hŷn</li> <li>gael galluedd meddyliol (gallu gwneud penderfyniadau)</li> </ul> <p class=\"govuk-body\">Ni all rhywun fod yn atwrnai os ydynt:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>yn fethdalwr neu os oes ganddynt orchymyn gostwng dyled</li> <li>ar restr wahardd y Gwasanaeth Datgelu a Gwahardd (bydd rhywun fel arfer yn cael ei roi ar y rhestr hon os oes ganddynt euogfarn droseddol neu rybuddiad sy’n golygu ni allant weithio gyda phobl sy’n agored i niwed)</li> </ul> <p class=\"govuk-body\">Gofynnir i chi a hoffech ychwanegu <a href=\"#\">atwrneiod wrth gefn</a> mewn cwestiwn ar wahân. Maen nhw’n camu i mewn os yw’ch atwrneiod gwreiddiol yn methu neu’n anfodlon parhau.</p> <p class=\"govuk-body\"><a href=\"#\">Darganfod mwy am atwrneiod</a></p>",
     "attorney": "Atwrnai",
     "enterEmail": "Rhowch e-bost",
+    "enterMobile": "Welsh",
     "emailIncorrectFormat": "Rhowch e-bost yn y fformat cywir, fel name@example.com",
     "attorneyAddress": "Cyfeiriad {{.FirstNames}} {{.LastName}}",
     "attorneyDateOfBirthIsUnder18": "Mae'r atwrnai hwn o dan 18 oed. Ni fyddwch yn gallu gorffen gwneud yr LPA hon nes eu bod yn 18.",
@@ -209,6 +210,7 @@
     "certificateProviderDetails": "Manylion eich darparwr tystysgrif",
     "certificateProviderDetailsHint": "Cofiwch, rhaid i’ch darparwr tystysgrif fod yn 18 oed neu'n hŷn. Ni allant fod yn aelod o'ch teulu (mae hyn yn cynnwys llys-berthnasau a pherthnasau yng-nghyfraith) nac o deuluoedd eich atwrneiod.",
     "certificateProviderDobHint": "Mae angen dyddiad geni eich darparwr tystysgrif arnom i wirio eu bod dros 18 oed.",
+    "mobile": "Welsh",
 
     "aboutPayment": "Ynglŷn â thalu",
     "aboutPaymentContent": "<p class=\"govuk-body\">Mae'n costio £82 i wneud cais am LPA.</p>",
@@ -286,19 +288,6 @@
     "thankYouHeader": "Diolch am eich taliad.",
     "paymentConfirmationContent": "<p class=\"govuk-body\">Rydych wedi talu am eich LPA cyllid a materion personol.</p><p class=\"govuk-body\">Rydym wedi anfon e-bost atoch i gadarnhau ein bod wedi derbyn eich ffi cais LPA.</p><p class=\"govuk-body\">Os nad yw'r e-bost yn cyrraedd ymhen ychydig funudau, gwiriwch eich ffolder sbam.</p>",
 
-    "whatHappensWhenSigning": "Beth sy'n digwydd pan fyddwch yn llofnodi'r LPA",
-    "whatHappensWhenSigningContent": "<p class=\"govuk-body\">Mae llofnodi’r LPA yn gam cyfreithiol pwysig a phwerus.</p> <p class=\"govuk-body\"> Pan fyddwch chi'n gwneud hyn, rydych chi'n dweud yn swyddogol eich bod chi eisiau i {{.AllAttorneysFullNames}} fod yn atwrneiod eiddo a materion ariannol i chi.</p> <p class=\"govuk-body\">Mae hyn yn golygu, unwaith y bydd yr LPA wedi’i chofrestru, bydd gan {{.AllAttorneysFirstNames}} y pŵer cyfreithiol i:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>helpu chi i wneud penderfyniad am eich arian neu eiddo, neu wneud penderfyniad ar eich rhan </li> <li>delio â sefydliadau, fel banciau a chwmnïau cyfleustodau, ar eich rhan</li></ul>",
-    "whileYouHaveMentalCapacity": "Tra bod gennych alluedd meddyliol, gall {{.AllAttorneysFirstNames}} dim ond wneud y pethau hyn os gofynnwch iddynt wneud.",
-    "theyMustAlwaysFollowTheRules": "Rhaid iddynt ddilyn y cyfyngiadau a wnaethoch yn eich LPA a’r rheolau yn y <a class=\"govuk-link\" href=\"https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/921428/Mental-capacity-act-code-of-practice.pdf\">Ddeddf Galluedd Meddyliol a’r cod ymarfer.</a>",
-    "whatHappensIfIChangeMyMind": "Beth sy’n digwydd os byddaf yn newid fy meddwl am yr LPA yn hwyrach?",
-    "whatHappensIfIChangeMyMindContent": "<p class=\"govuk-body\">Os rydych yn cadarnhau eich bod am wneud yr LPA, ond yn newid eich meddwl yn hwyrach, gallwch ofyn i ni:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>atal cofrestriad yr LPA os nad yw wedi’i chofrestru eto</li> <li>canslo'r LPA os yw eisoes wedi'i chofrestru</li> <li>tynnu atwrnai o’r LPA</li> </ul> <p class=\"govuk-body\">Os byddwch yn canslo'r LPA, gallwch wneud un newydd yn ei lle.</p> <p class=\"govuk-body\">Gallwch ond wneud y pethau hyn os oes gennych alluedd meddyliol o hyd.</p>",
-    "registeringYourLpa": "Cofrestru eich LPA",
-    "registeringYourLpaContent": "<p class=\"govuk-body\">Unwaith i chi lofnodi'r LPA gyda {{.CertificateProviderFirstNames}} fel darparwr eich tystysgrif, byddwn yn gofyn i {{.AllAttorneysFullNames}} gadarnhau'n ffurfiol eu bod am fod yn atwrnai i chi. Yna bydd yr LPA yn cael ei hanfon yn awtomatig at yr OPG i'w chofrestru.</p> <p class=\"govuk-body\">Rhaid gwneud hyn i gyd o fewn 21 diwrnod i chi lofnodi'r LPA. Os bydd y dyddiad cau hwn yn cael ei fethu, bydd yn rhaid i chi lofnodi'r LPA a chwrdd â {{.CertificateProviderFirstNames}} eto.</p> <p class=\"govuk-body\">Byddwn wedyn yn gwirio'ch LPA ac yn ei chofrestru. Os oes unrhyw broblemau gyda'r LPA sy'n golygu na allwn ei chofrestru, byddwn yn rhoi gwybod i chi.</p>",
-
-    "howToSign": "Sut i lofnodi",
-    "howToSignContent": "<ol class=\"govuk-list govuk-list--number\"> <li>Pan fyddwch yn pwyso parhau, byddwn yn anfon neges destun cod llofnod atoch.</li> <li>Darllenwch eich LPA yn ofalus cyn i chi lofnodi.< /li> <li>Teipiwch eich cod llofnod i lofnodi'r LPA. Rhaid i'ch tyst, {{.CertificateProviderFirstNames}} eich gwylio'n gwneud hyn.</li> <li>Datgan fod {{.CertificateProviderFirstNames}} yn bresennol pan wnaethoch lofnodi.</li> </ol>",
-    "whenYouSignWarning": "{{.YouFirstNames}}, pan fyddwch yn llofnodi'r LPA, rhaid i {{.CertificateProviderFirstNames}} fod yn bresennol yn gorfforol i fod yn dyst wrth i chi lofnodi.",
-
     "readYourLpa": "Darllenwch a llofnodwch eich LPA",
     "readAndCheckYourLpa": "Darllenwch a gwiriwch eich LPA yn ofalus cyn i chi ei llofnodi.",
     "whatHappensIfIWantToMakeChanges": "Beth sy’n digwydd os ydw i am wneud newidiadau ar ôl i mi lofnodi?",
@@ -335,7 +324,9 @@
     "submitSignature": "Welsh",
     "selectBothBoxes": "Welsh",
 
-    "witnessingYourSignature": "Welsh",
+    "witnessYourSignatureHeader": "<h1 class=\"govuk-heading-xl\">Welsh</h1>",
+    "witnessYourSignatureContent": "<p class=\"govuk-body govuk-!-font-weight-bold\">Welsh {{ .CpFullName }}welsh</p> <ol class=\"govuk-list govuk-list--number govuk-list--spaced\"> <li>Welsh {{ .CpFirstNames }} welsh</li> <li>{{ .CpFirstNames }} welsh</li> </ol>",
+    "witnessCodeTimeWarning": "Welsh {{ .CpFirstNames }} welsh",
 
     "selectYourIdentityOptions": "Dewiswch eich opsiynau i brofi pwy ydych",
     "selectAllAtLeastThree": "Dewiswch bob un sy'n berthnasol. Rhaid i chi ddewis o leiaf 3 opsiwn.",
@@ -388,7 +379,7 @@
     "options": "Opsiynau",
     "lastSaved": "Wedi achub diwethaf",
     "statusTag": "Welsh",
-    
+
     "howShouldAttorneysMakeDecisions": "Sut ydych chi am i'ch atwrneiod wneud penderfyniadau?",
     "howShouldAttorneysMakeDecisionsDetail": "Mae eich dewis yma yn bwysig iawn gan ei fod yn effeithio ar sut y gellir defnyddio eich LPA. Pa bynnag opsiwn a ddewiswch, rhaid i'ch atwrneiod weithredu er eich lles gorau bob amser.",
     "getHelpMakingDecision": "Cael help i wneud y penderfyniad hwn",
