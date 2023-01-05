@@ -316,11 +316,101 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 				"date-of-birth": "dateOfBirthMonth",
 			},
 		},
+		"invalid-incorrect-mobile-format": {
+			form: &certificateProviderDetailsForm{
+				FirstNames: "A",
+				LastName:   "B",
+				Email:      "C",
+				Mobile:     "0753511111",
+				Dob: Date{
+					Day:   "C",
+					Month: "D",
+					Year:  "E",
+				},
+				DateOfBirth: time.Now(),
+			},
+			errors: map[string]string{
+				"mobile": "enterUkMobile",
+			},
+		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			assert.Equal(t, tc.errors, tc.form.Validate())
+		})
+	}
+}
+
+func TestUkMobileFormatValidation(t *testing.T) {
+	form := &certificateProviderDetailsForm{
+		FirstNames: "A",
+		LastName:   "B",
+		Email:      "H",
+		Dob: Date{
+			Day:   "C",
+			Month: "D",
+			Year:  "E",
+		},
+		DateOfBirth: time.Now(),
+	}
+
+	testCases := map[string]struct {
+		Mobile string
+		Error  map[string]string
+	}{
+		"valid local format": {
+			Mobile: "07535111222",
+			Error:  map[string]string{},
+		},
+		"valid international format": {
+			Mobile: "+447535111222",
+			Error:  map[string]string{},
+		},
+		"valid local format spaces": {
+			Mobile: "  0 7 5 3 5 1 1 1 2 2 2 ",
+			Error:  map[string]string{},
+		},
+		"valid international format spaces": {
+			Mobile: "  + 4 4 7 5 3 5 1 1 1 2 2 2 ",
+			Error:  map[string]string{},
+		},
+		"invalid local too short": {
+			Mobile: "0753511122",
+			Error: map[string]string{
+				"mobile": "enterUkMobile",
+			},
+		},
+		"invalid local too long": {
+			Mobile: "075351112223",
+			Error: map[string]string{
+				"mobile": "enterUkMobile",
+			},
+		},
+		"invalid international too short": {
+			Mobile: "+44753511122",
+			Error: map[string]string{
+				"mobile": "enterUkMobile",
+			},
+		},
+		"invalid international too long": {
+			Mobile: "+4475351112223",
+			Error: map[string]string{
+				"mobile": "enterUkMobile",
+			},
+		},
+		"invalid contains alpha chars": {
+			Mobile: "+44753511122a",
+			Error: map[string]string{
+				"mobile": "enterUkMobile",
+			},
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			form.Mobile = tc.Mobile
+			assert.Equal(t, tc.Error, form.Validate())
 		})
 	}
 }

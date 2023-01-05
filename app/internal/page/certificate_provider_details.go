@@ -2,6 +2,8 @@ package page
 
 import (
 	"net/http"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -107,6 +109,12 @@ func (d *certificateProviderDetailsForm) Validate() map[string]string {
 	}
 	if _, ok := errors["date-of-birth"]; !ok && d.DateOfBirthError != nil {
 		errors["date-of-birth"] = "dateOfBirthMustBeReal"
+	}
+
+	isUkMobile, _ := regexp.MatchString("^(?:0|\\+?44)\\d{10}$", strings.ReplaceAll(d.Mobile, " ", ""))
+
+	if !isUkMobile {
+		errors["mobile"] = "enterUkMobile"
 	}
 	if d.Mobile == "" {
 		errors["mobile"] = "enterMobile"
