@@ -87,7 +87,8 @@ type PayClient interface {
 
 type NotifyClient interface {
 	Email(ctx context.Context, email notify.Email) (string, error)
-	TemplateID(string) string
+	Sms(ctx context.Context, sms notify.Sms) (string, error)
+	TemplateID(id notify.TemplateId) string
 }
 
 func postFormString(r *http.Request, name string) string {
@@ -235,18 +236,18 @@ func App(
 		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, UtilityBill))
 	handle(paths.IdentityWithCouncilTaxBill, RequireSession|CanGoBack,
 		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, CouncilTaxBill))
-	handle(paths.WhatHappensWhenSigning, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("what_happens_when_signing.gohtml"), paths.HowToSign, lpaStore))
-	handle(paths.HowToSign, RequireSession|CanGoBack,
-		HowToSign(tmpls.Get("how_to_sign.gohtml"), lpaStore, notifyClient, random.Code))
 	handle(paths.ReadYourLpa, RequireSession|CanGoBack,
 		ReadYourLpa(tmpls.Get("read_your_lpa.gohtml"), lpaStore))
 	handle(paths.SignYourLpa, RequireSession|CanGoBack,
 		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), lpaStore))
-	handle(paths.WitnessingYourSignature, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("witnessing_your_signature.gohtml"), "", lpaStore))
 	handle(paths.SigningConfirmation, RequireSession|CanGoBack,
 		Guidance(tmpls.Get("signing_confirmation.gohtml"), paths.TaskList, lpaStore))
+	handle(paths.WitnessingYourSignature, RequireSession|CanGoBack,
+		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), lpaStore, notifyClient, random.Code, time.Now))
+	handle(paths.WitnessingAsCertificateProvider, RequireSession|CanGoBack,
+		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), lpaStore))
+	handle(paths.YouHaveSubmittedYourLpa, RequireSession|CanGoBack,
+		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml"), paths.TaskList, lpaStore))
 
 	return mux
 }
@@ -301,6 +302,24 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 			lpa.WantReplacementAttorneys = "yes"
 			lpa.HowReplacementAttorneysMakeDecisions = JointlyAndSeverally
 			lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
+
+			_ = lpaStore.Put(r.Context(), sessionID, lpa)
+		}
+
+		if r.FormValue("withCP") == "1" {
+			sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
+			lpa, _ := lpaStore.Get(r.Context(), sessionID)
+
+			lpa.CertificateProvider = CertificateProvider{
+				FirstNames:              "Barbara",
+				LastName:                "Smith",
+				Email:                   "b@example.org",
+				Mobile:                  "07535111111",
+				DateOfBirth:             time.Date(1997, time.January, 2, 3, 4, 5, 6, time.UTC),
+				Relationship:            "friend",
+				RelationshipDescription: "",
+				RelationshipLength:      "gte-2-years",
+			}
 
 			_ = lpaStore.Put(r.Context(), sessionID, lpa)
 		}

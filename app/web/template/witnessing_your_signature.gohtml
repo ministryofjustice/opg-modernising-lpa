@@ -3,7 +3,18 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ tr .App "witnessingYourSignature" }}</h1>
+            {{ trHtml .App "witnessYourSignatureHeader" }}
+
+            {{ trFormatHtml .App "witnessYourSignatureContent" "CpFullName" .Lpa.CertificateProviderFullName "CpFirstNames" .Lpa.CertificateProvider.FirstNames }}
+
+            {{ $warningContent := trFormat .App "witnessCodeTimeWarning" "CpFirstNames" .Lpa.CertificateProvider.FirstNames }}
+            {{ template "warning" (warning .App $warningContent)  }}
+
+            <form novalidate method="post">
+                <div class="govuk-button-group">
+                    {{ template "continue-button" . }}
+                </div>
+            </form>
         </div>
     </div>
 {{ end }}
