@@ -3,7 +3,7 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">Identity was (not) confirmed with {{ tr .App .IdentityOption.Label }}</h1>
+            <h1 class="govuk-heading-xl">Identity was (not) confirmed with {{.IdentityOption}}</h1>
 
             <form novalidate method="post">
               {{ template "continue-button" . }}
