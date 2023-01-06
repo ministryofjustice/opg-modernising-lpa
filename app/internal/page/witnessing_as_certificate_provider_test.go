@@ -23,8 +23,9 @@ func TestGetWitnessingAsCertificateProvider(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &witnessingAsCertificateProviderData{
-			App: appData,
-			Lpa: &Lpa{},
+			App:  appData,
+			Lpa:  &Lpa{},
+			Form: &witnessingAsCertificateProviderForm{},
 		}).
 		Return(nil)
 
@@ -75,6 +76,7 @@ func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
 			Lpa: &Lpa{
 				CertificateProvider: CertificateProvider{FirstNames: "Joan"},
 			},
+			Form: &witnessingAsCertificateProviderForm{},
 		}).
 		Return(nil)
 
@@ -99,8 +101,9 @@ func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &witnessingAsCertificateProviderData{
-			App: appData,
-			Lpa: &Lpa{},
+			App:  appData,
+			Lpa:  &Lpa{},
+			Form: &witnessingAsCertificateProviderForm{},
 		}).
 		Return(expectedError)
 
