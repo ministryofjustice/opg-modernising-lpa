@@ -66,6 +66,24 @@ func TestAuthRedirect(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, client, sessionsStore)
 }
 
+func TestAuthRedirectWithIdentity(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
+
+	sessionsStore := &mockSessionsStore{}
+
+	sessionsStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce", "locale": "en", "identity": true}}, nil)
+
+	AuthRedirect(nil, nil, sessionsStore, true, appData.Paths)(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, appData.Paths.IdentityWithOneLoginCallback+"?code=auth-code&state=my-state", resp.Header.Get("Location"))
+	mock.AssertExpectationsForObjects(t, sessionsStore)
+}
+
 func TestAuthRedirectWithCyLocale(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)

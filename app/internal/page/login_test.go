@@ -14,8 +14,8 @@ type mockLoginClient struct {
 	mock.Mock
 }
 
-func (m *mockLoginClient) AuthCodeURL(state, nonce, locale string) string {
-	args := m.Called(state, nonce, locale)
+func (m *mockLoginClient) AuthCodeURL(state, nonce, locale string, identity bool) string {
+	args := m.Called(state, nonce, locale, identity)
 
 	return args.String(0)
 }
@@ -45,7 +45,7 @@ func TestLogin(t *testing.T) {
 
 	client := &mockLoginClient{}
 	client.
-		On("AuthCodeURL", "i am random", "i am random", "cy").
+		On("AuthCodeURL", "i am random", "i am random", "cy", false).
 		Return("http://auth")
 
 	sessionsStore := &mockSessionsStore{}
@@ -80,7 +80,7 @@ func TestLoginDefaultLocale(t *testing.T) {
 
 	client := &mockLoginClient{}
 	client.
-		On("AuthCodeURL", "i am random", "i am random", "en").
+		On("AuthCodeURL", "i am random", "i am random", "en", false).
 		Return("http://auth")
 
 	sessionsStore := &mockSessionsStore{}
@@ -119,7 +119,7 @@ func TestLoginWhenStoreSaveError(t *testing.T) {
 
 	client := &mockLoginClient{}
 	client.
-		On("AuthCodeURL", "i am random", "i am random", "en").
+		On("AuthCodeURL", "i am random", "i am random", "en", false).
 		Return("http://auth?locale=en")
 
 	sessionsStore := &mockSessionsStore{}
