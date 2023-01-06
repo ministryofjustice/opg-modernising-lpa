@@ -124,6 +124,7 @@ func main() {
 		YourAddress:                                 "/your-address",
 		YourChosenIdentityOptions:                   "/your-chosen-identity-options",
 		YourDetails:                                 "/your-details",
+		YouHaveSubmittedYourLpa:                     "/you-have-submitted-your-lpa",
 	}
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
