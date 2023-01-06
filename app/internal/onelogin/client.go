@@ -87,7 +87,7 @@ func Discover(ctx context.Context, logger Logger, httpClient *http.Client, secre
 	return c, err
 }
 
-func (c *Client) AuthCodeURL(state, nonce, locale string) string {
+func (c *Client) AuthCodeURL(state, nonce, locale string, identity bool) string {
 	q := url.Values{
 		"response_type": {"code"},
 		"scope":         {"openid email"},
@@ -96,6 +96,11 @@ func (c *Client) AuthCodeURL(state, nonce, locale string) string {
 		"state":         {state},
 		"nonce":         {nonce},
 		"ui_locales":    {locale},
+	}
+
+	if identity {
+		q.Add("vtr", "[Cl.Cm.P2]")
+		q.Add("claims", `{"userinfo":{"https://vocab.account.gov.uk/v1/coreIdentityJWT": null}}`)
 	}
 
 	return c.openidConfiguration.AuthorizationEndpoint + "?" + q.Encode()
