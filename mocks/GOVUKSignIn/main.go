@@ -24,9 +24,10 @@ var (
 	clientId           = env.Get("CLIENT_ID", "theClientId")
 	serviceRedirectUrl = env.Get("REDIRECT_RUL", "http://localhost:5050/auth/redirect")
 
-	nonce         string
-	signingKid    = "my-kid"
-	signingKey, _ = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	nonce          string
+	returnIdentity = false
+	signingKid     = "my-kid"
+	signingKey, _  = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 )
 
 type OpenIdConfig struct {
@@ -44,12 +45,13 @@ type TokenResponse struct {
 }
 
 type UserInfoResponse struct {
-	Sub           string `json:"sub"`
-	Email         string `json:"email"`
-	EmailVerified bool   `json:"email_verified"`
-	Phone         string `json:"phone"`
-	PhoneVerified bool   `json:"phone_verified"`
-	UpdatedAt     int    `json:"updated_at"`
+	Sub             string `json:"sub"`
+	Email           string `json:"email"`
+	EmailVerified   bool   `json:"email_verified"`
+	Phone           string `json:"phone"`
+	PhoneVerified   bool   `json:"phone_verified"`
+	UpdatedAt       int    `json:"updated_at"`
+	CoreIdentityJWT string `json:"https://vocab.account.gov.uk/v1/coreIdentityJWT,omitempty"`
 }
 
 const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -136,7 +138,7 @@ func authorize() http.HandlerFunc {
 
 		nonce = r.FormValue("nonce")
 
-		redirectUri := r.URL.Query().Get("redirect_uri")
+		redirectUri := r.FormValue("redirect_uri")
 		if redirectUri == "" {
 			log.Fatal("Required query param 'redirect_uri' missing from request")
 		}
@@ -154,10 +156,10 @@ func authorize() http.HandlerFunc {
 
 		code := randomString(10)
 		q.Set("code", code)
+		q.Set("state", r.FormValue("state"))
 
-		state := r.URL.Query().Get("state")
-		if state != "" {
-			q.Set("state", state)
+		if r.FormValue("vtr") == "[Cl.Cm.P2]" && r.FormValue("claims") == `{"userinfo":{"https://vocab.account.gov.uk/v1/coreIdentityJWT": null}}` {
+			returnIdentity = true
 		}
 
 		u.RawQuery = q.Encode()
@@ -170,14 +172,20 @@ func authorize() http.HandlerFunc {
 
 func userInfo() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(UserInfoResponse{
+		userInfo := UserInfoResponse{
 			Sub:           randomString(12),
 			Email:         "simulate-delivered@notifications.service.gov.uk",
 			EmailVerified: true,
 			Phone:         "01406946277",
 			PhoneVerified: true,
 			UpdatedAt:     1311280970,
-		})
+		}
+
+		if returnIdentity {
+			userInfo.CoreIdentityJWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1cm46ZmRjOmdvdi51azoyMDIyOjU2UDRDTXNHaF8wMllPbFdwZDhQQU9JLTJzVmxCMm5zTlU3bWNMWlloWXc9IiwiaXNzIjoiaHR0cHM6Ly9pZGVudGl0eS5pbnRlZ3JhdGlvbi5hY2NvdW50Lmdvdi51ay8iLCJuYmYiOjE1NDE0OTM3MjQsImlhdCI6MTU0MTQ5MzcyNCwiZXhwIjoxNTczMDI5NzIzLCJ2b3QiOiJQMiIsInZ0bSI6Imh0dHBzOi8vb2lkYy5pbnRlZ3JhdGlvbi5hY2NvdW50Lmdvdi51ay90cnVzdG1hcmsiLCJ2YyI6eyJ0eXBlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwiVmVyaWZpYWJsZUlkZW50aXR5Q3JlZGVudGlhbCJdLCJjcmVkZW50aWFsU3ViamVjdCI6eyJuYW1lIjpbeyJ2YWxpZEZyb20iOiIyMDIwLTAzLTAxIiwibmFtZVBhcnRzIjpbeyJ2YWx1ZSI6IkFsaWNlIiwidHlwZSI6IkdpdmVuTmFtZSJ9LHsidmFsdWUiOiJKYW5lIiwidHlwZSI6IkdpdmVuTmFtZSJ9LHsidmFsdWUiOiJMYXVyYSIsInR5cGUiOiJHaXZlbk5hbWUifSx7InZhbHVlIjoiRG9lIiwidHlwZSI6IkZhbWlseU5hbWUifV19LHsidmFsaWRVbnRpbCI6IjIwMjAtMDMtMDEiLCJuYW1lUGFydHMiOlt7InZhbHVlIjoiQWxpY2UiLCJ0eXBlIjoiR2l2ZW5OYW1lIn0seyJ2YWx1ZSI6IkphbmUiLCJ0eXBlIjoiR2l2ZW5OYW1lIn0seyJ2YWx1ZSI6IkxhdXJhIiwidHlwZSI6IkdpdmVuTmFtZSJ9LHsidmFsdWUiOiJP4oCZRG9ubmVsbCIsInR5cGUiOiJGYW1pbHlOYW1lIn1dfV0sImJpcnRoRGF0ZSI6W3sidmFsdWUiOiIxOTcwLTAxLTAxIn1dfX19.3CEgaXD9em-n0B4qSzuLdRqmLblL8OwSo-IER_LnyEw"
+		}
+
+		json.NewEncoder(w).Encode(userInfo)
 	}
 }
 

@@ -46,34 +46,40 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, sec
 			return
 		}
 
-		jwt, err := c.Exchange(r.Context(), r.FormValue("code"), nonce)
-		if err != nil {
-			logger.Print(err)
-			return
-		}
-
-		userInfo, err := c.UserInfo(jwt)
-		if err != nil {
-			logger.Print(err)
-			return
-		}
-
-		session := sessions.NewSession(store, "session")
-		session.Values = map[interface{}]interface{}{
-			"sub":   userInfo.Sub,
-			"email": userInfo.Email,
-		}
-		session.Options = cookieOptions
-		if err := store.Save(r, w, session); err != nil {
-			logger.Print(err)
-			return
-		}
+		identity, _ := params.Values["identity"].(bool)
 
 		lang := En
 		if locale == "cy" {
 			lang = Cy
 		}
 
-		lang.Redirect(w, r, paths.Dashboard, http.StatusFound)
+		if identity {
+			lang.Redirect(w, r, paths.IdentityWithOneLoginCallback+"?"+r.URL.RawQuery, http.StatusFound)
+		} else {
+			jwt, err := c.Exchange(r.Context(), r.FormValue("code"), nonce)
+			if err != nil {
+				logger.Print(err)
+				return
+			}
+
+			userInfo, err := c.UserInfo(jwt)
+			if err != nil {
+				logger.Print(err)
+				return
+			}
+
+			session := sessions.NewSession(store, "session")
+			session.Values = map[interface{}]interface{}{
+				"sub":   userInfo.Sub,
+				"email": userInfo.Email,
+			}
+			session.Options = cookieOptions
+			if err := store.Save(r, w, session); err != nil {
+				logger.Print(err)
+				return
+			}
+
+			lang.Redirect(w, r, paths.Dashboard, http.StatusFound)
+		}
 	}
 }
