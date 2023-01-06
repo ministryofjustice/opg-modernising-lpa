@@ -7,12 +7,10 @@ import (
 )
 
 type yourChosenIdentityOptionsData struct {
-	App          AppData
-	Errors       map[string]string
-	Selected     []IdentityOption
-	FirstChoice  IdentityOption
-	SecondChoice IdentityOption
-	You          Person
+	App            AppData
+	Errors         map[string]string
+	IdentityOption IdentityOption
+	You            Person
 }
 
 func YourChosenIdentityOptions(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -23,17 +21,36 @@ func YourChosenIdentityOptions(tmpl template.Template, lpaStore LpaStore) Handle
 		}
 
 		if r.Method == http.MethodPost {
-			return appData.Lang.Redirect(w, r, lpa.IdentityOptions.NextPath(IdentityOptionUnknown, appData.Paths), http.StatusFound)
+			return appData.Lang.Redirect(w, r, identityOptionPath(appData.Paths, lpa.IdentityOption), http.StatusFound)
 		}
 
 		data := &yourChosenIdentityOptionsData{
-			App:          appData,
-			Selected:     lpa.IdentityOptions.Selected,
-			FirstChoice:  lpa.IdentityOptions.First,
-			SecondChoice: lpa.IdentityOptions.Second,
-			You:          lpa.You,
+			App:            appData,
+			IdentityOption: lpa.IdentityOption,
+			You:            lpa.You,
 		}
 
 		return tmpl(w, data)
+	}
+}
+
+func identityOptionPath(paths AppPaths, identityOption IdentityOption) string {
+	switch identityOption {
+	case OneLogin:
+		return paths.IdentityWithOneLogin
+	case EasyID:
+		return paths.IdentityWithYoti
+	case Passport:
+		return paths.IdentityWithPassport
+	case BiometricResidencePermit:
+		return paths.IdentityWithBiometricResidencePermit
+	case DrivingLicencePaper:
+		return paths.IdentityWithDrivingLicencePaper
+	case DrivingLicencePhotocard:
+		return paths.IdentityWithDrivingLicencePhotocard
+	case OnlineBankAccount:
+		return paths.IdentityWithOnlineBankAccount
+	default:
+		panic("missing case in identityOptionPath")
 	}
 }
