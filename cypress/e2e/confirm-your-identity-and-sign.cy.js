@@ -19,27 +19,19 @@ describe('Confirm your identity and sign', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.contains('label', 'A passport').click();
-        cy.contains('label', 'A driving licence').click();
-        cy.contains('label', 'A government gateway account').click();
+        cy.contains('label', 'Your GOV.UK One Login Identity').click();
         cy.contains('button', 'Continue').click();
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.contains('using your passport and driving licence');
+        cy.contains('Your GOV.UK One Login Identity');
         cy.contains('button', 'Continue').click();
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.contains('confirmed with passport');
-        cy.contains('button', 'Continue').click();
-
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
-
-        cy.contains('confirmed with driving licence');
+        cy.contains('confirmed with one login');
         cy.contains('button', 'Continue').click();
 
         cy.injectAxe();
@@ -92,9 +84,7 @@ describe('Confirm your identity and sign', () => {
             .find('a')
             .click();
 
-        cy.contains('label', 'A passport').click();
-        cy.contains('label', 'A driving licence').click();
-        cy.contains('label', 'A government gateway account').click();
+        cy.contains('label', 'Your GOV.UK One Login Identity').click();
         cy.contains('button', 'Continue').click();
 
         cy.visit('/task-list');
@@ -105,6 +95,6 @@ describe('Confirm your identity and sign', () => {
             .click();
 
         cy.contains('button', 'Continue').click();
-        cy.contains('using your passport and driving licence');
+        cy.contains('Your GOV.UK One Login Identity');
     });
 });
