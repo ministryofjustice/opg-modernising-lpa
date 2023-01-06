@@ -26,7 +26,7 @@ func TestIdentityOptionNextPath(t *testing.T) {
 
 	assert.Equal(t, appData.Paths.IdentityWithYoti, options.NextPath(IdentityOptionUnknown, appData.Paths))
 	assert.Equal(t, appData.Paths.IdentityWithGovernmentGatewayAccount, options.NextPath(Yoti, appData.Paths))
-	assert.Equal(t, appData.Paths.WhatHappensWhenSigning, options.NextPath(GovernmentGatewayAccount, appData.Paths))
+	assert.Equal(t, appData.Paths.ReadYourLpa, options.NextPath(GovernmentGatewayAccount, appData.Paths))
 }
 
 func TestIdentityOptionsRanked(t *testing.T) {
