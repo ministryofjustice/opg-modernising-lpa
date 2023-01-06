@@ -302,6 +302,16 @@
     "enterCorrectSignatureCode": "Rhowch y cod llofnod a gawsoch",
     "continueToSigningPage": "Parhau i'r dudalen arwyddo",
 
+    "witnessingAsCPHeader": "<h1 class=\"govuk-heading-xl\">Welsh</h1>",
+    "enterUniqueCodeLabel": "Welsh",
+    "enterUniqueCodeHint": "{{ .CpFirstName }}, welsh {{ .DonorFullName }} welsh.",
+    "cpNotReceivedCodeLink": "<p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">{{ .CpFirstName }} welsh</a></p>",
+    "witnessCodeDoesNotMatch": "Welsh",
+    "witnessCodeExpired": "Welsh",
+    "enterWitnessCode": "Welsh",
+    "witnessCodeTooLong": "Welsh",
+    "witnessCodeTooShort": "Welsh",
+
     "signYourLpa": "Lofnodwch eich LPA",
     "signYourLpaHeader": "<h2 class=\"govuk-heading-m\">Welsh</h2>",
     "wantAttorneysToBeAppointed": {
