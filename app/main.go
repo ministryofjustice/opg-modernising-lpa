@@ -22,12 +22,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
@@ -194,7 +194,7 @@ func main() {
 
 	redirectURL := authRedirectBaseURL + paths.AuthRedirect
 
-	signInClient, err := signin.Discover(ctx, logger, httpClient, secretsClient, issuer, clientID, redirectURL)
+	signInClient, err := onelogin.Discover(ctx, logger, httpClient, secretsClient, issuer, clientID, redirectURL)
 	if err != nil {
 		logger.Fatal(err)
 	}

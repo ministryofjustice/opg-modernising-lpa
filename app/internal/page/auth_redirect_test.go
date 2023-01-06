@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/sessions"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -22,9 +22,9 @@ func (m *mockAuthRedirectClient) Exchange(ctx context.Context, code, nonce strin
 	return args.Get(0).(string), args.Error(1)
 }
 
-func (m *mockAuthRedirectClient) UserInfo(jwt string) (signin.UserInfo, error) {
+func (m *mockAuthRedirectClient) UserInfo(jwt string) (onelogin.UserInfo, error) {
 	args := m.Called(jwt)
-	return args.Get(0).(signin.UserInfo), args.Error(1)
+	return args.Get(0).(onelogin.UserInfo), args.Error(1)
 }
 
 func TestAuthRedirect(t *testing.T) {
@@ -37,7 +37,7 @@ func TestAuthRedirect(t *testing.T) {
 		Return("a JWT", nil)
 	client.
 		On("UserInfo", "a JWT").
-		Return(signin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
+		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
 
 	sessionsStore := &mockSessionsStore{}
 
@@ -76,7 +76,7 @@ func TestAuthRedirectWithCyLocale(t *testing.T) {
 		Return("a JWT", nil)
 	client.
 		On("UserInfo", "a JWT").
-		Return(signin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
+		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
 
 	sessionsStore := &mockSessionsStore{}
 
@@ -222,7 +222,7 @@ func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 		Return("a JWT", nil)
 	client.
 		On("UserInfo", "a JWT").
-		Return(signin.UserInfo{}, expectedError)
+		Return(onelogin.UserInfo{}, expectedError)
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.

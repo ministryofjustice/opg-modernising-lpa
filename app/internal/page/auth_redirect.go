@@ -5,12 +5,12 @@ import (
 	"net/http"
 
 	"github.com/gorilla/sessions"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 )
 
 type authRedirectClient interface {
 	Exchange(ctx context.Context, code, nonce string) (string, error)
-	UserInfo(string) (signin.UserInfo, error)
+	UserInfo(string) (onelogin.UserInfo, error)
 }
 
 func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, secure bool, paths AppPaths) http.HandlerFunc {
