@@ -77,7 +77,16 @@ describe('Confirm your identity and sign', () => {
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
-        // assertions on signing and completing to follow in future tickets
+
+        cy.contains('h1', "Witnessing as the certificate provider");
+
+        cy.get('#f-witness-code').type('1234');
+        cy.contains('button', 'Continue').click();
+
+        cy.url().should('contain', '/you-have-submitted-your-lpa');
+
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
     });
 
     it('can be restarted', () => {
