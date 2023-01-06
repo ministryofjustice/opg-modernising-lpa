@@ -367,12 +367,6 @@
     "scanWithTheYotiApp": "Sganiwch gyda'r ap Yoti",
     "yourIdentityConfirmedWithYoti": "Cadarnhawyd eich manylion adnabod gyda Yoti",
 
-    "youveSignedYourLpa": "Rydych chi wedi llofnodi'ch LPA",
-    "finalSteps": "Camau terfynol",
-    "beforeYourLpaCanBeRegisteredContent": "<p class=\"govuk-body\"><strong>Cyn y gellir cofrestru eich LPA mae tri cham arall.</strong></p> <ol class=\"govuk-list govuk-list--number\"> <li>Bydd {{.CertificateProviderFirstNames}} yn gofyn i chi rhai cwestiynau i sicrhau eich bod yn deall yr LPA ac nad ydych dan bwysau i'w gwneud yn groes i'ch ewyllys</li> <li>Mae angen i {{.CertificateProviderFirstNames}}roi datganiad eich bod yn deall yr LPA ac am ei wneud</li> <li>Byddwn yn gofyn i {{.AllAttorneysFirstNames}} i lofnodi</li> <li>Yna bydd eich LPA yn cael ei chyflwyno i Swyddfa'r Gwarcheidwad Cyhoeddus yn awtomatig</li> </ol>",
-    "thisMustAllBeDoneBy": "Rhaid gwneud hyn i gyd erbyn {{.DueDate}}. Os bydd y dyddiad cau hwn yn cael ei fethu, bydd yn rhaid i chi lofnodi'r LPA a chwrdd â {{.CertificateProviderFirstNames}} eto.",
-    "onceAttorneyHasSigned": "Unwaith y bydd {{.AllAttorneysFirstNames}} wedi arwyddo, byddwn yn hysbysu pawb ac yn gyfreithiol rhaid aros pythefnos am unrhyw wrthwynebiadau. Yna byddwn yn ychwanegu'r LPA at y gofrestr ac yn anfon copi o'r LPA atoch.",
-
     "myLastingPowersOfAttorney": "Fy atwrneiaethau arhosol",
     "myLastingPowersOfAttorneyHint": "Ar y dudalen hon, fel welwch eich holl LPAs sydd ar y gweill ac sydd wedi’u cofrestru.",
     "youCanCreateANewLpa": "Gallwch greu LPA newydd neu ailddefnyddio manylion LPA i greu un arall, gan ddefnyddio’r botwm ‘Dewisiadau’",

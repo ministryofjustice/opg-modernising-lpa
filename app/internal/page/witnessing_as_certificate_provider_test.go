@@ -31,7 +31,7 @@ func TestGetWitnessingAsCertificateProvider(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := WitnessingAsCertificateProvider(template.Func, lpaStore)(appData, w, r)
+	err := WitnessingAsCertificateProvider(template.Func, lpaStore, time.Now)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -51,7 +51,7 @@ func TestGetWitnessingAsCertificateProviderWhenStoreErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := WitnessingAsCertificateProvider(template.Func, lpaStore)(appData, w, r)
+	err := WitnessingAsCertificateProvider(template.Func, lpaStore, time.Now)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -82,7 +82,7 @@ func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := WitnessingAsCertificateProvider(template.Func, lpaStore)(appData, w, r)
+	err := WitnessingAsCertificateProvider(template.Func, lpaStore, time.Now)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -109,7 +109,7 @@ func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := WitnessingAsCertificateProvider(template.Func, lpaStore)(appData, w, r)
+	err := WitnessingAsCertificateProvider(template.Func, lpaStore, time.Now)(appData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -141,7 +141,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := WitnessingAsCertificateProvider(nil, lpaStore)(appData, w, r)
+	err := WitnessingAsCertificateProvider(nil, lpaStore, time.Now)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -183,7 +183,7 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := WitnessingAsCertificateProvider(template.Func, lpaStore)(appData, w, r)
+	err := WitnessingAsCertificateProvider(template.Func, lpaStore, time.Now)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -224,7 +224,7 @@ func TestPostWitnessingAsCertificateProviderExpiryTrumpsMismatch(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := WitnessingAsCertificateProvider(template.Func, lpaStore)(appData, w, r)
+	err := WitnessingAsCertificateProvider(template.Func, lpaStore, time.Now)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -264,7 +264,7 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := WitnessingAsCertificateProvider(template.Func, lpaStore)(appData, w, r)
+	err := WitnessingAsCertificateProvider(template.Func, lpaStore, time.Now)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -332,3 +332,5 @@ func TestWitnessingAsCertificateProviderValidate(t *testing.T) {
 		})
 	}
 }
+
+// update tests to include Submitted date

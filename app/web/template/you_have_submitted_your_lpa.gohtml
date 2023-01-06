@@ -3,7 +3,23 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1>You have submitted your LPA</h1>
+            <div class="govuk-panel govuk-panel--confirmation">
+                {{trHtml .App "submittedLpaHeader"}}
+            </div>
+
+            {{trHtml .App "whatHappensNextSubHeader"}}
+
+            {{trFormatHtml .App "nextStepsList" "CpFirstNames" .Lpa.CertificateProvider.FirstNames "AttorneysFullNames" .Lpa.AttorneysFullNames }}
+
+            {{trHtml .App "weWillEmailYou"}}
+
+            {{ $formattedDeadline := formatDate .Lpa.AttorneysSigningDeadline}}
+            {{ $signIn3WeeksWarning := trFormat .App "signIn4WeeksWarning" "CpFirstNames" .Lpa.CertificateProvider.FirstNames "AttorneysSigningDeadline" $formattedDeadline}}
+            {{ template "warning" (warning .App $signIn3WeeksWarning) }}
+
+            <a class="govuk-button" href="{{ link .App .App.Paths.Dashboard }}" data-module="govuk-button">
+                {{ tr $.App "continue" }}
+            </a>
         </div>
     </div>
 {{ end }}
