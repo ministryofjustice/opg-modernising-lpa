@@ -267,6 +267,22 @@ func TestWitnessingAsCertificateProviderValidate(t *testing.T) {
 				"witness-code": "enterWitnessCode",
 			},
 		},
+		"too long": {
+			form: &witnessingAsCertificateProviderForm{
+				Code: "12345",
+			},
+			errors: map[string]string{
+				"witness-code": "witnessCodeTooLong",
+			},
+		},
+		"too short": {
+			form: &witnessingAsCertificateProviderForm{
+				Code: "123",
+			},
+			errors: map[string]string{
+				"witness-code": "witnessCodeTooShort",
+			},
+		},
 	}
 
 	for name, tc := range testCases {

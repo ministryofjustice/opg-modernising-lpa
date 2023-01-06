@@ -309,6 +309,8 @@
     "witnessCodeDoesNotMatch": "Welsh",
     "witnessCodeExpired": "Welsh",
     "enterWitnessCode": "Welsh",
+    "witnessCodeTooLong": "Welsh",
+    "witnessCodeTooShort": "Welsh",
 
     "signYourLpa": "Lofnodwch eich LPA",
     "signYourLpaHeader": "<h2 class=\"govuk-heading-m\">Welsh</h2>",

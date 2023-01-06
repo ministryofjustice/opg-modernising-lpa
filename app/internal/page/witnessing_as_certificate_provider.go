@@ -71,5 +71,13 @@ func (w *witnessingAsCertificateProviderForm) Validate() map[string]string {
 		errors["witness-code"] = "enterWitnessCode"
 	}
 
+	if len(w.Code) > 4 {
+		errors["witness-code"] = "witnessCodeTooLong"
+	}
+
+	if len(w.Code) > 0 && len(w.Code) < 4 {
+		errors["witness-code"] = "witnessCodeTooShort"
+	}
+
 	return errors
 }

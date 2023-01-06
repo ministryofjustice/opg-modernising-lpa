@@ -339,6 +339,8 @@
     "witnessCodeDoesNotMatch": "Incorrect certificate providers one-time code entered. Please check the code and try again.",
     "witnessCodeExpired": "The certificate providers one-time code entered has expired.",
     "enterWitnessCode": "Enter the certificate providers one-time code",
+    "witnessCodeTooLong": "The certificate providers one-time code is too long, the code must be 4 numbers",
+    "witnessCodeTooShort": "The certificate providers one-time code is too short, the code must be 4 numbers",
 
     "youveSignedYourLpa": "You've signed your LPA",
     "finalSteps": "Final steps",
