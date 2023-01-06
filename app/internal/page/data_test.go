@@ -1427,7 +1427,7 @@ func TestWitnessCodeExpired(t *testing.T) {
 			Expected: true,
 		},
 		"30m01s ago": {
-			Duration: "-31m",
+			Duration: "-30m01s",
 			Expected: true,
 		},
 	}
