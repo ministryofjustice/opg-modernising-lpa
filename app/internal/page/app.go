@@ -214,28 +214,34 @@ func App(
 	handle(paths.PaymentConfirmation, RequireSession|CanGoBack,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, lpaStore, sessionStore))
 
-	handle(paths.SelectYourIdentityOptions, RequireSession|CanGoBack,
-		SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), lpaStore))
+	for path, page := range map[string]int{
+		paths.SelectYourIdentityOptions:  0,
+		paths.SelectYourIdentityOptions1: 1,
+		paths.SelectYourIdentityOptions2: 2,
+	} {
+		handle(path, RequireSession|CanGoBack,
+			SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), lpaStore, page))
+	}
+
 	handle(paths.YourChosenIdentityOptions, RequireSession|CanGoBack,
 		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), lpaStore))
 	handle(paths.IdentityWithYoti, RequireSession|CanGoBack,
 		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), lpaStore, yotiClient, yotiScenarioID))
 	handle(paths.IdentityWithYotiCallback, RequireSession|CanGoBack,
 		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, lpaStore))
-	handle(paths.IdentityWithPassport, RequireSession|CanGoBack,
-		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, Passport))
-	handle(paths.IdentityWithDrivingLicence, RequireSession|CanGoBack,
-		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, DrivingLicence))
-	handle(paths.IdentityWithGovernmentGatewayAccount, RequireSession|CanGoBack,
-		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, GovernmentGatewayAccount))
-	handle(paths.IdentityWithDwpAccount, RequireSession|CanGoBack,
-		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, DwpAccount))
-	handle(paths.IdentityWithOnlineBankAccount, RequireSession|CanGoBack,
-		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, OnlineBankAccount))
-	handle(paths.IdentityWithUtilityBill, RequireSession|CanGoBack,
-		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, UtilityBill))
-	handle(paths.IdentityWithCouncilTaxBill, RequireSession|CanGoBack,
-		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, CouncilTaxBill))
+
+	for path, identityOption := range map[string]IdentityOption{
+		paths.IdentityWithOneLogin:                 OneLogin,
+		paths.IdentityWithPassport:                 Passport,
+		paths.IdentityWithBiometricResidencePermit: BiometricResidencePermit,
+		paths.IdentityWithDrivingLicencePaper:      DrivingLicencePaper,
+		paths.IdentityWithDrivingLicencePhotocard:  DrivingLicencePhotocard,
+		paths.IdentityWithOnlineBankAccount:        OnlineBankAccount,
+	} {
+		handle(path, RequireSession|CanGoBack,
+			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), identityOption))
+	}
+
 	handle(paths.ReadYourLpa, RequireSession|CanGoBack,
 		ReadYourLpa(tmpls.Get("read_your_lpa.gohtml"), lpaStore))
 	handle(paths.SignYourLpa, RequireSession|CanGoBack,
