@@ -36,9 +36,7 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore) 
 
 			if lpa.WitnessCode.HasExpired() {
 				data.Errors["witness-code"] = "witnessCodeExpired"
-			}
-
-			if lpa.WitnessCode.Code != data.Form.Code {
+			} else if lpa.WitnessCode.Code != data.Form.Code {
 				data.Errors["witness-code"] = "witnessCodeDoesNotMatch"
 			}
 
@@ -57,11 +55,9 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore) 
 }
 
 func readWitnessingAsCertificateProviderForm(r *http.Request) *witnessingAsCertificateProviderForm {
-	f := &witnessingAsCertificateProviderForm{}
-
-	f.Code = r.PostFormValue("witness-code")
-
-	return f
+	return &witnessingAsCertificateProviderForm{
+		Code: postFormString(r, "witness-code"),
+	}
 }
 
 func (w *witnessingAsCertificateProviderForm) Validate() map[string]string {
@@ -69,14 +65,12 @@ func (w *witnessingAsCertificateProviderForm) Validate() map[string]string {
 
 	if w.Code == "" {
 		errors["witness-code"] = "enterWitnessCode"
+	} else if len(w.Code) < 4 {
+		errors["witness-code"] = "witnessCodeTooShort"
 	}
 
 	if len(w.Code) > 4 {
 		errors["witness-code"] = "witnessCodeTooLong"
-	}
-
-	if len(w.Code) > 0 && len(w.Code) < 4 {
-		errors["witness-code"] = "witnessCodeTooShort"
 	}
 
 	return errors

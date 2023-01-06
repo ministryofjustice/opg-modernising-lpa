@@ -191,6 +191,47 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
+func TestPostWitnessingAsCertificateProviderExpiryTrumpsMismatch(t *testing.T) {
+	w := httptest.NewRecorder()
+	now := time.Now()
+	invalidCreated := now.Add(-45 * time.Minute)
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(&Lpa{
+			WitnessCode: WitnessCode{Code: "1234", Created: invalidCreated},
+		}, nil)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &witnessingAsCertificateProviderData{
+			App: appData,
+			Lpa: &Lpa{
+				WitnessCode: WitnessCode{Code: "1234", Created: invalidCreated},
+			},
+			Errors: map[string]string{
+				"witness-code": "witnessCodeExpired",
+			},
+			Form: &witnessingAsCertificateProviderForm{Code: "4321"},
+		}).
+		Return(nil)
+
+	form := url.Values{
+		"witness-code": {"4321"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := WitnessingAsCertificateProvider(template.Func, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, lpaStore, template)
+}
+
 func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 	w := httptest.NewRecorder()
 	now := time.Now()
