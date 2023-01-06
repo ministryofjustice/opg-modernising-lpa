@@ -59,4 +59,5 @@ type AppPaths struct {
 	YourAddress                                 string
 	YourChosenIdentityOptions                   string
 	YourDetails                                 string
+	YouHaveSubmittedYourLpa                     string
 }
