@@ -6,12 +6,13 @@ import (
 )
 
 type UserInfo struct {
-	Sub           string `json:"sub"`
-	Email         string `json:"email"`
-	EmailVerified bool   `json:"email_verified"`
-	Phone         string `json:"phone"`
-	PhoneVerified bool   `json:"phone_verified"`
-	UpdatedAt     int    `json:"updated_at"`
+	Sub             string `json:"sub"`
+	Email           string `json:"email"`
+	EmailVerified   bool   `json:"email_verified"`
+	Phone           string `json:"phone"`
+	PhoneVerified   bool   `json:"phone_verified"`
+	UpdatedAt       int    `json:"updated_at"`
+	CoreIdentityJWT string `json:"https://vocab.account.gov.uk/v1/coreIdentityJWT"`
 }
 
 func (c *Client) UserInfo(idToken string) (UserInfo, error) {

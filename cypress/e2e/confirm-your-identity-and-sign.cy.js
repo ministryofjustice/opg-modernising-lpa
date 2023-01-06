@@ -26,14 +26,10 @@ describe('Confirm your identity and sign', () => {
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
         cy.contains('Your GOV.UK One Login Identity');
-        cy.contains('button', 'Continue').click();
 
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
-
-        cy.contains('confirmed with one login');
-        cy.contains('button', 'Continue').click();
-
+        // can't click continue as the real flow would begin
+        cy.visit('/read-your-lpa');
+        
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
