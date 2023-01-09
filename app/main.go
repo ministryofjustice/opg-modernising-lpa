@@ -112,7 +112,6 @@ func main() {
 		SelectYourIdentityOptions:                   "/select-your-identity-options",
 		SelectYourIdentityOptions1:                  "/select-your-identity-options-1",
 		SelectYourIdentityOptions2:                  "/select-your-identity-options-2",
-		SigningConfirmation:                         "/signing-confirmation",
 		SignYourLpa:                                 "/sign-your-lpa",
 		Start:                                       "/start",
 		TaskList:                                    "/task-list",
