@@ -370,6 +370,9 @@
     "identifyYourselfWithYoti": "Profi pwy ydych chi gyda'r ap Yoti",
     "scanWithTheYotiApp": "Sganiwch gyda'r ap Yoti",
     "yourIdentityConfirmedWithYoti": "Cadarnhawyd eich manylion adnabod gyda Yoti",
+    "yourIdentityConfirmedWithOneLogin": "Welsh",
+    "yourIdentityNotConfirmedWithOneLogin": "Welsh",
+    "pleaseContinueWithADifferentMethod": "Welsh",
 
     "youveSignedYourLpa": "Rydych chi wedi llofnodi'ch LPA",
     "finalSteps": "Camau terfynol",
