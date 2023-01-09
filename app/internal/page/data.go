@@ -76,6 +76,7 @@ type Lpa struct {
 	CPWitnessedDonorSign                        bool
 	WantToApplyForLpa                           bool
 	CPWitnessCodeValidated                      bool
+	Submitted                                   time.Time
 }
 
 type PaymentDetails struct {
@@ -510,4 +511,8 @@ func (l *Lpa) LpaLegalTermTransKey() string {
 		return "combinedLegalTerm"
 	}
 	return ""
+}
+
+func (l *Lpa) AttorneysAndCpSigningDeadline() time.Time {
+	return l.Submitted.Add((24 * time.Hour) * 28)
 }

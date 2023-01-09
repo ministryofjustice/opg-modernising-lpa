@@ -29,7 +29,7 @@ describe('Confirm your identity and sign', () => {
 
         // can't click continue as the real flow would begin
         cy.visit('/read-your-lpa');
-        
+
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
@@ -72,6 +72,15 @@ describe('Confirm your identity and sign', () => {
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/you-have-submitted-your-lpa');
+
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+        cy.contains('h1', "You've submitted your LPA");
+
+        cy.contains('a', 'Continue').click();
+
+        cy.url().should('contain', '/dashboard');
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
