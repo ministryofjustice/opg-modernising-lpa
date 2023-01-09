@@ -48,7 +48,6 @@ type AppPaths struct {
 	SelectYourIdentityOptions1                  string
 	SelectYourIdentityOptions2                  string
 	SignYourLpa                                 string
-	SigningConfirmation                         string
 	Start                                       string
 	TaskList                                    string
 	TestingStart                                string
