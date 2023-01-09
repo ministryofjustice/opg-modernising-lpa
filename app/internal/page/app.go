@@ -91,6 +91,11 @@ type NotifyClient interface {
 	TemplateID(id notify.TemplateId) string
 }
 
+type OneLoginClient interface {
+	loginClient
+	authRedirectClient
+}
+
 func postFormString(r *http.Request, name string) string {
 	return strings.TrimSpace(r.PostFormValue(name))
 }
@@ -126,6 +131,7 @@ func App(
 	rumConfig RumConfig,
 	staticHash string,
 	paths AppPaths,
+	oneLoginClient OneLoginClient,
 ) http.Handler {
 	mux := http.NewServeMux()
 
@@ -229,9 +235,12 @@ func App(
 		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), lpaStore, yotiClient, yotiScenarioID))
 	handle(paths.IdentityWithYotiCallback, RequireSession|CanGoBack,
 		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, lpaStore))
+	handle(paths.IdentityWithOneLogin, RequireSession|CanGoBack,
+		IdentityWithOneLogin(logger, oneLoginClient, sessionStore, random.String))
+	handle(paths.IdentityWithOneLoginCallback, RequireSession|CanGoBack,
+		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, lpaStore))
 
 	for path, identityOption := range map[string]IdentityOption{
-		paths.IdentityWithOneLogin:                 OneLogin,
 		paths.IdentityWithPassport:                 Passport,
 		paths.IdentityWithBiometricResidencePermit: BiometricResidencePermit,
 		paths.IdentityWithDrivingLicencePaper:      DrivingLicencePaper,

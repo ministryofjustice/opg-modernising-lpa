@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
 	"github.com/stretchr/testify/assert"
@@ -109,6 +110,32 @@ func TestLpaStorePut(t *testing.T) {
 
 	err := lpaStore.Put(ctx, "an-id", lpa)
 	assert.Equal(t, expectedError, err)
+}
+
+func TestIdentityConfirmed(t *testing.T) {
+	testCases := map[string]struct {
+		lpa      *Lpa
+		expected bool
+	}{
+		"yoti": {
+			lpa:      &Lpa{YotiUserData: identity.UserData{OK: true}},
+			expected: true,
+		},
+		"one login": {
+			lpa:      &Lpa{OneLoginUserData: identity.UserData{OK: true}},
+			expected: true,
+		},
+		"none": {
+			lpa:      &Lpa{},
+			expected: false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, tc.lpa.IdentityConfirmed())
+		})
+	}
 }
 
 func TestGetAttorney(t *testing.T) {

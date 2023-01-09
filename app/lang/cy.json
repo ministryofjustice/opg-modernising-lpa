@@ -372,6 +372,9 @@
     "identifyYourselfWithYoti": "Profi pwy ydych chi gyda'r ap Yoti",
     "scanWithTheYotiApp": "Sganiwch gyda'r ap Yoti",
     "yourIdentityConfirmedWithYoti": "Cadarnhawyd eich manylion adnabod gyda Yoti",
+    "yourIdentityConfirmedWithOneLogin": "Welsh",
+    "yourIdentityNotConfirmedWithOneLogin": "Welsh",
+    "pleaseContinueWithADifferentMethod": "Welsh",
 
     "myLastingPowersOfAttorney": "Fy atwrneiaethau arhosol",
     "myLastingPowersOfAttorneyHint": "Ar y dudalen hon, fel welwch eich holl LPAs sydd ar y gweill ac sydd wedi’u cofrestru.",

@@ -22,12 +22,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
@@ -65,67 +65,6 @@ func main() {
 			ApplicationID:     env.Get("AWS_RUM_APPLICATION_ID", ""),
 		}
 	)
-
-	paths := page.AppPaths{
-		Auth:                                        "/auth",
-		AuthRedirect:                                "/auth/redirect",
-		AboutPayment:                                "/about-payment",
-		CertificateProviderDetails:                  "/certificate-provider-details",
-		CheckYourLpa:                                "/check-your-lpa",
-		ChooseAttorneysAddress:                      "/choose-attorneys-address",
-		ChooseAttorneys:                             "/choose-attorneys",
-		ChooseAttorneysSummary:                      "/choose-attorneys-summary",
-		ChoosePeopleToNotify:                        "/choose-people-to-notify",
-		ChoosePeopleToNotifyAddress:                 "/choose-people-to-notify-address",
-		ChoosePeopleToNotifySummary:                 "/choose-people-to-notify-summary",
-		ChooseReplacementAttorneys:                  "/choose-replacement-attorneys",
-		ChooseReplacementAttorneysAddress:           "/choose-replacement-attorneys-address",
-		ChooseReplacementAttorneysSummary:           "/choose-replacement-attorneys-summary",
-		CookiesConsent:                              "/cookies-consent",
-		DoYouWantReplacementAttorneys:               "/do-you-want-replacement-attorneys",
-		DoYouWantToNotifyPeople:                     "/do-you-want-to-notify-people",
-		Dashboard:                                   "/dashboard",
-		HealthCheck:                                 "/health-check",
-		HowDoYouKnowYourCertificateProvider:         "/how-do-you-know-your-certificate-provider",
-		HowLongHaveYouKnownCertificateProvider:      "/how-long-have-you-known-certificate-provider",
-		HowShouldReplacementAttorneysMakeDecisions:  "/how-should-replacement-attorneys-make-decisions",
-		HowShouldReplacementAttorneysStepIn:         "/how-should-replacement-attorneys-step-in",
-		HowShouldAttorneysMakeDecisions:             "/how-should-attorneys-make-decisions",
-		HowWouldYouLikeToBeContacted:                "/how-would-you-like-to-be-contacted",
-		IdentityConfirmed:                           "/identity-confirmed",
-		IdentityWithDrivingLicencePaper:             "/id/driving-licence-paper",
-		IdentityWithDrivingLicencePhotocard:         "/id/driving-licence-photocard",
-		IdentityWithBiometricResidencePermit:        "/id/biometric-residence-permit",
-		IdentityWithOneLogin:                        "/id/one-login",
-		IdentityWithOnlineBankAccount:               "/id/online-bank-account",
-		IdentityWithPassport:                        "/id/passport",
-		IdentityWithYotiCallback:                    "/id/yoti/callback",
-		IdentityWithYoti:                            "/id/yoti",
-		LpaType:                                     "/lpa-type",
-		PaymentConfirmation:                         "/payment-confirmation",
-		ReadYourLpa:                                 "/read-your-lpa",
-		RemoveAttorney:                              "/remove-attorney",
-		RemovePersonToNotify:                        "/remove-person-to-notify",
-		RemoveReplacementAttorney:                   "/remove-replacement-attorney",
-		Restrictions:                                "/restrictions",
-		Root:                                        "/",
-		SelectYourIdentityOptions:                   "/select-your-identity-options",
-		SelectYourIdentityOptions1:                  "/select-your-identity-options-1",
-		SelectYourIdentityOptions2:                  "/select-your-identity-options-2",
-		SignYourLpa:                                 "/sign-your-lpa",
-		Start:                                       "/start",
-		TaskList:                                    "/task-list",
-		TestingStart:                                "/testing-start",
-		WhenCanTheLpaBeUsed:                         "/when-can-the-lpa-be-used",
-		WhoDoYouWantToBeCertificateProviderGuidance: "/who-do-you-want-to-be-certificate-provider-guidance",
-		WhoIsTheLpaFor:                              "/who-is-the-lpa-for",
-		WitnessingAsCertificateProvider:             "/witnessing-as-certificate-provider",
-		WitnessingYourSignature:                     "/witnessing-your-signature",
-		YourAddress:                                 "/your-address",
-		YourChosenIdentityOptions:                   "/your-chosen-identity-options",
-		YourDetails:                                 "/your-details",
-		YouHaveSubmittedYourLpa:                     "/you-have-submitted-your-lpa",
-	}
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
 	if err != nil {
@@ -191,9 +130,9 @@ func main() {
 
 	sessionStore := sessions.NewCookieStore(sessionKeys...)
 
-	redirectURL := authRedirectBaseURL + paths.AuthRedirect
+	redirectURL := authRedirectBaseURL + page.Paths.AuthRedirect
 
-	signInClient, err := signin.Discover(ctx, logger, httpClient, secretsClient, issuer, clientID, redirectURL)
+	signInClient, err := onelogin.Discover(ctx, logger, httpClient, secretsClient, issuer, clientID, redirectURL)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -244,16 +183,16 @@ func main() {
 	secureCookies := strings.HasPrefix(appPublicURL, "https:")
 
 	mux := http.NewServeMux()
-	mux.HandleFunc(paths.HealthCheck, func(w http.ResponseWriter, r *http.Request) {})
+	mux.HandleFunc(page.Paths.HealthCheck, func(w http.ResponseWriter, r *http.Request) {})
 	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, webDir+"/robots.txt")
 	})
 	mux.Handle("/static/", http.StripPrefix("/static", handlers.CompressHandler(page.CacheControlHeaders(http.FileServer(http.Dir(webDir+"/static/"))))))
-	mux.Handle(paths.AuthRedirect, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies, paths))
-	mux.Handle(paths.Auth, page.Login(logger, signInClient, sessionStore, secureCookies, random.String))
-	mux.Handle(paths.CookiesConsent, page.CookieConsent(paths))
-	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig, staticHash, paths)))
-	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig, staticHash, paths))
+	mux.Handle(page.Paths.AuthRedirect, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies, page.Paths))
+	mux.Handle(page.Paths.Auth, page.Login(logger, signInClient, sessionStore, secureCookies, random.String))
+	mux.Handle(page.Paths.CookiesConsent, page.CookieConsent(page.Paths))
+	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient)))
+	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient))
 
 	var handler http.Handler = mux
 	if xrayEnabled {
