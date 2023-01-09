@@ -8,11 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/exp/slices"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"golang.org/x/exp/slices"
 )
 
 const (
@@ -64,6 +62,7 @@ type Lpa struct {
 	SignatureSmsID                              string
 	IdentityOption                              IdentityOption
 	YotiUserData                                identity.UserData
+	OneLoginUserData                            identity.UserData
 	HowAttorneysMakeDecisions                   string
 	HowAttorneysMakeDecisionsDetails            string
 	ReplacementAttorneys                        []Attorney
@@ -191,6 +190,10 @@ func DecodeAddress(s string) *place.Address {
 	var v place.Address
 	json.Unmarshal([]byte(s), &v)
 	return &v
+}
+
+func (l *Lpa) IdentityConfirmed() bool {
+	return l.YotiUserData.OK || l.OneLoginUserData.OK
 }
 
 func (l *Lpa) GetAttorney(id string) (Attorney, bool) {
