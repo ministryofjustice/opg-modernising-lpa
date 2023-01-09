@@ -510,6 +510,6 @@ func (l *Lpa) LpaLegalTermTransKey() string {
 	return ""
 }
 
-func (l *Lpa) AttorneysSigningDeadline() time.Time {
-	return l.Submitted.Add((24 * time.Hour) * 21)
+func (l *Lpa) AttorneysAndCpSigningDeadline() time.Time {
+	return l.Submitted.Add((24 * time.Hour) * 28)
 }

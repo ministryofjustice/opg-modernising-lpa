@@ -1450,6 +1450,6 @@ func TestAttorneysSigningDeadline(t *testing.T) {
 		Submitted: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
 	}
 
-	expected := time.Date(2020, time.January, 23, 3, 4, 5, 6, time.UTC)
-	assert.Equal(t, expected, lpa.AttorneysSigningDeadline())
+	expected := time.Date(2020, time.January, 30, 3, 4, 5, 6, time.UTC)
+	assert.Equal(t, expected, lpa.AttorneysAndCpSigningDeadline())
 }
