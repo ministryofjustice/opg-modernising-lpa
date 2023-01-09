@@ -2,6 +2,7 @@ package page
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 )
@@ -17,7 +18,7 @@ type witnessingAsCertificateProviderForm struct {
 	Code string
 }
 
-func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore) Handler {
+func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, now func() time.Time) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
 		if err != nil {
@@ -42,6 +43,7 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore) 
 
 			if len(data.Errors) == 0 {
 				lpa.CPWitnessCodeValidated = true
+				lpa.Submitted = now()
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
