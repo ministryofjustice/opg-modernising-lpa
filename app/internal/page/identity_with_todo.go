@@ -12,15 +12,10 @@ type identityWithTodoData struct {
 	IdentityOption IdentityOption
 }
 
-func IdentityWithTodo(tmpl template.Template, lpaStore LpaStore, identityOption IdentityOption) Handler {
+func IdentityWithTodo(tmpl template.Template, identityOption IdentityOption) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		if r.Method == http.MethodPost {
-			lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
-			if err != nil {
-				return err
-			}
-
-			return appData.Lang.Redirect(w, r, lpa.IdentityOptions.NextPath(identityOption, appData.Paths), http.StatusFound)
+			return appData.Lang.Redirect(w, r, appData.Paths.ReadYourLpa, http.StatusFound)
 		}
 
 		data := &identityWithTodoData{

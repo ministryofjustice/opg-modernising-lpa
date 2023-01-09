@@ -214,38 +214,46 @@ func App(
 	handle(paths.PaymentConfirmation, RequireSession|CanGoBack,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, lpaStore, sessionStore))
 
-	handle(paths.SelectYourIdentityOptions, RequireSession|CanGoBack,
-		SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), lpaStore))
+	for path, page := range map[string]int{
+		paths.SelectYourIdentityOptions:  0,
+		paths.SelectYourIdentityOptions1: 1,
+		paths.SelectYourIdentityOptions2: 2,
+	} {
+		handle(path, RequireSession|CanGoBack,
+			SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), lpaStore, page))
+	}
+
 	handle(paths.YourChosenIdentityOptions, RequireSession|CanGoBack,
 		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), lpaStore))
 	handle(paths.IdentityWithYoti, RequireSession|CanGoBack,
 		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), lpaStore, yotiClient, yotiScenarioID))
 	handle(paths.IdentityWithYotiCallback, RequireSession|CanGoBack,
 		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, lpaStore))
-	handle(paths.IdentityWithPassport, RequireSession|CanGoBack,
-		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, Passport))
-	handle(paths.IdentityWithDrivingLicence, RequireSession|CanGoBack,
-		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, DrivingLicence))
-	handle(paths.IdentityWithGovernmentGatewayAccount, RequireSession|CanGoBack,
-		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, GovernmentGatewayAccount))
-	handle(paths.IdentityWithDwpAccount, RequireSession|CanGoBack,
-		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, DwpAccount))
-	handle(paths.IdentityWithOnlineBankAccount, RequireSession|CanGoBack,
-		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, OnlineBankAccount))
-	handle(paths.IdentityWithUtilityBill, RequireSession|CanGoBack,
-		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, UtilityBill))
-	handle(paths.IdentityWithCouncilTaxBill, RequireSession|CanGoBack,
-		IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, CouncilTaxBill))
+
+	for path, identityOption := range map[string]IdentityOption{
+		paths.IdentityWithOneLogin:                 OneLogin,
+		paths.IdentityWithPassport:                 Passport,
+		paths.IdentityWithBiometricResidencePermit: BiometricResidencePermit,
+		paths.IdentityWithDrivingLicencePaper:      DrivingLicencePaper,
+		paths.IdentityWithDrivingLicencePhotocard:  DrivingLicencePhotocard,
+		paths.IdentityWithOnlineBankAccount:        OnlineBankAccount,
+	} {
+		handle(path, RequireSession|CanGoBack,
+			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), identityOption))
+	}
+
 	handle(paths.ReadYourLpa, RequireSession|CanGoBack,
 		ReadYourLpa(tmpls.Get("read_your_lpa.gohtml"), lpaStore))
 	handle(paths.SignYourLpa, RequireSession|CanGoBack,
 		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), lpaStore))
+	handle(paths.SigningConfirmation, RequireSession|CanGoBack,
+		Guidance(tmpls.Get("signing_confirmation.gohtml"), paths.TaskList, lpaStore))
 	handle(paths.WitnessingYourSignature, RequireSession|CanGoBack,
 		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), lpaStore, notifyClient, random.Code, time.Now))
 	handle(paths.WitnessingAsCertificateProvider, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("witnessing_as_certificate_provider.gohtml"), "", lpaStore))
-	handle(paths.SigningConfirmation, RequireSession|CanGoBack,
-		Guidance(tmpls.Get("signing_confirmation.gohtml"), paths.TaskList, lpaStore))
+		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), lpaStore))
+	handle(paths.YouHaveSubmittedYourLpa, RequireSession|CanGoBack,
+		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml"), paths.TaskList, lpaStore))
 
 	return mux
 }

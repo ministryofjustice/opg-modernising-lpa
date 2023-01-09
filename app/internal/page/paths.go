@@ -1,9 +1,9 @@
 package page
 
 type AppPaths struct {
+	AboutPayment                                string
 	Auth                                        string
 	AuthRedirect                                string
-	AboutPayment                                string
 	CertificateProviderDetails                  string
 	CheckYourLpa                                string
 	ChooseAttorneys                             string
@@ -22,20 +22,19 @@ type AppPaths struct {
 	HealthCheck                                 string
 	HowDoYouKnowYourCertificateProvider         string
 	HowLongHaveYouKnownCertificateProvider      string
+	HowShouldAttorneysMakeDecisions             string
 	HowShouldReplacementAttorneysMakeDecisions  string
 	HowShouldReplacementAttorneysStepIn         string
-	HowShouldAttorneysMakeDecisions             string
 	HowWouldYouLikeToBeContacted                string
 	IdentityConfirmed                           string
-	IdentityWithCouncilTaxBill                  string
-	IdentityWithDrivingLicence                  string
-	IdentityWithDwpAccount                      string
-	IdentityWithGovernmentGatewayAccount        string
+	IdentityWithBiometricResidencePermit        string
+	IdentityWithDrivingLicencePaper             string
+	IdentityWithDrivingLicencePhotocard         string
+	IdentityWithOneLogin                        string
 	IdentityWithOnlineBankAccount               string
 	IdentityWithPassport                        string
-	IdentityWithUtilityBill                     string
-	IdentityWithYotiCallback                    string
 	IdentityWithYoti                            string
+	IdentityWithYotiCallback                    string
 	LpaType                                     string
 	PaymentConfirmation                         string
 	ReadYourLpa                                 string
@@ -45,8 +44,10 @@ type AppPaths struct {
 	Restrictions                                string
 	Root                                        string
 	SelectYourIdentityOptions                   string
-	SigningConfirmation                         string
+	SelectYourIdentityOptions1                  string
+	SelectYourIdentityOptions2                  string
 	SignYourLpa                                 string
+	SigningConfirmation                         string
 	Start                                       string
 	TaskList                                    string
 	TestingStart                                string
@@ -58,4 +59,5 @@ type AppPaths struct {
 	YourAddress                                 string
 	YourChosenIdentityOptions                   string
 	YourDetails                                 string
+	YouHaveSubmittedYourLpa                     string
 }

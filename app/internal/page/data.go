@@ -62,7 +62,7 @@ type Lpa struct {
 	EnteredSignatureCode                        string
 	SignatureEmailID                            string
 	SignatureSmsID                              string
-	IdentityOptions                             IdentityOptions
+	IdentityOption                              IdentityOption
 	YotiUserData                                identity.UserData
 	HowAttorneysMakeDecisions                   string
 	HowAttorneysMakeDecisionsDetails            string
@@ -76,6 +76,7 @@ type Lpa struct {
 	WitnessCode                                 WitnessCode
 	CPWitnessedDonorSign                        bool
 	WantToApplyForLpa                           bool
+	CPWitnessCodeValidated                      bool
 }
 
 type PaymentDetails struct {
@@ -161,6 +162,10 @@ type lpaStore struct {
 type WitnessCode struct {
 	Code    string
 	Created time.Time
+}
+
+func (w *WitnessCode) HasExpired() bool {
+	return w.Created.Before(time.Now().Add(-30 * time.Minute))
 }
 
 func (s *lpaStore) Get(ctx context.Context, sessionID string) (*Lpa, error) {
