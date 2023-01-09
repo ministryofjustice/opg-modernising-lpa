@@ -79,6 +79,15 @@ describe('Confirm your identity and sign', () => {
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+        cy.contains('h1', "You've submitted your LPA");
+
+        cy.contains('a', 'Continue').click();
+
+        cy.url().should('contain', '/dashboard');
+
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
     });
 
     it('can be restarted', () => {
