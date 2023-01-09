@@ -345,11 +345,11 @@
     "witnessCodeTooLong": "The certificate providers one-time code is too long, the code must be 4 numbers",
     "witnessCodeTooShort": "The certificate providers one-time code is too short, the code must be 4 numbers",
 
-    "youveSignedYourLpa": "You've signed your LPA",
-    "finalSteps": "Final steps",
-    "beforeYourLpaCanBeRegisteredContent": "<p class=\"govuk-body\"><strong>Before your LPA can be registered there are three more steps.</strong></p> <ol class=\"govuk-list govuk-list--number\"> <li>{{.CertificateProviderFirstNames}} will ask you some questions to make sure you understand the LPA and aren't being pressured to make it against your will</li> <li>{{.CertificateProviderFirstNames}} needs to give a statement that you understand the LPA and want to make it</li> <li>We'll ask {{.AllAttorneysFirstNames}} to sign</li> <li>Then your LPA will be submitted to the Office of the Public Guardian automatically</li> </ol>",
-    "thisMustAllBeDoneBy": "This must all be done by {{.DueDate}}. If this deadline is missed, you will have to sign the LPA and meet with {{.CertificateProviderFirstNames}} again.",
-    "onceAttorneyHasSigned": "Once {{.AllAttorneysFirstNames}} has signed, we'll notify all parities and must legally wait two weeks for any objections. Then we'll add the LPA to the register and send you a copy of the LPA.",
+    "submittedLpaHeader": "<h1 class=\"govuk-panel__title\">You've submitted your LPA</h1>",
+    "whatHappensNextSubHeader": "<h2 class=\"govuk-heading-m\">What happens next</h2>",
+    "nextStepsList": "<ol class=\"govuk-list govuk-list--number govuk-list--spaced\"><li>We'll contact {{ .CpFirstNames }} and ask them to confirm their identity. They also need to sign your LPA to confirm they've discussed it with you. We call this 'providing a certificate'.</li><li>We'll then contact {{ .AttorneysFullNames }} and ask them to sign your LPA as your attorneys.</li><li>Once the attorneys have signed, your LPA will automatically be sent to us to be checked and registered. If we find any problems with your LPA, we'll contact you.</li><li>The law says we then have to wait 4 weeks before registering your LPA. This is in case anyone wants to object to your LPA's registration.</li><li>We'll register your LPA.</li></ol>",
+    "weWillEmailYou": "<p class=\"govuk-body\">We'll email you at each step to update you with the progress of your LPA's registration. You can also track progress by logging into this service.</p>",
+    "signIn4WeeksWarning": "{{ .CpFirstNames }} and your attorneys must sign your LPA by {{ .AttorneysAndCpSigningDeadline }}. If they do not sign by this date, you will have to meet with {{ .CpFirstNames }} and sign your LPA again.",
 
     "myLastingPowersOfAttorney": "My lasting powers of attorney",
     "myLastingPowersOfAttorneyHint": "On this page you will find all your in-progress and registered LPAs.",
