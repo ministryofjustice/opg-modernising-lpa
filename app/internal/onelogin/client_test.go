@@ -1,4 +1,4 @@
-package signin
+package onelogin
 
 import (
 	"context"
@@ -63,7 +63,22 @@ func TestAuthCodeURL(t *testing.T) {
 			AuthorizationEndpoint: "http://auth",
 		},
 	}
-	actual := c.AuthCodeURL("state", "nonce", "cy")
+	actual := c.AuthCodeURL("state", "nonce", "cy", false)
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestAuthCodeURLForIdentity(t *testing.T) {
+	expected := "http://auth?claims=%7B%22userinfo%22%3A%7B%22https%3A%2F%2Fvocab.account.gov.uk%2Fv1%2FcoreIdentityJWT%22%3A+null%7D%7D&client_id=123&nonce=nonce&redirect_uri=http%3A%2F%2Fredirect&response_type=code&scope=openid+email&state=state&ui_locales=cy&vtr=%5BCl.Cm.P2%5D"
+
+	c := &Client{
+		redirectURL: "http://redirect",
+		clientID:    "123",
+		openidConfiguration: openidConfiguration{
+			AuthorizationEndpoint: "http://auth",
+		},
+	}
+	actual := c.AuthCodeURL("state", "nonce", "cy", true)
 
 	assert.Equal(t, expected, actual)
 }
