@@ -1,4 +1,4 @@
-package signin
+package onelogin
 
 import (
 	"bytes"
