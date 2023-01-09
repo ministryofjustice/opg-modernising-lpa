@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/sessions"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/signin"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -22,9 +22,9 @@ func (m *mockAuthRedirectClient) Exchange(ctx context.Context, code, nonce strin
 	return args.Get(0).(string), args.Error(1)
 }
 
-func (m *mockAuthRedirectClient) UserInfo(jwt string) (signin.UserInfo, error) {
+func (m *mockAuthRedirectClient) UserInfo(jwt string) (onelogin.UserInfo, error) {
 	args := m.Called(jwt)
-	return args.Get(0).(signin.UserInfo), args.Error(1)
+	return args.Get(0).(onelogin.UserInfo), args.Error(1)
 }
 
 func TestAuthRedirect(t *testing.T) {
@@ -37,7 +37,7 @@ func TestAuthRedirect(t *testing.T) {
 		Return("a JWT", nil)
 	client.
 		On("UserInfo", "a JWT").
-		Return(signin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
+		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
 
 	sessionsStore := &mockSessionsStore{}
 
@@ -66,6 +66,24 @@ func TestAuthRedirect(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, client, sessionsStore)
 }
 
+func TestAuthRedirectWithIdentity(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
+
+	sessionsStore := &mockSessionsStore{}
+
+	sessionsStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce", "locale": "en", "identity": true}}, nil)
+
+	AuthRedirect(nil, nil, sessionsStore, true, appData.Paths)(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, appData.Paths.IdentityWithOneLoginCallback+"?code=auth-code&state=my-state", resp.Header.Get("Location"))
+	mock.AssertExpectationsForObjects(t, sessionsStore)
+}
+
 func TestAuthRedirectWithCyLocale(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
@@ -76,7 +94,7 @@ func TestAuthRedirectWithCyLocale(t *testing.T) {
 		Return("a JWT", nil)
 	client.
 		On("UserInfo", "a JWT").
-		Return(signin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
+		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
 
 	sessionsStore := &mockSessionsStore{}
 
@@ -222,7 +240,7 @@ func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 		Return("a JWT", nil)
 	client.
 		On("UserInfo", "a JWT").
-		Return(signin.UserInfo{}, expectedError)
+		Return(onelogin.UserInfo{}, expectedError)
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.

@@ -31,6 +31,7 @@ type AppPaths struct {
 	IdentityWithDrivingLicencePaper             string
 	IdentityWithDrivingLicencePhotocard         string
 	IdentityWithOneLogin                        string
+	IdentityWithOneLoginCallback                string
 	IdentityWithOnlineBankAccount               string
 	IdentityWithPassport                        string
 	IdentityWithYoti                            string
@@ -60,4 +61,67 @@ type AppPaths struct {
 	YourChosenIdentityOptions                   string
 	YourDetails                                 string
 	YouHaveSubmittedYourLpa                     string
+}
+
+var Paths = AppPaths{
+	Auth:                                        "/auth",
+	AuthRedirect:                                "/auth/redirect",
+	AboutPayment:                                "/about-payment",
+	CertificateProviderDetails:                  "/certificate-provider-details",
+	CheckYourLpa:                                "/check-your-lpa",
+	ChooseAttorneysAddress:                      "/choose-attorneys-address",
+	ChooseAttorneys:                             "/choose-attorneys",
+	ChooseAttorneysSummary:                      "/choose-attorneys-summary",
+	ChoosePeopleToNotify:                        "/choose-people-to-notify",
+	ChoosePeopleToNotifyAddress:                 "/choose-people-to-notify-address",
+	ChoosePeopleToNotifySummary:                 "/choose-people-to-notify-summary",
+	ChooseReplacementAttorneys:                  "/choose-replacement-attorneys",
+	ChooseReplacementAttorneysAddress:           "/choose-replacement-attorneys-address",
+	ChooseReplacementAttorneysSummary:           "/choose-replacement-attorneys-summary",
+	CookiesConsent:                              "/cookies-consent",
+	DoYouWantReplacementAttorneys:               "/do-you-want-replacement-attorneys",
+	DoYouWantToNotifyPeople:                     "/do-you-want-to-notify-people",
+	Dashboard:                                   "/dashboard",
+	HealthCheck:                                 "/health-check",
+	HowDoYouKnowYourCertificateProvider:         "/how-do-you-know-your-certificate-provider",
+	HowLongHaveYouKnownCertificateProvider:      "/how-long-have-you-known-certificate-provider",
+	HowShouldReplacementAttorneysMakeDecisions:  "/how-should-replacement-attorneys-make-decisions",
+	HowShouldReplacementAttorneysStepIn:         "/how-should-replacement-attorneys-step-in",
+	HowShouldAttorneysMakeDecisions:             "/how-should-attorneys-make-decisions",
+	HowWouldYouLikeToBeContacted:                "/how-would-you-like-to-be-contacted",
+	IdentityConfirmed:                           "/identity-confirmed",
+	IdentityWithDrivingLicencePaper:             "/id/driving-licence-paper",
+	IdentityWithDrivingLicencePhotocard:         "/id/driving-licence-photocard",
+	IdentityWithBiometricResidencePermit:        "/id/biometric-residence-permit",
+	IdentityWithOneLogin:                        "/id/one-login",
+	IdentityWithOneLoginCallback:                "/id/one-login/callback",
+	IdentityWithOnlineBankAccount:               "/id/online-bank-account",
+	IdentityWithPassport:                        "/id/passport",
+	IdentityWithYotiCallback:                    "/id/yoti/callback",
+	IdentityWithYoti:                            "/id/yoti",
+	LpaType:                                     "/lpa-type",
+	PaymentConfirmation:                         "/payment-confirmation",
+	ReadYourLpa:                                 "/read-your-lpa",
+	RemoveAttorney:                              "/remove-attorney",
+	RemovePersonToNotify:                        "/remove-person-to-notify",
+	RemoveReplacementAttorney:                   "/remove-replacement-attorney",
+	Restrictions:                                "/restrictions",
+	Root:                                        "/",
+	SelectYourIdentityOptions:                   "/select-your-identity-options",
+	SelectYourIdentityOptions1:                  "/select-your-identity-options-1",
+	SelectYourIdentityOptions2:                  "/select-your-identity-options-2",
+	SigningConfirmation:                         "/signing-confirmation",
+	SignYourLpa:                                 "/sign-your-lpa",
+	Start:                                       "/start",
+	TaskList:                                    "/task-list",
+	TestingStart:                                "/testing-start",
+	WhenCanTheLpaBeUsed:                         "/when-can-the-lpa-be-used",
+	WhoDoYouWantToBeCertificateProviderGuidance: "/who-do-you-want-to-be-certificate-provider-guidance",
+	WhoIsTheLpaFor:                              "/who-is-the-lpa-for",
+	WitnessingAsCertificateProvider:             "/witnessing-as-certificate-provider",
+	WitnessingYourSignature:                     "/witnessing-your-signature",
+	YourAddress:                                 "/your-address",
+	YourChosenIdentityOptions:                   "/your-chosen-identity-options",
+	YourDetails:                                 "/your-details",
+	YouHaveSubmittedYourLpa:                     "/you-have-submitted-your-lpa",
 }
