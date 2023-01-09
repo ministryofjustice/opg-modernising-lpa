@@ -3,7 +3,11 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      {{ trFormatHtml .App "whoDoYouWantToBeCertificateProviderGuidance" "AttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+      {{ trHtml .App "whoDoYouWantToBeCertificateProviderGuidanceIntro" }}
+      {{ trHtml .App "whatYourCertificateProviderHasToDo" }}
+      {{ trHtml .App "whoToChooseAsYourCertificateProvider" }}
+      {{ trFormatHtml .App "whoCannotBeACertificateProvider" "AttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+      {{ trHtml .App "detailsYoullNeedAboutYourCertificateProvider" }}
 
       <form novalidate method="post">
         <div class="govuk-button-group">
