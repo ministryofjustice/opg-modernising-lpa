@@ -13,9 +13,9 @@
 
             {{trHtml .App "weWillEmailYou"}}
 
-            {{ $formattedDeadline := formatDate .Lpa.AttorneysSigningDeadline}}
-            {{ $signIn3WeeksWarning := trFormat .App "signIn4WeeksWarning" "CpFirstNames" .Lpa.CertificateProvider.FirstNames "AttorneysSigningDeadline" $formattedDeadline}}
-            {{ template "warning" (warning .App $signIn3WeeksWarning) }}
+            {{ $formattedDeadline := formatDate .Lpa.AttorneysAndCpSigningDeadline}}
+            {{ $signIn4WeeksWarning := trFormat .App "signIn4WeeksWarning" "CpFirstNames" .Lpa.CertificateProvider.FirstNames "AttorneysAndCpSigningDeadline" $formattedDeadline}}
+            {{ template "warning" (warning .App $signIn4WeeksWarning) }}
 
             <a class="govuk-button" href="{{ link .App .App.Paths.Dashboard }}" data-module="govuk-button">
                 {{ tr $.App "continue" }}

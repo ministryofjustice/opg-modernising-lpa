@@ -312,6 +312,12 @@
     "witnessCodeTooLong": "Welsh",
     "witnessCodeTooShort": "Welsh",
 
+    "submittedLpaHeader": "<h1 class=\"govuk-panel__title\">Welsh</h1>",
+    "whatHappensNextSubHeader": "<h2 class=\"govuk-heading-m\">Welsh</h2>",
+    "nextStepsList": "<ol class=\"govuk-list govuk-list--number govuk-list--spaced\"><li>Welsh {{ .CpFirstNames }} welsh</li><li>Welsh {{ .AttorneysFullNames }} welsh</li><li>Welsh</li><li>Welsh</li><li>Welsh</li></ol>",
+    "weWillEmailYou": "<p class=\"govuk-body\">Welsh</p>",
+    "signIn4WeeksWarning": "{{ .CpFirstNames }} welsh {{ .AttorneysAndCpSigningDeadline }}. {{ .CpFirstNames }} welsh",
+
     "signYourLpa": "Lofnodwch eich LPA",
     "signYourLpaHeader": "<h2 class=\"govuk-heading-m\">Welsh</h2>",
     "wantAttorneysToBeAppointed": {
