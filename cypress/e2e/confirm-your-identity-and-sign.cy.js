@@ -31,7 +31,7 @@ describe('Confirm your identity and sign', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.contains('confirmed with one login');
+        cy.contains('confirmed with GOV.UK One Login');
         cy.contains('button', 'Continue').click();
 
         cy.injectAxe();
