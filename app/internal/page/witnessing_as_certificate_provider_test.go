@@ -131,6 +131,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 		On("Put", mock.Anything, "session-id", &Lpa{
 			WitnessCode:            WitnessCode{Code: "1234", Created: now},
 			CPWitnessCodeValidated: true,
+			Submitted:              now,
 		}).
 		Return(nil)
 
@@ -141,7 +142,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := WitnessingAsCertificateProvider(nil, lpaStore, time.Now)(appData, w, r)
+	err := WitnessingAsCertificateProvider(nil, lpaStore, func() time.Time { return now })(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -332,5 +333,3 @@ func TestWitnessingAsCertificateProviderValidate(t *testing.T) {
 		})
 	}
 }
-
-// update tests to include Submitted date
