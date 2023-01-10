@@ -2,6 +2,11 @@
   <div class="govuk-form-group {{ if index .top.Errors .name }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
     <fieldset class="govuk-fieldset" role="group" aria-describedby="{{ .name }}-hint">
       <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">{{ tr .top.App .label }}</legend>
+      {{ if .context }}
+        <p class="govuk-body">
+          {{ tr .top.App .context }}
+        </p>
+      {{ end }}
       {{ if .hint }}
         <div id="{{ .name }}-hint" class="govuk-hint">
           {{ tr .top.App .hint }}
