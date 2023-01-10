@@ -38,7 +38,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 		attorney, attorneyFound := lpa.GetAttorney(r.URL.Query().Get("id"))
 
 		if r.Method == http.MethodGet && len(lpa.Attorneys) > 0 && attorneyFound == false && addAnother == false {
-			return appData.Lang.Redirect(w, r, appData.Paths.ChooseAttorneysSummary, http.StatusFound)
+			return appData.Lang.Redirect(w, r, lpa, Paths.ChooseAttorneysSummary)
 		}
 
 		data := &chooseAttorneysData{
@@ -94,7 +94,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 					from = fmt.Sprintf("%s?id=%s", appData.Paths.ChooseAttorneysAddress, attorney.ID)
 				}
 
-				return appData.Lang.Redirect(w, r, from, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, from)
 			}
 		}
 

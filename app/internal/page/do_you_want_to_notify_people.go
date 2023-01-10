@@ -25,7 +25,7 @@ func DoYouWantToNotifyPeople(tmpl template.Template, lpaStore LpaStore) Handler 
 		}
 
 		if len(lpa.PeopleToNotify) > 0 {
-			return appData.Lang.Redirect(w, r, appData.Paths.ChoosePeopleToNotifySummary, http.StatusFound)
+			return appData.Lang.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
 		}
 
 		data := &doYouWantToNotifyPeopleData{
@@ -52,7 +52,7 @@ func DoYouWantToNotifyPeople(tmpl template.Template, lpaStore LpaStore) Handler 
 					return err
 				}
 
-				return appData.Lang.Redirect(w, r, redirectPath, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, redirectPath)
 			}
 		}
 

@@ -6,7 +6,9 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -85,47 +87,53 @@ func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 }
 
 func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
+	attorney1 := Attorney{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}
+	attorney2 := Attorney{FirstNames: "x", LastName: "y", Address: place.Address{Line1: "z"}, DateOfBirth: time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)}
+
 	testcases := map[string]struct {
 		expectedUrl          string
 		Attorneys            []Attorney
 		ReplacementAttorneys []Attorney
 		HowAttorneysAct      string
+		DecisionDetails      string
 	}{
 		"with multiple attorneys acting jointly and severally and single replacement attorney": {
-			expectedUrl:          "/how-should-replacement-attorneys-step-in",
-			Attorneys:            []Attorney{{ID: "123"}, {ID: "456"}},
-			ReplacementAttorneys: []Attorney{{ID: "123"}},
-			HowAttorneysAct:      "jointly-and-severally",
+			expectedUrl:          Paths.HowShouldReplacementAttorneysStepIn,
+			Attorneys:            []Attorney{attorney1, attorney2},
+			ReplacementAttorneys: []Attorney{attorney1},
+			HowAttorneysAct:      JointlyAndSeverally,
 		},
 		"with multiple attorneys acting jointly and severally and multiple replacement attorney": {
-			expectedUrl:          "/how-should-replacement-attorneys-step-in",
-			Attorneys:            []Attorney{{ID: "123"}, {ID: "456"}},
-			ReplacementAttorneys: []Attorney{{ID: "123"}, {ID: "456"}},
-			HowAttorneysAct:      "jointly-and-severally",
+			expectedUrl:          Paths.HowShouldReplacementAttorneysStepIn,
+			Attorneys:            []Attorney{attorney1, attorney2},
+			ReplacementAttorneys: []Attorney{attorney1, attorney2},
+			HowAttorneysAct:      JointlyAndSeverally,
 		},
 		"with multiple attorneys acting jointly for some decisions and jointly and severally for other decisions and single replacement attorney": {
-			expectedUrl:          "/when-can-the-lpa-be-used",
-			Attorneys:            []Attorney{{ID: "123"}, {ID: "456"}},
-			ReplacementAttorneys: []Attorney{{ID: "123"}},
-			HowAttorneysAct:      "mixed",
+			expectedUrl:          Paths.WhenCanTheLpaBeUsed,
+			Attorneys:            []Attorney{attorney1, attorney2},
+			ReplacementAttorneys: []Attorney{attorney1},
+			HowAttorneysAct:      JointlyForSomeSeverallyForOthers,
+			DecisionDetails:      "some words",
 		},
 		"with multiple attorneys acting jointly for some decisions, and jointly and severally for other decisions and multiple replacement attorneys": {
-			expectedUrl:          "/when-can-the-lpa-be-used",
-			Attorneys:            []Attorney{{ID: "123"}, {ID: "456"}},
-			ReplacementAttorneys: []Attorney{{ID: "123"}, {ID: "123"}},
-			HowAttorneysAct:      "mixed",
+			expectedUrl:          Paths.WhenCanTheLpaBeUsed,
+			Attorneys:            []Attorney{attorney1, attorney2},
+			ReplacementAttorneys: []Attorney{attorney1, attorney2},
+			HowAttorneysAct:      JointlyForSomeSeverallyForOthers,
+			DecisionDetails:      "some words",
 		},
 		"with multiple attorneys acting jointly and single replacement attorneys": {
-			expectedUrl:          "/when-can-the-lpa-be-used",
-			Attorneys:            []Attorney{{ID: "123"}, {ID: "456"}},
-			ReplacementAttorneys: []Attorney{{ID: "123"}},
-			HowAttorneysAct:      "jointly",
+			expectedUrl:          Paths.WhenCanTheLpaBeUsed,
+			Attorneys:            []Attorney{attorney1, attorney2},
+			ReplacementAttorneys: []Attorney{attorney1},
+			HowAttorneysAct:      Jointly,
 		},
 		"with multiple attorneys acting jointly and multiple replacement attorneys": {
-			expectedUrl:          "/how-should-replacement-attorneys-make-decisions",
-			Attorneys:            []Attorney{{ID: "123"}, {ID: "456"}},
-			ReplacementAttorneys: []Attorney{{ID: "123"}, {ID: "123"}},
-			HowAttorneysAct:      "jointly",
+			expectedUrl:          Paths.HowShouldReplacementAttorneysMakeDecisions,
+			Attorneys:            []Attorney{attorney1, attorney2},
+			ReplacementAttorneys: []Attorney{attorney1, attorney2},
+			HowAttorneysAct:      Jointly,
 		},
 	}
 
@@ -137,9 +145,10 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
 				Return(&Lpa{
-					ReplacementAttorneys:      tc.ReplacementAttorneys,
-					HowAttorneysMakeDecisions: tc.HowAttorneysAct,
-					Attorneys:                 tc.Attorneys,
+					ReplacementAttorneys:             tc.ReplacementAttorneys,
+					HowAttorneysMakeDecisions:        tc.HowAttorneysAct,
+					HowAttorneysMakeDecisionsDetails: tc.DecisionDetails,
+					Attorneys:                        tc.Attorneys,
 				}, nil)
 
 			form := url.Values{
