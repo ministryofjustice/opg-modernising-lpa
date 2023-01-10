@@ -30,7 +30,7 @@ func RemoveAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) Ha
 		attorney, found := lpa.GetAttorney(id)
 
 		if found == false {
-			return appData.Lang.Redirect(w, r, appData.Paths.ChooseAttorneysSummary, http.StatusFound)
+			return appData.Lang.Redirect(w, r, lpa, Paths.ChooseAttorneysSummary)
 		}
 
 		data := &removeAttorneyData{
@@ -57,14 +57,14 @@ func RemoveAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) Ha
 				}
 
 				if len(lpa.Attorneys) == 0 {
-					return appData.Lang.Redirect(w, r, appData.Paths.ChooseAttorneys, http.StatusFound)
+					return appData.Lang.Redirect(w, r, lpa, Paths.ChooseAttorneys)
 				}
 
-				return appData.Lang.Redirect(w, r, appData.Paths.ChooseAttorneysSummary, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, Paths.ChooseAttorneysSummary)
 			}
 
 			if data.Form.RemoveAttorney == "no" {
-				return appData.Lang.Redirect(w, r, appData.Paths.ChooseAttorneysSummary, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, Paths.ChooseAttorneysSummary)
 			}
 
 		}

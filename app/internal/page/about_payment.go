@@ -73,7 +73,7 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 			if strings.HasPrefix(nextUrl, pay.PaymentPublicServiceUrl) {
 				http.Redirect(w, r, nextUrl, http.StatusFound)
 			} else {
-				appData.Lang.Redirect(w, r, appData.Paths.PaymentConfirmation, http.StatusFound)
+				appData.Lang.Redirect(w, r, lpa, Paths.PaymentConfirmation)
 			}
 
 		}

@@ -45,12 +45,12 @@ func WantReplacementAttorneys(tmpl template.Template, lpaStore LpaStore) Handler
 					return err
 				}
 
-				return appData.Lang.Redirect(w, r, redirectUrl, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, redirectUrl)
 			}
 		}
 
 		if len(lpa.ReplacementAttorneys) > 0 {
-			return appData.Lang.Redirect(w, r, appData.Paths.ChooseReplacementAttorneysSummary, http.StatusFound)
+			return appData.Lang.Redirect(w, r, lpa, Paths.ChooseReplacementAttorneysSummary)
 		}
 
 		return tmpl(w, data)

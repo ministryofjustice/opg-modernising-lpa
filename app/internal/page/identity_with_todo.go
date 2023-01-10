@@ -15,7 +15,7 @@ type identityWithTodoData struct {
 func IdentityWithTodo(tmpl template.Template, identityOption IdentityOption) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		if r.Method == http.MethodPost {
-			return appData.Lang.Redirect(w, r, appData.Paths.ReadYourLpa, http.StatusFound)
+			return appData.Lang.Redirect(w, r, nil, Paths.ReadYourLpa)
 		}
 
 		data := &identityWithTodoData{

@@ -27,9 +27,9 @@ func IdentityWithOneLoginCallback(tmpl template.Template, authRedirectClient aut
 
 		if r.Method == http.MethodPost {
 			if lpa.OneLoginUserData.OK {
-				return appData.Lang.Redirect(w, r, appData.Paths.ReadYourLpa, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, Paths.ReadYourLpa)
 			} else {
-				return appData.Lang.Redirect(w, r, appData.Paths.SelectYourIdentityOptions1, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, Paths.SelectYourIdentityOptions1)
 			}
 		}
 
