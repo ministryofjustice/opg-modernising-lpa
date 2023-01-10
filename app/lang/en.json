@@ -194,7 +194,8 @@
 
     "certificateProviderDetails": "Your certificate provider’s details",
     "certificateProviderDetailsHint": "Remember, your certificate provider must be 18 or over. They cannot be a member of your family (this includes step-relations and in-laws) or of the attorneys' families.",
-    "certificateProviderDobHint": "We need your certificate provider's date of birth to check they are over 18.",
+    "certificateProviderDobContext": "We need your certificate provider's date of birth to check they are over 18.",
+    "certificateProviderMobileContext": "We need your certificate provider's mobile number so we can send them a code to use when they witness you signing your LPA.",
     "mobile": "Mobile number",
 
     "aboutPayment": "About payment",

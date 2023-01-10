@@ -213,7 +213,8 @@
 
     "certificateProviderDetails": "Manylion eich darparwr tystysgrif",
     "certificateProviderDetailsHint": "Cofiwch, rhaid i’ch darparwr tystysgrif fod yn 18 oed neu'n hŷn. Ni allant fod yn aelod o'ch teulu (mae hyn yn cynnwys llys-berthnasau a pherthnasau yng-nghyfraith) nac o deuluoedd eich atwrneiod.",
-    "certificateProviderDobHint": "Mae angen dyddiad geni eich darparwr tystysgrif arnom i wirio eu bod dros 18 oed.",
+    "certificateProviderDobContext": "Mae angen dyddiad geni eich darparwr tystysgrif arnom i wirio eu bod dros 18 oed.",
+    "certificateProviderMobileContext": "Welsh",
     "mobile": "Welsh",
 
     "aboutPayment": "Ynglŷn â thalu",
