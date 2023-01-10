@@ -139,7 +139,6 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 	form := url.Values{
 		"first-names":         {"John"},
 		"last-name":           {"Doe"},
-		"email":               {"john@example.com"},
 		"mobile":              {"07535111111"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
@@ -172,7 +171,6 @@ func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 	form := url.Values{
 		"first-names":         {"John"},
 		"last-name":           {"Doe"},
-		"email":               {"john@example.com"},
 		"mobile":              {"07535111111"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
@@ -205,7 +203,6 @@ func TestPostCertificateProviderDetailsWhenValidationError(t *testing.T) {
 
 	form := url.Values{
 		"last-name":           {"Doe"},
-		"email":               {"john@example.com"},
 		"mobile":              {"07535111111"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
@@ -229,7 +226,6 @@ func TestReadCertificateProviderDetailsForm(t *testing.T) {
 	form := url.Values{
 		"first-names":         {"  John "},
 		"last-name":           {"Doe"},
-		"email":               {"john@example.com"},
 		"mobile":              {"07535111111"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
