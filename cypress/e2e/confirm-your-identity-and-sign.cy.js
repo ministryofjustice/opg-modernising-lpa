@@ -3,7 +3,7 @@ describe('Confirm your identity and sign', () => {
         cy.visit('/testing-start?redirect=/your-details&withAttorneys=1&withCP=1');
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
-        cy.get('#f-date-of-birth').type('1');
+        cy.get('#f-date-of-birth-day').type('1');
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
         cy.contains('button', 'Continue').click();
