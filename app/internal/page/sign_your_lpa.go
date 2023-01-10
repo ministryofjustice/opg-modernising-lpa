@@ -60,7 +60,7 @@ func SignYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 				if err = lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
-				return appData.Lang.Redirect(w, r, appData.Paths.WitnessingYourSignature, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, Paths.WitnessingYourSignature)
 			}
 		}
 

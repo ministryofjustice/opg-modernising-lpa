@@ -90,7 +90,7 @@ func TestLangRedirect(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 			w := httptest.NewRecorder()
 
-			lang.Redirect(w, r, "/somewhere", http.StatusFound)
+			lang.Redirect(w, r, nil, "/somewhere")
 			resp := w.Result()
 
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -290,7 +290,7 @@ func TestTestingStart(t *testing.T) {
 	t.Run("with attorneys", func(t *testing.T) {
 		ctx := context.Background()
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withAttorneys=1", nil)
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withIncompleteAttorneys=1", nil)
 		r = r.WithContext(ctx)
 
 		sessionsStore := &mockSessionsStore{}

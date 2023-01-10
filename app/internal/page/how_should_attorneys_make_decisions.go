@@ -51,7 +51,7 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) 
 					return err
 				}
 
-				return appData.Lang.Redirect(w, r, appData.Paths.DoYouWantReplacementAttorneys, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, Paths.DoYouWantReplacementAttorneys)
 			}
 		}
 
