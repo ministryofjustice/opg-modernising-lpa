@@ -34,7 +34,7 @@ func WhoIsTheLpaFor(tmpl template.Template, lpaStore LpaStore) Handler {
 					return err
 				}
 
-				return appData.Lang.Redirect(w, r, appData.Paths.LpaType, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, Paths.LpaType)
 			}
 		}
 

@@ -35,12 +35,12 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, page i
 			if data.Form.None {
 				switch page {
 				case 0:
-					return appData.Lang.Redirect(w, r, appData.Paths.SelectYourIdentityOptions1, http.StatusFound)
+					return appData.Lang.Redirect(w, r, lpa, Paths.SelectYourIdentityOptions1)
 				case 1:
-					return appData.Lang.Redirect(w, r, appData.Paths.SelectYourIdentityOptions2, http.StatusFound)
+					return appData.Lang.Redirect(w, r, lpa, Paths.SelectYourIdentityOptions2)
 				default:
 					// will go to vouching flow when that is built
-					return appData.Lang.Redirect(w, r, appData.Paths.TaskList, http.StatusFound)
+					return appData.Lang.Redirect(w, r, lpa, Paths.TaskList)
 				}
 			}
 
@@ -52,7 +52,7 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, page i
 					return err
 				}
 
-				return appData.Lang.Redirect(w, r, appData.Paths.YourChosenIdentityOptions, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, Paths.YourChosenIdentityOptions)
 			}
 		}
 
