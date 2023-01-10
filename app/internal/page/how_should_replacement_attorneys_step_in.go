@@ -59,7 +59,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 
 				}
 
-				return appData.Lang.Redirect(w, r, redirectUrl, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, redirectUrl)
 			}
 		}
 

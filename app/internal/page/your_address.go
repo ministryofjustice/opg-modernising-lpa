@@ -41,7 +41,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 					return err
 				}
 
-				return appData.Lang.Redirect(w, r, appData.Paths.WhoIsTheLpaFor, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, Paths.WhoIsTheLpaFor)
 			}
 
 			if data.Form.Action == "select" && len(data.Errors) == 0 {
