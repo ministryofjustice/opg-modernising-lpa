@@ -86,22 +86,38 @@ func (d *certificateProviderDetailsForm) Validate() map[string]string {
 	errors := map[string]string{}
 
 	if d.FirstNames == "" {
-		errors["first-names"] = "enterFirstNames"
+		errors["first-names"] = "enterCertificateProviderFirstNames"
 	}
 	if d.LastName == "" {
-		errors["last-name"] = "enterLastName"
+		errors["last-name"] = "enterCertificateProviderLastName"
 	}
-	if d.Dob.Day == "" {
-		errors["date-of-birth"] = "dateOfBirthDay"
+	if d.Dob.Day == "" && d.Dob.Month == "" && d.Dob.Year == "" {
+		errors["date-of-birth"] = "enterCertificateProviderDateOfBirth"
+	} else {
+		if d.Dob.Day == "" {
+			errors["date-of-birth-day"] = "dateOfBirthDay"
+		}
+		if d.Dob.Month == "" {
+			errors["date-of-birth-month"] = "dateOfBirthMonth"
+		}
+		if d.Dob.Year == "" {
+			errors["date-of-birth-year"] = "dateOfBirthYear"
+		}
+
+		if errors["date-of-birth-day"] != "" || errors["date-of-birth-month"] != "" || errors["date-of-birth-year"] != "" {
+			// Need this to trigger form group error border
+			errors["date-of-birth"] = " "
+		}
 	}
-	if d.Dob.Month == "" {
-		errors["date-of-birth"] = "dateOfBirthMonth"
-	}
-	if d.Dob.Year == "" {
-		errors["date-of-birth"] = "dateOfBirthYear"
-	}
-	if _, ok := errors["date-of-birth"]; !ok && d.DateOfBirthError != nil {
+
+	if d.Dob.Day != "" && d.Dob.Month != "" && d.Dob.Year != "" && d.DateOfBirthError != nil {
 		errors["date-of-birth"] = "dateOfBirthMustBeReal"
+	} else {
+		today := time.Now().UTC().Round(24 * time.Hour)
+
+		if d.DateOfBirth.After(today) {
+			errors["date-of-birth"] = "dateOfBirthIsFuture"
+		}
 	}
 
 	isUkMobile, _ := regexp.MatchString(`^(?:07|\+?447)\d{9}$`, strings.ReplaceAll(d.Mobile, " ", ""))
@@ -110,7 +126,7 @@ func (d *certificateProviderDetailsForm) Validate() map[string]string {
 		errors["mobile"] = "enterUkMobile"
 	}
 	if d.Mobile == "" {
-		errors["mobile"] = "enterMobile"
+		errors["mobile"] = "enterCertificateProviderMobile"
 	}
 
 	return errors

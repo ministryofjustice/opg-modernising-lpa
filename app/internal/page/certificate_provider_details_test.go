@@ -269,10 +269,10 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 		"missing-all": {
 			form: &certificateProviderDetailsForm{},
 			errors: map[string]string{
-				"first-names":   "enterFirstNames",
-				"last-name":     "enterLastName",
-				"date-of-birth": "dateOfBirthYear",
-				"mobile":        "enterMobile",
+				"first-names":   "enterCertificateProviderFirstNames",
+				"last-name":     "enterCertificateProviderLastName",
+				"date-of-birth": "enterCertificateProviderDateOfBirth",
+				"mobile":        "enterCertificateProviderMobile",
 			},
 		},
 		"invalid-dob": {
@@ -291,19 +291,65 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 				"date-of-birth": "dateOfBirthMustBeReal",
 			},
 		},
-		"invalid-missing-dob": {
+		"invalid-missing-dob-day-and-month": {
 			form: &certificateProviderDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
 				Mobile:     "07535111111",
 				Dob: Date{
-					Day:  "1",
 					Year: "1",
 				},
-				DateOfBirthError: expectedError,
 			},
 			errors: map[string]string{
-				"date-of-birth": "dateOfBirthMonth",
+				"date-of-birth-day":   "dateOfBirthDay",
+				"date-of-birth-month": "dateOfBirthMonth",
+				"date-of-birth":       " ",
+			},
+		},
+		"invalid-missing-dob-day-and-year": {
+			form: &certificateProviderDetailsForm{
+				FirstNames: "A",
+				LastName:   "B",
+				Mobile:     "07535111111",
+				Dob: Date{
+					Month: "1",
+				},
+			},
+			errors: map[string]string{
+				"date-of-birth-day":  "dateOfBirthDay",
+				"date-of-birth-year": "dateOfBirthYear",
+				"date-of-birth":      " ",
+			},
+		},
+		"invalid-missing-dob-month-and-year": {
+			form: &certificateProviderDetailsForm{
+				FirstNames: "A",
+				LastName:   "B",
+				Mobile:     "07535111111",
+				Dob: Date{
+					Day: "1",
+				},
+			},
+			errors: map[string]string{
+				"date-of-birth-month": "dateOfBirthMonth",
+				"date-of-birth-year":  "dateOfBirthYear",
+				"date-of-birth":       " ",
+			},
+		},
+		"invalid-dob-in-future": {
+			form: &certificateProviderDetailsForm{
+				FirstNames: "A",
+				LastName:   "B",
+				Mobile:     "07535111111",
+				Dob: Date{
+					Day:   "1",
+					Month: "1",
+					Year:  "5000",
+				},
+				DateOfBirth: time.Now().AddDate(0, 0, 1),
+			},
+			errors: map[string]string{
+				"date-of-birth": "dateOfBirthIsFuture",
 			},
 		},
 		"invalid-incorrect-mobile-format": {

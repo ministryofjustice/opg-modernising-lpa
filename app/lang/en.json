@@ -197,6 +197,13 @@
     "certificateProviderDobContext": "We need your certificate provider's date of birth to check they are over 18.",
     "certificateProviderMobileContext": "We need your certificate provider's mobile number so we can send them a code to use when they witness you signing your LPA.",
     "mobile": "Mobile number",
+    "enterCertificateProviderFirstNames": "Enter your certificate provider's first name",
+    "enterCertificateProviderLastName": "Enter your certificate provider's last name",
+    "enterCertificateProviderDateOfBirth": "Enter your certificate provider's date of birth",
+    "enterCertificateProviderMobile": "Enter your certificate provider's mobile number",
+    "dateOfBirthDay": "Enter a day",
+    "dateOfBirthMonth": "Enter a month",
+    "dateOfBirthYear": "Enter a year",
 
     "aboutPayment": "About payment",
     "aboutPaymentContent": "<p class=\"govuk-body\">It costs £82 to apply for an LPA. </p>",
