@@ -32,7 +32,7 @@
                       </a>
                     </span>
                     <strong class="govuk-tag app-task-list__tag govuk-tag--blue">{{ tr $.App "inProgress" }} {{if gt .Count 0}}({{ .Count }}){{ end }}</strong>
-                  {{ else if .Disabled }}
+                  {{ else if not ($.Lpa.CanGoTo .Path) }}
                     <span class="app-task-list__task-name govuk-hint govuk-!-margin-bottom-0">
                       {{ tr $.App .Name }}
                     </span>

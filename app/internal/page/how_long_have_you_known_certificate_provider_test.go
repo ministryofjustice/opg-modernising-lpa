@@ -6,7 +6,9 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -114,11 +116,16 @@ func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{}, nil)
+		Return(&Lpa{
+			Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}},
+			HowAttorneysMakeDecisions: Jointly,
+		}, nil)
 	lpaStore.
 		On("Put", mock.Anything, "session-id", &Lpa{
-			CertificateProvider: CertificateProvider{RelationshipLength: "gte-2-years"},
-			Tasks:               Tasks{CertificateProvider: TaskCompleted},
+			Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}},
+			HowAttorneysMakeDecisions: Jointly,
+			CertificateProvider:       CertificateProvider{RelationshipLength: "gte-2-years"},
+			Tasks:                     Tasks{CertificateProvider: TaskCompleted},
 		}).
 		Return(nil)
 
