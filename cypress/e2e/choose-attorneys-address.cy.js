@@ -1,6 +1,6 @@
 describe('Choose attorneys address', () => {
     it('address can be looked up', () => {
-        cy.visit('/testing-start?redirect=/choose-attorneys-address?id=without-address&withAttorneys=1');
+        cy.visit('/testing-start?redirect=/choose-attorneys-address?id=without-address&withIncompleteAttorneys=1');
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
@@ -28,7 +28,7 @@ describe('Choose attorneys address', () => {
     });
 
     it('address can be entered manually', () => {
-        cy.visit('/testing-start?redirect=/choose-attorneys-address?id=without-address&withAttorneys=1');
+        cy.visit('/testing-start?redirect=/choose-attorneys-address?id=without-address&withIncompleteAttorneys=1');
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });

@@ -188,7 +188,7 @@ func main() {
 		http.ServeFile(w, r, webDir+"/robots.txt")
 	})
 	mux.Handle("/static/", http.StripPrefix("/static", handlers.CompressHandler(page.CacheControlHeaders(http.FileServer(http.Dir(webDir+"/static/"))))))
-	mux.Handle(page.Paths.AuthRedirect, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies, page.Paths))
+	mux.Handle(page.Paths.AuthRedirect, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies))
 	mux.Handle(page.Paths.Auth, page.Login(logger, signInClient, sessionStore, secureCookies, random.String))
 	mux.Handle(page.Paths.CookiesConsent, page.CookieConsent(page.Paths))
 	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient)))
