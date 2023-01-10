@@ -197,7 +197,7 @@ func TestPostCertificateProviderDetailsWhenValidationError(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, mock.MatchedBy(func(data *certificateProviderDetailsData) bool {
-			return assert.Equal(t, map[string]string{"first-names": "enterFirstNames"}, data.Errors)
+			return assert.Equal(t, map[string]string{"first-names": "enterCertificateProviderFirstNames"}, data.Errors)
 		})).
 		Return(nil)
 

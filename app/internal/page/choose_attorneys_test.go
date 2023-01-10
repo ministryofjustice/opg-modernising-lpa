@@ -572,13 +572,10 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 		},
 		"invalid missing dob": {
 			form: &chooseAttorneysForm{
-				FirstNames: "A",
-				LastName:   "B",
-				Email:      "person@example.com",
-				Dob: Date{
-					Day:  "1",
-					Year: "1",
-				},
+				FirstNames:       "A",
+				LastName:         "B",
+				Email:            "person@example.com",
+				Dob:              Date{},
 				DateOfBirthError: expectedError,
 			},
 			errors: map[string]string{
