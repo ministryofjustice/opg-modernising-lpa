@@ -30,7 +30,7 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaSto
 		attorney, found := lpa.GetPersonToNotify(id)
 
 		if found == false {
-			return appData.Lang.Redirect(w, r, appData.Paths.ChoosePeopleToNotifySummary, http.StatusFound)
+			return appData.Lang.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
 		}
 
 		data := &removePersonToNotifyData{
@@ -65,11 +65,11 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaSto
 					return err
 				}
 
-				return appData.Lang.Redirect(w, r, redirect, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, redirect)
 			}
 
 			if data.Form.RemovePersonToNotify == "no" {
-				return appData.Lang.Redirect(w, r, appData.Paths.ChoosePeopleToNotifySummary, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
 			}
 
 		}

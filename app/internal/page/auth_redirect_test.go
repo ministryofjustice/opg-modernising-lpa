@@ -58,11 +58,11 @@ func TestAuthRedirect(t *testing.T) {
 		On("Save", r, w, session).
 		Return(nil)
 
-	AuthRedirect(nil, client, sessionsStore, true, appData.Paths)(w, r)
+	AuthRedirect(nil, client, sessionsStore, true)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.Dashboard, resp.Header.Get("Location"))
+	assert.Equal(t, Paths.Dashboard, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, client, sessionsStore)
 }
 
@@ -76,11 +76,11 @@ func TestAuthRedirectWithIdentity(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce", "locale": "en", "identity": true}}, nil)
 
-	AuthRedirect(nil, nil, sessionsStore, true, appData.Paths)(w, r)
+	AuthRedirect(nil, nil, sessionsStore, true)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.IdentityWithOneLoginCallback+"?code=auth-code&state=my-state", resp.Header.Get("Location"))
+	assert.Equal(t, Paths.IdentityWithOneLoginCallback+"?code=auth-code&state=my-state", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
@@ -115,10 +115,10 @@ func TestAuthRedirectWithCyLocale(t *testing.T) {
 		On("Save", r, w, session).
 		Return(nil)
 
-	AuthRedirect(nil, client, sessionsStore, true, appData.Paths)(w, r)
+	AuthRedirect(nil, client, sessionsStore, true)(w, r)
 	resp := w.Result()
 
-	redirect := fmt.Sprintf("/cy%s", appData.Paths.Dashboard)
+	redirect := fmt.Sprintf("/cy%s", Paths.Dashboard)
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, redirect, resp.Header.Get("Location"))
@@ -174,7 +174,7 @@ func TestAuthRedirectSessionMissing(t *testing.T) {
 				On("Get", r, "params").
 				Return(tc.session, tc.getErr)
 
-			AuthRedirect(logger, nil, sessionsStore, true, appData.Paths)(w, r)
+			AuthRedirect(logger, nil, sessionsStore, true)(w, r)
 			resp := w.Result()
 
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -196,7 +196,7 @@ func TestAuthRedirectStateIncorrect(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state"}}, nil)
 
-	AuthRedirect(logger, nil, sessionsStore, true, appData.Paths)(w, r)
+	AuthRedirect(logger, nil, sessionsStore, true)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -221,7 +221,7 @@ func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce", "locale": "en"}}, nil)
 
-	AuthRedirect(logger, client, sessionsStore, true, appData.Paths)(w, r)
+	AuthRedirect(logger, client, sessionsStore, true)(w, r)
 
 	mock.AssertExpectationsForObjects(t, client, logger)
 }
@@ -247,7 +247,7 @@ func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce", "locale": "en"}}, nil)
 
-	AuthRedirect(logger, client, sessionsStore, true, appData.Paths)(w, r)
+	AuthRedirect(logger, client, sessionsStore, true)(w, r)
 
 	mock.AssertExpectationsForObjects(t, client, logger)
 }

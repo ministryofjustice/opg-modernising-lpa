@@ -1,6 +1,6 @@
 describe('Restrictions', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/restrictions');
+        cy.visit('/testing-start?redirect=/restrictions&withAttorney=1');
         cy.injectAxe();
     });
 
