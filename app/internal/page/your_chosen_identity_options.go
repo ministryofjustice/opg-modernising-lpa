@@ -21,7 +21,7 @@ func YourChosenIdentityOptions(tmpl template.Template, lpaStore LpaStore) Handle
 		}
 
 		if r.Method == http.MethodPost {
-			return appData.Lang.Redirect(w, r, identityOptionPath(appData.Paths, lpa.IdentityOption), http.StatusFound)
+			return appData.Lang.Redirect(w, r, lpa, identityOptionPath(appData.Paths, lpa.IdentityOption))
 		}
 
 		data := &yourChosenIdentityOptionsData{
