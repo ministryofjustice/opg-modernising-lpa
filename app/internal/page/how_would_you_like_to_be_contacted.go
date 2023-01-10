@@ -34,7 +34,7 @@ func HowWouldYouLikeToBeContacted(tmpl template.Template, lpaStore LpaStore) Han
 					return err
 				}
 
-				return appData.Lang.Redirect(w, r, appData.Paths.TaskList, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, Paths.TaskList)
 			}
 		}
 

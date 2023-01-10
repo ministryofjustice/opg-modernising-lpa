@@ -3,9 +3,8 @@ package page
 import (
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 type chooseAttorneysAddressData struct {
@@ -33,7 +32,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 		attorney, found := lpa.GetAttorney(attorneyId)
 
 		if found == false {
-			return appData.Lang.Redirect(w, r, appData.Paths.ChooseAttorneys, http.StatusFound)
+			return appData.Lang.Redirect(w, r, lpa, Paths.ChooseAttorneys)
 		}
 
 		data := &chooseAttorneysAddressData{
@@ -65,7 +64,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 					from = appData.Paths.ChooseAttorneysSummary
 				}
 
-				return appData.Lang.Redirect(w, r, from, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, from)
 			}
 
 			// Force the manual address view after selecting
