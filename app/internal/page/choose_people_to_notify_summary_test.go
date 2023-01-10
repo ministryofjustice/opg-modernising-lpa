@@ -7,7 +7,9 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -91,11 +93,18 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{{ID: "123"}}}, nil)
+		Return(&Lpa{
+			Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}},
+			HowAttorneysMakeDecisions: Jointly,
+			PeopleToNotify:            []PersonToNotify{{ID: "123"}},
+			Tasks:                     Tasks{CertificateProvider: TaskCompleted},
+		}, nil)
 	lpaStore.
 		On("Put", mock.Anything, "session-id", &Lpa{
-			PeopleToNotify: []PersonToNotify{{ID: "123"}},
-			Tasks:          Tasks{PeopleToNotify: TaskCompleted},
+			Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}},
+			HowAttorneysMakeDecisions: Jointly,
+			PeopleToNotify:            []PersonToNotify{{ID: "123"}},
+			Tasks:                     Tasks{CertificateProvider: TaskCompleted, PeopleToNotify: TaskCompleted},
 		}).
 		Return(nil)
 

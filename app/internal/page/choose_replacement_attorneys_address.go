@@ -54,7 +54,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 					from = appData.Paths.ChooseReplacementAttorneysSummary
 				}
 
-				return appData.Lang.Redirect(w, r, from, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, from)
 			}
 
 			// Force the manual address view after selecting

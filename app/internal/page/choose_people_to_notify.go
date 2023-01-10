@@ -31,7 +31,7 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 		personToNotify, personFound := lpa.GetPersonToNotify(r.URL.Query().Get("id"))
 
 		if r.Method == http.MethodGet && len(lpa.PeopleToNotify) > 0 && personFound == false && addAnother == false {
-			return appData.Lang.Redirect(w, r, appData.Paths.ChoosePeopleToNotifySummary, http.StatusFound)
+			return appData.Lang.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
 		}
 
 		data := &choosePeopleToNotifyData{
@@ -75,7 +75,7 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 					from = fmt.Sprintf("%s?id=%s", appData.Paths.ChoosePeopleToNotifyAddress, personToNotify.ID)
 				}
 
-				return appData.Lang.Redirect(w, r, from, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, from)
 			}
 		}
 
