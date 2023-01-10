@@ -124,9 +124,26 @@ func (d *yourDetailsForm) Validate() map[string]string {
 		errors["other-names"] = "otherNamesTooLong"
 	}
 
-	if d.Dob.Day == "" || d.Dob.Month == "" || d.Dob.Year == "" {
+	if d.Dob.Day == "" && d.Dob.Month == "" && d.Dob.Year == "" {
 		errors["date-of-birth"] = "enterDateOfBirth"
-	} else if d.DateOfBirthError != nil {
+	} else {
+		if d.Dob.Day == "" {
+			errors["date-of-birth-day"] = "dateOfBirthDay"
+		}
+		if d.Dob.Month == "" {
+			errors["date-of-birth-month"] = "dateOfBirthMonth"
+		}
+		if d.Dob.Year == "" {
+			errors["date-of-birth-year"] = "dateOfBirthYear"
+		}
+
+		if errors["date-of-birth-day"] != "" || errors["date-of-birth-month"] != "" || errors["date-of-birth-year"] != "" {
+			// Need this to trigger form group error border
+			errors["date-of-birth"] = " "
+		}
+	}
+
+	if d.Dob.Day != "" && d.Dob.Month != "" && d.Dob.Year != "" && d.DateOfBirthError != nil {
 		errors["date-of-birth"] = "dateOfBirthMustBeReal"
 	} else {
 		today := time.Now().UTC().Round(24 * time.Hour)
