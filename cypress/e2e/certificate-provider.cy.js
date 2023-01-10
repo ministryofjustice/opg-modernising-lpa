@@ -51,7 +51,6 @@ describe('Certificate provider task', () => {
 
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
-        cy.get('#f-email').type('what');
         cy.get('#f-mobile').type('07535111111');
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
@@ -92,7 +91,6 @@ describe('Certificate provider task', () => {
 
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
-        cy.get('#f-email').type('what');
         cy.get('#f-mobile').type('07535111111');
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');

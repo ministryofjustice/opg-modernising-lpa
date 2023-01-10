@@ -254,6 +254,7 @@
     "idVerified": "id verified",
     "address": "Address",
     "certificateProvider": "Certificate provider",
+    "certificateProviderMobile": "certificate provider mobile",
     "certificateProviderEmail": "certificate provider email",
     "attorneys": "Attorneys",
     "iveCheckedThisLpa": "I’ve checked this LPA and do not want to make any changes",
