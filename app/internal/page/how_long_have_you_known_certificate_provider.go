@@ -37,7 +37,7 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, lpaStore Lpa
 					return err
 				}
 
-				return appData.Lang.Redirect(w, r, appData.Paths.CheckYourLpa, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, Paths.CheckYourLpa)
 			}
 		}
 

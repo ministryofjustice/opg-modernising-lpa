@@ -27,6 +27,7 @@ const (
 type taskListData struct {
 	App      AppData
 	Errors   map[string]string
+	Lpa      *Lpa
 	Sections []taskListSection
 }
 
@@ -35,7 +36,6 @@ type taskListItem struct {
 	Path       string
 	Completed  bool
 	InProgress bool
-	Disabled   bool
 	Count      int
 }
 
@@ -53,6 +53,7 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 
 		data := &taskListData{
 			App: appData,
+			Lpa: lpa,
 			Sections: []taskListSection{
 				{
 					Heading: FillInLpaSection,
@@ -135,7 +136,7 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 				{
 					Heading: RegisterTheLpaSection,
 					Items: []taskListItem{
-						{Name: RegisterTheLpaTask, Disabled: true},
+						{Name: RegisterTheLpaTask},
 					},
 				},
 			},

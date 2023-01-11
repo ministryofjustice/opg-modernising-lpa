@@ -1,6 +1,6 @@
 describe('Certificate provider task', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/task-list');
+        cy.visit('/testing-start?redirect=/task-list&withAttorney=1');
     });
 
     it('can be done later', () => {

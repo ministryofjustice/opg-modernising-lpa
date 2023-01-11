@@ -43,7 +43,7 @@ func WitnessingYourSignature(tmpl template.Template, lpaStore LpaStore, notifyCl
 				return err
 			}
 
-			return appData.Lang.Redirect(w, r, appData.Paths.WitnessingAsCertificateProvider, http.StatusFound)
+			return appData.Lang.Redirect(w, r, lpa, Paths.WitnessingAsCertificateProvider)
 		}
 
 		data := &witnessingYourSignatureData{
