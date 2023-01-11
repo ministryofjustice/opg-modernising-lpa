@@ -413,10 +413,12 @@
     "when-registered":       "As soon as it's registered",
     "when-capacity-lost":    "Only when I do not have mental capacity",
 
-    "peopleToNotify": "People to notify",
+    "peopleToNotify": "People to notify about your LPA",
     "wantPeopleToNotify": "Do you want to notify anyone about your LPA?",
     "selectDoYouWantToNotifyPeople": "Select whether you want to notify anyone about your LPA",
-    "wantPeopleToNotifyContent": "<p class=\"govuk-body-l\">Some content about people to notify</p>",
+    "wantPeopleToNotifyContent": "<p class=\"govuk-body\">You can choose to notify up to 5 people about your LPA. Most people choose family members or close friends. These people can raise any concerns before your LPA is registered.</p><p class=\"govuk-body\">We call these 'people to notify'. Having people to notify is optional.</p><p class=\"govuk-body\">If you choose to notify a person about your LPA, we'll send them information as soon as we have received and checked your application.</p>",
+    "weWillOnlyTellThemBullets": "<p class=\"govuk-body\">We'll only tell them:</p><ul class=\"govuk-list govuk-list--bullet\"><li>that you’ve made a {{ .LpaType }} LPA</li><li>hat your attorneys are {{ .AllAttorneysFirstNames }}</li><li>that you want your attorneys to {{ .HowAttorneysWorkTogether }}</li><li>what to do if they have concerns</li></ul>",
+    "findOutMoreAboutPeopleToNotifyLink": "<p class=\"govuk-body\"><a href=\"#\">Find out more about people to notify (opens in a new tab).</a></p>",
     "whoWouldYouLikeNotify": "Add a person to notify about your LPA",
     "personToNotifyAddress": "{{.FirstNames}} {{.LastName}}'s address",
     "peopleToNotifyAdded": {

@@ -10,6 +10,11 @@
 
                 {{ trHtml .App "wantPeopleToNotifyContent" }}
 
+                {{ $lpaType := tr .App .Lpa.LpaLegalTermTransKey }}
+                {{ trFormatHtml .App "weWillOnlyTellThemBullets" "LpaType" $lpaType "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames "HowAttorneysWorkTogether" "ADD IN ONCE CONFIRMED WITH CONTENT"}}
+
+                {{ trHtml .App "findOutMoreAboutPeopleToNotifyLink" }}
+
                 <div class="govuk-form-group {{ if index .Errors "want-to-notify" }}govuk-form-group--error{{ end }}">
                     {{ template "error-message" (errorMessage . "want-to-notify") }}
 
