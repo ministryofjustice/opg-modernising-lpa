@@ -1,6 +1,6 @@
 describe('Choose replacement attorneys summary', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/choose-replacement-attorneys-summary&withAttorneys=1&cookiesAccepted=1');
+        cy.visit('/testing-start?redirect=/choose-replacement-attorneys-summary&withIncompleteAttorneys=1&cookiesAccepted=1');
     });
 
     it('multiple attorneys details are listed', () => {

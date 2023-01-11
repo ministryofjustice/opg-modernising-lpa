@@ -86,15 +86,48 @@ func TestLangRedirect(t *testing.T) {
 	}
 
 	for lang, url := range testCases {
-		t.Run("En", func(t *testing.T) {
+		t.Run(lang.String(), func(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 			w := httptest.NewRecorder()
 
-			lang.Redirect(w, r, "/somewhere", http.StatusFound)
+			lang.Redirect(w, r, nil, "/somewhere")
 			resp := w.Result()
 
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 			assert.Equal(t, url, resp.Header.Get("Location"))
+		})
+	}
+}
+
+func TestLangRedirectWhenCanGoTo(t *testing.T) {
+	testCases := map[string]struct {
+		lpa      *Lpa
+		expected string
+	}{
+		"nil": {
+			lpa:      nil,
+			expected: Paths.AboutPayment,
+		},
+		"allowed": {
+			lpa:      &Lpa{Tasks: Tasks{CheckYourLpa: TaskCompleted}},
+			expected: Paths.AboutPayment,
+		},
+		"not allowed": {
+			lpa:      &Lpa{},
+			expected: Paths.TaskList,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
+			w := httptest.NewRecorder()
+
+			En.Redirect(w, r, tc.lpa, Paths.AboutPayment)
+			resp := w.Result()
+
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.expected, resp.Header.Get("Location"))
 		})
 	}
 }
@@ -287,10 +320,90 @@ func TestTestingStart(t *testing.T) {
 		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
+	t.Run("with payment", func(t *testing.T) {
+		ctx := context.Background()
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withPayment=1", nil)
+		r = r.WithContext(ctx)
+
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Get", ctx, mock.Anything).
+			Return(&Lpa{}, nil)
+		lpaStore.
+			On("Put", ctx, mock.Anything, &Lpa{
+				Tasks: Tasks{PayForLpa: TaskCompleted},
+			}).
+			Return(nil)
+
+		testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+	})
+
+	t.Run("with attorney", func(t *testing.T) {
+		ctx := context.Background()
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withAttorney=1", nil)
+		r = r.WithContext(ctx)
+
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Get", ctx, mock.Anything).
+			Return(&Lpa{}, nil)
+		lpaStore.
+			On("Put", ctx, mock.Anything, &Lpa{
+				Attorneys: []Attorney{
+					{
+						ID:          "with-address",
+						FirstNames:  "John",
+						LastName:    "Smith",
+						Email:       "aa@example.org",
+						DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+						Address: place.Address{
+							Line1:      "2 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+					},
+				},
+				HowAttorneysMakeDecisions: JointlyAndSeverally,
+			}).
+			Return(nil)
+
+		testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+	})
+
 	t.Run("with attorneys", func(t *testing.T) {
 		ctx := context.Background()
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withAttorneys=1", nil)
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withIncompleteAttorneys=1", nil)
 		r = r.WithContext(ctx)
 
 		sessionsStore := &mockSessionsStore{}

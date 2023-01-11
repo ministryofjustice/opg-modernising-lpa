@@ -3,9 +3,8 @@ package page
 import (
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 type choosePeopleToNotifyAddressData struct {
@@ -33,7 +32,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 		personToNotify, found := lpa.GetPersonToNotify(personId)
 
 		if found == false {
-			return appData.Lang.Redirect(w, r, appData.Paths.ChoosePeopleToNotify, http.StatusFound)
+			return appData.Lang.Redirect(w, r, lpa, Paths.ChoosePeopleToNotify)
 		}
 
 		data := &choosePeopleToNotifyAddressData{
@@ -65,7 +64,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 					from = appData.Paths.ChoosePeopleToNotifySummary
 				}
 
-				return appData.Lang.Redirect(w, r, from, http.StatusFound)
+				return appData.Lang.Redirect(w, r, lpa, from)
 			}
 
 			// Force the manual address view after selecting
