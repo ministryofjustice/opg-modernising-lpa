@@ -11,6 +11,7 @@ type doYouWantToNotifyPeopleData struct {
 	Errors       map[string]string
 	Form         *doYouWantToNotifyPeopleForm
 	WantToNotify string
+	Lpa          *Lpa
 }
 
 type doYouWantToNotifyPeopleForm struct {
@@ -31,6 +32,7 @@ func DoYouWantToNotifyPeople(tmpl template.Template, lpaStore LpaStore) Handler 
 		data := &doYouWantToNotifyPeopleData{
 			App:          appData,
 			WantToNotify: lpa.DoYouWantToNotifyPeople,
+			Lpa:          lpa,
 		}
 
 		if r.Method == http.MethodPost {

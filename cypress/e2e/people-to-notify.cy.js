@@ -23,7 +23,7 @@ describe('People to notify', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.contains('You have added 1 person to notify');
+        cy.contains('People to notify about your LPA');
 
         cy.get('#name-1').contains(`${person1.firstNames} ${person1.lastName}`);
         cy.get('#address-1').contains(person1.address.line1);
@@ -35,7 +35,7 @@ describe('People to notify', () => {
 
         addPersonToNotify(person2)
 
-        cy.contains('You have added 2 people to notify');
+        cy.contains('People to notify about your LPA');
 
         cy.get('#name-2').contains(`${person2.firstNames} ${person2.lastName}`);
         cy.get('#address-2').contains(person2.address.line1);
@@ -119,7 +119,7 @@ describe('People to notify', () => {
 
             addPersonToNotify(person2)
 
-            cy.get('#remove-person-to-notify-2').contains('Remove person to notify 2').click();
+            cy.get('#remove-person-to-notify-2').contains(`Remove ${person2.firstNames} ${person2.lastName}`).click();
 
             cy.url().should('contain', '/remove-person-to-notify');
 
@@ -131,7 +131,7 @@ describe('People to notify', () => {
 
             cy.url().should('contain', '/choose-people-to-notify-summary');
 
-            cy.get('#remove-person-to-notify-1').contains('Remove person to notify 1').click();
+            cy.get('#remove-person-to-notify-1').contains(`Remove ${person1.firstNames} ${person1.lastName}`).click();
 
             cy.url().should('contain', '/remove-person-to-notify');
 
