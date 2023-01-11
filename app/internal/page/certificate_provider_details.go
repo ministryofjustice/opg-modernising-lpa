@@ -18,7 +18,6 @@ type certificateProviderDetailsData struct {
 type certificateProviderDetailsForm struct {
 	FirstNames       string
 	LastName         string
-	Email            string
 	Dob              Date
 	DateOfBirth      time.Time
 	DateOfBirthError error
@@ -37,7 +36,6 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 			Form: &certificateProviderDetailsForm{
 				FirstNames: lpa.CertificateProvider.FirstNames,
 				LastName:   lpa.CertificateProvider.LastName,
-				Email:      lpa.CertificateProvider.Email,
 				Mobile:     lpa.CertificateProvider.Mobile,
 			},
 		}
@@ -53,7 +51,6 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 			if len(data.Errors) == 0 {
 				lpa.CertificateProvider.FirstNames = data.Form.FirstNames
 				lpa.CertificateProvider.LastName = data.Form.LastName
-				lpa.CertificateProvider.Email = data.Form.Email
 				lpa.CertificateProvider.DateOfBirth = data.Form.DateOfBirth
 				lpa.CertificateProvider.Mobile = data.Form.Mobile
 
@@ -73,7 +70,6 @@ func readCertificateProviderDetailsForm(r *http.Request) *certificateProviderDet
 	d := &certificateProviderDetailsForm{}
 	d.FirstNames = postFormString(r, "first-names")
 	d.LastName = postFormString(r, "last-name")
-	d.Email = postFormString(r, "email")
 	d.Dob = Date{
 		Day:   postFormString(r, "date-of-birth-day"),
 		Month: postFormString(r, "date-of-birth-month"),
@@ -90,25 +86,38 @@ func (d *certificateProviderDetailsForm) Validate() map[string]string {
 	errors := map[string]string{}
 
 	if d.FirstNames == "" {
-		errors["first-names"] = "enterFirstNames"
+		errors["first-names"] = "enterCertificateProviderFirstNames"
 	}
 	if d.LastName == "" {
-		errors["last-name"] = "enterLastName"
+		errors["last-name"] = "enterCertificateProviderLastName"
 	}
-	if d.Email == "" {
-		errors["email"] = "enterEmail"
+	if d.Dob.Day == "" && d.Dob.Month == "" && d.Dob.Year == "" {
+		errors["date-of-birth"] = "enterCertificateProviderDateOfBirth"
+	} else {
+		if d.Dob.Day == "" {
+			errors["date-of-birth-day"] = "dateOfBirthDay"
+		}
+		if d.Dob.Month == "" {
+			errors["date-of-birth-month"] = "dateOfBirthMonth"
+		}
+		if d.Dob.Year == "" {
+			errors["date-of-birth-year"] = "dateOfBirthYear"
+		}
+
+		if errors["date-of-birth-day"] != "" || errors["date-of-birth-month"] != "" || errors["date-of-birth-year"] != "" {
+			// Need this to trigger form group error border
+			errors["date-of-birth"] = " "
+		}
 	}
-	if d.Dob.Day == "" {
-		errors["date-of-birth"] = "dateOfBirthDay"
-	}
-	if d.Dob.Month == "" {
-		errors["date-of-birth"] = "dateOfBirthMonth"
-	}
-	if d.Dob.Year == "" {
-		errors["date-of-birth"] = "dateOfBirthYear"
-	}
-	if _, ok := errors["date-of-birth"]; !ok && d.DateOfBirthError != nil {
+
+	if d.Dob.Day != "" && d.Dob.Month != "" && d.Dob.Year != "" && d.DateOfBirthError != nil {
 		errors["date-of-birth"] = "dateOfBirthMustBeReal"
+	} else {
+		today := time.Now().UTC().Round(24 * time.Hour)
+
+		if d.DateOfBirth.After(today) {
+			errors["date-of-birth"] = "dateOfBirthIsFuture"
+		}
 	}
 
 	isUkMobile, _ := regexp.MatchString(`^(?:07|\+?447)\d{9}$`, strings.ReplaceAll(d.Mobile, " ", ""))
@@ -117,7 +126,7 @@ func (d *certificateProviderDetailsForm) Validate() map[string]string {
 		errors["mobile"] = "enterUkMobile"
 	}
 	if d.Mobile == "" {
-		errors["mobile"] = "enterMobile"
+		errors["mobile"] = "enterCertificateProviderMobile"
 	}
 
 	return errors

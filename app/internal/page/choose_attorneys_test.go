@@ -572,17 +572,59 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 		},
 		"invalid missing dob": {
 			form: &chooseAttorneysForm{
-				FirstNames: "A",
-				LastName:   "B",
-				Email:      "person@example.com",
-				Dob: Date{
-					Day:  "1",
-					Year: "1",
-				},
+				FirstNames:       "A",
+				LastName:         "B",
+				Email:            "person@example.com",
+				Dob:              Date{},
 				DateOfBirthError: expectedError,
 			},
 			errors: map[string]string{
 				"date-of-birth": "enterDateOfBirth",
+			},
+		},
+		"invalid-missing-dob-day-and-month": {
+			form: &chooseAttorneysForm{
+				FirstNames: "A",
+				LastName:   "B",
+				Email:      "person@example.com",
+				Dob: Date{
+					Year: "1",
+				},
+			},
+			errors: map[string]string{
+				"date-of-birth-day":   "dateOfBirthDay",
+				"date-of-birth-month": "dateOfBirthMonth",
+				"date-of-birth":       " ",
+			},
+		},
+		"invalid-missing-dob-day-and-year": {
+			form: &chooseAttorneysForm{
+				FirstNames: "A",
+				LastName:   "B",
+				Email:      "person@example.com",
+				Dob: Date{
+					Month: "1",
+				},
+			},
+			errors: map[string]string{
+				"date-of-birth-day":  "dateOfBirthDay",
+				"date-of-birth-year": "dateOfBirthYear",
+				"date-of-birth":      " ",
+			},
+		},
+		"invalid-missing-dob-month-and-year": {
+			form: &chooseAttorneysForm{
+				FirstNames: "A",
+				LastName:   "B",
+				Email:      "person@example.com",
+				Dob: Date{
+					Day: "1",
+				},
+			},
+			errors: map[string]string{
+				"date-of-birth-month": "dateOfBirthMonth",
+				"date-of-birth-year":  "dateOfBirthYear",
+				"date-of-birth":       " ",
 			},
 		},
 		"invalid email": {
