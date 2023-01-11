@@ -16,14 +16,14 @@
 
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
-                {{ tr .App "email" }}
+                {{ tr .App "mobile" }}
             </dt>
             <dd class="govuk-summary-list__value">
-                {{ .Lpa.CertificateProvider.Email }}
+                {{ .Lpa.CertificateProvider.Mobile }}
             </dd>
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link" href="{{ link .App .App.Paths.CertificateProviderDetails }}">
-                    {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "certificateProviderEmail" }}</span>
+                    {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "certificateProviderMobile" }}</span>
                 </a>
             </dd>
         </div>
