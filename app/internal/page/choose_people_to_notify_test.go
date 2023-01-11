@@ -331,7 +331,7 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 				"email":     {"name@example.com"},
 			},
 			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
-				return assert.Equal(t, map[string]string{"first-names": "enterFirstNames"}, data.Errors)
+				return assert.Equal(t, map[string]string{"first-names": "enterTheirFirstNames"}, data.Errors)
 			},
 		},
 		"last name missing": {
@@ -340,7 +340,7 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 				"email":       {"name@example.com"},
 			},
 			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
-				return assert.Equal(t, map[string]string{"last-name": "enterLastName"}, data.Errors)
+				return assert.Equal(t, map[string]string{"last-name": "enterTheirLastName"}, data.Errors)
 			},
 		},
 	}
@@ -444,9 +444,9 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 		"missing all": {
 			form: &choosePeopleToNotifyForm{},
 			errors: map[string]string{
-				"first-names": "enterFirstNames",
-				"last-name":   "enterLastName",
-				"email":       "enterEmail",
+				"first-names": "enterTheirFirstNames",
+				"last-name":   "enterTheirLastName",
+				"email":       "enterTheirEmail",
 			},
 		},
 		"too long": {
@@ -467,7 +467,7 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 				Email:      "person@",
 			},
 			errors: map[string]string{
-				"email": "emailIncorrectFormat",
+				"email": "theirEmailIncorrectFormat",
 			},
 		},
 	}
