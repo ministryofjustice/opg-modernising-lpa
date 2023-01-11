@@ -216,6 +216,15 @@
     "certificateProviderDobHint": "Mae angen dyddiad geni eich darparwr tystysgrif arnom i wirio eu bod dros 18 oed.",
     "mobile": "Welsh",
 
+    "howWouldCertificateProviderPreferToCarryOutTheirRole": "{{.FirstNames}} Welsh",
+    "selectHowWouldCertificateProviderPreferToCarryOutTheirRole": "Welsh",
+    "selectOneOption": "Welsh",
+    "onlineAndByEmail": "Welsh",
+    "onlineAndByEmailHint": "Welsh",
+    "usingPaperForms": "Welsh",
+    "certificateProvidersEmail": "Welsh",
+    "certificateProviderAddress": "{{.FirstNames}} Welsh",
+
     "aboutPayment": "Ynglŷn â thalu",
     "aboutPaymentContent": "<p class=\"govuk-body\">Mae'n costio £82 i wneud cais am LPA.</p>",
     "feeCoversContent": "Mae'r ffi yn cynnwys cost:",
