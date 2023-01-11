@@ -262,7 +262,7 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 					Month: "D",
 					Year:  "E",
 				},
-				DateOfBirth: time.Now(),
+				DateOfBirth: time.Now().AddDate(0, 0, -1),
 			},
 			errors: map[string]string{},
 		},
@@ -362,7 +362,7 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 					Month: "D",
 					Year:  "E",
 				},
-				DateOfBirth: time.Now(),
+				DateOfBirth: time.Now().AddDate(0, 0, -1),
 			},
 			errors: map[string]string{
 				"mobile": "enterUkMobile",
@@ -386,7 +386,7 @@ func TestUkMobileFormatValidation(t *testing.T) {
 			Month: "D",
 			Year:  "E",
 		},
-		DateOfBirth: time.Now(),
+		DateOfBirth: time.Now().AddDate(0, 0, -1),
 	}
 
 	testCases := map[string]struct {
