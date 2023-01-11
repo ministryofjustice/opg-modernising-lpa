@@ -107,6 +107,65 @@ func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
 
+func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
+	personToNotify := PersonToNotify{
+		FirstNames: "John",
+		LastName:   "Doe",
+		Email:      "johnny@example.com",
+		ID:         "123",
+	}
+
+	testcases := map[string]struct {
+		addedPeople []PersonToNotify
+		expectedUrl string
+	}{
+		"5 people": {
+			addedPeople: []PersonToNotify{
+				personToNotify,
+				personToNotify,
+				personToNotify,
+				personToNotify,
+				personToNotify,
+			},
+			expectedUrl: "/choose-people-to-notify-summary",
+		},
+		"6 people": {
+			addedPeople: []PersonToNotify{
+				personToNotify,
+				personToNotify,
+				personToNotify,
+				personToNotify,
+				personToNotify,
+				personToNotify,
+			},
+			expectedUrl: "/choose-people-to-notify-summary",
+		},
+	}
+
+	for testName, tc := range testcases {
+		t.Run(testName, func(t *testing.T) {
+			w := httptest.NewRecorder()
+
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(&Lpa{
+					PeopleToNotify: tc.addedPeople,
+				}, nil)
+
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+			err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.expectedUrl, resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, lpaStore)
+		})
+	}
+}
+
 func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 	w := httptest.NewRecorder()
 

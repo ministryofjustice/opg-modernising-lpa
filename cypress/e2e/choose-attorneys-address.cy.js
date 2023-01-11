@@ -39,7 +39,7 @@ describe('Choose attorneys address', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.contains('a', "Can not find address?").click();
+        cy.contains('a', "I can’t find their address in the list").click();
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
