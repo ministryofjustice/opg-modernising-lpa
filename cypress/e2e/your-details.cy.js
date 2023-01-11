@@ -7,7 +7,7 @@ describe('Donor details', () => {
     it('can be submitted', () => {
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
-        cy.get('#f-date-of-birth-day').type('1');
+        cy.get('##f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
 
