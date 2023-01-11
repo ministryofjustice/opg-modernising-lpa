@@ -13,7 +13,7 @@ type authRedirectClient interface {
 	UserInfo(string) (onelogin.UserInfo, error)
 }
 
-func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, secure bool, paths AppPaths) http.HandlerFunc {
+func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, secure bool) http.HandlerFunc {
 	cookieOptions := &sessions.Options{
 		Path:     "/",
 		MaxAge:   24 * 60 * 60,
@@ -54,7 +54,7 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, sec
 		}
 
 		if identity {
-			lang.Redirect(w, r, paths.IdentityWithOneLoginCallback+"?"+r.URL.RawQuery, http.StatusFound)
+			lang.Redirect(w, r, nil, Paths.IdentityWithOneLoginCallback+"?"+r.URL.RawQuery)
 		} else {
 			jwt, err := c.Exchange(r.Context(), r.FormValue("code"), nonce)
 			if err != nil {
@@ -79,7 +79,7 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, sec
 				return
 			}
 
-			lang.Redirect(w, r, paths.Dashboard, http.StatusFound)
+			lang.Redirect(w, r, nil, Paths.Dashboard)
 		}
 	}
 }

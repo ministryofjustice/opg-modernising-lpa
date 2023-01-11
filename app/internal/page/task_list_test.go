@@ -140,6 +140,7 @@ func TestGetTaskList(t *testing.T) {
 			template.
 				On("Func", w, &taskListData{
 					App: appData,
+					Lpa: tc.lpa,
 					Sections: tc.expected([]taskListSection{
 						{
 							Heading: FillInLpaSection,
@@ -171,7 +172,7 @@ func TestGetTaskList(t *testing.T) {
 						{
 							Heading: RegisterTheLpaSection,
 							Items: []taskListItem{
-								{Name: RegisterTheLpaTask, Disabled: true},
+								{Name: RegisterTheLpaTask},
 							},
 						},
 					}),

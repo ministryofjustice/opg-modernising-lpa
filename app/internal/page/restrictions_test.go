@@ -6,7 +6,9 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -114,9 +116,17 @@ func TestPostRestrictions(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{}, nil)
+		Return(&Lpa{
+			Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}},
+			HowAttorneysMakeDecisions: Jointly,
+		}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{Restrictions: "blah", Tasks: Tasks{Restrictions: TaskCompleted}}).
+		On("Put", mock.Anything, "session-id", &Lpa{
+			Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}},
+			HowAttorneysMakeDecisions: Jointly,
+			Restrictions:              "blah",
+			Tasks:                     Tasks{Restrictions: TaskCompleted},
+		}).
 		Return(nil)
 
 	form := url.Values{
@@ -141,9 +151,16 @@ func TestPostRestrictionsWhenAnswerLater(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{}, nil)
+		Return(&Lpa{
+			Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}},
+			HowAttorneysMakeDecisions: Jointly,
+		}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{Tasks: Tasks{Restrictions: TaskInProgress}}).
+		On("Put", mock.Anything, "session-id", &Lpa{
+			Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}},
+			HowAttorneysMakeDecisions: Jointly,
+			Tasks:                     Tasks{Restrictions: TaskInProgress},
+		}).
 		Return(nil)
 
 	form := url.Values{

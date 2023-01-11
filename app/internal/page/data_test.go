@@ -1480,3 +1480,48 @@ func TestAttorneysSigningDeadline(t *testing.T) {
 	expected := time.Date(2020, time.January, 30, 3, 4, 5, 6, time.UTC)
 	assert.Equal(t, expected, lpa.AttorneysAndCpSigningDeadline())
 }
+
+func TestCanGoTo(t *testing.T) {
+	testCases := map[string]struct {
+		lpa      *Lpa
+		url      string
+		expected bool
+	}{
+		"empty path": {
+			lpa:      &Lpa{},
+			url:      "",
+			expected: false,
+		},
+		"unexpected path": {
+			lpa:      &Lpa{},
+			url:      "/whatever",
+			expected: true,
+		},
+		"about payment without task": {
+			lpa:      &Lpa{},
+			url:      Paths.AboutPayment,
+			expected: false,
+		},
+		"about payment with task": {
+			lpa:      &Lpa{Tasks: Tasks{CheckYourLpa: TaskCompleted}},
+			url:      Paths.AboutPayment,
+			expected: true,
+		},
+		"select your identity options without task": {
+			lpa:      &Lpa{},
+			url:      Paths.SelectYourIdentityOptions,
+			expected: false,
+		},
+		"select your identity options with task": {
+			lpa:      &Lpa{Tasks: Tasks{PayForLpa: TaskCompleted}},
+			url:      Paths.SelectYourIdentityOptions,
+			expected: true,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, tc.lpa.CanGoTo(tc.url))
+		})
+	}
+}
