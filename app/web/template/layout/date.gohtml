@@ -14,15 +14,12 @@
       {{ end }}
 
       {{ template "error-message" (errorMessage .top .name) }}
-      {{ template "error-message" (errorMessage .top (printf "%v-day" .name)) }}
-      {{ template "error-message" (errorMessage .top (printf "%v-month" .name)) }}
-      {{ template "error-message" (errorMessage .top (printf "%v-year" .name)) }}
 
       <div class="govuk-date-input">
         <div class="govuk-date-input__item">
           <div class="govuk-form-group">
-            <label class="govuk-label govuk-date-input__label" for="f-{{ .name }}-day">{{ tr .top.App "day" }}</label>
-            <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{ if index .top.Errors .name }}govuk-input--error{{ end }}" id="f-{{ .name }}-day" name="{{ .name }}-day" type="text" pattern="[0-9]*" inputmode="numeric" value="{{ .value.Day }}" />
+            <label class="govuk-label govuk-date-input__label" for="f-{{ .name }}">{{ tr .top.App "day" }}</label>
+            <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{ if index .top.Errors .name }}govuk-input--error{{ end }}" id="f-{{ .name }}" name="{{ .name }}-day" type="text" pattern="[0-9]*" inputmode="numeric" value="{{ .value.Day }}" />
           </div>
         </div>
 
