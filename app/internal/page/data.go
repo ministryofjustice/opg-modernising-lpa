@@ -515,3 +515,22 @@ func (l *Lpa) LpaLegalTermTransKey() string {
 func (l *Lpa) AttorneysAndCpSigningDeadline() time.Time {
 	return l.Submitted.Add((24 * time.Hour) * 28)
 }
+
+func (l *Lpa) CanGoTo(url string) bool {
+	path, _, _ := strings.Cut(url, "?")
+
+	switch path {
+	case Paths.WhenCanTheLpaBeUsed, Paths.Restrictions, Paths.WhoDoYouWantToBeCertificateProviderGuidance:
+		return l.AttorneysTaskComplete()
+	case Paths.CheckYourLpa:
+		return l.AttorneysTaskComplete() && l.Tasks.CertificateProvider == TaskCompleted
+	case Paths.AboutPayment:
+		return l.Tasks.CheckYourLpa == TaskCompleted
+	case Paths.SelectYourIdentityOptions:
+		return l.Tasks.PayForLpa == TaskCompleted
+	case "":
+		return false
+	default:
+		return true
+	}
+}

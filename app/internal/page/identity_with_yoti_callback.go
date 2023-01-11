@@ -22,7 +22,7 @@ func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, lpa
 		}
 
 		if r.Method == http.MethodPost {
-			return appData.Lang.Redirect(w, r, appData.Paths.ReadYourLpa, http.StatusFound)
+			return appData.Lang.Redirect(w, r, lpa, Paths.ReadYourLpa)
 		}
 
 		data := &identityWithYotiCallbackData{App: appData}

@@ -37,8 +37,13 @@ func CacheControlHeaders(h http.Handler) http.Handler {
 	})
 }
 
-func (l Lang) Redirect(w http.ResponseWriter, r *http.Request, url string, code int) error {
-	http.Redirect(w, r, l.BuildUrl(url), code)
+func (l Lang) Redirect(w http.ResponseWriter, r *http.Request, lpa *Lpa, url string) error {
+	// as a shortcut for when you don't have an Lpa but know the transition is fine we allow passing nil
+	if lpa == nil || lpa.CanGoTo(url) {
+		http.Redirect(w, r, l.BuildUrl(url), http.StatusFound)
+	} else {
+		http.Redirect(w, r, l.BuildUrl(Paths.TaskList), http.StatusFound)
+	}
 	return nil
 }
 
@@ -277,7 +282,42 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 			_ = store.Save(r, w, paySession)
 		}
 
-		if r.FormValue("withAttorneys") == "1" {
+		if r.FormValue("withPayment") == "1" {
+			sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
+			lpa, _ := lpaStore.Get(r.Context(), sessionID)
+
+			lpa.Tasks.PayForLpa = TaskCompleted
+
+			_ = lpaStore.Put(r.Context(), sessionID, lpa)
+		}
+
+		if r.FormValue("withAttorney") == "1" {
+			sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
+			lpa, _ := lpaStore.Get(r.Context(), sessionID)
+
+			lpa.Attorneys = []Attorney{
+				{
+					ID:          "with-address",
+					FirstNames:  "John",
+					LastName:    "Smith",
+					Email:       "aa@example.org",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+					Address: place.Address{
+						Line1:      "2 RICHMOND PLACE",
+						Line2:      "KINGS HEATH",
+						Line3:      "WEST MIDLANDS",
+						TownOrCity: "BIRMINGHAM",
+						Postcode:   "B14 7ED",
+					},
+				},
+			}
+
+			lpa.HowAttorneysMakeDecisions = JointlyAndSeverally
+
+			_ = lpaStore.Put(r.Context(), sessionID, lpa)
+		}
+
+		if r.FormValue("withIncompleteAttorneys") == "1" {
 			sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
 			lpa, _ := lpaStore.Get(r.Context(), sessionID)
 
