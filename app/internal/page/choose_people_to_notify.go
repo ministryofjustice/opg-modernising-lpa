@@ -100,23 +100,23 @@ func (d *choosePeopleToNotifyForm) Validate() map[string]string {
 	errors := map[string]string{}
 
 	if d.FirstNames == "" {
-		errors["first-names"] = "enterFirstNames"
+		errors["first-names"] = "enterTheirFirstNames"
 	}
 	if len(d.FirstNames) > 53 {
 		errors["first-names"] = "firstNamesTooLong"
 	}
 
 	if d.LastName == "" {
-		errors["last-name"] = "enterLastName"
+		errors["last-name"] = "enterTheirLastName"
 	}
 	if len(d.LastName) > 61 {
 		errors["last-name"] = "lastNameTooLong"
 	}
 
 	if d.Email == "" {
-		errors["email"] = "enterEmail"
+		errors["email"] = "enterTheirEmail"
 	} else if _, err := mail.ParseAddress(fmt.Sprintf("<%s>", d.Email)); err != nil {
-		errors["email"] = "emailIncorrectFormat"
+		errors["email"] = "theirEmailIncorrectFormat"
 	}
 
 	return errors

@@ -54,7 +54,7 @@
     "postcode": "Postcode",
     "findAddress": "Find address",
     "selectAnAddress": "Select an address",
-    "cantFindAddress": "Can not find address?",
+    "cantFindAddress": "I can’t find their address in the list",
     "addressesFound": {
         "one": "{{.PluralCount}} address found",
         "other": "{{.PluralCount}} addresses found"
@@ -425,6 +425,13 @@
     "weCanNotifyUpTo5PeopleContent": "<p class=\"govuk-body\">We can notify up to 5 people about your LPA on your behalf.</p>",
     "removePersonToNotifyButtonLink": "Remove {{ .FirstNames }} {{ .LastName }}",
     "doYouWantToAddAnotherPersonToNotify": "Do you want to add another person to notify?",
-    "removeAPersonToNotify": "Remove a person to notify",
-    "addedMaxPeople": "You've now added the maximum number of people we can notify about your LPA. If you want to add someone else, you must remove a person you’ve already added."
+    "addedMaxPeople": "You've now added the maximum number of people we can notify about your LPA. If you want to add someone else, you must remove a person you’ve already added.",
+    "selectRemovePersonToNotify": "Select yes if you want to remove this person",
+    "selectAddMorePeopleToNotify": "Select yes if you want to add another person to notify",
+    "enterTheirFirstNames": "Enter their first names",
+    "enterTheirLastName": "Enter their last name",
+    "enterTheirEmail": "Enter their last name",
+    "theirEmailIncorrectFormat": "Enter their email address in the correct format, like name@example.com"
+
+
 }
