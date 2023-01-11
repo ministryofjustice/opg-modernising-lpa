@@ -124,8 +124,10 @@ type CertificateProvider struct {
 	FirstNames              string
 	LastName                string
 	Email                   string
+	Address                 place.Address
 	Mobile                  string
 	DateOfBirth             time.Time
+	CarryOutBy              string
 	Relationship            string
 	RelationshipDescription string
 	RelationshipLength      string

@@ -18,7 +18,6 @@ type certificateProviderDetailsData struct {
 type certificateProviderDetailsForm struct {
 	FirstNames       string
 	LastName         string
-	Email            string
 	Dob              Date
 	DateOfBirth      time.Time
 	DateOfBirthError error
@@ -37,7 +36,6 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 			Form: &certificateProviderDetailsForm{
 				FirstNames: lpa.CertificateProvider.FirstNames,
 				LastName:   lpa.CertificateProvider.LastName,
-				Email:      lpa.CertificateProvider.Email,
 				Mobile:     lpa.CertificateProvider.Mobile,
 			},
 		}
@@ -53,7 +51,6 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 			if len(data.Errors) == 0 {
 				lpa.CertificateProvider.FirstNames = data.Form.FirstNames
 				lpa.CertificateProvider.LastName = data.Form.LastName
-				lpa.CertificateProvider.Email = data.Form.Email
 				lpa.CertificateProvider.DateOfBirth = data.Form.DateOfBirth
 				lpa.CertificateProvider.Mobile = data.Form.Mobile
 
@@ -61,7 +58,7 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 					return err
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, Paths.HowDoYouKnowYourCertificateProvider)
+				return appData.Lang.Redirect(w, r, lpa, Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole)
 			}
 		}
 
@@ -73,7 +70,6 @@ func readCertificateProviderDetailsForm(r *http.Request) *certificateProviderDet
 	d := &certificateProviderDetailsForm{}
 	d.FirstNames = postFormString(r, "first-names")
 	d.LastName = postFormString(r, "last-name")
-	d.Email = postFormString(r, "email")
 	d.Dob = Date{
 		Day:   postFormString(r, "date-of-birth-day"),
 		Month: postFormString(r, "date-of-birth-month"),
@@ -94,9 +90,6 @@ func (d *certificateProviderDetailsForm) Validate() map[string]string {
 	}
 	if d.LastName == "" {
 		errors["last-name"] = "enterLastName"
-	}
-	if d.Email == "" {
-		errors["email"] = "enterEmail"
 	}
 	if d.Dob.Day == "" {
 		errors["date-of-birth"] = "dateOfBirthDay"
