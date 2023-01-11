@@ -123,6 +123,7 @@ type Attorney struct {
 type CertificateProvider struct {
 	FirstNames              string
 	LastName                string
+	Email                   string
 	Mobile                  string
 	DateOfBirth             time.Time
 	Relationship            string
