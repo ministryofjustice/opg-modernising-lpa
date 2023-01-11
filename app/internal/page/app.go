@@ -366,7 +366,6 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 			lpa.CertificateProvider = CertificateProvider{
 				FirstNames:              "Barbara",
 				LastName:                "Smith",
-				Email:                   "b@example.org",
 				Mobile:                  "07535111111",
 				DateOfBirth:             time.Date(1997, time.January, 2, 3, 4, 5, 6, time.UTC),
 				Relationship:            "friend",
