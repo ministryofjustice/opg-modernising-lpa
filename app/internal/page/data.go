@@ -141,6 +141,10 @@ type Date struct {
 	Year  string
 }
 
+func (d *Date) Entered() bool {
+	return d.Day != "" && d.Month != "" && d.Year != ""
+}
+
 func readDate(t time.Time) Date {
 	return Date{
 		Day:   t.Format("2"),

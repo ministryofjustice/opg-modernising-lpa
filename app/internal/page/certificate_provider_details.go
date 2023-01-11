@@ -90,22 +90,13 @@ func (d *certificateProviderDetailsForm) Validate() map[string]string {
 	errors := map[string]string{}
 
 	if d.FirstNames == "" {
-		errors["first-names"] = "enterFirstNames"
+		errors["first-names"] = "enterCertificateProviderFirstNames"
 	}
 	if d.LastName == "" {
-		errors["last-name"] = "enterLastName"
+		errors["last-name"] = "enterCertificateProviderLastName"
 	}
-	if d.Email == "" {
-		errors["email"] = "enterEmail"
-	}
-	if d.Dob.Day == "" {
-		errors["date-of-birth"] = "dateOfBirthDay"
-	}
-	if d.Dob.Month == "" {
-		errors["date-of-birth"] = "dateOfBirthMonth"
-	}
-	if d.Dob.Year == "" {
-		errors["date-of-birth"] = "dateOfBirthYear"
+	if !d.Dob.Entered() {
+		errors["date-of-birth"] = "enterCertificateProviderDateOfBirth"
 	}
 	if _, ok := errors["date-of-birth"]; !ok && d.DateOfBirthError != nil {
 		errors["date-of-birth"] = "dateOfBirthMustBeReal"
@@ -117,7 +108,7 @@ func (d *certificateProviderDetailsForm) Validate() map[string]string {
 		errors["mobile"] = "enterUkMobile"
 	}
 	if d.Mobile == "" {
-		errors["mobile"] = "enterMobile"
+		errors["mobile"] = "enterCertificateProviderMobile"
 	}
 
 	return errors
