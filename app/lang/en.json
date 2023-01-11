@@ -201,6 +201,7 @@
     "enterCertificateProviderLastName": "Enter your certificate provider's last name",
     "enterCertificateProviderDateOfBirth": "Enter your certificate provider's date of birth",
     "enterCertificateProviderMobile": "Enter your certificate provider's mobile number",
+    "enterUkMobile": "Enter a valid mobile number, like 07700 900 982 or +44 7700 900 982",
     "dateOfBirthDay": "Enter a day",
     "dateOfBirthMonth": "Enter a month",
     "dateOfBirthYear": "Enter a year",
