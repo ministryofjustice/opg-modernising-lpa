@@ -27,6 +27,10 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 			return err
 		}
 
+		if len(lpa.PeopleToNotify) > 4 {
+			return appData.Lang.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
+		}
+
 		addAnother := r.FormValue("addAnother") == "1"
 		personToNotify, personFound := lpa.GetPersonToNotify(r.URL.Query().Get("id"))
 
