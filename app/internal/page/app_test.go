@@ -221,6 +221,7 @@ func TestMakeHandleShowTransKeys(t *testing.T) {
 					RumConfig:        RumConfig{ApplicationID: "xyz"},
 					StaticHash:       "?%3fNEI0t9MN",
 					Paths:            AppPaths{},
+					IsProduction:     tc.isProduction,
 				}, appData)
 				assert.Equal(t, w, hw)
 				assert.Equal(t, r, hr)
