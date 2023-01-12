@@ -1,0 +1,13 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ tr .App "whatYoullNeedToConfirmYourIdentity" }}</h1>
+
+        {{ trHtml .App "whatYoullNeedToConfirmYourIdentityContent" }}
+
+        <a class="govuk-button govuk-!-margin-top-4" href="{{ link .App .Continue }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+      </div>
+    </div>
+{{ end }}

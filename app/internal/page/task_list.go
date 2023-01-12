@@ -127,7 +127,7 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) Handler {
 					Items: []taskListItem{
 						{
 							Name:       ConfirmYourIdentityAndSignTask,
-							Path:       appData.Paths.SelectYourIdentityOptions,
+							Path:       appData.Paths.HowToConfirmYourIdentityAndSign,
 							Completed:  lpa.Tasks.ConfirmYourIdentityAndSign == TaskCompleted,
 							InProgress: lpa.Tasks.ConfirmYourIdentityAndSign == TaskInProgress,
 						},

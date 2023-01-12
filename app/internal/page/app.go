@@ -229,6 +229,11 @@ func App(
 	handle(paths.PaymentConfirmation, RequireSession|CanGoBack,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, lpaStore, sessionStore))
 
+	handle(paths.HowToConfirmYourIdentityAndSign, RequireSession|CanGoBack,
+		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml"), Paths.WhatYoullNeedToConfirmYourIdentity, lpaStore))
+	handle(paths.WhatYoullNeedToConfirmYourIdentity, RequireSession|CanGoBack,
+		Guidance(tmpls.Get("what_youll_need_to_confirm_your_identity.gohtml"), Paths.SelectYourIdentityOptions, lpaStore))
+
 	for path, page := range map[string]int{
 		paths.SelectYourIdentityOptions:  0,
 		paths.SelectYourIdentityOptions1: 1,
