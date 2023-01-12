@@ -47,7 +47,10 @@ describe('Certificate provider task', () => {
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
         cy.contains('button', 'Continue').click();
+
         cy.url().should('contain', '/certificate-provider-details');
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
@@ -55,22 +58,27 @@ describe('Certificate provider task', () => {
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
-
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
-
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
 
-        cy.contains('How do you know John Doe, your certificate provider?');
-        cy.contains('label', 'Solicitor').click();
-
+        cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
 
+        cy.contains('label', 'Online and by email').click();
+        cy.get('#f-email').type('someone@example.com');
+        cy.contains('button', 'Continue').click()
+
+        cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+        cy.contains('How do you know John Doe, your certificate provider?');
+        cy.contains('label', 'Solicitor').click();
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/check-your-lpa');
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
 
         cy.visit('/task-list')
         cy.contains('li', "Choose your certificate provider")
@@ -87,7 +95,10 @@ describe('Certificate provider task', () => {
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
         cy.contains('button', 'Continue').click();
+
         cy.url().should('contain', '/certificate-provider-details');
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
@@ -95,30 +106,57 @@ describe('Certificate provider task', () => {
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
+        cy.contains('button', 'Continue').click();
+
+        cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
+
+        cy.contains('label', 'Using paper forms').click();
+        cy.contains('button', 'Continue').click()
+
+        cy.url().should('contain', '/certificate-provider-address');
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+        cy.get('#f-lookup-postcode').type('B14 7ED');
+        cy.contains('button', 'Find address').click();
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
+        cy.get('#f-select-address').select('2 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
         cy.contains('button', 'Continue').click();
+
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+        cy.get('#f-address-line-1').should('have.value', '2 RICHMOND PLACE');
+        cy.get('#f-address-line-2').should('have.value', '');
+        cy.get('#f-address-line-3').should('have.value', '');
+        cy.get('#f-address-town').should('have.value', 'BIRMINGHAM');
+        cy.get('#f-address-postcode').should('have.value', 'B14 7ED');
+        cy.contains('button', 'Continue').click();
+
         cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
         cy.contains('How do you know John Doe, your certificate provider?');
         cy.contains('label', 'Friend').click();
+        cy.contains('button', 'Continue').click();
 
+        cy.url().should('contain', '/how-long-have-you-known-certificate-provider');
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
-
-        cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/how-long-have-you-known-certificate-provider');
 
         cy.contains('How long have you known John Doe?');
         cy.contains('label', '2 years or more').click();
+        cy.contains('button', 'Continue').click();
 
+        cy.url().should('contain', '/check-your-lpa');
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
-
-        cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/check-your-lpa');
 
         cy.visit('/task-list')
         cy.contains('li', "Choose your certificate provider")
