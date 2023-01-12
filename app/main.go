@@ -192,8 +192,8 @@ func main() {
 	mux.Handle(page.Paths.AuthRedirect, page.AuthRedirect(logger, signInClient, sessionStore, secureCookies))
 	mux.Handle(page.Paths.Auth, page.Login(logger, signInClient, sessionStore, secureCookies, random.String))
 	mux.Handle(page.Paths.CookiesConsent, page.CookieConsent(page.Paths))
-	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient)))
-	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient))
+	mux.Handle("/cy/", http.StripPrefix("/cy", page.App(logger, bundle.For("cy"), page.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient, isProduction)))
+	mux.Handle("/", page.App(logger, bundle.For("en"), page.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient, isProduction))
 
 	var handler http.Handler = mux
 	if xrayEnabled {
