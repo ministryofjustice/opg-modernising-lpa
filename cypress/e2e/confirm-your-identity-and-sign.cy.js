@@ -23,6 +23,13 @@ describe('Confirm your identity and sign', () => {
         cy.contains('h1', 'How to confirm your identity and sign the LPA');
         cy.contains('a', 'Continue').click();
 
+        cy.url().should('contain', '/what-youll-need-to-confirm-your-identity');
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+        cy.contains('h1', "What you'll need to confirm your identity");
+        cy.contains('a', 'Continue').click();
+
         cy.url().should('contain', '/select-your-identity-options');
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
@@ -91,6 +98,7 @@ describe('Confirm your identity and sign', () => {
             .click();
 
         cy.contains('a', 'Continue').click();
+        cy.contains('a', 'Continue').click();
         cy.contains('label', 'Your GOV.UK One Login Identity').click();
         cy.contains('button', 'Continue').click();
 
@@ -101,6 +109,7 @@ describe('Confirm your identity and sign', () => {
             .find('a')
             .click();
 
+        cy.contains('a', 'Continue').click();
         cy.contains('a', 'Continue').click();
         cy.contains('button', 'Continue').click();
         cy.contains('Your GOV.UK One Login Identity');
