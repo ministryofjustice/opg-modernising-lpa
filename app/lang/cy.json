@@ -470,5 +470,10 @@
     },
     "removePersonToNotifyButtonLink": "Welsh {{ .PersonNumber }}<span class=\"govuk-visually-hidden\"> {{ .FirstNames }} {{ .LastName }}</span>",
     "doYouWantToAddAnotherPersonToNotify": "Ydych chi am ychwanegu person arall i'w hysbysu?",
-    "removeAPersonToNotify": "Dileu person i'w hysbysu"
+    "removeAPersonToNotify": "Dileu person i'w hysbysu",
+
+    "howToConfirmYourIdentityAndSign": "Welsh",
+    "howToConfirmYourIdentityAndSignIntro": "Welsh",
+    "yourCertificateProviderMustBeWithYou": "{{.CertificateProviderName}} Welsh",
+    "howToConfirmYourIdentityAndSignSteps": "<h2 class=\"govuk-heading-m\">Welsh</h2><div class=\"govuk-body\"><p>Welsh</p></div><h2 class=\"govuk-heading-m\">Welsh {{.CertificateProviderFirstNames}}</h2><div class=\"govuk-body\"><p>Welsh {{.AttorneysFullNames}} </p></div><h2 class=\"govuk-heading-m\">Welsh</h2><div class=\"govuk-body\"><p>Welsh {{.CertificateProviderFullName}}</p></div>"
 }
