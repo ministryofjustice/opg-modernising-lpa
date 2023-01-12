@@ -170,6 +170,73 @@ func TestMakeHandle(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
+func TestMakeHandleShowTransKeys(t *testing.T) {
+	testCases := map[string]struct {
+		isProduction  bool
+		showTransKeys string
+		expected      bool
+	}{
+		"enabled": {
+			isProduction:  false,
+			showTransKeys: "1",
+			expected:      true,
+		},
+		"disabled production": {
+			isProduction:  true,
+			showTransKeys: "1",
+			expected:      false,
+		},
+		"disabled not requested": {
+			isProduction:  false,
+			showTransKeys: "maybe",
+			expected:      false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/path?showTransKeys="+tc.showTransKeys, nil)
+			localizer := localize.Localizer{}
+
+			sessionsStore := &mockSessionsStore{}
+			sessionsStore.
+				On("Get", r, "session").
+				Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
+
+			mux := http.NewServeMux()
+			handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, tc.isProduction)
+			handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
+				expectedLocalizer := localize.Localizer{}
+				expectedLocalizer.ShowTransKeys = tc.expected
+
+				assert.Equal(t, AppData{
+					Page:             "/path",
+					Query:            "?showTransKeys=" + tc.showTransKeys,
+					Localizer:        expectedLocalizer,
+					Lang:             En,
+					SessionID:        "cmFuZG9t",
+					CookieConsentSet: false,
+					CanGoBack:        true,
+					RumConfig:        RumConfig{ApplicationID: "xyz"},
+					StaticHash:       "?%3fNEI0t9MN",
+					Paths:            AppPaths{},
+				}, appData)
+				assert.Equal(t, w, hw)
+				assert.Equal(t, r, hr)
+				hw.WriteHeader(http.StatusTeapot)
+				return nil
+			})
+
+			mux.ServeHTTP(w, r)
+			resp := w.Result()
+
+			assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+			mock.AssertExpectationsForObjects(t, sessionsStore)
+		})
+	}
+}
+
 func TestMakeHandleErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
