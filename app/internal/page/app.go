@@ -116,6 +116,7 @@ type AppData struct {
 	RumConfig        RumConfig
 	StaticHash       string
 	Paths            AppPaths
+	IsProduction     bool
 }
 
 type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
@@ -449,6 +450,8 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 
 			if r.FormValue("showTransKeys") == "1" && !isProduction {
 				localizer.ShowTransKeys = true
+			} else {
+				localizer.ShowTransKeys = false
 			}
 
 			if err := h(AppData{
@@ -462,6 +465,7 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 				RumConfig:        rumConfig,
 				StaticHash:       staticHash,
 				Paths:            paths,
+				IsProduction:     isProduction,
 			}, w, r); err != nil {
 				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
 
