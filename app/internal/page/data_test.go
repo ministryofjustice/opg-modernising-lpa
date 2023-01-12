@@ -1525,3 +1525,51 @@ func TestCanGoTo(t *testing.T) {
 		})
 	}
 }
+
+func TestEntered(t *testing.T) {
+	testCases := map[string]struct {
+		Date     Date
+		Expected bool
+	}{
+		"valid": {
+			Date: Date{
+				Day:   "1",
+				Month: "2",
+				Year:  "3",
+			},
+			Expected: true,
+		},
+		"missing day": {
+			Date: Date{
+				Month: "2",
+				Year:  "3",
+			},
+			Expected: false,
+		},
+		"missing month": {
+			Date: Date{
+				Day:  "1",
+				Year: "3",
+			},
+			Expected: false,
+		},
+		"missing year": {
+			Date: Date{
+				Day:   "1",
+				Month: "2",
+			},
+			Expected: false,
+		},
+		"missing all": {
+			Date:     Date{},
+			Expected: false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.Expected, tc.Date.Entered())
+		})
+	}
+
+}
