@@ -444,5 +444,10 @@
     },
     "removePersonToNotifyButtonLink": "Remove person to notify {{ .PersonNumber }}<span class=\"govuk-visually-hidden\"> {{ .FirstNames }} {{ .LastName }}</span>",
     "doYouWantToAddAnotherPersonToNotify": "Do you want to add another person to notify?",
-    "removeAPersonToNotify": "Remove a person to notify"
+    "removeAPersonToNotify": "Remove a person to notify",
+
+    "howToConfirmYourIdentityAndSign": "How to confirm your identity and sign the LPA",
+    "howToConfirmYourIdentityAndSignIntro": "There are 3 steps to signing your LPA. You must complete these steps in one go.",
+    "yourCertificateProviderMustBeWithYou": "{{.CertificateProviderName}}, your certificate provider, must be with you in person when you complete these steps.",
+    "howToConfirmYourIdentityAndSignSteps": "<h2 class=\"govuk-heading-m\">1. Confirm your identity</h2><div class=\"govuk-body\"><p>This is so we can be sure it's you that's about to sign the LPA. It should take less than 5 minutes.</p></div><h2 class=\"govuk-heading-m\">2. Discuss your LPA with {{.CertificateProviderFirstNames}}</h2><div class=\"govuk-body\"><p>You should meet in private. {{.AttorneysFullNames}} should not be there.</p></div><h2 class=\"govuk-heading-m\">3. Sign your LPA</h2><div class=\"govuk-body\"><p>Sign your LPA online. We will then send {{.CertificateProviderFullName}} a unique code by text message, that you must enter to prove they were with you.</p></div>"
 }
