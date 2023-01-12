@@ -197,7 +197,7 @@ func TestPostCertificateProviderDetailsWhenValidationError(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, mock.MatchedBy(func(data *certificateProviderDetailsData) bool {
-			return assert.Equal(t, map[string]string{"first-names": "enterFirstNames"}, data.Errors)
+			return assert.Equal(t, map[string]string{"first-names": "enterCertificateProviderFirstNames"}, data.Errors)
 		})).
 		Return(nil)
 
@@ -269,10 +269,10 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 		"missing-all": {
 			form: &certificateProviderDetailsForm{},
 			errors: map[string]string{
-				"first-names":   "enterFirstNames",
-				"last-name":     "enterLastName",
-				"date-of-birth": "dateOfBirthYear",
-				"mobile":        "enterMobile",
+				"first-names":   "enterCertificateProviderFirstNames",
+				"last-name":     "enterCertificateProviderLastName",
+				"date-of-birth": "enterCertificateProviderDateOfBirth",
+				"mobile":        "enterCertificateProviderMobile",
 			},
 		},
 		"invalid-dob": {
@@ -303,7 +303,7 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 				DateOfBirthError: expectedError,
 			},
 			errors: map[string]string{
-				"date-of-birth": "dateOfBirthMonth",
+				"date-of-birth": "enterCertificateProviderDateOfBirth",
 			},
 		},
 		"invalid-incorrect-mobile-format": {
