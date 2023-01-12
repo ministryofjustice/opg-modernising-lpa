@@ -470,5 +470,10 @@
     },
     "removePersonToNotifyButtonLink": "Welsh {{ .PersonNumber }}<span class=\"govuk-visually-hidden\"> {{ .FirstNames }} {{ .LastName }}</span>",
     "doYouWantToAddAnotherPersonToNotify": "Ydych chi am ychwanegu person arall i'w hysbysu?",
-    "removeAPersonToNotify": "Dileu person i'w hysbysu"
+    "removeAPersonToNotify": "Dileu person i'w hysbysu",
+
+    "howToConfirmYourIdentityAndSign": "Sut i gadarnhau pwy ydych chi a llofnodi'r LPA",
+    "howToConfirmYourIdentityAndSignIntro": "Mae 3 cham i lofnodi eich LPA. Rhaid i chi gwblhau'r camau hyn ar yr un pryd.",
+    "yourCertificateProviderMustBeWithYou": "Rhaid i {{.CertificateProviderName}}, eich darparwr tystysgrif, fod gyda chi mewn person pan fyddwch yn cwblhau'r camau hyn.",
+    "howToConfirmYourIdentityAndSignSteps": "<h2 class=\"govuk-heading-m\">1. Cadarnhewch pwy ydych chi</h2><div class=\"govuk-body\"><p>Mae hyn er mwyn i ni fod yn siŵr mai chi sydd ar fin llofnodi'r LPA. Dylai gymryd llai na 5 munud.</p></div><h2 class=\"govuk-heading-m\">2. Trafodwch eich LPA gyda {{.CertificateProviderFirstNames}}</h2><div class=\"govuk-body\"><p>Dylech gyfarfod yn breifat. Ni ddylai {{.AttorneysFullNames}} fod yna.</p></div><h2 class=\"govuk-heading-m\">3. Llofnodwch eich LPA</h2><div class=\"govuk-body\"><p>Llofnodwch eich LPA ar-lein. Yna byddwn yn anfon cod unigryw at {{.CertificateProviderFullName}} trwy neges destun. Bydd rhaid iddynt nodi’r cod i brofi ei bod nhw gyda chi.</p></div>"
 }

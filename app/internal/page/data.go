@@ -529,7 +529,7 @@ func (l *Lpa) CanGoTo(url string) bool {
 		return l.AttorneysTaskComplete() && l.Tasks.CertificateProvider == TaskCompleted
 	case Paths.AboutPayment:
 		return l.Tasks.CheckYourLpa == TaskCompleted
-	case Paths.SelectYourIdentityOptions:
+	case Paths.SelectYourIdentityOptions, Paths.HowToConfirmYourIdentityAndSign:
 		return l.Tasks.PayForLpa == TaskCompleted
 	case "":
 		return false
