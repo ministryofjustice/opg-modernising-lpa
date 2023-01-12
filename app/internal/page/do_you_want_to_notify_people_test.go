@@ -25,6 +25,7 @@ func TestGetDoYouWantToNotifyPeople(t *testing.T) {
 	template.
 		On("Func", w, &doYouWantToNotifyPeopleData{
 			App: appData,
+			Lpa: &Lpa{},
 		}).
 		Return(nil)
 
@@ -53,6 +54,9 @@ func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
 		On("Func", w, &doYouWantToNotifyPeopleData{
 			App:          appData,
 			WantToNotify: "yes",
+			Lpa: &Lpa{
+				DoYouWantToNotifyPeople: "yes",
+			},
 		}).
 		Return(nil)
 
@@ -123,6 +127,7 @@ func TestGetDoYouWantToNotifyPeopleWhenTemplateErrors(t *testing.T) {
 	template.
 		On("Func", w, &doYouWantToNotifyPeopleData{
 			App: appData,
+			Lpa: &Lpa{},
 		}).
 		Return(expectedError)
 
@@ -240,6 +245,7 @@ func TestPostDoYouWantToNotifyPeopleWhenValidationErrors(t *testing.T) {
 				"want-to-notify": "selectDoYouWantToNotifyPeople",
 			},
 			Form: &doYouWantToNotifyPeopleForm{},
+			Lpa:  &Lpa{},
 		}).
 		Return(nil)
 

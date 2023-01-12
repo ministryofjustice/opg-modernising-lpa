@@ -3,22 +3,24 @@
 {{ define "main" }}
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-xl">{{ tr .App "removeAPersonToNotify" }}</h1>
-
         <form novalidate method="post">
             <div class="govuk-form-group">
-                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                    {{ trFormat .App "doYouWantToRemove" "FirstNames" .PersonToNotify.FirstNames "LastName" .PersonToNotify.LastName }}
-                </legend>
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+                        <h1 class="govuk-fieldset__heading">
+                            {{ trFormat .App "doYouWantToRemove" "FirstNames" .PersonToNotify.FirstNames "LastName" .PersonToNotify.LastName }}
+                        </h1>
+                    </legend>
 
-                <div class="govuk-form-group {{ if index .Errors "remove-person-to-notify" }}govuk-form-group--error{{ end }}">
-                    {{ template "error-message" (errorMessage . "remove-person-to-notify") }}
+                    <div class="govuk-form-group {{ if index .Errors "remove-person-to-notify" }}govuk-form-group--error{{ end }}">
+                        {{ template "error-message" (errorMessage . "remove-person-to-notify") }}
 
-                    {{ template "radios" (items . "remove-person-to-notify" ""
-                    (item "yes" "yes")
-                    (item "no" "no")
-                    ) }}
-                </div>
+                        {{ template "radios" (items . "remove-person-to-notify" ""
+                        (item "yes" "yes")
+                        (item "no" "no")
+                        ) }}
+                    </div>
+                </fieldset>
             </div>
 
             <div class="govuk-button-group">

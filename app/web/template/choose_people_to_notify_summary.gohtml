@@ -3,31 +3,42 @@
 {{ define "main" }}
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-xl">{{ trCount .App "peopleToNotifyAdded" (len .Lpa.PeopleToNotify) }}</h1>
+        <h1 class="govuk-heading-xl">{{ tr .App "peopleToNotify" }}</h1>
+
+        {{ trHtml .App "weCanNotifyUpTo5PeopleContent" }}
 
         {{ template "people-to-notify-summary" (listPeopleToNotify .Lpa.PeopleToNotify .App .App.Paths.ChoosePeopleToNotify .App.Paths.ChoosePeopleToNotifyAddress .App.Paths.RemovePersonToNotify) }}
 
-        <form novalidate method="post">
-            <div class="govuk-form-group">
-                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                    {{ tr .App "doYouWantToAddAnotherPersonToNotify" }}
-                </legend>
+        {{ if eq 5 (len .Lpa.PeopleToNotify) }}
+            {{ template "warning" (warning .App "addedMaxPeople") }}
 
-                <div class="govuk-form-group {{ if index .Errors "add-person-to-notify" }}govuk-form-group--error{{ end }}">
-                    {{ template "error-message" (errorMessage . "add-person-to-notify") }}
+            <p class="govuk-body">
+                <a href="{{ link .App .App.Paths.SignYourLpa }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
+                    {{ tr .App "continue" }}
+                </a>
+            </p>
+        {{ else }}
+            <form novalidate method="post">
+                <div class="govuk-form-group">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                        {{ tr .App "doYouWantToAddAnotherPersonToNotify" }}
+                    </legend>
 
-                    {{ template "radios" (items . "add-person-to-notify" ""
-                    (item "yes" "yes")
-                    (item "no" "no")
-                    ) }}
+                    <div class="govuk-form-group {{ if index .Errors "add-person-to-notify" }}govuk-form-group--error{{ end }}">
+                        {{ template "error-message" (errorMessage . "add-person-to-notify") }}
+
+                        {{ template "radios" (items . "add-person-to-notify" ""
+                        (item "yes" "yes")
+                        (item "no" "no")
+                        ) }}
+                    </div>
                 </div>
-            </div>
 
-            <div class="govuk-button-group">
-                {{ template "continue-button" . }}
-            </div>
-        </form>
-
+                <div class="govuk-button-group">
+                    {{ template "continue-button" . }}
+                </div>
+            </form>
+        {{ end }}
     </div>
 </div>
 {{ end }}
