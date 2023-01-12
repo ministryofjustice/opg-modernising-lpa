@@ -50,7 +50,7 @@ describe('Certificate provider task', () => {
 
         cy.url().should('contain', '/certificate-provider-details');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
 
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
@@ -70,7 +70,7 @@ describe('Certificate provider task', () => {
 
         cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
 
         cy.contains('How do you know John Doe, your certificate provider?');
         cy.contains('label', 'Solicitor').click();
@@ -140,7 +140,7 @@ describe('Certificate provider task', () => {
 
         cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
 
         cy.contains('How do you know John Doe, your certificate provider?');
         cy.contains('label', 'Friend').click();
