@@ -35,7 +35,7 @@ func (l Localizer) T(messageID string) string {
 	msg, err := l.Localize(&i18n.LocalizeConfig{MessageID: messageID})
 
 	if err != nil {
-		l.translate(messageID, messageID)
+		return l.translate(messageID, messageID)
 	}
 
 	return l.translate(msg, messageID)
