@@ -35,42 +35,29 @@ func (l Localizer) T(messageID string) string {
 	msg, err := l.Localize(&i18n.LocalizeConfig{MessageID: messageID})
 
 	if err != nil {
-		if l.ShowTransKeys {
-			return fmt.Sprintf("%s [%s]", messageID, messageID)
-		} else {
-			return messageID
-		}
+		l.translate(messageID, messageID)
 	}
 
-	if l.ShowTransKeys {
-		return fmt.Sprintf("%s [%s]", msg, messageID)
-	} else {
-		return msg
-	}
+	return l.translate(msg, messageID)
 }
 
 func (l Localizer) Format(messageID string, data map[string]interface{}) string {
-	if l.ShowTransKeys {
-		return fmt.Sprintf("%s [%s]", l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, TemplateData: data}), messageID)
-	} else {
-		return l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, TemplateData: data})
-	}
+	return l.translate(l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, TemplateData: data}), messageID)
 }
 
 func (l Localizer) Count(messageID string, count int) string {
-	if l.ShowTransKeys {
-		return fmt.Sprintf("%s [%s]", l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, PluralCount: count}), messageID)
-	} else {
-		return l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, PluralCount: count})
-	}
+	return l.translate(l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, PluralCount: count}), messageID)
 }
 
 func (l Localizer) FormatCount(messageID string, count int, data map[string]interface{}) string {
 	data["PluralCount"] = count
+	return l.translate(l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, PluralCount: count, TemplateData: data}), messageID)
+}
 
+func (l Localizer) translate(translation, messageID string) string {
 	if l.ShowTransKeys {
-		return fmt.Sprintf("%s [%s]", l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, PluralCount: count, TemplateData: data}), messageID)
+		return fmt.Sprintf("{%s} [%s]", translation, messageID)
 	} else {
-		return l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, PluralCount: count, TemplateData: data})
+		return translation
 	}
 }
