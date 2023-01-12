@@ -29,6 +29,7 @@ services:
       - GOVUK_PAY_BASE_URL=http://pay-mock:4010
       - ISSUER=http://sign-in-mock:8080
       - ORDNANCE_SURVEY_BASE_URL=http://ordnance-survey-mock:8080
+      - IS_PRODUCTION=false
 
   localstack:
     build:

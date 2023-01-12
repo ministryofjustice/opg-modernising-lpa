@@ -137,12 +137,13 @@ func App(
 	staticHash string,
 	paths AppPaths,
 	oneLoginClient OneLoginClient,
+	isProduction bool,
 ) http.Handler {
 	mux := http.NewServeMux()
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
 
-	handle := makeHandle(mux, logger, sessionStore, localizer, lang, rumConfig, staticHash, paths)
+	handle := makeHandle(mux, logger, sessionStore, localizer, lang, rumConfig, staticHash, paths, isProduction)
 
 	mux.Handle(paths.TestingStart, testingStart(sessionStore, lpaStore))
 	mux.Handle(paths.Root, Root(paths))
@@ -421,7 +422,7 @@ const (
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang, rumConfig RumConfig, staticHash string, paths AppPaths) func(string, handleOpt, Handler) {
+func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang, rumConfig RumConfig, staticHash string, paths AppPaths, isProduction bool) func(string, handleOpt, Handler) {
 	return func(path string, opt handleOpt, h Handler) {
 		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 			sessionID := ""
@@ -446,7 +447,7 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 
 			_, cookieErr := r.Cookie("cookies-consent")
 
-			if r.FormValue("showTransKeys") == "1" {
+			if r.FormValue("showTransKeys") == "1" && !isProduction {
 				localizer.ShowTransKeys = true
 			}
 
