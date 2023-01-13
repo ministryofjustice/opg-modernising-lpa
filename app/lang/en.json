@@ -54,7 +54,8 @@
     "postcode": "Postcode",
     "findAddress": "Find address",
     "selectAnAddress": "Select an address",
-    "cantFindAddress": "I can’t find their address in the list",
+    "cantFindAddress": "Can not find address?",
+    "cantFindTheirAddress": "I can’t find their address in the list",
     "addressesFound": {
         "one": "{{.PluralCount}} address found",
         "other": "{{.PluralCount}} addresses found"
