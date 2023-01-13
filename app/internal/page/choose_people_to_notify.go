@@ -27,6 +27,10 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 			return err
 		}
 
+		if len(lpa.PeopleToNotify) > 4 {
+			return appData.Lang.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
+		}
+
 		addAnother := r.FormValue("addAnother") == "1"
 		personToNotify, personFound := lpa.GetPersonToNotify(r.URL.Query().Get("id"))
 
@@ -96,23 +100,23 @@ func (d *choosePeopleToNotifyForm) Validate() map[string]string {
 	errors := map[string]string{}
 
 	if d.FirstNames == "" {
-		errors["first-names"] = "enterFirstNames"
+		errors["first-names"] = "enterTheirFirstNames"
 	}
 	if len(d.FirstNames) > 53 {
 		errors["first-names"] = "firstNamesTooLong"
 	}
 
 	if d.LastName == "" {
-		errors["last-name"] = "enterLastName"
+		errors["last-name"] = "enterTheirLastName"
 	}
 	if len(d.LastName) > 61 {
 		errors["last-name"] = "lastNameTooLong"
 	}
 
 	if d.Email == "" {
-		errors["email"] = "enterEmail"
+		errors["email"] = "enterTheirEmail"
 	} else if _, err := mail.ParseAddress(fmt.Sprintf("<%s>", d.Email)); err != nil {
-		errors["email"] = "emailIncorrectFormat"
+		errors["email"] = "theirEmailIncorrectFormat"
 	}
 
 	return errors
