@@ -55,6 +55,7 @@
     "findAddress": "Dod o hyd i gyfeiriad",
     "selectAnAddress": "Dewiswch gyfeiriad",
     "cantFindAddress": "Methu dod o hyd i'r cyfeiriad?",
+    "cantFindTheirAddress": "Welsh",
     "addressesFound": {
         "one": "Daethpwyd o hyd i {{.PluralCount}} cyfeiriad",
         "two": "Daethpwyd o hyd i {{.PluralCount}} o gyfeiriadau",
