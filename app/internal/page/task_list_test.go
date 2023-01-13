@@ -60,7 +60,7 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[2].Items = []taskListItem{
-					{Name: ConfirmYourIdentityAndSignTask, Path: appData.Paths.SelectYourIdentityOptions, InProgress: true},
+					{Name: ConfirmYourIdentityAndSignTask, Path: appData.Paths.HowToConfirmYourIdentityAndSign, InProgress: true},
 				}
 
 				return sections
@@ -119,7 +119,7 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[2].Items = []taskListItem{
-					{Name: ConfirmYourIdentityAndSignTask, Path: appData.Paths.SelectYourIdentityOptions, Completed: true},
+					{Name: ConfirmYourIdentityAndSignTask, Path: appData.Paths.HowToConfirmYourIdentityAndSign, Completed: true},
 				}
 
 				return sections
@@ -165,7 +165,7 @@ func TestGetTaskList(t *testing.T) {
 							Heading: ConfirmYourIdentityAndSignSection,
 							Items: []taskListItem{
 								{
-									Name: ConfirmYourIdentityAndSignTask, Path: appData.Paths.SelectYourIdentityOptions,
+									Name: ConfirmYourIdentityAndSignTask, Path: appData.Paths.HowToConfirmYourIdentityAndSign,
 								},
 							},
 						},
