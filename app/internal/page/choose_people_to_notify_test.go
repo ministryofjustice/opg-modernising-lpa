@@ -107,6 +107,65 @@ func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
 
+func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
+	personToNotify := PersonToNotify{
+		FirstNames: "John",
+		LastName:   "Doe",
+		Email:      "johnny@example.com",
+		ID:         "123",
+	}
+
+	testcases := map[string]struct {
+		addedPeople []PersonToNotify
+		expectedUrl string
+	}{
+		"5 people": {
+			addedPeople: []PersonToNotify{
+				personToNotify,
+				personToNotify,
+				personToNotify,
+				personToNotify,
+				personToNotify,
+			},
+			expectedUrl: Paths.ChoosePeopleToNotifySummary,
+		},
+		"6 people": {
+			addedPeople: []PersonToNotify{
+				personToNotify,
+				personToNotify,
+				personToNotify,
+				personToNotify,
+				personToNotify,
+				personToNotify,
+			},
+			expectedUrl: Paths.ChoosePeopleToNotifySummary,
+		},
+	}
+
+	for testName, tc := range testcases {
+		t.Run(testName, func(t *testing.T) {
+			w := httptest.NewRecorder()
+
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(&Lpa{
+					PeopleToNotify: tc.addedPeople,
+				}, nil)
+
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+			err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.expectedUrl, resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, lpaStore)
+		})
+	}
+}
+
 func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 	w := httptest.NewRecorder()
 
@@ -188,7 +247,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, fmt.Sprintf("%s?id=123", appData.Paths.ChoosePeopleToNotifyAddress), resp.Header.Get("Location"))
+	assert.Equal(t, Paths.ChoosePeopleToNotifyAddress+"?id=123", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -203,11 +262,11 @@ func TestPostChoosePeopleToNotifyFromAnotherPage(t *testing.T) {
 		},
 		"without from value": {
 			"/?from=&id=123",
-			"/choose-people-to-notify-address?id=123",
+			Paths.ChoosePeopleToNotifyAddress + "?id=123",
 		},
 		"missing from key": {
 			"/?id=123",
-			"/choose-people-to-notify-address?id=123",
+			Paths.ChoosePeopleToNotifyAddress + "?id=123",
 		},
 	}
 
@@ -272,7 +331,7 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 				"email":     {"name@example.com"},
 			},
 			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
-				return assert.Equal(t, map[string]string{"first-names": "enterFirstNames"}, data.Errors)
+				return assert.Equal(t, map[string]string{"first-names": "enterTheirFirstNames"}, data.Errors)
 			},
 		},
 		"last name missing": {
@@ -281,7 +340,7 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 				"email":       {"name@example.com"},
 			},
 			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
-				return assert.Equal(t, map[string]string{"last-name": "enterLastName"}, data.Errors)
+				return assert.Equal(t, map[string]string{"last-name": "enterTheirLastName"}, data.Errors)
 			},
 		},
 	}
@@ -385,9 +444,9 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 		"missing all": {
 			form: &choosePeopleToNotifyForm{},
 			errors: map[string]string{
-				"first-names": "enterFirstNames",
-				"last-name":   "enterLastName",
-				"email":       "enterEmail",
+				"first-names": "enterTheirFirstNames",
+				"last-name":   "enterTheirLastName",
+				"email":       "enterTheirEmail",
 			},
 		},
 		"too long": {
@@ -408,7 +467,7 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 				Email:      "person@",
 			},
 			errors: map[string]string{
-				"email": "emailIncorrectFormat",
+				"email": "theirEmailIncorrectFormat",
 			},
 		},
 	}
