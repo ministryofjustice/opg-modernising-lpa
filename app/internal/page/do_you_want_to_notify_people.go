@@ -7,11 +7,12 @@ import (
 )
 
 type doYouWantToNotifyPeopleData struct {
-	App          AppData
-	Errors       map[string]string
-	Form         *doYouWantToNotifyPeopleForm
-	WantToNotify string
-	Lpa          *Lpa
+	App             AppData
+	Errors          map[string]string
+	Form            *doYouWantToNotifyPeopleForm
+	WantToNotify    string
+	Lpa             *Lpa
+	HowWorkTogether string
 }
 
 type doYouWantToNotifyPeopleForm struct {
@@ -34,6 +35,19 @@ func DoYouWantToNotifyPeople(tmpl template.Template, lpaStore LpaStore) Handler 
 			WantToNotify: lpa.DoYouWantToNotifyPeople,
 			Lpa:          lpa,
 		}
+
+		switch lpa.HowAttorneysMakeDecisions {
+		case Jointly:
+			data.HowWorkTogether = "jointlyDescription"
+		case JointlyAndSeverally:
+			data.HowWorkTogether = "jointlyAndSeverallyDescription"
+		case JointlyForSomeSeverallyForOthers:
+			data.HowWorkTogether = "jointlyForSomeSeverallyForOthersDescription"
+		}
+
+		//Jointly - that you want your attorneys to work together to make decisions
+		//Jointly and Severally - that you want your attorneys to work together or separately to make decisions
+		//Jointly for some and severally for others - that you want your attorneys to work together on some decisions but can make other decisions separately
 
 		if r.Method == http.MethodPost {
 			data.Form = readDoYouWantToNotifyPeople(r)

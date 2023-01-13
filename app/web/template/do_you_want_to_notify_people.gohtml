@@ -11,7 +11,8 @@
                 {{ trHtml .App "wantPeopleToNotifyContent" }}
 
                 {{ $lpaType := tr .App .Lpa.LpaLegalTermTransKey }}
-                {{ trFormatHtml .App "weWillOnlyTellThemBullets" "LpaType" $lpaType "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames "HowAttorneysWorkTogether" "ADD IN ONCE CONFIRMED WITH CONTENT"}}
+                {{ $howWorkTogether := tr .App .HowWorkTogether }}
+                {{ trFormatHtml .App "weWillOnlyTellThemBullets" "LpaType" $lpaType "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames "HowAttorneysWorkTogether" $howWorkTogether}}
 
                 {{ trHtml .App "findOutMoreAboutPeopleToNotifyLink" }}
 
