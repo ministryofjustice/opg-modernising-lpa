@@ -26,6 +26,7 @@ type AppPaths struct {
 	HowShouldAttorneysMakeDecisions                      string
 	HowShouldReplacementAttorneysMakeDecisions           string
 	HowShouldReplacementAttorneysStepIn                  string
+	HowToConfirmYourIdentityAndSign                      string
 	HowWouldCertificateProviderPreferToCarryOutTheirRole string
 	HowWouldYouLikeToBeContacted                         string
 	IdentityConfirmed                                    string
@@ -53,6 +54,7 @@ type AppPaths struct {
 	Start                                                string
 	TaskList                                             string
 	TestingStart                                         string
+	WhatYoullNeedToConfirmYourIdentity                   string
 	WhenCanTheLpaBeUsed                                  string
 	WhoDoYouWantToBeCertificateProviderGuidance          string
 	WhoIsTheLpaFor                                       string
@@ -65,31 +67,32 @@ type AppPaths struct {
 }
 
 var Paths = AppPaths{
-	AboutPayment:                               "/about-payment",
-	Auth:                                       "/auth",
-	AuthRedirect:                               "/auth/redirect",
-	CertificateProviderAddress:                 "/certificate-provider-address",
-	CertificateProviderDetails:                 "/certificate-provider-details",
-	CheckYourLpa:                               "/check-your-lpa",
-	ChooseAttorneys:                            "/choose-attorneys",
-	ChooseAttorneysAddress:                     "/choose-attorneys-address",
-	ChooseAttorneysSummary:                     "/choose-attorneys-summary",
-	ChoosePeopleToNotify:                       "/choose-people-to-notify",
-	ChoosePeopleToNotifyAddress:                "/choose-people-to-notify-address",
-	ChoosePeopleToNotifySummary:                "/choose-people-to-notify-summary",
-	ChooseReplacementAttorneys:                 "/choose-replacement-attorneys",
-	ChooseReplacementAttorneysAddress:          "/choose-replacement-attorneys-address",
-	ChooseReplacementAttorneysSummary:          "/choose-replacement-attorneys-summary",
-	CookiesConsent:                             "/cookies-consent",
-	Dashboard:                                  "/dashboard",
-	DoYouWantReplacementAttorneys:              "/do-you-want-replacement-attorneys",
-	DoYouWantToNotifyPeople:                    "/do-you-want-to-notify-people",
-	HealthCheck:                                "/health-check",
-	HowDoYouKnowYourCertificateProvider:        "/how-do-you-know-your-certificate-provider",
-	HowLongHaveYouKnownCertificateProvider:     "/how-long-have-you-known-certificate-provider",
-	HowShouldAttorneysMakeDecisions:            "/how-should-attorneys-make-decisions",
-	HowShouldReplacementAttorneysMakeDecisions: "/how-should-replacement-attorneys-make-decisions",
-	HowShouldReplacementAttorneysStepIn:        "/how-should-replacement-attorneys-step-in",
+	AboutPayment:                                         "/about-payment",
+	Auth:                                                 "/auth",
+	AuthRedirect:                                         "/auth/redirect",
+	CertificateProviderAddress:                           "/certificate-provider-address",
+	CertificateProviderDetails:                           "/certificate-provider-details",
+	CheckYourLpa:                                         "/check-your-lpa",
+	ChooseAttorneys:                                      "/choose-attorneys",
+	ChooseAttorneysAddress:                               "/choose-attorneys-address",
+	ChooseAttorneysSummary:                               "/choose-attorneys-summary",
+	ChoosePeopleToNotify:                                 "/choose-people-to-notify",
+	ChoosePeopleToNotifyAddress:                          "/choose-people-to-notify-address",
+	ChoosePeopleToNotifySummary:                          "/choose-people-to-notify-summary",
+	ChooseReplacementAttorneys:                           "/choose-replacement-attorneys",
+	ChooseReplacementAttorneysAddress:                    "/choose-replacement-attorneys-address",
+	ChooseReplacementAttorneysSummary:                    "/choose-replacement-attorneys-summary",
+	CookiesConsent:                                       "/cookies-consent",
+	Dashboard:                                            "/dashboard",
+	DoYouWantReplacementAttorneys:                        "/do-you-want-replacement-attorneys",
+	DoYouWantToNotifyPeople:                              "/do-you-want-to-notify-people",
+	HealthCheck:                                          "/health-check",
+	HowDoYouKnowYourCertificateProvider:                  "/how-do-you-know-your-certificate-provider",
+	HowLongHaveYouKnownCertificateProvider:               "/how-long-have-you-known-certificate-provider",
+	HowShouldAttorneysMakeDecisions:                      "/how-should-attorneys-make-decisions",
+	HowShouldReplacementAttorneysMakeDecisions:           "/how-should-replacement-attorneys-make-decisions",
+	HowShouldReplacementAttorneysStepIn:                  "/how-should-replacement-attorneys-step-in",
+	HowToConfirmYourIdentityAndSign:                      "/how-to-confirm-your-identity-and-sign",
 	HowWouldCertificateProviderPreferToCarryOutTheirRole: "/how-would-certificate-provider-prefer-to-carry-out-their-role",
 	HowWouldYouLikeToBeContacted:                         "/how-would-you-like-to-be-contacted",
 	IdentityConfirmed:                                    "/identity-confirmed",
@@ -117,6 +120,7 @@ var Paths = AppPaths{
 	Start:                                                "/start",
 	TaskList:                                             "/task-list",
 	TestingStart:                                         "/testing-start",
+	WhatYoullNeedToConfirmYourIdentity:                   "/what-youll-need-to-confirm-your-identity",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
 	WhoDoYouWantToBeCertificateProviderGuidance:          "/who-do-you-want-to-be-certificate-provider-guidance",
 	WhoIsTheLpaFor:                                       "/who-is-the-lpa-for",
