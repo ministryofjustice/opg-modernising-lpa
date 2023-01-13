@@ -124,8 +124,10 @@ type CertificateProvider struct {
 	FirstNames              string
 	LastName                string
 	Email                   string
+	Address                 place.Address
 	Mobile                  string
 	DateOfBirth             time.Time
+	CarryOutBy              string
 	Relationship            string
 	RelationshipDescription string
 	RelationshipLength      string
@@ -139,6 +141,10 @@ type Date struct {
 	Day   string
 	Month string
 	Year  string
+}
+
+func (d *Date) Entered() bool {
+	return d.Day != "" && d.Month != "" && d.Year != ""
 }
 
 func readDate(t time.Time) Date {

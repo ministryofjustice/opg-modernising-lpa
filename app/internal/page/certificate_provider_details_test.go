@@ -130,7 +130,6 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 			CertificateProvider: CertificateProvider{
 				FirstNames:  "John",
 				LastName:    "Doe",
-				Email:       "john@example.com",
 				Mobile:      "07535111111",
 				DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
 			},
@@ -140,7 +139,6 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 	form := url.Values{
 		"first-names":         {"John"},
 		"last-name":           {"Doe"},
-		"email":               {"john@example.com"},
 		"mobile":              {"07535111111"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
@@ -155,7 +153,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.HowDoYouKnowYourCertificateProvider, resp.Header.Get("Location"))
+	assert.Equal(t, appData.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -173,7 +171,6 @@ func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 	form := url.Values{
 		"first-names":         {"John"},
 		"last-name":           {"Doe"},
-		"email":               {"john@example.com"},
 		"mobile":              {"07535111111"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
@@ -200,13 +197,12 @@ func TestPostCertificateProviderDetailsWhenValidationError(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, mock.MatchedBy(func(data *certificateProviderDetailsData) bool {
-			return assert.Equal(t, map[string]string{"first-names": "enterFirstNames"}, data.Errors)
+			return assert.Equal(t, map[string]string{"first-names": "enterCertificateProviderFirstNames"}, data.Errors)
 		})).
 		Return(nil)
 
 	form := url.Values{
 		"last-name":           {"Doe"},
-		"email":               {"john@example.com"},
 		"mobile":              {"07535111111"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
@@ -230,7 +226,6 @@ func TestReadCertificateProviderDetailsForm(t *testing.T) {
 	form := url.Values{
 		"first-names":         {"  John "},
 		"last-name":           {"Doe"},
-		"email":               {"john@example.com"},
 		"mobile":              {"07535111111"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
@@ -244,7 +239,6 @@ func TestReadCertificateProviderDetailsForm(t *testing.T) {
 
 	assert.Equal("John", result.FirstNames)
 	assert.Equal("Doe", result.LastName)
-	assert.Equal("john@example.com", result.Email)
 	assert.Equal("2", result.Dob.Day)
 	assert.Equal("1", result.Dob.Month)
 	assert.Equal("1990", result.Dob.Year)
@@ -262,7 +256,6 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 			form: &certificateProviderDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Email:      "H",
 				Mobile:     "07535111111",
 				Dob: Date{
 					Day:   "C",
@@ -276,18 +269,16 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 		"missing-all": {
 			form: &certificateProviderDetailsForm{},
 			errors: map[string]string{
-				"first-names":   "enterFirstNames",
-				"last-name":     "enterLastName",
-				"date-of-birth": "dateOfBirthYear",
-				"email":         "enterEmail",
-				"mobile":        "enterMobile",
+				"first-names":   "enterCertificateProviderFirstNames",
+				"last-name":     "enterCertificateProviderLastName",
+				"date-of-birth": "enterCertificateProviderDateOfBirth",
+				"mobile":        "enterCertificateProviderMobile",
 			},
 		},
 		"invalid-dob": {
 			form: &certificateProviderDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Email:      "C",
 				Mobile:     "07535111111",
 				Dob: Date{
 					Day:   "1",
@@ -304,7 +295,6 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 			form: &certificateProviderDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Email:      "C",
 				Mobile:     "07535111111",
 				Dob: Date{
 					Day:  "1",
@@ -313,14 +303,13 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 				DateOfBirthError: expectedError,
 			},
 			errors: map[string]string{
-				"date-of-birth": "dateOfBirthMonth",
+				"date-of-birth": "enterCertificateProviderDateOfBirth",
 			},
 		},
 		"invalid-incorrect-mobile-format": {
 			form: &certificateProviderDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Email:      "C",
 				Mobile:     "0753511111",
 				Dob: Date{
 					Day:   "C",
@@ -346,7 +335,6 @@ func TestUkMobileFormatValidation(t *testing.T) {
 	form := &certificateProviderDetailsForm{
 		FirstNames: "A",
 		LastName:   "B",
-		Email:      "H",
 		Dob: Date{
 			Day:   "C",
 			Month: "D",

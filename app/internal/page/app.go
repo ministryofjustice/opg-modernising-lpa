@@ -201,6 +201,10 @@ func App(
 		WhoDoYouWantToBeCertificateProviderGuidance(tmpls.Get("who_do_you_want_to_be_certificate_provider_guidance.gohtml"), lpaStore))
 	handle(paths.CertificateProviderDetails, RequireSession|CanGoBack,
 		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), lpaStore))
+	handle(paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, RequireSession|CanGoBack,
+		HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpls.Get("how_would_certificate_provider_prefer_to_carry_out_their_role.gohtml"), lpaStore))
+	handle(paths.CertificateProviderAddress, RequireSession|CanGoBack,
+		CertificateProviderAddress(logger, tmpls.Get("certificate_provider_address.gohtml"), addressClient, lpaStore))
 	handle(paths.HowDoYouKnowYourCertificateProvider, RequireSession|CanGoBack,
 		HowDoYouKnowYourCertificateProvider(tmpls.Get("how_do_you_know_your_certificate_provider.gohtml"), lpaStore))
 	handle(paths.HowLongHaveYouKnownCertificateProvider, RequireSession|CanGoBack,
