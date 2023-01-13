@@ -2,7 +2,7 @@
     {{range $i, $a := .Attorneys}}
         {{ $attorneyNumber := inc $i }}
 
-        <h2 class="govuk-heading-m">Attorney {{ $attorneyNumber }}</h2>
+        <h2 class="govuk-heading-m">{{ tr $.App "attorney" }} {{ $attorneyNumber }}</h2>
         <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row" id="name-{{ $attorneyNumber }}">
                 <dt class="govuk-summary-list__key">
