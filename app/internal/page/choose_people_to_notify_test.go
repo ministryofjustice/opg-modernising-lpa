@@ -127,7 +127,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 				personToNotify,
 				personToNotify,
 			},
-			expectedUrl: "/choose-people-to-notify-summary",
+			expectedUrl: Paths.ChoosePeopleToNotifySummary,
 		},
 		"6 people": {
 			addedPeople: []PersonToNotify{
@@ -138,7 +138,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 				personToNotify,
 				personToNotify,
 			},
-			expectedUrl: "/choose-people-to-notify-summary",
+			expectedUrl: Paths.ChoosePeopleToNotifySummary,
 		},
 	}
 
@@ -247,7 +247,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, fmt.Sprintf("%s?id=123", appData.Paths.ChoosePeopleToNotifyAddress), resp.Header.Get("Location"))
+	assert.Equal(t, Paths.ChoosePeopleToNotifyAddress+"?id=123", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -262,11 +262,11 @@ func TestPostChoosePeopleToNotifyFromAnotherPage(t *testing.T) {
 		},
 		"without from value": {
 			"/?from=&id=123",
-			"/choose-people-to-notify-address?id=123",
+			Paths.ChoosePeopleToNotifyAddress + "?id=123",
 		},
 		"missing from key": {
 			"/?id=123",
-			"/choose-people-to-notify-address?id=123",
+			Paths.ChoosePeopleToNotifyAddress + "?id=123",
 		},
 	}
 

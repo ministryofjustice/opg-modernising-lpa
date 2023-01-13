@@ -45,10 +45,6 @@ func DoYouWantToNotifyPeople(tmpl template.Template, lpaStore LpaStore) Handler 
 			data.HowWorkTogether = "jointlyForSomeSeverallyForOthersDescription"
 		}
 
-		//Jointly - that you want your attorneys to work together to make decisions
-		//Jointly and Severally - that you want your attorneys to work together or separately to make decisions
-		//Jointly for some and severally for others - that you want your attorneys to work together on some decisions but can make other decisions separately
-
 		if r.Method == http.MethodPost {
 			data.Form = readDoYouWantToNotifyPeople(r)
 			data.Errors = data.Form.Validate()
