@@ -159,7 +159,7 @@
                 </li>
                 {{ if eq false .App.IsProduction }}
                   <li class="govuk-footer__inline-list-item">
-                    <a class="govuk-footer__link" href="{{ if containsStr "showTransKeys=1" .App.Query }}{{ .App.Page }}{{ else }}{{ .App.Page }}?showTransKeys=1{{ end }}">
+                    <a class="govuk-footer__link" href="{{ if containsStr "showTransKeys=1" .App.Query }}{{ .App.Lang.BuildUrl .App.Page }}{{ else }}{{ .App.Lang.BuildUrl .App.Page }}?showTransKeys=1{{ end }}">
                       {{ tr .App "toggleTransKeys" }}
                     </a>
                   </li>
