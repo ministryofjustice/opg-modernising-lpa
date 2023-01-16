@@ -90,8 +90,8 @@ jobs:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            spec: inputs.spec
+        with:
+          spec: ${{ inputs.spec }}
 
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()
