@@ -22,7 +22,7 @@ func Restrictions(tmpl template.Template, lpaStore LpaStore) Handler {
 
 		data := &restrictionsData{
 			App:       appData,
-			Completed: lpa.Tasks.Restrictions == TaskCompleted,
+			Completed: lpa.Tasks.Restrictions.Completed(),
 			Lpa:       lpa,
 		}
 

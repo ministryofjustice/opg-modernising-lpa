@@ -43,6 +43,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 			if data.Form.Action == "manual" && len(data.Errors) == 0 {
 				ra.Address = *data.Form.Address
 				lpa.PutReplacementAttorney(ra)
+				lpa.Tasks.ChooseReplacementAttorneys = TaskCompleted
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err

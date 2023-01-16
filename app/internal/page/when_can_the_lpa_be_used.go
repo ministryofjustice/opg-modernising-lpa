@@ -24,7 +24,7 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, lpaStore LpaStore) Handler {
 		data := &whenCanTheLpaBeUsedData{
 			App:       appData,
 			When:      lpa.WhenCanTheLpaBeUsed,
-			Completed: lpa.Tasks.WhenCanTheLpaBeUsed == TaskCompleted,
+			Completed: lpa.Tasks.WhenCanTheLpaBeUsed.Completed(),
 			Lpa:       lpa,
 		}
 
@@ -36,7 +36,6 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, lpaStore LpaStore) Handler {
 				if form.AnswerLater {
 					lpa.Tasks.WhenCanTheLpaBeUsed = TaskInProgress
 				} else {
-					lpa.Tasks.WhenCanTheLpaBeUsed = TaskCompleted
 					lpa.WhenCanTheLpaBeUsed = form.When
 				}
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {

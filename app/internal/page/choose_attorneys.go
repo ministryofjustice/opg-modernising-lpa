@@ -84,12 +84,15 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 					lpa.PutAttorney(attorney)
 				}
 
+				if !attorneyFound {
+					lpa.Tasks.ChooseAttorneys = TaskInProgress
+				}
+
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
 
 				from := r.FormValue("from")
-
 				if from == "" {
 					from = fmt.Sprintf("%s?id=%s", appData.Paths.ChooseAttorneysAddress, attorney.ID)
 				}
