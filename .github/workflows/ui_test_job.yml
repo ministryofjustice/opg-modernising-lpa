@@ -17,7 +17,7 @@ on:
         default: latest
       spec:
         description: 'Value to pass to cypress --spec argument'
-        required: true
+        required: false
         type: string
         default: cypress/e2e/**.cy.js
 
