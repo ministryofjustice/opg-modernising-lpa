@@ -1,4 +1,4 @@
-FROM node:18.12.1-alpine3.16 as asset-env
+FROM node:18.13.0-alpine3.16 as asset-env
 
 WORKDIR /app
 
@@ -36,7 +36,7 @@ COPY app/web/template web/template
 
 CMD ["air"]
 
-FROM alpine:3.17.0 as production
+FROM alpine:3.17.1 as production
 
 WORKDIR /go/bin
 
