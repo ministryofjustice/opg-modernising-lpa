@@ -110,13 +110,23 @@ jobs:
       version_tag: ${{ needs.create_tags.outputs.version_tag }}
     secrets: inherit
 
+  production_smoke_tests:
+    name: Production smoke tests
+    needs: [production_deploy]
+    uses: ./.github/workflows/ui_test_job.yml
+    with:
+      run_against_image: false
+      base_url: "https://${{ needs.production_deploy.outputs.url }}"
+      tag: ${{ needs.create_tags.outputs.version_tag }}
+      spec: cypress/smoke/**.cy.js
+    secrets: inherit
 
   end_of_main_workflow:
     name: End of Main Workflow
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: production
-    needs: [production_deploy]
+    needs: [production_smoke_tests]
     steps:
       - name: End of Path to Live Workflow
         run: |

@@ -15,6 +15,11 @@ on:
         required: false
         type: string
         default: latest
+      spec:
+        description: 'Value to pass to cypress --spec argument'
+        required: true
+        type: string
+        default: cypress/e2e/**.cy.js
 
 defaults:
   run:
@@ -80,11 +85,13 @@ jobs:
         run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json --add
 
       - name: Cypress run
-        uses: cypress-io/github-action@v4
+        uses: cypress-io/github-action@v5
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            spec: inputs.spec
 
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()
