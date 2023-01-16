@@ -106,18 +106,17 @@ func postFormString(r *http.Request, name string) string {
 }
 
 type AppData struct {
-	Page                string
-	Query               string
-	Localizer           localize.Localizer
-	Lang                Lang
-	CookieConsentSet    bool
-	CanGoBack           bool
-	SessionID           string
-	RumConfig           RumConfig
-	StaticHash          string
-	Paths               AppPaths
-	DevFeaturesEnabled  bool
-	ShowTranslationKeys bool
+	Page               string
+	Query              string
+	Localizer          localize.Localizer
+	Lang               Lang
+	CookieConsentSet   bool
+	CanGoBack          bool
+	SessionID          string
+	RumConfig          RumConfig
+	StaticHash         string
+	Paths              AppPaths
+	DevFeaturesEnabled bool
 }
 
 type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
@@ -464,18 +463,17 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 			localizer.ShowTranslationKeys = r.FormValue("showTranslationKeys") == "1" && devFeaturesEnabled
 
 			if err := h(AppData{
-				Page:                path,
-				Query:               queryString(r),
-				Localizer:           localizer,
-				Lang:                lang,
-				SessionID:           sessionID,
-				CookieConsentSet:    cookieErr != http.ErrNoCookie,
-				CanGoBack:           opt&CanGoBack != 0,
-				RumConfig:           rumConfig,
-				StaticHash:          staticHash,
-				Paths:               paths,
-				DevFeaturesEnabled:  devFeaturesEnabled,
-				ShowTranslationKeys: r.FormValue("showTranslationKeys") == "1",
+				Page:               path,
+				Query:              queryString(r),
+				Localizer:          localizer,
+				Lang:               lang,
+				SessionID:          sessionID,
+				CookieConsentSet:   cookieErr != http.ErrNoCookie,
+				CanGoBack:          opt&CanGoBack != 0,
+				RumConfig:          rumConfig,
+				StaticHash:         staticHash,
+				Paths:              paths,
+				DevFeaturesEnabled: devFeaturesEnabled,
 			}, w, r); err != nil {
 				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
 

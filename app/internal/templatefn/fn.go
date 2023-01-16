@@ -3,7 +3,6 @@ package templatefn
 import (
 	"fmt"
 	"html/template"
-	"strings"
 	"time"
 	"unicode"
 	"unicode/utf8"
@@ -24,7 +23,6 @@ var All = map[string]interface{}{
 	"inc":                inc,
 	"link":               link,
 	"contains":           contains,
-	"containsStr":        containsStr,
 	"tr":                 tr,
 	"trFormat":           trFormat,
 	"trFormatHtml":       trFormatHtml,
@@ -132,10 +130,6 @@ func link(app page.AppData, path string) string {
 
 func contains(needle string, list []string) bool {
 	return slices.Contains(list, needle)
-}
-
-func containsStr(needle, s string) bool {
-	return strings.Contains(s, needle)
 }
 
 func tr(app page.AppData, messageID string) string {

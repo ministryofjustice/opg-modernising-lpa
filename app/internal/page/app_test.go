@@ -172,22 +172,22 @@ func TestMakeHandle(t *testing.T) {
 
 func TestMakeHandleShowTranslationKeys(t *testing.T) {
 	testCases := map[string]struct {
-		isProduction        bool
+		devFeaturesEnabled  bool
 		showTranslationKeys string
 		expected            bool
 	}{
 		"enabled": {
-			isProduction:        false,
+			devFeaturesEnabled:  true,
 			showTranslationKeys: "1",
 			expected:            true,
 		},
-		"disabled production": {
-			isProduction:        true,
+		"disabled dev features disabled": {
+			devFeaturesEnabled:  false,
 			showTranslationKeys: "1",
 			expected:            false,
 		},
 		"disabled not requested": {
-			isProduction:        false,
+			devFeaturesEnabled:  true,
 			showTranslationKeys: "maybe",
 			expected:            false,
 		},
@@ -205,24 +205,23 @@ func TestMakeHandleShowTranslationKeys(t *testing.T) {
 				Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
 
 			mux := http.NewServeMux()
-			handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, tc.isProduction)
+			handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, tc.devFeaturesEnabled)
 			handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 				expectedLocalizer := localize.Localizer{}
 				expectedLocalizer.ShowTranslationKeys = tc.expected
 
 				assert.Equal(t, AppData{
-					Page:                "/path",
-					Query:               "?showTranslationKeys=" + tc.showTranslationKeys,
-					Localizer:           expectedLocalizer,
-					Lang:                En,
-					SessionID:           "cmFuZG9t",
-					CookieConsentSet:    false,
-					CanGoBack:           true,
-					RumConfig:           RumConfig{ApplicationID: "xyz"},
-					StaticHash:          "?%3fNEI0t9MN",
-					Paths:               AppPaths{},
-					DevFeaturesEnabled:  tc.isProduction,
-					ShowTranslationKeys: tc.showTranslationKeys == "1",
+					Page:               "/path",
+					Query:              "?showTranslationKeys=" + tc.showTranslationKeys,
+					Localizer:          expectedLocalizer,
+					Lang:               En,
+					SessionID:          "cmFuZG9t",
+					CookieConsentSet:   false,
+					CanGoBack:          true,
+					RumConfig:          RumConfig{ApplicationID: "xyz"},
+					StaticHash:         "?%3fNEI0t9MN",
+					Paths:              AppPaths{},
+					DevFeaturesEnabled: tc.devFeaturesEnabled,
 				}, appData)
 				assert.Equal(t, w, hw)
 				assert.Equal(t, r, hr)
