@@ -65,6 +65,17 @@ jobs:
       version_tag: ${{ needs.create_tags.outputs.version_tag }}
     secrets: inherit
 
+  preproduction_tests:
+    name: Pre-production tests
+    needs: [preproduction_deploy]
+    uses: ./.github/workflows/ui_test_job.yml
+    with:
+      run_against_image: false
+      base_url: "https://${{ needs.preproduction_deploy.outputs.url }}"
+      tag: ${{ needs.create_tags.outputs.version_tag }}
+      spec: cypress/production/**.cy.js
+    secrets: inherit
+
   ui_tests_preproduction_env:
     name: Run Cypress UI Tests On Preproduction Environment
     uses: ./.github/workflows/ui_test_job.yml
@@ -110,15 +121,15 @@ jobs:
       version_tag: ${{ needs.create_tags.outputs.version_tag }}
     secrets: inherit
 
-  production_smoke_tests:
-    name: Production smoke tests
+  production_tests:
+    name: Production tests
     needs: [production_deploy]
     uses: ./.github/workflows/ui_test_job.yml
     with:
       run_against_image: false
       base_url: "https://${{ needs.production_deploy.outputs.url }}"
       tag: ${{ needs.create_tags.outputs.version_tag }}
-      spec: cypress/smoke/**.cy.js
+      spec: cypress/production/**.cy.js
     secrets: inherit
 
   end_of_main_workflow:
