@@ -106,16 +106,18 @@ func postFormString(r *http.Request, name string) string {
 }
 
 type AppData struct {
-	Page             string
-	Query            string
-	Localizer        localize.Localizer
-	Lang             Lang
-	CookieConsentSet bool
-	CanGoBack        bool
-	SessionID        string
-	RumConfig        RumConfig
-	StaticHash       string
-	Paths            AppPaths
+	Page                string
+	Query               string
+	Localizer           localize.Localizer
+	Lang                Lang
+	CookieConsentSet    bool
+	CanGoBack           bool
+	SessionID           string
+	RumConfig           RumConfig
+	StaticHash          string
+	Paths               AppPaths
+	DevFeaturesEnabled  bool
+	ShowTranslationKeys bool
 }
 
 type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
@@ -137,12 +139,13 @@ func App(
 	staticHash string,
 	paths AppPaths,
 	oneLoginClient OneLoginClient,
+	devFeaturesEnabled bool,
 ) http.Handler {
 	mux := http.NewServeMux()
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
 
-	handle := makeHandle(mux, logger, sessionStore, localizer, lang, rumConfig, staticHash, paths)
+	handle := makeHandle(mux, logger, sessionStore, localizer, lang, rumConfig, staticHash, paths, devFeaturesEnabled)
 
 	mux.Handle(paths.TestingStart, testingStart(sessionStore, lpaStore))
 	mux.Handle(paths.Root, Root(paths))
@@ -433,7 +436,7 @@ const (
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang, rumConfig RumConfig, staticHash string, paths AppPaths) func(string, handleOpt, Handler) {
+func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang, rumConfig RumConfig, staticHash string, paths AppPaths, devFeaturesEnabled bool) func(string, handleOpt, Handler) {
 	return func(path string, opt handleOpt, h Handler) {
 		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 			sessionID := ""
@@ -458,17 +461,21 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 
 			_, cookieErr := r.Cookie("cookies-consent")
 
+			localizer.ShowTranslationKeys = r.FormValue("showTranslationKeys") == "1" && devFeaturesEnabled
+
 			if err := h(AppData{
-				Page:             path,
-				Query:            queryString(r),
-				Localizer:        localizer,
-				Lang:             lang,
-				SessionID:        sessionID,
-				CookieConsentSet: cookieErr != http.ErrNoCookie,
-				CanGoBack:        opt&CanGoBack != 0,
-				RumConfig:        rumConfig,
-				StaticHash:       staticHash,
-				Paths:            paths,
+				Page:                path,
+				Query:               queryString(r),
+				Localizer:           localizer,
+				Lang:                lang,
+				SessionID:           sessionID,
+				CookieConsentSet:    cookieErr != http.ErrNoCookie,
+				CanGoBack:           opt&CanGoBack != 0,
+				RumConfig:           rumConfig,
+				StaticHash:          staticHash,
+				Paths:               paths,
+				DevFeaturesEnabled:  devFeaturesEnabled,
+				ShowTranslationKeys: r.FormValue("showTranslationKeys") == "1",
 			}, w, r); err != nil {
 				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
 

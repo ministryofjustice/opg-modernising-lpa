@@ -48,15 +48,18 @@ run-cypress: ##@testing Runs cypress e2e tests. To run a specific spec file pass
 ifdef spec
 	yarn run cypress:run --spec "cypress/e2e/$(spec).cy.js"
 else
-	yarn run cypress:run
+	yarn run cypress:run --spec "cypress/e2e/**.cy.js"
 endif
 
 run-cypress-headed: ##@testing Runs cypress e2e tests in a browser. To run a specific spec file pass in spec e.g. make run-cypress spec=start
 ifdef spec
 	yarn run cypress:run --spec "cypress/e2e/$(spec).cy.js" --headed --no-exit
 else
-	yarn run cypress:run --headed --no-exit
+	yarn run cypress:run --spec "cypress/e2e/**.cy.js" --headed --no-exit
 endif
+
+run-cypress-smoke:
+	yarn run cypress:run --spec "cypress/smoke/**.cy.js"
 
 update-secrets-baseline: ##@security Updates detect-secrets baseline file for false possible and dummy secrets added to version control (requires yelp/detect-secrets local installation)
 	$(info ${YELLOW}Ensure any newly added leaks in the baseline are false positives or dummy secrets before committing an updated baseline) @echo "\n"  ${WHITE}
