@@ -2,6 +2,7 @@ package page
 
 import (
 	"net/http"
+	"regexp"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -17,7 +18,7 @@ type chooseAttorneysAddressData struct {
 
 type chooseAttorneysAddressForm struct {
 	Action         string
-	LookupPostcode string
+	LookupPostcode place.Postcode
 	Address        *place.Address
 }
 
@@ -109,10 +110,10 @@ func readChooseAttorneysAddressForm(r *http.Request) *chooseAttorneysAddressForm
 
 	switch d.Action {
 	case "lookup":
-		d.LookupPostcode = postFormString(r, "lookup-postcode")
+		d.LookupPostcode = place.Postcode(postFormString(r, "lookup-postcode"))
 
 	case "select":
-		d.LookupPostcode = postFormString(r, "lookup-postcode")
+		d.LookupPostcode = place.Postcode(postFormString(r, "lookup-postcode"))
 		selectAddress := r.PostFormValue("select-address")
 		if selectAddress != "" {
 			d.Address = DecodeAddress(selectAddress)
@@ -124,7 +125,7 @@ func readChooseAttorneysAddressForm(r *http.Request) *chooseAttorneysAddressForm
 			Line2:      postFormString(r, "address-line-2"),
 			Line3:      postFormString(r, "address-line-3"),
 			TownOrCity: postFormString(r, "address-town"),
-			Postcode:   postFormString(r, "address-postcode"),
+			Postcode:   place.Postcode(postFormString(r, "address-postcode")),
 		}
 	}
 
@@ -134,10 +135,16 @@ func readChooseAttorneysAddressForm(r *http.Request) *chooseAttorneysAddressForm
 func (d *chooseAttorneysAddressForm) Validate() map[string]string {
 	errors := map[string]string{}
 
+	ukPostCodeRegex := "^[A-Z]{1,2}\\d[A-Z\\d]? ?\\d[A-Z]{2}$"
+
 	switch d.Action {
 	case "lookup":
 		if d.LookupPostcode == "" {
 			errors["lookup-postcode"] = "enterPostcode"
+		}
+
+		if !d.LookupPostcode.IsUkFormat() {
+			errors["mobile"] = "enterUkPostcode"
 		}
 
 	case "select":
@@ -160,6 +167,14 @@ func (d *chooseAttorneysAddressForm) Validate() map[string]string {
 		}
 		if d.Address.TownOrCity == "" {
 			errors["address-town"] = "enterTownOrCity"
+		}
+		if d.LookupPostcode == "" {
+			errors["lookup-postcode"] = "enterPostcode"
+		}
+
+		isUkPostcode, _ := regexp.MatchString(ukPostCodeRegex, d.LookupPostcode)
+		if !isUkPostcode {
+			errors["mobile"] = "enterUkPostcode"
 		}
 	}
 

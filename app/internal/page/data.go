@@ -140,7 +140,7 @@ type CertificateProvider struct {
 }
 
 type AddressClient interface {
-	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
+	LookupPostcode(ctx context.Context, postcode place.Postcode) ([]place.Address, error)
 }
 
 type Date struct {
