@@ -321,7 +321,11 @@ locals {
         {
           name  = "AWS_RUM_APPLICATION_REGION",
           value = data.aws_region.current.name
-        }
+        },
+        {
+          name  = "DEV_FEATURES_ENABLED",
+          value = var.app_env_vars.dev_features_enabled
+        },
       ]
     }
   )
