@@ -110,7 +110,6 @@ jobs:
       version_tag: ${{ needs.create_tags.outputs.version_tag }}
     secrets: inherit
 
-
   end_of_main_workflow:
     name: End of Main Workflow
     if: github.ref == 'refs/heads/main'
