@@ -58,9 +58,6 @@ else
 	yarn run cypress:run --spec "cypress/e2e/**.cy.js" --headed --no-exit
 endif
 
-run-cypress-smoke:
-	yarn run cypress:run --spec "cypress/smoke/**.cy.js"
-
 update-secrets-baseline: ##@security Updates detect-secrets baseline file for false possible and dummy secrets added to version control (requires yelp/detect-secrets local installation)
 	$(info ${YELLOW}Ensure any newly added leaks in the baseline are false positives or dummy secrets before committing an updated baseline) @echo "\n"  ${WHITE}
 	detect-secrets scan --baseline .secrets.baseline
