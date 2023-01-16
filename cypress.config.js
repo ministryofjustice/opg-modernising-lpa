@@ -21,6 +21,7 @@ module.exports = defineConfig({
         }
       })
     },
+    specPattern: '**/*.cy.js',
     video: false
   },
 });
