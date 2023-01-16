@@ -208,20 +208,21 @@ func TestMakeHandleShowTranslationKeys(t *testing.T) {
 			handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, tc.isProduction)
 			handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 				expectedLocalizer := localize.Localizer{}
-				expectedLocalizer.showTranslationKeys = tc.expected
+				expectedLocalizer.ShowTranslationKeys = tc.expected
 
 				assert.Equal(t, AppData{
-					Page:             "/path",
-					Query:            "?showTranslationKeys=" + tc.showTranslationKeys,
-					Localizer:        expectedLocalizer,
-					Lang:             En,
-					SessionID:        "cmFuZG9t",
-					CookieConsentSet: false,
-					CanGoBack:        true,
-					RumConfig:        RumConfig{ApplicationID: "xyz"},
-					StaticHash:       "?%3fNEI0t9MN",
-					Paths:            AppPaths{},
-					IsProduction:     tc.isProduction,
+					Page:                "/path",
+					Query:               "?showTranslationKeys=" + tc.showTranslationKeys,
+					Localizer:           expectedLocalizer,
+					Lang:                En,
+					SessionID:           "cmFuZG9t",
+					CookieConsentSet:    false,
+					CanGoBack:           true,
+					RumConfig:           RumConfig{ApplicationID: "xyz"},
+					StaticHash:          "?%3fNEI0t9MN",
+					Paths:               AppPaths{},
+					IsProduction:        tc.isProduction,
+					ShowTranslationKeys: tc.showTranslationKeys == "1",
 				}, appData)
 				assert.Equal(t, w, hw)
 				assert.Equal(t, r, hr)

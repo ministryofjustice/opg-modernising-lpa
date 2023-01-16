@@ -461,11 +461,7 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 
 			_, cookieErr := r.Cookie("cookies-consent")
 
-			if r.FormValue("showTranslationKeys") == "1" && !isProduction {
-				localizer.showTranslationKeys = true
-			} else {
-				localizer.showTranslationKeys = false
-			}
+			localizer.ShowTranslationKeys = r.FormValue("showTranslationKeys") == "1" && !isProduction
 
 			if err := h(AppData{
 				Page:                path,
@@ -479,7 +475,7 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 				StaticHash:          staticHash,
 				Paths:               paths,
 				IsProduction:        isProduction,
-				ShowTranslationKeys: r.Form.Get("showTranslationKeys") == "1",
+				ShowTranslationKeys: r.FormValue("showTranslationKeys") == "1",
 			}, w, r); err != nil {
 				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
 
