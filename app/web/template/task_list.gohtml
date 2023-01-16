@@ -18,14 +18,14 @@
             <ul class="app-task-list__items">
               {{ range $e.Items }}
                 <li class="app-task-list__item">
-                  {{ if .Completed }}
+                  {{ if .State.Completed }}
                     <span class="app-task-list__task-name">
                       <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
                         {{ tr $.App .Name }}
                       </a>
                     </span>
                     <strong class="govuk-tag app-task-list__tag">{{ tr $.App "completed" }} {{if gt .Count 0}}({{ .Count }}){{ end }}</strong>
-                  {{ else if .InProgress }}
+                  {{ else if .State.InProgress }}
                     <span class="app-task-list__task-name">
                       <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
                         {{ tr $.App .Name }}

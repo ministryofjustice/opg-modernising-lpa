@@ -28,7 +28,7 @@ func CheckYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 				Checked: lpa.Checked,
 				Happy:   lpa.HappyToShare,
 			},
-			Completed: lpa.Tasks.CheckYourLpa == TaskCompleted,
+			Completed: lpa.Tasks.CheckYourLpa.Completed(),
 		}
 
 		if r.Method == http.MethodPost {
