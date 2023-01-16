@@ -38,43 +38,51 @@ func IdentityWithOneLoginCallback(tmpl template.Template, authRedirectClient aut
 		if lpa.OneLoginUserData.OK {
 			data.FullName = lpa.OneLoginUserData.FullName
 			data.ConfirmedAt = lpa.OneLoginUserData.RetrievedAt
+
+			return tmpl(w, data)
+		}
+
+		if r.FormValue("error") == "access_denied" {
+			data.CouldNotConfirm = true
+
+			return tmpl(w, data)
+		}
+
+		params, err := sessionStore.Get(r, "params")
+		if err != nil {
+			return err
+		}
+
+		nonce, ok := params.Values["nonce"].(string)
+		if !ok {
+			return fmt.Errorf("nonce missing from session")
+		}
+
+		jwt, err := authRedirectClient.Exchange(r.Context(), r.FormValue("code"), nonce)
+		if err != nil {
+			return err
+		}
+
+		userInfo, err := authRedirectClient.UserInfo(jwt)
+		if err != nil {
+			return err
+		}
+
+		if userInfo.CoreIdentityJWT == "" {
+			data.CouldNotConfirm = true
 		} else {
-			params, err := sessionStore.Get(r, "params")
-			if err != nil {
+			lpa.OneLoginUserData = identity.UserData{
+				OK:          true,
+				RetrievedAt: time.Now(),
+				FullName:    userInfo.CoreIdentityJWT, // we will parse this later
+			}
+
+			if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 				return err
 			}
 
-			nonce, ok := params.Values["nonce"].(string)
-			if !ok {
-				return fmt.Errorf("nonce missing from session")
-			}
-
-			jwt, err := authRedirectClient.Exchange(r.Context(), r.FormValue("code"), nonce)
-			if err != nil {
-				return err
-			}
-
-			userInfo, err := authRedirectClient.UserInfo(jwt)
-			if err != nil {
-				return err
-			}
-
-			if userInfo.CoreIdentityJWT == "" {
-				data.CouldNotConfirm = true
-			} else {
-				lpa.OneLoginUserData = identity.UserData{
-					OK:          true,
-					RetrievedAt: time.Now(),
-					FullName:    userInfo.CoreIdentityJWT, // we will parse this later
-				}
-
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
-					return err
-				}
-
-				data.FullName = lpa.OneLoginUserData.FullName
-				data.ConfirmedAt = lpa.OneLoginUserData.RetrievedAt
-			}
+			data.FullName = lpa.OneLoginUserData.FullName
+			data.ConfirmedAt = lpa.OneLoginUserData.RetrievedAt
 		}
 
 		return tmpl(w, data)
