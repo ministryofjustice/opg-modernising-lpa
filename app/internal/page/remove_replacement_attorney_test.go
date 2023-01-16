@@ -280,17 +280,12 @@ func TestRemoveReplacementAttorneyRemoveLastAttorneyRedirectsToChooseReplacement
 	logger := &mockLogger{}
 	template := &mockTemplate{}
 
-	attorneyWithoutAddress := Attorney{
-		ID:      "without-address",
-		Address: place.Address{},
-	}
-
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{ReplacementAttorneys: []Attorney{attorneyWithoutAddress}}, nil)
+		Return(&Lpa{ReplacementAttorneys: []Attorney{{ID: "without-address"}}, Tasks: Tasks{ChooseReplacementAttorneys: TaskCompleted}}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{ReplacementAttorneys: []Attorney{}}).
+		On("Put", mock.Anything, "session-id", &Lpa{ReplacementAttorneys: []Attorney{}, Tasks: Tasks{ChooseReplacementAttorneys: TaskInProgress}}).
 		Return(nil)
 
 	form := url.Values{

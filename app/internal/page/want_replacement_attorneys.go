@@ -36,8 +36,10 @@ func WantReplacementAttorneys(tmpl template.Template, lpaStore LpaStore) Handler
 
 				if form.Want == "no" {
 					lpa.ReplacementAttorneys = []Attorney{}
+					lpa.Tasks.ChooseReplacementAttorneys = TaskCompleted
 					redirectUrl = appData.Paths.TaskList
 				} else {
+					lpa.Tasks.ChooseReplacementAttorneys = TaskInProgress
 					redirectUrl = appData.Paths.ChooseReplacementAttorneys
 				}
 

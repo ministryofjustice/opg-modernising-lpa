@@ -169,21 +169,21 @@ func TestGetChooseAttorneysAddressWhenTemplateErrors(t *testing.T) {
 func TestPostChooseAttorneysAddressManual(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	attorney := Attorney{
-		ID:      "123",
-		Address: place.Address{},
-	}
-
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{Attorneys: []Attorney{attorney}}, nil)
-
-	attorney.Address = address
+		Return(&Lpa{Attorneys: []Attorney{{
+			ID:      "123",
+			Address: place.Address{},
+		}}}, nil)
 
 	lpaStore.
 		On("Put", mock.Anything, "session-id", &Lpa{
-			Attorneys: []Attorney{attorney},
+			Attorneys: []Attorney{{
+				ID:      "123",
+				Address: address,
+			}},
+			Tasks: Tasks{ChooseAttorneys: TaskCompleted},
 		}).
 		Return(nil)
 
@@ -211,20 +211,18 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	attorney := Attorney{
-		ID:      "123",
-		Address: place.Address{},
-	}
-
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{Attorneys: []Attorney{attorney}}, nil)
-
-	attorney.Address = address
+		Return(&Lpa{
+			Attorneys: []Attorney{{
+				ID:      "123",
+				Address: place.Address{},
+			}},
+		}, nil)
 
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{Attorneys: []Attorney{attorney}}).
+		On("Put", mock.Anything, "session-id", mock.Anything).
 		Return(expectedError)
 
 	form := url.Values{
@@ -248,26 +246,27 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	attorney := Attorney{
-		ID:         "123",
-		FirstNames: "John",
-		Address:    place.Address{Line1: "abc"},
-	}
-
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{
-			Attorneys: []Attorney{attorney},
-			WhoFor:    "me",
+			Attorneys: []Attorney{{
+				ID:         "123",
+				FirstNames: "John",
+				Address:    place.Address{Line1: "abc"},
+			}},
+			WhoFor: "me",
 		}, nil)
-
-	attorney.Address = address
 
 	lpaStore.
 		On("Put", mock.Anything, "session-id", &Lpa{
-			Attorneys: []Attorney{attorney},
-			WhoFor:    "me",
+			Attorneys: []Attorney{{
+				ID:         "123",
+				FirstNames: "John",
+				Address:    address,
+			}},
+			WhoFor: "me",
+			Tasks:  Tasks{ChooseAttorneys: TaskCompleted},
 		}).
 		Return(nil)
 

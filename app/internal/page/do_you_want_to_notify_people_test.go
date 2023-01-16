@@ -6,9 +6,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
-	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -25,6 +23,7 @@ func TestGetDoYouWantToNotifyPeople(t *testing.T) {
 	template.
 		On("Func", w, &doYouWantToNotifyPeopleData{
 			App: appData,
+			Lpa: &Lpa{},
 		}).
 		Return(nil)
 
@@ -53,6 +52,9 @@ func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
 		On("Func", w, &doYouWantToNotifyPeopleData{
 			App:          appData,
 			WantToNotify: "yes",
+			Lpa: &Lpa{
+				DoYouWantToNotifyPeople: "yes",
+			},
 		}).
 		Return(nil)
 
@@ -65,6 +67,64 @@ func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	mock.AssertExpectationsForObjects(t, template, lpaStore)
+}
+
+func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
+	testCases := map[string]struct {
+		howWorkTogether  string
+		expectedTransKey string
+	}{
+		"jointly": {
+			howWorkTogether:  Jointly,
+			expectedTransKey: "jointlyDescription",
+		},
+		"jointly and severally": {
+			howWorkTogether:  JointlyAndSeverally,
+			expectedTransKey: "jointlyAndSeverallyDescription",
+		},
+		"jointly for some severally for others": {
+			howWorkTogether:  JointlyForSomeSeverallyForOthers,
+			expectedTransKey: "jointlyForSomeSeverallyForOthersDescription",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.Anything, "session-id").
+				Return(&Lpa{
+					DoYouWantToNotifyPeople:   "yes",
+					HowAttorneysMakeDecisions: tc.howWorkTogether,
+				}, nil)
+
+			template := &mockTemplate{}
+			template.
+				On("Func", w, &doYouWantToNotifyPeopleData{
+					App:          appData,
+					WantToNotify: "yes",
+					Lpa: &Lpa{
+						DoYouWantToNotifyPeople:   "yes",
+						HowAttorneysMakeDecisions: tc.howWorkTogether,
+					},
+					HowWorkTogether: tc.expectedTransKey,
+				}).
+				Return(nil)
+
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+			err := DoYouWantToNotifyPeople(template.Func, lpaStore)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+			mock.AssertExpectationsForObjects(t, template, lpaStore)
+		})
+	}
+
 }
 
 func TestGetDoYouWantToNotifyPeopleFromStoreWithPeople(t *testing.T) {
@@ -123,6 +183,7 @@ func TestGetDoYouWantToNotifyPeopleWhenTemplateErrors(t *testing.T) {
 	template.
 		On("Func", w, &doYouWantToNotifyPeopleData{
 			App: appData,
+			Lpa: &Lpa{},
 		}).
 		Return(expectedError)
 
@@ -165,17 +226,13 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
 				Return(&Lpa{
-					Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}},
-					HowAttorneysMakeDecisions: Jointly,
-					DoYouWantToNotifyPeople:   tc.ExistingAnswer,
-					Tasks:                     Tasks{CertificateProvider: TaskCompleted},
+					DoYouWantToNotifyPeople: tc.ExistingAnswer,
+					Tasks:                   Tasks{ChooseAttorneys: TaskCompleted, CertificateProvider: TaskCompleted},
 				}, nil)
 			lpaStore.
 				On("Put", mock.Anything, "session-id", &Lpa{
-					Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}},
-					HowAttorneysMakeDecisions: Jointly,
-					DoYouWantToNotifyPeople:   tc.WantToNotify,
-					Tasks:                     Tasks{CertificateProvider: TaskCompleted, PeopleToNotify: tc.ExpectedStatus},
+					DoYouWantToNotifyPeople: tc.WantToNotify,
+					Tasks:                   Tasks{ChooseAttorneys: TaskCompleted, CertificateProvider: TaskCompleted, PeopleToNotify: tc.ExpectedStatus},
 				}).
 				Return(nil)
 
@@ -240,6 +297,7 @@ func TestPostDoYouWantToNotifyPeopleWhenValidationErrors(t *testing.T) {
 				"want-to-notify": "selectDoYouWantToNotifyPeople",
 			},
 			Form: &doYouWantToNotifyPeopleForm{},
+			Lpa:  &Lpa{},
 		}).
 		Return(nil)
 

@@ -175,7 +175,8 @@ func TestPostYourDetails(t *testing.T) {
 				}, nil)
 			lpaStore.
 				On("Put", mock.Anything, "session-id", &Lpa{
-					You: tc.person,
+					You:   tc.person,
+					Tasks: Tasks{YourDetails: TaskInProgress},
 				}).
 				Return(nil)
 
