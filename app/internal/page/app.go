@@ -106,17 +106,18 @@ func postFormString(r *http.Request, name string) string {
 }
 
 type AppData struct {
-	Page             string
-	Query            string
-	Localizer        localize.Localizer
-	Lang             Lang
-	CookieConsentSet bool
-	CanGoBack        bool
-	SessionID        string
-	RumConfig        RumConfig
-	StaticHash       string
-	Paths            AppPaths
-	IsProduction     bool
+	Page                string
+	Query               string
+	Localizer           localize.Localizer
+	Lang                Lang
+	CookieConsentSet    bool
+	CanGoBack           bool
+	SessionID           string
+	RumConfig           RumConfig
+	StaticHash          string
+	Paths               AppPaths
+	IsProduction        bool
+	ShowTranslationKeys bool
 }
 
 type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
@@ -460,24 +461,25 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 
 			_, cookieErr := r.Cookie("cookies-consent")
 
-			if r.FormValue("showTransKeys") == "1" && !isProduction {
-				localizer.ShowTransKeys = true
+			if r.FormValue("showTranslationKeys") == "1" && !isProduction {
+				localizer.showTranslationKeys = true
 			} else {
-				localizer.ShowTransKeys = false
+				localizer.showTranslationKeys = false
 			}
 
 			if err := h(AppData{
-				Page:             path,
-				Query:            queryString(r),
-				Localizer:        localizer,
-				Lang:             lang,
-				SessionID:        sessionID,
-				CookieConsentSet: cookieErr != http.ErrNoCookie,
-				CanGoBack:        opt&CanGoBack != 0,
-				RumConfig:        rumConfig,
-				StaticHash:       staticHash,
-				Paths:            paths,
-				IsProduction:     isProduction,
+				Page:                path,
+				Query:               queryString(r),
+				Localizer:           localizer,
+				Lang:                lang,
+				SessionID:           sessionID,
+				CookieConsentSet:    cookieErr != http.ErrNoCookie,
+				CanGoBack:           opt&CanGoBack != 0,
+				RumConfig:           rumConfig,
+				StaticHash:          staticHash,
+				Paths:               paths,
+				IsProduction:        isProduction,
+				ShowTranslationKeys: r.Form.Get("show"),
 			}, w, r); err != nil {
 				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
 

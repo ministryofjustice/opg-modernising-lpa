@@ -28,7 +28,7 @@ func (b Bundle) For(lang ...string) Localizer {
 
 type Localizer struct {
 	*i18n.Localizer
-	ShowTransKeys bool
+	showTranslationKeys bool
 }
 
 func (l Localizer) T(messageID string) string {
@@ -55,7 +55,7 @@ func (l Localizer) FormatCount(messageID string, count int, data map[string]inte
 }
 
 func (l Localizer) translate(translation, messageID string) string {
-	if l.ShowTransKeys {
+	if l.showTranslationKeys {
 		return fmt.Sprintf("{%s} [%s]", translation, messageID)
 	} else {
 		return translation

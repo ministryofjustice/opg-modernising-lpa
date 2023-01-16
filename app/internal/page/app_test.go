@@ -170,33 +170,33 @@ func TestMakeHandle(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
-func TestMakeHandleShowTransKeys(t *testing.T) {
+func TestMakeHandleShowTranslationKeys(t *testing.T) {
 	testCases := map[string]struct {
-		isProduction  bool
-		showTransKeys string
-		expected      bool
+		isProduction        bool
+		showTranslationKeys string
+		expected            bool
 	}{
 		"enabled": {
-			isProduction:  false,
-			showTransKeys: "1",
-			expected:      true,
+			isProduction:        false,
+			showTranslationKeys: "1",
+			expected:            true,
 		},
 		"disabled production": {
-			isProduction:  true,
-			showTransKeys: "1",
-			expected:      false,
+			isProduction:        true,
+			showTranslationKeys: "1",
+			expected:            false,
 		},
 		"disabled not requested": {
-			isProduction:  false,
-			showTransKeys: "maybe",
-			expected:      false,
+			isProduction:        false,
+			showTranslationKeys: "maybe",
+			expected:            false,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodGet, "/path?showTransKeys="+tc.showTransKeys, nil)
+			r, _ := http.NewRequest(http.MethodGet, "/path?showTranslationKeys="+tc.showTranslationKeys, nil)
 			localizer := localize.Localizer{}
 
 			sessionsStore := &mockSessionsStore{}
@@ -208,11 +208,11 @@ func TestMakeHandleShowTransKeys(t *testing.T) {
 			handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, tc.isProduction)
 			handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 				expectedLocalizer := localize.Localizer{}
-				expectedLocalizer.ShowTransKeys = tc.expected
+				expectedLocalizer.showTranslationKeys = tc.expected
 
 				assert.Equal(t, AppData{
 					Page:             "/path",
-					Query:            "?showTransKeys=" + tc.showTransKeys,
+					Query:            "?showTranslationKeys=" + tc.showTranslationKeys,
 					Localizer:        expectedLocalizer,
 					Lang:             En,
 					SessionID:        "cmFuZG9t",
