@@ -29,6 +29,7 @@ func LpaType(tmpl template.Template, lpaStore LpaStore) Handler {
 			data.Errors = form.Validate()
 
 			if len(data.Errors) == 0 {
+				lpa.Tasks.YourDetails = TaskCompleted
 				lpa.Type = form.LpaType
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
