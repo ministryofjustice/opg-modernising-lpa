@@ -85,6 +85,32 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, authRedirectClient, template)
 }
 
+func TestGetIdentityWithOneLoginCallbackWhenIdentitySkipped(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?error=access_denied", nil)
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.On("Get", mock.Anything, "session-id").Return(&Lpa{}, nil)
+
+	sessionStore := &mockSessionsStore{}
+	sessionStore.On("Get", mock.Anything, "params").Return(&sessions.Session{Values: map[interface{}]interface{}{"nonce": "a-nonce"}}, nil)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &identityWithOneLoginCallbackData{
+			App:             appData,
+			CouldNotConfirm: true,
+		}).
+		Return(nil)
+
+	err := IdentityWithOneLoginCallback(template.Func, nil, sessionStore, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, lpaStore, template)
+}
+
 func TestGetIdentityWithOneLoginCallbackWhenError(t *testing.T) {
 	w := httptest.NewRecorder()
 
