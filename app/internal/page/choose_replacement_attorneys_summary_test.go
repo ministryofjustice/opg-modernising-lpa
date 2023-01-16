@@ -149,6 +149,7 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 					HowAttorneysMakeDecisions:        tc.HowAttorneysAct,
 					HowAttorneysMakeDecisionsDetails: tc.DecisionDetails,
 					Attorneys:                        tc.Attorneys,
+					Tasks:                            Tasks{ChooseAttorneys: TaskCompleted},
 				}, nil)
 
 			form := url.Values{

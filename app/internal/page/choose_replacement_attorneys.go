@@ -70,6 +70,10 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 					lpa.PutReplacementAttorney(ra)
 				}
 
+				if !attorneyFound {
+					lpa.Tasks.ChooseReplacementAttorneys = TaskInProgress
+				}
+
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}

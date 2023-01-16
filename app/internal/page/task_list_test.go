@@ -5,8 +5,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -16,110 +14,44 @@ func TestGetTaskList(t *testing.T) {
 		lpa      *Lpa
 		expected func([]taskListSection) []taskListSection
 	}{
-		"start": {
+		"empty": {
 			lpa: &Lpa{},
 			expected: func(sections []taskListSection) []taskListSection {
 				return sections
 			},
 		},
-		"in-progress": {
+		"mixed": {
 			lpa: &Lpa{
 				You: Person{
 					FirstNames: "this",
 				},
-				Attorneys: []Attorney{
-					{FirstNames: "this"},
-				},
-				ReplacementAttorneys: []Attorney{
-					{FirstNames: "this"},
-				},
+				Attorneys:            []Attorney{{}, {}},
+				ReplacementAttorneys: []Attorney{{}},
 				Tasks: Tasks{
+					YourDetails:                TaskCompleted,
+					ChooseAttorneys:            TaskCompleted,
+					ChooseReplacementAttorneys: TaskInProgress,
 					WhenCanTheLpaBeUsed:        TaskInProgress,
-					Restrictions:               TaskInProgress,
-					CertificateProvider:        TaskInProgress,
-					CheckYourLpa:               TaskInProgress,
-					PayForLpa:                  TaskInProgress,
-					ConfirmYourIdentityAndSign: TaskInProgress,
-					PeopleToNotify:             TaskInProgress,
-				},
-			},
-			expected: func(sections []taskListSection) []taskListSection {
-				sections[0].Items = []taskListItem{
-					{Name: ProvideYourDetailsTask, Path: appData.Paths.YourDetails, InProgress: true},
-					{Name: ChooseYourAttorneysTask, Path: appData.Paths.ChooseAttorneys, InProgress: true, Count: 1},
-					{Name: ChooseYourReplacementAttorneysTask, Path: appData.Paths.DoYouWantReplacementAttorneys, InProgress: true, Count: 1},
-					{Name: ChooseWhenTheLpaCanBeUsedTask, Path: appData.Paths.WhenCanTheLpaBeUsed, InProgress: true},
-					{Name: AddRestrictionsToLpaTask, Path: appData.Paths.Restrictions, InProgress: true},
-					{Name: ChooseCertificateProviderTask, Path: appData.Paths.WhoDoYouWantToBeCertificateProviderGuidance, InProgress: true},
-					{Name: PeopleToNotifyTask, Path: appData.Paths.DoYouWantToNotifyPeople, InProgress: true, Count: 0},
-					{Name: CheckAndSendToCertificateProviderTask, Path: appData.Paths.CheckYourLpa, InProgress: true},
-				}
-
-				sections[1].Items = []taskListItem{
-					{Name: PayForTheLpaTask, Path: appData.Paths.AboutPayment, InProgress: true},
-				}
-
-				sections[2].Items = []taskListItem{
-					{Name: ConfirmYourIdentityAndSignTask, Path: appData.Paths.HowToConfirmYourIdentityAndSign, InProgress: true},
-				}
-
-				return sections
-			},
-		},
-		"complete": {
-			lpa: &Lpa{
-				You: Person{
-					Address: place.Address{
-						Line1: "this",
-					},
-				},
-				Attorneys: []Attorney{
-					validAttorney,
-					validAttorney,
-				},
-				ReplacementAttorneys: []Attorney{
-					validAttorney,
-				},
-				PeopleToNotify: []PersonToNotify{
-					validPersonToNotify,
-					validPersonToNotify,
-					validPersonToNotify,
-				},
-				Contact:                                     []string{"this"},
-				HowAttorneysMakeDecisions:                   "jointly",
-				WantReplacementAttorneys:                    "yes",
-				HowReplacementAttorneysMakeDecisions:        "mixed",
-				HowReplacementAttorneysMakeDecisionsDetails: "some details",
-				Checked:      true,
-				HappyToShare: true,
-				Tasks: Tasks{
-					WhenCanTheLpaBeUsed:        TaskCompleted,
 					Restrictions:               TaskCompleted,
-					CertificateProvider:        TaskCompleted,
+					CertificateProvider:        TaskInProgress,
 					CheckYourLpa:               TaskCompleted,
-					PayForLpa:                  TaskCompleted,
-					ConfirmYourIdentityAndSign: TaskCompleted,
-					PeopleToNotify:             TaskCompleted,
+					PayForLpa:                  TaskInProgress,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
-					{Name: ProvideYourDetailsTask, Path: appData.Paths.YourDetails, Completed: true},
-					{Name: ChooseYourAttorneysTask, Path: appData.Paths.ChooseAttorneys, Completed: true, Count: 2},
-					{Name: ChooseYourReplacementAttorneysTask, Path: appData.Paths.DoYouWantReplacementAttorneys, Completed: true, Count: 1},
-					{Name: ChooseWhenTheLpaCanBeUsedTask, Path: appData.Paths.WhenCanTheLpaBeUsed, Completed: true},
-					{Name: AddRestrictionsToLpaTask, Path: appData.Paths.Restrictions, Completed: true},
-					{Name: ChooseCertificateProviderTask, Path: appData.Paths.WhoDoYouWantToBeCertificateProviderGuidance, Completed: true},
-					{Name: PeopleToNotifyTask, Path: appData.Paths.DoYouWantToNotifyPeople, Completed: true, Count: 3},
-					{Name: CheckAndSendToCertificateProviderTask, Path: appData.Paths.CheckYourLpa, Completed: true},
+					{Name: "provideYourDetails", Path: Paths.YourDetails, State: TaskCompleted},
+					{Name: "chooseYourAttorneys", Path: Paths.ChooseAttorneys, State: TaskCompleted, Count: 2},
+					{Name: "chooseYourReplacementAttorneys", Path: Paths.DoYouWantReplacementAttorneys, State: TaskInProgress, Count: 1},
+					{Name: "chooseWhenTheLpaCanBeUsed", Path: Paths.WhenCanTheLpaBeUsed, State: TaskInProgress},
+					{Name: "addRestrictionsToTheLpa", Path: Paths.Restrictions, State: TaskCompleted},
+					{Name: "chooseYourCertificateProvider", Path: Paths.WhoDoYouWantToBeCertificateProviderGuidance, State: TaskInProgress},
+					{Name: "peopleToNotify", Path: Paths.DoYouWantToNotifyPeople},
+					{Name: "checkAndSendToYourCertificateProvider", Path: Paths.CheckYourLpa, State: TaskCompleted},
 				}
 
 				sections[1].Items = []taskListItem{
-					{Name: PayForTheLpaTask, Path: appData.Paths.AboutPayment, Completed: true},
-				}
-
-				sections[2].Items = []taskListItem{
-					{Name: ConfirmYourIdentityAndSignTask, Path: appData.Paths.HowToConfirmYourIdentityAndSign, Completed: true},
+					{Name: "payForTheLpa", Path: Paths.AboutPayment, State: TaskInProgress},
 				}
 
 				return sections
@@ -143,36 +75,34 @@ func TestGetTaskList(t *testing.T) {
 					Lpa: tc.lpa,
 					Sections: tc.expected([]taskListSection{
 						{
-							Heading: FillInLpaSection,
+							Heading: "fillInTheLpa",
 							Items: []taskListItem{
-								{Name: ProvideYourDetailsTask, Path: appData.Paths.YourDetails},
-								{Name: ChooseYourAttorneysTask, Path: appData.Paths.ChooseAttorneys},
-								{Name: ChooseYourReplacementAttorneysTask, Path: appData.Paths.DoYouWantReplacementAttorneys},
-								{Name: ChooseWhenTheLpaCanBeUsedTask, Path: appData.Paths.WhenCanTheLpaBeUsed},
-								{Name: AddRestrictionsToLpaTask, Path: appData.Paths.Restrictions},
-								{Name: ChooseCertificateProviderTask, Path: appData.Paths.WhoDoYouWantToBeCertificateProviderGuidance},
-								{Name: PeopleToNotifyTask, Path: appData.Paths.DoYouWantToNotifyPeople},
-								{Name: CheckAndSendToCertificateProviderTask, Path: appData.Paths.CheckYourLpa},
+								{Name: "provideYourDetails", Path: Paths.YourDetails},
+								{Name: "chooseYourAttorneys", Path: Paths.ChooseAttorneys},
+								{Name: "chooseYourReplacementAttorneys", Path: Paths.DoYouWantReplacementAttorneys},
+								{Name: "chooseWhenTheLpaCanBeUsed", Path: Paths.WhenCanTheLpaBeUsed},
+								{Name: "addRestrictionsToTheLpa", Path: Paths.Restrictions},
+								{Name: "chooseYourCertificateProvider", Path: Paths.WhoDoYouWantToBeCertificateProviderGuidance},
+								{Name: "peopleToNotify", Path: Paths.DoYouWantToNotifyPeople},
+								{Name: "checkAndSendToYourCertificateProvider", Path: Paths.CheckYourLpa},
 							},
 						},
 						{
-							Heading: PayForLpaSection,
+							Heading: "payForTheLpa",
 							Items: []taskListItem{
-								{Name: PayForTheLpaTask, Path: appData.Paths.AboutPayment},
+								{Name: "payForTheLpa", Path: Paths.AboutPayment},
 							},
 						},
 						{
-							Heading: ConfirmYourIdentityAndSignSection,
+							Heading: "confirmYourIdentityAndSign",
 							Items: []taskListItem{
-								{
-									Name: ConfirmYourIdentityAndSignTask, Path: appData.Paths.HowToConfirmYourIdentityAndSign,
-								},
+								{Name: "confirmYourIdentityAndSign", Path: Paths.HowToConfirmYourIdentityAndSign},
 							},
 						},
 						{
-							Heading: RegisterTheLpaSection,
+							Heading: "registerTheLpa",
 							Items: []taskListItem{
-								{Name: RegisterTheLpaTask},
+								{Name: "registerTheLpa"},
 							},
 						},
 					}),

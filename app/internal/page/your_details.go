@@ -61,6 +61,7 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 				lpa.You.OtherNames = data.Form.OtherNames
 				lpa.You.DateOfBirth = data.Form.DateOfBirth
 				lpa.You.Email = email
+				lpa.Tasks.YourDetails = TaskInProgress
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err

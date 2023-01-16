@@ -113,7 +113,7 @@ func TestPostLpaType(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{Type: LpaTypePropertyFinance}).
+		On("Put", mock.Anything, "session-id", &Lpa{Type: LpaTypePropertyFinance, Tasks: Tasks{YourDetails: TaskCompleted}}).
 		Return(nil)
 
 	form := url.Values{
@@ -140,7 +140,7 @@ func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{Type: LpaTypePropertyFinance}).
+		On("Put", mock.Anything, "session-id", mock.Anything).
 		Return(expectedError)
 
 	form := url.Values{

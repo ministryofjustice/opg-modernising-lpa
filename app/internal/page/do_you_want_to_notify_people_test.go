@@ -6,9 +6,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
-	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -228,17 +226,13 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
 				Return(&Lpa{
-					Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}},
-					HowAttorneysMakeDecisions: Jointly,
-					DoYouWantToNotifyPeople:   tc.ExistingAnswer,
-					Tasks:                     Tasks{CertificateProvider: TaskCompleted},
+					DoYouWantToNotifyPeople: tc.ExistingAnswer,
+					Tasks:                   Tasks{ChooseAttorneys: TaskCompleted, CertificateProvider: TaskCompleted},
 				}, nil)
 			lpaStore.
 				On("Put", mock.Anything, "session-id", &Lpa{
-					Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}},
-					HowAttorneysMakeDecisions: Jointly,
-					DoYouWantToNotifyPeople:   tc.WantToNotify,
-					Tasks:                     Tasks{CertificateProvider: TaskCompleted, PeopleToNotify: tc.ExpectedStatus},
+					DoYouWantToNotifyPeople: tc.WantToNotify,
+					Tasks:                   Tasks{ChooseAttorneys: TaskCompleted, CertificateProvider: TaskCompleted, PeopleToNotify: tc.ExpectedStatus},
 				}).
 				Return(nil)
 
