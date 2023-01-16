@@ -53,13 +53,13 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			if data.Form.Action == "manual" && len(data.Errors) == 0 {
 				attorney.Address = *data.Form.Address
 				lpa.PutAttorney(attorney)
+				lpa.Tasks.ChooseAttorneys = TaskCompleted
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}
 
 				from := r.FormValue("from")
-
 				if from == "" {
 					from = appData.Paths.ChooseAttorneysSummary
 				}

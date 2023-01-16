@@ -106,11 +106,11 @@ func TestLangRedirectWhenCanGoTo(t *testing.T) {
 	}{
 		"nil": {
 			lpa:      nil,
-			expected: Paths.AboutPayment,
+			expected: Paths.HowToConfirmYourIdentityAndSign,
 		},
 		"allowed": {
-			lpa:      &Lpa{Tasks: Tasks{CheckYourLpa: TaskCompleted}},
-			expected: Paths.AboutPayment,
+			lpa:      &Lpa{Tasks: Tasks{PayForLpa: TaskCompleted}},
+			expected: Paths.HowToConfirmYourIdentityAndSign,
 		},
 		"not allowed": {
 			lpa:      &Lpa{},
@@ -123,7 +123,7 @@ func TestLangRedirectWhenCanGoTo(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 			w := httptest.NewRecorder()
 
-			En.Redirect(w, r, tc.lpa, Paths.AboutPayment)
+			En.Redirect(w, r, tc.lpa, Paths.HowToConfirmYourIdentityAndSign)
 			resp := w.Result()
 
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -389,6 +389,9 @@ func TestTestingStart(t *testing.T) {
 					},
 				},
 				HowAttorneysMakeDecisions: JointlyAndSeverally,
+				Tasks: Tasks{
+					ChooseAttorneys: TaskCompleted,
+				},
 			}).
 			Return(nil)
 
@@ -419,7 +422,6 @@ func TestTestingStart(t *testing.T) {
 			On("Get", ctx, mock.Anything).
 			Return(&Lpa{}, nil)
 
-		updatedLpa := &Lpa{}
 		attorneys := []Attorney{
 			{
 				ID:          "with-address",
@@ -445,20 +447,21 @@ func TestTestingStart(t *testing.T) {
 			},
 		}
 
-		updatedLpa.Type = LpaTypePropertyFinance
-		updatedLpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
-
-		updatedLpa.Attorneys = attorneys
-		updatedLpa.ReplacementAttorneys = attorneys
-
-		updatedLpa.HowAttorneysMakeDecisions = JointlyAndSeverally
-
-		updatedLpa.WantReplacementAttorneys = "yes"
-		updatedLpa.HowReplacementAttorneysMakeDecisions = JointlyAndSeverally
-		updatedLpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
-
 		lpaStore.
-			On("Put", ctx, mock.Anything, updatedLpa).
+			On("Put", ctx, mock.Anything, &Lpa{
+				Type:                                 LpaTypePropertyFinance,
+				WhenCanTheLpaBeUsed:                  UsedWhenRegistered,
+				Attorneys:                            attorneys,
+				ReplacementAttorneys:                 attorneys,
+				HowAttorneysMakeDecisions:            JointlyAndSeverally,
+				WantReplacementAttorneys:             "yes",
+				HowReplacementAttorneysMakeDecisions: JointlyAndSeverally,
+				HowShouldReplacementAttorneysStepIn:  OneCanNoLongerAct,
+				Tasks: Tasks{
+					ChooseAttorneys:            TaskInProgress,
+					ChooseReplacementAttorneys: TaskInProgress,
+				},
+			}).
 			Return(nil)
 
 		testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)
@@ -544,6 +547,7 @@ func TestTestingStart(t *testing.T) {
 					RelationshipDescription: "",
 					RelationshipLength:      "gte-2-years",
 				},
+				Tasks: Tasks{CertificateProvider: TaskCompleted},
 			}).
 			Return(nil)
 

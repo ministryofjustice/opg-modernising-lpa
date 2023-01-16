@@ -165,6 +165,7 @@ func TestPostChooseAttorneysAttorneyDoesNotExists(t *testing.T) {
 			lpaStore.
 				On("Put", mock.Anything, "session-id", &Lpa{
 					Attorneys: []Attorney{tc.attorney},
+					Tasks:     Tasks{ChooseAttorneys: TaskInProgress},
 				}).
 				Return(nil)
 

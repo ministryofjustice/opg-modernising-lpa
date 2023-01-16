@@ -285,6 +285,9 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 		session.Values = map[interface{}]interface{}{"sub": random.String(12), "email": "simulate-delivered@notifications.service.gov.uk"}
 		_ = store.Save(r, w, session)
 
+		sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
+		var lpa *Lpa
+
 		if r.FormValue("paymentComplete") == "1" {
 			paySession, _ := store.Get(r, PayCookieName)
 			paySession.Values = map[interface{}]interface{}{PayCookiePaymentIdValueKey: random.String(12)}
@@ -292,17 +295,17 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 		}
 
 		if r.FormValue("withPayment") == "1" {
-			sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
-			lpa, _ := lpaStore.Get(r.Context(), sessionID)
+			if lpa == nil {
+				lpa, _ = lpaStore.Get(r.Context(), sessionID)
+			}
 
 			lpa.Tasks.PayForLpa = TaskCompleted
-
-			_ = lpaStore.Put(r.Context(), sessionID, lpa)
 		}
 
 		if r.FormValue("withAttorney") == "1" {
-			sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
-			lpa, _ := lpaStore.Get(r.Context(), sessionID)
+			if lpa == nil {
+				lpa, _ = lpaStore.Get(r.Context(), sessionID)
+			}
 
 			lpa.Attorneys = []Attorney{
 				{
@@ -322,13 +325,13 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 			}
 
 			lpa.HowAttorneysMakeDecisions = JointlyAndSeverally
-
-			_ = lpaStore.Put(r.Context(), sessionID, lpa)
+			lpa.Tasks.ChooseAttorneys = TaskCompleted
 		}
 
 		if r.FormValue("withIncompleteAttorneys") == "1" {
-			sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
-			lpa, _ := lpaStore.Get(r.Context(), sessionID)
+			if lpa == nil {
+				lpa, _ = lpaStore.Get(r.Context(), sessionID)
+			}
 
 			lpa.Attorneys = []Attorney{
 				{
@@ -365,12 +368,14 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 			lpa.HowReplacementAttorneysMakeDecisions = JointlyAndSeverally
 			lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
 
-			_ = lpaStore.Put(r.Context(), sessionID, lpa)
+			lpa.Tasks.ChooseAttorneys = TaskInProgress
+			lpa.Tasks.ChooseReplacementAttorneys = TaskInProgress
 		}
 
 		if r.FormValue("withCP") == "1" {
-			sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
-			lpa, _ := lpaStore.Get(r.Context(), sessionID)
+			if lpa == nil {
+				lpa, _ = lpaStore.Get(r.Context(), sessionID)
+			}
 
 			lpa.CertificateProvider = CertificateProvider{
 				FirstNames:              "Barbara",
@@ -382,13 +387,13 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 				RelationshipDescription: "",
 				RelationshipLength:      "gte-2-years",
 			}
-
-			_ = lpaStore.Put(r.Context(), sessionID, lpa)
+			lpa.Tasks.CertificateProvider = TaskCompleted
 		}
 
 		if r.FormValue("howAttorneysAct") != "" {
-			sessionID := base64.StdEncoding.EncodeToString([]byte(session.Values["sub"].(string)))
-			lpa, _ := lpaStore.Get(r.Context(), sessionID)
+			if lpa == nil {
+				lpa, _ = lpaStore.Get(r.Context(), sessionID)
+			}
 
 			switch r.FormValue("howAttorneysAct") {
 			case Jointly:
@@ -399,7 +404,9 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 				lpa.HowAttorneysMakeDecisions = JointlyForSomeSeverallyForOthers
 				lpa.HowAttorneysMakeDecisionsDetails = "some details"
 			}
+		}
 
+		if lpa != nil {
 			_ = lpaStore.Put(r.Context(), sessionID, lpa)
 		}
 

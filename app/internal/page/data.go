@@ -38,6 +38,9 @@ const (
 	TaskCompleted
 )
 
+func (t TaskState) InProgress() bool { return t == TaskInProgress }
+func (t TaskState) Completed() bool  { return t == TaskCompleted }
+
 type Lpa struct {
 	ID                                          string
 	UpdatedAt                                   time.Time
@@ -85,6 +88,9 @@ type PaymentDetails struct {
 }
 
 type Tasks struct {
+	YourDetails                TaskState
+	ChooseAttorneys            TaskState
+	ChooseReplacementAttorneys TaskState
 	WhenCanTheLpaBeUsed        TaskState
 	Restrictions               TaskState
 	CertificateProvider        TaskState
@@ -357,148 +363,6 @@ func concatSentence(list []string) string {
 	}
 }
 
-func (l *Lpa) ReplacementAttorneysTaskComplete() bool {
-	//"replacement attorneys not required"
-	if l.WantReplacementAttorneys == "no" && len(l.ReplacementAttorneys) == 0 {
-		return true
-	}
-
-	if !l.ReplacementAttorneysValid() {
-		return false
-	}
-
-	if l.WantReplacementAttorneys == "yes" {
-		if len(l.Attorneys) == 1 {
-			//"single attorney and single replacement attorney"
-			if len(l.ReplacementAttorneys) == 1 {
-				return true
-			}
-
-			//"single attorney and multiple replacement attorney acting jointly"
-			//"single attorney and multiple replacement attorney acting jointly and severally"
-			//"single attorney and multiple replacement attorneys acting mixed with details"
-			if len(l.ReplacementAttorneys) > 1 {
-				return l.ReplacementAttorneysActJointlyOrJointlyAndSeverally() || l.ReplacementAttorneysActJointlyForSomeSeverallyForOthersWithDetails()
-			}
-		}
-
-		if len(l.Attorneys) > 1 {
-			//"multiple attorneys acting jointly and severally and single replacement attorney steps in when there are no attorneys left to act"
-			//"multiple attorneys acting jointly and severally and single replacement attorney steps in when one attorney can no longer act"
-			//"multiple attorneys acting jointly and severally and single replacement attorney steps in in some other way with details"
-			//"multiple attorneys acting jointly and severally and multiple replacement attorneys acting jointly steps in when there are no attorneys left to act"
-			//"multiple attorneys acting jointly and severally and multiple replacement attorney acting jointly and severally steps in when there are no attorneys left to act"
-			//"multiple attorneys acting jointly and severally and multiple replacement attorney acting mixed with details steps in when there are no attorneys left to act"
-			//"multiple attorneys acting jointly and severally and multiple replacement attorneys steps in when one attorney cannot act"
-			if l.HowAttorneysMakeDecisions == JointlyAndSeverally &&
-				len(l.ReplacementAttorneys) > 0 {
-				return l.ReplacementAttorneysStepInWhenOneOrAllAttorneysCannotAct() || l.ReplacementAttorneysStepInSomeOtherWayWithDetails()
-			}
-
-			//"multiple attorneys acting mixed with details and single replacement attorney with blank how to step in"
-			//"multiple attorneys acting mixed with details and multiple replacement attorney with blank how to step in"
-			if l.AttorneysActJointlyForSomeSeverallyForOthersWithDetails() &&
-				len(l.ReplacementAttorneys) > 0 &&
-				l.HowShouldReplacementAttorneysStepIn == "" {
-				return true
-			}
-
-			if l.HowAttorneysMakeDecisions == Jointly {
-				//"multiple attorneys acting jointly and multiple replacement attorneys acting jointly and blank how to step in"
-				//"multiple attorneys acting jointly and multiple replacement attorneys acting jointly and severally and blank how to step in"
-				//"multiple attorneys acting jointly and multiple replacement attorneys acting mixed with details and blank how to step in"
-				if len(l.ReplacementAttorneys) > 1 &&
-					(l.ReplacementAttorneysActJointlyOrJointlyAndSeverally() || l.ReplacementAttorneysActJointlyForSomeSeverallyForOthersWithDetails()) &&
-					l.HowShouldReplacementAttorneysStepIn == "" {
-					return true
-				}
-
-				//"multiple attorneys acting jointly and single replacement attorneys and blank how to step in"
-				if len(l.ReplacementAttorneys) == 1 &&
-					l.HowShouldReplacementAttorneysStepIn == "" {
-					return true
-				}
-
-			}
-		}
-	}
-
-	return false
-}
-
-func (l *Lpa) AttorneysTaskComplete() bool {
-	if len(l.Attorneys) == 0 {
-		return false
-	}
-
-	if !l.AttorneysValid() {
-		return false
-	}
-
-	if l.AttorneysActJointlyOrJointlyAndSeverally() ||
-		l.AttorneysActJointlyForSomeSeverallyForOthersWithDetails() ||
-		len(l.Attorneys) == 1 {
-		return true
-	}
-
-	return false
-}
-
-func (l *Lpa) AttorneysValid() bool {
-	for _, a := range l.Attorneys {
-		if a.Address.Line1 == "" || a.FirstNames == "" || a.LastName == "" || a.DateOfBirth.IsZero() {
-			return false
-		}
-	}
-
-	return true
-}
-
-func (l *Lpa) ReplacementAttorneysValid() bool {
-	for _, a := range l.ReplacementAttorneys {
-		if a.Address.Line1 == "" || a.FirstNames == "" || a.LastName == "" || a.DateOfBirth.IsZero() {
-			return false
-		}
-	}
-
-	return true
-}
-
-func (l *Lpa) PeopleToNotifyValid() bool {
-	for _, a := range l.PeopleToNotify {
-		if a.Address.Line1 == "" || a.FirstNames == "" || a.LastName == "" {
-			return false
-		}
-	}
-
-	return true
-}
-
-func (l *Lpa) AttorneysActJointlyOrJointlyAndSeverally() bool {
-	return slices.Contains([]string{Jointly, JointlyAndSeverally}, l.HowAttorneysMakeDecisions)
-}
-
-func (l *Lpa) AttorneysActJointlyForSomeSeverallyForOthersWithDetails() bool {
-	return l.HowAttorneysMakeDecisions == JointlyForSomeSeverallyForOthers && l.HowAttorneysMakeDecisionsDetails != ""
-}
-
-func (l *Lpa) ReplacementAttorneysActJointlyOrJointlyAndSeverally() bool {
-	return slices.Contains([]string{Jointly, JointlyAndSeverally}, l.HowReplacementAttorneysMakeDecisions)
-}
-
-func (l *Lpa) ReplacementAttorneysActJointlyForSomeSeverallyForOthersWithDetails() bool {
-	return l.HowReplacementAttorneysMakeDecisions == JointlyForSomeSeverallyForOthers &&
-		l.HowReplacementAttorneysMakeDecisionsDetails != ""
-}
-
-func (l *Lpa) ReplacementAttorneysStepInWhenOneOrAllAttorneysCannotAct() bool {
-	return slices.Contains([]string{OneCanNoLongerAct, AllCanNoLongerAct}, l.HowShouldReplacementAttorneysStepIn)
-}
-
-func (l *Lpa) ReplacementAttorneysStepInSomeOtherWayWithDetails() bool {
-	return l.HowShouldReplacementAttorneysStepIn == SomeOtherWay && l.HowShouldReplacementAttorneysStepInDetails != ""
-}
-
 func (l *Lpa) DonorFullName() string {
 	return fmt.Sprintf("%s %s", l.You.FirstNames, l.You.LastName)
 }
@@ -528,13 +392,21 @@ func (l *Lpa) CanGoTo(url string) bool {
 
 	switch path {
 	case Paths.WhenCanTheLpaBeUsed, Paths.Restrictions, Paths.WhoDoYouWantToBeCertificateProviderGuidance:
-		return l.AttorneysTaskComplete()
+		return l.Tasks.ChooseAttorneys.Completed()
 	case Paths.CheckYourLpa:
-		return l.AttorneysTaskComplete() && l.Tasks.CertificateProvider == TaskCompleted
+		return l.Tasks.ChooseAttorneys.Completed() &&
+			l.Tasks.CertificateProvider.Completed()
 	case Paths.AboutPayment:
-		return l.Tasks.CheckYourLpa == TaskCompleted
+		return l.Tasks.YourDetails.Completed() &&
+			l.Tasks.ChooseAttorneys.Completed() &&
+			l.Tasks.ChooseReplacementAttorneys.Completed() &&
+			l.Tasks.WhenCanTheLpaBeUsed.Completed() &&
+			l.Tasks.Restrictions.Completed() &&
+			l.Tasks.CertificateProvider.Completed() &&
+			l.Tasks.PeopleToNotify.Completed() &&
+			l.Tasks.CheckYourLpa.Completed()
 	case Paths.SelectYourIdentityOptions, Paths.HowToConfirmYourIdentityAndSign:
-		return l.Tasks.PayForLpa == TaskCompleted
+		return l.Tasks.PayForLpa.Completed()
 	case "":
 		return false
 	default:

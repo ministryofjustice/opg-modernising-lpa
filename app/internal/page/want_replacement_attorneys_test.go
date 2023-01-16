@@ -140,12 +140,14 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 		ExpectedRedirect             string
 		ExistingReplacementAttorneys []Attorney
 		ExpectedReplacementAttorneys []Attorney
+		TaskState                    TaskState
 	}{
 		{
 			Want:                         "yes",
 			ExpectedRedirect:             appData.Paths.ChooseReplacementAttorneys,
 			ExistingReplacementAttorneys: []Attorney{{ID: "123"}},
 			ExpectedReplacementAttorneys: []Attorney{{ID: "123"}},
+			TaskState:                    TaskInProgress,
 		},
 		{
 			Want:             "no",
@@ -155,6 +157,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 				{ID: "345"},
 			},
 			ExpectedReplacementAttorneys: []Attorney{},
+			TaskState:                    TaskCompleted,
 		},
 	}
 
@@ -172,6 +175,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 				On("Put", mock.Anything, "session-id", &Lpa{
 					WantReplacementAttorneys: tc.Want,
 					ReplacementAttorneys:     tc.ExpectedReplacementAttorneys,
+					Tasks:                    Tasks{ChooseReplacementAttorneys: tc.TaskState},
 				}).
 				Return(nil)
 
@@ -202,7 +206,7 @@ func TestPostWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{WantReplacementAttorneys: "yes"}).
+		On("Put", mock.Anything, "session-id", mock.Anything).
 		Return(expectedError)
 
 	form := url.Values{
