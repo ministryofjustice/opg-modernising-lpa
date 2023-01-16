@@ -221,7 +221,7 @@ func TestMakeHandleShowTranslationKeys(t *testing.T) {
 					RumConfig:           RumConfig{ApplicationID: "xyz"},
 					StaticHash:          "?%3fNEI0t9MN",
 					Paths:               AppPaths{},
-					IsProduction:        tc.isProduction,
+					DevFeaturesEnabled:  tc.isProduction,
 					ShowTranslationKeys: tc.showTranslationKeys == "1",
 				}, appData)
 				assert.Equal(t, w, hw)

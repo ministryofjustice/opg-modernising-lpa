@@ -116,7 +116,7 @@ type AppData struct {
 	RumConfig           RumConfig
 	StaticHash          string
 	Paths               AppPaths
-	IsProduction        bool
+	DevFeaturesEnabled  bool
 	ShowTranslationKeys bool
 }
 
@@ -139,13 +139,13 @@ func App(
 	staticHash string,
 	paths AppPaths,
 	oneLoginClient OneLoginClient,
-	isProduction bool,
+	devFeaturesEnabled bool,
 ) http.Handler {
 	mux := http.NewServeMux()
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
 
-	handle := makeHandle(mux, logger, sessionStore, localizer, lang, rumConfig, staticHash, paths, isProduction)
+	handle := makeHandle(mux, logger, sessionStore, localizer, lang, rumConfig, staticHash, paths, devFeaturesEnabled)
 
 	mux.Handle(paths.TestingStart, testingStart(sessionStore, lpaStore))
 	mux.Handle(paths.Root, Root(paths))
@@ -436,7 +436,7 @@ const (
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang, rumConfig RumConfig, staticHash string, paths AppPaths, isProduction bool) func(string, handleOpt, Handler) {
+func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang, rumConfig RumConfig, staticHash string, paths AppPaths, devFeaturesEnabled bool) func(string, handleOpt, Handler) {
 	return func(path string, opt handleOpt, h Handler) {
 		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 			sessionID := ""
@@ -461,7 +461,7 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 
 			_, cookieErr := r.Cookie("cookies-consent")
 
-			localizer.ShowTranslationKeys = r.FormValue("showTranslationKeys") == "1" && !isProduction
+			localizer.ShowTranslationKeys = r.FormValue("showTranslationKeys") == "1" && devFeaturesEnabled
 
 			if err := h(AppData{
 				Page:                path,
@@ -474,7 +474,7 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 				RumConfig:           rumConfig,
 				StaticHash:          staticHash,
 				Paths:               paths,
-				IsProduction:        isProduction,
+				DevFeaturesEnabled:  devFeaturesEnabled,
 				ShowTranslationKeys: r.FormValue("showTranslationKeys") == "1",
 			}, w, r); err != nil {
 				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
