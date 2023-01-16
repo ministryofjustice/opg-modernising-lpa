@@ -157,7 +157,7 @@
                     {{ tr .App "termsAndConditions" }}
                   </a>
                 </li>
-                {{ if eq false .App.IsProduction }}
+                {{ if not .App.IsProduction }}
                   <li class="govuk-footer__inline-list-item">
                     <a class="govuk-footer__link" href="{{ if .App.ShowTranslationKeys }}{{ .App.Lang.BuildUrl .App.Page }}{{ else }}{{ .App.Lang.BuildUrl .App.Page }}?showTranslationKeys=1{{ end }}">
                       {{ tr .App "toggleTransKeys" }}
