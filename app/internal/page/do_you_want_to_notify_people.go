@@ -7,10 +7,12 @@ import (
 )
 
 type doYouWantToNotifyPeopleData struct {
-	App          AppData
-	Errors       map[string]string
-	Form         *doYouWantToNotifyPeopleForm
-	WantToNotify string
+	App             AppData
+	Errors          map[string]string
+	Form            *doYouWantToNotifyPeopleForm
+	WantToNotify    string
+	Lpa             *Lpa
+	HowWorkTogether string
 }
 
 type doYouWantToNotifyPeopleForm struct {
@@ -31,6 +33,16 @@ func DoYouWantToNotifyPeople(tmpl template.Template, lpaStore LpaStore) Handler 
 		data := &doYouWantToNotifyPeopleData{
 			App:          appData,
 			WantToNotify: lpa.DoYouWantToNotifyPeople,
+			Lpa:          lpa,
+		}
+
+		switch lpa.HowAttorneysMakeDecisions {
+		case Jointly:
+			data.HowWorkTogether = "jointlyDescription"
+		case JointlyAndSeverally:
+			data.HowWorkTogether = "jointlyAndSeverallyDescription"
+		case JointlyForSomeSeverallyForOthers:
+			data.HowWorkTogether = "jointlyForSomeSeverallyForOthersDescription"
 		}
 
 		if r.Method == http.MethodPost {
