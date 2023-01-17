@@ -27,6 +27,7 @@ variable "environments" {
           yoti_client_sdk_id     = string
           yoti_scenario_id       = string
           yoti_sandbox           = string
+          dev_features_enabled   = string
         })
       })
       backups = object({
