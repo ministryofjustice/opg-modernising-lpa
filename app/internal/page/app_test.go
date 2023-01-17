@@ -64,7 +64,7 @@ func (m *mockLogger) Print(v ...interface{}) {
 }
 
 func TestApp(t *testing.T) {
-	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &identity.YotiClient{}, "yoti-scenario-id", &notify.Client{}, &place.Client{}, RumConfig{}, "?%3fNEI0t9MN", appData.Paths, &onelogin.Client{}, false)
+	app := App(&mockLogger{}, localize.Localizer{}, En, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &identity.YotiClient{}, "yoti-scenario-id", &notify.Client{}, &place.Client{}, RumConfig{}, "?%3fNEI0t9MN", appData.Paths, &onelogin.Client{})
 
 	assert.Implements(t, (*http.Handler)(nil), app)
 }
@@ -143,7 +143,7 @@ func TestMakeHandle(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, false)
+	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{})
 	handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, AppData{
 			Page:             "/path",
@@ -172,22 +172,14 @@ func TestMakeHandle(t *testing.T) {
 
 func TestMakeHandleShowTranslationKeys(t *testing.T) {
 	testCases := map[string]struct {
-		devFeaturesEnabled  bool
 		showTranslationKeys string
 		expected            bool
 	}{
-		"enabled": {
-			devFeaturesEnabled:  true,
+		"requested": {
 			showTranslationKeys: "1",
 			expected:            true,
 		},
-		"disabled dev features disabled": {
-			devFeaturesEnabled:  false,
-			showTranslationKeys: "1",
-			expected:            false,
-		},
-		"disabled not requested": {
-			devFeaturesEnabled:  true,
+		"not requested": {
 			showTranslationKeys: "maybe",
 			expected:            false,
 		},
@@ -205,23 +197,22 @@ func TestMakeHandleShowTranslationKeys(t *testing.T) {
 				Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
 
 			mux := http.NewServeMux()
-			handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, tc.devFeaturesEnabled)
+			handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{})
 			handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 				expectedLocalizer := localize.Localizer{}
 				expectedLocalizer.ShowTranslationKeys = tc.expected
 
 				assert.Equal(t, AppData{
-					Page:               "/path",
-					Query:              "?showTranslationKeys=" + tc.showTranslationKeys,
-					Localizer:          expectedLocalizer,
-					Lang:               En,
-					SessionID:          "cmFuZG9t",
-					CookieConsentSet:   false,
-					CanGoBack:          true,
-					RumConfig:          RumConfig{ApplicationID: "xyz"},
-					StaticHash:         "?%3fNEI0t9MN",
-					Paths:              AppPaths{},
-					DevFeaturesEnabled: tc.devFeaturesEnabled,
+					Page:             "/path",
+					Query:            "?showTranslationKeys=" + tc.showTranslationKeys,
+					Localizer:        expectedLocalizer,
+					Lang:             En,
+					SessionID:        "cmFuZG9t",
+					CookieConsentSet: false,
+					CanGoBack:        true,
+					RumConfig:        RumConfig{ApplicationID: "xyz"},
+					StaticHash:       "?%3fNEI0t9MN",
+					Paths:            AppPaths{},
 				}, appData)
 				assert.Equal(t, w, hw)
 				assert.Equal(t, r, hr)
@@ -253,7 +244,7 @@ func TestMakeHandleErrors(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{}, false)
+	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{})
 	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
@@ -280,7 +271,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{Start: "/this"}, false)
+	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{Start: "/this"})
 	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -306,7 +297,7 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{Start: "/this"}, false)
+	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{Start: "/this"})
 	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -323,7 +314,7 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	localizer := localize.Localizer{}
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, nil, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{}, false)
+	handle := makeHandle(mux, nil, nil, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{})
 	handle("/path", None, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, AppData{
 			Page:             "/path",
