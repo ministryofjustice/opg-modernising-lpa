@@ -319,7 +319,7 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 						Line2:      "KINGS HEATH",
 						Line3:      "WEST MIDLANDS",
 						TownOrCity: "BIRMINGHAM",
-						Postcode:   "AA11AA",
+						Postcode:   "B14 7ED",
 					},
 				},
 			}
@@ -345,7 +345,7 @@ func testingStart(store sessions.Store, lpaStore LpaStore) http.HandlerFunc {
 						Line2:      "KINGS HEATH",
 						Line3:      "WEST MIDLANDS",
 						TownOrCity: "BIRMINGHAM",
-						Postcode:   "AA11AA",
+						Postcode:   "B14 7ED",
 					},
 				},
 				{
