@@ -626,6 +626,15 @@ func TestCertificateProviderAddressFormValidate(t *testing.T) {
 				"lookup-postcode": "enterPostcode",
 			},
 		},
+		"lookup not UK postcode": {
+			form: &certificateProviderAddressForm{
+				Action:         "lookup",
+				LookupPostcode: "XXX",
+			},
+			errors: map[string]string{
+				"lookup-postcode": "enterUkPostcode",
+			},
+		},
 		"select valid": {
 			form: &certificateProviderAddressForm{
 				Action:  "select",
@@ -692,6 +701,19 @@ func TestCertificateProviderAddressFormValidate(t *testing.T) {
 				"address-line-1": "addressLine1TooLong",
 				"address-line-2": "addressLine2TooLong",
 				"address-line-3": "addressLine3TooLong",
+			},
+		},
+		"manual not UK postcode": {
+			form: &certificateProviderAddressForm{
+				Action: "manual",
+				Address: &place.Address{
+					Line1:      "a",
+					TownOrCity: "b",
+					Postcode:   "XXX",
+				},
+			},
+			errors: map[string]string{
+				"address-postcode": "enterUkPostcode",
 			},
 		},
 	}

@@ -697,6 +697,15 @@ func TestChoosePeopleToNotifyAddressFormValidate(t *testing.T) {
 				"lookup-postcode": "enterPostcode",
 			},
 		},
+		"lookup not UK postcode": {
+			form: &choosePeopleToNotifyAddressForm{
+				Action:         "lookup",
+				LookupPostcode: "XXX",
+			},
+			errors: map[string]string{
+				"lookup-postcode": "enterUkPostcode",
+			},
+		},
 		"select valid": {
 			form: &choosePeopleToNotifyAddressForm{
 				Action:  "select",
@@ -763,6 +772,19 @@ func TestChoosePeopleToNotifyAddressFormValidate(t *testing.T) {
 				"address-line-1": "addressLine1TooLong",
 				"address-line-2": "addressLine2TooLong",
 				"address-line-3": "addressLine3TooLong",
+			},
+		},
+		"manual not UK postcode": {
+			form: &choosePeopleToNotifyAddressForm{
+				Action: "manual",
+				Address: &place.Address{
+					Line1:      "a",
+					TownOrCity: "b",
+					Postcode:   "XXX",
+				},
+			},
+			errors: map[string]string{
+				"address-postcode": "enterUkPostcode",
 			},
 		},
 	}
