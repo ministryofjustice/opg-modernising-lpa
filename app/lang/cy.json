@@ -313,6 +313,7 @@
     "thankYouHeader": "Diolch am eich taliad.",
     "paymentConfirmationContent": "<p class=\"govuk-body\">Rydych wedi talu am eich LPA cyllid a materion personol.</p><p class=\"govuk-body\">Rydym wedi anfon e-bost atoch i gadarnhau ein bod wedi derbyn eich ffi cais LPA.</p><p class=\"govuk-body\">Os nad yw'r e-bost yn cyrraedd ymhen ychydig funudau, gwiriwch eich ffolder sbam.</p>",
 
+    "readYourLpa": "Darllen a llofnodi eich LPA",
     "readAndCheckYourLpa": "Darllenwch a gwiriwch eich LPA yn ofalus cyn i chi ei llofnodi.",
     "whatHappensIfIWantToMakeChanges": "Beth sy’n digwydd os hoffwn wneud newidiadau ar ôl i mi lofnodi?",
     "whatHappensIfIWantToMakeChangesContent": "<p class=\"govuk-body\">Mae’n bosib newid eich LPA ar ôl i chi ei llofnodi a chael y sgwrs gyda’ch darparwr tystysgrif. Fodd bynnag, bydd angen i chi:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>llofnodwch yr LPA eto</li> <li>cael sgwrs arall gyda’ch darparwr tystysgrif, fel y gallwch siarad am y newidiadau i'ch LPA.</li> </ul> <p class=\"govuk-body\">Unwaith y bydd yr LPA wedi’i chofrestru, gallwch ddileu atwrnai, ond ni allwch wneud unrhyw newidiadau eraill.</p><p> Os ydych am wneud newidiadau eraill, gallwch ganslo'r LPA a gwneud un newydd. </p>",
