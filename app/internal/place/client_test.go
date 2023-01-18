@@ -29,7 +29,7 @@ func TestLookupPostcode(t *testing.T) {
 	ctx := context.Background()
 
 	testCases := map[string]struct {
-		postcode      string
+		postcode      Postcode
 		queryPostcode string
 		responseJson  string
 		want          []Address
@@ -256,4 +256,67 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 			assert.Equal(t, tc.want, tc.ad.transformToAddress())
 		})
 	}
+}
+
+func TestPostcodeIsUkFormat(t *testing.T) {
+	testCases := map[string]struct {
+		postcode           Postcode
+		expectedIsUkFormat bool
+	}{
+		"valid no space": {
+			postcode:           "AA1A 1AA",
+			expectedIsUkFormat: true,
+		},
+		"valid space": {
+			postcode:           "AA1A1AA",
+			expectedIsUkFormat: true,
+		},
+		"valid excess whitespace": {
+			postcode:           " A  A   1 A  1 A A    ",
+			expectedIsUkFormat: true,
+		},
+		"valid mixed case": {
+			postcode:           "Aa1A 1Aa",
+			expectedIsUkFormat: true,
+		},
+		"valid shorter format": {
+			postcode:           "AA1 1AA",
+			expectedIsUkFormat: true,
+		},
+		"valid shortest format": {
+			postcode:           "A1 1AA",
+			expectedIsUkFormat: true,
+		},
+		"invalid too many first chars": {
+			postcode:           "A1AAA 1AA",
+			expectedIsUkFormat: false,
+		},
+		"invalid too many second chars": {
+			postcode:           "A1A 1AAAA",
+			expectedIsUkFormat: false,
+		},
+		"invalid all alpha": {
+			postcode:           "AAA AAA",
+			expectedIsUkFormat: false,
+		},
+		"invalid all numeric": {
+			postcode:           "111 111",
+			expectedIsUkFormat: false,
+		},
+		"invalid non alpha-numeric": {
+			postcode:           "*&^ £@!",
+			expectedIsUkFormat: false,
+		},
+		"invalid empty": {
+			postcode:           "",
+			expectedIsUkFormat: false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.expectedIsUkFormat, tc.postcode.IsUkFormat())
+		})
+	}
+
 }

@@ -177,7 +177,7 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 		"address-line-2":   {"b"},
 		"address-line-3":   {"c"},
 		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"address-postcode": {"AA11AA"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -212,7 +212,7 @@ func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 		"address-line-2":   {"b"},
 		"address-line-3":   {"c"},
 		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"address-postcode": {"AA11AA"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
@@ -254,7 +254,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 		"address-line-2":   {"b"},
 		"address-line-3":   {"c"},
 		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"address-postcode": {"AA11AA"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
@@ -276,7 +276,7 @@ func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 		"action":           {"manual"},
 		"address-line-2":   {"b"},
 		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		"address-postcode": {"AA11AA"},
 	}
 
 	lpaStore := &mockLpaStore{}
@@ -287,7 +287,7 @@ func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 	invalidAddress := &place.Address{
 		Line2:      "b",
 		TownOrCity: "c",
-		Postcode:   "d",
+		Postcode:   "AA11AA",
 	}
 
 	template := &mockTemplate{}
@@ -334,7 +334,7 @@ func TestPostCertificateProviderAddressSelect(t *testing.T) {
 			App: appData,
 			Form: &certificateProviderAddressForm{
 				Action:         "manual",
-				LookupPostcode: "NG1",
+				LookupPostcode: "AA1 1AA",
 				Address:        &address,
 			},
 			Errors: map[string]string{},
@@ -343,7 +343,7 @@ func TestPostCertificateProviderAddressSelect(t *testing.T) {
 
 	form := url.Values{
 		"action":          {"select"},
-		"lookup-postcode": {"NG1"},
+		"lookup-postcode": {"AA1 1AA"},
 		"select-address":  {address.Encode()},
 	}
 
@@ -363,7 +363,7 @@ func TestPostCertificateProviderAddressSelectWhenValidationError(t *testing.T) {
 
 	form := url.Values{
 		"action":          {"select"},
-		"lookup-postcode": {"NG1"},
+		"lookup-postcode": {"AA1 1AA"},
 	}
 
 	addresses := []place.Address{
@@ -377,7 +377,7 @@ func TestPostCertificateProviderAddressSelectWhenValidationError(t *testing.T) {
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+		On("LookupPostcode", mock.Anything, place.Postcode("AA1 1AA")).
 		Return(addresses, nil)
 
 	template := &mockTemplate{}
@@ -386,7 +386,7 @@ func TestPostCertificateProviderAddressSelectWhenValidationError(t *testing.T) {
 			App: appData,
 			Form: &certificateProviderAddressForm{
 				Action:         "select",
-				LookupPostcode: "NG1",
+				LookupPostcode: "AA1 1AA",
 			},
 			Addresses: addresses,
 			Errors: map[string]string{
@@ -415,7 +415,7 @@ func TestPostCertificateProviderAddressLookup(t *testing.T) {
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+		On("LookupPostcode", mock.Anything, place.Postcode("AA1 1AA")).
 		Return(addresses, nil)
 
 	lpaStore := &mockLpaStore{}
@@ -429,7 +429,7 @@ func TestPostCertificateProviderAddressLookup(t *testing.T) {
 			App: appData,
 			Form: &certificateProviderAddressForm{
 				Action:         "lookup",
-				LookupPostcode: "NG1",
+				LookupPostcode: "AA1 1AA",
 			},
 			Addresses: addresses,
 			Errors:    map[string]string{},
@@ -438,7 +438,7 @@ func TestPostCertificateProviderAddressLookup(t *testing.T) {
 
 	form := url.Values{
 		"action":          {"lookup"},
-		"lookup-postcode": {"NG1"},
+		"lookup-postcode": {"AA1 1AA"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
@@ -466,7 +466,7 @@ func TestPostCertificateProviderAddressLookupError(t *testing.T) {
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+		On("LookupPostcode", mock.Anything, place.Postcode("AA1 1AA")).
 		Return([]place.Address{}, expectedError)
 
 	template := &mockTemplate{}
@@ -475,7 +475,7 @@ func TestPostCertificateProviderAddressLookupError(t *testing.T) {
 			App: appData,
 			Form: &certificateProviderAddressForm{
 				Action:         "lookup",
-				LookupPostcode: "NG1",
+				LookupPostcode: "AA1 1AA",
 			},
 			Addresses: []place.Address{},
 			Errors: map[string]string{
@@ -486,7 +486,7 @@ func TestPostCertificateProviderAddressLookupError(t *testing.T) {
 
 	form := url.Values{
 		"action":          {"lookup"},
-		"lookup-postcode": {"NG1"},
+		"lookup-postcode": {"AA1 1AA"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
@@ -542,7 +542,7 @@ func TestReadCertificateProviderAddressForm(t *testing.T) {
 		Line2:      "b",
 		Line3:      "c",
 		TownOrCity: "d",
-		Postcode:   "e",
+		Postcode:   "AA11AA",
 	}
 
 	testCases := map[string]struct {
@@ -552,11 +552,11 @@ func TestReadCertificateProviderAddressForm(t *testing.T) {
 		"lookup": {
 			form: url.Values{
 				"action":          {"lookup"},
-				"lookup-postcode": {"NG1"},
+				"lookup-postcode": {"AA1 1AA"},
 			},
 			result: &certificateProviderAddressForm{
 				Action:         "lookup",
-				LookupPostcode: "NG1",
+				LookupPostcode: "AA1 1AA",
 			},
 		},
 		"select": {
@@ -586,7 +586,7 @@ func TestReadCertificateProviderAddressForm(t *testing.T) {
 				"address-line-2":   {"b"},
 				"address-line-3":   {"c"},
 				"address-town":     {"d"},
-				"address-postcode": {"e"},
+				"address-postcode": {"AA11AA"},
 			},
 			result: &certificateProviderAddressForm{
 				Action:  "manual",
@@ -614,7 +614,7 @@ func TestCertificateProviderAddressFormValidate(t *testing.T) {
 		"lookup valid": {
 			form: &certificateProviderAddressForm{
 				Action:         "lookup",
-				LookupPostcode: "NG1",
+				LookupPostcode: "AA1 1AA",
 			},
 			errors: map[string]string{},
 		},
@@ -648,7 +648,7 @@ func TestCertificateProviderAddressFormValidate(t *testing.T) {
 				Address: &place.Address{
 					Line1:      "a",
 					TownOrCity: "b",
-					Postcode:   "c",
+					Postcode:   "AA11AA",
 				},
 			},
 			errors: map[string]string{},
@@ -659,8 +659,9 @@ func TestCertificateProviderAddressFormValidate(t *testing.T) {
 				Address: &place.Address{},
 			},
 			errors: map[string]string{
-				"address-line-1": "enterAddress",
-				"address-town":   "enterTownOrCity",
+				"address-line-1":   "enterAddress",
+				"address-town":     "enterTownOrCity",
+				"address-postcode": "enterPostcode",
 			},
 		},
 		"manual max length": {
@@ -671,7 +672,7 @@ func TestCertificateProviderAddressFormValidate(t *testing.T) {
 					Line2:      strings.Repeat("x", 50),
 					Line3:      strings.Repeat("x", 50),
 					TownOrCity: "b",
-					Postcode:   "c",
+					Postcode:   "AA11AA",
 				},
 			},
 			errors: map[string]string{},
@@ -684,7 +685,7 @@ func TestCertificateProviderAddressFormValidate(t *testing.T) {
 					Line2:      strings.Repeat("x", 51),
 					Line3:      strings.Repeat("x", 51),
 					TownOrCity: "b",
-					Postcode:   "c",
+					Postcode:   "AA11AA",
 				},
 			},
 			errors: map[string]string{
