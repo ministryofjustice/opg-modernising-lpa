@@ -124,7 +124,7 @@ func (d *certificateProviderAddressForm) Validate() map[string]string {
 		if d.LookupPostcode == "" {
 			errors["lookup-postcode"] = "enterPostcode"
 		}
-		if !d.LookupPostcode.IsUkFormat() {
+		if !d.LookupPostcode.IsUkFormat() && errors["lookup-postcode"] == "" {
 			errors["lookup-postcode"] = "enterUkPostcode"
 		}
 
@@ -149,7 +149,9 @@ func (d *certificateProviderAddressForm) Validate() map[string]string {
 		if d.Address.TownOrCity == "" {
 			errors["address-town"] = "enterTownOrCity"
 		}
-		if !d.Address.Postcode.IsUkFormat() {
+		if d.Address.Postcode == "" {
+			errors["address-postcode"] = "enterPostcode"
+		} else if !d.Address.Postcode.IsUkFormat() {
 			errors["address-postcode"] = "enterUkPostcode"
 		}
 	}

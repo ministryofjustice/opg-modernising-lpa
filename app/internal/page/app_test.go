@@ -384,7 +384,7 @@ func TestTestingStart(t *testing.T) {
 							Line2:      "KINGS HEATH",
 							Line3:      "WEST MIDLANDS",
 							TownOrCity: "BIRMINGHAM",
-							Postcode:   "B14 7ED",
+							Postcode:   "AA11AA",
 						},
 					},
 				},
@@ -434,7 +434,7 @@ func TestTestingStart(t *testing.T) {
 					Line2:      "KINGS HEATH",
 					Line3:      "WEST MIDLANDS",
 					TownOrCity: "BIRMINGHAM",
-					Postcode:   "B14 7ED",
+					Postcode:   "AA11AA",
 				},
 			},
 			{

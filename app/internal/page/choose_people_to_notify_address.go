@@ -139,7 +139,7 @@ func (d *choosePeopleToNotifyAddressForm) Validate() map[string]string {
 		if d.LookupPostcode == "" {
 			errors["lookup-postcode"] = "enterPostcode"
 		}
-		if !d.LookupPostcode.IsUkFormat() {
+		if !d.LookupPostcode.IsUkFormat() && errors["lookup-postcode"] == "" {
 			errors["lookup-postcode"] = "enterUkPostcode"
 		}
 
@@ -166,8 +166,7 @@ func (d *choosePeopleToNotifyAddressForm) Validate() map[string]string {
 		}
 		if d.Address.Postcode == "" {
 			errors["address-postcode"] = "enterPostcode"
-		}
-		if !d.Address.Postcode.IsUkFormat() {
+		} else if !d.Address.Postcode.IsUkFormat() {
 			errors["address-postcode"] = "enterUkPostcode"
 		}
 	}
