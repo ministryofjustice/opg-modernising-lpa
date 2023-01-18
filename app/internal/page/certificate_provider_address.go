@@ -123,8 +123,7 @@ func (d *certificateProviderAddressForm) Validate() map[string]string {
 	case "lookup":
 		if d.LookupPostcode == "" {
 			errors["lookup-postcode"] = "enterPostcode"
-		}
-		if !d.LookupPostcode.IsUkFormat() && errors["lookup-postcode"] == "" {
+		} else if !d.LookupPostcode.IsUkFormat() {
 			errors["lookup-postcode"] = "enterUkPostcode"
 		}
 
