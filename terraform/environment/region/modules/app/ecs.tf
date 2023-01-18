@@ -321,7 +321,7 @@ locals {
         {
           name  = "AWS_RUM_APPLICATION_REGION",
           value = data.aws_region.current.name
-        }
+        },
       ]
     }
   )

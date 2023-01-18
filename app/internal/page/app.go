@@ -458,6 +458,8 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 
 			_, cookieErr := r.Cookie("cookies-consent")
 
+			localizer.ShowTranslationKeys = r.FormValue("showTranslationKeys") == "1"
+
 			if err := h(AppData{
 				Page:             path,
 				Query:            queryString(r),
