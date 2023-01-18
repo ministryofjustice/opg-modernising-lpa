@@ -29,7 +29,7 @@ func TestLookupPostcode(t *testing.T) {
 	ctx := context.Background()
 
 	testCases := map[string]struct {
-		postcode      string
+		postcode      Postcode
 		queryPostcode string
 		responseJson  string
 		want          []Address
@@ -305,6 +305,10 @@ func TestPostcodeIsUkFormat(t *testing.T) {
 		},
 		"invalid non alpha-numeric": {
 			postcode:           "*&^ £@!",
+			expectedIsUkFormat: false,
+		},
+		"invalid empty": {
+			postcode:           "",
 			expectedIsUkFormat: false,
 		},
 	}

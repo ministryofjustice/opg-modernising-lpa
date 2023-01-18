@@ -177,7 +177,7 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 		"address-line-2":   {"b"},
 		"address-line-3":   {"c"},
 		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"address-postcode": {"AA11AA"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -212,7 +212,7 @@ func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 		"address-line-2":   {"b"},
 		"address-line-3":   {"c"},
 		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"address-postcode": {"AA11AA"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
@@ -254,7 +254,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 		"address-line-2":   {"b"},
 		"address-line-3":   {"c"},
 		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"address-postcode": {"AA11AA"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
@@ -276,7 +276,7 @@ func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 		"action":           {"manual"},
 		"address-line-2":   {"b"},
 		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		"address-postcode": {"AA11AA"},
 	}
 
 	lpaStore := &mockLpaStore{}
@@ -287,7 +287,7 @@ func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 	invalidAddress := &place.Address{
 		Line2:      "b",
 		TownOrCity: "c",
-		Postcode:   "d",
+		Postcode:   "AA11AA",
 	}
 
 	template := &mockTemplate{}

@@ -18,7 +18,7 @@ type mockAddressClient struct {
 	mock.Mock
 }
 
-func (m *mockAddressClient) LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error) {
+func (m *mockAddressClient) LookupPostcode(ctx context.Context, postcode place.Postcode) ([]place.Address, error) {
 	args := m.Called(ctx, postcode)
 	return args.Get(0).([]place.Address), args.Error(1)
 }

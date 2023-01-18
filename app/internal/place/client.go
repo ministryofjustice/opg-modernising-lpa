@@ -49,9 +49,9 @@ func NewClient(baseUrl, apiKey string, httpClient Doer) *Client {
 	}
 }
 
-func (c *Client) LookupPostcode(ctx context.Context, postcode string) ([]Address, error) {
+func (c *Client) LookupPostcode(ctx context.Context, postcode Postcode) ([]Address, error) {
 	query := url.Values{
-		"postcode": {strings.ReplaceAll(postcode, " ", "")},
+		"postcode": {strings.ReplaceAll(string(postcode), " ", "")},
 		"key":      {c.apiKey},
 	}
 

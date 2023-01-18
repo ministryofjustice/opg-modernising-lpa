@@ -2,7 +2,6 @@ package page
 
 import (
 	"net/http"
-	"regexp"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -135,8 +134,6 @@ func readChooseAttorneysAddressForm(r *http.Request) *chooseAttorneysAddressForm
 func (d *chooseAttorneysAddressForm) Validate() map[string]string {
 	errors := map[string]string{}
 
-	ukPostCodeRegex := "^[A-Z]{1,2}\\d[A-Z\\d]? ?\\d[A-Z]{2}$"
-
 	switch d.Action {
 	case "lookup":
 		if d.LookupPostcode == "" {
@@ -144,7 +141,7 @@ func (d *chooseAttorneysAddressForm) Validate() map[string]string {
 		}
 
 		if !d.LookupPostcode.IsUkFormat() {
-			errors["mobile"] = "enterUkPostcode"
+			errors["lookup-postcode"] = "enterUkPostcode"
 		}
 
 	case "select":
@@ -168,13 +165,11 @@ func (d *chooseAttorneysAddressForm) Validate() map[string]string {
 		if d.Address.TownOrCity == "" {
 			errors["address-town"] = "enterTownOrCity"
 		}
-		if d.LookupPostcode == "" {
-			errors["lookup-postcode"] = "enterPostcode"
+		if d.Address.Postcode == "" {
+			errors["address-postcode"] = "enterPostcode"
 		}
-
-		isUkPostcode, _ := regexp.MatchString(ukPostCodeRegex, d.LookupPostcode)
-		if !isUkPostcode {
-			errors["mobile"] = "enterUkPostcode"
+		if !d.Address.Postcode.IsUkFormat() {
+			errors["address-postcode"] = "enterUkPostcode"
 		}
 	}
 
