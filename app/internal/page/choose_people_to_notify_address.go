@@ -53,6 +53,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 			if data.Form.Action == "manual" && len(data.Errors) == 0 {
 				personToNotify.Address = *data.Form.Address
 				lpa.PutPersonToNotify(personToNotify)
+				lpa.Tasks.PeopleToNotify = TaskCompleted
 
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
