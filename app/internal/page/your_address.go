@@ -74,7 +74,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 
 type yourAddressForm struct {
 	Action         string
-	LookupPostcode string
+	LookupPostcode place.Postcode
 	Address        *place.Address
 }
 
@@ -84,10 +84,10 @@ func readYourAddressForm(r *http.Request) *yourAddressForm {
 
 	switch d.Action {
 	case "lookup":
-		d.LookupPostcode = postFormString(r, "lookup-postcode")
+		d.LookupPostcode = place.Postcode(postFormString(r, "lookup-postcode"))
 
 	case "select":
-		d.LookupPostcode = postFormString(r, "lookup-postcode")
+		d.LookupPostcode = place.Postcode(postFormString(r, "lookup-postcode"))
 		selectAddress := r.PostFormValue("select-address")
 		if selectAddress != "" {
 			d.Address = DecodeAddress(selectAddress)
@@ -99,7 +99,7 @@ func readYourAddressForm(r *http.Request) *yourAddressForm {
 			Line2:      postFormString(r, "address-line-2"),
 			Line3:      postFormString(r, "address-line-3"),
 			TownOrCity: postFormString(r, "address-town"),
-			Postcode:   postFormString(r, "address-postcode"),
+			Postcode:   place.Postcode(postFormString(r, "address-postcode")),
 		}
 	}
 
@@ -113,6 +113,8 @@ func (d *yourAddressForm) Validate() map[string]string {
 	case "lookup":
 		if d.LookupPostcode == "" {
 			errors["lookup-postcode"] = "enterPostcode"
+		} else if !d.LookupPostcode.IsUkFormat() {
+			errors["lookup-postcode"] = "enterUkPostcode"
 		}
 
 	case "select":
@@ -135,6 +137,11 @@ func (d *yourAddressForm) Validate() map[string]string {
 		}
 		if d.Address.TownOrCity == "" {
 			errors["address-town"] = "enterTownOrCity"
+		}
+		if d.Address.Postcode == "" {
+			errors["address-postcode"] = "enterPostcode"
+		} else if !d.Address.Postcode.IsUkFormat() {
+			errors["address-postcode"] = "enterUkPostcode"
 		}
 	}
 

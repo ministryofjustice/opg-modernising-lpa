@@ -190,7 +190,7 @@ func TestPostChooseReplacementAttorneysAddressManual(t *testing.T) {
 		"address-line-2":   {"b"},
 		"address-line-3":   {"c"},
 		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"address-postcode": {"AA11AA"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
@@ -223,7 +223,7 @@ func TestPostChooseReplacementAttorneysAddressManualWhenStoreErrors(t *testing.T
 		"address-line-2":   {"b"},
 		"address-line-3":   {"c"},
 		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"address-postcode": {"AA11AA"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
@@ -268,7 +268,7 @@ func TestPostChooseReplacementAttorneysAddressManualFromStore(t *testing.T) {
 		"address-line-2":   {"b"},
 		"address-line-3":   {"c"},
 		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"address-postcode": {"AA11AA"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
@@ -290,7 +290,7 @@ func TestPostChooseReplacementAttorneysAddressManualWhenValidationError(t *testi
 		"action":           {"manual"},
 		"address-line-2":   {"b"},
 		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		"address-postcode": {"AA11AA"},
 	}
 
 	ra := Attorney{
@@ -306,7 +306,7 @@ func TestPostChooseReplacementAttorneysAddressManualWhenValidationError(t *testi
 	invalidAddress := &place.Address{
 		Line2:      "b",
 		TownOrCity: "c",
-		Postcode:   "d",
+		Postcode:   "AA11AA",
 	}
 
 	template := &mockTemplate{}
@@ -355,7 +355,7 @@ func TestPostChooseReplacementAttorneysAddressSelect(t *testing.T) {
 			Line2:      "b",
 			Line3:      "c",
 			TownOrCity: "d",
-			Postcode:   "e",
+			Postcode:   "AA11AA",
 		},
 	}
 
@@ -370,7 +370,7 @@ func TestPostChooseReplacementAttorneysAddressSelect(t *testing.T) {
 			Attorney: ra,
 			Form: &chooseAttorneysAddressForm{
 				Action:         "manual",
-				LookupPostcode: "NG1",
+				LookupPostcode: "AA11AA",
 				Address:        &address,
 			},
 			Errors: map[string]string{},
@@ -379,7 +379,7 @@ func TestPostChooseReplacementAttorneysAddressSelect(t *testing.T) {
 
 	form := url.Values{
 		"action":          {"select"},
-		"lookup-postcode": {"NG1"},
+		"lookup-postcode": {"AA11AA"},
 		"select-address":  {address.Encode()},
 	}
 
@@ -399,7 +399,7 @@ func TestPostChooseReplacementAttorneysAddressSelectWhenValidationError(t *testi
 
 	form := url.Values{
 		"action":          {"select"},
-		"lookup-postcode": {"NG1"},
+		"lookup-postcode": {"AA11AA"},
 	}
 
 	addresses := []place.Address{
@@ -418,7 +418,7 @@ func TestPostChooseReplacementAttorneysAddressSelectWhenValidationError(t *testi
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+		On("LookupPostcode", mock.Anything, place.Postcode("AA11AA")).
 		Return(addresses, nil)
 
 	template := &mockTemplate{}
@@ -428,7 +428,7 @@ func TestPostChooseReplacementAttorneysAddressSelectWhenValidationError(t *testi
 			Attorney: ra,
 			Form: &chooseAttorneysAddressForm{
 				Action:         "select",
-				LookupPostcode: "NG1",
+				LookupPostcode: "AA11AA",
 			},
 			Addresses: addresses,
 			Errors: map[string]string{
@@ -457,7 +457,7 @@ func TestPostChooseReplacementAttorneysAddressLookup(t *testing.T) {
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+		On("LookupPostcode", mock.Anything, place.Postcode("AA11AA")).
 		Return(addresses, nil)
 
 	ra := Attorney{
@@ -477,7 +477,7 @@ func TestPostChooseReplacementAttorneysAddressLookup(t *testing.T) {
 			Attorney: ra,
 			Form: &chooseAttorneysAddressForm{
 				Action:         "lookup",
-				LookupPostcode: "NG1",
+				LookupPostcode: "AA11AA",
 			},
 			Addresses: addresses,
 			Errors:    map[string]string{},
@@ -486,7 +486,7 @@ func TestPostChooseReplacementAttorneysAddressLookup(t *testing.T) {
 
 	form := url.Values{
 		"action":          {"lookup"},
-		"lookup-postcode": {"NG1"},
+		"lookup-postcode": {"AA11AA"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
@@ -519,7 +519,7 @@ func TestPostChooseReplacementAttorneysAddressLookupError(t *testing.T) {
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+		On("LookupPostcode", mock.Anything, place.Postcode("AA11AA")).
 		Return([]place.Address{}, expectedError)
 
 	template := &mockTemplate{}
@@ -529,7 +529,7 @@ func TestPostChooseReplacementAttorneysAddressLookupError(t *testing.T) {
 			Attorney: ra,
 			Form: &chooseAttorneysAddressForm{
 				Action:         "lookup",
-				LookupPostcode: "NG1",
+				LookupPostcode: "AA11AA",
 			},
 			Addresses: []place.Address{},
 			Errors: map[string]string{
@@ -540,7 +540,7 @@ func TestPostChooseReplacementAttorneysAddressLookupError(t *testing.T) {
 
 	form := url.Values{
 		"action":          {"lookup"},
-		"lookup-postcode": {"NG1"},
+		"lookup-postcode": {"AA11AA"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
@@ -626,7 +626,7 @@ func TestPostChooseReplacementAttorneysManuallyFromAnotherPage(t *testing.T) {
 						Address: place.Address{
 							Line1:      "a",
 							TownOrCity: "b",
-							Postcode:   "c",
+							Postcode:   "AA11AA",
 						},
 					},
 				},
@@ -644,7 +644,7 @@ func TestPostChooseReplacementAttorneysManuallyFromAnotherPage(t *testing.T) {
 				"action":           {"manual"},
 				"address-line-1":   {"a"},
 				"address-town":     {"b"},
-				"address-postcode": {"c"},
+				"address-postcode": {"AA11AA"},
 			}
 
 			r, _ := http.NewRequest(http.MethodPost, tc.requestUrl, strings.NewReader(form.Encode()))
