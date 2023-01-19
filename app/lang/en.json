@@ -452,7 +452,7 @@
     "selectAddMorePeopleToNotify": "Select yes if you want to add another person to notify",
     "enterTheirFirstNames": "Enter their first names",
     "enterTheirLastName": "Enter their last name",
-    "enterTheirEmail": "Enter their last name",
+    "enterTheirEmail": "Enter their email address",
     "theirEmailIncorrectFormat": "Enter their email address in the correct format, like name@example.com",
     "removeAPersonToNotify": "Remove a person to notify",
 
