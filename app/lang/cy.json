@@ -361,7 +361,7 @@
     "cpIsWitnessingMeSign": "Fod {{ .CertificateProviderFullName }} yn fy nhystio i'n llofnodi'r LPA hon",
     "wantToApply": "Fy mod am wneud cais i gofrestru'r LPA hon",
     "readMoreDigitalSignatures": "Mae sut mae ticio'r blychau yn gweithredu fel eich llofnod cyfreithiol",
-    "readMoreDigitalSignaturesContent": "User-friendly content to increase confidence in digital signatures.",
+    "readMoreDigitalSignaturesContent": "<p class=\"govuk-body\">Mae llofnodion electronig yn cael eu cydnabod yn gyfreithiol yng Nghymru a Lloegr. Maent yn ei gwneud yn haws i chi lofnodi dogfennau ar-lein.</p> <p class=\"govuk-body\">Trwy dicio'r ddau flwch a dewis 'Cyflwyno fy llofnod', rydych chi'n darparu eich llofnod cyfreithiol. Mae hyn yr un mor ddiogel a chyfreithiol â llofnodi eich LPA â llaw.</p>",
     "submitSignature": "Cyflwyno fy llofnod",
     "selectBothBoxes": "Rhaid i chi ddewis y ddau flwch i lofnodi eich LPA",
 
