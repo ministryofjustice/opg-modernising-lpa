@@ -263,11 +263,11 @@ func TestPostcodeIsUkFormat(t *testing.T) {
 		postcode           Postcode
 		expectedIsUkFormat bool
 	}{
-		"valid no space": {
+		"valid space": {
 			postcode:           "AA1A 1AA",
 			expectedIsUkFormat: true,
 		},
-		"valid space": {
+		"valid no space": {
 			postcode:           "AA1A1AA",
 			expectedIsUkFormat: true,
 		},
