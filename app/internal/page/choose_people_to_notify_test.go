@@ -183,6 +183,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 					ID:         "123",
 				},
 			},
+			Tasks: Tasks{PeopleToNotify: TaskInProgress},
 		}).
 		Return(nil)
 
@@ -230,6 +231,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 	lpaStore.
 		On("Put", mock.Anything, "session-id", &Lpa{
 			PeopleToNotify: []PersonToNotify{updatedPerson},
+			Tasks:          Tasks{PeopleToNotify: TaskInProgress},
 		}).
 		Return(nil)
 
@@ -297,6 +299,7 @@ func TestPostChoosePeopleToNotifyFromAnotherPage(t *testing.T) {
 							ID:         "123",
 						},
 					},
+					Tasks: Tasks{PeopleToNotify: TaskInProgress},
 				}).
 				Return(nil)
 

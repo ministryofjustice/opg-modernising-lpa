@@ -69,6 +69,8 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 					lpa.PutPersonToNotify(personToNotify)
 				}
 
+				lpa.Tasks.PeopleToNotify = TaskInProgress
+
 				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
 					return err
 				}

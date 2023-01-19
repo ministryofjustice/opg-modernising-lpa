@@ -5,7 +5,7 @@
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method="post">
                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-                    <h1 class="govuk-fieldset__heading govuk-!-margin-bottom-6">{{ tr .App "wantPeopleToNotify" }}</h1>
+                    <h1 class="govuk-fieldset__heading govuk-!-margin-bottom-6">{{ tr .App "peopleToNotify" }}</h1>
                 </legend>
 
                 {{ trHtml .App "wantPeopleToNotifyContent" }}
@@ -17,6 +17,9 @@
                 {{ trHtml .App "findOutMoreAboutPeopleToNotifyLink" }}
 
                 <div class="govuk-form-group {{ if index .Errors "want-to-notify" }}govuk-form-group--error{{ end }}">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                        <h2 class="govuk-fieldset__heading">{{ tr .App "wantPeopleToNotify" }}</h2>
+                    </legend>
                     {{ template "error-message" (errorMessage . "want-to-notify") }}
 
                     {{ template "radios" (items . "want-to-notify" .WantToNotify
