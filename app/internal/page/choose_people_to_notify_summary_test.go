@@ -95,12 +95,6 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 			PeopleToNotify: []PersonToNotify{{ID: "123"}},
 			Tasks:          Tasks{ChooseAttorneys: TaskCompleted, CertificateProvider: TaskCompleted},
 		}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{
-			PeopleToNotify: []PersonToNotify{{ID: "123"}},
-			Tasks:          Tasks{ChooseAttorneys: TaskCompleted, CertificateProvider: TaskCompleted, PeopleToNotify: TaskCompleted},
-		}).
-		Return(nil)
 
 	form := url.Values{
 		"add-person-to-notify": {"no"},
