@@ -1,6 +1,7 @@
 describe('Payment', () => {
     describe('Pay for LPA', () => {
         it('adds a secure cookie before redirecting user to GOV UK Pay', () => {
+            cy.clearCookie('pay');
             cy.getCookie('pay').should('not.exist')
 
             cy.visit('/testing-start?redirect=/about-payment');
@@ -18,6 +19,9 @@ describe('Payment', () => {
         })
 
         it('removes existing secure cookie on payment confirmation page', () => {
+            cy.setCookie('pay', 'some-dummy-value')
+            cy.getCookie('pay').should('exist')
+
             cy.visit('/testing-start?redirect=/payment-confirmation&paymentComplete=1');
 
             cy.injectAxe();
