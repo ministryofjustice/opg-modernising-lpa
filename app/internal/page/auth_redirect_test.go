@@ -74,13 +74,13 @@ func TestAuthRedirectWithIdentity(t *testing.T) {
 
 	sessionsStore.
 		On("Get", r, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce", "locale": "en", "identity": true}}, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"state": "my-state", "nonce": "my-nonce", "locale": "en", "identity": true, "lpa-id": "123"}}, nil)
 
 	AuthRedirect(nil, nil, sessionsStore, true)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, Paths.IdentityWithOneLoginCallback+"?code=auth-code&state=my-state", resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/123"+Paths.IdentityWithOneLoginCallback+"?code=auth-code&state=my-state", resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 

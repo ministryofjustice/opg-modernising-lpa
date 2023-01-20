@@ -30,9 +30,10 @@ func (m *mockYotiClient) User(token string) (identity.UserData, error) {
 
 func TestGetIdentityWithYoti(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
-	lpaStore.On("Get", mock.Anything, "session-id").Return(&Lpa{}, nil)
+	lpaStore.On("Get", r.Context()).Return(&Lpa{}, nil)
 
 	yotiClient := &mockYotiClient{}
 	yotiClient.On("IsTest").Return(false)
@@ -47,8 +48,6 @@ func TestGetIdentityWithYoti(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := IdentityWithYoti(template.Func, lpaStore, yotiClient, "a-scenario-id")(appData, w, r)
 	resp := w.Result()
 
@@ -59,48 +58,45 @@ func TestGetIdentityWithYoti(t *testing.T) {
 
 func TestGetIdentityWithYotiWhenAlreadyProvided(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
-	lpaStore.On("Get", mock.Anything, "session-id").Return(&Lpa{YotiUserData: identity.UserData{OK: true}}, nil)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	lpaStore.On("Get", r.Context()).Return(&Lpa{YotiUserData: identity.UserData{OK: true}}, nil)
 
 	err := IdentityWithYoti(nil, lpaStore, nil, "")(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.IdentityWithYotiCallback, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+Paths.IdentityWithYotiCallback, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestGetIdentityWithYotiWhenTest(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
-	lpaStore.On("Get", mock.Anything, "session-id").Return(&Lpa{}, nil)
+	lpaStore.On("Get", r.Context()).Return(&Lpa{}, nil)
 
 	yotiClient := &mockYotiClient{}
 	yotiClient.On("IsTest").Return(true)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := IdentityWithYoti(nil, lpaStore, yotiClient, "")(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.IdentityWithYotiCallback, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+Paths.IdentityWithYotiCallback, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore, yotiClient)
 }
 
 func TestGetIdentityWithYotiWhenDataStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
-	lpaStore.On("Get", mock.Anything, "session-id").Return(&Lpa{}, expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	lpaStore.On("Get", r.Context()).Return(&Lpa{}, expectedError)
 
 	err := IdentityWithYoti(nil, lpaStore, nil, "a-scenario-id")(appData, w, r)
 
@@ -110,9 +106,10 @@ func TestGetIdentityWithYotiWhenDataStoreError(t *testing.T) {
 
 func TestGetIdentityWithYotiWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
-	lpaStore.On("Get", mock.Anything, "session-id").Return(&Lpa{}, nil)
+	lpaStore.On("Get", r.Context()).Return(&Lpa{}, nil)
 
 	yotiClient := &mockYotiClient{}
 	yotiClient.On("IsTest").Return(false)
@@ -122,8 +119,6 @@ func TestGetIdentityWithYotiWhenTemplateError(t *testing.T) {
 	template.
 		On("Func", w, mock.Anything).
 		Return(expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := IdentityWithYoti(template.Func, lpaStore, yotiClient, "a-scenario-id")(appData, w, r)
 

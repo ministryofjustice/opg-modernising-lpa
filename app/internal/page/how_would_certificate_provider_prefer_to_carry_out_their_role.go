@@ -17,7 +17,7 @@ type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
 
 func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -39,14 +39,14 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 				lpa.CertificateProvider.CarryOutBy = data.Form.CarryOutBy
 				lpa.CertificateProvider.Email = data.Form.Email
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
 				if lpa.CertificateProvider.CarryOutBy == "paper" {
-					return appData.Lang.Redirect(w, r, lpa, Paths.CertificateProviderAddress)
+					return appData.Redirect(w, r, lpa, Paths.CertificateProviderAddress)
 				} else {
-					return appData.Lang.Redirect(w, r, lpa, Paths.HowDoYouKnowYourCertificateProvider)
+					return appData.Redirect(w, r, lpa, Paths.HowDoYouKnowYourCertificateProvider)
 				}
 			}
 		}

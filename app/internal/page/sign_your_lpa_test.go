@@ -13,10 +13,11 @@ import (
 
 func TestGetSignYourLpa(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -30,8 +31,6 @@ func TestGetSignYourLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := SignYourLpa(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
@@ -42,13 +41,12 @@ func TestGetSignYourLpa(t *testing.T) {
 
 func TestGetSignYourLpaWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := SignYourLpa(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -60,6 +58,8 @@ func TestGetSignYourLpaWhenStoreErrors(t *testing.T) {
 
 func TestGetSignYourLpaFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
 	lpa := &Lpa{
 		CPWitnessedDonorSign: true,
 		WantToApplyForLpa:    false,
@@ -67,7 +67,7 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(lpa, nil)
 
 	template := &mockTemplate{}
@@ -84,8 +84,6 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := SignYourLpa(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
@@ -95,20 +93,26 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 }
 
 func TestPostSignYourLpa(t *testing.T) {
+	form := url.Values{
+		"sign-lpa": {"cp-witnessed", "want-to-apply"},
+	}
+
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{
+		On("Put", r.Context(), &Lpa{
 			CPWitnessedDonorSign: true,
 			WantToApplyForLpa:    true,
 		}).
 		Return(nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{
+		On("Put", r.Context(), &Lpa{
 			Tasks: Tasks{
 				ConfirmYourIdentityAndSign: TaskCompleted,
 			},
@@ -117,39 +121,31 @@ func TestPostSignYourLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	form := url.Values{
-		"sign-lpa": {"cp-witnessed", "want-to-apply"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
 	err := SignYourLpa(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.WitnessingYourSignature, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+Paths.WitnessingYourSignature, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostSignYourLpaWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", mock.Anything).
-		Return(expectedError)
-
 	form := url.Values{
 		"sign-lpa": {"cp-witnessed", "want-to-apply"},
 	}
 
+	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&Lpa{}, nil)
+	lpaStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(expectedError)
 
 	err := SignYourLpa(nil, lpaStore)(appData, w, r)
 
@@ -158,14 +154,20 @@ func TestPostSignYourLpaWhenStoreErrors(t *testing.T) {
 }
 
 func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
+	form := url.Values{
+		"sign-lpa": {"unrecognised-signature", "another-unrecognised-signature"},
+	}
+
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{
+		On("Put", r.Context(), &Lpa{
 			CPWitnessedDonorSign: false,
 			WantToApplyForLpa:    false,
 		}).
@@ -177,13 +179,6 @@ func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
 			return assert.Equal(t, map[string]string{"sign-lpa": "selectBothBoxes"}, data.Errors)
 		})).
 		Return(nil)
-
-	form := url.Values{
-		"sign-lpa": {"unrecognised-signature", "another-unrecognised-signature"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
 
 	err := SignYourLpa(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
