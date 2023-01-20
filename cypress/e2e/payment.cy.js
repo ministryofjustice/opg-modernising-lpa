@@ -19,21 +19,21 @@ describe('Payment', () => {
         })
 
         it('removes existing secure cookie on payment confirmation page', () => {
-            cy.setCookie('pay', 'some-dummy-value')
+            cy.visit('/testing-start?redirect=/task-list&paymentComplete=1');
             cy.getCookie('pay').should('exist')
 
-            cy.visit('/testing-start?redirect=/payment-confirmation&paymentComplete=1');
+            cy.visit('/payment-confirmation');
 
             cy.injectAxe();
 
             cy.get('h1').should('contain', 'Payment received');
             cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
+            cy.getCookie('pay').should('not.exist')
+
             cy.contains('a', 'Continue').click()
 
             cy.url().should('contains', '/task-list')
-
-            cy.getCookie('pay').should('not.exist')
         })
     })
 })
