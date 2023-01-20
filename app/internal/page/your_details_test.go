@@ -17,10 +17,11 @@ import (
 
 func TestGetYourDetails(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -30,8 +31,6 @@ func TestGetYourDetails(t *testing.T) {
 			Form: &yourDetailsForm{},
 		}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := YourDetails(template.Func, lpaStore, nil)(appData, w, r)
 	resp := w.Result()
@@ -43,13 +42,12 @@ func TestGetYourDetails(t *testing.T) {
 
 func TestGetYourDetailsWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := YourDetails(nil, lpaStore, nil)(appData, w, r)
 	resp := w.Result()
@@ -61,10 +59,11 @@ func TestGetYourDetailsWhenStoreErrors(t *testing.T) {
 
 func TestGetYourDetailsFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{
 			You: Person{
 				FirstNames: "John",
@@ -81,8 +80,6 @@ func TestGetYourDetailsFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := YourDetails(template.Func, lpaStore, nil)(appData, w, r)
 	resp := w.Result()
 
@@ -93,10 +90,11 @@ func TestGetYourDetailsFromStore(t *testing.T) {
 
 func TestGetYourDetailsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -106,8 +104,6 @@ func TestGetYourDetailsWhenTemplateErrors(t *testing.T) {
 			Form: &yourDetailsForm{},
 		}).
 		Return(expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := YourDetails(template.Func, lpaStore, nil)(appData, w, r)
 	resp := w.Result()
@@ -166,7 +162,7 @@ func TestPostYourDetails(t *testing.T) {
 
 			lpaStore := &mockLpaStore{}
 			lpaStore.
-				On("Get", mock.Anything, "session-id").
+				On("Get", r.Context()).
 				Return(&Lpa{
 					You: Person{
 						FirstNames: "John",
@@ -174,7 +170,7 @@ func TestPostYourDetails(t *testing.T) {
 					},
 				}, nil)
 			lpaStore.
-				On("Put", mock.Anything, "session-id", &Lpa{
+				On("Put", r.Context(), &Lpa{
 					You:   tc.person,
 					Tasks: Tasks{YourDetails: TaskInProgress},
 				}).
@@ -190,7 +186,7 @@ func TestPostYourDetails(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, appData.Paths.YourAddress, resp.Header.Get("Location"))
+			assert.Equal(t, "/lpa/lpa-id"+Paths.YourAddress, resp.Header.Get("Location"))
 			mock.AssertExpectationsForObjects(t, lpaStore, sessionStore)
 		})
 	}
@@ -254,6 +250,8 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
 
 			template := &mockTemplate{}
 			template.
@@ -264,16 +262,13 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 
 			lpaStore := &mockLpaStore{}
 			lpaStore.
-				On("Get", mock.Anything, "session-id").
+				On("Get", r.Context()).
 				Return(&Lpa{}, nil)
 
 			sessionStore := &mockSessionsStore{}
 			sessionStore.
 				On("Get", mock.Anything, "session").
 				Return(&sessions.Session{Values: map[interface{}]interface{}{"email": "name@example.com"}}, nil)
-
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
 
 			err := YourDetails(template.Func, lpaStore, sessionStore)(appData, w, r)
 			resp := w.Result()
@@ -286,26 +281,6 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 }
 
 func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{
-			You: Person{
-				FirstNames: "John",
-				Address:    place.Address{Line1: "abc"},
-			},
-		}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", mock.Anything).
-		Return(expectedError)
-
-	sessionStore := &mockSessionsStore{}
-	sessionStore.
-		On("Get", mock.Anything, "session").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"email": "name@example.com"}}, nil)
-
 	form := url.Values{
 		"first-names":         {"John"},
 		"last-name":           {"Doe"},
@@ -314,8 +289,27 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 		"date-of-birth-year":  {"1990"},
 	}
 
+	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&Lpa{
+			You: Person{
+				FirstNames: "John",
+				Address:    place.Address{Line1: "abc"},
+			},
+		}, nil)
+	lpaStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(expectedError)
+
+	sessionStore := &mockSessionsStore{}
+	sessionStore.
+		On("Get", mock.Anything, "session").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"email": "name@example.com"}}, nil)
 
 	err := YourDetails(nil, lpaStore, sessionStore)(appData, w, r)
 
@@ -340,18 +334,6 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-
-			lpaStore := &mockLpaStore{}
-			lpaStore.
-				On("Get", mock.Anything, "session-id").
-				Return(&Lpa{}, nil)
-
-			sessionStore := &mockSessionsStore{}
-			sessionStore.
-				On("Get", mock.Anything, "session").
-				Return(tc.session, tc.error)
-
 			form := url.Values{
 				"first-names":         {"John"},
 				"last-name":           {"Doe"},
@@ -360,8 +342,19 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 				"date-of-birth-year":  {"1990"},
 			}
 
+			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", formUrlEncoded)
+
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", r.Context()).
+				Return(&Lpa{}, nil)
+
+			sessionStore := &mockSessionsStore{}
+			sessionStore.
+				On("Get", mock.Anything, "session").
+				Return(tc.session, tc.error)
 
 			err := YourDetails(nil, lpaStore, sessionStore)(appData, w, r)
 

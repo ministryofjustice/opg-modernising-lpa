@@ -14,10 +14,11 @@ import (
 
 func TestGetSelectYourIdentityOptions(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -29,8 +30,6 @@ func TestGetSelectYourIdentityOptions(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := SelectYourIdentityOptions(template.Func, lpaStore, 2)(appData, w, r)
 	resp := w.Result()
 
@@ -41,13 +40,12 @@ func TestGetSelectYourIdentityOptions(t *testing.T) {
 
 func TestGetSelectYourIdentityOptionsWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := SelectYourIdentityOptions(nil, lpaStore, 0)(appData, w, r)
 
@@ -57,10 +55,11 @@ func TestGetSelectYourIdentityOptionsWhenStoreErrors(t *testing.T) {
 
 func TestGetSelectYourIdentityOptionsFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{
 			IdentityOption: Passport,
 		}, nil)
@@ -73,8 +72,6 @@ func TestGetSelectYourIdentityOptionsFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := SelectYourIdentityOptions(template.Func, lpaStore, 0)(appData, w, r)
 	resp := w.Result()
 
@@ -85,18 +82,17 @@ func TestGetSelectYourIdentityOptionsFromStore(t *testing.T) {
 
 func TestGetSelectYourIdentityOptionsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, mock.Anything).
 		Return(expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := SelectYourIdentityOptions(template.Func, lpaStore, 0)(appData, w, r)
 	resp := w.Result()
@@ -107,14 +103,20 @@ func TestGetSelectYourIdentityOptionsWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostSelectYourIdentityOptions(t *testing.T) {
+	form := url.Values{
+		"option": {"passport"},
+	}
+
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{
+		On("Put", r.Context(), &Lpa{
 			IdentityOption: Passport,
 			Tasks: Tasks{
 				ConfirmYourIdentityAndSign: TaskInProgress,
@@ -122,42 +124,34 @@ func TestPostSelectYourIdentityOptions(t *testing.T) {
 		}).
 		Return(nil)
 
-	form := url.Values{
-		"option": {"passport"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
 	err := SelectYourIdentityOptions(nil, lpaStore, 0)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.YourChosenIdentityOptions, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+Paths.YourChosenIdentityOptions, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostSelectYourIdentityOptionsNone(t *testing.T) {
 	for page, nextPath := range map[int]string{
-		0: appData.Paths.SelectYourIdentityOptions1,
-		1: appData.Paths.SelectYourIdentityOptions2,
-		2: appData.Paths.TaskList,
+		0: "/lpa/lpa-id" + Paths.SelectYourIdentityOptions1,
+		1: "/lpa/lpa-id" + Paths.SelectYourIdentityOptions2,
+		2: "/lpa/lpa-id" + Paths.TaskList,
 	} {
 		t.Run(fmt.Sprintf("Page%d", page), func(t *testing.T) {
-			w := httptest.NewRecorder()
-
-			lpaStore := &mockLpaStore{}
-			lpaStore.
-				On("Get", mock.Anything, "session-id").
-				Return(&Lpa{}, nil)
-
 			form := url.Values{
 				"option": {"none"},
 			}
 
+			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", formUrlEncoded)
+
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", r.Context()).
+				Return(&Lpa{}, nil)
 
 			err := SelectYourIdentityOptions(nil, lpaStore, page)(appData, w, r)
 			resp := w.Result()
@@ -171,22 +165,21 @@ func TestPostSelectYourIdentityOptionsNone(t *testing.T) {
 }
 
 func TestPostSelectYourIdentityOptionsWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", mock.Anything).
-		Return(expectedError)
-
 	form := url.Values{
 		"option": {"passport"},
 	}
 
+	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&Lpa{}, nil)
+	lpaStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(expectedError)
 
 	err := SelectYourIdentityOptions(nil, lpaStore, 0)(appData, w, r)
 
@@ -196,10 +189,12 @@ func TestPostSelectYourIdentityOptionsWhenStoreErrors(t *testing.T) {
 
 func TestPostSelectYourIdentityOptionsWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -212,9 +207,6 @@ func TestPostSelectYourIdentityOptionsWhenValidationErrors(t *testing.T) {
 			},
 		}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
-	r.Header.Add("Content-Type", formUrlEncoded)
 
 	err := SelectYourIdentityOptions(template.Func, lpaStore, 0)(appData, w, r)
 	resp := w.Result()
