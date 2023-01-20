@@ -20,7 +20,7 @@ type removePersonToNotifyForm struct {
 
 func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			logger.Print(fmt.Sprintf("error getting lpa from store: %s", err.Error()))
 			return err
@@ -30,7 +30,7 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaSto
 		attorney, found := lpa.GetPersonToNotify(id)
 
 		if found == false {
-			return appData.Lang.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
+			return appData.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
 		}
 
 		data := &removePersonToNotifyData{
@@ -58,18 +58,18 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaSto
 					redirect = appData.Paths.ChoosePeopleToNotifySummary
 				}
 
-				err = lpaStore.Put(r.Context(), appData.SessionID, lpa)
+				err = lpaStore.Put(r.Context(), lpa)
 
 				if err != nil {
 					logger.Print(fmt.Sprintf("error removing PersonToNotify from LPA: %s", err.Error()))
 					return err
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, redirect)
+				return appData.Redirect(w, r, lpa, redirect)
 			}
 
 			if data.Form.RemovePersonToNotify == "no" {
-				return appData.Lang.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
+				return appData.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
 			}
 
 		}

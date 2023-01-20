@@ -19,7 +19,7 @@ type howShouldReplacementAttorneysStepInForm struct {
 
 func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -45,7 +45,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 					lpa.HowShouldReplacementAttorneysStepInDetails = data.Form.OtherDetails
 				}
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
@@ -59,7 +59,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, redirectUrl)
+				return appData.Redirect(w, r, lpa, redirectUrl)
 			}
 		}
 
