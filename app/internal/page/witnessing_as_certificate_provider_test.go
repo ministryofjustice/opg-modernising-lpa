@@ -14,10 +14,11 @@ import (
 
 func TestGetWitnessingAsCertificateProvider(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -29,8 +30,6 @@ func TestGetWitnessingAsCertificateProvider(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := WitnessingAsCertificateProvider(template.Func, lpaStore, time.Now)(appData, w, r)
 	resp := w.Result()
 
@@ -41,15 +40,14 @@ func TestGetWitnessingAsCertificateProvider(t *testing.T) {
 
 func TestGetWitnessingAsCertificateProviderWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, expectedError)
 
 	template := &mockTemplate{}
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := WitnessingAsCertificateProvider(template.Func, lpaStore, time.Now)(appData, w, r)
 	resp := w.Result()
@@ -61,10 +59,11 @@ func TestGetWitnessingAsCertificateProviderWhenStoreErrors(t *testing.T) {
 
 func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{
 			CertificateProvider: CertificateProvider{FirstNames: "Joan"},
 		}, nil)
@@ -80,8 +79,6 @@ func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := WitnessingAsCertificateProvider(template.Func, lpaStore, time.Now)(appData, w, r)
 	resp := w.Result()
 
@@ -92,10 +89,11 @@ func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
 
 func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -107,8 +105,6 @@ func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := WitnessingAsCertificateProvider(template.Func, lpaStore, time.Now)(appData, w, r)
 	resp := w.Result()
 
@@ -118,47 +114,53 @@ func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostWitnessingAsCertificateProvider(t *testing.T) {
+	form := url.Values{
+		"witness-code": {"1234"},
+	}
+
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
 	now := time.Now()
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{
 			WitnessCode: WitnessCode{Code: "1234", Created: now},
 		}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{
+		On("Put", r.Context(), &Lpa{
 			WitnessCode:            WitnessCode{Code: "1234", Created: now},
 			CPWitnessCodeValidated: true,
 			Submitted:              now,
 		}).
 		Return(nil)
 
-	form := url.Values{
-		"witness-code": {"1234"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
 	err := WitnessingAsCertificateProvider(nil, lpaStore, func() time.Time { return now })(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.YouHaveSubmittedYourLpa, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+Paths.YouHaveSubmittedYourLpa, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
+	form := url.Values{
+		"witness-code": {"1234"},
+	}
+
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
 	now := time.Now()
 	invalidCreated := now.Add(-45 * time.Minute)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{
 			WitnessCode: WitnessCode{Code: "1234", Created: invalidCreated},
 		}, nil)
@@ -177,13 +179,6 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 		}).
 		Return(nil)
 
-	form := url.Values{
-		"witness-code": {"1234"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
 	err := WitnessingAsCertificateProvider(template.Func, lpaStore, time.Now)(appData, w, r)
 	resp := w.Result()
 
@@ -193,13 +188,20 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 }
 
 func TestPostWitnessingAsCertificateProviderExpiryTrumpsMismatch(t *testing.T) {
+	form := url.Values{
+		"witness-code": {"4321"},
+	}
+
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
 	now := time.Now()
 	invalidCreated := now.Add(-45 * time.Minute)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{
 			WitnessCode: WitnessCode{Code: "1234", Created: invalidCreated},
 		}, nil)
@@ -218,13 +220,6 @@ func TestPostWitnessingAsCertificateProviderExpiryTrumpsMismatch(t *testing.T) {
 		}).
 		Return(nil)
 
-	form := url.Values{
-		"witness-code": {"4321"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
 	err := WitnessingAsCertificateProvider(template.Func, lpaStore, time.Now)(appData, w, r)
 	resp := w.Result()
 
@@ -234,12 +229,19 @@ func TestPostWitnessingAsCertificateProviderExpiryTrumpsMismatch(t *testing.T) {
 }
 
 func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
+	form := url.Values{
+		"witness-code": {"4321"},
+	}
+
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
 	now := time.Now()
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{
 			WitnessCode: WitnessCode{Code: "1234", Created: now},
 		}, nil)
@@ -257,13 +259,6 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 			Form: &witnessingAsCertificateProviderForm{Code: "4321"},
 		}).
 		Return(nil)
-
-	form := url.Values{
-		"witness-code": {"4321"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
 
 	err := WitnessingAsCertificateProvider(template.Func, lpaStore, time.Now)(appData, w, r)
 	resp := w.Result()

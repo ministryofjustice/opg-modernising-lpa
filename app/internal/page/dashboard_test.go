@@ -9,21 +9,21 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestDashboard(t *testing.T) {
+func TestGetDashboard(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
 	lpa := &Lpa{}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("GetAll", r.Context()).
 		Return(lpa, nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &dashboardData{App: appData, Lpa: lpa}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := Dashboard(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -33,16 +33,16 @@ func TestDashboard(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
-func TestDashboardWhenDataStoreErrors(t *testing.T) {
+func TestGetDashboardWhenDataStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
 	lpa := &Lpa{}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("GetAll", r.Context()).
 		Return(lpa, expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := Dashboard(nil, lpaStore)(appData, w, r)
 
@@ -50,12 +50,13 @@ func TestDashboardWhenDataStoreErrors(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
-func TestDashboardWhenTemplateErrors(t *testing.T) {
+func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("GetAll", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -63,10 +64,26 @@ func TestDashboardWhenTemplateErrors(t *testing.T) {
 		On("Func", w, &dashboardData{App: appData, Lpa: &Lpa{}}).
 		Return(expectedError)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := Dashboard(template.Func, lpaStore)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
+}
+
+func TestPostDashboard(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Create", r.Context()).
+		Return(&Lpa{ID: "123"}, nil)
+
+	err := Dashboard(nil, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "/lpa/lpa-id"+Paths.YourDetails, resp.Header.Get("Location"))
+	mock.AssertExpectationsForObjects(t, lpaStore)
 }

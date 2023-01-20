@@ -8,14 +8,14 @@ describe('Dashboard', () => {
         cy.get('#f-date-of-birth-year').type('1990');
         cy.contains('button', 'Continue').click();
 
-        cy.visit('/lpa-type');
+        cy.visitLpa('/lpa-type');
         cy.get('#f-lpa-type').check();
         cy.contains('button', 'Continue').click();
 
         cy.visit('/dashboard');
     });
 
-    it('shows my lasting power of attorney', () => {
+    it('shows my lasting power of attorney', () => {        
         cy.contains('Property and affairs');
         cy.contains('John Doe');
         cy.contains('a', 'Continue').click();

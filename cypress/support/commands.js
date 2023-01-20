@@ -47,4 +47,8 @@ function terminalLog(violations) {
 // Adds a table to the terminal with violation details
 Cypress.Commands.add('checkA11yVvv', () => {
     cy.checkA11y(null, { rules: { region: { enabled: false } } }, terminalLog);
-})
+});
+
+Cypress.Commands.add('visitLpa', (path) => {
+    cy.url().then(u => cy.visit(u.split('/').slice(3, -1).join('/') + path));
+});

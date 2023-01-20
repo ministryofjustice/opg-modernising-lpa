@@ -62,10 +62,11 @@ func TestGetTaskList(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			lpaStore := &mockLpaStore{}
 			lpaStore.
-				On("Get", mock.Anything, "session-id").
+				On("Get", r.Context()).
 				Return(tc.lpa, nil)
 
 			template := &mockTemplate{}
@@ -109,8 +110,6 @@ func TestGetTaskList(t *testing.T) {
 				}).
 				Return(nil)
 
-			r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 			err := TaskList(template.Func, lpaStore)(appData, w, r)
 			resp := w.Result()
 
@@ -123,13 +122,12 @@ func TestGetTaskList(t *testing.T) {
 
 func TestGetTaskListWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := TaskList(nil, lpaStore)(appData, w, r)
 
@@ -139,18 +137,17 @@ func TestGetTaskListWhenStoreErrors(t *testing.T) {
 
 func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, mock.Anything).
 		Return(expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := TaskList(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
