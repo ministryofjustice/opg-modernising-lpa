@@ -14,7 +14,7 @@ type dashboardData struct {
 
 func Dashboard(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.GetAll(r.Context())
 		if err != nil {
 			return err
 		}
@@ -22,6 +22,15 @@ func Dashboard(tmpl template.Template, lpaStore LpaStore) Handler {
 		data := &dashboardData{
 			App: appData,
 			Lpa: lpa,
+		}
+
+		if r.Method == http.MethodPost {
+			lpa, err := lpaStore.Create(r.Context())
+			if err != nil {
+				return err
+			}
+
+			return appData.Redirect(w, r, lpa, Paths.YourDetails)
 		}
 
 		return tmpl(w, data)

@@ -17,7 +17,7 @@ type paymentConfirmationData struct {
 
 func PaymentConfirmation(logger Logger, tmpl template.Template, client PayClient, lpaStore LpaStore, sessionStore sessions.Store) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -56,7 +56,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, client PayClient
 
 		lpa.Tasks.PayForLpa = TaskCompleted
 
-		if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+		if err := lpaStore.Put(r.Context(), lpa); err != nil {
 			logger.Print(fmt.Sprintf("unable to update lpa in dataStore: %s", err.Error()))
 			return err
 		}

@@ -16,7 +16,7 @@ type chooseReplacementAttorneysSummaryData struct {
 
 func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			logger.Print(fmt.Sprintf("error getting lpa from store: %s", err.Error()))
 			return err
@@ -50,7 +50,7 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 					redirectUrl = fmt.Sprintf("%s?addAnother=1", appData.Paths.ChooseReplacementAttorneys)
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, redirectUrl)
+				return appData.Redirect(w, r, lpa, redirectUrl)
 			}
 
 		}

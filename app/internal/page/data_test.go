@@ -61,46 +61,46 @@ func (m *mockDataStore) Put(ctx context.Context, id string, v interface{}) error
 }
 
 func TestLpaStoreGet(t *testing.T) {
-	ctx := context.Background()
+	ctx := contextWithSessionData(context.Background(), &sessionData{SessionID: "an-id", LpaID: "123"})
 
-	dataStore := &mockDataStore{}
+	dataStore := &mockDataStore{data: &Lpa{ID: "10100000"}}
 	dataStore.On("Get", ctx, "an-id").Return(nil)
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
 
-	lpa, err := lpaStore.Get(ctx, "an-id")
+	lpa, err := lpaStore.Get(ctx)
 	assert.Nil(t, err)
 	assert.Equal(t, &Lpa{ID: "10100000"}, lpa)
 }
 
 func TestLpaStoreGetWhenExists(t *testing.T) {
+	ctx := contextWithSessionData(context.Background(), &sessionData{SessionID: "an-id", LpaID: "123"})
 	existingLpa := &Lpa{ID: "an-id"}
-	ctx := context.Background()
 
 	dataStore := &mockDataStore{data: existingLpa}
 	dataStore.On("Get", ctx, "an-id").Return(nil)
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
 
-	lpa, err := lpaStore.Get(ctx, "an-id")
+	lpa, err := lpaStore.Get(ctx)
 	assert.Nil(t, err)
 	assert.Equal(t, existingLpa, lpa)
 }
 
 func TestLpaStoreGetWhenDataStoreError(t *testing.T) {
-	ctx := context.Background()
+	ctx := contextWithSessionData(context.Background(), &sessionData{SessionID: "an-id", LpaID: "123"})
 
 	dataStore := &mockDataStore{}
 	dataStore.On("Get", ctx, "an-id").Return(expectedError)
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
 
-	_, err := lpaStore.Get(ctx, "an-id")
+	_, err := lpaStore.Get(ctx)
 	assert.Equal(t, expectedError, err)
 }
 
 func TestLpaStorePut(t *testing.T) {
-	ctx := context.Background()
+	ctx := contextWithSessionData(context.Background(), &sessionData{SessionID: "an-id", LpaID: "123"})
 	lpa := &Lpa{ID: "5"}
 
 	dataStore := &mockDataStore{}
@@ -108,7 +108,7 @@ func TestLpaStorePut(t *testing.T) {
 
 	lpaStore := &lpaStore{dataStore: dataStore}
 
-	err := lpaStore.Put(ctx, "an-id", lpa)
+	err := lpaStore.Put(ctx, lpa)
 	assert.Equal(t, expectedError, err)
 }
 

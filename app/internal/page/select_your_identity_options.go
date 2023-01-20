@@ -15,7 +15,7 @@ type selectYourIdentityOptionsData struct {
 
 func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, page int) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -35,12 +35,12 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, page i
 			if data.Form.None {
 				switch page {
 				case 0:
-					return appData.Lang.Redirect(w, r, lpa, Paths.SelectYourIdentityOptions1)
+					return appData.Redirect(w, r, lpa, Paths.SelectYourIdentityOptions1)
 				case 1:
-					return appData.Lang.Redirect(w, r, lpa, Paths.SelectYourIdentityOptions2)
+					return appData.Redirect(w, r, lpa, Paths.SelectYourIdentityOptions2)
 				default:
 					// will go to vouching flow when that is built
-					return appData.Lang.Redirect(w, r, lpa, Paths.TaskList)
+					return appData.Redirect(w, r, lpa, Paths.TaskList)
 				}
 			}
 
@@ -48,11 +48,11 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, page i
 				lpa.IdentityOption = data.Form.Selected
 				lpa.Tasks.ConfirmYourIdentityAndSign = TaskInProgress
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, Paths.YourChosenIdentityOptions)
+				return appData.Redirect(w, r, lpa, Paths.YourChosenIdentityOptions)
 			}
 		}
 
