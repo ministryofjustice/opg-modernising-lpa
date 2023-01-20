@@ -20,16 +20,16 @@ type identityWithOneLoginCallbackData struct {
 
 func IdentityWithOneLoginCallback(tmpl template.Template, authRedirectClient authRedirectClient, sessionStore sessions.Store, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
 		if r.Method == http.MethodPost {
 			if lpa.OneLoginUserData.OK {
-				return appData.Lang.Redirect(w, r, lpa, Paths.ReadYourLpa)
+				return appData.Redirect(w, r, lpa, Paths.ReadYourLpa)
 			} else {
-				return appData.Lang.Redirect(w, r, lpa, Paths.SelectYourIdentityOptions1)
+				return appData.Redirect(w, r, lpa, Paths.SelectYourIdentityOptions1)
 			}
 		}
 
@@ -77,7 +77,7 @@ func IdentityWithOneLoginCallback(tmpl template.Template, authRedirectClient aut
 				FullName:    userInfo.CoreIdentityJWT, // we will parse this later
 			}
 
-			if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+			if err := lpaStore.Put(r.Context(), lpa); err != nil {
 				return err
 			}
 

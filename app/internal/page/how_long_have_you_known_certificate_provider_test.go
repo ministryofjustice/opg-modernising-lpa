@@ -15,10 +15,11 @@ import (
 
 func TestGetHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -27,8 +28,6 @@ func TestGetHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 			App: appData,
 		}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := HowLongHaveYouKnownCertificateProvider(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -40,12 +39,13 @@ func TestGetHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 
 func TestGetHowLongHaveYouKnownCertificateProviderFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	certificateProvider := CertificateProvider{RelationshipLength: "gte-2-years"}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{CertificateProvider: certificateProvider}, nil)
 
 	template := &mockTemplate{}
@@ -57,8 +57,6 @@ func TestGetHowLongHaveYouKnownCertificateProviderFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := HowLongHaveYouKnownCertificateProvider(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
@@ -69,13 +67,12 @@ func TestGetHowLongHaveYouKnownCertificateProviderFromStore(t *testing.T) {
 
 func TestGetHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := HowLongHaveYouKnownCertificateProvider(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -87,10 +84,11 @@ func TestGetHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T) 
 
 func TestGetHowLongHaveYouKnownCertificateProviderWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -99,8 +97,6 @@ func TestGetHowLongHaveYouKnownCertificateProviderWhenTemplateErrors(t *testing.
 			App: appData,
 		}).
 		Return(expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := HowLongHaveYouKnownCertificateProvider(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -111,17 +107,23 @@ func TestGetHowLongHaveYouKnownCertificateProviderWhenTemplateErrors(t *testing.
 }
 
 func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
+	form := url.Values{
+		"how-long": {"gte-2-years"},
+	}
+
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{
 			Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}},
 			HowAttorneysMakeDecisions: Jointly,
 		}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{
+		On("Put", r.Context(), &Lpa{
 			Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}},
 			HowAttorneysMakeDecisions: Jointly,
 			CertificateProvider:       CertificateProvider{RelationshipLength: "gte-2-years"},
@@ -129,39 +131,31 @@ func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 		}).
 		Return(nil)
 
-	form := url.Values{
-		"how-long": {"gte-2-years"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
 	err := HowLongHaveYouKnownCertificateProvider(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.DoYouWantToNotifyPeople, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+Paths.DoYouWantToNotifyPeople, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", mock.Anything).
-		Return(expectedError)
-
 	form := url.Values{
 		"how-long": {"gte-2-years"},
 	}
 
+	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&Lpa{}, nil)
+	lpaStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(expectedError)
 
 	err := HowLongHaveYouKnownCertificateProvider(nil, lpaStore)(appData, w, r)
 
@@ -171,10 +165,12 @@ func TestPostHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T)
 
 func TestPostHowLongHaveYouKnownCertificateProviderWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -186,9 +182,6 @@ func TestPostHowLongHaveYouKnownCertificateProviderWhenValidationErrors(t *testi
 			},
 		}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
-	r.Header.Add("Content-Type", formUrlEncoded)
 
 	err := HowLongHaveYouKnownCertificateProvider(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()

@@ -11,19 +11,19 @@ import (
 
 func TestDashboard(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
 	lpa := &Lpa{}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("GetAll", r.Context()).
 		Return(lpa, nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &dashboardData{App: appData, Lpa: lpa}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := Dashboard(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -35,14 +35,14 @@ func TestDashboard(t *testing.T) {
 
 func TestDashboardWhenDataStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
 	lpa := &Lpa{}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("GetAll", r.Context()).
 		Return(lpa, expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := Dashboard(nil, lpaStore)(appData, w, r)
 
@@ -52,18 +52,17 @@ func TestDashboardWhenDataStoreErrors(t *testing.T) {
 
 func TestDashboardWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("GetAll", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &dashboardData{App: appData, Lpa: &Lpa{}}).
 		Return(expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := Dashboard(template.Func, lpaStore)(appData, w, r)
 
