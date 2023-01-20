@@ -16,7 +16,7 @@ type chooseReplacementAttorneysData struct {
 
 func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -25,7 +25,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 		ra, attorneyFound := lpa.GetReplacementAttorney(r.URL.Query().Get("id"))
 
 		if r.Method == http.MethodGet && len(lpa.ReplacementAttorneys) > 0 && attorneyFound == false && addAnother == false {
-			return appData.Lang.Redirect(w, r, lpa, Paths.ChooseReplacementAttorneysSummary)
+			return appData.Redirect(w, r, lpa, Paths.ChooseReplacementAttorneysSummary)
 		}
 
 		data := &chooseReplacementAttorneysData{
@@ -74,7 +74,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 					lpa.Tasks.ChooseReplacementAttorneys = TaskInProgress
 				}
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
@@ -84,7 +84,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 					from = fmt.Sprintf("%s?id=%s", appData.Paths.ChooseReplacementAttorneysAddress, ra.ID)
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, from)
+				return appData.Redirect(w, r, lpa, from)
 			}
 		}
 

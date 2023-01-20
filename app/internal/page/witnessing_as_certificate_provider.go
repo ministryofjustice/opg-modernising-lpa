@@ -20,7 +20,7 @@ type witnessingAsCertificateProviderForm struct {
 
 func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, now func() time.Time) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -46,11 +46,11 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, 
 			if len(data.Errors) == 0 {
 				lpa.CPWitnessCodeValidated = true
 				lpa.Submitted = now()
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, Paths.YouHaveSubmittedYourLpa)
+				return appData.Redirect(w, r, lpa, Paths.YouHaveSubmittedYourLpa)
 			}
 		}
 
