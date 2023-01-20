@@ -13,10 +13,11 @@ import (
 
 func TestGetLpaType(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -25,8 +26,6 @@ func TestGetLpaType(t *testing.T) {
 			App: appData,
 		}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := LpaType(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -38,10 +37,11 @@ func TestGetLpaType(t *testing.T) {
 
 func TestGetLpaTypeFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{Type: LpaTypePropertyFinance}, nil)
 
 	template := &mockTemplate{}
@@ -51,8 +51,6 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 			Type: LpaTypePropertyFinance,
 		}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := LpaType(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -64,13 +62,12 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 
 func TestGetLpaTypeWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := LpaType(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -82,10 +79,11 @@ func TestGetLpaTypeWhenStoreErrors(t *testing.T) {
 
 func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -94,8 +92,6 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 			App: appData,
 		}).
 		Return(expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := LpaType(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -106,49 +102,47 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostLpaType(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{Type: LpaTypePropertyFinance, Tasks: Tasks{YourDetails: TaskCompleted}}).
-		Return(nil)
-
 	form := url.Values{
 		"lpa-type": {LpaTypePropertyFinance},
 	}
 
+	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&Lpa{}, nil)
+	lpaStore.
+		On("Put", r.Context(), &Lpa{Type: LpaTypePropertyFinance, Tasks: Tasks{YourDetails: TaskCompleted}}).
+		Return(nil)
 
 	err := LpaType(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.TaskList, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+Paths.TaskList, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", mock.Anything).
-		Return(expectedError)
-
 	form := url.Values{
 		"lpa-type": {LpaTypePropertyFinance},
 	}
 
+	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&Lpa{}, nil)
+	lpaStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(expectedError)
 
 	err := LpaType(nil, lpaStore)(appData, w, r)
 
@@ -158,10 +152,12 @@ func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
 
 func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -173,9 +169,6 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 			},
 		}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
-	r.Header.Add("Content-Type", formUrlEncoded)
 
 	err := LpaType(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()

@@ -13,10 +13,11 @@ import (
 
 func TestGetHowDoYouKnowYourCertificateProvider(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -26,8 +27,6 @@ func TestGetHowDoYouKnowYourCertificateProvider(t *testing.T) {
 			Form: &howDoYouKnowYourCertificateProviderForm{},
 		}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := HowDoYouKnowYourCertificateProvider(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -39,13 +38,12 @@ func TestGetHowDoYouKnowYourCertificateProvider(t *testing.T) {
 
 func TestGetHowDoYouKnowYourCertificateProviderWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := HowDoYouKnowYourCertificateProvider(nil, lpaStore)(appData, w, r)
 
@@ -55,13 +53,14 @@ func TestGetHowDoYouKnowYourCertificateProviderWhenStoreErrors(t *testing.T) {
 
 func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	certificateProvider := CertificateProvider{
 		Relationship: "friend",
 	}
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{
 			CertificateProvider: certificateProvider,
 		}, nil)
@@ -75,8 +74,6 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := HowDoYouKnowYourCertificateProvider(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
@@ -87,18 +84,17 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 
 func TestGetHowDoYouKnowYourCertificateProviderWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, mock.Anything).
 		Return(expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := HowDoYouKnowYourCertificateProvider(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -122,7 +118,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				Relationship: "legal-professional",
 			},
 			taskState: TaskCompleted,
-			redirect:  appData.Paths.CheckYourLpa,
+			redirect:  "/lpa/lpa-id" + Paths.CheckYourLpa,
 		},
 		"health-professional": {
 			form: url.Values{"how": {"health-professional"}},
@@ -131,7 +127,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				Relationship: "health-professional",
 			},
 			taskState: TaskCompleted,
-			redirect:  appData.Paths.CheckYourLpa,
+			redirect:  "/lpa/lpa-id" + Paths.CheckYourLpa,
 		},
 		"other": {
 			form: url.Values{"how": {"other"}, "description": {"This"}},
@@ -142,7 +138,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				RelationshipLength:      "gte-2-years",
 			},
 			taskState: TaskInProgress,
-			redirect:  appData.Paths.HowLongHaveYouKnownCertificateProvider,
+			redirect:  "/lpa/lpa-id" + Paths.HowLongHaveYouKnownCertificateProvider,
 		},
 		"lay - friend": {
 			form: url.Values{"how": {"friend"}},
@@ -152,7 +148,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				RelationshipLength: "gte-2-years",
 			},
 			taskState: TaskInProgress,
-			redirect:  appData.Paths.HowLongHaveYouKnownCertificateProvider,
+			redirect:  "/lpa/lpa-id" + Paths.HowLongHaveYouKnownCertificateProvider,
 		},
 		"lay - neighbour": {
 			form: url.Values{"how": {"neighbour"}},
@@ -162,7 +158,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				RelationshipLength: "gte-2-years",
 			},
 			taskState: TaskInProgress,
-			redirect:  appData.Paths.HowLongHaveYouKnownCertificateProvider,
+			redirect:  "/lpa/lpa-id" + Paths.HowLongHaveYouKnownCertificateProvider,
 		},
 		"lay - colleague": {
 			form: url.Values{"how": {"colleague"}},
@@ -172,17 +168,19 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				RelationshipLength: "gte-2-years",
 			},
 			taskState: TaskInProgress,
-			redirect:  appData.Paths.HowLongHaveYouKnownCertificateProvider,
+			redirect:  "/lpa/lpa-id" + Paths.HowLongHaveYouKnownCertificateProvider,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
 
 			lpaStore := &mockLpaStore{}
 			lpaStore.
-				On("Get", mock.Anything, "session-id").
+				On("Get", r.Context()).
 				Return(&Lpa{
 					CertificateProvider: CertificateProvider{FirstNames: "John", Relationship: "what", RelationshipLength: "gte-2-years"},
 					Tasks: Tasks{
@@ -190,7 +188,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 					},
 				}, nil)
 			lpaStore.
-				On("Put", mock.Anything, "session-id", &Lpa{
+				On("Put", r.Context(), &Lpa{
 					CertificateProvider: tc.certificateProvider,
 					Tasks: Tasks{
 						ChooseAttorneys:     TaskCompleted,
@@ -198,9 +196,6 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 					},
 				}).
 				Return(nil)
-
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
 
 			err := HowDoYouKnowYourCertificateProvider(nil, lpaStore)(appData, w, r)
 			resp := w.Result()
@@ -214,22 +209,21 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 }
 
 func TestPostHowDoYouKnowYourCertificateProviderWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", mock.Anything).
-		Return(expectedError)
-
 	form := url.Values{
 		"how": {"friend"},
 	}
 
+	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&Lpa{}, nil)
+	lpaStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(expectedError)
 
 	err := HowDoYouKnowYourCertificateProvider(nil, lpaStore)(appData, w, r)
 
@@ -239,10 +233,12 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenStoreErrors(t *testing.T) {
 
 func TestPostHowDoYouKnowYourCertificateProviderWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -255,9 +251,6 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenValidationErrors(t *testing.
 			},
 		}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
-	r.Header.Add("Content-Type", formUrlEncoded)
 
 	err := HowDoYouKnowYourCertificateProvider(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()

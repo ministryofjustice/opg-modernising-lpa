@@ -16,7 +16,7 @@ type removeReplacementAttorneyData struct {
 
 func RemoveReplacementAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			logger.Print(fmt.Sprintf("error getting lpa from store: %s", err.Error()))
 			return err
@@ -26,7 +26,7 @@ func RemoveReplacementAttorney(logger Logger, tmpl template.Template, lpaStore L
 		attorney, found := lpa.GetReplacementAttorney(id)
 
 		if found == false {
-			return appData.Lang.Redirect(w, r, lpa, Paths.ChooseReplacementAttorneysSummary)
+			return appData.Redirect(w, r, lpa, Paths.ChooseReplacementAttorneysSummary)
 		}
 
 		data := &removeReplacementAttorneyData{
@@ -48,7 +48,7 @@ func RemoveReplacementAttorney(logger Logger, tmpl template.Template, lpaStore L
 					lpa.Tasks.ChooseReplacementAttorneys = TaskInProgress
 				}
 
-				err = lpaStore.Put(r.Context(), appData.SessionID, lpa)
+				err = lpaStore.Put(r.Context(), lpa)
 
 				if err != nil {
 					logger.Print(fmt.Sprintf("error removing replacement Attorney from LPA: %s", err.Error()))
@@ -56,14 +56,14 @@ func RemoveReplacementAttorney(logger Logger, tmpl template.Template, lpaStore L
 				}
 
 				if len(lpa.ReplacementAttorneys) == 0 {
-					return appData.Lang.Redirect(w, r, lpa, Paths.DoYouWantReplacementAttorneys)
+					return appData.Redirect(w, r, lpa, Paths.DoYouWantReplacementAttorneys)
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, Paths.ChooseReplacementAttorneysSummary)
+				return appData.Redirect(w, r, lpa, Paths.ChooseReplacementAttorneysSummary)
 			}
 
 			if data.Form.RemoveAttorney == "no" {
-				return appData.Lang.Redirect(w, r, lpa, Paths.ChooseReplacementAttorneysSummary)
+				return appData.Redirect(w, r, lpa, Paths.ChooseReplacementAttorneysSummary)
 			}
 
 		}

@@ -21,13 +21,13 @@ type doYouWantToNotifyPeopleForm struct {
 
 func DoYouWantToNotifyPeople(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
 		if len(lpa.PeopleToNotify) > 0 {
-			return appData.Lang.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
+			return appData.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
 		}
 
 		data := &doYouWantToNotifyPeopleData{
@@ -60,11 +60,11 @@ func DoYouWantToNotifyPeople(tmpl template.Template, lpaStore LpaStore) Handler 
 					lpa.Tasks.PeopleToNotify = TaskCompleted
 				}
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, redirectPath)
+				return appData.Redirect(w, r, lpa, redirectPath)
 			}
 		}
 

@@ -1,6 +1,6 @@
 describe('Check the LPA', () => {
     it("can submit the completed LPA", () => {
-        cy.visit('/testing-start?redirect=/check-your-lpa&withIncompleteAttorneys=1');
+        cy.visit('/testing-start?redirect=/check-your-lpa&withCP=1&withAttorney=1');
 
         cy.contains('h1', "Check your LPA")
 
@@ -13,7 +13,6 @@ describe('Check the LPA', () => {
         cy.contains('h3', "Donor")
         cy.contains('h3', "Certificate provider")
         cy.contains('h3', "Attorneys")
-        cy.contains('h3', "Replacement attorney")
 
         cy.get('#f-checked').check()
         cy.get('#f-happy').check()
