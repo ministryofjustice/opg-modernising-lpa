@@ -43,11 +43,6 @@ func ChoosePeopleToNotifySummary(logger Logger, tmpl template.Template, lpaStore
 				redirectUrl := fmt.Sprintf("%s?addAnother=1", appData.Paths.ChoosePeopleToNotify)
 
 				if data.Form.AddPersonToNotify == "no" {
-					lpa.Tasks.PeopleToNotify = TaskCompleted
-					if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
-						return err
-					}
-
 					redirectUrl = appData.Paths.CheckYourLpa
 				}
 
