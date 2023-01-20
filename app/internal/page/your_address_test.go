@@ -25,10 +25,11 @@ func (m *mockAddressClient) LookupPostcode(ctx context.Context, postcode string)
 
 func TestGetYourAddress(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -38,8 +39,6 @@ func TestGetYourAddress(t *testing.T) {
 			Form: &yourAddressForm{},
 		}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := YourAddress(nil, template.Func, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -51,13 +50,12 @@ func TestGetYourAddress(t *testing.T) {
 
 func TestGetYourAddressWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := YourAddress(nil, nil, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -69,11 +67,12 @@ func TestGetYourAddressWhenStoreErrors(t *testing.T) {
 
 func TestGetYourAddressFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	address := place.Address{Line1: "abc"}
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{
 			You: Person{
 				Address: address,
@@ -91,8 +90,6 @@ func TestGetYourAddressFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := YourAddress(nil, template.Func, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
@@ -103,10 +100,11 @@ func TestGetYourAddressFromStore(t *testing.T) {
 
 func TestGetYourAddressManual(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?action=manual", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -120,8 +118,6 @@ func TestGetYourAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/?action=manual", nil)
-
 	err := YourAddress(nil, template.Func, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
@@ -132,10 +128,11 @@ func TestGetYourAddressManual(t *testing.T) {
 
 func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -146,8 +143,6 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := YourAddress(nil, template.Func, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
@@ -157,14 +152,25 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostYourAddressManual(t *testing.T) {
+	form := url.Values{
+		"action":           {"manual"},
+		"address-line-1":   {"a"},
+		"address-line-2":   {"b"},
+		"address-line-3":   {"c"},
+		"address-town":     {"d"},
+		"address-postcode": {"e"},
+	}
+
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{
+		On("Put", r.Context(), &Lpa{
 			You: Person{
 				Address: place.Address{
 					Line1:      "a",
@@ -177,6 +183,16 @@ func TestPostYourAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
+	err := YourAddress(nil, nil, nil, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "/lpa/lpa-id"+Paths.WhoIsTheLpaFor, resp.Header.Get("Location"))
+	mock.AssertExpectationsForObjects(t, lpaStore)
+}
+
+func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 	form := url.Values{
 		"action":           {"manual"},
 		"address-line-1":   {"a"},
@@ -186,27 +202,16 @@ func TestPostYourAddressManual(t *testing.T) {
 		"address-postcode": {"e"},
 	}
 
+	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := YourAddress(nil, nil, nil, lpaStore)(appData, w, r)
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.WhoIsTheLpaFor, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
-}
-
-func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{
+		On("Put", r.Context(), &Lpa{
 			You: Person{
 				Address: place.Address{
 					Line1:      "a",
@@ -219,6 +224,13 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
+	err := YourAddress(nil, nil, nil, lpaStore)(appData, w, r)
+
+	assert.Equal(t, expectedError, err)
+	mock.AssertExpectationsForObjects(t, lpaStore)
+}
+
+func TestPostYourAddressManualFromStore(t *testing.T) {
 	form := url.Values{
 		"action":           {"manual"},
 		"address-line-1":   {"a"},
@@ -228,21 +240,13 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 		"address-postcode": {"e"},
 	}
 
+	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	err := YourAddress(nil, nil, nil, lpaStore)(appData, w, r)
-
-	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, lpaStore)
-}
-
-func TestPostYourAddressManualFromStore(t *testing.T) {
-	w := httptest.NewRecorder()
-
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{
 			You: Person{
 				FirstNames: "John",
@@ -251,7 +255,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 			WhoFor: "me",
 		}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{
+		On("Put", r.Context(), &Lpa{
 			You: Person{
 				FirstNames: "John",
 				Address: place.Address{
@@ -266,30 +270,16 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	form := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
 	err := YourAddress(nil, nil, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.WhoIsTheLpaFor, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+Paths.WhoIsTheLpaFor, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostYourAddressManualWhenValidationError(t *testing.T) {
-	w := httptest.NewRecorder()
-
 	form := url.Values{
 		"action":           {"manual"},
 		"address-line-2":   {"b"},
@@ -297,9 +287,13 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 		"address-postcode": {"d"},
 	}
 
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -320,9 +314,6 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
 	err := YourAddress(nil, template.Func, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
@@ -332,14 +323,22 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 }
 
 func TestPostYourAddressSelect(t *testing.T) {
-	w := httptest.NewRecorder()
-
 	expectedAddress := &place.Address{
 		Line1:      "a",
 		Line2:      "b",
 		TownOrCity: "c",
 		Postcode:   "d",
 	}
+
+	form := url.Values{
+		"action":          {"select"},
+		"lookup-postcode": {"NG1"},
+		"select-address":  {expectedAddress.Encode()},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
 	template := &mockTemplate{}
 	template.
@@ -356,17 +355,8 @@ func TestPostYourAddressSelect(t *testing.T) {
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
-
-	form := url.Values{
-		"action":          {"select"},
-		"lookup-postcode": {"NG1"},
-		"select-address":  {expectedAddress.Encode()},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
 
 	err := YourAddress(nil, template.Func, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -377,12 +367,14 @@ func TestPostYourAddressSelect(t *testing.T) {
 }
 
 func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
-	w := httptest.NewRecorder()
-
 	form := url.Values{
 		"action":          {"select"},
 		"lookup-postcode": {"NG1"},
 	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
 	addresses := []place.Address{
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
@@ -390,7 +382,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	addressClient := &mockAddressClient{}
@@ -413,9 +405,6 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
 	err := YourAddress(nil, template.Func, addressClient, lpaStore)(appData, w, r)
 	resp := w.Result()
 
@@ -425,7 +414,14 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 }
 
 func TestPostYourAddressLookup(t *testing.T) {
+	form := url.Values{
+		"action":          {"lookup"},
+		"lookup-postcode": {"NG1"},
+	}
+
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
 	addresses := []place.Address{
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
@@ -438,7 +434,7 @@ func TestPostYourAddressLookup(t *testing.T) {
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -454,14 +450,6 @@ func TestPostYourAddressLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	form := url.Values{
-		"action":          {"lookup"},
-		"lookup-postcode": {"NG1"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
 	err := YourAddress(nil, template.Func, addressClient, lpaStore)(appData, w, r)
 	resp := w.Result()
 
@@ -471,7 +459,14 @@ func TestPostYourAddressLookup(t *testing.T) {
 }
 
 func TestPostYourAddressLookupError(t *testing.T) {
+	form := url.Values{
+		"action":          {"lookup"},
+		"lookup-postcode": {"NG1"},
+	}
+
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
 	logger := &mockLogger{}
 	logger.
@@ -479,7 +474,7 @@ func TestPostYourAddressLookupError(t *testing.T) {
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	addressClient := &mockAddressClient{}
@@ -502,14 +497,6 @@ func TestPostYourAddressLookupError(t *testing.T) {
 		}).
 		Return(nil)
 
-	form := url.Values{
-		"action":          {"lookup"},
-		"lookup-postcode": {"NG1"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
 	err := YourAddress(logger, template.Func, addressClient, lpaStore)(appData, w, r)
 	resp := w.Result()
 
@@ -519,15 +506,17 @@ func TestPostYourAddressLookupError(t *testing.T) {
 }
 
 func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
-	w := httptest.NewRecorder()
-
 	form := url.Values{
 		"action": {"lookup"},
 	}
 
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -542,9 +531,6 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 			},
 		}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
 
 	err := YourAddress(nil, template.Func, nil, lpaStore)(appData, w, r)
 	resp := w.Result()

@@ -23,7 +23,7 @@ type chooseAttorneysAddressForm struct {
 
 func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -32,7 +32,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 		attorney, found := lpa.GetAttorney(attorneyId)
 
 		if found == false {
-			return appData.Lang.Redirect(w, r, lpa, Paths.ChooseAttorneys)
+			return appData.Redirect(w, r, lpa, Paths.ChooseAttorneys)
 		}
 
 		data := &chooseAttorneysAddressData{
@@ -55,7 +55,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 				lpa.PutAttorney(attorney)
 				lpa.Tasks.ChooseAttorneys = TaskCompleted
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
@@ -64,7 +64,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 					from = appData.Paths.ChooseAttorneysSummary
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, from)
+				return appData.Redirect(w, r, lpa, from)
 			}
 
 			// Force the manual address view after selecting
@@ -74,7 +74,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 				attorney.Address = *data.Form.Address
 				lpa.PutAttorney(attorney)
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 			}
