@@ -15,13 +15,13 @@ type identityWithYotiData struct {
 
 func IdentityWithYoti(tmpl template.Template, lpaStore LpaStore, yotiClient YotiClient, yotiScenarioID string) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
 		if lpa.YotiUserData.OK || yotiClient.IsTest() {
-			return appData.Lang.Redirect(w, r, lpa, Paths.IdentityWithYotiCallback)
+			return appData.Redirect(w, r, lpa, Paths.IdentityWithYotiCallback)
 		}
 
 		data := &identityWithYotiData{

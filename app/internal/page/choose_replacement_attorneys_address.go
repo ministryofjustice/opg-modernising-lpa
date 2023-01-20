@@ -17,7 +17,7 @@ type chooseReplacementAttorneysAddressData struct {
 
 func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -45,7 +45,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 				lpa.PutReplacementAttorney(ra)
 				lpa.Tasks.ChooseReplacementAttorneys = TaskCompleted
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
@@ -55,7 +55,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 					from = appData.Paths.ChooseReplacementAttorneysSummary
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, from)
+				return appData.Redirect(w, r, lpa, from)
 			}
 
 			// Force the manual address view after selecting
@@ -65,7 +65,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 				ra.Address = *data.Form.Address
 				lpa.PutReplacementAttorney(ra)
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 			}

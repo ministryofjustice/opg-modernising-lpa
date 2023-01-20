@@ -15,7 +15,7 @@ type whoDoYouWantToBeCertificateProviderGuidanceData struct {
 
 func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -28,17 +28,17 @@ func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, lpaStor
 
 		if r.Method == http.MethodPost {
 			if postFormString(r, "will-do-this-later") == "1" {
-				return appData.Lang.Redirect(w, r, lpa, Paths.TaskList)
+				return appData.Redirect(w, r, lpa, Paths.TaskList)
 			}
 
 			if data.NotStarted {
 				lpa.Tasks.CertificateProvider = TaskInProgress
 			}
-			if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+			if err := lpaStore.Put(r.Context(), lpa); err != nil {
 				return err
 			}
 
-			return appData.Lang.Redirect(w, r, lpa, Paths.CertificateProviderDetails)
+			return appData.Redirect(w, r, lpa, Paths.CertificateProviderDetails)
 		}
 
 		return tmpl(w, data)

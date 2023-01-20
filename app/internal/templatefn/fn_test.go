@@ -131,8 +131,10 @@ func TestInc(t *testing.T) {
 }
 
 func TestLink(t *testing.T) {
-	assert.Equal(t, "/link", link(page.AppData{}, "/link"))
-	assert.Equal(t, "/cy/link", link(page.AppData{Lang: page.Cy}, "/link"))
+	assert.Equal(t, "/dashboard", link(page.AppData{}, "/dashboard"))
+	assert.Equal(t, "/cy/dashboard", link(page.AppData{Lang: page.Cy}, "/dashboard"))
+	assert.Equal(t, "/lpa/123/somewhere", link(page.AppData{LpaID: "123"}, "/somewhere"))
+	assert.Equal(t, "/cy/lpa/123/somewhere", link(page.AppData{Lang: page.Cy, LpaID: "123"}, "/somewhere"))
 }
 
 func TestContains(t *testing.T) {

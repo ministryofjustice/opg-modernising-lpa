@@ -16,7 +16,7 @@ type checkYourLpaData struct {
 
 func CheckYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -40,11 +40,11 @@ func CheckYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 				lpa.HappyToShare = data.Form.Happy
 				lpa.Tasks.CheckYourLpa = TaskCompleted
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, Paths.TaskList)
+				return appData.Redirect(w, r, lpa, Paths.TaskList)
 			}
 		}
 
