@@ -15,7 +15,7 @@ type restrictionsData struct {
 
 func Restrictions(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -37,11 +37,11 @@ func Restrictions(tmpl template.Template, lpaStore LpaStore) Handler {
 					lpa.Tasks.Restrictions = TaskCompleted
 					lpa.Restrictions = form.Restrictions
 				}
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, Paths.WhoDoYouWantToBeCertificateProviderGuidance)
+				return appData.Redirect(w, r, lpa, Paths.WhoDoYouWantToBeCertificateProviderGuidance)
 			}
 		}
 

@@ -32,7 +32,6 @@ func TestGetIdentityWithTodo(t *testing.T) {
 
 func TestPostIdentityWithTodo(t *testing.T) {
 	w := httptest.NewRecorder()
-
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	err := IdentityWithTodo(nil, Passport)(appData, w, r)
@@ -40,5 +39,5 @@ func TestPostIdentityWithTodo(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.ReadYourLpa, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+Paths.ReadYourLpa, resp.Header.Get("Location"))
 }

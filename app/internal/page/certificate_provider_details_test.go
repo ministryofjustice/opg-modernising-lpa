@@ -14,10 +14,11 @@ import (
 
 func TestGetCertificateProviderDetails(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -27,8 +28,6 @@ func TestGetCertificateProviderDetails(t *testing.T) {
 			Form: &certificateProviderDetailsForm{},
 		}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := CertificateProviderDetails(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -40,13 +39,12 @@ func TestGetCertificateProviderDetails(t *testing.T) {
 
 func TestGetCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := CertificateProviderDetails(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -58,10 +56,11 @@ func TestGetCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 
 func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{
 			CertificateProvider: CertificateProvider{
 				FirstNames: "John",
@@ -78,8 +77,6 @@ func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := CertificateProviderDetails(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
@@ -90,10 +87,11 @@ func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 
 func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -104,8 +102,6 @@ func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := CertificateProviderDetails(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
@@ -115,18 +111,29 @@ func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostCertificateProviderDetails(t *testing.T) {
+	form := url.Values{
+		"first-names":         {"John"},
+		"last-name":           {"Doe"},
+		"mobile":              {"07535111111"},
+		"date-of-birth-day":   {"2"},
+		"date-of-birth-month": {"1"},
+		"date-of-birth-year":  {"1990"},
+	}
+
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{
 			CertificateProvider: CertificateProvider{
 				FirstNames: "John",
 			},
 		}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{
+		On("Put", r.Context(), &Lpa{
 			CertificateProvider: CertificateProvider{
 				FirstNames:  "John",
 				LastName:    "Doe",
@@ -136,38 +143,16 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 		}).
 		Return(nil)
 
-	form := url.Values{
-		"first-names":         {"John"},
-		"last-name":           {"Doe"},
-		"mobile":              {"07535111111"},
-		"date-of-birth-day":   {"2"},
-		"date-of-birth-month": {"1"},
-		"date-of-birth-year":  {"1990"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
 	err := CertificateProviderDetails(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", mock.Anything).
-		Return(expectedError)
-
 	form := url.Values{
 		"first-names":         {"John"},
 		"last-name":           {"Doe"},
@@ -177,8 +162,17 @@ func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 		"date-of-birth-year":  {"1990"},
 	}
 
+	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&Lpa{}, nil)
+	lpaStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(expectedError)
 
 	err := CertificateProviderDetails(nil, lpaStore)(appData, w, r)
 
@@ -187,20 +181,6 @@ func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 }
 
 func TestPostCertificateProviderDetailsWhenValidationError(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{}, nil)
-
-	template := &mockTemplate{}
-	template.
-		On("Func", w, mock.MatchedBy(func(data *certificateProviderDetailsData) bool {
-			return assert.Equal(t, map[string]string{"first-names": "enterCertificateProviderFirstNames"}, data.Errors)
-		})).
-		Return(nil)
-
 	form := url.Values{
 		"last-name":           {"Doe"},
 		"mobile":              {"07535111111"},
@@ -209,8 +189,21 @@ func TestPostCertificateProviderDetailsWhenValidationError(t *testing.T) {
 		"date-of-birth-year":  {"1990"},
 	}
 
+	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&Lpa{}, nil)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, mock.MatchedBy(func(data *certificateProviderDetailsData) bool {
+			return assert.Equal(t, map[string]string{"first-names": "enterCertificateProviderFirstNames"}, data.Errors)
+		})).
+		Return(nil)
 
 	err := CertificateProviderDetails(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()

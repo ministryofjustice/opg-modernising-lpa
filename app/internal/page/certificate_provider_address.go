@@ -23,7 +23,7 @@ type certificateProviderAddressForm struct {
 
 func CertificateProviderAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -46,11 +46,11 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 			if data.Form.Action == "manual" && len(data.Errors) == 0 {
 				lpa.CertificateProvider.Address = *data.Form.Address
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, Paths.HowDoYouKnowYourCertificateProvider)
+				return appData.Redirect(w, r, lpa, Paths.HowDoYouKnowYourCertificateProvider)
 			}
 
 			// Force the manual address view after selecting
@@ -59,7 +59,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 
 				lpa.CertificateProvider.Address = *data.Form.Address
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 			}
