@@ -177,13 +177,17 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
+		Return(&Lpa{
+			PeopleToNotify: []PersonToNotify{personToNotify},
+			Tasks:          Tasks{PeopleToNotify: TaskInProgress},
+		}, nil)
 
 	personToNotify.Address = address
 
 	lpaStore.
 		On("Put", mock.Anything, "session-id", &Lpa{
 			PeopleToNotify: []PersonToNotify{personToNotify},
+			Tasks:          Tasks{PeopleToNotify: TaskCompleted},
 		}).
 		Return(nil)
 
@@ -224,7 +228,10 @@ func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 	personToNotify.Address = address
 
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}).
+		On("Put", mock.Anything, "session-id", &Lpa{
+			PeopleToNotify: []PersonToNotify{personToNotify},
+			Tasks:          Tasks{PeopleToNotify: TaskCompleted},
+		}).
 		Return(expectedError)
 
 	form := url.Values{
@@ -259,6 +266,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 		On("Get", mock.Anything, "session-id").
 		Return(&Lpa{
 			PeopleToNotify: []PersonToNotify{personToNotify},
+			Tasks:          Tasks{PeopleToNotify: TaskInProgress},
 		}, nil)
 
 	personToNotify.Address = address
@@ -266,6 +274,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 	lpaStore.
 		On("Put", mock.Anything, "session-id", &Lpa{
 			PeopleToNotify: []PersonToNotify{personToNotify},
+			Tasks:          Tasks{PeopleToNotify: TaskCompleted},
 		}).
 		Return(nil)
 
@@ -796,25 +805,35 @@ func TestPostPersonToNotifyAddressManuallyFromAnotherPage(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			w := httptest.NewRecorder()
 
-			lpa := &Lpa{
-				PeopleToNotify: []PersonToNotify{
-					{
-						ID: "123",
-						Address: place.Address{
-							Line1:      "a",
-							TownOrCity: "b",
-							Postcode:   "c",
-						},
-					},
-				},
-			}
-
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", mock.Anything, "session-id").
-				Return(lpa, nil)
+				Return(&Lpa{
+					PeopleToNotify: []PersonToNotify{
+						{
+							ID: "123",
+							Address: place.Address{
+								Line1:      "a",
+								TownOrCity: "b",
+								Postcode:   "c",
+							},
+						},
+					},
+				}, nil)
 			lpaStore.
-				On("Put", mock.Anything, "session-id", lpa).
+				On("Put", mock.Anything, "session-id", &Lpa{
+					PeopleToNotify: []PersonToNotify{
+						{
+							ID: "123",
+							Address: place.Address{
+								Line1:      "a",
+								TownOrCity: "b",
+								Postcode:   "c",
+							},
+						},
+					},
+					Tasks: Tasks{PeopleToNotify: TaskCompleted},
+				}).
 				Return(nil)
 
 			form := url.Values{
