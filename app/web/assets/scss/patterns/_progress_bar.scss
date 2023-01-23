@@ -12,8 +12,6 @@
   margin: 0;
   padding: 0;
   position: relative;
-  text-align: justify;
-  vertical-align: top;
 
   // IE8 does not support the text justify approach for spacing
   @include govuk-if-ie8 {
@@ -45,7 +43,7 @@
   position: relative;
   //text-align: center;
   flex-wrap: wrap;
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.3rem;
 
   // IE8 does not support the text justify approach for spacing
   @include govuk-if-ie8 {
@@ -104,19 +102,19 @@
 
 .app-progress-bar__icon--complete {
   background-color: govuk-colour("green");
-  background-image: url(#{$moj-images-path}icon-progress-tick.svg);
+  background-image: url(#{$moj-assets-path}images/icon-progress-tick.svg);
   background-position: 50% 50%;
   background-repeat: no-repeat;
 
   // IE8 does not support box shadow, so use a standard border.
   @include govuk-if-ie8 {
-    background-image: url(#{$moj-images-path}icon-progress-tick.png);
+    background-image: url(#{$moj-assets-path}images/icon-progress-tick.png);
   }
 
 }
 
 .app-progress-bar__label {
-  @include govuk-font(16);
+  @include govuk-font(19);
   display: flex;
   font-weight: inherit;
   //margin-top: govuk-spacing(3);
