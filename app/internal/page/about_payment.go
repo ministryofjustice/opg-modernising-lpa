@@ -19,7 +19,7 @@ type aboutPaymentData struct {
 
 func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.Store, payClient PayClient, appPublicUrl string, randomString func(int) string, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -34,7 +34,7 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 				Amount:      CostOfLpaPence,
 				Reference:   randomString(12),
 				Description: "Property and Finance LPA",
-				ReturnUrl:   appPublicUrl + appData.Lang.BuildUrl(appData.Paths.PaymentConfirmation),
+				ReturnUrl:   appPublicUrl + appData.BuildUrl(Paths.PaymentConfirmation),
 				Email:       "a@b.com",
 				Language:    appData.Lang.String(),
 			}
@@ -73,7 +73,7 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 			if strings.HasPrefix(nextUrl, pay.PaymentPublicServiceUrl) {
 				http.Redirect(w, r, nextUrl, http.StatusFound)
 			} else {
-				appData.Lang.Redirect(w, r, lpa, Paths.PaymentConfirmation)
+				appData.Redirect(w, r, lpa, Paths.PaymentConfirmation)
 			}
 
 		}

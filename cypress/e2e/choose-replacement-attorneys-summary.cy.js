@@ -17,7 +17,7 @@ describe('Choose replacement attorneys summary', () => {
         cy.contains('Joan Smith');
         cy.contains('2 January 1998');
 
-        cy.visit('/task-list')
+        cy.visitLpa('/task-list')
         cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('In progress (2)')
     });
 
@@ -64,7 +64,7 @@ describe('Choose replacement attorneys summary', () => {
 
         cy.contains('dd', '4 RICHMOND PLACE');
 
-        cy.visit('/task-list')
+        cy.visitLpa('/task-list')
         cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('Completed (2)')
     });
 

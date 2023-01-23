@@ -30,13 +30,13 @@ func TestIdentityWithOneLogin(t *testing.T) {
 		HttpOnly: true,
 		Secure:   true,
 	}
-	session.Values = map[interface{}]interface{}{"state": "i am random", "nonce": "i am random", "locale": "cy", "identity": true}
+	session.Values = map[interface{}]interface{}{"state": "i am random", "nonce": "i am random", "locale": "cy", "identity": true, "lpa-id": "123"}
 
 	sessionsStore.
 		On("Save", r, w, session).
 		Return(nil)
 
-	err := IdentityWithOneLogin(nil, client, sessionsStore, func(int) string { return "i am random" })(AppData{Lang: Cy}, w, r)
+	err := IdentityWithOneLogin(nil, client, sessionsStore, func(int) string { return "i am random" })(AppData{Lang: Cy, LpaID: "123"}, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

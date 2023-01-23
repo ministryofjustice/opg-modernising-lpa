@@ -15,7 +15,7 @@ type howDoYouKnowYourCertificateProviderData struct {
 
 func HowDoYouKnowYourCertificateProvider(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -50,15 +50,15 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, lpaStore LpaSto
 					lpa.Tasks.CertificateProvider = TaskCompleted
 				}
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
 				if requireLength {
-					return appData.Lang.Redirect(w, r, lpa, Paths.HowLongHaveYouKnownCertificateProvider)
+					return appData.Redirect(w, r, lpa, Paths.HowLongHaveYouKnownCertificateProvider)
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, Paths.CheckYourLpa)
+				return appData.Redirect(w, r, lpa, Paths.CheckYourLpa)
 			}
 		}
 
