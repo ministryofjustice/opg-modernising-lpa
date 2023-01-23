@@ -25,7 +25,7 @@
   &::after {
     content: "";
     display: inline-block;
-    width: 100%;
+    height: 100%;
   }
 
   &::before {
@@ -34,7 +34,7 @@
     left: 13px;
     position: absolute;
     top: 0;
-    width: 100%;
+    height: 100%;
   }
 
 }
@@ -42,7 +42,6 @@
 .app-progress-bar__item {
   @include govuk-font(19);
   display: flex;
-  max-width: 20%;
   position: relative;
   //text-align: center;
   flex-wrap: wrap;
@@ -53,8 +52,7 @@
     display: table-cell;
   }
 
-  &:first-child,
-  &:last-child {
+  &:first-child {
     &::before {
       border-left: 6px solid govuk-colour("green");
       content: "";
@@ -76,8 +74,12 @@
   &:last-child {
 
     &::before {
-      left: auto;
-      right: 0;
+      border-left: 6px solid govuk-colour("white");
+      content: "";
+      left: 13px;
+      position: absolute;
+      top: 0;
+      height: 100%;
     }
 
   }
@@ -96,8 +98,7 @@
   box-sizing: border-box;
   display: block;
   height: 32px;
-  margin-left: auto;
-  margin-right: auto;
+  margin-right: 0.5rem;
   width: 32px;
 }
 
