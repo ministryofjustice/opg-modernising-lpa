@@ -121,11 +121,7 @@ func inc(i int) int {
 }
 
 func link(app page.AppData, path string) string {
-	if app.Lang == page.Cy {
-		return "/cy" + path
-	}
-
-	return path
+	return app.BuildUrl(path)
 }
 
 func contains(needle string, list []string) bool {

@@ -29,7 +29,7 @@
             <h2 class="govuk-heading-m govuk-!-padding-top-0 govuk-!-margin-bottom-1">{{ if eq "pfa" .Lpa.Type }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}: <span class="govuk-!-font-weight-regular">{{ .Lpa.You.FirstNames }} {{ .Lpa.You.LastName }}</span></h2>
             <span class="govuk-hint"><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Lpa.ID }}</span>
             <div class="govuk-button-group govuk-!-margin-top-4">
-              <a class="govuk-button" href="{{ link .App .App.Paths.TaskList }}">{{ tr .App "continue" }}</a>
+              <a class="govuk-button" href="{{ link .App (printf "%s%s" .Lpa.ID .App.Paths.TaskList) }}">{{ tr .App "continue" }}</a>
               <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "options" }}</a>
             </div>
           </div>
@@ -41,7 +41,9 @@
       <div class="govuk-grid-column-two-thirds">
         <p class="govuk-body">{{ tr .App "createYourFirstLpa" }}</p>
 
-        <a class="govuk-button" href="{{ link .App .App.Paths.YourDetails }}">{{ tr .App "createAnLpa" }}</a>
+        <form novalidate method="post">
+          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "createAnLpa" }}</button>
+        </form>
       </div>
     </div>
   {{ end }}

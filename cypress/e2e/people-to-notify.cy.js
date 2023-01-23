@@ -45,7 +45,7 @@ describe('People to notify', () => {
         cy.get('input[name="add-person-to-notify"]').check('no')
         cy.contains('button', 'Continue').click();
 
-        cy.visit('/task-list')
+        cy.visitLpa('/task-list')
 
         cy.contains('a', 'People to notify').parent().parent().contains('Completed (2)')
     });

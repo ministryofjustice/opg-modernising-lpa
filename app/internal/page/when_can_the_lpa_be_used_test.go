@@ -13,10 +13,11 @@ import (
 
 func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -26,8 +27,6 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 			Lpa: &Lpa{},
 		}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := WhenCanTheLpaBeUsed(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -39,10 +38,11 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 
 func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{WhenCanTheLpaBeUsed: UsedWhenRegistered}, nil)
 
 	template := &mockTemplate{}
@@ -54,8 +54,6 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := WhenCanTheLpaBeUsed(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
@@ -66,13 +64,12 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 
 func TestGetWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := WhenCanTheLpaBeUsed(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -84,10 +81,11 @@ func TestGetWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 
 func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -98,8 +96,6 @@ func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := WhenCanTheLpaBeUsed(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
@@ -109,86 +105,83 @@ func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
+	form := url.Values{
+		"when": {UsedWhenRegistered},
+	}
+
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{
 			Tasks: Tasks{ChooseAttorneys: TaskCompleted},
 		}, nil)
 	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{
+		On("Put", r.Context(), &Lpa{
 			WhenCanTheLpaBeUsed: UsedWhenRegistered,
 			Tasks:               Tasks{ChooseAttorneys: TaskCompleted, WhenCanTheLpaBeUsed: TaskCompleted},
 		}).
 		Return(nil)
 
-	form := url.Values{
-		"when": {UsedWhenRegistered},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
 	err := WhenCanTheLpaBeUsed(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.Restrictions, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+Paths.Restrictions, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostWhenCanTheLpaBeUsedWhenAnswerLater(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{
-			Tasks: Tasks{ChooseAttorneys: TaskCompleted},
-		}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{
-			Tasks: Tasks{ChooseAttorneys: TaskCompleted, WhenCanTheLpaBeUsed: TaskInProgress},
-		}).
-		Return(nil)
-
 	form := url.Values{
 		"when":         {"what"},
 		"answer-later": {"1"},
 	}
 
+	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&Lpa{
+			Tasks: Tasks{ChooseAttorneys: TaskCompleted},
+		}, nil)
+	lpaStore.
+		On("Put", r.Context(), &Lpa{
+			Tasks: Tasks{ChooseAttorneys: TaskCompleted, WhenCanTheLpaBeUsed: TaskInProgress},
+		}).
+		Return(nil)
 
 	err := WhenCanTheLpaBeUsed(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.Restrictions, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+Paths.Restrictions, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.Anything, "session-id").
-		Return(&Lpa{}, nil)
-	lpaStore.
-		On("Put", mock.Anything, "session-id", &Lpa{WhenCanTheLpaBeUsed: UsedWhenRegistered, Tasks: Tasks{WhenCanTheLpaBeUsed: TaskCompleted}}).
-		Return(expectedError)
-
 	form := url.Values{
 		"when": {UsedWhenRegistered},
 	}
 
+	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&Lpa{}, nil)
+	lpaStore.
+		On("Put", r.Context(), &Lpa{WhenCanTheLpaBeUsed: UsedWhenRegistered, Tasks: Tasks{WhenCanTheLpaBeUsed: TaskCompleted}}).
+		Return(expectedError)
 
 	err := WhenCanTheLpaBeUsed(nil, lpaStore)(appData, w, r)
 
@@ -198,10 +191,12 @@ func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 
 func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -214,9 +209,6 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 			Lpa: &Lpa{},
 		}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
-	r.Header.Add("Content-Type", formUrlEncoded)
 
 	err := WhenCanTheLpaBeUsed(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()

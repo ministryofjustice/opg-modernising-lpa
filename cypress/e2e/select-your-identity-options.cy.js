@@ -1,6 +1,6 @@
 describe('Select your identity options', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/select-your-identity-options');
+        cy.visit('/testing-start?withPayment=1&redirect=/select-your-identity-options');
     });
 
     it('can select on first page', () => {

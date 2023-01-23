@@ -27,7 +27,7 @@ type signYourLpaForm struct {
 
 func SignYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -51,16 +51,16 @@ func SignYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 
 			lpa.WantToApplyForLpa = data.Form.WantToApply
 			lpa.CPWitnessedDonorSign = data.Form.CPWitnessed
-			if err = lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+			if err = lpaStore.Put(r.Context(), lpa); err != nil {
 				return err
 			}
 
 			if len(data.Errors) == 0 {
 				lpa.Tasks.ConfirmYourIdentityAndSign = TaskCompleted
-				if err = lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err = lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
-				return appData.Lang.Redirect(w, r, lpa, Paths.WitnessingYourSignature)
+				return appData.Redirect(w, r, lpa, Paths.WitnessingYourSignature)
 			}
 		}
 
