@@ -1,0 +1,127 @@
+/* ==========================================================================
+   #PROGRESS BAR
+   ========================================================================== */
+
+.app-progress-bar {
+  margin-bottom: govuk-spacing(7);
+}
+
+.app-progress-bar__list {
+  font-size: 0; // Hide white space between elements
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  text-align: justify;
+  vertical-align: top;
+
+  // IE8 does not support the text justify approach for spacing
+  @include govuk-if-ie8 {
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  &::after {
+    content: "";
+    display: inline-block;
+    width: 100%;
+  }
+
+  &::before {
+    border-left: 6px solid govuk-colour("green");
+    content: "";
+    left: 13px;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+}
+
+.app-progress-bar__item {
+  @include govuk-font(19);
+  display: flex;
+  max-width: 20%;
+  position: relative;
+  //text-align: center;
+  flex-wrap: wrap;
+  padding-bottom: 0.5rem;
+
+  // IE8 does not support the text justify approach for spacing
+  @include govuk-if-ie8 {
+    display: table-cell;
+  }
+
+  &:first-child,
+  &:last-child {
+    &::before {
+      border-left: 6px solid govuk-colour("green");
+      content: "";
+      position: absolute;
+      top: 0; left: 13px;
+      width: 50%;
+    }
+
+  }
+
+  &:first-child {
+
+    &::before {
+      left: 0;
+    }
+
+  }
+
+  &:last-child {
+
+    &::before {
+      left: auto;
+      right: 0;
+    }
+
+  }
+
+  &[aria-current=step] { // https://tink.uk/using-the-aria-current-attribute
+    @include govuk-font($size: 19, $weight: "bold");
+  }
+
+}
+
+.app-progress-bar__icon {
+  position: relative;
+  background-color: govuk-colour("white");
+  border: 6px solid govuk-colour("green");
+  border-radius: 50%; // IE8 does not support border radius but we’re ok with that
+  box-sizing: border-box;
+  display: block;
+  height: 32px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 32px;
+}
+
+.app-progress-bar__icon--complete {
+  background-color: govuk-colour("green");
+  background-image: url(#{$moj-images-path}icon-progress-tick.svg);
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+
+  // IE8 does not support box shadow, so use a standard border.
+  @include govuk-if-ie8 {
+    background-image: url(#{$moj-images-path}icon-progress-tick.png);
+  }
+
+}
+
+.app-progress-bar__label {
+  @include govuk-font(16);
+  display: flex;
+  font-weight: inherit;
+  //margin-top: govuk-spacing(3);
+  position: relative;
+  word-wrap: break-word; // Just in case
+  float: left;
+  flex-wrap: wrap;
+  align-content: center;
+}
