@@ -14,8 +14,8 @@ resource "aws_dynamodb_table" "lpas_table" {
   # see docs/runbooks/disabling_dynamodb_global_tables.md when Global Tables needs to be disabled
   stream_enabled   = local.environment.dynamodb.stream_enabled
   stream_view_type = local.environment.dynamodb.stream_enabled ? "NEW_AND_OLD_IMAGES" : null
-  hash_key         = "Id"
-
+  hash_key         = "PK"
+  range_key        = "SK"
 
   server_side_encryption {
     enabled     = true
@@ -33,7 +33,12 @@ resource "aws_dynamodb_table" "lpas_table" {
   }
 
   attribute {
-    name = "Id"
+    name = "PK"
+    type = "S"
+  }
+
+  attribute {
+    name = "SK"
     type = "S"
   }
 
