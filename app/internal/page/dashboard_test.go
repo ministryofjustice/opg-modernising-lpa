@@ -13,16 +13,16 @@ func TestGetDashboard(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &Lpa{}
+	lpas := []*Lpa{{ID: "123"}, {ID: "456"}}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("GetAll", r.Context()).
-		Return(lpa, nil)
+		Return(lpas, nil)
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &dashboardData{App: appData, Lpa: lpa}).
+		On("Func", w, &dashboardData{App: appData, Lpas: lpas}).
 		Return(nil)
 
 	err := Dashboard(template.Func, lpaStore)(appData, w, r)
@@ -37,12 +37,12 @@ func TestGetDashboardWhenDataStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &Lpa{}
+	lpas := []*Lpa{{}}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("GetAll", r.Context()).
-		Return(lpa, expectedError)
+		Return(lpas, expectedError)
 
 	err := Dashboard(nil, lpaStore)(appData, w, r)
 
@@ -54,14 +54,16 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+	lpas := []*Lpa{{}}
+
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("GetAll", r.Context()).
-		Return(&Lpa{}, nil)
+		Return(lpas, nil)
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &dashboardData{App: appData, Lpa: &Lpa{}}).
+		On("Func", w, &dashboardData{App: appData, Lpas: lpas}).
 		Return(expectedError)
 
 	err := Dashboard(template.Func, lpaStore)(appData, w, r)
