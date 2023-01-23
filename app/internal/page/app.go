@@ -64,8 +64,9 @@ type Logger interface {
 }
 
 type DataStore interface {
-	Get(context.Context, string, interface{}) error
-	Put(context.Context, string, interface{}) error
+	GetAll(context.Context, string, interface{}) error
+	Get(context.Context, string, string, interface{}) error
+	Put(context.Context, string, string, interface{}) error
 }
 
 type YotiClient interface {
