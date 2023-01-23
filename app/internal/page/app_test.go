@@ -44,9 +44,9 @@ func (m *mockLpaStore) Create(ctx context.Context) (*Lpa, error) {
 	return args.Get(0).(*Lpa), args.Error(1)
 }
 
-func (m *mockLpaStore) GetAll(ctx context.Context) (*Lpa, error) {
+func (m *mockLpaStore) GetAll(ctx context.Context) ([]*Lpa, error) {
 	args := m.Called(ctx)
-	return args.Get(0).(*Lpa), args.Error(1)
+	return args.Get(0).([]*Lpa), args.Error(1)
 }
 
 func (m *mockLpaStore) Get(ctx context.Context) (*Lpa, error) {
