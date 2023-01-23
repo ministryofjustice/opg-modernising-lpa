@@ -10,6 +10,6 @@ awslocal secretsmanager create-secret --name "os-postcode-lookup-api-key" --secr
 awslocal secretsmanager create-secret --name "yoti-private-key" --secret-string "bm90aGluZwo="
 awslocal secretsmanager create-secret --name "gov-uk-notify-api-key" --secret-string "extremely_fake-a-b-c-d-e-f-g-h-i-j"
 
-awslocal dynamodb create-table --table-name lpas --attribute-definitions AttributeName=Id,AttributeType=S --key-schema AttributeName=Id,KeyType=HASH --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000
+awslocal dynamodb create-table --table-name lpas --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000
 
 rm private_key.pem public_key.pem
