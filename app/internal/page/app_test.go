@@ -28,6 +28,7 @@ var (
 	expectedError = errors.New("err")
 	appData       = AppData{
 		SessionID: "session-id",
+		LpaID:     "lpa-id",
 		Lang:      En,
 		Paths:     Paths,
 	}
@@ -37,13 +38,24 @@ type mockLpaStore struct {
 	mock.Mock
 }
 
-func (m *mockLpaStore) Get(ctx context.Context, sessionID string) (*Lpa, error) {
-	args := m.Called(ctx, sessionID)
+func (m *mockLpaStore) Create(ctx context.Context) (*Lpa, error) {
+	args := m.Called(ctx)
+
 	return args.Get(0).(*Lpa), args.Error(1)
 }
 
-func (m *mockLpaStore) Put(ctx context.Context, id string, v *Lpa) error {
-	return m.Called(ctx, id, v).Error(0)
+func (m *mockLpaStore) GetAll(ctx context.Context) (*Lpa, error) {
+	args := m.Called(ctx)
+	return args.Get(0).(*Lpa), args.Error(1)
+}
+
+func (m *mockLpaStore) Get(ctx context.Context) (*Lpa, error) {
+	args := m.Called(ctx)
+	return args.Get(0).(*Lpa), args.Error(1)
+}
+
+func (m *mockLpaStore) Put(ctx context.Context, v *Lpa) error {
+	return m.Called(ctx, v).Error(0)
 }
 
 type mockTemplate struct {
@@ -81,8 +93,8 @@ func TestCacheControlHeaders(t *testing.T) {
 
 func TestLangRedirect(t *testing.T) {
 	testCases := map[Lang]string{
-		En: "/somewhere",
-		Cy: "/cy/somewhere",
+		En: "/dashboard",
+		Cy: "/cy/dashboard",
 	}
 
 	for lang, url := range testCases {
@@ -90,7 +102,27 @@ func TestLangRedirect(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 			w := httptest.NewRecorder()
 
-			lang.Redirect(w, r, nil, "/somewhere")
+			AppData{Lang: lang, LpaID: "lpa-id"}.Redirect(w, r, nil, "/dashboard")
+			resp := w.Result()
+
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, url, resp.Header.Get("Location"))
+		})
+	}
+}
+
+func TestLangRedirectWhenLpaRoute(t *testing.T) {
+	testCases := map[Lang]string{
+		En: "/lpa/lpa-id/somewhere",
+		Cy: "/cy/lpa/lpa-id/somewhere",
+	}
+
+	for lang, url := range testCases {
+		t.Run(lang.String(), func(t *testing.T) {
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
+			w := httptest.NewRecorder()
+
+			AppData{Lang: lang, LpaID: "lpa-id"}.Redirect(w, r, nil, "/somewhere")
 			resp := w.Result()
 
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -123,11 +155,11 @@ func TestLangRedirectWhenCanGoTo(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 			w := httptest.NewRecorder()
 
-			En.Redirect(w, r, tc.lpa, Paths.HowToConfirmYourIdentityAndSign)
+			AppData{Lang: En, LpaID: "lpa-id"}.Redirect(w, r, tc.lpa, Paths.HowToConfirmYourIdentityAndSign)
 			resp := w.Result()
 
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, tc.expected, resp.Header.Get("Location"))
+			assert.Equal(t, "/lpa/lpa-id"+tc.expected, resp.Header.Get("Location"))
 		})
 	}
 }
@@ -143,7 +175,7 @@ func TestMakeHandle(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{})
+	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None)
 	handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, AppData{
 			Page:             "/path",
@@ -158,7 +190,7 @@ func TestMakeHandle(t *testing.T) {
 			Paths:            AppPaths{},
 		}, appData)
 		assert.Equal(t, w, hw)
-		assert.Equal(t, r, hr)
+		assert.Equal(t, r.WithContext(contextWithSessionData(r.Context(), &sessionData{SessionID: "cmFuZG9t"})), hr)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -197,7 +229,7 @@ func TestMakeHandleShowTranslationKeys(t *testing.T) {
 				Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
 
 			mux := http.NewServeMux()
-			handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{})
+			handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None)
 			handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 				expectedLocalizer := localize.Localizer{}
 				expectedLocalizer.ShowTranslationKeys = tc.expected
@@ -215,7 +247,7 @@ func TestMakeHandleShowTranslationKeys(t *testing.T) {
 					Paths:            AppPaths{},
 				}, appData)
 				assert.Equal(t, w, hw)
-				assert.Equal(t, r, hr)
+				assert.Equal(t, r.WithContext(contextWithSessionData(r.Context(), &sessionData{SessionID: "cmFuZG9t"})), hr)
 				hw.WriteHeader(http.StatusTeapot)
 				return nil
 			})
@@ -244,7 +276,7 @@ func TestMakeHandleErrors(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{})
+	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{}, None)
 	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
@@ -271,7 +303,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{Start: "/this"})
+	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{Start: "/this"}, None)
 	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -297,7 +329,7 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{Start: "/this"})
+	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{Start: "/this"}, None)
 	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -314,7 +346,7 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	localizer := localize.Localizer{}
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, nil, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{})
+	handle := makeHandle(mux, nil, nil, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{}, None)
 	handle("/path", None, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, AppData{
 			Page:             "/path",
@@ -339,6 +371,15 @@ func TestTestingStart(t *testing.T) {
 	t.Run("payment not complete", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere", nil)
+		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{ID: "123"}).
+			Return(nil)
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
@@ -348,17 +389,26 @@ func TestTestingStart(t *testing.T) {
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		testingStart(sessionsStore, nil).ServeHTTP(w, r)
+		testingStart(sessionsStore, lpaStore, mockRandom).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
-		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
 		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("payment complete", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&paymentComplete=1", nil)
+		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{ID: "123"}).
+			Return(nil)
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
@@ -371,19 +421,18 @@ func TestTestingStart(t *testing.T) {
 			On("Get", r, "pay").
 			Return(&sessions.Session{}, nil)
 
-		testingStart(sessionsStore, nil).ServeHTTP(w, r)
+		testingStart(sessionsStore, lpaStore, mockRandom).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
-		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
 		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("with payment", func(t *testing.T) {
-		ctx := context.Background()
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withPayment=1", nil)
-		r = r.WithContext(ctx)
+		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
@@ -395,27 +444,27 @@ func TestTestingStart(t *testing.T) {
 
 		lpaStore := &mockLpaStore{}
 		lpaStore.
-			On("Get", ctx, mock.Anything).
-			Return(&Lpa{}, nil)
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
 		lpaStore.
-			On("Put", ctx, mock.Anything, &Lpa{
+			On("Put", ctx, &Lpa{
+				ID:    "123",
 				Tasks: Tasks{PayForLpa: TaskCompleted},
 			}).
 			Return(nil)
 
-		testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)
+		testingStart(sessionsStore, lpaStore, mockRandom).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
-		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
 		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
 	})
 
 	t.Run("with attorney", func(t *testing.T) {
-		ctx := context.Background()
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withAttorney=1", nil)
-		r = r.WithContext(ctx)
+		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
@@ -427,10 +476,11 @@ func TestTestingStart(t *testing.T) {
 
 		lpaStore := &mockLpaStore{}
 		lpaStore.
-			On("Get", ctx, mock.Anything).
-			Return(&Lpa{}, nil)
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
 		lpaStore.
-			On("Put", ctx, mock.Anything, &Lpa{
+			On("Put", ctx, &Lpa{
+				ID: "123",
 				Attorneys: []Attorney{
 					{
 						ID:          "with-address",
@@ -454,32 +504,18 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)
+		testingStart(sessionsStore, lpaStore, mockRandom).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
-		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
 		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
 	})
 
 	t.Run("with attorneys", func(t *testing.T) {
-		ctx := context.Background()
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withIncompleteAttorneys=1", nil)
-		r = r.WithContext(ctx)
-
-		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
-		sessionsStore.
-			On("Save", r, w, mock.Anything).
-			Return(nil)
-
-		lpaStore := &mockLpaStore{}
-		lpaStore.
-			On("Get", ctx, mock.Anything).
-			Return(&Lpa{}, nil)
+		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		attorneys := []Attorney{
 			{
@@ -506,8 +542,21 @@ func TestTestingStart(t *testing.T) {
 			},
 		}
 
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := &mockLpaStore{}
 		lpaStore.
-			On("Put", ctx, mock.Anything, &Lpa{
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{
+				ID:                                   "123",
 				Type:                                 LpaTypePropertyFinance,
 				WhenCanTheLpaBeUsed:                  UsedWhenRegistered,
 				Attorneys:                            attorneys,
@@ -523,11 +572,11 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)
+		testingStart(sessionsStore, lpaStore, mockRandom).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
-		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
 		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
 	})
 
@@ -543,10 +592,9 @@ func TestTestingStart(t *testing.T) {
 
 		for _, tc := range testCases {
 			t.Run(tc.DecisionsType, func(t *testing.T) {
-				ctx := context.Background()
 				w := httptest.NewRecorder()
 				r, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/?redirect=/somewhere&howAttorneysAct=%s", tc.DecisionsType), nil)
-				r = r.WithContext(ctx)
+				ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 				sessionsStore := &mockSessionsStore{}
 				sessionsStore.
@@ -558,28 +606,30 @@ func TestTestingStart(t *testing.T) {
 
 				lpaStore := &mockLpaStore{}
 				lpaStore.
-					On("Get", ctx, mock.Anything).
-					Return(&Lpa{}, nil)
-
+					On("Create", ctx).
+					Return(&Lpa{ID: "123"}, nil)
 				lpaStore.
-					On("Put", ctx, mock.Anything, &Lpa{HowAttorneysMakeDecisions: tc.DecisionsType, HowAttorneysMakeDecisionsDetails: tc.DecisionsDetails}).
+					On("Put", ctx, &Lpa{
+						ID:                               "123",
+						HowAttorneysMakeDecisions:        tc.DecisionsType,
+						HowAttorneysMakeDecisionsDetails: tc.DecisionsDetails,
+					}).
 					Return(nil)
 
-				testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)
+				testingStart(sessionsStore, lpaStore, mockRandom).ServeHTTP(w, r)
 				resp := w.Result()
 
 				assert.Equal(t, http.StatusFound, resp.StatusCode)
-				assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+				assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
 				mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
 			})
 		}
 	})
 
 	t.Run("with Certificate Provider", func(t *testing.T) {
-		ctx := context.Background()
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withCP=1", nil)
-		r = r.WithContext(ctx)
+		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
@@ -591,11 +641,11 @@ func TestTestingStart(t *testing.T) {
 
 		lpaStore := &mockLpaStore{}
 		lpaStore.
-			On("Get", ctx, mock.Anything).
-			Return(&Lpa{}, nil)
-
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
 		lpaStore.
-			On("Put", ctx, mock.Anything, &Lpa{
+			On("Put", ctx, &Lpa{
+				ID: "123",
 				CertificateProvider: CertificateProvider{
 					FirstNames:              "Barbara",
 					LastName:                "Smith",
@@ -610,11 +660,11 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		testingStart(sessionsStore, lpaStore).ServeHTTP(w, r)
+		testingStart(sessionsStore, lpaStore, mockRandom).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
-		assert.Equal(t, "/somewhere", resp.Header.Get("Location"))
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
 		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
 	})
 }
@@ -649,17 +699,33 @@ func TestLangBuildUrl(t *testing.T) {
 	}
 
 	testCases := []test{
-		{language: "English", lang: En, url: "/example.org", want: "/example.org"},
-		{language: "Welsh", lang: Cy, url: "/example.org", want: "/cy/example.org"},
-		{language: "Other", lang: Lang(3), url: "/example.org", want: "/example.org"},
+		{language: "English", lang: En, url: "/example.org", want: "/lpa/123/example.org"},
+		{language: "Welsh", lang: Cy, url: "/example.org", want: "/cy/lpa/123/example.org"},
+		{language: "Other", lang: Lang(3), url: "/example.org", want: "/lpa/123/example.org"},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.language, func(t *testing.T) {
-			builtUrl := tc.lang.BuildUrl(tc.url)
+			builtUrl := AppData{Lang: tc.lang, LpaID: "123"}.BuildUrl(tc.url)
 			assert.Equal(t, tc.want, builtUrl)
 		})
 	}
+}
+
+func TestRouteToLpa(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/lpa/123/somewhere%2Fwhat", nil)
+
+	routeToLpa(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "/somewhere/what", r.URL.Path)
+		assert.Equal(t, "/somewhere%2Fwhat", r.URL.RawPath)
+
+		w.WriteHeader(http.StatusTeapot)
+	})).ServeHTTP(w, r)
+
+	res := w.Result()
+
+	assert.Equal(t, http.StatusTeapot, res.StatusCode)
 }
 
 func TestQueryString(t *testing.T) {

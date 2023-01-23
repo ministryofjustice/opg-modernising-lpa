@@ -7,7 +7,7 @@ describe('Confirm your identity and sign', () => {
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
         cy.contains('button', 'Continue').click();
-        cy.visit('/task-list');
+        cy.visitLpa('/task-list');
     });
 
     it('can be completed', () => {
@@ -43,7 +43,7 @@ describe('Confirm your identity and sign', () => {
 
         cy.contains('Your GOV.UK One Login Identity');
         // can't click continue as the real flow would begin
-        cy.visit('/read-your-lpa');
+        cy.visitLpa('/read-your-lpa');
 
         cy.url().should('contain', '/read-your-lpa');
         cy.injectAxe();
@@ -102,7 +102,7 @@ describe('Confirm your identity and sign', () => {
         cy.contains('label', 'Your GOV.UK One Login Identity').click();
         cy.contains('button', 'Continue').click();
 
-        cy.visit('/task-list');
+        cy.visitLpa('/task-list');
 
         cy.contains('li', "Confirm your identity and sign")
             .should('contain', 'In progress')

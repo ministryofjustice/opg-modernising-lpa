@@ -13,10 +13,11 @@ import (
 
 func TestGetChooseAttorneysSummary(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -26,8 +27,6 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 			Lpa: &Lpa{},
 		}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := ChooseAttorneysSummary(nil, template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -39,18 +38,17 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 
 func TestGetChooseAttorneysSummaryWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, expectedError)
 
 	logger := &mockLogger{}
 	logger.
 		On("Print", "error getting lpa from store: err").
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := ChooseAttorneysSummary(logger, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -68,36 +66,35 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	}{
 		"add attorney": {
 			addMoreFormValue: "yes",
-			expectedUrl:      "/choose-attorneys?addAnother=1",
+			expectedUrl:      "/lpa/lpa-id" + Paths.ChooseAttorneys + "?addAnother=1",
 			Attorneys:        []Attorney{},
 		},
 		"do not add attorney - with single attorney": {
 			addMoreFormValue: "no",
-			expectedUrl:      "/do-you-want-replacement-attorneys",
+			expectedUrl:      "/lpa/lpa-id" + Paths.DoYouWantReplacementAttorneys,
 			Attorneys:        []Attorney{{ID: "123"}},
 		},
 		"do not add attorney - with multiple attorneys": {
 			addMoreFormValue: "no",
-			expectedUrl:      "/how-should-attorneys-make-decisions",
+			expectedUrl:      "/lpa/lpa-id" + Paths.HowShouldAttorneysMakeDecisions,
 			Attorneys:        []Attorney{{ID: "123"}, {ID: "456"}},
 		},
 	}
 
 	for testname, tc := range testcases {
 		t.Run(testname, func(t *testing.T) {
-			w := httptest.NewRecorder()
-
-			lpaStore := &mockLpaStore{}
-			lpaStore.
-				On("Get", mock.Anything, "session-id").
-				Return(&Lpa{Attorneys: tc.Attorneys}, nil)
-
 			form := url.Values{
 				"add-attorney": {tc.addMoreFormValue},
 			}
 
+			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", formUrlEncoded)
+
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", r.Context()).
+				Return(&Lpa{Attorneys: tc.Attorneys}, nil)
 
 			err := ChooseAttorneysSummary(nil, nil, lpaStore)(appData, w, r)
 			resp := w.Result()
@@ -111,11 +108,17 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 }
 
 func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
+	form := url.Values{
+		"add-attorney": {""},
+	}
+
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	validationError := map[string]string{
@@ -128,13 +131,6 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)
-
-	form := url.Values{
-		"add-attorney": {""},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
 
 	err := ChooseAttorneysSummary(nil, template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
