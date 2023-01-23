@@ -41,7 +41,9 @@
       <div class="govuk-grid-column-two-thirds">
         <p class="govuk-body">{{ tr .App "createYourFirstLpa" }}</p>
 
-        <a class="govuk-button" href="{{ link .App .App.Paths.YourDetails }}">{{ tr .App "createAnLpa" }}</a>
+        <form novalidate method="post">
+          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "createAnLpa" }}</button>
+        </form>
       </div>
     </div>
   {{ end }}

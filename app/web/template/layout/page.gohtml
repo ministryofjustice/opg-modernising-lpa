@@ -105,13 +105,13 @@
 
           <ul class="trans-switch" id="language-switch" aria-label="Change your language">
             <li class="govuk-list trans-switch__list govuk-body-s" id="language-switch-en" lang="en-gb">
-              {{ if isWelsh .App.Lang }}<a href="{{ .App.Page }}{{ .App.Query }}" class="govuk-link"><span class="govuk-visually-hidden">Change language to </span>{{ end }}
+              {{ if isWelsh .App.Lang }}<a href="{{ .App.BuildUrlWithoutLang .App.Page }}{{ .App.Query }}" class="govuk-link"><span class="govuk-visually-hidden">Change language to </span>{{ end }}
                 {{ if isEnglish .App.Lang }}<span class="govuk-visually-hidden">Current language is </span>{{ end }}
                 English
                 {{ if isWelsh .App.Lang }}</a>{{ end }}
             </li>
             <li class="govuk-list trans-switch__list govuk-body-s" id="language-switch-cy" lang="cy-gb">
-              {{ if isEnglish .App.Lang }}<a href="/cy{{ .App.Page }}{{ .App.Query }}" class="govuk-link" aria-label="Newid iaith i'r Gymraeg">{{ end }}
+              {{ if isEnglish .App.Lang }}<a href="/cy{{ .App.BuildUrlWithoutLang .App.Page }}{{ .App.Query }}" class="govuk-link" aria-label="Newid iaith i'r Gymraeg">{{ end }}
                 Cymraeg
                 {{ if isEnglish .App.Lang }}</a>{{ end }}
                 {{ if isWelsh .App.Lang }}<span class="govuk-visually-hidden"> yw'r iaith bresennol</span>{{ end }}
@@ -158,7 +158,7 @@
                   </a>
                 </li>
                 <li class="govuk-footer__inline-list-item">
-                  <a class="govuk-footer__link" href="{{ if .App.Localizer.ShowTranslationKeys }}{{ .App.Lang.BuildUrl .App.Page }}{{ else }}{{ .App.Lang.BuildUrl .App.Page }}?showTranslationKeys=1{{ end }}">
+                  <a class="govuk-footer__link" href="{{ if .App.Localizer.ShowTranslationKeys }}{{ .App.BuildUrl .App.Page }}{{ else }}{{ .App.BuildUrl .App.Page }}?showTranslationKeys=1{{ end }}">
                     {{ tr .App "toggleTransKeys" }}
                   </a>
                 </li>

@@ -30,8 +30,8 @@ func TestGetPaymentConfirmation(t *testing.T) {
 		withExpiredPaySession(r, w)
 
 	lpaStore := (&mockLpaStore{}).
-		willReturnEmptyLpa().
-		withCompletedPaymentLpaData("abc123", "123456789012")
+		willReturnEmptyLpa(r).
+		withCompletedPaymentLpaData(r, "abc123", "123456789012")
 
 	err := PaymentConfirmation(&mockLogger{}, template.Func, payClient, lpaStore, sessionsStore)(appData, w, r)
 	resp := w.Result()
@@ -48,7 +48,7 @@ func TestGetPaymentConfirmationWhenDataStoreError(t *testing.T) {
 	template := &mockTemplate{}
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, expectedError)
 
 	logger := &mockLogger{}
@@ -70,7 +70,7 @@ func TestGetPaymentConfirmationWhenErrorGettingSession(t *testing.T) {
 
 	template := &mockTemplate{}
 	lpaStore := (&mockLpaStore{}).
-		willReturnEmptyLpa()
+		willReturnEmptyLpa(r)
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
@@ -95,7 +95,7 @@ func TestGetPaymentConfirmationWhenErrorGettingPayment(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 	lpaStore := (&mockLpaStore{}).
-		willReturnEmptyLpa()
+		willReturnEmptyLpa(r)
 
 	sessionsStore := (&mockSessionsStore{}).
 		withPaySession(r)
@@ -125,8 +125,8 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 	lpaStore := (&mockLpaStore{}).
-		willReturnEmptyLpa().
-		withCompletedPaymentLpaData("abc123", "123456789012")
+		willReturnEmptyLpa(r).
+		withCompletedPaymentLpaData(r, "abc123", "123456789012")
 
 	sessionsStore := (&mockSessionsStore{}).
 		withPaySession(r)
@@ -156,15 +156,15 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, sessionsStore, logger, payClient)
 }
 
-func (m *mockLpaStore) willReturnEmptyLpa() *mockLpaStore {
-	m.On("Get", mock.Anything, "session-id").Return(&Lpa{}, nil)
+func (m *mockLpaStore) willReturnEmptyLpa(r *http.Request) *mockLpaStore {
+	m.On("Get", r.Context()).Return(&Lpa{}, nil)
 
 	return m
 }
 
-func (m *mockLpaStore) withCompletedPaymentLpaData(paymentId, paymentReference string) *mockLpaStore {
+func (m *mockLpaStore) withCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string) *mockLpaStore {
 	m.
-		On("Put", mock.Anything, "session-id", &Lpa{
+		On("Put", r.Context(), &Lpa{
 			PaymentDetails: PaymentDetails{
 				PaymentId:        paymentId,
 				PaymentReference: paymentReference,

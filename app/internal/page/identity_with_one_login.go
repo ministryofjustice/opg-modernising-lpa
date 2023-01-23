@@ -32,6 +32,7 @@ func IdentityWithOneLogin(logger Logger, c loginClient, store sessions.Store, ra
 			"nonce":    nonce,
 			"locale":   locale,
 			"identity": true,
+			"lpa-id":   appData.LpaID,
 		}
 		params.Options = cookieOptions
 
