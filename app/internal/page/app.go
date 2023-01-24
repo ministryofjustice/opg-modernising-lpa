@@ -307,38 +307,6 @@ func App(
 	return rootMux
 }
 
-func makePerson() Person {
-	return Person{
-		FirstNames: "Jose",
-		LastName:   "Smith",
-		Address: place.Address{
-			Line1:      "1 RICHMOND PLACE",
-			Line2:      "KINGS HEATH",
-			Line3:      "WEST MIDLANDS",
-			TownOrCity: "BIRMINGHAM",
-			Postcode:   "B14 7ED",
-		},
-		Email: "simulate-delivered@notifications.service.gov.uk",
-	}
-}
-
-func makeAttorney(firstNames string) Attorney {
-	return Attorney{
-		ID:          "with-address",
-		FirstNames:  firstNames,
-		LastName:    "Smith",
-		Email:       firstNames + "@example.org",
-		DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
-		Address: place.Address{
-			Line1:      "2 RICHMOND PLACE",
-			Line2:      "KINGS HEATH",
-			Line3:      "WEST MIDLANDS",
-			TownOrCity: "BIRMINGHAM",
-			Postcode:   "B14 7ED",
-		},
-	}
-}
-
 func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int) string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sub := randomString(12)
@@ -353,21 +321,20 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 		lpa, _ := lpaStore.Create(ctx)
 
 		if r.FormValue("withDonorDetails") != "" || r.FormValue("completeLpa") != "" {
-			lpa.You = makePerson()
+			lpa.You = MakePerson()
 			lpa.Tasks.YourDetails = TaskCompleted
 		}
 
 		if r.FormValue("withAttorney") != "" {
-			lpa.Attorneys = []Attorney{makeAttorney("John")}
+			lpa.Attorneys = []Attorney{MakeAttorney("John")}
 
-			lpa.HowAttorneysMakeDecisions = JointlyAndSeverally
 			lpa.Tasks.ChooseAttorneys = TaskCompleted
 		}
 
 		if r.FormValue("withAttorneys") != "" || r.FormValue("completeLpa") != "" {
 			lpa.Attorneys = []Attorney{
-				makeAttorney("John"),
-				makeAttorney("Joan"),
+				MakeAttorney("John"),
+				MakeAttorney("Joan"),
 			}
 
 			lpa.HowAttorneysMakeDecisions = JointlyAndSeverally
@@ -375,10 +342,11 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 		}
 
 		if r.FormValue("withIncompleteAttorneys") != "" {
-			withAddress := makeAttorney("John")
+			withAddress := MakeAttorney("John")
 			withAddress.ID = "with-address"
-			withoutAddress := makeAttorney("Joan")
+			withoutAddress := MakeAttorney("Joan")
 			withoutAddress.ID = "without-address"
+			withoutAddress.Address = place.Address{}
 
 			lpa.Attorneys = []Attorney{
 				withAddress,
@@ -413,8 +381,8 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 
 		if r.FormValue("withReplacementAttorneys") != "" || r.FormValue("completeLpa") != "" {
 			lpa.ReplacementAttorneys = []Attorney{
-				makeAttorney("Jane"),
-				makeAttorney("Jorge"),
+				MakeAttorney("Jane"),
+				MakeAttorney("Jorge"),
 			}
 			lpa.WantReplacementAttorneys = "yes"
 			lpa.HowReplacementAttorneysMakeDecisions = JointlyAndSeverally
@@ -433,47 +401,14 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 		}
 
 		if r.FormValue("withCP") == "1" || r.FormValue("completeLpa") != "" {
-			lpa.CertificateProvider = CertificateProvider{
-				FirstNames:              "Barbara",
-				LastName:                "Smith",
-				Email:                   "b@example.org",
-				Mobile:                  "07535111111",
-				DateOfBirth:             time.Date(1997, time.January, 2, 3, 4, 5, 6, time.UTC),
-				Relationship:            "friend",
-				RelationshipDescription: "",
-				RelationshipLength:      "gte-2-years",
-			}
+			lpa.CertificateProvider = MakeCertificateProvider("Barbara")
 			lpa.Tasks.CertificateProvider = TaskCompleted
 		}
 
 		if r.FormValue("withPeopleToNotify") == "1" || r.FormValue("completeLpa") != "" {
 			lpa.PeopleToNotify = []PersonToNotify{
-				{
-					ID:         randomString(12),
-					FirstNames: "Joanna",
-					LastName:   "Smith",
-					Email:      "b@example.org",
-					Address: place.Address{
-						Line1:      "4 RICHMOND PLACE",
-						Line2:      "KINGS HEATH",
-						Line3:      "WEST MIDLANDS",
-						TownOrCity: "BIRMINGHAM",
-						Postcode:   "B14 7ED",
-					},
-				},
-				{
-					ID:         randomString(12),
-					FirstNames: "Jonathan",
-					LastName:   "Smith",
-					Email:      "b@example.org",
-					Address: place.Address{
-						Line1:      "5 RICHMOND PLACE",
-						Line2:      "KINGS HEATH",
-						Line3:      "WEST MIDLANDS",
-						TownOrCity: "BIRMINGHAM",
-						Postcode:   "B14 7ED",
-					},
-				},
+				MakePersonToNotify("Joanna"),
+				MakePersonToNotify("Jonathan"),
 			}
 			lpa.DoYouWantToNotifyPeople = "yes"
 			lpa.Tasks.PeopleToNotify = TaskCompleted
@@ -485,7 +420,7 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 			lpa.Tasks.CheckYourLpa = TaskCompleted
 		}
 
-		if r.FormValue("paymentComplete") == "1" || r.FormValue("completeLpa") != "" {
+		if r.FormValue("paymentComplete") == "1" {
 			paySession, _ := store.Get(r, PayCookieName)
 			paySession.Values = map[interface{}]interface{}{PayCookiePaymentIdValueKey: random.String(12)}
 			_ = store.Save(r, w, paySession)
@@ -495,7 +430,7 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 		if r.FormValue("idConfirmedAndSigned") == "1" || r.FormValue("completeLpa") != "" {
 			lpa.OneLoginUserData = identity.UserData{
 				OK:          true,
-				RetrievedAt: time.Now(),
+				RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
 				FullName:    "Jose Smith",
 			}
 
@@ -504,7 +439,7 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 			lpa.Tasks.ConfirmYourIdentityAndSign = TaskCompleted
 		}
 
-		if r.FormValue("withPayment") == "1" {
+		if r.FormValue("withPayment") == "1" || r.FormValue("completeLpa") != "" {
 			lpa.Tasks.PayForLpa = TaskCompleted
 		}
 
@@ -512,10 +447,6 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 			lpa.Progress = Progress{
 				LpaSigned:                   TaskCompleted,
 				CertificateProviderDeclared: TaskInProgress,
-				AttorneysDeclared:           TaskNotStarted,
-				LpaSubmitted:                TaskNotStarted,
-				StatutoryWaitingPeriod:      TaskNotStarted,
-				LpaRegistered:               TaskNotStarted,
 			}
 		}
 
