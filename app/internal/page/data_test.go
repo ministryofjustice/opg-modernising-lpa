@@ -50,21 +50,42 @@ type mockDataStore struct {
 	mock.Mock
 }
 
-func (m *mockDataStore) Get(ctx context.Context, id string, v interface{}) error {
+func (m *mockDataStore) GetAll(ctx context.Context, pk string, v interface{}) error {
 	data, _ := json.Marshal(m.data)
 	json.Unmarshal(data, v)
-	return m.Called(ctx, id).Error(0)
+	return m.Called(ctx, pk).Error(0)
 }
 
-func (m *mockDataStore) Put(ctx context.Context, id string, v interface{}) error {
-	return m.Called(ctx, id, v).Error(0)
+func (m *mockDataStore) Get(ctx context.Context, pk, sk string, v interface{}) error {
+	data, _ := json.Marshal(m.data)
+	json.Unmarshal(data, v)
+	return m.Called(ctx, pk, sk).Error(0)
+}
+
+func (m *mockDataStore) Put(ctx context.Context, pk, sk string, v interface{}) error {
+	return m.Called(ctx, pk, sk, v).Error(0)
+}
+
+func TestLpaStoreGetAll(t *testing.T) {
+	ctx := contextWithSessionData(context.Background(), &sessionData{SessionID: "an-id", LpaID: "123"})
+
+	lpas := []*Lpa{{ID: "10100000"}}
+
+	dataStore := &mockDataStore{data: lpas}
+	dataStore.On("GetAll", ctx, "an-id").Return(nil)
+
+	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
+
+	result, err := lpaStore.GetAll(ctx)
+	assert.Nil(t, err)
+	assert.Equal(t, lpas, result)
 }
 
 func TestLpaStoreGet(t *testing.T) {
 	ctx := contextWithSessionData(context.Background(), &sessionData{SessionID: "an-id", LpaID: "123"})
 
 	dataStore := &mockDataStore{data: &Lpa{ID: "10100000"}}
-	dataStore.On("Get", ctx, "an-id").Return(nil)
+	dataStore.On("Get", ctx, "an-id", "123").Return(nil)
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
 
@@ -78,7 +99,7 @@ func TestLpaStoreGetWhenExists(t *testing.T) {
 	existingLpa := &Lpa{ID: "an-id"}
 
 	dataStore := &mockDataStore{data: existingLpa}
-	dataStore.On("Get", ctx, "an-id").Return(nil)
+	dataStore.On("Get", ctx, "an-id", "123").Return(nil)
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
 
@@ -91,7 +112,7 @@ func TestLpaStoreGetWhenDataStoreError(t *testing.T) {
 	ctx := contextWithSessionData(context.Background(), &sessionData{SessionID: "an-id", LpaID: "123"})
 
 	dataStore := &mockDataStore{}
-	dataStore.On("Get", ctx, "an-id").Return(expectedError)
+	dataStore.On("Get", ctx, "an-id", "123").Return(expectedError)
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
 
@@ -104,7 +125,7 @@ func TestLpaStorePut(t *testing.T) {
 	lpa := &Lpa{ID: "5"}
 
 	dataStore := &mockDataStore{}
-	dataStore.On("Put", ctx, "an-id", lpa).Return(expectedError)
+	dataStore.On("Put", ctx, "an-id", "5", lpa).Return(expectedError)
 
 	lpaStore := &lpaStore{dataStore: dataStore}
 
