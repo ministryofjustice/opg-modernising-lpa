@@ -3,6 +3,7 @@ package page
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -167,16 +168,6 @@ func readDate(t time.Time) Date {
 	}
 }
 
-type LpaStore interface {
-	Get(context.Context, string) (*Lpa, error)
-	Put(context.Context, string, *Lpa) error
-}
-
-type lpaStore struct {
-	dataStore DataStore
-	randomInt func(int) int
-}
-
 type WitnessCode struct {
 	Code    string
 	Created time.Time
@@ -186,23 +177,69 @@ func (w *WitnessCode) HasExpired() bool {
 	return w.Created.Before(time.Now().Add(-30 * time.Minute))
 }
 
-func (s *lpaStore) Get(ctx context.Context, sessionID string) (*Lpa, error) {
-	var lpa Lpa
-	if err := s.dataStore.Get(ctx, sessionID, &lpa); err != nil {
-		return &lpa, err
+type LpaStore interface {
+	Create(context.Context) (*Lpa, error)
+	GetAll(context.Context) ([]*Lpa, error)
+	Get(context.Context) (*Lpa, error)
+	Put(context.Context, *Lpa) error
+}
+
+type sessionData struct {
+	SessionID string
+	LpaID     string
+}
+
+func sessionDataFromContext(ctx context.Context) *sessionData {
+	data, _ := ctx.Value((*sessionData)(nil)).(*sessionData)
+
+	return data
+}
+
+func contextWithSessionData(ctx context.Context, data *sessionData) context.Context {
+	return context.WithValue(ctx, (*sessionData)(nil), data)
+}
+
+type lpaStore struct {
+	dataStore DataStore
+	randomInt func(int) int
+}
+
+func (s *lpaStore) Create(ctx context.Context) (*Lpa, error) {
+	lpa := &Lpa{ID: "10" + strconv.Itoa(s.randomInt(100000))}
+	err := s.Put(ctx, lpa)
+
+	return lpa, err
+}
+
+func (s *lpaStore) GetAll(ctx context.Context) ([]*Lpa, error) {
+	var lpas []*Lpa
+	err := s.dataStore.GetAll(ctx, sessionDataFromContext(ctx).SessionID, &lpas)
+
+	slices.SortFunc(lpas, func(a, b *Lpa) bool {
+		return a.UpdatedAt.After(b.UpdatedAt)
+	})
+
+	return lpas, err
+}
+
+func (s *lpaStore) Get(ctx context.Context) (*Lpa, error) {
+	data := sessionDataFromContext(ctx)
+	if data.LpaID == "" {
+		return nil, errors.New("lpaStore.Get requires LpaID to retrieve")
 	}
 
-	if lpa.ID == "" {
-		lpa.ID = "10" + strconv.Itoa(s.randomInt(100000))
+	var lpa Lpa
+	if err := s.dataStore.Get(ctx, data.SessionID, data.LpaID, &lpa); err != nil {
+		return nil, err
 	}
 
 	return &lpa, nil
 }
 
-func (s *lpaStore) Put(ctx context.Context, sessionID string, lpa *Lpa) error {
+func (s *lpaStore) Put(ctx context.Context, lpa *Lpa) error {
 	lpa.UpdatedAt = time.Now()
 
-	return s.dataStore.Put(ctx, sessionID, lpa)
+	return s.dataStore.Put(ctx, sessionDataFromContext(ctx).SessionID, lpa.ID, lpa)
 }
 
 func DecodeAddress(s string) *place.Address {

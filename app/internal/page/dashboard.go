@@ -9,19 +9,28 @@ import (
 type dashboardData struct {
 	App    AppData
 	Errors map[string]string
-	Lpa    *Lpa
+	Lpas   []*Lpa
 }
 
 func Dashboard(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		if r.Method == http.MethodPost {
+			lpa, err := lpaStore.Create(r.Context())
+			if err != nil {
+				return err
+			}
+
+			return appData.Redirect(w, r, lpa, Paths.YourDetails)
+		}
+
+		lpas, err := lpaStore.GetAll(r.Context())
 		if err != nil {
 			return err
 		}
 
 		data := &dashboardData{
-			App: appData,
-			Lpa: lpa,
+			App:  appData,
+			Lpas: lpas,
 		}
 
 		return tmpl(w, data)

@@ -11,10 +11,11 @@ import (
 
 func TestGetYourChosenIdentityOptions(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{
 			IdentityOption: Passport,
 		}, nil)
@@ -27,8 +28,6 @@ func TestGetYourChosenIdentityOptions(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	err := YourChosenIdentityOptions(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
 
@@ -39,13 +38,12 @@ func TestGetYourChosenIdentityOptions(t *testing.T) {
 
 func TestGetYourChosenIdentityOptionsWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := YourChosenIdentityOptions(nil, lpaStore)(appData, w, r)
 
@@ -55,10 +53,11 @@ func TestGetYourChosenIdentityOptionsWhenStoreErrors(t *testing.T) {
 
 func TestGetYourChosenIdentityOptionsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{
 			IdentityOption: Passport,
 		}, nil)
@@ -67,8 +66,6 @@ func TestGetYourChosenIdentityOptionsWhenTemplateErrors(t *testing.T) {
 	template.
 		On("Func", w, mock.Anything).
 		Return(expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := YourChosenIdentityOptions(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -80,20 +77,19 @@ func TestGetYourChosenIdentityOptionsWhenTemplateErrors(t *testing.T) {
 
 func TestPostYourChosenIdentityOptions(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{
 			IdentityOption: Passport,
 		}, nil)
-
-	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	err := YourChosenIdentityOptions(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.IdentityWithPassport, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+Paths.IdentityWithPassport, resp.Header.Get("Location"))
 }

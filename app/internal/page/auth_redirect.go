@@ -47,14 +47,17 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, sec
 		}
 
 		identity, _ := params.Values["identity"].(bool)
+		lpaID, _ := params.Values["lpa-id"].(string)
 
 		lang := En
 		if locale == "cy" {
 			lang = Cy
 		}
 
+		appData := AppData{Lang: lang, LpaID: lpaID}
+
 		if identity {
-			lang.Redirect(w, r, nil, Paths.IdentityWithOneLoginCallback+"?"+r.URL.RawQuery)
+			appData.Redirect(w, r, nil, Paths.IdentityWithOneLoginCallback+"?"+r.URL.RawQuery)
 		} else {
 			jwt, err := c.Exchange(r.Context(), r.FormValue("code"), nonce)
 			if err != nil {
@@ -79,7 +82,7 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, sec
 				return
 			}
 
-			lang.Redirect(w, r, nil, Paths.Dashboard)
+			appData.Redirect(w, r, nil, Paths.Dashboard)
 		}
 	}
 }
