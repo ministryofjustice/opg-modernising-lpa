@@ -15,7 +15,7 @@ describe('Dashboard', () => {
         cy.visit('/dashboard');
     });
 
-    it('shows my lasting power of attorney', () => {        
+    it('shows my lasting power of attorney', () => {
         cy.contains('Property and affairs');
         cy.contains('John Doe');
         cy.contains('a', 'Continue').click();
@@ -44,4 +44,14 @@ describe('Dashboard', () => {
         cy.contains('Property and affairs: John Doe');
         cy.contains('Personal welfare: Jane Doe');
     });
+
+    it('shows the progress of the LPA', () => {
+        cy.visit('/testing-start?redirect=/dashboard&completeLpa=1');
+        cy.contains('li', 'LPA signed Completed');
+        cy.contains('li', 'Certificate provider has made their declaration In progress');
+        cy.contains('li', 'Attorneys have made their declaration Not started');
+        cy.contains('li', 'LPA submitted to the OPG Not started');
+        cy.contains('li', 'Statutory waiting period Not started');
+        cy.contains('li', 'LPA registered Not started');
+    })
 });
