@@ -173,14 +173,9 @@ func (w *WitnessCode) HasExpired() bool {
 
 type LpaStore interface {
 	Create(context.Context) (*Lpa, error)
-	GetAll(context.Context) (*Lpa, error)
+	GetAll(context.Context) ([]*Lpa, error)
 	Get(context.Context) (*Lpa, error)
 	Put(context.Context, *Lpa) error
-}
-
-type lpaStore struct {
-	dataStore DataStore
-	randomInt func(int) int
 }
 
 type sessionData struct {
@@ -198,6 +193,11 @@ func contextWithSessionData(ctx context.Context, data *sessionData) context.Cont
 	return context.WithValue(ctx, (*sessionData)(nil), data)
 }
 
+type lpaStore struct {
+	dataStore DataStore
+	randomInt func(int) int
+}
+
 func (s *lpaStore) Create(ctx context.Context) (*Lpa, error) {
 	lpa := &Lpa{ID: "10" + strconv.Itoa(s.randomInt(100000))}
 	err := s.Put(ctx, lpa)
@@ -205,11 +205,11 @@ func (s *lpaStore) Create(ctx context.Context) (*Lpa, error) {
 	return lpa, err
 }
 
-func (s *lpaStore) GetAll(ctx context.Context) (*Lpa, error) {
-	var lpa Lpa
-	err := s.dataStore.Get(ctx, sessionDataFromContext(ctx).SessionID, &lpa)
+func (s *lpaStore) GetAll(ctx context.Context) ([]*Lpa, error) {
+	var lpas []*Lpa
+	err := s.dataStore.GetAll(ctx, sessionDataFromContext(ctx).SessionID, &lpas)
 
-	return &lpa, err
+	return lpas, err
 }
 
 func (s *lpaStore) Get(ctx context.Context) (*Lpa, error) {
@@ -219,15 +219,17 @@ func (s *lpaStore) Get(ctx context.Context) (*Lpa, error) {
 	}
 
 	var lpa Lpa
-	err := s.dataStore.Get(ctx, data.SessionID, &lpa)
+	if err := s.dataStore.Get(ctx, data.SessionID, data.LpaID, &lpa); err != nil {
+		return nil, err
+	}
 
-	return &lpa, err
+	return &lpa, nil
 }
 
 func (s *lpaStore) Put(ctx context.Context, lpa *Lpa) error {
 	lpa.UpdatedAt = time.Now()
 
-	return s.dataStore.Put(ctx, sessionDataFromContext(ctx).SessionID, lpa)
+	return s.dataStore.Put(ctx, sessionDataFromContext(ctx).SessionID, lpa.ID, lpa)
 }
 
 func DecodeAddress(s string) *place.Address {
