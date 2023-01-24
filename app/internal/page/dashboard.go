@@ -9,7 +9,7 @@ import (
 type dashboardData struct {
 	App    AppData
 	Errors map[string]string
-	Lpa    *Lpa
+	Lpas   []*Lpa
 }
 
 func Dashboard(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -23,14 +23,14 @@ func Dashboard(tmpl template.Template, lpaStore LpaStore) Handler {
 			return appData.Redirect(w, r, lpa, Paths.YourDetails)
 		}
 
-		lpa, err := lpaStore.GetAll(r.Context())
+		lpas, err := lpaStore.GetAll(r.Context())
 		if err != nil {
 			return err
 		}
 
 		data := &dashboardData{
-			App: appData,
-			Lpa: lpa,
+			App:  appData,
+			Lpas: lpas,
 		}
 
 		return tmpl(w, data)
