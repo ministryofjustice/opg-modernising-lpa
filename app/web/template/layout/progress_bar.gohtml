@@ -2,10 +2,10 @@
 
 <div id="progress" class="app-progress-bar" aria-label="progress-label">
     <ol class="app-progress-bar__list">
-    {{ range $i, $e := .Tasks }}
-        <li id="progress-item-{{$i}}" class="app-progress-bar__item" {{ if $e.Task.Current }}aria-current="step"{{ end }}>
-            <span class="app-progress-bar__icon {{ if $e.Completed }}app-progress-bar__icon--complete"{{ end }}></span>
-            <span class="app-progress-bar__label">{{ $e.Task.Name }}</span>
+    {{ range $i, $e := .Progress }}
+        <li id="progress-item-{{$i}}" class="app-progress-bar__item" {{ if $e.State.InProgress }}aria-current="step"{{ end }}>
+            <span class="app-progress-bar__icon {{ if $e.State.Completed }}app-progress-bar__icon--complete"{{ end }}></span>
+            <span class="app-progress-bar__label">{{ $e.Name }}</span>
         </li>
     {{ end }}
     </ol>

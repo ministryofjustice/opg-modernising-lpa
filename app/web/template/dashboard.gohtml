@@ -8,20 +8,22 @@
       <p class="govuk-body">{{ tr .App "myLastingPowersOfAttorneyHint" }}</p>
     </div>
   </div>
-  
+
   {{ if .Lpa.You.FirstNames }}
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
         <p class="govuk-body">{{ tr .App "youCanCreateANewLpa" }}</p>
-        
+
         <a class="govuk-button" href="{{ link .App .App.Paths.YourDetails }}">{{ tr .App "createAnotherLpa" }}</a>
       </div>
     </div>
 
     <div class="govuk-grid-row govuk-!-margin-top-4">
       <div class="govuk-grid-column-full">
+        {{ template "progress-bar" (progressBar . "Tasks" .Tasks ) }}
+
         <h2 class="govuk-heading-m">{{ tr .App "lpasInProgress" }}</h2>
-        
+
         <div class="moj-ticket-panel moj-ticket-panel--inline">
           <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
             <strong class="moj-badge app-float-right govuk-!-margin-left-2">{{ tr .App "statusTag" }}</strong>
