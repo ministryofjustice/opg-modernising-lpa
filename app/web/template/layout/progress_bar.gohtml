@@ -1,12 +1,30 @@
-{{ template "progress-bar" . }}
-
-<div id="progress" class="app-progress-bar" aria-label="progress-label">
-    <ol class="app-progress-bar__list">
-    {{ range $i, $e := .Progress }}
-        <li id="progress-item-{{$i}}" class="app-progress-bar__item" {{ if $e.State.InProgress }}aria-current="step"{{ end }}>
-            <span class="app-progress-bar__icon {{ if $e.State.Completed }}app-progress-bar__icon--complete"{{ end }}></span>
-            <span class="app-progress-bar__label">{{ $e.Name }}</span>
-        </li>
-    {{ end }}
-    </ol>
-</div>
+{{ define "progress-bar" }}
+    <div id="progress" class="app-progress-bar" aria-label="progress-label">
+        <ol class="app-progress-bar__list">
+            <li id="lpa-signed" class="app-progress-bar__item" {{ if .Lpa.Progress.LpaSigned.InProgress }}aria-current="step"{{ end }}>
+                <span class="app-progress-bar__icon {{ if .Lpa.Progress.LpaSigned.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+                <span class="app-progress-bar__label">{{ tr .App "lpaSigned" }}</span>
+            </li>
+            <li id="lpa-signed" class="app-progress-bar__item" {{ if .Lpa.Progress.CertificateProviderDeclared.InProgress }}aria-current="step"{{ end }}>
+                <span class="app-progress-bar__icon {{ if .Lpa.Progress.CertificateProviderDeclared.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+                <span class="app-progress-bar__label">{{ tr .App "certificateProviderHasDeclared" }}</span>
+            </li>
+            <li id="lpa-signed" class="app-progress-bar__item" {{ if .Lpa.Progress.AttorneysDeclared.InProgress }}aria-current="step"{{ end }}>
+                <span class="app-progress-bar__icon {{ if .Lpa.Progress.AttorneysDeclared.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+                <span class="app-progress-bar__label">{{ trCount .App "attorneysHaveDeclared" (len .Lpa.Attorneys) }}</span>
+            </li>
+            <li id="lpa-signed" class="app-progress-bar__item" {{ if .Lpa.Progress.LpaSubmitted.InProgress }}aria-current="step"{{ end }}>
+                <span class="app-progress-bar__icon {{ if .Lpa.Progress.LpaSubmitted.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+                <span class="app-progress-bar__label">{{ tr .App "lpaSubmitted" }}</span>
+            </li>
+            <li id="lpa-signed" class="app-progress-bar__item" {{ if .Lpa.Progress.StatutoryWaitingPeriod.InProgress }}aria-current="step"{{ end }}>
+                <span class="app-progress-bar__icon {{ if .Lpa.Progress.StatutoryWaitingPeriod.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+                <span class="app-progress-bar__label">{{ tr .App "statutoryWaitingPeriod" }}</span>
+            </li>
+            <li id="lpa-signed" class="app-progress-bar__item" {{ if .Lpa.Progress.LpaRegistered.InProgress }}aria-current="step"{{ end }}>
+                <span class="app-progress-bar__icon {{ if .Lpa.Progress.LpaRegistered.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+                <span class="app-progress-bar__label">{{ tr .App "lpaRegistered" }}</span>
+            </li>
+        </ol>
+    </div>
+{{ end }}

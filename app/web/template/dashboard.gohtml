@@ -35,7 +35,7 @@
         <h2 class="govuk-heading-m">{{ tr .App "lpasInProgress" }}</h2>
 
         {{ range .Lpas }}
-          {{ template "progress-bar" (progressBar . "Tasks" .Tasks ) }}
+          {{ template "progress-bar" (progressBar $.App .) }}
 
           <div class="moj-ticket-panel moj-ticket-panel--inline">
             <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">

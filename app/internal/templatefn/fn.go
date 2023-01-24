@@ -37,6 +37,7 @@ var All = map[string]interface{}{
 	"listAttorneys":      listAttorneys,
 	"warning":            warning,
 	"listPeopleToNotify": listPeopleToNotify,
+	"progressBar":        progressBar,
 }
 
 func isEnglish(lang page.Lang) bool {
@@ -256,5 +257,12 @@ func warning(app page.AppData, content string) map[string]interface{} {
 	return map[string]interface{}{
 		"app":     app,
 		"content": content,
+	}
+}
+
+func progressBar(app page.AppData, lpa *page.Lpa) map[string]interface{} {
+	return map[string]interface{}{
+		"App": app,
+		"Lpa": lpa,
 	}
 }

@@ -81,7 +81,7 @@ type Lpa struct {
 	WantToApplyForLpa                           bool
 	CPWitnessCodeValidated                      bool
 	Submitted                                   time.Time
-	Progress                                    []Phase
+	Progress                                    Progress
 }
 
 type PaymentDetails struct {
@@ -141,9 +141,13 @@ type CertificateProvider struct {
 	RelationshipLength      string
 }
 
-type Phase struct {
-	Name  string
-	State TaskState
+type Progress struct {
+	LpaSigned                   TaskState
+	CertificateProviderDeclared TaskState
+	AttorneysDeclared           TaskState
+	LpaSubmitted                TaskState
+	StatutoryWaitingPeriod      TaskState
+	LpaRegistered               TaskState
 }
 
 type AddressClient interface {

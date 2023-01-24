@@ -508,6 +508,17 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 			lpa.Tasks.PayForLpa = TaskCompleted
 		}
 
+		if r.FormValue("completeLpa") != "" {
+			lpa.Progress = Progress{
+				LpaSigned:                   TaskCompleted,
+				CertificateProviderDeclared: TaskInProgress,
+				AttorneysDeclared:           TaskNotStarted,
+				LpaSubmitted:                TaskNotStarted,
+				StatutoryWaitingPeriod:      TaskNotStarted,
+				LpaRegistered:               TaskNotStarted,
+			}
+		}
+
 		_ = lpaStore.Put(ctx, lpa)
 
 		if r.FormValue("cookiesAccepted") == "1" {
