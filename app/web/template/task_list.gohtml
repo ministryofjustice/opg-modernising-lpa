@@ -9,40 +9,6 @@
 
       {{ template "details" (details . "taskListHelp" "taskListHelpContent" false) }}
 
-{{/*        <div id="progress" class="app-progress-bar" aria-label="progress-label">*/}}
-{{/*            <ol class="app-progress-bar__list">*/}}
-{{/*                <li id="progress-item-1" class="app-progress-bar__item">*/}}
-{{/*                    <span class="app-progress-bar__icon app-progress-bar__icon--complete"></span>*/}}
-{{/*                    <span class="app-progress-bar__label">LPA signed</span>*/}}
-{{/*                </li>*/}}
-{{/*                <li id="progress-item-2" class="app-progress-bar__item" aria-current="step" data-text="Step 2">*/}}
-{{/*                    */}}{{/*                <span class="app-progress-bar__icon {{- ' app-progress-bar__icon--complete' if item.complete }}"></span>*/}}
-{{/*                    <span class="app-progress-bar__icon"></span>*/}}
-{{/*                    <span class="app-progress-bar__label">Certificate provider has made their declaration</span>*/}}
-{{/*                </li>*/}}
-{{/*                <li id="progress-item-3" class="app-progress-bar__item">*/}}
-{{/*                    */}}{{/*                <span class="app-progress-bar__icon {{- ' app-progress-bar__icon--complete' if item.complete }}"></span>*/}}
-{{/*                    <span class="app-progress-bar__icon"></span>*/}}
-{{/*                    <span class="app-progress-bar__label">Attorney(s) has/have made their decision</span>*/}}
-{{/*                </li>*/}}
-{{/*                <li id="progress-item-4" class="app-progress-bar__item">*/}}
-{{/*                    */}}{{/*                <span class="app-progress-bar__icon {{- ' app-progress-bar__icon--complete' if item.complete }}"></span>*/}}
-{{/*                    <span class="app-progress-bar__icon"></span>*/}}
-{{/*                    <span class="app-progress-bar__label">LPA submitted to the OPG</span>*/}}
-{{/*                </li>*/}}
-{{/*                <li id="progress-item-5" class="app-progress-bar__item">*/}}
-{{/*                    */}}{{/*                <span class="app-progress-bar__icon {{- ' app-progress-bar__icon--complete' if item.complete }}"></span>*/}}
-{{/*                    <span class="app-progress-bar__icon"></span>*/}}
-{{/*                    <span class="app-progress-bar__label">Statutory waiting period</span>*/}}
-{{/*                </li>*/}}
-{{/*                <li id="progress-item-6" class="app-progress-bar__item">*/}}
-{{/*                    */}}{{/*                <span class="app-progress-bar__icon {{- ' app-progress-bar__icon--complete' if item.complete }}"></span>*/}}
-{{/*                    <span class="app-progress-bar__icon"></span>*/}}
-{{/*                    <span class="app-progress-bar__label">LPA registered</span>*/}}
-{{/*                </li>*/}}
-{{/*            </ol>*/}}
-{{/*        </div>*/}}
-
       <ol class="app-task-list govuk-!-margin-top-0" style="position: relative;">
         {{ range $i, $e := .Sections }}
           <li>
