@@ -1,0 +1,19 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">My finance and affairs lasting power of attorney</h1>
+            <div class="govuk-body">
+                Application number: 10238756382
+            </div>
+
+            {{ template "progress-bar" (progressBar .App .Lpa) }}
+
+            <a class="govuk-button" href="{{ link .App .App.Paths.Dashboard }}">{{ tr $.App "backToDashboard" }}</a>
+
+            {{ template "lpa-decisions" . }}
+            {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa false) }}
+        </div>
+    </div>
+{{ end }}

@@ -17,7 +17,8 @@ func MakePerson() Person {
 			TownOrCity: "BIRMINGHAM",
 			Postcode:   "B14 7ED",
 		},
-		Email: "simulate-delivered@notifications.service.gov.uk",
+		Email:       "simulate-delivered@notifications.service.gov.uk",
+		DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 	}
 }
 

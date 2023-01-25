@@ -41,6 +41,7 @@ type AppPaths struct {
 	IdentityWithYotiCallback                             string
 	LpaType                                              string
 	PaymentConfirmation                                  string
+	Progress                                             string
 	ReadYourLpa                                          string
 	RemoveAttorney                                       string
 	RemovePersonToNotify                                 string
@@ -107,6 +108,7 @@ var Paths = AppPaths{
 	IdentityWithYotiCallback:                             "/id/yoti/callback",
 	LpaType:                                              "/lpa-type",
 	PaymentConfirmation:                                  "/payment-confirmation",
+	Progress:                                             "/progress",
 	ReadYourLpa:                                          "/read-your-lpa",
 	RemoveAttorney:                                       "/remove-attorney",
 	RemovePersonToNotify:                                 "/remove-person-to-notify",

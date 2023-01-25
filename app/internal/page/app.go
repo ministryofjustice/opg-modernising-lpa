@@ -304,6 +304,9 @@ func App(
 	handleLpa(paths.YouHaveSubmittedYourLpa, CanGoBack,
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml"), paths.TaskList, lpaStore))
 
+	handleLpa(paths.Progress, CanGoBack,
+		Guidance(tmpls.Get("lpa_progress.gohtml"), paths.Dashboard, lpaStore))
+
 	return rootMux
 }
 
@@ -322,6 +325,8 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 
 		if r.FormValue("withDonorDetails") != "" || r.FormValue("completeLpa") != "" {
 			lpa.You = MakePerson()
+			lpa.WhoFor = "me"
+			lpa.Type = "hw"
 			lpa.Tasks.YourDetails = TaskCompleted
 		}
 

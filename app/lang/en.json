@@ -472,5 +472,7 @@
     },
     "lpaSubmitted": "LPA submitted to the OPG",
     "statutoryWaitingPeriod": "Statutory waiting period",
-    "lpaRegistered": "LPA registered"
+    "lpaRegistered": "LPA registered",
+    "trackLpaProgress": "Track LPA progress",
+    "backToDashboard": "Back to dashboard"
 }

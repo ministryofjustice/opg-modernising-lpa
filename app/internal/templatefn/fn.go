@@ -38,6 +38,7 @@ var All = map[string]interface{}{
 	"warning":            warning,
 	"listPeopleToNotify": listPeopleToNotify,
 	"progressBar":        progressBar,
+	"peopleNamedOnLpa":   peopleNamedOnLpa,
 }
 
 func isEnglish(lang page.Lang) bool {
@@ -233,23 +234,23 @@ func lowerFirst(s string) string {
 	return string(unicode.ToLower(r)) + s[n:]
 }
 
-func listAttorneys(attorneys []page.Attorney, app page.AppData, detailsPath, addressPath, removePath string) map[string]interface{} {
+func listAttorneys(attorneys []page.Attorney, app page.AppData, detailsPath, addressPath, removePath string, withHeaders bool, lpa *page.Lpa) map[string]interface{} {
 	return map[string]interface{}{
 		"Attorneys":   attorneys,
 		"App":         app,
 		"DetailsPath": detailsPath,
 		"AddressPath": addressPath,
 		"RemovePath":  removePath,
+		"WithHeaders": withHeaders,
+		"Lpa":         lpa,
 	}
 }
 
-func listPeopleToNotify(peopleToNotify []page.PersonToNotify, app page.AppData, detailsPath, addressPath, removePath string) map[string]interface{} {
+func listPeopleToNotify(app page.AppData, withHeaders bool, lpa *page.Lpa) map[string]interface{} {
 	return map[string]interface{}{
-		"PeopleToNotify": peopleToNotify,
-		"App":            app,
-		"DetailsPath":    detailsPath,
-		"AddressPath":    addressPath,
-		"RemovePath":     removePath,
+		"App":         app,
+		"WithHeaders": withHeaders,
+		"Lpa":         lpa,
 	}
 }
 
@@ -264,5 +265,13 @@ func progressBar(app page.AppData, lpa *page.Lpa) map[string]interface{} {
 	return map[string]interface{}{
 		"App": app,
 		"Lpa": lpa,
+	}
+}
+
+func peopleNamedOnLpa(app page.AppData, lpa *page.Lpa, showPeopleHeaders bool) map[string]interface{} {
+	return map[string]interface{}{
+		"App":               app,
+		"Lpa":               lpa,
+		"ShowPeopleHeaders": showPeopleHeaders,
 	}
 }
