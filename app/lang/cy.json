@@ -510,5 +510,6 @@
     "statutoryWaitingPeriod": "Welsh",
     "lpaRegistered": "Welsh",
     "trackLpaProgress": "Welsh",
-    "backToDashboard": "Welsh"
+    "backToDashboard": "Welsh",
+    "myLpa": "Welsh {{ .LpaType }} welsh"
 }

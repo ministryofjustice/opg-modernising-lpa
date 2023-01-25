@@ -379,7 +379,7 @@
     "createAnLpa": "Create an LPA",
     "createAnotherLpa": "Create another LPA",
     "lpasInProgress": "LPAs in progress",
-    "applicationNumber": "Number",
+    "applicationNumber": "Application number",
     "options": "Options",
     "lastSaved": "Last saved",
     "statusTag": "Status tag",
@@ -474,5 +474,6 @@
     "statutoryWaitingPeriod": "Statutory waiting period",
     "lpaRegistered": "LPA registered",
     "trackLpaProgress": "Track LPA progress",
-    "backToDashboard": "Back to dashboard"
+    "backToDashboard": "Back to dashboard",
+    "myLpa": "My {{ .LpaType }} lasting power of attorney"
 }

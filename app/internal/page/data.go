@@ -434,7 +434,7 @@ func (l *Lpa) CertificateProviderFullName() string {
 	return fmt.Sprintf("%s %s", l.CertificateProvider.FirstNames, l.CertificateProvider.LastName)
 }
 
-func (l *Lpa) LpaLegalTermTransKey() string {
+func (l *Lpa) TypeLegalTermTransKey() string {
 	switch l.Type {
 	case LpaTypePropertyFinance:
 		return "pfaLegalTerm"
