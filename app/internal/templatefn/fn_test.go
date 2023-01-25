@@ -245,30 +245,56 @@ func TestLowerFirst(t *testing.T) {
 	assert.Equal(t, "hello", lowerFirst("hello"))
 }
 
-func TestListAttorneys(t *testing.T) {
+func TestListAttorneysWithAttorneys(t *testing.T) {
 	attorneys := []page.Attorney{
 		{ID: "123"},
 		{ID: "123"},
 	}
 
-	detailsPath := "/some-path"
-	addressPath := "/some-other-path"
-	removePath := "/more-path?"
-	app := page.AppData{SessionID: "abc"}
+	app := page.AppData{SessionID: "abc", Page: "/here"}
 	withHeaders := true
 	lpa := &page.Lpa{}
+	attorneyType := "attorney"
 
 	want := map[string]interface{}{
-		"Attorneys":   attorneys,
-		"App":         app,
-		"DetailsPath": detailsPath,
-		"AddressPath": addressPath,
-		"RemovePath":  removePath,
-		"WithHeaders": withHeaders,
-		"Lpa":         lpa,
+		"Attorneys":    attorneys,
+		"App":          app,
+		"WithHeaders":  withHeaders,
+		"Lpa":          lpa,
+		"AttorneyType": attorneyType,
+		"DetailsPath":  app.Paths.ChooseAttorneys + "?from=/here",
+		"AddressPath":  app.Paths.ChooseAttorneysAddress + "?from=/here",
+		"RemovePath":   app.Paths.RemoveAttorney + "?from=/here",
 	}
 
-	got := listAttorneys(attorneys, app, detailsPath, addressPath, removePath, withHeaders, lpa)
+	got := listAttorneys(attorneys, app, attorneyType, withHeaders, lpa)
+
+	assert.Equal(t, want, got)
+}
+
+func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
+	attorneys := []page.Attorney{
+		{ID: "123"},
+		{ID: "123"},
+	}
+
+	app := page.AppData{SessionID: "abc", Page: "/here"}
+	withHeaders := true
+	lpa := &page.Lpa{}
+	attorneyType := "replacement"
+
+	want := map[string]interface{}{
+		"Attorneys":    attorneys,
+		"App":          app,
+		"WithHeaders":  withHeaders,
+		"Lpa":          lpa,
+		"AttorneyType": attorneyType,
+		"DetailsPath":  app.Paths.ChooseReplacementAttorneys + "?from=/here&id=",
+		"AddressPath":  app.Paths.ChooseReplacementAttorneysAddress + "?from=/here&id=",
+		"RemovePath":   app.Paths.RemoveReplacementAttorney + "?from=/here&id=",
+	}
+
+	got := listAttorneys(attorneys, app, attorneyType, withHeaders, lpa)
 
 	assert.Equal(t, want, got)
 }

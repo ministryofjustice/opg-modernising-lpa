@@ -54,7 +54,7 @@
                 </dd>
                 {{ if not (eq $.Lpa.Tasks.CheckYourLpa.String "completed") }}
                     <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link" href="{{ link $.App $.AddressPath }}#f-address-line-1">
+                        <a class="govuk-link" href="{{ link $.App $addressLink }}#f-address-line-1">
                             {{ trFormatHtml $.App "changeAddressLink" "FirstNames" $p.FirstNames "LastName" $p.LastName }}
                         </a>
                     </dd>
