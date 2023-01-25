@@ -7,9 +7,8 @@
 }
 
 .app-progress-bar__list {
-  font-size: 0; // Hide white space between elements
+  font-size: 0; // Stop the connecting line from extending past the last item
   list-style: none;
-  margin: 0;
   padding: 0;
   position: relative;
 
@@ -20,18 +19,11 @@
     width: 100%;
   }
 
-  &::after {
-    content: "";
-    display: inline-block;
-    height: 100%;
-  }
-
   &::before {
     border-left: 6px solid govuk-colour("green");
     content: "";
     left: 13px;
     position: absolute;
-    top: 0;
     height: 100%;
   }
 
@@ -41,8 +33,7 @@
   @include govuk-font(19);
   display: flex;
   position: relative;
-  //text-align: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   padding-bottom: 0.3rem;
 
   // IE8 does not support the text justify approach for spacing
@@ -55,37 +46,22 @@
       border-left: 6px solid govuk-colour("green");
       content: "";
       position: absolute;
-      top: 0; left: 13px;
-      width: 50%;
     }
-
-  }
-
-  &:first-child {
-
-    &::before {
-      left: 0;
-    }
-
   }
 
   &:last-child {
-
     &::before {
-      border-left: 6px solid govuk-colour("white");
+      border-left: 6px solid govuk-colour("white"); // Stop the connecting line from extending past the last item
       content: "";
       left: 13px;
       position: absolute;
-      top: 0;
       height: 100%;
     }
-
   }
 
   &[aria-current=step] { // https://tink.uk/using-the-aria-current-attribute
     @include govuk-font($size: 19, $weight: "bold");
   }
-
 }
 
 .app-progress-bar__icon {
@@ -94,10 +70,11 @@
   border: 6px solid govuk-colour("green");
   border-radius: 50%; // IE8 does not support border radius but we’re ok with that
   box-sizing: border-box;
-  display: block;
   height: 32px;
-  margin-right: 0.5rem;
   width: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  margin-right: 0.5rem;
 }
 
 .app-progress-bar__icon--complete {
@@ -110,17 +87,12 @@
   @include govuk-if-ie8 {
     background-image: url(#{$moj-assets-path}images/icon-progress-tick.png);
   }
-
 }
 
 .app-progress-bar__label {
   @include govuk-font(19);
   display: flex;
   font-weight: inherit;
-  //margin-top: govuk-spacing(3);
-  position: relative;
-  word-wrap: break-word; // Just in case
-  float: left;
   flex-wrap: wrap;
   align-content: center;
 }
