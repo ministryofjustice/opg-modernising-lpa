@@ -255,6 +255,8 @@ func TestListAttorneys(t *testing.T) {
 	addressPath := "/some-other-path"
 	removePath := "/more-path?"
 	app := page.AppData{SessionID: "abc"}
+	withHeaders := true
+	lpa := &page.Lpa{}
 
 	want := map[string]interface{}{
 		"Attorneys":   attorneys,
@@ -262,9 +264,11 @@ func TestListAttorneys(t *testing.T) {
 		"DetailsPath": detailsPath,
 		"AddressPath": addressPath,
 		"RemovePath":  removePath,
+		"WithHeaders": withHeaders,
+		"Lpa":         lpa,
 	}
 
-	got := listAttorneys(attorneys, app, detailsPath, addressPath, removePath)
+	got := listAttorneys(attorneys, app, detailsPath, addressPath, removePath, withHeaders, lpa)
 
 	assert.Equal(t, want, got)
 }
@@ -280,25 +284,47 @@ func TestWarning(t *testing.T) {
 }
 
 func TestListPeopleToNotify(t *testing.T) {
-	peopleToNotify := []page.PersonToNotify{
-		{ID: "123"},
-		{ID: "123"},
-	}
-
-	detailsPath := "/some-path"
-	addressPath := "/some-other-path"
-	removePath := "/more-path?"
 	app := page.AppData{SessionID: "abc"}
+	withHeaders := true
+	lpa := &page.Lpa{}
 
 	want := map[string]interface{}{
-		"PeopleToNotify": peopleToNotify,
-		"App":            app,
-		"DetailsPath":    detailsPath,
-		"AddressPath":    addressPath,
-		"RemovePath":     removePath,
+		"App":         app,
+		"WithHeaders": withHeaders,
+		"Lpa":         lpa,
 	}
 
-	got := listPeopleToNotify(peopleToNotify, app, detailsPath, addressPath, removePath)
+	got := listPeopleToNotify(app, withHeaders, lpa)
+
+	assert.Equal(t, want, got)
+}
+
+func TestProgressbar(t *testing.T) {
+	app := page.AppData{SessionID: "abc"}
+	lpa := &page.Lpa{}
+
+	want := map[string]interface{}{
+		"App": app,
+		"Lpa": lpa,
+	}
+
+	got := progressBar(app, lpa)
+
+	assert.Equal(t, want, got)
+}
+
+func TestListPeopleNamedOnLpa(t *testing.T) {
+	app := page.AppData{SessionID: "abc"}
+	withHeaders := true
+	lpa := &page.Lpa{}
+
+	want := map[string]interface{}{
+		"App":               app,
+		"ShowPeopleHeaders": withHeaders,
+		"Lpa":               lpa,
+	}
+
+	got := peopleNamedOnLpa(app, lpa, withHeaders)
 
 	assert.Equal(t, want, got)
 }

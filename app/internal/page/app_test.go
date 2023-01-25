@@ -807,9 +807,12 @@ func TestTestingStart(t *testing.T) {
 						TownOrCity: "BIRMINGHAM",
 						Postcode:   "B14 7ED",
 					},
-					Email: "simulate-delivered@notifications.service.gov.uk",
+					Email:       "simulate-delivered@notifications.service.gov.uk",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				},
-				Tasks: Tasks{YourDetails: TaskCompleted},
+				WhoFor: "me",
+				Type:   LpaTypeHealthWelfare,
+				Tasks:  Tasks{YourDetails: TaskCompleted},
 			}).
 			Return(nil)
 
@@ -1189,8 +1192,11 @@ func TestTestingStart(t *testing.T) {
 						TownOrCity: "BIRMINGHAM",
 						Postcode:   "B14 7ED",
 					},
-					Email: "simulate-delivered@notifications.service.gov.uk",
+					Email:       "simulate-delivered@notifications.service.gov.uk",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				},
+				WhoFor: "me",
+				Type:   LpaTypeHealthWelfare,
 				CertificateProvider: CertificateProvider{
 					FirstNames:              "Barbara",
 					LastName:                "Smith",
