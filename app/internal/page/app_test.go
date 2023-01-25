@@ -811,7 +811,7 @@ func TestTestingStart(t *testing.T) {
 					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				},
 				WhoFor: "me",
-				Type:   LpaTypeHealthWelfare,
+				Type:   LpaTypePropertyFinance,
 				Tasks:  Tasks{YourDetails: TaskCompleted},
 			}).
 			Return(nil)
@@ -1196,7 +1196,7 @@ func TestTestingStart(t *testing.T) {
 					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				},
 				WhoFor: "me",
-				Type:   LpaTypeHealthWelfare,
+				Type:   LpaTypePropertyFinance,
 				CertificateProvider: CertificateProvider{
 					FirstNames:              "Barbara",
 					LastName:                "Smith",

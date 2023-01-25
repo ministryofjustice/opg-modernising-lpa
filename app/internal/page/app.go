@@ -326,7 +326,7 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 		if r.FormValue("withDonorDetails") != "" || r.FormValue("completeLpa") != "" {
 			lpa.You = MakePerson()
 			lpa.WhoFor = "me"
-			lpa.Type = "hw"
+			lpa.Type = "pfa"
 			lpa.Tasks.YourDetails = TaskCompleted
 		}
 
