@@ -18,28 +18,28 @@ describe('Confirm your identity and sign', () => {
 
         cy.url().should('contain', '/how-to-confirm-your-identity-and-sign');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yVvv(null, { rules: { region: { enabled: false } } });
 
         cy.contains('h1', 'How to confirm your identity and sign the LPA');
         cy.contains('a', 'Continue').click();
 
         cy.url().should('contain', '/what-youll-need-to-confirm-your-identity');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yVvv(null, { rules: { region: { enabled: false } } });
 
         cy.contains('h1', "What you'll need to confirm your identity");
         cy.contains('a', 'Continue').click();
 
         cy.url().should('contain', '/select-your-identity-options');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yVvv(null, { rules: { region: { enabled: false } } });
 
         cy.contains('label', 'Your GOV.UK One Login Identity').click();
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/your-chosen-identity-options');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yVvv(null, { rules: { region: { enabled: false } } });
 
         cy.contains('Your GOV.UK One Login Identity');
         // can't click continue as the real flow would begin
@@ -47,7 +47,7 @@ describe('Confirm your identity and sign', () => {
 
         cy.url().should('contain', '/read-your-lpa');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yVvv(null, { rules: { region: { enabled: false } } });
 
         cy.contains('h2', "LPA decisions");
         cy.contains('h2', "People named on the LPA");
@@ -58,7 +58,7 @@ describe('Confirm your identity and sign', () => {
 
         cy.url().should('contain', '/sign-your-lpa');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yVvv(null, { rules: { region: { enabled: false } } });
 
         cy.contains('h1', "Sign your LPA");
         cy.contains('label', 'is witnessing me sign this LPA').click();
@@ -67,13 +67,13 @@ describe('Confirm your identity and sign', () => {
 
         cy.url().should('contain', '/witnessing-your-signature');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yVvv(null, { rules: { region: { enabled: false } } });
 
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/witnessing-as-certificate-provider');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yVvv(null, { rules: { region: { enabled: false } } });
 
         cy.contains('h1', "Witnessing as the certificate provider");
         cy.get('#f-witness-code').type('1234');
@@ -81,14 +81,14 @@ describe('Confirm your identity and sign', () => {
 
         cy.url().should('contain', '/you-have-submitted-your-lpa');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yVvv(null, { rules: { region: { enabled: false } } });
 
         cy.contains('h1', "You've submitted your LPA");
         cy.contains('a', 'Continue').click();
 
         cy.url().should('contain', '/dashboard');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yVvv(null, { rules: { region: { enabled: false } } });
     });
 
     it('can be restarted', () => {

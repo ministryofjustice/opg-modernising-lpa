@@ -42,6 +42,18 @@ const (
 func (t TaskState) InProgress() bool { return t == TaskInProgress }
 func (t TaskState) Completed() bool  { return t == TaskCompleted }
 
+func (t TaskState) String() string {
+	switch t {
+	case TaskNotStarted:
+		return "notStarted"
+	case TaskInProgress:
+		return "inProgress"
+	case TaskCompleted:
+		return "completed"
+	}
+	return ""
+}
+
 type Lpa struct {
 	ID                                          string
 	UpdatedAt                                   time.Time
@@ -81,6 +93,7 @@ type Lpa struct {
 	WantToApplyForLpa                           bool
 	CPWitnessCodeValidated                      bool
 	Submitted                                   time.Time
+	Progress                                    Progress
 }
 
 type PaymentDetails struct {
@@ -138,6 +151,15 @@ type CertificateProvider struct {
 	Relationship            string
 	RelationshipDescription string
 	RelationshipLength      string
+}
+
+type Progress struct {
+	LpaSigned                   TaskState
+	CertificateProviderDeclared TaskState
+	AttorneysDeclared           TaskState
+	LpaSubmitted                TaskState
+	StatutoryWaitingPeriod      TaskState
+	LpaRegistered               TaskState
 }
 
 type AddressClient interface {
@@ -199,7 +221,11 @@ type lpaStore struct {
 }
 
 func (s *lpaStore) Create(ctx context.Context) (*Lpa, error) {
-	lpa := &Lpa{ID: "10" + strconv.Itoa(s.randomInt(100000))}
+	lpa := &Lpa{
+		ID:       "10" + strconv.Itoa(s.randomInt(100000)),
+		Progress: Progress{LpaSigned: TaskInProgress},
+	}
+
 	err := s.Put(ctx, lpa)
 
 	return lpa, err
@@ -408,7 +434,7 @@ func (l *Lpa) CertificateProviderFullName() string {
 	return fmt.Sprintf("%s %s", l.CertificateProvider.FirstNames, l.CertificateProvider.LastName)
 }
 
-func (l *Lpa) LpaLegalTermTransKey() string {
+func (l *Lpa) TypeLegalTermTransKey() string {
 	switch l.Type {
 	case LpaTypePropertyFinance:
 		return "pfaLegalTerm"
