@@ -289,9 +289,9 @@ func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 		"WithHeaders":  withHeaders,
 		"Lpa":          lpa,
 		"AttorneyType": attorneyType,
-		"DetailsPath":  app.Paths.ChooseReplacementAttorneys + "?from=/here&id=",
-		"AddressPath":  app.Paths.ChooseReplacementAttorneysAddress + "?from=/here&id=",
-		"RemovePath":   app.Paths.RemoveReplacementAttorney + "?from=/here&id=",
+		"DetailsPath":  app.Paths.ChooseReplacementAttorneys + "?from=/here",
+		"AddressPath":  app.Paths.ChooseReplacementAttorneysAddress + "?from=/here",
+		"RemovePath":   app.Paths.RemoveReplacementAttorney + "?from=/here",
 	}
 
 	got := listAttorneys(attorneys, app, attorneyType, withHeaders, lpa)
