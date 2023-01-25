@@ -15,7 +15,7 @@ describe('Choose replacement attorneys summary', () => {
         cy.contains('B14 7ED');
 
         cy.contains('Joan Smith');
-        cy.contains('2 January 1998');
+        cy.contains('2 January 2000');
 
         cy.visitLpa('/task-list')
         cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('In progress (2)')
@@ -25,10 +25,10 @@ describe('Choose replacement attorneys summary', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.get('#name-1').contains('a', 'Change').click();
+        cy.get('#replacement-name-1').contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys');
-        cy.url().should('contain', 'from=%2fchoose-replacement-attorneys-summary');
+        cy.url().should('contain', 'from=/choose-replacement-attorneys-summary');
         cy.url().should('match', /id=\w*/);
 
         cy.get('#f-first-names').clear().type('Mark');
@@ -44,10 +44,10 @@ describe('Choose replacement attorneys summary', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.get('#address-2').contains('a', 'Change').click();
+        cy.get('#replacement-address-2').contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys-address');
-        cy.url().should('contain', 'from=%2fchoose-replacement-attorneys-summary');
+        cy.url().should('contain', 'from=/choose-replacement-attorneys-summary');
         cy.url().should('match', /id=\w*/);
 
         cy.get('#f-lookup-postcode').type('B14 7ED');
@@ -109,7 +109,7 @@ describe('Choose replacement attorneys summary', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.get('#remove-attorney-1').contains('a', 'Remove').click();
+        cy.get('#remove-replacement-1').contains('a', 'Remove').click();
 
         cy.url().should('contain', '/remove-replacement-attorney');
         cy.url().should('match', /id=\w*/);
@@ -129,7 +129,7 @@ describe('Choose replacement attorneys summary', () => {
 
         cy.get('main').should('not.contain', 'John Smith');
 
-        cy.get('#remove-attorney-1').contains('a', 'Remove').click();
+        cy.get('#remove-replacement-1').contains('a', 'Remove').click();
         cy.get('#f-remove-attorney').check('yes');
         cy.contains('button', 'Continue').click();
 

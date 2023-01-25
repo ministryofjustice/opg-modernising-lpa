@@ -15,7 +15,7 @@ describe('Choose attorneys summary', () => {
         cy.contains('B14 7ED');
 
         cy.contains('Joan Smith');
-        cy.contains('2 January 1998');
+        cy.contains('2 January 2000');
 
         cy.visitLpa('/task-list')
         cy.contains('a', 'Choose your attorneys').parent().parent().contains('In progress (2)')
@@ -25,10 +25,10 @@ describe('Choose attorneys summary', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.get('#name-1').contains('a', 'Change').click();
+        cy.get('#attorney-name-1').contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-attorneys');
-        cy.url().should('contain', 'from=%2fchoose-attorneys-summary');
+        cy.url().should('contain', 'from=/choose-attorneys-summary');
         cy.url().should('match', /id=\w*/);
 
         cy.get('#f-first-names').clear().type('Mark');
@@ -44,10 +44,10 @@ describe('Choose attorneys summary', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.get('#address-2').contains('a', 'Change').click();
+        cy.get('#attorney-address-2').contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-attorneys-address');
-        cy.url().should('contain', 'from=%2fchoose-attorneys-summary');
+        cy.url().should('contain', 'from=/choose-attorneys-summary');
         cy.url().should('match', /id=\w*/);
 
         cy.get('#f-lookup-postcode').type('B14 7ED');
