@@ -221,7 +221,11 @@ type lpaStore struct {
 }
 
 func (s *lpaStore) Create(ctx context.Context) (*Lpa, error) {
-	lpa := &Lpa{ID: "10" + strconv.Itoa(s.randomInt(100000))}
+	lpa := &Lpa{
+		ID:       "10" + strconv.Itoa(s.randomInt(100000)),
+		Progress: Progress{LpaSigned: TaskInProgress},
+	}
+
 	err := s.Put(ctx, lpa)
 
 	return lpa, err

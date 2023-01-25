@@ -35,8 +35,6 @@
         <h2 class="govuk-heading-m">{{ tr .App "lpasInProgress" }}</h2>
 
         {{ range .Lpas }}
-          {{ template "progress-bar" (progressBar $.App .) }}
-
           <div class="moj-ticket-panel moj-ticket-panel--inline">
             <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
               <strong class="moj-badge app-float-right govuk-!-margin-left-2">{{ tr $.App "statusTag" }}</strong>
@@ -47,6 +45,8 @@
                 <a class="govuk-button" href="{{ link $.App (printf "%s%s" .ID $.App.Paths.TaskList) }}">{{ tr $.App "continue" }}</a>
                 <a class="govuk-button govuk-button--secondary" href="#">{{ tr $.App "options" }}</a>
               </div>
+
+              {{ template "progress-bar" (progressBar $.App .) }}
             </div>
           </div>
         {{ end }}
