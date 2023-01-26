@@ -1,0 +1,20 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ $lpaType := tr .App .Lpa.TypeLegalTermTransKey }}
+            <h1 class="govuk-heading-xl">{{ trFormat .App "myLpa" "LpaType" $lpaType }}</h1>
+            <div class="govuk-body">
+                <span><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Lpa.ID }}</span>
+            </div>
+
+            {{ template "progress-bar" (progressBar .App .Lpa) }}
+
+            <a class="govuk-button" href="{{ link .App .App.Paths.Dashboard }}">{{ tr .App "backToDashboard" }}</a>
+
+            {{ template "lpa-decisions" . }}
+            {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa false) }}
+        </div>
+    </div>
+{{ end }}

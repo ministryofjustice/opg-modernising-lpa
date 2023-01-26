@@ -46,6 +46,7 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, 
 			if len(data.Errors) == 0 {
 				lpa.CPWitnessCodeValidated = true
 				lpa.Submitted = now()
+				lpa.Progress.LpaSigned = TaskCompleted
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}

@@ -10,7 +10,7 @@
             {{ trFormatHtml .App "signYourLpaHeader" }}
 
             <p class="govuk-body govuk-!-font-weight-bold">
-                {{ trFormatCount .App "wantAttorneysToBeAppointed" (len .Lpa.Attorneys) "AllAttorneysFullNames" .Lpa.AttorneysFullNames "LpaType" (tr .App .Lpa.LpaLegalTermTransKey) }}
+                {{ trFormatCount .App "wantAttorneysToBeAppointed" (len .Lpa.Attorneys) "AllAttorneysFullNames" .Lpa.AttorneysFullNames "LpaType" (tr .App .Lpa.TypeLegalTermTransKey) }}
             </p>
 
             {{ if eq .Lpa.Type "pfa" }}

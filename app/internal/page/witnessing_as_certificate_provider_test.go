@@ -134,6 +134,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 			WitnessCode:            WitnessCode{Code: "1234", Created: now},
 			CPWitnessCodeValidated: true,
 			Submitted:              now,
+			Progress:               Progress{LpaSigned: TaskCompleted},
 		}).
 		Return(nil)
 
