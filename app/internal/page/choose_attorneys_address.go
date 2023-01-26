@@ -167,6 +167,9 @@ func (d *chooseAttorneysAddressForm) Validate() map[string]string {
 		if d.Address.TownOrCity == "" {
 			errors["address-town"] = "enterTownOrCity"
 		}
+		if d.Address.Postcode == "" {
+			errors["address-postcode"] = "enterPostcode"
+		}
 	}
 
 	return errors

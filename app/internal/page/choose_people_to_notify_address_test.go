@@ -788,8 +788,9 @@ func TestChoosePeopleToNotifyAddressFormValidate(t *testing.T) {
 				Address: &place.Address{},
 			},
 			errors: map[string]string{
-				"address-line-1": "enterAddress",
-				"address-town":   "enterTownOrCity",
+				"address-line-1":   "enterAddress",
+				"address-town":     "enterTownOrCity",
+				"address-postcode": "enterPostcode",
 			},
 		},
 		"manual max length": {
