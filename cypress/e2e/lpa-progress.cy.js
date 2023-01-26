@@ -1,6 +1,10 @@
 describe('LPA progress', () => {
     it('shows the progress of the LPA', () => {
         cy.visit('/testing-start?redirect=/progress');
+
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
         cy.contains('li', 'LPA signed In progress');
         cy.contains('li', 'Certificate provider has made their declaration Not started');
         cy.contains('li', 'Attorneys have made their declaration Not started');
@@ -9,6 +13,10 @@ describe('LPA progress', () => {
         cy.contains('li', 'LPA registered Not started');
 
         cy.visit('/testing-start?redirect=/progress&completeLpa=1');
+
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
         cy.contains('li', 'LPA signed Completed');
         cy.contains('li', 'Certificate provider has made their declaration In progress');
         cy.contains('li', 'Attorneys have made their declaration Not started');

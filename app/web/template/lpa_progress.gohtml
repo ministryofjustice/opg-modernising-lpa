@@ -13,6 +13,8 @@
 
             <a class="govuk-button" href="{{ link .App .App.Paths.Dashboard }}">{{ tr .App "backToDashboard" }}</a>
 
+            <h2 class="govuk-heading-m">{{ tr .App "lpaDecisions"}}</h2>
+
             {{ template "lpa-decisions" . }}
             {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa false) }}
         </div>
