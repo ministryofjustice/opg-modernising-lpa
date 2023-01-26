@@ -1,6 +1,7 @@
 package page
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -85,7 +86,12 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 				addresses, err := addressClient.LookupPostcode(r.Context(), data.Form.LookupPostcode)
 				if err != nil {
 					logger.Print(err)
-					data.Errors["lookup-postcode"] = "couldNotLookupPostcode"
+
+					if errors.As(err, &place.NotFoundError{}) {
+						data.Errors["lookup-postcode"] = "enterUkPostCode"
+					} else {
+						data.Errors["lookup-postcode"] = "couldNotLookupPostcode"
+					}
 				}
 
 				data.Addresses = addresses
@@ -161,6 +167,9 @@ func (d *choosePeopleToNotifyAddressForm) Validate() map[string]string {
 		}
 		if d.Address.TownOrCity == "" {
 			errors["address-town"] = "enterTownOrCity"
+		}
+		if d.Address.Postcode == "" {
+			errors["address-postcode"] = "enterPostcode"
 		}
 	}
 
