@@ -4,6 +4,7 @@ openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:204
 openssl rsa -pubout -in private_key.pem -out public_key.pem
 
 awslocal secretsmanager create-secret --name "private-jwt-key-base64" --secret-string "$(base64 private_key.pem)"
+awslocal secretsmanager create-secret --name "gov-uk-onelogin-identity-public-key" --secret-string "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFSlEyVmtpZWtzNW9rSTIxY1Jma0FhOXVxN0t4TQo2bTJqWllCeHBybFVXQlpDRWZ4cTI3cFV0Qzd5aXplVlRiZUVqUnlJaStYalhPQjFBbDhPbHFtaXJnPT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg=="
 awslocal secretsmanager create-secret --name "cookie-session-keys" --secret-string "[\"$(head -c32 /dev/random | base64)\"]"
 awslocal secretsmanager create-secret --name "gov-uk-pay-api-key" --secret-string "totally-fake-key"
 awslocal secretsmanager create-secret --name "os-postcode-lookup-api-key" --secret-string "another-fake-key"
