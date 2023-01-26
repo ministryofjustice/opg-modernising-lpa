@@ -7,7 +7,6 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 )
 
 type identityWithOneLoginCallbackData struct {
@@ -18,7 +17,7 @@ type identityWithOneLoginCallbackData struct {
 	CouldNotConfirm bool
 }
 
-func IdentityWithOneLoginCallback(tmpl template.Template, authRedirectClient authRedirectClient, sessionStore sessions.Store, lpaStore LpaStore) Handler {
+func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLoginClient, sessionStore sessions.Store, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
@@ -58,31 +57,32 @@ func IdentityWithOneLoginCallback(tmpl template.Template, authRedirectClient aut
 			return fmt.Errorf("nonce missing from session")
 		}
 
-		jwt, err := authRedirectClient.Exchange(r.Context(), r.FormValue("code"), nonce)
+		accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), nonce)
 		if err != nil {
 			return err
 		}
 
-		userInfo, err := authRedirectClient.UserInfo(jwt)
+		userInfo, err := oneLoginClient.UserInfo(r.Context(), accessToken)
 		if err != nil {
 			return err
 		}
 
-		if userInfo.CoreIdentityJWT == "" {
+		userData, err := oneLoginClient.ParseIdentityClaim(r.Context(), userInfo)
+		if err != nil {
+			return err
+		}
+
+		if !userData.OK {
 			data.CouldNotConfirm = true
 		} else {
-			lpa.OneLoginUserData = identity.UserData{
-				OK:          true,
-				RetrievedAt: time.Now(),
-				FullName:    userInfo.CoreIdentityJWT, // we will parse this later
-			}
+			data.FullName = userData.FullName
+			data.ConfirmedAt = userData.RetrievedAt
+
+			lpa.OneLoginUserData = userData
 
 			if err := lpaStore.Put(r.Context(), lpa); err != nil {
 				return err
 			}
-
-			data.FullName = lpa.OneLoginUserData.FullName
-			data.ConfirmedAt = lpa.OneLoginUserData.RetrievedAt
 		}
 
 		return tmpl(w, data)

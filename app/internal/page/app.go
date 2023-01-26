@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
 	"github.com/gorilla/sessions"
@@ -87,8 +88,10 @@ type NotifyClient interface {
 }
 
 type OneLoginClient interface {
-	loginClient
-	authRedirectClient
+	AuthCodeURL(state, nonce, locale string, identity bool) string
+	Exchange(ctx context.Context, code, nonce string) (string, error)
+	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
+	ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error)
 }
 
 func postFormString(r *http.Request, name string) string {

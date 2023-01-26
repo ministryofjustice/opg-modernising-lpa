@@ -12,11 +12,12 @@ import (
 )
 
 const (
-	GovUkNotify           = "gov-uk-notify-api-key"
-	GovUkPay              = "gov-uk-pay-api-key"
-	GovUkSignInPrivateKey = "private-jwt-key-base64"
-	OrdnanceSurvey        = "os-postcode-lookup-api-key"
-	YotiPrivateKey        = "yoti-private-key"
+	GovUkNotify                    = "gov-uk-notify-api-key"
+	GovUkPay                       = "gov-uk-pay-api-key"
+	GovUkOneLoginPrivateKey        = "private-jwt-key-base64"
+	GovUkOneLoginIdentityPublicKey = "gov-uk-onelogin-identity-public-key"
+	OrdnanceSurvey                 = "os-postcode-lookup-api-key"
+	YotiPrivateKey                 = "yoti-private-key"
 
 	cookieSessionKeys = "cookie-session-keys"
 )
