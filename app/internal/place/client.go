@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strings"
 )
 
@@ -49,9 +48,9 @@ func NewClient(baseUrl, apiKey string, httpClient Doer) *Client {
 	}
 }
 
-func (c *Client) LookupPostcode(ctx context.Context, postcode Postcode) ([]Address, error) {
+func (c *Client) LookupPostcode(ctx context.Context, postcode string) ([]Address, error) {
 	query := url.Values{
-		"postcode": {strings.ReplaceAll(string(postcode), " ", "")},
+		"postcode": {strings.ReplaceAll(postcode, " ", "")},
 		"key":      {c.apiKey},
 	}
 
@@ -88,23 +87,12 @@ func (c *Client) LookupPostcode(ctx context.Context, postcode Postcode) ([]Addre
 	return addresses, nil
 }
 
-type Postcode string
-
-func (p Postcode) IsUkFormat() bool {
-	isUkPostcode, _ := regexp.MatchString("(?i)^([A-Z]{1,2}\\d[A-Z\\d]? ?\\d[A-Z]{2})$", strings.ReplaceAll(p.String(), " ", ""))
-	return isUkPostcode
-}
-
-func (p Postcode) String() string {
-	return string(p)
-}
-
 type Address struct {
 	Line1      string
 	Line2      string
 	Line3      string
 	TownOrCity string
-	Postcode   Postcode
+	Postcode   string
 }
 
 func (a Address) Encode() string {
@@ -128,7 +116,7 @@ func (a Address) String() string {
 		parts = append(parts, a.TownOrCity)
 	}
 	if a.Postcode != "" {
-		parts = append(parts, a.Postcode.String())
+		parts = append(parts, a.Postcode)
 	}
 
 	return strings.Join(parts, ", ")
@@ -157,7 +145,7 @@ func (ad *addressDetails) transformToAddress() Address {
 	}
 
 	a.TownOrCity = ad.Town
-	a.Postcode = Postcode(ad.Postcode)
+	a.Postcode = ad.Postcode
 
 	return a
 }

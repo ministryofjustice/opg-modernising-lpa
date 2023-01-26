@@ -193,7 +193,7 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 		"address-line-2":   {"b"},
 		"address-line-3":   {"c"},
 		"address-town":     {"d"},
-		"address-postcode": {"AA11AA"},
+		"address-postcode": {"e"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
@@ -233,7 +233,7 @@ func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 		"address-line-2":   {"b"},
 		"address-line-3":   {"c"},
 		"address-town":     {"d"},
-		"address-postcode": {"AA11AA"},
+		"address-postcode": {"e"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
@@ -275,7 +275,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 		"address-line-2":   {"b"},
 		"address-line-3":   {"c"},
 		"address-town":     {"d"},
-		"address-postcode": {"AA11AA"},
+		"address-postcode": {"e"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
@@ -297,7 +297,7 @@ func TestPostChoosePeopleToNotifyAddressManualWhenValidationError(t *testing.T) 
 		"action":           {"manual"},
 		"address-line-2":   {"b"},
 		"address-town":     {"c"},
-		"address-postcode": {"AA11AA"},
+		"address-postcode": {"d"},
 	}
 
 	personToNotify := PersonToNotify{
@@ -314,7 +314,7 @@ func TestPostChoosePeopleToNotifyAddressManualWhenValidationError(t *testing.T) 
 	invalidAddress := &place.Address{
 		Line2:      "b",
 		TownOrCity: "c",
-		Postcode:   "AA11AA",
+		Postcode:   "d",
 	}
 
 	template := &mockTemplate{}
@@ -364,7 +364,7 @@ func TestPostChoosePeopleToNotifyAddressSelect(t *testing.T) {
 			Line2:      "b",
 			Line3:      "c",
 			TownOrCity: "d",
-			Postcode:   "AA11AA",
+			Postcode:   "e",
 		},
 		FirstNames: "John",
 	}
@@ -380,7 +380,7 @@ func TestPostChoosePeopleToNotifyAddressSelect(t *testing.T) {
 			PersonToNotify: personToNotify,
 			Form: &choosePeopleToNotifyAddressForm{
 				Action:         "manual",
-				LookupPostcode: "AA11AA",
+				LookupPostcode: "NG1",
 				Address:        &address,
 			},
 			Errors: map[string]string{},
@@ -389,7 +389,7 @@ func TestPostChoosePeopleToNotifyAddressSelect(t *testing.T) {
 
 	form := url.Values{
 		"action":          {"select"},
-		"lookup-postcode": {"AA11AA"},
+		"lookup-postcode": {"NG1"},
 		"select-address":  {address.Encode()},
 	}
 
@@ -409,7 +409,7 @@ func TestPostChoosePeopleToNotifyAddressSelectWhenValidationError(t *testing.T) 
 
 	form := url.Values{
 		"action":          {"select"},
-		"lookup-postcode": {"AA11AA"},
+		"lookup-postcode": {"NG1"},
 	}
 
 	addresses := []place.Address{
@@ -428,7 +428,7 @@ func TestPostChoosePeopleToNotifyAddressSelectWhenValidationError(t *testing.T) 
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", mock.Anything, place.Postcode("AA11AA")).
+		On("LookupPostcode", mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	template := &mockTemplate{}
@@ -438,7 +438,7 @@ func TestPostChoosePeopleToNotifyAddressSelectWhenValidationError(t *testing.T) 
 			PersonToNotify: personToNotify,
 			Form: &choosePeopleToNotifyAddressForm{
 				Action:         "select",
-				LookupPostcode: "AA11AA",
+				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
 			Errors: map[string]string{
@@ -467,7 +467,7 @@ func TestPostChoosePeopleToNotifyAddressLookup(t *testing.T) {
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", mock.Anything, place.Postcode("AA11AA")).
+		On("LookupPostcode", mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	personToNotify := PersonToNotify{
@@ -488,7 +488,7 @@ func TestPostChoosePeopleToNotifyAddressLookup(t *testing.T) {
 			PersonToNotify: personToNotify,
 			Form: &choosePeopleToNotifyAddressForm{
 				Action:         "lookup",
-				LookupPostcode: "AA11AA",
+				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
 			Errors:    map[string]string{},
@@ -497,7 +497,7 @@ func TestPostChoosePeopleToNotifyAddressLookup(t *testing.T) {
 
 	form := url.Values{
 		"action":          {"lookup"},
-		"lookup-postcode": {"AA11AA"},
+		"lookup-postcode": {"NG1"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
@@ -530,7 +530,7 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 
 	addressClient := &mockAddressClient{}
 	addressClient.
-		On("LookupPostcode", mock.Anything, place.Postcode("AA11AA")).
+		On("LookupPostcode", mock.Anything, "NG1").
 		Return([]place.Address{}, expectedError)
 
 	template := &mockTemplate{}
@@ -540,7 +540,7 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 			PersonToNotify: personToNotify,
 			Form: &choosePeopleToNotifyAddressForm{
 				Action:         "lookup",
-				LookupPostcode: "AA11AA",
+				LookupPostcode: "NG1",
 			},
 			Addresses: []place.Address{},
 			Errors: map[string]string{
@@ -551,7 +551,7 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 
 	form := url.Values{
 		"action":          {"lookup"},
-		"lookup-postcode": {"AA11AA"},
+		"lookup-postcode": {"NG1"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
@@ -613,7 +613,7 @@ func TestReadChoosePeopleToNotifyAddressForm(t *testing.T) {
 		Line2:      "b",
 		Line3:      "c",
 		TownOrCity: "d",
-		Postcode:   "AA11AA",
+		Postcode:   "e",
 	}
 
 	testCases := map[string]struct {
@@ -623,11 +623,11 @@ func TestReadChoosePeopleToNotifyAddressForm(t *testing.T) {
 		"lookup": {
 			form: url.Values{
 				"action":          {"lookup"},
-				"lookup-postcode": {"AA11AA"},
+				"lookup-postcode": {"NG1"},
 			},
 			result: &choosePeopleToNotifyAddressForm{
 				Action:         "lookup",
-				LookupPostcode: "AA11AA",
+				LookupPostcode: "NG1",
 			},
 		},
 		"select": {
@@ -657,7 +657,7 @@ func TestReadChoosePeopleToNotifyAddressForm(t *testing.T) {
 				"address-line-2":   {"b"},
 				"address-line-3":   {"c"},
 				"address-town":     {"d"},
-				"address-postcode": {"AA11AA"},
+				"address-postcode": {"e"},
 			},
 			result: &choosePeopleToNotifyAddressForm{
 				Action:  "manual",
@@ -685,7 +685,7 @@ func TestChoosePeopleToNotifyAddressFormValidate(t *testing.T) {
 		"lookup valid": {
 			form: &choosePeopleToNotifyAddressForm{
 				Action:         "lookup",
-				LookupPostcode: "AA11AA",
+				LookupPostcode: "NG1",
 			},
 			errors: map[string]string{},
 		},
@@ -695,15 +695,6 @@ func TestChoosePeopleToNotifyAddressFormValidate(t *testing.T) {
 			},
 			errors: map[string]string{
 				"lookup-postcode": "enterPostcode",
-			},
-		},
-		"lookup not UK postcode": {
-			form: &choosePeopleToNotifyAddressForm{
-				Action:         "lookup",
-				LookupPostcode: "XXX",
-			},
-			errors: map[string]string{
-				"lookup-postcode": "enterUkPostcode",
 			},
 		},
 		"select valid": {
@@ -728,7 +719,7 @@ func TestChoosePeopleToNotifyAddressFormValidate(t *testing.T) {
 				Address: &place.Address{
 					Line1:      "a",
 					TownOrCity: "b",
-					Postcode:   "AA11AA",
+					Postcode:   "c",
 				},
 			},
 			errors: map[string]string{},
@@ -739,9 +730,8 @@ func TestChoosePeopleToNotifyAddressFormValidate(t *testing.T) {
 				Address: &place.Address{},
 			},
 			errors: map[string]string{
-				"address-line-1":   "enterAddress",
-				"address-town":     "enterTownOrCity",
-				"address-postcode": "enterPostcode",
+				"address-line-1": "enterAddress",
+				"address-town":   "enterTownOrCity",
 			},
 		},
 		"manual max length": {
@@ -752,7 +742,7 @@ func TestChoosePeopleToNotifyAddressFormValidate(t *testing.T) {
 					Line2:      strings.Repeat("x", 50),
 					Line3:      strings.Repeat("x", 50),
 					TownOrCity: "b",
-					Postcode:   "AA11AA",
+					Postcode:   "c",
 				},
 			},
 			errors: map[string]string{},
@@ -765,26 +755,13 @@ func TestChoosePeopleToNotifyAddressFormValidate(t *testing.T) {
 					Line2:      strings.Repeat("x", 51),
 					Line3:      strings.Repeat("x", 51),
 					TownOrCity: "b",
-					Postcode:   "AA11AA",
+					Postcode:   "c",
 				},
 			},
 			errors: map[string]string{
 				"address-line-1": "addressLine1TooLong",
 				"address-line-2": "addressLine2TooLong",
 				"address-line-3": "addressLine3TooLong",
-			},
-		},
-		"manual not UK postcode": {
-			form: &choosePeopleToNotifyAddressForm{
-				Action: "manual",
-				Address: &place.Address{
-					Line1:      "a",
-					TownOrCity: "b",
-					Postcode:   "XXX",
-				},
-			},
-			errors: map[string]string{
-				"address-postcode": "enterUkPostcode",
 			},
 		},
 	}
@@ -826,7 +803,7 @@ func TestPostPersonToNotifyAddressManuallyFromAnotherPage(t *testing.T) {
 						Address: place.Address{
 							Line1:      "a",
 							TownOrCity: "b",
-							Postcode:   "AA11AA",
+							Postcode:   "c",
 						},
 					},
 				},
@@ -844,7 +821,7 @@ func TestPostPersonToNotifyAddressManuallyFromAnotherPage(t *testing.T) {
 				"action":           {"manual"},
 				"address-line-1":   {"a"},
 				"address-town":     {"b"},
-				"address-postcode": {"AA11AA"},
+				"address-postcode": {"c"},
 			}
 
 			r, _ := http.NewRequest(http.MethodPost, tc.requestUrl, strings.NewReader(form.Encode()))

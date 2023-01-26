@@ -36,7 +36,7 @@ var address = place.Address{
 	Line2:      "b",
 	Line3:      "c",
 	TownOrCity: "d",
-	Postcode:   "AA11AA",
+	Postcode:   "e",
 }
 
 func TestReadDate(t *testing.T) {
