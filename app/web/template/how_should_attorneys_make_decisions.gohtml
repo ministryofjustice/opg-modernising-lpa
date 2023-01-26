@@ -5,8 +5,6 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "howShouldAttorneysMakeDecisions" }}</h1>
 
-            <p class="govuk-body">{{ tr .App "howShouldAttorneysMakeDecisionsDetail" }}</p>
-
             <form novalidate method="post">
                 <div class="govuk-form-group">
                     <div class="govuk-form-group {{ if index .Errors "decision-type" }}govuk-form-group--error{{ end }}">
@@ -15,31 +13,31 @@
                         <div class="govuk-radios {{ if index .Errors "decision-type" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
                             <div class="govuk-radios__item">
                                 <input class="govuk-radios__input" id="f-decision-type" name="decision-type" type="radio" value="jointly-and-severally" aria-describedby="decision-type-item-hint" {{ if eq "jointly-and-severally" .Form.DecisionsType }}checked{{ end }}>
-                                <label class="govuk-label govuk-radios__label" for="f-decision-type">
+                                <label class="govuk-label govuk-radios__label govuk-label--s" for="f-decision-type">
                                     {{ tr .App "jointlyAndSeverallyHumanised" }}
                                 </label>
 
-                                <div id="decision-type-item-hint" class="govuk-hint govuk-radios__hint">
+                                <div id="decision-type-item-hint" class="govuk-radios__hint">
                                     {{ trHtml .App "jointlyAndSeverallyHint" }}
                                 </div>
                             </div>
                             <div class="govuk-radios__item">
                                 <input class="govuk-radios__input" id="f-decision-type-2" name="decision-type" type="radio" value="jointly" aria-describedby="decision-type-2-item-hint" {{ if eq "jointly" .Form.DecisionsType }}checked{{ end }}>
-                                <label class="govuk-label govuk-radios__label" for="f-decision-type-2">
+                                <label class="govuk-label govuk-radios__label govuk-label--s" for="f-decision-type-2">
                                     {{ tr .App "jointlyHumanised" }}
                                 </label>
 
-                                <div id="decision-type-2-item-hint" class="govuk-hint govuk-radios__hint">
+                                <div id="decision-type-2-item-hint" class="govuk-radios__hint">
                                     {{ trHtml .App "jointlyHintAttorneys" }}
                                 </div>
                             </div>
                             <div class="govuk-radios__item">
                                 <input class="govuk-radios__input" id="f-decision-type-3" name="decision-type" type="radio" value="mixed" aria-describedby="decision-type-3-item-hint" aria-controls="decision-type-3-conditional-div" {{ if or (eq "mixed" .Form.DecisionsType) (index .Errors "mixed-details") }}checked{{ end }}>
-                                <label class="govuk-label govuk-radios__label" for="f-decision-type-3">
+                                <label class="govuk-label govuk-radios__label govuk-label--s" for="f-decision-type-3">
                                     {{ tr .App "jointlyAndSeverallyMixedHumanised" }}
                                 </label>
 
-                                <div id="decision-type-3-item-hint" class="govuk-hint govuk-radios__hint">
+                                <div id="decision-type-3-item-hint" class="govuk-radios__hint">
                                     {{ trHtml .App "jointlyAndSeverallyMixedHint" }}
                                 </div>
 
