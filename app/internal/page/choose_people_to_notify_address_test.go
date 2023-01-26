@@ -516,6 +516,14 @@ func TestPostChoosePeopleToNotifyAddressNotFoundError(t *testing.T) {
 		Message:    "not found",
 	}
 
+	form := url.Values{
+		"action":          {"lookup"},
+		"lookup-postcode": {"XYZ"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
 	logger := &mockLogger{}
 	logger.
 		On("Print", notFoundErr)
@@ -527,7 +535,7 @@ func TestPostChoosePeopleToNotifyAddressNotFoundError(t *testing.T) {
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
 
 	addressClient := &mockAddressClient{}
@@ -550,14 +558,6 @@ func TestPostChoosePeopleToNotifyAddressNotFoundError(t *testing.T) {
 			},
 		}).
 		Return(nil)
-
-	form := url.Values{
-		"action":          {"lookup"},
-		"lookup-postcode": {"XYZ"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
 
 	err := ChoosePeopleToNotifyAddress(logger, template.Func, addressClient, lpaStore)(appData, w, r)
 	resp := w.Result()
