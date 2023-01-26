@@ -316,7 +316,7 @@
     "cpIsWitnessingMeSign": "{{ .CertificateProviderFullName }} is witnessing me sign this LPA",
     "wantToApply": "I want to apply to register this LPA",
     "readMoreDigitalSignatures": "Read more about digital signatures",
-    "readMoreDigitalSignaturesContent": "<p class=\"govuk-body\">Electronic signatures are legally recognised in England and Wales. They make it easier for you to sign documents online.</p><p class=\"govuk-body\">By ticking both boxes and selecting 'Submit my signature', you are providing your legal signature. This is just as safe and legally-binding as signing your LPA by hand.</p>",
+    "readMoreDigitalSignaturesContent": "User-friendly content to increase confidence in digital signatures.",
     "submitSignature": "Submit my signature",
     "selectBothBoxes": "You must select both boxes to sign your LPA",
 
@@ -451,7 +451,7 @@
     "selectAddMorePeopleToNotify": "Select yes if you want to add another person to notify",
     "enterTheirFirstNames": "Enter their first names",
     "enterTheirLastName": "Enter their last name",
-    "enterTheirEmail": "Enter their email address",
+    "enterTheirEmail": "Enter their last name",
     "theirEmailIncorrectFormat": "Enter their email address in the correct format, like name@example.com",
     "removeAPersonToNotify": "Remove a person to notify",
 
