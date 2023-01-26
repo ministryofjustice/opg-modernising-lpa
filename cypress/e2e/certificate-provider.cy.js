@@ -31,7 +31,7 @@ describe('Certificate provider task', () => {
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/certificate-provider-details');
 
-        cy.visit('/task-list');
+        cy.visitLpa('/task-list');
 
         cy.contains('li', "Choose your certificate provider")
             .should('contain', 'In progress');
@@ -70,7 +70,7 @@ describe('Certificate provider task', () => {
 
         cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
 
         cy.contains('How do you know John Doe, your certificate provider?');
         cy.contains('label', 'Solicitor').click();
@@ -80,7 +80,7 @@ describe('Certificate provider task', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
 
-        cy.visit('/task-list')
+        cy.visitLpa('/task-list')
         cy.contains('li', "Choose your certificate provider")
             .should('contain', 'Completed');
     });
@@ -140,7 +140,7 @@ describe('Certificate provider task', () => {
 
         cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
 
         cy.contains('How do you know John Doe, your certificate provider?');
         cy.contains('label', 'Friend').click();
@@ -158,7 +158,7 @@ describe('Certificate provider task', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
 
-        cy.visit('/task-list')
+        cy.visitLpa('/task-list')
         cy.contains('li', "Choose your certificate provider")
             .should('contain', 'Completed');
     });

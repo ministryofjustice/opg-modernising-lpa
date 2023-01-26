@@ -11,10 +11,11 @@ import (
 
 func TestGetReadYourLpa(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
 	template := &mockTemplate{}
@@ -24,8 +25,6 @@ func TestGetReadYourLpa(t *testing.T) {
 			Lpa: &Lpa{},
 		}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := ReadYourLpa(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -37,13 +36,12 @@ func TestGetReadYourLpa(t *testing.T) {
 
 func TestGetReadYourLpaWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(&Lpa{}, expectedError)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := ReadYourLpa(nil, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -55,13 +53,15 @@ func TestGetReadYourLpaWhenStoreErrors(t *testing.T) {
 
 func TestGetReadYourLpaFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
 	lpa := &Lpa{
 		Type: LpaTypePropertyFinance,
 	}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
-		On("Get", mock.Anything, "session-id").
+		On("Get", r.Context()).
 		Return(lpa, nil)
 
 	template := &mockTemplate{}
@@ -71,8 +71,6 @@ func TestGetReadYourLpaFromStore(t *testing.T) {
 			Lpa: lpa,
 		}).
 		Return(nil)
-
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := ReadYourLpa(template.Func, lpaStore)(appData, w, r)
 	resp := w.Result()

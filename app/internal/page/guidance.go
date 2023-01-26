@@ -26,7 +26,7 @@ func Guidance(tmpl template.Template, continuePath string, lpaStore LpaStore) Ha
 		}
 
 		if lpaStore != nil {
-			lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+			lpa, err := lpaStore.Get(r.Context())
 			if err != nil {
 				return err
 			}

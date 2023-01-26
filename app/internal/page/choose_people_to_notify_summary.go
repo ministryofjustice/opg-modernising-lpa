@@ -20,7 +20,7 @@ type choosePeopleToNotifySummaryForm struct {
 
 func ChoosePeopleToNotifySummary(logger Logger, tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			logger.Print(fmt.Sprintf("error getting lpa from store: %s", err.Error()))
 			return err
@@ -43,15 +43,10 @@ func ChoosePeopleToNotifySummary(logger Logger, tmpl template.Template, lpaStore
 				redirectUrl := fmt.Sprintf("%s?addAnother=1", appData.Paths.ChoosePeopleToNotify)
 
 				if data.Form.AddPersonToNotify == "no" {
-					lpa.Tasks.PeopleToNotify = TaskCompleted
-					if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
-						return err
-					}
-
 					redirectUrl = appData.Paths.CheckYourLpa
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, redirectUrl)
+				return appData.Redirect(w, r, lpa, redirectUrl)
 			}
 
 		}

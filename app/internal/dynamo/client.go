@@ -10,6 +10,7 @@ import (
 )
 
 type dynamoDB interface {
+	Query(context.Context, *dynamodb.QueryInput, ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)
 	GetItem(context.Context, *dynamodb.GetItemInput, ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
 	PutItem(context.Context, *dynamodb.PutItemInput, ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
 }
@@ -23,17 +24,39 @@ func NewClient(cfg aws.Config, tableName string) (*Client, error) {
 	return &Client{table: tableName, svc: dynamodb.NewFromConfig(cfg)}, nil
 }
 
-func (c *Client) Get(ctx context.Context, id string, v interface{}) error {
-	keyID, err := attributevalue.Marshal(id)
+func (c *Client) GetAll(ctx context.Context, pk string, v interface{}) error {
+	pkey, err := attributevalue.Marshal(pk)
+	if err != nil {
+		return err
+	}
+
+	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
+		TableName:                 aws.String(c.table),
+		ExpressionAttributeNames:  map[string]string{"#PK": "PK"},
+		ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey},
+		KeyConditionExpression:    aws.String("#PK = :PK"),
+	})
+	if err != nil {
+		return err
+	}
+
+	var items []types.AttributeValue
+	for _, item := range response.Items {
+		items = append(items, item["Data"])
+	}
+
+	return attributevalue.UnmarshalList(items, v)
+}
+
+func (c *Client) Get(ctx context.Context, pk, sk string, v interface{}) error {
+	key, err := makeKey(pk, sk)
 	if err != nil {
 		return err
 	}
 
 	result, err := c.svc.GetItem(ctx, &dynamodb.GetItemInput{
 		TableName: aws.String(c.table),
-		Key: map[string]types.AttributeValue{
-			"Id": keyID,
-		},
+		Key:       key,
 	})
 	if err != nil {
 		return err
@@ -45,8 +68,8 @@ func (c *Client) Get(ctx context.Context, id string, v interface{}) error {
 	return attributevalue.Unmarshal(result.Item["Data"], v)
 }
 
-func (c *Client) Put(ctx context.Context, id string, v interface{}) error {
-	keyID, err := attributevalue.Marshal(id)
+func (c *Client) Put(ctx context.Context, pk, sk string, v interface{}) error {
+	item, err := makeKey(pk, sk)
 	if err != nil {
 		return err
 	}
@@ -55,11 +78,26 @@ func (c *Client) Put(ctx context.Context, id string, v interface{}) error {
 	if err != nil {
 		return err
 	}
+	item["Data"] = data
 
 	_, err = c.svc.PutItem(ctx, &dynamodb.PutItemInput{
 		TableName: aws.String(c.table),
-		Item:      map[string]types.AttributeValue{"Id": keyID, "Data": data},
+		Item:      item,
 	})
 
 	return err
+}
+
+func makeKey(pk, sk string) (map[string]types.AttributeValue, error) {
+	pkey, err := attributevalue.Marshal(pk)
+	if err != nil {
+		return nil, err
+	}
+
+	skey, err := attributevalue.Marshal(sk)
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]types.AttributeValue{"PK": pkey, "SK": skey}, nil
 }

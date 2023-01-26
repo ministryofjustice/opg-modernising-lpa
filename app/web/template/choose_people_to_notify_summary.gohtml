@@ -12,11 +12,13 @@
         {{ if eq 5 (len .Lpa.PeopleToNotify) }}
             {{ template "warning" (warning .App "addedMaxPeople") }}
 
-            <p class="govuk-body">
-                <a href="{{ link .App .App.Paths.SignYourLpa }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
-                    {{ tr .App "continue" }}
-                </a>
-            </p>
+            <form novalidate method="post">
+                <input type="hidden" name="add-person-to-notify" value="no">
+
+                <div class="govuk-button-group">
+                    {{ template "continue-button" . }}
+                </div>
+            </form>
         {{ else }}
             <form novalidate method="post">
                 <div class="govuk-form-group">

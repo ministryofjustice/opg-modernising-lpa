@@ -24,7 +24,7 @@ type choosePeopleToNotifyAddressForm struct {
 
 func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -33,7 +33,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 		personToNotify, found := lpa.GetPersonToNotify(personId)
 
 		if found == false {
-			return appData.Lang.Redirect(w, r, lpa, Paths.ChoosePeopleToNotify)
+			return appData.Redirect(w, r, lpa, Paths.ChoosePeopleToNotify)
 		}
 
 		data := &choosePeopleToNotifyAddressData{
@@ -54,8 +54,9 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 			if data.Form.Action == "manual" && len(data.Errors) == 0 {
 				personToNotify.Address = *data.Form.Address
 				lpa.PutPersonToNotify(personToNotify)
+				lpa.Tasks.PeopleToNotify = TaskCompleted
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
@@ -65,7 +66,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 					from = appData.Paths.ChoosePeopleToNotifySummary
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, from)
+				return appData.Redirect(w, r, lpa, from)
 			}
 
 			// Force the manual address view after selecting
@@ -75,7 +76,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 				personToNotify.Address = *data.Form.Address
 				lpa.PutPersonToNotify(personToNotify)
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 			}

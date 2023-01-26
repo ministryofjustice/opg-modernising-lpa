@@ -22,20 +22,20 @@ type choosePeopleToNotifyForm struct {
 
 func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context(), appData.SessionID)
+		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
 		if len(lpa.PeopleToNotify) > 4 {
-			return appData.Lang.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
+			return appData.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
 		}
 
 		addAnother := r.FormValue("addAnother") == "1"
 		personToNotify, personFound := lpa.GetPersonToNotify(r.URL.Query().Get("id"))
 
 		if r.Method == http.MethodGet && len(lpa.PeopleToNotify) > 0 && personFound == false && addAnother == false {
-			return appData.Lang.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
+			return appData.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
 		}
 
 		data := &choosePeopleToNotifyData{
@@ -69,7 +69,9 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 					lpa.PutPersonToNotify(personToNotify)
 				}
 
-				if err := lpaStore.Put(r.Context(), appData.SessionID, lpa); err != nil {
+				lpa.Tasks.PeopleToNotify = TaskInProgress
+
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
@@ -79,7 +81,7 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 					from = fmt.Sprintf("%s?id=%s", appData.Paths.ChoosePeopleToNotifyAddress, personToNotify.ID)
 				}
 
-				return appData.Lang.Redirect(w, r, lpa, from)
+				return appData.Redirect(w, r, lpa, from)
 			}
 		}
 
