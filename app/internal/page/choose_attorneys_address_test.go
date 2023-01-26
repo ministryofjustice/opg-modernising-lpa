@@ -549,6 +549,64 @@ func TestPostChooseAttorneysAddressLookupError(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
 }
 
+func TestPostChooseAttorneysNotFoundError(t *testing.T) {
+	w := httptest.NewRecorder()
+	notFoundErr := place.NotFoundError{
+		Statuscode: 400,
+		Message:    "not found",
+	}
+
+	logger := &mockLogger{}
+	logger.
+		On("Print", notFoundErr)
+
+	attorney := Attorney{
+		ID:      "123",
+		Address: place.Address{},
+	}
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(&Lpa{Attorneys: []Attorney{attorney}}, nil)
+
+	addressClient := &mockAddressClient{}
+	addressClient.
+		On("LookupPostcode", mock.Anything, "XYZ").
+		Return([]place.Address{}, notFoundErr)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &chooseAttorneysAddressData{
+			App:      appData,
+			Attorney: attorney,
+			Form: &chooseAttorneysAddressForm{
+				Action:         "lookup",
+				LookupPostcode: "XYZ",
+			},
+			Addresses: []place.Address{},
+			Errors: map[string]string{
+				"lookup-postcode": "enterUkPostCode",
+			},
+		}).
+		Return(nil)
+
+	form := url.Values{
+		"action":          {"lookup"},
+		"lookup-postcode": {"XYZ"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := ChooseAttorneysAddress(logger, template.Func, addressClient, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+}
+
 func TestPostChooseAttorneysAddressLookupWhenValidationError(t *testing.T) {
 	form := url.Values{
 		"action": {"lookup"},
@@ -713,8 +771,9 @@ func TestChooseAttorneysAddressFormValidate(t *testing.T) {
 				Address: &place.Address{},
 			},
 			errors: map[string]string{
-				"address-line-1": "enterAddress",
-				"address-town":   "enterTownOrCity",
+				"address-line-1":   "enterAddress",
+				"address-town":     "enterTownOrCity",
+				"address-postcode": "enterPostcode",
 			},
 		},
 		"manual max length": {

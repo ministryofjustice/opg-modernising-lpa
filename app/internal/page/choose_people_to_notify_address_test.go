@@ -509,6 +509,64 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
 }
 
+func TestPostChoosePeopleToNotifyAddressNotFoundError(t *testing.T) {
+	w := httptest.NewRecorder()
+	notFoundErr := place.NotFoundError{
+		Statuscode: 400,
+		Message:    "not found",
+	}
+
+	logger := &mockLogger{}
+	logger.
+		On("Print", notFoundErr)
+
+	personToNotify := PersonToNotify{
+		ID:      "123",
+		Address: place.Address{},
+	}
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
+
+	addressClient := &mockAddressClient{}
+	addressClient.
+		On("LookupPostcode", mock.Anything, "XYZ").
+		Return([]place.Address{}, notFoundErr)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &choosePeopleToNotifyAddressData{
+			App:            appData,
+			PersonToNotify: personToNotify,
+			Form: &choosePeopleToNotifyAddressForm{
+				Action:         "lookup",
+				LookupPostcode: "XYZ",
+			},
+			Addresses: []place.Address{},
+			Errors: map[string]string{
+				"lookup-postcode": "enterUkPostCode",
+			},
+		}).
+		Return(nil)
+
+	form := url.Values{
+		"action":          {"lookup"},
+		"lookup-postcode": {"XYZ"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := ChoosePeopleToNotifyAddress(logger, template.Func, addressClient, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+}
+
 func TestPostChoosePeopleToNotifyAddressLookupWhenValidationError(t *testing.T) {
 	form := url.Values{
 		"action": {"lookup"},
@@ -673,8 +731,9 @@ func TestChoosePeopleToNotifyAddressFormValidate(t *testing.T) {
 				Address: &place.Address{},
 			},
 			errors: map[string]string{
-				"address-line-1": "enterAddress",
-				"address-town":   "enterTownOrCity",
+				"address-line-1":   "enterAddress",
+				"address-town":     "enterTownOrCity",
+				"address-postcode": "enterPostcode",
 			},
 		},
 		"manual max length": {
