@@ -7,7 +7,6 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
-	"errors"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -63,7 +62,7 @@ func TestExchange(t *testing.T) {
 
 	secretsClient := &mockSecretsClient{}
 	secretsClient.
-		On("SecretBytes", ctx, secrets.GovUkSignInPrivateKey).
+		On("SecretBytes", ctx, secrets.GovUkOneLoginPrivateKey).
 		Return(pem.EncodeToMemory(
 			&pem.Block{
 				Type:  "RSA PRIVATE KEY",
@@ -119,11 +118,9 @@ func TestExchange(t *testing.T) {
 }
 
 func TestExchangeWhenPrivateKeyError(t *testing.T) {
-	expectedError := errors.New("err")
-
 	secretsClient := &mockSecretsClient{}
 	secretsClient.
-		On("SecretBytes", ctx, secrets.GovUkSignInPrivateKey).
+		On("SecretBytes", ctx, secrets.GovUkOneLoginPrivateKey).
 		Return([]byte{}, expectedError)
 
 	client := &Client{
@@ -137,13 +134,11 @@ func TestExchangeWhenPrivateKeyError(t *testing.T) {
 }
 
 func TestExchangeWhenTokenRequestError(t *testing.T) {
-	expectedError := errors.New("err")
-
 	privateKey, _ := rsa.GenerateKey(rand.New(rand.NewSource(99)), 2048)
 
 	secretsClient := &mockSecretsClient{}
 	secretsClient.
-		On("SecretBytes", ctx, secrets.GovUkSignInPrivateKey).
+		On("SecretBytes", ctx, secrets.GovUkOneLoginPrivateKey).
 		Return(pem.EncodeToMemory(
 			&pem.Block{
 				Type:  "RSA PRIVATE KEY",
@@ -276,7 +271,7 @@ func TestExchangeWhenInvalidToken(t *testing.T) {
 
 			secretsClient := &mockSecretsClient{}
 			secretsClient.
-				On("SecretBytes", ctx, secrets.GovUkSignInPrivateKey).
+				On("SecretBytes", ctx, secrets.GovUkOneLoginPrivateKey).
 				Return(pem.EncodeToMemory(
 					&pem.Block{
 						Type:  "RSA PRIVATE KEY",

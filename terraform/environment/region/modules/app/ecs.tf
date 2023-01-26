@@ -107,6 +107,11 @@ data "aws_secretsmanager_secret" "private_jwt_key" {
   provider = aws.region
 }
 
+data "aws_secretsmanager_secret" "gov_uk_onelogin_identity_public_key" {
+  name     = "gov-uk-onelogin-identity-public-key"
+  provider = aws.region
+}
+
 data "aws_secretsmanager_secret" "cookie_session_keys" {
   name     = "cookie-session-keys"
   provider = aws.region
@@ -193,12 +198,13 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     ]
 
     resources = [
-      data.aws_secretsmanager_secret.private_jwt_key.arn,
       data.aws_secretsmanager_secret.cookie_session_keys.arn,
-      data.aws_secretsmanager_secret.gov_uk_pay_api_key.arn,
-      data.aws_secretsmanager_secret.yoti_private_key.arn,
       data.aws_secretsmanager_secret.gov_uk_notify_api_key.arn,
+      data.aws_secretsmanager_secret.gov_uk_onelogin_identity_public_key.arn,
+      data.aws_secretsmanager_secret.gov_uk_pay_api_key.arn,
       data.aws_secretsmanager_secret.os_postcode_lookup_api_key.arn,
+      data.aws_secretsmanager_secret.private_jwt_key.arn,
+      data.aws_secretsmanager_secret.yoti_private_key.arn,
     ]
   }
 
