@@ -28,7 +28,7 @@ type tokenResponseBody struct {
 }
 
 func (c *Client) Exchange(ctx context.Context, code, nonce string) (string, error) {
-	privateKeyBytes, err := c.secretsClient.SecretBytes(ctx, secrets.GovUkSignInPrivateKey)
+	privateKeyBytes, err := c.secretsClient.SecretBytes(ctx, secrets.GovUkOneLoginPrivateKey)
 	if err != nil {
 		return "", err
 	}

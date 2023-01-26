@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-func IdentityWithOneLogin(logger Logger, c loginClient, store sessions.Store, randomString func(int) string) Handler {
+func IdentityWithOneLogin(logger Logger, oneLoginClient OneLoginClient, store sessions.Store, randomString func(int) string) Handler {
 	cookieOptions := &sessions.Options{
 		Path:     "/",
 		MaxAge:   10 * 60,
@@ -24,7 +24,7 @@ func IdentityWithOneLogin(logger Logger, c loginClient, store sessions.Store, ra
 		state := randomString(12)
 		nonce := randomString(12)
 
-		authCodeURL := c.AuthCodeURL(state, nonce, locale, true)
+		authCodeURL := oneLoginClient.AuthCodeURL(state, nonce, locale, true)
 
 		params := sessions.NewSession(store, "params")
 		params.Values = map[interface{}]interface{}{
