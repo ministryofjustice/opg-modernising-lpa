@@ -1,19 +1,12 @@
 package page
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/gorilla/sessions"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 )
 
-type authRedirectClient interface {
-	Exchange(ctx context.Context, code, nonce string) (string, error)
-	UserInfo(string) (onelogin.UserInfo, error)
-}
-
-func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, secure bool) http.HandlerFunc {
+func AuthRedirect(logger Logger, oneLoginClient OneLoginClient, store sessions.Store, secure bool) http.HandlerFunc {
 	cookieOptions := &sessions.Options{
 		Path:     "/",
 		MaxAge:   24 * 60 * 60,
@@ -59,13 +52,13 @@ func AuthRedirect(logger Logger, c authRedirectClient, store sessions.Store, sec
 		if identity {
 			appData.Redirect(w, r, nil, Paths.IdentityWithOneLoginCallback+"?"+r.URL.RawQuery)
 		} else {
-			jwt, err := c.Exchange(r.Context(), r.FormValue("code"), nonce)
+			accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), nonce)
 			if err != nil {
 				logger.Print(err)
 				return
 			}
 
-			userInfo, err := c.UserInfo(jwt)
+			userInfo, err := oneLoginClient.UserInfo(r.Context(), accessToken)
 			if err != nil {
 				logger.Print(err)
 				return
