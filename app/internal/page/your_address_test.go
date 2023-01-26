@@ -518,6 +518,58 @@ func TestPostYourAddressLookupError(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
 }
 
+func TestPostYourAddressNotFoundError(t *testing.T) {
+	w := httptest.NewRecorder()
+	notFoundErr := place.NotFoundError{
+		Statuscode: 400,
+		Message:    "not found",
+	}
+
+	logger := &mockLogger{}
+	logger.
+		On("Print", notFoundErr)
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", mock.Anything, "session-id").
+		Return(&Lpa{}, nil)
+
+	addressClient := &mockAddressClient{}
+	addressClient.
+		On("LookupPostcode", mock.Anything, "XYZ").
+		Return([]place.Address{}, notFoundErr)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &yourAddressData{
+			App: appData,
+			Form: &yourAddressForm{
+				Action:         "lookup",
+				LookupPostcode: "XYZ",
+			},
+			Addresses: []place.Address{},
+			Errors: map[string]string{
+				"lookup-postcode": "enterUkPostCode",
+			},
+		}).
+		Return(nil)
+
+	form := url.Values{
+		"action":          {"lookup"},
+		"lookup-postcode": {"XYZ"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	err := YourAddress(logger, template.Func, addressClient, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+}
+
 func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 	w := httptest.NewRecorder()
 
