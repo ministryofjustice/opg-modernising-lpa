@@ -5,13 +5,7 @@
                 {{ tr .App "typeOfLpa" }}
             </dt>
             <dd class="govuk-summary-list__value">
-              {{ if eq .Lpa.Type "pfa" }}
-                {{ tr .App "lpaTypePfa" }}
-              {{ else if eq .Lpa.Type "hw" }}
-                {{ tr .App "lpaTypeHw" }}
-              {{ else if eq .Lpa.Type "both" }}
-                {{ tr .App "lpaTypeBoth" }}
-              {{ end }}
+                {{ tr .App .Lpa.Type }}
             </dd>
         </div>
 

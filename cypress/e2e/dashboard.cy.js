@@ -15,7 +15,7 @@ describe('Dashboard', () => {
         cy.visit('/dashboard');
     });
 
-    it('shows my lasting power of attorney', () => {        
+    it('shows my lasting power of attorney', () => {
         cy.contains('Property and affairs');
         cy.contains('John Doe');
         cy.contains('a', 'Continue').click();
