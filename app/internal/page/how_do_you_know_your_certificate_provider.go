@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type howDoYouKnowYourCertificateProviderData struct {
 	App                 AppData
-	Errors              map[string]string
+	Errors              validation.List
 	CertificateProvider CertificateProvider
 	Form                *howDoYouKnowYourCertificateProviderForm
 }
@@ -33,7 +34,7 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, lpaStore LpaSto
 			data.Form = readHowDoYouKnowYourCertificateProviderForm(r)
 			data.Errors = data.Form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.None() {
 				lpa.CertificateProvider.Relationship = data.Form.How
 				lpa.CertificateProvider.RelationshipDescription = data.Form.Description
 
@@ -80,19 +81,19 @@ func readHowDoYouKnowYourCertificateProviderForm(r *http.Request) *howDoYouKnowY
 	}
 }
 
-func (f *howDoYouKnowYourCertificateProviderForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (f *howDoYouKnowYourCertificateProviderForm) Validate() validation.List {
+	var errors validation.List
 
 	if f.How == "" {
-		errors["how"] = "selectHowYouKnowCertificateProvider"
+		errors.Add("how", "selectHowYouKnowCertificateProvider")
 	}
 
 	if f.How == "other" && f.Description == "" {
-		errors["description"] = "enterDescription"
+		errors.Add("description", "enterDescription")
 	}
 
 	if f.How != "friend" && f.How != "neighbour" && f.How != "colleague" && f.How != "health-professional" && f.How != "legal-professional" && f.How != "other" {
-		errors["how"] = "selectHowYouKnowCertificateProvider"
+		errors.Add("how", "selectHowYouKnowCertificateProvider")
 	}
 
 	return errors

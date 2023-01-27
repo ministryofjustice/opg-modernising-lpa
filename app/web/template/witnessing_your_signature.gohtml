@@ -1,11 +1,11 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "witnessYourSignatureHeader" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "witnessYourSignature" }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "witnessYourSignatureHeader" }}</h1>
+      <h1 class="govuk-heading-xl">{{ tr .App "witnessYourSignature" }}</h1>
 
       {{ trFormatHtml .App "witnessYourSignatureContent" "CpFullName" .Lpa.CertificateProviderFullName "CpFirstNames" .Lpa.CertificateProvider.FirstNames }}
 

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -292,9 +293,7 @@ func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 				Action:  "manual",
 				Address: invalidAddress,
 			},
-			Errors: map[string]string{
-				"address-line-1": "enterAddress",
-			},
+			Errors: validation.With("address-line-1", "enterAddress"),
 		}).
 		Return(nil)
 
@@ -336,7 +335,6 @@ func TestPostCertificateProviderAddressSelect(t *testing.T) {
 				LookupPostcode: "NG1",
 				Address:        &address,
 			},
-			Errors: map[string]string{},
 		}).
 		Return(nil)
 
@@ -381,9 +379,7 @@ func TestPostCertificateProviderAddressSelectWhenValidationError(t *testing.T) {
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
-			Errors: map[string]string{
-				"select-address": "selectAddress",
-			},
+			Errors:    validation.With("select-address", "selectAddress"),
 		}).
 		Return(nil)
 
@@ -428,7 +424,6 @@ func TestPostCertificateProviderAddressLookup(t *testing.T) {
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
-			Errors:    map[string]string{},
 		}).
 		Return(nil)
 
@@ -473,9 +468,7 @@ func TestPostCertificateProviderAddressLookupError(t *testing.T) {
 				LookupPostcode: "NG1",
 			},
 			Addresses: []place.Address{},
-			Errors: map[string]string{
-				"lookup-postcode": "couldNotLookupPostcode",
-			},
+			Errors:    validation.With("lookup-postcode", "couldNotLookupPostcode"),
 		}).
 		Return(nil)
 
@@ -508,9 +501,7 @@ func TestPostCertificateProviderAddressLookupWhenValidationError(t *testing.T) {
 			Form: &certificateProviderAddressForm{
 				Action: "lookup",
 			},
-			Errors: map[string]string{
-				"lookup-postcode": "enterPostcode",
-			},
+			Errors: validation.With("lookup-postcode", "enterPostcode"),
 		}).
 		Return(nil)
 
@@ -595,38 +586,32 @@ func TestReadCertificateProviderAddressForm(t *testing.T) {
 func TestCertificateProviderAddressFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *certificateProviderAddressForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"lookup valid": {
 			form: &certificateProviderAddressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
-			errors: map[string]string{},
 		},
 		"lookup missing postcode": {
 			form: &certificateProviderAddressForm{
 				Action: "lookup",
 			},
-			errors: map[string]string{
-				"lookup-postcode": "enterPostcode",
-			},
+			errors: validation.With("lookup-postcode", "enterPostcode"),
 		},
 		"select valid": {
 			form: &certificateProviderAddressForm{
 				Action:  "select",
 				Address: &place.Address{},
 			},
-			errors: map[string]string{},
 		},
 		"select not selected": {
 			form: &certificateProviderAddressForm{
 				Action:  "select",
 				Address: nil,
 			},
-			errors: map[string]string{
-				"select-address": "selectAddress",
-			},
+			errors: validation.With("select-address", "selectAddress"),
 		},
 		"manual valid": {
 			form: &certificateProviderAddressForm{
@@ -637,17 +622,15 @@ func TestCertificateProviderAddressFormValidate(t *testing.T) {
 					Postcode:   "c",
 				},
 			},
-			errors: map[string]string{},
 		},
 		"manual missing all": {
 			form: &certificateProviderAddressForm{
 				Action:  "manual",
 				Address: &place.Address{},
 			},
-			errors: map[string]string{
-				"address-line-1": "enterAddress",
-				"address-town":   "enterTownOrCity",
-			},
+			errors: validation.
+				With("address-line-1", "enterAddress").
+				With("address-town", "enterTownOrCity"),
 		},
 		"manual max length": {
 			form: &certificateProviderAddressForm{
@@ -660,7 +643,6 @@ func TestCertificateProviderAddressFormValidate(t *testing.T) {
 					Postcode:   "c",
 				},
 			},
-			errors: map[string]string{},
 		},
 		"manual too long": {
 			form: &certificateProviderAddressForm{
@@ -673,11 +655,10 @@ func TestCertificateProviderAddressFormValidate(t *testing.T) {
 					Postcode:   "c",
 				},
 			},
-			errors: map[string]string{
-				"address-line-1": "addressLine1TooLong",
-				"address-line-2": "addressLine2TooLong",
-				"address-line-3": "addressLine3TooLong",
-			},
+			errors: validation.
+				With("address-line-1", "addressLine1TooLong").
+				With("address-line-2", "addressLine2TooLong").
+				With("address-line-3", "addressLine3TooLong"),
 		},
 	}
 

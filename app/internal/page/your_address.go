@@ -5,11 +5,12 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type yourAddressData struct {
 	App       AppData
-	Errors    map[string]string
+	Errors    validation.List
 	Addresses []place.Address
 	Form      *yourAddressForm
 }
@@ -35,7 +36,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			data.Form = readYourAddressForm(r)
 			data.Errors = data.Form.Validate()
 
-			if data.Form.Action == "manual" && len(data.Errors) == 0 {
+			if data.Form.Action == "manual" && data.Errors.None() {
 				lpa.You.Address = *data.Form.Address
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
@@ -44,16 +45,16 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 				return appData.Redirect(w, r, lpa, Paths.WhoIsTheLpaFor)
 			}
 
-			if data.Form.Action == "select" && len(data.Errors) == 0 {
+			if data.Form.Action == "select" && data.Errors.None() {
 				data.Form.Action = "manual"
 			}
 
-			if data.Form.Action == "lookup" && len(data.Errors) == 0 ||
-				data.Form.Action == "select" && len(data.Errors) > 0 {
+			if data.Form.Action == "lookup" && data.Errors.None() ||
+				data.Form.Action == "select" && data.Errors.Any() {
 				addresses, err := addressClient.LookupPostcode(r.Context(), data.Form.LookupPostcode)
 				if err != nil {
 					logger.Print(err)
-					data.Errors["lookup-postcode"] = "couldNotLookupPostcode"
+					data.Errors.Add("lookup-postcode", "couldNotLookupPostcode")
 				}
 
 				data.Addresses = addresses
@@ -106,35 +107,35 @@ func readYourAddressForm(r *http.Request) *yourAddressForm {
 	return d
 }
 
-func (d *yourAddressForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (d *yourAddressForm) Validate() validation.List {
+	var errors validation.List
 
 	switch d.Action {
 	case "lookup":
 		if d.LookupPostcode == "" {
-			errors["lookup-postcode"] = "enterPostcode"
+			errors.Add("lookup-postcode", "enterPostcode")
 		}
 
 	case "select":
 		if d.Address == nil {
-			errors["select-address"] = "selectAddress"
+			errors.Add("select-address", "selectAddress")
 		}
 
 	case "manual":
 		if d.Address.Line1 == "" {
-			errors["address-line-1"] = "enterAddress"
+			errors.Add("address-line-1", "enterAddress")
 		}
 		if len(d.Address.Line1) > 50 {
-			errors["address-line-1"] = "addressLine1TooLong"
+			errors.Add("address-line-1", "addressLine1TooLong")
 		}
 		if len(d.Address.Line2) > 50 {
-			errors["address-line-2"] = "addressLine2TooLong"
+			errors.Add("address-line-2", "addressLine2TooLong")
 		}
 		if len(d.Address.Line3) > 50 {
-			errors["address-line-3"] = "addressLine3TooLong"
+			errors.Add("address-line-3", "addressLine3TooLong")
 		}
 		if d.Address.TownOrCity == "" {
-			errors["address-town"] = "enterTownOrCity"
+			errors.Add("address-town", "enterTownOrCity")
 		}
 	}
 

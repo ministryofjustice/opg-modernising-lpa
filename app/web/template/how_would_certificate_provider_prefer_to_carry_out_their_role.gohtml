@@ -12,10 +12,10 @@
 
         <p class="govuk-body">{{ tr .App "selectOneOption" }}</p>
 
-        <div class="govuk-form-group {{ if index .Errors "carry-out-by" }}govuk-form-group--error{{ end }}">
+        <div class="govuk-form-group {{ if .Errors.Has "carry-out-by" }}govuk-form-group--error{{ end }}">
           {{ template "error-message" (errorMessage . "carry-out-by") }}
 
-          <div class="govuk-radios {{ if index .Errors "carry-out-by" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
+          <div class="govuk-radios {{ if .Errors.Has "carry-out-by" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
             <div class="govuk-radios__item">
               <input class="govuk-radios__input" id="f-carry-out-by" name="carry-out-by" type="radio" value="email" {{ if eq "email" .Form.CarryOutBy }}checked{{ end }} aria-describedby="carry-out-by-item-hint" data-aria-controls="conditional-email">
               <label class="govuk-label govuk-radios__label" for="f-carry-out-by">

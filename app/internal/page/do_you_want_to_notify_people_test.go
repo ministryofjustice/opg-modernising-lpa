@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -286,12 +287,10 @@ func TestPostDoYouWantToNotifyPeopleWhenValidationErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &doYouWantToNotifyPeopleData{
-			App: appData,
-			Errors: map[string]string{
-				"want-to-notify": "selectDoYouWantToNotifyPeople",
-			},
-			Form: &doYouWantToNotifyPeopleForm{},
-			Lpa:  &Lpa{},
+			App:    appData,
+			Errors: validation.With("want-to-notify", "selectDoYouWantToNotifyPeople"),
+			Form:   &doYouWantToNotifyPeopleForm{},
+			Lpa:    &Lpa{},
 		}).
 		Return(nil)
 
@@ -319,33 +318,27 @@ func TestReadDoYouWantToNotifyPeopleForm(t *testing.T) {
 func TestDoYouWantToNotifyPeopleFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *doYouWantToNotifyPeopleForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"yes": {
 			form: &doYouWantToNotifyPeopleForm{
 				WantToNotify: "yes",
 			},
-			errors: map[string]string{},
 		},
 		"no": {
 			form: &doYouWantToNotifyPeopleForm{
 				WantToNotify: "no",
 			},
-			errors: map[string]string{},
 		},
 		"missing": {
-			form: &doYouWantToNotifyPeopleForm{},
-			errors: map[string]string{
-				"want-to-notify": "selectDoYouWantToNotifyPeople",
-			},
+			form:   &doYouWantToNotifyPeopleForm{},
+			errors: validation.With("want-to-notify", "selectDoYouWantToNotifyPeople"),
 		},
 		"invalid": {
 			form: &doYouWantToNotifyPeopleForm{
 				WantToNotify: "what",
 			},
-			errors: map[string]string{
-				"want-to-notify": "selectDoYouWantToNotifyPeople",
-			},
+			errors: validation.With("want-to-notify", "selectDoYouWantToNotifyPeople"),
 		},
 	}
 

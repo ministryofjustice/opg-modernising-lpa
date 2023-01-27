@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -339,7 +340,6 @@ func TestPostChoosePeopleToNotifyAddressSelect(t *testing.T) {
 				LookupPostcode: "NG1",
 				Address:        &address,
 			},
-			Errors: map[string]string{},
 		}).
 		Return(nil)
 
@@ -390,9 +390,7 @@ func TestPostChoosePeopleToNotifyAddressSelectWhenValidationError(t *testing.T) 
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
-			Errors: map[string]string{
-				"select-address": "selectAddress",
-			},
+			Errors:    validation.With("select-address", "selectAddress"),
 		}).
 		Return(nil)
 
@@ -444,7 +442,6 @@ func TestPostChoosePeopleToNotifyAddressLookup(t *testing.T) {
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
-			Errors:    map[string]string{},
 		}).
 		Return(nil)
 
@@ -495,9 +492,7 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 				LookupPostcode: "NG1",
 			},
 			Addresses: []place.Address{},
-			Errors: map[string]string{
-				"lookup-postcode": "couldNotLookupPostcode",
-			},
+			Errors:    validation.With("lookup-postcode", "couldNotLookupPostcode"),
 		}).
 		Return(nil)
 
@@ -536,9 +531,7 @@ func TestPostChoosePeopleToNotifyAddressLookupWhenValidationError(t *testing.T) 
 			Form: &choosePeopleToNotifyAddressForm{
 				Action: "lookup",
 			},
-			Errors: map[string]string{
-				"lookup-postcode": "enterPostcode",
-			},
+			Errors: validation.With("lookup-postcode", "enterPostcode"),
 		}).
 		Return(nil)
 
@@ -623,38 +616,32 @@ func TestReadChoosePeopleToNotifyAddressForm(t *testing.T) {
 func TestChoosePeopleToNotifyAddressFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *choosePeopleToNotifyAddressForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"lookup valid": {
 			form: &choosePeopleToNotifyAddressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
-			errors: map[string]string{},
 		},
 		"lookup missing postcode": {
 			form: &choosePeopleToNotifyAddressForm{
 				Action: "lookup",
 			},
-			errors: map[string]string{
-				"lookup-postcode": "enterPostcode",
-			},
+			errors: validation.With("lookup-postcode", "enterPostcode"),
 		},
 		"select valid": {
 			form: &choosePeopleToNotifyAddressForm{
 				Action:  "select",
 				Address: &place.Address{},
 			},
-			errors: map[string]string{},
 		},
 		"select not selected": {
 			form: &choosePeopleToNotifyAddressForm{
 				Action:  "select",
 				Address: nil,
 			},
-			errors: map[string]string{
-				"select-address": "selectAddress",
-			},
+			errors: validation.With("select-address", "selectAddress"),
 		},
 		"manual valid": {
 			form: &choosePeopleToNotifyAddressForm{
@@ -665,17 +652,15 @@ func TestChoosePeopleToNotifyAddressFormValidate(t *testing.T) {
 					Postcode:   "c",
 				},
 			},
-			errors: map[string]string{},
 		},
 		"manual missing all": {
 			form: &choosePeopleToNotifyAddressForm{
 				Action:  "manual",
 				Address: &place.Address{},
 			},
-			errors: map[string]string{
-				"address-line-1": "enterAddress",
-				"address-town":   "enterTownOrCity",
-			},
+			errors: validation.
+				With("address-line-1", "enterAddress").
+				With("address-town", "enterTownOrCity"),
 		},
 		"manual max length": {
 			form: &choosePeopleToNotifyAddressForm{
@@ -688,7 +673,6 @@ func TestChoosePeopleToNotifyAddressFormValidate(t *testing.T) {
 					Postcode:   "c",
 				},
 			},
-			errors: map[string]string{},
 		},
 		"manual too long": {
 			form: &choosePeopleToNotifyAddressForm{
@@ -701,11 +685,10 @@ func TestChoosePeopleToNotifyAddressFormValidate(t *testing.T) {
 					Postcode:   "c",
 				},
 			},
-			errors: map[string]string{
-				"address-line-1": "addressLine1TooLong",
-				"address-line-2": "addressLine2TooLong",
-				"address-line-3": "addressLine3TooLong",
-			},
+			errors: validation.
+				With("address-line-1", "addressLine1TooLong").
+				With("address-line-2", "addressLine2TooLong").
+				With("address-line-3", "addressLine3TooLong"),
 		},
 	}
 
