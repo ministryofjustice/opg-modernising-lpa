@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type readYourLpaData struct {
 	App    AppData
-	Errors map[string]string
+	Errors validation.List
 	Lpa    *Lpa
 }
 

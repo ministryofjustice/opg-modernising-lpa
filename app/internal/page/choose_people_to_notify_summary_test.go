@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -24,8 +25,9 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &choosePeopleToNotifySummaryData{
-			App: appData,
-			Lpa: &Lpa{},
+			App:  appData,
+			Lpa:  &Lpa{},
+			Form: &choosePeopleToNotifySummaryForm{},
 		}).
 		Return(nil)
 
@@ -122,9 +124,7 @@ func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
-	validationError := map[string]string{
-		"add-person-to-notify": "selectAddMorePeopleToNotify",
-	}
+	validationError := validation.With("add-person-to-notify", "selectAddMorePeopleToNotify")
 
 	template := &mockTemplate{}
 	template.
@@ -144,33 +144,27 @@ func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 func TestChoosePeopleToNotifySummaryFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *choosePeopleToNotifySummaryForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"yes": {
 			form: &choosePeopleToNotifySummaryForm{
 				AddPersonToNotify: "yes",
 			},
-			errors: map[string]string{},
 		},
 		"no": {
 			form: &choosePeopleToNotifySummaryForm{
 				AddPersonToNotify: "no",
 			},
-			errors: map[string]string{},
 		},
 		"missing": {
-			form: &choosePeopleToNotifySummaryForm{},
-			errors: map[string]string{
-				"add-person-to-notify": "selectAddMorePeopleToNotify",
-			},
+			form:   &choosePeopleToNotifySummaryForm{},
+			errors: validation.With("add-person-to-notify", "selectAddMorePeopleToNotify"),
 		},
 		"invalid": {
 			form: &choosePeopleToNotifySummaryForm{
 				AddPersonToNotify: "what",
 			},
-			errors: map[string]string{
-				"add-person-to-notify": "selectAddMorePeopleToNotify",
-			},
+			errors: validation.With("add-person-to-notify", "selectAddMorePeopleToNotify"),
 		},
 	}
 

@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type howWouldYouLikeToBeContactedData struct {
 	App     AppData
-	Errors  map[string]string
+	Errors  validation.List
 	Contact []string
 }
 
@@ -28,7 +29,7 @@ func HowWouldYouLikeToBeContacted(tmpl template.Template, lpaStore LpaStore) Han
 			form := readHowWouldYouLikeToBeContactedForm(r)
 			data.Errors = form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.Empty() {
 				lpa.Contact = form.Contact
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
@@ -54,16 +55,16 @@ func readHowWouldYouLikeToBeContactedForm(r *http.Request) *howWouldYouLikeToBeC
 	}
 }
 
-func (f *howWouldYouLikeToBeContactedForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (f *howWouldYouLikeToBeContactedForm) Validate() validation.List {
+	var errors validation.List
 
 	if len(f.Contact) == 0 {
-		errors["contact"] = "selectContact"
+		errors.Add("contact", "selectContact")
 	}
 
 	for _, value := range f.Contact {
 		if value != "email" && value != "phone" && value != "text message" && value != "post" {
-			errors["contact"] = "selectContact"
+			errors.Add("contact", "selectContact")
 			break
 		}
 	}

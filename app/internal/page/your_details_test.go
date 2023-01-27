@@ -11,6 +11,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -205,7 +206,7 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 				"date-of-birth-year":  {"1990"},
 			},
 			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
-				return assert.Equal(t, map[string]string{"first-names": "enterFirstNames"}, data.Errors)
+				return assert.Equal(t, validation.With("first-names", "enterFirstNames"), data.Errors)
 			},
 		},
 		"dob warning": {
@@ -399,7 +400,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 
 	testCases := map[string]struct {
 		form   *yourDetailsForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"valid": {
 			form: &yourDetailsForm{
@@ -412,7 +413,6 @@ func TestYourDetailsFormValidate(t *testing.T) {
 				},
 				DateOfBirth: validDob,
 			},
-			errors: map[string]string{},
 		},
 		"max-length": {
 			form: &yourDetailsForm{
@@ -426,15 +426,13 @@ func TestYourDetailsFormValidate(t *testing.T) {
 				},
 				DateOfBirth: validDob,
 			},
-			errors: map[string]string{},
 		},
 		"missing-all": {
 			form: &yourDetailsForm{},
-			errors: map[string]string{
-				"first-names":   "enterFirstNames",
-				"last-name":     "enterLastName",
-				"date-of-birth": "enterDateOfBirth",
-			},
+			errors: validation.
+				With("first-names", "enterFirstNames").
+				With("last-name", "enterLastName").
+				With("date-of-birth", "enterDateOfBirth"),
 		},
 		"too-long": {
 			form: &yourDetailsForm{
@@ -448,11 +446,10 @@ func TestYourDetailsFormValidate(t *testing.T) {
 				},
 				DateOfBirth: validDob,
 			},
-			errors: map[string]string{
-				"first-names": "firstNamesTooLong",
-				"last-name":   "lastNameTooLong",
-				"other-names": "otherNamesTooLong",
-			},
+			errors: validation.
+				With("first-names", "firstNamesTooLong").
+				With("last-name", "lastNameTooLong").
+				With("other-names", "otherNamesTooLong"),
 		},
 		"future-dob": {
 			form: &yourDetailsForm{
@@ -465,9 +462,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 				},
 				DateOfBirth: now.AddDate(0, 0, 1),
 			},
-			errors: map[string]string{
-				"date-of-birth": "dateOfBirthIsFuture",
-			},
+			errors: validation.With("date-of-birth", "dateOfBirthIsFuture"),
 		},
 		"invalid-dob": {
 			form: &yourDetailsForm{
@@ -480,9 +475,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 				},
 				DateOfBirthError: expectedError,
 			},
-			errors: map[string]string{
-				"date-of-birth": "dateOfBirthMustBeReal",
-			},
+			errors: validation.With("date-of-birth", "dateOfBirthMustBeReal"),
 		},
 		"invalid-missing-dob": {
 			form: &yourDetailsForm{
@@ -494,9 +487,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 				},
 				DateOfBirthError: expectedError,
 			},
-			errors: map[string]string{
-				"date-of-birth": "enterDateOfBirth",
-			},
+			errors: validation.With("date-of-birth", "enterDateOfBirth"),
 		},
 	}
 

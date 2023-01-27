@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type lpaTypeData struct {
 	App    AppData
-	Errors map[string]string
+	Errors validation.List
 	Type   string
 }
 
@@ -28,7 +29,7 @@ func LpaType(tmpl template.Template, lpaStore LpaStore) Handler {
 			form := readLpaTypeForm(r)
 			data.Errors = form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.Empty() {
 				lpa.Tasks.YourDetails = TaskCompleted
 				lpa.Type = form.LpaType
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
@@ -53,11 +54,11 @@ func readLpaTypeForm(r *http.Request) *lpaTypeForm {
 	}
 }
 
-func (f *lpaTypeForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (f *lpaTypeForm) Validate() validation.List {
+	var errors validation.List
 
 	if f.LpaType != LpaTypePropertyFinance && f.LpaType != LpaTypeHealthWelfare && f.LpaType != LpaTypeCombined {
-		errors["lpa-type"] = "selectLpaType"
+		errors.Add("lpa-type", "selectLpaType")
 	}
 
 	return errors
