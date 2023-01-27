@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type howShouldAttorneysMakeDecisionsData struct {
 	App    AppData
-	Errors map[string]string
+	Errors validation.List
 	Form   *howShouldAttorneysMakeDecisionsForm
 	Lpa    *Lpa
 }
@@ -38,7 +39,7 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) 
 			data.Form = readHowShouldAttorneysMakeDecisionsForm(r)
 			data.Errors = data.Form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.Empty() {
 				lpa.HowAttorneysMakeDecisions = data.Form.DecisionsType
 
 				if data.Form.DecisionsType != JointlyForSomeSeverallyForOthers {
@@ -66,15 +67,15 @@ func readHowShouldAttorneysMakeDecisionsForm(r *http.Request) *howShouldAttorney
 	}
 }
 
-func (f *howShouldAttorneysMakeDecisionsForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (f *howShouldAttorneysMakeDecisionsForm) Validate() validation.List {
+	var errors validation.List
 
 	if f.DecisionsType != JointlyAndSeverally && f.DecisionsType != Jointly && f.DecisionsType != JointlyForSomeSeverallyForOthers {
-		errors["decision-type"] = "chooseADecisionType"
+		errors.Add("decision-type", "chooseADecisionType")
 	}
 
 	if f.DecisionsType == JointlyForSomeSeverallyForOthers && f.DecisionsDetails == "" {
-		errors["mixed-details"] = "provideDecisionDetails"
+		errors.Add("mixed-details", "provideDecisionDetails")
 	}
 
 	return errors

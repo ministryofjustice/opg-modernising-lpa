@@ -5,17 +5,14 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type chooseAttorneysSummaryData struct {
 	App    AppData
-	Errors map[string]string
+	Errors validation.List
 	Form   chooseAttorneysSummaryForm
 	Lpa    *Lpa
-}
-
-type chooseAttorneysSummaryForm struct {
-	AddAttorney string
 }
 
 func ChooseAttorneysSummary(logger Logger, tmpl template.Template, lpaStore LpaStore) Handler {
@@ -33,13 +30,10 @@ func ChooseAttorneysSummary(logger Logger, tmpl template.Template, lpaStore LpaS
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = chooseAttorneysSummaryForm{
-				AddAttorney: postFormString(r, "add-attorney"),
-			}
-
+			data.Form = *readChooseAttorneysSummaryForm(r)
 			data.Errors = data.Form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.Empty() {
 				redirectUrl := appData.Paths.DoYouWantReplacementAttorneys
 
 				if len(lpa.Attorneys) > 1 {
@@ -59,13 +53,21 @@ func ChooseAttorneysSummary(logger Logger, tmpl template.Template, lpaStore LpaS
 	}
 }
 
-func (f *chooseAttorneysSummaryForm) Validate() map[string]string {
-	errors := map[string]string{}
+type chooseAttorneysSummaryForm struct {
+	AddAttorney string
+}
+
+func readChooseAttorneysSummaryForm(r *http.Request) *chooseAttorneysSummaryForm {
+	return &chooseAttorneysSummaryForm{
+		AddAttorney: postFormString(r, "add-attorney"),
+	}
+}
+
+func (f *chooseAttorneysSummaryForm) Validate() validation.List {
+	var errors validation.List
 
 	if f.AddAttorney != "yes" && f.AddAttorney != "no" {
-		errors = map[string]string{
-			"add-attorney": "selectAddMoreAttorneys",
-		}
+		errors.Add("add-attorney", "selectAddMoreAttorneys")
 	}
 
 	return errors

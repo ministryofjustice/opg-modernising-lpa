@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -32,7 +33,7 @@ func TestGetRemovePersonToNotify(t *testing.T) {
 			App:            appData,
 			PersonToNotify: personToNotify,
 			Errors:         nil,
-			Form:           removePersonToNotifyForm{},
+			Form:           &removePersonToNotifyForm{},
 		}).
 		Return(nil)
 
@@ -250,9 +251,7 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotifyWithoutAddress}}, nil)
 
-	validationError := map[string]string{
-		"remove-person-to-notify": "selectRemovePersonToNotify",
-	}
+	validationError := validation.With("remove-person-to-notify", "selectRemovePersonToNotify")
 
 	template := &mockTemplate{}
 	template.
@@ -313,35 +312,29 @@ func TestRemovePersonToNotifyRemoveLastPersonRedirectsToChoosePeopleToNotify(t *
 func TestRemovePersonToNotifyFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *removePersonToNotifyForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"valid - yes": {
 			form: &removePersonToNotifyForm{
 				RemovePersonToNotify: "yes",
 			},
-			errors: map[string]string{},
 		},
 		"valid - no": {
 			form: &removePersonToNotifyForm{
 				RemovePersonToNotify: "no",
 			},
-			errors: map[string]string{},
 		},
 		"missing-value": {
 			form: &removePersonToNotifyForm{
 				RemovePersonToNotify: "",
 			},
-			errors: map[string]string{
-				"remove-person-to-notify": "selectRemovePersonToNotify",
-			},
+			errors: validation.With("remove-person-to-notify", "selectRemovePersonToNotify"),
 		},
 		"unexpected-value": {
 			form: &removePersonToNotifyForm{
 				RemovePersonToNotify: "not expected",
 			},
-			errors: map[string]string{
-				"remove-person-to-notify": "selectRemovePersonToNotify",
-			},
+			errors: validation.With("remove-person-to-notify", "selectRemovePersonToNotify"),
 		},
 	}
 

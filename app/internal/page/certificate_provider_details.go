@@ -7,21 +7,13 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type certificateProviderDetailsData struct {
 	App    AppData
-	Errors map[string]string
+	Errors validation.List
 	Form   *certificateProviderDetailsForm
-}
-
-type certificateProviderDetailsForm struct {
-	FirstNames       string
-	LastName         string
-	Dob              Date
-	DateOfBirth      time.Time
-	DateOfBirthError error
-	Mobile           string
 }
 
 func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -48,7 +40,7 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 			data.Form = readCertificateProviderDetailsForm(r)
 			data.Errors = data.Form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.Empty() {
 				lpa.CertificateProvider.FirstNames = data.Form.FirstNames
 				lpa.CertificateProvider.LastName = data.Form.LastName
 				lpa.CertificateProvider.DateOfBirth = data.Form.DateOfBirth
@@ -64,6 +56,15 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 
 		return tmpl(w, data)
 	}
+}
+
+type certificateProviderDetailsForm struct {
+	FirstNames       string
+	LastName         string
+	Dob              Date
+	DateOfBirth      time.Time
+	DateOfBirthError error
+	Mobile           string
 }
 
 func readCertificateProviderDetailsForm(r *http.Request) *certificateProviderDetailsForm {
@@ -82,29 +83,29 @@ func readCertificateProviderDetailsForm(r *http.Request) *certificateProviderDet
 	return d
 }
 
-func (d *certificateProviderDetailsForm) Validate() map[string]string {
-	errors := map[string]string{}
+var mobileRegex = regexp.MustCompile(`^(?:07|\+?447)\d{9}$`)
+
+func (d *certificateProviderDetailsForm) Validate() validation.List {
+	var errors validation.List
 
 	if d.FirstNames == "" {
-		errors["first-names"] = "enterCertificateProviderFirstNames"
+		errors.Add("first-names", "enterCertificateProviderFirstNames")
 	}
 	if d.LastName == "" {
-		errors["last-name"] = "enterCertificateProviderLastName"
+		errors.Add("last-name", "enterCertificateProviderLastName")
 	}
 	if !d.Dob.Entered() {
-		errors["date-of-birth"] = "enterCertificateProviderDateOfBirth"
+		errors.Add("date-of-birth", "enterCertificateProviderDateOfBirth")
 	}
-	if _, ok := errors["date-of-birth"]; !ok && d.DateOfBirthError != nil {
-		errors["date-of-birth"] = "dateOfBirthMustBeReal"
+	if d.DateOfBirthError != nil {
+		errors.Add("date-of-birth", "dateOfBirthMustBeReal")
 	}
 
-	isUkMobile, _ := regexp.MatchString(`^(?:07|\+?447)\d{9}$`, strings.ReplaceAll(d.Mobile, " ", ""))
-
-	if !isUkMobile {
-		errors["mobile"] = "enterUkMobile"
-	}
 	if d.Mobile == "" {
-		errors["mobile"] = "enterCertificateProviderMobile"
+		errors.Add("mobile", "enterCertificateProviderMobile")
+	}
+	if !mobileRegex.MatchString(strings.ReplaceAll(d.Mobile, " ", "")) {
+		errors.Add("mobile", "enterUkMobile")
 	}
 
 	return errors

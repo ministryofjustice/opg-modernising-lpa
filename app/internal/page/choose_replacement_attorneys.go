@@ -5,11 +5,12 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type chooseReplacementAttorneysData struct {
 	App        AppData
-	Errors     map[string]string
+	Errors     validation.List
 	Form       *chooseAttorneysForm
 	DobWarning string
 }
@@ -46,11 +47,11 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 			data.Errors = data.Form.Validate()
 			dobWarning := data.Form.DobWarning()
 
-			if len(data.Errors) != 0 || data.Form.IgnoreWarning != dobWarning {
+			if data.Errors.Any() || data.Form.IgnoreWarning != dobWarning {
 				data.DobWarning = dobWarning
 			}
 
-			if len(data.Errors) == 0 && data.DobWarning == "" {
+			if data.Errors.Empty() && data.DobWarning == "" {
 				if attorneyFound == false {
 					ra = Attorney{
 						FirstNames:  data.Form.FirstNames,

@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type whoIsTheLpaForData struct {
 	App    AppData
-	Errors map[string]string
+	Errors validation.List
 	WhoFor string
 }
 
@@ -28,7 +29,7 @@ func WhoIsTheLpaFor(tmpl template.Template, lpaStore LpaStore) Handler {
 			form := readWhoIsTheLpaForForm(r)
 			data.Errors = form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.Empty() {
 				lpa.WhoFor = form.WhoFor
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
@@ -52,11 +53,11 @@ func readWhoIsTheLpaForForm(r *http.Request) *whoIsTheLpaForForm {
 	}
 }
 
-func (f *whoIsTheLpaForForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (f *whoIsTheLpaForForm) Validate() validation.List {
+	var errors validation.List
 
 	if f.WhoFor != "me" && f.WhoFor != "someone-else" {
-		errors["who-for"] = "selectWhoFor"
+		errors.Add("who-for", "selectWhoFor")
 	}
 
 	return errors

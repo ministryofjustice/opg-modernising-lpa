@@ -6,18 +6,13 @@ import (
 	"net/mail"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type choosePeopleToNotifyData struct {
 	App    AppData
-	Errors map[string]string
+	Errors validation.List
 	Form   *choosePeopleToNotifyForm
-}
-
-type choosePeopleToNotifyForm struct {
-	FirstNames string
-	LastName   string
-	Email      string
 }
 
 func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) Handler {
@@ -51,7 +46,7 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 			data.Form = readChoosePeopleToNotifyForm(r)
 			data.Errors = data.Form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.Empty() {
 				if personFound == false {
 					personToNotify = PersonToNotify{
 						FirstNames: data.Form.FirstNames,
@@ -89,6 +84,12 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 	}
 }
 
+type choosePeopleToNotifyForm struct {
+	FirstNames string
+	LastName   string
+	Email      string
+}
+
 func readChoosePeopleToNotifyForm(r *http.Request) *choosePeopleToNotifyForm {
 	d := &choosePeopleToNotifyForm{}
 	d.FirstNames = postFormString(r, "first-names")
@@ -98,27 +99,27 @@ func readChoosePeopleToNotifyForm(r *http.Request) *choosePeopleToNotifyForm {
 	return d
 }
 
-func (d *choosePeopleToNotifyForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (d *choosePeopleToNotifyForm) Validate() validation.List {
+	var errors validation.List
 
 	if d.FirstNames == "" {
-		errors["first-names"] = "enterTheirFirstNames"
+		errors.Add("first-names", "enterTheirFirstNames")
 	}
 	if len(d.FirstNames) > 53 {
-		errors["first-names"] = "firstNamesTooLong"
+		errors.Add("first-names", "firstNamesTooLong")
 	}
 
 	if d.LastName == "" {
-		errors["last-name"] = "enterTheirLastName"
+		errors.Add("last-name", "enterTheirLastName")
 	}
 	if len(d.LastName) > 61 {
-		errors["last-name"] = "lastNameTooLong"
+		errors.Add("last-name", "lastNameTooLong")
 	}
 
 	if d.Email == "" {
-		errors["email"] = "enterTheirEmail"
+		errors.Add("email", "enterTheirEmail")
 	} else if _, err := mail.ParseAddress(fmt.Sprintf("<%s>", d.Email)); err != nil {
-		errors["email"] = "theirEmailIncorrectFormat"
+		errors.Add("email", "theirEmailIncorrectFormat")
 	}
 
 	return errors
