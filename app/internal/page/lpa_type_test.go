@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -163,10 +164,8 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &lpaTypeData{
-			App: appData,
-			Errors: map[string]string{
-				"lpa-type": "selectLpaType",
-			},
+			App:    appData,
+			Errors: validation.With("lpa-type", "selectLpaType"),
 		}).
 		Return(nil)
 
@@ -194,39 +193,32 @@ func TestReadLpaTypeForm(t *testing.T) {
 func TestLpaTypeFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *lpaTypeForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"pfa": {
 			form: &lpaTypeForm{
 				LpaType: LpaTypePropertyFinance,
 			},
-			errors: map[string]string{},
 		},
 		"hw": {
 			form: &lpaTypeForm{
 				LpaType: "hw",
 			},
-			errors: map[string]string{},
 		},
 		"both": {
 			form: &lpaTypeForm{
 				LpaType: "both",
 			},
-			errors: map[string]string{},
 		},
 		"missing": {
-			form: &lpaTypeForm{},
-			errors: map[string]string{
-				"lpa-type": "selectLpaType",
-			},
+			form:   &lpaTypeForm{},
+			errors: validation.With("lpa-type", "selectLpaType"),
 		},
 		"invalid": {
 			form: &lpaTypeForm{
 				LpaType: "what",
 			},
-			errors: map[string]string{
-				"lpa-type": "selectLpaType",
-			},
+			errors: validation.With("lpa-type", "selectLpaType"),
 		},
 	}
 

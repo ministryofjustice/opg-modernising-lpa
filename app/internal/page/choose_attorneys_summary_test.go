@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -121,9 +122,7 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
-	validationError := map[string]string{
-		"add-attorney": "selectAddMoreAttorneys",
-	}
+	validationError := validation.With("add-attorney", "selectAddMoreAttorneys")
 
 	template := &mockTemplate{}
 	template.
@@ -143,33 +142,27 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 func TestChooseAttorneysSummaryFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *chooseAttorneysSummaryForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"yes": {
 			form: &chooseAttorneysSummaryForm{
 				AddAttorney: "yes",
 			},
-			errors: map[string]string{},
 		},
 		"no": {
 			form: &chooseAttorneysSummaryForm{
 				AddAttorney: "no",
 			},
-			errors: map[string]string{},
 		},
 		"missing": {
-			form: &chooseAttorneysSummaryForm{},
-			errors: map[string]string{
-				"add-attorney": "selectAddMoreAttorneys",
-			},
+			form:   &chooseAttorneysSummaryForm{},
+			errors: validation.With("add-attorney", "selectAddMoreAttorneys"),
 		},
 		"invalid": {
 			form: &chooseAttorneysSummaryForm{
 				AddAttorney: "what",
 			},
-			errors: map[string]string{
-				"add-attorney": "selectAddMoreAttorneys",
-			},
+			errors: validation.With("add-attorney", "selectAddMoreAttorneys"),
 		},
 	}
 

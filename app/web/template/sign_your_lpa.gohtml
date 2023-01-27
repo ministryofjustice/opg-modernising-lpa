@@ -44,21 +44,23 @@
               {{ trFormat .App "iConfirmThat" "DonorFullName" .Lpa.DonorFullName }}
             </p>
 
-            {{ template "error-message" (errorMessage . "sign-lpa") }}
+            <div class="govuk-form-group {{ if .Errors.Has "sign-lpa" }}govuk-form-group--error{{ end }}">
+              {{ template "error-message" (errorMessage . "sign-lpa") }}
 
-            <div class="govuk-checkboxes {{ if index .Errors "sign-lpa" }}govuk-checkboxes--error{{ end }}">
-              <div class="govuk-checkboxes__item">
-                <input class="govuk-checkboxes__input" id="f-sign-lpa" name="sign-lpa" type="checkbox" value="{{ .CPWitnessedFormValue }}" {{ if eq .Lpa.CPWitnessedDonorSign true }}checked{{ end }}>
-                <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa">
-                  {{ trFormat .App "cpIsWitnessingMeSign" "CertificateProviderFullName" .Lpa.CertificateProviderFullName }}
-                </label>
-              </div>
+              <div class="govuk-checkboxes {{ if .Errors.Has "sign-lpa" }}govuk-checkboxes--error{{ end }}">
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="f-sign-lpa" name="sign-lpa" type="checkbox" value="{{ .CPWitnessedFormValue }}" {{ if eq .Lpa.CPWitnessedDonorSign true }}checked{{ end }}>
+                  <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa">
+                    {{ trFormat .App "cpIsWitnessingMeSign" "CertificateProviderFullName" .Lpa.CertificateProviderFullName }}
+                  </label>
+                </div>
 
-              <div class="govuk-checkboxes__item">
-                <input class="govuk-checkboxes__input" id="f-sign-lpa-2" name="sign-lpa" type="checkbox" value="{{ .WantFormValue }}" {{ if eq .Lpa.WantToApplyForLpa true }}checked{{ end }}>
-                <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa-2">
-                  {{ tr .App "wantToApply" }}
-                </label>
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="f-sign-lpa-2" name="sign-lpa" type="checkbox" value="{{ .WantFormValue }}" {{ if eq .Lpa.WantToApplyForLpa true }}checked{{ end }}>
+                  <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa-2">
+                    {{ tr .App "wantToApply" }}
+                  </label>
+                </div>
               </div>
             </div>
           </div>

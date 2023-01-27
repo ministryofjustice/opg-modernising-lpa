@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -25,8 +26,9 @@ func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseReplacementAttorneysSummaryData{
-			App: appData,
-			Lpa: &Lpa{},
+			App:  appData,
+			Lpa:  &Lpa{},
+			Form: &chooseAttorneysSummaryForm{},
 		}).
 		Return(nil)
 
@@ -180,9 +182,7 @@ func TestPostChooseReplacementAttorneySummaryFormValidation(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
-	validationError := map[string]string{
-		"add-attorney": "selectAddMoreAttorneys",
-	}
+	validationError := validation.With("add-attorney", "selectAddMoreAttorneys")
 
 	template := &mockTemplate{}
 	template.

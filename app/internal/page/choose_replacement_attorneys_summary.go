@@ -5,12 +5,13 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type chooseReplacementAttorneysSummaryData struct {
 	App    AppData
-	Errors map[string]string
-	Form   chooseAttorneysSummaryForm
+	Errors validation.List
+	Form   *chooseAttorneysSummaryForm
 	Lpa    *Lpa
 }
 
@@ -25,17 +26,14 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 		data := &chooseReplacementAttorneysSummaryData{
 			App:  appData,
 			Lpa:  lpa,
-			Form: chooseAttorneysSummaryForm{},
+			Form: &chooseAttorneysSummaryForm{},
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = chooseAttorneysSummaryForm{
-				AddAttorney: postFormString(r, "add-attorney"),
-			}
-
+			data.Form = readChooseAttorneysSummaryForm(r)
 			data.Errors = data.Form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.None() {
 				var redirectUrl string
 
 				if len(lpa.ReplacementAttorneys) > 1 && len(lpa.Attorneys) > 1 && lpa.HowAttorneysMakeDecisions == Jointly {

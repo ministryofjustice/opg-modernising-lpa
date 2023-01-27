@@ -1,5 +1,5 @@
 {{ define "date" }}
-  <div class="govuk-form-group {{ if index .top.Errors .name }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
+  <div class="govuk-form-group {{ if .top.Errors.Has .name }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
     <fieldset class="govuk-fieldset" role="group" aria-describedby="{{ .name }}-hint">
       <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">{{ tr .top.App .label }}</legend>
       {{ if .context }}
@@ -19,21 +19,21 @@
         <div class="govuk-date-input__item">
           <div class="govuk-form-group">
             <label class="govuk-label govuk-date-input__label" for="f-{{ .name }}">{{ tr .top.App "day" }}</label>
-            <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{ if index .top.Errors .name }}govuk-input--error{{ end }}" id="f-{{ .name }}" name="{{ .name }}-day" type="text" pattern="[0-9]*" inputmode="numeric" value="{{ .value.Day }}" />
+            <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{ if .top.Errors.Has .name }}govuk-input--error{{ end }}" id="f-{{ .name }}" name="{{ .name }}-day" type="text" pattern="[0-9]*" inputmode="numeric" value="{{ .value.Day }}" />
           </div>
         </div>
 
         <div class="govuk-date-input__item">
           <div class="govuk-form-group">
             <label class="govuk-label govuk-date-input__label" for="f-{{ .name }}-month">{{ tr .top.App "month" }}</label>
-            <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{ if index .top.Errors .name }}govuk-input--error{{ end }}" id="f-{{ .name }}-month" name="{{ .name }}-month" type="text" pattern="[0-9]*" inputmode="numeric" value="{{ .value.Month }}" />
+            <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{ if .top.Errors.Has .name }}govuk-input--error{{ end }}" id="f-{{ .name }}-month" name="{{ .name }}-month" type="text" pattern="[0-9]*" inputmode="numeric" value="{{ .value.Month }}" />
           </div>
         </div>
 
         <div class="govuk-date-input__item">
           <div class="govuk-form-group">
             <label class="govuk-label govuk-date-input__label" for="f-{{ .name }}-year">{{ tr .top.App "year" }}</label>
-            <input class="govuk-input govuk-date-input__input govuk-input--width-4 {{ if index .top.Errors .name }}govuk-input--error{{ end }}" id="f-{{ .name }}-year" name="{{ .name }}-year" type="text" pattern="[0-9]*" inputmode="numeric" value="{{ .value.Year }}" />
+            <input class="govuk-input govuk-date-input__input govuk-input--width-4 {{ if .top.Errors.Has .name }}govuk-input--error{{ end }}" id="f-{{ .name }}-year" name="{{ .name }}-year" type="text" pattern="[0-9]*" inputmode="numeric" value="{{ .value.Year }}" />
           </div>
         </div>
       </div>

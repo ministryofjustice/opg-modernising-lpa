@@ -15,10 +15,10 @@
 
             <p class="govuk-body">{{ tr .App "selectOneOrMoreOptions" }}</p>
 
-            <div class="govuk-form-group {{ if index .Errors "contact" }}govuk-form-group--error{{ end }}">
+            <div class="govuk-form-group {{ if .Errors.Has "contact" }}govuk-form-group--error{{ end }}">
               {{ template "error-message" (errorMessage . "contact") }}
 
-              <div class="govuk-checkboxes  {{ if index .Errors "contact" }}govuk-checkboxes--error{{ end }}" data-module="govuk-checkboxes">
+              <div class="govuk-checkboxes  {{ if .Errors.Has "contact" }}govuk-checkboxes--error{{ end }}" data-module="govuk-checkboxes">
                 <div class="govuk-checkboxes__item">
                   <input class="govuk-checkboxes__input" id="f-contact" name="contact" type="checkbox" value="email" {{ if contains "email" .Contact }}checked{{ end }}>
                   <label class="govuk-label govuk-checkboxes__label" for="f-contact">

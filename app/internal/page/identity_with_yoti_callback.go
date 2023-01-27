@@ -5,11 +5,12 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type identityWithYotiCallbackData struct {
 	App         AppData
-	Errors      map[string]string
+	Errors      validation.List
 	FullName    string
 	ConfirmedAt time.Time
 }
