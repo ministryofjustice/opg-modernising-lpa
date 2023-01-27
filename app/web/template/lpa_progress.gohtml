@@ -1,5 +1,12 @@
 {{ template "page" . }}
 
+{{ $lpaType := tr .App .Lpa.TypeLegalTermTransKey }}
+
+{{ define "pageTitle" }}
+    {{ $lpaType := tr .App .Lpa.TypeLegalTermTransKey }}
+    {{ trFormat .App "myLpa" "LpaType" $lpaType }}
+{{ end }}
+
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
