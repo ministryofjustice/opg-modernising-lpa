@@ -139,6 +139,8 @@
     "selectAddMoreAttorneys": "Dewiswch a ydych am ychwanegu rhagor o atwrneiod",
     "removeAnAttorney": "Dileu atwrnai",
     "doYouWantToRemove": "Ydych chi’n siŵr eich bod am ddileu {{ .FirstNames }} {{ .LastName }}?",
+    "doYouWantToRemovePersonToNotify": "Welsh",
+    "doYouWantToRemoveReplacementAttorney": "Welsh",
     "selectRemoveAttorney": "Dewiswch a ydych am ddileu’r atwrnai hwn",
 
     "whoWouldYouLikeToBeTheAttorneys": "Pwy hoffech chi ei ddewis fel eich atwrneiod?",
@@ -149,6 +151,8 @@
     "enterMobile": "Welsh",
     "emailIncorrectFormat": "Rhowch e-bost yn y fformat cywir, fel name@example.com",
     "attorneyAddress": "Cyfeiriad {{.FirstNames}} {{.LastName}}",
+    "attorneyAddressTitle": "Welsh",
+    "replacementAttorneyAddressTitle": "Welsh",
     "attorneyDateOfBirthIsUnder18": "Mae’r atwrnai hwn o dan 18 oed. Ni fyddwch yn gallu gorffen gwneud yr LPA hon nes eu bod yn 18.",
 
     "wantReplacementAttorneys": "Ydych chi eisiau unrhyw atwrneiod wrth gefn?",
@@ -200,17 +204,19 @@
     "selectWhenCanTheLpaBeUsed": "Dewiswch pryd gall yr LPA cael ei ddefnyddio",
 
     "restrictionsOnYourAttorneysPower": "Cyfyngu’r penderfyniadau y gall {{.AllAttorneysFirstNames}} eu gwneud",
-    "restrictionsOnYourAttorneysPowerContent": "<p class=\"govuk-body\">Mae’r adran ddewisol hon yn gadael i chi rhoi gwybodaeth ychwanegol ar gyfer eich atwrneiod, {{.AllAttorneysFirstNames}}, i arwain y penderfyniadau y gallant eu gwneud ar eich rhan. Rydym yn galw hyn yn ychwanegu ‘cyfyngiadau ac amodau’ at eich LPA.</p> <p class=\"govuk-body\">Bydd yr hyn rydych chi’n ei rhoi yma yn dweud wrth {{.AllAttorneysFirstNames}} pethau:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>rhaid peidio â gwneud (‘cyfyngiadau’)</li> <li>gallant dim ond gwneud mewn rhai amgylchiadau(‘amodau’)</li> </ul> <p class=\"govuk-body\">Nid oes rhaid i chi ychwanegu cyfyngiadau neu amodau at eich LPA. Efallai y byddai’n well gennych siarad â {{.AllAttorneysFirstNames}} am eich dymuniadau, yn hytrach na’u hysgrifennu yn eich LPA.</p> <p class=\"govuk-body\">Mae rheolau cyfreithiol ynghylch yr hyn y gallwch ac na allwch ddweud wrth eich atwrneiod i wneud, felly mae’n bwysig darllen ein <a href=\"#\">canllaw ar ysgrifennu cyfyngiadau ac amodau.</a></p>",
+    "restrictionsOnYourAttorneysPowerTitle": "Welsh",
+    "restrictionsOnYourAttorneysPowerContent": "<p class=\"govuk-body\">Mae'r adran ddewisol hon yn gadael i chi rhoi gwybodaeth ychwanegol ar gyfer eich atwrneiod, {{.AllAttorneysFirstNames}}, i arwain y penderfyniadau y gallant eu gwneud ar eich rhan. Rydym yn galw hyn yn ychwanegu 'cyfyngiadau ac amodau' at eich LPA.</p> <p class=\"govuk-body\">Bydd yr hyn rydych chi'n ei rhoi yma yn dweud wrth {{.AllAttorneysFirstNames}} pethau:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>rhaid peidio â gwneud ('cyfyngiadau')</li> <li>gallant dim ond gwneud mewn rhai amgylchiadau('amodau')</li> </ul> <p class=\"govuk-body\">Nid oes rhaid i chi ychwanegu cyfyngiadau neu amodau at eich LPA. Efallai y byddai'n well gennych siarad â {{.AllAttorneysFirstNames}} am eich dymuniadau, yn hytrach na'u hysgrifennu yn eich LPA.</p> <p class=\"govuk-body\">Mae rheolau cyfreithiol ynghylch yr hyn y gallwch ac na allwch ddweud wrth eich atwrneiod i wneud, felly mae'n bwysig darllen ein <a href=\"#\">canllaw ar ysgrifennu cyfyngiadau ac amodau.</a></p>",
     "restrictionExamples": "Dangoswch rai enghreifftiau i mi",
     "restrictionExamplesContent": "<h2 class=\"govuk-heading-s\">Cyfyngiadau enghreifftiol: pethau na ddylai’r atwrneiod eu gwneud</h2> <ul class=\"govuk-list govuk-list--bullet\"> <li>’Rhaid i fy atwrneiod beidio â gwerthu fy nghartref.’</li> </ul> <h2 class=\"govuk-heading-s\">Cyfyngiadau enghreifftiol: pethau y gall eich atwrneiod dim ond eu gwneud mewn rhai amgylchiadau</h2> <ul class=\"govuk-list govuk-list--bullet\"> <li>’Rhaid i’m hatwrneiod beidio â gwerthu fy nghartref oni bai, ym marn fy meddyg, na allaf fyw’n annibynnol mwyach.’</li> </ul>",
     "restrictions": "Cyfyngiadau ac amodau",
     "restrictionsHint": "Mae’n bwysig eich bod yn geirio unrhyw gyfyngiadau ac amodau yn glir ac yn ofalus.",
     "restrictionsTooLong": "Rhaid i gyfyngiadau fod yn 10,000 cymeriad neu lai",
 
-    "whoDoYouWantToBeCertificateProviderGuidanceIntro": "<h1 class=\"govuk-heading-xl\">Pwy hoffech ddewis fel eich darparwr tystysgrif?</h1> <p class=\"govuk-body\">Mae darparwr tystysgrif yn berson annibynnol sy’n siarad â chi i wneud yn siŵr eich bod yn deall eich LPA a’ch bod am ei gwneud.</p> <p class=\"govuk-body\">Mae’r rhan fwyaf o bobl yn dewis ffrind, cymydog neu gydweithiwr i fod yn ddarparwr tystysgrif iddynt.</p>",
-    "whatYourCertificateProviderHasToDo": "<h2 class=\"govuk-heading-m\">Beth sy’n rhaid i’ch darparwr tystysgrif ei wneud</h2> <p class=\"govuk-body\">Mae’n rhaid i’ch darparwr tystysgrif:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>darllen eich LPA unwaith y byddwch wedi gorffen ei gwneud</li> <li>cwrdd â chi mewn person i siarad am eich LPA yn breifat</li> <li>bod yn dyst i chi’n llofnodi’r LPA</li> </ul> <p class=\"govuk-body\">Yna byddwn yn gofyn i’ch darparwr tystysgrif:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>gadarnhau pwy ydyn nhw</li> <li>gadarnhau eu bod wedi trafod eich LPA gyda chi</li> <li>dweud wrthym os oes ganddynt unrhyw bryderon am eich LPA - er enghraifft, os ydynt yn meddwl bod rhywun yn rhoi pwysau arnoch i’w gwneud</li> </ul> <p class=\"govuk-body\">Rydym yn galw hyn yn ‘darparu tystysgrif’. Gallant wneud hyn gan ddefnyddio ein gwasanaeth ar-lein neu ffurflen bapur.</p> <p class=\"govuk-body\">Os bydd gennym unrhyw bryderon am eich LPA unrhyw bryd, efallai y byddwn yn gofyn i’ch darparwr tystysgrif ddweud mwy wrthym am eich sgwrs am eich LPA.</p>",
-    "whoToChooseAsYourCertificateProvider": "<h2 class=\"govuk-heading-m\">Pwy i’w ddewis fel eich darparwr tystysgrif</h2> <p class=\"govuk-body\">Gallwch ddewis naill ai:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>rhywun rydych yn ei adnabod yn dda ers o leiaf 2 flynedd, er enghraifft, ffrind neu gymydog (ond nid perthynas)</li> <li>meddyg, cyfreithiwr neu weithiwr proffesiynol arall sydd â’r sgiliau i wirio a ydych yn deall eich LPA</li> </ul> <p class=\"govuk-body\">Dewiswch rywun:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>gyda phwy rydych chi’n gyfforddus yn cael sgwrs agored ag onest</li> <li>fydd yn siarad ar eich rhan os ydyn nhw’n meddwl bod rhywbeth o’i le</li> </ul> <p class=\"govuk-body\">Bydd angen iddynt gael ffôn symudol eu hunain.</p>",
-    "whoCannotBeACertificateProvider": "<h2 class=\"govuk-heading-m\">Pwy na all fod yn ddarparwr tystysgrif</h2> <p class=\"govuk-body\">Ni all eich darparwr tystysgrif fod yn:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>berson dan 18 oed</li> <li>atwrnai ar eich LPA</li> <li>perthyn i chi neu {{ .AttorneysFirstNames }} (mae hyn yn cynnwys llys-berthnasau, perthnasau yng nghyfraith, gwŷr, gwragedd, partneriaid, a chariadon)</li> <li>partner busnes neu weithiwr i chi neu {{ .AttorneysFirstNames }}</li> <li>rhywun sy’n gweithio i gartref gofal lle rydych chi’n byw, neu eu perthynas</li> </ul>",
+    "whoDoYouWantToBeCertificateProviderGuidanceTitle": "Pwy hoffech ddewis fel eich darparwr tystysgrif?",
+    "whoDoYouWantToBeCertificateProviderGuidanceIntro": "<p class=\"govuk-body\">Mae darparwr tystysgrif yn berson annibynnol sy’n siarad â chi i wneud yn siŵr eich bod yn deall eich LPA a’ch bod am ei gwneud.</p> <p class=\"govuk-body\">Mae'r rhan fwyaf o bobl yn dewis ffrind, cymydog neu gydweithiwr i fod yn ddarparwr tystysgrif iddynt.</p>",
+    "whatYourCertificateProviderHasToDo": "<h2 class=\"govuk-heading-m\">Beth sy'n rhaid i’ch darparwr tystysgrif ei wneud</h2> <p class=\"govuk-body\">Mae'n rhaid i’ch darparwr tystysgrif:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>darllen eich LPA unwaith y byddwch wedi gorffen ei gwneud</li> <li>cwrdd â chi mewn person i siarad am eich LPA yn breifat</li> <li>bod yn dyst i chi’n llofnodi'r LPA</li> </ul> <p class=\"govuk-body\">Yna byddwn yn gofyn i’ch darparwr tystysgrif:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>gadarnhau pwy ydyn nhw</li> <li>gadarnhau eu bod wedi trafod eich LPA gyda chi</li> <li>dweud wrthym os oes ganddynt unrhyw bryderon am eich LPA - er enghraifft, os ydynt yn meddwl bod rhywun yn rhoi pwysau arnoch i'w gwneud</li> </ul> <p class=\"govuk-body\">Rydym yn galw hyn yn 'darparu tystysgrif'. Gallant wneud hyn gan ddefnyddio ein gwasanaeth ar-lein neu ffurflen bapur.</p> <p class=\"govuk-body\">Os bydd gennym unrhyw bryderon am eich LPA unrhyw bryd, efallai y byddwn yn gofyn i’ch darparwr tystysgrif ddweud mwy wrthym am eich sgwrs am eich LPA.</p>",
+    "whoToChooseAsYourCertificateProvider": "<h2 class=\"govuk-heading-m\">Pwy i'w ddewis fel eich darparwr tystysgrif</h2> <p class=\"govuk-body\">Gallwch ddewis naill ai:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>rhywun rydych yn ei adnabod yn dda ers o leiaf 2 flynedd, er enghraifft, ffrind neu gymydog (ond nid perthynas)</li> <li>meddyg, cyfreithiwr neu weithiwr proffesiynol arall sydd â'r sgiliau i wirio a ydych yn deall eich LPA</li> </ul> <p class=\"govuk-body\">Dewiswch rywun:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>gyda phwy rydych chi'n gyfforddus yn cael sgwrs agored ag onest</li> <li>fydd yn siarad ar eich rhan os ydyn nhw'n meddwl bod rhywbeth o'i le</li> </ul> <p class=\"govuk-body\">Bydd angen iddynt gael ffôn symudol eu hunain.</p>",
+    "whoCannotBeACertificateProvider": "<h2 class=\"govuk-heading-m\">Pwy na all fod yn ddarparwr tystysgrif</h2> <p class=\"govuk-body\">Ni all eich darparwr tystysgrif fod yn:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>berson dan 18 oed</li> <li>atwrnai ar eich LPA</li> <li>perthyn i chi neu {{ .AttorneysFirstNames }} (mae hyn yn cynnwys llys-berthnasau, perthnasau yng nghyfraith, gwŷr, gwragedd, partneriaid, a chariadon)</li> <li>partner busnes neu weithiwr i chi neu {{ .AttorneysFirstNames }}</li> <li>rhywun sy'n gweithio i gartref gofal lle rydych chi'n byw, neu eu perthynas</li> </ul>",
     "detailsYoullNeedAboutYourCertificateProvider": "<h2 class=\"govuk-heading-m\">Manylion bydd angen arnoch am eich darparwr tystysgrif</h2> <p class=\"govuk-body\">Bydd angen eu:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>enw llawn</li> <li>dyddiad Geni</li> <li>rhif ffôn symudol</li> <li>cyfeiriad e-bost neu bost</li> </ul> <p class=\"govuk-body\"><p class=\"govuk-body\"><a href=\"#\">Darganfyddwch fwy am ddarparwyr tystysgrifau, a phwy all gymryd y rôl ymlaen.</p>",
 
     "certificateProviderDetails": "Manylion eich darparwr tystysgrif",
@@ -228,6 +234,7 @@
     "dateOfBirthDay": "Welsh",
 
     "howWouldCertificateProviderPreferToCarryOutTheirRole": "{{.FirstNames}} Welsh",
+    "howWouldCertificateProviderPreferToCarryOutTheirRoleTitle": "Welsh",
     "selectHowWouldCertificateProviderPreferToCarryOutTheirRole": "Welsh",
     "selectOneOption": "Welsh",
     "onlineAndByEmail": "Welsh",
@@ -235,6 +242,7 @@
     "usingPaperForms": "Welsh",
     "certificateProvidersEmail": "Welsh",
     "certificateProviderAddress": "{{.FirstNames}} Welsh",
+    "certificateProviderAddressTitle": "Welsh",
 
     "aboutPayment": "Ynglŷn â thalu",
     "aboutPaymentContent": "<p class=\"govuk-body\">Mae’n costio £82 i wneud cais am LPA.</p>",
@@ -245,8 +253,9 @@
     "qualifyingForReduction": "Dysgwch fwy am gymhwyso ar gyfer gostyngiad",
     "continueToPayment": "Parhau i dalu",
 
-    "howDoYouKnowYourCertificateProvider": "Sut ydych chi’n nabod {{.FirstNames}} {{.LastName}}, eich darparwr tystysgrif? ",
-    "pleaseDescribe": "Eglurwch yn gryno sut rydych chi’n nabod {{.FirstNames}} {{.LastName}}",
+    "howDoYouKnowYourCertificateProvider": "Sut ydych chi'n nabod {{.FirstNames}} {{.LastName}}, eich darparwr tystysgrif?",
+    "howDoYouKnowYourCertificateProviderTitle": "Welsh",
+    "pleaseDescribe": "Eglurwch yn gryno sut rydych chi'n nabod {{.FirstNames}} {{.LastName}}",
     "friend": "Ffrind",
     "neighbour": "Cymydog",
     "colleague": "Cydweithiwr",
@@ -258,6 +267,7 @@
     "enterDescription": "Rhowch ddisgrifiad",
 
     "howLongHaveYouKnownCertificateProvider": "Ers pryd ydych chi wedi nabod {{.FirstNames}} {{.LastName}}?",
+    "howLongHaveYouKnownCertificateProviderTitle": "Welsh",
     "twoYearsOrMore": "2 flynedd neu fwy",
     "lessThanTwoYears": "Llai na 2 flynedd",
     "mustHaveKnownCertificateProviderTwoYears": "Mae’n rhaid eich bod wedi adnabod eich darparwr tystysgrif nad yw’n broffesiynol ers 2 flynedd neu fwy",
@@ -327,7 +337,7 @@
     "enterCorrectSignatureCode": "Rhowch y cod llofnod a gawsoch",
     "continueToSigningPage": "Parhau i’r dudalen arwyddo",
 
-    "witnessingAsCPHeader": "<h1 class=\"govuk-heading-xl\">Tystio fel darparwr tystysgrif</h1>",
+    "witnessingAsCP": "Tystio fel darparwr tystysgrif",
     "enterUniqueCodeLabel": "Rhowch eich cod unigryw",
     "enterUniqueCodeHint": "{{ .CpFirstName }}, teipiwch y cod rydym wedi anfon i chi, i brofi eich bod gyda {{ .DonorFullName }} a’ch bod wedi’u gweld yn llofnodi’r LPA.",
     "cpNotReceivedCodeLink": "<p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">Nid yw {{ .CpFirstName }} wedi derbyn neges destun gyda’r cod</a></p>",
@@ -337,11 +347,11 @@
     "witnessCodeTooLong": "Mae’r cod a roesoch yn rhy hir",
     "witnessCodeTooShort": "Mae’r cod a roesoch yn rhy fyr",
 
-    "submittedLpaHeader": "<h1 class=\"govuk-panel__title\">Rydych chi wedi cyflwyno’ch LPA</h1>",
-    "whatHappensNextSubHeader": "<h2 class=\"govuk-heading-m\">Beth sy’n digwydd nesaf</h2>",
-    "nextStepsList": "<ol class=\"govuk-list govuk-list--number govuk-list--spaced\"><li>Byddwn yn cysylltu â {{ .CpFirstNames }} ac yn gofyn iddynt gadarnhau pwy ydyn nhw. Mae hefyd angen iddynt lofnodi’r LPA i gadarnhau eu bod wedi ei drafod gyda chi. Rydym yn galw hyn yn ‘darparu tystysgrif’.</li><li>Yna byddwn yn cysylltu â {{ .AttorneysFullNames }} ac yn gofyn iddynt lofnodi’r LPA fel eich atwrneiod.</li><li>Unwaith y bydd yr atwrneiod wedi llofnodi, bydd eich LPA yn cael ei ddanfon yn awtomatig atom ni i gael ei gwirio a’i chofrestru. Os byddwn yn dod o hyd i unrhyw broblemau gyda’r LPA, byddwn yn cysylltu â chi.</li><li>Mae’r gyfraith yn dweud bod yn rhaid i ni aros 4 wythnos cyn cofrestru’r LPA. Mae hyn rhag ofn bod unrhyw un am wrthwynebu cofrestriad yr LPA.</li><li>Byddwn yn cofrestru’r LPA.</li></ol>",
-    "weWillEmailYou": "<p class=\"govuk-body\">Byddwn yn eich e-bostio bob cam i roi’r wybodaeth ddiweddaraf i chi am gynnydd cofrestriad eich LPA. Gallwch hefyd olrhain y cynnydd trwy fewngofnodi i’r gwasanaeth hwn.</p>",
-    "signIn4WeeksWarning": "Rhaid i {{ .CpFirstNames }} a’ch atwrneiod lofnodi’r LPA erbyn {{ .AttorneysAndCpSigningDeadline }}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â { { .CpFirstNames }} a llofnodi’ch LPA eto.",
+    "submittedYourLpa": "Rydych chi wedi cyflwyno'ch LPA",
+    "whatHappensNext": "Beth sy'n digwydd nesaf",
+    "nextStepsList": "<ol class=\"govuk-list govuk-list--number govuk-list--spaced\"><li>Byddwn yn cysylltu â {{ .CpFirstNames }} ac yn gofyn iddynt gadarnhau pwy ydyn nhw. Mae hefyd angen iddynt lofnodi'r LPA i gadarnhau eu bod wedi ei drafod gyda chi. Rydym yn galw hyn yn 'darparu tystysgrif'.</li><li>Yna byddwn yn cysylltu â {{ .AttorneysFullNames }} ac yn gofyn iddynt lofnodi'r LPA fel eich atwrneiod.</li><li>Unwaith y bydd yr atwrneiod wedi llofnodi, bydd eich LPA yn cael ei ddanfon yn awtomatig atom ni i gael ei gwirio a’i chofrestru. Os byddwn yn dod o hyd i unrhyw broblemau gyda'r LPA, byddwn yn cysylltu â chi.</li><li>Mae’r gyfraith yn dweud bod yn rhaid i ni aros 4 wythnos cyn cofrestru’r LPA. Mae hyn rhag ofn bod unrhyw un am wrthwynebu cofrestriad yr LPA.</li><li>Byddwn yn cofrestru'r LPA.</li></ol>",
+    "weWillEmailYou": "<p class=\"govuk-body\">Byddwn yn eich e-bostio bob cam i roi'r wybodaeth ddiweddaraf i chi am gynnydd cofrestriad eich LPA. Gallwch hefyd olrhain y cynnydd trwy fewngofnodi i'r gwasanaeth hwn.</p>",
+    "signIn4WeeksWarning": "Rhaid i {{ .CpFirstNames }} a’ch atwrneiod lofnodi’r LPA erbyn {{ .AttorneysAndCpSigningDeadline }}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â { { .CpFirstNames }} a llofnodi'ch LPA eto.",
 
     "signYourLpa": "Llofnodwch eich LPA",
     "signYourLpaHeader": "<h2 class=\"govuk-heading-m\">Mae llofnodi’r LPA yn gam cyfreithiol pwysig a phwerus.</h2>",
@@ -365,8 +375,8 @@
     "submitSignature": "Cyflwyno fy llofnod",
     "selectBothBoxes": "Rhaid i chi ddewis y ddau flwch i lofnodi eich LPA",
 
-    "witnessYourSignatureHeader": "<h1 class=\"govuk-heading-xl\">Tystio eich llofnod</h1>",
-    "witnessYourSignatureContent": "<p class=\"govuk-body govuk-!-font-weight-bold\">Nawr mae angen arnom i {{ .CpFullName }}, eich darparwr tystysgrif i gadarnhau eu bod gyda chi a’u bod wedi eich gweld yn llofnodi’ch LPA.</p> <ol class=\"govuk-list govuk-list--number govuk-list--spaced\"> <li>Pan fyddwch yn pwyso parhau, byddwn yn anfon neges destun at {{ .CpFirstNames }} yn cynnwys cod unigryw</li> <li>Bydd angen i {{ .CpFirstNames }} deipio’r cod hwn ar y sgrin nesaf</li> </ol>",
+    "witnessYourSignature": "Tystio eich llofnod",
+    "witnessYourSignatureContent": "<p class=\"govuk-body govuk-!-font-weight-bold\">Nawr mae angen arnom i {{ .CpFullName }}, eich darparwr tystysgrif i gadarnhau eu bod gyda chi a'u bod wedi eich gweld yn llofnodi'ch LPA.</p> <ol class=\"govuk-list govuk-list--number govuk-list--spaced\"> <li>Pan fyddwch yn pwyso parhau, byddwn yn anfon neges destun at {{ .CpFirstNames }} yn cynnwys cod unigryw</li> <li>Bydd angen i {{ .CpFirstNames }} deipio'r cod hwn ar y sgrin nesaf</li> </ol>",
     "witnessCodeTimeWarning": "Pan fydd {{ .CpFirstNames }} yn derbyn y cod unigryw hwn, bydd yn dod i ben ar ôl 30 munud. Defnyddiwch y cod o fewn yr amser hwn.",
 
     "selectYourIdentityOptions": "Dewiswch eich opsiynau i brofi pwy ydych",
@@ -476,6 +486,7 @@
     "findOutMoreAboutPeopleToNotifyLink": "<p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">Welsh</a></p>",
     "whoWouldYouLikeNotify": "Ychwanegwch berson i’w hysbysu am eich LPA",
     "personToNotifyAddress": "Cyfeiriad {{.FirstNames}} {{.LastName}}",
+    "personToNotifyAddressTitle": "Welsh",
     "removePersonToNotifyButtonLink": "Welsh {{ .FirstNames }} {{ .LastName }}</span>",
     "doYouWantToAddAnotherPersonToNotify": "Ydych chi am ychwanegu person arall i’w hysbysu?",
     "weCanNotifyUpTo5PeopleContent": "<p class=\"govuk-body\">Welsh</p>",

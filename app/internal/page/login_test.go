@@ -10,16 +10,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type mockLoginClient struct {
-	mock.Mock
-}
-
-func (m *mockLoginClient) AuthCodeURL(state, nonce, locale string, identity bool) string {
-	args := m.Called(state, nonce, locale, identity)
-
-	return args.String(0)
-}
-
 type mockSessionsStore struct {
 	mock.Mock
 }
@@ -43,7 +33,7 @@ func TestLogin(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?locale=cy", nil)
 
-	client := &mockLoginClient{}
+	client := &mockOneLoginClient{}
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "cy", false).
 		Return("http://auth")
@@ -78,7 +68,7 @@ func TestLoginDefaultLocale(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	client := &mockLoginClient{}
+	client := &mockOneLoginClient{}
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "en", false).
 		Return("http://auth")
@@ -117,7 +107,7 @@ func TestLoginWhenStoreSaveError(t *testing.T) {
 	logger.
 		On("Print", expectedError)
 
-	client := &mockLoginClient{}
+	client := &mockOneLoginClient{}
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "en", false).
 		Return("http://auth?locale=en")

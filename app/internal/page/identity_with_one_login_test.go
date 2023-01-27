@@ -14,7 +14,7 @@ func TestIdentityWithOneLogin(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	client := &mockLoginClient{}
+	client := &mockOneLoginClient{}
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "cy", true).
 		Return("http://auth")
@@ -54,7 +54,7 @@ func TestIdentityWithOneLoginWhenStoreSaveError(t *testing.T) {
 	logger.
 		On("Print", expectedError)
 
-	client := &mockLoginClient{}
+	client := &mockOneLoginClient{}
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "", true).
 		Return("http://auth?locale=en")

@@ -1,27 +1,28 @@
 {{ template "page" . }}
 
+{{ define "pageTitle" }}{{ tr .App "doYouWantToRemoveReplacementAttorney" }}{{ end }}
+
 {{ define "main" }}
-<div class="govuk-grid-row">
+  <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-xl">{{ trFormat .App "doYouWantToRemove" "FirstNames" .Attorney.FirstNames "LastName" .Attorney.LastName }}</h1>
+      <h1 class="govuk-heading-xl">{{ trFormat .App "doYouWantToRemove" "FirstNames" .Attorney.FirstNames "LastName" .Attorney.LastName }}</h1>
 
-        <form novalidate method="post">
-            <div class="govuk-form-group">
-                <div class="govuk-form-group {{ if index .Errors "remove-attorney" }}govuk-form-group--error{{ end }}">
-                    {{ template "error-message" (errorMessage . "remove-attorney") }}
+      <form novalidate method="post">
+        <div class="govuk-form-group">
+          <div class="govuk-form-group {{ if index .Errors "remove-attorney" }}govuk-form-group--error{{ end }}">
+            {{ template "error-message" (errorMessage . "remove-attorney") }}
 
-                    {{ template "radios" (items . "remove-attorney" ""
-                    (item "yes" "yes")
-                    (item "no" "no")
-                    ) }}
-                </div>
-            </div>
+            {{ template "radios" (items . "remove-attorney" ""
+              (item "yes" "yes")
+              (item "no" "no")
+            ) }}
+          </div>
+        </div>
 
-            <div class="govuk-button-group">
-                {{ template "continue-button" . }}
-            </div>
-        </form>
-
+        <div class="govuk-button-group">
+          {{ template "continue-button" . }}
+        </div>
+      </form>
     </div>
-</div>
+  </div>
 {{ end }}

@@ -1,32 +1,34 @@
 {{ template "page" . }}
 
+{{ define "pageTitle" }}{{ tr .App "yourIdentityConfirmedWithYoti" }}{{ end }}
+
 {{ define "main" }}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ tr .App "yourIdentityConfirmedWithYoti" }}</h1>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "yourIdentityConfirmedWithYoti" }}</h1>
 
-            <dl class="govuk-summary-list">
-              <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                  Full Name
-                </dt>
-                <dd class="govuk-summary-list__value">
-                  {{ .FullName }}
-                </dd>
-              </div>
-              <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                  Confirmed at
-                </dt>
-                <dd class="govuk-summary-list__value">
-                  {{ formatDateTime .ConfirmedAt }}
-                </dd>
-              </div>
-            </dl>
-
-            <form novalidate method="post">
-              {{ template "continue-button" . }}
-            </form>
+      <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            Full Name
+          </dt>
+          <dd class="govuk-summary-list__value">
+            {{ .FullName }}
+          </dd>
         </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            Confirmed at
+          </dt>
+          <dd class="govuk-summary-list__value">
+            {{ formatDateTime .ConfirmedAt }}
+          </dd>
+        </div>
+      </dl>
+
+      <form novalidate method="post">
+        {{ template "continue-button" . }}
+      </form>
     </div>
+  </div>
 {{ end }}

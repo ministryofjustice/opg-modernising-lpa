@@ -1,28 +1,30 @@
 {{ template "page" . }}
 
-{{ define "main" }}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ tr .App "identifyYourselfWithYoti" }}</h1>
+{{ define "pageTitle" }}{{ tr .App "identifyYourselfWithYoti" }}{{ end }}
 
-            <div id="yoti-rendered"></div>
-            <script src="https://www.yoti.com/share/client/"></script>
-            <script>
-              window.Yoti.Share.init({
-                elements: [
-                  {
-                    domId: "yoti-rendered",
-                    scenarioId: "{{ .ScenarioID }}",
-                    clientSdkId: "{{ .ClientSdkID }}",
-                    displayLearnMoreLink: true,
-                    type: "inline",
-                    qr: {
-                      title: "{{ tr .App "scanWithTheYotiApp" }}"
-                    }
-                  }
-                ]
-              });
-            </script>
-        </div>
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "identifyYourselfWithYoti" }}</h1>
+
+      <div id="yoti-rendered"></div>
+      <script src="https://www.yoti.com/share/client/"></script>
+      <script>
+        window.Yoti.Share.init({
+          elements: [
+            {
+              domId: "yoti-rendered",
+              scenarioId: "{{ .ScenarioID }}",
+              clientSdkId: "{{ .ClientSdkID }}",
+              displayLearnMoreLink: true,
+              type: "inline",
+              qr: {
+                title: "{{ tr .App "scanWithTheYotiApp" }}"
+              }
+            }
+          ]
+        });
+      </script>
     </div>
+  </div>
 {{ end }}
