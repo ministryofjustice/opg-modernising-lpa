@@ -144,9 +144,9 @@
     "enterEmail": "Enter email",
     "emailIncorrectFormat": "Enter email in the correct format, like name@example.com",
     "enterMobile": "Enter mobile phone number",
-    "attorneyAddress": "{{.FirstNames}} {{.LastName}}'s address",
-    "attorneyAddressTitle": "Attorney's address",
-    "replacementAttorneyAddressTitle": "Replacement attorney's address",
+    "attorneyAddress": "{{.FirstNames}} {{.LastName}}’s address",
+    "attorneyAddressTitle": "Attorney’s address",
+    "replacementAttorneyAddressTitle": "Replacement attorney’s address",
     "attorneyDateOfBirthIsUnder18": "This attorney is under 18 years old. You will not be able to finish making this LPA until they are 18.",
 
     "wantReplacementAttorneys": "Do you want any replacement attorneys?",
@@ -186,7 +186,7 @@
 
     "restrictionsOnYourAttorneysPower": "Restrict the decisions {{.AllAttorneysFirstNames}} can make",
     "restrictionsOnYourAttorneysPowerTitle": "Restrict the decisions your attorneys can make",
-    "restrictionsOnYourAttorneysPowerContent": "<p class=\"govuk-body\">This optional section lets you add extra information for your attorneys, {{.AllAttorneysFirstNames}}, to guide the decisions they can make on your behalf. We call this adding 'restrictions and conditions' to your LPA.</p> <p class=\"govuk-body\">What you say here will tell {{.AllAttorneysFirstNames}} things they:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>must not do ('restrictions')</li> <li>can only do in certain circumstances ('conditions')</li> </ul> <p class=\"govuk-body\">You do not have to add restrictions or conditions to your LPA. You may prefer to talk to {{.AllAttorneysFirstNames}} about your wishes, rather than writing them into your LPA.</p> <p class=\"govuk-body\">There are legal rules about what you can and cannot tell your attorneys to do, so it's important to read our <a href=\"#\">guidance on writing restrictions and conditions.</a></p>",
+    "restrictionsOnYourAttorneysPowerContent": "<p class=\"govuk-body\">This optional section lets you add extra information for your attorneys, {{.AllAttorneysFirstNames}}, to guide the decisions they can make on your behalf. We call this adding ‘restrictions and conditions’ to your LPA.</p> <p class=\"govuk-body\">What you say here will tell {{.AllAttorneysFirstNames}} things they:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>must not do (‘restrictions’)</li> <li>can only do in certain circumstances (‘conditions’)</li> </ul> <p class=\"govuk-body\">You do not have to add restrictions or conditions to your LPA. You may prefer to talk to {{.AllAttorneysFirstNames}} about your wishes, rather than writing them into your LPA.</p> <p class=\"govuk-body\">There are legal rules about what you can and cannot tell your attorneys to do, so it’s important to read our <a href=\"#\">guidance on writing restrictions and conditions.</a></p>",
     "restrictionExamples": "Show me some examples",
     "restrictionExamplesContent": "<h2 class=\"govuk-heading-s\">Example restrictions: things the attorneys must not do</h2> <ul class=\"govuk-list govuk-list--bullet\"> <li>’My attorneys must not sell my home.’</li> </ul> <h2 class=\"govuk-heading-s\">Example restrictions: things your attorneys can only do in certain circumstances</h2> <ul class=\"govuk-list govuk-list--bullet\"> <li>’My attorneys must not sell my home unless, in my doctor’s opinion, I can no longer live independently.’</li> </ul>",
     "restrictions": "Restrictions and conditions",
@@ -195,7 +195,7 @@
 
     "whoDoYouWantToBeCertificateProviderGuidanceTitle": "Who do you want to be your certificate provider?",
     "whoDoYouWantToBeCertificateProviderGuidanceIntro": "<p class=\"govuk-body\">A certificate provider is an independent person who talks to you to check you understand your LPA and want to make it.</p> <p class=\"govuk-body\">Most people choose a friend, neighbour or colleague to be their certificate provider.</p>",
-    "whatYourCertificateProviderHasToDo": "<h2 class=\"govuk-heading-m\">What your certificate provider has to do</h2> <p class=\"govuk-body\">Your certificate provider has to:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>read your LPA once you've finished making it</li> <li>meet you in person to talk about your LPA in private</li> <li>witness you signing your LPA</li> </ul> <p class=\"govuk-body\">We’ll then ask your certificate provider to:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>confirm their identity</li> <li>confirm they’ve discussed your LPA with you</li> <li>tell us if they have any concerns about your LPA - for example, if they think someone is pressuring you to make it</li> </ul> <p class=\"govuk-body\">We call this 'providing a certificate'. They can do this using our online service or a paper form.</p> <p class=\"govuk-body\">If we ever have any concerns about your LPA, we may ask your certificate provider to tell us more about the conversation they had with you.</p>",
+    "whatYourCertificateProviderHasToDo": "<h2 class=\"govuk-heading-m\">What your certificate provider has to do</h2> <p class=\"govuk-body\">Your certificate provider has to:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>read your LPA once you’ve finished making it</li> <li>meet you in person to talk about your LPA in private</li> <li>witness you signing your LPA</li> </ul> <p class=\"govuk-body\">We’ll then ask your certificate provider to:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>confirm their identity</li> <li>confirm they’ve discussed your LPA with you</li> <li>tell us if they have any concerns about your LPA - for example, if they think someone is pressuring you to make it</li> </ul> <p class=\"govuk-body\">We call this ‘providing a certificate’. They can do this using our online service or a paper form.</p> <p class=\"govuk-body\">If we ever have any concerns about your LPA, we may ask your certificate provider to tell us more about the conversation they had with you.</p>",
     "whoToChooseAsYourCertificateProvider": "<h2 class=\"govuk-heading-m\">Who to choose as your certificate provider</h2> <p class=\"govuk-body\">You can choose either:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>someone you’ve known well for at least 2 years, for example, a friend or neighbour (but not a relative)</li> <li>a doctor, lawyer or another professional with the skills to check whether you understand your LPA</li> </ul> <p class=\"govuk-body\">Choose someone:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>you’re comfortable having an open, honest conversation with</li> <li>who will speak up if they think something is wrong</li> </ul> <p class=\"govuk-body\">They’ll need to have their own mobile phone.</p>",
     "whoCannotBeACertificateProvider": "<h2 class=\"govuk-heading-m\">Who cannot be a certificate provider</h2> <p class=\"govuk-body\">Your certificate provider cannot be:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>under 18 years old</li> <li>an attorney on your LPA</li> <li>related to you or {{ .AttorneysFirstNames }} (this includes step-relations, in-laws, husbands, wives, partners, boyfriends and girlfriends)</li> <li>a business partner or employee of you or {{ .AttorneysFirstNames }}</li> <li>someone who works for a care home where you live, or their relative</li> </ul>",
     "detailsYoullNeedAboutYourCertificateProvider": "<h2 class=\"govuk-heading-m\">Details you’ll need about your certificate provider</h2> <p class=\"govuk-body\">You’ll need their:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>full name</li> <li>date of birth</li> <li>mobile phone number</li> <li>email or postal address</li> </ul> <p class=\"govuk-body\"><a href=\"#\">Find out more about certificate providers</a>, and who can and cannot take on the role.</p>",
@@ -221,9 +221,9 @@
     "onlineAndByEmail": "Online and by email",
     "onlineAndByEmailHint": "We can process your LPA application quicker if your certificate provider chooses this option.",
     "usingPaperForms": "Using paper forms",
-    "certificateProvidersEmail": "Certificate provider's email address",
-    "certificateProviderAddress": "{{.FirstNames}}'s address",
-    "certificateProviderAddressTitle": "Certificate provider's address",
+    "certificateProvidersEmail": "Certificate provider’s email address",
+    "certificateProviderAddress": "{{.FirstNames}}’s address",
+    "certificateProviderAddressTitle": "Certificate provider’s address",
 
     "aboutPayment": "About payment",
     "aboutPaymentContent": "<p class=\"govuk-body\">It costs £82 to apply for an LPA. </p>",
@@ -331,7 +331,7 @@
     "selectBothBoxes": "You must select both boxes to sign your LPA",
 
     "witnessYourSignature": "Witnessing your signature",
-    "witnessYourSignatureContent": "<p class=\"govuk-body govuk-!-font-weight-bold\">We now need {{ .CpFullName }}, your certificate provider to confirm that they are with you and have witnessed you signing your LPA.</p> <ol class=\"govuk-list govuk-list--number govuk-list--spaced\"> <li>When you press continue, we'll send {{ .CpFirstNames }} a text message containing a unique code</li> <li>{{ .CpFirstNames }} will need to type in this code on the next screen</li> </ol>",
+    "witnessYourSignatureContent": "<p class=\"govuk-body govuk-!-font-weight-bold\">We now need {{ .CpFullName }}, your certificate provider to confirm that they are with you and have witnessed you signing your LPA.</p> <ol class=\"govuk-list govuk-list--number govuk-list--spaced\"> <li>When you press continue, we’ll send {{ .CpFirstNames }} a text message containing a unique code</li> <li>{{ .CpFirstNames }} will need to type in this code on the next screen</li> </ol>",
     "witnessCodeTimeWarning": "When {{ .CpFirstNames }} receives this code, it is valid for 30 minutes. Please use the code within this time.",
 
     "selectYourIdentityOptions": "Select how you will confirm your identity",
@@ -376,10 +376,10 @@
     "witnessCodeTooLong": "The code you entered is too long",
     "witnessCodeTooShort": "The code you entered is too short",
 
-    "submittedYourLpa": "You've submitted your LPA",
+    "submittedYourLpa": "You’ve submitted your LPA",
     "whatHappensNext": "What happens next",
-    "nextStepsList": "<ol class=\"govuk-list govuk-list--number govuk-list--spaced\"><li>We'll contact {{ .CpFirstNames }} and ask them to confirm their identity. They also need to sign your LPA to confirm they've discussed it with you. We call this 'providing a certificate'.</li><li>We'll then contact {{ .AttorneysFullNames }} and ask them to sign your LPA as your attorneys.</li><li>Once the attorneys have signed, your LPA will automatically be sent to us to be checked and registered. If we find any problems with your LPA, we'll contact you.</li><li>The law says we then have to wait 4 weeks before registering your LPA. This is in case anyone wants to object to your LPA's registration.</li><li>We'll register your LPA.</li></ol>",
-    "weWillEmailYou": "<p class=\"govuk-body\">We'll email you at each step to update you with the progress of your LPA's registration. You can also track progress by logging into this service.</p>",
+    "nextStepsList": "<ol class=\"govuk-list govuk-list--number govuk-list--spaced\"><li>We’ll contact {{ .CpFirstNames }} and ask them to confirm their identity. They also need to sign your LPA to confirm they’ve discussed it with you. We call this ‘providing a certificate’.</li><li>We’ll then contact {{ .AttorneysFullNames }} and ask them to sign your LPA as your attorneys.</li><li>Once the attorneys have signed, your LPA will automatically be sent to us to be checked and registered. If we find any problems with your LPA, we’ll contact you.</li><li>The law says we then have to wait 4 weeks before registering your LPA. This is in case anyone wants to object to your LPA’s registration.</li><li>We’ll register your LPA.</li></ol>",
+    "weWillEmailYou": "<p class=\"govuk-body\">We’ll email you at each step to update you with the progress of your LPA’s registration. You can also track progress by logging into this service.</p>",
     "signIn4WeeksWarning": "{{ .CpFirstNames }} and your attorneys must sign your LPA by {{ .AttorneysAndCpSigningDeadline }}. If they do not sign by this date, you will have to meet with {{ .CpFirstNames }} and sign your LPA again.",
 
     "myLastingPowersOfAttorney": "My lasting powers of attorney",
@@ -452,8 +452,8 @@
     "jointlyForSomeSeverallyForOthersDescription": "that you want your attorneys to work together on some decisions but can make other decisions separately",
     "findOutMoreAboutPeopleToNotifyLink": "<p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">Find out more about people to notify (opens in a new tab).</a></p>",
     "whoWouldYouLikeNotify": "Add a person to notify about your LPA",
-    "personToNotifyAddress": "{{.FirstNames}} {{.LastName}}'s address",
-    "personToNotifyAddressTitle": "Person to notify's address",
+    "personToNotifyAddress": "{{.FirstNames}} {{.LastName}}’s address",
+    "personToNotifyAddressTitle": "Person to notify’s address",
     "weCanNotifyUpTo5PeopleContent": "<p class=\"govuk-body\">We can notify up to 5 people about your LPA on your behalf.</p>",
     "removePersonToNotifyButtonLink": "Remove {{ .FirstNames }} {{ .LastName }}",
     "doYouWantToAddAnotherPersonToNotify": "Do you want to add another person to notify?",
