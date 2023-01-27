@@ -170,7 +170,7 @@ func authorize() http.HandlerFunc {
 	}
 }
 
-func userInfo() http.HandlerFunc {
+func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userInfo := UserInfoResponse{
 			Sub:           randomString(12),
@@ -182,7 +182,23 @@ func userInfo() http.HandlerFunc {
 		}
 
 		if returnIdentity {
-			userInfo.CoreIdentityJWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1cm46ZmRjOmdvdi51azoyMDIyOjU2UDRDTXNHaF8wMllPbFdwZDhQQU9JLTJzVmxCMm5zTlU3bWNMWlloWXc9IiwiaXNzIjoiaHR0cHM6Ly9pZGVudGl0eS5pbnRlZ3JhdGlvbi5hY2NvdW50Lmdvdi51ay8iLCJuYmYiOjE1NDE0OTM3MjQsImlhdCI6MTU0MTQ5MzcyNCwiZXhwIjoxNTczMDI5NzIzLCJ2b3QiOiJQMiIsInZ0bSI6Imh0dHBzOi8vb2lkYy5pbnRlZ3JhdGlvbi5hY2NvdW50Lmdvdi51ay90cnVzdG1hcmsiLCJ2YyI6eyJ0eXBlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwiVmVyaWZpYWJsZUlkZW50aXR5Q3JlZGVudGlhbCJdLCJjcmVkZW50aWFsU3ViamVjdCI6eyJuYW1lIjpbeyJ2YWxpZEZyb20iOiIyMDIwLTAzLTAxIiwibmFtZVBhcnRzIjpbeyJ2YWx1ZSI6IkFsaWNlIiwidHlwZSI6IkdpdmVuTmFtZSJ9LHsidmFsdWUiOiJKYW5lIiwidHlwZSI6IkdpdmVuTmFtZSJ9LHsidmFsdWUiOiJMYXVyYSIsInR5cGUiOiJHaXZlbk5hbWUifSx7InZhbHVlIjoiRG9lIiwidHlwZSI6IkZhbWlseU5hbWUifV19LHsidmFsaWRVbnRpbCI6IjIwMjAtMDMtMDEiLCJuYW1lUGFydHMiOlt7InZhbHVlIjoiQWxpY2UiLCJ0eXBlIjoiR2l2ZW5OYW1lIn0seyJ2YWx1ZSI6IkphbmUiLCJ0eXBlIjoiR2l2ZW5OYW1lIn0seyJ2YWx1ZSI6IkxhdXJhIiwidHlwZSI6IkdpdmVuTmFtZSJ9LHsidmFsdWUiOiJP4oCZRG9ubmVsbCIsInR5cGUiOiJGYW1pbHlOYW1lIn1dfV0sImJpcnRoRGF0ZSI6W3sidmFsdWUiOiIxOTcwLTAxLTAxIn1dfX19.3CEgaXD9em-n0B4qSzuLdRqmLblL8OwSo-IER_LnyEw"
+			userInfo.CoreIdentityJWT, _ = jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+				"iat": time.Now().Add(-time.Minute).Unix(),
+				"vc": map[string]any{
+					"type": []string{},
+					"credentialSubject": map[string]any{
+						"name": []map[string]any{
+							{
+								"validFrom": "2000-01-01",
+								"nameParts": []map[string]any{
+									{"type": "GivenName", "value": "John"},
+									{"type": "FamilyName", "value": "Doe"},
+								},
+							},
+						},
+					},
+				},
+			}).SignedString(privateKey)
 		}
 
 		json.NewEncoder(w).Encode(userInfo)
@@ -200,11 +216,14 @@ func main() {
 		JwksURI:               internalURL + "/.well-known/jwks",
 	}
 
+	privateKeyBytes, _ := base64.StdEncoding.DecodeString("LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tCk1IY0NBUUVFSVBheDJBYW92aXlQWDF3cndmS2FWckxEOHdQbkpJcUlicTMzZm8rWHdBZDdvQW9HQ0NxR1NNNDkKQXdFSG9VUURRZ0FFSlEyVmtpZWtzNW9rSTIxY1Jma0FhOXVxN0t4TTZtMmpaWUJ4cHJsVVdCWkNFZnhxMjdwVQp0Qzd5aXplVlRiZUVqUnlJaStYalhPQjFBbDhPbHFtaXJnPT0KLS0tLS1FTkQgRUMgUFJJVkFURSBLRVktLS0tLQo=")
+	privateKey, _ := jwt.ParseECPrivateKeyFromPEM(privateKeyBytes)
+
 	http.HandleFunc("/.well-known/openid-configuration", openIDConfig(c))
 	http.HandleFunc("/.well-known/jwks", jwks())
 	http.HandleFunc("/authorize", authorize())
 	http.HandleFunc("/token", token(clientId, c.Issuer))
-	http.HandleFunc("/userinfo", userInfo())
+	http.HandleFunc("/userinfo", userInfo(privateKey))
 
 	log.Println("GOV UK Sign in mock initialized")
 

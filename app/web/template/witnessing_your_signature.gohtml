@@ -1,20 +1,22 @@
 {{ template "page" . }}
 
+{{ define "pageTitle" }}{{ tr .App "witnessYourSignatureHeader" }}{{ end }}
+
 {{ define "main" }}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            {{ trHtml .App "witnessYourSignatureHeader" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "witnessYourSignatureHeader" }}</h1>
 
-            {{ trFormatHtml .App "witnessYourSignatureContent" "CpFullName" .Lpa.CertificateProviderFullName "CpFirstNames" .Lpa.CertificateProvider.FirstNames }}
+      {{ trFormatHtml .App "witnessYourSignatureContent" "CpFullName" .Lpa.CertificateProviderFullName "CpFirstNames" .Lpa.CertificateProvider.FirstNames }}
 
-            {{ $warningContent := trFormat .App "witnessCodeTimeWarning" "CpFirstNames" .Lpa.CertificateProvider.FirstNames }}
-            {{ template "warning" (warning .App $warningContent)  }}
+      {{ $warningContent := trFormat .App "witnessCodeTimeWarning" "CpFirstNames" .Lpa.CertificateProvider.FirstNames }}
+      {{ template "warning" (warning .App $warningContent)  }}
 
-            <form novalidate method="post">
-                <div class="govuk-button-group">
-                    {{ template "continue-button" . }}
-                </div>
-            </form>
+      <form novalidate method="post">
+        <div class="govuk-button-group">
+          {{ template "continue-button" . }}
         </div>
+      </form>
     </div>
+  </div>
 {{ end }}

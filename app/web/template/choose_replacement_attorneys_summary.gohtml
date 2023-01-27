@@ -1,34 +1,35 @@
 {{ template "page" . }}
 
+{{ define "pageTitle" }}{{ trCount .App "replacementAttorneysAdded" (len .Lpa.ReplacementAttorneys) }}{{ end }}
+
 {{ define "main" }}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ trCount .App "replacementAttorneysAdded" (len .Lpa.ReplacementAttorneys) }}</h1>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ trCount .App "replacementAttorneysAdded" (len .Lpa.ReplacementAttorneys) }}</h1>
 
             {{ $showHeaders := not (eq .Lpa.Tasks.CheckYourLpa.String "completed") }}
             {{ template "attorney-summary" (listAttorneys .Lpa.ReplacementAttorneys .App "replacement" $showHeaders .Lpa) }}
 
-            <form novalidate method="post">
-                <div class="govuk-form-group">
-                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                        {{ tr .App "doYouWantToAddAnotherReplacementAttorney" }}
-                    </legend>
+      <form novalidate method="post">
+        <div class="govuk-form-group">
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+            {{ tr .App "doYouWantToAddAnotherReplacementAttorney" }}
+          </legend>
 
-                    <div class="govuk-form-group {{ if index .Errors "add-attorney" }}govuk-form-group--error{{ end }}">
-                        {{ template "error-message" (errorMessage . "add-attorney") }}
+          <div class="govuk-form-group {{ if index .Errors "add-attorney" }}govuk-form-group--error{{ end }}">
+            {{ template "error-message" (errorMessage . "add-attorney") }}
 
-                        {{ template "radios" (items . "add-attorney" ""
-                        (item "yes" "yes")
-                        (item "no" "no")
-                        ) }}
-                    </div>
-                </div>
-
-                <div class="govuk-button-group">
-                    {{ template "continue-button" . }}
-                </div>
-            </form>
-
+            {{ template "radios" (items . "add-attorney" ""
+              (item "yes" "yes")
+              (item "no" "no")
+            ) }}
+          </div>
         </div>
+
+        <div class="govuk-button-group">
+          {{ template "continue-button" . }}
+        </div>
+      </form>
     </div>
+  </div>
 {{ end }}
