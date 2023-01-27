@@ -28,7 +28,7 @@
               {{ tr .App "doYouWantToAddAnotherPersonToNotify" }}
             </legend>
 
-            <div class="govuk-form-group {{ if index .Errors "add-person-to-notify" }}govuk-form-group--error{{ end }}">
+            <div class="govuk-form-group {{ if .Errors.Has "add-person-to-notify" }}govuk-form-group--error{{ end }}">
               {{ template "error-message" (errorMessage . "add-person-to-notify") }}
 
               {{ template "radios" (items . "add-person-to-notify" ""

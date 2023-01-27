@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -339,7 +340,7 @@ func TestPostChooseAttorneysWhenInputRequired(t *testing.T) {
 				"date-of-birth-year":  {"1990"},
 			},
 			dataMatcher: func(t *testing.T, data *chooseAttorneysData) bool {
-				return assert.Equal(t, map[string]string{"first-names": "enterFirstNames"}, data.Errors)
+				return assert.Equal(t, validation.With("first-names", "enterFirstNames"), data.Errors)
 			},
 		},
 		"dob warning": {
@@ -473,7 +474,7 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 
 	testCases := map[string]struct {
 		form   *chooseAttorneysForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"valid": {
 			form: &chooseAttorneysForm{
@@ -487,7 +488,6 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 				},
 				DateOfBirth: validDob,
 			},
-			errors: map[string]string{},
 		},
 		"max length": {
 			form: &chooseAttorneysForm{
@@ -501,16 +501,14 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 				},
 				DateOfBirth: validDob,
 			},
-			errors: map[string]string{},
 		},
 		"missing all": {
 			form: &chooseAttorneysForm{},
-			errors: map[string]string{
-				"first-names":   "enterFirstNames",
-				"last-name":     "enterLastName",
-				"date-of-birth": "enterDateOfBirth",
-				"email":         "enterEmail",
-			},
+			errors: validation.
+				With("first-names", "enterFirstNames").
+				With("last-name", "enterLastName").
+				With("email", "enterEmail").
+				With("date-of-birth", "enterDateOfBirth"),
 		},
 		"too long": {
 			form: &chooseAttorneysForm{
@@ -524,10 +522,9 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 				},
 				DateOfBirth: validDob,
 			},
-			errors: map[string]string{
-				"first-names": "firstNamesTooLong",
-				"last-name":   "lastNameTooLong",
-			},
+			errors: validation.
+				With("first-names", "firstNamesTooLong").
+				With("last-name", "lastNameTooLong"),
 		},
 		"future dob": {
 			form: &chooseAttorneysForm{
@@ -541,9 +538,7 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 				},
 				DateOfBirth: now.AddDate(0, 0, 1),
 			},
-			errors: map[string]string{
-				"date-of-birth": "dateOfBirthIsFuture",
-			},
+			errors: validation.With("date-of-birth", "dateOfBirthIsFuture"),
 		},
 		"invalid dob": {
 			form: &chooseAttorneysForm{
@@ -557,9 +552,7 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 				},
 				DateOfBirthError: expectedError,
 			},
-			errors: map[string]string{
-				"date-of-birth": "dateOfBirthMustBeReal",
-			},
+			errors: validation.With("date-of-birth", "dateOfBirthMustBeReal"),
 		},
 		"invalid missing dob": {
 			form: &chooseAttorneysForm{
@@ -572,9 +565,7 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 				},
 				DateOfBirthError: expectedError,
 			},
-			errors: map[string]string{
-				"date-of-birth": "enterDateOfBirth",
-			},
+			errors: validation.With("date-of-birth", "enterDateOfBirth"),
 		},
 		"invalid email": {
 			form: &chooseAttorneysForm{
@@ -588,9 +579,7 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 				},
 				DateOfBirth: validDob,
 			},
-			errors: map[string]string{
-				"email": "emailIncorrectFormat",
-			},
+			errors: validation.With("email", "emailIncorrectFormat"),
 		},
 	}
 

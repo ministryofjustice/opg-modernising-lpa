@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type restrictionsData struct {
 	App       AppData
-	Errors    map[string]string
+	Errors    validation.List
 	Completed bool
 	Lpa       *Lpa
 }
@@ -30,7 +31,7 @@ func Restrictions(tmpl template.Template, lpaStore LpaStore) Handler {
 			form := readRestrictionsForm(r)
 			data.Errors = form.Validate()
 
-			if len(data.Errors) == 0 || form.AnswerLater {
+			if data.Errors.None() || form.AnswerLater {
 				if form.AnswerLater {
 					lpa.Tasks.Restrictions = TaskInProgress
 				} else {
@@ -61,11 +62,11 @@ func readRestrictionsForm(r *http.Request) *restrictionsForm {
 	}
 }
 
-func (f *restrictionsForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (f *restrictionsForm) Validate() validation.List {
+	var errors validation.List
 
 	if len(f.Restrictions) > 10000 {
-		errors["restrictions"] = "restrictionsTooLong"
+		errors.Add("restrictions", "restrictionsTooLong")
 	}
 
 	return errors

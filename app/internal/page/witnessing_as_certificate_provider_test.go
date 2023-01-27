@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -172,10 +173,8 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 			Lpa: &Lpa{
 				WitnessCode: WitnessCode{Code: "1234", Created: invalidCreated},
 			},
-			Errors: map[string]string{
-				"witness-code": "witnessCodeExpired",
-			},
-			Form: &witnessingAsCertificateProviderForm{Code: "1234"},
+			Errors: validation.With("witness-code", "witnessCodeExpired"),
+			Form:   &witnessingAsCertificateProviderForm{Code: "1234"},
 		}).
 		Return(nil)
 
@@ -213,10 +212,8 @@ func TestPostWitnessingAsCertificateProviderExpiryTrumpsMismatch(t *testing.T) {
 			Lpa: &Lpa{
 				WitnessCode: WitnessCode{Code: "1234", Created: invalidCreated},
 			},
-			Errors: map[string]string{
-				"witness-code": "witnessCodeExpired",
-			},
-			Form: &witnessingAsCertificateProviderForm{Code: "4321"},
+			Errors: validation.With("witness-code", "witnessCodeExpired"),
+			Form:   &witnessingAsCertificateProviderForm{Code: "4321"},
 		}).
 		Return(nil)
 
@@ -253,10 +250,8 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 			Lpa: &Lpa{
 				WitnessCode: WitnessCode{Code: "1234", Created: now},
 			},
-			Errors: map[string]string{
-				"witness-code": "witnessCodeDoesNotMatch",
-			},
-			Form: &witnessingAsCertificateProviderForm{Code: "4321"},
+			Errors: validation.With("witness-code", "witnessCodeDoesNotMatch"),
+			Form:   &witnessingAsCertificateProviderForm{Code: "4321"},
 		}).
 		Return(nil)
 
@@ -284,41 +279,33 @@ func TestReadWitnessingAsCertificateProviderForm(t *testing.T) {
 func TestWitnessingAsCertificateProviderValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *witnessingAsCertificateProviderForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"valid numeric": {
 			form: &witnessingAsCertificateProviderForm{
 				Code: "1234",
 			},
-			errors: map[string]string{},
 		},
 		"valid alpha": {
 			form: &witnessingAsCertificateProviderForm{
 				Code: "aBcD",
 			},
-			errors: map[string]string{},
 		},
 		"missing": {
-			form: &witnessingAsCertificateProviderForm{},
-			errors: map[string]string{
-				"witness-code": "enterWitnessCode",
-			},
+			form:   &witnessingAsCertificateProviderForm{},
+			errors: validation.With("witness-code", "enterWitnessCode"),
 		},
 		"too long": {
 			form: &witnessingAsCertificateProviderForm{
 				Code: "12345",
 			},
-			errors: map[string]string{
-				"witness-code": "witnessCodeTooLong",
-			},
+			errors: validation.With("witness-code", "witnessCodeTooLong"),
 		},
 		"too short": {
 			form: &witnessingAsCertificateProviderForm{
 				Code: "123",
 			},
-			errors: map[string]string{
-				"witness-code": "witnessCodeTooShort",
-			},
+			errors: validation.With("witness-code", "witnessCodeTooShort"),
 		},
 	}
 
