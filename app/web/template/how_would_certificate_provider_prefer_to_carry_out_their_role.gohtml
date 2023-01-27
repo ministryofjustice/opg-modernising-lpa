@@ -1,43 +1,45 @@
 {{ template "page" . }}
 
+{{ define "pageTitle" }}{{ tr .App "howWouldCertificateProviderPreferToCarryOutTheirRoleTitle" }}{{ end }}
+
 {{ define "main" }}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <form novalidate method="post">
-                <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-                    <h1 class="govuk-fieldset__heading govuk-!-margin-bottom-6">{{ trFormat .App "howWouldCertificateProviderPreferToCarryOutTheirRole" "FirstNames" .CertificateProvider.FirstNames }}</h1>
-                </legend>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <form novalidate method="post">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+          <h1 class="govuk-fieldset__heading govuk-!-margin-bottom-6">{{ trFormat .App "howWouldCertificateProviderPreferToCarryOutTheirRole" "FirstNames" .CertificateProvider.FirstNames }}</h1>
+        </legend>
 
-                <p class="govuk-body">{{ tr .App "selectOneOption" }}</p>
+        <p class="govuk-body">{{ tr .App "selectOneOption" }}</p>
 
-                <div class="govuk-form-group {{ if index .Errors "carry-out-by" }}govuk-form-group--error{{ end }}">
-                  {{ template "error-message" (errorMessage . "carry-out-by") }}
+        <div class="govuk-form-group {{ if index .Errors "carry-out-by" }}govuk-form-group--error{{ end }}">
+          {{ template "error-message" (errorMessage . "carry-out-by") }}
 
-                  <div class="govuk-radios {{ if index .Errors "carry-out-by" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
-                    <div class="govuk-radios__item">
-                      <input class="govuk-radios__input" id="f-carry-out-by" name="carry-out-by" type="radio" value="email" {{ if eq "email" .Form.CarryOutBy }}checked{{ end }} aria-describedby="carry-out-by-item-hint" data-aria-controls="conditional-email">
-                      <label class="govuk-label govuk-radios__label" for="f-carry-out-by">
-                        {{ tr .App "onlineAndByEmail" }}
-                      </label>
-                      <div id="carry-out-by-item-hint" class="govuk-hint govuk-radios__hint">
-                        {{ tr .App "onlineAndByEmailHint" }}
-                      </div>
-                      <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-email">
-                        {{ template "input" (input . "email" "certificateProvidersEmail" .Form.Email "classes" "govuk-input--width-20" "type" "email") }}
-                      </div>
-                    </div>
+          <div class="govuk-radios {{ if index .Errors "carry-out-by" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="f-carry-out-by" name="carry-out-by" type="radio" value="email" {{ if eq "email" .Form.CarryOutBy }}checked{{ end }} aria-describedby="carry-out-by-item-hint" data-aria-controls="conditional-email">
+              <label class="govuk-label govuk-radios__label" for="f-carry-out-by">
+                {{ tr .App "onlineAndByEmail" }}
+              </label>
+              <div id="carry-out-by-item-hint" class="govuk-hint govuk-radios__hint">
+                {{ tr .App "onlineAndByEmailHint" }}
+              </div>
+              <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-email">
+                {{ template "input" (input . "email" "certificateProvidersEmail" .Form.Email "classes" "govuk-input--width-20" "type" "email") }}
+              </div>
+            </div>
 
-                    <div class="govuk-radios__item">
-                      <input class="govuk-radios__input" id="f-carry-out-by-2" name="carry-out-by" type="radio" value="paper" {{ if eq "paper" .Form.CarryOutBy }}checked{{ end }}>
-                      <label class="govuk-label govuk-radios__label" for="f-carry-out-by-2">
-                        {{ tr .App "usingPaperForms" }}
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                {{ template "continue-button" . }}
-            </form>
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="f-carry-out-by-2" name="carry-out-by" type="radio" value="paper" {{ if eq "paper" .Form.CarryOutBy }}checked{{ end }}>
+              <label class="govuk-label govuk-radios__label" for="f-carry-out-by-2">
+                {{ tr .App "usingPaperForms" }}
+              </label>
+            </div>
+          </div>
         </div>
+
+        {{ template "continue-button" . }}
+      </form>
     </div>
+  </div>
 {{ end }}
