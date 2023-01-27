@@ -10,7 +10,7 @@
       <p class="govuk-body">{{ tr .App "myLastingPowersOfAttorneyHint" }}</p>
     </div>
   </div>
-  
+
   {{ if eq (len .Lpas) 0 }}
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
@@ -44,7 +44,11 @@
               <h2 class="govuk-heading-m govuk-!-padding-top-0 govuk-!-margin-bottom-1">{{ if eq "pfa" .Type }}{{ tr $.App "lpaTypePfa" }}{{ else }}{{ tr $.App "lpaTypeHw" }}{{ end }}: <span class="govuk-!-font-weight-regular">{{ .You.FirstNames }} {{ .You.LastName }}</span></h2>
               <span class="govuk-hint"><strong>{{ tr $.App "applicationNumber" }}:</strong> {{ .ID }}</span>
               <div class="govuk-button-group govuk-!-margin-top-4">
-                <a class="govuk-button" href="{{ link $.App (printf "%s%s" .ID $.App.Paths.TaskList) }}">{{ tr $.App "continue" }}</a>
+                {{ if .Progress.LpaSigned.Completed }}
+                  <a class="govuk-button" href="{{ link $.App (printf "%s%s" .ID $.App.Paths.Progress) }}">{{ tr $.App "trackLpaProgress" }}</a>
+                {{ else }}
+                  <a class="govuk-button" href="{{ link $.App (printf "%s%s" .ID $.App.Paths.TaskList) }}">{{ tr $.App "continue" }}</a>
+                {{ end }}
                 <a class="govuk-button govuk-button--secondary" href="#">{{ tr $.App "options" }}</a>
               </div>
             </div>

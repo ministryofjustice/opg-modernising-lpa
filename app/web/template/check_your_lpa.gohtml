@@ -23,7 +23,8 @@
         {{ tr .App "peopleNamedOnTheLpa" }}
       </h2>
 
-      {{ template "people-named-on-lpa" . }}
+      {{ $showHeaders := not (eq .Lpa.Tasks.CheckYourLpa.String "completed") }}
+      {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa $showHeaders) }}
 
       <form novalidate method="post">
         <div class="govuk-form-group  {{ if index .Errors "checked" }}govuk-form-group--error{{ end }}">

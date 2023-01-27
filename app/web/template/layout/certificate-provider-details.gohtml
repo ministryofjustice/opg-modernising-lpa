@@ -7,11 +7,13 @@
             <dd class="govuk-summary-list__value">
                 {{ .Lpa.CertificateProvider.FirstNames }} {{ .Lpa.CertificateProvider.LastName }}
             </dd>
-            <dd class="govuk-summary-list__actions">
-                <a class="govuk-link" href="{{ link .App .App.Paths.CertificateProviderDetails }}">
-                    {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "certificateProvider") }}</span>
-                </a>
-            </dd>
+            {{ if not (eq .Lpa.Tasks.CheckYourLpa.String "completed") }}
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link" href="{{ link .App .App.Paths.CertificateProviderDetails }}">
+                        {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "certificateProvider") }}</span>
+                    </a>
+                </dd>
+            {{ end }}
         </div>
 
         <div class="govuk-summary-list__row">
@@ -21,11 +23,13 @@
             <dd class="govuk-summary-list__value">
                 {{ .Lpa.CertificateProvider.Mobile }}
             </dd>
-            <dd class="govuk-summary-list__actions">
-                <a class="govuk-link" href="{{ link .App .App.Paths.CertificateProviderDetails }}">
-                    {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "certificateProviderMobile" }}</span>
-                </a>
-            </dd>
+            {{ if not (eq .Lpa.Tasks.CheckYourLpa.String "completed") }}
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link" href="{{ link .App .App.Paths.CertificateProviderDetails }}">
+                        {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "certificateProviderMobile" }}</span>
+                    </a>
+                </dd>
+            {{ end }}
         </div>
     </dl>
 {{ end }}
