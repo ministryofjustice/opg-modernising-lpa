@@ -441,18 +441,14 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 
 			lpa.WantToApplyForLpa = true
 			lpa.CPWitnessedDonorSign = true
+			lpa.Submitted = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
+			lpa.CPWitnessCodeValidated = true
 			lpa.Tasks.ConfirmYourIdentityAndSign = TaskCompleted
+
 		}
 
 		if r.FormValue("withPayment") == "1" || r.FormValue("completeLpa") != "" {
 			lpa.Tasks.PayForLpa = TaskCompleted
-		}
-
-		if r.FormValue("completeLpa") != "" {
-			lpa.Progress = Progress{
-				LpaSigned:                   TaskCompleted,
-				CertificateProviderDeclared: TaskInProgress,
-			}
 		}
 
 		_ = lpaStore.Put(ctx, lpa)

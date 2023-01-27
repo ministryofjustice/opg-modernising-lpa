@@ -1075,9 +1075,11 @@ func TestTestingStart(t *testing.T) {
 					RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
 					FullName:    "Jose Smith",
 				},
-				WantToApplyForLpa:    true,
-				CPWitnessedDonorSign: true,
-				Tasks:                Tasks{ConfirmYourIdentityAndSign: TaskCompleted},
+				WantToApplyForLpa:      true,
+				CPWitnessedDonorSign:   true,
+				CPWitnessCodeValidated: true,
+				Submitted:              time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
+				Tasks:                  Tasks{ConfirmYourIdentityAndSign: TaskCompleted},
 			}).
 			Return(nil)
 
@@ -1116,6 +1118,8 @@ func TestTestingStart(t *testing.T) {
 				},
 				WantToApplyForLpa:       true,
 				CPWitnessedDonorSign:    true,
+				CPWitnessCodeValidated:  true,
+				Submitted:               time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
 				Checked:                 true,
 				HappyToShare:            true,
 				DoYouWantToNotifyPeople: "yes",
@@ -1249,10 +1253,6 @@ func TestTestingStart(t *testing.T) {
 					CertificateProvider:        TaskCompleted,
 					PayForLpa:                  TaskCompleted,
 					ChooseAttorneys:            TaskCompleted,
-				},
-				Progress: Progress{
-					LpaSigned:                   TaskCompleted,
-					CertificateProviderDeclared: TaskInProgress,
 				},
 			}).
 			Return(nil)

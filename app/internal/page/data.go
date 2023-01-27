@@ -93,7 +93,7 @@ type Lpa struct {
 	WantToApplyForLpa                           bool
 	CPWitnessCodeValidated                      bool
 	Submitted                                   time.Time
-	Progress                                    Progress
+	//Progress                                    Progress
 }
 
 type PaymentDetails struct {
@@ -222,8 +222,7 @@ type lpaStore struct {
 
 func (s *lpaStore) Create(ctx context.Context) (*Lpa, error) {
 	lpa := &Lpa{
-		ID:       "10" + strconv.Itoa(s.randomInt(100000)),
-		Progress: Progress{LpaSigned: TaskInProgress},
+		ID: "10" + strconv.Itoa(s.randomInt(100000)),
 	}
 
 	err := s.Put(ctx, lpa)
@@ -475,4 +474,27 @@ func (l *Lpa) CanGoTo(url string) bool {
 	default:
 		return true
 	}
+}
+
+func (l *Lpa) Progress() Progress {
+	p := Progress{
+		LpaSigned:                   TaskInProgress,
+		CertificateProviderDeclared: TaskNotStarted,
+		AttorneysDeclared:           TaskNotStarted,
+		LpaSubmitted:                TaskNotStarted,
+		StatutoryWaitingPeriod:      TaskNotStarted,
+		LpaRegistered:               TaskNotStarted,
+	}
+
+	if !l.Submitted.IsZero() {
+		p.LpaSigned = TaskCompleted
+	}
+
+	if p.LpaSigned.Completed() {
+		p.CertificateProviderDeclared = TaskInProgress
+	}
+
+	// Further logic to be added as we build the rest of the flow
+
+	return p
 }
