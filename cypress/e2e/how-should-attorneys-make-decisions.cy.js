@@ -21,7 +21,7 @@ describe('How should attorneys make decisions', () => {
         cy.contains('h1', 'How should your attorneys make decisions?');
 
         cy.get('input[name="decision-type"]').check('mixed');
-        cy.get('#mixed-details').type('some details on attorneys');
+        cy.get('#f-mixed-details').type('some details on attorneys');
 
         cy.contains('button', 'Continue').click();
 

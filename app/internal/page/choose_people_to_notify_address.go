@@ -5,20 +5,15 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type choosePeopleToNotifyAddressData struct {
 	App            AppData
-	Errors         map[string]string
+	Errors         validation.List
 	PersonToNotify PersonToNotify
 	Addresses      []place.Address
 	Form           *choosePeopleToNotifyAddressForm
-}
-
-type choosePeopleToNotifyAddressForm struct {
-	Action         string
-	LookupPostcode string
-	Address        *place.Address
 }
 
 func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) Handler {
@@ -50,7 +45,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 			data.Form = readChoosePeopleToNotifyAddressForm(r)
 			data.Errors = data.Form.Validate()
 
-			if data.Form.Action == "manual" && len(data.Errors) == 0 {
+			if data.Form.Action == "manual" && data.Errors.None() {
 				personToNotify.Address = *data.Form.Address
 				lpa.PutPersonToNotify(personToNotify)
 				lpa.Tasks.PeopleToNotify = TaskCompleted
@@ -69,7 +64,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 			}
 
 			// Force the manual address view after selecting
-			if data.Form.Action == "select" && len(data.Errors) == 0 {
+			if data.Form.Action == "select" && data.Errors.None() {
 				data.Form.Action = "manual"
 
 				personToNotify.Address = *data.Form.Address
@@ -80,12 +75,12 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 				}
 			}
 
-			if data.Form.Action == "lookup" && len(data.Errors) == 0 ||
-				data.Form.Action == "select" && len(data.Errors) > 0 {
+			if data.Form.Action == "lookup" && data.Errors.None() ||
+				data.Form.Action == "select" && data.Errors.Any() {
 				addresses, err := addressClient.LookupPostcode(r.Context(), data.Form.LookupPostcode)
 				if err != nil {
 					logger.Print(err)
-					data.Errors["lookup-postcode"] = "couldNotLookupPostcode"
+					data.Errors.Add("lookup-postcode", "couldNotLookupPostcode")
 				}
 
 				data.Addresses = addresses
@@ -102,6 +97,12 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 
 		return tmpl(w, data)
 	}
+}
+
+type choosePeopleToNotifyAddressForm struct {
+	Action         string
+	LookupPostcode string
+	Address        *place.Address
 }
 
 func readChoosePeopleToNotifyAddressForm(r *http.Request) *choosePeopleToNotifyAddressForm {
@@ -132,35 +133,35 @@ func readChoosePeopleToNotifyAddressForm(r *http.Request) *choosePeopleToNotifyA
 	return d
 }
 
-func (d *choosePeopleToNotifyAddressForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (d *choosePeopleToNotifyAddressForm) Validate() validation.List {
+	var errors validation.List
 
 	switch d.Action {
 	case "lookup":
 		if d.LookupPostcode == "" {
-			errors["lookup-postcode"] = "enterPostcode"
+			errors.Add("lookup-postcode", "enterPostcode")
 		}
 
 	case "select":
 		if d.Address == nil {
-			errors["select-address"] = "selectAddress"
+			errors.Add("select-address", "selectAddress")
 		}
 
 	case "manual":
 		if d.Address.Line1 == "" {
-			errors["address-line-1"] = "enterAddress"
+			errors.Add("address-line-1", "enterAddress")
 		}
 		if len(d.Address.Line1) > 50 {
-			errors["address-line-1"] = "addressLine1TooLong"
+			errors.Add("address-line-1", "addressLine1TooLong")
 		}
 		if len(d.Address.Line2) > 50 {
-			errors["address-line-2"] = "addressLine2TooLong"
+			errors.Add("address-line-2", "addressLine2TooLong")
 		}
 		if len(d.Address.Line3) > 50 {
-			errors["address-line-3"] = "addressLine3TooLong"
+			errors.Add("address-line-3", "addressLine3TooLong")
 		}
 		if d.Address.TownOrCity == "" {
-			errors["address-town"] = "enterTownOrCity"
+			errors.Add("address-town", "enterTownOrCity")
 		}
 	}
 

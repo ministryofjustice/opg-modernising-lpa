@@ -9,11 +9,12 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type aboutPaymentData struct {
 	App                 AppData
-	Errors              map[string]string
+	Errors              validation.List
 	CertificateProvider CertificateProvider
 }
 
