@@ -27,7 +27,7 @@ describe('Confirm your identity and sign', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.contains('h1', "What you'll need to confirm your identity");
+        cy.contains('h1', "What you’ll need to confirm your identity");
         cy.contains('a', 'Continue').click();
 
         cy.url().should('contain', '/select-your-identity-options');
@@ -83,7 +83,7 @@ describe('Confirm your identity and sign', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.contains('h1', "You've submitted your LPA");
+        cy.contains('h1', "You’ve submitted your LPA");
         cy.contains('a', 'Continue').click();
 
         cy.url().should('contain', '/dashboard');
