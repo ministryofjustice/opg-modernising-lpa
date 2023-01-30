@@ -1,0 +1,42 @@
+{{ define "progress-bar" }}
+    <div id="progress" class="app-progress-bar" aria-label="progress-label">
+        <ol class="app-progress-bar__list">
+            <li id="lpa-signed" class="app-progress-bar__item" {{ if .Lpa.Progress.LpaSigned.InProgress }}aria-current="step"{{ end }}>
+                <span class="app-progress-bar__icon {{ if .Lpa.Progress.LpaSigned.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+                <span class="app-progress-bar__label">
+                    {{ tr .App "lpaSigned" }}<span class="govuk-visually-hidden"> {{tr .App .Lpa.Progress.LpaSigned.String }}</span>
+                </span>
+            </li>
+            <li id="certificate-provider-declared" class="app-progress-bar__item" {{ if .Lpa.Progress.CertificateProviderDeclared.InProgress }}aria-current="step"{{ end }}>
+                <span class="app-progress-bar__icon {{ if .Lpa.Progress.CertificateProviderDeclared.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+                <span class="app-progress-bar__label">
+                    {{ tr .App "certificateProviderHasDeclared" }}<span class="govuk-visually-hidden"> {{tr .App .Lpa.Progress.CertificateProviderDeclared.String }}</span>
+                </span>
+            </li>
+            <li id="attorneys-declared" class="app-progress-bar__item" {{ if .Lpa.Progress.AttorneysDeclared.InProgress }}aria-current="step"{{ end }}>
+                <span class="app-progress-bar__icon {{ if .Lpa.Progress.AttorneysDeclared.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+                <span class="app-progress-bar__label">
+                    {{ tr .App "attorneysHaveDeclared" }}<span class="govuk-visually-hidden"> {{tr .App .Lpa.Progress.AttorneysDeclared.String }}</span>
+                </span>
+            </li>
+            <li id="lpa-submitted" class="app-progress-bar__item" {{ if .Lpa.Progress.LpaSubmitted.InProgress }}aria-current="step"{{ end }}>
+                <span class="app-progress-bar__icon {{ if .Lpa.Progress.LpaSubmitted.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+                <span class="app-progress-bar__label">
+                    {{ tr .App "lpaSubmitted" }}<span class="govuk-visually-hidden"> {{tr .App .Lpa.Progress.LpaSubmitted.String }}</span>
+                </span>
+            </li>
+            <li id="statutory-waiting-period" class="app-progress-bar__item" {{ if .Lpa.Progress.StatutoryWaitingPeriod.InProgress }}aria-current="step"{{ end }}>
+                <span class="app-progress-bar__icon {{ if .Lpa.Progress.StatutoryWaitingPeriod.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+                <span class="app-progress-bar__label">
+                    {{ tr .App "statutoryWaitingPeriod" }}<span class="govuk-visually-hidden"> {{tr .App .Lpa.Progress.StatutoryWaitingPeriod.String }}</span>
+                </span>
+            </li>
+            <li id="lpa-registered" class="app-progress-bar__item" {{ if .Lpa.Progress.LpaRegistered.InProgress }}aria-current="step"{{ end }}>
+                <span class="app-progress-bar__icon {{ if .Lpa.Progress.LpaRegistered.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+                <span class="app-progress-bar__label">
+                    {{ tr .App "lpaRegistered" }}<span class="govuk-visually-hidden"> {{tr .App .Lpa.Progress.LpaRegistered.String }}</span>
+                </span>
+            </li>
+        </ol>
+    </div>
+{{ end }}
