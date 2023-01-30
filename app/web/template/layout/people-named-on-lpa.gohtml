@@ -15,15 +15,14 @@
         {{ tr .App "attorneys" }}
     </h3>
 
-    {{ template "attorney-details" (listAttorneys .Lpa.Attorneys .App .App.Paths.ChooseAttorneys .App.Paths.ChooseAttorneysAddress .App.Paths.RemoveAttorney) }}
-
+    {{ template "attorney-summary" (listAttorneys .Lpa.Attorneys .App "attorney" .ShowPeopleHeaders .Lpa) }}
 
     {{ if gt (len .Lpa.ReplacementAttorneys) 0 }}
         <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
             {{ tr .App "replacementAttorneys" }}
         </h3>
 
-        {{ template "attorney-details" (listAttorneys .Lpa.ReplacementAttorneys .App .App.Paths.ChooseReplacementAttorneys .App.Paths.ChooseReplacementAttorneysAddress .App.Paths.RemoveReplacementAttorney) }}
+        {{ template "attorney-summary" (listAttorneys .Lpa.ReplacementAttorneys .App "replacement" .ShowPeopleHeaders .Lpa) }}
     {{ end }}
 
     {{ if gt (len .Lpa.PeopleToNotify) 0  }}
@@ -31,6 +30,6 @@
             {{ tr .App "peopleToNotify" }}
         </h3>
 
-        {{ template "people-to-notify-summary" (listPeopleToNotify .Lpa.PeopleToNotify .App .App.Paths.ChoosePeopleToNotify .App.Paths.ChoosePeopleToNotifyAddress .App.Paths.RemovePersonToNotify) }}
+        {{ template "people-to-notify-summary" (listPeopleToNotify .App .ShowPeopleHeaders .Lpa) }}
     {{ end }}
 {{ end }}
