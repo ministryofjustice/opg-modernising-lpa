@@ -6,11 +6,12 @@ import (
 	"net/mail"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
 	App                 AppData
-	Errors              map[string]string
+	Errors              validation.List
 	CertificateProvider CertificateProvider
 	Form                *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
 }
@@ -35,7 +36,7 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 			data.Form = readHowWouldCertificateProviderPreferToCarryOutTheirRole(r)
 			data.Errors = data.Form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.None() {
 				lpa.CertificateProvider.CarryOutBy = data.Form.CarryOutBy
 				lpa.CertificateProvider.Email = data.Form.Email
 
@@ -67,18 +68,18 @@ func readHowWouldCertificateProviderPreferToCarryOutTheirRole(r *http.Request) *
 	}
 }
 
-func (f *howWouldCertificateProviderPreferToCarryOutTheirRoleForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (f *howWouldCertificateProviderPreferToCarryOutTheirRoleForm) Validate() validation.List {
+	var errors validation.List
 
 	if f.CarryOutBy != "email" && f.CarryOutBy != "paper" {
-		errors["carry-out-by"] = "selectHowWouldCertificateProviderPreferToCarryOutTheirRole"
+		errors.Add("carry-out-by", "selectHowWouldCertificateProviderPreferToCarryOutTheirRole")
 	}
 
 	if f.CarryOutBy == "email" {
 		if f.Email == "" {
-			errors["email"] = "enterEmail"
+			errors.Add("email", "enterEmail")
 		} else if _, err := mail.ParseAddress(fmt.Sprintf("<%s>", f.Email)); err != nil {
-			errors["email"] = "emailIncorrectFormat"
+			errors.Add("email", "emailIncorrectFormat")
 		}
 	}
 

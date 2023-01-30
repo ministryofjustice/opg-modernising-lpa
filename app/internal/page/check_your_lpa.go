@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type checkYourLpaData struct {
 	App       AppData
-	Errors    map[string]string
+	Errors    validation.List
 	Lpa       *Lpa
 	Form      *checkYourLpaForm
 	Completed bool
@@ -35,7 +36,7 @@ func CheckYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 			data.Form = readCheckYourLpaForm(r)
 			data.Errors = data.Form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.None() {
 				lpa.Checked = data.Form.Checked
 				lpa.HappyToShare = data.Form.Happy
 				lpa.Tasks.CheckYourLpa = TaskCompleted
@@ -66,15 +67,15 @@ func readCheckYourLpaForm(r *http.Request) *checkYourLpaForm {
 	}
 }
 
-func (f *checkYourLpaForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (f *checkYourLpaForm) Validate() validation.List {
+	var errors validation.List
 
 	if !f.Checked {
-		errors["checked"] = "selectCheckedLpa"
+		errors.Add("checked", "selectCheckedLpa")
 	}
 
 	if !f.Happy {
-		errors["happy"] = "selectHappyToShareLpa"
+		errors.Add("happy", "selectHappyToShareLpa")
 	}
 
 	return errors

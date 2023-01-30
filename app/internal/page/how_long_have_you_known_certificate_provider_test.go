@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -176,10 +177,8 @@ func TestPostHowLongHaveYouKnownCertificateProviderWhenValidationErrors(t *testi
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howLongHaveYouKnownCertificateProviderData{
-			App: appData,
-			Errors: map[string]string{
-				"how-long": "selectHowLongHaveYouKnownCertificateProvider",
-			},
+			App:    appData,
+			Errors: validation.With("how-long", "selectHowLongHaveYouKnownCertificateProvider"),
 		}).
 		Return(nil)
 
@@ -207,35 +206,28 @@ func TestReadHowLongHaveYouKnownCertificateProviderForm(t *testing.T) {
 func TestHowLongHaveYouKnownCertificateProviderFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *howLongHaveYouKnownCertificateProviderForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"gte-2-years": {
 			form: &howLongHaveYouKnownCertificateProviderForm{
 				HowLong: "gte-2-years",
 			},
-			errors: map[string]string{},
 		},
 		"lt-2-years": {
 			form: &howLongHaveYouKnownCertificateProviderForm{
 				HowLong: "lt-2-years",
 			},
-			errors: map[string]string{
-				"how-long": "mustHaveKnownCertificateProviderTwoYears",
-			},
+			errors: validation.With("how-long", "mustHaveKnownCertificateProviderTwoYears"),
 		},
 		"missing": {
-			form: &howLongHaveYouKnownCertificateProviderForm{},
-			errors: map[string]string{
-				"how-long": "selectHowLongHaveYouKnownCertificateProvider",
-			},
+			form:   &howLongHaveYouKnownCertificateProviderForm{},
+			errors: validation.With("how-long", "selectHowLongHaveYouKnownCertificateProvider"),
 		},
 		"invalid": {
 			form: &howLongHaveYouKnownCertificateProviderForm{
 				HowLong: "what",
 			},
-			errors: map[string]string{
-				"how-long": "selectHowLongHaveYouKnownCertificateProvider",
-			},
+			errors: validation.With("how-long", "selectHowLongHaveYouKnownCertificateProvider"),
 		},
 	}
 

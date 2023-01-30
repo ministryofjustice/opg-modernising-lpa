@@ -7,11 +7,12 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type yourDetailsData struct {
 	App        AppData
-	Errors     map[string]string
+	Errors     validation.List
 	Form       *yourDetailsForm
 	DobWarning string
 }
@@ -51,11 +52,11 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 			data.Errors = data.Form.Validate()
 			dobWarning := data.Form.DobWarning()
 
-			if len(data.Errors) != 0 || data.Form.IgnoreWarning != dobWarning {
+			if data.Errors.Any() || data.Form.IgnoreWarning != dobWarning {
 				data.DobWarning = dobWarning
 			}
 
-			if len(data.Errors) == 0 && data.DobWarning == "" {
+			if !data.Errors.Any() && data.DobWarning == "" {
 				lpa.You.FirstNames = data.Form.FirstNames
 				lpa.You.LastName = data.Form.LastName
 				lpa.You.OtherNames = data.Form.OtherNames
@@ -104,36 +105,36 @@ func readYourDetailsForm(r *http.Request) *yourDetailsForm {
 	return d
 }
 
-func (d *yourDetailsForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (d *yourDetailsForm) Validate() validation.List {
+	var errors validation.List
 
 	if d.FirstNames == "" {
-		errors["first-names"] = "enterFirstNames"
+		errors.Add("first-names", "enterFirstNames")
 	}
 	if len(d.FirstNames) > 53 {
-		errors["first-names"] = "firstNamesTooLong"
+		errors.Add("first-names", "firstNamesTooLong")
 	}
 
 	if d.LastName == "" {
-		errors["last-name"] = "enterLastName"
+		errors.Add("last-name", "enterLastName")
 	}
 	if len(d.LastName) > 61 {
-		errors["last-name"] = "lastNameTooLong"
+		errors.Add("last-name", "lastNameTooLong")
 	}
 
 	if len(d.OtherNames) > 50 {
-		errors["other-names"] = "otherNamesTooLong"
+		errors.Add("other-names", "otherNamesTooLong")
 	}
 
 	if d.Dob.Day == "" || d.Dob.Month == "" || d.Dob.Year == "" {
-		errors["date-of-birth"] = "enterDateOfBirth"
+		errors.Add("date-of-birth", "enterDateOfBirth")
 	} else if d.DateOfBirthError != nil {
-		errors["date-of-birth"] = "dateOfBirthMustBeReal"
+		errors.Add("date-of-birth", "dateOfBirthMustBeReal")
 	} else {
 		today := time.Now().UTC().Round(24 * time.Hour)
 
 		if d.DateOfBirth.After(today) {
-			errors["date-of-birth"] = "dateOfBirthIsFuture"
+			errors.Add("date-of-birth", "dateOfBirthIsFuture")
 		}
 	}
 

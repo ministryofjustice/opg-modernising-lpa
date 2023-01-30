@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type whenCanTheLpaBeUsedData struct {
 	App       AppData
-	Errors    map[string]string
+	Errors    validation.List
 	When      string
 	Completed bool
 	Lpa       *Lpa
@@ -32,7 +33,7 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, lpaStore LpaStore) Handler {
 			form := readWhenCanTheLpaBeUsedForm(r)
 			data.Errors = form.Validate()
 
-			if len(data.Errors) == 0 || form.AnswerLater {
+			if data.Errors.None() || form.AnswerLater {
 				if form.AnswerLater {
 					lpa.Tasks.WhenCanTheLpaBeUsed = TaskInProgress
 				} else {
@@ -63,11 +64,11 @@ func readWhenCanTheLpaBeUsedForm(r *http.Request) *whenCanTheLpaBeUsedForm {
 	}
 }
 
-func (f *whenCanTheLpaBeUsedForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (f *whenCanTheLpaBeUsedForm) Validate() validation.List {
+	var errors validation.List
 
 	if f.When != UsedWhenRegistered && f.When != UsedWhenCapacityLost {
-		errors["when"] = "selectWhenCanTheLpaBeUsed"
+		errors.Add("when", "selectWhenCanTheLpaBeUsed")
 	}
 
 	return errors

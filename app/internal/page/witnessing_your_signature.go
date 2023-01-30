@@ -6,11 +6,12 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type witnessingYourSignatureData struct {
 	App    AppData
-	Errors map[string]string
+	Errors validation.List
 	Lpa    *Lpa
 }
 
