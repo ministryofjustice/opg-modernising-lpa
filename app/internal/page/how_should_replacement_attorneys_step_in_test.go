@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -290,11 +291,9 @@ func TestPostHowShouldReplacementAttorneysStepInFormValidation(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howShouldReplacementAttorneysStepInData{
-			App: appData,
-			Errors: map[string]string{
-				"when-to-step-in": "selectWhenToStepIn",
-			},
-			Form: &howShouldReplacementAttorneysStepInForm{},
+			App:    appData,
+			Errors: validation.With("when-to-step-in", "selectWhenToStepIn"),
+			Form:   &howShouldReplacementAttorneysStepInForm{},
 		}).
 		Return(nil)
 
@@ -343,17 +342,17 @@ func TestHowShouldReplacementAttorneysStepInFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		whenToStepIn   string
 		otherDetails   string
-		expectedErrors map[string]string
+		expectedErrors validation.List
 	}{
 		"missing whenToStepIn": {
 			whenToStepIn:   "",
 			otherDetails:   "",
-			expectedErrors: map[string]string{"when-to-step-in": "selectWhenToStepIn"},
+			expectedErrors: validation.With("when-to-step-in", "selectWhenToStepIn"),
 		},
 		"other missing otherDetail": {
 			whenToStepIn:   SomeOtherWay,
 			otherDetails:   "",
-			expectedErrors: map[string]string{"other-details": "provideDetailsOfWhenToStepIn"},
+			expectedErrors: validation.With("other-details", "provideDetailsOfWhenToStepIn"),
 		},
 	}
 

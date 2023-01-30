@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -312,9 +313,7 @@ func TestPostChooseReplacementAttorneysAddressManualWhenValidationError(t *testi
 				Action:  "manual",
 				Address: invalidAddress,
 			},
-			Errors: map[string]string{
-				"address-line-1": "enterAddress",
-			},
+			Errors: validation.With("address-line-1", "enterAddress"),
 		}).
 		Return(nil)
 
@@ -372,7 +371,6 @@ func TestPostChooseReplacementAttorneysAddressSelect(t *testing.T) {
 				LookupPostcode: "NG1",
 				Address:        &address,
 			},
-			Errors: map[string]string{},
 		}).
 		Return(nil)
 
@@ -423,9 +421,7 @@ func TestPostChooseReplacementAttorneysAddressSelectWhenValidationError(t *testi
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
-			Errors: map[string]string{
-				"select-address": "selectAddress",
-			},
+			Errors:    validation.With("select-address", "selectAddress"),
 		}).
 		Return(nil)
 
@@ -476,7 +472,6 @@ func TestPostChooseReplacementAttorneysAddressLookup(t *testing.T) {
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
-			Errors:    map[string]string{},
 		}).
 		Return(nil)
 
@@ -527,9 +522,7 @@ func TestPostChooseReplacementAttorneysAddressLookupError(t *testing.T) {
 				LookupPostcode: "NG1",
 			},
 			Addresses: []place.Address{},
-			Errors: map[string]string{
-				"lookup-postcode": "couldNotLookupPostcode",
-			},
+			Errors:    validation.With("lookup-postcode", "couldNotLookupPostcode"),
 		}).
 		Return(nil)
 
@@ -568,9 +561,7 @@ func TestPostChooseReplacementAttorneysAddressLookupWhenValidationError(t *testi
 			Form: &chooseAttorneysAddressForm{
 				Action: "lookup",
 			},
-			Errors: map[string]string{
-				"lookup-postcode": "enterPostcode",
-			},
+			Errors: validation.With("lookup-postcode", "enterPostcode"),
 		}).
 		Return(nil)
 

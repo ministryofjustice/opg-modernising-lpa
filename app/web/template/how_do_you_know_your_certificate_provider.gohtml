@@ -9,10 +9,10 @@
         <fieldset class="govuk-fieldset">
           <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ trFormat .App "howDoYouKnowYourCertificateProvider" "FirstNames" .CertificateProvider.FirstNames "LastName" .CertificateProvider.LastName }}</h1>
 
-          <div class="govuk-form-group {{ if index .Errors "how" }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
+          <div class="govuk-form-group {{ if .Errors.Has "how" }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
             {{ template "error-message" (errorMessage . "how") }}
 
-            <div class="govuk-radios  {{ if index .Errors "how" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
+            <div class="govuk-radios  {{ if .Errors.Has "how" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
               <div class="govuk-radios__item">
                 <input class="govuk-radios__input" id="f-how" name="how" type="radio" value="friend" {{ if eq "friend" .Form.How }}checked{{ end }}>
                 <label class="govuk-label govuk-radios__label" for="f-how">
@@ -60,7 +60,7 @@
                     {{ trFormat .App "pleaseDescribe" "FirstNames" .CertificateProvider.FirstNames "LastName" .CertificateProvider.LastName }}
                   </label>
                   {{ template "error-message" (errorMessage . "description") }}
-                  <textarea class="govuk-textarea {{ if index .Errors "description" }}govuk-textarea--error{{ end }}" id="f-description" name="description" rows="5">{{ .Form.Description }}</textarea>
+                  <textarea class="govuk-textarea {{ if .Errors.Has "description" }}govuk-textarea--error{{ end }}" id="f-description" name="description" rows="5">{{ .Form.Description }}</textarea>
                 </div>
               </div>
             </div>

@@ -5,11 +5,12 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type chooseReplacementAttorneysAddressData struct {
 	App       AppData
-	Errors    map[string]string
+	Errors    validation.List
 	Attorney  Attorney
 	Addresses []place.Address
 	Form      *chooseAttorneysAddressForm
@@ -40,7 +41,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 			data.Form = readChooseAttorneysAddressForm(r)
 			data.Errors = data.Form.Validate()
 
-			if data.Form.Action == "manual" && len(data.Errors) == 0 {
+			if data.Form.Action == "manual" && data.Errors.None() {
 				ra.Address = *data.Form.Address
 				lpa.PutReplacementAttorney(ra)
 				lpa.Tasks.ChooseReplacementAttorneys = TaskCompleted
@@ -59,7 +60,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 			}
 
 			// Force the manual address view after selecting
-			if data.Form.Action == "select" && len(data.Errors) == 0 {
+			if data.Form.Action == "select" && data.Errors.None() {
 				data.Form.Action = "manual"
 
 				ra.Address = *data.Form.Address
@@ -70,12 +71,12 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 				}
 			}
 
-			if data.Form.Action == "lookup" && len(data.Errors) == 0 ||
-				data.Form.Action == "select" && len(data.Errors) > 0 {
+			if data.Form.Action == "lookup" && data.Errors.None() ||
+				data.Form.Action == "select" && data.Errors.Any() {
 				addresses, err := addressClient.LookupPostcode(r.Context(), data.Form.LookupPostcode)
 				if err != nil {
 					logger.Print(err)
-					data.Errors["lookup-postcode"] = "couldNotLookupPostcode"
+					data.Errors.Add("lookup-postcode", "couldNotLookupPostcode")
 				}
 
 				data.Addresses = addresses

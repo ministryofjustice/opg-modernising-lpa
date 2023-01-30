@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type wantReplacementAttorneysData struct {
 	App    AppData
-	Errors map[string]string
+	Errors validation.List
 	Want   string
 	Lpa    *Lpa
 }
@@ -30,7 +31,7 @@ func WantReplacementAttorneys(tmpl template.Template, lpaStore LpaStore) Handler
 			form := readWantReplacementAttorneysForm(r)
 			data.Errors = form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.None() {
 				lpa.WantReplacementAttorneys = form.Want
 				var redirectUrl string
 
@@ -69,11 +70,11 @@ func readWantReplacementAttorneysForm(r *http.Request) *wantReplacementAttorneys
 	}
 }
 
-func (f *wantReplacementAttorneysForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (f *wantReplacementAttorneysForm) Validate() validation.List {
+	var errors validation.List
 
 	if f.Want != "yes" && f.Want != "no" {
-		errors["want"] = "selectWantReplacementAttorneys"
+		errors.Add("want", "selectWantReplacementAttorneys")
 	}
 
 	return errors

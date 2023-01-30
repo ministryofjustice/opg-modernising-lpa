@@ -13,7 +13,7 @@
             {{ trFormat .App "doYouWantToRemove" "FirstNames" .Attorney.FirstNames "LastName" .Attorney.LastName }}
           </legend>
 
-          <div class="govuk-form-group {{ if index .Errors "remove-attorney" }}govuk-form-group--error{{ end }}">
+          <div class="govuk-form-group {{ if .Errors.Has "remove-attorney" }}govuk-form-group--error{{ end }}">
             {{ template "error-message" (errorMessage . "remove-attorney") }}
 
             {{ template "radios" (items . "remove-attorney" ""

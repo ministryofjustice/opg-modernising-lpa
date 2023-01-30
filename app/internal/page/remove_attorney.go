@@ -5,17 +5,14 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type removeAttorneyData struct {
 	App      AppData
 	Attorney Attorney
-	Errors   map[string]string
-	Form     removeAttorneyForm
-}
-
-type removeAttorneyForm struct {
-	RemoveAttorney string
+	Errors   validation.List
+	Form     *removeAttorneyForm
 }
 
 func RemoveAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) Handler {
@@ -36,17 +33,14 @@ func RemoveAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) Ha
 		data := &removeAttorneyData{
 			App:      appData,
 			Attorney: attorney,
-			Form:     removeAttorneyForm{},
+			Form:     &removeAttorneyForm{},
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = removeAttorneyForm{
-				RemoveAttorney: postFormString(r, "remove-attorney"),
-			}
-
+			data.Form = readRemoveAttorneyForm(r)
 			data.Errors = data.Form.Validate()
 
-			if data.Form.RemoveAttorney == "yes" && len(data.Errors) == 0 {
+			if data.Form.RemoveAttorney == "yes" && data.Errors.None() {
 				lpa.DeleteAttorney(attorney)
 				if len(lpa.Attorneys) == 0 {
 					lpa.Tasks.ChooseAttorneys = TaskInProgress
@@ -76,11 +70,21 @@ func RemoveAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) Ha
 	}
 }
 
-func (f *removeAttorneyForm) Validate() map[string]string {
-	errors := map[string]string{}
+type removeAttorneyForm struct {
+	RemoveAttorney string
+}
+
+func readRemoveAttorneyForm(r *http.Request) *removeAttorneyForm {
+	return &removeAttorneyForm{
+		RemoveAttorney: postFormString(r, "remove-attorney"),
+	}
+}
+
+func (f *removeAttorneyForm) Validate() validation.List {
+	var errors validation.List
 
 	if f.RemoveAttorney != "yes" && f.RemoveAttorney != "no" {
-		errors["remove-attorney"] = "selectRemoveAttorney"
+		errors.Add("remove-attorney", "selectRemoveAttorney")
 	}
 
 	return errors
