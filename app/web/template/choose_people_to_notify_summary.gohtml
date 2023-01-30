@@ -9,7 +9,7 @@
 
       {{ trHtml .App "weCanNotifyUpTo5PeopleContent" }}
 
-      {{ template "people-to-notify-summary" (listPeopleToNotify .Lpa.PeopleToNotify .App .App.Paths.ChoosePeopleToNotify .App.Paths.ChoosePeopleToNotifyAddress .App.Paths.RemovePersonToNotify) }}
+        {{ template "people-to-notify-summary" (listPeopleToNotify .App true  .Lpa) }}
 
       {{ if eq 5 (len .Lpa.PeopleToNotify) }}
         {{ template "warning" (warning .App "addedMaxPeople") }}
@@ -28,7 +28,7 @@
               {{ tr .App "doYouWantToAddAnotherPersonToNotify" }}
             </legend>
 
-            <div class="govuk-form-group {{ if index .Errors "add-person-to-notify" }}govuk-form-group--error{{ end }}">
+            <div class="govuk-form-group {{ if .Errors.Has "add-person-to-notify" }}govuk-form-group--error{{ end }}">
               {{ template "error-message" (errorMessage . "add-person-to-notify") }}
 
               {{ template "radios" (items . "add-person-to-notify" ""

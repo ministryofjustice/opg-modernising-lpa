@@ -2,48 +2,57 @@
     {{range $i, $a := .Attorneys}}
         {{ $attorneyNumber := inc $i }}
 
-        <h2 class="govuk-heading-m">{{ tr $.App "attorney" }} {{ $attorneyNumber }}</h2>
+        {{ if $.WithHeaders }}
+            <h2 class="govuk-heading-m">{{ if eq $.AttorneyType "replacement" }}{{ tr $.App "replacementAttorney" }} {{ else }} {{ tr $.App "attorney" }} {{ end }} {{ $attorneyNumber }}</h2>
+        {{ end }}
+
         <dl class="govuk-summary-list">
-            <div class="govuk-summary-list__row" id="name-{{ $attorneyNumber }}">
+            <div class="govuk-summary-list__row" id="{{ $.AttorneyType }}-name-{{ $attorneyNumber }}">
                 <dt class="govuk-summary-list__key">
                     {{ tr $.App "name" }}
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {{ $a.FirstNames }} {{ $a.LastName }}
                 </dd>
-                <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link" href="{{ link $.App $.DetailsPath }}?id={{ $a.ID }}&from={{ $.App.Page }}#f-first-names">
-                        {{ trFormatHtml $.App "changeNameLinkText" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
-                    </a>
-                </dd>
+                {{ if not (eq $.Lpa.Tasks.CheckYourLpa.String "completed") }}
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href="{{ link $.App $.DetailsPath }}&id={{ .ID }}#f-first-names">
+                            {{ trFormatHtml $.App "changeNameLinkText" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
+                        </a>
+                    </dd>
+                {{ end }}
             </div>
-            <div class="govuk-summary-list__row" id="date-of-birth-{{ $attorneyNumber }}">
+            <div class="govuk-summary-list__row" id="{{ $.AttorneyType }}-date-of-birth-{{ $attorneyNumber }}">
                 <dt class="govuk-summary-list__key">
                     {{ tr $.App "dateOfBirth" }}
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {{ formatDate $a.DateOfBirth }}
                 </dd>
-                <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link" href="{{ link $.App $.DetailsPath }}?id={{ $a.ID }}&from={{ $.App.Page }}#f-date-of-birth">
-                        {{ trFormatHtml $.App "changeDOBLinkText" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
-                    </a>
-                </dd>
+                {{ if not (eq $.Lpa.Tasks.CheckYourLpa.String "completed") }}
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href="{{ link $.App $.DetailsPath }}&id={{ .ID }}#f-date-of-birth">
+                            {{ trFormatHtml $.App "changeDOBLinkText" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
+                        </a>
+                    </dd>
+                {{ end }}
             </div>
-            <div class="govuk-summary-list__row" id="email-{{ $attorneyNumber }}">
+            <div class="govuk-summary-list__row" id="{{ $.AttorneyType }}-email-{{ $attorneyNumber }}">
                 <dt class="govuk-summary-list__key ">
                     {{ tr $.App "email" }}
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {{ $a.Email }}
                 </dd>
-                <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link" href="{{ link $.App $.DetailsPath }}?id={{ $a.ID }}&from={{ $.App.Page }}#f-email">
-                        {{ trFormatHtml $.App "changeEmailLinkText" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
-                    </a>
-                </dd>
+                {{ if not (eq $.Lpa.Tasks.CheckYourLpa.String "completed") }}
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href="{{ link $.App $.DetailsPath }}&id={{ .ID }}#f-email">
+                            {{ trFormatHtml $.App "changeEmailLinkText" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
+                        </a>
+                    </dd>
+                {{ end }}
             </div>
-            <div class="govuk-summary-list__row" id="address-{{ $attorneyNumber }}">
+            <div class="govuk-summary-list__row" id="{{ $.AttorneyType }}-address-{{ $attorneyNumber }}">
                 <dt class="govuk-summary-list__key">
                     {{ tr $.App "address" }}
                 </dt>
@@ -54,23 +63,27 @@
                     {{ if $a.Address.TownOrCity }}{{ $a.Address.TownOrCity }}<br>{{end}}
                     {{ $a.Address.Postcode }}
                 </dd>
-                <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link" href="{{ link $.App $.AddressPath }}?id={{ $a.ID }}&from={{ $.App.Page }}#f-address-line-1">
-                        {{ trFormatHtml $.App "changeAddressLink" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
-                    </a>
-                </dd>
+                {{ if not (eq $.Lpa.Tasks.CheckYourLpa.String "completed") }}
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href="{{ link $.App $.AddressPath }}&id={{ .ID }}#f-address-line-1">
+                            {{ trFormatHtml $.App "changeAddressLink" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
+                        </a>
+                    </dd>
+                {{ end }}
             </div>
         </dl>
 
-        <div class="govuk-grid-row" id="remove-attorney-{{ $attorneyNumber }}">
-            <div class="govuk-grid-column-full">
-                <div class="app-float-right">
-                    <a class="govuk-button govuk-button--secondary" href="{{ link $.App $.RemovePath }}?id={{ .ID }}" data-module="govuk-button">
-                        {{ trFormat $.App "removeAttorneyButtonLink" "FirstNames" $a.FirstNames "LastName" $a.LastName  }}
-                    </a>
+        {{ if not (eq $.Lpa.Tasks.CheckYourLpa.String "completed") }}
+            <div class="govuk-grid-row" id="remove-{{ $.AttorneyType }}-{{ $attorneyNumber }}">
+                <div class="govuk-grid-column-full">
+                    <div class="app-float-right">
+                        <a class="govuk-button govuk-button--secondary" href="{{ link $.App $.RemovePath }}&id={{ .ID }}" data-module="govuk-button">
+                            {{ trFormat $.App "removeAttorneyButtonLink" "FirstNames" $a.FirstNames "LastName" $a.LastName  }}
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
+        {{ end }}
     {{ end }}
 
 {{ end }}

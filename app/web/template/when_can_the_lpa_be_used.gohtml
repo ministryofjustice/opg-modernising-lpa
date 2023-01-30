@@ -18,7 +18,7 @@
 
         <p class="govuk-body">{{ trFormatCount .App "afterLosingCapacityExample" (len .Lpa.Attorneys) "AttorneysFirstNames" .Lpa.AttorneysFirstNames }}</p>
 
-        <div class="govuk-form-group {{ if index .Errors "when" }}govuk-form-group--error{{ end }}">
+        <div class="govuk-form-group {{ if .Errors.Has "when" }}govuk-form-group--error{{ end }}">
           <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
               {{ trFormatCount .App "whenDoYouWantAttorneysToUse" (len .Lpa.Attorneys) "AttorneysFirstNames" .Lpa.AttorneysFirstNames }}

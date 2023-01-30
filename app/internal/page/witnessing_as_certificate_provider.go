@@ -5,17 +5,14 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type witnessingAsCertificateProviderData struct {
 	App    AppData
-	Errors map[string]string
+	Errors validation.List
 	Form   *witnessingAsCertificateProviderForm
 	Lpa    *Lpa
-}
-
-type witnessingAsCertificateProviderForm struct {
-	Code string
 }
 
 func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, now func() time.Time) Handler {
@@ -35,15 +32,13 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, 
 			data.Form = readWitnessingAsCertificateProviderForm(r)
 			data.Errors = data.Form.Validate()
 
-			if data.Errors["witness-code"] == "" {
-				if lpa.WitnessCode.HasExpired() {
-					data.Errors["witness-code"] = "witnessCodeExpired"
-				} else if lpa.WitnessCode.Code != data.Form.Code {
-					data.Errors["witness-code"] = "witnessCodeDoesNotMatch"
-				}
+			if lpa.WitnessCode.HasExpired() {
+				data.Errors.Add("witness-code", "witnessCodeExpired")
+			} else if lpa.WitnessCode.Code != data.Form.Code {
+				data.Errors.Add("witness-code", "witnessCodeDoesNotMatch")
 			}
 
-			if len(data.Errors) == 0 {
+			if data.Errors.None() {
 				lpa.CPWitnessCodeValidated = true
 				lpa.Submitted = now()
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
@@ -58,23 +53,27 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, 
 	}
 }
 
+type witnessingAsCertificateProviderForm struct {
+	Code string
+}
+
 func readWitnessingAsCertificateProviderForm(r *http.Request) *witnessingAsCertificateProviderForm {
 	return &witnessingAsCertificateProviderForm{
 		Code: postFormString(r, "witness-code"),
 	}
 }
 
-func (w *witnessingAsCertificateProviderForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (w *witnessingAsCertificateProviderForm) Validate() validation.List {
+	var errors validation.List
 
 	if w.Code == "" {
-		errors["witness-code"] = "enterWitnessCode"
+		errors.Add("witness-code", "enterWitnessCode")
 	} else if len(w.Code) < 4 {
-		errors["witness-code"] = "witnessCodeTooShort"
+		errors.Add("witness-code", "witnessCodeTooShort")
 	}
 
 	if len(w.Code) > 4 {
-		errors["witness-code"] = "witnessCodeTooLong"
+		errors.Add("witness-code", "witnessCodeTooLong")
 	}
 
 	return errors

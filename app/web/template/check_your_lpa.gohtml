@@ -23,10 +23,11 @@
         {{ tr .App "peopleNamedOnTheLpa" }}
       </h2>
 
-      {{ template "people-named-on-lpa" . }}
+      {{ $showHeaders := not (eq .Lpa.Tasks.CheckYourLpa.String "completed") }}
+      {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa $showHeaders) }}
 
       <form novalidate method="post">
-        <div class="govuk-form-group  {{ if index .Errors "checked" }}govuk-form-group--error{{ end }}">
+        <div class="govuk-form-group  {{ if .Errors.Has "checked" }}govuk-form-group--error{{ end }}">
           {{ template "error-message" (errorMessage . "checked") }}
           <div class="govuk-checkboxes" data-module="govuk-checkboxes">
             <div class="govuk-checkboxes__item">
@@ -38,7 +39,7 @@
           </div>
         </div>
 
-        <div class="govuk-form-group {{ if index .Errors "happy" }}govuk-form-group--error{{ end }}">
+        <div class="govuk-form-group {{ if .Errors.Has "happy" }}govuk-form-group--error{{ end }}">
           {{ template "error-message" (errorMessage . "happy") }}
           <div class="govuk-checkboxes" data-module="govuk-checkboxes">
             <div class="govuk-checkboxes__item">

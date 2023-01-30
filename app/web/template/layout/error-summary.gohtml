@@ -1,14 +1,14 @@
 {{ define "error-summary" }}
-  {{ if .Errors }}
+  {{ if .Errors.Any }}
     <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
       <h2 class="govuk-error-summary__title" id="error-summary-title">
         {{ tr .App "thereIsAProblem" }}
       </h2>
       <div class="govuk-error-summary__body">
         <ul class="govuk-list govuk-error-summary__list">
-          {{ range $k, $v := .Errors }}
+          {{ range .Errors }}
             <li>
-              <a href="#f-{{ $k }}">{{ tr $.App $v }}</a>
+              <a href="#f-{{ .Name }}">{{ tr $.App .Error }}</a>
             </li>
           {{ end }}
         </ul>

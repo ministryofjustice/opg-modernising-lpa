@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -192,11 +193,9 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationE
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
-			App: appData,
-			Errors: map[string]string{
-				"carry-out-by": "selectHowWouldCertificateProviderPreferToCarryOutTheirRole",
-			},
-			Form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
+			App:    appData,
+			Errors: validation.With("carry-out-by", "selectHowWouldCertificateProviderPreferToCarryOutTheirRole"),
+			Form:   &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
 		}).
 		Return(nil)
 
@@ -226,47 +225,41 @@ func TestReadHowWouldCertificateProviderPreferToCarryOutTheirRoleForm(t *testing
 func TestHowWouldCertificateProviderPreferToCarryOutTheirRoleFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"paper": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
 				CarryOutBy: "paper",
 			},
-			errors: map[string]string{},
 		},
 		"email": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
 				CarryOutBy: "email",
 				Email:      "someone@example.com",
 			},
-			errors: map[string]string{},
 		},
 		"email invalid": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
 				CarryOutBy: "email",
 				Email:      "what",
 			},
-			errors: map[string]string{"email": "emailIncorrectFormat"},
+			errors: validation.With("email", "emailIncorrectFormat"),
 		},
 		"email missing": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
 				CarryOutBy: "email",
 			},
-			errors: map[string]string{"email": "enterEmail"},
+			errors: validation.With("email", "enterEmail"),
 		},
 		"missing": {
-			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
-			errors: map[string]string{
-				"carry-out-by": "selectHowWouldCertificateProviderPreferToCarryOutTheirRole",
-			},
+			form:   &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
+			errors: validation.With("carry-out-by", "selectHowWouldCertificateProviderPreferToCarryOutTheirRole"),
 		},
 		"invalid": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
 				CarryOutBy: "what",
 			},
-			errors: map[string]string{
-				"carry-out-by": "selectHowWouldCertificateProviderPreferToCarryOutTheirRole",
-			},
+			errors: validation.With("carry-out-by", "selectHowWouldCertificateProviderPreferToCarryOutTheirRole"),
 		},
 	}
 
