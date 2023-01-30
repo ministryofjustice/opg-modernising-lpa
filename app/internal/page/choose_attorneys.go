@@ -7,24 +7,15 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type chooseAttorneysData struct {
 	App         AppData
-	Errors      map[string]string
+	Errors      validation.List
 	Form        *chooseAttorneysForm
 	ShowDetails bool
 	DobWarning  string
-}
-
-type chooseAttorneysForm struct {
-	FirstNames       string
-	LastName         string
-	Email            string
-	Dob              Date
-	DateOfBirth      time.Time
-	DateOfBirthError error
-	IgnoreWarning    string
 }
 
 func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) Handler {
@@ -60,11 +51,11 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 			data.Errors = data.Form.Validate()
 			dobWarning := data.Form.DobWarning()
 
-			if len(data.Errors) != 0 || data.Form.IgnoreWarning != dobWarning {
+			if data.Errors.Any() || data.Form.IgnoreWarning != dobWarning {
 				data.DobWarning = dobWarning
 			}
 
-			if len(data.Errors) == 0 && data.DobWarning == "" {
+			if data.Errors.None() && data.DobWarning == "" {
 				if attorneyFound == false {
 					attorney = Attorney{
 						FirstNames:  data.Form.FirstNames,
@@ -105,6 +96,16 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 	}
 }
 
+type chooseAttorneysForm struct {
+	FirstNames       string
+	LastName         string
+	Email            string
+	Dob              Date
+	DateOfBirth      time.Time
+	DateOfBirthError error
+	IgnoreWarning    string
+}
+
 func readChooseAttorneysForm(r *http.Request) *chooseAttorneysForm {
 	d := &chooseAttorneysForm{}
 	d.FirstNames = postFormString(r, "first-names")
@@ -123,38 +124,38 @@ func readChooseAttorneysForm(r *http.Request) *chooseAttorneysForm {
 	return d
 }
 
-func (d *chooseAttorneysForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (d *chooseAttorneysForm) Validate() validation.List {
+	var errors validation.List
 
 	if d.FirstNames == "" {
-		errors["first-names"] = "enterFirstNames"
+		errors.Add("first-names", "enterFirstNames")
 	}
 	if len(d.FirstNames) > 53 {
-		errors["first-names"] = "firstNamesTooLong"
+		errors.Add("first-names", "firstNamesTooLong")
 	}
 
 	if d.LastName == "" {
-		errors["last-name"] = "enterLastName"
+		errors.Add("last-name", "enterLastName")
 	}
 	if len(d.LastName) > 61 {
-		errors["last-name"] = "lastNameTooLong"
+		errors.Add("last-name", "lastNameTooLong")
 	}
 
 	if d.Email == "" {
-		errors["email"] = "enterEmail"
+		errors.Add("email", "enterEmail")
 	} else if _, err := mail.ParseAddress(fmt.Sprintf("<%s>", d.Email)); err != nil {
-		errors["email"] = "emailIncorrectFormat"
+		errors.Add("email", "emailIncorrectFormat")
 	}
 
 	if d.Dob.Day == "" || d.Dob.Month == "" || d.Dob.Year == "" {
-		errors["date-of-birth"] = "enterDateOfBirth"
+		errors.Add("date-of-birth", "enterDateOfBirth")
 	} else if d.DateOfBirthError != nil {
-		errors["date-of-birth"] = "dateOfBirthMustBeReal"
+		errors.Add("date-of-birth", "dateOfBirthMustBeReal")
 	} else {
 		today := time.Now().UTC().Round(24 * time.Hour)
 
 		if d.DateOfBirth.After(today) {
-			errors["date-of-birth"] = "dateOfBirthIsFuture"
+			errors.Add("date-of-birth", "dateOfBirthIsFuture")
 		}
 	}
 

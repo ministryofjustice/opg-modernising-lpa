@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -161,10 +162,8 @@ func TestPostHowWouldYouLikeToBeContactedWhenValidationErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howWouldYouLikeToBeContactedData{
-			App: appData,
-			Errors: map[string]string{
-				"contact": "selectContact",
-			},
+			App:    appData,
+			Errors: validation.With("contact", "selectContact"),
 		}).
 		Return(nil)
 
@@ -192,27 +191,22 @@ func TestReadHowWouldYouLikeToBeContactedForm(t *testing.T) {
 func TestHowWouldYouLikeToBeContactedFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *howWouldYouLikeToBeContactedForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"all": {
 			form: &howWouldYouLikeToBeContactedForm{
 				Contact: []string{"email", "phone", "text message", "post"},
 			},
-			errors: map[string]string{},
 		},
 		"missing": {
-			form: &howWouldYouLikeToBeContactedForm{},
-			errors: map[string]string{
-				"contact": "selectContact",
-			},
+			form:   &howWouldYouLikeToBeContactedForm{},
+			errors: validation.With("contact", "selectContact"),
 		},
 		"invalid": {
 			form: &howWouldYouLikeToBeContactedForm{
 				Contact: []string{"email", "what"},
 			},
-			errors: map[string]string{
-				"contact": "selectContact",
-			},
+			errors: validation.With("contact", "selectContact"),
 		},
 	}
 

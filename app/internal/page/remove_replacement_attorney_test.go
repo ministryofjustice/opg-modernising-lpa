@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -30,8 +31,7 @@ func TestGetRemoveReplacementAttorney(t *testing.T) {
 		On("Func", w, &removeReplacementAttorneyData{
 			App:      appData,
 			Attorney: attorney,
-			Errors:   nil,
-			Form:     removeAttorneyForm{},
+			Form:     &removeAttorneyForm{},
 		}).
 		Return(nil)
 
@@ -248,9 +248,7 @@ func TestRemoveReplacementAttorneyFormValidation(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&Lpa{ReplacementAttorneys: []Attorney{attorneyWithoutAddress}}, nil)
 
-	validationError := map[string]string{
-		"remove-attorney": "selectRemoveAttorney",
-	}
+	validationError := validation.With("remove-attorney", "selectRemoveAttorney")
 
 	template := &mockTemplate{}
 	template.
