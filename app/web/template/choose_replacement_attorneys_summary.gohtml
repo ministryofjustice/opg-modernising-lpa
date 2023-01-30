@@ -16,7 +16,7 @@
             {{ tr .App "doYouWantToAddAnotherReplacementAttorney" }}
           </legend>
 
-          <div class="govuk-form-group {{ if index .Errors "add-attorney" }}govuk-form-group--error{{ end }}">
+          <div class="govuk-form-group {{ if .Errors.Has "add-attorney" }}govuk-form-group--error{{ end }}">
             {{ template "error-message" (errorMessage . "add-attorney") }}
 
             {{ template "radios" (items . "add-attorney" ""

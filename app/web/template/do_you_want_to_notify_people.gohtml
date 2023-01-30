@@ -18,7 +18,7 @@
 
         {{ trHtml .App "findOutMoreAboutPeopleToNotifyLink" }}
 
-        <div class="govuk-form-group {{ if index .Errors "want-to-notify" }}govuk-form-group--error{{ end }}">
+        <div class="govuk-form-group {{ if .Errors.Has "want-to-notify" }}govuk-form-group--error{{ end }}">
           <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
             <h2 class="govuk-fieldset__heading">{{ tr .App "wantPeopleToNotify" }}</h2>
           </legend>

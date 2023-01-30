@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -163,10 +164,8 @@ func TestPostWhoIsTheLpaForWhenValidationErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &whoIsTheLpaForData{
-			App: appData,
-			Errors: map[string]string{
-				"who-for": "selectWhoFor",
-			},
+			App:    appData,
+			Errors: validation.With("who-for", "selectWhoFor"),
 		}).
 		Return(nil)
 
@@ -194,33 +193,27 @@ func TestReadWhoIsTheLpaForForm(t *testing.T) {
 func TestWhoIsTheLpaForFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *whoIsTheLpaForForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"me": {
 			form: &whoIsTheLpaForForm{
 				WhoFor: "me",
 			},
-			errors: map[string]string{},
 		},
 		"someone-else": {
 			form: &whoIsTheLpaForForm{
 				WhoFor: "someone-else",
 			},
-			errors: map[string]string{},
 		},
 		"missing": {
-			form: &whoIsTheLpaForForm{},
-			errors: map[string]string{
-				"who-for": "selectWhoFor",
-			},
+			form:   &whoIsTheLpaForForm{},
+			errors: validation.With("who-for", "selectWhoFor"),
 		},
 		"invalid": {
 			form: &whoIsTheLpaForForm{
 				WhoFor: "what",
 			},
-			errors: map[string]string{
-				"who-for": "selectWhoFor",
-			},
+			errors: validation.With("who-for", "selectWhoFor"),
 		},
 	}
 

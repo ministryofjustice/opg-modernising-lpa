@@ -1,5 +1,5 @@
 {{ define "input" }}
-  <div class="govuk-form-group {{ if index .top.Errors .name }}govuk-form-group--error{{ end }}">
+  <div class="govuk-form-group {{ if .top.Errors.Has .name }}govuk-form-group--error{{ end }}">
     <label class="{{ if .context }}govuk-heading-m{{ else }}govuk-label{{ end }}" for="f-{{ .name }}">{{ tr .top.App .label }}</label>
     {{ if .context }}
       <p class="govuk-body">
@@ -12,6 +12,6 @@
       </div>
     {{ end }}
     {{ template "error-message" (errorMessage .top .name) }}
-    <input class="govuk-input {{ .classes }} {{ if index .top.Errors .name }}govuk-input--error{{ end }}" id="f-{{ .name }}" name="{{ .name }}" value="{{ .value }}" {{ if .autocomplete }}autocomplete="{{ .autocomplete }}"{{ end }} {{ if .spellcheck }}spellcheck="{{ .spellcheck }}"{{ end }} {{ if .type }}type="{{ .type }}"{{ end }} />
+    <input class="govuk-input {{ .classes }} {{ if .top.Errors.Has .name }}govuk-input--error{{ end }}" id="f-{{ .name }}" name="{{ .name }}" value="{{ .value }}" {{ if .autocomplete }}autocomplete="{{ .autocomplete }}"{{ end }} {{ if .spellcheck }}spellcheck="{{ .spellcheck }}"{{ end }} {{ if .type }}type="{{ .type }}"{{ end }} />
   </div>
 {{ end }}
