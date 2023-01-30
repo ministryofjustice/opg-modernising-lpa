@@ -16,6 +16,6 @@ describe('Choose attorneys', () => {
 
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/choose-attorneys-address');
-        cy.contains("John Doe's address");
+        cy.contains("John Doe’s address");
     });
 });
