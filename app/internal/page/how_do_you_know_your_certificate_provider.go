@@ -84,16 +84,12 @@ func readHowDoYouKnowYourCertificateProviderForm(r *http.Request) *howDoYouKnowY
 func (f *howDoYouKnowYourCertificateProviderForm) Validate() validation.List {
 	var errors validation.List
 
-	if f.How == "" {
-		errors.Add("how", "selectHowYouKnowCertificateProvider")
-	}
+	errors.String("how", "howYouKnowCertificateProvider", f.How,
+		validation.Select("friend", "neighbour", "colleague", "health-professional", "legal-professional", "other"))
 
-	if f.How == "other" && f.Description == "" {
-		errors.Add("description", "enterDescription")
-	}
-
-	if f.How != "friend" && f.How != "neighbour" && f.How != "colleague" && f.How != "health-professional" && f.How != "legal-professional" && f.How != "other" {
-		errors.Add("how", "selectHowYouKnowCertificateProvider")
+	if f.How == "other" {
+		errors.String("description", "description", f.Description,
+			validation.Empty())
 	}
 
 	return errors

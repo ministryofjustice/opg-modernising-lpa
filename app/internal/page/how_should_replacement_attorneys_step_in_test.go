@@ -129,14 +129,6 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 		HowShouldReplacementAttorneysStepIn string
 		ExpectedRedirectUrl                 string
 	}{
-		"single attorney": {
-			Attorneys: []Attorney{
-				{ID: "123"},
-			},
-			HowAttorneysMakeDecisions:           "doesnt matter",
-			HowShouldReplacementAttorneysStepIn: "doesnt matter",
-			ExpectedRedirectUrl:                 "/lpa/lpa-id" + Paths.TaskList,
-		},
 		"multiple attorneys acting jointly and severally replacements step in when none left": {
 			Attorneys: []Attorney{
 				{ID: "123"},
@@ -165,7 +157,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 				{ID: "123"},
 			},
 			HowAttorneysMakeDecisions:           "jointly-and-severally",
-			HowShouldReplacementAttorneysStepIn: "doesnt matter",
+			HowShouldReplacementAttorneysStepIn: OneCanNoLongerAct,
 			ExpectedRedirectUrl:                 "/lpa/lpa-id" + Paths.TaskList,
 		},
 	}
@@ -292,7 +284,7 @@ func TestPostHowShouldReplacementAttorneysStepInFormValidation(t *testing.T) {
 	template.
 		On("Func", w, &howShouldReplacementAttorneysStepInData{
 			App:    appData,
-			Errors: validation.With("when-to-step-in", "selectWhenToStepIn"),
+			Errors: validation.With("when-to-step-in", validation.SelectError{Label: "whenYourReplacementAttorneysStepIn"}),
 			Form:   &howShouldReplacementAttorneysStepInForm{},
 		}).
 		Return(nil)
@@ -347,12 +339,12 @@ func TestHowShouldReplacementAttorneysStepInFormValidate(t *testing.T) {
 		"missing whenToStepIn": {
 			whenToStepIn:   "",
 			otherDetails:   "",
-			expectedErrors: validation.With("when-to-step-in", "selectWhenToStepIn"),
+			expectedErrors: validation.With("when-to-step-in", validation.SelectError{Label: "whenYourReplacementAttorneysStepIn"}),
 		},
 		"other missing otherDetail": {
 			whenToStepIn:   SomeOtherWay,
 			otherDetails:   "",
-			expectedErrors: validation.With("other-details", "provideDetailsOfWhenToStepIn"),
+			expectedErrors: validation.With("other-details", validation.EnterError{Label: "detailsOfWhenToStepIn"}),
 		},
 	}
 

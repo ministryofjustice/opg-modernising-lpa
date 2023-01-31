@@ -68,4 +68,14 @@ describe('Select your identity options', () => {
         cy.contains('your bank account');        
         cy.contains('button', 'Continue');
     });
+
+    it('errors when unselected', () => {
+        cy.contains('button', 'Continue').click();
+
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Select from the listed options');
+        });
+        
+        cy.contains('.govuk-fieldset .govuk-error-message', 'Select from the listed options');
+    });
 });

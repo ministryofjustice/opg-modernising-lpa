@@ -85,9 +85,8 @@ func readRemovePersonToNotifyForm(r *http.Request) *removePersonToNotifyForm {
 func (f *removePersonToNotifyForm) Validate() validation.List {
 	var errors validation.List
 
-	if f.RemovePersonToNotify != "yes" && f.RemovePersonToNotify != "no" {
-		errors.Add("remove-person-to-notify", "selectRemovePersonToNotify")
-	}
+	errors.String("remove-person-to-notify", "removePersonToNotify", f.RemovePersonToNotify,
+		validation.Select("yes", "no"))
 
 	return errors
 }

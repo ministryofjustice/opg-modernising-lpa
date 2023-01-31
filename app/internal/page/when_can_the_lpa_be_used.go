@@ -67,9 +67,8 @@ func readWhenCanTheLpaBeUsedForm(r *http.Request) *whenCanTheLpaBeUsedForm {
 func (f *whenCanTheLpaBeUsedForm) Validate() validation.List {
 	var errors validation.List
 
-	if f.When != UsedWhenRegistered && f.When != UsedWhenCapacityLost {
-		errors.Add("when", "selectWhenCanTheLpaBeUsed")
-	}
+	errors.String("when", "whenTheLpaCanBeUsed", f.When,
+		validation.Select(UsedWhenRegistered, UsedWhenCapacityLost))
 
 	return errors
 }
