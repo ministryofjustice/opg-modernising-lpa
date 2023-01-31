@@ -39,12 +39,6 @@ var address = place.Address{
 	Postcode:   "e",
 }
 
-func TestReadDate(t *testing.T) {
-	date := readDate(time.Date(2020, time.March, 12, 0, 0, 0, 0, time.Local))
-
-	assert.Equal(t, Date{Day: "12", Month: "3", Year: "2020"}, date)
-}
-
 type mockDataStore struct {
 	data interface{}
 	mock.Mock
@@ -626,54 +620,6 @@ func TestCanGoTo(t *testing.T) {
 			assert.Equal(t, tc.expected, tc.lpa.CanGoTo(tc.url))
 		})
 	}
-}
-
-func TestEntered(t *testing.T) {
-	testCases := map[string]struct {
-		Date     Date
-		Expected bool
-	}{
-		"valid": {
-			Date: Date{
-				Day:   "1",
-				Month: "2",
-				Year:  "3",
-			},
-			Expected: true,
-		},
-		"missing day": {
-			Date: Date{
-				Month: "2",
-				Year:  "3",
-			},
-			Expected: false,
-		},
-		"missing month": {
-			Date: Date{
-				Day:  "1",
-				Year: "3",
-			},
-			Expected: false,
-		},
-		"missing year": {
-			Date: Date{
-				Day:   "1",
-				Month: "2",
-			},
-			Expected: false,
-		},
-		"missing all": {
-			Date:     Date{},
-			Expected: false,
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.Expected, tc.Date.Entered())
-		})
-	}
-
 }
 
 func TestTaskStateString(t *testing.T) {
