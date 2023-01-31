@@ -13,14 +13,13 @@
         {{ trHtml .App "wantPeopleToNotifyContent" }}
 
         {{ $lpaType := tr .App .Lpa.TypeLegalTermTransKey }}
-        {{ $howWorkTogether := tr .App .HowWorkTogether }}
 
         <p class="govuk-body">{{ tr .App "weWillOnlyTellThem" }}</p>
         <ul class="govuk-list govuk-list--bullet">
-          <li>{{trFormat .App "thatYouHaveMadeALpaType" "LpaType" .Lpa.Type }}</li>
+          <li>{{trFormat .App "thatYouHaveMadeALpaType" "LpaType" $lpaType }}</li>
           <li>{{ trFormatCount .App "thatYourAttorneysAre" (len .Lpa.Attorneys) "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}</li>
           {{ if gt (len .Lpa.Attorneys) 1 }}
-            <li>{{ $howWorkTogether }}</li>
+            <li>{{ tr .App .HowWorkTogether }}</li>
           {{ end }}
           <li>{{ tr .App "whatToDoIfYouHaveConcerns" }}</li>
         </ul>
