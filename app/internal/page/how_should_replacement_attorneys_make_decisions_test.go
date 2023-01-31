@@ -239,10 +239,11 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenValidationErrors(t *t
 	template.
 		On("Func", w, &howShouldReplacementAttorneysMakeDecisionsData{
 			App:    appData,
-			Errors: validation.With("decision-type", "chooseADecisionType"),
+			Errors: validation.With("decision-type", validation.SelectError{Label: "howReplacementAttorneysShouldMakeDecisions"}),
 			Form: &howShouldAttorneysMakeDecisionsForm{
 				DecisionsType:    "",
 				DecisionsDetails: "",
+				errorLabel:       "howReplacementAttorneysShouldMakeDecisions",
 			},
 		}).
 		Return(nil)

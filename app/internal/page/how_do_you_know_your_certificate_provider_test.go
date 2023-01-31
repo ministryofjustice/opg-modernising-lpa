@@ -247,7 +247,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenValidationErrors(t *testing.
 		On("Func", w, &howDoYouKnowYourCertificateProviderData{
 			App:    appData,
 			Form:   &howDoYouKnowYourCertificateProviderForm{},
-			Errors: validation.With("how", "selectHowYouKnowCertificateProvider"),
+			Errors: validation.With("how", validation.SelectError{Label: "howYouKnowCertificateProvider"}),
 		}).
 		Return(nil)
 
@@ -287,19 +287,19 @@ func TestHowDoYouKnowYourCertificateProviderFormValidate(t *testing.T) {
 		},
 		"missing": {
 			form:   &howDoYouKnowYourCertificateProviderForm{},
-			errors: validation.With("how", "selectHowYouKnowCertificateProvider"),
+			errors: validation.With("how", validation.SelectError{Label: "howYouKnowCertificateProvider"}),
 		},
 		"invalid-option": {
 			form: &howDoYouKnowYourCertificateProviderForm{
 				How: "what",
 			},
-			errors: validation.With("how", "selectHowYouKnowCertificateProvider"),
+			errors: validation.With("how", validation.SelectError{Label: "howYouKnowCertificateProvider"}),
 		},
 		"other-missing-description": {
 			form: &howDoYouKnowYourCertificateProviderForm{
 				How: "other",
 			},
-			errors: validation.With("description", "enterDescription"),
+			errors: validation.With("description", validation.EnterError{Label: "description"}),
 		},
 	}
 

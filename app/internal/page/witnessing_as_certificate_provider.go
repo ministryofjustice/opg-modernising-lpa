@@ -33,9 +33,9 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, 
 			data.Errors = data.Form.Validate()
 
 			if lpa.WitnessCode.HasExpired() {
-				data.Errors.Add("witness-code", "witnessCodeExpired")
+				data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeExpired"})
 			} else if lpa.WitnessCode.Code != data.Form.Code {
-				data.Errors.Add("witness-code", "witnessCodeDoesNotMatch")
+				data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeDoesNotMatch"})
 			}
 
 			if data.Errors.None() {
@@ -66,15 +66,9 @@ func readWitnessingAsCertificateProviderForm(r *http.Request) *witnessingAsCerti
 func (w *witnessingAsCertificateProviderForm) Validate() validation.List {
 	var errors validation.List
 
-	if w.Code == "" {
-		errors.Add("witness-code", "enterWitnessCode")
-	} else if len(w.Code) < 4 {
-		errors.Add("witness-code", "witnessCodeTooShort")
-	}
-
-	if len(w.Code) > 4 {
-		errors.Add("witness-code", "witnessCodeTooLong")
-	}
+	errors.String("witness-code", "theCodeWeSentCertificateProvider", w.Code,
+		validation.Empty(),
+		validation.StringLength(4))
 
 	return errors
 }
