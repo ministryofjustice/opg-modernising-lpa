@@ -104,41 +104,100 @@ describe('People to notify', () => {
     });
 
     it('can remove a person to notify', () => {
-            cy.visit('/testing-start?redirect=/do-you-want-to-notify-people');
+        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people');
 
-            cy.injectAxe();
-            cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-            cy.get('input[name="want-to-notify"]').check('yes')
-            cy.contains('button', 'Continue').click();
+        cy.get('input[name="want-to-notify"]').check('yes')
+        cy.contains('button', 'Continue').click();
 
-            addPersonToNotify(person1)
+        addPersonToNotify(person1)
 
-            cy.get('input[name="add-person-to-notify"]').check('yes')
-            cy.contains('button', 'Continue').click();
+        cy.get('input[name="add-person-to-notify"]').check('yes')
+        cy.contains('button', 'Continue').click();
 
-            addPersonToNotify(person2)
+        addPersonToNotify(person2)
 
-            cy.get('#remove-person-to-notify-2').contains(`Remove ${person2.firstNames} ${person2.lastName}`).click();
+        cy.get('#remove-person-to-notify-2').contains(`Remove ${person2.firstNames} ${person2.lastName}`).click();
 
-            cy.url().should('contain', '/remove-person-to-notify');
+        cy.url().should('contain', '/remove-person-to-notify');
 
-            cy.injectAxe();
-            cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-            cy.get('input[name="remove-person-to-notify"]').check('yes')
-            cy.contains('button', 'Continue').click();
+        cy.get('input[name="remove-person-to-notify"]').check('yes')
+        cy.contains('button', 'Continue').click();
 
-            cy.url().should('contain', '/choose-people-to-notify-summary');
+        cy.url().should('contain', '/choose-people-to-notify-summary');
 
-            cy.get('#remove-person-to-notify-1').contains(`Remove ${person1.firstNames} ${person1.lastName}`).click();
+        cy.get('#remove-person-to-notify-1').contains(`Remove ${person1.firstNames} ${person1.lastName}`).click();
 
-            cy.url().should('contain', '/remove-person-to-notify');
+        cy.url().should('contain', '/remove-person-to-notify');
 
-            cy.get('input[name="remove-person-to-notify"]').check('yes')
-            cy.contains('button', 'Continue').click();
+        cy.get('input[name="remove-person-to-notify"]').check('yes')
+        cy.contains('button', 'Continue').click();
 
-            cy.url().should('contain', '/do-you-want-to-notify-people');
+        cy.url().should('contain', '/do-you-want-to-notify-people');
+    });
+
+    it('errors when unselected', () => {
+        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people');
+        cy.contains('button', 'Continue').click();
+
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Select yes to notify someone about your LPA');
+        });
+        
+        cy.contains('.govuk-fieldset .govuk-error-message', 'Select yes to notify someone about your LPA');
+    });
+    
+    it('errors when people to notify details empty', () => {
+        cy.visit('/testing-start?redirect=/choose-people-to-notify');
+        cy.contains('button', 'Continue').click();
+
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Enter first names');
+            cy.contains('Enter last name');
+            cy.contains('Enter email address');
+        });
+        
+        cy.contains('[for=f-first-names] + .govuk-error-message', 'Enter first names');
+        cy.contains('[for=f-last-name] + .govuk-error-message', 'Enter last name');
+        cy.contains('[for=f-email] + .govuk-error-message', 'Enter email address');
+    });
+        
+    it('errors when people to notify details invalid', () => {
+        cy.visit('/testing-start?redirect=/choose-people-to-notify');
+
+        cy.get('#f-first-names').invoke('val', 'a'.repeat(54));
+        cy.get('#f-last-name').invoke('val', 'b'.repeat(62));
+        cy.get('#f-email').type('not-an-email');
+        cy.contains('button', 'Continue').click();
+        
+        cy.contains('[for=f-first-names] + .govuk-error-message', 'First names must be 53 characters or less');
+        cy.contains('[for=f-last-name] + .govuk-error-message', 'Last name must be 61 characters or less');
+        cy.contains('[for=f-email] + .govuk-error-message', 'Email address must be in the correct format, like name@example.com');
+    });
+
+    it('errors when another not selected', () => {
+        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people');
+
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+        cy.get('input[name="want-to-notify"]').check('yes')
+        cy.contains('button', 'Continue').click();
+
+        addPersonToNotify(person1, true)
+
+        cy.contains('button', 'Continue').click();
+
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Select yes to add another person to notify');
+        });
+
+        cy.contains('.govuk-fieldset .govuk-error-message', 'Select yes to add another person to notify');
     });
 });
 
