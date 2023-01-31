@@ -5,10 +5,14 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ trFormat .App "doYouWantToRemove" "FirstNames" .Attorney.FirstNames "LastName" .Attorney.LastName }}</h1>
-
       <form novalidate method="post">
-        <div class="govuk-form-group">
+        <fieldset class="govuk-fieldset">
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+            <h1 class="govuk-fieldset__heading">
+              {{ trFormat .App "doYouWantToRemove" "FirstNames" .Attorney.FirstNames "LastName" .Attorney.LastName }}
+            </h1>
+          </legend>
+
           <div class="govuk-form-group {{ if .Errors.Has "remove-attorney" }}govuk-form-group--error{{ end }}">
             {{ template "error-message" (errorMessage . "remove-attorney") }}
 
@@ -17,9 +21,9 @@
               (item "no" "no")
             ) }}
           </div>
-        </div>
-
-        <div class="govuk-button-group">
+        </fieldset>
+          
+        <div class="govuk-button-group govuk-!-margin-top-4">
           {{ template "continue-button" . }}
         </div>
       </form>

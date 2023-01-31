@@ -27,4 +27,25 @@ describe('How should attorneys make decisions', () => {
 
         cy.url().should('contain', '/do-you-want-replacement-attorneys');
     });
+    
+    it('errors when unselected', () => {
+        cy.contains('button', 'Continue').click();
+        
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Select how the attorneys should make decisions');
+        });
+        
+        cy.contains('.govuk-fieldset .govuk-error-message', 'Select how the attorneys should make decisions');
+    });
+    
+    it('errors when details empty', () => {
+        cy.get('input[name="decision-type"]').check('mixed');
+        cy.contains('button', 'Continue').click();
+        
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Enter details');
+        });
+        
+        cy.contains('[for=f-mixed-details] + .govuk-error-message', 'Enter details');
+    });
 });

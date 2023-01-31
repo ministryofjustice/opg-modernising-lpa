@@ -24,8 +24,9 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysSummaryData{
-			App: appData,
-			Lpa: &Lpa{},
+			App:  appData,
+			Lpa:  &Lpa{},
+			Form: &chooseAttorneysSummaryForm{},
 		}).
 		Return(nil)
 
@@ -122,7 +123,7 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
-	validationError := validation.With("add-attorney", "selectAddMoreAttorneys")
+	validationError := validation.With("add-attorney", validation.SelectError{Label: "yesToAddAnotherAttorney"})
 
 	template := &mockTemplate{}
 	template.
@@ -155,14 +156,15 @@ func TestChooseAttorneysSummaryFormValidate(t *testing.T) {
 			},
 		},
 		"missing": {
-			form:   &chooseAttorneysSummaryForm{},
-			errors: validation.With("add-attorney", "selectAddMoreAttorneys"),
+			form:   &chooseAttorneysSummaryForm{errorLabel: "xyz"},
+			errors: validation.With("add-attorney", validation.SelectError{Label: "xyz"}),
 		},
 		"invalid": {
 			form: &chooseAttorneysSummaryForm{
 				AddAttorney: "what",
+				errorLabel:  "xyz",
 			},
-			errors: validation.With("add-attorney", "selectAddMoreAttorneys"),
+			errors: validation.With("add-attorney", validation.SelectError{Label: "xyz"}),
 		},
 	}
 

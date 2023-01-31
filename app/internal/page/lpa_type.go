@@ -57,9 +57,8 @@ func readLpaTypeForm(r *http.Request) *lpaTypeForm {
 func (f *lpaTypeForm) Validate() validation.List {
 	var errors validation.List
 
-	if f.LpaType != LpaTypePropertyFinance && f.LpaType != LpaTypeHealthWelfare && f.LpaType != LpaTypeCombined {
-		errors.Add("lpa-type", "selectLpaType")
-	}
+	errors.String("lpa-type", "theTypeOfLpaToMake", f.LpaType,
+		validation.Select(LpaTypePropertyFinance, LpaTypeHealthWelfare, LpaTypeCombined))
 
 	return errors
 }

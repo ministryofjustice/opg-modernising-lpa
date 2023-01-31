@@ -251,7 +251,7 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotifyWithoutAddress}}, nil)
 
-	validationError := validation.With("remove-person-to-notify", "selectRemovePersonToNotify")
+	validationError := validation.With("remove-person-to-notify", validation.SelectError{Label: "removePersonToNotify"})
 
 	template := &mockTemplate{}
 	template.
@@ -328,13 +328,13 @@ func TestRemovePersonToNotifyFormValidate(t *testing.T) {
 			form: &removePersonToNotifyForm{
 				RemovePersonToNotify: "",
 			},
-			errors: validation.With("remove-person-to-notify", "selectRemovePersonToNotify"),
+			errors: validation.With("remove-person-to-notify", validation.SelectError{Label: "removePersonToNotify"}),
 		},
 		"unexpected-value": {
 			form: &removePersonToNotifyForm{
 				RemovePersonToNotify: "not expected",
 			},
-			errors: validation.With("remove-person-to-notify", "selectRemovePersonToNotify"),
+			errors: validation.With("remove-person-to-notify", validation.SelectError{Label: "removePersonToNotify"}),
 		},
 	}
 

@@ -135,4 +135,16 @@ describe('Choose replacement attorneys summary', () => {
 
         cy.url().should('contain', '/do-you-want-replacement-attorneys');
     });
+    
+    it('errors when remove not selected', () => {
+        cy.get('#remove-attorney-1').contains('a', 'Remove').click();
+
+        cy.contains('button', 'Continue').click();
+
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Select yes to remove the replacement attorney');
+        });
+
+        cy.contains('.govuk-fieldset .govuk-error-message', 'Select yes to remove the replacement attorney');
+    });
 });
