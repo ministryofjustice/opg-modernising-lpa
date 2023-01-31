@@ -59,11 +59,11 @@ func readHowLongHaveYouKnownCertificateProviderForm(r *http.Request) *howLongHav
 func (f *howLongHaveYouKnownCertificateProviderForm) Validate() validation.List {
 	var errors validation.List
 
-	if f.HowLong != "gte-2-years" && f.HowLong != "lt-2-years" {
-		errors.Add("how-long", "selectHowLongHaveYouKnownCertificateProvider")
-	}
+	errors.String("how-long", "howLongYouHaveKnownCertificateProvider", f.HowLong,
+		validation.Select("gte-2-years", "lt-2-years"))
+
 	if f.HowLong == "lt-2-years" {
-		errors.Add("how-long", "mustHaveKnownCertificateProviderTwoYears")
+		errors.AddKey("how-long", validation.CustomError{Label: "mustHaveKnownCertificateProviderTwoYears"})
 	}
 
 	return errors

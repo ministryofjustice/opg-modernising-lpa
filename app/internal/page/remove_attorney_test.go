@@ -251,7 +251,7 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&Lpa{Attorneys: []Attorney{attorneyWithoutAddress}}, nil)
 
-	validationError := validation.With("remove-attorney", "selectRemoveAttorney")
+	validationError := validation.With("remove-attorney", validation.SelectError{Label: "yesToRemoveAttorney"})
 
 	template := &mockTemplate{}
 	template.
@@ -316,14 +316,16 @@ func TestRemoveAttorneyFormValidate(t *testing.T) {
 		"missing-value": {
 			form: &removeAttorneyForm{
 				RemoveAttorney: "",
+				errorLabel:     "xyz",
 			},
-			errors: validation.With("remove-attorney", "selectRemoveAttorney"),
+			errors: validation.With("remove-attorney", validation.SelectError{Label: "xyz"}),
 		},
 		"unexpected-value": {
 			form: &removeAttorneyForm{
 				RemoveAttorney: "not expected",
+				errorLabel:     "xyz",
 			},
-			errors: validation.With("remove-attorney", "selectRemoveAttorney"),
+			errors: validation.With("remove-attorney", validation.SelectError{Label: "xyz"}),
 		},
 	}
 
