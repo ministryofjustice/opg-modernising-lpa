@@ -50,7 +50,7 @@ func CacheControlHeaders(h http.Handler) http.Handler {
 func IsLpaPath(url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 
-	return path != Paths.Dashboard
+	return path != Paths.Dashboard && path != Paths.Start
 }
 
 const (
