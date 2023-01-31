@@ -165,7 +165,7 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 	template.
 		On("Func", w, &lpaTypeData{
 			App:    appData,
-			Errors: validation.With("lpa-type", "selectLpaType"),
+			Errors: validation.With("lpa-type", validation.SelectError{Label: "theTypeOfLpaToMake"}),
 		}).
 		Return(nil)
 
@@ -212,13 +212,13 @@ func TestLpaTypeFormValidate(t *testing.T) {
 		},
 		"missing": {
 			form:   &lpaTypeForm{},
-			errors: validation.With("lpa-type", "selectLpaType"),
+			errors: validation.With("lpa-type", validation.SelectError{Label: "theTypeOfLpaToMake"}),
 		},
 		"invalid": {
 			form: &lpaTypeForm{
 				LpaType: "what",
 			},
-			errors: validation.With("lpa-type", "selectLpaType"),
+			errors: validation.With("lpa-type", validation.SelectError{Label: "theTypeOfLpaToMake"}),
 		},
 	}
 
