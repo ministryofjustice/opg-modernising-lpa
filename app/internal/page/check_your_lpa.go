@@ -59,8 +59,6 @@ type checkYourLpaForm struct {
 }
 
 func readCheckYourLpaForm(r *http.Request) *checkYourLpaForm {
-	r.ParseForm()
-
 	return &checkYourLpaForm{
 		Checked: postFormString(r, "checked") == "1",
 		Happy:   postFormString(r, "happy") == "1",
@@ -70,13 +68,10 @@ func readCheckYourLpaForm(r *http.Request) *checkYourLpaForm {
 func (f *checkYourLpaForm) Validate() validation.List {
 	var errors validation.List
 
-	if !f.Checked {
-		errors.Add("checked", "selectCheckedLpa")
-	}
-
-	if !f.Happy {
-		errors.Add("happy", "selectHappyToShareLpa")
-	}
+	errors.Bool("checked", "checkedLpa", f.Checked,
+		validation.Selected())
+	errors.Bool("happy", "happyToShareLpa", f.Happy,
+		validation.Selected())
 
 	return errors
 }

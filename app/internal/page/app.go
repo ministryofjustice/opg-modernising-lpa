@@ -188,8 +188,6 @@ func App(
 		YourDetails(tmpls.Get("your_details.gohtml"), lpaStore, sessionStore))
 	handleLpa(paths.YourAddress, None,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
-	handleLpa(paths.HowWouldYouLikeToBeContacted, None,
-		HowWouldYouLikeToBeContacted(tmpls.Get("how_would_you_like_to_be_contacted.gohtml"), lpaStore))
 	handleLpa(paths.LpaType, None,
 		LpaType(tmpls.Get("lpa_type.gohtml"), lpaStore))
 	handleLpa(paths.WhoIsTheLpaFor, None,
