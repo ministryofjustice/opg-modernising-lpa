@@ -20,5 +20,19 @@ describe('Check the LPA', () => {
         cy.contains('button', 'Confirm').click();
 
         cy.url().should('contain', '/task-list');
+    });
+
+    it("errors when not selected", () => {
+        cy.visit('/testing-start?redirect=/check-your-lpa&withCP=1&withAttorney=1');
+
+        cy.contains('button', 'Confirm').click();
+
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Select that you have checked your LPA and don’t wish to make changes');
+            cy.contains('Select that you are happy to share your LPA with your certificate provider');
+        });
+        
+        cy.contains('.govuk-form-group .govuk-error-message', 'Select that you have checked your LPA and don’t wish to make changes');
+        cy.contains('.govuk-form-group .govuk-error-message', 'Select that you are happy to share your LPA with your certificate provider');
     })
 });

@@ -2,11 +2,10 @@ package page
 
 import (
 	"net/http"
-	"regexp"
 	"strings"
-	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -33,7 +32,7 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 		}
 
 		if !lpa.CertificateProvider.DateOfBirth.IsZero() {
-			data.Form.Dob = readDate(lpa.CertificateProvider.DateOfBirth)
+			data.Form.Dob = date.Read(lpa.CertificateProvider.DateOfBirth)
 		}
 
 		if r.Method == http.MethodPost {
@@ -43,7 +42,7 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 			if data.Errors.None() {
 				lpa.CertificateProvider.FirstNames = data.Form.FirstNames
 				lpa.CertificateProvider.LastName = data.Form.LastName
-				lpa.CertificateProvider.DateOfBirth = data.Form.DateOfBirth
+				lpa.CertificateProvider.DateOfBirth = data.Form.Dob.T
 				lpa.CertificateProvider.Mobile = data.Form.Mobile
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
@@ -59,54 +58,42 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 }
 
 type certificateProviderDetailsForm struct {
-	FirstNames       string
-	LastName         string
-	Dob              Date
-	DateOfBirth      time.Time
-	DateOfBirthError error
-	Mobile           string
+	FirstNames string
+	LastName   string
+	Dob        date.Date
+	Mobile     string
 }
 
 func readCertificateProviderDetailsForm(r *http.Request) *certificateProviderDetailsForm {
 	d := &certificateProviderDetailsForm{}
 	d.FirstNames = postFormString(r, "first-names")
 	d.LastName = postFormString(r, "last-name")
-	d.Dob = Date{
-		Day:   postFormString(r, "date-of-birth-day"),
-		Month: postFormString(r, "date-of-birth-month"),
-		Year:  postFormString(r, "date-of-birth-year"),
-	}
+	d.Dob = date.FromParts(
+		postFormString(r, "date-of-birth-year"),
+		postFormString(r, "date-of-birth-month"),
+		postFormString(r, "date-of-birth-day"))
 	d.Mobile = postFormString(r, "mobile")
-
-	d.DateOfBirth, d.DateOfBirthError = time.Parse("2006-1-2", d.Dob.Year+"-"+d.Dob.Month+"-"+d.Dob.Day)
 
 	return d
 }
 
-var mobileRegex = regexp.MustCompile(`^(?:07|\+?447)\d{9}$`)
-
 func (d *certificateProviderDetailsForm) Validate() validation.List {
 	var errors validation.List
 
-	if d.FirstNames == "" {
-		errors.Add("first-names", "enterCertificateProviderFirstNames")
-	}
-	if d.LastName == "" {
-		errors.Add("last-name", "enterCertificateProviderLastName")
-	}
-	if !d.Dob.Entered() {
-		errors.Add("date-of-birth", "enterCertificateProviderDateOfBirth")
-	}
-	if d.DateOfBirthError != nil {
-		errors.Add("date-of-birth", "dateOfBirthMustBeReal")
-	}
+	errors.String("first-names", "firstNames", d.FirstNames,
+		validation.Empty())
 
-	if d.Mobile == "" {
-		errors.Add("mobile", "enterCertificateProviderMobile")
-	}
-	if !mobileRegex.MatchString(strings.ReplaceAll(d.Mobile, " ", "")) {
-		errors.Add("mobile", "enterUkMobile")
-	}
+	errors.String("last-name", "lastName", d.LastName,
+		validation.Empty())
+
+	errors.Date("date-of-birth", "dateOfBirth", d.Dob,
+		validation.DateMissing(),
+		validation.DateMustBeReal(),
+		validation.DateMustBePast())
+
+	errors.String("mobile", "mobile", strings.ReplaceAll(d.Mobile, " ", ""),
+		validation.Empty(),
+		validation.Mobile())
 
 	return errors
 }

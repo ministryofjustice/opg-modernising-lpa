@@ -62,9 +62,8 @@ func readChoosePeopleToNotifySummaryForm(r *http.Request) *choosePeopleToNotifyS
 func (f *choosePeopleToNotifySummaryForm) Validate() validation.List {
 	var errors validation.List
 
-	if f.AddPersonToNotify != "yes" && f.AddPersonToNotify != "no" {
-		errors.Add("add-person-to-notify", "selectAddMorePeopleToNotify")
-	}
+	errors.String("add-person-to-notify", "yesToAddAnotherPersonToNotify", f.AddPersonToNotify,
+		validation.Select("yes", "no"))
 
 	return errors
 }
