@@ -37,7 +37,7 @@ func RemoveAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) Ha
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readRemoveAttorneyForm(r)
+			data.Form = readRemoveAttorneyForm(r, "yesToRemoveAttorney")
 			data.Errors = data.Form.Validate()
 
 			if data.Form.RemoveAttorney == "yes" && data.Errors.None() {
@@ -72,20 +72,21 @@ func RemoveAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) Ha
 
 type removeAttorneyForm struct {
 	RemoveAttorney string
+	errorLabel     string
 }
 
-func readRemoveAttorneyForm(r *http.Request) *removeAttorneyForm {
+func readRemoveAttorneyForm(r *http.Request, errorLabel string) *removeAttorneyForm {
 	return &removeAttorneyForm{
 		RemoveAttorney: postFormString(r, "remove-attorney"),
+		errorLabel:     errorLabel,
 	}
 }
 
 func (f *removeAttorneyForm) Validate() validation.List {
 	var errors validation.List
 
-	if f.RemoveAttorney != "yes" && f.RemoveAttorney != "no" {
-		errors.Add("remove-attorney", "selectRemoveAttorney")
-	}
+	errors.String("remove-attorney", f.errorLabel, f.RemoveAttorney,
+		validation.Select("yes", "no"))
 
 	return errors
 }

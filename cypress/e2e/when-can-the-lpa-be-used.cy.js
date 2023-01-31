@@ -12,4 +12,14 @@ describe('When can the LPA be used', () => {
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/restrictions');
     });
+    
+    it('errors when unselected', () => {
+        cy.contains('button', 'Continue').click();
+        
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Select when the LPA can be used');
+        });
+        
+        cy.contains('.govuk-fieldset .govuk-error-message', 'Select when the LPA can be used');
+    });
 });

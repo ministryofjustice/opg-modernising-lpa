@@ -194,7 +194,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationE
 	template.
 		On("Func", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:    appData,
-			Errors: validation.With("carry-out-by", "selectHowWouldCertificateProviderPreferToCarryOutTheirRole"),
+			Errors: validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}),
 			Form:   &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
 		}).
 		Return(nil)
@@ -243,23 +243,23 @@ func TestHowWouldCertificateProviderPreferToCarryOutTheirRoleFormValidate(t *tes
 				CarryOutBy: "email",
 				Email:      "what",
 			},
-			errors: validation.With("email", "emailIncorrectFormat"),
+			errors: validation.With("email", validation.EmailError{Label: "certificateProvidersEmail"}),
 		},
 		"email missing": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
 				CarryOutBy: "email",
 			},
-			errors: validation.With("email", "enterEmail"),
+			errors: validation.With("email", validation.EnterError{Label: "certificateProvidersEmail"}),
 		},
 		"missing": {
 			form:   &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
-			errors: validation.With("carry-out-by", "selectHowWouldCertificateProviderPreferToCarryOutTheirRole"),
+			errors: validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}),
 		},
 		"invalid": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
 				CarryOutBy: "what",
 			},
-			errors: validation.With("carry-out-by", "selectHowWouldCertificateProviderPreferToCarryOutTheirRole"),
+			errors: validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}),
 		},
 	}
 
