@@ -309,7 +309,7 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 					Postcode:   "d",
 				},
 			},
-			Errors: validation.With("address-line-1", "enterAddress"),
+			Errors: validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
 		}).
 		Return(nil)
 
@@ -397,7 +397,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
-			Errors:    validation.With("select-address", "selectAddress"),
+			Errors:    validation.With("select-address", validation.AddressSelectedError{Label: "address"}),
 		}).
 		Return(nil)
 
@@ -486,7 +486,7 @@ func TestPostYourAddressLookupError(t *testing.T) {
 				LookupPostcode: "NG1",
 			},
 			Addresses: []place.Address{},
-			Errors:    validation.With("lookup-postcode", "couldNotLookupPostcode"),
+			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
 		}).
 		Return(nil)
 
@@ -519,7 +519,7 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 			Form: &yourAddressForm{
 				Action: "lookup",
 			},
-			Errors: validation.With("lookup-postcode", "enterPostcode"),
+			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "postcode"}),
 		}).
 		Return(nil)
 
@@ -616,7 +616,7 @@ func TestYourAddressFormValidate(t *testing.T) {
 			form: &yourAddressForm{
 				Action: "lookup",
 			},
-			errors: validation.With("lookup-postcode", "enterPostcode"),
+			errors: validation.With("lookup-postcode", validation.EnterError{Label: "postcode"}),
 		},
 		"select-valid": {
 			form: &yourAddressForm{
@@ -629,7 +629,7 @@ func TestYourAddressFormValidate(t *testing.T) {
 				Action:  "select",
 				Address: nil,
 			},
-			errors: validation.With("select-address", "selectAddress"),
+			errors: validation.With("select-address", validation.AddressSelectedError{Label: "address"}),
 		},
 		"manual-valid": {
 			form: &yourAddressForm{
@@ -646,8 +646,8 @@ func TestYourAddressFormValidate(t *testing.T) {
 				Address: &place.Address{},
 			},
 			errors: validation.
-				With("address-line-1", "enterAddress").
-				With("address-town", "enterTownOrCity"),
+				With("address-line-1", validation.EnterError{Label: "addressLine1"}).
+				With("address-town", validation.EnterError{Label: "townOrCity"}),
 		},
 		"manual-max-length": {
 			form: &yourAddressForm{
@@ -673,9 +673,9 @@ func TestYourAddressFormValidate(t *testing.T) {
 				},
 			},
 			errors: validation.
-				With("address-line-1", "addressLine1TooLong").
-				With("address-line-2", "addressLine2TooLong").
-				With("address-line-3", "addressLine3TooLong"),
+				With("address-line-1", validation.StringTooLongError{Label: "addressLine1", Length: 50}).
+				With("address-line-2", validation.StringTooLongError{Label: "addressLine2Label", Length: 50}).
+				With("address-line-3", validation.StringTooLongError{Label: "addressLine3Label", Length: 50}),
 		},
 	}
 

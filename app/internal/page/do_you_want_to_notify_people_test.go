@@ -288,7 +288,7 @@ func TestPostDoYouWantToNotifyPeopleWhenValidationErrors(t *testing.T) {
 	template.
 		On("Func", w, &doYouWantToNotifyPeopleData{
 			App:    appData,
-			Errors: validation.With("want-to-notify", "selectDoYouWantToNotifyPeople"),
+			Errors: validation.With("want-to-notify", validation.SelectError{Label: "yesToNotifySomeoneAboutYourLpa"}),
 			Form:   &doYouWantToNotifyPeopleForm{},
 			Lpa:    &Lpa{},
 		}).
@@ -332,13 +332,13 @@ func TestDoYouWantToNotifyPeopleFormValidate(t *testing.T) {
 		},
 		"missing": {
 			form:   &doYouWantToNotifyPeopleForm{},
-			errors: validation.With("want-to-notify", "selectDoYouWantToNotifyPeople"),
+			errors: validation.With("want-to-notify", validation.SelectError{Label: "yesToNotifySomeoneAboutYourLpa"}),
 		},
 		"invalid": {
 			form: &doYouWantToNotifyPeopleForm{
 				WantToNotify: "what",
 			},
-			errors: validation.With("want-to-notify", "selectDoYouWantToNotifyPeople"),
+			errors: validation.With("want-to-notify", validation.SelectError{Label: "yesToNotifySomeoneAboutYourLpa"}),
 		},
 	}
 
