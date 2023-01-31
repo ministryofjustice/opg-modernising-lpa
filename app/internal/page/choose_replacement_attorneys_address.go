@@ -76,7 +76,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 				addresses, err := addressClient.LookupPostcode(r.Context(), data.Form.LookupPostcode)
 				if err != nil {
 					logger.Print(err)
-					data.Errors.Add("lookup-postcode", "couldNotLookupPostcode")
+					data.Errors.Add("lookup-postcode", validation.CustomError{"couldNotLookupPostcode"})
 				}
 
 				data.Addresses = addresses
