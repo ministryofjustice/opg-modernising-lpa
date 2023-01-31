@@ -10,16 +10,19 @@
       <form novalidate method="post">
         {{ trHtml .App "whichTypeOfLpaToMakeContent" }}
 
-        <h2 class="govuk-heading-m">{{ tr .App "whichTypeOfLpaToMake" }}</h2>
-
         <div class="govuk-form-group {{ if .Errors.Has "lpa-type" }}govuk-form-group--error{{ end }}">
-          {{ template "error-message" (errorMessage . "lpa-type") }}
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+              {{ tr .App "whichTypeOfLpaToMake" }}
+            </legend>
+            {{ template "error-message" (errorMessage . "lpa-type") }}
 
-          {{ template "radios" (items . "lpa-type" .Type
-            (item "pfa" "lpaTypePfaHumanised" "hint" "lpaTypePfaHint")
-            (item "hw" "lpaTypeHwHumanised" "hint" "lpaTypeHwHint")
-            (item "both" "lpaTypeBoth")
-          ) }}
+            {{ template "radios" (items . "lpa-type" .Type
+              (item "pfa" "lpaTypePfaHumanised" "hint" "lpaTypePfaHint")
+              (item "hw" "lpaTypeHwHumanised" "hint" "lpaTypeHwHint")
+              (item "both" "lpaTypeBoth")
+            ) }}
+          </fieldset>
         </div>
 
         {{ template "continue-button" . }}

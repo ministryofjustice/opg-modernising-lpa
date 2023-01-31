@@ -30,7 +30,7 @@ func ChooseAttorneysSummary(logger Logger, tmpl template.Template, lpaStore LpaS
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = *readChooseAttorneysSummaryForm(r)
+			data.Form = *readChooseAttorneysSummaryForm(r, "yesToAddAnotherAttorney")
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
@@ -55,20 +55,21 @@ func ChooseAttorneysSummary(logger Logger, tmpl template.Template, lpaStore LpaS
 
 type chooseAttorneysSummaryForm struct {
 	AddAttorney string
+	errorLabel  string
 }
 
-func readChooseAttorneysSummaryForm(r *http.Request) *chooseAttorneysSummaryForm {
+func readChooseAttorneysSummaryForm(r *http.Request, errorLabel string) *chooseAttorneysSummaryForm {
 	return &chooseAttorneysSummaryForm{
 		AddAttorney: postFormString(r, "add-attorney"),
+		errorLabel:  errorLabel,
 	}
 }
 
 func (f *chooseAttorneysSummaryForm) Validate() validation.List {
 	var errors validation.List
 
-	if f.AddAttorney != "yes" && f.AddAttorney != "no" {
-		errors.Add("add-attorney", "selectAddMoreAttorneys")
-	}
+	errors.String("add-attorney", f.errorLabel, f.AddAttorney,
+		validation.Select("yes", "no"))
 
 	return errors
 }

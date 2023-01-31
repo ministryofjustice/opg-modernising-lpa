@@ -78,12 +78,12 @@ func readHowShouldReplacementAttorneysStepInForm(r *http.Request) *howShouldRepl
 func (f *howShouldReplacementAttorneysStepInForm) Validate() validation.List {
 	var errors validation.List
 
-	if f.WhenToStepIn == "" {
-		errors.Add("when-to-step-in", "selectWhenToStepIn")
-	}
+	errors.String("when-to-step-in", "whenYourReplacementAttorneysStepIn", f.WhenToStepIn,
+		validation.Select(OneCanNoLongerAct, AllCanNoLongerAct, SomeOtherWay))
 
-	if f.WhenToStepIn == SomeOtherWay && f.OtherDetails == "" {
-		errors.Add("other-details", "provideDetailsOfWhenToStepIn")
+	if f.WhenToStepIn == SomeOtherWay {
+		errors.String("other-details", "detailsOfWhenToStepIn", f.OtherDetails,
+			validation.Empty())
 	}
 
 	return errors
