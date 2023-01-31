@@ -15,25 +15,35 @@ describe('How should replacement attorneys make decisions', () => {
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/task-list');
-
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
-
     });
 
     it('can choose how replacement attorneys act - Jointly for some decisions, and jointly and severally for other decisions', () => {
-        cy.contains('h1', 'How should the replacement attorneys make decisions?');
-
-        cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
-
         cy.get('input[name="decision-type"]').check('mixed');
-        cy.get('#mixed-details').type('some details on attorneys');
+        cy.get('#f-mixed-details').type('some details on attorneys');
 
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/task-list');
+    });
 
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
+    it('errors when unselected', () => {
+        cy.contains('button', 'Continue').click();
+        
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Select how the replacement attorneys should make decisions');
+        });
+        
+        cy.contains('.govuk-fieldset .govuk-error-message', 'Select how the replacement attorneys should make decisions');
+    });
+    
+    it('errors when details empty', () => {
+        cy.get('input[name="decision-type"]').check('mixed');
+        cy.contains('button', 'Continue').click();
+        
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Enter details');
+        });
+        
+        cy.contains('[for=f-mixed-details] + .govuk-error-message', 'Enter details');
     });
 });

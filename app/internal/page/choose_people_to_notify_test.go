@@ -327,7 +327,7 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 				"email":     {"name@example.com"},
 			},
 			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
-				return assert.Equal(t, validation.With("first-names", "enterTheirFirstNames"), data.Errors)
+				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
 			},
 		},
 		"last name missing": {
@@ -336,7 +336,7 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 				"email":       {"name@example.com"},
 			},
 			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
-				return assert.Equal(t, validation.With("last-name", "enterTheirLastName"), data.Errors)
+				return assert.Equal(t, validation.With("last-name", validation.EnterError{Label: "lastName"}), data.Errors)
 			},
 		},
 	}
@@ -435,9 +435,9 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 		"missing all": {
 			form: &choosePeopleToNotifyForm{},
 			errors: validation.
-				With("first-names", "enterTheirFirstNames").
-				With("last-name", "enterTheirLastName").
-				With("email", "enterTheirEmail"),
+				With("first-names", validation.EnterError{Label: "firstNames"}).
+				With("last-name", validation.EnterError{Label: "lastName"}).
+				With("email", validation.EnterError{Label: "email"}),
 		},
 		"too long": {
 			form: &choosePeopleToNotifyForm{
@@ -446,8 +446,8 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 				Email:      "person@example.com",
 			},
 			errors: validation.
-				With("first-names", "firstNamesTooLong").
-				With("last-name", "lastNameTooLong"),
+				With("first-names", validation.StringTooLongError{Label: "firstNames", Length: 53}).
+				With("last-name", validation.StringTooLongError{Label: "lastName", Length: 61}),
 		},
 		"invalid email": {
 			form: &choosePeopleToNotifyForm{
@@ -455,7 +455,7 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 				LastName:   "B",
 				Email:      "person@",
 			},
-			errors: validation.With("email", "theirEmailIncorrectFormat"),
+			errors: validation.With("email", validation.EmailError{Label: "email"}),
 		},
 	}
 

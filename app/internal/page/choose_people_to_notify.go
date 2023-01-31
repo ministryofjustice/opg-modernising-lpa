@@ -3,7 +3,6 @@ package page
 import (
 	"fmt"
 	"net/http"
-	"net/mail"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -91,36 +90,27 @@ type choosePeopleToNotifyForm struct {
 }
 
 func readChoosePeopleToNotifyForm(r *http.Request) *choosePeopleToNotifyForm {
-	d := &choosePeopleToNotifyForm{}
-	d.FirstNames = postFormString(r, "first-names")
-	d.LastName = postFormString(r, "last-name")
-	d.Email = postFormString(r, "email")
-
-	return d
+	return &choosePeopleToNotifyForm{
+		FirstNames: postFormString(r, "first-names"),
+		LastName:   postFormString(r, "last-name"),
+		Email:      postFormString(r, "email"),
+	}
 }
 
-func (d *choosePeopleToNotifyForm) Validate() validation.List {
+func (f *choosePeopleToNotifyForm) Validate() validation.List {
 	var errors validation.List
 
-	if d.FirstNames == "" {
-		errors.Add("first-names", "enterTheirFirstNames")
-	}
-	if len(d.FirstNames) > 53 {
-		errors.Add("first-names", "firstNamesTooLong")
-	}
+	errors.String("first-names", "firstNames", f.FirstNames,
+		validation.Empty(),
+		validation.StringTooLong(53))
 
-	if d.LastName == "" {
-		errors.Add("last-name", "enterTheirLastName")
-	}
-	if len(d.LastName) > 61 {
-		errors.Add("last-name", "lastNameTooLong")
-	}
+	errors.String("last-name", "lastName", f.LastName,
+		validation.Empty(),
+		validation.StringTooLong(61))
 
-	if d.Email == "" {
-		errors.Add("email", "enterTheirEmail")
-	} else if _, err := mail.ParseAddress(fmt.Sprintf("<%s>", d.Email)); err != nil {
-		errors.Add("email", "theirEmailIncorrectFormat")
-	}
+	errors.String("email", "email", f.Email,
+		validation.Empty(),
+		validation.Email())
 
 	return errors
 }
