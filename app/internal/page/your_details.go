@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -34,7 +35,7 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 		}
 
 		if !lpa.You.DateOfBirth.IsZero() {
-			data.Form.Dob = readDate(lpa.You.DateOfBirth)
+			data.Form.Dob = date.Read(lpa.You.DateOfBirth)
 		}
 
 		if r.Method == http.MethodPost {
@@ -60,7 +61,7 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 				lpa.You.FirstNames = data.Form.FirstNames
 				lpa.You.LastName = data.Form.LastName
 				lpa.You.OtherNames = data.Form.OtherNames
-				lpa.You.DateOfBirth = data.Form.DateOfBirth
+				lpa.You.DateOfBirth = data.Form.Dob.T
 				lpa.You.Email = email
 				lpa.Tasks.YourDetails = TaskInProgress
 
@@ -77,13 +78,11 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 }
 
 type yourDetailsForm struct {
-	FirstNames       string
-	LastName         string
-	OtherNames       string
-	Dob              Date
-	DateOfBirth      time.Time
-	DateOfBirthError error
-	IgnoreWarning    string
+	FirstNames    string
+	LastName      string
+	OtherNames    string
+	Dob           date.Date
+	IgnoreWarning string
 }
 
 func readYourDetailsForm(r *http.Request) *yourDetailsForm {
@@ -93,66 +92,50 @@ func readYourDetailsForm(r *http.Request) *yourDetailsForm {
 	d.LastName = postFormString(r, "last-name")
 	d.OtherNames = postFormString(r, "other-names")
 
-	d.Dob = Date{
-		Day:   postFormString(r, "date-of-birth-day"),
-		Month: postFormString(r, "date-of-birth-month"),
-		Year:  postFormString(r, "date-of-birth-year"),
-	}
-	d.DateOfBirth, d.DateOfBirthError = time.Parse("2006-1-2", d.Dob.Year+"-"+d.Dob.Month+"-"+d.Dob.Day)
+	d.Dob = date.FromParts(
+		postFormString(r, "date-of-birth-year"),
+		postFormString(r, "date-of-birth-month"),
+		postFormString(r, "date-of-birth-day"))
 
 	d.IgnoreWarning = postFormString(r, "ignore-warning")
 
 	return d
 }
 
-func (d *yourDetailsForm) Validate() validation.List {
+func (f *yourDetailsForm) Validate() validation.List {
 	var errors validation.List
 
-	if d.FirstNames == "" {
-		errors.Add("first-names", "enterFirstNames")
-	}
-	if len(d.FirstNames) > 53 {
-		errors.Add("first-names", "firstNamesTooLong")
-	}
+	errors.String("first-names", "firstNames", f.FirstNames,
+		validation.Empty(),
+		validation.StringTooLong(53))
 
-	if d.LastName == "" {
-		errors.Add("last-name", "enterLastName")
-	}
-	if len(d.LastName) > 61 {
-		errors.Add("last-name", "lastNameTooLong")
-	}
+	errors.String("last-name", "lastName", f.LastName,
+		validation.Empty(),
+		validation.StringTooLong(61))
 
-	if len(d.OtherNames) > 50 {
-		errors.Add("other-names", "otherNamesTooLong")
-	}
+	errors.String("other-names", "otherNamesLabel", f.OtherNames,
+		validation.StringTooLong(50))
 
-	if d.Dob.Day == "" || d.Dob.Month == "" || d.Dob.Year == "" {
-		errors.Add("date-of-birth", "enterDateOfBirth")
-	} else if d.DateOfBirthError != nil {
-		errors.Add("date-of-birth", "dateOfBirthMustBeReal")
-	} else {
-		today := time.Now().UTC().Round(24 * time.Hour)
-
-		if d.DateOfBirth.After(today) {
-			errors.Add("date-of-birth", "dateOfBirthIsFuture")
-		}
-	}
+	errors.Date("date-of-birth", "dateOfBirth", f.Dob,
+		validation.DateMissing(),
+		validation.DateMustBeReal(),
+		validation.DateMustBePast())
 
 	return errors
 }
 
-func (d *yourDetailsForm) DobWarning() string {
+func (f *yourDetailsForm) DobWarning() string {
 	var (
 		today                = time.Now().UTC().Round(24 * time.Hour)
 		hundredYearsEarlier  = today.AddDate(-100, 0, 0)
 		eighteenYearsEarlier = today.AddDate(-18, 0, 0)
 	)
 
-	if !d.DateOfBirth.IsZero() {
-		if d.DateOfBirth.Before(hundredYearsEarlier) {
+	if !f.Dob.T.IsZero() {
+		if f.Dob.T.Before(hundredYearsEarlier) {
 			return "dateOfBirthIsOver100"
 		}
-		if d.DateOfBirth.Before(today) && d.DateOfBirth.After(eighteenYearsEarlier) {
+		if f.Dob.T.Before(today) && f.Dob.T.After(eighteenYearsEarlier) {
 			return "dateOfBirthIsUnder18"
 		}
 	}
