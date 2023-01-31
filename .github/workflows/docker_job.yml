@@ -21,10 +21,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: ECR Login
+        id: login_ecr
+        uses: aws-actions/amazon-ecr-login@v1.5.3
+        with:
+          registries: 311462405659
+      - name: Pull layers
+        id: pull_layers
+        env:
+          ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
+          ECR_REPOSITORY: modernising-lpa/app
+        run: |
+          docker pull $ECR_REGISTRY/$ECR_REPOSITORY:assets || true
+          docker pull $ECR_REGISTRY/$ECR_REPOSITORY:build || true
       - name: Build Image
         id: build_image
+        env:
+          ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
+          ECR_REPOSITORY: modernising-lpa/app
         run: |
-          docker build -t app .
+          docker build --target asset-env --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:assets -t $ECR_REGISTRY/$ECR_REPOSITORY:assets .
+          docker build --target build-env --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:build -t $ECR_REGISTRY/$ECR_REPOSITORY:build .
+
+          docker build --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:assets --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:build -t app .
+
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:assets
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:build
       - name: Trivy Image Vulnerability Scanner
         id: trivy_scan
         uses: aquasecurity/trivy-action@0.8.0
@@ -47,11 +69,6 @@ jobs:
           role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ecr-push
           role-duration-seconds: 900
           role-session-name: GithubActionsECRPushMLPAB
-      - name: ECR Login
-        id: login_ecr
-        uses: aws-actions/amazon-ecr-login@v1.5.3
-        with:
-          registries: 311462405659
       - name: Push Container
         env:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}

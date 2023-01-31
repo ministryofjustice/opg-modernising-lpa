@@ -4,8 +4,7 @@ WORKDIR /app
 
 RUN mkdir -p web/static
 
-COPY package.json .
-COPY yarn.lock .
+COPY package.json yarn.lock ./
 RUN yarn
 
 COPY app/web/assets web/assets
@@ -15,26 +14,13 @@ FROM golang:1.19 as build-env
 
 WORKDIR /app
 
-COPY app/go.mod .
-COPY app/go.sum .
+COPY app/go.mod app/go.sum ./
 
 RUN go mod download
 
 COPY /app .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/mlpab
-
-FROM build-env as development
-
-WORKDIR /go/bin
-# Live reload for Go
-RUN go install github.com/cosmtrek/air@latest
-
-COPY --from=build-env /app .
-COPY --from=asset-env /app/web/static web/static
-COPY app/web/template web/template
-
-CMD ["air"]
 
 FROM alpine:3.17.1 as production
 
