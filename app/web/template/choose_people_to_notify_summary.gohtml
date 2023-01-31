@@ -23,7 +23,7 @@
         </form>
       {{ else }}
         <form novalidate method="post">
-          <div class="govuk-form-group">
+          <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
               {{ tr .App "doYouWantToAddAnotherPersonToNotify" }}
             </legend>
@@ -36,7 +36,7 @@
                 (item "no" "no")
               ) }}
             </div>
-          </div>
+          </fieldset>
 
           <div class="govuk-button-group">
             {{ template "continue-button" . }}

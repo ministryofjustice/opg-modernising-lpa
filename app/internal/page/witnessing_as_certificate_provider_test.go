@@ -173,7 +173,7 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 			Lpa: &Lpa{
 				WitnessCode: WitnessCode{Code: "1234", Created: invalidCreated},
 			},
-			Errors: validation.With("witness-code", "witnessCodeExpired"),
+			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeExpired"}),
 			Form:   &witnessingAsCertificateProviderForm{Code: "1234"},
 		}).
 		Return(nil)
@@ -212,7 +212,7 @@ func TestPostWitnessingAsCertificateProviderExpiryTrumpsMismatch(t *testing.T) {
 			Lpa: &Lpa{
 				WitnessCode: WitnessCode{Code: "1234", Created: invalidCreated},
 			},
-			Errors: validation.With("witness-code", "witnessCodeExpired"),
+			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeExpired"}),
 			Form:   &witnessingAsCertificateProviderForm{Code: "4321"},
 		}).
 		Return(nil)
@@ -250,7 +250,7 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 			Lpa: &Lpa{
 				WitnessCode: WitnessCode{Code: "1234", Created: now},
 			},
-			Errors: validation.With("witness-code", "witnessCodeDoesNotMatch"),
+			Errors: validation.With("witness-code", validation.CustomError{"witnessCodeDoesNotMatch"}),
 			Form:   &witnessingAsCertificateProviderForm{Code: "4321"},
 		}).
 		Return(nil)
@@ -293,19 +293,19 @@ func TestWitnessingAsCertificateProviderValidate(t *testing.T) {
 		},
 		"missing": {
 			form:   &witnessingAsCertificateProviderForm{},
-			errors: validation.With("witness-code", "enterWitnessCode"),
+			errors: validation.With("witness-code", validation.EnterError{Label: "theCodeWeSentCertificateProvider"}),
 		},
 		"too long": {
 			form: &witnessingAsCertificateProviderForm{
 				Code: "12345",
 			},
-			errors: validation.With("witness-code", "witnessCodeTooLong"),
+			errors: validation.With("witness-code", validation.StringLengthError{Label: "theCodeWeSentCertificateProvider", Length: 4}),
 		},
 		"too short": {
 			form: &witnessingAsCertificateProviderForm{
 				Code: "123",
 			},
-			errors: validation.With("witness-code", "witnessCodeTooShort"),
+			errors: validation.With("witness-code", validation.StringLengthError{Label: "theCodeWeSentCertificateProvider", Length: 4}),
 		},
 	}
 

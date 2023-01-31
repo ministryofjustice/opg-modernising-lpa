@@ -1,9 +1,7 @@
 package page
 
 import (
-	"fmt"
 	"net/http"
-	"net/mail"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -71,16 +69,13 @@ func readHowWouldCertificateProviderPreferToCarryOutTheirRole(r *http.Request) *
 func (f *howWouldCertificateProviderPreferToCarryOutTheirRoleForm) Validate() validation.List {
 	var errors validation.List
 
-	if f.CarryOutBy != "email" && f.CarryOutBy != "paper" {
-		errors.Add("carry-out-by", "selectHowWouldCertificateProviderPreferToCarryOutTheirRole")
-	}
+	errors.String("carry-out-by", "howYourCertificateProviderWouldPreferToCarryOutTheirRole", f.CarryOutBy,
+		validation.Select("email", "paper")) // selectHowWouldCertificateProviderPreferToCarryOutTheirRole
 
 	if f.CarryOutBy == "email" {
-		if f.Email == "" {
-			errors.Add("email", "enterEmail")
-		} else if _, err := mail.ParseAddress(fmt.Sprintf("<%s>", f.Email)); err != nil {
-			errors.Add("email", "emailIncorrectFormat")
-		}
+		errors.String("email", "certificateProvidersEmail", f.Email,
+			validation.Empty(),
+			validation.Email())
 	}
 
 	return errors
