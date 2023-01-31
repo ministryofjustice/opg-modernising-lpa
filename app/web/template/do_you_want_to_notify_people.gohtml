@@ -5,29 +5,29 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ tr .App "peopleToNotify" }}</h1>
+
+      {{ trHtml .App "wantPeopleToNotifyContent" }}
+
+      {{ $lpaType := tr .App .Lpa.LpaLegalTermTransKey }}
+      {{ $howWorkTogether := tr .App .HowWorkTogether }}
+      {{ trFormatHtml .App "weWillOnlyTellThemBullets" "LpaType" $lpaType "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames "HowAttorneysWorkTogether" $howWorkTogether}}
+
+      {{ trHtml .App "findOutMoreAboutPeopleToNotifyLink" }}
+
       <form novalidate method="post">
-        <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-          <h1 class="govuk-fieldset__heading govuk-!-margin-bottom-6">{{ tr .App "peopleToNotify" }}</h1>
-        </legend>
-
-        {{ trHtml .App "wantPeopleToNotifyContent" }}
-
-                {{ $lpaType := tr .App .Lpa.TypeLegalTermTransKey }}
-                {{ $howWorkTogether := tr .App .HowWorkTogether }}
-                {{ trFormatHtml .App "weWillOnlyTellThemBullets" "LpaType" $lpaType "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames "HowAttorneysWorkTogether" $howWorkTogether}}
-
-        {{ trHtml .App "findOutMoreAboutPeopleToNotifyLink" }}
-
         <div class="govuk-form-group {{ if .Errors.Has "want-to-notify" }}govuk-form-group--error{{ end }}">
-          <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-            <h2 class="govuk-fieldset__heading">{{ tr .App "wantPeopleToNotify" }}</h2>
-          </legend>
-          {{ template "error-message" (errorMessage . "want-to-notify") }}
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+              {{ tr .App "wantPeopleToNotify" }}
+            </legend>
+            {{ template "error-message" (errorMessage . "want-to-notify") }}
 
-          {{ template "radios" (items . "want-to-notify" .WantToNotify
-            (item "yes" "yes")
-            (item "no" "no")
-          ) }}
+            {{ template "radios" (items . "want-to-notify" .WantToNotify
+              (item "yes" "yes")
+              (item "no" "no")
+            ) }}
+          </fieldset>
         </div>
 
         {{ template "continue-button" . }}

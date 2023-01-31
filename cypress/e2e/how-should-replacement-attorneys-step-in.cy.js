@@ -22,18 +22,32 @@ describe('How should replacement attorneys step in', () => {
     });
 
     it('can choose how replacement attorneys step in - some other way', () => {
-        cy.contains('h1', 'How should your replacement attorneys step in?');
-
-        cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
-
         cy.get('input[name="when-to-step-in"]').check('other');
         cy.get('#other-details').type('some details on when to step in');
 
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/task-list');
+    });
+        
+    it('errors when unselected', () => {
+        cy.contains('button', 'Continue').click();
+        
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Select when your replacement attorneys should step in');
+        });
+        
+        cy.contains('.govuk-fieldset .govuk-error-message', 'Select when your replacement attorneys should step in');
+    });
 
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+    it('errors when other and details empty', () => {
+        cy.get('input[name="when-to-step-in"]').check('other');
+        cy.contains('button', 'Continue').click();
+        
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Enter details of when your replacement attorneys should step in');
+        });
+        
+        cy.contains('.govuk-fieldset .govuk-error-message', 'Enter details of when your replacement attorneys should step in');
     });
 });

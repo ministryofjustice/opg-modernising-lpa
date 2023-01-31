@@ -1,13 +1,18 @@
 package validation
 
+type Localizer interface {
+	Format(string, map[string]any) string
+	T(string) string
+}
+
 type Field struct {
 	Name  string
-	Error string
+	Error FormattableError
 }
 
 type List []Field
 
-func With(name, error string) List {
+func With(name string, error FormattableError) List {
 	return List{Field{Name: name, Error: error}}
 }
 
@@ -19,7 +24,7 @@ func (l List) Any() bool {
 	return len(l) > 0
 }
 
-func (l List) With(name, error string) List {
+func (l List) With(name string, error FormattableError) List {
 	if l.Has(name) {
 		return l
 	}
@@ -27,7 +32,7 @@ func (l List) With(name, error string) List {
 	return append(l, Field{Name: name, Error: error})
 }
 
-func (l *List) Add(name, error string) {
+func (l *List) Add(name string, error FormattableError) {
 	if l.Has(name) {
 		return
 	}
@@ -35,14 +40,12 @@ func (l *List) Add(name, error string) {
 	*l = append(*l, Field{Name: name, Error: error})
 }
 
-func (l List) Get(name string) string {
-	for _, field := range l {
-		if field.Name == name {
-			return field.Error
-		}
+func (l *List) AddKey(name string, key FormattableError) {
+	if l.Has(name) {
+		return
 	}
 
-	return ""
+	*l = append(*l, Field{Name: name, Error: key})
 }
 
 func (l List) Has(name string) bool {
@@ -53,4 +56,14 @@ func (l List) Has(name string) bool {
 	}
 
 	return false
+}
+
+func (l List) Format(localizer Localizer, name string) string {
+	for _, field := range l {
+		if field.Name == name {
+			return field.Error.Format(localizer)
+		}
+	}
+
+	return ""
 }

@@ -82,9 +82,8 @@ func readDoYouWantToNotifyPeople(r *http.Request) *doYouWantToNotifyPeopleForm {
 func (f *doYouWantToNotifyPeopleForm) Validate() validation.List {
 	var errors validation.List
 
-	if f.WantToNotify != "yes" && f.WantToNotify != "no" {
-		errors.Add("want-to-notify", "selectDoYouWantToNotifyPeople")
-	}
+	errors.String("want-to-notify", "yesToNotifySomeoneAboutYourLpa", f.WantToNotify,
+		validation.Select("yes", "no"))
 
 	return errors
 }

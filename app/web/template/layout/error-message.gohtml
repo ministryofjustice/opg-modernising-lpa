@@ -1,7 +1,7 @@
 {{ define "error-message" }}
   {{ if .top.Errors.Has .name }}
     <p id="{{ .name }}-error" class="govuk-error-message">
-      <span class="govuk-visually-hidden">Error:</span> {{ tr .top.App (.top.Errors.Get .name) }}
+      <span class="govuk-visually-hidden">Error:</span> {{ .top.Errors.Format .top.App.Localizer .name }}
     </p>
   {{ end }}
 {{ end }}

@@ -182,7 +182,7 @@ func TestPostChooseReplacementAttorneySummaryFormValidation(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
-	validationError := validation.With("add-attorney", "selectAddMoreAttorneys")
+	validationError := validation.With("add-attorney", validation.SelectError{Label: "yesToAddAnotherReplacementAttorney"})
 
 	template := &mockTemplate{}
 	template.
