@@ -1,6 +1,7 @@
 package page
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -54,7 +55,12 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 				addresses, err := addressClient.LookupPostcode(r.Context(), data.Form.LookupPostcode)
 				if err != nil {
 					logger.Print(err)
-					data.Errors.Add("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"})
+
+					if errors.As(err, &place.InvalidPostcodeError{}) {
+						data.Errors.Add("lookup-postcode", validation.EnterError{Label: "ukPostcode"})
+					} else {
+						data.Errors.Add("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"})
+					}
 				}
 
 				data.Addresses = addresses

@@ -504,6 +504,62 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
 }
 
+func TestPostChoosePeopleToNotifyAddressInvalidPostcodeError(t *testing.T) {
+	w := httptest.NewRecorder()
+	invalidPostcodeErr := place.InvalidPostcodeError{
+		Statuscode: 400,
+		Message:    "invalid postcode",
+	}
+
+	form := url.Values{
+		"action":          {"lookup"},
+		"lookup-postcode": {"XYZ"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	logger := &mockLogger{}
+	logger.
+		On("Print", invalidPostcodeErr)
+
+	personToNotify := PersonToNotify{
+		ID:      "123",
+		Address: place.Address{},
+	}
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
+
+	addressClient := &mockAddressClient{}
+	addressClient.
+		On("LookupPostcode", mock.Anything, "XYZ").
+		Return([]place.Address{}, invalidPostcodeErr)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &choosePeopleToNotifyAddressData{
+			App:            appData,
+			PersonToNotify: personToNotify,
+			Form: &addressForm{
+				Action:         "lookup",
+				LookupPostcode: "XYZ",
+			},
+			Addresses: []place.Address{},
+			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "ukPostcode"}),
+		}).
+		Return(nil)
+
+	err := ChoosePeopleToNotifyAddress(logger, template.Func, addressClient, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+}
+
 func TestPostChoosePeopleToNotifyAddressLookupWhenValidationError(t *testing.T) {
 	form := url.Values{
 		"action": {"lookup"},
