@@ -55,13 +55,14 @@
     "errorMobile": "{{.Label}} must be a UK mobile number, like 07700 900 982 or +44 7700 900 982",
     "errorSelect": "Select {{.Label}}",
     "errorEmail": "{{.Label}} must be in the correct format, like name@example.com",
-    
-    "homeAddress": "Home address",
+
+    "whatIsYourAddress": "What is your address?",
     "postcode": "Postcode",
     "findAddress": "Find address",
+    "enterAddressManually": "Enter address manually",
     "selectAnAddress": "Select an address",
-    "cantFindAddress": "Can not find address?",
-    "cantFindTheirAddress": "I can’t find their address in the list",
+    "cantFindMyAddressInList": "I can’t find my address in the list",
+    "cantFindTheirAddressInList": "I can’t find their address in the list",
     "addressesFound": {
         "one": "{{.PluralCount}} address found",
         "other": "{{.PluralCount}} addresses found"
@@ -73,6 +74,9 @@
     "addressLine3Label": "Address line 3",
     "townOrCity": "Town or city",
     "couldNotLookupPostcode": "Could not lookup postcode",
+    "invalidPostcode": "a valid postcode",
+    "aPostcode": "a postcode",
+    "anAddressFromTheList": "an address from the list",
 
     "whoIsThisLpaFor": "Who is this LPA for?",
     "whoTheLpaIsFor": "who the LPA is for",
@@ -87,7 +91,7 @@
     "whichTypeOfLpaToMake": "Which type of LPA do you want to make?",
     "whichTypeOfLpaToMakeContent": "<p class=\"govuk-body\">There are 2 types of LPA. You can make an LPA that covers decisions about your:</p><ul class=\"govuk-list govuk-list--bullet\"><li>money, finances and any property you own</li><li>health care, medical treatment and personal welfare</li></ul><p class=\"govuk-body\">You can have one or both types of LPA.</p><p class=\"govuk-body\">They do not have to be made at the same time and you can reuse any information you enter to make other LPAs later.</p><p class=\"govuk-body\">You can choose different people to be your attorneys for each LPA.</p><p class=\"govuk-body\"><a class=\"govuk-link\" href=\"#\">Find out more about the 2 types of LPAs</a></p>",
     "theTypeOfLpaToMake": "the type of LPA to make",
-    "lpaTypePfa": "Property and affairs",
+    "lpaTypePfa": "Finance and affairs",
     "lpaTypePfaHumanised": "An LPA that covers decisions about my money, finances and property",
     "lpaTypePfaHint": "In legal terms, this is called a ‘property and affairs’ LPA. You may also hear it called a ‘property and financial affairs’ LPA",
     "lpaTypeHw": "Personal welfare",
@@ -157,8 +161,8 @@
     "replacementAttorneys": "Replacement attorneys",
     "replacementAttorney": "Replacement attorney",
 
-    "whenCanTheLpaBeUsed": "When can your attorneys use your LPA",
-    "whenTheLpaCanBeUsed": "when your attorneys can use your LPA",
+    "whenCanYourAttorneysUseYourLpa": "When can your attorneys use your LPA",
+    "whenYourAttorneysCanUseYourLpa": "when your attorneys can use your LPA",
     "youCanDecideHeader": "<p class=\"govuk-body-l\">You can decide whether you want your attorney to be able to use the LPA as soon as it’s registered or only if you lose mental capacity.</p>",
     "asSoonAsRegisteredTitle": "<h2 class=\"govuk-heading-m\">As soon as the LPA is registered</h2>",
     "asSoonAsRegisteredIntro": {
@@ -246,8 +250,6 @@
     "idVerifiedTag": "ID Verified",
     "lpaDecisions": "LPA decisions",
     "typeOfLpa": "Type of LPA",
-    "WhenTheLpaCanBeUsed": "When the LPA can be used",
-    "whenTheLpaCanBeUsed": "when the LPA can be used",
     "whoAreTheAttorneys": {
         "one": "Who is your attorney",
         "other": "Who are your attorneys"
@@ -334,7 +336,7 @@
     "iDoNotHaveAnyOfTheseTypesOfIdentity": "I do not have any of these types of identity",
     "weWillAdviseOnOtherWays": "We will advise on other ways you can confirm your identity",
     "fromTheListedOptions": "from the listed options",
-    
+
     "yourChosenIdentityOptions": "Your chosen identity options",
     "yourChosenIdentityOptionsContent": "You told us that you have the following things to confirm your identity:",
     "whenYouAreReadyToCompleteTheIdentityConfirmationChecks": "When you are ready to complete the identity confirmation checks, please press continue.",

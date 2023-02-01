@@ -1016,6 +1016,47 @@ func TestTestingStart(t *testing.T) {
 		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
 	})
 
+	t.Run("with incomplete people to notify", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withIncompletePeopleToNotify=1", nil)
+		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
+
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{
+				ID:                      "123",
+				DoYouWantToNotifyPeople: "yes",
+				PeopleToNotify: []PersonToNotify{
+					{
+						ID:         "JoannaSmith",
+						FirstNames: "Joanna",
+						LastName:   "Smith",
+						Email:      "Joanna@example.org",
+						Address:    place.Address{},
+					},
+				},
+			}).
+			Return(nil)
+
+		testingStart(sessionsStore, lpaStore, mockRandom).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+	})
+
 	t.Run("lpa checked", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&lpaChecked=1", nil)
