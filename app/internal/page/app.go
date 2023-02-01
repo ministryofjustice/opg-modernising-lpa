@@ -420,6 +420,15 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 			lpa.Tasks.PeopleToNotify = TaskCompleted
 		}
 
+		if r.FormValue("withIncompletePeopleToNotify") == "1" {
+			joanna := MakePersonToNotify("Joanna")
+			joanna.Address = place.Address{}
+			lpa.PeopleToNotify = []PersonToNotify{
+				joanna,
+			}
+			lpa.DoYouWantToNotifyPeople = "yes"
+		}
+
 		if r.FormValue("lpaChecked") == "1" || r.FormValue("completeLpa") != "" {
 			lpa.Checked = true
 			lpa.HappyToShare = true

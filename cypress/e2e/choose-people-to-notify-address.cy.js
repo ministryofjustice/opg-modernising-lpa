@@ -10,12 +10,12 @@ describe('People to notify address', () => {
 
     it('errors when empty postcode', () => {
         cy.contains('button', 'Find address').click();
-        
+
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Enter postcode');
+            cy.contains('Enter a postcode');
         });
-        
-        cy.contains('[for=f-lookup-postcode] + .govuk-error-message', 'Enter postcode');
+
+        cy.contains('[for=f-lookup-postcode] + .govuk-error-message', 'Enter a postcode');
     });
 
     it('errors when unselected', () => {
@@ -23,12 +23,12 @@ describe('People to notify address', () => {
         cy.contains('button', 'Find address').click();
 
         cy.contains('button', 'Continue').click();
-        
+
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Select address');
+            cy.contains('Select an address from the list');
         });
-        
-        cy.contains('[for=f-select-address] + .govuk-error-message', 'Select address');
+
+        cy.contains('[for=f-select-address] + .govuk-error-message', 'Select an address from the list');
     });
 
     it('errors when manual incorrect', () => {
@@ -36,12 +36,12 @@ describe('People to notify address', () => {
         cy.contains('button', 'Find address').click();
         cy.contains('a', "I can’t find their address in the list").click();
         cy.contains('button', 'Continue').click();
-        
+
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter address line 1');
             cy.contains('Enter town or city');
         });
-        
+
         cy.contains('[for=f-address-line-1] + .govuk-error-message', 'Enter address line 1');
         cy.contains('[for=f-address-town] + .govuk-error-message', 'Enter town or city');
 

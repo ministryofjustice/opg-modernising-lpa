@@ -55,13 +55,13 @@
     "errorMobile": "{{.Label}} must be a UK mobile number, like 07700 900 982 or +44 7700 900 982",
     "errorSelect": "Select {{.Label}}",
     "errorEmail": "{{.Label}} must be in the correct format, like name@example.com",
-    
+
     "homeAddress": "Home address",
     "postcode": "Postcode",
     "findAddress": "Find address",
     "selectAnAddress": "Select an address",
-    "cantFindAddress": "Can not find address?",
-    "cantFindTheirAddress": "I can’t find their address in the list",
+    "cantFindMyAddressInList": "I can’t find my address in the list",
+    "cantFindTheirAddressInList": "I can’t find their address in the list",
     "addressesFound": {
         "one": "{{.PluralCount}} address found",
         "other": "{{.PluralCount}} addresses found"
@@ -73,6 +73,9 @@
     "addressLine3Label": "Address line 3",
     "townOrCity": "Town or city",
     "couldNotLookupPostcode": "Could not lookup postcode",
+    "invalidPostcode": "a valid postcode",
+    "aPostcode": "a postcode",
+    "anAddressFromTheList": "an address from the list",
 
     "whoIsThisLpaFor": "Who is this LPA for?",
     "whoTheLpaIsFor": "who the LPA is for",
@@ -158,7 +161,7 @@
     "replacementAttorney": "Replacement attorney",
 
     "whenCanTheLpaBeUsed": "When can your attorneys use your LPA",
-    "whenTheLpaCanBeUsed": "when your attorneys can use your LPA",
+    "whenTheLpaCanBeUsed": "when the LPA can be used",
     "youCanDecideHeader": "<p class=\"govuk-body-l\">You can decide whether you want your attorney to be able to use the LPA as soon as it’s registered or only if you lose mental capacity.</p>",
     "asSoonAsRegisteredTitle": "<h2 class=\"govuk-heading-m\">As soon as the LPA is registered</h2>",
     "asSoonAsRegisteredIntro": {
@@ -246,8 +249,6 @@
     "idVerifiedTag": "ID Verified",
     "lpaDecisions": "LPA decisions",
     "typeOfLpa": "Type of LPA",
-    "WhenTheLpaCanBeUsed": "When the LPA can be used",
-    "whenTheLpaCanBeUsed": "when the LPA can be used",
     "whoAreTheAttorneys": {
         "one": "Who is your attorney",
         "other": "Who are your attorneys"
@@ -334,7 +335,7 @@
     "iDoNotHaveAnyOfTheseTypesOfIdentity": "I do not have any of these types of identity",
     "weWillAdviseOnOtherWays": "We will advise on other ways you can confirm your identity",
     "fromTheListedOptions": "from the listed options",
-    
+
     "yourChosenIdentityOptions": "Your chosen identity options",
     "yourChosenIdentityOptionsContent": "You told us that you have the following things to confirm your identity:",
     "whenYouAreReadyToCompleteTheIdentityConfirmationChecks": "When you are ready to complete the identity confirmation checks, please press continue.",
