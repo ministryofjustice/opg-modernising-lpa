@@ -506,9 +506,9 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 
 func TestPostChoosePeopleToNotifyAddressNotFoundError(t *testing.T) {
 	w := httptest.NewRecorder()
-	notFoundErr := place.NotFoundError{
+	notFoundErr := place.InvalidPostcodeError{
 		Statuscode: 400,
-		Message:    "not found",
+		Message:    "invalid postcode",
 	}
 
 	form := url.Values{

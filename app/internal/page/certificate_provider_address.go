@@ -66,7 +66,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 				if err != nil {
 					logger.Print(err)
 
-					if errors.As(err, &place.NotFoundError{}) {
+					if errors.As(err, &place.InvalidPostcodeError{}) {
 						data.Errors.Add("lookup-postcode", validation.CustomError{Label: "enterUkPostCode"})
 					} else {
 						data.Errors.Add("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"})

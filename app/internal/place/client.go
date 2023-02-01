@@ -34,20 +34,20 @@ type addressDetails struct {
 }
 
 type postcodeLookupResponse struct {
-	Results []ResultSet   `json:"results"`
-	Error   NotFoundError `json:"error"`
+	Results []ResultSet          `json:"results"`
+	Error   InvalidPostcodeError `json:"error"`
 }
 
 type ResultSet struct {
 	AddressDetails addressDetails `json:"DPA"`
 }
 
-type NotFoundError struct {
+type InvalidPostcodeError struct {
 	Statuscode int    `json:"statuscode,omitempty"`
 	Message    string `json:"message,omitempty"`
 }
 
-func (n NotFoundError) Error() string {
+func (n InvalidPostcodeError) Error() string {
 	return n.Message
 }
 

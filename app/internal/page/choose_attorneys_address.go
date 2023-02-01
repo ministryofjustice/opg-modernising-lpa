@@ -81,7 +81,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 				if err != nil {
 					logger.Print(err)
 
-					if errors.As(err, &place.NotFoundError{}) {
+					if errors.As(err, &place.InvalidPostcodeError{}) {
 						data.Errors.Add("lookup-postcode", validation.EnterError{Label: "ukPostcode"})
 					} else {
 						data.Errors.Add("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"})
