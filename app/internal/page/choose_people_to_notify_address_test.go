@@ -504,9 +504,9 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
 }
 
-func TestPostChoosePeopleToNotifyAddressNotFoundError(t *testing.T) {
+func TestPostChoosePeopleToNotifyAddressInvalidPostcodeError(t *testing.T) {
 	w := httptest.NewRecorder()
-	notFoundErr := place.InvalidPostcodeError{
+	invalidPostcodeErr := place.InvalidPostcodeError{
 		Statuscode: 400,
 		Message:    "invalid postcode",
 	}
@@ -521,7 +521,7 @@ func TestPostChoosePeopleToNotifyAddressNotFoundError(t *testing.T) {
 
 	logger := &mockLogger{}
 	logger.
-		On("Print", notFoundErr)
+		On("Print", invalidPostcodeErr)
 
 	personToNotify := PersonToNotify{
 		ID:      "123",
@@ -536,7 +536,7 @@ func TestPostChoosePeopleToNotifyAddressNotFoundError(t *testing.T) {
 	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", mock.Anything, "XYZ").
-		Return([]place.Address{}, notFoundErr)
+		Return([]place.Address{}, invalidPostcodeErr)
 
 	template := &mockTemplate{}
 	template.

@@ -534,9 +534,9 @@ func TestPostChooseReplacementAttorneysAddressLookupError(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
 }
 
-func TestPostChooseReplacementAttorneysNotFoundError(t *testing.T) {
+func TestPostChooseReplacementAttorneysInvalidPostcodeError(t *testing.T) {
 	w := httptest.NewRecorder()
-	notFoundErr := place.InvalidPostcodeError{
+	invalidPostcodeErr := place.InvalidPostcodeError{
 		Statuscode: 400,
 		Message:    "invalid postcode",
 	}
@@ -551,7 +551,7 @@ func TestPostChooseReplacementAttorneysNotFoundError(t *testing.T) {
 
 	logger := &mockLogger{}
 	logger.
-		On("Print", notFoundErr)
+		On("Print", invalidPostcodeErr)
 
 	ra := Attorney{
 		ID:      "123",
@@ -566,7 +566,7 @@ func TestPostChooseReplacementAttorneysNotFoundError(t *testing.T) {
 	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", mock.Anything, "XYZ").
-		Return([]place.Address{}, notFoundErr)
+		Return([]place.Address{}, invalidPostcodeErr)
 
 	template := &mockTemplate{}
 	template.
