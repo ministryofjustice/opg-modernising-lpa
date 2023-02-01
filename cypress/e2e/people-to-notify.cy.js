@@ -1,3 +1,5 @@
+import {AddressFormAssertions} from "../support/e2e";
+
 describe('People to notify', () => {
     let person1
     let person2
@@ -148,10 +150,10 @@ describe('People to notify', () => {
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Select yes to notify someone about your LPA');
         });
-        
+
         cy.contains('.govuk-fieldset .govuk-error-message', 'Select yes to notify someone about your LPA');
     });
-    
+
     it('errors when people to notify details empty', () => {
         cy.visit('/testing-start?redirect=/choose-people-to-notify');
         cy.contains('button', 'Continue').click();
@@ -161,12 +163,12 @@ describe('People to notify', () => {
             cy.contains('Enter last name');
             cy.contains('Enter email address');
         });
-        
+
         cy.contains('[for=f-first-names] + .govuk-error-message', 'Enter first names');
         cy.contains('[for=f-last-name] + .govuk-error-message', 'Enter last name');
         cy.contains('[for=f-email] + .govuk-error-message', 'Enter email address');
     });
-        
+
     it('errors when people to notify details invalid', () => {
         cy.visit('/testing-start?redirect=/choose-people-to-notify');
 
@@ -174,7 +176,7 @@ describe('People to notify', () => {
         cy.get('#f-last-name').invoke('val', 'b'.repeat(62));
         cy.get('#f-email').type('not-an-email');
         cy.contains('button', 'Continue').click();
-        
+
         cy.contains('[for=f-first-names] + .govuk-error-message', 'First names must be 53 characters or less');
         cy.contains('[for=f-last-name] + .govuk-error-message', 'Last name must be 61 characters or less');
         cy.contains('[for=f-email] + .govuk-error-message', 'Email address must be in the correct format, like name@example.com');
@@ -199,13 +201,28 @@ describe('People to notify', () => {
 
         cy.contains('.govuk-fieldset .govuk-error-message', 'Select yes to add another person to notify');
     });
+
+    it('errors when empty postcode', () => {
+        cy.visit('/testing-start?withIncompletePeopleToNotify=1&redirect=/choose-people-to-notify-address?id=JoannaSmith');
+        AddressFormAssertions.assertErrorsWhenPostcodeEmpty()
+    });
+
+    it('errors when unselected', () => {
+        cy.visit('/testing-start?withIncompletePeopleToNotify=1&redirect=/choose-people-to-notify-address?id=JoannaSmith');
+        AddressFormAssertions.assertErrorsWhenUnselected()
+    });
+
+    it('errors when manual incorrect', () => {
+        cy.visit('/testing-start?withIncompletePeopleToNotify=1&redirect=/choose-people-to-notify-address?id=JoannaSmith');
+        AddressFormAssertions.assertErrorsWhenManualIncorrect('I can’t find their address in the list')
+    });
 });
 
 function addPersonToNotify(p, manualAddress) {
     cy.url().should('contain', '/choose-people-to-notify');
 
     cy.injectAxe();
-    cy.checkA11y(null, { rules: { region: { enabled: false } } });
+    cy.checkA11y(null, {rules: {region: {enabled: false}}});
 
     cy.get('#f-first-names').type(p.firstNames)
     cy.get('#f-last-name').type(p.lastName)
@@ -215,28 +232,28 @@ function addPersonToNotify(p, manualAddress) {
 
     cy.url().should('contain', '/choose-people-to-notify-address');
     cy.injectAxe();
-    cy.checkA11y(null, { rules: { region: { enabled: false } } });
+    cy.checkA11y(null, {rules: {region: {enabled: false}}});
 
     cy.get('#f-lookup-postcode').type(p.address.postcode)
     cy.contains('button', 'Find address').click();
 
     cy.url().should('contain', '/choose-people-to-notify-address');
     cy.injectAxe();
-    cy.checkA11y(null, { rules: { region: { enabled: false } } });
+    cy.checkA11y(null, {rules: {region: {enabled: false}}});
 
     if (manualAddress) {
         cy.contains('a', "I can’t find their address in the list").click();
 
         cy.url().should('contain', '/choose-people-to-notify-address');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11y(null, {rules: {region: {enabled: false}}});
 
         cy.get('#f-address-line-1').type(p.address.line1);
         cy.get('#f-address-town').type(p.address.town);
         cy.get('#f-address-postcode').type(p.address.postcode);
     } else {
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11y(null, {rules: {region: {enabled: false}}});
 
         cy.get('#f-select-address').select(`${p.address.line1}, ${p.address.town}, ${p.address.postcode}`);
         cy.contains('button', 'Continue').click();
@@ -244,7 +261,7 @@ function addPersonToNotify(p, manualAddress) {
         cy.url().should('contain', '/choose-people-to-notify-address');
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11y(null, {rules: {region: {enabled: false}}});
 
         cy.get('#f-address-line-1').should('have.value', p.address.line1);
         cy.get('#f-address-line-2').should('have.value', p.address.line2);
