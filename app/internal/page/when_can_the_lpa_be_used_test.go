@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -202,11 +203,9 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &whenCanTheLpaBeUsedData{
-			App: appData,
-			Errors: map[string]string{
-				"when": "selectWhenCanTheLpaBeUsed",
-			},
-			Lpa: &Lpa{},
+			App:    appData,
+			Errors: validation.With("when", validation.SelectError{Label: "whenTheLpaCanBeUsed"}),
+			Lpa:    &Lpa{},
 		}).
 		Return(nil)
 
@@ -236,33 +235,27 @@ func TestReadWhenCanTheLpaBeUsedForm(t *testing.T) {
 func TestWhenCanTheLpaBeUsedFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *whenCanTheLpaBeUsedForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"when-registered": {
 			form: &whenCanTheLpaBeUsedForm{
 				When: UsedWhenRegistered,
 			},
-			errors: map[string]string{},
 		},
 		"when-capacity-lost": {
 			form: &whenCanTheLpaBeUsedForm{
 				When: UsedWhenCapacityLost,
 			},
-			errors: map[string]string{},
 		},
 		"missing": {
-			form: &whenCanTheLpaBeUsedForm{},
-			errors: map[string]string{
-				"when": "selectWhenCanTheLpaBeUsed",
-			},
+			form:   &whenCanTheLpaBeUsedForm{},
+			errors: validation.With("when", validation.SelectError{Label: "whenTheLpaCanBeUsed"}),
 		},
 		"invalid": {
 			form: &whenCanTheLpaBeUsedForm{
 				When: "what",
 			},
-			errors: map[string]string{
-				"when": "selectWhenCanTheLpaBeUsed",
-			},
+			errors: validation.With("when", validation.SelectError{Label: "whenTheLpaCanBeUsed"}),
 		},
 	}
 

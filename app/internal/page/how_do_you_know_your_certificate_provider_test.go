@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -244,11 +245,9 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenValidationErrors(t *testing.
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howDoYouKnowYourCertificateProviderData{
-			App:  appData,
-			Form: &howDoYouKnowYourCertificateProviderForm{},
-			Errors: map[string]string{
-				"how": "selectHowYouKnowCertificateProvider",
-			},
+			App:    appData,
+			Form:   &howDoYouKnowYourCertificateProviderForm{},
+			Errors: validation.With("how", validation.SelectError{Label: "howYouKnowCertificateProvider"}),
 		}).
 		Return(nil)
 
@@ -278,36 +277,29 @@ func TestReadHowDoYouKnowYourCertificateProviderForm(t *testing.T) {
 func TestHowDoYouKnowYourCertificateProviderFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *howDoYouKnowYourCertificateProviderForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"valid": {
 			form: &howDoYouKnowYourCertificateProviderForm{
 				How:         "friend",
 				Description: "This",
 			},
-			errors: map[string]string{},
 		},
 		"missing": {
-			form: &howDoYouKnowYourCertificateProviderForm{},
-			errors: map[string]string{
-				"how": "selectHowYouKnowCertificateProvider",
-			},
+			form:   &howDoYouKnowYourCertificateProviderForm{},
+			errors: validation.With("how", validation.SelectError{Label: "howYouKnowCertificateProvider"}),
 		},
 		"invalid-option": {
 			form: &howDoYouKnowYourCertificateProviderForm{
 				How: "what",
 			},
-			errors: map[string]string{
-				"how": "selectHowYouKnowCertificateProvider",
-			},
+			errors: validation.With("how", validation.SelectError{Label: "howYouKnowCertificateProvider"}),
 		},
 		"other-missing-description": {
 			form: &howDoYouKnowYourCertificateProviderForm{
 				How: "other",
 			},
-			errors: map[string]string{
-				"description": "enterDescription",
-			},
+			errors: validation.With("description", validation.EnterError{Label: "description"}),
 		},
 	}
 

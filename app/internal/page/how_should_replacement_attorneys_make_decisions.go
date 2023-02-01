@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type howShouldReplacementAttorneysMakeDecisionsData struct {
 	App    AppData
-	Errors map[string]string
+	Errors validation.List
 	Form   *howShouldAttorneysMakeDecisionsForm
 }
 
@@ -28,10 +29,10 @@ func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, lpaStore
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readHowShouldAttorneysMakeDecisionsForm(r)
+			data.Form = readHowShouldAttorneysMakeDecisionsForm(r, "howReplacementAttorneysShouldMakeDecisions")
 			data.Errors = data.Form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.None() {
 				lpa.HowReplacementAttorneysMakeDecisions = data.Form.DecisionsType
 
 				if data.Form.DecisionsType != JointlyForSomeSeverallyForOthers {

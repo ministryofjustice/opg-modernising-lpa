@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -170,7 +171,7 @@ func TestPostCheckYourLpaWhenValidationErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, mock.MatchedBy(func(data *checkYourLpaData) bool {
-			return assert.Equal(t, map[string]string{"happy": "selectHappyToShareLpa"}, data.Errors)
+			return assert.Equal(t, validation.With("happy", validation.SelectError{Label: "happyToShareLpa"}), data.Errors)
 		})).
 		Return(nil)
 
@@ -202,24 +203,22 @@ func TestReadCheckYourLpaForm(t *testing.T) {
 func TestCheckYourLpaFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *checkYourLpaForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"valid": {
 			form: &checkYourLpaForm{
 				Happy:   true,
 				Checked: true,
 			},
-			errors: map[string]string{},
 		},
 		"invalid-all": {
 			form: &checkYourLpaForm{
 				Happy:   false,
 				Checked: false,
 			},
-			errors: map[string]string{
-				"happy":   "selectHappyToShareLpa",
-				"checked": "selectCheckedLpa",
-			},
+			errors: validation.
+				With("checked", validation.SelectError{Label: "checkedLpa"}).
+				With("happy", validation.SelectError{Label: "happyToShareLpa"}),
 		},
 	}
 

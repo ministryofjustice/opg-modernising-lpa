@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -237,13 +238,12 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenValidationErrors(t *t
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howShouldReplacementAttorneysMakeDecisionsData{
-			App: appData,
-			Errors: map[string]string{
-				"decision-type": "chooseADecisionType",
-			},
+			App:    appData,
+			Errors: validation.With("decision-type", validation.SelectError{Label: "howReplacementAttorneysShouldMakeDecisions"}),
 			Form: &howShouldAttorneysMakeDecisionsForm{
 				DecisionsType:    "",
 				DecisionsDetails: "",
+				errorLabel:       "howReplacementAttorneysShouldMakeDecisions",
 			},
 		}).
 		Return(nil)

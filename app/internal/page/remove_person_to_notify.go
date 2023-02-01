@@ -5,17 +5,14 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type removePersonToNotifyData struct {
 	App            AppData
 	PersonToNotify PersonToNotify
-	Errors         map[string]string
-	Form           removePersonToNotifyForm
-}
-
-type removePersonToNotifyForm struct {
-	RemovePersonToNotify string
+	Errors         validation.List
+	Form           *removePersonToNotifyForm
 }
 
 func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaStore) Handler {
@@ -36,17 +33,14 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaSto
 		data := &removePersonToNotifyData{
 			App:            appData,
 			PersonToNotify: attorney,
-			Form:           removePersonToNotifyForm{},
+			Form:           &removePersonToNotifyForm{},
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = removePersonToNotifyForm{
-				RemovePersonToNotify: postFormString(r, "remove-person-to-notify"),
-			}
-
+			data.Form = readRemovePersonToNotifyForm(r)
 			data.Errors = data.Form.Validate()
 
-			if data.Form.RemovePersonToNotify == "yes" && len(data.Errors) == 0 {
+			if data.Form.RemovePersonToNotify == "yes" && data.Errors.None() {
 				lpa.DeletePersonToNotify(attorney)
 
 				var redirect string
@@ -78,12 +72,21 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaSto
 	}
 }
 
-func (f *removePersonToNotifyForm) Validate() map[string]string {
-	errors := map[string]string{}
+type removePersonToNotifyForm struct {
+	RemovePersonToNotify string
+}
 
-	if f.RemovePersonToNotify != "yes" && f.RemovePersonToNotify != "no" {
-		errors["remove-person-to-notify"] = "selectRemovePersonToNotify"
+func readRemovePersonToNotifyForm(r *http.Request) *removePersonToNotifyForm {
+	return &removePersonToNotifyForm{
+		RemovePersonToNotify: postFormString(r, "remove-person-to-notify"),
 	}
+}
+
+func (f *removePersonToNotifyForm) Validate() validation.List {
+	var errors validation.List
+
+	errors.String("remove-person-to-notify", "removePersonToNotify", f.RemovePersonToNotify,
+		validation.Select("yes", "no"))
 
 	return errors
 }

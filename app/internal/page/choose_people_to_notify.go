@@ -3,21 +3,15 @@ package page
 import (
 	"fmt"
 	"net/http"
-	"net/mail"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type choosePeopleToNotifyData struct {
 	App    AppData
-	Errors map[string]string
+	Errors validation.List
 	Form   *choosePeopleToNotifyForm
-}
-
-type choosePeopleToNotifyForm struct {
-	FirstNames string
-	LastName   string
-	Email      string
 }
 
 func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) Handler {
@@ -51,7 +45,7 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 			data.Form = readChoosePeopleToNotifyForm(r)
 			data.Errors = data.Form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.None() {
 				if personFound == false {
 					personToNotify = PersonToNotify{
 						FirstNames: data.Form.FirstNames,
@@ -89,37 +83,34 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 	}
 }
 
-func readChoosePeopleToNotifyForm(r *http.Request) *choosePeopleToNotifyForm {
-	d := &choosePeopleToNotifyForm{}
-	d.FirstNames = postFormString(r, "first-names")
-	d.LastName = postFormString(r, "last-name")
-	d.Email = postFormString(r, "email")
-
-	return d
+type choosePeopleToNotifyForm struct {
+	FirstNames string
+	LastName   string
+	Email      string
 }
 
-func (d *choosePeopleToNotifyForm) Validate() map[string]string {
-	errors := map[string]string{}
+func readChoosePeopleToNotifyForm(r *http.Request) *choosePeopleToNotifyForm {
+	return &choosePeopleToNotifyForm{
+		FirstNames: postFormString(r, "first-names"),
+		LastName:   postFormString(r, "last-name"),
+		Email:      postFormString(r, "email"),
+	}
+}
 
-	if d.FirstNames == "" {
-		errors["first-names"] = "enterTheirFirstNames"
-	}
-	if len(d.FirstNames) > 53 {
-		errors["first-names"] = "firstNamesTooLong"
-	}
+func (f *choosePeopleToNotifyForm) Validate() validation.List {
+	var errors validation.List
 
-	if d.LastName == "" {
-		errors["last-name"] = "enterTheirLastName"
-	}
-	if len(d.LastName) > 61 {
-		errors["last-name"] = "lastNameTooLong"
-	}
+	errors.String("first-names", "firstNames", f.FirstNames,
+		validation.Empty(),
+		validation.StringTooLong(53))
 
-	if d.Email == "" {
-		errors["email"] = "enterTheirEmail"
-	} else if _, err := mail.ParseAddress(fmt.Sprintf("<%s>", d.Email)); err != nil {
-		errors["email"] = "theirEmailIncorrectFormat"
-	}
+	errors.String("last-name", "lastName", f.LastName,
+		validation.Empty(),
+		validation.StringTooLong(61))
+
+	errors.String("email", "email", f.Email,
+		validation.Empty(),
+		validation.Email())
 
 	return errors
 }

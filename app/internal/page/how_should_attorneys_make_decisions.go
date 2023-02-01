@@ -4,18 +4,14 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type howShouldAttorneysMakeDecisionsData struct {
 	App    AppData
-	Errors map[string]string
+	Errors validation.List
 	Form   *howShouldAttorneysMakeDecisionsForm
 	Lpa    *Lpa
-}
-
-type howShouldAttorneysMakeDecisionsForm struct {
-	DecisionsType    string
-	DecisionsDetails string
 }
 
 func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -35,10 +31,10 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) 
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readHowShouldAttorneysMakeDecisionsForm(r)
+			data.Form = readHowShouldAttorneysMakeDecisionsForm(r, "howAttorneysShouldMakeDecisions")
 			data.Errors = data.Form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.None() {
 				lpa.HowAttorneysMakeDecisions = data.Form.DecisionsType
 
 				if data.Form.DecisionsType != JointlyForSomeSeverallyForOthers {
@@ -59,22 +55,29 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) 
 	}
 }
 
-func readHowShouldAttorneysMakeDecisionsForm(r *http.Request) *howShouldAttorneysMakeDecisionsForm {
+type howShouldAttorneysMakeDecisionsForm struct {
+	DecisionsType    string
+	DecisionsDetails string
+	errorLabel       string
+}
+
+func readHowShouldAttorneysMakeDecisionsForm(r *http.Request, errorLabel string) *howShouldAttorneysMakeDecisionsForm {
 	return &howShouldAttorneysMakeDecisionsForm{
 		DecisionsType:    postFormString(r, "decision-type"),
 		DecisionsDetails: postFormString(r, "mixed-details"),
+		errorLabel:       errorLabel,
 	}
 }
 
-func (f *howShouldAttorneysMakeDecisionsForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (f *howShouldAttorneysMakeDecisionsForm) Validate() validation.List {
+	var errors validation.List
 
-	if f.DecisionsType != JointlyAndSeverally && f.DecisionsType != Jointly && f.DecisionsType != JointlyForSomeSeverallyForOthers {
-		errors["decision-type"] = "chooseADecisionType"
-	}
+	errors.String("decision-type", f.errorLabel, f.DecisionsType,
+		validation.Select(Jointly, JointlyAndSeverally, JointlyForSomeSeverallyForOthers))
 
-	if f.DecisionsType == JointlyForSomeSeverallyForOthers && f.DecisionsDetails == "" {
-		errors["mixed-details"] = "provideDecisionDetails"
+	if f.DecisionsType == JointlyForSomeSeverallyForOthers {
+		errors.String("mixed-details", "details", f.DecisionsDetails,
+			validation.Empty())
 	}
 
 	return errors

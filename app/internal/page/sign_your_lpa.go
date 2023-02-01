@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type signYourLpaData struct {
 	App                  AppData
-	Errors               map[string]string
+	Errors               validation.List
 	Lpa                  *Lpa
 	Form                 *signYourLpaForm
 	CPWitnessedFormValue string
@@ -19,11 +20,6 @@ const (
 	CertificateProviderHasWitnessed = "cp-witnessed"
 	WantToApplyForLpa               = "want-to-apply"
 )
-
-type signYourLpaForm struct {
-	WantToApply bool
-	CPWitnessed bool
-}
 
 func SignYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
@@ -55,7 +51,7 @@ func SignYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 				return err
 			}
 
-			if len(data.Errors) == 0 {
+			if data.Errors.None() {
 				lpa.Tasks.ConfirmYourIdentityAndSign = TaskCompleted
 				if err = lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
@@ -66,6 +62,11 @@ func SignYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 
 		return tmpl(w, data)
 	}
+}
+
+type signYourLpaForm struct {
+	WantToApply bool
+	CPWitnessed bool
 }
 
 func readSignYourLpaForm(r *http.Request) *signYourLpaForm {
@@ -86,16 +87,11 @@ func readSignYourLpaForm(r *http.Request) *signYourLpaForm {
 	return f
 }
 
-func (f *signYourLpaForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (f *signYourLpaForm) Validate() validation.List {
+	var errors validation.List
 
-	if !f.WantToApply {
-		errors["sign-lpa"] = "selectBothBoxes"
-	}
-
-	if !f.CPWitnessed {
-		errors["sign-lpa"] = "selectBothBoxes"
-	}
+	errors.Bool("sign-lpa", "bothBoxesToSign", f.WantToApply && f.CPWitnessed,
+		validation.Selected())
 
 	return errors
 }

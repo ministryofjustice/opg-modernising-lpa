@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -240,13 +241,12 @@ func TestPostHowShouldAttorneysMakeDecisionsWhenValidationErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howShouldAttorneysMakeDecisionsData{
-			App: appData,
-			Errors: map[string]string{
-				"decision-type": "chooseADecisionType",
-			},
+			App:    appData,
+			Errors: validation.With("decision-type", validation.SelectError{Label: "howAttorneysShouldMakeDecisions"}),
 			Form: &howShouldAttorneysMakeDecisionsForm{
 				DecisionsType:    "",
 				DecisionsDetails: "",
+				errorLabel:       "howAttorneysShouldMakeDecisions",
 			},
 			Lpa: &Lpa{HowAttorneysMakeDecisionsDetails: "", HowAttorneysMakeDecisions: ""},
 		}).
@@ -260,36 +260,34 @@ func TestPostHowShouldAttorneysMakeDecisionsWhenValidationErrors(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
-func TestValidateForm(t *testing.T) {
+func TestHowShouldAttorneysMakeDecisionsFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		DecisionType   string
 		DecisionDetail string
-		ExpectedErrors map[string]string
+		ExpectedErrors validation.List
 	}{
 		"valid": {
 			DecisionType:   "jointly-and-severally",
 			DecisionDetail: "",
-			ExpectedErrors: map[string]string{},
 		},
 		"valid with detail": {
 			DecisionType:   "mixed",
 			DecisionDetail: "some details",
-			ExpectedErrors: map[string]string{},
 		},
 		"unsupported decision type": {
 			DecisionType:   "not-supported",
 			DecisionDetail: "",
-			ExpectedErrors: map[string]string{"decision-type": "chooseADecisionType"},
+			ExpectedErrors: validation.With("decision-type", validation.SelectError{Label: "xyz"}),
 		},
 		"missing decision type": {
 			DecisionType:   "",
 			DecisionDetail: "",
-			ExpectedErrors: map[string]string{"decision-type": "chooseADecisionType"},
+			ExpectedErrors: validation.With("decision-type", validation.SelectError{Label: "xyz"}),
 		},
 		"missing decision detail when mixed": {
 			DecisionType:   "mixed",
 			DecisionDetail: "",
-			ExpectedErrors: map[string]string{"mixed-details": "provideDecisionDetails"},
+			ExpectedErrors: validation.With("mixed-details", validation.EnterError{Label: "details"}),
 		},
 	}
 
@@ -298,6 +296,7 @@ func TestValidateForm(t *testing.T) {
 			form := howShouldAttorneysMakeDecisionsForm{
 				DecisionsType:    tc.DecisionType,
 				DecisionsDetails: tc.DecisionDetail,
+				errorLabel:       "xyz",
 			}
 
 			assert.Equal(t, tc.ExpectedErrors, form.Validate())

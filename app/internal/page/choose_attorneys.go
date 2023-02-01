@@ -3,28 +3,19 @@ package page
 import (
 	"fmt"
 	"net/http"
-	"net/mail"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type chooseAttorneysData struct {
 	App         AppData
-	Errors      map[string]string
+	Errors      validation.List
 	Form        *chooseAttorneysForm
 	ShowDetails bool
 	DobWarning  string
-}
-
-type chooseAttorneysForm struct {
-	FirstNames       string
-	LastName         string
-	Email            string
-	Dob              Date
-	DateOfBirth      time.Time
-	DateOfBirthError error
-	IgnoreWarning    string
 }
 
 func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) Handler {
@@ -52,7 +43,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 		}
 
 		if !attorney.DateOfBirth.IsZero() {
-			data.Form.Dob = readDate(attorney.DateOfBirth)
+			data.Form.Dob = date.Read(attorney.DateOfBirth)
 		}
 
 		if r.Method == http.MethodPost {
@@ -60,17 +51,17 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 			data.Errors = data.Form.Validate()
 			dobWarning := data.Form.DobWarning()
 
-			if len(data.Errors) != 0 || data.Form.IgnoreWarning != dobWarning {
+			if data.Errors.Any() || data.Form.IgnoreWarning != dobWarning {
 				data.DobWarning = dobWarning
 			}
 
-			if len(data.Errors) == 0 && data.DobWarning == "" {
+			if data.Errors.None() && data.DobWarning == "" {
 				if attorneyFound == false {
 					attorney = Attorney{
 						FirstNames:  data.Form.FirstNames,
 						LastName:    data.Form.LastName,
 						Email:       data.Form.Email,
-						DateOfBirth: data.Form.DateOfBirth,
+						DateOfBirth: data.Form.Dob.T,
 						ID:          randomString(8),
 					}
 
@@ -79,7 +70,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 					attorney.FirstNames = data.Form.FirstNames
 					attorney.LastName = data.Form.LastName
 					attorney.Email = data.Form.Email
-					attorney.DateOfBirth = data.Form.DateOfBirth
+					attorney.DateOfBirth = data.Form.Dob.T
 
 					lpa.PutAttorney(attorney)
 				}
@@ -105,58 +96,48 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 	}
 }
 
+type chooseAttorneysForm struct {
+	FirstNames    string
+	LastName      string
+	Email         string
+	Dob           date.Date
+	IgnoreWarning string
+}
+
 func readChooseAttorneysForm(r *http.Request) *chooseAttorneysForm {
 	d := &chooseAttorneysForm{}
 	d.FirstNames = postFormString(r, "first-names")
 	d.LastName = postFormString(r, "last-name")
 	d.Email = postFormString(r, "email")
-	d.Dob = Date{
-		Day:   postFormString(r, "date-of-birth-day"),
-		Month: postFormString(r, "date-of-birth-month"),
-		Year:  postFormString(r, "date-of-birth-year"),
-	}
-
-	d.DateOfBirth, d.DateOfBirthError = time.Parse("2006-1-2", d.Dob.Year+"-"+d.Dob.Month+"-"+d.Dob.Day)
+	d.Dob = date.FromParts(
+		postFormString(r, "date-of-birth-year"),
+		postFormString(r, "date-of-birth-month"),
+		postFormString(r, "date-of-birth-day"))
 
 	d.IgnoreWarning = postFormString(r, "ignore-warning")
 
 	return d
 }
 
-func (d *chooseAttorneysForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (f *chooseAttorneysForm) Validate() validation.List {
+	var errors validation.List
 
-	if d.FirstNames == "" {
-		errors["first-names"] = "enterFirstNames"
-	}
-	if len(d.FirstNames) > 53 {
-		errors["first-names"] = "firstNamesTooLong"
-	}
+	errors.String("first-names", "firstNames", f.FirstNames,
+		validation.Empty(),
+		validation.StringTooLong(53))
 
-	if d.LastName == "" {
-		errors["last-name"] = "enterLastName"
-	}
-	if len(d.LastName) > 61 {
-		errors["last-name"] = "lastNameTooLong"
-	}
+	errors.String("last-name", "lastName", f.LastName,
+		validation.Empty(),
+		validation.StringTooLong(61))
 
-	if d.Email == "" {
-		errors["email"] = "enterEmail"
-	} else if _, err := mail.ParseAddress(fmt.Sprintf("<%s>", d.Email)); err != nil {
-		errors["email"] = "emailIncorrectFormat"
-	}
+	errors.String("email", "email", f.Email,
+		validation.Empty(),
+		validation.Email())
 
-	if d.Dob.Day == "" || d.Dob.Month == "" || d.Dob.Year == "" {
-		errors["date-of-birth"] = "enterDateOfBirth"
-	} else if d.DateOfBirthError != nil {
-		errors["date-of-birth"] = "dateOfBirthMustBeReal"
-	} else {
-		today := time.Now().UTC().Round(24 * time.Hour)
-
-		if d.DateOfBirth.After(today) {
-			errors["date-of-birth"] = "dateOfBirthIsFuture"
-		}
-	}
+	errors.Date("date-of-birth", "dateOfBirth", f.Dob,
+		validation.DateMissing(),
+		validation.DateMustBeReal(),
+		validation.DateMustBePast())
 
 	return errors
 }
@@ -168,11 +149,11 @@ func (d *chooseAttorneysForm) DobWarning() string {
 		eighteenYearsEarlier = today.AddDate(-18, 0, 0)
 	)
 
-	if !d.DateOfBirth.IsZero() {
-		if d.DateOfBirth.Before(hundredYearsEarlier) {
+	if !d.Dob.T.IsZero() {
+		if d.Dob.T.Before(hundredYearsEarlier) {
 			return "dateOfBirthIsOver100"
 		}
-		if d.DateOfBirth.Before(today) && d.DateOfBirth.After(eighteenYearsEarlier) {
+		if d.Dob.T.Before(today) && d.Dob.T.After(eighteenYearsEarlier) {
 			return "attorneyDateOfBirthIsUnder18"
 		}
 	}

@@ -1,5 +1,7 @@
 {{ template "page" . }}
 
+{{ define "pageTitle" }}{{ tr .App "certificateProviderAddressTitle" }}{{ end }}
+
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
@@ -24,12 +26,12 @@
             {{ else if .Addresses }}
               <input type="hidden" name="lookup-postcode" value="{{ .Form.LookupPostcode }}" />
 
-              <div id="select" class="govuk-form-group govuk-!-margin-bottom-6 {{ if index .Errors "select-address" }}govuk-form-group--error{{ end }}">
+              <div id="select" class="govuk-form-group govuk-!-margin-bottom-6 {{ if .Errors.Has "select-address" }}govuk-form-group--error{{ end }}">
                 <label class="govuk-label" for="f-select-address">
                   {{ tr .App "selectAnAddress" }}
                 </label>
                 {{ template "error-message" (errorMessage . "select-address") }}
-                <select class="govuk-select {{ if index .Errors "select-address" }}govuk-select--error{{ end }}" id="f-select-address" name="select-address">
+                <select class="govuk-select {{ if .Errors.Has "select-address" }}govuk-select--error{{ end }}" id="f-select-address" name="select-address">
                   <option value="">{{ trCount .App "addressesFound" (len .Addresses) }}</option>
                   {{ range .Addresses }}
                     <option value="{{ .Encode }}">{{ .String }}</option>
@@ -48,12 +50,12 @@
               </button>
 
             {{ else }}
-              <div id="find" class="govuk-form-group govuk-!-margin-bottom-6  {{ if index .Errors "lookup-postcode" }}govuk-form-group--error{{ end }}">
+              <div id="find" class="govuk-form-group govuk-!-margin-bottom-6  {{ if .Errors.Has "lookup-postcode" }}govuk-form-group--error{{ end }}">
                 <label class="govuk-label" for="f-lookup-postcode">
                   {{ tr .App "postcode" }}
                 </label>
                 {{ template "error-message" (errorMessage . "lookup-postcode") }}
-                <input class="govuk-input govuk-input--width-10  {{ if index .Errors "lookup-postcode" }}govuk-input--error{{ end }}" id="f-lookup-postcode" name="lookup-postcode" type="text" autocomplete="postal-code" value="{{ .Form.LookupPostcode }}">
+                <input class="govuk-input govuk-input--width-10  {{ if .Errors.Has "lookup-postcode" }}govuk-input--error{{ end }}" id="f-lookup-postcode" name="lookup-postcode" type="text" autocomplete="postal-code" value="{{ .Form.LookupPostcode }}">
               </div>
 
               <button name="action" value="lookup" class="govuk-button" data-module="govuk-button">

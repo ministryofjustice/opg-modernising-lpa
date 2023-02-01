@@ -4,19 +4,16 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type doYouWantToNotifyPeopleData struct {
 	App             AppData
-	Errors          map[string]string
+	Errors          validation.List
 	Form            *doYouWantToNotifyPeopleForm
 	WantToNotify    string
 	Lpa             *Lpa
 	HowWorkTogether string
-}
-
-type doYouWantToNotifyPeopleForm struct {
-	WantToNotify string
 }
 
 func DoYouWantToNotifyPeople(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -49,7 +46,7 @@ func DoYouWantToNotifyPeople(tmpl template.Template, lpaStore LpaStore) Handler 
 			data.Form = readDoYouWantToNotifyPeople(r)
 			data.Errors = data.Form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.None() {
 				lpa.DoYouWantToNotifyPeople = data.Form.WantToNotify
 				lpa.Tasks.PeopleToNotify = TaskInProgress
 
@@ -72,20 +69,21 @@ func DoYouWantToNotifyPeople(tmpl template.Template, lpaStore LpaStore) Handler 
 	}
 }
 
-func readDoYouWantToNotifyPeople(r *http.Request) *doYouWantToNotifyPeopleForm {
-	r.ParseForm()
+type doYouWantToNotifyPeopleForm struct {
+	WantToNotify string
+}
 
+func readDoYouWantToNotifyPeople(r *http.Request) *doYouWantToNotifyPeopleForm {
 	return &doYouWantToNotifyPeopleForm{
 		WantToNotify: postFormString(r, "want-to-notify"),
 	}
 }
 
-func (f *doYouWantToNotifyPeopleForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (f *doYouWantToNotifyPeopleForm) Validate() validation.List {
+	var errors validation.List
 
-	if f.WantToNotify != "yes" && f.WantToNotify != "no" {
-		errors["want-to-notify"] = "selectDoYouWantToNotifyPeople"
-	}
+	errors.String("want-to-notify", "yesToNotifySomeoneAboutYourLpa", f.WantToNotify,
+		validation.Select("yes", "no"))
 
 	return errors
 }

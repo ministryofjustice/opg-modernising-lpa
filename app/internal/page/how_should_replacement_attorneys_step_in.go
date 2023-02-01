@@ -4,17 +4,13 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type howShouldReplacementAttorneysStepInData struct {
 	App    AppData
-	Errors map[string]string
+	Errors validation.List
 	Form   *howShouldReplacementAttorneysStepInForm
-}
-
-type howShouldReplacementAttorneysStepInForm struct {
-	WhenToStepIn string
-	OtherDetails string
 }
 
 func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -36,7 +32,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 			data.Form = readHowShouldReplacementAttorneysStepInForm(r)
 			data.Errors = data.Form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.None() {
 				lpa.HowShouldReplacementAttorneysStepIn = data.Form.WhenToStepIn
 
 				if data.Form.WhenToStepIn != SomeOtherWay {
@@ -67,6 +63,11 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 	}
 }
 
+type howShouldReplacementAttorneysStepInForm struct {
+	WhenToStepIn string
+	OtherDetails string
+}
+
 func readHowShouldReplacementAttorneysStepInForm(r *http.Request) *howShouldReplacementAttorneysStepInForm {
 	return &howShouldReplacementAttorneysStepInForm{
 		WhenToStepIn: postFormString(r, "when-to-step-in"),
@@ -74,15 +75,15 @@ func readHowShouldReplacementAttorneysStepInForm(r *http.Request) *howShouldRepl
 	}
 }
 
-func (f *howShouldReplacementAttorneysStepInForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (f *howShouldReplacementAttorneysStepInForm) Validate() validation.List {
+	var errors validation.List
 
-	if f.WhenToStepIn == "" {
-		errors["when-to-step-in"] = "selectWhenToStepIn"
-	}
+	errors.String("when-to-step-in", "whenYourReplacementAttorneysStepIn", f.WhenToStepIn,
+		validation.Select(OneCanNoLongerAct, AllCanNoLongerAct, SomeOtherWay))
 
-	if f.WhenToStepIn == SomeOtherWay && f.OtherDetails == "" {
-		errors["other-details"] = "provideDetailsOfWhenToStepIn"
+	if f.WhenToStepIn == SomeOtherWay {
+		errors.String("other-details", "detailsOfWhenToStepIn", f.OtherDetails,
+			validation.Empty())
 	}
 
 	return errors

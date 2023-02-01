@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -228,11 +229,9 @@ func TestPostWantReplacementAttorneysWhenValidationErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &wantReplacementAttorneysData{
-			App: appData,
-			Errors: map[string]string{
-				"want": "selectWantReplacementAttorneys",
-			},
-			Lpa: &Lpa{},
+			App:    appData,
+			Errors: validation.With("want", validation.SelectError{Label: "yesToAddReplacementAttorneys"}),
+			Lpa:    &Lpa{},
 		}).
 		Return(nil)
 
@@ -260,33 +259,27 @@ func TestReadWantReplacementAttorneysForm(t *testing.T) {
 func TestWantReplacementAttorneysFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *wantReplacementAttorneysForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"yes": {
 			form: &wantReplacementAttorneysForm{
 				Want: "yes",
 			},
-			errors: map[string]string{},
 		},
 		"no": {
 			form: &wantReplacementAttorneysForm{
 				Want: "no",
 			},
-			errors: map[string]string{},
 		},
 		"missing": {
-			form: &wantReplacementAttorneysForm{},
-			errors: map[string]string{
-				"want": "selectWantReplacementAttorneys",
-			},
+			form:   &wantReplacementAttorneysForm{},
+			errors: validation.With("want", validation.SelectError{Label: "yesToAddReplacementAttorneys"}),
 		},
 		"invalid": {
 			form: &wantReplacementAttorneysForm{
 				Want: "what",
 			},
-			errors: map[string]string{
-				"want": "selectWantReplacementAttorneys",
-			},
+			errors: validation.With("want", validation.SelectError{Label: "yesToAddReplacementAttorneys"}),
 		},
 	}
 

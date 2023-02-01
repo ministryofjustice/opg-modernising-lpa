@@ -6,20 +6,15 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type certificateProviderAddressData struct {
 	App                 AppData
-	Errors              map[string]string
+	Errors              validation.List
 	CertificateProvider CertificateProvider
 	Addresses           []place.Address
-	Form                *certificateProviderAddressForm
-}
-
-type certificateProviderAddressForm struct {
-	Action         string
-	LookupPostcode string
-	Address        *place.Address
+	Form                *addressForm
 }
 
 func CertificateProviderAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) Handler {
@@ -32,7 +27,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 		data := &certificateProviderAddressData{
 			App:                 appData,
 			CertificateProvider: lpa.CertificateProvider,
-			Form:                &certificateProviderAddressForm{},
+			Form:                &addressForm{},
 		}
 
 		if lpa.CertificateProvider.Address.Line1 != "" {
@@ -41,10 +36,10 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readCertificateProviderAddressForm(r)
+			data.Form = readAddressForm(r)
 			data.Errors = data.Form.Validate()
 
-			if data.Form.Action == "manual" && len(data.Errors) == 0 {
+			if data.Form.Action == "manual" && data.Errors.None() {
 				lpa.CertificateProvider.Address = *data.Form.Address
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
@@ -55,7 +50,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 			}
 
 			// Force the manual address view after selecting
-			if data.Form.Action == "select" && len(data.Errors) == 0 {
+			if data.Form.Action == "select" && data.Errors.None() {
 				data.Form.Action = "manual"
 
 				lpa.CertificateProvider.Address = *data.Form.Address
@@ -65,16 +60,17 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 				}
 			}
 
-			if data.Form.Action == "lookup" && len(data.Errors) == 0 ||
-				data.Form.Action == "select" && len(data.Errors) > 0 {
+			if data.Form.Action == "lookup" && data.Errors.None() ||
+				data.Form.Action == "select" && data.Errors.Any() {
 				addresses, err := addressClient.LookupPostcode(r.Context(), data.Form.LookupPostcode)
 				if err != nil {
 					logger.Print(err)
 
 					if errors.As(err, &place.NotFoundError{}) {
-						data.Errors["lookup-postcode"] = "enterUkPostCode"
+						data.Errors.Add("lookup-postcode", validation.CustomError{Label: "enterUkPostCode"})
 					} else {
-						data.Errors["lookup-postcode"] = "couldNotLookupPostcode"
+						data.Errors.Add("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"})
+
 					}
 				}
 
@@ -92,70 +88,4 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 
 		return tmpl(w, data)
 	}
-}
-
-func readCertificateProviderAddressForm(r *http.Request) *certificateProviderAddressForm {
-	d := &certificateProviderAddressForm{}
-	d.Action = r.PostFormValue("action")
-
-	switch d.Action {
-	case "lookup":
-		d.LookupPostcode = postFormString(r, "lookup-postcode")
-
-	case "select":
-		d.LookupPostcode = postFormString(r, "lookup-postcode")
-		selectAddress := r.PostFormValue("select-address")
-		if selectAddress != "" {
-			d.Address = DecodeAddress(selectAddress)
-		}
-
-	case "manual":
-		d.Address = &place.Address{
-			Line1:      postFormString(r, "address-line-1"),
-			Line2:      postFormString(r, "address-line-2"),
-			Line3:      postFormString(r, "address-line-3"),
-			TownOrCity: postFormString(r, "address-town"),
-			Postcode:   postFormString(r, "address-postcode"),
-		}
-	}
-
-	return d
-}
-
-func (d *certificateProviderAddressForm) Validate() map[string]string {
-	errors := map[string]string{}
-
-	switch d.Action {
-	case "lookup":
-		if d.LookupPostcode == "" {
-			errors["lookup-postcode"] = "enterPostcode"
-		}
-
-	case "select":
-		if d.Address == nil {
-			errors["select-address"] = "selectAddress"
-		}
-
-	case "manual":
-		if d.Address.Line1 == "" {
-			errors["address-line-1"] = "enterAddress"
-		}
-		if len(d.Address.Line1) > 50 {
-			errors["address-line-1"] = "addressLine1TooLong"
-		}
-		if len(d.Address.Line2) > 50 {
-			errors["address-line-2"] = "addressLine2TooLong"
-		}
-		if len(d.Address.Line3) > 50 {
-			errors["address-line-3"] = "addressLine3TooLong"
-		}
-		if d.Address.TownOrCity == "" {
-			errors["address-town"] = "enterTownOrCity"
-		}
-		if d.Address.Postcode == "" {
-			errors["address-postcode"] = "enterPostcode"
-		}
-	}
-
-	return errors
 }

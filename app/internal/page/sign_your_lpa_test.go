@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -176,7 +177,7 @@ func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, mock.MatchedBy(func(data *signYourLpaData) bool {
-			return assert.Equal(t, map[string]string{"sign-lpa": "selectBothBoxes"}, data.Errors)
+			return assert.Equal(t, validation.With("sign-lpa", validation.SelectError{Label: "bothBoxesToSign"}), data.Errors)
 		})).
 		Return(nil)
 
@@ -207,38 +208,31 @@ func TestReadSignYourLpaForm(t *testing.T) {
 func TestSignYourLpaFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *signYourLpaForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"valid": {
 			form: &signYourLpaForm{
 				WantToApply: true,
 				CPWitnessed: true,
 			},
-			errors: map[string]string{},
 		},
 		"only cp-witnessed selected": {
 			form: &signYourLpaForm{
 				WantToApply: false,
 				CPWitnessed: true,
 			},
-			errors: map[string]string{
-				"sign-lpa": "selectBothBoxes",
-			},
+			errors: validation.With("sign-lpa", validation.SelectError{Label: "bothBoxesToSign"}),
 		},
 		"only want-to-apply selected": {
 			form: &signYourLpaForm{
 				WantToApply: true,
 				CPWitnessed: false,
 			},
-			errors: map[string]string{
-				"sign-lpa": "selectBothBoxes",
-			},
+			errors: validation.With("sign-lpa", validation.SelectError{Label: "bothBoxesToSign"}),
 		},
 		"none selected": {
-			form: &signYourLpaForm{},
-			errors: map[string]string{
-				"sign-lpa": "selectBothBoxes",
-			},
+			form:   &signYourLpaForm{},
+			errors: validation.With("sign-lpa", validation.SelectError{Label: "bothBoxesToSign"}),
 		},
 	}
 

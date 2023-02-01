@@ -1,31 +1,33 @@
 {{ template "page" . }}
 
+{{ define "pageTitle" }}{{ tr .App "aboutPayment" }}{{ end }}
+
 {{ define "main" }}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ tr .App "aboutPayment" }}</h1>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "aboutPayment" }}</h1>
 
-            {{ trHtml .App "aboutPaymentContent" }}
+      {{ trHtml .App "aboutPaymentContent" }}
 
-            <p class="govuk-body">{{ tr .App "feeCoversContent" }}</p>
+      <p class="govuk-body">{{ tr .App "feeCoversContent" }}</p>
 
-            {{ trFormatHtml .App "feeCoversExamples" "CpFirstNames" .CertificateProvider.FirstNames "CpLastName" .CertificateProvider.LastName }}
+      {{ trFormatHtml .App "feeCoversExamples" "CpFirstNames" .CertificateProvider.FirstNames "CpLastName" .CertificateProvider.LastName }}
 
-            <div class="govuk-warning-text govuk-!-margin-bottom-2">
-                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                <strong class="govuk-warning-text__text">
-                    <span class="govuk-warning-text__assistive">{{ tr .App "importantAssistive" }}</span>
-                    {{ tr .App "lowIncome" }}
-                </strong>
-            </div>
+      <div class="govuk-warning-text govuk-!-margin-bottom-2">
+        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+        <strong class="govuk-warning-text__text">
+          <span class="govuk-warning-text__assistive">{{ tr .App "importantAssistive" }}</span>
+          {{ tr .App "lowIncome" }}
+        </strong>
+      </div>
 
-            <p class="govuk-body">
-                <a href="#" class="">{{ tr .App "qualifyingForReduction" }}</a>
-            </p>
+      <p class="govuk-body">
+        <a href="#" class="">{{ tr .App "qualifyingForReduction" }}</a>
+      </p>
 
-            <form novalidate method="post">
-                <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "continueToPayment" }}</button>
-            </form>
-        </div>
+      <form novalidate method="post">
+        <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "continueToPayment" }}</button>
+      </form>
     </div>
+  </div>
 {{ end }}

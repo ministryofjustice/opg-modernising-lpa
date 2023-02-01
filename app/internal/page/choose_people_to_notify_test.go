@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -326,7 +327,7 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 				"email":     {"name@example.com"},
 			},
 			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
-				return assert.Equal(t, map[string]string{"first-names": "enterTheirFirstNames"}, data.Errors)
+				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
 			},
 		},
 		"last name missing": {
@@ -335,7 +336,7 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 				"email":       {"name@example.com"},
 			},
 			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
-				return assert.Equal(t, map[string]string{"last-name": "enterTheirLastName"}, data.Errors)
+				return assert.Equal(t, validation.With("last-name", validation.EnterError{Label: "lastName"}), data.Errors)
 			},
 		},
 	}
@@ -415,7 +416,7 @@ func TestReadChoosePeopleToNotifyForm(t *testing.T) {
 func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *choosePeopleToNotifyForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"valid": {
 			form: &choosePeopleToNotifyForm{
@@ -423,7 +424,6 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 				LastName:   "B",
 				Email:      "person@example.com",
 			},
-			errors: map[string]string{},
 		},
 		"max length": {
 			form: &choosePeopleToNotifyForm{
@@ -431,15 +431,13 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 				LastName:   strings.Repeat("x", 61),
 				Email:      "person@example.com",
 			},
-			errors: map[string]string{},
 		},
 		"missing all": {
 			form: &choosePeopleToNotifyForm{},
-			errors: map[string]string{
-				"first-names": "enterTheirFirstNames",
-				"last-name":   "enterTheirLastName",
-				"email":       "enterTheirEmail",
-			},
+			errors: validation.
+				With("first-names", validation.EnterError{Label: "firstNames"}).
+				With("last-name", validation.EnterError{Label: "lastName"}).
+				With("email", validation.EnterError{Label: "email"}),
 		},
 		"too long": {
 			form: &choosePeopleToNotifyForm{
@@ -447,10 +445,9 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 				LastName:   strings.Repeat("x", 62),
 				Email:      "person@example.com",
 			},
-			errors: map[string]string{
-				"first-names": "firstNamesTooLong",
-				"last-name":   "lastNameTooLong",
-			},
+			errors: validation.
+				With("first-names", validation.StringTooLongError{Label: "firstNames", Length: 53}).
+				With("last-name", validation.StringTooLongError{Label: "lastName", Length: 61}),
 		},
 		"invalid email": {
 			form: &choosePeopleToNotifyForm{
@@ -458,9 +455,7 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 				LastName:   "B",
 				Email:      "person@",
 			},
-			errors: map[string]string{
-				"email": "theirEmailIncorrectFormat",
-			},
+			errors: validation.With("email", validation.EmailError{Label: "email"}),
 		},
 	}
 

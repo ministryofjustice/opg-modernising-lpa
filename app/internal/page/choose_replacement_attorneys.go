@@ -5,11 +5,13 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type chooseReplacementAttorneysData struct {
 	App        AppData
-	Errors     map[string]string
+	Errors     validation.List
 	Form       *chooseAttorneysForm
 	DobWarning string
 }
@@ -38,7 +40,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 		}
 
 		if !ra.DateOfBirth.IsZero() {
-			data.Form.Dob = readDate(ra.DateOfBirth)
+			data.Form.Dob = date.Read(ra.DateOfBirth)
 		}
 
 		if r.Method == http.MethodPost {
@@ -46,17 +48,17 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 			data.Errors = data.Form.Validate()
 			dobWarning := data.Form.DobWarning()
 
-			if len(data.Errors) != 0 || data.Form.IgnoreWarning != dobWarning {
+			if data.Errors.Any() || data.Form.IgnoreWarning != dobWarning {
 				data.DobWarning = dobWarning
 			}
 
-			if len(data.Errors) == 0 && data.DobWarning == "" {
+			if data.Errors.None() && data.DobWarning == "" {
 				if attorneyFound == false {
 					ra = Attorney{
 						FirstNames:  data.Form.FirstNames,
 						LastName:    data.Form.LastName,
 						Email:       data.Form.Email,
-						DateOfBirth: data.Form.DateOfBirth,
+						DateOfBirth: data.Form.Dob.T,
 						ID:          randomString(8),
 					}
 
@@ -65,7 +67,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 					ra.FirstNames = data.Form.FirstNames
 					ra.LastName = data.Form.LastName
 					ra.Email = data.Form.Email
-					ra.DateOfBirth = data.Form.DateOfBirth
+					ra.DateOfBirth = data.Form.Dob.T
 
 					lpa.PutReplacementAttorney(ra)
 				}

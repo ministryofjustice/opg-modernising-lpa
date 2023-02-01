@@ -27,7 +27,7 @@ describe('Confirm your identity and sign', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.contains('h1', "What you'll need to confirm your identity");
+        cy.contains('h1', "What you’ll need to confirm your identity");
         cy.contains('a', 'Continue').click();
 
         cy.url().should('contain', '/select-your-identity-options');
@@ -83,7 +83,7 @@ describe('Confirm your identity and sign', () => {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.contains('h1', "You've submitted your LPA");
+        cy.contains('h1', "You’ve submitted your LPA");
         cy.contains('a', 'Continue').click();
 
         cy.url().should('contain', '/dashboard');
@@ -113,5 +113,40 @@ describe('Confirm your identity and sign', () => {
         cy.contains('a', 'Continue').click();
         cy.contains('button', 'Continue').click();
         cy.contains('Your GOV.UK One Login Identity');
+    });
+
+    it('errors when not signed', () => {
+        cy.visitLpa('/sign-your-lpa');
+
+        cy.contains('button', 'Submit my signature').click();
+        
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Select both boxes to sign your LPA');
+        });
+        
+        cy.contains('.moj-ticket-panel  .govuk-error-message', 'Select both boxes to sign your LPA');
+    });
+
+    it('errors when not witnessed', () => {
+        cy.visitLpa('/witnessing-your-signature');
+        cy.contains('button', 'Continue').click();
+
+        cy.contains('button', 'Continue').click();
+        
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Enter the code we sent to the certificate provider');
+        });
+        
+        cy.contains('.moj-ticket-panel .govuk-error-message', 'Enter the code we sent to the certificate provider');
+
+        cy.get('#f-witness-code').type('123');
+        cy.contains('button', 'Continue').click();
+
+        cy.contains('.moj-ticket-panel .govuk-error-message', 'The code we sent to the certificate provider must be 4 characters');
+
+        cy.get('#f-witness-code').type('45');
+        cy.contains('button', 'Continue').click();
+
+        cy.contains('.moj-ticket-panel .govuk-error-message', 'The code we sent to the certificate provider must be 4 characters');
     });
 });

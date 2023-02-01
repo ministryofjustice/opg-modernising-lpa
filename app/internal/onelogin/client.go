@@ -3,6 +3,7 @@ package onelogin
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/url"
 	"time"
@@ -10,6 +11,8 @@ import (
 	"github.com/MicahParks/keyfunc"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
+
+var expectedError = errors.New("err")
 
 const openidConfigurationEndpoint = "/.well-known/openid-configuration"
 

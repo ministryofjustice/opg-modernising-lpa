@@ -3,7 +3,7 @@
   <html lang="en" class="govuk-template app-html-class">
     <head>
       <meta charset="utf-8">
-      <title>{{ if .Errors }}Error: {{ end }}{{ tr .App "serviceName" }}</title>
+      <title>{{ if .Errors }}Error: {{ end }} {{ if not (eq .App.Page .App.Paths.Start) }}{{ template "pageTitle" . }} - {{ end }}{{ tr .App "serviceName" }}</title>
       <link rel="preload" href="/static/stylesheets/all.css?{{ .App.StaticHash }}" as="style">
       <link rel="preload" href="/static/javascript/main.js?{{ .App.StaticHash }}" as="script">
       <link rel="preconnect" href="//dataplane.rum.eu-west-1.amazonaws.com">
@@ -149,11 +149,6 @@
                 </li>
                 <li class="govuk-footer__inline-list-item">
                   <a class="govuk-footer__link" href="#4">
-                    {{ tr .App "termsAndConditions" }}
-                  </a>
-                </li>
-                <li class="govuk-footer__inline-list-item">
-                  <a class="govuk-footer__link" href="#5">
                     {{ tr .App "termsAndConditions" }}
                   </a>
                 </li>

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -337,7 +338,7 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 				"date-of-birth-year":  {"1990"},
 			},
 			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
-				return assert.Equal(t, map[string]string{"first-names": "enterFirstNames"}, data.Errors)
+				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
 			},
 		},
 		"dob warning": {

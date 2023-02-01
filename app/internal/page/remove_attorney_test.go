@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -32,7 +33,7 @@ func TestGetRemoveAttorney(t *testing.T) {
 			App:      appData,
 			Attorney: attorney,
 			Errors:   nil,
-			Form:     removeAttorneyForm{},
+			Form:     &removeAttorneyForm{},
 		}).
 		Return(nil)
 
@@ -250,9 +251,7 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&Lpa{Attorneys: []Attorney{attorneyWithoutAddress}}, nil)
 
-	validationError := map[string]string{
-		"remove-attorney": "selectRemoveAttorney",
-	}
+	validationError := validation.With("remove-attorney", validation.SelectError{Label: "yesToRemoveAttorney"})
 
 	template := &mockTemplate{}
 	template.
@@ -302,35 +301,31 @@ func TestRemoveAttorneyRemoveLastAttorneyRedirectsToChooseAttorney(t *testing.T)
 func TestRemoveAttorneyFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *removeAttorneyForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"valid - yes": {
 			form: &removeAttorneyForm{
 				RemoveAttorney: "yes",
 			},
-			errors: map[string]string{},
 		},
 		"valid - no": {
 			form: &removeAttorneyForm{
 				RemoveAttorney: "no",
 			},
-			errors: map[string]string{},
 		},
 		"missing-value": {
 			form: &removeAttorneyForm{
 				RemoveAttorney: "",
+				errorLabel:     "xyz",
 			},
-			errors: map[string]string{
-				"remove-attorney": "selectRemoveAttorney",
-			},
+			errors: validation.With("remove-attorney", validation.SelectError{Label: "xyz"}),
 		},
 		"unexpected-value": {
 			form: &removeAttorneyForm{
 				RemoveAttorney: "not expected",
+				errorLabel:     "xyz",
 			},
-			errors: map[string]string{
-				"remove-attorney": "selectRemoveAttorney",
-			},
+			errors: validation.With("remove-attorney", validation.SelectError{Label: "xyz"}),
 		},
 	}
 

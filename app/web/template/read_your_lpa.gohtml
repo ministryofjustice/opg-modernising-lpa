@@ -1,11 +1,11 @@
 {{ template "page" . }}
 
+{{ define "pageTitle" }}{{ tr .App "readYourLpa" }}{{ end }}
+
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">
-        {{ tr .App "readYourLpa" }}
-      </h1>
+      <h1 class="govuk-heading-xl">{{ tr .App "readYourLpa" }}</h1>
 
       {{ template "warning" (warning .App "readAndCheckYourLpa") }}
       {{ template "details" (details . "whatHappensIfIWantToMakeChanges" "whatHappensIfIWantToMakeChangesContent" false) }}
@@ -22,7 +22,7 @@
         {{ tr .App "peopleNamedOnTheLpa" }}
       </h2>
 
-      {{ template "people-named-on-lpa" . }}
+      {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa false) }}
 
       <p class="govuk-body">
         <a href="{{ link .App .App.Paths.SignYourLpa }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">

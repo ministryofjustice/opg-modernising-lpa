@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
 	"github.com/gorilla/sessions"
@@ -49,7 +50,7 @@ func CacheControlHeaders(h http.Handler) http.Handler {
 func IsLpaPath(url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 
-	return path != Paths.Dashboard
+	return path != Paths.Dashboard && path != Paths.Start
 }
 
 const (
@@ -87,8 +88,10 @@ type NotifyClient interface {
 }
 
 type OneLoginClient interface {
-	loginClient
-	authRedirectClient
+	AuthCodeURL(state, nonce, locale string, identity bool) string
+	Exchange(ctx context.Context, code, nonce string) (string, error)
+	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
+	ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error)
 }
 
 func postFormString(r *http.Request, name string) string {
@@ -185,8 +188,6 @@ func App(
 		YourDetails(tmpls.Get("your_details.gohtml"), lpaStore, sessionStore))
 	handleLpa(paths.YourAddress, None,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
-	handleLpa(paths.HowWouldYouLikeToBeContacted, None,
-		HowWouldYouLikeToBeContacted(tmpls.Get("how_would_you_like_to_be_contacted.gohtml"), lpaStore))
 	handleLpa(paths.LpaType, None,
 		LpaType(tmpls.Get("lpa_type.gohtml"), lpaStore))
 	handleLpa(paths.WhoIsTheLpaFor, None,
@@ -304,6 +305,9 @@ func App(
 	handleLpa(paths.YouHaveSubmittedYourLpa, CanGoBack,
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml"), paths.TaskList, lpaStore))
 
+	handleLpa(paths.Progress, CanGoBack,
+		Guidance(tmpls.Get("lpa_progress.gohtml"), paths.Dashboard, lpaStore))
+
 	return rootMux
 }
 
@@ -320,62 +324,39 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 
 		lpa, _ := lpaStore.Create(ctx)
 
-		if r.FormValue("paymentComplete") == "1" {
-			paySession, _ := store.Get(r, PayCookieName)
-			paySession.Values = map[interface{}]interface{}{PayCookiePaymentIdValueKey: random.String(12)}
-			_ = store.Save(r, w, paySession)
+		if r.FormValue("withDonorDetails") != "" || r.FormValue("completeLpa") != "" {
+			lpa.You = MakePerson()
+			lpa.WhoFor = "me"
+			lpa.Type = "pfa"
+			lpa.Tasks.YourDetails = TaskCompleted
 		}
 
-		if r.FormValue("withPayment") == "1" {
-			lpa.Tasks.PayForLpa = TaskCompleted
+		if r.FormValue("withAttorney") != "" {
+			lpa.Attorneys = []Attorney{MakeAttorney("John")}
+
+			lpa.Tasks.ChooseAttorneys = TaskCompleted
 		}
 
-		if r.FormValue("withAttorney") == "1" {
+		if r.FormValue("withAttorneys") != "" || r.FormValue("completeLpa") != "" {
 			lpa.Attorneys = []Attorney{
-				{
-					ID:          "with-address",
-					FirstNames:  "John",
-					LastName:    "Smith",
-					Email:       "aa@example.org",
-					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
-					Address: place.Address{
-						Line1:      "2 RICHMOND PLACE",
-						Line2:      "KINGS HEATH",
-						Line3:      "WEST MIDLANDS",
-						TownOrCity: "BIRMINGHAM",
-						Postcode:   "B14 7ED",
-					},
-				},
+				MakeAttorney("John"),
+				MakeAttorney("Joan"),
 			}
 
 			lpa.HowAttorneysMakeDecisions = JointlyAndSeverally
 			lpa.Tasks.ChooseAttorneys = TaskCompleted
 		}
 
-		if r.FormValue("withIncompleteAttorneys") == "1" {
+		if r.FormValue("withIncompleteAttorneys") != "" {
+			withAddress := MakeAttorney("John")
+			withAddress.ID = "with-address"
+			withoutAddress := MakeAttorney("Joan")
+			withoutAddress.ID = "without-address"
+			withoutAddress.Address = place.Address{}
+
 			lpa.Attorneys = []Attorney{
-				{
-					ID:          "with-address",
-					FirstNames:  "John",
-					LastName:    "Smith",
-					Email:       "aa@example.org",
-					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
-					Address: place.Address{
-						Line1:      "2 RICHMOND PLACE",
-						Line2:      "KINGS HEATH",
-						Line3:      "WEST MIDLANDS",
-						TownOrCity: "BIRMINGHAM",
-						Postcode:   "B14 7ED",
-					},
-				},
-				{
-					ID:          "without-address",
-					FirstNames:  "Joan",
-					LastName:    "Smith",
-					Email:       "bb@example.org",
-					DateOfBirth: time.Date(1998, time.January, 2, 3, 4, 5, 6, time.UTC),
-					Address:     place.Address{},
-				},
+				withAddress,
+				withoutAddress,
 			}
 
 			lpa.ReplacementAttorneys = lpa.Attorneys
@@ -392,20 +373,6 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 			lpa.Tasks.ChooseReplacementAttorneys = TaskInProgress
 		}
 
-		if r.FormValue("withCP") == "1" {
-			lpa.CertificateProvider = CertificateProvider{
-				FirstNames:              "Barbara",
-				LastName:                "Smith",
-				Email:                   "b@example.org",
-				Mobile:                  "07535111111",
-				DateOfBirth:             time.Date(1997, time.January, 2, 3, 4, 5, 6, time.UTC),
-				Relationship:            "friend",
-				RelationshipDescription: "",
-				RelationshipLength:      "gte-2-years",
-			}
-			lpa.Tasks.CertificateProvider = TaskCompleted
-		}
-
 		if r.FormValue("howAttorneysAct") != "" {
 			switch r.FormValue("howAttorneysAct") {
 			case Jointly:
@@ -416,6 +383,73 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 				lpa.HowAttorneysMakeDecisions = JointlyForSomeSeverallyForOthers
 				lpa.HowAttorneysMakeDecisionsDetails = "some details"
 			}
+		}
+
+		if r.FormValue("withReplacementAttorneys") != "" || r.FormValue("completeLpa") != "" {
+			lpa.ReplacementAttorneys = []Attorney{
+				MakeAttorney("Jane"),
+				MakeAttorney("Jorge"),
+			}
+			lpa.WantReplacementAttorneys = "yes"
+			lpa.HowReplacementAttorneysMakeDecisions = JointlyAndSeverally
+			lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
+			lpa.Tasks.ChooseReplacementAttorneys = TaskCompleted
+		}
+
+		if r.FormValue("whenCanBeUsedComplete") != "" || r.FormValue("completeLpa") != "" {
+			lpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
+			lpa.Tasks.WhenCanTheLpaBeUsed = TaskCompleted
+		}
+
+		if r.FormValue("withRestrictions") != "" || r.FormValue("completeLpa") != "" {
+			lpa.Restrictions = "Some restrictions on how Attorneys act"
+			lpa.Tasks.Restrictions = TaskCompleted
+		}
+
+		if r.FormValue("withCP") == "1" || r.FormValue("completeLpa") != "" {
+			lpa.CertificateProvider = MakeCertificateProvider("Barbara")
+			lpa.Tasks.CertificateProvider = TaskCompleted
+		}
+
+		if r.FormValue("withPeopleToNotify") == "1" || r.FormValue("completeLpa") != "" {
+			lpa.PeopleToNotify = []PersonToNotify{
+				MakePersonToNotify("Joanna"),
+				MakePersonToNotify("Jonathan"),
+			}
+			lpa.DoYouWantToNotifyPeople = "yes"
+			lpa.Tasks.PeopleToNotify = TaskCompleted
+		}
+
+		if r.FormValue("lpaChecked") == "1" || r.FormValue("completeLpa") != "" {
+			lpa.Checked = true
+			lpa.HappyToShare = true
+			lpa.Tasks.CheckYourLpa = TaskCompleted
+		}
+
+		if r.FormValue("paymentComplete") == "1" {
+			paySession, _ := store.Get(r, PayCookieName)
+			paySession.Values = map[interface{}]interface{}{PayCookiePaymentIdValueKey: random.String(12)}
+			_ = store.Save(r, w, paySession)
+			lpa.Tasks.PayForLpa = TaskCompleted
+		}
+
+		if r.FormValue("idConfirmedAndSigned") == "1" || r.FormValue("completeLpa") != "" {
+			lpa.OneLoginUserData = identity.UserData{
+				OK:          true,
+				RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
+				FullName:    "Jose Smith",
+			}
+
+			lpa.WantToApplyForLpa = true
+			lpa.CPWitnessedDonorSign = true
+			lpa.Submitted = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
+			lpa.CPWitnessCodeValidated = true
+			lpa.Tasks.ConfirmYourIdentityAndSign = TaskCompleted
+
+		}
+
+		if r.FormValue("withPayment") == "1" || r.FormValue("completeLpa") != "" {
+			lpa.Tasks.PayForLpa = TaskCompleted
 		}
 
 		_ = lpaStore.Put(ctx, lpa)

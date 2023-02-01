@@ -10,7 +10,9 @@ import (
 	"time"
 
 	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -205,7 +207,7 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 				"date-of-birth-year":  {"1990"},
 			},
 			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
-				return assert.Equal(t, map[string]string{"first-names": "enterFirstNames"}, data.Errors)
+				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
 			},
 		},
 		"dob warning": {
@@ -388,8 +390,8 @@ func TestReadYourDetailsForm(t *testing.T) {
 	assert.Equal("2", result.Dob.Day)
 	assert.Equal("1", result.Dob.Month)
 	assert.Equal("1990", result.Dob.Year)
-	assert.Equal(time.Date(1990, 1, 2, 0, 0, 0, 0, time.UTC), result.DateOfBirth)
-	assert.Nil(result.DateOfBirthError)
+	assert.Equal(time.Date(1990, 1, 2, 0, 0, 0, 0, time.UTC), result.Dob.T)
+	assert.Nil(result.Dob.Err)
 	assert.Equal("xyz", result.IgnoreWarning)
 }
 
@@ -399,104 +401,94 @@ func TestYourDetailsFormValidate(t *testing.T) {
 
 	testCases := map[string]struct {
 		form   *yourDetailsForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"valid": {
 			form: &yourDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Dob: Date{
+				Dob: date.Date{
 					Day:   "C",
 					Month: "D",
 					Year:  "E",
+					T:     validDob,
 				},
-				DateOfBirth: validDob,
 			},
-			errors: map[string]string{},
 		},
 		"max-length": {
 			form: &yourDetailsForm{
 				FirstNames: strings.Repeat("x", 53),
 				LastName:   strings.Repeat("x", 61),
 				OtherNames: strings.Repeat("x", 50),
-				Dob: Date{
+				Dob: date.Date{
 					Day:   "C",
 					Month: "D",
 					Year:  "E",
+					T:     validDob,
 				},
-				DateOfBirth: validDob,
 			},
-			errors: map[string]string{},
 		},
 		"missing-all": {
 			form: &yourDetailsForm{},
-			errors: map[string]string{
-				"first-names":   "enterFirstNames",
-				"last-name":     "enterLastName",
-				"date-of-birth": "enterDateOfBirth",
-			},
+			errors: validation.
+				With("first-names", validation.EnterError{Label: "firstNames"}).
+				With("last-name", validation.EnterError{Label: "lastName"}).
+				With("date-of-birth", validation.EnterError{Label: "dateOfBirth"}),
 		},
 		"too-long": {
 			form: &yourDetailsForm{
 				FirstNames: strings.Repeat("x", 54),
 				LastName:   strings.Repeat("x", 62),
 				OtherNames: strings.Repeat("x", 51),
-				Dob: Date{
+				Dob: date.Date{
 					Day:   "C",
 					Month: "D",
 					Year:  "E",
+					T:     validDob,
 				},
-				DateOfBirth: validDob,
 			},
-			errors: map[string]string{
-				"first-names": "firstNamesTooLong",
-				"last-name":   "lastNameTooLong",
-				"other-names": "otherNamesTooLong",
-			},
+			errors: validation.
+				With("first-names", validation.StringTooLongError{Label: "firstNames", Length: 53}).
+				With("last-name", validation.StringTooLongError{Label: "lastName", Length: 61}).
+				With("other-names", validation.StringTooLongError{Label: "otherNamesLabel", Length: 50}),
 		},
 		"future-dob": {
 			form: &yourDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Dob: Date{
+				Dob: date.Date{
 					Day:   "C",
 					Month: "D",
 					Year:  "E",
+					T:     now.AddDate(0, 0, 1),
 				},
-				DateOfBirth: now.AddDate(0, 0, 1),
 			},
-			errors: map[string]string{
-				"date-of-birth": "dateOfBirthIsFuture",
-			},
+			errors: validation.With("date-of-birth", validation.DateMustBePastError{Label: "dateOfBirth"}),
 		},
 		"invalid-dob": {
 			form: &yourDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Dob: Date{
+				Dob: date.Date{
 					Day:   "1",
 					Month: "1",
 					Year:  "1",
+					Err:   expectedError,
 				},
-				DateOfBirthError: expectedError,
 			},
-			errors: map[string]string{
-				"date-of-birth": "dateOfBirthMustBeReal",
-			},
+			errors: validation.With("date-of-birth", validation.DateMustBeRealError{Label: "dateOfBirth"}),
 		},
 		"invalid-missing-dob": {
 			form: &yourDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Dob: Date{
+				Dob: date.Date{
 					Day:  "1",
 					Year: "1",
+					Err:  expectedError,
 				},
-				DateOfBirthError: expectedError,
 			},
-			errors: map[string]string{
-				"date-of-birth": "enterDateOfBirth",
-			},
+			errors: validation.With("date-of-birth", validation.DateMissingError{Label: "dateOfBirth", MissingMonth: true}),
 		},
 	}
 
@@ -517,33 +509,33 @@ func TestYourDetailsFormDobWarning(t *testing.T) {
 	}{
 		"valid": {
 			form: &yourDetailsForm{
-				DateOfBirth: validDob,
+				Dob: date.Read(validDob),
 			},
 		},
 		"future-dob": {
 			form: &yourDetailsForm{
-				DateOfBirth: now.AddDate(0, 0, 1),
+				Dob: date.Read(now.AddDate(0, 0, 1)),
 			},
 		},
 		"dob-is-18": {
 			form: &yourDetailsForm{
-				DateOfBirth: now.AddDate(-18, 0, 0),
+				Dob: date.Read(now.AddDate(-18, 0, 0)),
 			},
 		},
 		"dob-under-18": {
 			form: &yourDetailsForm{
-				DateOfBirth: now.AddDate(-18, 0, 1),
+				Dob: date.Read(now.AddDate(-18, 0, 1)),
 			},
 			warning: "dateOfBirthIsUnder18",
 		},
 		"dob-is-100": {
 			form: &yourDetailsForm{
-				DateOfBirth: now.AddDate(-100, 0, 0),
+				Dob: date.Read(now.AddDate(-100, 0, 0)),
 			},
 		},
 		"dob-over-100": {
 			form: &yourDetailsForm{
-				DateOfBirth: now.AddDate(-100, 0, -1),
+				Dob: date.Read(now.AddDate(-100, 0, -1)),
 			},
 			warning: "dateOfBirthIsOver100",
 		},

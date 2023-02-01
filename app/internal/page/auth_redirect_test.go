@@ -1,7 +1,6 @@
 package page
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -13,30 +12,16 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type mockAuthRedirectClient struct {
-	mock.Mock
-}
-
-func (m *mockAuthRedirectClient) Exchange(ctx context.Context, code, nonce string) (string, error) {
-	args := m.Called(ctx, code, nonce)
-	return args.Get(0).(string), args.Error(1)
-}
-
-func (m *mockAuthRedirectClient) UserInfo(jwt string) (onelogin.UserInfo, error) {
-	args := m.Called(jwt)
-	return args.Get(0).(onelogin.UserInfo), args.Error(1)
-}
-
 func TestAuthRedirect(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
-	client := &mockAuthRedirectClient{}
+	client := &mockOneLoginClient{}
 	client.
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
 		Return("a JWT", nil)
 	client.
-		On("UserInfo", "a JWT").
+		On("UserInfo", r.Context(), "a JWT").
 		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
 
 	sessionsStore := &mockSessionsStore{}
@@ -88,12 +73,12 @@ func TestAuthRedirectWithCyLocale(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
-	client := &mockAuthRedirectClient{}
+	client := &mockOneLoginClient{}
 	client.
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
 		Return("a JWT", nil)
 	client.
-		On("UserInfo", "a JWT").
+		On("UserInfo", r.Context(), "a JWT").
 		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
 
 	sessionsStore := &mockSessionsStore{}
@@ -211,7 +196,7 @@ func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 	logger.
 		On("Print", expectedError)
 
-	client := &mockAuthRedirectClient{}
+	client := &mockOneLoginClient{}
 	client.
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
 		Return("", expectedError)
@@ -234,12 +219,12 @@ func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 	logger.
 		On("Print", expectedError)
 
-	client := &mockAuthRedirectClient{}
+	client := &mockOneLoginClient{}
 	client.
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
 		Return("a JWT", nil)
 	client.
-		On("UserInfo", "a JWT").
+		On("UserInfo", r.Context(), "a JWT").
 		Return(onelogin.UserInfo{}, expectedError)
 
 	sessionsStore := &mockSessionsStore{}

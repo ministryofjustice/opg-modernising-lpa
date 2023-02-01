@@ -447,7 +447,10 @@ func TestTestingStart(t *testing.T) {
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
 		lpaStore.
-			On("Put", ctx, &Lpa{ID: "123"}).
+			On("Put", ctx, &Lpa{
+				ID:    "123",
+				Tasks: Tasks{PayForLpa: TaskCompleted},
+			}).
 			Return(nil)
 
 		sessionsStore := &mockSessionsStore{}
@@ -523,10 +526,10 @@ func TestTestingStart(t *testing.T) {
 				ID: "123",
 				Attorneys: []Attorney{
 					{
-						ID:          "with-address",
+						ID:          "JohnSmith",
 						FirstNames:  "John",
 						LastName:    "Smith",
-						Email:       "aa@example.org",
+						Email:       "John@example.org",
 						DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 						Address: place.Address{
 							Line1:      "2 RICHMOND PLACE",
@@ -537,7 +540,6 @@ func TestTestingStart(t *testing.T) {
 						},
 					},
 				},
-				HowAttorneysMakeDecisions: JointlyAndSeverally,
 				Tasks: Tasks{
 					ChooseAttorneys: TaskCompleted,
 				},
@@ -552,7 +554,7 @@ func TestTestingStart(t *testing.T) {
 		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
 	})
 
-	t.Run("with attorneys", func(t *testing.T) {
+	t.Run("with incomplete attorneys", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withIncompleteAttorneys=1", nil)
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
@@ -562,7 +564,7 @@ func TestTestingStart(t *testing.T) {
 				ID:          "with-address",
 				FirstNames:  "John",
 				LastName:    "Smith",
-				Email:       "aa@example.org",
+				Email:       "John@example.org",
 				DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				Address: place.Address{
 					Line1:      "2 RICHMOND PLACE",
@@ -576,8 +578,8 @@ func TestTestingStart(t *testing.T) {
 				ID:          "without-address",
 				FirstNames:  "Joan",
 				LastName:    "Smith",
-				Email:       "bb@example.org",
-				DateOfBirth: time.Date(1998, time.January, 2, 3, 4, 5, 6, time.UTC),
+				Email:       "Joan@example.org",
+				DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				Address:     place.Address{},
 			},
 		}
@@ -608,6 +610,73 @@ func TestTestingStart(t *testing.T) {
 				Tasks: Tasks{
 					ChooseAttorneys:            TaskInProgress,
 					ChooseReplacementAttorneys: TaskInProgress,
+				},
+			}).
+			Return(nil)
+
+		testingStart(sessionsStore, lpaStore, mockRandom).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+	})
+
+	t.Run("with attorneys", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withAttorneys=1", nil)
+		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
+
+		attorneys := []Attorney{
+			{
+				ID:          "JohnSmith",
+				FirstNames:  "John",
+				LastName:    "Smith",
+				Email:       "John@example.org",
+				DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				Address: place.Address{
+					Line1:      "2 RICHMOND PLACE",
+					Line2:      "KINGS HEATH",
+					Line3:      "WEST MIDLANDS",
+					TownOrCity: "BIRMINGHAM",
+					Postcode:   "B14 7ED",
+				},
+			},
+			{
+				ID:          "JoanSmith",
+				FirstNames:  "Joan",
+				LastName:    "Smith",
+				Email:       "Joan@example.org",
+				DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				Address: place.Address{
+					Line1:      "2 RICHMOND PLACE",
+					Line2:      "KINGS HEATH",
+					Line3:      "WEST MIDLANDS",
+					TownOrCity: "BIRMINGHAM",
+					Postcode:   "B14 7ED",
+				},
+			},
+		}
+
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{
+				ID:                        "123",
+				Attorneys:                 attorneys,
+				HowAttorneysMakeDecisions: JointlyAndSeverally,
+				Tasks: Tasks{
+					ChooseAttorneys: TaskCompleted,
 				},
 			}).
 			Return(nil)
@@ -689,7 +758,7 @@ func TestTestingStart(t *testing.T) {
 				CertificateProvider: CertificateProvider{
 					FirstNames:              "Barbara",
 					LastName:                "Smith",
-					Email:                   "b@example.org",
+					Email:                   "Barbara@example.org",
 					Mobile:                  "07535111111",
 					DateOfBirth:             time.Date(1997, time.January, 2, 3, 4, 5, 6, time.UTC),
 					Relationship:            "friend",
@@ -697,6 +766,494 @@ func TestTestingStart(t *testing.T) {
 					RelationshipLength:      "gte-2-years",
 				},
 				Tasks: Tasks{CertificateProvider: TaskCompleted},
+			}).
+			Return(nil)
+
+		testingStart(sessionsStore, lpaStore, mockRandom).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+	})
+
+	t.Run("with donor details", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withDonorDetails=1", nil)
+		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
+
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{
+				ID: "123",
+				You: Person{
+					FirstNames: "Jose",
+					LastName:   "Smith",
+					Address: place.Address{
+						Line1:      "1 RICHMOND PLACE",
+						Line2:      "KINGS HEATH",
+						Line3:      "WEST MIDLANDS",
+						TownOrCity: "BIRMINGHAM",
+						Postcode:   "B14 7ED",
+					},
+					Email:       "simulate-delivered@notifications.service.gov.uk",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				},
+				WhoFor: "me",
+				Type:   LpaTypePropertyFinance,
+				Tasks:  Tasks{YourDetails: TaskCompleted},
+			}).
+			Return(nil)
+
+		testingStart(sessionsStore, lpaStore, mockRandom).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+	})
+
+	t.Run("with replacement attorneys", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withReplacementAttorneys=1", nil)
+		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
+
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{
+				ID:                                   "123",
+				WantReplacementAttorneys:             "yes",
+				HowReplacementAttorneysMakeDecisions: JointlyAndSeverally,
+				HowShouldReplacementAttorneysStepIn:  OneCanNoLongerAct,
+				Tasks:                                Tasks{ChooseReplacementAttorneys: TaskCompleted},
+				ReplacementAttorneys: []Attorney{
+					{
+						FirstNames: "Jane",
+						LastName:   "Smith",
+						Address: place.Address{
+							Line1:      "2 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+						Email:       "Jane@example.org",
+						DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+						ID:          "JaneSmith",
+					},
+					{
+						FirstNames: "Jorge",
+						LastName:   "Smith",
+						Address: place.Address{
+							Line1:      "2 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+						Email:       "Jorge@example.org",
+						DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+						ID:          "JorgeSmith",
+					},
+				},
+			}).
+			Return(nil)
+
+		testingStart(sessionsStore, lpaStore, mockRandom).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+	})
+
+	t.Run("when can be used completed", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&whenCanBeUsedComplete=1", nil)
+		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
+
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{
+				ID:                  "123",
+				WhenCanTheLpaBeUsed: UsedWhenRegistered,
+				Tasks:               Tasks{WhenCanTheLpaBeUsed: TaskCompleted},
+			}).
+			Return(nil)
+
+		testingStart(sessionsStore, lpaStore, mockRandom).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+	})
+
+	t.Run("with restrictions", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withRestrictions=1", nil)
+		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
+
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{
+				ID:           "123",
+				Restrictions: "Some restrictions on how Attorneys act",
+				Tasks:        Tasks{Restrictions: TaskCompleted},
+			}).
+			Return(nil)
+
+		testingStart(sessionsStore, lpaStore, mockRandom).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+	})
+
+	t.Run("with people to notify", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withPeopleToNotify=1", nil)
+		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
+
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{
+				ID:                      "123",
+				DoYouWantToNotifyPeople: "yes",
+				Tasks:                   Tasks{PeopleToNotify: TaskCompleted},
+				PeopleToNotify: []PersonToNotify{
+					{
+						ID:         "JoannaSmith",
+						FirstNames: "Joanna",
+						LastName:   "Smith",
+						Email:      "Joanna@example.org",
+						Address: place.Address{
+							Line1:      "4 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+					},
+					{
+						ID:         "JonathanSmith",
+						FirstNames: "Jonathan",
+						LastName:   "Smith",
+						Email:      "Jonathan@example.org",
+						Address: place.Address{
+							Line1:      "4 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+					},
+				},
+			}).
+			Return(nil)
+
+		testingStart(sessionsStore, lpaStore, mockRandom).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+	})
+
+	t.Run("lpa checked", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&lpaChecked=1", nil)
+		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
+
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{
+				ID:           "123",
+				Checked:      true,
+				HappyToShare: true,
+				Tasks:        Tasks{CheckYourLpa: TaskCompleted},
+			}).
+			Return(nil)
+
+		testingStart(sessionsStore, lpaStore, mockRandom).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+	})
+
+	t.Run("id confirmed and signed", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&idConfirmedAndSigned=1", nil)
+		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
+
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{
+				ID: "123",
+				OneLoginUserData: identity.UserData{
+					OK:          true,
+					RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
+					FullName:    "Jose Smith",
+				},
+				WantToApplyForLpa:      true,
+				CPWitnessedDonorSign:   true,
+				CPWitnessCodeValidated: true,
+				Submitted:              time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
+				Tasks:                  Tasks{ConfirmYourIdentityAndSign: TaskCompleted},
+			}).
+			Return(nil)
+
+		testingStart(sessionsStore, lpaStore, mockRandom).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+	})
+
+	t.Run("complete LPA", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&completeLpa=1", nil)
+		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
+
+		sessionsStore := &mockSessionsStore{}
+		sessionsStore.
+			On("Get", r, "session").
+			Return(&sessions.Session{}, nil)
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := &mockLpaStore{}
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{
+				ID: "123",
+				OneLoginUserData: identity.UserData{
+					OK:          true,
+					RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
+					FullName:    "Jose Smith",
+				},
+				WantToApplyForLpa:       true,
+				CPWitnessedDonorSign:    true,
+				CPWitnessCodeValidated:  true,
+				Submitted:               time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
+				Checked:                 true,
+				HappyToShare:            true,
+				DoYouWantToNotifyPeople: "yes",
+				PeopleToNotify: []PersonToNotify{
+					{
+						ID:         "JoannaSmith",
+						FirstNames: "Joanna",
+						LastName:   "Smith",
+						Email:      "Joanna@example.org",
+						Address: place.Address{
+							Line1:      "4 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+					},
+					{
+						ID:         "JonathanSmith",
+						FirstNames: "Jonathan",
+						LastName:   "Smith",
+						Email:      "Jonathan@example.org",
+						Address: place.Address{
+							Line1:      "4 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+					},
+				},
+				Restrictions:                         "Some restrictions on how Attorneys act",
+				WhenCanTheLpaBeUsed:                  UsedWhenRegistered,
+				WantReplacementAttorneys:             "yes",
+				HowReplacementAttorneysMakeDecisions: JointlyAndSeverally,
+				HowShouldReplacementAttorneysStepIn:  OneCanNoLongerAct,
+				ReplacementAttorneys: []Attorney{
+					{
+						FirstNames: "Jane",
+						LastName:   "Smith",
+						Address: place.Address{
+							Line1:      "2 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+						Email:       "Jane@example.org",
+						DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+						ID:          "JaneSmith",
+					},
+					{
+						FirstNames: "Jorge",
+						LastName:   "Smith",
+						Address: place.Address{
+							Line1:      "2 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+						Email:       "Jorge@example.org",
+						DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+						ID:          "JorgeSmith",
+					},
+				},
+				You: Person{
+					FirstNames: "Jose",
+					LastName:   "Smith",
+					Address: place.Address{
+						Line1:      "1 RICHMOND PLACE",
+						Line2:      "KINGS HEATH",
+						Line3:      "WEST MIDLANDS",
+						TownOrCity: "BIRMINGHAM",
+						Postcode:   "B14 7ED",
+					},
+					Email:       "simulate-delivered@notifications.service.gov.uk",
+					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				},
+				WhoFor: "me",
+				Type:   LpaTypePropertyFinance,
+				CertificateProvider: CertificateProvider{
+					FirstNames:              "Barbara",
+					LastName:                "Smith",
+					Email:                   "Barbara@example.org",
+					Mobile:                  "07535111111",
+					DateOfBirth:             time.Date(1997, time.January, 2, 3, 4, 5, 6, time.UTC),
+					Relationship:            "friend",
+					RelationshipDescription: "",
+					RelationshipLength:      "gte-2-years",
+				},
+				Attorneys: []Attorney{
+					{
+						ID:          "JohnSmith",
+						FirstNames:  "John",
+						LastName:    "Smith",
+						Email:       "John@example.org",
+						DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+						Address: place.Address{
+							Line1:      "2 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+					},
+					{
+						ID:          "JoanSmith",
+						FirstNames:  "Joan",
+						LastName:    "Smith",
+						Email:       "Joan@example.org",
+						DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+						Address: place.Address{
+							Line1:      "2 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+					},
+				},
+				HowAttorneysMakeDecisions: JointlyAndSeverally,
+				Tasks: Tasks{
+					ConfirmYourIdentityAndSign: TaskCompleted,
+					CheckYourLpa:               TaskCompleted,
+					PeopleToNotify:             TaskCompleted,
+					Restrictions:               TaskCompleted,
+					WhenCanTheLpaBeUsed:        TaskCompleted,
+					ChooseReplacementAttorneys: TaskCompleted,
+					YourDetails:                TaskCompleted,
+					CertificateProvider:        TaskCompleted,
+					PayForLpa:                  TaskCompleted,
+					ChooseAttorneys:            TaskCompleted,
+				},
 			}).
 			Return(nil)
 
@@ -804,6 +1361,32 @@ func TestQueryString(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 			assert.Equal(t, tc.expectedQuery, queryString(r))
+		})
+	}
+}
+
+func TestIsLpaPath(t *testing.T) {
+	testCases := map[string]struct {
+		url               string
+		expectedIsLpaPage bool
+	}{
+		"dashboard": {
+			url:               Paths.Dashboard + "?someQuery=5",
+			expectedIsLpaPage: false,
+		},
+		"start": {
+			url:               Paths.Start + "?someQuery=6",
+			expectedIsLpaPage: false,
+		},
+		"any other page": {
+			url:               "/other?someQuery=7",
+			expectedIsLpaPage: true,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.expectedIsLpaPage, IsLpaPath(tc.url))
 		})
 	}
 }

@@ -39,12 +39,6 @@ var address = place.Address{
 	Postcode:   "e",
 }
 
-func TestReadDate(t *testing.T) {
-	date := readDate(time.Date(2020, time.March, 12, 0, 0, 0, 0, time.Local))
-
-	assert.Equal(t, Date{Day: "12", Month: "3", Year: "2020"}, date)
-}
-
 type mockDataStore struct {
 	data interface{}
 	mock.Mock
@@ -492,7 +486,7 @@ func TestCertificateProviderFullName(t *testing.T) {
 	assert.Equal(t, "Bob Alan George Smith Jones-Doe", l.CertificateProviderFullName())
 }
 
-func TestLpaLegalTermTransKey(t *testing.T) {
+func TestTypeLegalTermTransKey(t *testing.T) {
 	testCases := map[string]struct {
 		LpaType           string
 		ExpectedLegalTerm string
@@ -522,7 +516,7 @@ func TestLpaLegalTermTransKey(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			lpa := Lpa{Type: tc.LpaType}
-			assert.Equal(t, tc.ExpectedLegalTerm, lpa.LpaLegalTermTransKey())
+			assert.Equal(t, tc.ExpectedLegalTerm, lpa.TypeLegalTermTransKey())
 		})
 	}
 }
@@ -628,50 +622,28 @@ func TestCanGoTo(t *testing.T) {
 	}
 }
 
-func TestEntered(t *testing.T) {
-	testCases := map[string]struct {
-		Date     Date
-		Expected bool
+func TestTaskStateString(t *testing.T) {
+	testCases := []struct {
+		State    TaskState
+		Expected string
 	}{
-		"valid": {
-			Date: Date{
-				Day:   "1",
-				Month: "2",
-				Year:  "3",
-			},
-			Expected: true,
+		{
+			State:    TaskNotStarted,
+			Expected: "notStarted",
 		},
-		"missing day": {
-			Date: Date{
-				Month: "2",
-				Year:  "3",
-			},
-			Expected: false,
+		{
+			State:    TaskInProgress,
+			Expected: "inProgress",
 		},
-		"missing month": {
-			Date: Date{
-				Day:  "1",
-				Year: "3",
-			},
-			Expected: false,
-		},
-		"missing year": {
-			Date: Date{
-				Day:   "1",
-				Month: "2",
-			},
-			Expected: false,
-		},
-		"missing all": {
-			Date:     Date{},
-			Expected: false,
+		{
+			State:    TaskCompleted,
+			Expected: "completed",
 		},
 	}
 
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.Expected, tc.Date.Entered())
+	for _, tc := range testCases {
+		t.Run(tc.Expected, func(t *testing.T) {
+			assert.Equal(t, tc.Expected, tc.State.String())
 		})
 	}
-
 }

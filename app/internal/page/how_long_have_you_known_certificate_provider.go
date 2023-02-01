@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type howLongHaveYouKnownCertificateProviderData struct {
 	App                 AppData
-	Errors              map[string]string
+	Errors              validation.List
 	CertificateProvider CertificateProvider
 	HowLong             string
 }
@@ -30,7 +31,7 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, lpaStore Lpa
 			form := readHowLongHaveYouKnownCertificateProviderForm(r)
 			data.Errors = form.Validate()
 
-			if len(data.Errors) == 0 {
+			if data.Errors.None() {
 				lpa.Tasks.CertificateProvider = TaskCompleted
 				lpa.CertificateProvider.RelationshipLength = form.HowLong
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
@@ -55,14 +56,14 @@ func readHowLongHaveYouKnownCertificateProviderForm(r *http.Request) *howLongHav
 	}
 }
 
-func (f *howLongHaveYouKnownCertificateProviderForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (f *howLongHaveYouKnownCertificateProviderForm) Validate() validation.List {
+	var errors validation.List
 
-	if f.HowLong != "gte-2-years" && f.HowLong != "lt-2-years" {
-		errors["how-long"] = "selectHowLongHaveYouKnownCertificateProvider"
-	}
+	errors.String("how-long", "howLongYouHaveKnownCertificateProvider", f.HowLong,
+		validation.Select("gte-2-years", "lt-2-years"))
+
 	if f.HowLong == "lt-2-years" {
-		errors["how-long"] = "mustHaveKnownCertificateProviderTwoYears"
+		errors.Add("how-long", validation.CustomError{Label: "mustHaveKnownCertificateProviderTwoYears"})
 	}
 
 	return errors

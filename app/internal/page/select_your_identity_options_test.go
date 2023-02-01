@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -200,11 +201,9 @@ func TestPostSelectYourIdentityOptionsWhenValidationErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &selectYourIdentityOptionsData{
-			App:  appData,
-			Form: &selectYourIdentityOptionsForm{},
-			Errors: map[string]string{
-				"option": "selectAnIdentityOption",
-			},
+			App:    appData,
+			Form:   &selectYourIdentityOptionsForm{},
+			Errors: validation.With("option", validation.SelectError{Label: "fromTheListedOptions"}),
 		}).
 		Return(nil)
 
@@ -233,34 +232,28 @@ func TestReadSelectYourIdentityOptionsForm(t *testing.T) {
 func TestSelectYourIdentityOptionsFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *selectYourIdentityOptionsForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"valid": {
 			form: &selectYourIdentityOptionsForm{
 				Selected: EasyID,
 			},
-			errors: map[string]string{},
 		},
 		"none": {
 			form: &selectYourIdentityOptionsForm{
 				Selected: IdentityOptionUnknown,
 				None:     true,
 			},
-			errors: map[string]string{},
 		},
 		"missing": {
-			form: &selectYourIdentityOptionsForm{},
-			errors: map[string]string{
-				"option": "selectAnIdentityOption",
-			},
+			form:   &selectYourIdentityOptionsForm{},
+			errors: validation.With("option", validation.SelectError{Label: "fromTheListedOptions"}),
 		},
 		"invalid": {
 			form: &selectYourIdentityOptionsForm{
 				Selected: IdentityOptionUnknown,
 			},
-			errors: map[string]string{
-				"option": "selectAnIdentityOption",
-			},
+			errors: validation.With("option", validation.SelectError{Label: "fromTheListedOptions"}),
 		},
 	}
 

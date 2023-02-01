@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -30,7 +31,7 @@ func TestGetChooseReplacementAttorneysAddress(t *testing.T) {
 	template.
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      appData,
-			Form:     &chooseAttorneysAddressForm{},
+			Form:     &addressForm{},
 			Attorney: ra,
 		}).
 		Return(nil)
@@ -79,7 +80,7 @@ func TestGetChooseReplacementAttorneysAddressFromStore(t *testing.T) {
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      appData,
 			Attorney: ra,
-			Form: &chooseAttorneysAddressForm{
+			Form: &addressForm{
 				Action:  "manual",
 				Address: &address,
 			},
@@ -112,7 +113,7 @@ func TestGetChooseReplacementAttorneysAddressManual(t *testing.T) {
 	template.
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App: appData,
-			Form: &chooseAttorneysAddressForm{
+			Form: &addressForm{
 				Action:  "manual",
 				Address: &place.Address{},
 			},
@@ -146,7 +147,7 @@ func TestGetChooseReplacementAttorneysAddressWhenTemplateErrors(t *testing.T) {
 	template.
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      appData,
-			Form:     &chooseAttorneysAddressForm{},
+			Form:     &addressForm{},
 			Attorney: ra,
 		}).
 		Return(expectedError)
@@ -308,13 +309,11 @@ func TestPostChooseReplacementAttorneysAddressManualWhenValidationError(t *testi
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      appData,
 			Attorney: ra,
-			Form: &chooseAttorneysAddressForm{
+			Form: &addressForm{
 				Action:  "manual",
 				Address: invalidAddress,
 			},
-			Errors: map[string]string{
-				"address-line-1": "enterAddress",
-			},
+			Errors: validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
 		}).
 		Return(nil)
 
@@ -367,12 +366,11 @@ func TestPostChooseReplacementAttorneysAddressSelect(t *testing.T) {
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      appData,
 			Attorney: ra,
-			Form: &chooseAttorneysAddressForm{
+			Form: &addressForm{
 				Action:         "manual",
 				LookupPostcode: "NG1",
 				Address:        &address,
 			},
-			Errors: map[string]string{},
 		}).
 		Return(nil)
 
@@ -418,14 +416,12 @@ func TestPostChooseReplacementAttorneysAddressSelectWhenValidationError(t *testi
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      appData,
 			Attorney: ra,
-			Form: &chooseAttorneysAddressForm{
+			Form: &addressForm{
 				Action:         "select",
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
-			Errors: map[string]string{
-				"select-address": "selectAddress",
-			},
+			Errors:    validation.With("select-address", validation.SelectError{Label: "address"}),
 		}).
 		Return(nil)
 
@@ -471,12 +467,11 @@ func TestPostChooseReplacementAttorneysAddressLookup(t *testing.T) {
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      appData,
 			Attorney: ra,
-			Form: &chooseAttorneysAddressForm{
+			Form: &addressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
-			Errors:    map[string]string{},
 		}).
 		Return(nil)
 
@@ -522,14 +517,12 @@ func TestPostChooseReplacementAttorneysAddressLookupError(t *testing.T) {
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      appData,
 			Attorney: ra,
-			Form: &chooseAttorneysAddressForm{
+			Form: &addressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
 			Addresses: []place.Address{},
-			Errors: map[string]string{
-				"lookup-postcode": "couldNotLookupPostcode",
-			},
+			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
 		}).
 		Return(nil)
 
@@ -580,14 +573,12 @@ func TestPostChooseReplacementAttorneysNotFoundError(t *testing.T) {
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      appData,
 			Attorney: ra,
-			Form: &chooseAttorneysAddressForm{
+			Form: &addressForm{
 				Action:         "lookup",
 				LookupPostcode: "XYZ",
 			},
 			Addresses: []place.Address{},
-			Errors: map[string]string{
-				"lookup-postcode": "enterUkPostCode",
-			},
+			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "ukPostcode"}),
 		}).
 		Return(nil)
 
@@ -623,12 +614,10 @@ func TestPostChooseReplacementAttorneysAddressLookupWhenValidationError(t *testi
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      appData,
 			Attorney: ra,
-			Form: &chooseAttorneysAddressForm{
+			Form: &addressForm{
 				Action: "lookup",
 			},
-			Errors: map[string]string{
-				"lookup-postcode": "enterPostcode",
-			},
+			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "postcode"}),
 		}).
 		Return(nil)
 

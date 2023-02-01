@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -206,11 +207,9 @@ func TestPostRestrictionsWhenValidationErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &restrictionsData{
-			App: appData,
-			Errors: map[string]string{
-				"restrictions": "restrictionsTooLong",
-			},
-			Lpa: &Lpa{},
+			App:    appData,
+			Errors: validation.With("restrictions", validation.StringTooLongError{Label: "restrictions", Length: 10000}),
+			Lpa:    &Lpa{},
 		}).
 		Return(nil)
 
@@ -240,25 +239,21 @@ func TestReadRestrictionsForm(t *testing.T) {
 func TestRestrictionsFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *restrictionsForm
-		errors map[string]string
+		errors validation.List
 	}{
 		"set": {
 			form: &restrictionsForm{
 				Restrictions: "blah",
 			},
-			errors: map[string]string{},
 		},
 		"too-long": {
 			form: &restrictionsForm{
 				Restrictions: random.String(10001),
 			},
-			errors: map[string]string{
-				"restrictions": "restrictionsTooLong",
-			},
+			errors: validation.With("restrictions", validation.StringTooLongError{Label: "restrictions", Length: 10000}),
 		},
 		"missing": {
-			form:   &restrictionsForm{},
-			errors: map[string]string{},
+			form: &restrictionsForm{},
 		},
 	}
 

@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type selectYourIdentityOptionsData struct {
 	App    AppData
-	Errors map[string]string
+	Errors validation.List
 	Form   *selectYourIdentityOptionsForm
 	Page   int
 }
@@ -44,7 +45,7 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, page i
 				}
 			}
 
-			if len(data.Errors) == 0 {
+			if data.Errors.None() {
 				lpa.IdentityOption = data.Form.Selected
 				lpa.Tasks.ConfirmYourIdentityAndSign = TaskInProgress
 
@@ -74,11 +75,11 @@ func readSelectYourIdentityOptionsForm(r *http.Request) *selectYourIdentityOptio
 	}
 }
 
-func (f *selectYourIdentityOptionsForm) Validate() map[string]string {
-	errors := map[string]string{}
+func (f *selectYourIdentityOptionsForm) Validate() validation.List {
+	var errors validation.List
 
 	if f.Selected == IdentityOptionUnknown && !f.None {
-		errors["option"] = "selectAnIdentityOption"
+		errors.Add("option", validation.SelectError{Label: "fromTheListedOptions"})
 	}
 
 	return errors
