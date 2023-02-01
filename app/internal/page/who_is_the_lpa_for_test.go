@@ -165,7 +165,7 @@ func TestPostWhoIsTheLpaForWhenValidationErrors(t *testing.T) {
 	template.
 		On("Func", w, &whoIsTheLpaForData{
 			App:    appData,
-			Errors: validation.With("who-for", "selectWhoFor"),
+			Errors: validation.With("who-for", validation.SelectError{Label: "whoTheLpaIsFor"}),
 		}).
 		Return(nil)
 
@@ -207,13 +207,13 @@ func TestWhoIsTheLpaForFormValidate(t *testing.T) {
 		},
 		"missing": {
 			form:   &whoIsTheLpaForForm{},
-			errors: validation.With("who-for", "selectWhoFor"),
+			errors: validation.With("who-for", validation.SelectError{Label: "whoTheLpaIsFor"}),
 		},
 		"invalid": {
 			form: &whoIsTheLpaForForm{
 				WhoFor: "what",
 			},
-			errors: validation.With("who-for", "selectWhoFor"),
+			errors: validation.With("who-for", validation.SelectError{Label: "whoTheLpaIsFor"}),
 		},
 	}
 

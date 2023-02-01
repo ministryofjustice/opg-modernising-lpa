@@ -31,7 +31,7 @@ func TestGetChoosePeopleToNotifyAddress(t *testing.T) {
 	template.
 		On("Func", w, &choosePeopleToNotifyAddressData{
 			App:            appData,
-			Form:           &choosePeopleToNotifyAddressForm{},
+			Form:           &addressForm{},
 			PersonToNotify: personToNotify,
 		}).
 		Return(nil)
@@ -82,7 +82,7 @@ func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
 		On("Func", w, &choosePeopleToNotifyAddressData{
 			App:            appData,
 			PersonToNotify: personToNotify,
-			Form: &choosePeopleToNotifyAddressForm{
+			Form: &addressForm{
 				Action:  "manual",
 				Address: &address,
 			},
@@ -115,7 +115,7 @@ func TestGetChoosePeopleToNotifyAddressManual(t *testing.T) {
 	template.
 		On("Func", w, &choosePeopleToNotifyAddressData{
 			App: appData,
-			Form: &choosePeopleToNotifyAddressForm{
+			Form: &addressForm{
 				Action:  "manual",
 				Address: &place.Address{},
 			},
@@ -149,7 +149,7 @@ func TestGetChoosePeopleToNotifyAddressWhenTemplateErrors(t *testing.T) {
 	template.
 		On("Func", w, &choosePeopleToNotifyAddressData{
 			App:            appData,
-			Form:           &choosePeopleToNotifyAddressForm{},
+			Form:           &addressForm{},
 			PersonToNotify: personToNotify,
 		}).
 		Return(expectedError)
@@ -335,7 +335,7 @@ func TestPostChoosePeopleToNotifyAddressSelect(t *testing.T) {
 		On("Func", w, &choosePeopleToNotifyAddressData{
 			App:            appData,
 			PersonToNotify: personToNotify,
-			Form: &choosePeopleToNotifyAddressForm{
+			Form: &addressForm{
 				Action:         "manual",
 				LookupPostcode: "NG1",
 				Address:        &address,
@@ -385,12 +385,12 @@ func TestPostChoosePeopleToNotifyAddressSelectWhenValidationError(t *testing.T) 
 		On("Func", w, &choosePeopleToNotifyAddressData{
 			App:            appData,
 			PersonToNotify: personToNotify,
-			Form: &choosePeopleToNotifyAddressForm{
+			Form: &addressForm{
 				Action:         "select",
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
-			Errors:    validation.With("select-address", "selectAddress"),
+			Errors:    validation.With("select-address", validation.SelectError{Label: "address"}),
 		}).
 		Return(nil)
 
@@ -437,7 +437,7 @@ func TestPostChoosePeopleToNotifyAddressLookup(t *testing.T) {
 		On("Func", w, &choosePeopleToNotifyAddressData{
 			App:            appData,
 			PersonToNotify: personToNotify,
-			Form: &choosePeopleToNotifyAddressForm{
+			Form: &addressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
@@ -487,12 +487,12 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 		On("Func", w, &choosePeopleToNotifyAddressData{
 			App:            appData,
 			PersonToNotify: personToNotify,
-			Form: &choosePeopleToNotifyAddressForm{
+			Form: &addressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
 			Addresses: []place.Address{},
-			Errors:    validation.With("lookup-postcode", "couldNotLookupPostcode"),
+			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
 		}).
 		Return(nil)
 
@@ -528,10 +528,10 @@ func TestPostChoosePeopleToNotifyAddressLookupWhenValidationError(t *testing.T) 
 		On("Func", w, &choosePeopleToNotifyAddressData{
 			App:            appData,
 			PersonToNotify: personToNotify,
-			Form: &choosePeopleToNotifyAddressForm{
+			Form: &addressForm{
 				Action: "lookup",
 			},
-			Errors: validation.With("lookup-postcode", "enterPostcode"),
+			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "postcode"}),
 		}).
 		Return(nil)
 
@@ -541,162 +541,6 @@ func TestPostChoosePeopleToNotifyAddressLookupWhenValidationError(t *testing.T) 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
-}
-
-func TestReadChoosePeopleToNotifyAddressForm(t *testing.T) {
-	expectedAddress := &place.Address{
-		Line1:      "a",
-		Line2:      "b",
-		Line3:      "c",
-		TownOrCity: "d",
-		Postcode:   "e",
-	}
-
-	testCases := map[string]struct {
-		form   url.Values
-		result *choosePeopleToNotifyAddressForm
-	}{
-		"lookup": {
-			form: url.Values{
-				"action":          {"lookup"},
-				"lookup-postcode": {"NG1"},
-			},
-			result: &choosePeopleToNotifyAddressForm{
-				Action:         "lookup",
-				LookupPostcode: "NG1",
-			},
-		},
-		"select": {
-			form: url.Values{
-				"action":         {"select"},
-				"select-address": {expectedAddress.Encode()},
-			},
-			result: &choosePeopleToNotifyAddressForm{
-				Action:  "select",
-				Address: expectedAddress,
-			},
-		},
-		"select not selected": {
-			form: url.Values{
-				"action":         {"select"},
-				"select-address": {""},
-			},
-			result: &choosePeopleToNotifyAddressForm{
-				Action:  "select",
-				Address: nil,
-			},
-		},
-		"manual": {
-			form: url.Values{
-				"action":           {"manual"},
-				"address-line-1":   {"a"},
-				"address-line-2":   {"b"},
-				"address-line-3":   {"c"},
-				"address-town":     {"d"},
-				"address-postcode": {"e"},
-			},
-			result: &choosePeopleToNotifyAddressForm{
-				Action:  "manual",
-				Address: expectedAddress,
-			},
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
-
-			actual := readChoosePeopleToNotifyAddressForm(r)
-			assert.Equal(t, tc.result, actual)
-		})
-	}
-}
-
-func TestChoosePeopleToNotifyAddressFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *choosePeopleToNotifyAddressForm
-		errors validation.List
-	}{
-		"lookup valid": {
-			form: &choosePeopleToNotifyAddressForm{
-				Action:         "lookup",
-				LookupPostcode: "NG1",
-			},
-		},
-		"lookup missing postcode": {
-			form: &choosePeopleToNotifyAddressForm{
-				Action: "lookup",
-			},
-			errors: validation.With("lookup-postcode", "enterPostcode"),
-		},
-		"select valid": {
-			form: &choosePeopleToNotifyAddressForm{
-				Action:  "select",
-				Address: &place.Address{},
-			},
-		},
-		"select not selected": {
-			form: &choosePeopleToNotifyAddressForm{
-				Action:  "select",
-				Address: nil,
-			},
-			errors: validation.With("select-address", "selectAddress"),
-		},
-		"manual valid": {
-			form: &choosePeopleToNotifyAddressForm{
-				Action: "manual",
-				Address: &place.Address{
-					Line1:      "a",
-					TownOrCity: "b",
-					Postcode:   "c",
-				},
-			},
-		},
-		"manual missing all": {
-			form: &choosePeopleToNotifyAddressForm{
-				Action:  "manual",
-				Address: &place.Address{},
-			},
-			errors: validation.
-				With("address-line-1", "enterAddress").
-				With("address-town", "enterTownOrCity"),
-		},
-		"manual max length": {
-			form: &choosePeopleToNotifyAddressForm{
-				Action: "manual",
-				Address: &place.Address{
-					Line1:      strings.Repeat("x", 50),
-					Line2:      strings.Repeat("x", 50),
-					Line3:      strings.Repeat("x", 50),
-					TownOrCity: "b",
-					Postcode:   "c",
-				},
-			},
-		},
-		"manual too long": {
-			form: &choosePeopleToNotifyAddressForm{
-				Action: "manual",
-				Address: &place.Address{
-					Line1:      strings.Repeat("x", 51),
-					Line2:      strings.Repeat("x", 51),
-					Line3:      strings.Repeat("x", 51),
-					TownOrCity: "b",
-					Postcode:   "c",
-				},
-			},
-			errors: validation.
-				With("address-line-1", "addressLine1TooLong").
-				With("address-line-2", "addressLine2TooLong").
-				With("address-line-3", "addressLine3TooLong"),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }
 
 func TestPostPersonToNotifyAddressManuallyFromAnotherPage(t *testing.T) {
