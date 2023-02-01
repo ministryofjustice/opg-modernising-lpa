@@ -13,7 +13,7 @@ type certificateProviderAddressData struct {
 	Errors              validation.List
 	CertificateProvider CertificateProvider
 	Addresses           []place.Address
-	Form                *certificateProviderAddressForm
+	Form                *addressForm
 }
 
 func CertificateProviderAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) Handler {
@@ -26,7 +26,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 		data := &certificateProviderAddressData{
 			App:                 appData,
 			CertificateProvider: lpa.CertificateProvider,
-			Form:                &certificateProviderAddressForm{},
+			Form:                &addressForm{},
 		}
 
 		if lpa.CertificateProvider.Address.Line1 != "" {
@@ -35,7 +35,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readCertificateProviderAddressForm(r)
+			data.Form = readAddressForm(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Form.Action == "manual" && data.Errors.None() {
@@ -81,65 +81,4 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 
 		return tmpl(w, data)
 	}
-}
-
-type certificateProviderAddressForm struct {
-	Action         string
-	LookupPostcode string
-	Address        *place.Address
-}
-
-func readCertificateProviderAddressForm(r *http.Request) *certificateProviderAddressForm {
-	d := &certificateProviderAddressForm{}
-	d.Action = r.PostFormValue("action")
-
-	switch d.Action {
-	case "lookup":
-		d.LookupPostcode = postFormString(r, "lookup-postcode")
-
-	case "select":
-		d.LookupPostcode = postFormString(r, "lookup-postcode")
-		selectAddress := r.PostFormValue("select-address")
-		if selectAddress != "" {
-			d.Address = DecodeAddress(selectAddress)
-		}
-
-	case "manual":
-		d.Address = &place.Address{
-			Line1:      postFormString(r, "address-line-1"),
-			Line2:      postFormString(r, "address-line-2"),
-			Line3:      postFormString(r, "address-line-3"),
-			TownOrCity: postFormString(r, "address-town"),
-			Postcode:   postFormString(r, "address-postcode"),
-		}
-	}
-
-	return d
-}
-
-func (f *certificateProviderAddressForm) Validate() validation.List {
-	var errors validation.List
-
-	switch f.Action {
-	case "lookup":
-		errors.String("lookup-postcode", "postcode", f.LookupPostcode,
-			validation.Empty())
-
-	case "select":
-		errors.Address("select-address", "address", f.Address,
-			validation.Selected())
-
-	case "manual":
-		errors.String("address-line-1", "addressLine1", f.Address.Line1,
-			validation.Empty(),
-			validation.StringTooLong(50))
-		errors.String("address-line-2", "addressLine2Label", f.Address.Line2,
-			validation.StringTooLong(50))
-		errors.String("address-line-3", "addressLine3Label", f.Address.Line3,
-			validation.StringTooLong(50))
-		errors.String("address-town", "townOrCity", f.Address.TownOrCity,
-			validation.Empty())
-	}
-
-	return errors
 }

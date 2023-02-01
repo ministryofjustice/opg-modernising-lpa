@@ -12,7 +12,7 @@ type yourAddressData struct {
 	App       AppData
 	Errors    validation.List
 	Addresses []place.Address
-	Form      *yourAddressForm
+	Form      *addressForm
 }
 
 func YourAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) Handler {
@@ -24,7 +24,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 
 		data := &yourAddressData{
 			App:  appData,
-			Form: &yourAddressForm{},
+			Form: &addressForm{},
 		}
 
 		if lpa.You.Address.Line1 != "" {
@@ -33,7 +33,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readYourAddressForm(r)
+			data.Form = readAddressForm(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Form.Action == "manual" && data.Errors.None() {
@@ -71,65 +71,4 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 
 		return tmpl(w, data)
 	}
-}
-
-type yourAddressForm struct {
-	Action         string
-	LookupPostcode string
-	Address        *place.Address
-}
-
-func readYourAddressForm(r *http.Request) *yourAddressForm {
-	f := &yourAddressForm{}
-	f.Action = r.PostFormValue("action")
-
-	switch f.Action {
-	case "lookup":
-		f.LookupPostcode = postFormString(r, "lookup-postcode")
-
-	case "select":
-		f.LookupPostcode = postFormString(r, "lookup-postcode")
-		selectAddress := r.PostFormValue("select-address")
-		if selectAddress != "" {
-			f.Address = DecodeAddress(selectAddress)
-		}
-
-	case "manual":
-		f.Address = &place.Address{
-			Line1:      postFormString(r, "address-line-1"),
-			Line2:      postFormString(r, "address-line-2"),
-			Line3:      postFormString(r, "address-line-3"),
-			TownOrCity: postFormString(r, "address-town"),
-			Postcode:   postFormString(r, "address-postcode"),
-		}
-	}
-
-	return f
-}
-
-func (f *yourAddressForm) Validate() validation.List {
-	var errors validation.List
-
-	switch f.Action {
-	case "lookup":
-		errors.String("lookup-postcode", "postcode", f.LookupPostcode,
-			validation.Empty())
-
-	case "select":
-		errors.Address("select-address", "address", f.Address,
-			validation.Selected())
-
-	case "manual":
-		errors.String("address-line-1", "addressLine1", f.Address.Line1,
-			validation.Empty(),
-			validation.StringTooLong(50))
-		errors.String("address-line-2", "addressLine2Label", f.Address.Line2,
-			validation.StringTooLong(50))
-		errors.String("address-line-3", "addressLine3Label", f.Address.Line3,
-			validation.StringTooLong(50))
-		errors.String("address-town", "townOrCity", f.Address.TownOrCity,
-			validation.Empty())
-	}
-
-	return errors
 }
