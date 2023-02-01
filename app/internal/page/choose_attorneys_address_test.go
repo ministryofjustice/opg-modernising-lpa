@@ -542,6 +542,62 @@ func TestPostChooseAttorneysAddressLookupError(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
 }
 
+func TestPostChooseAttorneysNotFoundError(t *testing.T) {
+	w := httptest.NewRecorder()
+	notFoundErr := place.NotFoundError{
+		Statuscode: 400,
+		Message:    "not found",
+	}
+
+	form := url.Values{
+		"action":          {"lookup"},
+		"lookup-postcode": {"XYZ"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	logger := &mockLogger{}
+	logger.
+		On("Print", notFoundErr)
+
+	attorney := Attorney{
+		ID:      "123",
+		Address: place.Address{},
+	}
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&Lpa{Attorneys: []Attorney{attorney}}, nil)
+
+	addressClient := &mockAddressClient{}
+	addressClient.
+		On("LookupPostcode", mock.Anything, "XYZ").
+		Return([]place.Address{}, notFoundErr)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &chooseAttorneysAddressData{
+			App:      appData,
+			Attorney: attorney,
+			Form: &addressForm{
+				Action:         "lookup",
+				LookupPostcode: "XYZ",
+			},
+			Addresses: []place.Address{},
+			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "ukPostcode"}),
+		}).
+		Return(nil)
+
+	err := ChooseAttorneysAddress(logger, template.Func, addressClient, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+}
+
 func TestPostChooseAttorneysAddressLookupWhenValidationError(t *testing.T) {
 	form := url.Values{
 		"action": {"lookup"},
