@@ -91,7 +91,7 @@
     "whichTypeOfLpaToMake": "Which type of LPA do you want to make?",
     "whichTypeOfLpaToMakeContent": "<p class=\"govuk-body\">There are 2 types of LPA. You can make an LPA that covers decisions about your:</p><ul class=\"govuk-list govuk-list--bullet\"><li>money, finances and any property you own</li><li>health care, medical treatment and personal welfare</li></ul><p class=\"govuk-body\">You can have one or both types of LPA.</p><p class=\"govuk-body\">They do not have to be made at the same time and you can reuse any information you enter to make other LPAs later.</p><p class=\"govuk-body\">You can choose different people to be your attorneys for each LPA.</p><p class=\"govuk-body\"><a class=\"govuk-link\" href=\"#\">Find out more about the 2 types of LPAs</a></p>",
     "theTypeOfLpaToMake": "the type of LPA to make",
-    "lpaTypePfa": "Property and affairs",
+    "lpaTypePfa": "Finance and affairs",
     "lpaTypePfaHumanised": "An LPA that covers decisions about my money, finances and property",
     "lpaTypePfaHint": "In legal terms, this is called a ‘property and affairs’ LPA. You may also hear it called a ‘property and financial affairs’ LPA",
     "lpaTypeHw": "Personal welfare",

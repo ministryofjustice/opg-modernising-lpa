@@ -9,5 +9,5 @@
         "one": "hi {{.PluralCount}} one {{.name}}",
         "other": "hi {{.PluralCount}} other {{.name}}"
     },
-    "lpaTypePfa": "Property and affairs"
+    "lpaTypePfa": "Finance and affairs"
 }
