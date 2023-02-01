@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -202,7 +203,7 @@ func TestPostCertificateProviderDetailsWhenValidationError(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, mock.MatchedBy(func(data *certificateProviderDetailsData) bool {
-			return assert.Equal(t, validation.With("first-names", "enterCertificateProviderFirstNames"), data.Errors)
+			return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
 		})).
 		Return(nil)
 
@@ -237,8 +238,8 @@ func TestReadCertificateProviderDetailsForm(t *testing.T) {
 	assert.Equal("1", result.Dob.Month)
 	assert.Equal("1990", result.Dob.Year)
 	assert.Equal("07535111111", result.Mobile)
-	assert.Equal(time.Date(1990, 1, 2, 0, 0, 0, 0, time.UTC), result.DateOfBirth)
-	assert.Nil(result.DateOfBirthError)
+	assert.Equal(time.Date(1990, 1, 2, 0, 0, 0, 0, time.UTC), result.Dob.T)
+	assert.Nil(result.Dob.Err)
 }
 
 func TestCertificateProviderDetailsFormValidate(t *testing.T) {
@@ -251,62 +252,60 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 				FirstNames: "A",
 				LastName:   "B",
 				Mobile:     "07535111111",
-				Dob: Date{
+				Dob: date.Date{
 					Day:   "C",
 					Month: "D",
 					Year:  "E",
 				},
-				DateOfBirth: time.Now(),
 			},
 		},
 		"missing-all": {
 			form: &certificateProviderDetailsForm{},
 			errors: validation.
-				With("first-names", "enterCertificateProviderFirstNames").
-				With("last-name", "enterCertificateProviderLastName").
-				With("date-of-birth", "enterCertificateProviderDateOfBirth").
-				With("mobile", "enterCertificateProviderMobile"),
+				With("first-names", validation.EnterError{Label: "firstNames"}).
+				With("last-name", validation.EnterError{Label: "lastName"}).
+				With("date-of-birth", validation.EnterError{Label: "dateOfBirth"}).
+				With("mobile", validation.EnterError{Label: "mobile"}),
 		},
 		"invalid-dob": {
 			form: &certificateProviderDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
 				Mobile:     "07535111111",
-				Dob: Date{
+				Dob: date.Date{
 					Day:   "1",
 					Month: "1",
 					Year:  "1",
+					Err:   expectedError,
 				},
-				DateOfBirthError: expectedError,
 			},
-			errors: validation.With("date-of-birth", "dateOfBirthMustBeReal"),
+			errors: validation.With("date-of-birth", validation.DateMustBeRealError{Label: "dateOfBirth"}),
 		},
 		"invalid-missing-dob": {
 			form: &certificateProviderDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
 				Mobile:     "07535111111",
-				Dob: Date{
+				Dob: date.Date{
 					Day:  "1",
 					Year: "1",
+					Err:  expectedError,
 				},
-				DateOfBirthError: expectedError,
 			},
-			errors: validation.With("date-of-birth", "enterCertificateProviderDateOfBirth"),
+			errors: validation.With("date-of-birth", validation.DateMissingError{Label: "dateOfBirth", MissingMonth: true}),
 		},
 		"invalid-incorrect-mobile-format": {
 			form: &certificateProviderDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
 				Mobile:     "0753511111",
-				Dob: Date{
+				Dob: date.Date{
 					Day:   "C",
 					Month: "D",
 					Year:  "E",
 				},
-				DateOfBirth: time.Now(),
 			},
-			errors: validation.With("mobile", "enterUkMobile"),
+			errors: validation.With("mobile", validation.MobileError{Label: "mobile"}),
 		},
 	}
 
@@ -321,12 +320,11 @@ func TestUkMobileFormatValidation(t *testing.T) {
 	form := &certificateProviderDetailsForm{
 		FirstNames: "A",
 		LastName:   "B",
-		Dob: Date{
+		Dob: date.Date{
 			Day:   "C",
 			Month: "D",
 			Year:  "E",
 		},
-		DateOfBirth: time.Now(),
 	}
 
 	testCases := map[string]struct {
@@ -347,31 +345,31 @@ func TestUkMobileFormatValidation(t *testing.T) {
 		},
 		"invalid local too short": {
 			Mobile: "0753511122",
-			Error:  validation.With("mobile", "enterUkMobile"),
+			Error:  validation.With("mobile", validation.MobileError{Label: "mobile"}),
 		},
 		"invalid local too long": {
 			Mobile: "075351112223",
-			Error:  validation.With("mobile", "enterUkMobile"),
+			Error:  validation.With("mobile", validation.MobileError{Label: "mobile"}),
 		},
 		"invalid international too short": {
 			Mobile: "+44753511122",
-			Error:  validation.With("mobile", "enterUkMobile"),
+			Error:  validation.With("mobile", validation.MobileError{Label: "mobile"}),
 		},
 		"invalid international too long": {
 			Mobile: "+4475351112223",
-			Error:  validation.With("mobile", "enterUkMobile"),
+			Error:  validation.With("mobile", validation.MobileError{Label: "mobile"}),
 		},
 		"invalid contains alpha chars": {
 			Mobile: "+44753511122a",
-			Error:  validation.With("mobile", "enterUkMobile"),
+			Error:  validation.With("mobile", validation.MobileError{Label: "mobile"}),
 		},
 		"invalid local not uk": {
 			Mobile: "09535111222",
-			Error:  validation.With("mobile", "enterUkMobile"),
+			Error:  validation.With("mobile", validation.MobileError{Label: "mobile"}),
 		},
 		"invalid international not uk": {
 			Mobile: "+449535111222",
-			Error:  validation.With("mobile", "enterUkMobile"),
+			Error:  validation.With("mobile", validation.MobileError{Label: "mobile"}),
 		},
 	}
 

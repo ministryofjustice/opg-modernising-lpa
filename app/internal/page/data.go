@@ -166,24 +166,6 @@ type AddressClient interface {
 	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
 }
 
-type Date struct {
-	Day   string
-	Month string
-	Year  string
-}
-
-func (d *Date) Entered() bool {
-	return d.Day != "" && d.Month != "" && d.Year != ""
-}
-
-func readDate(t time.Time) Date {
-	return Date{
-		Day:   t.Format("2"),
-		Month: t.Format("1"),
-		Year:  t.Format("2006"),
-	}
-}
-
 type WitnessCode struct {
 	Code    string
 	Created time.Time

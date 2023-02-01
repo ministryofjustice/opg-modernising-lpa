@@ -37,7 +37,7 @@ func TestGetYourAddress(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App:  appData,
-			Form: &yourAddressForm{},
+			Form: &addressForm{},
 		}).
 		Return(nil)
 
@@ -84,7 +84,7 @@ func TestGetYourAddressFromStore(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: appData,
-			Form: &yourAddressForm{
+			Form: &addressForm{
 				Action:  "manual",
 				Address: &address,
 			},
@@ -112,7 +112,7 @@ func TestGetYourAddressManual(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: appData,
-			Form: &yourAddressForm{
+			Form: &addressForm{
 				Action:  "manual",
 				Address: &place.Address{},
 			},
@@ -140,7 +140,7 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App:  appData,
-			Form: &yourAddressForm{},
+			Form: &addressForm{},
 		}).
 		Return(expectedError)
 
@@ -301,7 +301,7 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: appData,
-			Form: &yourAddressForm{
+			Form: &addressForm{
 				Action: "manual",
 				Address: &place.Address{
 					Line2:      "b",
@@ -309,7 +309,7 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 					Postcode:   "d",
 				},
 			},
-			Errors: validation.With("address-line-1", "enterAddress"),
+			Errors: validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
 		}).
 		Return(nil)
 
@@ -343,7 +343,7 @@ func TestPostYourAddressSelect(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: appData,
-			Form: &yourAddressForm{
+			Form: &addressForm{
 				Action:         "manual",
 				LookupPostcode: "NG1",
 				Address:        expectedAddress,
@@ -392,12 +392,12 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: appData,
-			Form: &yourAddressForm{
+			Form: &addressForm{
 				Action:         "select",
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
-			Errors:    validation.With("select-address", "selectAddress"),
+			Errors:    validation.With("select-address", validation.SelectError{Label: "address"}),
 		}).
 		Return(nil)
 
@@ -437,7 +437,7 @@ func TestPostYourAddressLookup(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: appData,
-			Form: &yourAddressForm{
+			Form: &addressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
@@ -481,12 +481,12 @@ func TestPostYourAddressLookupError(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: appData,
-			Form: &yourAddressForm{
+			Form: &addressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
 			Addresses: []place.Address{},
-			Errors:    validation.With("lookup-postcode", "couldNotLookupPostcode"),
+			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
 		}).
 		Return(nil)
 
@@ -516,10 +516,10 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: appData,
-			Form: &yourAddressForm{
+			Form: &addressForm{
 				Action: "lookup",
 			},
-			Errors: validation.With("lookup-postcode", "enterPostcode"),
+			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "postcode"}),
 		}).
 		Return(nil)
 
@@ -529,159 +529,4 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
-}
-
-func TestReadYourAddressForm(t *testing.T) {
-	expectedAddress := &place.Address{
-		Line1:      "a",
-		Line2:      "b",
-		Line3:      "c",
-		TownOrCity: "d",
-		Postcode:   "e",
-	}
-
-	testCases := map[string]struct {
-		form   url.Values
-		result *yourAddressForm
-	}{
-		"lookup": {
-			form: url.Values{
-				"action":          {"lookup"},
-				"lookup-postcode": {"NG1"},
-			},
-			result: &yourAddressForm{
-				Action:         "lookup",
-				LookupPostcode: "NG1",
-			},
-		},
-		"select": {
-			form: url.Values{
-				"action":         {"select"},
-				"select-address": {expectedAddress.Encode()},
-			},
-			result: &yourAddressForm{
-				Action:  "select",
-				Address: expectedAddress,
-			},
-		},
-		"select-not-selected": {
-			form: url.Values{
-				"action":         {"select"},
-				"select-address": {""},
-			},
-			result: &yourAddressForm{
-				Action:  "select",
-				Address: nil,
-			},
-		},
-		"manual": {
-			form: url.Values{
-				"action":           {"manual"},
-				"address-line-1":   {"a"},
-				"address-line-2":   {"b"},
-				"address-line-3":   {"c"},
-				"address-town":     {"d"},
-				"address-postcode": {"e"},
-			},
-			result: &yourAddressForm{
-				Action:  "manual",
-				Address: expectedAddress,
-			},
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
-
-			actual := readYourAddressForm(r)
-			assert.Equal(t, tc.result, actual)
-		})
-	}
-}
-
-func TestYourAddressFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *yourAddressForm
-		errors validation.List
-	}{
-		"lookup-valid": {
-			form: &yourAddressForm{
-				Action:         "lookup",
-				LookupPostcode: "NG1",
-			},
-		},
-		"lookup-missing-postcode": {
-			form: &yourAddressForm{
-				Action: "lookup",
-			},
-			errors: validation.With("lookup-postcode", "enterPostcode"),
-		},
-		"select-valid": {
-			form: &yourAddressForm{
-				Action:  "select",
-				Address: &place.Address{},
-			},
-		},
-		"select-not-selected": {
-			form: &yourAddressForm{
-				Action:  "select",
-				Address: nil,
-			},
-			errors: validation.With("select-address", "selectAddress"),
-		},
-		"manual-valid": {
-			form: &yourAddressForm{
-				Action: "manual",
-				Address: &place.Address{
-					Line1:      "a",
-					TownOrCity: "b",
-				},
-			},
-		},
-		"manual-missing-all": {
-			form: &yourAddressForm{
-				Action:  "manual",
-				Address: &place.Address{},
-			},
-			errors: validation.
-				With("address-line-1", "enterAddress").
-				With("address-town", "enterTownOrCity"),
-		},
-		"manual-max-length": {
-			form: &yourAddressForm{
-				Action: "manual",
-				Address: &place.Address{
-					Line1:      strings.Repeat("x", 50),
-					Line2:      strings.Repeat("x", 50),
-					Line3:      strings.Repeat("x", 50),
-					TownOrCity: "b",
-					Postcode:   "c",
-				},
-			},
-		},
-		"manual-too-long": {
-			form: &yourAddressForm{
-				Action: "manual",
-				Address: &place.Address{
-					Line1:      strings.Repeat("x", 51),
-					Line2:      strings.Repeat("x", 51),
-					Line3:      strings.Repeat("x", 51),
-					TownOrCity: "b",
-					Postcode:   "c",
-				},
-			},
-			errors: validation.
-				With("address-line-1", "addressLine1TooLong").
-				With("address-line-2", "addressLine2TooLong").
-				With("address-line-3", "addressLine3TooLong"),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }

@@ -162,4 +162,174 @@ describe('Certificate provider task', () => {
         cy.contains('li', "Choose your certificate provider")
             .should('contain', 'Completed');
     });
+
+    it('errors when details empty', () => {
+        cy.visitLpa('/certificate-provider-details');
+        cy.contains('button', 'Continue').click();
+
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Enter first names');
+            cy.contains('Enter last name');
+            cy.contains('Enter date of birth');
+            cy.contains('Enter mobile number');
+        });
+
+        cy.contains('[for=f-first-names] + .govuk-error-message', 'Enter first names');
+        cy.contains('[for=f-last-name] + .govuk-error-message', 'Enter last name');
+        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Enter date of birth');
+        cy.contains('[for=f-mobile] + p + .govuk-error-message', 'Enter mobile number');
+    });
+    
+    it('errors when invalid mobile number', () => {
+        cy.visitLpa('/certificate-provider-details');
+        cy.get('#f-mobile').type('not-a-number');
+        cy.contains('button', 'Continue').click();
+
+        cy.contains('[for=f-mobile] + p + .govuk-error-message', 'Mobile number must be a UK mobile number, like 07700 900 982 or +44 7700 900 982');
+    });
+
+    it('errors when invalid dates of birth', () => {
+        cy.visitLpa('/certificate-provider-details');
+        
+        cy.get('#f-date-of-birth').type('1');
+        cy.contains('button', 'Continue').click();
+        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must include a month and year');
+
+        cy.get('#f-date-of-birth-month').type('2');
+        cy.get('#f-date-of-birth-year').type('2222');
+        cy.contains('button', 'Continue').click();
+        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be in the past');
+
+        cy.get('#f-date-of-birth-month').type('2');
+        cy.get('#f-date-of-birth-year').clear().type('1990');
+        cy.contains('button', 'Continue').click();
+        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be a real date');
+    });
+        
+    it('errors when how they prefer to carry out their role unselected', () => {
+        cy.visitLpa('/how-would-certificate-provider-prefer-to-carry-out-their-role');
+
+        cy.contains('button', 'Continue').click()
+
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Select how your certificate provider would prefer to carry out their role');
+        });
+
+        cy.contains('.govuk-fieldset .govuk-error-message', 'Select how your certificate provider would prefer to carry out their role');
+    });
+
+    it('errors when how they prefer to carry out their role email invalid', () => {
+        cy.visitLpa('/how-would-certificate-provider-prefer-to-carry-out-their-role');
+
+        cy.contains('label', 'Online and by email').click();
+        cy.contains('button', 'Continue').click()
+        cy.contains('[for=f-email] + .govuk-error-message', 'Enter certificate provider\'s email address');
+
+        cy.get('#f-email').type('not-an-email', { force: true });
+        cy.contains('button', 'Continue').click()
+        cy.contains('[for=f-email] + .govuk-error-message', 'Certificate provider\'s email address must be in the correct format, like name@example.com');
+    });
+    
+    it('errors when empty postcode', () => {
+        cy.visitLpa('/certificate-provider-address');
+
+        cy.contains('button', 'Find address').click();
+        
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Enter postcode');
+        });
+        
+        cy.contains('[for=f-lookup-postcode] + .govuk-error-message', 'Enter postcode');
+    });
+
+    it('errors when unselected', () => {
+        cy.visitLpa('/certificate-provider-address');
+
+        cy.get('#f-lookup-postcode').type('NG1');
+        cy.contains('button', 'Find address').click();
+
+        cy.contains('button', 'Continue').click();
+        
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Select address');
+        });
+        
+        cy.contains('[for=f-select-address] + .govuk-error-message', 'Select address');
+    });
+
+    it('errors when manual incorrect', () => {
+        cy.visitLpa('/certificate-provider-address');
+
+        cy.get('#f-lookup-postcode').type('NG1');
+        cy.contains('button', 'Find address').click();
+        cy.contains('a', "Can not find address?").click();
+        cy.contains('button', 'Continue').click();
+        
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Enter address line 1');
+            cy.contains('Enter town or city');
+        });
+        
+        cy.contains('[for=f-address-line-1] + .govuk-error-message', 'Enter address line 1');
+        cy.contains('[for=f-address-town] + .govuk-error-message', 'Enter town or city');
+
+        cy.get('#f-address-line-1').invoke('val', 'a'.repeat(51));
+        cy.get('#f-address-line-2').invoke('val', 'b'.repeat(51));
+        cy.get('#f-address-line-3').invoke('val', 'c'.repeat(51));
+        cy.contains('button', 'Continue').click();
+
+        cy.contains('[for=f-address-line-1] + .govuk-error-message', 'Address line 1 must be 50 characters or less');
+        cy.contains('[for=f-address-line-2] + .govuk-error-message', 'Address line 2 must be 50 characters or less');
+        cy.contains('[for=f-address-line-3] + .govuk-error-message', 'Address line 3 must be 50 characters or less');
+    });
+
+    it('errors when how you know not selected', () => {
+        cy.visitLpa('/how-do-you-know-your-certificate-provider');
+
+        cy.contains('button', 'Continue').click();
+        
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Select how you know your certificate provider');
+        });
+        
+        cy.contains('.govuk-fieldset .govuk-error-message', 'Select how you know your certificate provider');
+    });
+
+    it('errors relationship not explained', () => {
+        cy.visitLpa('/how-do-you-know-your-certificate-provider');
+
+        cy.contains('label', 'Other').click();
+        cy.contains('button', 'Continue').click();
+        
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Enter description');
+        });
+        
+        cy.contains('.govuk-fieldset .govuk-error-message', 'Enter description');
+    });
+
+    it('errors how long you have known them not selected', () => {
+        cy.visitLpa('/how-long-have-you-known-certificate-provider');
+
+        cy.contains('button', 'Continue').click();
+        
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Select how long you have known your certificate provider');
+        });
+        
+        cy.contains('.govuk-fieldset .govuk-error-message', 'Select how long you have known your certificate provider');
+    });
+
+    it('errors when known for less than 2 years', () => {
+        cy.visitLpa('/how-long-have-you-known-certificate-provider');
+
+        cy.contains('label', 'Less than 2 years').click();
+        cy.contains('button', 'Continue').click();
+        
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('You must have known your non-professional certificate provider for 2 years or more');
+        });
+        
+        cy.contains('.govuk-fieldset .govuk-error-message', 'You must have known your non-professional certificate provider for 2 years or more');
+    });
 });
