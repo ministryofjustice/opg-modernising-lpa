@@ -13,7 +13,7 @@ type chooseReplacementAttorneysAddressData struct {
 	Errors    validation.List
 	Attorney  Attorney
 	Addresses []place.Address
-	Form      *chooseAttorneysAddressForm
+	Form      *addressForm
 }
 
 func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) Handler {
@@ -29,7 +29,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 		data := &chooseReplacementAttorneysAddressData{
 			App:      appData,
 			Attorney: ra,
-			Form:     &chooseAttorneysAddressForm{},
+			Form:     &addressForm{},
 		}
 
 		if ra.Address.Line1 != "" {
@@ -38,7 +38,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readChooseAttorneysAddressForm(r)
+			data.Form = readAddressForm(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Form.Action == "manual" && data.Errors.None() {
@@ -76,7 +76,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 				addresses, err := addressClient.LookupPostcode(r.Context(), data.Form.LookupPostcode)
 				if err != nil {
 					logger.Print(err)
-					data.Errors.Add("lookup-postcode", "couldNotLookupPostcode")
+					data.Errors.Add("lookup-postcode", validation.CustomError{"couldNotLookupPostcode"})
 				}
 
 				data.Addresses = addresses
