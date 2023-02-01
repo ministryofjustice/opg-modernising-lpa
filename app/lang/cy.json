@@ -55,7 +55,7 @@
     "errorMobile": "{{.Label}} Welsh",
     "errorSelect": "Welsh {{.Label}}",
     "errorEmail": "{{.Label}} Welsh",
-    
+
     "homeAddress": "Cyfeiriad cartref",
     "postcode": "Cod post",
     "findAddress": "Dod o hyd i gyfeiriad",
@@ -76,6 +76,7 @@
     "addressLine3Label": "Llinell cyfeiriad 3",
     "townOrCity": "Tref neu ddinas",
     "couldNotLookupPostcode": "Methu chwilio’r cod post",
+    "ukPostcode": "welsh",
 
     "whoIsThisLpaFor": "Ar gyfer pwy mae’r LPA hwn?",
     "whoTheLpaIsFor": "Welsh",
@@ -265,7 +266,6 @@
     "idVerifiedTag": "ID wedi gwirio",
     "lpaDecisions": "Penderfyniadau LPA",
     "typeOfLpa": "Math o LPA",
-    "WhenTheLpaCanBeUsed": "Pryd gall eich atwrneiod ddefnyddio eich LPA",
     "whenTheLpaCanBeUsed": "pryd gall eich atwrneiod ddefnyddio eich LPA",
     "whoAreTheAttorneys": {
         "one": "Pwy yw eich atwrnai",
@@ -357,7 +357,7 @@
     "witnessYourSignatureContent": "<p class=\"govuk-body govuk-!-font-weight-bold\">Nawr mae angen arnom i {{ .CpFullName }}, eich darparwr tystysgrif i gadarnhau eu bod gyda chi a’u bod wedi eich gweld yn llofnodi’ch LPA.</p> <ol class=\"govuk-list govuk-list--number govuk-list--spaced\"> <li>Pan fyddwch yn pwyso parhau, byddwn yn anfon neges destun at {{ .CpFirstNames }} yn cynnwys cod unigryw</li> <li>Bydd angen i {{ .CpFirstNames }} deipio’r cod hwn ar y sgrin nesaf</li> </ol>",
     "witnessCodeTimeWarning": "Pan fydd {{ .CpFirstNames }} yn derbyn y cod unigryw hwn, bydd yn dod i ben ar ôl 30 munud. Defnyddiwch y cod o fewn yr amser hwn.",
     "theCodeWeSentCertificateProvider": "Welsh",
-    
+
     "selectYourIdentityOptions": "Dewiswch eich opsiynau i brofi pwy ydych",
     "pleaseSelectOneFormOfIdentity": "Welsh",
     "yourOneLogin": "Welsh",

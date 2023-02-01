@@ -480,6 +480,56 @@ func TestPostCertificateProviderAddressLookupError(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
 }
 
+func TestPostCertificateProviderAddressNotFoundError(t *testing.T) {
+	w := httptest.NewRecorder()
+	notFoundErr := place.InvalidPostcodeError{
+		Statuscode: 400,
+		Message:    "invalid postcode",
+	}
+
+	form := url.Values{
+		"action":          {"lookup"},
+		"lookup-postcode": {"XYZ"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	logger := &mockLogger{}
+	logger.
+		On("Print", notFoundErr)
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&Lpa{}, nil)
+
+	addressClient := &mockAddressClient{}
+	addressClient.
+		On("LookupPostcode", mock.Anything, "XYZ").
+		Return([]place.Address{}, notFoundErr)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &certificateProviderAddressData{
+			App: appData,
+			Form: &addressForm{
+				Action:         "lookup",
+				LookupPostcode: "XYZ",
+			},
+			Addresses: []place.Address{},
+			Errors:    validation.With("lookup-postcode", validation.CustomError{"enterUkPostCode"}),
+		}).
+		Return(nil)
+
+	err := CertificateProviderAddress(logger, template.Func, addressClient, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+}
+
 func TestPostCertificateProviderAddressLookupWhenValidationError(t *testing.T) {
 	form := url.Values{
 		"action": {"lookup"},
