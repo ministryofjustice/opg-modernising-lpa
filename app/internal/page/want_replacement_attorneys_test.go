@@ -230,7 +230,7 @@ func TestPostWantReplacementAttorneysWhenValidationErrors(t *testing.T) {
 	template.
 		On("Func", w, &wantReplacementAttorneysData{
 			App:    appData,
-			Errors: validation.With("want", "selectWantReplacementAttorneys"),
+			Errors: validation.With("want", validation.SelectError{Label: "yesToAddReplacementAttorneys"}),
 			Lpa:    &Lpa{},
 		}).
 		Return(nil)
@@ -273,13 +273,13 @@ func TestWantReplacementAttorneysFormValidate(t *testing.T) {
 		},
 		"missing": {
 			form:   &wantReplacementAttorneysForm{},
-			errors: validation.With("want", "selectWantReplacementAttorneys"),
+			errors: validation.With("want", validation.SelectError{Label: "yesToAddReplacementAttorneys"}),
 		},
 		"invalid": {
 			form: &wantReplacementAttorneysForm{
 				Want: "what",
 			},
-			errors: validation.With("want", "selectWantReplacementAttorneys"),
+			errors: validation.With("want", validation.SelectError{Label: "yesToAddReplacementAttorneys"}),
 		},
 	}
 
