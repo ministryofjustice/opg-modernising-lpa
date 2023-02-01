@@ -61,7 +61,8 @@
     "findAddress": "Find address",
     "selectAnAddress": "Select an address",
     "cantFindAddress": "Can not find address?",
-    "cantFindTheirAddress": "I can’t find their address in the list",
+    "cantFindMyAddressInList": "I can’t find my address in the list",
+    "cantFindTheirAddressInList": "I can’t find their address in the list",
     "addressesFound": {
         "one": "{{.PluralCount}} address found",
         "other": "{{.PluralCount}} addresses found"
@@ -73,7 +74,9 @@
     "addressLine3Label": "Address line 3",
     "townOrCity": "Town or city",
     "couldNotLookupPostcode": "Could not lookup postcode",
-    "ukPostcode": "UK postcode",
+    "invalidPostcode": "a valid postcode",
+    "aPostcode": "a postcode",
+    "anAddressFromTheList": "an address from the list",
 
     "whoIsThisLpaFor": "Who is this LPA for?",
     "whoTheLpaIsFor": "who the LPA is for",

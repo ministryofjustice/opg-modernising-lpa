@@ -518,7 +518,7 @@ func TestPostCertificateProviderAddressInvalidPostcodeError(t *testing.T) {
 				LookupPostcode: "XYZ",
 			},
 			Addresses: []place.Address{},
-			Errors:    validation.With("lookup-postcode", validation.CustomError{"enterUkPostCode"}),
+			Errors:    validation.With("lookup-postcode", validation.EnterError{"invalidPostcode"}),
 		}).
 		Return(nil)
 

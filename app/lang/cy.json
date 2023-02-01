@@ -76,7 +76,7 @@
     "addressLine3Label": "Llinell cyfeiriad 3",
     "townOrCity": "Tref neu ddinas",
     "couldNotLookupPostcode": "Methu chwilio’r cod post",
-    "ukPostcode": "welsh",
+    "invalidPostcode": "welsh",
 
     "whoIsThisLpaFor": "Ar gyfer pwy mae’r LPA hwn?",
     "whoTheLpaIsFor": "Welsh",

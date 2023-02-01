@@ -83,7 +83,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 					logger.Print(err)
 
 					if errors.As(err, &place.InvalidPostcodeError{}) {
-						data.Errors.Add("lookup-postcode", validation.EnterError{"ukPostcode"})
+						data.Errors.Add("lookup-postcode", validation.EnterError{"invalidPostcode"})
 
 					} else {
 						data.Errors.Add("lookup-postcode", validation.CustomError{"couldNotLookupPostcode"})

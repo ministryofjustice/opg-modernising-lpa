@@ -586,7 +586,7 @@ func TestPostChooseAttorneysInvalidPostcodeError(t *testing.T) {
 				LookupPostcode: "XYZ",
 			},
 			Addresses: []place.Address{},
-			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "ukPostcode"}),
+			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
 		}).
 		Return(nil)
 
