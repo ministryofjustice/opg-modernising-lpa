@@ -28,7 +28,6 @@ type AppPaths struct {
 	HowShouldReplacementAttorneysStepIn                  string
 	HowToConfirmYourIdentityAndSign                      string
 	HowWouldCertificateProviderPreferToCarryOutTheirRole string
-	HowWouldYouLikeToBeContacted                         string
 	IdentityConfirmed                                    string
 	IdentityWithBiometricResidencePermit                 string
 	IdentityWithDrivingLicencePaper                      string
@@ -95,7 +94,6 @@ var Paths = AppPaths{
 	HowShouldReplacementAttorneysStepIn:                  "/how-should-replacement-attorneys-step-in",
 	HowToConfirmYourIdentityAndSign:                      "/how-to-confirm-your-identity-and-sign",
 	HowWouldCertificateProviderPreferToCarryOutTheirRole: "/how-would-certificate-provider-prefer-to-carry-out-their-role",
-	HowWouldYouLikeToBeContacted:                         "/how-would-you-like-to-be-contacted",
 	IdentityConfirmed:                                    "/identity-confirmed",
 	IdentityWithBiometricResidencePermit:                 "/id/biometric-residence-permit",
 	IdentityWithDrivingLicencePaper:                      "/id/driving-licence-paper",
