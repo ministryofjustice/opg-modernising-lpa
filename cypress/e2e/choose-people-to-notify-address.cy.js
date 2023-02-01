@@ -1,48 +1,11 @@
-describe('Choose replacement attorneys address', () => {
+describe('People to notify address', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/choose-replacement-attorneys-address?id=without-address&withIncompleteAttorneys=1');
-    });
-    
-    it('address can be looked up', () => {
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.visit('/testing-start?redirect=/choose-people-to-notify');
 
-        cy.get('#f-lookup-postcode').type('B14 7ED');
-        cy.contains('button', 'Find address').click();
-
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
-
-        cy.get('#f-select-address').select('2 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
+        cy.get('#f-first-names').type('a');
+        cy.get('#f-last-name').type('b');
+        cy.get('#f-email').type('a.b@example.com');
         cy.contains('button', 'Continue').click();
-
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
-
-        cy.get('#f-address-line-1').should('have.value', '2 RICHMOND PLACE');
-        cy.get('#f-address-line-2').should('have.value', '');
-        cy.get('#f-address-line-3').should('have.value', '');
-        cy.get('#f-address-town').should('have.value', 'BIRMINGHAM');
-        cy.get('#f-address-postcode').should('have.value', 'B14 7ED');
-
-        cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/choose-replacement-attorneys-summary');
-    });
-
-    it('address can be entered manually', () => {
-        cy.get('#f-lookup-postcode').type('NG1');
-        cy.contains('button', 'Find address').click();
-
-        cy.contains('a', "Can not find address?").click();
-
-        cy.get('#f-address-line-1').type('Flat 2');
-        cy.get('#f-address-line-2').type('123 Fake Street');
-        cy.get('#f-address-line-3').type('Pretendingham');
-        cy.get('#f-address-town').type('Someville');
-        cy.get('#f-address-postcode').type('NG1');
-
-        cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/choose-replacement-attorneys-summary');
     });
 
     it('errors when empty postcode', () => {
@@ -71,7 +34,7 @@ describe('Choose replacement attorneys address', () => {
     it('errors when manual incorrect', () => {
         cy.get('#f-lookup-postcode').type('NG1');
         cy.contains('button', 'Find address').click();
-        cy.contains('a', "Can not find address?").click();
+        cy.contains('a', "I can’t find their address in the list").click();
         cy.contains('button', 'Continue').click();
         
         cy.get('.govuk-error-summary').within(() => {

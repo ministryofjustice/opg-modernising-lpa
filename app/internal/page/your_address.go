@@ -54,7 +54,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 				addresses, err := addressClient.LookupPostcode(r.Context(), data.Form.LookupPostcode)
 				if err != nil {
 					logger.Print(err)
-					data.Errors.Add("lookup-postcode", "couldNotLookupPostcode")
+					data.Errors.Add("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"})
 				}
 
 				data.Addresses = addresses
@@ -80,22 +80,22 @@ type yourAddressForm struct {
 }
 
 func readYourAddressForm(r *http.Request) *yourAddressForm {
-	d := &yourAddressForm{}
-	d.Action = r.PostFormValue("action")
+	f := &yourAddressForm{}
+	f.Action = r.PostFormValue("action")
 
-	switch d.Action {
+	switch f.Action {
 	case "lookup":
-		d.LookupPostcode = postFormString(r, "lookup-postcode")
+		f.LookupPostcode = postFormString(r, "lookup-postcode")
 
 	case "select":
-		d.LookupPostcode = postFormString(r, "lookup-postcode")
+		f.LookupPostcode = postFormString(r, "lookup-postcode")
 		selectAddress := r.PostFormValue("select-address")
 		if selectAddress != "" {
-			d.Address = DecodeAddress(selectAddress)
+			f.Address = DecodeAddress(selectAddress)
 		}
 
 	case "manual":
-		d.Address = &place.Address{
+		f.Address = &place.Address{
 			Line1:      postFormString(r, "address-line-1"),
 			Line2:      postFormString(r, "address-line-2"),
 			Line3:      postFormString(r, "address-line-3"),
@@ -104,39 +104,31 @@ func readYourAddressForm(r *http.Request) *yourAddressForm {
 		}
 	}
 
-	return d
+	return f
 }
 
-func (d *yourAddressForm) Validate() validation.List {
+func (f *yourAddressForm) Validate() validation.List {
 	var errors validation.List
 
-	switch d.Action {
+	switch f.Action {
 	case "lookup":
-		if d.LookupPostcode == "" {
-			errors.Add("lookup-postcode", "enterPostcode")
-		}
+		errors.String("lookup-postcode", "postcode", f.LookupPostcode,
+			validation.Empty())
 
 	case "select":
-		if d.Address == nil {
-			errors.Add("select-address", "selectAddress")
-		}
+		errors.Address("select-address", "address", f.Address,
+			validation.AddressSelected())
 
 	case "manual":
-		if d.Address.Line1 == "" {
-			errors.Add("address-line-1", "enterAddress")
-		}
-		if len(d.Address.Line1) > 50 {
-			errors.Add("address-line-1", "addressLine1TooLong")
-		}
-		if len(d.Address.Line2) > 50 {
-			errors.Add("address-line-2", "addressLine2TooLong")
-		}
-		if len(d.Address.Line3) > 50 {
-			errors.Add("address-line-3", "addressLine3TooLong")
-		}
-		if d.Address.TownOrCity == "" {
-			errors.Add("address-town", "enterTownOrCity")
-		}
+		errors.String("address-line-1", "addressLine1", f.Address.Line1,
+			validation.Empty(),
+			validation.StringTooLong(50))
+		errors.String("address-line-2", "addressLine2Label", f.Address.Line2,
+			validation.StringTooLong(50))
+		errors.String("address-line-3", "addressLine3Label", f.Address.Line3,
+			validation.StringTooLong(50))
+		errors.String("address-town", "townOrCity", f.Address.TownOrCity,
+			validation.Empty())
 	}
 
 	return errors

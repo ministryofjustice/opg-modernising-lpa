@@ -12,4 +12,14 @@ describe('Who is the lpa for', () => {
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/lpa-type');
     });
+
+    it('errors when unselected', () => {
+        cy.contains('button', 'Continue').click();
+        
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Select who the LPA is for');
+        });
+        
+        cy.contains('.govuk-fieldset .govuk-error-message', 'Select who the LPA is for');
+    });
 });

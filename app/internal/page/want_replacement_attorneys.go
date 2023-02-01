@@ -73,9 +73,8 @@ func readWantReplacementAttorneysForm(r *http.Request) *wantReplacementAttorneys
 func (f *wantReplacementAttorneysForm) Validate() validation.List {
 	var errors validation.List
 
-	if f.Want != "yes" && f.Want != "no" {
-		errors.Add("want", "selectWantReplacementAttorneys")
-	}
+	errors.String("want", "yesToAddReplacementAttorneys", f.Want,
+		validation.Select("yes", "no"))
 
 	return errors
 }
