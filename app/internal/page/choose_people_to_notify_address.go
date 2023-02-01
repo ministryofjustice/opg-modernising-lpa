@@ -13,7 +13,7 @@ type choosePeopleToNotifyAddressData struct {
 	Errors         validation.List
 	PersonToNotify PersonToNotify
 	Addresses      []place.Address
-	Form           *choosePeopleToNotifyAddressForm
+	Form           *addressForm
 }
 
 func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) Handler {
@@ -33,7 +33,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 		data := &choosePeopleToNotifyAddressData{
 			App:            appData,
 			PersonToNotify: personToNotify,
-			Form:           &choosePeopleToNotifyAddressForm{},
+			Form:           &addressForm{},
 		}
 
 		if personToNotify.Address.Line1 != "" {
@@ -42,7 +42,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readChoosePeopleToNotifyAddressForm(r)
+			data.Form = readAddressForm(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Form.Action == "manual" && data.Errors.None() {
@@ -80,7 +80,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 				addresses, err := addressClient.LookupPostcode(r.Context(), data.Form.LookupPostcode)
 				if err != nil {
 					logger.Print(err)
-					data.Errors.Add("lookup-postcode", "couldNotLookupPostcode")
+					data.Errors.Add("lookup-postcode", validation.CustomError{"couldNotLookupPostcode"})
 				}
 
 				data.Addresses = addresses
@@ -97,73 +97,4 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 
 		return tmpl(w, data)
 	}
-}
-
-type choosePeopleToNotifyAddressForm struct {
-	Action         string
-	LookupPostcode string
-	Address        *place.Address
-}
-
-func readChoosePeopleToNotifyAddressForm(r *http.Request) *choosePeopleToNotifyAddressForm {
-	d := &choosePeopleToNotifyAddressForm{}
-	d.Action = r.PostFormValue("action")
-
-	switch d.Action {
-	case "lookup":
-		d.LookupPostcode = postFormString(r, "lookup-postcode")
-
-	case "select":
-		d.LookupPostcode = postFormString(r, "lookup-postcode")
-		selectAddress := r.PostFormValue("select-address")
-		if selectAddress != "" {
-			d.Address = DecodeAddress(selectAddress)
-		}
-
-	case "manual":
-		d.Address = &place.Address{
-			Line1:      postFormString(r, "address-line-1"),
-			Line2:      postFormString(r, "address-line-2"),
-			Line3:      postFormString(r, "address-line-3"),
-			TownOrCity: postFormString(r, "address-town"),
-			Postcode:   postFormString(r, "address-postcode"),
-		}
-	}
-
-	return d
-}
-
-func (d *choosePeopleToNotifyAddressForm) Validate() validation.List {
-	var errors validation.List
-
-	switch d.Action {
-	case "lookup":
-		if d.LookupPostcode == "" {
-			errors.Add("lookup-postcode", "enterPostcode")
-		}
-
-	case "select":
-		if d.Address == nil {
-			errors.Add("select-address", "selectAddress")
-		}
-
-	case "manual":
-		if d.Address.Line1 == "" {
-			errors.Add("address-line-1", "enterAddress")
-		}
-		if len(d.Address.Line1) > 50 {
-			errors.Add("address-line-1", "addressLine1TooLong")
-		}
-		if len(d.Address.Line2) > 50 {
-			errors.Add("address-line-2", "addressLine2TooLong")
-		}
-		if len(d.Address.Line3) > 50 {
-			errors.Add("address-line-3", "addressLine3TooLong")
-		}
-		if d.Address.TownOrCity == "" {
-			errors.Add("address-town", "enterTownOrCity")
-		}
-	}
-
-	return errors
 }

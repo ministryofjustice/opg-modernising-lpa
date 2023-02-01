@@ -65,9 +65,8 @@ func readRestrictionsForm(r *http.Request) *restrictionsForm {
 func (f *restrictionsForm) Validate() validation.List {
 	var errors validation.List
 
-	if len(f.Restrictions) > 10000 {
-		errors.Add("restrictions", "restrictionsTooLong")
-	}
+	errors.String("restrictions", "restrictions", f.Restrictions,
+		validation.StringTooLong(10000))
 
 	return errors
 }

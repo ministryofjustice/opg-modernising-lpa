@@ -79,7 +79,7 @@ func (f *selectYourIdentityOptionsForm) Validate() validation.List {
 	var errors validation.List
 
 	if f.Selected == IdentityOptionUnknown && !f.None {
-		errors.Add("option", "selectAnIdentityOption")
+		errors.Add("option", validation.SelectError{Label: "fromTheListedOptions"})
 	}
 
 	return errors

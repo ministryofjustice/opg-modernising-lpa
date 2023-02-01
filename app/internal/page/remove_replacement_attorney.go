@@ -37,7 +37,7 @@ func RemoveReplacementAttorney(logger Logger, tmpl template.Template, lpaStore L
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readRemoveAttorneyForm(r)
+			data.Form = readRemoveAttorneyForm(r, "yesToRemoveReplacementAttorney")
 			data.Errors = data.Form.Validate()
 
 			if data.Form.RemoveAttorney == "yes" && data.Errors.None() {
