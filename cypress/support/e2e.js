@@ -21,11 +21,16 @@ import './commands'
 import 'cypress-axe'
 
 export const AddressFormAssertions = {
-    assertCanAddAddressManually(manualAddressLinkText) {
+    assertCanAddAddressManually(manualAddressLinkText, withInvalidPostcode = false) {
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.get('#f-lookup-postcode').type('NG1');
+        if (withInvalidPostcode) {
+            cy.get('#f-lookup-postcode').type('INVALID');
+        } else {
+            cy.get('#f-lookup-postcode').type('NG1');
+        }
+
         cy.contains('button', 'Find address').click();
 
         cy.injectAxe();

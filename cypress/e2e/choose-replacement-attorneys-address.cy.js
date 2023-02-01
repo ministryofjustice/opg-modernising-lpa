@@ -10,8 +10,13 @@ describe('Choose replacement attorneys address', () => {
         cy.url().should('contain', '/choose-replacement-attorneys-summary');
     });
 
-    it('address can be entered manually', () => {
+    it('address can be entered manually if not found', () => {
         AddressFormAssertions.assertCanAddAddressManually('I can’t find their address in the list')
+        cy.url().should('contain', '/choose-replacement-attorneys-summary');
+    });
+
+    it('address can be entered manually on invalid postcode', () => {
+        AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
         cy.url().should('contain', '/choose-replacement-attorneys-summary');
     });
 

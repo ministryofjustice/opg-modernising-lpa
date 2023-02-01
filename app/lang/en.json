@@ -56,9 +56,10 @@
     "errorSelect": "Select {{.Label}}",
     "errorEmail": "{{.Label}} must be in the correct format, like name@example.com",
 
-    "homeAddress": "Home address",
+    "whatIsYourAddress": "What is your address?",
     "postcode": "Postcode",
     "findAddress": "Find address",
+    "enterAddressManually": "Enter address manually",
     "selectAnAddress": "Select an address",
     "cantFindMyAddressInList": "I can’t find my address in the list",
     "cantFindTheirAddressInList": "I can’t find their address in the list",
