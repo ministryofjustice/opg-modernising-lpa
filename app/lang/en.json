@@ -55,7 +55,7 @@
     "errorMobile": "{{.Label}} must be a UK mobile number, like 07700 900 982 or +44 7700 900 982",
     "errorSelect": "Select {{.Label}}",
     "errorEmail": "{{.Label}} must be in the correct format, like name@example.com",
-    
+
     "homeAddress": "Home address",
     "postcode": "Postcode",
     "findAddress": "Find address",
@@ -73,6 +73,7 @@
     "addressLine3Label": "Address line 3",
     "townOrCity": "Town or city",
     "couldNotLookupPostcode": "Could not lookup postcode",
+    "ukPostcode": "UK postcode",
 
     "whoIsThisLpaFor": "Who is this LPA for?",
     "whoTheLpaIsFor": "who the LPA is for",
@@ -246,8 +247,6 @@
     "idVerifiedTag": "ID Verified",
     "lpaDecisions": "LPA decisions",
     "typeOfLpa": "Type of LPA",
-    "WhenTheLpaCanBeUsed": "When the LPA can be used",
-    "whenTheLpaCanBeUsed": "when the LPA can be used",
     "whoAreTheAttorneys": {
         "one": "Who is your attorney",
         "other": "Who are your attorneys"
@@ -334,7 +333,7 @@
     "iDoNotHaveAnyOfTheseTypesOfIdentity": "I do not have any of these types of identity",
     "weWillAdviseOnOtherWays": "We will advise on other ways you can confirm your identity",
     "fromTheListedOptions": "from the listed options",
-    
+
     "yourChosenIdentityOptions": "Your chosen identity options",
     "yourChosenIdentityOptionsContent": "You told us that you have the following things to confirm your identity:",
     "whenYouAreReadyToCompleteTheIdentityConfirmationChecks": "When you are ready to complete the identity confirmation checks, please press continue.",

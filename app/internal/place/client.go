@@ -10,6 +10,7 @@ import (
 )
 
 const postcodeEndpoint = "/search/places/v1/postcode?"
+const invalidPostcodeCode = 400
 
 type Doer interface {
 	Do(*http.Request) (*http.Response, error)
@@ -33,11 +34,21 @@ type addressDetails struct {
 }
 
 type postcodeLookupResponse struct {
-	Results []ResultSet `json:"results"`
+	Results []ResultSet   `json:"results"`
+	Error   NotFoundError `json:"error"`
 }
 
 type ResultSet struct {
 	AddressDetails addressDetails `json:"DPA"`
+}
+
+type NotFoundError struct {
+	Statuscode int    `json:"statuscode,omitempty"`
+	Message    string `json:"message,omitempty"`
+}
+
+func (n NotFoundError) Error() string {
+	return n.Message
 }
 
 func NewClient(baseUrl, apiKey string, httpClient Doer) *Client {
@@ -76,6 +87,10 @@ func (c *Client) LookupPostcode(ctx context.Context, postcode string) ([]Address
 
 	if err := json.NewDecoder(resp.Body).Decode(&postcodeLookupResponse); err != nil {
 		return []Address{}, err
+	}
+
+	if postcodeLookupResponse.Error.Statuscode == invalidPostcodeCode {
+		return []Address{}, postcodeLookupResponse.Error
 	}
 
 	var addresses []Address

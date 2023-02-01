@@ -1,6 +1,7 @@
 package page
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -64,7 +65,13 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 				addresses, err := addressClient.LookupPostcode(r.Context(), data.Form.LookupPostcode)
 				if err != nil {
 					logger.Print(err)
-					data.Errors.Add("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"})
+
+					if errors.As(err, &place.NotFoundError{}) {
+						data.Errors.Add("lookup-postcode", validation.CustomError{Label: "enterUkPostCode"})
+					} else {
+						data.Errors.Add("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"})
+
+					}
 				}
 
 				data.Addresses = addresses
