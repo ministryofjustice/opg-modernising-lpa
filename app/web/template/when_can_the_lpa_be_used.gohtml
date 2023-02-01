@@ -1,11 +1,11 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "whenCanTheLpaBeUsed" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "whenCanYourAttorneysUseYourLpa" }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "whenCanTheLpaBeUsed" }}</h1>
+      <h1 class="govuk-heading-xl">{{ tr .App "whenCanYourAttorneysUseYourLpa" }}</h1>
 
       <form novalidate method="post">
         {{ trHtml .App "youCanDecideHeader" }}

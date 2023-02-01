@@ -161,8 +161,8 @@
     "replacementAttorneys": "Replacement attorneys",
     "replacementAttorney": "Replacement attorney",
 
-    "whenCanTheLpaBeUsed": "When can your attorneys use your LPA",
-    "whenTheLpaCanBeUsed": "when the LPA can be used",
+    "whenCanYourAttorneysUseYourLpa": "When can your attorneys use your LPA",
+    "whenYourAttorneysCanUseYourLpa": "when your attorneys can use your LPA",
     "youCanDecideHeader": "<p class=\"govuk-body-l\">You can decide whether you want your attorney to be able to use the LPA as soon as it’s registered or only if you lose mental capacity.</p>",
     "asSoonAsRegisteredTitle": "<h2 class=\"govuk-heading-m\">As soon as the LPA is registered</h2>",
     "asSoonAsRegisteredIntro": {
