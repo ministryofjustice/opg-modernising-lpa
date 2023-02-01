@@ -96,7 +96,7 @@ func TestAddressFormValidate(t *testing.T) {
 			form: &addressForm{
 				Action: "lookup",
 			},
-			errors: validation.With("lookup-postcode", validation.EnterError{Label: "postcode"}),
+			errors: validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
 		},
 		"select valid": {
 			form: &addressForm{
@@ -109,7 +109,7 @@ func TestAddressFormValidate(t *testing.T) {
 				Action:  "select",
 				Address: nil,
 			},
-			errors: validation.With("select-address", validation.SelectError{Label: "address"}),
+			errors: validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 		},
 		"manual valid": {
 			form: &addressForm{
@@ -117,6 +117,7 @@ func TestAddressFormValidate(t *testing.T) {
 				Address: &place.Address{
 					Line1:      "a",
 					TownOrCity: "b",
+					Postcode:   "c",
 				},
 			},
 		},
@@ -127,7 +128,8 @@ func TestAddressFormValidate(t *testing.T) {
 			},
 			errors: validation.
 				With("address-line-1", validation.EnterError{Label: "addressLine1"}).
-				With("address-town", validation.EnterError{Label: "townOrCity"}),
+				With("address-town", validation.EnterError{Label: "townOrCity"}).
+				With("address-postcode", validation.EnterError{Label: "aPostcode"}),
 		},
 		"manual max length": {
 			form: &addressForm{

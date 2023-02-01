@@ -80,6 +80,26 @@ func TestLookupPostcode(t *testing.T) {
 		})
 	}
 
+	t.Run("returns InvalidPostcodeError on invalid postcode", func(t *testing.T) {
+		invalidPostcodeJson, _ := os.ReadFile("testdata/invalid-postcode-error.json")
+
+		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+			rw.WriteHeader(http.StatusBadRequest)
+			rw.Write(invalidPostcodeJson)
+		}))
+
+		defer server.Close()
+
+		client := NewClient(server.URL, "fake-api-key", server.Client())
+		results, err := client.LookupPostcode(ctx, "ABC123")
+
+		assert.Equal(t, []Address{}, results)
+		assert.Equal(t, InvalidPostcodeError{
+			Statuscode: 400,
+			Message:    "Requested postcode must contain a minimum of the sector plus 1 digit of the district e.g. SO1. Requested postcode was ABC123",
+		}, err)
+	})
+
 	t.Run("returns an error on request initialisation errors", func(t *testing.T) {
 		client := NewClient("not an url", "fake-api-key", http.DefaultClient)
 		_, err := client.LookupPostcode(ctx, "ABC")
