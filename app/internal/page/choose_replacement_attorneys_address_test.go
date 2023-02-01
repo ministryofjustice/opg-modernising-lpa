@@ -313,7 +313,7 @@ func TestPostChooseReplacementAttorneysAddressManualWhenValidationError(t *testi
 				Action:  "manual",
 				Address: invalidAddress,
 			},
-			Errors: validation.With("address-line-1", "enterAddress"),
+			Errors: validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
 		}).
 		Return(nil)
 
@@ -421,7 +421,7 @@ func TestPostChooseReplacementAttorneysAddressSelectWhenValidationError(t *testi
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
-			Errors:    validation.With("select-address", "selectAddress"),
+			Errors:    validation.With("select-address", validation.AddressSelectedError{Label: "address"}),
 		}).
 		Return(nil)
 
@@ -522,7 +522,7 @@ func TestPostChooseReplacementAttorneysAddressLookupError(t *testing.T) {
 				LookupPostcode: "NG1",
 			},
 			Addresses: []place.Address{},
-			Errors:    validation.With("lookup-postcode", "couldNotLookupPostcode"),
+			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
 		}).
 		Return(nil)
 
@@ -561,7 +561,7 @@ func TestPostChooseReplacementAttorneysAddressLookupWhenValidationError(t *testi
 			Form: &chooseAttorneysAddressForm{
 				Action: "lookup",
 			},
-			Errors: validation.With("lookup-postcode", "enterPostcode"),
+			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "postcode"}),
 		}).
 		Return(nil)
 

@@ -208,7 +208,7 @@ func TestPostRestrictionsWhenValidationErrors(t *testing.T) {
 	template.
 		On("Func", w, &restrictionsData{
 			App:    appData,
-			Errors: validation.With("restrictions", "restrictionsTooLong"),
+			Errors: validation.With("restrictions", validation.StringTooLongError{Label: "restrictions", Length: 10000}),
 			Lpa:    &Lpa{},
 		}).
 		Return(nil)
@@ -250,7 +250,7 @@ func TestRestrictionsFormValidate(t *testing.T) {
 			form: &restrictionsForm{
 				Restrictions: random.String(10001),
 			},
-			errors: validation.With("restrictions", "restrictionsTooLong"),
+			errors: validation.With("restrictions", validation.StringTooLongError{Label: "restrictions", Length: 10000}),
 		},
 		"missing": {
 			form: &restrictionsForm{},

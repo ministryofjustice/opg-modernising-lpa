@@ -248,7 +248,7 @@ func TestRemoveReplacementAttorneyFormValidation(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&Lpa{ReplacementAttorneys: []Attorney{attorneyWithoutAddress}}, nil)
 
-	validationError := validation.With("remove-attorney", "selectRemoveAttorney")
+	validationError := validation.With("remove-attorney", validation.SelectError{Label: "yesToRemoveReplacementAttorney"})
 
 	template := &mockTemplate{}
 	template.

@@ -30,7 +30,7 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readChooseAttorneysSummaryForm(r)
+			data.Form = readChooseAttorneysSummaryForm(r, "yesToAddAnotherReplacementAttorney")
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
