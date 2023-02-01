@@ -124,7 +124,7 @@ func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
-	validationError := validation.With("add-person-to-notify", "selectAddMorePeopleToNotify")
+	validationError := validation.With("add-person-to-notify", validation.SelectError{Label: "yesToAddAnotherPersonToNotify"})
 
 	template := &mockTemplate{}
 	template.
@@ -158,13 +158,13 @@ func TestChoosePeopleToNotifySummaryFormValidate(t *testing.T) {
 		},
 		"missing": {
 			form:   &choosePeopleToNotifySummaryForm{},
-			errors: validation.With("add-person-to-notify", "selectAddMorePeopleToNotify"),
+			errors: validation.With("add-person-to-notify", validation.SelectError{Label: "yesToAddAnotherPersonToNotify"}),
 		},
 		"invalid": {
 			form: &choosePeopleToNotifySummaryForm{
 				AddPersonToNotify: "what",
 			},
-			errors: validation.With("add-person-to-notify", "selectAddMorePeopleToNotify"),
+			errors: validation.With("add-person-to-notify", validation.SelectError{Label: "yesToAddAnotherPersonToNotify"}),
 		},
 	}
 
