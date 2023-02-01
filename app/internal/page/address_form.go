@@ -46,11 +46,11 @@ func (f *addressForm) Validate() validation.List {
 
 	switch f.Action {
 	case "lookup":
-		errors.String("lookup-postcode", "postcode", f.LookupPostcode,
+		errors.String("lookup-postcode", "aPostcode", f.LookupPostcode,
 			validation.Empty())
 
 	case "select":
-		errors.Address("select-address", "address", f.Address,
+		errors.Address("select-address", "anAddressFromTheList", f.Address,
 			validation.Selected())
 
 	case "manual":
@@ -62,6 +62,8 @@ func (f *addressForm) Validate() validation.List {
 		errors.String("address-line-3", "addressLine3Label", f.Address.Line3,
 			validation.StringTooLong(50))
 		errors.String("address-town", "townOrCity", f.Address.TownOrCity,
+			validation.Empty())
+		errors.String("address-postcode", "aPostcode", f.Address.Postcode,
 			validation.Empty())
 	}
 
