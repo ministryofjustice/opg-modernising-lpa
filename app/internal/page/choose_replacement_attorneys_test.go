@@ -338,7 +338,7 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 				"date-of-birth-year":  {"1990"},
 			},
 			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
-				return assert.Equal(t, validation.With("first-names", "enterFirstNames"), data.Errors)
+				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
 			},
 		},
 		"dob warning": {

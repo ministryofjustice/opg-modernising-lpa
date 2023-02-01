@@ -178,7 +178,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderWhenValidationErrors(t *testi
 	template.
 		On("Func", w, &howLongHaveYouKnownCertificateProviderData{
 			App:    appData,
-			Errors: validation.With("how-long", "selectHowLongHaveYouKnownCertificateProvider"),
+			Errors: validation.With("how-long", validation.SelectError{Label: "howLongYouHaveKnownCertificateProvider"}),
 		}).
 		Return(nil)
 
@@ -217,17 +217,17 @@ func TestHowLongHaveYouKnownCertificateProviderFormValidate(t *testing.T) {
 			form: &howLongHaveYouKnownCertificateProviderForm{
 				HowLong: "lt-2-years",
 			},
-			errors: validation.With("how-long", "mustHaveKnownCertificateProviderTwoYears"),
+			errors: validation.With("how-long", validation.CustomError{Label: "mustHaveKnownCertificateProviderTwoYears"}),
 		},
 		"missing": {
 			form:   &howLongHaveYouKnownCertificateProviderForm{},
-			errors: validation.With("how-long", "selectHowLongHaveYouKnownCertificateProvider"),
+			errors: validation.With("how-long", validation.SelectError{Label: "howLongYouHaveKnownCertificateProvider"}),
 		},
 		"invalid": {
 			form: &howLongHaveYouKnownCertificateProviderForm{
 				HowLong: "what",
 			},
-			errors: validation.With("how-long", "selectHowLongHaveYouKnownCertificateProvider"),
+			errors: validation.With("how-long", validation.SelectError{Label: "howLongYouHaveKnownCertificateProvider"}),
 		},
 	}
 

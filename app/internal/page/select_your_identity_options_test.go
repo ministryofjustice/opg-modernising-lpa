@@ -203,7 +203,7 @@ func TestPostSelectYourIdentityOptionsWhenValidationErrors(t *testing.T) {
 		On("Func", w, &selectYourIdentityOptionsData{
 			App:    appData,
 			Form:   &selectYourIdentityOptionsForm{},
-			Errors: validation.With("option", "selectAnIdentityOption"),
+			Errors: validation.With("option", validation.SelectError{Label: "fromTheListedOptions"}),
 		}).
 		Return(nil)
 
@@ -247,13 +247,13 @@ func TestSelectYourIdentityOptionsFormValidate(t *testing.T) {
 		},
 		"missing": {
 			form:   &selectYourIdentityOptionsForm{},
-			errors: validation.With("option", "selectAnIdentityOption"),
+			errors: validation.With("option", validation.SelectError{Label: "fromTheListedOptions"}),
 		},
 		"invalid": {
 			form: &selectYourIdentityOptionsForm{
 				Selected: IdentityOptionUnknown,
 			},
-			errors: validation.With("option", "selectAnIdentityOption"),
+			errors: validation.With("option", validation.SelectError{Label: "fromTheListedOptions"}),
 		},
 	}
 
