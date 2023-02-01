@@ -171,7 +171,7 @@ func TestPostCheckYourLpaWhenValidationErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, mock.MatchedBy(func(data *checkYourLpaData) bool {
-			return assert.Equal(t, validation.With("happy", "selectHappyToShareLpa"), data.Errors)
+			return assert.Equal(t, validation.With("happy", validation.SelectError{Label: "happyToShareLpa"}), data.Errors)
 		})).
 		Return(nil)
 
@@ -217,8 +217,8 @@ func TestCheckYourLpaFormValidate(t *testing.T) {
 				Checked: false,
 			},
 			errors: validation.
-				With("checked", "selectCheckedLpa").
-				With("happy", "selectHappyToShareLpa"),
+				With("checked", validation.SelectError{Label: "checkedLpa"}).
+				With("happy", validation.SelectError{Label: "happyToShareLpa"}),
 		},
 	}
 

@@ -56,9 +56,8 @@ func readWhoIsTheLpaForForm(r *http.Request) *whoIsTheLpaForForm {
 func (f *whoIsTheLpaForForm) Validate() validation.List {
 	var errors validation.List
 
-	if f.WhoFor != "me" && f.WhoFor != "someone-else" {
-		errors.Add("who-for", "selectWhoFor")
-	}
+	errors.String("who-for", "whoTheLpaIsFor", f.WhoFor,
+		validation.Select("me", "someone-else"))
 
 	return errors
 }
