@@ -12,9 +12,17 @@
 
         {{ trHtml .App "wantPeopleToNotifyContent" }}
 
-                {{ $lpaType := tr .App .Lpa.TypeLegalTermTransKey }}
-                {{ $howWorkTogether := tr .App .HowWorkTogether }}
-                {{ trFormatHtml .App "weWillOnlyTellThemBullets" "LpaType" $lpaType "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames "HowAttorneysWorkTogether" $howWorkTogether}}
+        {{ $lpaType := tr .App .Lpa.TypeLegalTermTransKey }}
+
+        <p class="govuk-body">{{ tr .App "weWillOnlyTellThem" }}</p>
+        <ul class="govuk-list govuk-list--bullet">
+          <li>{{trFormat .App "thatYouHaveMadeALpaType" "LpaType" $lpaType }}</li>
+          <li>{{ trFormatCount .App "thatYourAttorneysAre" (len .Lpa.Attorneys) "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}</li>
+          {{ if gt (len .Lpa.Attorneys) 1 }}
+            <li>{{ tr .App .HowWorkTogether }}</li>
+          {{ end }}
+          <li>{{ tr .App "whatToDoIfYouHaveConcerns" }}</li>
+        </ul>
 
         {{ trHtml .App "findOutMoreAboutPeopleToNotifyLink" }}
 
