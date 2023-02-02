@@ -32,7 +32,7 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 		}
 
 		if !lpa.CertificateProvider.DateOfBirth.IsZero() {
-			data.Form.Dob = date.Read(lpa.CertificateProvider.DateOfBirth)
+			data.Form.Dob = lpa.CertificateProvider.DateOfBirth
 		}
 
 		if r.Method == http.MethodPost {
@@ -42,7 +42,7 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 			if data.Errors.None() {
 				lpa.CertificateProvider.FirstNames = data.Form.FirstNames
 				lpa.CertificateProvider.LastName = data.Form.LastName
-				lpa.CertificateProvider.DateOfBirth = data.Form.Dob.T
+				lpa.CertificateProvider.DateOfBirth = data.Form.Dob
 				lpa.CertificateProvider.Mobile = data.Form.Mobile
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
@@ -68,7 +68,7 @@ func readCertificateProviderDetailsForm(r *http.Request) *certificateProviderDet
 	d := &certificateProviderDetailsForm{}
 	d.FirstNames = postFormString(r, "first-names")
 	d.LastName = postFormString(r, "last-name")
-	d.Dob = date.FromParts(
+	d.Dob = date.New(
 		postFormString(r, "date-of-birth-year"),
 		postFormString(r, "date-of-birth-month"),
 		postFormString(r, "date-of-birth-day"))

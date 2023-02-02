@@ -3,7 +3,6 @@ package page
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -43,7 +42,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 		}
 
 		if !attorney.DateOfBirth.IsZero() {
-			data.Form.Dob = date.Read(attorney.DateOfBirth)
+			data.Form.Dob = attorney.DateOfBirth
 		}
 
 		if r.Method == http.MethodPost {
@@ -61,7 +60,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 						FirstNames:  data.Form.FirstNames,
 						LastName:    data.Form.LastName,
 						Email:       data.Form.Email,
-						DateOfBirth: data.Form.Dob.T,
+						DateOfBirth: data.Form.Dob,
 						ID:          randomString(8),
 					}
 
@@ -70,7 +69,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 					attorney.FirstNames = data.Form.FirstNames
 					attorney.LastName = data.Form.LastName
 					attorney.Email = data.Form.Email
-					attorney.DateOfBirth = data.Form.Dob.T
+					attorney.DateOfBirth = data.Form.Dob
 
 					lpa.PutAttorney(attorney)
 				}
@@ -109,7 +108,7 @@ func readChooseAttorneysForm(r *http.Request) *chooseAttorneysForm {
 	d.FirstNames = postFormString(r, "first-names")
 	d.LastName = postFormString(r, "last-name")
 	d.Email = postFormString(r, "email")
-	d.Dob = date.FromParts(
+	d.Dob = date.New(
 		postFormString(r, "date-of-birth-year"),
 		postFormString(r, "date-of-birth-month"),
 		postFormString(r, "date-of-birth-day"))
@@ -144,16 +143,16 @@ func (f *chooseAttorneysForm) Validate() validation.List {
 
 func (d *chooseAttorneysForm) DobWarning() string {
 	var (
-		today                = time.Now().UTC().Round(24 * time.Hour)
+		today                = date.Today()
 		hundredYearsEarlier  = today.AddDate(-100, 0, 0)
 		eighteenYearsEarlier = today.AddDate(-18, 0, 0)
 	)
 
-	if !d.Dob.T.IsZero() {
-		if d.Dob.T.Before(hundredYearsEarlier) {
+	if !d.Dob.IsZero() {
+		if d.Dob.Before(hundredYearsEarlier) {
 			return "dateOfBirthIsOver100"
 		}
-		if d.Dob.T.Before(today) && d.Dob.T.After(eighteenYearsEarlier) {
+		if d.Dob.Before(today) && d.Dob.After(eighteenYearsEarlier) {
 			return "attorneyDateOfBirthIsUnder18"
 		}
 	}

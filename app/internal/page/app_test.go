@@ -12,6 +12,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -530,7 +531,7 @@ func TestTestingStart(t *testing.T) {
 						FirstNames:  "John",
 						LastName:    "Smith",
 						Email:       "John@example.org",
-						DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+						DateOfBirth: date.New("2000", "1", "2"),
 						Address: place.Address{
 							Line1:      "2 RICHMOND PLACE",
 							Line2:      "KINGS HEATH",
@@ -565,7 +566,7 @@ func TestTestingStart(t *testing.T) {
 				FirstNames:  "John",
 				LastName:    "Smith",
 				Email:       "John@example.org",
-				DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				DateOfBirth: date.New("2000", "1", "2"),
 				Address: place.Address{
 					Line1:      "2 RICHMOND PLACE",
 					Line2:      "KINGS HEATH",
@@ -579,7 +580,7 @@ func TestTestingStart(t *testing.T) {
 				FirstNames:  "Joan",
 				LastName:    "Smith",
 				Email:       "Joan@example.org",
-				DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				DateOfBirth: date.New("2000", "1", "2"),
 				Address:     place.Address{},
 			},
 		}
@@ -633,7 +634,7 @@ func TestTestingStart(t *testing.T) {
 				FirstNames:  "John",
 				LastName:    "Smith",
 				Email:       "John@example.org",
-				DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				DateOfBirth: date.New("2000", "1", "2"),
 				Address: place.Address{
 					Line1:      "2 RICHMOND PLACE",
 					Line2:      "KINGS HEATH",
@@ -647,7 +648,7 @@ func TestTestingStart(t *testing.T) {
 				FirstNames:  "Joan",
 				LastName:    "Smith",
 				Email:       "Joan@example.org",
-				DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				DateOfBirth: date.New("2000", "1", "2"),
 				Address: place.Address{
 					Line1:      "2 RICHMOND PLACE",
 					Line2:      "KINGS HEATH",
@@ -760,7 +761,7 @@ func TestTestingStart(t *testing.T) {
 					LastName:                "Smith",
 					Email:                   "Barbara@example.org",
 					Mobile:                  "07535111111",
-					DateOfBirth:             time.Date(1997, time.January, 2, 3, 4, 5, 6, time.UTC),
+					DateOfBirth:             date.New("1997", "1", "2"),
 					Relationship:            "friend",
 					RelationshipDescription: "",
 					RelationshipLength:      "gte-2-years",
@@ -808,7 +809,7 @@ func TestTestingStart(t *testing.T) {
 						Postcode:   "B14 7ED",
 					},
 					Email:       "simulate-delivered@notifications.service.gov.uk",
-					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+					DateOfBirth: date.New("2000", "1", "2"),
 				},
 				WhoFor: "me",
 				Type:   LpaTypePropertyFinance,
@@ -860,7 +861,7 @@ func TestTestingStart(t *testing.T) {
 							Postcode:   "B14 7ED",
 						},
 						Email:       "Jane@example.org",
-						DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+						DateOfBirth: date.New("2000", "1", "2"),
 						ID:          "JaneSmith",
 					},
 					{
@@ -874,7 +875,7 @@ func TestTestingStart(t *testing.T) {
 							Postcode:   "B14 7ED",
 						},
 						Email:       "Jorge@example.org",
-						DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+						DateOfBirth: date.New("2000", "1", "2"),
 						ID:          "JorgeSmith",
 					},
 				},
@@ -1168,7 +1169,7 @@ func TestTestingStart(t *testing.T) {
 							Postcode:   "B14 7ED",
 						},
 						Email:       "Jane@example.org",
-						DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+						DateOfBirth: date.New("2000", "1", "2"),
 						ID:          "JaneSmith",
 					},
 					{
@@ -1182,7 +1183,7 @@ func TestTestingStart(t *testing.T) {
 							Postcode:   "B14 7ED",
 						},
 						Email:       "Jorge@example.org",
-						DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+						DateOfBirth: date.New("2000", "1", "2"),
 						ID:          "JorgeSmith",
 					},
 				},
@@ -1197,7 +1198,7 @@ func TestTestingStart(t *testing.T) {
 						Postcode:   "B14 7ED",
 					},
 					Email:       "simulate-delivered@notifications.service.gov.uk",
-					DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+					DateOfBirth: date.New("2000", "1", "2"),
 				},
 				WhoFor: "me",
 				Type:   LpaTypePropertyFinance,
@@ -1206,7 +1207,7 @@ func TestTestingStart(t *testing.T) {
 					LastName:                "Smith",
 					Email:                   "Barbara@example.org",
 					Mobile:                  "07535111111",
-					DateOfBirth:             time.Date(1997, time.January, 2, 3, 4, 5, 6, time.UTC),
+					DateOfBirth:             date.New("1997", "1", "2"),
 					Relationship:            "friend",
 					RelationshipDescription: "",
 					RelationshipLength:      "gte-2-years",
@@ -1217,7 +1218,7 @@ func TestTestingStart(t *testing.T) {
 						FirstNames:  "John",
 						LastName:    "Smith",
 						Email:       "John@example.org",
-						DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+						DateOfBirth: date.New("2000", "1", "2"),
 						Address: place.Address{
 							Line1:      "2 RICHMOND PLACE",
 							Line2:      "KINGS HEATH",
@@ -1231,7 +1232,7 @@ func TestTestingStart(t *testing.T) {
 						FirstNames:  "Joan",
 						LastName:    "Smith",
 						Email:       "Joan@example.org",
-						DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+						DateOfBirth: date.New("2000", "1", "2"),
 						Address: place.Address{
 							Line1:      "2 RICHMOND PLACE",
 							Line2:      "KINGS HEATH",
