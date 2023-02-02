@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -18,7 +18,7 @@ var validAttorney = Attorney{
 	Address:     address,
 	FirstNames:  "Joan",
 	LastName:    "Jones",
-	DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+	DateOfBirth: date.New("2000", "1", "2"),
 }
 
 var validPersonToNotify = PersonToNotify{
