@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 
@@ -108,6 +109,8 @@ func TestGetChooseReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
+	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
+
 	testCases := map[string]struct {
 		form     url.Values
 		attorney Attorney
@@ -119,13 +122,13 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				"email":               {"john@example.com"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {strconv.Itoa(time.Now().Year() - 40)},
+				"date-of-birth-year":  {validBirthYear},
 			},
 			attorney: Attorney{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "john@example.com",
-				DateOfBirth: time.Date(time.Now().Year()-40, time.January, 2, 0, 0, 0, 0, time.UTC),
+				DateOfBirth: date.New(validBirthYear, "1", "2"),
 				ID:          "123",
 			},
 		},
@@ -143,7 +146,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "john@example.com",
-				DateOfBirth: time.Date(1900, time.January, 2, 0, 0, 0, 0, time.UTC),
+				DateOfBirth: date.New("1900", "1", "2"),
 				ID:          "123",
 			},
 		},
@@ -178,6 +181,8 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 }
 
 func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
+	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
+
 	testCases := map[string]struct {
 		form     url.Values
 		attorney Attorney
@@ -189,13 +194,13 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				"email":               {"john@example.com"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {strconv.Itoa(time.Now().Year() - 40)},
+				"date-of-birth-year":  {validBirthYear},
 			},
 			attorney: Attorney{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "john@example.com",
-				DateOfBirth: time.Date(time.Now().Year()-40, time.January, 2, 0, 0, 0, 0, time.UTC),
+				DateOfBirth: date.New(validBirthYear, "1", "2"),
 				Address:     place.Address{Line1: "abc"},
 				ID:          "123",
 			},
@@ -214,7 +219,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "john@example.com",
-				DateOfBirth: time.Date(1900, time.January, 2, 0, 0, 0, 0, time.UTC),
+				DateOfBirth: date.New("1900", "1", "2"),
 				Address:     place.Address{Line1: "abc"},
 				ID:          "123",
 			},
@@ -306,7 +311,7 @@ func TestPostChooseReplacementAttorneysFromAnotherPage(t *testing.T) {
 							FirstNames:  "John",
 							LastName:    "Doe",
 							Email:       "john@example.com",
-							DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+							DateOfBirth: date.New("1990", "1", "2"),
 							Address:     place.Address{Line1: "abc"},
 						},
 					},

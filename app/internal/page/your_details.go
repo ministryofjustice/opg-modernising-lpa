@@ -3,7 +3,6 @@ package page
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -35,7 +34,7 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 		}
 
 		if !lpa.You.DateOfBirth.IsZero() {
-			data.Form.Dob = date.Read(lpa.You.DateOfBirth)
+			data.Form.Dob = lpa.You.DateOfBirth
 		}
 
 		if r.Method == http.MethodPost {
@@ -61,7 +60,7 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 				lpa.You.FirstNames = data.Form.FirstNames
 				lpa.You.LastName = data.Form.LastName
 				lpa.You.OtherNames = data.Form.OtherNames
-				lpa.You.DateOfBirth = data.Form.Dob.T
+				lpa.You.DateOfBirth = data.Form.Dob
 				lpa.You.Email = email
 				lpa.Tasks.YourDetails = TaskInProgress
 
@@ -92,7 +91,7 @@ func readYourDetailsForm(r *http.Request) *yourDetailsForm {
 	d.LastName = postFormString(r, "last-name")
 	d.OtherNames = postFormString(r, "other-names")
 
-	d.Dob = date.FromParts(
+	d.Dob = date.New(
 		postFormString(r, "date-of-birth-year"),
 		postFormString(r, "date-of-birth-month"),
 		postFormString(r, "date-of-birth-day"))
@@ -126,16 +125,16 @@ func (f *yourDetailsForm) Validate() validation.List {
 
 func (f *yourDetailsForm) DobWarning() string {
 	var (
-		today                = time.Now().UTC().Round(24 * time.Hour)
+		today                = date.Today()
 		hundredYearsEarlier  = today.AddDate(-100, 0, 0)
 		eighteenYearsEarlier = today.AddDate(-18, 0, 0)
 	)
 
-	if !f.Dob.T.IsZero() {
-		if f.Dob.T.Before(hundredYearsEarlier) {
+	if !f.Dob.IsZero() {
+		if f.Dob.Before(hundredYearsEarlier) {
 			return "dateOfBirthIsOver100"
 		}
-		if f.Dob.T.Before(today) && f.Dob.T.After(eighteenYearsEarlier) {
+		if f.Dob.Before(today) && f.Dob.After(eighteenYearsEarlier) {
 			return "dateOfBirthIsUnder18"
 		}
 	}

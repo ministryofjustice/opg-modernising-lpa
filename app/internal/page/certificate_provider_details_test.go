@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -140,7 +139,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Mobile:      "07535111111",
-				DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+				DateOfBirth: date.New("1990", "1", "2"),
 			},
 		}).
 		Return(nil)
@@ -234,15 +233,14 @@ func TestReadCertificateProviderDetailsForm(t *testing.T) {
 
 	assert.Equal("John", result.FirstNames)
 	assert.Equal("Doe", result.LastName)
-	assert.Equal("2", result.Dob.Day)
-	assert.Equal("1", result.Dob.Month)
-	assert.Equal("1990", result.Dob.Year)
 	assert.Equal("07535111111", result.Mobile)
-	assert.Equal(time.Date(1990, 1, 2, 0, 0, 0, 0, time.UTC), result.Dob.T)
-	assert.Nil(result.Dob.Err)
+	assert.Equal(date.New("1990", "1", "2"), result.Dob)
 }
 
 func TestCertificateProviderDetailsFormValidate(t *testing.T) {
+	now := date.Today()
+	validDob := now.AddDate(-18, 0, -1)
+
 	testCases := map[string]struct {
 		form   *certificateProviderDetailsForm
 		errors validation.List
@@ -252,11 +250,7 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 				FirstNames: "A",
 				LastName:   "B",
 				Mobile:     "07535111111",
-				Dob: date.Date{
-					Day:   "C",
-					Month: "D",
-					Year:  "E",
-				},
+				Dob:        validDob,
 			},
 		},
 		"missing-all": {
@@ -272,12 +266,7 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 				FirstNames: "A",
 				LastName:   "B",
 				Mobile:     "07535111111",
-				Dob: date.Date{
-					Day:   "1",
-					Month: "1",
-					Year:  "1",
-					Err:   expectedError,
-				},
+				Dob:        date.New("2000", "22", "2"),
 			},
 			errors: validation.With("date-of-birth", validation.DateMustBeRealError{Label: "dateOfBirth"}),
 		},
@@ -286,11 +275,7 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 				FirstNames: "A",
 				LastName:   "B",
 				Mobile:     "07535111111",
-				Dob: date.Date{
-					Day:  "1",
-					Year: "1",
-					Err:  expectedError,
-				},
+				Dob:        date.New("2000", "", "1"),
 			},
 			errors: validation.With("date-of-birth", validation.DateMissingError{Label: "dateOfBirth", MissingMonth: true}),
 		},
@@ -299,11 +284,7 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 				FirstNames: "A",
 				LastName:   "B",
 				Mobile:     "0753511111",
-				Dob: date.Date{
-					Day:   "C",
-					Month: "D",
-					Year:  "E",
-				},
+				Dob:        validDob,
 			},
 			errors: validation.With("mobile", validation.MobileError{Label: "mobile"}),
 		},
@@ -320,11 +301,7 @@ func TestUkMobileFormatValidation(t *testing.T) {
 	form := &certificateProviderDetailsForm{
 		FirstNames: "A",
 		LastName:   "B",
-		Dob: date.Date{
-			Day:   "C",
-			Month: "D",
-			Year:  "E",
-		},
+		Dob:        date.Today().AddDate(-18, 0, -1),
 	}
 
 	testCases := map[string]struct {

@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -40,7 +39,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 		}
 
 		if !ra.DateOfBirth.IsZero() {
-			data.Form.Dob = date.Read(ra.DateOfBirth)
+			data.Form.Dob = ra.DateOfBirth
 		}
 
 		if r.Method == http.MethodPost {
@@ -58,7 +57,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 						FirstNames:  data.Form.FirstNames,
 						LastName:    data.Form.LastName,
 						Email:       data.Form.Email,
-						DateOfBirth: data.Form.Dob.T,
+						DateOfBirth: data.Form.Dob,
 						ID:          randomString(8),
 					}
 
@@ -67,7 +66,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 					ra.FirstNames = data.Form.FirstNames
 					ra.LastName = data.Form.LastName
 					ra.Email = data.Form.Email
-					ra.DateOfBirth = data.Form.Dob.T
+					ra.DateOfBirth = data.Form.Dob
 
 					lpa.PutReplacementAttorney(ra)
 				}

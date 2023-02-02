@@ -1,8 +1,7 @@
 package page
 
 import (
-	"time"
-
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
@@ -18,7 +17,7 @@ func MakePerson() Person {
 			Postcode:   "B14 7ED",
 		},
 		Email:       "simulate-delivered@notifications.service.gov.uk",
-		DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+		DateOfBirth: date.New("2000", "1", "2"),
 	}
 }
 
@@ -28,7 +27,7 @@ func MakeAttorney(firstNames string) Attorney {
 		FirstNames:  firstNames,
 		LastName:    "Smith",
 		Email:       firstNames + "@example.org",
-		DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+		DateOfBirth: date.New("2000", "1", "2"),
 		Address: place.Address{
 			Line1:      "2 RICHMOND PLACE",
 			Line2:      "KINGS HEATH",
@@ -61,7 +60,7 @@ func MakeCertificateProvider(firstNames string) CertificateProvider {
 		LastName:                "Smith",
 		Email:                   firstNames + "@example.org",
 		Mobile:                  "07535111111",
-		DateOfBirth:             time.Date(1997, time.January, 2, 3, 4, 5, 6, time.UTC),
+		DateOfBirth:             date.New("1997", "1", "2"),
 		Relationship:            "friend",
 		RelationshipDescription: "",
 		RelationshipLength:      "gte-2-years",
