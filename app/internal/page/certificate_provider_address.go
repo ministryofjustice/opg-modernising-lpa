@@ -72,6 +72,8 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 						data.Errors.Add("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"})
 					}
 				} else if len(addresses) == 0 {
+					logger.Print("No addresses found for " + data.Form.LookupPostcode)
+
 					data.Errors.Add("lookup-postcode", validation.CustomError{Label: "noAddressesFound"})
 				}
 
