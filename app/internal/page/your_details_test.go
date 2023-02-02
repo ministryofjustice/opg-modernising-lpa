@@ -116,6 +116,8 @@ func TestGetYourDetailsWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostYourDetails(t *testing.T) {
+	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
+
 	testCases := map[string]struct {
 		form   url.Values
 		person Person
@@ -126,12 +128,12 @@ func TestPostYourDetails(t *testing.T) {
 				"last-name":           {"Doe"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {strconv.Itoa(time.Now().Year() - 40)},
+				"date-of-birth-year":  {validBirthYear},
 			},
 			person: Person{
 				FirstNames:  "John",
 				LastName:    "Doe",
-				DateOfBirth: time.Date(time.Now().Year()-40, time.January, 2, 0, 0, 0, 0, time.UTC),
+				DateOfBirth: date.New(validBirthYear, "1", "2"),
 				Address:     place.Address{Line1: "abc"},
 				Email:       "name@example.com",
 			},
@@ -148,7 +150,7 @@ func TestPostYourDetails(t *testing.T) {
 			person: Person{
 				FirstNames:  "John",
 				LastName:    "Doe",
-				DateOfBirth: time.Date(1900, time.January, 2, 0, 0, 0, 0, time.UTC),
+				DateOfBirth: date.New("1900", "1", "2"),
 				Address:     place.Address{Line1: "abc"},
 				Email:       "name@example.com",
 			},
@@ -387,16 +389,12 @@ func TestReadYourDetailsForm(t *testing.T) {
 	assert.Equal("John", result.FirstNames)
 	assert.Equal("Doe", result.LastName)
 	assert.Equal("Somebody", result.OtherNames)
-	assert.Equal("2", result.Dob.Day)
-	assert.Equal("1", result.Dob.Month)
-	assert.Equal("1990", result.Dob.Year)
-	assert.Equal(time.Date(1990, 1, 2, 0, 0, 0, 0, time.UTC), result.Dob.T)
-	assert.Nil(result.Dob.Err)
+	assert.Equal(date.New("1990", "1", "2"), result.Dob)
 	assert.Equal("xyz", result.IgnoreWarning)
 }
 
 func TestYourDetailsFormValidate(t *testing.T) {
-	now := time.Now().UTC().Round(24 * time.Hour)
+	now := date.Today()
 	validDob := now.AddDate(-18, 0, -1)
 
 	testCases := map[string]struct {
@@ -407,12 +405,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 			form: &yourDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Dob: date.Date{
-					Day:   "C",
-					Month: "D",
-					Year:  "E",
-					T:     validDob,
-				},
+				Dob:        validDob,
 			},
 		},
 		"max-length": {
@@ -420,12 +413,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 				FirstNames: strings.Repeat("x", 53),
 				LastName:   strings.Repeat("x", 61),
 				OtherNames: strings.Repeat("x", 50),
-				Dob: date.Date{
-					Day:   "C",
-					Month: "D",
-					Year:  "E",
-					T:     validDob,
-				},
+				Dob:        validDob,
 			},
 		},
 		"missing-all": {
@@ -440,12 +428,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 				FirstNames: strings.Repeat("x", 54),
 				LastName:   strings.Repeat("x", 62),
 				OtherNames: strings.Repeat("x", 51),
-				Dob: date.Date{
-					Day:   "C",
-					Month: "D",
-					Year:  "E",
-					T:     validDob,
-				},
+				Dob:        validDob,
 			},
 			errors: validation.
 				With("first-names", validation.StringTooLongError{Label: "firstNames", Length: 53}).
@@ -456,12 +439,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 			form: &yourDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Dob: date.Date{
-					Day:   "C",
-					Month: "D",
-					Year:  "E",
-					T:     now.AddDate(0, 0, 1),
-				},
+				Dob:        now.AddDate(0, 0, 1),
 			},
 			errors: validation.With("date-of-birth", validation.DateMustBePastError{Label: "dateOfBirth"}),
 		},
@@ -469,12 +447,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 			form: &yourDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Dob: date.Date{
-					Day:   "1",
-					Month: "1",
-					Year:  "1",
-					Err:   expectedError,
-				},
+				Dob:        date.New("2000", "22", "2"),
 			},
 			errors: validation.With("date-of-birth", validation.DateMustBeRealError{Label: "dateOfBirth"}),
 		},
@@ -482,11 +455,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 			form: &yourDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Dob: date.Date{
-					Day:  "1",
-					Year: "1",
-					Err:  expectedError,
-				},
+				Dob:        date.New("1", "", "1"),
 			},
 			errors: validation.With("date-of-birth", validation.DateMissingError{Label: "dateOfBirth", MissingMonth: true}),
 		},
@@ -500,7 +469,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 }
 
 func TestYourDetailsFormDobWarning(t *testing.T) {
-	now := time.Now().UTC().Round(24 * time.Hour)
+	now := date.Today()
 	validDob := now.AddDate(-18, 0, -1)
 
 	testCases := map[string]struct {
@@ -509,33 +478,33 @@ func TestYourDetailsFormDobWarning(t *testing.T) {
 	}{
 		"valid": {
 			form: &yourDetailsForm{
-				Dob: date.Read(validDob),
+				Dob: validDob,
 			},
 		},
 		"future-dob": {
 			form: &yourDetailsForm{
-				Dob: date.Read(now.AddDate(0, 0, 1)),
+				Dob: now.AddDate(0, 0, 1),
 			},
 		},
 		"dob-is-18": {
 			form: &yourDetailsForm{
-				Dob: date.Read(now.AddDate(-18, 0, 0)),
+				Dob: now.AddDate(-18, 0, 0),
 			},
 		},
 		"dob-under-18": {
 			form: &yourDetailsForm{
-				Dob: date.Read(now.AddDate(-18, 0, 1)),
+				Dob: now.AddDate(-18, 0, 1),
 			},
 			warning: "dateOfBirthIsUnder18",
 		},
 		"dob-is-100": {
 			form: &yourDetailsForm{
-				Dob: date.Read(now.AddDate(-100, 0, 0)),
+				Dob: now.AddDate(-100, 0, 0),
 			},
 		},
 		"dob-over-100": {
 			form: &yourDetailsForm{
-				Dob: date.Read(now.AddDate(-100, 0, -1)),
+				Dob: now.AddDate(-100, 0, -1),
 			},
 			warning: "dateOfBirthIsOver100",
 		},
