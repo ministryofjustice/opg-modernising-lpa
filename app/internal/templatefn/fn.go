@@ -213,7 +213,12 @@ func addDays(days int, t time.Time) time.Time {
 	return t.AddDate(0, 0, days)
 }
 
-func formatDate(t time.Time) string {
+type dateOrTime interface {
+	IsZero() bool
+	Format(string) string
+}
+
+func formatDate(t dateOrTime) string {
 	if t.IsZero() {
 		return ""
 	}

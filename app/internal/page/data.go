@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"golang.org/x/exp/slices"
@@ -119,7 +120,7 @@ type Person struct {
 	LastName    string
 	Email       string
 	OtherNames  string
-	DateOfBirth time.Time
+	DateOfBirth date.Date
 	Address     place.Address
 }
 
@@ -136,7 +137,7 @@ type Attorney struct {
 	FirstNames  string
 	LastName    string
 	Email       string
-	DateOfBirth time.Time
+	DateOfBirth date.Date
 	Address     place.Address
 }
 
@@ -146,7 +147,7 @@ type CertificateProvider struct {
 	Email                   string
 	Address                 place.Address
 	Mobile                  string
-	DateOfBirth             time.Time
+	DateOfBirth             date.Date
 	CarryOutBy              string
 	Relationship            string
 	RelationshipDescription string

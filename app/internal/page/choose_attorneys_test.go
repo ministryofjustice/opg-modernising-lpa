@@ -111,6 +111,8 @@ func TestGetChooseAttorneysWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostChooseAttorneysAttorneyDoesNotExists(t *testing.T) {
+	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
+
 	testCases := map[string]struct {
 		form     url.Values
 		attorney Attorney
@@ -122,13 +124,13 @@ func TestPostChooseAttorneysAttorneyDoesNotExists(t *testing.T) {
 				"email":               {"john@example.com"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {strconv.Itoa(time.Now().Year() - 40)},
+				"date-of-birth-year":  {validBirthYear},
 			},
 			attorney: Attorney{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "john@example.com",
-				DateOfBirth: time.Date(time.Now().Year()-40, time.January, 2, 0, 0, 0, 0, time.UTC),
+				DateOfBirth: date.New(validBirthYear, "1", "2"),
 				ID:          "123",
 			},
 		},
@@ -146,7 +148,7 @@ func TestPostChooseAttorneysAttorneyDoesNotExists(t *testing.T) {
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "john@example.com",
-				DateOfBirth: time.Date(1900, time.January, 2, 0, 0, 0, 0, time.UTC),
+				DateOfBirth: date.New("1900", "1", "2"),
 				ID:          "123",
 			},
 		},
@@ -181,6 +183,8 @@ func TestPostChooseAttorneysAttorneyDoesNotExists(t *testing.T) {
 }
 
 func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
+	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
+
 	testCases := map[string]struct {
 		form     url.Values
 		attorney Attorney
@@ -192,13 +196,13 @@ func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
 				"email":               {"john@example.com"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {strconv.Itoa(time.Now().Year() - 40)},
+				"date-of-birth-year":  {validBirthYear},
 			},
 			attorney: Attorney{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "john@example.com",
-				DateOfBirth: time.Date(time.Now().Year()-40, time.January, 2, 0, 0, 0, 0, time.UTC),
+				DateOfBirth: date.New(validBirthYear, "1", "2"),
 				Address:     place.Address{Line1: "abc"},
 				ID:          "123",
 			},
@@ -217,7 +221,7 @@ func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "john@example.com",
-				DateOfBirth: time.Date(1900, time.January, 2, 0, 0, 0, 0, time.UTC),
+				DateOfBirth: date.New("1900", "1", "2"),
 				Address:     place.Address{Line1: "abc"},
 				ID:          "123",
 			},
@@ -309,7 +313,7 @@ func TestPostChooseAttorneysFromAnotherPage(t *testing.T) {
 							FirstNames:  "John",
 							LastName:    "Doe",
 							Email:       "john@example.com",
-							DateOfBirth: time.Date(1990, time.January, 2, 0, 0, 0, 0, time.UTC),
+							DateOfBirth: date.New("1990", "1", "2"),
 							Address:     place.Address{Line1: "abc"},
 						},
 					},
@@ -462,15 +466,11 @@ func TestReadChooseAttorneysForm(t *testing.T) {
 	assert.Equal("John", result.FirstNames)
 	assert.Equal("Doe", result.LastName)
 	assert.Equal("john@example.com", result.Email)
-	assert.Equal("2", result.Dob.Day)
-	assert.Equal("1", result.Dob.Month)
-	assert.Equal("1990", result.Dob.Year)
-	assert.Equal(time.Date(1990, 1, 2, 0, 0, 0, 0, time.UTC), result.Dob.T)
-	assert.Nil(result.Dob.Err)
+	assert.Equal(date.New("1990", "1", "2"), result.Dob)
 }
 
 func TestChooseAttorneysFormValidate(t *testing.T) {
-	now := time.Now().UTC().Round(24 * time.Hour)
+	now := date.Today()
 	validDob := now.AddDate(-18, 0, -1)
 
 	testCases := map[string]struct {
@@ -482,12 +482,7 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 				FirstNames: "A",
 				LastName:   "B",
 				Email:      "person@example.com",
-				Dob: date.Date{
-					Day:   "C",
-					Month: "D",
-					Year:  "E",
-					T:     validDob,
-				},
+				Dob:        validDob,
 			},
 		},
 		"max length": {
@@ -495,12 +490,7 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 				FirstNames: strings.Repeat("x", 53),
 				LastName:   strings.Repeat("x", 61),
 				Email:      "person@example.com",
-				Dob: date.Date{
-					Day:   "C",
-					Month: "D",
-					Year:  "E",
-					T:     validDob,
-				},
+				Dob:        validDob,
 			},
 		},
 		"missing all": {
@@ -516,12 +506,7 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 				FirstNames: strings.Repeat("x", 54),
 				LastName:   strings.Repeat("x", 62),
 				Email:      "person@example.com",
-				Dob: date.Date{
-					Day:   "C",
-					Month: "D",
-					Year:  "E",
-					T:     validDob,
-				},
+				Dob:        validDob,
 			},
 			errors: validation.
 				With("first-names", validation.StringTooLongError{Label: "firstNames", Length: 53}).
@@ -532,12 +517,7 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 				FirstNames: "A",
 				LastName:   "B",
 				Email:      "person@example.com",
-				Dob: date.Date{
-					Day:   "1",
-					Month: "1",
-					Year:  "1",
-					T:     now.AddDate(0, 0, 1),
-				},
+				Dob:        now.AddDate(0, 0, 1),
 			},
 			errors: validation.With("date-of-birth", validation.DateMustBePastError{Label: "dateOfBirth"}),
 		},
@@ -546,12 +526,7 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 				FirstNames: "A",
 				LastName:   "B",
 				Email:      "person@example.com",
-				Dob: date.Date{
-					Day:   "1",
-					Month: "1",
-					Year:  "1",
-					Err:   expectedError,
-				},
+				Dob:        date.New("2000", "22", "2"),
 			},
 			errors: validation.With("date-of-birth", validation.DateMustBeRealError{Label: "dateOfBirth"}),
 		},
@@ -560,11 +535,7 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 				FirstNames: "A",
 				LastName:   "B",
 				Email:      "person@example.com",
-				Dob: date.Date{
-					Day:  "1",
-					Year: "1",
-					Err:  expectedError,
-				},
+				Dob:        date.New("1", "", "1"),
 			},
 			errors: validation.With("date-of-birth", validation.DateMissingError{Label: "dateOfBirth", MissingMonth: true}),
 		},
@@ -573,12 +544,7 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 				FirstNames: "A",
 				LastName:   "B",
 				Email:      "person@",
-				Dob: date.Date{
-					Day:   "1",
-					Month: "1",
-					Year:  "1",
-					T:     validDob,
-				},
+				Dob:        validDob,
 			},
 			errors: validation.With("email", validation.EmailError{Label: "email"}),
 		},
@@ -592,7 +558,7 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 }
 
 func TestChooseAttorneysFormDobWarning(t *testing.T) {
-	now := time.Now().UTC().Round(24 * time.Hour)
+	now := date.Today()
 	validDob := now.AddDate(-18, 0, -1)
 
 	testCases := map[string]struct {
@@ -601,33 +567,33 @@ func TestChooseAttorneysFormDobWarning(t *testing.T) {
 	}{
 		"valid": {
 			form: &chooseAttorneysForm{
-				Dob: date.Read(validDob),
+				Dob: validDob,
 			},
 		},
 		"future dob": {
 			form: &chooseAttorneysForm{
-				Dob: date.Read(now.AddDate(0, 0, 1)),
+				Dob: now.AddDate(0, 0, 1),
 			},
 		},
 		"dob is 18": {
 			form: &chooseAttorneysForm{
-				Dob: date.Read(now.AddDate(-18, 0, 0)),
+				Dob: now.AddDate(-18, 0, 0),
 			},
 		},
 		"dob under 18": {
 			form: &chooseAttorneysForm{
-				Dob: date.Read(now.AddDate(-18, 0, 1)),
+				Dob: now.AddDate(-18, 0, 1),
 			},
 			warning: "attorneyDateOfBirthIsUnder18",
 		},
 		"dob is 100": {
 			form: &chooseAttorneysForm{
-				Dob: date.Read(now.AddDate(-100, 0, 0)),
+				Dob: now.AddDate(-100, 0, 0),
 			},
 		},
 		"dob over 100": {
 			form: &chooseAttorneysForm{
-				Dob: date.Read(now.AddDate(-100, 0, -1)),
+				Dob: now.AddDate(-100, 0, -1),
 			},
 			warning: "dateOfBirthIsOver100",
 		},
