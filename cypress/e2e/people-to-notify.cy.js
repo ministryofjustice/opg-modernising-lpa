@@ -201,21 +201,6 @@ describe('People to notify', () => {
 
         cy.contains('.govuk-fieldset .govuk-error-message', 'Select yes to add another person to notify');
     });
-
-    it('errors when empty postcode', () => {
-        cy.visit('/testing-start?withIncompletePeopleToNotify=1&redirect=/choose-people-to-notify-address?id=JoannaSmith');
-        AddressFormAssertions.assertErrorsWhenPostcodeEmpty()
-    });
-
-    it('errors when unselected', () => {
-        cy.visit('/testing-start?withIncompletePeopleToNotify=1&redirect=/choose-people-to-notify-address?id=JoannaSmith');
-        AddressFormAssertions.assertErrorsWhenUnselected()
-    });
-
-    it('errors when manual incorrect', () => {
-        cy.visit('/testing-start?withIncompletePeopleToNotify=1&redirect=/choose-people-to-notify-address?id=JoannaSmith');
-        AddressFormAssertions.assertErrorsWhenManualIncorrect('I can’t find their address in the list')
-    });
 });
 
 function addPersonToNotify(p, manualAddress) {

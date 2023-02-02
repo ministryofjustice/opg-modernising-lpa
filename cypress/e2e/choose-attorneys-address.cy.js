@@ -24,6 +24,14 @@ describe('Choose attorneys address', () => {
         AddressFormAssertions.assertErrorsWhenPostcodeEmpty()
     });
 
+    it('errors when invalid postcode', () => {
+        AddressFormAssertions.assertErrorsWhenInvalidPostcode()
+    });
+
+    it('errors when valid postcode and no addresses', () => {
+        AddressFormAssertions.assertErrorsWhenValidPostcodeFormatButNoAddressesFound()
+    });
+
     it('errors when unselected', () => {
         AddressFormAssertions.assertErrorsWhenUnselected()
     });

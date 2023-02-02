@@ -15,13 +15,16 @@ describe('Choose replacement attorneys address', () => {
         cy.url().should('contain', '/choose-replacement-attorneys-summary');
     });
 
-    it('address can be entered manually on invalid postcode', () => {
-        AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
-        cy.url().should('contain', '/choose-replacement-attorneys-summary');
-    });
-
     it('errors when empty postcode', () => {
         AddressFormAssertions.assertErrorsWhenPostcodeEmpty()
+    });
+
+    it('errors when invalid postcode', () => {
+        AddressFormAssertions.assertErrorsWhenInvalidPostcode()
+    });
+
+    it('errors when valid postcode and no addresses', () => {
+        AddressFormAssertions.assertErrorsWhenValidPostcodeFormatButNoAddressesFound()
     });
 
     it('errors when unselected', () => {

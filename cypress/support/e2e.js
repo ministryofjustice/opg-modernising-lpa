@@ -124,15 +124,26 @@ export const AddressFormAssertions = {
     },
 
     assertErrorsWhenInvalidPostcode() {
-        cy.get('#f-lookup-postcode').type('NG1');
+        cy.get('#f-lookup-postcode').type('INVALID');
         cy.contains('button', 'Find address').click();
 
-        cy.contains('button', 'Continue').click();
-
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Select an address from the list');
+            cy.contains('Enter a valid postcode');
         });
 
-        cy.contains('[for=f-select-address] + .govuk-error-message', 'Select an address from the list');
+        cy.contains('[for=f-lookup-postcode] + .govuk-error-message', 'Enter a valid postcode');
+    },
+
+    assertErrorsWhenValidPostcodeFormatButNoAddressesFound() {
+        const validFormatPostcodeWithNoAddresses = 'NE234EE'
+
+        cy.get('#f-lookup-postcode').type(validFormatPostcodeWithNoAddresses);
+        cy.contains('button', 'Find address').click();
+
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('We could not find any addresses for that postcode. Check your postcode is correct, or enter your address manually.');
+        });
+
+        cy.contains('[for=f-lookup-postcode] + .govuk-error-message', 'We could not find any addresses for that postcode. Check your postcode is correct, or enter your address manually.');
     }
 }

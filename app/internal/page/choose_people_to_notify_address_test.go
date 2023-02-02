@@ -506,7 +506,7 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 
 func TestPostChoosePeopleToNotifyAddressInvalidPostcodeError(t *testing.T) {
 	w := httptest.NewRecorder()
-	invalidPostcodeErr := place.InvalidPostcodeError{
+	invalidPostcodeErr := place.BadRequestError{
 		Statuscode: 400,
 		Message:    "invalid postcode",
 	}

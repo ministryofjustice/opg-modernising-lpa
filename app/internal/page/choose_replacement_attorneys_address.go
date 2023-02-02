@@ -78,11 +78,13 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 				if err != nil {
 					logger.Print(err)
 
-					if errors.As(err, &place.InvalidPostcodeError{}) {
-						data.Errors.Add("lookup-postcode", validation.EnterError{"invalidPostcode"})
+					if errors.As(err, &place.BadRequestError{}) {
+						data.Errors.Add("lookup-postcode", validation.EnterError{Label: "invalidPostcode"})
 					} else {
-						data.Errors.Add("lookup-postcode", validation.CustomError{"couldNotLookupPostcode"})
+						data.Errors.Add("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"})
 					}
+				} else if len(addresses) == 0 {
+					data.Errors.Add("lookup-postcode", validation.CustomError{Label: "noAddressesFound"})
 				}
 
 				data.Addresses = addresses
