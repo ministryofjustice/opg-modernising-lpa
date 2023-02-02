@@ -429,7 +429,7 @@ func TestPostChooseAttorneysAddressSelectWhenValidationError(t *testing.T) {
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
-			Errors:    validation.With("select-address", validation.SelectError{Label: "address"}),
+			Errors:    validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 		}).
 		Return(nil)
 
@@ -542,6 +542,62 @@ func TestPostChooseAttorneysAddressLookupError(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
 }
 
+func TestPostChooseAttorneysInvalidPostcodeError(t *testing.T) {
+	w := httptest.NewRecorder()
+	invalidPostcodeErr := place.InvalidPostcodeError{
+		Statuscode: 400,
+		Message:    "invalid postcode",
+	}
+
+	form := url.Values{
+		"action":          {"lookup"},
+		"lookup-postcode": {"XYZ"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	logger := &mockLogger{}
+	logger.
+		On("Print", invalidPostcodeErr)
+
+	attorney := Attorney{
+		ID:      "123",
+		Address: place.Address{},
+	}
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&Lpa{Attorneys: []Attorney{attorney}}, nil)
+
+	addressClient := &mockAddressClient{}
+	addressClient.
+		On("LookupPostcode", mock.Anything, "XYZ").
+		Return([]place.Address{}, invalidPostcodeErr)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &chooseAttorneysAddressData{
+			App:      appData,
+			Attorney: attorney,
+			Form: &addressForm{
+				Action:         "lookup",
+				LookupPostcode: "XYZ",
+			},
+			Addresses: []place.Address{},
+			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
+		}).
+		Return(nil)
+
+	err := ChooseAttorneysAddress(logger, template.Func, addressClient, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+}
+
 func TestPostChooseAttorneysAddressLookupWhenValidationError(t *testing.T) {
 	form := url.Values{
 		"action": {"lookup"},
@@ -569,7 +625,7 @@ func TestPostChooseAttorneysAddressLookupWhenValidationError(t *testing.T) {
 			Form: &addressForm{
 				Action: "lookup",
 			},
-			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "postcode"}),
+			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
 		}).
 		Return(nil)
 

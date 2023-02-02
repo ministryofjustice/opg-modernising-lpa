@@ -204,7 +204,7 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 	template.
 		On("Func", w, &whenCanTheLpaBeUsedData{
 			App:    appData,
-			Errors: validation.With("when", validation.SelectError{Label: "whenTheLpaCanBeUsed"}),
+			Errors: validation.With("when", validation.SelectError{Label: "whenYourAttorneysCanUseYourLpa"}),
 			Lpa:    &Lpa{},
 		}).
 		Return(nil)
@@ -249,13 +249,13 @@ func TestWhenCanTheLpaBeUsedFormValidate(t *testing.T) {
 		},
 		"missing": {
 			form:   &whenCanTheLpaBeUsedForm{},
-			errors: validation.With("when", validation.SelectError{Label: "whenTheLpaCanBeUsed"}),
+			errors: validation.With("when", validation.SelectError{Label: "whenYourAttorneysCanUseYourLpa"}),
 		},
 		"invalid": {
 			form: &whenCanTheLpaBeUsedForm{
 				When: "what",
 			},
-			errors: validation.With("when", validation.SelectError{Label: "whenTheLpaCanBeUsed"}),
+			errors: validation.With("when", validation.SelectError{Label: "whenYourAttorneysCanUseYourLpa"}),
 		},
 	}
 
