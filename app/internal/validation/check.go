@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/mail"
 	"regexp"
-	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -213,13 +212,13 @@ type DateMissingCheck struct{}
 func (c DateMissingCheck) CheckDate(label string, date date.Date) FormattableError {
 	e := DateMissingError{Label: label}
 
-	if date.Day == "" {
+	if date.Day() == "" {
 		e.MissingDay = true
 	}
-	if date.Month == "" {
+	if date.Month() == "" {
 		e.MissingMonth = true
 	}
-	if date.Year == "" {
+	if date.Year() == "" {
 		e.MissingYear = true
 	}
 
@@ -241,7 +240,7 @@ func DateMissing() DateMissingCheck {
 type DateMustBeRealCheck struct{}
 
 func (c DateMustBeRealCheck) CheckDate(label string, value date.Date) FormattableError {
-	if value.Err != nil {
+	if !value.Valid() {
 		return DateMustBeRealError{Label: label}
 	}
 
@@ -255,9 +254,7 @@ func DateMustBeReal() DateMustBeRealCheck {
 type DateMustBePastCheck struct{}
 
 func (c DateMustBePastCheck) CheckDate(label string, value date.Date) FormattableError {
-	today := time.Now().UTC().Round(24 * time.Hour)
-
-	if value.T.After(today) {
+	if value.After(date.Today()) {
 		return DateMustBePastError{Label: label}
 	}
 

@@ -94,34 +94,34 @@ func TestCheckDate(t *testing.T) {
 		expected List
 	}{
 		"date missing": {
-			input:  date.FromParts("2006", "1", "2"),
+			input:  date.New("2006", "1", "2"),
 			checks: []DateChecker{DateMissing()},
 		},
 		"date missing invalid": {
-			input:    date.Date{Day: "10"},
+			input:    date.New("", "", "10"),
 			checks:   []DateChecker{DateMissing()},
 			expected: With(name, DateMissingError{Label: label, MissingMonth: true, MissingYear: true}),
 		},
 		"date missing invalid all": {
-			input:    date.Date{},
+			input:    date.New("", "", ""),
 			checks:   []DateChecker{DateMissing()},
 			expected: With(name, EnterError{Label: label}),
 		},
 		"date must be real": {
-			input:  date.FromParts("2006", "1", "2"),
+			input:  date.New("2006", "1", "2"),
 			checks: []DateChecker{DateMustBeReal()},
 		},
 		"date must be real invalid": {
-			input:    date.FromParts("2000", "22", "2"),
+			input:    date.New("2000", "22", "2"),
 			checks:   []DateChecker{DateMustBeReal()},
 			expected: With(name, DateMustBeRealError{Label: label}),
 		},
 		"date must be past": {
-			input:  date.FromParts("2006", "1", "2"),
+			input:  date.New("2006", "1", "2"),
 			checks: []DateChecker{DateMustBePast()},
 		},
 		"date must be past invalid": {
-			input:    date.FromParts("2222", "2", "2"),
+			input:    date.New("2222", "2", "2"),
 			checks:   []DateChecker{DateMustBePast()},
 			expected: With(name, DateMustBePastError{Label: label}),
 		},

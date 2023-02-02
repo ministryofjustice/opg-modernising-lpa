@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"strings"
 	"testing"
-	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -86,8 +86,8 @@ func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 }
 
 func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
-	attorney1 := Attorney{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}
-	attorney2 := Attorney{FirstNames: "x", LastName: "y", Address: place.Address{Line1: "z"}, DateOfBirth: time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)}
+	attorney1 := Attorney{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}
+	attorney2 := Attorney{FirstNames: "x", LastName: "y", Address: place.Address{Line1: "z"}, DateOfBirth: date.New("2000", "1", "1")}
 
 	testcases := map[string]struct {
 		expectedUrl          string
