@@ -56,7 +56,7 @@ func TestNewWhenError(t *testing.T) {
 }
 
 func TestToday(t *testing.T) {
-	assert.Equal(t, Today().String(), time.Now().Format(dateFormat))
+	assert.Equal(t, Today().String(), time.Now().UTC().Format(dateFormat))
 }
 
 func TestBefore(t *testing.T) {

@@ -118,12 +118,12 @@ func TestPostRestrictions(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			Tasks: Tasks{ChooseAttorneys: TaskCompleted},
+			Tasks: Tasks{YourDetails: TaskCompleted, ChooseAttorneys: TaskCompleted},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
 			Restrictions: "blah",
-			Tasks:        Tasks{ChooseAttorneys: TaskCompleted, Restrictions: TaskCompleted},
+			Tasks:        Tasks{YourDetails: TaskCompleted, ChooseAttorneys: TaskCompleted, Restrictions: TaskCompleted},
 		}).
 		Return(nil)
 
@@ -150,11 +150,11 @@ func TestPostRestrictionsWhenAnswerLater(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			Tasks: Tasks{ChooseAttorneys: TaskCompleted},
+			Tasks: Tasks{YourDetails: TaskCompleted, ChooseAttorneys: TaskCompleted},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
-			Tasks: Tasks{ChooseAttorneys: TaskCompleted, Restrictions: TaskInProgress},
+			Tasks: Tasks{YourDetails: TaskCompleted, ChooseAttorneys: TaskCompleted, Restrictions: TaskInProgress},
 		}).
 		Return(nil)
 
