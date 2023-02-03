@@ -119,7 +119,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				Relationship: "legal-professional",
 			},
 			taskState: TaskCompleted,
-			redirect:  "/lpa/lpa-id" + Paths.CheckYourLpa,
+			redirect:  "/lpa/lpa-id" + Paths.DoYouWantToNotifyPeople,
 		},
 		"health-professional": {
 			form: url.Values{"how": {"health-professional"}},
@@ -128,7 +128,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				Relationship: "health-professional",
 			},
 			taskState: TaskCompleted,
-			redirect:  "/lpa/lpa-id" + Paths.CheckYourLpa,
+			redirect:  "/lpa/lpa-id" + Paths.DoYouWantToNotifyPeople,
 		},
 		"other": {
 			form: url.Values{"how": {"other"}, "description": {"This"}},
@@ -185,6 +185,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				Return(&Lpa{
 					CertificateProvider: CertificateProvider{FirstNames: "John", Relationship: "what", RelationshipLength: "gte-2-years"},
 					Tasks: Tasks{
+						YourDetails:     TaskCompleted,
 						ChooseAttorneys: TaskCompleted,
 					},
 				}, nil)
@@ -192,6 +193,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				On("Put", r.Context(), &Lpa{
 					CertificateProvider: tc.certificateProvider,
 					Tasks: Tasks{
+						YourDetails:         TaskCompleted,
 						ChooseAttorneys:     TaskCompleted,
 						CertificateProvider: tc.taskState,
 					},
