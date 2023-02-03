@@ -59,7 +59,7 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, lpaStore LpaSto
 					return appData.Redirect(w, r, lpa, Paths.HowLongHaveYouKnownCertificateProvider)
 				}
 
-				return appData.Redirect(w, r, lpa, Paths.CheckYourLpa)
+				return appData.Redirect(w, r, lpa, Paths.DoYouWantToNotifyPeople)
 			}
 		}
 
