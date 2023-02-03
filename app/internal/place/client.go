@@ -42,8 +42,8 @@ type ResultSet struct {
 }
 
 type BadRequestError struct {
-	Statuscode int    `json:"statuscode,omitempty"`
-	Message    string `json:"message,omitempty"`
+	Statuscode int    `json:"statuscode"`
+	Message    string `json:"message"`
 }
 
 func (b BadRequestError) Error() string {

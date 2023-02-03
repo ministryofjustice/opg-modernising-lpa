@@ -610,8 +610,6 @@ func TestPostChooseAttorneysValidPostcodeNoAddresses(t *testing.T) {
 	r.Header.Add("Content-Type", formUrlEncoded)
 
 	logger := &mockLogger{}
-	logger.
-		On("Print", "No addresses found for XYZ")
 
 	attorney := Attorney{
 		ID:      "123",
