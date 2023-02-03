@@ -12,7 +12,7 @@ describe('People to notify', () => {
     })
 
     it('can add people to notify', () => {
-        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people');
+        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&withDonorDetails=1&withAttorney=1');
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
@@ -53,7 +53,7 @@ describe('People to notify', () => {
     });
 
     it('can modify a person to notifys details', () => {
-        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people');
+        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&withDonorDetails=1&withAttorney=1');
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
@@ -106,7 +106,7 @@ describe('People to notify', () => {
     });
 
     it('can remove a person to notify', () => {
-        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people');
+        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&withDonorDetails=1&withAttorney=1');
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
@@ -144,7 +144,7 @@ describe('People to notify', () => {
     });
 
     it('errors when unselected', () => {
-        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people');
+        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&withDonorDetails=1&withAttorney=1');
         cy.contains('button', 'Continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
@@ -183,7 +183,7 @@ describe('People to notify', () => {
     });
 
     it('errors when another not selected', () => {
-        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people');
+        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&withDonorDetails=1&withAttorney=1');
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });

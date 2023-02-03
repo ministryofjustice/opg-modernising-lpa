@@ -1,7 +1,9 @@
 describe('Check the LPA', () => {
-    it("can submit the completed LPA", () => {
-        cy.visit('/testing-start?redirect=/check-your-lpa&withCP=1&withAttorney=1');
-
+    beforeEach(() => {
+        cy.visit('/testing-start?redirect=/check-your-lpa&withDonorDetails=1&withCP=1&withAttorney=1&withReplacementAttorneys=1&whenCanBeUsedComplete=1&withRestrictions=1&withPeopleToNotify=1');
+    });
+    
+    it("can submit the completed LPA", () => {        
         cy.contains('h1', "Check your LPA")
 
         cy.injectAxe();
@@ -23,8 +25,6 @@ describe('Check the LPA', () => {
     });
 
     it("errors when not selected", () => {
-        cy.visit('/testing-start?redirect=/check-your-lpa&withCP=1&withAttorney=1');
-
         cy.contains('button', 'Confirm').click();
 
         cy.get('.govuk-error-summary').within(() => {
