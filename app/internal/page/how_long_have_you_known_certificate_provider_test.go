@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"strings"
 	"testing"
-	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -120,12 +120,12 @@ func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}},
+			Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}},
 			HowAttorneysMakeDecisions: Jointly,
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
-			Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)}},
+			Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}},
 			HowAttorneysMakeDecisions: Jointly,
 			CertificateProvider:       CertificateProvider{RelationshipLength: "gte-2-years"},
 			Tasks:                     Tasks{CertificateProvider: TaskCompleted},
