@@ -228,12 +228,27 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 				On("Get", r.Context()).
 				Return(&Lpa{
 					DoYouWantToNotifyPeople: tc.ExistingAnswer,
-					Tasks:                   Tasks{ChooseAttorneys: TaskCompleted, CertificateProvider: TaskCompleted},
+					Tasks: Tasks{
+						YourDetails:                TaskCompleted,
+						ChooseAttorneys:            TaskCompleted,
+						ChooseReplacementAttorneys: TaskCompleted,
+						WhenCanTheLpaBeUsed:        TaskCompleted,
+						Restrictions:               TaskCompleted,
+						CertificateProvider:        TaskCompleted,
+					},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &Lpa{
 					DoYouWantToNotifyPeople: tc.WantToNotify,
-					Tasks:                   Tasks{ChooseAttorneys: TaskCompleted, CertificateProvider: TaskCompleted, PeopleToNotify: tc.ExpectedStatus},
+					Tasks: Tasks{
+						YourDetails:                TaskCompleted,
+						ChooseAttorneys:            TaskCompleted,
+						ChooseReplacementAttorneys: TaskCompleted,
+						WhenCanTheLpaBeUsed:        TaskCompleted,
+						Restrictions:               TaskCompleted,
+						CertificateProvider:        TaskCompleted,
+						PeopleToNotify:             tc.ExpectedStatus,
+					},
 				}).
 				Return(nil)
 
