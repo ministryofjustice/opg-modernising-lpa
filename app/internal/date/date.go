@@ -39,7 +39,7 @@ func New(year, month, day string) Date {
 }
 
 func Today() Date {
-	return fromTime(time.Now().UTC().Round(24 * time.Hour))
+	return fromTime(time.Now())
 }
 
 func fromTime(t time.Time) Date {
@@ -47,7 +47,7 @@ func fromTime(t time.Time) Date {
 		year:  t.Format("2006"),
 		month: t.Format("1"),
 		day:   t.Format("2"),
-		t:     t,
+		t:     t.Truncate(24 * time.Hour),
 	}
 }
 
