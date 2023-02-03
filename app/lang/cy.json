@@ -56,7 +56,7 @@
     "errorSelect": "Welsh {{.Label}}",
     "errorEmail": "{{.Label}} Welsh",
 
-    "homeAddress": "Cyfeiriad cartref",
+    "whatIsYourAddress": "Welsh",
     "postcode": "Cod post",
     "findAddress": "Dod o hyd i gyfeiriad",
     "enterAddressManually": "Welsh",
