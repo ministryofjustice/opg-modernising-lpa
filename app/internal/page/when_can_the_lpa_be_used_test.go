@@ -118,12 +118,12 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			Tasks: Tasks{ChooseAttorneys: TaskCompleted},
+			Tasks: Tasks{YourDetails: TaskCompleted, ChooseAttorneys: TaskCompleted},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
 			WhenCanTheLpaBeUsed: UsedWhenRegistered,
-			Tasks:               Tasks{ChooseAttorneys: TaskCompleted, WhenCanTheLpaBeUsed: TaskCompleted},
+			Tasks:               Tasks{YourDetails: TaskCompleted, ChooseAttorneys: TaskCompleted, WhenCanTheLpaBeUsed: TaskCompleted},
 		}).
 		Return(nil)
 
@@ -150,11 +150,11 @@ func TestPostWhenCanTheLpaBeUsedWhenAnswerLater(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			Tasks: Tasks{ChooseAttorneys: TaskCompleted},
+			Tasks: Tasks{YourDetails: TaskCompleted, ChooseAttorneys: TaskCompleted},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
-			Tasks: Tasks{ChooseAttorneys: TaskCompleted, WhenCanTheLpaBeUsed: TaskInProgress},
+			Tasks: Tasks{YourDetails: TaskCompleted, ChooseAttorneys: TaskCompleted, WhenCanTheLpaBeUsed: TaskInProgress},
 		}).
 		Return(nil)
 
