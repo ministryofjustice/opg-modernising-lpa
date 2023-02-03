@@ -17,7 +17,7 @@
 
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
-                {{ tr .App "WhenTheLpaCanBeUsed" }}
+                {{ tr .App "whenYourAttorneysCanUseYourLpa" }}
             </dt>
             <dd class="govuk-summary-list__value">
                 {{ tr .App .Lpa.WhenCanTheLpaBeUsed }}
@@ -25,7 +25,7 @@
             {{ if not (eq .Lpa.Tasks.CheckYourLpa.String "completed") }}
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link" href="{{ link .App .App.Paths.WhenCanTheLpaBeUsed }}">
-                        {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "whenTheLpaCanBeUsed" }}</span>
+                        {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "whenYourAttorneysCanUseYourLpa" }}</span>
                     </a>
                 </dd>
             {{ end }}
