@@ -41,7 +41,7 @@
 
               <p class="govuk-body">
                 <a href="?action=manual&id={{ .Attorney.ID }}" class="govuk-link govuk-link--no-visited-state">
-                  {{ tr .App "cantFindAddress" }}
+                  {{ tr .App "cantFindTheirAddressInList" }}
                 </a>
               </p>
 
@@ -57,6 +57,12 @@
                 {{ template "error-message" (errorMessage . "lookup-postcode") }}
                 <input class="govuk-input govuk-input--width-10  {{ if .Errors.Has "lookup-postcode" }}govuk-input--error{{ end }}" id="f-lookup-postcode" name="lookup-postcode" type="text" autocomplete="postal-code" value="{{ .Form.LookupPostcode }}">
               </div>
+
+              <p class="govuk-body">
+                <a href="?action=manual&id={{ .Attorney.ID }}" class="govuk-link govuk-link--no-visited-state">
+                  {{ tr .App "enterAddressManually" }}
+                </a>
+              </p>
 
               <button name="action" value="lookup" class="govuk-button" data-module="govuk-button">
                 {{ tr .App "findAddress" }}

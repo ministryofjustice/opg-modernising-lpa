@@ -33,11 +33,21 @@ type addressDetails struct {
 }
 
 type postcodeLookupResponse struct {
-	Results []ResultSet `json:"results"`
+	Results []ResultSet     `json:"results"`
+	Error   BadRequestError `json:"error"`
 }
 
 type ResultSet struct {
 	AddressDetails addressDetails `json:"DPA"`
+}
+
+type BadRequestError struct {
+	Statuscode int    `json:"statuscode"`
+	Message    string `json:"message"`
+}
+
+func (b BadRequestError) Error() string {
+	return b.Message
 }
 
 func NewClient(baseUrl, apiKey string, httpClient Doer) *Client {
@@ -76,6 +86,10 @@ func (c *Client) LookupPostcode(ctx context.Context, postcode string) ([]Address
 
 	if err := json.NewDecoder(resp.Body).Decode(&postcodeLookupResponse); err != nil {
 		return []Address{}, err
+	}
+
+	if postcodeLookupResponse.Error.Statuscode == http.StatusBadRequest {
+		return []Address{}, postcodeLookupResponse.Error
 	}
 
 	var addresses []Address

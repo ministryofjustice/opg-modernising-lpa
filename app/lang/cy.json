@@ -59,9 +59,10 @@
     "homeAddress": "Cyfeiriad cartref",
     "postcode": "Cod post",
     "findAddress": "Dod o hyd i gyfeiriad",
+    "enterAddressManually": "Welsh",
     "selectAnAddress": "Dewiswch gyfeiriad",
-    "cantFindAddress": "Methu dod o hyd i’r cyfeiriad?",
-    "cantFindTheirAddress": "Welsh",
+    "cantFindMyAddressInList": "Welsh",
+    "cantFindTheirAddressInList": "Welsh",
     "addressesFound": {
         "one": "Daethpwyd o hyd i {{.PluralCount}} cyfeiriad",
         "two": "Daethpwyd o hyd i {{.PluralCount}} o gyfeiriadau",
@@ -76,6 +77,10 @@
     "addressLine3Label": "Llinell cyfeiriad 3",
     "townOrCity": "Tref neu ddinas",
     "couldNotLookupPostcode": "Methu chwilio’r cod post",
+    "invalidPostcode": "welsh",
+    "aPostcode": "welsh",
+    "anAddressFromTheList": "welsh",
+    "noAddressesFound": "Welsh",
 
     "whoIsThisLpaFor": "Ar gyfer pwy mae’r LPA hwn?",
     "whoTheLpaIsFor": "Welsh",
@@ -167,7 +172,7 @@
     "replacementAttorneys": "Atwrneiod wrth gefn",
     "replacementAttorney": "Welsh",
 
-    "whenCanTheLpaBeUsed": "Pryd gall eich atwrneiod ddefnyddio eich LPA",
+    "whenCanYourAttorneysUseYourLpa": "Pryd gall eich atwrneiod ddefnyddio eich LPA",
     "youCanDecideHeader": "<p class=\"govuk-body-l\">Gallwch benderfynu os gall eich atwrnai ddefnyddio’r LPA cyn gynted ag y bydd wedi’i chofrestru neu dim ond pe bai chi’n colli galluedd meddyliol.</p>",
     "asSoonAsRegisteredTitle": "<h2 class=\"govuk-heading-m\">Cyn gynted ag y bydd yr LPA wedi’i chofrestru</h2>",
     "asSoonAsRegisteredIntro": {
@@ -265,8 +270,7 @@
     "idVerifiedTag": "ID wedi gwirio",
     "lpaDecisions": "Penderfyniadau LPA",
     "typeOfLpa": "Math o LPA",
-    "WhenTheLpaCanBeUsed": "Pryd gall eich atwrneiod ddefnyddio eich LPA",
-    "whenTheLpaCanBeUsed": "pryd gall eich atwrneiod ddefnyddio eich LPA",
+    "whenYourAttorneysCanUseYourLpa": "welsh",
     "whoAreTheAttorneys": {
         "one": "Pwy yw eich atwrnai",
         "two": "Pwy yw eich atwrneiod",
