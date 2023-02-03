@@ -397,7 +397,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
-			Errors:    validation.With("select-address", validation.SelectError{Label: "address"}),
+			Errors:    validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 		}).
 		Return(nil)
 
@@ -498,6 +498,100 @@ func TestPostYourAddressLookupError(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
 }
 
+func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
+	w := httptest.NewRecorder()
+	invalidPostcodeErr := place.BadRequestError{
+		Statuscode: 400,
+		Message:    "invalid postcode",
+	}
+
+	form := url.Values{
+		"action":          {"lookup"},
+		"lookup-postcode": {"XYZ"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	logger := &mockLogger{}
+	logger.
+		On("Print", invalidPostcodeErr)
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&Lpa{}, nil)
+
+	addressClient := &mockAddressClient{}
+	addressClient.
+		On("LookupPostcode", mock.Anything, "XYZ").
+		Return([]place.Address{}, invalidPostcodeErr)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &yourAddressData{
+			App: appData,
+			Form: &addressForm{
+				Action:         "lookup",
+				LookupPostcode: "XYZ",
+			},
+			Addresses: []place.Address{},
+			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
+		}).
+		Return(nil)
+
+	err := YourAddress(logger, template.Func, addressClient, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+}
+
+func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	form := url.Values{
+		"action":          {"lookup"},
+		"lookup-postcode": {"XYZ"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	logger := &mockLogger{}
+
+	lpaStore := &mockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&Lpa{}, nil)
+
+	addressClient := &mockAddressClient{}
+	addressClient.
+		On("LookupPostcode", mock.Anything, "XYZ").
+		Return([]place.Address{}, nil)
+
+	template := &mockTemplate{}
+	template.
+		On("Func", w, &yourAddressData{
+			App: appData,
+			Form: &addressForm{
+				Action:         "lookup",
+				LookupPostcode: "XYZ",
+			},
+			Addresses: []place.Address{},
+			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "noAddressesFound"}),
+		}).
+		Return(nil)
+
+	err := YourAddress(logger, template.Func, addressClient, lpaStore)(appData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+}
+
 func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 	form := url.Values{
 		"action": {"lookup"},
@@ -519,7 +613,7 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 			Form: &addressForm{
 				Action: "lookup",
 			},
-			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "postcode"}),
+			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
 		}).
 		Return(nil)
 
