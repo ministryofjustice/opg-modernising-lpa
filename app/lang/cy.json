@@ -352,10 +352,11 @@
     "iConfirmThat": "Rwyf i, {{ .DonorFullName }}, yn cadarnhau:",
     "cpIsWitnessingMeSign": "Fod {{ .CertificateProviderFullName }} yn fy nhystio i’n llofnodi’r LPA hon",
     "wantToApply": "Fy mod am wneud cais i gofrestru’r LPA hon",
-    "readMoreDigitalSignatures": "Mae sut mae ticio’r blychau yn gweithredu fel eich llofnod cyfreithiol",
-    "readMoreDigitalSignaturesContent": "<p class=\"govuk-body\">Mae llofnodion electronig yn cael eu cydnabod yn gyfreithiol yng Nghymru a Lloegr. Maent yn ei gwneud yn haws i chi lofnodi dogfennau ar-lein.</p> <p class=\"govuk-body\">Trwy dicio’r ddau flwch a dewis ‘Cyflwyno fy llofnod’, rydych chi’n darparu eich llofnod cyfreithiol. Mae hyn yr un mor ddiogel a chyfreithiol â llofnodi eich LPA â llaw.</p>",
+    "howTickingActsAsSignature": "Welsh",
+    "howTickingActsAsSignatureContent": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh</p>",
     "submitSignature": "Cyflwyno fy llofnod",
     "bothBoxesToSign": "Welsh",
+    "iWantToSignThisLpa": "Welsh",
 
     "witnessYourSignature": "Tystio eich llofnod",
     "witnessYourSignatureContent": "<p class=\"govuk-body govuk-!-font-weight-bold\">Nawr mae angen arnom i {{ .CpFullName }}, eich darparwr tystysgrif i gadarnhau eu bod gyda chi a’u bod wedi eich gweld yn llofnodi’ch LPA.</p> <ol class=\"govuk-list govuk-list--number govuk-list--spaced\"> <li>Pan fyddwch yn pwyso parhau, byddwn yn anfon neges destun at {{ .CpFirstNames }} yn cynnwys cod unigryw</li> <li>Bydd angen i {{ .CpFirstNames }} deipio’r cod hwn ar y sgrin nesaf</li> </ol>",
