@@ -122,13 +122,14 @@ func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 		Return(&Lpa{
 			Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}},
 			HowAttorneysMakeDecisions: Jointly,
+			Tasks:                     Tasks{YourDetails: TaskCompleted, ChooseAttorneys: TaskCompleted},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
 			Attorneys:                 []Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}},
 			HowAttorneysMakeDecisions: Jointly,
 			CertificateProvider:       CertificateProvider{RelationshipLength: "gte-2-years"},
-			Tasks:                     Tasks{CertificateProvider: TaskCompleted},
+			Tasks:                     Tasks{YourDetails: TaskCompleted, ChooseAttorneys: TaskCompleted, CertificateProvider: TaskCompleted},
 		}).
 		Return(nil)
 
