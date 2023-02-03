@@ -55,7 +55,7 @@
     "errorMobile": "{{.Label}} must be a UK mobile number, like 07700 900 982 or +44 7700 900 982",
     "errorSelect": "Select {{.Label}}",
     "errorEmail": "{{.Label}} must be in the correct format, like name@example.com",
-    
+
     "homeAddress": "Home address",
     "postcode": "Postcode",
     "findAddress": "Find address",
@@ -97,7 +97,7 @@
 
     "taskListHeading": "My LPA",
     "taskListHelp": "Help with making this LPA",
-    "taskListHelpContent": "<p>There’s help included with every question, and you can also read our <a href=\"#\">full guide to making an LPA</a>.</p> <p>You may want to look at our <a href=\"#\">before you begin help page</a>. It explains the decisions you have to make about your LPA and the information you’ll need to provide.</p> <p>We’ll save the LPA as you progress - you don’t need to complete it in one go. You can sign out at any time and come back later.</p>",
+    "taskListHelpContent": "<p>There’s help included with every question, and you can also read our <a href=\"#\" class=\"govuk-link\">full guide to making an LPA</a>.</p> <p>You may want to look at our <a href=\"#\" class=\"govuk-link\">before you begin help page</a>. It explains the decisions you have to make about your LPA and the information you’ll need to provide.</p> <p>We’ll save the LPA as you progress - you don’t need to complete it in one go. You can sign out at any time and come back later.</p>",
     "completed": "Completed",
     "inProgress": "In progress",
     "cannotStartYet": "Cannot start yet",
@@ -135,7 +135,7 @@
 
     "whoWouldYouLikeToBeTheAttorneys": "Who would you like to choose as your attorneys?",
     "whoWouldYouLikeToBeTheAttorneysDetailsTitle": "Guidance on choosing an attorney",
-    "whoWouldYouLikeToBeTheAttorneysDetailsContent": "<p class=\"govuk-body\">Your attorneys are the people who’ll be able to help you make decisions about your finances, if you ever want or need their help in the future.</p> <p class=\"govuk-body\">It’s important that you choose people you trust to respect your wishes and act in your best interests.</p> <p class=\"govuk-body\">You can have more than 1 attorney. Most people have between 1 and 3.</p><p class=\"govuk-body\">An attorney must:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>be aged 18 or over</li> <li>have mental capacity (be able to make decisions)</li> </ul> <p class=\"govuk-body\">Someone cannot be an attorney if they are:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>bankrupt or have a debt relief order</li> <li>on the Disclosure and Barring Service barred list (someone is normally put on this list if they have a criminal conviction or caution that means they’re not allowed to work with vulnerable people)</li> </ul> <p class=\"govuk-body\">You’ll be asked if you would like to add <a href=\"#\">replacement attorneys</a> in a separate question. They step in if your original attorneys are unable or unwilling to continue.</p> <p class=\"govuk-body\"><a href=\"#\">Find out more about attorneys</a></p>",
+    "whoWouldYouLikeToBeTheAttorneysDetailsContent": "<p class=\"govuk-body\">Your attorneys are the people who’ll be able to help you make decisions about your finances, if you ever want or need their help in the future.</p> <p class=\"govuk-body\">It’s important that you choose people you trust to respect your wishes and act in your best interests.</p> <p class=\"govuk-body\">You can have more than 1 attorney. Most people have between 1 and 3.</p><p class=\"govuk-body\">An attorney must:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>be aged 18 or over</li> <li>have mental capacity (be able to make decisions)</li> </ul> <p class=\"govuk-body\">Someone cannot be an attorney if they are:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>bankrupt or have a debt relief order</li> <li>on the Disclosure and Barring Service barred list (someone is normally put on this list if they have a criminal conviction or caution that means they’re not allowed to work with vulnerable people)</li> </ul> <p class=\"govuk-body\">You’ll be asked if you would like to add <a href=\"#\" class=\"govuk-link\">replacement attorneys</a> in a separate question. They step in if your original attorneys are unable or unwilling to continue.</p> <p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">Find out more about attorneys</a></p>",
     "attorney": "Attorney",
     "attorneyAddress": "{{.FirstNames}} {{.LastName}}’s address",
     "attorneyAddressTitle": "Attorney’s address",
@@ -150,7 +150,7 @@
         "other": "Having replacement attorneys is optional. However, having 1 or more helps make sure your LPA will keep working if {{ .AttorneysFullNames }} (your original attorneys) have to step down."
     },
     "replacementAttorneyRequirements": "A replacement attorney must meet the same requirements as an original attorney. This includes being 18 or over.",
-    "findOutMoreAboutReplacementAttorneysContent": "<p class=\"govuk-body\"><a href=\"#\">Find out more about replacement attorneys</a></p>",
+    "findOutMoreAboutReplacementAttorneysContent": "<p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">Find out more about replacement attorneys</a></p>",
 
     "yesReplacementAttorneys": "Yes, I want replacement attorneys",
     "noReplacementAttorneys": "No, I do not want replacement attorneys",
@@ -180,7 +180,7 @@
 
     "restrictionsOnYourAttorneysPower": "Restrict the decisions {{.AllAttorneysFirstNames}} can make",
     "restrictionsOnYourAttorneysPowerTitle": "Restrict the decisions your attorneys can make",
-    "restrictionsOnYourAttorneysPowerContent": "<p class=\"govuk-body\">This optional section lets you add extra information for your attorneys, {{.AllAttorneysFirstNames}}, to guide the decisions they can make on your behalf. We call this adding ‘restrictions and conditions’ to your LPA.</p> <p class=\"govuk-body\">What you say here will tell {{.AllAttorneysFirstNames}} things they:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>must not do (‘restrictions’)</li> <li>can only do in certain circumstances (‘conditions’)</li> </ul> <p class=\"govuk-body\">You do not have to add restrictions or conditions to your LPA. You may prefer to talk to {{.AllAttorneysFirstNames}} about your wishes, rather than writing them into your LPA.</p> <p class=\"govuk-body\">There are legal rules about what you can and cannot tell your attorneys to do, so it’s important to read our <a href=\"#\">guidance on writing restrictions and conditions.</a></p>",
+    "restrictionsOnYourAttorneysPowerContent": "<p class=\"govuk-body\">This optional section lets you add extra information for your attorneys, {{.AllAttorneysFirstNames}}, to guide the decisions they can make on your behalf. We call this adding ‘restrictions and conditions’ to your LPA.</p> <p class=\"govuk-body\">What you say here will tell {{.AllAttorneysFirstNames}} things they:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>must not do (‘restrictions’)</li> <li>can only do in certain circumstances (‘conditions’)</li> </ul> <p class=\"govuk-body\">You do not have to add restrictions or conditions to your LPA. You may prefer to talk to {{.AllAttorneysFirstNames}} about your wishes, rather than writing them into your LPA.</p> <p class=\"govuk-body\">There are legal rules about what you can and cannot tell your attorneys to do, so it’s important to read our <a href=\"#\" class=\"govuk-link\">guidance on writing restrictions and conditions.</a></p>",
     "restrictionExamples": "Show me some examples",
     "restrictionExamplesContent": "<h2 class=\"govuk-heading-s\">Example restrictions: things the attorneys must not do</h2> <ul class=\"govuk-list govuk-list--bullet\"> <li>‘My attorneys must not sell my home.’</li> </ul> <h2 class=\"govuk-heading-s\">Example restrictions: things your attorneys can only do in certain circumstances</h2> <ul class=\"govuk-list govuk-list--bullet\"> <li>‘My attorneys must not sell my home unless, in my doctor’s opinion, I can no longer live independently.’</li> </ul>",
     "restrictions": "Restrictions and conditions",
@@ -192,7 +192,7 @@
     "whatYourCertificateProviderHasToDo": "<h2 class=\"govuk-heading-m\">What your certificate provider has to do</h2> <p class=\"govuk-body\">Your certificate provider has to:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>read your LPA once you’ve finished making it</li> <li>meet you in person to talk about your LPA in private</li> <li>witness you signing your LPA</li> </ul> <p class=\"govuk-body\">We’ll then ask your certificate provider to:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>confirm their identity</li> <li>confirm they’ve discussed your LPA with you</li> <li>tell us if they have any concerns about your LPA - for example, if they think someone is pressuring you to make it</li> </ul> <p class=\"govuk-body\">We call this ‘providing a certificate’. They can do this using our online service or a paper form.</p> <p class=\"govuk-body\">If we ever have any concerns about your LPA, we may ask your certificate provider to tell us more about the conversation they had with you.</p>",
     "whoToChooseAsYourCertificateProvider": "<h2 class=\"govuk-heading-m\">Who to choose as your certificate provider</h2> <p class=\"govuk-body\">You can choose either:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>someone you’ve known well for at least 2 years, for example, a friend or neighbour (but not a relative)</li> <li>a doctor, lawyer or another professional with the skills to check whether you understand your LPA</li> </ul> <p class=\"govuk-body\">Choose someone:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>you’re comfortable having an open, honest conversation with</li> <li>who will speak up if they think something is wrong</li> </ul> <p class=\"govuk-body\">They’ll need to have their own mobile phone.</p>",
     "whoCannotBeACertificateProvider": "<h2 class=\"govuk-heading-m\">Who cannot be a certificate provider</h2> <p class=\"govuk-body\">Your certificate provider cannot be:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>under 18 years old</li> <li>an attorney on your LPA</li> <li>related to you or {{ .AttorneysFirstNames }} (this includes step-relations, in-laws, husbands, wives, partners, boyfriends and girlfriends)</li> <li>a business partner or employee of you or {{ .AttorneysFirstNames }}</li> <li>someone who works for a care home where you live, or their relative</li> </ul>",
-    "detailsYoullNeedAboutYourCertificateProvider": "<h2 class=\"govuk-heading-m\">Details you’ll need about your certificate provider</h2> <p class=\"govuk-body\">You’ll need their:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>full name</li> <li>date of birth</li> <li>mobile phone number</li> <li>email or postal address</li> </ul> <p class=\"govuk-body\"><a href=\"#\">Find out more about certificate providers</a>, and who can and cannot take on the role.</p>",
+    "detailsYoullNeedAboutYourCertificateProvider": "<h2 class=\"govuk-heading-m\">Details you’ll need about your certificate provider</h2> <p class=\"govuk-body\">You’ll need their:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>full name</li> <li>date of birth</li> <li>mobile phone number</li> <li>email or postal address</li> </ul> <p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">Find out more about certificate providers</a>, and who can and cannot take on the role.</p>",
 
     "certificateProviderDetails": "Your certificate provider’s details",
     "certificateProviderDetailsHint": "Remember, your certificate provider must be 18 or over. They cannot be a member of your family (this includes step-relations and in-laws) or of the attorneys’ families.",
@@ -247,7 +247,6 @@
     "lpaDecisions": "LPA decisions",
     "typeOfLpa": "Type of LPA",
     "WhenTheLpaCanBeUsed": "When the LPA can be used",
-    "whenTheLpaCanBeUsed": "when the LPA can be used",
     "whoAreTheAttorneys": {
         "one": "Who is your attorney",
         "other": "Who are your attorneys"
@@ -334,7 +333,7 @@
     "iDoNotHaveAnyOfTheseTypesOfIdentity": "I do not have any of these types of identity",
     "weWillAdviseOnOtherWays": "We will advise on other ways you can confirm your identity",
     "fromTheListedOptions": "from the listed options",
-    
+
     "yourChosenIdentityOptions": "Your chosen identity options",
     "yourChosenIdentityOptionsContent": "You told us that you have the following things to confirm your identity:",
     "whenYouAreReadyToCompleteTheIdentityConfirmationChecks": "When you are ready to complete the identity confirmation checks, please press continue.",
