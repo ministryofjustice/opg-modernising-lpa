@@ -17,7 +17,7 @@ type guidanceData struct {
 
 func Guidance(tmpl template.Template, continuePath string, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		if continuePath == appData.Paths.Auth {
+		if continuePath == Paths.Auth {
 			continuePath = fmt.Sprintf("%s?locale=%s", continuePath, appData.Lang.String())
 		}
 
