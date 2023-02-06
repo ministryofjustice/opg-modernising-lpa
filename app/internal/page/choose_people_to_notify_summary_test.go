@@ -98,7 +98,15 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&Lpa{
 			PeopleToNotify: []PersonToNotify{{ID: "123"}},
-			Tasks:          Tasks{ChooseAttorneys: TaskCompleted, CertificateProvider: TaskCompleted},
+			Tasks: Tasks{
+				YourDetails:                TaskCompleted,
+				ChooseAttorneys:            TaskCompleted,
+				ChooseReplacementAttorneys: TaskCompleted,
+				WhenCanTheLpaBeUsed:        TaskCompleted,
+				Restrictions:               TaskCompleted,
+				CertificateProvider:        TaskCompleted,
+				PeopleToNotify:             TaskCompleted,
+			},
 		}, nil)
 
 	err := ChoosePeopleToNotifySummary(nil, nil, lpaStore)(appData, w, r)
