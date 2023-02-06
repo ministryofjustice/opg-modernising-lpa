@@ -90,8 +90,9 @@ func readSignYourLpaForm(r *http.Request) *signYourLpaForm {
 func (f *signYourLpaForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Bool("sign-lpa", "bothBoxesToSign", f.WantToApply && f.WantToSign,
-		validation.Selected())
+	if !(f.WantToApply && f.WantToSign) {
+		errors.Add("sign-lpa", validation.CustomError{Label: "bothBoxesToSignAndApply"})
+	}
 
 	return errors
 }
