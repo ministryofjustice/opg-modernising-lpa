@@ -90,7 +90,6 @@ type Lpa struct {
 	DoYouWantToNotifyPeople                     string
 	PeopleToNotify                              []PersonToNotify
 	WitnessCode                                 WitnessCode
-	CPWitnessedDonorSign                        bool
 	WantToApplyForLpa                           bool
 	WantToSignLpa                               bool
 	Submitted                                   time.Time
