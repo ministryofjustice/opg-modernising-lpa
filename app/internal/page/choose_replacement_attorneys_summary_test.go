@@ -154,7 +154,10 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 					HowAttorneysMakeDecisions:        tc.HowAttorneysAct,
 					HowAttorneysMakeDecisionsDetails: tc.DecisionDetails,
 					Attorneys:                        tc.Attorneys,
-					Tasks:                            Tasks{ChooseAttorneys: TaskCompleted},
+					Tasks: Tasks{
+						YourDetails:     TaskCompleted,
+						ChooseAttorneys: TaskCompleted,
+					},
 				}, nil)
 
 			err := ChooseReplacementAttorneysSummary(nil, nil, lpaStore)(appData, w, r)

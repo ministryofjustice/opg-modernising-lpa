@@ -4,7 +4,7 @@ import {
 
 describe('Certificate provider task', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/task-list&withAttorney=1');
+        cy.visit('/testing-start?redirect=/task-list&withDonorDetails=1&withAttorney=1');
     });
 
     it('can be done later', () => {
@@ -80,7 +80,7 @@ describe('Certificate provider task', () => {
         cy.contains('label', 'Solicitor').click();
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/check-your-lpa');
+        cy.url().should('contain', '/do-you-want-to-notify-people');
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
 
