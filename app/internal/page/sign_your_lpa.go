@@ -46,7 +46,7 @@ func SignYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			lpa.WantToApplyForLpa = data.Form.WantToApply
-			lpa.WantToSignLpa = data.Form.WantToApply
+			lpa.WantToSignLpa = data.Form.WantToSign
 			if err = lpaStore.Put(r.Context(), lpa); err != nil {
 				return err
 			}
