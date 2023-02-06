@@ -66,7 +66,7 @@ describe('Confirm your identity and sign', () => {
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
         cy.contains('h1', "Sign your LPA");
-        cy.contains('label', 'is witnessing me sign this LPA').click();
+        cy.contains('label', 'I want to sign this LPA').click();
         cy.contains('label', 'I want to apply to register this LPA').click();
         cy.contains('button', 'Submit my signature').click();
 
@@ -124,12 +124,12 @@ describe('Confirm your identity and sign', () => {
         cy.visitLpa('/sign-your-lpa');
 
         cy.contains('button', 'Submit my signature').click();
-        
+
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Select both boxes to sign your LPA');
+            cy.contains('You must select both boxes to sign and apply to register your LPA');
         });
-        
-        cy.contains('.moj-ticket-panel  .govuk-error-message', 'Select both boxes to sign your LPA');
+
+        cy.contains('.moj-ticket-panel  .govuk-error-message', 'You must select both boxes to sign and apply to register your LPA');
     });
 
     it('errors when not witnessed', () => {
@@ -137,11 +137,11 @@ describe('Confirm your identity and sign', () => {
         cy.contains('button', 'Continue').click();
 
         cy.contains('button', 'Continue').click();
-        
+
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter the code we sent to the certificate provider');
         });
-        
+
         cy.contains('.moj-ticket-panel .govuk-error-message', 'Enter the code we sent to the certificate provider');
 
         cy.get('#f-witness-code').type('123');
