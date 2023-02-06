@@ -27,8 +27,8 @@ func TestGetSignYourLpa(t *testing.T) {
 			App:                  appData,
 			Form:                 &signYourLpaForm{},
 			Lpa:                  &Lpa{},
-			CPWitnessedFormValue: CertificateProviderHasWitnessed,
-			WantFormValue:        WantToApplyForLpa,
+			WantToSignFormValue:  WantToSignLpa,
+			WantToApplyFormValue: WantToApplyForLpa,
 		}).
 		Return(nil)
 
@@ -62,8 +62,8 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpa := &Lpa{
-		CPWitnessedDonorSign: true,
-		WantToApplyForLpa:    false,
+		WantToSignLpa:     true,
+		WantToApplyForLpa: false,
 	}
 
 	lpaStore := &mockLpaStore{}
@@ -77,11 +77,11 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 			App: appData,
 			Lpa: lpa,
 			Form: &signYourLpaForm{
-				CPWitnessed: true,
+				WantToSign:  true,
 				WantToApply: false,
 			},
-			CPWitnessedFormValue: CertificateProviderHasWitnessed,
-			WantFormValue:        WantToApplyForLpa,
+			WantToSignFormValue:  WantToSignLpa,
+			WantToApplyFormValue: WantToApplyForLpa,
 		}).
 		Return(nil)
 
@@ -95,7 +95,7 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 
 func TestPostSignYourLpa(t *testing.T) {
 	form := url.Values{
-		"sign-lpa": {"cp-witnessed", "want-to-apply"},
+		"sign-lpa": {"want-to-sign", "want-to-apply"},
 	}
 
 	w := httptest.NewRecorder()
@@ -108,8 +108,8 @@ func TestPostSignYourLpa(t *testing.T) {
 		Return(&Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
-			CPWitnessedDonorSign: true,
-			WantToApplyForLpa:    true,
+			WantToSignLpa:     true,
+			WantToApplyForLpa: true,
 		}).
 		Return(nil)
 	lpaStore.
@@ -117,8 +117,8 @@ func TestPostSignYourLpa(t *testing.T) {
 			Tasks: Tasks{
 				ConfirmYourIdentityAndSign: TaskCompleted,
 			},
-			CPWitnessedDonorSign: true,
-			WantToApplyForLpa:    true,
+			WantToSignLpa:     true,
+			WantToApplyForLpa: true,
 		}).
 		Return(nil)
 
@@ -133,7 +133,7 @@ func TestPostSignYourLpa(t *testing.T) {
 
 func TestPostSignYourLpaWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"sign-lpa": {"cp-witnessed", "want-to-apply"},
+		"sign-lpa": {"want-to-sign", "want-to-apply"},
 	}
 
 	w := httptest.NewRecorder()
@@ -169,15 +169,15 @@ func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
 		Return(&Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
-			CPWitnessedDonorSign: false,
-			WantToApplyForLpa:    false,
+			WantToSignLpa:     false,
+			WantToApplyForLpa: false,
 		}).
 		Return(nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, mock.MatchedBy(func(data *signYourLpaData) bool {
-			return assert.Equal(t, validation.With("sign-lpa", validation.SelectError{Label: "bothBoxesToSign"}), data.Errors)
+			return assert.Equal(t, validation.With("sign-lpa", validation.CustomError{Label: "bothBoxesToSignAndApply"}), data.Errors)
 		})).
 		Return(nil)
 
@@ -193,7 +193,7 @@ func TestReadSignYourLpaForm(t *testing.T) {
 	assert := assert.New(t)
 
 	form := url.Values{
-		"sign-lpa": {"cp-witnessed", "want-to-apply"},
+		"sign-lpa": {"want-to-sign", "want-to-apply"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -201,7 +201,7 @@ func TestReadSignYourLpaForm(t *testing.T) {
 
 	result := readSignYourLpaForm(r)
 
-	assert.Equal(true, result.CPWitnessed)
+	assert.Equal(true, result.WantToSign)
 	assert.Equal(true, result.WantToApply)
 }
 
@@ -213,26 +213,26 @@ func TestSignYourLpaFormValidate(t *testing.T) {
 		"valid": {
 			form: &signYourLpaForm{
 				WantToApply: true,
-				CPWitnessed: true,
+				WantToSign:  true,
 			},
 		},
-		"only cp-witnessed selected": {
+		"only want-to-sign selected": {
 			form: &signYourLpaForm{
 				WantToApply: false,
-				CPWitnessed: true,
+				WantToSign:  true,
 			},
-			errors: validation.With("sign-lpa", validation.SelectError{Label: "bothBoxesToSign"}),
+			errors: validation.With("sign-lpa", validation.CustomError{Label: "bothBoxesToSignAndApply"}),
 		},
 		"only want-to-apply selected": {
 			form: &signYourLpaForm{
 				WantToApply: true,
-				CPWitnessed: false,
+				WantToSign:  false,
 			},
-			errors: validation.With("sign-lpa", validation.SelectError{Label: "bothBoxesToSign"}),
+			errors: validation.With("sign-lpa", validation.CustomError{Label: "bothBoxesToSignAndApply"}),
 		},
 		"none selected": {
 			form:   &signYourLpaForm{},
-			errors: validation.With("sign-lpa", validation.SelectError{Label: "bothBoxesToSign"}),
+			errors: validation.With("sign-lpa", validation.CustomError{Label: "bothBoxesToSignAndApply"}),
 		},
 	}
 
