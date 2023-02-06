@@ -327,6 +327,7 @@
     "cpNotReceivedCodeLink": "<p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">Nid yw {{ .CpFirstName }} wedi derbyn neges destun gyda’r cod</a></p>",
     "witnessCodeDoesNotMatch": "Mae’r cod a roesoch yn anghywir, gwiriwch ef a cheisiwch eto",
     "witnessCodeExpired": "Mae’r cod a roesoch wedi dod i ben",
+    "continueToSigningPage": "Parhau i’r dudalen arwyddo",
 
     "submittedYourLpa": "Rydych chi wedi cyflwyno’ch LPA",
     "whatHappensNext": "Beth sy’n digwydd nesaf",
