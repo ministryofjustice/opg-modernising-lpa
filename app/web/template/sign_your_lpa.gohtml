@@ -22,6 +22,8 @@
         <li>{{ trFormat .App "iGiveAttorneysAuthority" "TypeLegalTermTransKey" $lpaTypeLegalTerm }}</li>
         {{ if gt (len .Lpa.PeopleToNotify) 0 }}
           <li>{{ trFormatCount .App "iHaveChosenNPeopleToNotify" (len .Lpa.PeopleToNotify) }}</li>
+        {{ else }}
+          <li>{{ tr .App "iHaveNotChosenToNotifyAnyone" }}</li>
         {{ end }}
         <li>{{ tr .App "infoIProvidedCanBeUsedByOpg" }}</li>
       </ul>

@@ -346,6 +346,7 @@
         "many": "Welsh {{ .CountPeopleToNotify }} welsh",
         "other": "Welsh {{ .CountPeopleToNotify }} welsh"
     },
+    "iHaveNotChosenToNotifyAnyone": "Welsh",
     "infoIProvidedCanBeUsedByOpg": "Welsh",
     "whenYouTickAndClick": "Welsh",
     "iConfirmThat": "Rwyf i, {{ .DonorFullName }}, yn cadarnhau:",
