@@ -1,4 +1,4 @@
-FROM golang:1.19 as build-env
+FROM golang:1.20 as build-env
 
 RUN apt-get install -y --no-install-recommends openssl
 
