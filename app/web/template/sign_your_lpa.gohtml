@@ -11,31 +11,20 @@
 
       {{ trFormatHtml .App "signYourLpaHeader" }}
 
-            <p class="govuk-body govuk-!-font-weight-bold">
-                {{ trFormatCount .App "wantAttorneysToBeAppointed" (len .Lpa.Attorneys) "AllAttorneysFullNames" .Lpa.AttorneysFullNames "LpaType" (tr .App .Lpa.TypeLegalTermTransKey) }}
-            </p>
-
-      {{ if eq .Lpa.Type "pfa" }}
-        {{ trFormatHtml .App "explainAttorneysPowersPfa" "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}
-      {{ else }}
-        {{ trFormatHtml .App "explainAttorneysPowersHw" "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}
-      {{ end }}
-
-      <div class="govuk-warning-text">
-        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-        <strong class="govuk-warning-text__text">
-          <span class="govuk-warning-text__assistive">{{ tr .App "warning" }}</span>
-          {{ trFormat .App "attorneysCanActOnlyIfAskedWarning" "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}
-        </strong>
-      </div>
-
-      {{ trFormatHtml .App "attorneysMustFollowMCA" }}
-
       {{ template "details" (details . "whatHappensIfIWantToMakeChanges" "whatHappensIfIWantToMakeChangesContent" false) }}
 
-      <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+      <p class="govuk-body"></p>
 
-      {{ trHtml .App "formPanelContent" }}
+      {{ $lpaTypeLegalTerm := tr .App .Lpa.TypeLegalTermTransKey }}
+
+      <ul class="govuk-list govuk-list--bullet">
+        <li>{{ trFormat .App "bySigningIConfirm" "TypeLegalTermTransKey" $lpaTypeLegalTerm }}</li>
+        <li>{{ trFormat .App "iGiveAttorneysAuthority" "TypeLegalTermTransKey" $lpaTypeLegalTerm }}</li>
+        {{ if gt (len .Lpa.PeopleToNotify) 0 }}
+          <li>{{ trFormatCount .App "iHaveChosenNPeopleToNotify" (len .Lpa.PeopleToNotify) }}</li>
+        {{ end }}
+        <li>{{ tr .App "infoIProvidedCanBeUsedByOpg" }}</li>
+      </ul>
 
       <form novalidate method="post">
         <div class="moj-ticket-panel">
@@ -49,24 +38,28 @@
 
               <div class="govuk-checkboxes {{ if .Errors.Has "sign-lpa" }}govuk-checkboxes--error{{ end }}">
                 <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="f-sign-lpa" name="sign-lpa" type="checkbox" value="{{ .CPWitnessedFormValue }}" {{ if eq .Lpa.CPWitnessedDonorSign true }}checked{{ end }}>
+                  <input class="govuk-checkboxes__input" id="f-sign-lpa" name="sign-lpa" type="checkbox" value="{{ .WantToSignFormValue }}" {{ if eq .Lpa.WantToSignLpa true }}checked{{ end }}>
                   <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa">
-                    {{ trFormat .App "cpIsWitnessingMeSign" "CertificateProviderFullName" .Lpa.CertificateProviderFullName }}
+                    {{ tr .App "iWantToSignThisLpa" }}
                   </label>
                 </div>
 
                 <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="f-sign-lpa-2" name="sign-lpa" type="checkbox" value="{{ .WantFormValue }}" {{ if eq .Lpa.WantToApplyForLpa true }}checked{{ end }}>
+                  <input class="govuk-checkboxes__input" id="f-sign-lpa-2" name="sign-lpa" type="checkbox" value="{{ .WantToApplyFormValue }}" {{ if eq .Lpa.WantToApplyForLpa true }}checked{{ end }}>
                   <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa-2">
                     {{ tr .App "wantToApply" }}
                   </label>
+                </div>
+
+                <div class="govuk-body">
+                  {{ tr .App "whenYouTickAndClick" }}
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {{ template "details" (details . "readMoreDigitalSignatures" "readMoreDigitalSignaturesContent" false) }}
+        {{ template "details" (details . "howTickingActsAsSignature" "howTickingActsAsSignatureContent" false) }}
 
         <div class="govuk-button-group">
           <button class="govuk-button" data-module="govuk-button">
