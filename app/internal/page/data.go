@@ -92,9 +92,9 @@ type Lpa struct {
 	WitnessCode                                 WitnessCode
 	CPWitnessedDonorSign                        bool
 	WantToApplyForLpa                           bool
-	CPWitnessCodeValidated                      bool
+	WantToSignLpa                               bool
 	Submitted                                   time.Time
-	//Progress                                    Progress
+	CPWitnessCodeValidated                      bool
 }
 
 type PaymentDetails struct {
