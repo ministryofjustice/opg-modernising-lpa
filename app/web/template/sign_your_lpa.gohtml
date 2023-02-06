@@ -13,13 +13,13 @@
 
       {{ template "details" (details . "whatHappensIfIWantToMakeChanges" "whatHappensIfIWantToMakeChangesContent" false) }}
 
-      <p class="govuk-body"></p>
-
       {{ $lpaTypeLegalTerm := tr .App .Lpa.TypeLegalTermTransKey }}
 
+      <p class="govuk-body">{{ trFormat .App "bySigningIConfirm" "LpaType" $lpaTypeLegalTerm }}</p>
+
       <ul class="govuk-list govuk-list--bullet">
-        <li>{{ trFormat .App "bySigningIConfirm" "TypeLegalTermTransKey" $lpaTypeLegalTerm }}</li>
-        <li>{{ trFormat .App "iGiveAttorneysAuthority" "TypeLegalTermTransKey" $lpaTypeLegalTerm }}</li>
+        <li>{{ tr .App "iHaveReadLpa" }}</li>
+        <li>{{ trFormat .App "iGiveAttorneysAuthority" "LpaType" $lpaTypeLegalTerm }}</li>
         {{ if gt (len .Lpa.PeopleToNotify) 0 }}
           <li>{{ trFormatCount .App "iHaveChosenNPeopleToNotify" (len .Lpa.PeopleToNotify) }}</li>
         {{ else }}

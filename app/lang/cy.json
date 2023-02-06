@@ -336,8 +336,9 @@
 
     "signYourLpa": "Llofnodwch eich LPA",
     "signYourLpaHeader": "<h2 class=\"govuk-heading-m\">Mae llofnodi’r LPA yn gam cyfreithiol pwysig a phwerus.</h2>",
-    "bySigningIConfirm": "Welsh {{ .TypeLegalTermTransKey}} welsh:",
-    "iGiveAttorneysAuthority": "Welsh {{ .TypeLegalTermTransKey}}, welsh",
+    "bySigningIConfirm": "Welsh {{ .LpaType}} welsh:",
+    "iHaveReadLpa": "Welsh",
+    "iGiveAttorneysAuthority": "Welsh {{ .LpaType }} welsh",
     "iHaveChosenNPeopleToNotify": {
         "zero": "Welsh",
         "one": "Welsh",

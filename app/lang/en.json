@@ -296,8 +296,9 @@
 
     "signYourLpa": "Sign your LPA",
     "signYourLpaHeader": "<h2 class=\"govuk-heading-m\">Signing the LPA is an important and powerful legal step.</h2>",
-    "bySigningIConfirm": "By signing my {{ .TypeLegalTermTransKey}} LPA, I confirm all of the following:",
-    "iGiveAttorneysAuthority": "I give my attorneys authority to make decisions about my {{ .TypeLegalTermTransKey}}, including when I cannot act for myself because I do not have mental capacity.",
+    "bySigningIConfirm": "By signing my {{ .LpaType}} LPA, I confirm all of the following:",
+    "iHaveReadLpa": "I have read my LPA or have had it read to me. This includes my legal rights and responsibilities.",
+    "iGiveAttorneysAuthority": "I give my attorneys authority to make decisions about my {{ .LpaType }}, including when I cannot act for myself because I do not have mental capacity.",
     "iHaveChosenNPeopleToNotify": {
         "one": "I have chosen to notify 1 person about my LPA.",
         "other": "I have chosen to notify {{ .PluralCount }} people about my LPA."
