@@ -21,7 +21,7 @@
         <li>{{ trFormat .App "bySigningIConfirm" "TypeLegalTermTransKey" $lpaTypeLegalTerm }}</li>
         <li>{{ trFormat .App "iGiveAttorneysAuthority" "TypeLegalTermTransKey" $lpaTypeLegalTerm }}</li>
         {{ if gt (len .Lpa.PeopleToNotify) 0 }}
-          <li>{{ trFormat .App "iHaveChosenNPeopleToNotify" "CountPeopleToNotify" (len .Lpa.PeopleToNotify) }}</li>
+          <li>{{ trFormatCount .App "iHaveChosenNPeopleToNotify" (len .Lpa.PeopleToNotify) }}</li>
         {{ end }}
         <li>{{ tr .App "infoIProvidedCanBeUsedByOpg" }}</li>
       </ul>

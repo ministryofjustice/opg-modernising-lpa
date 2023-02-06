@@ -338,7 +338,14 @@
     "signYourLpaHeader": "<h2 class=\"govuk-heading-m\">Mae llofnodi’r LPA yn gam cyfreithiol pwysig a phwerus.</h2>",
     "bySigningIConfirm": "Welsh {{ .TypeLegalTermTransKey}} welsh:",
     "iGiveAttorneysAuthority": "Welsh {{ .TypeLegalTermTransKey}}, welsh",
-    "iHaveChosenNPeopleToNotify": "Welsh {{ .CountPeopleToNotify }} welsh",
+    "iHaveChosenNPeopleToNotify": {
+        "zero": "Welsh",
+        "one": "Welsh",
+        "two": "Welsh {{ .CountPeopleToNotify }} welsh",
+        "few": "Welsh {{ .CountPeopleToNotify }} welsh",
+        "many": "Welsh {{ .CountPeopleToNotify }} welsh",
+        "other": "Welsh {{ .CountPeopleToNotify }} welsh"
+    },
     "infoIProvidedCanBeUsedByOpg": "Welsh",
     "whenYouTickAndClick": "Welsh",
     "iConfirmThat": "Rwyf i, {{ .DonorFullName }}, yn cadarnhau:",

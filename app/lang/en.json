@@ -298,7 +298,11 @@
     "signYourLpaHeader": "<h2 class=\"govuk-heading-m\">Signing the LPA is an important and powerful legal step.</h2>",
     "bySigningIConfirm": "By signing my {{ .TypeLegalTermTransKey}} LPA, I confirm all of the following:",
     "iGiveAttorneysAuthority": "I give my attorneys authority to make decisions about my {{ .TypeLegalTermTransKey}}, including when I cannot act for myself because I do not have mental capacity.",
-    "iHaveChosenNPeopleToNotify": "I have chosen to notify {{ .CountPeopleToNotify }} people about my LPA.",
+    "iHaveChosenNPeopleToNotify": {
+        "zero": "I have chosen not to notify anyone about my LPA",
+        "one": "I have chosen to notify 1 person about my LPA.",
+        "other": "I have chosen to notify {{ .PluralCount }} people about my LPA."
+    },
     "infoIProvidedCanBeUsedByOpg": "The information I’ve provided can be used by the Office of the Public Guardian when carrying out its duties.",
     "whenYouTickAndClick": "When you tick these boxes and select ‘Submit my signature’ you are legally signing your LPA.",
     "iConfirmThat": "I, {{ .DonorFullName }}, confirm that:",
