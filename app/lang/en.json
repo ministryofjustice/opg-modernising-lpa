@@ -285,8 +285,8 @@
     "thankYouHeader": "Thank you for your payment.",
     "paymentConfirmationContent": "<p class=\"govuk-body\">You have successfully paid for your property and affairs LPA.</p><p class=\"govuk-body\">We’ve sent you an email to confirm we’ve received your LPA application fee.</p><p class=\"govuk-body\">If the email has not arrived in a few minutes, check your spam folder.</p>",
 
-    "readYourLpa": "Read and sign your LPA",
-    "readAndCheckYourLpa": "Read and check your LPA carefully before you sign it.",
+    "readYourLpa": "Read your LPA",
+    "readAndCheckYourLpa": "You must read and check your LPA carefully before you sign it.",
     "whatHappensIfIWantToMakeChanges": "What happens if I want to make changes after I’ve signed?",
     "whatHappensIfIWantToMakeChangesContent": "<p class=\"govuk-body\">It is possible to change your LPA after you’ve signed it and had the conversation with your certificate provider. However, you will need to:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>sign the LPA again</li> <li>have another conversation with your certificate provider, so you can talk about the updated LPA.</li> </ul> <p class=\"govuk-body\">Once the LPA has been registered, you can remove an attorney, but cannot make any other changes.</p><p> If you want to make other changes, you can cancel the LPA and make a new one. </p>",
     "iHaveReadAndCheckedThisLpa": "I have read and checked this LPA",
@@ -467,5 +467,8 @@
     "lpaRegistered": "LPA registered",
     "trackLpaProgress": "Track LPA progress",
     "backToDashboard": "Back to dashboard",
-    "myLpa": "My {{ .LpaType }} lasting power of attorney"
+    "myLpa": "My {{ .LpaType }} lasting power of attorney",
+
+    "yourLegalRightsAndResponsibilities": "Your legal rights and responsibilities",
+    "yourLegalRightsAndResponsibilitiesContent": "<p class=\"govuk-body-l\">Before signing, you must read your legal rights and responsibilities.</p><h2 class=\"govuk-heading-m\">How your attorneys should act</h2><p class=\"govuk-body\">By signing your LPA, you are appointing your attorneys to make decisions for you.</p><p class=\"govuk-body\">Your attorneys must follow the <a class=\"govuk-link\" href=\"https://www.gov.uk/government/publications/mental-capacity-act-code-of-practice\">Mental Capacity Act Code of Practice</a>:</p><ul class=\"govuk-list govuk-list--bullet\"><li>They must assume you can make your own decisions, unless it is established that you cannot do so.</li><li>They must help you to make as many of your own decisions as you can.</li><li>They must take all practical steps to help you make a decision. They must only treat you as unable to make a decision if they have not succeeded in helping you make a decision through those steps.</li><li>They must not treat you as unable to make a decision because you have made an unwise decision.</li><li>They must act and make decisions in your best interests when you are unable to make a decision.</li><li>Before they make a decision or act for you, they must consider any option that is less restrictive of your rights and freedom which might achieve the same outcome.</li></ul><h2 class=\"govuk-heading-m\">How your LPA can be used</h2><ul class=\"govuk-list govuk-list--bullet\"><li>When you sign your LPA, along with all your attorneys, replacement attorneys and certificate provider, you are forming a legal agreement between you (a deed).</li><li>Your LPA can only be used if it’s registered with the Office of the Public Guardian (OPG).</li><li>You can cancel your LPA at any time if you have mental capacity. <a class=\"govuk-link\" href=\"https://www.gov.uk/power-of-attorney/end\">Find out more about how to cancel your LPA</a>.</li><li>Your attorneys cannot use your LPA to make changes to your will.</li><li>Your LPA will expire when you die.</li></ul>"
 }

@@ -54,6 +54,11 @@ describe('Confirm your identity and sign', () => {
         cy.contains('h3', "Donor");
         cy.contains('h3', "Attorneys");
         cy.contains('h3', "Replacement attorney");
+        cy.contains('a', 'Continue').click();
+
+        cy.url().should('contain', '/your-legal-rights-and-responsibilities');
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
         cy.contains('a', 'Continue to signing page').click();
 
         cy.url().should('contain', '/sign-your-lpa');
