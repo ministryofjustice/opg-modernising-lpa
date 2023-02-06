@@ -303,7 +303,7 @@
         "one": "I have chosen to notify 1 person about my LPA.",
         "other": "I have chosen to notify {{ .PluralCount }} people about my LPA."
     },
-    "iHaveNotChosenToNotifyAnyone": "I have chosen not to notify anyone about my LPA",
+    "iHaveNotChosenToNotifyAnyone": "I have chosen not to notify anyone about my LPA.",
     "infoIProvidedCanBeUsedByOpg": "The information I’ve provided can be used by the Office of the Public Guardian when carrying out its duties.",
     "whenYouTickAndClick": "When you tick these boxes and select ‘Submit my signature’ you are legally signing your LPA.",
     "iConfirmThat": "I, {{ .DonorFullName }}, confirm that:",
