@@ -290,12 +290,12 @@ func TestRemovePersonToNotifyRemoveLastPersonRedirectsToChoosePeopleToNotify(t *
 		On("Get", r.Context()).
 		Return(&Lpa{
 			PeopleToNotify: []PersonToNotify{personToNotifyWithoutAddress},
-			Tasks:          Tasks{PeopleToNotify: TaskCompleted},
+			Tasks:          Tasks{YourDetails: TaskCompleted, ChooseAttorneys: TaskCompleted, PeopleToNotify: TaskCompleted},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
 			PeopleToNotify: []PersonToNotify{},
-			Tasks:          Tasks{PeopleToNotify: TaskNotStarted},
+			Tasks:          Tasks{YourDetails: TaskCompleted, ChooseAttorneys: TaskCompleted, PeopleToNotify: TaskNotStarted},
 		}).
 		Return(nil)
 

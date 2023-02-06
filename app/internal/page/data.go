@@ -435,11 +435,17 @@ func (l *Lpa) CanGoTo(url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 
 	switch path {
-	case Paths.WhenCanTheLpaBeUsed, Paths.Restrictions, Paths.WhoDoYouWantToBeCertificateProviderGuidance:
-		return l.Tasks.ChooseAttorneys.Completed()
+	case Paths.WhenCanTheLpaBeUsed, Paths.Restrictions, Paths.WhoDoYouWantToBeCertificateProviderGuidance, Paths.DoYouWantToNotifyPeople:
+		return l.Tasks.YourDetails.Completed() &&
+			l.Tasks.ChooseAttorneys.Completed()
 	case Paths.CheckYourLpa:
-		return l.Tasks.ChooseAttorneys.Completed() &&
-			l.Tasks.CertificateProvider.Completed()
+		return l.Tasks.YourDetails.Completed() &&
+			l.Tasks.ChooseAttorneys.Completed() &&
+			l.Tasks.ChooseReplacementAttorneys.Completed() &&
+			l.Tasks.WhenCanTheLpaBeUsed.Completed() &&
+			l.Tasks.Restrictions.Completed() &&
+			l.Tasks.CertificateProvider.Completed() &&
+			l.Tasks.PeopleToNotify.Completed()
 	case Paths.AboutPayment:
 		return l.Tasks.YourDetails.Completed() &&
 			l.Tasks.ChooseAttorneys.Completed() &&
