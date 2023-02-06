@@ -47,16 +47,15 @@ func TestGuidanceWhenContinueIsAuthAndLangCy(t *testing.T) {
 
 	cyAppData := AppData{
 		Lang:      Cy,
-		Paths:     AppPaths{Auth: "/somewhere"},
 		SessionID: "session-id",
 	}
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &guidanceData{App: cyAppData, Continue: fmt.Sprintf("%s?locale=cy", cyAppData.Paths.Auth), Lpa: lpa}).
+		On("Func", w, &guidanceData{App: cyAppData, Continue: fmt.Sprintf("%s?locale=cy", Paths.Auth), Lpa: lpa}).
 		Return(nil)
 
-	err := Guidance(template.Func, cyAppData.Paths.Auth, lpaStore)(cyAppData, w, r)
+	err := Guidance(template.Func, Paths.Auth, lpaStore)(cyAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

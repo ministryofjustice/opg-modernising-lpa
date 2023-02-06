@@ -295,7 +295,9 @@ func App(
 	}
 
 	handleLpa(paths.ReadYourLpa, CanGoBack,
-		ReadYourLpa(tmpls.Get("read_your_lpa.gohtml"), lpaStore))
+		Guidance(tmpls.Get("read_your_lpa.gohtml"), Paths.YourLegalRightsAndResponsibilities, lpaStore))
+	handleLpa(paths.YourLegalRightsAndResponsibilities, CanGoBack,
+		Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml"), Paths.SignYourLpa, lpaStore))
 	handleLpa(paths.SignYourLpa, CanGoBack,
 		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), lpaStore))
 	handleLpa(paths.WitnessingYourSignature, CanGoBack,

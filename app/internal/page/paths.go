@@ -64,6 +64,7 @@ type AppPaths struct {
 	YourAddress                                          string
 	YourChosenIdentityOptions                            string
 	YourDetails                                          string
+	YourLegalRightsAndResponsibilities                   string
 }
 
 var Paths = AppPaths{
@@ -130,4 +131,5 @@ var Paths = AppPaths{
 	YourAddress:                                          "/your-address",
 	YourChosenIdentityOptions:                            "/your-chosen-identity-options",
 	YourDetails:                                          "/your-details",
+	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
 }
