@@ -118,7 +118,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	secretsClient, err := secrets.NewClient(cfg)
+	secretsClient, err := secrets.NewClient(cfg, time.Hour)
 	if err != nil {
 		logger.Fatal(err)
 	}
