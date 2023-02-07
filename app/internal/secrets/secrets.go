@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
@@ -20,42 +21,75 @@ const (
 	YotiPrivateKey                 = "yoti-private-key"
 
 	cookieSessionKeys = "cookie-session-keys"
+
+	delay         = time.Second
+	maxErrorCount = 10
 )
 
 type secretsManager interface {
 	GetSecretValue(ctx context.Context, params *secretsmanager.GetSecretValueInput, optFns ...func(*secretsmanager.Options)) (*secretsmanager.GetSecretValueOutput, error)
 }
 
+type cacheItem struct {
+	untilNano  int64
+	errorCount int64
+	value      string
+}
+
+func (i *cacheItem) isFresh() bool {
+	return time.Now().UnixNano() < i.untilNano
+}
+
 type Client struct {
 	svc secretsManager
+	ttl int64
 
 	mu    sync.Mutex
-	cache map[string]string
+	cache map[string]*cacheItem
 }
 
-func NewClient(cfg aws.Config) (*Client, error) {
+func NewClient(cfg aws.Config, ttl time.Duration) (*Client, error) {
 	svc := secretsmanager.NewFromConfig(cfg)
 
-	return &Client{svc: svc, cache: map[string]string{}}, nil
+	return &Client{svc: svc, ttl: ttl.Nanoseconds(), cache: map[string]*cacheItem{}}, nil
 }
 
+// Secret retrieves the named secret from the cache. If not in the cache or the
+// item is stale then the secret is retrieved from Secrets Manager. On failure
+// the stale secret will be returned, and if that isn't possible an error.
 func (c *Client) Secret(ctx context.Context, name string) (string, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	value, ok := c.cache[name]
-	if ok {
-		return value, nil
+	item, found := c.cache[name]
+	if found && item.isFresh() {
+		item.errorCount = 0
+		return item.value, nil
 	}
 
 	result, err := c.svc.GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{
 		SecretId: aws.String(name),
 	})
 	if err != nil {
+		if found {
+			if item.errorCount < maxErrorCount {
+				item.errorCount++
+			}
+			item.untilNano += item.errorCount * delay.Nanoseconds()
+
+			return item.value, nil
+		}
+
 		return "", fmt.Errorf("error retrieving secret '%s': %w", name, err)
 	}
 
-	c.cache[name] = *result.SecretString
+	if found {
+		item.errorCount = 0
+		item.untilNano = time.Now().UnixNano() + c.ttl
+		item.value = *result.SecretString
+	} else {
+		c.cache[name] = &cacheItem{untilNano: time.Now().UnixNano() + c.ttl, value: *result.SecretString}
+	}
 
 	return *result.SecretString, nil
 }
