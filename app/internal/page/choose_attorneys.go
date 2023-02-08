@@ -15,6 +15,7 @@ type chooseAttorneysData struct {
 	Form        *chooseAttorneysForm
 	ShowDetails bool
 	DobWarning  string
+	NameWarning *sameActorNameWarning
 }
 
 func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) Handler {
@@ -47,11 +48,25 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 			data.Errors = data.Form.Validate()
 			dobWarning := data.Form.DobWarning()
 
-			if data.Errors.Any() || data.Form.IgnoreWarning != dobWarning {
+			var nameWarning *sameActorNameWarning
+			if matchingActor := attorneyMatches(lpa, attorney.ID, data.Form.FirstNames, data.Form.LastName); matchingActor != "" {
+				nameWarning = &sameActorNameWarning{
+					Key:        matchingActor,
+					Type:       "anAttorney",
+					FirstNames: data.Form.FirstNames,
+					LastName:   data.Form.LastName,
+				}
+			}
+
+			if data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning {
 				data.DobWarning = dobWarning
 			}
 
-			if data.Errors.None() && data.DobWarning == "" {
+			if data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String() {
+				data.NameWarning = nameWarning
+			}
+
+			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
 				if attorneyFound == false {
 					attorney = Attorney{
 						FirstNames:  data.Form.FirstNames,
@@ -93,11 +108,12 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 }
 
 type chooseAttorneysForm struct {
-	FirstNames    string
-	LastName      string
-	Email         string
-	Dob           date.Date
-	IgnoreWarning string
+	FirstNames        string
+	LastName          string
+	Email             string
+	Dob               date.Date
+	IgnoreDobWarning  string
+	IgnoreNameWarning string
 }
 
 func readChooseAttorneysForm(r *http.Request) *chooseAttorneysForm {
@@ -110,7 +126,8 @@ func readChooseAttorneysForm(r *http.Request) *chooseAttorneysForm {
 		postFormString(r, "date-of-birth-month"),
 		postFormString(r, "date-of-birth-day"))
 
-	d.IgnoreWarning = postFormString(r, "ignore-warning")
+	d.IgnoreDobWarning = postFormString(r, "ignore-dob-warning")
+	d.IgnoreNameWarning = postFormString(r, "ignore-name-warning")
 
 	return d
 }
@@ -151,6 +168,36 @@ func (d *chooseAttorneysForm) DobWarning() string {
 		}
 		if d.Dob.Before(today) && d.Dob.After(eighteenYearsEarlier) {
 			return "attorneyDateOfBirthIsUnder18"
+		}
+	}
+
+	return ""
+}
+
+func attorneyMatches(lpa *Lpa, id, firstNames, lastName string) string {
+	if lpa.You.FirstNames == firstNames && lpa.You.LastName == lastName {
+		return "errorDonorMatchesActor"
+	}
+
+	for _, attorney := range lpa.Attorneys {
+		if attorney.ID != id && attorney.FirstNames == firstNames && attorney.LastName == lastName {
+			return "errorAttorneyMatchesAttorney"
+		}
+	}
+
+	for _, attorney := range lpa.ReplacementAttorneys {
+		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+			return "errorReplacementAttorneyMatchesActor"
+		}
+	}
+
+	if lpa.CertificateProvider.FirstNames == firstNames && lpa.CertificateProvider.LastName == lastName {
+		return "errorCertificateProviderMatchesActor"
+	}
+
+	for _, person := range lpa.PeopleToNotify {
+		if person.FirstNames == firstNames && person.LastName == lastName {
+			return "errorPersonToNotifyMatchesActor"
 		}
 	}
 

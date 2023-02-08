@@ -9,9 +9,10 @@ import (
 )
 
 type choosePeopleToNotifyData struct {
-	App    AppData
-	Errors validation.List
-	Form   *choosePeopleToNotifyForm
+	App         AppData
+	Errors      validation.List
+	Form        *choosePeopleToNotifyForm
+	NameWarning *sameActorNameWarning
 }
 
 func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) Handler {
@@ -45,7 +46,21 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 			data.Form = readChoosePeopleToNotifyForm(r)
 			data.Errors = data.Form.Validate()
 
-			if data.Errors.None() {
+			var nameWarning *sameActorNameWarning
+			if matchingActor := personToNotifyMatches(lpa, personToNotify.ID, data.Form.FirstNames, data.Form.LastName); matchingActor != "" {
+				nameWarning = &sameActorNameWarning{
+					Key:        matchingActor,
+					Type:       "aPersonToNotify",
+					FirstNames: data.Form.FirstNames,
+					LastName:   data.Form.LastName,
+				}
+			}
+
+			if data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String() {
+				data.NameWarning = nameWarning
+			}
+
+			if data.Errors.None() && data.NameWarning == nil {
 				if personFound == false {
 					personToNotify = PersonToNotify{
 						FirstNames: data.Form.FirstNames,
@@ -84,16 +99,18 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 }
 
 type choosePeopleToNotifyForm struct {
-	FirstNames string
-	LastName   string
-	Email      string
+	FirstNames        string
+	LastName          string
+	Email             string
+	IgnoreNameWarning string
 }
 
 func readChoosePeopleToNotifyForm(r *http.Request) *choosePeopleToNotifyForm {
 	return &choosePeopleToNotifyForm{
-		FirstNames: postFormString(r, "first-names"),
-		LastName:   postFormString(r, "last-name"),
-		Email:      postFormString(r, "email"),
+		FirstNames:        postFormString(r, "first-names"),
+		LastName:          postFormString(r, "last-name"),
+		Email:             postFormString(r, "email"),
+		IgnoreNameWarning: postFormString(r, "ignore-name-warning"),
 	}
 }
 
@@ -113,4 +130,30 @@ func (f *choosePeopleToNotifyForm) Validate() validation.List {
 		validation.Email())
 
 	return errors
+}
+
+func personToNotifyMatches(lpa *Lpa, id, firstNames, lastName string) string {
+	if lpa.You.FirstNames == firstNames && lpa.You.LastName == lastName {
+		return "errorDonorMatchesActor"
+	}
+
+	for _, attorney := range lpa.Attorneys {
+		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+			return "errorAttorneyMatchesActor"
+		}
+	}
+
+	for _, attorney := range lpa.ReplacementAttorneys {
+		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+			return "errorReplacementAttorneyMatchesActor"
+		}
+	}
+
+	for _, person := range lpa.PeopleToNotify {
+		if person.ID != id && person.FirstNames == firstNames && person.LastName == lastName {
+			return "errorPersonToNotifyMatchesPersonToNotify"
+		}
+	}
+
+	return ""
 }

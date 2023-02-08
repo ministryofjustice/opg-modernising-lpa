@@ -10,9 +10,10 @@ import (
 )
 
 type certificateProviderDetailsData struct {
-	App    AppData
-	Errors validation.List
-	Form   *certificateProviderDetailsForm
+	App         AppData
+	Errors      validation.List
+	Form        *certificateProviderDetailsForm
+	NameWarning *sameActorNameWarning
 }
 
 func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -36,7 +37,21 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 			data.Form = readCertificateProviderDetailsForm(r)
 			data.Errors = data.Form.Validate()
 
-			if data.Errors.None() {
+			var nameWarning *sameActorNameWarning
+			if matchingActor := certificateProviderMatches(lpa, data.Form.FirstNames, data.Form.LastName); matchingActor != "" {
+				nameWarning = &sameActorNameWarning{
+					Key:        matchingActor,
+					Type:       "theCertificateProvider",
+					FirstNames: data.Form.FirstNames,
+					LastName:   data.Form.LastName,
+				}
+			}
+
+			if data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String() {
+				data.NameWarning = nameWarning
+			}
+
+			if data.Errors.None() && data.NameWarning == nil {
 				lpa.CertificateProvider.FirstNames = data.Form.FirstNames
 				lpa.CertificateProvider.LastName = data.Form.LastName
 				lpa.CertificateProvider.DateOfBirth = data.Form.Dob
@@ -55,23 +70,21 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) Handl
 }
 
 type certificateProviderDetailsForm struct {
-	FirstNames string
-	LastName   string
-	Dob        date.Date
-	Mobile     string
+	FirstNames        string
+	LastName          string
+	Dob               date.Date
+	Mobile            string
+	IgnoreNameWarning string
 }
 
 func readCertificateProviderDetailsForm(r *http.Request) *certificateProviderDetailsForm {
-	d := &certificateProviderDetailsForm{}
-	d.FirstNames = postFormString(r, "first-names")
-	d.LastName = postFormString(r, "last-name")
-	d.Dob = date.New(
-		postFormString(r, "date-of-birth-year"),
-		postFormString(r, "date-of-birth-month"),
-		postFormString(r, "date-of-birth-day"))
-	d.Mobile = postFormString(r, "mobile")
-
-	return d
+	return &certificateProviderDetailsForm{
+		FirstNames:        postFormString(r, "first-names"),
+		LastName:          postFormString(r, "last-name"),
+		Dob:               date.New(postFormString(r, "date-of-birth-year"), postFormString(r, "date-of-birth-month"), postFormString(r, "date-of-birth-day")),
+		Mobile:            postFormString(r, "mobile"),
+		IgnoreNameWarning: postFormString(r, "ignore-name-warning"),
+	}
 }
 
 func (d *certificateProviderDetailsForm) Validate() validation.List {
@@ -93,4 +106,24 @@ func (d *certificateProviderDetailsForm) Validate() validation.List {
 		validation.Mobile())
 
 	return errors
+}
+
+func certificateProviderMatches(lpa *Lpa, firstNames, lastName string) string {
+	if lpa.You.FirstNames == firstNames && lpa.You.LastName == lastName {
+		return "errorDonorMatchesActor"
+	}
+
+	for _, attorney := range lpa.Attorneys {
+		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+			return "errorAttorneyMatchesActor"
+		}
+	}
+
+	for _, attorney := range lpa.ReplacementAttorneys {
+		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+			return "errorReplacementAttorneyMatchesActor"
+		}
+	}
+
+	return ""
 }

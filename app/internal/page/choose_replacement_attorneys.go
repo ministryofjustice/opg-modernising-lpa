@@ -9,10 +9,11 @@ import (
 )
 
 type chooseReplacementAttorneysData struct {
-	App        AppData
-	Errors     validation.List
-	Form       *chooseAttorneysForm
-	DobWarning string
+	App         AppData
+	Errors      validation.List
+	Form        *chooseAttorneysForm
+	DobWarning  string
+	NameWarning *sameActorNameWarning
 }
 
 func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) Handler {
@@ -23,7 +24,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 		}
 
 		addAnother := r.FormValue("addAnother") == "1"
-		ra, attorneyFound := lpa.GetReplacementAttorney(r.URL.Query().Get("id"))
+		attorney, attorneyFound := lpa.GetReplacementAttorney(r.URL.Query().Get("id"))
 
 		if r.Method == http.MethodGet && len(lpa.ReplacementAttorneys) > 0 && attorneyFound == false && addAnother == false {
 			return appData.Redirect(w, r, lpa, Paths.ChooseReplacementAttorneysSummary)
@@ -32,10 +33,10 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 		data := &chooseReplacementAttorneysData{
 			App: appData,
 			Form: &chooseAttorneysForm{
-				FirstNames: ra.FirstNames,
-				LastName:   ra.LastName,
-				Email:      ra.Email,
-				Dob:        ra.DateOfBirth,
+				FirstNames: attorney.FirstNames,
+				LastName:   attorney.LastName,
+				Email:      attorney.Email,
+				Dob:        attorney.DateOfBirth,
 			},
 		}
 
@@ -44,13 +45,27 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 			data.Errors = data.Form.Validate()
 			dobWarning := data.Form.DobWarning()
 
-			if data.Errors.Any() || data.Form.IgnoreWarning != dobWarning {
+			var nameWarning *sameActorNameWarning
+			if matchingActor := replacementAttorneyMatches(lpa, attorney.ID, data.Form.FirstNames, data.Form.LastName); matchingActor != "" {
+				nameWarning = &sameActorNameWarning{
+					Key:        matchingActor,
+					Type:       "aReplacementAttorney",
+					FirstNames: data.Form.FirstNames,
+					LastName:   data.Form.LastName,
+				}
+			}
+
+			if data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning {
 				data.DobWarning = dobWarning
 			}
 
-			if data.Errors.None() && data.DobWarning == "" {
+			if data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String() {
+				data.NameWarning = nameWarning
+			}
+
+			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
 				if attorneyFound == false {
-					ra = Attorney{
+					attorney = Attorney{
 						FirstNames:  data.Form.FirstNames,
 						LastName:    data.Form.LastName,
 						Email:       data.Form.Email,
@@ -58,14 +73,14 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 						ID:          randomString(8),
 					}
 
-					lpa.ReplacementAttorneys = append(lpa.ReplacementAttorneys, ra)
+					lpa.ReplacementAttorneys = append(lpa.ReplacementAttorneys, attorney)
 				} else {
-					ra.FirstNames = data.Form.FirstNames
-					ra.LastName = data.Form.LastName
-					ra.Email = data.Form.Email
-					ra.DateOfBirth = data.Form.Dob
+					attorney.FirstNames = data.Form.FirstNames
+					attorney.LastName = data.Form.LastName
+					attorney.Email = data.Form.Email
+					attorney.DateOfBirth = data.Form.Dob
 
-					lpa.PutReplacementAttorney(ra)
+					lpa.PutReplacementAttorney(attorney)
 				}
 
 				if !attorneyFound {
@@ -79,7 +94,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 				from := r.FormValue("from")
 
 				if from == "" {
-					from = fmt.Sprintf("%s?id=%s", appData.Paths.ChooseReplacementAttorneysAddress, ra.ID)
+					from = fmt.Sprintf("%s?id=%s", appData.Paths.ChooseReplacementAttorneysAddress, attorney.ID)
 				}
 
 				return appData.Redirect(w, r, lpa, from)
@@ -88,4 +103,34 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 
 		return tmpl(w, data)
 	}
+}
+
+func replacementAttorneyMatches(lpa *Lpa, id, firstNames, lastName string) string {
+	if lpa.You.FirstNames == firstNames && lpa.You.LastName == lastName {
+		return "errorDonorMatchesActor"
+	}
+
+	for _, attorney := range lpa.Attorneys {
+		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+			return "errorAttorneyMatchesActor"
+		}
+	}
+
+	for _, attorney := range lpa.ReplacementAttorneys {
+		if attorney.ID != id && attorney.FirstNames == firstNames && attorney.LastName == lastName {
+			return "errorReplacementAttorneyMatchesReplacementAttorney"
+		}
+	}
+
+	if lpa.CertificateProvider.FirstNames == firstNames && lpa.CertificateProvider.LastName == lastName {
+		return "errorCertificateProviderMatchesActor"
+	}
+
+	for _, person := range lpa.PeopleToNotify {
+		if person.FirstNames == firstNames && person.LastName == lastName {
+			return "errorPersonToNotifyMatchesActor"
+		}
+	}
+
+	return ""
 }
