@@ -284,4 +284,23 @@ describe('Certificate provider task', () => {
 
         cy.contains('.govuk-fieldset .govuk-error-message', 'You must have known your non-professional certificate provider for 2 years or more');
     });
+
+    it('warns when name shared with other actor', () => {
+        cy.visitLpa('/certificate-provider-details');
+        cy.contains('button', 'Continue').click();
+
+        cy.get('#f-first-names').type('John');
+        cy.get('#f-last-name').type('Smith');
+        cy.get('#f-date-of-birth').type('1');
+        cy.get('#f-date-of-birth-month').type('2');
+        cy.get('#f-date-of-birth-year').type('1990');
+        cy.get('#f-mobile').type('07535111111');
+        cy.contains('button', 'Continue').click();
+        cy.url().should('contain', '/certificate-provider-details');
+
+        cy.contains('There is also an attorney called John Smith.');
+        
+        cy.contains('button', 'Continue').click();
+        cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
+    });
 });
