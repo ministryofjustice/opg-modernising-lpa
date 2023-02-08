@@ -493,6 +493,26 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 		opt = opt | defaultOptions
 
 		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == http.MethodPost {
+				rCsrfToken := r.PostFormValue("_csrf")
+				cCsrfToken, csrfErr := r.Cookie("csrf")
+
+				if csrfErr == http.ErrNoCookie {
+					logger.Print("csrf cookie not set")
+					http.Error(w, "Encountered an error", http.StatusForbidden)
+				}
+
+				if rCsrfToken == "" {
+					logger.Print("csrf token not set in form")
+					http.Error(w, "Encountered an error", http.StatusForbidden)
+				}
+
+				if rCsrfToken != cCsrfToken.Value {
+					logger.Print("invalid csrf token in request")
+					http.Error(w, "Encountered an error", http.StatusForbidden)
+				}
+			}
+
 			ctx := r.Context()
 
 			appData := AppData{
@@ -537,6 +557,13 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 			_, cookieErr := r.Cookie("cookies-consent")
 			appData.CookieConsentSet = cookieErr != http.ErrNoCookie
 			appData.Localizer.ShowTranslationKeys = r.FormValue("showTranslationKeys") == "1"
+
+			http.SetCookie(w, &http.Cookie{
+				Name:   "csrfToken",
+				Value:  random.String(12),
+				MaxAge: 60,
+				Path:   "/",
+			})
 
 			if err := h(appData, w, r.WithContext(ctx)); err != nil {
 				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())

@@ -1432,3 +1432,43 @@ func TestIsLpaPath(t *testing.T) {
 		})
 	}
 }
+
+//func TestCsrfProtection(t *testing.T) {
+//	w := httptest.NewRecorder()
+//
+//	form := url.Values{
+//		"_csrf": {"a-csrf-token"},
+//	}
+//
+//	r, _ := http.NewRequest(http.MethodPost, "/somewhere", strings.NewReader(form.Encode()))
+//
+//	r.AddCookie(&http.Cookie{
+//		Name:   "csrf",
+//		Value:  "a-csrf-token",
+//		MaxAge: 60,
+//		Path:   "/",
+//	})
+//
+//	r.Header.Add("Content-Type", formUrlEncoded)
+//
+//	localizer := localize.Localizer{}
+//
+//	sessionsStore := &mockSessionsStore{}
+//	sessionsStore.
+//		On("Get", r, "session").
+//		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
+//
+//	mux := http.NewServeMux()
+//	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None)
+//	handle("/somewhere", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
+//		assert.Equal(t, http.StatusOK, hw.)
+//		hw.WriteHeader(http.StatusTeapot)
+//		return nil
+//	})
+//
+//	mux.ServeHTTP(w, r)
+//	resp := w.Result()
+//
+//	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+//	mock.AssertExpectationsForObjects(t, sessionsStore)
+//}

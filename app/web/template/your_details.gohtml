@@ -18,6 +18,8 @@
 
             {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
 
+            <input type="hidden" name="_csrf" value="{{ .Form.Csrf }}" />
+
             {{ if .DobWarning }}
               <div class="govuk-warning-text">
                 <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
