@@ -11,10 +11,11 @@ import (
 )
 
 type yourDetailsData struct {
-	App        AppData
-	Errors     validation.List
-	Form       *yourDetailsForm
-	DobWarning string
+	App         AppData
+	Errors      validation.List
+	Form        *yourDetailsForm
+	DobWarning  string
+	NameWarning *sameActorNameWarning
 }
 
 func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore sessions.Store) Handler {
@@ -49,11 +50,25 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 			data.Errors = data.Form.Validate()
 			dobWarning := data.Form.DobWarning()
 
-			if data.Errors.Any() || data.Form.IgnoreWarning != dobWarning {
+			var nameWarning *sameActorNameWarning
+			if key := donorMatches(lpa, data.Form.FirstNames, data.Form.LastName); key != "" {
+				nameWarning = &sameActorNameWarning{
+					Key:        key,
+					Type:       "theDonor",
+					FirstNames: data.Form.FirstNames,
+					LastName:   data.Form.LastName,
+				}
+			}
+
+			if data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning {
 				data.DobWarning = dobWarning
 			}
 
-			if !data.Errors.Any() && data.DobWarning == "" {
+			if data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String() {
+				data.NameWarning = nameWarning
+			}
+
+			if !data.Errors.Any() && data.DobWarning == "" && data.NameWarning == nil {
 				lpa.You.FirstNames = data.Form.FirstNames
 				lpa.You.LastName = data.Form.LastName
 				lpa.You.OtherNames = data.Form.OtherNames
@@ -74,11 +89,12 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 }
 
 type yourDetailsForm struct {
-	FirstNames    string
-	LastName      string
-	OtherNames    string
-	Dob           date.Date
-	IgnoreWarning string
+	FirstNames        string
+	LastName          string
+	OtherNames        string
+	Dob               date.Date
+	IgnoreDobWarning  string
+	IgnoreNameWarning string
 }
 
 func readYourDetailsForm(r *http.Request) *yourDetailsForm {
@@ -93,7 +109,8 @@ func readYourDetailsForm(r *http.Request) *yourDetailsForm {
 		postFormString(r, "date-of-birth-month"),
 		postFormString(r, "date-of-birth-day"))
 
-	d.IgnoreWarning = postFormString(r, "ignore-warning")
+	d.IgnoreDobWarning = postFormString(r, "ignore-dob-warning")
+	d.IgnoreNameWarning = postFormString(r, "ignore-name-warning")
 
 	return d
 }
@@ -133,6 +150,32 @@ func (f *yourDetailsForm) DobWarning() string {
 		}
 		if f.Dob.Before(today) && f.Dob.After(eighteenYearsEarlier) {
 			return "dateOfBirthIsUnder18"
+		}
+	}
+
+	return ""
+}
+
+func donorMatches(lpa *Lpa, firstNames, lastName string) string {
+	for _, attorney := range lpa.Attorneys {
+		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+			return "errorAttorneyMatchesActor"
+		}
+	}
+
+	for _, attorney := range lpa.ReplacementAttorneys {
+		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+			return "errorReplacementAttorneyMatchesActor"
+		}
+	}
+
+	if lpa.CertificateProvider.FirstNames == firstNames && lpa.CertificateProvider.LastName == lastName {
+		return "errorCertificateProviderMatchesActor"
+	}
+
+	for _, person := range lpa.PeopleToNotify {
+		if person.FirstNames == firstNames && person.LastName == lastName {
+			return "errorPersonToNotifyMatchesActor"
 		}
 	}
 

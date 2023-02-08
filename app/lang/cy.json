@@ -56,6 +56,22 @@
     "errorSelect": "Welsh {{.Label}}",
     "errorEmail": "{{.Label}} Welsh",
 
+    "errorDonorMatchesActor": "Welsh {{.FirstNames}} {{.LastName}} {{.Type}}",
+    "errorAttorneyMatchesActor": "Welsh {{.FirstNames}} {{.LastName}} {{.Type}}",
+    "errorAttorneyMatchesAttorney": "Welsh {{.FirstNames}} {{.LastName}}",
+    "errorReplacementAttorneyMatchesActor": "Welsh {{.FirstNames}} {{.LastName}} {{.Type}}",
+    "errorReplacementAttorneyMatchesReplacementAttorney": "Welsh {{.FirstNames}} {{.LastName}}",
+    "errorCertificateProviderMatchesActor": "Welsh {{.FirstNames}} {{.LastName}} {{.Type}}",
+    "errorPersonToNotifyMatchesActor": "Welsh {{.FirstNames}} {{.LastName}} {{.Type}}",
+    "errorPersonToNotifyMatchesPersonToNotify": "Welsh {{.FirstNames}} {{.LastName}}",
+    "bySavingThisSectionDifferentPeople": "Welsh",
+
+    "theDonor": "Welsh",
+    "anAttorney": "Welsh",
+    "aReplacementAttorney": "Welsh",
+    "theCertificateProvider": "Welsh",
+    "aPersonToNotify": "Welsh",
+
     "whatIsYourAddress": "Welsh",
     "postcode": "Cod post",
     "findAddress": "Dod o hyd i gyfeiriad",

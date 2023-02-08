@@ -487,3 +487,18 @@ func (l *Lpa) Progress() Progress {
 
 	return p
 }
+
+type sameActorNameWarning struct {
+	Key        string
+	Type       string
+	FirstNames string
+	LastName   string
+}
+
+func (w *sameActorNameWarning) String() string {
+	if w == nil {
+		return "<nil>"
+	}
+
+	return fmt.Sprintf("%s|%s|%s|%s", w.Key, w.Type, w.FirstNames, w.LastName)
+}
