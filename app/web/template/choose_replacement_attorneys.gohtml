@@ -14,6 +14,20 @@
 
             {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20") }}
             {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
+
+            {{ if .NameWarning }}
+              <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                  <span class="govuk-warning-text__assistive">Warning</span>
+                  {{ .NameWarning.Format .App.Localizer }}
+                  {{ tr .App "bySavingThisSectionDifferentPeople" }}
+                </strong>
+              </div>
+
+              <input type="hidden" name="ignore-name-warning" value="{{ .NameWarning.String }}" />
+            {{ end }}
+
             {{ template "input" (input . "email" "email" .Form.Email "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
 
             {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
@@ -27,7 +41,7 @@
                 </strong>
               </div>
 
-              <input type="hidden" name="ignore-warning" value="{{ .DobWarning }}" />
+              <input type="hidden" name="ignore-dob-warning" value="{{ .DobWarning }}" />
             {{ end }}
 
             {{ template "continue-button" . }}
