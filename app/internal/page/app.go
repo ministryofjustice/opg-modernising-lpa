@@ -452,7 +452,7 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 			}
 
 			lpa.WantToApplyForLpa = true
-			lpa.CPWitnessedDonorSign = true
+			lpa.WantToSignLpa = true
 			lpa.Submitted = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 			lpa.CPWitnessCodeValidated = true
 			lpa.Tasks.ConfirmYourIdentityAndSign = TaskCompleted
