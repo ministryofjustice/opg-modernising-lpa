@@ -201,6 +201,21 @@ describe('People to notify', () => {
 
         cy.contains('.govuk-fieldset .govuk-error-message', 'Select yes to add another person to notify');
     });
+
+    it('warns when name shared with other actor', () => {
+        cy.visit('/testing-start?redirect=/choose-people-to-notify&withDonorDetails=1');
+
+        cy.get('#f-first-names').type('Jose');
+        cy.get('#f-last-name').type('Smith');
+        cy.get('#f-email').type('name@example.com');
+        cy.contains('button', 'Continue').click();
+        cy.url().should('contain', '/choose-people-to-notify');
+
+        cy.contains('The donor’s name is also Jose Smith.');
+
+        cy.contains('button', 'Continue').click();
+        cy.url().should('contain', '/choose-people-to-notify-address');
+    });
 });
 
 function addPersonToNotify(p, manualAddress) {
