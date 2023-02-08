@@ -58,4 +58,21 @@ describe('Donor details', () => {
         cy.contains('button', 'Continue').click();
         cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be a real date');
     });
+
+    it('warns when name shared with other actor', () => {
+        cy.visit('/testing-start?redirect=/your-details&withAttorney=1');
+
+        cy.get('#f-first-names').type('John');
+        cy.get('#f-last-name').type('Smith');
+        cy.get('#f-date-of-birth').type('1');
+        cy.get('#f-date-of-birth-month').type('2');
+        cy.get('#f-date-of-birth-year').type('1990');
+        cy.contains('button', 'Continue').click();
+        cy.url().should('contain', '/your-details');
+
+        cy.contains('There is also an attorney called John Smith.');
+        
+        cy.contains('button', 'Continue').click();
+        cy.url().should('contain', '/your-address');
+    });
 });
