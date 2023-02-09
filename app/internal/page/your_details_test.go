@@ -184,7 +184,7 @@ func TestPostYourDetails(t *testing.T) {
 			sessionStore := &mockSessionsStore{}
 			sessionStore.
 				On("Get", r, "session").
-				Return(&sessions.Session{Values: map[interface{}]interface{}{"email": "name@example.com"}}, nil)
+				Return(&sessions.Session{Values: map[any]any{"donor": &DonorSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 			err := YourDetails(nil, lpaStore, sessionStore)(appData, w, r)
 			resp := w.Result()
@@ -273,7 +273,7 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 			sessionStore := &mockSessionsStore{}
 			sessionStore.
 				On("Get", mock.Anything, "session").
-				Return(&sessions.Session{Values: map[interface{}]interface{}{"email": "name@example.com"}}, nil)
+				Return(&sessions.Session{Values: map[any]any{"donor": &DonorSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 			err := YourDetails(template.Func, lpaStore, sessionStore)(appData, w, r)
 			resp := w.Result()
@@ -314,7 +314,7 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 	sessionStore := &mockSessionsStore{}
 	sessionStore.
 		On("Get", mock.Anything, "session").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"email": "name@example.com"}}, nil)
+		Return(&sessions.Session{Values: map[any]any{"donor": &DonorSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 	err := YourDetails(nil, lpaStore, sessionStore)(appData, w, r)
 
@@ -328,11 +328,15 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 		error   error
 	}{
 		"store error": {
-			session: &sessions.Session{Values: map[interface{}]interface{}{"email": "name@example.com"}},
+			session: &sessions.Session{Values: map[any]any{"donor": &DonorSession{Sub: "xyz", Email: "name@example.com"}}},
 			error:   expectedError,
 		},
-		"missing email": {
+		"missing donor session": {
 			session: &sessions.Session{},
+			error:   nil,
+		},
+		"missing email": {
+			session: &sessions.Session{Values: map[any]any{"donor": &DonorSession{Sub: "xyz"}}},
 			error:   nil,
 		},
 	}

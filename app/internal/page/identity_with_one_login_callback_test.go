@@ -58,7 +58,11 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	sessionStore := &mockSessionsStore{}
 	sessionStore.
 		On("Get", mock.Anything, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"nonce": "a-nonce"}}, nil)
+		Return(&sessions.Session{
+			Values: map[any]any{
+				"one-login": &OneLoginSession{State: "a-state", Nonce: "a-nonce"},
+			},
+		}, nil)
 
 	oneLoginClient := &mockOneLoginClient{}
 	oneLoginClient.
@@ -122,7 +126,11 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			sessionStore := &mockSessionsStore{}
 			sessionStore.
 				On("Get", mock.Anything, "params").
-				Return(&sessions.Session{Values: map[interface{}]interface{}{"nonce": "a-nonce"}}, nil)
+				Return(&sessions.Session{
+					Values: map[any]any{
+						"one-login": &OneLoginSession{State: "a-state", Nonce: "a-nonce"},
+					},
+				}, nil)
 
 			oneLoginClient := &mockOneLoginClient{}
 			oneLoginClient.
@@ -164,7 +172,11 @@ func TestGetIdentityWithOneLoginCallbackWhenExchangeError(t *testing.T) {
 	sessionStore := &mockSessionsStore{}
 	sessionStore.
 		On("Get", mock.Anything, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"nonce": "a-nonce"}}, nil)
+		Return(&sessions.Session{
+			Values: map[any]any{
+				"one-login": &OneLoginSession{State: "a-state", Nonce: "a-nonce"},
+			},
+		}, nil)
 
 	oneLoginClient := &mockOneLoginClient{}
 	oneLoginClient.
@@ -189,7 +201,11 @@ func TestGetIdentityWithOneLoginCallbackWhenUserInfoError(t *testing.T) {
 	sessionStore := &mockSessionsStore{}
 	sessionStore.
 		On("Get", mock.Anything, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"nonce": "a-nonce"}}, nil)
+		Return(&sessions.Session{
+			Values: map[any]any{
+				"one-login": &OneLoginSession{State: "a-state", Nonce: "a-nonce"},
+			},
+		}, nil)
 
 	oneLoginClient := &mockOneLoginClient{}
 	oneLoginClient.
@@ -234,7 +250,11 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDataStoreError(t *testing.T) {
 	sessionStore := &mockSessionsStore{}
 	sessionStore.
 		On("Get", mock.Anything, "params").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"nonce": "a-nonce"}}, nil)
+		Return(&sessions.Session{
+			Values: map[any]any{
+				"one-login": &OneLoginSession{State: "a-state", Nonce: "a-nonce"},
+			},
+		}, nil)
 
 	oneLoginClient := &mockOneLoginClient{}
 	oneLoginClient.
