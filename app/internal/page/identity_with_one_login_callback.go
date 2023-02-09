@@ -1,7 +1,6 @@
 package page
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -48,17 +47,12 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 			return tmpl(w, data)
 		}
 
-		params, err := sessionStore.Get(r, "params")
+		oneLoginSession, err := getOneLoginSession(sessionStore, r)
 		if err != nil {
 			return err
 		}
 
-		nonce, ok := params.Values["nonce"].(string)
-		if !ok {
-			return fmt.Errorf("nonce missing from session")
-		}
-
-		accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), nonce)
+		accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), oneLoginSession.Nonce)
 		if err != nil {
 			return err
 		}

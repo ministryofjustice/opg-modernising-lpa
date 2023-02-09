@@ -93,6 +93,8 @@ type Lpa struct {
 	WantToSignLpa                               bool
 	Submitted                                   time.Time
 	CPWitnessCodeValidated                      bool
+
+	CertificateProviderUserData identity.UserData
 }
 
 type PaymentDetails struct {
