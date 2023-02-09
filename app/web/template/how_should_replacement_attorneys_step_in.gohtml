@@ -15,7 +15,7 @@
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
               {{ tr .App "howShouldReplacementAttorneysStepIn" }}
             </legend>
-            
+
             {{ template "error-message" (errorMessage . "when-to-step-in") }}
 
             <div class="govuk-radios {{ if .Errors.Has "when-to-step-in" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
@@ -55,6 +55,7 @@
             {{ template "continue-button" . }}
           </div>
         </div>
+        {{ template "csrf-field" . }}
       </form>
     </div>
   </div>

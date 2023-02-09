@@ -27,6 +27,7 @@
 
       <form novalidate method="post">
         <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "continueToPayment" }}</button>
+        {{ template "csrf-field" . }}
       </form>
     </div>
   </div>

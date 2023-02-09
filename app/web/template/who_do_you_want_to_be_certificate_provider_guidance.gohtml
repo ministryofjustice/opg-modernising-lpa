@@ -19,6 +19,7 @@
             <button type="submit" name="will-do-this-later" value="1" class="govuk-button govuk-button--secondary">{{ tr .App "willDoThisLater" }}</button>
           {{ end }}
         </div>
+        {{ template "csrf-field" . }}
       </form>
     </div>
   </div>

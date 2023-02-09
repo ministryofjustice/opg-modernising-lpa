@@ -18,6 +18,7 @@
         {{ trFormatHtml .App "cpNotReceivedCodeLink" "CpFirstName" .Lpa.CertificateProvider.FirstNames }}
 
         {{ template "continue-button" . }}
+        {{ template "csrf-field" . }}
       </form>
     </div>
   </div>

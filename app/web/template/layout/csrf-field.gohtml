@@ -1,0 +1,3 @@
+{{ define "csrf-field" }}
+    <input type="hidden" name="{{ .App.CsrfFormName }}" value="{{ .App.CsrfToken }}" />
+{{ end }}

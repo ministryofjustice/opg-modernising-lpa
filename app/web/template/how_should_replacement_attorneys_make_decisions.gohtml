@@ -66,11 +66,12 @@
               </div>
             </div>
           </fieldset>
-          
+
           <div class="govuk-button-group govuk-!-margin-top-4">
             {{ template "continue-button" . }}
           </div>
         </div>
+        {{ template "csrf-field" . }}
       </form>
     </div>
   </div>
