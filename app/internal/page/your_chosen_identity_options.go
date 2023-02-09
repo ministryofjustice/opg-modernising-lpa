@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -11,7 +12,7 @@ type yourChosenIdentityOptionsData struct {
 	App            AppData
 	Errors         validation.List
 	IdentityOption IdentityOption
-	You            Person
+	You            actor.Person
 }
 
 func YourChosenIdentityOptions(tmpl template.Template, lpaStore LpaStore) Handler {

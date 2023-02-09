@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -74,7 +75,7 @@ func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{ReplacementAttorneys: []Attorney{}}, nil)
+		Return(&Lpa{ReplacementAttorneys: actor.Attorneys{}}, nil)
 
 	err := ChooseReplacementAttorneysSummary(nil, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -86,52 +87,52 @@ func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 }
 
 func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
-	attorney1 := Attorney{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}
-	attorney2 := Attorney{FirstNames: "x", LastName: "y", Address: place.Address{Line1: "z"}, DateOfBirth: date.New("2000", "1", "1")}
+	attorney1 := actor.Attorney{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}
+	attorney2 := actor.Attorney{FirstNames: "x", LastName: "y", Address: place.Address{Line1: "z"}, DateOfBirth: date.New("2000", "1", "1")}
 
 	testcases := map[string]struct {
 		expectedUrl          string
-		Attorneys            []Attorney
-		ReplacementAttorneys []Attorney
+		Attorneys            actor.Attorneys
+		ReplacementAttorneys actor.Attorneys
 		HowAttorneysAct      string
 		DecisionDetails      string
 	}{
 		"with multiple attorneys acting jointly and severally and single replacement attorney": {
 			expectedUrl:          Paths.HowShouldReplacementAttorneysStepIn,
-			Attorneys:            []Attorney{attorney1, attorney2},
-			ReplacementAttorneys: []Attorney{attorney1},
+			Attorneys:            actor.Attorneys{attorney1, attorney2},
+			ReplacementAttorneys: actor.Attorneys{attorney1},
 			HowAttorneysAct:      JointlyAndSeverally,
 		},
 		"with multiple attorneys acting jointly and severally and multiple replacement attorney": {
 			expectedUrl:          Paths.HowShouldReplacementAttorneysStepIn,
-			Attorneys:            []Attorney{attorney1, attorney2},
-			ReplacementAttorneys: []Attorney{attorney1, attorney2},
+			Attorneys:            actor.Attorneys{attorney1, attorney2},
+			ReplacementAttorneys: actor.Attorneys{attorney1, attorney2},
 			HowAttorneysAct:      JointlyAndSeverally,
 		},
 		"with multiple attorneys acting jointly for some decisions and jointly and severally for other decisions and single replacement attorney": {
 			expectedUrl:          Paths.WhenCanTheLpaBeUsed,
-			Attorneys:            []Attorney{attorney1, attorney2},
-			ReplacementAttorneys: []Attorney{attorney1},
+			Attorneys:            actor.Attorneys{attorney1, attorney2},
+			ReplacementAttorneys: actor.Attorneys{attorney1},
 			HowAttorneysAct:      JointlyForSomeSeverallyForOthers,
 			DecisionDetails:      "some words",
 		},
 		"with multiple attorneys acting jointly for some decisions, and jointly and severally for other decisions and multiple replacement attorneys": {
 			expectedUrl:          Paths.WhenCanTheLpaBeUsed,
-			Attorneys:            []Attorney{attorney1, attorney2},
-			ReplacementAttorneys: []Attorney{attorney1, attorney2},
+			Attorneys:            actor.Attorneys{attorney1, attorney2},
+			ReplacementAttorneys: actor.Attorneys{attorney1, attorney2},
 			HowAttorneysAct:      JointlyForSomeSeverallyForOthers,
 			DecisionDetails:      "some words",
 		},
 		"with multiple attorneys acting jointly and single replacement attorneys": {
 			expectedUrl:          Paths.WhenCanTheLpaBeUsed,
-			Attorneys:            []Attorney{attorney1, attorney2},
-			ReplacementAttorneys: []Attorney{attorney1},
+			Attorneys:            actor.Attorneys{attorney1, attorney2},
+			ReplacementAttorneys: actor.Attorneys{attorney1},
 			HowAttorneysAct:      Jointly,
 		},
 		"with multiple attorneys acting jointly and multiple replacement attorneys": {
 			expectedUrl:          Paths.HowShouldReplacementAttorneysMakeDecisions,
-			Attorneys:            []Attorney{attorney1, attorney2},
-			ReplacementAttorneys: []Attorney{attorney1, attorney2},
+			Attorneys:            actor.Attorneys{attorney1, attorney2},
+			ReplacementAttorneys: actor.Attorneys{attorney1, attorney2},
 			HowAttorneysAct:      Jointly,
 		},
 	}

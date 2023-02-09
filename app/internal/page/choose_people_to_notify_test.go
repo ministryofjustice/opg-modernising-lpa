@@ -64,7 +64,7 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			PeopleToNotify: []PersonToNotify{
+			PeopleToNotify: actor.PeopleToNotify{
 				validPersonToNotify,
 			},
 		}, nil)
@@ -106,7 +106,7 @@ func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
 }
 
 func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		FirstNames: "John",
 		LastName:   "Doe",
 		Email:      "johnny@example.com",
@@ -114,11 +114,11 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 	}
 
 	testcases := map[string]struct {
-		addedPeople []PersonToNotify
+		addedPeople actor.PeopleToNotify
 		expectedUrl string
 	}{
 		"5 people": {
-			addedPeople: []PersonToNotify{
+			addedPeople: actor.PeopleToNotify{
 				personToNotify,
 				personToNotify,
 				personToNotify,
@@ -128,7 +128,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 			expectedUrl: "/lpa/lpa-id" + Paths.ChoosePeopleToNotifySummary,
 		},
 		"6 people": {
-			addedPeople: []PersonToNotify{
+			addedPeople: actor.PeopleToNotify{
 				personToNotify,
 				personToNotify,
 				personToNotify,
@@ -166,7 +166,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 	testCases := map[string]struct {
 		form           url.Values
-		personToNotify PersonToNotify
+		personToNotify actor.PersonToNotify
 	}{
 		"valid": {
 			form: url.Values{
@@ -174,7 +174,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 				"last-name":   {"Doe"},
 				"email":       {"johnny@example.com"},
 			},
-			personToNotify: PersonToNotify{
+			personToNotify: actor.PersonToNotify{
 				FirstNames: "John",
 				LastName:   "Doe",
 				Email:      "johnny@example.com",
@@ -188,7 +188,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 				"email":               {"johnny@example.com"},
 				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypePersonToNotify, actor.TypeDonor, "Jane", "Doe").String()},
 			},
-			personToNotify: PersonToNotify{
+			personToNotify: actor.PersonToNotify{
 				FirstNames: "Jane",
 				LastName:   "Doe",
 				Email:      "johnny@example.com",
@@ -207,12 +207,12 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&Lpa{
-					You: Person{FirstNames: "Jane", LastName: "Doe"},
+					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &Lpa{
-					You:            Person{FirstNames: "Jane", LastName: "Doe"},
-					PeopleToNotify: []PersonToNotify{tc.personToNotify},
+					You:            actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					PeopleToNotify: actor.PeopleToNotify{tc.personToNotify},
 					Tasks:          Tasks{PeopleToNotify: TaskInProgress},
 				}).
 				Return(nil)
@@ -239,14 +239,14 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	existingPerson := PersonToNotify{
+	existingPerson := actor.PersonToNotify{
 		FirstNames: "John",
 		LastName:   "Doe",
 		Email:      "johnny@example.com",
 		ID:         "123",
 	}
 
-	updatedPerson := PersonToNotify{
+	updatedPerson := actor.PersonToNotify{
 		FirstNames: "Johnny",
 		LastName:   "Dear",
 		Email:      "johnny.d@example.com",
@@ -257,11 +257,11 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			PeopleToNotify: []PersonToNotify{existingPerson},
+			PeopleToNotify: actor.PeopleToNotify{existingPerson},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
-			PeopleToNotify: []PersonToNotify{updatedPerson},
+			PeopleToNotify: actor.PeopleToNotify{updatedPerson},
 			Tasks:          Tasks{PeopleToNotify: TaskInProgress},
 		}).
 		Return(nil)
@@ -310,7 +310,7 @@ func TestPostChoosePeopleToNotifyFromAnotherPage(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&Lpa{
-					PeopleToNotify: []PersonToNotify{
+					PeopleToNotify: actor.PeopleToNotify{
 						{
 							FirstNames: "John",
 							LastName:   "Doe",
@@ -321,7 +321,7 @@ func TestPostChoosePeopleToNotifyFromAnotherPage(t *testing.T) {
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &Lpa{
-					PeopleToNotify: []PersonToNotify{
+					PeopleToNotify: actor.PeopleToNotify{
 						{
 							FirstNames: "John",
 							LastName:   "Doe",
@@ -405,7 +405,7 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&Lpa{
-					You: Person{FirstNames: "Jane", LastName: "Doe"},
+					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
 				}, nil)
 
 			template := &mockTemplate{}
@@ -524,17 +524,17 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 
 func TestPersonToNotifyMatches(t *testing.T) {
 	lpa := &Lpa{
-		You: Person{FirstNames: "a", LastName: "b"},
-		Attorneys: []Attorney{
+		You: actor.Person{FirstNames: "a", LastName: "b"},
+		Attorneys: actor.Attorneys{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},
 		},
-		ReplacementAttorneys: []Attorney{
+		ReplacementAttorneys: actor.Attorneys{
 			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
 		},
-		CertificateProvider: CertificateProvider{FirstNames: "k", LastName: "l"},
-		PeopleToNotify: []PersonToNotify{
+		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
+		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{ID: "123", FirstNames: "o", LastName: "p"},
 		},

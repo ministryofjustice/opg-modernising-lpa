@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -22,11 +23,11 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"mixed": {
 			lpa: &Lpa{
-				You: Person{
+				You: actor.Person{
 					FirstNames: "this",
 				},
-				Attorneys:            []Attorney{{}, {}},
-				ReplacementAttorneys: []Attorney{{}},
+				Attorneys:            actor.Attorneys{{}, {}},
+				ReplacementAttorneys: actor.Attorneys{{}},
 				Tasks: Tasks{
 					YourDetails:                TaskCompleted,
 					ChooseAttorneys:            TaskCompleted,

@@ -7,10 +7,10 @@
     <div class="govuk-grid-column-two-thirds">
       <form novalidate method="post">
         <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">
-          {{ trFormat .App "restrictionsOnYourAttorneysPower" "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+          {{ trFormat .App "restrictionsOnYourAttorneysPower" "AllAttorneysFirstNames" .Lpa.Attorneys.FirstNames }}
         </h1>
 
-        {{ trFormatHtml .App "restrictionsOnYourAttorneysPowerContent" "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+        {{ trFormatHtml .App "restrictionsOnYourAttorneysPowerContent" "AllAttorneysFirstNames" .Lpa.Attorneys.FirstNames }}
 
         {{ template "details" (details . "restrictionExamples" "restrictionExamplesContent" false) }}
 

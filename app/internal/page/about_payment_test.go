@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 
 	"github.com/gorilla/sessions"
@@ -41,7 +42,7 @@ func TestAboutPayment(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
-				Return(&Lpa{CertificateProvider: CertificateProvider{}}, nil)
+				Return(&Lpa{CertificateProvider: actor.CertificateProvider{}}, nil)
 
 			template := &mockTemplate{}
 			template.
@@ -86,7 +87,7 @@ func TestAboutPayment(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
-				Return(&Lpa{CertificateProvider: CertificateProvider{}}, nil)
+				Return(&Lpa{CertificateProvider: actor.CertificateProvider{}}, nil)
 
 			template := &mockTemplate{}
 			template.
@@ -131,7 +132,7 @@ func TestAboutPayment(t *testing.T) {
 					lpaStore := &mockLpaStore{}
 					lpaStore.
 						On("Get", r.Context()).
-						Return(&Lpa{CertificateProvider: CertificateProvider{}}, nil)
+						Return(&Lpa{CertificateProvider: actor.CertificateProvider{}}, nil)
 
 					template := &mockTemplate{}
 					template.
@@ -194,7 +195,7 @@ func TestAboutPayment(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
-				Return(&Lpa{CertificateProvider: CertificateProvider{}}, nil)
+				Return(&Lpa{CertificateProvider: actor.CertificateProvider{}}, nil)
 
 			template := &mockTemplate{}
 
@@ -223,7 +224,7 @@ func TestAboutPayment(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
-				Return(&Lpa{CertificateProvider: CertificateProvider{}}, nil)
+				Return(&Lpa{CertificateProvider: actor.CertificateProvider{}}, nil)
 
 			template := &mockTemplate{}
 
