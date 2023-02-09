@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -56,7 +57,7 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	certificateProvider := CertificateProvider{
+	certificateProvider := actor.CertificateProvider{
 		Relationship: "friend",
 	}
 	lpaStore := &mockLpaStore{}
@@ -108,13 +109,13 @@ func TestGetHowDoYouKnowYourCertificateProviderWhenTemplateErrors(t *testing.T) 
 func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 	testCases := map[string]struct {
 		form                url.Values
-		certificateProvider CertificateProvider
+		certificateProvider actor.CertificateProvider
 		taskState           TaskState
 		redirect            string
 	}{
 		"legal-professional": {
 			form: url.Values{"how": {"legal-professional"}},
-			certificateProvider: CertificateProvider{
+			certificateProvider: actor.CertificateProvider{
 				FirstNames:   "John",
 				Relationship: "legal-professional",
 			},
@@ -123,7 +124,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		},
 		"health-professional": {
 			form: url.Values{"how": {"health-professional"}},
-			certificateProvider: CertificateProvider{
+			certificateProvider: actor.CertificateProvider{
 				FirstNames:   "John",
 				Relationship: "health-professional",
 			},
@@ -132,7 +133,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		},
 		"other": {
 			form: url.Values{"how": {"other"}, "description": {"This"}},
-			certificateProvider: CertificateProvider{
+			certificateProvider: actor.CertificateProvider{
 				FirstNames:              "John",
 				Relationship:            "other",
 				RelationshipDescription: "This",
@@ -143,7 +144,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		},
 		"lay - friend": {
 			form: url.Values{"how": {"friend"}},
-			certificateProvider: CertificateProvider{
+			certificateProvider: actor.CertificateProvider{
 				FirstNames:         "John",
 				Relationship:       "friend",
 				RelationshipLength: "gte-2-years",
@@ -153,7 +154,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		},
 		"lay - neighbour": {
 			form: url.Values{"how": {"neighbour"}},
-			certificateProvider: CertificateProvider{
+			certificateProvider: actor.CertificateProvider{
 				FirstNames:         "John",
 				Relationship:       "neighbour",
 				RelationshipLength: "gte-2-years",
@@ -163,7 +164,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		},
 		"lay - colleague": {
 			form: url.Values{"how": {"colleague"}},
-			certificateProvider: CertificateProvider{
+			certificateProvider: actor.CertificateProvider{
 				FirstNames:         "John",
 				Relationship:       "colleague",
 				RelationshipLength: "gte-2-years",
@@ -183,7 +184,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&Lpa{
-					CertificateProvider: CertificateProvider{FirstNames: "John", Relationship: "what", RelationshipLength: "gte-2-years"},
+					CertificateProvider: actor.CertificateProvider{FirstNames: "John", Relationship: "what", RelationshipLength: "gte-2-years"},
 					Tasks: Tasks{
 						YourDetails:     TaskCompleted,
 						ChooseAttorneys: TaskCompleted,

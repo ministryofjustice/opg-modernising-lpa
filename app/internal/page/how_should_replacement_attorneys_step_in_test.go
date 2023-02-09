@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -123,18 +124,18 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 
 func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 	testCases := map[string]struct {
-		Attorneys                           []Attorney
-		ReplacementAttorneys                []Attorney
+		Attorneys                           actor.Attorneys
+		ReplacementAttorneys                actor.Attorneys
 		HowAttorneysMakeDecisions           string
 		HowShouldReplacementAttorneysStepIn string
 		ExpectedRedirectUrl                 string
 	}{
 		"multiple attorneys acting jointly and severally replacements step in when none left": {
-			Attorneys: []Attorney{
+			Attorneys: actor.Attorneys{
 				{ID: "123"},
 				{ID: "123"},
 			},
-			ReplacementAttorneys: []Attorney{
+			ReplacementAttorneys: actor.Attorneys{
 				{ID: "123"},
 				{ID: "123"},
 			},
@@ -143,7 +144,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			ExpectedRedirectUrl:                 "/lpa/lpa-id" + Paths.HowShouldReplacementAttorneysMakeDecisions,
 		},
 		"multiple attorneys acting jointly and severally replacements step in when one loses capacity": {
-			Attorneys: []Attorney{
+			Attorneys: actor.Attorneys{
 				{ID: "123"},
 				{ID: "123"},
 			},
@@ -152,7 +153,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			ExpectedRedirectUrl:                 "/lpa/lpa-id" + Paths.TaskList,
 		},
 		"multiple attorneys acting jointly": {
-			Attorneys: []Attorney{
+			Attorneys: actor.Attorneys{
 				{ID: "123"},
 				{ID: "123"},
 			},

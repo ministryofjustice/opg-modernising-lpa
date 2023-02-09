@@ -27,7 +27,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 		}
 
 		addAnother := r.FormValue("addAnother") == "1"
-		attorney, attorneyFound := lpa.GetAttorney(r.URL.Query().Get("id"))
+		attorney, attorneyFound := lpa.Attorneys.Get(r.URL.Query().Get("id"))
 
 		if r.Method == http.MethodGet && len(lpa.Attorneys) > 0 && attorneyFound == false && addAnother == false {
 			return appData.Redirect(w, r, lpa, Paths.ChooseAttorneysSummary)
@@ -66,7 +66,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 
 			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
 				if attorneyFound == false {
-					attorney = Attorney{
+					attorney = actor.Attorney{
 						FirstNames:  data.Form.FirstNames,
 						LastName:    data.Form.LastName,
 						Email:       data.Form.Email,
@@ -81,7 +81,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 					attorney.Email = data.Form.Email
 					attorney.DateOfBirth = data.Form.Dob
 
-					lpa.PutAttorney(attorney)
+					lpa.Attorneys.Put(attorney)
 				}
 
 				if !attorneyFound {

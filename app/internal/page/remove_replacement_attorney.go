@@ -5,12 +5,13 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type removeReplacementAttorneyData struct {
 	App      AppData
-	Attorney Attorney
+	Attorney actor.Attorney
 	Errors   validation.List
 	Form     *removeAttorneyForm
 }
@@ -24,7 +25,7 @@ func RemoveReplacementAttorney(logger Logger, tmpl template.Template, lpaStore L
 		}
 
 		id := r.FormValue("id")
-		attorney, found := lpa.GetReplacementAttorney(id)
+		attorney, found := lpa.ReplacementAttorneys.Get(id)
 
 		if found == false {
 			return appData.Redirect(w, r, lpa, Paths.ChooseReplacementAttorneysSummary)
@@ -41,7 +42,7 @@ func RemoveReplacementAttorney(logger Logger, tmpl template.Template, lpaStore L
 			data.Errors = data.Form.Validate()
 
 			if data.Form.RemoveAttorney == "yes" && data.Errors.None() {
-				lpa.DeleteReplacementAttorney(attorney)
+				lpa.ReplacementAttorneys.Delete(attorney)
 				if len(lpa.ReplacementAttorneys) == 0 {
 					lpa.Tasks.ChooseReplacementAttorneys = TaskInProgress
 				}

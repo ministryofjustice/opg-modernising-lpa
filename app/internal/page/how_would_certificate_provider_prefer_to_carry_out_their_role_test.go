@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -45,14 +46,14 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *tes
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			CertificateProvider: CertificateProvider{CarryOutBy: "paper"},
+			CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"},
 		}, nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:                 appData,
-			CertificateProvider: CertificateProvider{CarryOutBy: "paper"},
+			CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"},
 			Form:                &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{CarryOutBy: "paper"},
 		}).
 		Return(nil)
@@ -142,7 +143,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 				Return(&Lpa{}, nil)
 			lpaStore.
 				On("Put", r.Context(), &Lpa{
-					CertificateProvider: CertificateProvider{CarryOutBy: tc.carryOutBy, Email: tc.email},
+					CertificateProvider: actor.CertificateProvider{CarryOutBy: tc.carryOutBy, Email: tc.email},
 				}).
 				Return(nil)
 

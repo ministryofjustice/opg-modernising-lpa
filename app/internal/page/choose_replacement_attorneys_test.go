@@ -68,7 +68,7 @@ func TestGetChooseReplacementAttorneysFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			ReplacementAttorneys: []Attorney{
+			ReplacementAttorneys: actor.Attorneys{
 				{FirstNames: "John", ID: "1"},
 			},
 		}, nil)
@@ -114,7 +114,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 
 	testCases := map[string]struct {
 		form     url.Values
-		attorney Attorney
+		attorney actor.Attorney
 	}{
 		"valid": {
 			form: url.Values{
@@ -125,7 +125,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
 			},
-			attorney: Attorney{
+			attorney: actor.Attorney{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "john@example.com",
@@ -143,7 +143,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				"date-of-birth-year":  {"1900"},
 				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
-			attorney: Attorney{
+			attorney: actor.Attorney{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "john@example.com",
@@ -161,7 +161,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				"date-of-birth-year":  {validBirthYear},
 				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeReplacementAttorney, actor.TypeDonor, "Jane", "Doe").String()},
 			},
-			attorney: Attorney{
+			attorney: actor.Attorney{
 				FirstNames:  "Jane",
 				LastName:    "Doe",
 				Email:       "john@example.com",
@@ -181,12 +181,12 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&Lpa{
-					You: Person{FirstNames: "Jane", LastName: "Doe"},
+					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &Lpa{
-					You:                  Person{FirstNames: "Jane", LastName: "Doe"},
-					ReplacementAttorneys: []Attorney{tc.attorney},
+					You:                  actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					ReplacementAttorneys: actor.Attorneys{tc.attorney},
 					Tasks:                Tasks{ChooseReplacementAttorneys: TaskInProgress},
 				}).
 				Return(nil)
@@ -207,7 +207,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 
 	testCases := map[string]struct {
 		form     url.Values
-		attorney Attorney
+		attorney actor.Attorney
 	}{
 		"valid": {
 			form: url.Values{
@@ -218,7 +218,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
 			},
-			attorney: Attorney{
+			attorney: actor.Attorney{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "john@example.com",
@@ -237,7 +237,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				"date-of-birth-year":  {"1900"},
 				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
-			attorney: Attorney{
+			attorney: actor.Attorney{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "john@example.com",
@@ -256,7 +256,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				"date-of-birth-year":  {validBirthYear},
 				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeReplacementAttorney, actor.TypeDonor, "Jane", "Doe").String()},
 			},
-			attorney: Attorney{
+			attorney: actor.Attorney{
 				FirstNames:  "Jane",
 				LastName:    "Doe",
 				Email:       "john@example.com",
@@ -277,8 +277,8 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&Lpa{
-					You: Person{FirstNames: "Jane", LastName: "Doe"},
-					ReplacementAttorneys: []Attorney{
+					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					ReplacementAttorneys: actor.Attorneys{
 						{
 							FirstNames: "John",
 							ID:         "123",
@@ -288,8 +288,8 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &Lpa{
-					You:                  Person{FirstNames: "Jane", LastName: "Doe"},
-					ReplacementAttorneys: []Attorney{tc.attorney},
+					You:                  actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					ReplacementAttorneys: actor.Attorneys{tc.attorney},
 				}).
 				Return(nil)
 
@@ -342,13 +342,13 @@ func TestPostChooseReplacementAttorneysFromAnotherPage(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&Lpa{
-					ReplacementAttorneys: []Attorney{
+					ReplacementAttorneys: actor.Attorneys{
 						{FirstNames: "John", Address: place.Address{Line1: "abc"}, ID: "123"},
 					},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &Lpa{
-					ReplacementAttorneys: []Attorney{
+					ReplacementAttorneys: actor.Attorneys{
 						{
 							ID:          "123",
 							FirstNames:  "John",
@@ -489,7 +489,7 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&Lpa{
-					You: Person{FirstNames: "Jane", LastName: "Doe"},
+					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
 				}, nil)
 
 			template := &mockTemplate{}
@@ -539,17 +539,17 @@ func TestPostChooseReplacementAttorneysWhenStoreErrors(t *testing.T) {
 
 func TestReplacementAttorneyMatches(t *testing.T) {
 	lpa := &Lpa{
-		You: Person{FirstNames: "a", LastName: "b"},
-		Attorneys: []Attorney{
+		You: actor.Person{FirstNames: "a", LastName: "b"},
+		Attorneys: actor.Attorneys{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},
 		},
-		ReplacementAttorneys: []Attorney{
+		ReplacementAttorneys: actor.Attorneys{
 			{FirstNames: "g", LastName: "h"},
 			{ID: "123", FirstNames: "i", LastName: "j"},
 		},
-		CertificateProvider: CertificateProvider{FirstNames: "k", LastName: "l"},
-		PeopleToNotify: []PersonToNotify{
+		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
+		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
 		},

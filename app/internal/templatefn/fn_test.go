@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -248,7 +249,7 @@ func TestLowerFirst(t *testing.T) {
 }
 
 func TestListAttorneysWithAttorneys(t *testing.T) {
-	attorneys := []page.Attorney{
+	attorneys := actor.Attorneys{
 		{ID: "123"},
 		{ID: "123"},
 	}
@@ -275,7 +276,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 }
 
 func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
-	attorneys := []page.Attorney{
+	attorneys := actor.Attorneys{
 		{ID: "123"},
 		{ID: "123"},
 	}

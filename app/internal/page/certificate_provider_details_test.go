@@ -64,7 +64,7 @@ func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			CertificateProvider: CertificateProvider{
+			CertificateProvider: actor.CertificateProvider{
 				FirstNames: "John",
 			},
 		}, nil)
@@ -115,7 +115,7 @@ func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
 func TestPostCertificateProviderDetails(t *testing.T) {
 	testCases := map[string]struct {
 		form                url.Values
-		certificateProvider CertificateProvider
+		certificateProvider actor.CertificateProvider
 	}{
 		"valid": {
 			form: url.Values{
@@ -126,7 +126,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1990"},
 			},
-			certificateProvider: CertificateProvider{
+			certificateProvider: actor.CertificateProvider{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Mobile:      "07535111111",
@@ -143,7 +143,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"date-of-birth-year":  {"1990"},
 				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeCertificateProvider, actor.TypeDonor, "Jane", "Doe").String()},
 			},
-			certificateProvider: CertificateProvider{
+			certificateProvider: actor.CertificateProvider{
 				FirstNames:  "Jane",
 				LastName:    "Doe",
 				Mobile:      "07535111111",
@@ -162,14 +162,14 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&Lpa{
-					You: Person{
+					You: actor.Person{
 						FirstNames: "Jane",
 						LastName:   "Doe",
 					},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &Lpa{
-					You: Person{
+					You: actor.Person{
 						FirstNames: "Jane",
 						LastName:   "Doe",
 					},
@@ -217,7 +217,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				"date-of-birth-year":  {"1990"},
 			},
 			existingLpa: &Lpa{
-				You: Person{
+				You: actor.Person{
 					FirstNames: "John",
 					LastName:   "Doe",
 				},
@@ -236,7 +236,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				"ignore-name-warning": {"errorDonorMatchesActor|theCertificateProvider|John|Doe"},
 			},
 			existingLpa: &Lpa{
-				You: Person{
+				You: actor.Person{
 					FirstNames: "John",
 					LastName:   "Doe",
 				},
@@ -256,7 +256,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				"ignore-name-warning": {"errorAttorneyMatchesActor|theCertificateProvider|John|Doe"},
 			},
 			existingLpa: &Lpa{
-				You: Person{
+				You: actor.Person{
 					FirstNames: "John",
 					LastName:   "Doe",
 				},
@@ -469,17 +469,17 @@ func TestUkMobileFormatValidation(t *testing.T) {
 
 func TestCertificateProviderMatches(t *testing.T) {
 	lpa := &Lpa{
-		You: Person{FirstNames: "a", LastName: "b"},
-		Attorneys: []Attorney{
+		You: actor.Person{FirstNames: "a", LastName: "b"},
+		Attorneys: actor.Attorneys{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},
 		},
-		ReplacementAttorneys: []Attorney{
+		ReplacementAttorneys: actor.Attorneys{
 			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
 		},
-		CertificateProvider: CertificateProvider{FirstNames: "k", LastName: "l"},
-		PeopleToNotify: []PersonToNotify{
+		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
+		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
 		},

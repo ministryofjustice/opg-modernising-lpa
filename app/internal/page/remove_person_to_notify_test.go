@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 
@@ -20,7 +21,7 @@ func TestGetRemovePersonToNotify(t *testing.T) {
 
 	logger := &mockLogger{}
 
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		ID: "123",
 		Address: place.Address{
 			Line1: "1 Road way",
@@ -40,7 +41,7 @@ func TestGetRemovePersonToNotify(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
 	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
 
@@ -84,7 +85,7 @@ func TestGetRemovePersonToNotifyAttorneyDoesNotExist(t *testing.T) {
 
 	template := &mockTemplate{}
 
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		ID: "123",
 		Address: place.Address{
 			Line1: "1 Road way",
@@ -94,7 +95,7 @@ func TestGetRemovePersonToNotifyAttorneyDoesNotExist(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
 	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
 
@@ -118,14 +119,14 @@ func TestPostRemovePersonToNotify(t *testing.T) {
 	logger := &mockLogger{}
 	template := &mockTemplate{}
 
-	personToNotifyWithAddress := PersonToNotify{
+	personToNotifyWithAddress := actor.PersonToNotify{
 		ID: "with-address",
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
-	personToNotifyWithoutAddress := PersonToNotify{
+	personToNotifyWithoutAddress := actor.PersonToNotify{
 		ID:      "without-address",
 		Address: place.Address{},
 	}
@@ -133,9 +134,9 @@ func TestPostRemovePersonToNotify(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}}, nil)
 	lpaStore.
-		On("Put", r.Context(), &Lpa{PeopleToNotify: []PersonToNotify{personToNotifyWithAddress}}).
+		On("Put", r.Context(), &Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithAddress}}).
 		Return(nil)
 
 	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
@@ -160,14 +161,14 @@ func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
 	logger := &mockLogger{}
 	template := &mockTemplate{}
 
-	personToNotifyWithAddress := PersonToNotify{
+	personToNotifyWithAddress := actor.PersonToNotify{
 		ID: "with-address",
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
-	personToNotifyWithoutAddress := PersonToNotify{
+	personToNotifyWithoutAddress := actor.PersonToNotify{
 		ID:      "without-address",
 		Address: place.Address{},
 	}
@@ -175,7 +176,7 @@ func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}}, nil)
 
 	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
 
@@ -203,14 +204,14 @@ func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
 		On("Print", "error removing PersonToNotify from LPA: err").
 		Return(nil)
 
-	personToNotifyWithAddress := PersonToNotify{
+	personToNotifyWithAddress := actor.PersonToNotify{
 		ID: "with-address",
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
-	personToNotifyWithoutAddress := PersonToNotify{
+	personToNotifyWithoutAddress := actor.PersonToNotify{
 		ID:      "without-address",
 		Address: place.Address{},
 	}
@@ -218,9 +219,9 @@ func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}}, nil)
 	lpaStore.
-		On("Put", r.Context(), &Lpa{PeopleToNotify: []PersonToNotify{personToNotifyWithAddress}}).
+		On("Put", r.Context(), &Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithAddress}}).
 		Return(expectedError)
 
 	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
@@ -241,7 +242,7 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	personToNotifyWithoutAddress := PersonToNotify{
+	personToNotifyWithoutAddress := actor.PersonToNotify{
 		ID:      "without-address",
 		Address: place.Address{},
 	}
@@ -249,7 +250,7 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotifyWithoutAddress}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress}}, nil)
 
 	validationError := validation.With("remove-person-to-notify", validation.SelectError{Label: "removePersonToNotify"})
 
@@ -280,7 +281,7 @@ func TestRemovePersonToNotifyRemoveLastPersonRedirectsToChoosePeopleToNotify(t *
 	logger := &mockLogger{}
 	template := &mockTemplate{}
 
-	personToNotifyWithoutAddress := PersonToNotify{
+	personToNotifyWithoutAddress := actor.PersonToNotify{
 		ID:      "without-address",
 		Address: place.Address{},
 	}
@@ -289,12 +290,12 @@ func TestRemovePersonToNotifyRemoveLastPersonRedirectsToChoosePeopleToNotify(t *
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			PeopleToNotify: []PersonToNotify{personToNotifyWithoutAddress},
+			PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress},
 			Tasks:          Tasks{YourDetails: TaskCompleted, ChooseAttorneys: TaskCompleted, PeopleToNotify: TaskCompleted},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
-			PeopleToNotify: []PersonToNotify{},
+			PeopleToNotify: actor.PeopleToNotify{},
 			Tasks:          Tasks{YourDetails: TaskCompleted, ChooseAttorneys: TaskCompleted, PeopleToNotify: TaskNotStarted},
 		}).
 		Return(nil)
