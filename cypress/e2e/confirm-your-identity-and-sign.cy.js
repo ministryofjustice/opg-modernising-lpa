@@ -121,27 +121,27 @@ describe('Confirm your identity and sign', () => {
     });
 
     it('errors when not signed', () => {
-        cy.visitLpa('/sign-your-lpa');
+        cy.visitLpa('/sign-your-lpa', true);
 
         cy.contains('button', 'Submit my signature').click();
-        
+
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Select both boxes to sign your LPA');
         });
-        
+
         cy.contains('.moj-ticket-panel  .govuk-error-message', 'Select both boxes to sign your LPA');
     });
 
     it('errors when not witnessed', () => {
-        cy.visitLpa('/witnessing-your-signature');
+        cy.visitLpa('/witnessing-your-signature', true);
         cy.contains('button', 'Continue').click();
 
         cy.contains('button', 'Continue').click();
-        
+
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter the code we sent to the certificate provider');
         });
-        
+
         cy.contains('.moj-ticket-panel .govuk-error-message', 'Enter the code we sent to the certificate provider');
 
         cy.get('#f-witness-code').type('123');
