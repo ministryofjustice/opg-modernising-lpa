@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-func IdentityWithOneLogin(logger Logger, oneLoginClient OneLoginClient, store sessions.Store, randomString func(int) string) Handler {
+func CertificateProviderLogin(logger Logger, oneLoginClient OneLoginClient, store sessions.Store, randomString func(int) string) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		locale := ""
 		if appData.Lang == Cy {
@@ -18,12 +18,17 @@ func IdentityWithOneLogin(logger Logger, oneLoginClient OneLoginClient, store se
 
 		authCodeURL := oneLoginClient.AuthCodeURL(state, nonce, locale, true)
 
+		sessionID := r.FormValue("sessionId")
+		lpaID := r.FormValue("lpaId")
+
 		if err := setOneLoginSession(store, r, w, &OneLoginSession{
-			State:    state,
-			Nonce:    nonce,
-			Locale:   locale,
-			Identity: true,
-			LpaID:    appData.LpaID,
+			State:               state,
+			Nonce:               nonce,
+			Locale:              locale,
+			CertificateProvider: true,
+			Identity:            true,
+			SessionID:           sessionID,
+			LpaID:               lpaID,
 		}); err != nil {
 			logger.Print(err)
 			return nil
