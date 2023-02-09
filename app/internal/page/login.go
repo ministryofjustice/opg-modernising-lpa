@@ -28,10 +28,10 @@ func Login(logger Logger, oneLoginClient OneLoginClient, store sessions.Store, s
 		authCodeURL := oneLoginClient.AuthCodeURL(state, nonce, locale, false)
 
 		params := sessions.NewSession(store, "params")
-		params.Values = map[interface{}]interface{}{
-			"state":  state,
-			"nonce":  nonce,
-			"locale": locale,
+		params.Values["one-login"] = &OneLoginSession{
+			State:  state,
+			Nonce:  nonce,
+			Locale: locale,
 		}
 		params.Options = cookieOptions
 
