@@ -10,7 +10,7 @@
       <form novalidate method="post">
         <div class="moj-ticket-panel">
           <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
-            {{ $enterUniqueCodeHint := trFormat .App "enterUniqueCodeHint" "CpFirstName" .Lpa.CertificateProvider.FirstNames "DonorFullName" .Lpa.DonorFullName }}
+            {{ $enterUniqueCodeHint := trFormat .App "enterUniqueCodeHint" "CpFirstName" .Lpa.CertificateProvider.FirstNames "DonorFullName" .Lpa.You.FullName }}
             {{ template "input" (input . "witness-code" "enterUniqueCodeLabel" .Form.Code "hint" $enterUniqueCodeHint "classes" "govuk-input--width-5" "autocomplete" "off") }}
           </div>
         </div>

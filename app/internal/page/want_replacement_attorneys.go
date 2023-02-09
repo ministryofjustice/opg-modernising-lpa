@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -36,7 +37,7 @@ func WantReplacementAttorneys(tmpl template.Template, lpaStore LpaStore) Handler
 				var redirectUrl string
 
 				if form.Want == "no" {
-					lpa.ReplacementAttorneys = []Attorney{}
+					lpa.ReplacementAttorneys = actor.Attorneys{}
 					lpa.Tasks.ChooseReplacementAttorneys = TaskCompleted
 					redirectUrl = appData.Paths.TaskList
 				} else {

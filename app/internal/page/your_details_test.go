@@ -68,7 +68,7 @@ func TestGetYourDetailsFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			You: Person{
+			You: actor.Person{
 				FirstNames: "John",
 			},
 		}, nil)
@@ -121,7 +121,7 @@ func TestPostYourDetails(t *testing.T) {
 
 	testCases := map[string]struct {
 		form   url.Values
-		person Person
+		person actor.Person
 	}{
 		"valid": {
 			form: url.Values{
@@ -131,7 +131,7 @@ func TestPostYourDetails(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
 			},
-			person: Person{
+			person: actor.Person{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
@@ -148,7 +148,7 @@ func TestPostYourDetails(t *testing.T) {
 				"date-of-birth-year":  {"1900"},
 				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
-			person: Person{
+			person: actor.Person{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				DateOfBirth: date.New("1900", "1", "2"),
@@ -169,7 +169,7 @@ func TestPostYourDetails(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&Lpa{
-					You: Person{
+					You: actor.Person{
 						FirstNames: "John",
 						Address:    place.Address{Line1: "abc"},
 					},
@@ -302,7 +302,7 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			You: Person{
+			You: actor.Person{
 				FirstNames: "John",
 				Address:    place.Address{Line1: "abc"},
 			},
@@ -520,17 +520,17 @@ func TestYourDetailsFormDobWarning(t *testing.T) {
 
 func TestDonorMatches(t *testing.T) {
 	lpa := &Lpa{
-		You: Person{FirstNames: "a", LastName: "b"},
-		Attorneys: []Attorney{
+		You: actor.Person{FirstNames: "a", LastName: "b"},
+		Attorneys: actor.Attorneys{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},
 		},
-		ReplacementAttorneys: []Attorney{
+		ReplacementAttorneys: actor.Attorneys{
 			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
 		},
-		CertificateProvider: CertificateProvider{FirstNames: "k", LastName: "l"},
-		PeopleToNotify: []PersonToNotify{
+		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
+		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
 		},

@@ -25,7 +25,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 		}
 
 		addAnother := r.FormValue("addAnother") == "1"
-		attorney, attorneyFound := lpa.GetReplacementAttorney(r.URL.Query().Get("id"))
+		attorney, attorneyFound := lpa.ReplacementAttorneys.Get(r.URL.Query().Get("id"))
 
 		if r.Method == http.MethodGet && len(lpa.ReplacementAttorneys) > 0 && attorneyFound == false && addAnother == false {
 			return appData.Redirect(w, r, lpa, Paths.ChooseReplacementAttorneysSummary)
@@ -63,7 +63,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 
 			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
 				if attorneyFound == false {
-					attorney = Attorney{
+					attorney = actor.Attorney{
 						FirstNames:  data.Form.FirstNames,
 						LastName:    data.Form.LastName,
 						Email:       data.Form.Email,
@@ -78,7 +78,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 					attorney.Email = data.Form.Email
 					attorney.DateOfBirth = data.Form.Dob
 
-					lpa.PutReplacementAttorney(attorney)
+					lpa.ReplacementAttorneys.Put(attorney)
 				}
 
 				if !attorneyFound {

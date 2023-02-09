@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -66,7 +67,7 @@ func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			CertificateProvider: CertificateProvider{FirstNames: "Joan"},
+			CertificateProvider: actor.CertificateProvider{FirstNames: "Joan"},
 		}, nil)
 
 	template := &mockTemplate{}
@@ -74,7 +75,7 @@ func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
 		On("Func", w, &witnessingAsCertificateProviderData{
 			App: appData,
 			Lpa: &Lpa{
-				CertificateProvider: CertificateProvider{FirstNames: "Joan"},
+				CertificateProvider: actor.CertificateProvider{FirstNames: "Joan"},
 			},
 			Form: &witnessingAsCertificateProviderForm{},
 		}).

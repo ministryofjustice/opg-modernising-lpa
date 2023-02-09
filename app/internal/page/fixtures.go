@@ -1,12 +1,13 @@
 package page
 
 import (
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
-func MakePerson() Person {
-	return Person{
+func MakePerson() actor.Person {
+	return actor.Person{
 		FirstNames: "Jose",
 		LastName:   "Smith",
 		Address: place.Address{
@@ -21,8 +22,8 @@ func MakePerson() Person {
 	}
 }
 
-func MakeAttorney(firstNames string) Attorney {
-	return Attorney{
+func MakeAttorney(firstNames string) actor.Attorney {
+	return actor.Attorney{
 		ID:          firstNames + "Smith",
 		FirstNames:  firstNames,
 		LastName:    "Smith",
@@ -38,8 +39,8 @@ func MakeAttorney(firstNames string) Attorney {
 	}
 }
 
-func MakePersonToNotify(firstNames string) PersonToNotify {
-	return PersonToNotify{
+func MakePersonToNotify(firstNames string) actor.PersonToNotify {
+	return actor.PersonToNotify{
 		ID:         firstNames + "Smith",
 		FirstNames: firstNames,
 		LastName:   "Smith",
@@ -54,8 +55,8 @@ func MakePersonToNotify(firstNames string) PersonToNotify {
 	}
 }
 
-func MakeCertificateProvider(firstNames string) CertificateProvider {
-	return CertificateProvider{
+func MakeCertificateProvider(firstNames string) actor.CertificateProvider {
+	return actor.CertificateProvider{
 		FirstNames:              firstNames,
 		LastName:                "Smith",
 		Email:                   firstNames + "@example.org",

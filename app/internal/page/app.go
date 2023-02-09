@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 
@@ -334,13 +335,13 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 		}
 
 		if r.FormValue("withAttorney") != "" {
-			lpa.Attorneys = []Attorney{MakeAttorney("John")}
+			lpa.Attorneys = actor.Attorneys{MakeAttorney("John")}
 
 			lpa.Tasks.ChooseAttorneys = TaskCompleted
 		}
 
 		if r.FormValue("withAttorneys") != "" || r.FormValue("completeLpa") != "" {
-			lpa.Attorneys = []Attorney{
+			lpa.Attorneys = actor.Attorneys{
 				MakeAttorney("John"),
 				MakeAttorney("Joan"),
 			}
@@ -356,7 +357,7 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 			withoutAddress.ID = "without-address"
 			withoutAddress.Address = place.Address{}
 
-			lpa.Attorneys = []Attorney{
+			lpa.Attorneys = actor.Attorneys{
 				withAddress,
 				withoutAddress,
 			}
@@ -388,7 +389,7 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 		}
 
 		if r.FormValue("withReplacementAttorneys") != "" || r.FormValue("completeLpa") != "" {
-			lpa.ReplacementAttorneys = []Attorney{
+			lpa.ReplacementAttorneys = actor.Attorneys{
 				MakeAttorney("Jane"),
 				MakeAttorney("Jorge"),
 			}
@@ -414,7 +415,7 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 		}
 
 		if r.FormValue("withPeopleToNotify") == "1" || r.FormValue("completeLpa") != "" {
-			lpa.PeopleToNotify = []PersonToNotify{
+			lpa.PeopleToNotify = actor.PeopleToNotify{
 				MakePersonToNotify("Joanna"),
 				MakePersonToNotify("Jonathan"),
 			}
@@ -425,7 +426,7 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 		if r.FormValue("withIncompletePeopleToNotify") == "1" {
 			joanna := MakePersonToNotify("Joanna")
 			joanna.Address = place.Address{}
-			lpa.PeopleToNotify = []PersonToNotify{
+			lpa.PeopleToNotify = actor.PeopleToNotify{
 				joanna,
 			}
 			lpa.DoYouWantToNotifyPeople = "yes"
