@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -73,7 +74,7 @@ func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{{ID: "123"}}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}}, nil)
 
 	err := ChoosePeopleToNotifySummary(nil, nil, lpaStore)(appData, w, r)
 	resp := w.Result()
@@ -97,7 +98,7 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			PeopleToNotify: []PersonToNotify{{ID: "123"}},
+			PeopleToNotify: actor.PeopleToNotify{{ID: "123"}},
 			Tasks: Tasks{
 				YourDetails:                TaskCompleted,
 				ChooseAttorneys:            TaskCompleted,

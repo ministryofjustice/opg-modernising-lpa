@@ -28,7 +28,7 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 		}
 
 		addAnother := r.FormValue("addAnother") == "1"
-		personToNotify, personFound := lpa.GetPersonToNotify(r.URL.Query().Get("id"))
+		personToNotify, personFound := lpa.PeopleToNotify.Get(r.URL.Query().Get("id"))
 
 		if r.Method == http.MethodGet && len(lpa.PeopleToNotify) > 0 && personFound == false && addAnother == false {
 			return appData.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
@@ -60,7 +60,7 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 
 			if data.Errors.None() && data.NameWarning == nil {
 				if personFound == false {
-					personToNotify = PersonToNotify{
+					personToNotify = actor.PersonToNotify{
 						FirstNames: data.Form.FirstNames,
 						LastName:   data.Form.LastName,
 						Email:      data.Form.Email,
@@ -73,7 +73,7 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 					personToNotify.LastName = data.Form.LastName
 					personToNotify.Email = data.Form.Email
 
-					lpa.PutPersonToNotify(personToNotify)
+					lpa.PeopleToNotify.Put(personToNotify)
 				}
 
 				lpa.Tasks.PeopleToNotify = TaskInProgress

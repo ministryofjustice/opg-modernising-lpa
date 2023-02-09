@@ -7,6 +7,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"golang.org/x/exp/slices"
 )
@@ -239,7 +240,7 @@ func lowerFirst(s string) string {
 	return string(unicode.ToLower(r)) + s[n:]
 }
 
-func listAttorneys(attorneys []page.Attorney, app page.AppData, attorneyType string, withHeaders bool, lpa *page.Lpa) map[string]interface{} {
+func listAttorneys(attorneys actor.Attorneys, app page.AppData, attorneyType string, withHeaders bool, lpa *page.Lpa) map[string]interface{} {
 	props := map[string]interface{}{
 		"Attorneys":    attorneys,
 		"App":          app,
