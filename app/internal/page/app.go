@@ -10,16 +10,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
 
@@ -46,12 +45,6 @@ func CacheControlHeaders(h http.Handler) http.Handler {
 		w.Header().Set("Cache-Control", "max-age=2592000")
 		h.ServeHTTP(w, r)
 	})
-}
-
-func IsLpaPath(url string) bool {
-	path, _, _ := strings.Cut(url, "?")
-
-	return path != Paths.Dashboard && path != Paths.Start
 }
 
 const (
@@ -175,15 +168,28 @@ func App(
 
 	handleRoot(paths.Start, None,
 		Guidance(tmpls.Get("start.gohtml"), paths.Auth, nil))
-
 	handleRoot(paths.Dashboard, RequireSession,
 		Dashboard(tmpls.Get("dashboard.gohtml"), lpaStore))
+
+	handleRoot(paths.CertificateProviderStart, None,
+		CertificateProviderStart(tmpls.Get("certificate_provider_start.gohtml"), lpaStore))
+	handleRoot(paths.CertificateProviderLogin, None,
+		CertificateProviderLogin(logger, oneLoginClient, sessionStore, random.String))
+	handleRoot(paths.CertificateProviderLoginCallback, None,
+		CertificateProviderLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, lpaStore))
+	handleRoot(paths.CertificateProviderYourDetails, RequireSession|RequireCertificateProvider,
+		Guidance(tmpls.Get("certificate_provider_your_details.gohtml"), "", lpaStore))
 
 	lpaMux := http.NewServeMux()
 
 	rootMux.Handle("/lpa/", routeToLpa(lpaMux))
 
 	handleLpa := makeHandle(lpaMux, logger, sessionStore, localizer, lang, rumConfig, staticHash, paths, RequireSession)
+
+	handleLpa("/testing-certificate-provider-start", None, func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+		http.Redirect(w, r, fmt.Sprintf("%s?sessionId=%s&lpaId=%s", paths.CertificateProviderStart, appData.SessionID, appData.LpaID), http.StatusFound)
+		return nil
+	})
 
 	handleLpa(paths.YourDetails, None,
 		YourDetails(tmpls.Get("your_details.gohtml"), lpaStore, sessionStore))
@@ -319,9 +325,7 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 		sub := randomString(12)
 		sessionID := base64.StdEncoding.EncodeToString([]byte(sub))
 
-		session, _ := store.Get(r, "session")
-		session.Values = map[interface{}]interface{}{"sub": sub, "email": "simulate-delivered@notifications.service.gov.uk"}
-		_ = store.Save(r, w, session)
+		_ = setDonorSession(store, r, w, &DonorSession{Sub: sub, Email: "simulate-delivered@notifications.service.gov.uk"})
 
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: sessionID})
 
@@ -475,6 +479,15 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 			})
 		}
 
+		if r.FormValue("asCertificateProvider") == "1" {
+			_ = setCertificateProviderSession(store, r, w, &CertificateProviderSession{
+				Sub:       randomString(12),
+				Email:     "simulate-delivered@notifications.service.gov.uk",
+				SessionID: sessionID,
+				LpaID:     lpa.ID,
+			})
+		}
+
 		random.UseTestCode = true
 
 		AppData{}.Redirect(w, r.WithContext(ctx), lpa, r.FormValue("redirect"))
@@ -487,6 +500,7 @@ const (
 	None handleOpt = 1 << iota
 	RequireSession
 	CanGoBack
+	RequireCertificateProvider
 )
 
 func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang, rumConfig RumConfig, staticHash string, paths AppPaths, defaultOptions handleOpt) func(string, handleOpt, Handler) {
@@ -508,30 +522,38 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 			}
 
 			if opt&RequireSession != 0 {
-				session, err := store.Get(r, "session")
-				if err != nil {
-					logger.Print(err)
-					http.Redirect(w, r, paths.Start, http.StatusFound)
-					return
-				}
+				if opt&RequireCertificateProvider != 0 {
+					session, err := getCertificateProviderSession(store, r)
+					if err != nil {
+						logger.Print(err)
+						http.Redirect(w, r, paths.Start, http.StatusFound)
+						return
+					}
 
-				sub, ok := session.Values["sub"].(string)
-				if !ok {
-					logger.Print("sub missing from session")
-					http.Redirect(w, r, paths.Start, http.StatusFound)
-					return
-				}
+					appData.SessionID = session.SessionID
+					appData.LpaID = session.LpaID
 
-				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(sub))
+					ctx = contextWithSessionData(ctx, &sessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
 
-				data := sessionDataFromContext(ctx)
-				if data != nil {
-					data.SessionID = appData.SessionID
-					ctx = contextWithSessionData(ctx, data)
-
-					appData.LpaID = data.LpaID
 				} else {
-					ctx = contextWithSessionData(ctx, &sessionData{SessionID: appData.SessionID})
+					session, err := getDonorSession(store, r)
+					if err != nil {
+						logger.Print(err)
+						http.Redirect(w, r, paths.Start, http.StatusFound)
+						return
+					}
+
+					appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
+
+					data := sessionDataFromContext(ctx)
+					if data != nil {
+						data.SessionID = appData.SessionID
+						ctx = contextWithSessionData(ctx, data)
+
+						appData.LpaID = data.LpaID
+					} else {
+						ctx = contextWithSessionData(ctx, &sessionData{SessionID: appData.SessionID})
+					}
 				}
 			}
 
