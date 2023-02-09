@@ -53,12 +53,12 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 			return err
 		}
 
-		nonce, ok := params.Values["nonce"].(string)
-		if !ok {
-			return fmt.Errorf("nonce missing from session")
+		oneLoginSession, ok := params.Values["one-login"].(*OneLoginSession)
+		if !ok || !oneLoginSession.Valid() {
+			return fmt.Errorf("missing valid one-login session")
 		}
 
-		accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), nonce)
+		accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), oneLoginSession.Nonce)
 		if err != nil {
 			return err
 		}
