@@ -110,6 +110,8 @@ type AppData struct {
 	StaticHash       string
 	Paths            AppPaths
 	LpaID            string
+	CsrfToken        string
+	CsrfFormName     string
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, lpa *Lpa, url string) error {
@@ -493,37 +495,34 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 		opt = opt | defaultOptions
 
 		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+			csrfSession, err := store.Get(r, "csrf")
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+
 			if r.Method == http.MethodPost {
-				rCsrfToken := r.PostFormValue("_csrf")
-				cCsrfToken, csrfErr := r.Cookie("csrf")
-
-				if csrfErr == http.ErrNoCookie {
-					logger.Print("csrf cookie not set")
-					http.Error(w, "Encountered an error", http.StatusForbidden)
-				}
-
-				if rCsrfToken == "" {
-					logger.Print("csrf token not set in form")
-					http.Error(w, "Encountered an error", http.StatusForbidden)
-				}
-
-				if rCsrfToken != cCsrfToken.Value {
-					logger.Print("invalid csrf token in request")
-					http.Error(w, "Encountered an error", http.StatusForbidden)
+				if !csrfValid(r, csrfSession) {
+					http.Error(w, "CSRF token not valid", http.StatusForbidden)
 				}
 			}
+
+			csrfSession.Values = map[interface{}]interface{}{"token": random.String(12)}
+			_ = store.Save(r, w, csrfSession)
 
 			ctx := r.Context()
 
 			appData := AppData{
-				Page:       path,
-				Query:      queryString(r),
-				Localizer:  localizer,
-				Lang:       lang,
-				CanGoBack:  opt&CanGoBack != 0,
-				RumConfig:  rumConfig,
-				StaticHash: staticHash,
-				Paths:      paths,
+				Page:         path,
+				Query:        queryString(r),
+				Localizer:    localizer,
+				Lang:         lang,
+				CanGoBack:    opt&CanGoBack != 0,
+				RumConfig:    rumConfig,
+				StaticHash:   staticHash,
+				Paths:        paths,
+				CsrfToken:    csrfSession.Values["token"].(string),
+				CsrfFormName: "csrf",
 			}
 
 			if opt&RequireSession != 0 {
@@ -557,13 +556,6 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 			_, cookieErr := r.Cookie("cookies-consent")
 			appData.CookieConsentSet = cookieErr != http.ErrNoCookie
 			appData.Localizer.ShowTranslationKeys = r.FormValue("showTranslationKeys") == "1"
-
-			http.SetCookie(w, &http.Cookie{
-				Name:   "csrfToken",
-				Value:  random.String(12),
-				MaxAge: 60,
-				Path:   "/",
-			})
 
 			if err := h(appData, w, r.WithContext(ctx)); err != nil {
 				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
@@ -606,4 +598,15 @@ func queryString(r *http.Request) string {
 	} else {
 		return ""
 	}
+}
+
+func csrfValid(r *http.Request, csrfSession *sessions.Session) bool {
+	fCsrfToken := r.PostFormValue("csrf")
+	cCsrfToken, ok := csrfSession.Values["token"].(string)
+
+	if !ok {
+		return false
+	}
+
+	return fCsrfToken == cCsrfToken
 }

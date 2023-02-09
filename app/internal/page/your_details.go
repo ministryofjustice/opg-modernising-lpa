@@ -24,16 +24,6 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 			return err
 		}
 
-		csrfToken, _ := r.Cookie("csrfToken")
-		if csrfToken == nil {
-			csrfToken = &http.Cookie{
-				Name:   "csrf",
-				Value:  "a-csrf-token",
-				MaxAge: 60,
-				Path:   "/",
-			}
-		}
-
 		data := &yourDetailsData{
 			App: appData,
 			Form: &yourDetailsForm{
@@ -41,7 +31,6 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 				LastName:   lpa.You.LastName,
 				OtherNames: lpa.You.OtherNames,
 				Dob:        lpa.You.DateOfBirth,
-				Csrf:       csrfToken.Value,
 			},
 		}
 
@@ -90,7 +79,6 @@ type yourDetailsForm struct {
 	OtherNames    string
 	Dob           date.Date
 	IgnoreWarning string
-	Csrf          string
 }
 
 func readYourDetailsForm(r *http.Request) *yourDetailsForm {
