@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -12,7 +13,7 @@ import (
 type chooseReplacementAttorneysAddressData struct {
 	App       AppData
 	Errors    validation.List
-	Attorney  Attorney
+	Attorney  actor.Attorney
 	Addresses []place.Address
 	Form      *addressForm
 }
@@ -25,7 +26,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 		}
 
 		attorneyId := r.FormValue("id")
-		ra, _ := lpa.GetReplacementAttorney(attorneyId)
+		ra, _ := lpa.ReplacementAttorneys.Get(attorneyId)
 
 		data := &chooseReplacementAttorneysAddressData{
 			App:      appData,
@@ -44,7 +45,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 
 			if data.Form.Action == "manual" && data.Errors.None() {
 				ra.Address = *data.Form.Address
-				lpa.PutReplacementAttorney(ra)
+				lpa.ReplacementAttorneys.Put(ra)
 				lpa.Tasks.ChooseReplacementAttorneys = TaskCompleted
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
@@ -65,7 +66,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 				data.Form.Action = "manual"
 
 				ra.Address = *data.Form.Address
-				lpa.PutReplacementAttorney(ra)
+				lpa.ReplacementAttorneys.Put(ra)
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err

@@ -5,12 +5,13 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type removePersonToNotifyData struct {
 	App            AppData
-	PersonToNotify PersonToNotify
+	PersonToNotify actor.PersonToNotify
 	Errors         validation.List
 	Form           *removePersonToNotifyForm
 }
@@ -24,7 +25,7 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaSto
 		}
 
 		id := r.FormValue("id")
-		attorney, found := lpa.GetPersonToNotify(id)
+		attorney, found := lpa.PeopleToNotify.Get(id)
 
 		if found == false {
 			return appData.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
@@ -41,7 +42,7 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaSto
 			data.Errors = data.Form.Validate()
 
 			if data.Form.RemovePersonToNotify == "yes" && data.Errors.None() {
-				lpa.DeletePersonToNotify(attorney)
+				lpa.PeopleToNotify.Delete(attorney)
 
 				var redirect string
 

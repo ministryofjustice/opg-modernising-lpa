@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -45,7 +46,7 @@ func TestGetWantReplacementAttorneysWithExistingReplacementAttorneys(t *testing.
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			ReplacementAttorneys: []Attorney{
+			ReplacementAttorneys: actor.Attorneys{
 				{FirstNames: "this"},
 			},
 		}, nil)
@@ -134,25 +135,25 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 	testCases := []struct {
 		Want                         string
 		ExpectedRedirect             string
-		ExistingReplacementAttorneys []Attorney
-		ExpectedReplacementAttorneys []Attorney
+		ExistingReplacementAttorneys actor.Attorneys
+		ExpectedReplacementAttorneys actor.Attorneys
 		TaskState                    TaskState
 	}{
 		{
 			Want:                         "yes",
 			ExpectedRedirect:             "/lpa/lpa-id" + Paths.ChooseReplacementAttorneys,
-			ExistingReplacementAttorneys: []Attorney{{ID: "123"}},
-			ExpectedReplacementAttorneys: []Attorney{{ID: "123"}},
+			ExistingReplacementAttorneys: actor.Attorneys{{ID: "123"}},
+			ExpectedReplacementAttorneys: actor.Attorneys{{ID: "123"}},
 			TaskState:                    TaskInProgress,
 		},
 		{
 			Want:             "no",
 			ExpectedRedirect: "/lpa/lpa-id" + Paths.TaskList,
-			ExistingReplacementAttorneys: []Attorney{
+			ExistingReplacementAttorneys: actor.Attorneys{
 				{ID: "123"},
 				{ID: "345"},
 			},
-			ExpectedReplacementAttorneys: []Attorney{},
+			ExpectedReplacementAttorneys: actor.Attorneys{},
 			TaskState:                    TaskCompleted,
 		},
 	}

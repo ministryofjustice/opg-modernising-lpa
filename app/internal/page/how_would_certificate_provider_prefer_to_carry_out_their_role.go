@@ -4,13 +4,14 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
 	App                 AppData
 	Errors              validation.List
-	CertificateProvider CertificateProvider
+	CertificateProvider actor.CertificateProvider
 	Form                *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
 }
 
