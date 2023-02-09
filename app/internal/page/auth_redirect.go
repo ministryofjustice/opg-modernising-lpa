@@ -7,52 +7,31 @@ import (
 )
 
 func AuthRedirect(logger Logger, oneLoginClient OneLoginClient, store sessions.Store, secure bool) http.HandlerFunc {
-	cookieOptions := &sessions.Options{
-		Path:     "/",
-		MaxAge:   24 * 60 * 60,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   secure,
-	}
-
 	return func(w http.ResponseWriter, r *http.Request) {
-		params, err := store.Get(r, "params")
+		oneLoginSession, err := getOneLoginSession(store, r)
 		if err != nil {
 			logger.Print(err)
 			return
 		}
 
-		if s, ok := params.Values["state"].(string); !ok || s != r.FormValue("state") {
-			logger.Print("state missing from session or incorrect")
+		if oneLoginSession.State != r.FormValue("state") {
+			logger.Print("state incorrect")
 			return
 		}
-
-		nonce, ok := params.Values["nonce"].(string)
-		if !ok {
-			logger.Print("nonce missing from session")
-			return
-		}
-
-		locale, ok := params.Values["locale"].(string)
-		if !ok {
-			logger.Print("locale missing from session")
-			return
-		}
-
-		identity, _ := params.Values["identity"].(bool)
-		lpaID, _ := params.Values["lpa-id"].(string)
 
 		lang := En
-		if locale == "cy" {
+		if oneLoginSession.Locale == "cy" {
 			lang = Cy
 		}
 
-		appData := AppData{Lang: lang, LpaID: lpaID}
+		appData := AppData{Lang: lang, LpaID: oneLoginSession.LpaID}
 
-		if identity {
+		if oneLoginSession.CertificateProvider {
+			appData.Redirect(w, r, nil, Paths.CertificateProviderLoginCallback+"?"+r.URL.RawQuery)
+		} else if oneLoginSession.Identity {
 			appData.Redirect(w, r, nil, Paths.IdentityWithOneLoginCallback+"?"+r.URL.RawQuery)
 		} else {
-			accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), nonce)
+			accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), oneLoginSession.Nonce)
 			if err != nil {
 				logger.Print(err)
 				return
@@ -64,13 +43,10 @@ func AuthRedirect(logger Logger, oneLoginClient OneLoginClient, store sessions.S
 				return
 			}
 
-			session := sessions.NewSession(store, "session")
-			session.Values = map[interface{}]interface{}{
-				"sub":   userInfo.Sub,
-				"email": userInfo.Email,
-			}
-			session.Options = cookieOptions
-			if err := store.Save(r, w, session); err != nil {
+			if err := setDonorSession(store, r, w, &DonorSession{
+				Sub:   userInfo.Sub,
+				Email: userInfo.Email,
+			}); err != nil {
 				logger.Print(err)
 				return
 			}
