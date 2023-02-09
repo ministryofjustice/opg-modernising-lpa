@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -15,6 +16,7 @@ type chooseAttorneysData struct {
 	Form        *chooseAttorneysForm
 	ShowDetails bool
 	DobWarning  string
+	NameWarning *actor.SameNameWarning
 }
 
 func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) Handler {
@@ -47,11 +49,22 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 			data.Errors = data.Form.Validate()
 			dobWarning := data.Form.DobWarning()
 
-			if data.Errors.Any() || data.Form.IgnoreWarning != dobWarning {
+			nameWarning := actor.NewSameNameWarning(
+				actor.TypeAttorney,
+				attorneyMatches(lpa, attorney.ID, data.Form.FirstNames, data.Form.LastName),
+				data.Form.FirstNames,
+				data.Form.LastName,
+			)
+
+			if data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning {
 				data.DobWarning = dobWarning
 			}
 
-			if data.Errors.None() && data.DobWarning == "" {
+			if data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String() {
+				data.NameWarning = nameWarning
+			}
+
+			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
 				if attorneyFound == false {
 					attorney = Attorney{
 						FirstNames:  data.Form.FirstNames,
@@ -93,11 +106,12 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 }
 
 type chooseAttorneysForm struct {
-	FirstNames    string
-	LastName      string
-	Email         string
-	Dob           date.Date
-	IgnoreWarning string
+	FirstNames        string
+	LastName          string
+	Email             string
+	Dob               date.Date
+	IgnoreDobWarning  string
+	IgnoreNameWarning string
 }
 
 func readChooseAttorneysForm(r *http.Request) *chooseAttorneysForm {
@@ -110,7 +124,8 @@ func readChooseAttorneysForm(r *http.Request) *chooseAttorneysForm {
 		postFormString(r, "date-of-birth-month"),
 		postFormString(r, "date-of-birth-day"))
 
-	d.IgnoreWarning = postFormString(r, "ignore-warning")
+	d.IgnoreDobWarning = postFormString(r, "ignore-dob-warning")
+	d.IgnoreNameWarning = postFormString(r, "ignore-name-warning")
 
 	return d
 }
@@ -155,4 +170,34 @@ func (d *chooseAttorneysForm) DobWarning() string {
 	}
 
 	return ""
+}
+
+func attorneyMatches(lpa *Lpa, id, firstNames, lastName string) actor.Type {
+	if lpa.You.FirstNames == firstNames && lpa.You.LastName == lastName {
+		return actor.TypeDonor
+	}
+
+	for _, attorney := range lpa.Attorneys {
+		if attorney.ID != id && attorney.FirstNames == firstNames && attorney.LastName == lastName {
+			return actor.TypeAttorney
+		}
+	}
+
+	for _, attorney := range lpa.ReplacementAttorneys {
+		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+			return actor.TypeReplacementAttorney
+		}
+	}
+
+	if lpa.CertificateProvider.FirstNames == firstNames && lpa.CertificateProvider.LastName == lastName {
+		return actor.TypeCertificateProvider
+	}
+
+	for _, person := range lpa.PeopleToNotify {
+		if person.FirstNames == firstNames && person.LastName == lastName {
+			return actor.TypePersonToNotify
+		}
+	}
+
+	return actor.TypeNone
 }
