@@ -111,6 +111,7 @@ type AppData struct {
 	StaticHash       string
 	Paths            AppPaths
 	LpaID            string
+	CsrfToken        string
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, lpa *Lpa, url string) error {
@@ -168,7 +169,7 @@ func App(
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
 
-	handleRoot := makeHandle(rootMux, logger, sessionStore, localizer, lang, rumConfig, staticHash, paths, None)
+	handleRoot := makeHandle(rootMux, logger, sessionStore, localizer, lang, rumConfig, staticHash, paths, None, random.String)
 
 	rootMux.Handle(paths.TestingStart, testingStart(sessionStore, lpaStore, random.String))
 	rootMux.Handle(paths.Root, Root(paths))
@@ -183,7 +184,7 @@ func App(
 
 	rootMux.Handle("/lpa/", routeToLpa(lpaMux))
 
-	handleLpa := makeHandle(lpaMux, logger, sessionStore, localizer, lang, rumConfig, staticHash, paths, RequireSession)
+	handleLpa := makeHandle(lpaMux, logger, sessionStore, localizer, lang, rumConfig, staticHash, paths, RequireSession, random.String)
 
 	handleLpa(paths.YourDetails, None,
 		YourDetails(tmpls.Get("your_details.gohtml"), lpaStore, sessionStore))
@@ -489,11 +490,26 @@ const (
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang, rumConfig RumConfig, staticHash string, paths AppPaths, defaultOptions handleOpt) func(string, handleOpt, Handler) {
+func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang, rumConfig RumConfig, staticHash string, paths AppPaths, defaultOptions handleOpt, randomString func(int) string) func(string, handleOpt, Handler) {
 	return func(path string, opt handleOpt, h Handler) {
 		opt = opt | defaultOptions
 
 		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+			csrfSession, err := store.Get(r, "csrf")
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+
+			if r.Method == http.MethodPost {
+				if !csrfValid(r, csrfSession) {
+					http.Error(w, "CSRF token not valid", http.StatusForbidden)
+				}
+			}
+
+			csrfSession.Values = map[interface{}]interface{}{"token": randomString(12)}
+			_ = store.Save(r, w, csrfSession)
+
 			ctx := r.Context()
 
 			appData := AppData{
@@ -505,6 +521,7 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 				RumConfig:  rumConfig,
 				StaticHash: staticHash,
 				Paths:      paths,
+				CsrfToken:  csrfSession.Values["token"].(string),
 			}
 
 			if opt&RequireSession != 0 {
@@ -580,4 +597,15 @@ func queryString(r *http.Request) string {
 	} else {
 		return ""
 	}
+}
+
+func csrfValid(r *http.Request, csrfSession *sessions.Session) bool {
+	fCsrfToken := r.PostFormValue("csrf")
+	cCsrfToken, ok := csrfSession.Values["token"].(string)
+
+	if !ok {
+		return false
+	}
+
+	return fCsrfToken == cCsrfToken
 }

@@ -49,6 +49,10 @@ Cypress.Commands.add('checkA11yVvv', () => {
     cy.checkA11y(null, { rules: { region: { enabled: false } } }, terminalLog);
 });
 
-Cypress.Commands.add('visitLpa', (path) => {
+Cypress.Commands.add('visitLpa', (path, withReload = false) => {
     cy.url().then(u => cy.visit(u.split('/').slice(3, -1).join('/') + path));
+    // hack for csrf cookies not being set when using visitLpa
+    if (withReload) {
+        cy.reload()
+    }
 });
