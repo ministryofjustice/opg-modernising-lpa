@@ -49,7 +49,9 @@ func TestLogin(t *testing.T) {
 		HttpOnly: true,
 		Secure:   true,
 	}
-	session.Values = map[interface{}]interface{}{"state": "i am random", "nonce": "i am random", "locale": "cy"}
+	session.Values = map[any]any{
+		"one-login": &OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "cy"},
+	}
 
 	sessionsStore.
 		On("Save", r, w, session).
@@ -84,7 +86,9 @@ func TestLoginDefaultLocale(t *testing.T) {
 		HttpOnly: true,
 		Secure:   true,
 	}
-	session.Values = map[interface{}]interface{}{"state": "i am random", "nonce": "i am random", "locale": "en"}
+	session.Values = map[any]any{
+		"one-login": &OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "en"},
+	}
 
 	sessionsStore.
 		On("Save", r, w, session).

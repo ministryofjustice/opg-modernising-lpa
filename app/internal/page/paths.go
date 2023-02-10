@@ -1,11 +1,17 @@
 package page
 
+import "strings"
+
 type AppPaths struct {
 	AboutPayment                                         string
 	Auth                                                 string
 	AuthRedirect                                         string
 	CertificateProviderAddress                           string
 	CertificateProviderDetails                           string
+	CertificateProviderLogin                             string
+	CertificateProviderLoginCallback                     string
+	CertificateProviderStart                             string
+	CertificateProviderYourDetails                       string
 	CheckYourLpa                                         string
 	ChooseAttorneys                                      string
 	ChooseAttorneysAddress                               string
@@ -73,6 +79,10 @@ var Paths = AppPaths{
 	AuthRedirect:                                         "/auth/redirect",
 	CertificateProviderAddress:                           "/certificate-provider-address",
 	CertificateProviderDetails:                           "/certificate-provider-details",
+	CertificateProviderLogin:                             "/certificate-provider-login",
+	CertificateProviderLoginCallback:                     "/certificate-provider-login-callback",
+	CertificateProviderStart:                             "/certificate-provider-start",
+	CertificateProviderYourDetails:                       "/certificate-provider-your-details",
 	CheckYourLpa:                                         "/check-your-lpa",
 	ChooseAttorneys:                                      "/choose-attorneys",
 	ChooseAttorneysAddress:                               "/choose-attorneys-address",
@@ -132,4 +142,12 @@ var Paths = AppPaths{
 	YourChosenIdentityOptions:                            "/your-chosen-identity-options",
 	YourDetails:                                          "/your-details",
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
+}
+
+func IsLpaPath(url string) bool {
+	path, _, _ := strings.Cut(url, "?")
+
+	return path != Paths.Auth && path != Paths.AuthRedirect &&
+		path != Paths.Dashboard && path != Paths.Start &&
+		path != Paths.CertificateProviderLogin && path != Paths.CertificateProviderLoginCallback && path != Paths.CertificateProviderYourDetails
 }
