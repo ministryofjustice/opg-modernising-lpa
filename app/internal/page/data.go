@@ -93,6 +93,17 @@ type Lpa struct {
 	WantToSignLpa                               bool
 	Submitted                                   time.Time
 	CPWitnessCodeValidated                      bool
+
+	// TODO refactor this to a certificate provider record in dynamo, maybe?
+	//
+	//   | donorSub               | lpaId | ...data... |
+	//   | certificateProviderSub | lpaId | ...data... |
+	//
+	// I think we may have got the keys the wrong way around and the lpaId should
+	// be primary? Then we can prefix with DONOR# and CERTIFICATEPROVIDER# or
+	// whatever. Read
+	// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-modeling-nosql-B.html
+	CertificateProviderUserData identity.UserData
 }
 
 type PaymentDetails struct {
