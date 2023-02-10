@@ -42,9 +42,12 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 				return err
 			}
 
-			email, ok := session.Values["email"].(string)
+			donorSession, ok := session.Values["donor"].(*DonorLoginSession)
 			if !ok {
-				return fmt.Errorf("no email found in session")
+				return fmt.Errorf("not a donor session")
+			}
+			if donorSession.Email == "" {
+				return fmt.Errorf("no email in session session")
 			}
 
 			data.Form = readYourDetailsForm(r)
@@ -71,7 +74,7 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 				lpa.You.LastName = data.Form.LastName
 				lpa.You.OtherNames = data.Form.OtherNames
 				lpa.You.DateOfBirth = data.Form.Dob
-				lpa.You.Email = email
+				lpa.You.Email = donorSession.Email
 				lpa.Tasks.YourDetails = TaskInProgress
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {

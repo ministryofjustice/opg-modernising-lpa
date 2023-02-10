@@ -48,12 +48,6 @@ func CacheControlHeaders(h http.Handler) http.Handler {
 	})
 }
 
-func IsLpaPath(url string) bool {
-	path, _, _ := strings.Cut(url, "?")
-
-	return path != Paths.Dashboard && path != Paths.Start
-}
-
 const (
 	En Lang = iota
 	Cy
@@ -175,15 +169,29 @@ func App(
 
 	handleRoot(paths.Start, None,
 		Guidance(tmpls.Get("start.gohtml"), paths.Auth, nil))
-
 	handleRoot(paths.Dashboard, RequireSession,
 		Dashboard(tmpls.Get("dashboard.gohtml"), lpaStore))
+
+	handleRoot(paths.CertificateProviderStart, None,
+		CertificateProviderStart(tmpls.Get("certificate_provider_start.gohtml"), lpaStore))
+	handleRoot(paths.CertificateProviderLogin, None,
+		CertificateProviderLogin(logger, oneLoginClient, sessionStore, random.String))
+	handleRoot(paths.CertificateProviderLoginCallback, None,
+		CertificateProviderLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, lpaStore))
+	handleRoot(paths.CertificateProviderYourDetails, RequireCertificateProviderSession,
+		Guidance(tmpls.Get("certificate_provider_your_details.gohtml"), "", lpaStore))
 
 	lpaMux := http.NewServeMux()
 
 	rootMux.Handle("/lpa/", routeToLpa(lpaMux))
 
 	handleLpa := makeHandle(lpaMux, logger, sessionStore, localizer, lang, rumConfig, staticHash, paths, RequireSession)
+
+	// TODO delete this when we send the link in an email
+	handleLpa("/testing-certificate-provider-start", None, func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+		http.Redirect(w, r, fmt.Sprintf("%s?sessionId=%s&lpaId=%s", paths.CertificateProviderStart, appData.SessionID, appData.LpaID), http.StatusFound)
+		return nil
+	})
 
 	handleLpa(paths.YourDetails, None,
 		YourDetails(tmpls.Get("your_details.gohtml"), lpaStore, sessionStore))
@@ -320,7 +328,9 @@ func testingStart(store sessions.Store, lpaStore LpaStore, randomString func(int
 		sessionID := base64.StdEncoding.EncodeToString([]byte(sub))
 
 		session, _ := store.Get(r, "session")
-		session.Values = map[interface{}]interface{}{"sub": sub, "email": "simulate-delivered@notifications.service.gov.uk"}
+		session.Values = map[any]any{
+			"donor": &DonorLoginSession{Sub: sub, Email: "simulate-delivered@notifications.service.gov.uk"},
+		}
 		_ = store.Save(r, w, session)
 
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: sessionID})
@@ -487,6 +497,7 @@ const (
 	None handleOpt = 1 << iota
 	RequireSession
 	CanGoBack
+	RequireCertificateProviderSession
 )
 
 func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localizer localize.Localizer, lang Lang, rumConfig RumConfig, staticHash string, paths AppPaths, defaultOptions handleOpt) func(string, handleOpt, Handler) {
@@ -515,14 +526,19 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 					return
 				}
 
-				sub, ok := session.Values["sub"].(string)
+				params, ok := session.Values["donor"].(*DonorLoginSession)
 				if !ok {
-					logger.Print("sub missing from session")
+					logger.Print("session is not for donor")
+					http.Redirect(w, r, paths.Start, http.StatusFound)
+					return
+				}
+				if !params.Valid() {
+					logger.Print("session is not valid")
 					http.Redirect(w, r, paths.Start, http.StatusFound)
 					return
 				}
 
-				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(sub))
+				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(params.Sub))
 
 				data := sessionDataFromContext(ctx)
 				if data != nil {
@@ -533,6 +549,32 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 				} else {
 					ctx = contextWithSessionData(ctx, &sessionData{SessionID: appData.SessionID})
 				}
+			}
+
+			if opt&RequireCertificateProviderSession != 0 {
+				session, err := store.Get(r, "session")
+				if err != nil {
+					logger.Print(err)
+					http.Redirect(w, r, paths.Start, http.StatusFound)
+					return
+				}
+
+				params, ok := session.Values["certificate-provider"].(*CertificateProviderLoginSession)
+				if !ok {
+					logger.Print("session is not for certificate provider")
+					http.Redirect(w, r, paths.Start, http.StatusFound)
+					return
+				}
+				if !params.Valid() {
+					logger.Print("session is not valid")
+					http.Redirect(w, r, paths.Start, http.StatusFound)
+					return
+				}
+
+				appData.SessionID = params.SessionID
+				appData.LpaID = params.LpaID
+
+				ctx = contextWithSessionData(ctx, &sessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
 			_, cookieErr := r.Cookie("cookies-consent")
