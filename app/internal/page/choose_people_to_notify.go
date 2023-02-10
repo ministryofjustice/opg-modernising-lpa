@@ -5,13 +5,15 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type choosePeopleToNotifyData struct {
-	App    AppData
-	Errors validation.List
-	Form   *choosePeopleToNotifyForm
+	App         AppData
+	Errors      validation.List
+	Form        *choosePeopleToNotifyForm
+	NameWarning *actor.SameNameWarning
 }
 
 func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) Handler {
@@ -26,7 +28,7 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 		}
 
 		addAnother := r.FormValue("addAnother") == "1"
-		personToNotify, personFound := lpa.GetPersonToNotify(r.URL.Query().Get("id"))
+		personToNotify, personFound := lpa.PeopleToNotify.Get(r.URL.Query().Get("id"))
 
 		if r.Method == http.MethodGet && len(lpa.PeopleToNotify) > 0 && personFound == false && addAnother == false {
 			return appData.Redirect(w, r, lpa, Paths.ChoosePeopleToNotifySummary)
@@ -45,9 +47,20 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 			data.Form = readChoosePeopleToNotifyForm(r)
 			data.Errors = data.Form.Validate()
 
-			if data.Errors.None() {
+			nameWarning := actor.NewSameNameWarning(
+				actor.TypePersonToNotify,
+				personToNotifyMatches(lpa, personToNotify.ID, data.Form.FirstNames, data.Form.LastName),
+				data.Form.FirstNames,
+				data.Form.LastName,
+			)
+
+			if data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String() {
+				data.NameWarning = nameWarning
+			}
+
+			if data.Errors.None() && data.NameWarning == nil {
 				if personFound == false {
-					personToNotify = PersonToNotify{
+					personToNotify = actor.PersonToNotify{
 						FirstNames: data.Form.FirstNames,
 						LastName:   data.Form.LastName,
 						Email:      data.Form.Email,
@@ -60,7 +73,7 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 					personToNotify.LastName = data.Form.LastName
 					personToNotify.Email = data.Form.Email
 
-					lpa.PutPersonToNotify(personToNotify)
+					lpa.PeopleToNotify.Put(personToNotify)
 				}
 
 				lpa.Tasks.PeopleToNotify = TaskInProgress
@@ -84,16 +97,18 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 }
 
 type choosePeopleToNotifyForm struct {
-	FirstNames string
-	LastName   string
-	Email      string
+	FirstNames        string
+	LastName          string
+	Email             string
+	IgnoreNameWarning string
 }
 
 func readChoosePeopleToNotifyForm(r *http.Request) *choosePeopleToNotifyForm {
 	return &choosePeopleToNotifyForm{
-		FirstNames: postFormString(r, "first-names"),
-		LastName:   postFormString(r, "last-name"),
-		Email:      postFormString(r, "email"),
+		FirstNames:        postFormString(r, "first-names"),
+		LastName:          postFormString(r, "last-name"),
+		Email:             postFormString(r, "email"),
+		IgnoreNameWarning: postFormString(r, "ignore-name-warning"),
 	}
 }
 
@@ -113,4 +128,30 @@ func (f *choosePeopleToNotifyForm) Validate() validation.List {
 		validation.Email())
 
 	return errors
+}
+
+func personToNotifyMatches(lpa *Lpa, id, firstNames, lastName string) actor.Type {
+	if lpa.You.FirstNames == firstNames && lpa.You.LastName == lastName {
+		return actor.TypeDonor
+	}
+
+	for _, attorney := range lpa.Attorneys {
+		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+			return actor.TypeAttorney
+		}
+	}
+
+	for _, attorney := range lpa.ReplacementAttorneys {
+		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+			return actor.TypeReplacementAttorney
+		}
+	}
+
+	for _, person := range lpa.PeopleToNotify {
+		if person.ID != id && person.FirstNames == firstNames && person.LastName == lastName {
+			return actor.TypePersonToNotify
+		}
+	}
+
+	return actor.TypeNone
 }

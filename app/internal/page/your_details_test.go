@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -67,7 +68,7 @@ func TestGetYourDetailsFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			You: Person{
+			You: actor.Person{
 				FirstNames: "John",
 			},
 		}, nil)
@@ -120,7 +121,7 @@ func TestPostYourDetails(t *testing.T) {
 
 	testCases := map[string]struct {
 		form   url.Values
-		person Person
+		person actor.Person
 	}{
 		"valid": {
 			form: url.Values{
@@ -130,7 +131,7 @@ func TestPostYourDetails(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
 			},
-			person: Person{
+			person: actor.Person{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
@@ -145,9 +146,9 @@ func TestPostYourDetails(t *testing.T) {
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
-				"ignore-warning":      {"dateOfBirthIsOver100"},
+				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
-			person: Person{
+			person: actor.Person{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				DateOfBirth: date.New("1900", "1", "2"),
@@ -168,7 +169,7 @@ func TestPostYourDetails(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&Lpa{
-					You: Person{
+					You: actor.Person{
 						FirstNames: "John",
 						Address:    place.Address{Line1: "abc"},
 					},
@@ -230,7 +231,7 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
-				"ignore-warning":      {"dateOfBirthIsOver100"},
+				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
 			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
 				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
@@ -243,7 +244,7 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
-				"ignore-warning":      {"dateOfBirthIsUnder18"},
+				"ignore-dob-warning":  {"dateOfBirthIsUnder18"},
 			},
 			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
 				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
@@ -301,7 +302,7 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			You: Person{
+			You: actor.Person{
 				FirstNames: "John",
 				Address:    place.Address{Line1: "abc"},
 			},
@@ -378,7 +379,7 @@ func TestReadYourDetailsForm(t *testing.T) {
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {"1990"},
-		"ignore-warning":      {"xyz"},
+		"ignore-dob-warning":  {"xyz"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -390,7 +391,7 @@ func TestReadYourDetailsForm(t *testing.T) {
 	assert.Equal("Doe", result.LastName)
 	assert.Equal("Somebody", result.OtherNames)
 	assert.Equal(date.New("1990", "1", "2"), result.Dob)
-	assert.Equal("xyz", result.IgnoreWarning)
+	assert.Equal("xyz", result.IgnoreDobWarning)
 }
 
 func TestYourDetailsFormValidate(t *testing.T) {
@@ -515,4 +516,33 @@ func TestYourDetailsFormDobWarning(t *testing.T) {
 			assert.Equal(t, tc.warning, tc.form.DobWarning())
 		})
 	}
+}
+
+func TestDonorMatches(t *testing.T) {
+	lpa := &Lpa{
+		You: actor.Person{FirstNames: "a", LastName: "b"},
+		Attorneys: actor.Attorneys{
+			{FirstNames: "c", LastName: "d"},
+			{FirstNames: "e", LastName: "f"},
+		},
+		ReplacementAttorneys: actor.Attorneys{
+			{FirstNames: "g", LastName: "h"},
+			{FirstNames: "i", LastName: "j"},
+		},
+		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
+		PeopleToNotify: actor.PeopleToNotify{
+			{FirstNames: "m", LastName: "n"},
+			{FirstNames: "o", LastName: "p"},
+		},
+	}
+
+	assert.Equal(t, actor.TypeNone, donorMatches(lpa, "x", "y"))
+	assert.Equal(t, actor.TypeNone, donorMatches(lpa, "a", "b"))
+	assert.Equal(t, actor.TypeAttorney, donorMatches(lpa, "c", "d"))
+	assert.Equal(t, actor.TypeAttorney, donorMatches(lpa, "e", "f"))
+	assert.Equal(t, actor.TypeReplacementAttorney, donorMatches(lpa, "g", "h"))
+	assert.Equal(t, actor.TypeReplacementAttorney, donorMatches(lpa, "i", "j"))
+	assert.Equal(t, actor.TypeCertificateProvider, donorMatches(lpa, "k", "l"))
+	assert.Equal(t, actor.TypePersonToNotify, donorMatches(lpa, "m", "n"))
+	assert.Equal(t, actor.TypePersonToNotify, donorMatches(lpa, "o", "p"))
 }

@@ -4,12 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"golang.org/x/exp/slices"
@@ -58,9 +57,9 @@ func (t TaskState) String() string {
 type Lpa struct {
 	ID                                          string
 	UpdatedAt                                   time.Time
-	You                                         Person
-	Attorneys                                   []Attorney
-	CertificateProvider                         CertificateProvider
+	You                                         actor.Person
+	Attorneys                                   actor.Attorneys
+	CertificateProvider                         actor.CertificateProvider
 	WhoFor                                      string
 	Contact                                     []string
 	Type                                        string
@@ -82,19 +81,18 @@ type Lpa struct {
 	OneLoginUserData                            identity.UserData
 	HowAttorneysMakeDecisions                   string
 	HowAttorneysMakeDecisionsDetails            string
-	ReplacementAttorneys                        []Attorney
+	ReplacementAttorneys                        actor.Attorneys
 	HowReplacementAttorneysMakeDecisions        string
 	HowReplacementAttorneysMakeDecisionsDetails string
 	HowShouldReplacementAttorneysStepIn         string
 	HowShouldReplacementAttorneysStepInDetails  string
 	DoYouWantToNotifyPeople                     string
-	PeopleToNotify                              []PersonToNotify
+	PeopleToNotify                              actor.PeopleToNotify
 	WitnessCode                                 WitnessCode
-	CPWitnessedDonorSign                        bool
 	WantToApplyForLpa                           bool
-	CPWitnessCodeValidated                      bool
+	WantToSignLpa                               bool
 	Submitted                                   time.Time
-	//Progress                                    Progress
+	CPWitnessCodeValidated                      bool
 }
 
 type PaymentDetails struct {
@@ -113,45 +111,6 @@ type Tasks struct {
 	PayForLpa                  TaskState
 	ConfirmYourIdentityAndSign TaskState
 	PeopleToNotify             TaskState
-}
-
-type Person struct {
-	FirstNames  string
-	LastName    string
-	Email       string
-	OtherNames  string
-	DateOfBirth date.Date
-	Address     place.Address
-}
-
-type PersonToNotify struct {
-	FirstNames string
-	LastName   string
-	Email      string
-	Address    place.Address
-	ID         string
-}
-
-type Attorney struct {
-	ID          string
-	FirstNames  string
-	LastName    string
-	Email       string
-	DateOfBirth date.Date
-	Address     place.Address
-}
-
-type CertificateProvider struct {
-	FirstNames              string
-	LastName                string
-	Email                   string
-	Address                 place.Address
-	Mobile                  string
-	DateOfBirth             date.Date
-	CarryOutBy              string
-	Relationship            string
-	RelationshipDescription string
-	RelationshipLength      string
 }
 
 type Progress struct {
@@ -252,168 +211,6 @@ func DecodeAddress(s string) *place.Address {
 
 func (l *Lpa) IdentityConfirmed() bool {
 	return l.YotiUserData.OK || l.OneLoginUserData.OK
-}
-
-func (l *Lpa) GetAttorney(id string) (Attorney, bool) {
-	idx := slices.IndexFunc(l.Attorneys, func(a Attorney) bool { return a.ID == id })
-
-	if idx == -1 {
-		return Attorney{}, false
-	}
-
-	return l.Attorneys[idx], true
-}
-
-func (l *Lpa) PutAttorney(attorney Attorney) bool {
-	idx := slices.IndexFunc(l.Attorneys, func(a Attorney) bool { return a.ID == attorney.ID })
-
-	if idx == -1 {
-		return false
-	}
-
-	l.Attorneys[idx] = attorney
-
-	return true
-}
-
-func (l *Lpa) DeleteAttorney(attorney Attorney) bool {
-	idx := slices.IndexFunc(l.Attorneys, func(a Attorney) bool { return a.ID == attorney.ID })
-
-	if idx == -1 {
-		return false
-	}
-
-	l.Attorneys = slices.Delete(l.Attorneys, idx, idx+1)
-
-	return true
-}
-
-func (l *Lpa) GetReplacementAttorney(id string) (Attorney, bool) {
-	idx := slices.IndexFunc(l.ReplacementAttorneys, func(a Attorney) bool { return a.ID == id })
-
-	if idx == -1 {
-		return Attorney{}, false
-	}
-
-	return l.ReplacementAttorneys[idx], true
-}
-
-func (l *Lpa) PutReplacementAttorney(attorney Attorney) bool {
-	idx := slices.IndexFunc(l.ReplacementAttorneys, func(a Attorney) bool { return a.ID == attorney.ID })
-
-	if idx == -1 {
-		return false
-	}
-
-	l.ReplacementAttorneys[idx] = attorney
-
-	return true
-}
-
-func (l *Lpa) DeleteReplacementAttorney(attorney Attorney) bool {
-	idx := slices.IndexFunc(l.ReplacementAttorneys, func(a Attorney) bool { return a.ID == attorney.ID })
-
-	if idx == -1 {
-		return false
-	}
-
-	l.ReplacementAttorneys = slices.Delete(l.ReplacementAttorneys, idx, idx+1)
-
-	return true
-}
-
-func (l *Lpa) GetPersonToNotify(id string) (PersonToNotify, bool) {
-	idx := slices.IndexFunc(l.PeopleToNotify, func(p PersonToNotify) bool { return p.ID == id })
-
-	if idx == -1 {
-		return PersonToNotify{}, false
-	}
-
-	return l.PeopleToNotify[idx], true
-}
-
-func (l *Lpa) PutPersonToNotify(person PersonToNotify) bool {
-	idx := slices.IndexFunc(l.PeopleToNotify, func(p PersonToNotify) bool { return p.ID == person.ID })
-
-	if idx == -1 {
-		return false
-	}
-
-	l.PeopleToNotify[idx] = person
-
-	return true
-}
-
-func (l *Lpa) DeletePersonToNotify(personToNotify PersonToNotify) bool {
-	idx := slices.IndexFunc(l.PeopleToNotify, func(p PersonToNotify) bool { return p.ID == personToNotify.ID })
-
-	if idx == -1 {
-		return false
-	}
-
-	l.PeopleToNotify = slices.Delete(l.PeopleToNotify, idx, idx+1)
-
-	return true
-}
-
-func (l *Lpa) AttorneysFullNames() string {
-	var names []string
-
-	for _, a := range l.Attorneys {
-		names = append(names, fmt.Sprintf("%s %s", a.FirstNames, a.LastName))
-	}
-
-	return concatSentence(names)
-}
-
-func (l *Lpa) AttorneysFirstNames() string {
-	var names []string
-
-	for _, a := range l.Attorneys {
-		names = append(names, a.FirstNames)
-	}
-
-	return concatSentence(names)
-}
-
-func (l *Lpa) ReplacementAttorneysFullNames() string {
-	var names []string
-
-	for _, a := range l.ReplacementAttorneys {
-		names = append(names, fmt.Sprintf("%s %s", a.FirstNames, a.LastName))
-	}
-
-	return concatSentence(names)
-}
-
-func (l *Lpa) ReplacementAttorneysFirstNames() string {
-	var names []string
-
-	for _, a := range l.ReplacementAttorneys {
-		names = append(names, a.FirstNames)
-	}
-
-	return concatSentence(names)
-}
-
-func concatSentence(list []string) string {
-	switch len(list) {
-	case 0:
-		return ""
-	case 1:
-		return list[0]
-	default:
-		last := len(list) - 1
-		return fmt.Sprintf("%s and %s", strings.Join(list[:last], ", "), list[last])
-	}
-}
-
-func (l *Lpa) DonorFullName() string {
-	return fmt.Sprintf("%s %s", l.You.FirstNames, l.You.LastName)
-}
-
-func (l *Lpa) CertificateProviderFullName() string {
-	return fmt.Sprintf("%s %s", l.CertificateProvider.FirstNames, l.CertificateProvider.LastName)
 }
 
 func (l *Lpa) TypeLegalTermTransKey() string {

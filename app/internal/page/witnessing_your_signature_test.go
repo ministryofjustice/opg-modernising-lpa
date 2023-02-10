@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -36,7 +37,7 @@ func TestGetWitnessingYourSignature(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &Lpa{CertificateProvider: CertificateProvider{Mobile: "07535111111"}}
+	lpa := &Lpa{CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"}}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -75,7 +76,7 @@ func TestGetWitnessingYourSignatureWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &Lpa{CertificateProvider: CertificateProvider{Mobile: "07535111111"}}
+	lpa := &Lpa{CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"}}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -97,7 +98,7 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpa := &Lpa{CertificateProvider: CertificateProvider{Mobile: "07535111111"}}
+	lpa := &Lpa{CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"}}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -105,7 +106,7 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 		Return(lpa, nil)
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
-			CertificateProvider: CertificateProvider{Mobile: "07535111111"},
+			CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"},
 			WitnessCode: WitnessCode{
 				Code:    "1234",
 				Created: now,
@@ -139,7 +140,7 @@ func TestPostWitnessingYourSignatureWhenNotifyErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpa := &Lpa{CertificateProvider: CertificateProvider{Mobile: "07535111111"}}
+	lpa := &Lpa{CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"}}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -164,7 +165,7 @@ func TestPostWitnessingYourSignatureWhenLpaStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpa := &Lpa{CertificateProvider: CertificateProvider{Mobile: "07535111111"}}
+	lpa := &Lpa{CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"}}
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.

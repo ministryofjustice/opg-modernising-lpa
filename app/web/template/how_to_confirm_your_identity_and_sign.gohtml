@@ -9,11 +9,11 @@
 
         <p class="govuk-body-l">{{ tr .App "howToConfirmYourIdentityAndSignIntro" }}</p>
 
-        {{ template "warning" (warning .App (trFormat .App "yourCertificateProviderMustBeWithYou" "CertificateProviderName" .Lpa.CertificateProviderFullName)) }}
+        {{ template "warning" (warning .App (trFormat .App "yourCertificateProviderMustBeWithYou" "CertificateProviderName" .Lpa.CertificateProvider.FullName)) }}
         
         <div class="moj-ticket-panel govuk-!-margin-bottom-6">
           <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
-            {{ trFormatHtml .App "howToConfirmYourIdentityAndSignSteps" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "CertificateProviderFullName" .Lpa.CertificateProviderFullName "AttorneysFullNames" .Lpa.AttorneysFullNames }}
+            {{ trFormatHtml .App "howToConfirmYourIdentityAndSignSteps" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "CertificateProviderFullName" .Lpa.CertificateProvider.FullName "AttorneysFullNames" .Lpa.Attorneys.FullNames }}
           </div>
         </div>
 

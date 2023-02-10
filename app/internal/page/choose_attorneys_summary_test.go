@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -64,22 +65,22 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	testcases := map[string]struct {
 		addMoreFormValue string
 		expectedUrl      string
-		Attorneys        []Attorney
+		Attorneys        actor.Attorneys
 	}{
 		"add attorney": {
 			addMoreFormValue: "yes",
 			expectedUrl:      "/lpa/lpa-id" + Paths.ChooseAttorneys + "?addAnother=1",
-			Attorneys:        []Attorney{},
+			Attorneys:        actor.Attorneys{},
 		},
 		"do not add attorney - with single attorney": {
 			addMoreFormValue: "no",
 			expectedUrl:      "/lpa/lpa-id" + Paths.DoYouWantReplacementAttorneys,
-			Attorneys:        []Attorney{{ID: "123"}},
+			Attorneys:        actor.Attorneys{{ID: "123"}},
 		},
 		"do not add attorney - with multiple attorneys": {
 			addMoreFormValue: "no",
 			expectedUrl:      "/lpa/lpa-id" + Paths.HowShouldAttorneysMakeDecisions,
-			Attorneys:        []Attorney{{ID: "123"}, {ID: "456"}},
+			Attorneys:        actor.Attorneys{{ID: "123"}, {ID: "456"}},
 		},
 	}
 

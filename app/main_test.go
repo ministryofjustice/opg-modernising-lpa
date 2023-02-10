@@ -2,23 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"strings"
 	"testing"
 )
 
 func TestLanguageFilesMatch(t *testing.T) {
-	loadKeys := func(path string) map[string]any {
-		data, _ := os.ReadFile(path)
-		var v map[string]interface{}
-		json.Unmarshal(data, &v)
-
-		return v
-	}
-
-	en := loadKeys("lang/en.json")
-	cy := loadKeys("lang/cy.json")
+	en := loadTranslations("lang/en.json")
+	cy := loadTranslations("lang/cy.json")
 
 	for k := range en {
 		if _, ok := cy[k]; !ok {
@@ -36,33 +27,28 @@ func TestLanguageFilesMatch(t *testing.T) {
 }
 
 func TestApostrophesAreCurly(t *testing.T) {
-	loadTranslations := func(path string) map[string]string {
-		data, _ := os.ReadFile(path)
-		var v map[string]string
-		json.Unmarshal(data, &v)
-
-		return v
-	}
-
 	en := loadTranslations("lang/en.json")
 	cy := loadTranslations("lang/cy.json")
 
-	var failures []string
-
 	for k, v := range en {
 		if strings.Contains(v, "'") {
-			failures = append(failures, fmt.Sprintf("lang/en.json %s \n", k))
+			t.Fail()
+			t.Log("lang/en.json:", k)
 		}
 	}
 
 	for k, v := range cy {
 		if strings.Contains(v, "'") {
-			failures = append(failures, fmt.Sprintf("lang/cy.json %s \n", k))
+			t.Fail()
+			t.Log("lang/cy.json: ", k)
 		}
 	}
+}
 
-	if len(failures) > 0 {
-		t.Log("non-curly apostrophe present in translations:\n", failures)
-		t.Fail()
-	}
+func loadTranslations(path string) map[string]string {
+	data, _ := os.ReadFile(path)
+	var v map[string]string
+	json.Unmarshal(data, &v)
+
+	return v
 }

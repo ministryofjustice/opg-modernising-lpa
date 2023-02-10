@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -63,7 +64,7 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			PeopleToNotify: []PersonToNotify{
+			PeopleToNotify: actor.PeopleToNotify{
 				validPersonToNotify,
 			},
 		}, nil)
@@ -105,7 +106,7 @@ func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
 }
 
 func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		FirstNames: "John",
 		LastName:   "Doe",
 		Email:      "johnny@example.com",
@@ -113,11 +114,11 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 	}
 
 	testcases := map[string]struct {
-		addedPeople []PersonToNotify
+		addedPeople actor.PeopleToNotify
 		expectedUrl string
 	}{
 		"5 people": {
-			addedPeople: []PersonToNotify{
+			addedPeople: actor.PeopleToNotify{
 				personToNotify,
 				personToNotify,
 				personToNotify,
@@ -127,7 +128,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 			expectedUrl: "/lpa/lpa-id" + Paths.ChoosePeopleToNotifySummary,
 		},
 		"6 people": {
-			addedPeople: []PersonToNotify{
+			addedPeople: actor.PeopleToNotify{
 				personToNotify,
 				personToNotify,
 				personToNotify,
@@ -163,41 +164,68 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 }
 
 func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
-	form := url.Values{
-		"first-names": {"John"},
-		"last-name":   {"Doe"},
-		"email":       {"johnny@example.com"},
+	testCases := map[string]struct {
+		form           url.Values
+		personToNotify actor.PersonToNotify
+	}{
+		"valid": {
+			form: url.Values{
+				"first-names": {"John"},
+				"last-name":   {"Doe"},
+				"email":       {"johnny@example.com"},
+			},
+			personToNotify: actor.PersonToNotify{
+				FirstNames: "John",
+				LastName:   "Doe",
+				Email:      "johnny@example.com",
+				ID:         "123",
+			},
+		},
+		"name warning ignored": {
+			form: url.Values{
+				"first-names":         {"Jane"},
+				"last-name":           {"Doe"},
+				"email":               {"johnny@example.com"},
+				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypePersonToNotify, actor.TypeDonor, "Jane", "Doe").String()},
+			},
+			personToNotify: actor.PersonToNotify{
+				FirstNames: "Jane",
+				LastName:   "Doe",
+				Email:      "johnny@example.com",
+				ID:         "123",
+			},
+		},
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", r.Context()).
-		Return(&Lpa{}, nil)
-	lpaStore.
-		On("Put", r.Context(), &Lpa{
-			PeopleToNotify: []PersonToNotify{
-				{
-					FirstNames: "John",
-					LastName:   "Doe",
-					Email:      "johnny@example.com",
-					ID:         "123",
-				},
-			},
-			Tasks: Tasks{PeopleToNotify: TaskInProgress},
-		}).
-		Return(nil)
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", r.Context()).
+				Return(&Lpa{
+					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
+				}, nil)
+			lpaStore.
+				On("Put", r.Context(), &Lpa{
+					You:            actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					PeopleToNotify: actor.PeopleToNotify{tc.personToNotify},
+					Tasks:          Tasks{PeopleToNotify: TaskInProgress},
+				}).
+				Return(nil)
 
-	err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(appData, w, r)
-	resp := w.Result()
+			err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(appData, w, r)
+			resp := w.Result()
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, fmt.Sprintf("/lpa/lpa-id%s?id=123", Paths.ChoosePeopleToNotifyAddress), resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, fmt.Sprintf("/lpa/lpa-id%s?id=123", Paths.ChoosePeopleToNotifyAddress), resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, lpaStore)
+		})
+	}
 }
 
 func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
@@ -211,14 +239,14 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	existingPerson := PersonToNotify{
+	existingPerson := actor.PersonToNotify{
 		FirstNames: "John",
 		LastName:   "Doe",
 		Email:      "johnny@example.com",
 		ID:         "123",
 	}
 
-	updatedPerson := PersonToNotify{
+	updatedPerson := actor.PersonToNotify{
 		FirstNames: "Johnny",
 		LastName:   "Dear",
 		Email:      "johnny.d@example.com",
@@ -229,11 +257,11 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			PeopleToNotify: []PersonToNotify{existingPerson},
+			PeopleToNotify: actor.PeopleToNotify{existingPerson},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
-			PeopleToNotify: []PersonToNotify{updatedPerson},
+			PeopleToNotify: actor.PeopleToNotify{updatedPerson},
 			Tasks:          Tasks{PeopleToNotify: TaskInProgress},
 		}).
 		Return(nil)
@@ -282,7 +310,7 @@ func TestPostChoosePeopleToNotifyFromAnotherPage(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&Lpa{
-					PeopleToNotify: []PersonToNotify{
+					PeopleToNotify: actor.PeopleToNotify{
 						{
 							FirstNames: "John",
 							LastName:   "Doe",
@@ -293,7 +321,7 @@ func TestPostChoosePeopleToNotifyFromAnotherPage(t *testing.T) {
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &Lpa{
-					PeopleToNotify: []PersonToNotify{
+					PeopleToNotify: actor.PeopleToNotify{
 						{
 							FirstNames: "John",
 							LastName:   "Doe",
@@ -321,22 +349,48 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 		form        url.Values
 		dataMatcher func(t *testing.T, data *choosePeopleToNotifyData) bool
 	}{
-		"first name missing": {
+		"validation error": {
 			form: url.Values{
 				"last-name": {"Doe"},
 				"email":     {"name@example.com"},
 			},
 			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
-				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
+				return assert.Nil(t, data.NameWarning) &&
+					assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
 			},
 		},
-		"last name missing": {
+		"name warning": {
 			form: url.Values{
-				"first-names": {"Johnny"},
+				"first-names": {"Jane"},
+				"last-name":   {"Doe"},
 				"email":       {"name@example.com"},
 			},
 			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
-				return assert.Equal(t, validation.With("last-name", validation.EnterError{Label: "lastName"}), data.Errors)
+				return assert.Equal(t, actor.NewSameNameWarning(actor.TypePersonToNotify, actor.TypeDonor, "Jane", "Doe"), data.NameWarning) &&
+					assert.True(t, data.Errors.None())
+			},
+		},
+		"name warning ignored but other errors": {
+			form: url.Values{
+				"first-names":         {"Jane"},
+				"last-name":           {"Doe"},
+				"ignore-name-warning": {"errorDonorMatchesActor|aPersonToNotify|Jane|Doe"},
+			},
+			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
+				return assert.Equal(t, actor.NewSameNameWarning(actor.TypePersonToNotify, actor.TypeDonor, "Jane", "Doe"), data.NameWarning) &&
+					assert.Equal(t, validation.With("email", validation.EnterError{Label: "email"}), data.Errors)
+			},
+		},
+		"other name warning ignored": {
+			form: url.Values{
+				"first-names":         {"Jane"},
+				"last-name":           {"Doe"},
+				"email":               {"name@example.com"},
+				"ignore-name-warning": {"errorDonorMatchesActor|aPersonToNotify|John|Doe"},
+			},
+			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
+				return assert.Equal(t, actor.NewSameNameWarning(actor.TypePersonToNotify, actor.TypeDonor, "Jane", "Doe"), data.NameWarning) &&
+					assert.True(t, data.Errors.None())
 			},
 		},
 	}
@@ -350,7 +404,9 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
-				Return(&Lpa{}, nil)
+				Return(&Lpa{
+					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
+				}, nil)
 
 			template := &mockTemplate{}
 			template.
@@ -464,4 +520,33 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 			assert.Equal(t, tc.errors, tc.form.Validate())
 		})
 	}
+}
+
+func TestPersonToNotifyMatches(t *testing.T) {
+	lpa := &Lpa{
+		You: actor.Person{FirstNames: "a", LastName: "b"},
+		Attorneys: actor.Attorneys{
+			{FirstNames: "c", LastName: "d"},
+			{FirstNames: "e", LastName: "f"},
+		},
+		ReplacementAttorneys: actor.Attorneys{
+			{FirstNames: "g", LastName: "h"},
+			{FirstNames: "i", LastName: "j"},
+		},
+		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
+		PeopleToNotify: actor.PeopleToNotify{
+			{FirstNames: "m", LastName: "n"},
+			{ID: "123", FirstNames: "o", LastName: "p"},
+		},
+	}
+
+	assert.Equal(t, actor.TypeNone, personToNotifyMatches(lpa, "123", "x", "y"))
+	assert.Equal(t, actor.TypeDonor, personToNotifyMatches(lpa, "123", "a", "b"))
+	assert.Equal(t, actor.TypeAttorney, personToNotifyMatches(lpa, "123", "c", "d"))
+	assert.Equal(t, actor.TypeAttorney, personToNotifyMatches(lpa, "123", "e", "f"))
+	assert.Equal(t, actor.TypeReplacementAttorney, personToNotifyMatches(lpa, "123", "g", "h"))
+	assert.Equal(t, actor.TypeReplacementAttorney, personToNotifyMatches(lpa, "123", "i", "j"))
+	assert.Equal(t, actor.TypeNone, personToNotifyMatches(lpa, "123", "k", "l"))
+	assert.Equal(t, actor.TypePersonToNotify, personToNotifyMatches(lpa, "123", "m", "n"))
+	assert.Equal(t, actor.TypeNone, personToNotifyMatches(lpa, "123", "o", "p"))
 }

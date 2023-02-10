@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -12,7 +13,7 @@ import (
 type choosePeopleToNotifyAddressData struct {
 	App            AppData
 	Errors         validation.List
-	PersonToNotify PersonToNotify
+	PersonToNotify actor.PersonToNotify
 	Addresses      []place.Address
 	Form           *addressForm
 }
@@ -25,7 +26,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 		}
 
 		personId := r.FormValue("id")
-		personToNotify, found := lpa.GetPersonToNotify(personId)
+		personToNotify, found := lpa.PeopleToNotify.Get(personId)
 
 		if found == false {
 			return appData.Redirect(w, r, lpa, Paths.ChoosePeopleToNotify)
@@ -48,7 +49,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 
 			if data.Form.Action == "manual" && data.Errors.None() {
 				personToNotify.Address = *data.Form.Address
-				lpa.PutPersonToNotify(personToNotify)
+				lpa.PeopleToNotify.Put(personToNotify)
 				lpa.Tasks.PeopleToNotify = TaskCompleted
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
@@ -69,7 +70,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 				data.Form.Action = "manual"
 
 				personToNotify.Address = *data.Form.Address
-				lpa.PutPersonToNotify(personToNotify)
+				lpa.PeopleToNotify.Put(personToNotify)
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err

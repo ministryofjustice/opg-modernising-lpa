@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 
@@ -20,7 +21,7 @@ func TestGetRemoveAttorney(t *testing.T) {
 
 	logger := &mockLogger{}
 
-	attorney := Attorney{
+	attorney := actor.Attorney{
 		ID: "123",
 		Address: place.Address{
 			Line1: "1 Road way",
@@ -40,7 +41,7 @@ func TestGetRemoveAttorney(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{Attorneys: []Attorney{attorney}}, nil)
+		Return(&Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
 	err := RemoveAttorney(logger, template.Func, lpaStore)(appData, w, r)
 
@@ -84,7 +85,7 @@ func TestGetRemoveAttorneyAttorneyDoesNotExist(t *testing.T) {
 
 	template := &mockTemplate{}
 
-	attorney := Attorney{
+	attorney := actor.Attorney{
 		ID: "123",
 		Address: place.Address{
 			Line1: "1 Road way",
@@ -94,7 +95,7 @@ func TestGetRemoveAttorneyAttorneyDoesNotExist(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{Attorneys: []Attorney{attorney}}, nil)
+		Return(&Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
 	err := RemoveAttorney(logger, template.Func, lpaStore)(appData, w, r)
 
@@ -118,14 +119,14 @@ func TestPostRemoveAttorney(t *testing.T) {
 	logger := &mockLogger{}
 	template := &mockTemplate{}
 
-	attorneyWithAddress := Attorney{
+	attorneyWithAddress := actor.Attorney{
 		ID: "with-address",
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
-	attorneyWithoutAddress := Attorney{
+	attorneyWithoutAddress := actor.Attorney{
 		ID:      "without-address",
 		Address: place.Address{},
 	}
@@ -133,9 +134,9 @@ func TestPostRemoveAttorney(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{Attorneys: []Attorney{attorneyWithoutAddress, attorneyWithAddress}}, nil)
+		Return(&Lpa{Attorneys: actor.Attorneys{attorneyWithoutAddress, attorneyWithAddress}}, nil)
 	lpaStore.
-		On("Put", r.Context(), &Lpa{Attorneys: []Attorney{attorneyWithAddress}}).
+		On("Put", r.Context(), &Lpa{Attorneys: actor.Attorneys{attorneyWithAddress}}).
 		Return(nil)
 
 	err := RemoveAttorney(logger, template.Func, lpaStore)(appData, w, r)
@@ -160,14 +161,14 @@ func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 	logger := &mockLogger{}
 	template := &mockTemplate{}
 
-	attorneyWithAddress := Attorney{
+	attorneyWithAddress := actor.Attorney{
 		ID: "with-address",
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
-	attorneyWithoutAddress := Attorney{
+	attorneyWithoutAddress := actor.Attorney{
 		ID:      "without-address",
 		Address: place.Address{},
 	}
@@ -175,7 +176,7 @@ func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{Attorneys: []Attorney{attorneyWithoutAddress, attorneyWithAddress}}, nil)
+		Return(&Lpa{Attorneys: actor.Attorneys{attorneyWithoutAddress, attorneyWithAddress}}, nil)
 
 	err := RemoveAttorney(logger, template.Func, lpaStore)(appData, w, r)
 
@@ -203,14 +204,14 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 		On("Print", "error removing Attorney from LPA: err").
 		Return(nil)
 
-	attorneyWithAddress := Attorney{
+	attorneyWithAddress := actor.Attorney{
 		ID: "with-address",
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
-	attorneyWithoutAddress := Attorney{
+	attorneyWithoutAddress := actor.Attorney{
 		ID:      "without-address",
 		Address: place.Address{},
 	}
@@ -218,9 +219,9 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{Attorneys: []Attorney{attorneyWithoutAddress, attorneyWithAddress}}, nil)
+		Return(&Lpa{Attorneys: actor.Attorneys{attorneyWithoutAddress, attorneyWithAddress}}, nil)
 	lpaStore.
-		On("Put", r.Context(), &Lpa{Attorneys: []Attorney{attorneyWithAddress}}).
+		On("Put", r.Context(), &Lpa{Attorneys: actor.Attorneys{attorneyWithAddress}}).
 		Return(expectedError)
 
 	err := RemoveAttorney(logger, template.Func, lpaStore)(appData, w, r)
@@ -241,7 +242,7 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	attorneyWithoutAddress := Attorney{
+	attorneyWithoutAddress := actor.Attorney{
 		ID:      "without-address",
 		Address: place.Address{},
 	}
@@ -249,7 +250,7 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{Attorneys: []Attorney{attorneyWithoutAddress}}, nil)
+		Return(&Lpa{Attorneys: actor.Attorneys{attorneyWithoutAddress}}, nil)
 
 	validationError := validation.With("remove-attorney", validation.SelectError{Label: "yesToRemoveAttorney"})
 
@@ -283,9 +284,9 @@ func TestRemoveAttorneyRemoveLastAttorneyRedirectsToChooseAttorney(t *testing.T)
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{Attorneys: []Attorney{{ID: "without-address"}}, Tasks: Tasks{ChooseAttorneys: TaskCompleted}}, nil)
+		Return(&Lpa{Attorneys: actor.Attorneys{{ID: "without-address"}}, Tasks: Tasks{ChooseAttorneys: TaskCompleted}}, nil)
 	lpaStore.
-		On("Put", r.Context(), &Lpa{Attorneys: []Attorney{}, Tasks: Tasks{ChooseAttorneys: TaskInProgress}}).
+		On("Put", r.Context(), &Lpa{Attorneys: actor.Attorneys{}, Tasks: Tasks{ChooseAttorneys: TaskInProgress}}).
 		Return(nil)
 
 	err := RemoveAttorney(logger, template.Func, lpaStore)(appData, w, r)

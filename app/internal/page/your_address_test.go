@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 
@@ -75,7 +76,7 @@ func TestGetYourAddressFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			You: Person{
+			You: actor.Person{
 				Address: address,
 			},
 		}, nil)
@@ -172,7 +173,7 @@ func TestPostYourAddressManual(t *testing.T) {
 		Return(&Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
-			You: Person{
+			You: actor.Person{
 				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
@@ -213,7 +214,7 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 		Return(&Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
-			You: Person{
+			You: actor.Person{
 				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
@@ -249,7 +250,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			You: Person{
+			You: actor.Person{
 				FirstNames: "John",
 				Address:    place.Address{Line1: "abc"},
 			},
@@ -257,7 +258,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
-			You: Person{
+			You: actor.Person{
 				FirstNames: "John",
 				Address: place.Address{
 					Line1:      "a",

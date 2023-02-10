@@ -14,7 +14,7 @@
       <p class="govuk-body">{{ tr .App "weWillOnlyTellThem" }}</p>
       <ul class="govuk-list govuk-list--bullet">
         <li>{{trFormat .App "thatYouHaveMadeALpaType" "LpaType" $lpaType }}</li>
-        <li>{{ trFormatCount .App "thatYourAttorneysAre" (len .Lpa.Attorneys) "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}</li>
+        <li>{{ trFormatCount .App "thatYourAttorneysAre" (len .Lpa.Attorneys) "AllAttorneysFirstNames" .Lpa.Attorneys.FirstNames }}</li>
         {{ if gt (len .Lpa.Attorneys) 1 }}
           <li>{{ tr .App .HowWorkTogether }}</li>
         {{ end }}

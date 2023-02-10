@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -67,7 +68,7 @@ func TestGetChooseReplacementAttorneysFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			ReplacementAttorneys: []Attorney{
+			ReplacementAttorneys: actor.Attorneys{
 				{FirstNames: "John", ID: "1"},
 			},
 		}, nil)
@@ -113,7 +114,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 
 	testCases := map[string]struct {
 		form     url.Values
-		attorney Attorney
+		attorney actor.Attorney
 	}{
 		"valid": {
 			form: url.Values{
@@ -124,7 +125,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
 			},
-			attorney: Attorney{
+			attorney: actor.Attorney{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "john@example.com",
@@ -132,7 +133,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				ID:          "123",
 			},
 		},
-		"warning ignored": {
+		"dob warning ignored": {
 			form: url.Values{
 				"first-names":         {"John"},
 				"last-name":           {"Doe"},
@@ -140,13 +141,31 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
-				"ignore-warning":      {"dateOfBirthIsOver100"},
+				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
-			attorney: Attorney{
+			attorney: actor.Attorney{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "john@example.com",
 				DateOfBirth: date.New("1900", "1", "2"),
+				ID:          "123",
+			},
+		},
+		"name warning ignored": {
+			form: url.Values{
+				"first-names":         {"Jane"},
+				"last-name":           {"Doe"},
+				"email":               {"john@example.com"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {validBirthYear},
+				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeReplacementAttorney, actor.TypeDonor, "Jane", "Doe").String()},
+			},
+			attorney: actor.Attorney{
+				FirstNames:  "Jane",
+				LastName:    "Doe",
+				Email:       "john@example.com",
+				DateOfBirth: date.New(validBirthYear, "1", "2"),
 				ID:          "123",
 			},
 		},
@@ -161,10 +180,13 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
-				Return(&Lpa{}, nil)
+				Return(&Lpa{
+					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
+				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &Lpa{
-					ReplacementAttorneys: []Attorney{tc.attorney},
+					You:                  actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					ReplacementAttorneys: actor.Attorneys{tc.attorney},
 					Tasks:                Tasks{ChooseReplacementAttorneys: TaskInProgress},
 				}).
 				Return(nil)
@@ -185,7 +207,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 
 	testCases := map[string]struct {
 		form     url.Values
-		attorney Attorney
+		attorney actor.Attorney
 	}{
 		"valid": {
 			form: url.Values{
@@ -196,7 +218,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
 			},
-			attorney: Attorney{
+			attorney: actor.Attorney{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "john@example.com",
@@ -205,7 +227,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				ID:          "123",
 			},
 		},
-		"warning ignored": {
+		"dob warning ignored": {
 			form: url.Values{
 				"first-names":         {"John"},
 				"last-name":           {"Doe"},
@@ -213,13 +235,32 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
-				"ignore-warning":      {"dateOfBirthIsOver100"},
+				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
-			attorney: Attorney{
+			attorney: actor.Attorney{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "john@example.com",
 				DateOfBirth: date.New("1900", "1", "2"),
+				Address:     place.Address{Line1: "abc"},
+				ID:          "123",
+			},
+		},
+		"name warning ignored": {
+			form: url.Values{
+				"first-names":         {"Jane"},
+				"last-name":           {"Doe"},
+				"email":               {"john@example.com"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {validBirthYear},
+				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeReplacementAttorney, actor.TypeDonor, "Jane", "Doe").String()},
+			},
+			attorney: actor.Attorney{
+				FirstNames:  "Jane",
+				LastName:    "Doe",
+				Email:       "john@example.com",
+				DateOfBirth: date.New(validBirthYear, "1", "2"),
 				Address:     place.Address{Line1: "abc"},
 				ID:          "123",
 			},
@@ -236,7 +277,8 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&Lpa{
-					ReplacementAttorneys: []Attorney{
+					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					ReplacementAttorneys: actor.Attorneys{
 						{
 							FirstNames: "John",
 							ID:         "123",
@@ -246,7 +288,8 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &Lpa{
-					ReplacementAttorneys: []Attorney{tc.attorney},
+					You:                  actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					ReplacementAttorneys: actor.Attorneys{tc.attorney},
 				}).
 				Return(nil)
 
@@ -299,13 +342,13 @@ func TestPostChooseReplacementAttorneysFromAnotherPage(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&Lpa{
-					ReplacementAttorneys: []Attorney{
+					ReplacementAttorneys: actor.Attorneys{
 						{FirstNames: "John", Address: place.Address{Line1: "abc"}, ID: "123"},
 					},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &Lpa{
-					ReplacementAttorneys: []Attorney{
+					ReplacementAttorneys: actor.Attorneys{
 						{
 							ID:          "123",
 							FirstNames:  "John",
@@ -330,6 +373,8 @@ func TestPostChooseReplacementAttorneysFromAnotherPage(t *testing.T) {
 }
 
 func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
+	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
+
 	testCases := map[string]struct {
 		form        url.Values
 		dataMatcher func(t *testing.T, data *chooseReplacementAttorneysData) bool
@@ -366,7 +411,7 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
-				"ignore-warning":      {"dateOfBirthIsOver100"},
+				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
 			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
 				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
@@ -380,10 +425,56 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
-				"ignore-warning":      {"attorneyDateOfBirthIsUnder18"},
+				"ignore-dob-warning":  {"attorneyDateOfBirthIsUnder18"},
 			},
 			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
 				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
+			},
+		},
+		"name warning": {
+			form: url.Values{
+				"first-names":         {"Jane"},
+				"last-name":           {"Doe"},
+				"email":               {"name@example.com"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {validBirthYear},
+			},
+			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
+				return assert.Equal(t, "", data.DobWarning) &&
+					assert.Equal(t, actor.NewSameNameWarning(actor.TypeReplacementAttorney, actor.TypeDonor, "Jane", "Doe"), data.NameWarning) &&
+					assert.True(t, data.Errors.None())
+			},
+		},
+		"name warning ignored but other errors": {
+			form: url.Values{
+				"first-names":         {"Jane"},
+				"last-name":           {"Doe"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {validBirthYear},
+				"ignore-name-warning": {"errorDonorMatchesActor|aReplacementAttorney|Jane|Doe"},
+			},
+			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
+				return assert.Equal(t, "", data.DobWarning) &&
+					assert.Equal(t, actor.NewSameNameWarning(actor.TypeReplacementAttorney, actor.TypeDonor, "Jane", "Doe"), data.NameWarning) &&
+					assert.Equal(t, validation.With("email", validation.EnterError{Label: "email"}), data.Errors)
+			},
+		},
+		"other name warning ignored": {
+			form: url.Values{
+				"first-names":         {"Jane"},
+				"last-name":           {"Doe"},
+				"email":               {"name@example.com"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {validBirthYear},
+				"ignore-name-warning": {"errorAttorneyMatchesActor|aReplacementAttorney|Jane|Doe"},
+			},
+			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
+				return assert.Equal(t, "", data.DobWarning) &&
+					assert.Equal(t, actor.NewSameNameWarning(actor.TypeReplacementAttorney, actor.TypeDonor, "Jane", "Doe"), data.NameWarning) &&
+					assert.True(t, data.Errors.None())
 			},
 		},
 	}
@@ -397,7 +488,9 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
-				Return(&Lpa{}, nil)
+				Return(&Lpa{
+					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
+				}, nil)
 
 			template := &mockTemplate{}
 			template.
@@ -442,4 +535,33 @@ func TestPostChooseReplacementAttorneysWhenStoreErrors(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
+}
+
+func TestReplacementAttorneyMatches(t *testing.T) {
+	lpa := &Lpa{
+		You: actor.Person{FirstNames: "a", LastName: "b"},
+		Attorneys: actor.Attorneys{
+			{FirstNames: "c", LastName: "d"},
+			{FirstNames: "e", LastName: "f"},
+		},
+		ReplacementAttorneys: actor.Attorneys{
+			{FirstNames: "g", LastName: "h"},
+			{ID: "123", FirstNames: "i", LastName: "j"},
+		},
+		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
+		PeopleToNotify: actor.PeopleToNotify{
+			{FirstNames: "m", LastName: "n"},
+			{FirstNames: "o", LastName: "p"},
+		},
+	}
+
+	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(lpa, "123", "x", "y"))
+	assert.Equal(t, actor.TypeDonor, replacementAttorneyMatches(lpa, "123", "a", "b"))
+	assert.Equal(t, actor.TypeAttorney, replacementAttorneyMatches(lpa, "123", "c", "d"))
+	assert.Equal(t, actor.TypeAttorney, replacementAttorneyMatches(lpa, "123", "e", "f"))
+	assert.Equal(t, actor.TypeReplacementAttorney, replacementAttorneyMatches(lpa, "123", "g", "h"))
+	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(lpa, "123", "i", "j"))
+	assert.Equal(t, actor.TypeCertificateProvider, replacementAttorneyMatches(lpa, "123", "k", "l"))
+	assert.Equal(t, actor.TypePersonToNotify, replacementAttorneyMatches(lpa, "123", "m", "n"))
+	assert.Equal(t, actor.TypePersonToNotify, replacementAttorneyMatches(lpa, "123", "o", "p"))
 }

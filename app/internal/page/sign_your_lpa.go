@@ -12,13 +12,13 @@ type signYourLpaData struct {
 	Errors               validation.List
 	Lpa                  *Lpa
 	Form                 *signYourLpaForm
-	CPWitnessedFormValue string
-	WantFormValue        string
+	WantToSignFormValue  string
+	WantToApplyFormValue string
 }
 
 const (
-	CertificateProviderHasWitnessed = "cp-witnessed"
-	WantToApplyForLpa               = "want-to-apply"
+	WantToSignLpa     = "want-to-sign"
+	WantToApplyForLpa = "want-to-apply"
 )
 
 func SignYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
@@ -33,10 +33,10 @@ func SignYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 			Lpa: lpa,
 			Form: &signYourLpaForm{
 				WantToApply: lpa.WantToApplyForLpa,
-				CPWitnessed: lpa.CPWitnessedDonorSign,
+				WantToSign:  lpa.WantToSignLpa,
 			},
-			CPWitnessedFormValue: CertificateProviderHasWitnessed,
-			WantFormValue:        WantToApplyForLpa,
+			WantToSignFormValue:  WantToSignLpa,
+			WantToApplyFormValue: WantToApplyForLpa,
 		}
 
 		if r.Method == http.MethodPost {
@@ -46,7 +46,7 @@ func SignYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			lpa.WantToApplyForLpa = data.Form.WantToApply
-			lpa.CPWitnessedDonorSign = data.Form.CPWitnessed
+			lpa.WantToSignLpa = data.Form.WantToSign
 			if err = lpaStore.Put(r.Context(), lpa); err != nil {
 				return err
 			}
@@ -66,7 +66,7 @@ func SignYourLpa(tmpl template.Template, lpaStore LpaStore) Handler {
 
 type signYourLpaForm struct {
 	WantToApply bool
-	CPWitnessed bool
+	WantToSign  bool
 }
 
 func readSignYourLpaForm(r *http.Request) *signYourLpaForm {
@@ -75,8 +75,8 @@ func readSignYourLpaForm(r *http.Request) *signYourLpaForm {
 	f := &signYourLpaForm{}
 
 	for _, checkBox := range r.PostForm["sign-lpa"] {
-		if checkBox == CertificateProviderHasWitnessed {
-			f.CPWitnessed = true
+		if checkBox == WantToSignLpa {
+			f.WantToSign = true
 		}
 
 		if checkBox == WantToApplyForLpa {
@@ -90,8 +90,9 @@ func readSignYourLpaForm(r *http.Request) *signYourLpaForm {
 func (f *signYourLpaForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Bool("sign-lpa", "bothBoxesToSign", f.WantToApply && f.CPWitnessed,
-		validation.Selected())
+	if !(f.WantToApply && f.WantToSign) {
+		errors.Add("sign-lpa", validation.CustomError{Label: "bothBoxesToSignAndApply"})
+	}
 
 	return errors
 }

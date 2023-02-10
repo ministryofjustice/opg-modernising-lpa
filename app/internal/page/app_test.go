@@ -14,6 +14,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -722,7 +723,7 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
-				Attorneys: []Attorney{
+				Attorneys: actor.Attorneys{
 					{
 						ID:          "JohnSmith",
 						FirstNames:  "John",
@@ -757,7 +758,7 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withIncompleteAttorneys=1", nil)
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
-		attorneys := []Attorney{
+		attorneys := actor.Attorneys{
 			{
 				ID:          "with-address",
 				FirstNames:  "John",
@@ -825,7 +826,7 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withAttorneys=1", nil)
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
-		attorneys := []Attorney{
+		attorneys := actor.Attorneys{
 			{
 				ID:          "JohnSmith",
 				FirstNames:  "John",
@@ -953,7 +954,7 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
-				CertificateProvider: CertificateProvider{
+				CertificateProvider: actor.CertificateProvider{
 					FirstNames:              "Barbara",
 					LastName:                "Smith",
 					Email:                   "Barbara@example.org",
@@ -995,7 +996,7 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
-				You: Person{
+				You: actor.Person{
 					FirstNames: "Jose",
 					LastName:   "Smith",
 					Address: place.Address{
@@ -1046,7 +1047,7 @@ func TestTestingStart(t *testing.T) {
 				HowReplacementAttorneysMakeDecisions: JointlyAndSeverally,
 				HowShouldReplacementAttorneysStepIn:  OneCanNoLongerAct,
 				Tasks:                                Tasks{ChooseReplacementAttorneys: TaskCompleted},
-				ReplacementAttorneys: []Attorney{
+				ReplacementAttorneys: actor.Attorneys{
 					{
 						FirstNames: "Jane",
 						LastName:   "Smith",
@@ -1175,7 +1176,7 @@ func TestTestingStart(t *testing.T) {
 				ID:                      "123",
 				DoYouWantToNotifyPeople: "yes",
 				Tasks:                   Tasks{PeopleToNotify: TaskCompleted},
-				PeopleToNotify: []PersonToNotify{
+				PeopleToNotify: actor.PeopleToNotify{
 					{
 						ID:         "JoannaSmith",
 						FirstNames: "Joanna",
@@ -1235,7 +1236,7 @@ func TestTestingStart(t *testing.T) {
 			On("Put", ctx, &Lpa{
 				ID:                      "123",
 				DoYouWantToNotifyPeople: "yes",
-				PeopleToNotify: []PersonToNotify{
+				PeopleToNotify: actor.PeopleToNotify{
 					{
 						ID:         "JoannaSmith",
 						FirstNames: "Joanna",
@@ -1315,7 +1316,7 @@ func TestTestingStart(t *testing.T) {
 					FullName:    "Jose Smith",
 				},
 				WantToApplyForLpa:      true,
-				CPWitnessedDonorSign:   true,
+				WantToSignLpa:          true,
 				CPWitnessCodeValidated: true,
 				Submitted:              time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
 				Tasks:                  Tasks{ConfirmYourIdentityAndSign: TaskCompleted},
@@ -1356,13 +1357,13 @@ func TestTestingStart(t *testing.T) {
 					FullName:    "Jose Smith",
 				},
 				WantToApplyForLpa:       true,
-				CPWitnessedDonorSign:    true,
+				WantToSignLpa:           true,
 				CPWitnessCodeValidated:  true,
 				Submitted:               time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
 				Checked:                 true,
 				HappyToShare:            true,
 				DoYouWantToNotifyPeople: "yes",
-				PeopleToNotify: []PersonToNotify{
+				PeopleToNotify: actor.PeopleToNotify{
 					{
 						ID:         "JoannaSmith",
 						FirstNames: "Joanna",
@@ -1395,7 +1396,7 @@ func TestTestingStart(t *testing.T) {
 				WantReplacementAttorneys:             "yes",
 				HowReplacementAttorneysMakeDecisions: JointlyAndSeverally,
 				HowShouldReplacementAttorneysStepIn:  OneCanNoLongerAct,
-				ReplacementAttorneys: []Attorney{
+				ReplacementAttorneys: actor.Attorneys{
 					{
 						FirstNames: "Jane",
 						LastName:   "Smith",
@@ -1425,7 +1426,7 @@ func TestTestingStart(t *testing.T) {
 						ID:          "JorgeSmith",
 					},
 				},
-				You: Person{
+				You: actor.Person{
 					FirstNames: "Jose",
 					LastName:   "Smith",
 					Address: place.Address{
@@ -1440,7 +1441,7 @@ func TestTestingStart(t *testing.T) {
 				},
 				WhoFor: "me",
 				Type:   LpaTypePropertyFinance,
-				CertificateProvider: CertificateProvider{
+				CertificateProvider: actor.CertificateProvider{
 					FirstNames:              "Barbara",
 					LastName:                "Smith",
 					Email:                   "Barbara@example.org",
@@ -1450,7 +1451,7 @@ func TestTestingStart(t *testing.T) {
 					RelationshipDescription: "",
 					RelationshipLength:      "gte-2-years",
 				},
-				Attorneys: []Attorney{
+				Attorneys: actor.Attorneys{
 					{
 						ID:          "JohnSmith",
 						FirstNames:  "John",

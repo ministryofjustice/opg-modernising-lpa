@@ -36,7 +36,7 @@
                 {{ trCount .App "whoAreTheAttorneys" (len .Lpa.Attorneys) }}
             </dt>
             <dd class="govuk-summary-list__value">
-                {{ .Lpa.AttorneysFullNames }}
+                {{ .Lpa.Attorneys.FullNames }}
             </dd>
             {{ if not (eq .Lpa.Tasks.CheckYourLpa.String "completed") }}
                 <dd class="govuk-summary-list__actions">
@@ -73,7 +73,7 @@
                 {{ if eq 0 (len .Lpa.ReplacementAttorneys) }}
                     {{ tr .App "replacementAttorneysNotAppointed" }}
                 {{ else }}
-                    {{ .Lpa.ReplacementAttorneysFullNames }}
+                    {{ .Lpa.ReplacementAttorneys.FullNames }}
                 {{ end }}
             </dd>
             {{ if not (eq .Lpa.Tasks.CheckYourLpa.String "completed") }}

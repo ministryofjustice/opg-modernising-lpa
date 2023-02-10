@@ -11,17 +11,17 @@
         {{ trHtml .App "youCanDecideHeader" }}
         {{ trHtml .App "asSoonAsRegisteredTitle" }}
 
-        <p class="govuk-body">{{ trFormatCount .App "asSoonAsRegisteredIntro" (len .Lpa.Attorneys) "AttorneysFullNames" .Lpa.AttorneysFullNames }}</p>
+        <p class="govuk-body">{{ trFormatCount .App "asSoonAsRegisteredIntro" (len .Lpa.Attorneys) "AttorneysFullNames" .Lpa.Attorneys.FullNames }}</p>
 
-        {{ trFormatHtml .App "asSoonAsRegisteredContent" "AttorneysFirstNames" .Lpa.AttorneysFirstNames }}
-        {{ trFormatHtml .App "afterLosingCapacityContent" "AttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+        {{ trFormatHtml .App "asSoonAsRegisteredContent" "AttorneysFirstNames" .Lpa.Attorneys.FirstNames }}
+        {{ trFormatHtml .App "afterLosingCapacityContent" "AttorneysFirstNames" .Lpa.Attorneys.FirstNames }}
 
-        <p class="govuk-body">{{ trFormatCount .App "afterLosingCapacityExample" (len .Lpa.Attorneys) "AttorneysFirstNames" .Lpa.AttorneysFirstNames }}</p>
+        <p class="govuk-body">{{ trFormatCount .App "afterLosingCapacityExample" (len .Lpa.Attorneys) "AttorneysFirstNames" .Lpa.Attorneys.FirstNames }}</p>
 
         <div class="govuk-form-group {{ if .Errors.Has "when" }}govuk-form-group--error{{ end }}">
           <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-              {{ trFormatCount .App "whenDoYouWantAttorneysToUse" (len .Lpa.Attorneys) "AttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+              {{ trFormatCount .App "whenDoYouWantAttorneysToUse" (len .Lpa.Attorneys) "AttorneysFirstNames" .Lpa.Attorneys.FirstNames }}
             </legend>
 
             {{ template "error-message" (errorMessage . "when") }}

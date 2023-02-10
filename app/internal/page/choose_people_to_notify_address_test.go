@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +18,7 @@ func TestGetChoosePeopleToNotifyAddress(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
 
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		ID:      "123",
 		Address: place.Address{},
 	}
@@ -25,7 +26,7 @@ func TestGetChoosePeopleToNotifyAddress(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -65,7 +66,7 @@ func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
 
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		ID:      "123",
 		Address: address,
 	}
@@ -74,7 +75,7 @@ func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			PeopleToNotify: []PersonToNotify{personToNotify},
+			PeopleToNotify: actor.PeopleToNotify{personToNotify},
 		}, nil)
 
 	template := &mockTemplate{}
@@ -101,7 +102,7 @@ func TestGetChoosePeopleToNotifyAddressManual(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?action=manual&id=123", nil)
 
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		ID:      "123",
 		Address: address,
 	}
@@ -109,7 +110,7 @@ func TestGetChoosePeopleToNotifyAddressManual(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -135,7 +136,7 @@ func TestGetChoosePeopleToNotifyAddressWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
 
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		ID:      "123",
 		Address: place.Address{},
 	}
@@ -143,7 +144,7 @@ func TestGetChoosePeopleToNotifyAddressWhenTemplateErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -176,7 +177,7 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		ID:      "123",
 		Address: place.Address{},
 	}
@@ -185,7 +186,7 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			PeopleToNotify: []PersonToNotify{personToNotify},
+			PeopleToNotify: actor.PeopleToNotify{personToNotify},
 			Tasks:          Tasks{PeopleToNotify: TaskInProgress},
 		}, nil)
 
@@ -193,7 +194,7 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
-			PeopleToNotify: []PersonToNotify{personToNotify},
+			PeopleToNotify: actor.PeopleToNotify{personToNotify},
 			Tasks:          Tasks{PeopleToNotify: TaskCompleted},
 		}).
 		Return(nil)
@@ -221,7 +222,7 @@ func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		ID:      "123",
 		Address: place.Address{},
 	}
@@ -229,13 +230,13 @@ func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
 	personToNotify.Address = address
 
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
-			PeopleToNotify: []PersonToNotify{personToNotify},
+			PeopleToNotify: actor.PeopleToNotify{personToNotify},
 			Tasks:          Tasks{PeopleToNotify: TaskCompleted},
 		}).
 		Return(expectedError)
@@ -260,7 +261,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		ID:         "123",
 		FirstNames: "John",
 		Address:    place.Address{Line1: "line1"},
@@ -270,7 +271,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			PeopleToNotify: []PersonToNotify{personToNotify},
+			PeopleToNotify: actor.PeopleToNotify{personToNotify},
 			Tasks:          Tasks{PeopleToNotify: TaskInProgress},
 		}, nil)
 
@@ -278,7 +279,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 
 	lpaStore.
 		On("Put", r.Context(), &Lpa{
-			PeopleToNotify: []PersonToNotify{personToNotify},
+			PeopleToNotify: actor.PeopleToNotify{personToNotify},
 			Tasks:          Tasks{PeopleToNotify: TaskCompleted},
 		}).
 		Return(nil)
@@ -303,7 +304,7 @@ func TestPostChoosePeopleToNotifyAddressSelect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		ID:         "123",
 		FirstNames: "John",
 		Address:    place.Address{Line1: "abc"},
@@ -312,9 +313,9 @@ func TestPostChoosePeopleToNotifyAddressSelect(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
-	updatedPersonToNotify := PersonToNotify{
+	updatedPersonToNotify := actor.PersonToNotify{
 		ID: "123",
 		Address: place.Address{
 			Line1:      "a",
@@ -327,7 +328,7 @@ func TestPostChoosePeopleToNotifyAddressSelect(t *testing.T) {
 	}
 
 	lpaStore.
-		On("Put", r.Context(), &Lpa{PeopleToNotify: []PersonToNotify{updatedPersonToNotify}}).
+		On("Put", r.Context(), &Lpa{PeopleToNotify: actor.PeopleToNotify{updatedPersonToNotify}}).
 		Return(nil)
 
 	template := &mockTemplate{}
@@ -365,7 +366,7 @@ func TestPostChoosePeopleToNotifyAddressSelectWhenValidationError(t *testing.T) 
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
 
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		ID:      "123",
 		Address: place.Address{},
 	}
@@ -373,7 +374,7 @@ func TestPostChoosePeopleToNotifyAddressSelectWhenValidationError(t *testing.T) 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
 	addressClient := &mockAddressClient{}
 	addressClient.
@@ -421,7 +422,7 @@ func TestPostChoosePeopleToNotifyAddressLookup(t *testing.T) {
 		On("LookupPostcode", mock.Anything, "NG1").
 		Return(addresses, nil)
 
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		ID:         "123",
 		Address:    place.Address{},
 		FirstNames: "John",
@@ -430,7 +431,7 @@ func TestPostChoosePeopleToNotifyAddressLookup(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -467,7 +468,7 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 	logger.
 		On("Print", expectedError)
 
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		ID:      "123",
 		Address: place.Address{},
 	}
@@ -475,7 +476,7 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
 	addressClient := &mockAddressClient{}
 	addressClient.
@@ -523,7 +524,7 @@ func TestPostChoosePeopleToNotifyAddressInvalidPostcodeError(t *testing.T) {
 	logger.
 		On("Print", invalidPostcodeErr)
 
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		ID:      "123",
 		Address: place.Address{},
 	}
@@ -531,7 +532,7 @@ func TestPostChoosePeopleToNotifyAddressInvalidPostcodeError(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
 	addressClient := &mockAddressClient{}
 	addressClient.
@@ -573,7 +574,7 @@ func TestPostChoosePeopleToNotifyAddressPostcodeNoAddresses(t *testing.T) {
 
 	logger := &mockLogger{}
 
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		ID:      "123",
 		Address: place.Address{},
 	}
@@ -581,7 +582,7 @@ func TestPostChoosePeopleToNotifyAddressPostcodeNoAddresses(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
 	addressClient := &mockAddressClient{}
 	addressClient.
@@ -619,7 +620,7 @@ func TestPostChoosePeopleToNotifyAddressLookupWhenValidationError(t *testing.T) 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", formUrlEncoded)
 
-	personToNotify := PersonToNotify{
+	personToNotify := actor.PersonToNotify{
 		ID:      "123",
 		Address: place.Address{},
 	}
@@ -627,7 +628,7 @@ func TestPostChoosePeopleToNotifyAddressLookupWhenValidationError(t *testing.T) 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{PeopleToNotify: []PersonToNotify{personToNotify}}, nil)
+		Return(&Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
 	template := &mockTemplate{}
 	template.
@@ -685,7 +686,7 @@ func TestPostPersonToNotifyAddressManuallyFromAnotherPage(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&Lpa{
-					PeopleToNotify: []PersonToNotify{
+					PeopleToNotify: actor.PeopleToNotify{
 						{
 							ID: "123",
 							Address: place.Address{
@@ -698,7 +699,7 @@ func TestPostPersonToNotifyAddressManuallyFromAnotherPage(t *testing.T) {
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &Lpa{
-					PeopleToNotify: []PersonToNotify{
+					PeopleToNotify: actor.PeopleToNotify{
 						{
 							ID: "123",
 							Address: place.Address{

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -63,7 +64,7 @@ func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{
-			CertificateProvider: CertificateProvider{
+			CertificateProvider: actor.CertificateProvider{
 				FirstNames: "John",
 			},
 		}, nil)
@@ -112,45 +113,186 @@ func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostCertificateProviderDetails(t *testing.T) {
-	form := url.Values{
-		"first-names":         {"John"},
-		"last-name":           {"Doe"},
-		"mobile":              {"07535111111"},
-		"date-of-birth-day":   {"2"},
-		"date-of-birth-month": {"1"},
-		"date-of-birth-year":  {"1990"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", r.Context()).
-		Return(&Lpa{
-			CertificateProvider: CertificateProvider{
-				FirstNames: "John",
+	testCases := map[string]struct {
+		form                url.Values
+		certificateProvider actor.CertificateProvider
+	}{
+		"valid": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"mobile":              {"07535111111"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1990"},
 			},
-		}, nil)
-	lpaStore.
-		On("Put", r.Context(), &Lpa{
-			CertificateProvider: CertificateProvider{
+			certificateProvider: actor.CertificateProvider{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Mobile:      "07535111111",
 				DateOfBirth: date.New("1990", "1", "2"),
 			},
-		}).
-		Return(nil)
+		},
+		"name warning ignored": {
+			form: url.Values{
+				"first-names":         {"Jane"},
+				"last-name":           {"Doe"},
+				"mobile":              {"07535111111"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1990"},
+				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeCertificateProvider, actor.TypeDonor, "Jane", "Doe").String()},
+			},
+			certificateProvider: actor.CertificateProvider{
+				FirstNames:  "Jane",
+				LastName:    "Doe",
+				Mobile:      "07535111111",
+				DateOfBirth: date.New("1990", "1", "2"),
+			},
+		},
+	}
 
-	err := CertificateProviderDetails(nil, lpaStore)(appData, w, r)
-	resp := w.Result()
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", r.Context()).
+				Return(&Lpa{
+					You: actor.Person{
+						FirstNames: "Jane",
+						LastName:   "Doe",
+					},
+				}, nil)
+			lpaStore.
+				On("Put", r.Context(), &Lpa{
+					You: actor.Person{
+						FirstNames: "Jane",
+						LastName:   "Doe",
+					},
+					CertificateProvider: tc.certificateProvider,
+				}).
+				Return(nil)
+
+			err := CertificateProviderDetails(nil, lpaStore)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, "/lpa/lpa-id"+Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, lpaStore)
+		})
+	}
+}
+
+func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
+	testCases := map[string]struct {
+		form        url.Values
+		existingLpa *Lpa
+		dataMatcher func(t *testing.T, data *certificateProviderDetailsData) bool
+	}{
+		"validation error": {
+			form: url.Values{
+				"last-name":           {"Doe"},
+				"mobile":              {"07535111111"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1990"},
+			},
+			existingLpa: &Lpa{},
+			dataMatcher: func(t *testing.T, data *certificateProviderDetailsData) bool {
+				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
+			},
+		},
+		"name warning": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"mobile":              {"07535111111"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1990"},
+			},
+			existingLpa: &Lpa{
+				You: actor.Person{
+					FirstNames: "John",
+					LastName:   "Doe",
+				},
+			},
+			dataMatcher: func(t *testing.T, data *certificateProviderDetailsData) bool {
+				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeCertificateProvider, actor.TypeDonor, "John", "Doe"), data.NameWarning)
+			},
+		},
+		"name warning ignored but other errors": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1990"},
+				"ignore-name-warning": {"errorDonorMatchesActor|theCertificateProvider|John|Doe"},
+			},
+			existingLpa: &Lpa{
+				You: actor.Person{
+					FirstNames: "John",
+					LastName:   "Doe",
+				},
+			},
+			dataMatcher: func(t *testing.T, data *certificateProviderDetailsData) bool {
+				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeCertificateProvider, actor.TypeDonor, "John", "Doe"), data.NameWarning)
+			},
+		},
+		"other name warning ignored": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"mobile":              {"07535111111"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1990"},
+				"ignore-name-warning": {"errorAttorneyMatchesActor|theCertificateProvider|John|Doe"},
+			},
+			existingLpa: &Lpa{
+				You: actor.Person{
+					FirstNames: "John",
+					LastName:   "Doe",
+				},
+			},
+			dataMatcher: func(t *testing.T, data *certificateProviderDetailsData) bool {
+				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeCertificateProvider, actor.TypeDonor, "John", "Doe"), data.NameWarning)
+			},
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
+			r.Header.Add("Content-Type", formUrlEncoded)
+
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", r.Context()).
+				Return(tc.existingLpa, nil)
+
+			template := &mockTemplate{}
+			template.
+				On("Func", w, mock.MatchedBy(func(data *certificateProviderDetailsData) bool {
+					return tc.dataMatcher(t, data)
+				})).
+				Return(nil)
+
+			err := CertificateProviderDetails(template.Func, lpaStore)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+			mock.AssertExpectationsForObjects(t, template, lpaStore)
+		})
+	}
 }
 
 func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
@@ -179,39 +321,6 @@ func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
-}
-
-func TestPostCertificateProviderDetailsWhenValidationError(t *testing.T) {
-	form := url.Values{
-		"last-name":           {"Doe"},
-		"mobile":              {"07535111111"},
-		"date-of-birth-day":   {"2"},
-		"date-of-birth-month": {"1"},
-		"date-of-birth-year":  {"1990"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
-
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", r.Context()).
-		Return(&Lpa{}, nil)
-
-	template := &mockTemplate{}
-	template.
-		On("Func", w, mock.MatchedBy(func(data *certificateProviderDetailsData) bool {
-			return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
-		})).
-		Return(nil)
-
-	err := CertificateProviderDetails(template.Func, lpaStore)(appData, w, r)
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestReadCertificateProviderDetailsForm(t *testing.T) {
@@ -356,4 +465,33 @@ func TestUkMobileFormatValidation(t *testing.T) {
 			assert.Equal(t, tc.Error, form.Validate())
 		})
 	}
+}
+
+func TestCertificateProviderMatches(t *testing.T) {
+	lpa := &Lpa{
+		You: actor.Person{FirstNames: "a", LastName: "b"},
+		Attorneys: actor.Attorneys{
+			{FirstNames: "c", LastName: "d"},
+			{FirstNames: "e", LastName: "f"},
+		},
+		ReplacementAttorneys: actor.Attorneys{
+			{FirstNames: "g", LastName: "h"},
+			{FirstNames: "i", LastName: "j"},
+		},
+		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
+		PeopleToNotify: actor.PeopleToNotify{
+			{FirstNames: "m", LastName: "n"},
+			{FirstNames: "o", LastName: "p"},
+		},
+	}
+
+	assert.Equal(t, actor.TypeNone, certificateProviderMatches(lpa, "x", "y"))
+	assert.Equal(t, actor.TypeDonor, certificateProviderMatches(lpa, "a", "b"))
+	assert.Equal(t, actor.TypeAttorney, certificateProviderMatches(lpa, "c", "d"))
+	assert.Equal(t, actor.TypeAttorney, certificateProviderMatches(lpa, "e", "f"))
+	assert.Equal(t, actor.TypeReplacementAttorney, certificateProviderMatches(lpa, "g", "h"))
+	assert.Equal(t, actor.TypeReplacementAttorney, certificateProviderMatches(lpa, "i", "j"))
+	assert.Equal(t, actor.TypeNone, certificateProviderMatches(lpa, "k", "l"))
+	assert.Equal(t, actor.TypeNone, certificateProviderMatches(lpa, "m", "n"))
+	assert.Equal(t, actor.TypeNone, certificateProviderMatches(lpa, "o", "p"))
 }
