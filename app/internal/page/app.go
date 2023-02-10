@@ -509,8 +509,16 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 				}
 			}
 
-			csrfSession.Values = map[interface{}]interface{}{"token": randomString(12)}
-			_ = store.Save(r, w, csrfSession)
+			if csrfSession.IsNew {
+				csrfSession.Values = map[interface{}]interface{}{"token": randomString(12)}
+				csrfSession.Options = &sessions.Options{
+					MaxAge:   24 * 60 * 60,
+					Secure:   true,
+					HttpOnly: true,
+					SameSite: http.SameSiteLaxMode,
+				}
+				_ = store.Save(r, w, csrfSession)
+			}
 
 			ctx := r.Context()
 

@@ -24,7 +24,7 @@ describe('Dashboard', () => {
             cy.get('#f-date-of-birth-year').type('1990');
             cy.contains('button', 'Continue').click();
 
-            cy.visitLpa('/lpa-type', true);
+            cy.visitLpa('/lpa-type');
 
             cy.get('#f-lpa-type-2').check();
             cy.contains('button', 'Continue').click();
