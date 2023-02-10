@@ -37,14 +37,12 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 		}
 
 		if r.Method == http.MethodPost {
-			session, err := sessionStore.Get(r, "session")
+			donorSession, err := getDonorSession(sessionStore, r)
 			if err != nil {
 				return err
 			}
-
-			email, ok := session.Values["email"].(string)
-			if !ok {
-				return fmt.Errorf("no email found in session")
+			if donorSession.Email == "" {
+				return fmt.Errorf("no email in session session")
 			}
 
 			data.Form = readYourDetailsForm(r)
@@ -71,7 +69,7 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 				lpa.You.LastName = data.Form.LastName
 				lpa.You.OtherNames = data.Form.OtherNames
 				lpa.You.DateOfBirth = data.Form.Dob
-				lpa.You.Email = email
+				lpa.You.Email = donorSession.Email
 				lpa.Tasks.YourDetails = TaskInProgress
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {

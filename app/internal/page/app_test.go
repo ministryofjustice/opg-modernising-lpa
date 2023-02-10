@@ -174,7 +174,7 @@ func TestMakeHandle(t *testing.T) {
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &DonorSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None)
@@ -213,7 +213,7 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &DonorSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None)
@@ -268,7 +268,7 @@ func TestMakeHandleShowTranslationKeys(t *testing.T) {
 			sessionsStore := &mockSessionsStore{}
 			sessionsStore.
 				On("Get", r, "session").
-				Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
+				Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &DonorSession{Sub: "random"}}}, nil)
 
 			mux := http.NewServeMux()
 			handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None)
@@ -315,7 +315,7 @@ func TestMakeHandleErrors(t *testing.T) {
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &DonorSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{}, None)
@@ -363,7 +363,7 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 
 	logger := &mockLogger{}
 	logger.
-		On("Print", "sub missing from session")
+		On("Print", MissingSessionError("donor"))
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
@@ -425,9 +425,6 @@ func TestTestingStart(t *testing.T) {
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
-		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
@@ -457,9 +454,6 @@ func TestTestingStart(t *testing.T) {
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
-		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 		sessionsStore.
@@ -480,9 +474,6 @@ func TestTestingStart(t *testing.T) {
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
@@ -512,9 +503,6 @@ func TestTestingStart(t *testing.T) {
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
@@ -588,9 +576,6 @@ func TestTestingStart(t *testing.T) {
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
-		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
@@ -662,9 +647,6 @@ func TestTestingStart(t *testing.T) {
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
-		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
@@ -709,9 +691,6 @@ func TestTestingStart(t *testing.T) {
 
 				sessionsStore := &mockSessionsStore{}
 				sessionsStore.
-					On("Get", r, "session").
-					Return(&sessions.Session{}, nil)
-				sessionsStore.
 					On("Save", r, w, mock.Anything).
 					Return(nil)
 
@@ -743,9 +722,6 @@ func TestTestingStart(t *testing.T) {
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
@@ -785,9 +761,6 @@ func TestTestingStart(t *testing.T) {
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
@@ -832,9 +805,6 @@ func TestTestingStart(t *testing.T) {
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
@@ -898,9 +868,6 @@ func TestTestingStart(t *testing.T) {
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
-		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
@@ -931,9 +898,6 @@ func TestTestingStart(t *testing.T) {
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
-		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
@@ -963,9 +927,6 @@ func TestTestingStart(t *testing.T) {
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
@@ -1025,9 +986,6 @@ func TestTestingStart(t *testing.T) {
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
-		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
@@ -1066,9 +1024,6 @@ func TestTestingStart(t *testing.T) {
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
-		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
@@ -1099,9 +1054,6 @@ func TestTestingStart(t *testing.T) {
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
@@ -1140,9 +1092,6 @@ func TestTestingStart(t *testing.T) {
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
