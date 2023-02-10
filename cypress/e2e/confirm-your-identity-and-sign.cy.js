@@ -121,7 +121,7 @@ describe('Confirm your identity and sign', () => {
     });
 
     it('errors when not signed', () => {
-        cy.visitLpa('/sign-your-lpa');
+        cy.visitLpa('/sign-your-lpa', true);
 
         cy.contains('button', 'Submit my signature').click();
 
@@ -133,7 +133,7 @@ describe('Confirm your identity and sign', () => {
     });
 
     it('errors when not witnessed', () => {
-        cy.visitLpa('/witnessing-your-signature');
+        cy.visitLpa('/witnessing-your-signature', true);
         cy.contains('button', 'Continue').click();
 
         cy.contains('button', 'Continue').click();
