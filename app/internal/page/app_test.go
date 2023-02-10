@@ -522,31 +522,12 @@ func TestPostMakeHandleCsrfTokensNotEqual(t *testing.T) {
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
-		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
-	sessionsStore.
 		On("Get", r, "csrf").
 		Return(csrfSession, nil)
-	sessionsStore.
-		On("Save", r, w, csrfSession).
-		Return(nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None, mockRandom)
 	handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, AppData{
-			Page:             "/path",
-			Query:            "?a=b",
-			Localizer:        localizer,
-			Lang:             En,
-			SessionID:        "cmFuZG9t",
-			CookieConsentSet: false,
-			CanGoBack:        true,
-			RumConfig:        RumConfig{ApplicationID: "xyz"},
-			StaticHash:       "?%3fNEI0t9MN",
-			Paths:            AppPaths{},
-			CsrfToken:        "123",
-		}, appData)
 		return nil
 	})
 
@@ -571,31 +552,12 @@ func TestPostMakeHandleCsrfTokenCookieValueEmpty(t *testing.T) {
 
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
-		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
-	sessionsStore.
 		On("Get", r, "csrf").
 		Return(csrfSession, nil)
-	sessionsStore.
-		On("Save", r, w, csrfSession).
-		Return(nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None, mockRandom)
 	handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, AppData{
-			Page:             "/path",
-			Query:            "?a=b",
-			Localizer:        localizer,
-			Lang:             En,
-			SessionID:        "cmFuZG9t",
-			CookieConsentSet: false,
-			CanGoBack:        true,
-			RumConfig:        RumConfig{ApplicationID: "xyz"},
-			StaticHash:       "?%3fNEI0t9MN",
-			Paths:            AppPaths{},
-			CsrfToken:        "123",
-		}, appData)
 		return nil
 	})
 
@@ -603,6 +565,35 @@ func TestPostMakeHandleCsrfTokenCookieValueEmpty(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusForbidden, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, sessionsStore)
+}
+
+func TestPostMakeHandleCsrfTokenErrorWhenDecodingSession(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	form := url.Values{
+		"csrf": {"123"},
+	}
+	r, _ := http.NewRequest(http.MethodPost, "/path?a=b", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", formUrlEncoded)
+
+	localizer := localize.Localizer{}
+
+	sessionsStore := &mockSessionsStore{}
+	sessionsStore.
+		On("Get", r, "csrf").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{}}, expectedError)
+
+	mux := http.NewServeMux()
+	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None, mockRandom)
+	handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 

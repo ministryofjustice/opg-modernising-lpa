@@ -497,13 +497,15 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sessions.Store, localiz
 		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 			csrfSession, err := store.Get(r, "csrf")
 
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-			}
-
 			if r.Method == http.MethodPost {
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+
 				if !csrfValid(r, csrfSession) {
 					http.Error(w, "CSRF token not valid", http.StatusForbidden)
+					return
 				}
 			}
 
