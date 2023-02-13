@@ -18,6 +18,7 @@
 
         <form novalidate method="post">
           <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "createAnLpa" }}</button>
+          {{ template "csrf-field" . }}
         </form>
       </div>
     </div>
@@ -28,6 +29,7 @@
 
         <form novalidate method="post">
           <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "createAnotherLpa" }}</button>
+          {{ template "csrf-field" . }}
         </form>
       </div>
     </div>

@@ -25,6 +25,7 @@ describe('Dashboard', () => {
             cy.contains('button', 'Continue').click();
 
             cy.visitLpa('/lpa-type');
+
             cy.get('#f-lpa-type-2').check();
             cy.contains('button', 'Continue').click();
 
