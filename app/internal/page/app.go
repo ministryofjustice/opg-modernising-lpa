@@ -179,7 +179,7 @@ func App(
 	handleRoot(paths.CertificateProviderLoginCallback, None,
 		CertificateProviderLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, lpaStore))
 	handleRoot(paths.CertificateProviderYourDetails, RequireSession|RequireCertificateProvider,
-		Guidance(tmpls.Get("certificate_provider_your_details.gohtml"), "", lpaStore))
+		certificateProviderYourDetails(tmpls.Get("certificate_provider_your_details.gohtml"), lpaStore, sessionStore))
 
 	lpaMux := http.NewServeMux()
 

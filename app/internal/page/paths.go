@@ -22,6 +22,7 @@ type AppPaths struct {
 	ChooseReplacementAttorneys                           string
 	ChooseReplacementAttorneysAddress                    string
 	ChooseReplacementAttorneysSummary                    string
+	CpYourAddress                                        string
 	CookiesConsent                                       string
 	Dashboard                                            string
 	DoYouWantReplacementAttorneys                        string
@@ -93,6 +94,7 @@ var Paths = AppPaths{
 	ChooseReplacementAttorneys:                           "/choose-replacement-attorneys",
 	ChooseReplacementAttorneysAddress:                    "/choose-replacement-attorneys-address",
 	ChooseReplacementAttorneysSummary:                    "/choose-replacement-attorneys-summary",
+	CpYourAddress:                                        "/cp-your-address",
 	CookiesConsent:                                       "/cookies-consent",
 	Dashboard:                                            "/dashboard",
 	DoYouWantReplacementAttorneys:                        "/do-you-want-replacement-attorneys",

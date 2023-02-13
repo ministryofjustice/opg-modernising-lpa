@@ -94,7 +94,8 @@ type Lpa struct {
 	Submitted                                   time.Time
 	CPWitnessCodeValidated                      bool
 
-	CertificateProviderUserData identity.UserData
+	CertificateProviderUserData        identity.UserData
+	CertificateProviderProvidedDetails actor.CertificateProvider
 }
 
 type PaymentDetails struct {
