@@ -6,15 +6,7 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-func Login(logger Logger, oneLoginClient OneLoginClient, store sessions.Store, secure bool, randomString func(int) string) http.HandlerFunc {
-	cookieOptions := &sessions.Options{
-		Path:     "/",
-		MaxAge:   10 * 60,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   secure,
-	}
-
+func Login(logger Logger, oneLoginClient OneLoginClient, store sessions.Store, randomString func(int) string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		locale := "en"
 
@@ -27,15 +19,11 @@ func Login(logger Logger, oneLoginClient OneLoginClient, store sessions.Store, s
 
 		authCodeURL := oneLoginClient.AuthCodeURL(state, nonce, locale, false)
 
-		params := sessions.NewSession(store, "params")
-		params.Values = map[interface{}]interface{}{
-			"state":  state,
-			"nonce":  nonce,
-			"locale": locale,
-		}
-		params.Options = cookieOptions
-
-		if err := store.Save(r, w, params); err != nil {
+		if err := setOneLoginSession(store, r, w, &OneLoginSession{
+			State:  state,
+			Nonce:  nonce,
+			Locale: locale,
+		}); err != nil {
 			logger.Print(err)
 			return
 		}

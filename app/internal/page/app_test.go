@@ -176,13 +176,10 @@ func TestMakeHandle(t *testing.T) {
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &DonorSession{Sub: "random"}}}, nil)
 	sessionsStore.
 		On("Get", r, "csrf").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}, nil)
-	sessionsStore.
-		On("Save", r, w, &sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}).
-		Return(nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None, mockRandom)
@@ -213,6 +210,57 @@ func TestMakeHandle(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
+func TestMakeHandleRequireCertificateProviderSession(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
+	localizer := localize.Localizer{}
+
+	sessionsStore := &mockSessionsStore{}
+	sessionsStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{
+			Values: map[any]any{
+				"certificate-provider": &CertificateProviderSession{
+					Sub:            "random",
+					DonorSessionID: "session-id",
+					LpaID:          "lpa-id",
+				},
+			},
+		}, nil)
+	sessionsStore.
+		On("Get", r, "csrf").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}, nil)
+
+	mux := http.NewServeMux()
+	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None, mockRandom)
+	handle("/path", RequireSession|RequireCertificateProvider, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
+		assert.Equal(t, AppData{
+			Page:             "/path",
+			Query:            "?a=b",
+			Localizer:        localizer,
+			Lang:             En,
+			SessionID:        "session-id",
+			LpaID:            "lpa-id",
+			CookieConsentSet: false,
+			CanGoBack:        false,
+			RumConfig:        RumConfig{ApplicationID: "xyz"},
+			StaticHash:       "?%3fNEI0t9MN",
+			Paths:            AppPaths{},
+			CsrfToken:        "123",
+		}, appData)
+		assert.Equal(t, w, hw)
+		assert.Equal(t, r.WithContext(contextWithSessionData(r.Context(), &sessionData{SessionID: "session-id", LpaID: "lpa-id"})), hr)
+		hw.WriteHeader(http.StatusTeapot)
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, sessionsStore)
+}
+
 func TestMakeHandleExistingSessionData(t *testing.T) {
 	ctx := contextWithSessionData(context.Background(), &sessionData{LpaID: "123"})
 	w := httptest.NewRecorder()
@@ -222,13 +270,10 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &DonorSession{Sub: "random"}}}, nil)
 	sessionsStore.
 		On("Get", r, "csrf").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}, nil)
-	sessionsStore.
-		On("Save", r, w, &sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}).
-		Return(nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None, mockRandom)
@@ -284,13 +329,10 @@ func TestMakeHandleShowTranslationKeys(t *testing.T) {
 			sessionsStore := &mockSessionsStore{}
 			sessionsStore.
 				On("Get", r, "session").
-				Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
+				Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &DonorSession{Sub: "random"}}}, nil)
 			sessionsStore.
 				On("Get", r, "csrf").
 				Return(&sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}, nil)
-			sessionsStore.
-				On("Save", r, w, &sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}).
-				Return(nil)
 
 			mux := http.NewServeMux()
 			handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None, mockRandom)
@@ -338,13 +380,10 @@ func TestMakeHandleErrors(t *testing.T) {
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &DonorSession{Sub: "random"}}}, nil)
 	sessionsStore.
 		On("Get", r, "csrf").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}, nil)
-	sessionsStore.
-		On("Save", r, w, &sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}).
-		Return(nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{}, None, mockRandom)
@@ -360,67 +399,84 @@ func TestMakeHandleErrors(t *testing.T) {
 }
 
 func TestMakeHandleSessionError(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
-	localizer := localize.Localizer{}
+	for name, opt := range map[string]handleOpt{
+		"donor session":                RequireSession,
+		"certificate provider session": RequireSession | RequireCertificateProvider,
+	} {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+			localizer := localize.Localizer{}
 
-	logger := &mockLogger{}
-	logger.
-		On("Print", expectedError)
+			logger := &mockLogger{}
+			logger.
+				On("Print", expectedError)
 
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
-		On("Get", r, "session").
-		Return(&sessions.Session{}, expectedError)
-	sessionsStore.
-		On("Get", r, "csrf").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}, nil)
-	sessionsStore.
-		On("Save", r, w, &sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}).
-		Return(nil)
+			sessionsStore := &mockSessionsStore{}
+			sessionsStore.
+				On("Get", r, "session").
+				Return(&sessions.Session{}, expectedError)
+			sessionsStore.
+				On("Get", r, "csrf").
+				Return(&sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}, nil)
 
-	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{Start: "/this"}, None, mockRandom)
-	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+			mux := http.NewServeMux()
+			handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{Start: "/this"}, None, mockRandom)
+			handle("/path", opt, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
-	mux.ServeHTTP(w, r)
-	resp := w.Result()
+			mux.ServeHTTP(w, r)
+			resp := w.Result()
 
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/this", resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, sessionsStore, logger)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, "/this", resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, sessionsStore, logger)
+		})
+	}
 }
 
 func TestMakeHandleSessionMissing(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
-	localizer := localize.Localizer{}
+	for name, tc := range map[string]struct {
+		opt handleOpt
+		err error
+	}{
+		"donor session": {
+			opt: RequireSession,
+			err: MissingSessionError("donor"),
+		},
+		"certificate provider session": {
+			opt: RequireSession | RequireCertificateProvider,
+			err: MissingSessionError("certificate-provider"),
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+			localizer := localize.Localizer{}
 
-	logger := &mockLogger{}
-	logger.
-		On("Print", "sub missing from session")
+			logger := &mockLogger{}
+			logger.
+				On("Print", tc.err)
 
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
-		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{}}, nil)
-	sessionsStore.
-		On("Get", r, "csrf").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}, nil)
-	sessionsStore.
-		On("Save", r, w, &sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}).
-		Return(nil)
+			sessionsStore := &mockSessionsStore{}
+			sessionsStore.
+				On("Get", r, "session").
+				Return(&sessions.Session{Values: map[interface{}]interface{}{}}, nil)
+			sessionsStore.
+				On("Get", r, "csrf").
+				Return(&sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}, nil)
 
-	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{Start: "/this"}, None, mockRandom)
-	handle("/path", RequireSession, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+			mux := http.NewServeMux()
+			handle := makeHandle(mux, logger, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{Start: "/this"}, None, mockRandom)
+			handle("/path", tc.opt, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
-	mux.ServeHTTP(w, r)
-	resp := w.Result()
+			mux.ServeHTTP(w, r)
+			resp := w.Result()
 
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/this", resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, sessionsStore, logger)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, "/this", resp.Header.Get("Location"))
+			mock.AssertExpectationsForObjects(t, sessionsStore, logger)
+		})
+	}
 }
 
 func TestMakeHandleNoSessionRequired(t *testing.T) {
@@ -432,9 +488,6 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	sessionsStore.
 		On("Get", r, "csrf").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}, nil)
-	sessionsStore.
-		On("Save", r, w, &sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}).
-		Return(nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{}, "?%3fNEI0t9MN", AppPaths{}, None, mockRandom)
@@ -462,7 +515,6 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 func TestPostMakeHandleCsrfTokenValid(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	csrfSession := &sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}
 	form := url.Values{
 		"csrf": {"123"},
 	}
@@ -474,13 +526,10 @@ func TestPostMakeHandleCsrfTokenValid(t *testing.T) {
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"sub": "random"}}, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &DonorSession{Sub: "random"}}}, nil)
 	sessionsStore.
 		On("Get", r, "csrf").
-		Return(csrfSession, nil)
-	sessionsStore.
-		On("Save", r, w, csrfSession).
-		Return(nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None, mockRandom)
@@ -511,7 +560,6 @@ func TestPostMakeHandleCsrfTokenValid(t *testing.T) {
 func TestPostMakeHandleCsrfTokensNotEqual(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	csrfSession := &sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}
 	form := url.Values{
 		"csrf": {"321"},
 	}
@@ -523,13 +571,11 @@ func TestPostMakeHandleCsrfTokensNotEqual(t *testing.T) {
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "csrf").
-		Return(csrfSession, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None, mockRandom)
-	handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
-		return nil
-	})
+	handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
@@ -541,7 +587,6 @@ func TestPostMakeHandleCsrfTokensNotEqual(t *testing.T) {
 func TestPostMakeHandleCsrfTokenCookieValueEmpty(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	csrfSession := &sessions.Session{Values: map[interface{}]interface{}{"not-token": "123"}}
 	form := url.Values{
 		"csrf": {"123"},
 	}
@@ -553,13 +598,11 @@ func TestPostMakeHandleCsrfTokenCookieValueEmpty(t *testing.T) {
 	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "csrf").
-		Return(csrfSession, nil)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"not-token": "123"}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None, mockRandom)
-	handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
-		return nil
-	})
+	handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
@@ -586,14 +629,65 @@ func TestPostMakeHandleCsrfTokenErrorWhenDecodingSession(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None, mockRandom)
+	handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, sessionsStore)
+}
+
+func TestGetMakeHandleCsrfSessionSavedWhenNew(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
+
+	localizer := localize.Localizer{}
+
+	sessionsStore := &mockSessionsStore{}
+	sessionsStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &DonorSession{Sub: "random"}}}, nil)
+	sessionsStore.
+		On("Get", r, "csrf").
+		Return(&sessions.Session{IsNew: true}, nil)
+	sessionsStore.
+		On("Save", r, w, &sessions.Session{
+			IsNew:  true,
+			Values: map[interface{}]interface{}{"token": "123"},
+			Options: &sessions.Options{
+				MaxAge:   24 * 60 * 60,
+				Secure:   true,
+				HttpOnly: true,
+				SameSite: http.SameSiteLaxMode,
+			},
+		}).
+		Return(nil)
+
+	mux := http.NewServeMux()
+	handle := makeHandle(mux, nil, sessionsStore, localizer, En, RumConfig{ApplicationID: "xyz"}, "?%3fNEI0t9MN", AppPaths{}, None, mockRandom)
 	handle("/path", RequireSession|CanGoBack, func(appData AppData, hw http.ResponseWriter, hr *http.Request) error {
+		assert.Equal(t, AppData{
+			Page:             "/path",
+			Query:            "?a=b",
+			Localizer:        localizer,
+			Lang:             En,
+			SessionID:        "cmFuZG9t",
+			CookieConsentSet: false,
+			CanGoBack:        true,
+			RumConfig:        RumConfig{ApplicationID: "xyz"},
+			StaticHash:       "?%3fNEI0t9MN",
+			Paths:            AppPaths{},
+			CsrfToken:        "123",
+		}, appData)
 		return nil
 	})
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
 
-	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
@@ -612,9 +706,6 @@ func TestTestingStart(t *testing.T) {
 			Return(nil)
 
 		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
@@ -645,9 +736,6 @@ func TestTestingStart(t *testing.T) {
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
-		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 		sessionsStore.
@@ -668,9 +756,6 @@ func TestTestingStart(t *testing.T) {
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
@@ -700,9 +785,6 @@ func TestTestingStart(t *testing.T) {
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
@@ -776,9 +858,6 @@ func TestTestingStart(t *testing.T) {
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
-		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
@@ -850,9 +929,6 @@ func TestTestingStart(t *testing.T) {
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
-		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
@@ -897,9 +973,6 @@ func TestTestingStart(t *testing.T) {
 
 				sessionsStore := &mockSessionsStore{}
 				sessionsStore.
-					On("Get", r, "session").
-					Return(&sessions.Session{}, nil)
-				sessionsStore.
 					On("Save", r, w, mock.Anything).
 					Return(nil)
 
@@ -931,9 +1004,6 @@ func TestTestingStart(t *testing.T) {
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
@@ -973,9 +1043,6 @@ func TestTestingStart(t *testing.T) {
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
@@ -1020,9 +1087,6 @@ func TestTestingStart(t *testing.T) {
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
@@ -1086,9 +1150,6 @@ func TestTestingStart(t *testing.T) {
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
-		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
@@ -1119,9 +1180,6 @@ func TestTestingStart(t *testing.T) {
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
-		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
@@ -1151,9 +1209,6 @@ func TestTestingStart(t *testing.T) {
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
@@ -1213,9 +1268,6 @@ func TestTestingStart(t *testing.T) {
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
-		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
@@ -1254,9 +1306,6 @@ func TestTestingStart(t *testing.T) {
 
 		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
-		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
@@ -1287,9 +1336,6 @@ func TestTestingStart(t *testing.T) {
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
@@ -1328,9 +1374,6 @@ func TestTestingStart(t *testing.T) {
 		ctx := contextWithSessionData(r.Context(), &sessionData{SessionID: "MTIz"})
 
 		sessionsStore := &mockSessionsStore{}
-		sessionsStore.
-			On("Get", r, "session").
-			Return(&sessions.Session{}, nil)
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
