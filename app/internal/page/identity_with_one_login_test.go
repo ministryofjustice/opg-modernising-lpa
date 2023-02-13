@@ -30,7 +30,9 @@ func TestIdentityWithOneLogin(t *testing.T) {
 		HttpOnly: true,
 		Secure:   true,
 	}
-	session.Values = map[interface{}]interface{}{"state": "i am random", "nonce": "i am random", "locale": "cy", "identity": true, "lpa-id": "123"}
+	session.Values = map[any]any{
+		"one-login": &OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "cy", Identity: true, LpaID: "123"},
+	}
 
 	sessionsStore.
 		On("Save", r, w, session).
