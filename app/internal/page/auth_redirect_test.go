@@ -1,16 +1,54 @@
 package page
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
+var expectedError = errors.New("err")
+
+type mockLogger struct {
+	mock.Mock
+}
+
+func (m *mockLogger) Print(v ...interface{}) {
+	m.Called(v...)
+}
+
+type mockOneLoginClient struct {
+	mock.Mock
+}
+
+func (m *mockOneLoginClient) AuthCodeURL(state, nonce, locale string, identity bool) string {
+	args := m.Called(state, nonce, locale, identity)
+	return args.String(0)
+}
+
+func (m *mockOneLoginClient) Exchange(ctx context.Context, code, nonce string) (string, error) {
+	args := m.Called(ctx, code, nonce)
+	return args.Get(0).(string), args.Error(1)
+}
+
+func (m *mockOneLoginClient) UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error) {
+	args := m.Called(ctx, accessToken)
+	return args.Get(0).(onelogin.UserInfo), args.Error(1)
+}
+
+func (m *mockOneLoginClient) ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error) {
+	args := m.Called(ctx, userInfo)
+	return args.Get(0).(identity.UserData), args.Error(1)
+}
 
 func TestAuthRedirect(t *testing.T) {
 	w := httptest.NewRecorder()
@@ -35,14 +73,14 @@ func TestAuthRedirect(t *testing.T) {
 		Secure:   true,
 	}
 	session.Values = map[any]any{
-		"donor": &DonorSession{Sub: "random", Email: "name@example.com"},
+		"donor": &sesh.DonorSession{Sub: "random", Email: "name@example.com"},
 	}
 
 	sessionsStore.
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &OneLoginSession{
+				"one-login": &sesh.OneLoginSession{
 					State:  "my-state",
 					Nonce:  "my-nonce",
 					Locale: "en",
@@ -71,7 +109,7 @@ func TestAuthRedirectWithIdentity(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &OneLoginSession{
+				"one-login": &sesh.OneLoginSession{
 					State:    "my-state",
 					Nonce:    "my-nonce",
 					Locale:   "en",
@@ -99,7 +137,7 @@ func TestAuthRedirectWithCertificateProvider(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &OneLoginSession{
+				"one-login": &sesh.OneLoginSession{
 					State:               "my-state",
 					Nonce:               "my-nonce",
 					Locale:              "en",
@@ -142,14 +180,14 @@ func TestAuthRedirectWithCyLocale(t *testing.T) {
 		Secure:   true,
 	}
 	session.Values = map[any]any{
-		"donor": &DonorSession{Sub: "random", Email: "name@example.com"},
+		"donor": &sesh.DonorSession{Sub: "random", Email: "name@example.com"},
 	}
 
 	sessionsStore.
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &OneLoginSession{
+				"one-login": &sesh.OneLoginSession{
 					State:  "my-state",
 					Nonce:  "my-nonce",
 					Locale: "cy",
@@ -186,25 +224,25 @@ func TestAuthRedirectSessionMissing(t *testing.T) {
 		"missing state": {
 			url:         "/?code=auth-code&state=my-state",
 			session:     &sessions.Session{Values: map[any]any{}},
-			expectedErr: MissingSessionError("one-login"),
+			expectedErr: sesh.MissingSessionError("one-login"),
 		},
 		"missing state from url": {
 			url: "/?code=auth-code",
 			session: &sessions.Session{
 				Values: map[any]any{
-					"one-login": &OneLoginSession{State: "my-state"},
+					"one-login": &sesh.OneLoginSession{State: "my-state"},
 				},
 			},
-			expectedErr: InvalidSessionError("one-login"),
+			expectedErr: sesh.InvalidSessionError("one-login"),
 		},
 		"missing nonce": {
 			url: "/?code=auth-code&state=my-state",
 			session: &sessions.Session{
 				Values: map[any]any{
-					"one-login": &OneLoginSession{State: "my-state", Locale: "en"},
+					"one-login": &sesh.OneLoginSession{State: "my-state", Locale: "en"},
 				},
 			},
-			expectedErr: InvalidSessionError("one-login"),
+			expectedErr: sesh.InvalidSessionError("one-login"),
 		},
 	}
 
@@ -244,7 +282,7 @@ func TestAuthRedirectStateIncorrect(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &OneLoginSession{State: "my-state", Nonce: "my-nonce"},
+				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce"},
 			},
 		}, nil)
 
@@ -273,7 +311,7 @@ func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en"},
+				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en"},
 			},
 		}, nil)
 
@@ -303,7 +341,7 @@ func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en"},
+				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en"},
 			},
 		}, nil)
 
