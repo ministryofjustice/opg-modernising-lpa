@@ -19,12 +19,13 @@ type cpYourDetailsData struct {
 }
 
 type cpYourDetailsForm struct {
-	Email  string
-	Mobile string
-	Dob    date.Date
+	Email            string
+	Mobile           string
+	Dob              date.Date
+	IgnoreDobWarning string
 }
 
-func certificateProviderYourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore sessions.Store) Handler {
+func CertificateProviderYourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore sessions.Store) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
@@ -53,8 +54,13 @@ func certificateProviderYourDetails(tmpl template.Template, lpaStore LpaStore, s
 		if r.Method == http.MethodPost {
 			data.Form = readCpYourDetailsForm(r)
 			data.Errors = data.Form.Validate()
+			dobWarning := data.Form.DobWarning()
 
-			if data.Errors.None() {
+			if data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning {
+				data.DobWarning = dobWarning
+			}
+
+			if data.Errors.None() && data.DobWarning == "" {
 				lpa.CertificateProviderProvidedDetails.DateOfBirth = data.Form.Dob
 				lpa.CertificateProviderProvidedDetails.Mobile = data.Form.Mobile
 				lpa.CertificateProviderProvidedDetails.Email = data.Form.Email
@@ -73,10 +79,30 @@ func certificateProviderYourDetails(tmpl template.Template, lpaStore LpaStore, s
 
 func readCpYourDetailsForm(r *http.Request) *cpYourDetailsForm {
 	return &cpYourDetailsForm{
-		Dob:    date.New(postFormString(r, "date-of-birth-year"), postFormString(r, "date-of-birth-month"), postFormString(r, "date-of-birth-day")),
-		Mobile: postFormString(r, "mobile"),
-		Email:  postFormString(r, "email"),
+		Dob:              date.New(postFormString(r, "date-of-birth-year"), postFormString(r, "date-of-birth-month"), postFormString(r, "date-of-birth-day")),
+		Mobile:           postFormString(r, "mobile"),
+		Email:            postFormString(r, "email"),
+		IgnoreDobWarning: postFormString(r, "ignore-dob-warning"),
 	}
+}
+
+func (f *cpYourDetailsForm) DobWarning() string {
+	var (
+		today                = date.Today()
+		hundredYearsEarlier  = today.AddDate(-100, 0, 0)
+		eighteenYearsEarlier = today.AddDate(-18, 0, 0)
+	)
+
+	if !f.Dob.IsZero() {
+		if f.Dob.Before(hundredYearsEarlier) {
+			return "dateOfBirthIsOver100"
+		}
+		if f.Dob.Before(today) && f.Dob.After(eighteenYearsEarlier) {
+			return "dateOfBirthIsUnder18"
+		}
+	}
+
+	return ""
 }
 
 func (d *cpYourDetailsForm) Validate() validation.List {
