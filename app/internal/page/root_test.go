@@ -12,18 +12,18 @@ func TestRoot(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	Root(appData.Paths)(w, r)
+	Root(Paths)(w, r)
 
 	resp := w.Result()
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.Start, resp.Header.Get("Location"))
+	assert.Equal(t, Paths.Start, resp.Header.Get("Location"))
 }
 
 func TestRootNotFound(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/what", nil)
 
-	Root(appData.Paths)(w, r)
+	Root(Paths)(w, r)
 
 	resp := w.Result()
 	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
