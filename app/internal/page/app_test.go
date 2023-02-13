@@ -657,7 +657,7 @@ func TestGetMakeHandleCsrfSessionSavedWhenNew(t *testing.T) {
 			IsNew:  true,
 			Values: map[interface{}]interface{}{"token": "123"},
 			Options: &sessions.Options{
-				MaxAge:   24 * 60 * 60,
+				MaxAge:   86400,
 				Secure:   true,
 				HttpOnly: true,
 				SameSite: http.SameSiteLaxMode,
