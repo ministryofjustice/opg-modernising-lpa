@@ -3,12 +3,13 @@ package page
 import (
 	"net/http"
 
-	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func AuthRedirect(logger Logger, oneLoginClient OneLoginClient, store sessions.Store) http.HandlerFunc {
+func AuthRedirect(logger Logger, oneLoginClient OneLoginClient, store sesh.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		oneLoginSession, err := getOneLoginSession(store, r)
+		oneLoginSession, err := sesh.GetOneLoginSession(store, r)
 		if err != nil {
 			logger.Print(err)
 			return
@@ -19,9 +20,9 @@ func AuthRedirect(logger Logger, oneLoginClient OneLoginClient, store sessions.S
 			return
 		}
 
-		lang := En
+		lang := localize.En
 		if oneLoginSession.Locale == "cy" {
-			lang = Cy
+			lang = localize.Cy
 		}
 
 		appData := AppData{Lang: lang, LpaID: oneLoginSession.LpaID}
@@ -43,7 +44,7 @@ func AuthRedirect(logger Logger, oneLoginClient OneLoginClient, store sessions.S
 				return
 			}
 
-			if err := setDonorSession(store, r, w, &DonorSession{
+			if err := sesh.SetDonorSession(store, r, w, &sesh.DonorSession{
 				Sub:   userInfo.Sub,
 				Email: userInfo.Email,
 			}); err != nil {

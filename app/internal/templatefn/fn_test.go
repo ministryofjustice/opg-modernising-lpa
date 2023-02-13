@@ -13,13 +13,13 @@ import (
 )
 
 func TestIsEnglish(t *testing.T) {
-	assert.True(t, isEnglish(page.En))
-	assert.False(t, isEnglish(page.Cy))
+	assert.True(t, isEnglish(localize.En))
+	assert.False(t, isEnglish(localize.Cy))
 }
 
 func TestIsWelsh(t *testing.T) {
-	assert.True(t, isWelsh(page.Cy))
-	assert.False(t, isWelsh(page.En))
+	assert.True(t, isWelsh(localize.Cy))
+	assert.False(t, isWelsh(localize.En))
 }
 
 func TestInput(t *testing.T) {
@@ -134,9 +134,9 @@ func TestInc(t *testing.T) {
 
 func TestLink(t *testing.T) {
 	assert.Equal(t, "/dashboard", link(page.AppData{}, "/dashboard"))
-	assert.Equal(t, "/cy/dashboard", link(page.AppData{Lang: page.Cy}, "/dashboard"))
+	assert.Equal(t, "/cy/dashboard", link(page.AppData{Lang: localize.Cy}, "/dashboard"))
 	assert.Equal(t, "/lpa/123/somewhere", link(page.AppData{LpaID: "123"}, "/somewhere"))
-	assert.Equal(t, "/cy/lpa/123/somewhere", link(page.AppData{Lang: page.Cy, LpaID: "123"}, "/somewhere"))
+	assert.Equal(t, "/cy/lpa/123/somewhere", link(page.AppData{Lang: localize.Cy, LpaID: "123"}, "/somewhere"))
 }
 
 func TestContains(t *testing.T) {
