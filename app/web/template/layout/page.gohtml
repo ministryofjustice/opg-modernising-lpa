@@ -52,6 +52,7 @@
                 </button>
                 <a class="govuk-link" href="#">{{ tr .App "viewCookies" }}</a>
               </div>
+              {{ template "csrf-field" . }}
             </form>
           </div>
         </div>
@@ -121,7 +122,6 @@
 
         <main class="govuk-main-wrapper app-main-class" id="main-content" role="main">
           {{ template "error-summary" . }}
-
           {{ template "main" . }}
         </main>
       </div>
