@@ -8,6 +8,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"golang.org/x/exp/slices"
 )
@@ -42,12 +43,12 @@ var All = map[string]interface{}{
 	"peopleNamedOnLpa":   peopleNamedOnLpa,
 }
 
-func isEnglish(lang page.Lang) bool {
-	return lang == page.En
+func isEnglish(lang localize.Lang) bool {
+	return lang == localize.En
 }
 
-func isWelsh(lang page.Lang) bool {
-	return lang == page.Cy
+func isWelsh(lang localize.Lang) bool {
+	return lang == localize.Cy
 }
 
 func input(top interface{}, name, label string, value interface{}, attrs ...interface{}) map[string]interface{} {
