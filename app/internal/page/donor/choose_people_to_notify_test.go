@@ -19,20 +19,20 @@ func TestGetChoosePeopleToNotify(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := &page.MockTemplate{}
 	template.
 		On("Func", w, &choosePeopleToNotifyData{
-			App:  appData,
+			App:  page.TestAppData,
 			Form: &choosePeopleToNotifyForm{},
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotify(template.Func, lpaStore, mockRandom)(appData, w, r)
+	err := ChoosePeopleToNotify(template.Func, lpaStore, page.MockRandom)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,15 +44,15 @@ func TestGetChoosePeopleToNotifyWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
+		Return(&page.Lpa{}, page.ExpectedError)
 
-	err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(appData, w, r)
+	err := ChoosePeopleToNotify(nil, lpaStore, page.MockRandom)(page.TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, page.ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
@@ -61,14 +61,14 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{
 				{
 					ID:         "123",
-					Address:    address,
+					Address:    page.TestAddress,
 					FirstNames: "Johnny",
 					LastName:   "Jones",
 					Email:      "user@example.org",
@@ -76,9 +76,9 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 			},
 		}, nil)
 
-	template := &mockTemplate{}
+	template := &page.MockTemplate{}
 
-	err := ChoosePeopleToNotify(template.Func, lpaStore, mockRandom)(appData, w, r)
+	err := ChoosePeopleToNotify(template.Func, lpaStore, page.MockRandom)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -91,23 +91,23 @@ func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := &page.MockTemplate{}
 	template.
 		On("Func", w, &choosePeopleToNotifyData{
-			App:  appData,
+			App:  page.TestAppData,
 			Form: &choosePeopleToNotifyForm{},
 		}).
-		Return(expectedError)
+		Return(page.ExpectedError)
 
-	err := ChoosePeopleToNotify(template.Func, lpaStore, mockRandom)(appData, w, r)
+	err := ChoosePeopleToNotify(template.Func, lpaStore, page.MockRandom)(page.TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, page.ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
@@ -152,14 +152,14 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			lpaStore := &mockLpaStore{}
+			lpaStore := &page.MockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
 					PeopleToNotify: tc.addedPeople,
 				}, nil)
 
-			err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(appData, w, r)
+			err := ChoosePeopleToNotify(nil, lpaStore, page.MockRandom)(page.TestAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -208,9 +208,9 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := &mockLpaStore{}
+			lpaStore := &page.MockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
@@ -224,7 +224,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(appData, w, r)
+			err := ChoosePeopleToNotify(nil, lpaStore, page.MockRandom)(page.TestAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -236,15 +236,15 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 }
 
 func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"first-names": {"Johnny"},
 		"last-name":   {"Dear"},
 		"email":       {"johnny.d@example.com"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	existingPerson := actor.PersonToNotify{
 		FirstNames: "John",
@@ -260,7 +260,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 		ID:         "123",
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -273,7 +273,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(appData, w, r)
+	err := ChoosePeopleToNotify(nil, lpaStore, page.MockRandom)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -303,17 +303,17 @@ func TestPostChoosePeopleToNotifyFromAnotherPage(t *testing.T) {
 
 	for testName, tc := range testcases {
 		t.Run(testName, func(t *testing.T) {
-			form := url.Values{
+			f := url.Values{
 				"first-names": {"John"},
 				"last-name":   {"Doe"},
 				"email":       {"johnny@example.com"},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, tc.requestUrl, strings.NewReader(form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r, _ := http.NewRequest(http.MethodPost, tc.requestUrl, strings.NewReader(f.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := &mockLpaStore{}
+			lpaStore := &page.MockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
@@ -340,7 +340,7 @@ func TestPostChoosePeopleToNotifyFromAnotherPage(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(appData, w, r)
+			err := ChoosePeopleToNotify(nil, lpaStore, page.MockRandom)(page.TestAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -406,23 +406,23 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := &mockLpaStore{}
+			lpaStore := &page.MockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
 					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
 				}, nil)
 
-			template := &mockTemplate{}
+			template := &page.MockTemplate{}
 			template.
 				On("Func", w, mock.MatchedBy(func(data *choosePeopleToNotifyData) bool {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
 
-			err := ChoosePeopleToNotify(template.Func, lpaStore, mockRandom)(appData, w, r)
+			err := ChoosePeopleToNotify(template.Func, lpaStore, page.MockRandom)(page.TestAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -433,41 +433,41 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 }
 
 func TestPostChoosePeopleToNotifyWhenStoreErrors(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"first-names": {"John"},
 		"last-name":   {"Doe"},
 		"email":       {"john@example.com"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), mock.Anything).
-		Return(expectedError)
+		Return(page.ExpectedError)
 
-	err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(appData, w, r)
+	err := ChoosePeopleToNotify(nil, lpaStore, page.MockRandom)(page.TestAppData, w, r)
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, page.ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestReadChoosePeopleToNotifyForm(t *testing.T) {
 	assert := assert.New(t)
 
-	form := url.Values{
+	f := url.Values{
 		"first-names": {"  John "},
 		"last-name":   {"Doe"},
 		"email":       {"john@example.com"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readChoosePeopleToNotifyForm(r)
 

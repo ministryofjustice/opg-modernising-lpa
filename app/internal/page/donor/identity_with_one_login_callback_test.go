@@ -22,7 +22,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
 	userData := identity.UserData{OK: true, FullName: "John Doe", RetrievedAt: now}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -32,7 +32,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 		}).
 		Return(nil)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := &page.MockSessionsStore{}
 	sessionStore.
 		On("Get", mock.Anything, "params").
 		Return(&sessions.Session{
@@ -41,7 +41,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 			},
 		}, nil)
 
-	oneLoginClient := &mockOneLoginClient{}
+	oneLoginClient := &page.MockOneLoginClient{}
 	oneLoginClient.
 		On("Exchange", r.Context(), "a-code", "a-nonce").
 		Return("a-jwt", nil)
@@ -52,16 +52,16 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 		On("ParseIdentityClaim", r.Context(), userInfo).
 		Return(userData, nil)
 
-	template := &mockTemplate{}
+	template := &page.MockTemplate{}
 	template.
 		On("Func", w, &identityWithOneLoginCallbackData{
-			App:         appData,
+			App:         page.TestAppData,
 			FullName:    "John Doe",
 			ConfirmedAt: now,
 		}).
 		Return(nil)
 
-	err := IdentityWithOneLoginCallback(template.Func, oneLoginClient, sessionStore, lpaStore)(appData, w, r)
+	err := IdentityWithOneLoginCallback(template.Func, oneLoginClient, sessionStore, lpaStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -81,7 +81,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 		"errored": {
 			url:      "/?code=a-code",
 			userData: identity.UserData{OK: true},
-			error:    expectedError,
+			error:    page.ExpectedError,
 		},
 		"provider access denied": {
 			url:      "/?error=access_denied",
@@ -95,12 +95,12 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 			userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
 
-			lpaStore := &mockLpaStore{}
+			lpaStore := &page.MockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{}, nil)
 
-			sessionStore := &mockSessionsStore{}
+			sessionStore := &page.MockSessionsStore{}
 			sessionStore.
 				On("Get", mock.Anything, "params").
 				Return(&sessions.Session{
@@ -109,7 +109,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 					},
 				}, nil)
 
-			oneLoginClient := &mockOneLoginClient{}
+			oneLoginClient := &page.MockOneLoginClient{}
 			oneLoginClient.
 				On("Exchange", mock.Anything, mock.Anything, mock.Anything).
 				Return("a-jwt", nil)
@@ -120,15 +120,15 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 				On("ParseIdentityClaim", mock.Anything, mock.Anything).
 				Return(tc.userData, tc.error)
 
-			template := &mockTemplate{}
+			template := &page.MockTemplate{}
 			template.
 				On("Func", w, &identityWithOneLoginCallbackData{
-					App:             appData,
+					App:             page.TestAppData,
 					CouldNotConfirm: true,
 				}).
 				Return(nil)
 
-			err := IdentityWithOneLoginCallback(template.Func, oneLoginClient, sessionStore, lpaStore)(appData, w, r)
+			err := IdentityWithOneLoginCallback(template.Func, oneLoginClient, sessionStore, lpaStore)(page.TestAppData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, tc.error, err)
@@ -141,12 +141,12 @@ func TestGetIdentityWithOneLoginCallbackWhenExchangeError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := &page.MockSessionsStore{}
 	sessionStore.
 		On("Get", mock.Anything, "params").
 		Return(&sessions.Session{
@@ -155,14 +155,14 @@ func TestGetIdentityWithOneLoginCallbackWhenExchangeError(t *testing.T) {
 			},
 		}, nil)
 
-	oneLoginClient := &mockOneLoginClient{}
+	oneLoginClient := &page.MockOneLoginClient{}
 	oneLoginClient.
 		On("Exchange", mock.Anything, mock.Anything, mock.Anything).
-		Return("", expectedError)
+		Return("", page.ExpectedError)
 
-	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, lpaStore)(appData, w, r)
+	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, lpaStore)(page.TestAppData, w, r)
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, page.ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore, oneLoginClient)
 }
 
@@ -170,12 +170,12 @@ func TestGetIdentityWithOneLoginCallbackWhenUserInfoError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := &page.MockSessionsStore{}
 	sessionStore.
 		On("Get", mock.Anything, "params").
 		Return(&sessions.Session{
@@ -184,17 +184,17 @@ func TestGetIdentityWithOneLoginCallbackWhenUserInfoError(t *testing.T) {
 			},
 		}, nil)
 
-	oneLoginClient := &mockOneLoginClient{}
+	oneLoginClient := &page.MockOneLoginClient{}
 	oneLoginClient.
 		On("Exchange", mock.Anything, mock.Anything, mock.Anything).
 		Return("a-jwt", nil)
 	oneLoginClient.
 		On("UserInfo", mock.Anything, mock.Anything).
-		Return(onelogin.UserInfo{}, expectedError)
+		Return(onelogin.UserInfo{}, page.ExpectedError)
 
-	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, lpaStore)(appData, w, r)
+	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, lpaStore)(page.TestAppData, w, r)
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, page.ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore, oneLoginClient)
 }
 
@@ -202,12 +202,12 @@ func TestGetIdentityWithOneLoginCallbackWhenGetDataStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 
-	lpaStore := &mockLpaStore{}
-	lpaStore.On("Get", r.Context()).Return(&page.Lpa{}, expectedError)
+	lpaStore := &page.MockLpaStore{}
+	lpaStore.On("Get", r.Context()).Return(&page.Lpa{}, page.ExpectedError)
 
-	err := IdentityWithOneLoginCallback(nil, nil, nil, lpaStore)(appData, w, r)
+	err := IdentityWithOneLoginCallback(nil, nil, nil, lpaStore)(page.TestAppData, w, r)
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, page.ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -216,15 +216,15 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDataStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), mock.Anything).
-		Return(expectedError)
+		Return(page.ExpectedError)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := &page.MockSessionsStore{}
 	sessionStore.
 		On("Get", mock.Anything, "params").
 		Return(&sessions.Session{
@@ -233,7 +233,7 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDataStoreError(t *testing.T) {
 			},
 		}, nil)
 
-	oneLoginClient := &mockOneLoginClient{}
+	oneLoginClient := &page.MockOneLoginClient{}
 	oneLoginClient.
 		On("Exchange", mock.Anything, mock.Anything, mock.Anything).
 		Return("a-jwt", nil)
@@ -244,9 +244,9 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDataStoreError(t *testing.T) {
 		On("ParseIdentityClaim", mock.Anything, mock.Anything).
 		Return(identity.UserData{OK: true}, nil)
 
-	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, lpaStore)(appData, w, r)
+	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, lpaStore)(page.TestAppData, w, r)
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, page.ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore, oneLoginClient)
 }
 
@@ -256,19 +256,19 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 	now := time.Date(2012, time.January, 1, 2, 3, 4, 5, time.UTC)
 	userData := identity.UserData{OK: true, FullName: "a-full-name", RetrievedAt: now}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.On("Get", r.Context()).Return(&page.Lpa{OneLoginUserData: userData}, nil)
 
-	template := &mockTemplate{}
+	template := &page.MockTemplate{}
 	template.
 		On("Func", w, &identityWithOneLoginCallbackData{
-			App:         appData,
+			App:         page.TestAppData,
 			FullName:    "a-full-name",
 			ConfirmedAt: now,
 		}).
 		Return(nil)
 
-	err := IdentityWithOneLoginCallback(template.Func, nil, nil, lpaStore)(appData, w, r)
+	err := IdentityWithOneLoginCallback(template.Func, nil, nil, lpaStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -280,12 +280,12 @@ func TestPostIdentityWithOneLoginCallback(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.On("Get", r.Context()).Return(&page.Lpa{
 		OneLoginUserData: identity.UserData{OK: true},
 	}, nil)
 
-	err := IdentityWithOneLoginCallback(nil, nil, nil, lpaStore)(appData, w, r)
+	err := IdentityWithOneLoginCallback(nil, nil, nil, lpaStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -297,10 +297,10 @@ func TestPostIdentityWithOneLoginCallbackNotConfirmed(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.On("Get", r.Context()).Return(&page.Lpa{}, nil)
 
-	err := IdentityWithOneLoginCallback(nil, nil, nil, lpaStore)(appData, w, r)
+	err := IdentityWithOneLoginCallback(nil, nil, nil, lpaStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

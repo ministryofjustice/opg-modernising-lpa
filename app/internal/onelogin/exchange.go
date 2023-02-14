@@ -52,7 +52,7 @@ func (c *Client) Exchange(ctx context.Context, code, nonce string) (string, erro
 		return "", err
 	}
 
-	form := url.Values{
+	f := url.Values{
 		"client_id":             {c.clientID},
 		"grant_type":            {"authorization_code"},
 		"redirect_uri":          {c.redirectURL},
@@ -61,7 +61,7 @@ func (c *Client) Exchange(ctx context.Context, code, nonce string) (string, erro
 		"code":                  {code},
 	}
 
-	req, err := http.NewRequest("POST", c.openidConfiguration.TokenEndpoint, strings.NewReader(form.Encode()))
+	req, err := http.NewRequest("POST", c.openidConfiguration.TokenEndpoint, strings.NewReader(f.Encode()))
 	if err != nil {
 		return "", err
 	}
