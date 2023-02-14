@@ -17,7 +17,7 @@ func TestCertificateProviderStart(t *testing.T) {
 
 	lpa := &page.Lpa{}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", mock.MatchedBy(func(ctx context.Context) bool {
 			session := page.SessionDataFromContext(ctx)
@@ -26,15 +26,15 @@ func TestCertificateProviderStart(t *testing.T) {
 		})).
 		Return(lpa, nil)
 
-	template := &mockTemplate{}
+	template := &page.MockTemplate{}
 	template.
 		On("Func", w, &startData{
-			App:   appData,
+			App:   page.TestAppData,
 			Start: page.Paths.CertificateProviderLogin + "?lpaId=456&sessionId=123",
 		}).
 		Return(nil)
 
-	err := Start(template.Func, lpaStore)(appData, w, r)
+	err := Start(template.Func, lpaStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -48,14 +48,14 @@ func TestCertificateProviderStartWhenDataStoreErrors(t *testing.T) {
 
 	lpa := &page.Lpa{}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything).
-		Return(lpa, expectedError)
+		Return(lpa, page.ExpectedError)
 
-	err := Start(nil, lpaStore)(appData, w, r)
+	err := Start(nil, lpaStore)(page.TestAppData, w, r)
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, page.ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -63,18 +63,18 @@ func TestCertificateProviderStartWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := &page.MockTemplate{}
 	template.
 		On("Func", mock.Anything, mock.Anything).
-		Return(expectedError)
+		Return(page.ExpectedError)
 
-	err := Start(template.Func, lpaStore)(appData, w, r)
+	err := Start(template.Func, lpaStore)(page.TestAppData, w, r)
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, page.ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
