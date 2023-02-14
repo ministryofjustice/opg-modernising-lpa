@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -18,7 +19,7 @@ type paymentConfirmationData struct {
 	Continue         string
 }
 
-func PaymentConfirmation(logger page.Logger, tmpl template.Template, client page.PayClient, lpaStore page.LpaStore, sessionStore sessions.Store) page.Handler {
+func PaymentConfirmation(logger page.Logger, tmpl template.Template, payClient page.PayClient, notifyClient page.NotifyClient, lpaStore page.LpaStore, sessionStore sessions.Store, appPublicURL string) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
@@ -32,10 +33,20 @@ func PaymentConfirmation(logger page.Logger, tmpl template.Template, client page
 
 		paymentId := paymentSession.PaymentID
 
-		payment, err := client.GetPayment(paymentId)
+		payment, err := payClient.GetPayment(paymentId)
 		if err != nil {
 			logger.Print(fmt.Sprintf("unable to retrieve payment info: %s", err.Error()))
 			return err
+		}
+
+		if _, err := notifyClient.Email(r.Context(), notify.Email{
+			TemplateID:   notifyClient.TemplateID(notify.CertificateProviderInviteEmail),
+			EmailAddress: lpa.CertificateProvider.Email,
+			Personalisation: map[string]string{
+				"link": fmt.Sprintf("%s%s?lpaId=%s&sessionId=%s", appPublicURL, page.Paths.CertificateProviderStart, appData.LpaID, appData.SessionID),
+			},
+		}); err != nil {
+			return fmt.Errorf("error email certificate provider after payment: %w", err)
 		}
 
 		lpa.PaymentDetails = page.PaymentDetails{
