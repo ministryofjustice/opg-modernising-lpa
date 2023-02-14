@@ -9,7 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/appForm"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -34,7 +34,7 @@ func TestGetChooseReplacementAttorneysAddress(t *testing.T) {
 	template.
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      page.TestAppData,
-			Form:     &appForm.AddressForm{},
+			Form:     &form.AddressForm{},
 			Attorney: ra,
 		}).
 		Return(nil)
@@ -83,7 +83,7 @@ func TestGetChooseReplacementAttorneysAddressFromStore(t *testing.T) {
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: ra,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:  "manual",
 				Address: &page.TestAddress,
 			},
@@ -116,7 +116,7 @@ func TestGetChooseReplacementAttorneysAddressManual(t *testing.T) {
 	template.
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:  "manual",
 				Address: &place.Address{},
 			},
@@ -150,7 +150,7 @@ func TestGetChooseReplacementAttorneysAddressWhenTemplateErrors(t *testing.T) {
 	template.
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      page.TestAppData,
-			Form:     &appForm.AddressForm{},
+			Form:     &form.AddressForm{},
 			Attorney: ra,
 		}).
 		Return(page.ExpectedError)
@@ -312,7 +312,7 @@ func TestPostChooseReplacementAttorneysAddressManualWhenValidationError(t *testi
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: ra,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:  "manual",
 				Address: invalidAddress,
 			},
@@ -369,7 +369,7 @@ func TestPostChooseReplacementAttorneysAddressSelect(t *testing.T) {
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: ra,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "manual",
 				LookupPostcode: "NG1",
 				Address:        &page.TestAddress,
@@ -419,7 +419,7 @@ func TestPostChooseReplacementAttorneysAddressSelectWhenValidationError(t *testi
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: ra,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "select",
 				LookupPostcode: "NG1",
 			},
@@ -470,7 +470,7 @@ func TestPostChooseReplacementAttorneysAddressLookup(t *testing.T) {
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: ra,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
@@ -520,7 +520,7 @@ func TestPostChooseReplacementAttorneysAddressLookupError(t *testing.T) {
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: ra,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
@@ -576,7 +576,7 @@ func TestPostChooseReplacementAttorneysInvalidPostcodeError(t *testing.T) {
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: ra,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "XYZ",
 			},
@@ -626,7 +626,7 @@ func TestPostChooseReplacementAttorneysValidPostcodeNoAddresses(t *testing.T) {
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: ra,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "XYZ",
 			},
@@ -667,7 +667,7 @@ func TestPostChooseReplacementAttorneysAddressLookupWhenValidationError(t *testi
 		On("Func", w, &chooseReplacementAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: ra,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action: "lookup",
 			},
 			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),

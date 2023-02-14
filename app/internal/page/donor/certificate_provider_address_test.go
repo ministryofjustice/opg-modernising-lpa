@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/appForm"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/form"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -34,7 +34,7 @@ func TestGetCertificateProviderAddress(t *testing.T) {
 	template.
 		On("Func", w, &certificateProviderAddressData{
 			App:                 page.TestAppData,
-			Form:                &appForm.AddressForm{},
+			Form:                &form.AddressForm{},
 			CertificateProvider: certificateProvider,
 		}).
 		Return(nil)
@@ -84,7 +84,7 @@ func TestGetCertificateProviderAddressFromStore(t *testing.T) {
 		On("Func", w, &certificateProviderAddressData{
 			App:                 page.TestAppData,
 			CertificateProvider: certificateProvider,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:  "manual",
 				Address: &page.TestAddress,
 			},
@@ -116,7 +116,7 @@ func TestGetCertificateProviderAddressManual(t *testing.T) {
 	template.
 		On("Func", w, &certificateProviderAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:  "manual",
 				Address: &place.Address{},
 			},
@@ -145,7 +145,7 @@ func TestGetCertificateProviderAddressWhenTemplateErrors(t *testing.T) {
 	template.
 		On("Func", w, &certificateProviderAddressData{
 			App:  page.TestAppData,
-			Form: &appForm.AddressForm{},
+			Form: &form.AddressForm{},
 		}).
 		Return(page.ExpectedError)
 
@@ -293,7 +293,7 @@ func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 	template.
 		On("Func", w, &certificateProviderAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:  "manual",
 				Address: invalidAddress,
 			},
@@ -334,7 +334,7 @@ func TestPostCertificateProviderAddressSelect(t *testing.T) {
 	template.
 		On("Func", w, &certificateProviderAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "manual",
 				LookupPostcode: "NG1",
 				Address:        &page.TestAddress,
@@ -378,7 +378,7 @@ func TestPostCertificateProviderAddressSelectWhenValidationError(t *testing.T) {
 	template.
 		On("Func", w, &certificateProviderAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "select",
 				LookupPostcode: "NG1",
 			},
@@ -423,7 +423,7 @@ func TestPostCertificateProviderAddressLookup(t *testing.T) {
 	template.
 		On("Func", w, &certificateProviderAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
@@ -467,7 +467,7 @@ func TestPostCertificateProviderAddressLookupError(t *testing.T) {
 	template.
 		On("Func", w, &certificateProviderAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
@@ -517,7 +517,7 @@ func TestPostCertificateProviderAddressInvalidPostcodeError(t *testing.T) {
 	template.
 		On("Func", w, &certificateProviderAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "XYZ",
 			},
@@ -561,7 +561,7 @@ func TestPostCertificateProviderAddressValidPostcodeNoAddresses(t *testing.T) {
 	template.
 		On("Func", w, &certificateProviderAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "XYZ",
 			},
@@ -596,7 +596,7 @@ func TestPostCertificateProviderAddressLookupWhenValidationError(t *testing.T) {
 	template.
 		On("Func", w, &certificateProviderAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action: "lookup",
 			},
 			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),

@@ -9,7 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/appForm"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -29,7 +29,7 @@ func TestGetYourAddress(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App:  page.TestAppData,
-			Form: &appForm.AddressForm{},
+			Form: &form.AddressForm{},
 		}).
 		Return(nil)
 
@@ -76,7 +76,7 @@ func TestGetYourAddressFromStore(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:  "manual",
 				Address: &address,
 			},
@@ -104,7 +104,7 @@ func TestGetYourAddressManual(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:  "manual",
 				Address: &place.Address{},
 			},
@@ -132,7 +132,7 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App:  page.TestAppData,
-			Form: &appForm.AddressForm{},
+			Form: &form.AddressForm{},
 		}).
 		Return(page.ExpectedError)
 
@@ -293,7 +293,7 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action: "manual",
 				Address: &place.Address{
 					Line2:      "b",
@@ -335,7 +335,7 @@ func TestPostYourAddressSelect(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "manual",
 				LookupPostcode: "NG1",
 				Address:        expectedAddress,
@@ -384,7 +384,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "select",
 				LookupPostcode: "NG1",
 			},
@@ -429,7 +429,7 @@ func TestPostYourAddressLookup(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
@@ -473,7 +473,7 @@ func TestPostYourAddressLookupError(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
@@ -523,7 +523,7 @@ func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "XYZ",
 			},
@@ -567,7 +567,7 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "XYZ",
 			},
@@ -602,7 +602,7 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 	template.
 		On("Func", w, &yourAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action: "lookup",
 			},
 			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),

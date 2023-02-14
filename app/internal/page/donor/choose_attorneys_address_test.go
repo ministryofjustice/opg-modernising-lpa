@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/appForm"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/form"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -35,7 +35,7 @@ func TestGetChooseAttorneysAddress(t *testing.T) {
 	template.
 		On("Func", w, &chooseAttorneysAddressData{
 			App:      page.TestAppData,
-			Form:     &appForm.AddressForm{},
+			Form:     &form.AddressForm{},
 			Attorney: attorney,
 		}).
 		Return(nil)
@@ -86,7 +86,7 @@ func TestGetChooseAttorneysAddressFromStore(t *testing.T) {
 		On("Func", w, &chooseAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: attorney,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:  "manual",
 				Address: &page.TestAddress,
 			},
@@ -119,7 +119,7 @@ func TestGetChooseAttorneysAddressManual(t *testing.T) {
 	template.
 		On("Func", w, &chooseAttorneysAddressData{
 			App: page.TestAppData,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:  "manual",
 				Address: &place.Address{},
 			},
@@ -153,7 +153,7 @@ func TestGetChooseAttorneysAddressWhenTemplateErrors(t *testing.T) {
 	template.
 		On("Func", w, &chooseAttorneysAddressData{
 			App:      page.TestAppData,
-			Form:     &appForm.AddressForm{},
+			Form:     &form.AddressForm{},
 			Attorney: attorney,
 		}).
 		Return(page.ExpectedError)
@@ -321,7 +321,7 @@ func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 		On("Func", w, &chooseAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: attorney,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:  "manual",
 				Address: invalidAddress,
 			},
@@ -378,7 +378,7 @@ func TestPostChooseAttorneysAddressSelect(t *testing.T) {
 		On("Func", w, &chooseAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: attorney,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "manual",
 				LookupPostcode: "NG1",
 				Address:        &page.TestAddress,
@@ -428,7 +428,7 @@ func TestPostChooseAttorneysAddressSelectWhenValidationError(t *testing.T) {
 		On("Func", w, &chooseAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: attorney,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "select",
 				LookupPostcode: "NG1",
 			},
@@ -479,7 +479,7 @@ func TestPostChooseAttorneysAddressLookup(t *testing.T) {
 		On("Func", w, &chooseAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: attorney,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
@@ -529,7 +529,7 @@ func TestPostChooseAttorneysAddressLookupError(t *testing.T) {
 		On("Func", w, &chooseAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: attorney,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
@@ -585,7 +585,7 @@ func TestPostChooseAttorneysInvalidPostcodeError(t *testing.T) {
 		On("Func", w, &chooseAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: attorney,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "XYZ",
 			},
@@ -635,7 +635,7 @@ func TestPostChooseAttorneysValidPostcodeNoAddresses(t *testing.T) {
 		On("Func", w, &chooseAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: attorney,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "XYZ",
 			},
@@ -676,7 +676,7 @@ func TestPostChooseAttorneysAddressLookupWhenValidationError(t *testing.T) {
 		On("Func", w, &chooseAttorneysAddressData{
 			App:      page.TestAppData,
 			Attorney: attorney,
-			Form: &appForm.AddressForm{
+			Form: &form.AddressForm{
 				Action: "lookup",
 			},
 			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),

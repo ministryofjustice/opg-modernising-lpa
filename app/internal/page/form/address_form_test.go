@@ -1,4 +1,4 @@
-package appForm
+package form
 
 import (
 	"net/http"
