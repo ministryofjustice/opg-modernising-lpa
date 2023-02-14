@@ -3,15 +3,12 @@ package page
 import (
 	"context"
 	"encoding/json"
-	"errors"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"golang.org/x/exp/slices"
 )
 
 const (
@@ -76,7 +73,7 @@ type Lpa struct {
 	EnteredSignatureCode                        string
 	SignatureEmailID                            string
 	SignatureSmsID                              string
-	IdentityOption                              IdentityOption
+	IdentityOption                              identity.Option
 	YotiUserData                                identity.UserData
 	OneLoginUserData                            identity.UserData
 	HowAttorneysMakeDecisions                   string
@@ -124,10 +121,6 @@ type Progress struct {
 	LpaRegistered               TaskState
 }
 
-type AddressClient interface {
-	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
-}
-
 type WitnessCode struct {
 	Code    string
 	Created time.Time
@@ -144,65 +137,19 @@ type LpaStore interface {
 	Put(context.Context, *Lpa) error
 }
 
-type sessionData struct {
+type SessionData struct {
 	SessionID string
 	LpaID     string
 }
 
-func sessionDataFromContext(ctx context.Context) *sessionData {
-	data, _ := ctx.Value((*sessionData)(nil)).(*sessionData)
+func SessionDataFromContext(ctx context.Context) *SessionData {
+	data, _ := ctx.Value((*SessionData)(nil)).(*SessionData)
 
 	return data
 }
 
-func contextWithSessionData(ctx context.Context, data *sessionData) context.Context {
-	return context.WithValue(ctx, (*sessionData)(nil), data)
-}
-
-type lpaStore struct {
-	dataStore DataStore
-	randomInt func(int) int
-}
-
-func (s *lpaStore) Create(ctx context.Context) (*Lpa, error) {
-	lpa := &Lpa{
-		ID: "10" + strconv.Itoa(s.randomInt(100000)),
-	}
-
-	err := s.Put(ctx, lpa)
-
-	return lpa, err
-}
-
-func (s *lpaStore) GetAll(ctx context.Context) ([]*Lpa, error) {
-	var lpas []*Lpa
-	err := s.dataStore.GetAll(ctx, sessionDataFromContext(ctx).SessionID, &lpas)
-
-	slices.SortFunc(lpas, func(a, b *Lpa) bool {
-		return a.UpdatedAt.After(b.UpdatedAt)
-	})
-
-	return lpas, err
-}
-
-func (s *lpaStore) Get(ctx context.Context) (*Lpa, error) {
-	data := sessionDataFromContext(ctx)
-	if data.LpaID == "" {
-		return nil, errors.New("lpaStore.Get requires LpaID to retrieve")
-	}
-
-	var lpa Lpa
-	if err := s.dataStore.Get(ctx, data.SessionID, data.LpaID, &lpa); err != nil {
-		return nil, err
-	}
-
-	return &lpa, nil
-}
-
-func (s *lpaStore) Put(ctx context.Context, lpa *Lpa) error {
-	lpa.UpdatedAt = time.Now()
-
-	return s.dataStore.Put(ctx, sessionDataFromContext(ctx).SessionID, lpa.ID, lpa)
+func ContextWithSessionData(ctx context.Context, data *SessionData) context.Context {
+	return context.WithValue(ctx, (*SessionData)(nil), data)
 }
 
 func DecodeAddress(s string) *place.Address {
