@@ -2,13 +2,26 @@ package page
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
+var appData = AppData{}
+
+type mockTemplate struct {
+	mock.Mock
+}
+
+func (m *mockTemplate) Func(w io.Writer, data interface{}) error {
+	args := m.Called(w, data)
+	return args.Error(0)
+}
 
 func TestGuidance(t *testing.T) {
 	w := httptest.NewRecorder()
@@ -46,7 +59,7 @@ func TestGuidanceWhenContinueIsAuthAndLangCy(t *testing.T) {
 		Return(lpa, nil)
 
 	cyAppData := AppData{
-		Lang:      Cy,
+		Lang:      localize.Cy,
 		SessionID: "session-id",
 	}
 
