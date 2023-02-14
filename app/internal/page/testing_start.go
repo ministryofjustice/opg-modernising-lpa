@@ -176,6 +176,9 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				DonorSessionID: sessionID,
 				LpaID:          lpa.ID,
 			})
+
+			lpa.CertificateProviderUserData.FullName = "Barbara Smith"
+			_ = lpaStore.Put(ctx, lpa)
 		}
 
 		random.UseTestCode = true

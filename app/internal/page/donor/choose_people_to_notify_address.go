@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -16,7 +17,7 @@ type choosePeopleToNotifyAddressData struct {
 	Errors         validation.List
 	PersonToNotify actor.PersonToNotify
 	Addresses      []place.Address
-	Form           *addressForm
+	Form           *form.AddressForm
 }
 
 func ChoosePeopleToNotifyAddress(logger page.Logger, tmpl template.Template, addressClient page.AddressClient, lpaStore page.LpaStore) page.Handler {
@@ -36,7 +37,7 @@ func ChoosePeopleToNotifyAddress(logger page.Logger, tmpl template.Template, add
 		data := &choosePeopleToNotifyAddressData{
 			App:            appData,
 			PersonToNotify: personToNotify,
-			Form:           &addressForm{},
+			Form:           &form.AddressForm{},
 		}
 
 		if personToNotify.Address.Line1 != "" {
@@ -45,7 +46,7 @@ func ChoosePeopleToNotifyAddress(logger page.Logger, tmpl template.Template, add
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readAddressForm(r)
+			data.Form = form.ReadAddressForm(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Form.Action == "manual" && data.Errors.None() {
