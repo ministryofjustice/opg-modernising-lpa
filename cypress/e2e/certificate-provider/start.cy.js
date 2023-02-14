@@ -5,8 +5,6 @@ describe('Start', () => {
     });
 
     it('can be completed', () => {
-        cy.contains('Certificate provider start').click();
-
         cy.contains('a', 'Start');
     });
 });
