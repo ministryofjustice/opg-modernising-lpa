@@ -40,11 +40,6 @@ func Register(
 
 	handleLpa := makeHandle(lpaMux, logger, sessionStore, RequireSession)
 
-	handleLpa("/testing-certificate-provider-start", None, func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		http.Redirect(w, r, fmt.Sprintf("%s?sessionId=%s&lpaId=%s", page.Paths.CertificateProviderStart, appData.SessionID, appData.LpaID), http.StatusFound)
-		return nil
-	})
-
 	handleLpa(page.Paths.YourDetails, None,
 		YourDetails(tmpls.Get("your_details.gohtml"), lpaStore, sessionStore))
 	handleLpa(page.Paths.YourAddress, None,
@@ -117,7 +112,7 @@ func Register(
 	handleLpa(page.Paths.AboutPayment, CanGoBack,
 		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String, lpaStore))
 	handleLpa(page.Paths.PaymentConfirmation, CanGoBack,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, lpaStore, sessionStore))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, notifyClient, lpaStore, sessionStore, appPublicUrl))
 
 	handleLpa(page.Paths.HowToConfirmYourIdentityAndSign, CanGoBack,
 		page.Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml"), page.Paths.WhatYoullNeedToConfirmYourIdentity, lpaStore))
