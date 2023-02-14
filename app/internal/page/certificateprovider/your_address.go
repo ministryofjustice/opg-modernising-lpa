@@ -31,9 +31,9 @@ func YourAddress(logger page.Logger, tmpl template.Template, addressClient page.
 			Form: &form.AddressForm{},
 		}
 
-		if lpa.You.Address.Line1 != "" {
+		if lpa.CertificateProviderProvidedDetails.Address.Line1 != "" {
 			data.Form.Action = "manual"
-			data.Form.Address = &lpa.You.Address
+			data.Form.Address = &lpa.CertificateProviderProvidedDetails.Address
 		}
 
 		if r.Method == http.MethodPost {
@@ -41,12 +41,12 @@ func YourAddress(logger page.Logger, tmpl template.Template, addressClient page.
 			data.Errors = data.Form.Validate()
 
 			if data.Form.Action == "manual" && data.Errors.None() {
-				lpa.You.Address = *data.Form.Address
+				lpa.CertificateProviderProvidedDetails.Address = *data.Form.Address
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, appData.Paths.WhoIsTheLpaFor)
+				return appData.Redirect(w, r, lpa, appData.Paths.CertificateProviderReadTheLpa)
 			}
 
 			if data.Form.Action == "select" && data.Errors.None() {

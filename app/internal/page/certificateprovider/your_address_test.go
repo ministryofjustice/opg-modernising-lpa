@@ -67,7 +67,7 @@ func TestGetYourAddressFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			You: actor.Person{
+			CertificateProviderProvidedDetails: actor.CertificateProvider{
 				Address: address,
 			},
 		}, nil)
@@ -164,7 +164,7 @@ func TestPostYourAddressManual(t *testing.T) {
 		Return(&page.Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			You: actor.Person{
+			CertificateProviderProvidedDetails: actor.CertificateProvider{
 				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
@@ -181,7 +181,7 @@ func TestPostYourAddressManual(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.WhoIsTheLpaFor, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+page.Paths.CertificateProviderReadTheLpa, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -205,7 +205,7 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 		Return(&page.Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			You: actor.Person{
+			CertificateProviderProvidedDetails: actor.CertificateProvider{
 				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
@@ -241,15 +241,14 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			You: actor.Person{
+			CertificateProviderProvidedDetails: actor.CertificateProvider{
 				FirstNames: "John",
 				Address:    place.Address{Line1: "abc"},
 			},
-			WhoFor: "me",
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			You: actor.Person{
+			CertificateProviderProvidedDetails: actor.CertificateProvider{
 				FirstNames: "John",
 				Address: place.Address{
 					Line1:      "a",
@@ -259,7 +258,6 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 					Postcode:   "e",
 				},
 			},
-			WhoFor: "me",
 		}).
 		Return(nil)
 
@@ -268,7 +266,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.WhoIsTheLpaFor, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+page.Paths.CertificateProviderReadTheLpa, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
