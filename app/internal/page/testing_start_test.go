@@ -859,4 +859,36 @@ func TestTestingStart(t *testing.T) {
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
 		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
 	})
+
+	t.Run("as certificate provider", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&asCertificateProvider=1", nil)
+		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
+
+		sessionsStore := &MockSessionsStore{}
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := &MockLpaStore{}
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{
+				ID: "123",
+				CertificateProviderUserData: identity.UserData{
+					FullName: "Barbara Smith",
+					OK:       true,
+				},
+			}).
+			Return(nil)
+
+		TestingStart(sessionsStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+	})
 }
