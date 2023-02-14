@@ -17,12 +17,12 @@ func TestIdentityWithOneLogin(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	client := &mockOneLoginClient{}
+	client := &page.MockOneLoginClient{}
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "cy", true).
 		Return("http://auth")
 
-	sessionsStore := &mockSessionsStore{}
+	sessionsStore := &page.MockSessionsStore{}
 
 	session := sessions.NewSession(sessionsStore, "params")
 
@@ -55,21 +55,21 @@ func TestIdentityWithOneLoginWhenStoreSaveError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	logger := &mockLogger{}
+	logger := &page.MockLogger{}
 	logger.
-		On("Print", expectedError)
+		On("Print", page.ExpectedError)
 
-	client := &mockOneLoginClient{}
+	client := &page.MockOneLoginClient{}
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "", true).
 		Return("http://auth?locale=en")
 
-	sessionsStore := &mockSessionsStore{}
+	sessionsStore := &page.MockSessionsStore{}
 	sessionsStore.
 		On("Save", r, w, mock.Anything).
-		Return(expectedError)
+		Return(page.ExpectedError)
 
-	err := IdentityWithOneLogin(logger, client, sessionsStore, func(int) string { return "i am random" })(appData, w, r)
+	err := IdentityWithOneLogin(logger, client, sessionsStore, func(int) string { return "i am random" })(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

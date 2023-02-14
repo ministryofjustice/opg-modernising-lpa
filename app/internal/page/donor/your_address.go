@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/appForm"
+
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -14,7 +16,7 @@ type yourAddressData struct {
 	App       page.AppData
 	Errors    validation.List
 	Addresses []place.Address
-	Form      *addressForm
+	Form      *appForm.AddressForm
 }
 
 func YourAddress(logger page.Logger, tmpl template.Template, addressClient page.AddressClient, lpaStore page.LpaStore) page.Handler {
@@ -26,7 +28,7 @@ func YourAddress(logger page.Logger, tmpl template.Template, addressClient page.
 
 		data := &yourAddressData{
 			App:  appData,
-			Form: &addressForm{},
+			Form: &appForm.AddressForm{},
 		}
 
 		if lpa.You.Address.Line1 != "" {
@@ -35,7 +37,7 @@ func YourAddress(logger page.Logger, tmpl template.Template, addressClient page.
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readAddressForm(r)
+			data.Form = appForm.ReadAddressForm(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Form.Action == "manual" && data.Errors.None() {

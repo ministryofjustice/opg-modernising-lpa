@@ -1,8 +1,11 @@
-package page
+package certificateprovider
 
 import (
 	"net/http"
 	"strings"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -11,8 +14,8 @@ import (
 )
 
 type cpYourDetailsData struct {
-	App        AppData
-	Lpa        *Lpa
+	App        page.AppData
+	Lpa        *page.Lpa
 	Form       *cpYourDetailsForm
 	Errors     validation.List
 	DobWarning string
@@ -25,20 +28,20 @@ type cpYourDetailsForm struct {
 	IgnoreDobWarning string
 }
 
-func CertificateProviderYourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore sessions.Store) Handler {
-	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+func YourDetails(tmpl template.Template, lpaStore page.LpaStore, sessionStore sessions.Store) page.Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
-		certificateProviderSession, err := getCertificateProviderSession(sessionStore, r)
+		certificateProviderSession, err := sesh.CertificateProvider(sessionStore, r)
 		if err != nil {
 			return err
 		}
 
 		if certificateProviderSession.LpaID != lpa.ID {
-			return appData.Redirect(w, r, lpa, Paths.CertificateProviderStart)
+			return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderStart)
 		}
 
 		data := &cpYourDetailsData{
@@ -69,7 +72,7 @@ func CertificateProviderYourDetails(tmpl template.Template, lpaStore LpaStore, s
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, Paths.CpYourAddress)
+				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderYourAddress)
 			}
 		}
 
@@ -79,10 +82,10 @@ func CertificateProviderYourDetails(tmpl template.Template, lpaStore LpaStore, s
 
 func readCpYourDetailsForm(r *http.Request) *cpYourDetailsForm {
 	return &cpYourDetailsForm{
-		Dob:              date.New(postFormString(r, "date-of-birth-year"), postFormString(r, "date-of-birth-month"), postFormString(r, "date-of-birth-day")),
-		Mobile:           postFormString(r, "mobile"),
-		Email:            postFormString(r, "email"),
-		IgnoreDobWarning: postFormString(r, "ignore-dob-warning"),
+		Dob:              date.New(page.PostFormString(r, "date-of-birth-year"), page.PostFormString(r, "date-of-birth-month"), page.PostFormString(r, "date-of-birth-day")),
+		Mobile:           page.PostFormString(r, "mobile"),
+		Email:            page.PostFormString(r, "email"),
+		IgnoreDobWarning: page.PostFormString(r, "ignore-dob-warning"),
 	}
 }
 

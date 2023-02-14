@@ -1,31 +1,34 @@
-package page
+package certificateprovider
 
 import (
 	"errors"
 	"net/http"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/appForm"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type cpYourAddressData struct {
-	App       AppData
+type yourAddressData struct {
+	App       page.AppData
 	Errors    validation.List
 	Addresses []place.Address
-	Form      *addressForm
+	Form      *appForm.AddressForm
 }
 
-func CpYourAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) Handler {
-	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+func YourAddress(logger page.Logger, tmpl template.Template, addressClient page.AddressClient, lpaStore page.LpaStore) page.Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
-		data := &cpYourAddressData{
+		data := &yourAddressData{
 			App:  appData,
-			Form: &addressForm{},
+			Form: &appForm.AddressForm{},
 		}
 
 		if lpa.You.Address.Line1 != "" {
@@ -34,7 +37,7 @@ func CpYourAddress(logger Logger, tmpl template.Template, addressClient AddressC
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readAddressForm(r)
+			data.Form = appForm.ReadAddressForm(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Form.Action == "manual" && data.Errors.None() {
@@ -43,7 +46,7 @@ func CpYourAddress(logger Logger, tmpl template.Template, addressClient AddressC
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, Paths.WhoIsTheLpaFor)
+				return appData.Redirect(w, r, lpa, appData.Paths.WhoIsTheLpaFor)
 			}
 
 			if data.Form.Action == "select" && data.Errors.None() {

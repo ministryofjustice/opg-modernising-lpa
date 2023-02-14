@@ -17,6 +17,7 @@ func Register(
 	sessionStore sesh.Store,
 	lpaStore page.LpaStore,
 	oneLoginClient page.OneLoginClient,
+	addressClient page.AddressClient,
 ) {
 	handleRoot := makeHandle(rootMux, logger, sessionStore, None)
 
@@ -27,7 +28,9 @@ func Register(
 	handleRoot(page.Paths.CertificateProviderLoginCallback, None,
 		LoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, lpaStore))
 	handleRoot(page.Paths.CertificateProviderYourDetails, RequireSession,
-		page.Guidance(tmpls.Get("certificate_provider_your_details.gohtml"), "", lpaStore))
+		YourDetails(tmpls.Get("certificate_provider_your_details.gohtml"), lpaStore, sessionStore))
+	handleRoot(page.Paths.CertificateProviderYourAddress, RequireSession,
+		YourAddress(logger, tmpls.Get("certificate_provider_your_details.gohtml"), addressClient, lpaStore))
 }
 
 type handleOpt byte

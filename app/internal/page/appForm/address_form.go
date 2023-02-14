@@ -1,4 +1,4 @@
-package donor
+package appForm
 
 import (
 	"net/http"
@@ -8,14 +8,14 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type addressForm struct {
+type AddressForm struct {
 	Action         string
 	LookupPostcode string
 	Address        *place.Address
 }
 
-func readAddressForm(r *http.Request) *addressForm {
-	f := &addressForm{}
+func ReadAddressForm(r *http.Request) *AddressForm {
+	f := &AddressForm{}
 	f.Action = r.PostFormValue("action")
 
 	switch f.Action {
@@ -42,7 +42,7 @@ func readAddressForm(r *http.Request) *addressForm {
 	return f
 }
 
-func (f *addressForm) Validate() validation.List {
+func (f *AddressForm) Validate() validation.List {
 	var errors validation.List
 
 	switch f.Action {

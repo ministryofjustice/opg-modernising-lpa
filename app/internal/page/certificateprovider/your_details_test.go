@@ -1,4 +1,4 @@
-package page
+package certificateprovider
 
 import (
 	"net/http"
@@ -8,6 +8,9 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 
@@ -23,36 +26,36 @@ func TestGetCertificateProviderYourDetails(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &Lpa{
+	lpa := &page.Lpa{
 		ID: "lpa-id",
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := &page.MockSessionsStore{}
 	sessionStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{Values: map[any]any{
-			"certificate-provider": &CertificateProviderSession{
+			"certificate-provider": &sesh.CertificateProviderSession{
 				Sub:            "random",
 				DonorSessionID: "session-id",
 				LpaID:          "lpa-id",
 			},
 		}}, nil)
 
-	template := &mockTemplate{}
+	template := &page.MockTemplate{}
 	template.
 		On("Func", w, &cpYourDetailsData{
-			App:  appData,
+			App:  page.TestAppData,
 			Lpa:  lpa,
 			Form: &cpYourDetailsForm{},
 		}).
 		Return(nil)
 
-	err := CertificateProviderYourDetails(template.Func, lpaStore, sessionStore)(appData, w, r)
+	err := YourDetails(template.Func, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -64,7 +67,7 @@ func TestGetCertificateProviderYourDetailsFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &Lpa{
+	lpa := &page.Lpa{
 		ID: "lpa-id",
 		CertificateProviderProvidedDetails: actor.CertificateProvider{
 			Email:       "a@example.org",
@@ -72,26 +75,26 @@ func TestGetCertificateProviderYourDetailsFromStore(t *testing.T) {
 			DateOfBirth: date.New("1997", "1", "2"),
 		},
 	}
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := &page.MockSessionsStore{}
 	sessionStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{Values: map[any]any{
-			"certificate-provider": &CertificateProviderSession{
+			"certificate-provider": &sesh.CertificateProviderSession{
 				Sub:            "random",
 				DonorSessionID: "session-id",
 				LpaID:          "lpa-id",
 			},
 		}}, nil)
 
-	template := &mockTemplate{}
+	template := &page.MockTemplate{}
 	template.
 		On("Func", w, &cpYourDetailsData{
-			App: appData,
+			App: page.TestAppData,
 			Lpa: lpa,
 			Form: &cpYourDetailsForm{
 				Email:  "a@example.org",
@@ -101,7 +104,7 @@ func TestGetCertificateProviderYourDetailsFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderYourDetails(template.Func, lpaStore, sessionStore)(appData, w, r)
+	err := YourDetails(template.Func, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -113,15 +116,15 @@ func TestGetCertificateProviderYourDetailsWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{}, expectedError)
+		Return(&page.Lpa{}, page.ExpectedError)
 
-	err := CertificateProviderYourDetails(nil, lpaStore, nil)(appData, w, r)
+	err := YourDetails(nil, lpaStore, nil)(page.TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, page.ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
@@ -130,20 +133,20 @@ func TestGetCertificateProviderYourDetailsWhenSessionStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{}, nil)
+		Return(&page.Lpa{}, nil)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := &page.MockSessionsStore{}
 	sessionStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{}, expectedError)
+		Return(&sessions.Session{}, page.ExpectedError)
 
-	err := CertificateProviderYourDetails(nil, lpaStore, sessionStore)(appData, w, r)
+	err := YourDetails(nil, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, page.ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore, sessionStore)
 }
@@ -152,28 +155,28 @@ func TestGetCertificateProviderYourDetailsWhenLpaIdMismatch(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{ID: "lpa-id"}, nil)
+		Return(&page.Lpa{ID: "lpa-id"}, nil)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := &page.MockSessionsStore{}
 	sessionStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{Values: map[any]any{
-			"certificate-provider": &CertificateProviderSession{
+			"certificate-provider": &sesh.CertificateProviderSession{
 				Sub:            "random",
 				DonorSessionID: "session-id",
 				LpaID:          "not-lpa-id",
 			},
 		}}, nil)
 
-	err := CertificateProviderYourDetails(nil, lpaStore, sessionStore)(appData, w, r)
+	err := YourDetails(nil, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+appData.Paths.CertificateProviderStart, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+page.Paths.CertificateProviderStart, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore, sessionStore)
 }
 
@@ -181,39 +184,39 @@ func TestGetCertificateProviderYourDetailsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &Lpa{
+	lpa := &page.Lpa{
 		ID: "lpa-id",
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := &page.MockSessionsStore{}
 	sessionStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{Values: map[any]any{
-			"certificate-provider": &CertificateProviderSession{
+			"certificate-provider": &sesh.CertificateProviderSession{
 				Sub:            "random",
 				DonorSessionID: "session-id",
 				LpaID:          "lpa-id",
 			},
 		}}, nil)
 
-	template := &mockTemplate{}
+	template := &page.MockTemplate{}
 	template.
 		On("Func", w, &cpYourDetailsData{
-			App:  appData,
+			App:  page.TestAppData,
 			Lpa:  lpa,
 			Form: &cpYourDetailsForm{},
 		}).
-		Return(expectedError)
+		Return(page.ExpectedError)
 
-	err := CertificateProviderYourDetails(template.Func, lpaStore, sessionStore)(appData, w, r)
+	err := YourDetails(template.Func, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, page.ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template, lpaStore, sessionStore)
 }
@@ -261,30 +264,30 @@ func TestPostCertificateProviderYourDetails(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := &mockLpaStore{}
+			lpaStore := &page.MockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
-				Return(&Lpa{ID: "lpa-id"}, nil)
+				Return(&page.Lpa{ID: "lpa-id"}, nil)
 			lpaStore.
-				On("Put", r.Context(), &Lpa{
+				On("Put", r.Context(), &page.Lpa{
 					ID:                                 "lpa-id",
 					CertificateProviderProvidedDetails: tc.cp,
 				}).
 				Return(nil)
 
-			sessionStore := &mockSessionsStore{}
+			sessionStore := &page.MockSessionsStore{}
 			sessionStore.
 				On("Get", r, "session").
-				Return(&sessions.Session{Values: map[any]any{"certificate-provider": &CertificateProviderSession{Sub: "xyz", LpaID: "lpa-id"}}}, nil)
+				Return(&sessions.Session{Values: map[any]any{"certificate-provider": &sesh.CertificateProviderSession{Sub: "xyz", LpaID: "lpa-id"}}}, nil)
 
-			err := CertificateProviderYourDetails(nil, lpaStore, sessionStore)(appData, w, r)
+			err := YourDetails(nil, lpaStore, sessionStore)(page.TestAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+Paths.CpYourAddress, resp.Header.Get("Location"))
+			assert.Equal(t, "/lpa/lpa-id"+page.Paths.CertificateProviderYourAddress, resp.Header.Get("Location"))
 			mock.AssertExpectationsForObjects(t, lpaStore, sessionStore)
 		})
 	}
@@ -353,26 +356,26 @@ func TestPostCertificateProviderYourDetailsWhenInputRequired(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := &mockLpaStore{}
+			lpaStore := &page.MockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
-				Return(&Lpa{ID: "lpa-id"}, nil)
+				Return(&page.Lpa{ID: "lpa-id"}, nil)
 
-			template := &mockTemplate{}
+			template := &page.MockTemplate{}
 			template.
 				On("Func", w, mock.MatchedBy(func(data *cpYourDetailsData) bool {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
 
-			sessionStore := &mockSessionsStore{}
+			sessionStore := &page.MockSessionsStore{}
 			sessionStore.
 				On("Get", r, "session").
-				Return(&sessions.Session{Values: map[any]any{"certificate-provider": &CertificateProviderSession{Sub: "xyz", LpaID: "lpa-id"}}}, nil)
+				Return(&sessions.Session{Values: map[any]any{"certificate-provider": &sesh.CertificateProviderSession{Sub: "xyz", LpaID: "lpa-id"}}}, nil)
 
-			err := CertificateProviderYourDetails(template.Func, lpaStore, sessionStore)(appData, w, r)
+			err := YourDetails(template.Func, lpaStore, sessionStore)(page.TestAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -394,19 +397,19 @@ func TestPostCpYourDetailsWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&Lpa{}, expectedError)
+		Return(&page.Lpa{}, page.ExpectedError)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := &page.MockSessionsStore{}
 
-	err := CertificateProviderYourDetails(nil, lpaStore, sessionStore)(appData, w, r)
+	err := YourDetails(nil, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, page.ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore, sessionStore)
 }
@@ -417,8 +420,8 @@ func TestPostCpYourDetailsWhenSessionProblem(t *testing.T) {
 		error   error
 	}{
 		"store error": {
-			session: &sessions.Session{Values: map[any]any{"certificate-provider": &CertificateProviderSession{Sub: "xyz", LpaID: "lpa-id"}}},
-			error:   expectedError,
+			session: &sessions.Session{Values: map[any]any{"certificate-provider": &sesh.CertificateProviderSession{Sub: "xyz", LpaID: "lpa-id"}}},
+			error:   page.ExpectedError,
 		},
 		"missing certificate provider session": {
 			session: &sessions.Session{},
@@ -438,19 +441,19 @@ func TestPostCpYourDetailsWhenSessionProblem(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := &mockLpaStore{}
+			lpaStore := &page.MockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
-				Return(&Lpa{}, nil)
+				Return(&page.Lpa{}, nil)
 
-			sessionStore := &mockSessionsStore{}
+			sessionStore := &page.MockSessionsStore{}
 			sessionStore.
 				On("Get", mock.Anything, "session").
 				Return(tc.session, tc.error)
 
-			err := CertificateProviderYourDetails(nil, lpaStore, sessionStore)(appData, w, r)
+			err := YourDetails(nil, lpaStore, sessionStore)(page.TestAppData, w, r)
 
 			assert.NotNil(t, err)
 			mock.AssertExpectationsForObjects(t, lpaStore, sessionStore)
@@ -471,7 +474,7 @@ func TestReadCpYourDetailsForm(t *testing.T) {
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readCpYourDetailsForm(r)
 

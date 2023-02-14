@@ -11,6 +11,7 @@ type AppPaths struct {
 	CertificateProviderLogin                             string
 	CertificateProviderLoginCallback                     string
 	CertificateProviderStart                             string
+	CertificateProviderYourAddress                       string
 	CertificateProviderYourDetails                       string
 	CheckYourLpa                                         string
 	ChooseAttorneys                                      string
@@ -83,6 +84,7 @@ var Paths = AppPaths{
 	CertificateProviderLogin:                             "/certificate-provider-login",
 	CertificateProviderLoginCallback:                     "/certificate-provider-login-callback",
 	CertificateProviderStart:                             "/certificate-provider-start",
+	CertificateProviderYourAddress:                       "/certificate-provider-your-address",
 	CertificateProviderYourDetails:                       "/certificate-provider-your-details",
 	CheckYourLpa:                                         "/check-your-lpa",
 	ChooseAttorneys:                                      "/choose-attorneys",
@@ -94,7 +96,6 @@ var Paths = AppPaths{
 	ChooseReplacementAttorneys:                           "/choose-replacement-attorneys",
 	ChooseReplacementAttorneysAddress:                    "/choose-replacement-attorneys-address",
 	ChooseReplacementAttorneysSummary:                    "/choose-replacement-attorneys-summary",
-	CpYourAddress:                                        "/cp-your-address",
 	CookiesConsent:                                       "/cookies-consent",
 	Dashboard:                                            "/dashboard",
 	DoYouWantReplacementAttorneys:                        "/do-you-want-replacement-attorneys",
