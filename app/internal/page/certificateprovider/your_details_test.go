@@ -287,7 +287,7 @@ func TestPostCertificateProviderYourDetails(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+page.Paths.CertificateProviderYourAddress, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.CertificateProviderYourAddress, resp.Header.Get("Location"))
 			mock.AssertExpectationsForObjects(t, lpaStore, sessionStore)
 		})
 	}
