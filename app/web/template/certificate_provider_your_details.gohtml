@@ -12,10 +12,10 @@
               <h1 class="govuk-fieldset__heading">{{ tr .App "yourDetails" }}</h1>
             </legend>
 
-            <h2 class="govuk-heading-m">Donor name</h2>
+            <h2 class="govuk-heading-m">{{ tr .App "donor" }}</h2>
             <p class="govuk-body">{{ .Lpa.You.FullName }}</p>
 
-            <h2 class="govuk-heading-m">Your name</h2>
+            <h2 class="govuk-heading-m">{{ tr .App "yourDetails" }}</h2>
             <p class="govuk-body">{{ .Lpa.CertificateProviderUserData.FullName }}</p>
 
             {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
