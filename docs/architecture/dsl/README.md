@@ -1,4 +1,4 @@
-# C4 Models via Structurizer
+# C4 Models via Structurizr
 
 ## Purpose
 
