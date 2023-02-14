@@ -386,7 +386,7 @@ func TestPostCertificateProviderYourDetailsWhenInputRequired(t *testing.T) {
 }
 
 func TestPostCpYourDetailsWhenStoreErrors(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"email":               {"name@example.com"},
 		"mobile":              {"07535111222"},
 		"date-of-birth-day":   {"2"},
@@ -396,7 +396,7 @@ func TestPostCpYourDetailsWhenStoreErrors(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -431,7 +431,7 @@ func TestPostCpYourDetailsWhenSessionProblem(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			form := url.Values{
+			f := url.Values{
 				"email":               {"name@example.com"},
 				"mobile":              {"07535111222"},
 				"date-of-birth-day":   {"2"},
@@ -440,7 +440,7 @@ func TestPostCpYourDetailsWhenSessionProblem(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &page.MockLpaStore{}
@@ -464,7 +464,7 @@ func TestPostCpYourDetailsWhenSessionProblem(t *testing.T) {
 func TestReadCpYourDetailsForm(t *testing.T) {
 	assert := assert.New(t)
 
-	form := url.Values{
+	f := url.Values{
 		"email":               {"name@example.com"},
 		"mobile":              {"07535111222"},
 		"date-of-birth-day":   {"2"},
@@ -473,7 +473,7 @@ func TestReadCpYourDetailsForm(t *testing.T) {
 		"ignore-dob-warning":  {"xyz"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readCpYourDetailsForm(r)

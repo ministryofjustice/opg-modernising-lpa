@@ -167,7 +167,7 @@ func TestGetChoosePeopleToNotifyAddressWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"action":           {"manual"},
 		"address-line-1":   {"a"},
 		"address-line-2":   {"b"},
@@ -177,7 +177,7 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	personToNotify := actor.PersonToNotify{
@@ -212,7 +212,7 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 }
 
 func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"action":           {"manual"},
 		"address-line-1":   {"a"},
 		"address-line-2":   {"b"},
@@ -222,7 +222,7 @@ func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	personToNotify := actor.PersonToNotify{
@@ -251,7 +251,7 @@ func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 }
 
 func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"action":           {"manual"},
 		"address-line-1":   {"a"},
 		"address-line-2":   {"b"},
@@ -261,7 +261,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	personToNotify := actor.PersonToNotify{
@@ -297,14 +297,14 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 }
 
 func TestPostChoosePeopleToNotifyAddressSelect(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"action":          {"select"},
 		"lookup-postcode": {"NG1"},
 		"select-address":  {page.TestAddress.Encode()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	personToNotify := actor.PersonToNotify{
@@ -356,13 +356,13 @@ func TestPostChoosePeopleToNotifyAddressSelect(t *testing.T) {
 }
 
 func TestPostChoosePeopleToNotifyAddressSelectWhenValidationError(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"action":          {"select"},
 		"lookup-postcode": {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	addresses := []place.Address{
@@ -407,13 +407,13 @@ func TestPostChoosePeopleToNotifyAddressSelectWhenValidationError(t *testing.T) 
 }
 
 func TestPostChoosePeopleToNotifyAddressLookup(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"action":          {"lookup"},
 		"lookup-postcode": {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	addresses := []place.Address{
@@ -458,13 +458,13 @@ func TestPostChoosePeopleToNotifyAddressLookup(t *testing.T) {
 }
 
 func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"action":          {"lookup"},
 		"lookup-postcode": {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := &page.MockLogger{}
@@ -515,12 +515,12 @@ func TestPostChoosePeopleToNotifyAddressInvalidPostcodeError(t *testing.T) {
 		Message:    "invalid postcode",
 	}
 
-	form := url.Values{
+	f := url.Values{
 		"action":          {"lookup"},
 		"lookup-postcode": {"XYZ"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := &page.MockLogger{}
@@ -567,12 +567,12 @@ func TestPostChoosePeopleToNotifyAddressInvalidPostcodeError(t *testing.T) {
 func TestPostChoosePeopleToNotifyAddressPostcodeNoAddresses(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	form := url.Values{
+	f := url.Values{
 		"action":          {"lookup"},
 		"lookup-postcode": {"XYZ"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := &page.MockLogger{}
@@ -615,12 +615,12 @@ func TestPostChoosePeopleToNotifyAddressPostcodeNoAddresses(t *testing.T) {
 }
 
 func TestPostChoosePeopleToNotifyAddressLookupWhenValidationError(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"action": {"lookup"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	personToNotify := actor.PersonToNotify{
@@ -674,7 +674,7 @@ func TestPostPersonToNotifyAddressManuallyFromAnotherPage(t *testing.T) {
 
 	for testname, tc := range testcases {
 		t.Run(testname, func(t *testing.T) {
-			form := url.Values{
+			f := url.Values{
 				"action":           {"manual"},
 				"address-line-1":   {"a"},
 				"address-town":     {"b"},
@@ -682,7 +682,7 @@ func TestPostPersonToNotifyAddressManuallyFromAnotherPage(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, tc.requestUrl, strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, tc.requestUrl, strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &page.MockLpaStore{}

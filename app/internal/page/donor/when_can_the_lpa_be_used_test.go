@@ -107,12 +107,12 @@ func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"when": {page.UsedWhenRegistered},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -138,13 +138,13 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 }
 
 func TestPostWhenCanTheLpaBeUsedWhenAnswerLater(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"when":         {"what"},
 		"answer-later": {"1"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -169,12 +169,12 @@ func TestPostWhenCanTheLpaBeUsedWhenAnswerLater(t *testing.T) {
 }
 
 func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"when": {page.UsedWhenRegistered},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -219,12 +219,12 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 }
 
 func TestReadWhenCanTheLpaBeUsedForm(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"when":         {page.UsedWhenRegistered},
 		"answer-later": {"1"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readWhenCanTheLpaBeUsedForm(r)

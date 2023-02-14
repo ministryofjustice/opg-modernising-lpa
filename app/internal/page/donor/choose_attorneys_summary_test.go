@@ -87,12 +87,12 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 
 	for testname, tc := range testcases {
 		t.Run(testname, func(t *testing.T) {
-			form := url.Values{
+			f := url.Values{
 				"add-attorney": {tc.addMoreFormValue},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &page.MockLpaStore{}
@@ -112,12 +112,12 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 }
 
 func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"add-attorney": {""},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}

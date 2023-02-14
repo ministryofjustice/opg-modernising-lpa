@@ -129,13 +129,13 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 
 	for _, tc := range testCases {
 		t.Run(tc.carryOutBy, func(t *testing.T) {
-			form := url.Values{
+			f := url.Values{
 				"carry-out-by": {tc.carryOutBy},
 				"email":        {tc.email},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &page.MockLpaStore{}
@@ -160,12 +160,12 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 }
 
 func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenStoreErrors(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"carry-out-by": {"paper"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -210,12 +210,12 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationE
 }
 
 func TestReadHowWouldCertificateProviderPreferToCarryOutTheirRoleForm(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"carry-out-by": {"email"},
 		"email":        {"someone@example.com"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readHowWouldCertificateProviderPreferToCarryOutTheirRole(r)

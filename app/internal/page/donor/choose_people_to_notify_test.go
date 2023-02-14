@@ -236,14 +236,14 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 }
 
 func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"first-names": {"Johnny"},
 		"last-name":   {"Dear"},
 		"email":       {"johnny.d@example.com"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	existingPerson := actor.PersonToNotify{
@@ -303,14 +303,14 @@ func TestPostChoosePeopleToNotifyFromAnotherPage(t *testing.T) {
 
 	for testName, tc := range testcases {
 		t.Run(testName, func(t *testing.T) {
-			form := url.Values{
+			f := url.Values{
 				"first-names": {"John"},
 				"last-name":   {"Doe"},
 				"email":       {"johnny@example.com"},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, tc.requestUrl, strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, tc.requestUrl, strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &page.MockLpaStore{}
@@ -433,14 +433,14 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 }
 
 func TestPostChoosePeopleToNotifyWhenStoreErrors(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"first-names": {"John"},
 		"last-name":   {"Doe"},
 		"email":       {"john@example.com"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -460,13 +460,13 @@ func TestPostChoosePeopleToNotifyWhenStoreErrors(t *testing.T) {
 func TestReadChoosePeopleToNotifyForm(t *testing.T) {
 	assert := assert.New(t)
 
-	form := url.Values{
+	f := url.Values{
 		"first-names": {"  John "},
 		"last-name":   {"Doe"},
 		"email":       {"john@example.com"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readChoosePeopleToNotifyForm(r)

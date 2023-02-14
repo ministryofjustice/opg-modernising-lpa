@@ -90,13 +90,13 @@ func TestGetHowShouldReplacementAttorneysStepInWhenStoreError(t *testing.T) {
 }
 
 func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"when-to-step-in": {page.SomeOtherWay},
 		"other-details":   {"some details"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -166,12 +166,12 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			form := url.Values{
+			f := url.Values{
 				"when-to-step-in": {tc.HowShouldReplacementAttorneysStepIn},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &page.MockLpaStore{}
@@ -232,13 +232,13 @@ func TestPostHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			form := url.Values{
+			f := url.Values{
 				"when-to-step-in": {tc.formWhenStepIn},
 				"other-details":   {tc.formOtherDetails},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &page.MockLpaStore{}
@@ -268,13 +268,13 @@ func TestPostHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 }
 
 func TestPostHowShouldReplacementAttorneysStepInFormValidation(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"when-to-step-in": {""},
 		"other-details":   {""},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -300,13 +300,13 @@ func TestPostHowShouldReplacementAttorneysStepInFormValidation(t *testing.T) {
 }
 
 func TestPostHowShouldReplacementAttorneysStepInWhenPutStoreError(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"when-to-step-in": {page.SomeOtherWay},
 		"other-details":   {"some details"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -352,12 +352,12 @@ func TestHowShouldReplacementAttorneysStepInFormValidate(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			form := howShouldReplacementAttorneysStepInForm{
+			f := howShouldReplacementAttorneysStepInForm{
 				WhenToStepIn: tc.whenToStepIn,
 				OtherDetails: tc.otherDetails,
 			}
 
-			assert.Equal(t, tc.expectedErrors, form.Validate())
+			assert.Equal(t, tc.expectedErrors, f.Validate())
 		})
 	}
 }

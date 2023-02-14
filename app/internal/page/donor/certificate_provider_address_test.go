@@ -158,7 +158,7 @@ func TestGetCertificateProviderAddressWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostCertificateProviderAddressManual(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"action":           {"manual"},
 		"address-line-1":   {"a"},
 		"address-line-2":   {"b"},
@@ -168,7 +168,7 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -192,7 +192,7 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 }
 
 func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"action":           {"manual"},
 		"address-line-1":   {"a"},
 		"address-line-2":   {"b"},
@@ -202,7 +202,7 @@ func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -223,7 +223,7 @@ func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 }
 
 func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"action":           {"manual"},
 		"address-line-1":   {"a"},
 		"address-line-2":   {"b"},
@@ -233,7 +233,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -267,7 +267,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 }
 
 func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"action":           {"manual"},
 		"address-line-2":   {"b"},
 		"address-town":     {"c"},
@@ -275,7 +275,7 @@ func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -310,14 +310,14 @@ func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 }
 
 func TestPostCertificateProviderAddressSelect(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"action":          {"select"},
 		"lookup-postcode": {"NG1"},
 		"select-address":  {page.TestAddress.Encode()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -351,13 +351,13 @@ func TestPostCertificateProviderAddressSelect(t *testing.T) {
 }
 
 func TestPostCertificateProviderAddressSelectWhenValidationError(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"action":          {"select"},
 		"lookup-postcode": {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	addresses := []place.Address{
@@ -396,13 +396,13 @@ func TestPostCertificateProviderAddressSelectWhenValidationError(t *testing.T) {
 }
 
 func TestPostCertificateProviderAddressLookup(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"action":          {"lookup"},
 		"lookup-postcode": {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	addresses := []place.Address{
@@ -440,13 +440,13 @@ func TestPostCertificateProviderAddressLookup(t *testing.T) {
 }
 
 func TestPostCertificateProviderAddressLookupError(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"action":          {"lookup"},
 		"lookup-postcode": {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := &page.MockLogger{}
@@ -491,12 +491,12 @@ func TestPostCertificateProviderAddressInvalidPostcodeError(t *testing.T) {
 		Message:    "invalid postcode",
 	}
 
-	form := url.Values{
+	f := url.Values{
 		"action":          {"lookup"},
 		"lookup-postcode": {"XYZ"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := &page.MockLogger{}
@@ -537,12 +537,12 @@ func TestPostCertificateProviderAddressInvalidPostcodeError(t *testing.T) {
 func TestPostCertificateProviderAddressValidPostcodeNoAddresses(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	form := url.Values{
+	f := url.Values{
 		"action":          {"lookup"},
 		"lookup-postcode": {"XYZ"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := &page.MockLogger{}
@@ -579,12 +579,12 @@ func TestPostCertificateProviderAddressValidPostcodeNoAddresses(t *testing.T) {
 }
 
 func TestPostCertificateProviderAddressLookupWhenValidationError(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"action": {"lookup"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}

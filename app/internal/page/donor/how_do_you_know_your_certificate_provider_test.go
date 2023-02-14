@@ -214,12 +214,12 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 }
 
 func TestPostHowDoYouKnowYourCertificateProviderWhenStoreErrors(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"how": {"friend"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -264,12 +264,12 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenValidationErrors(t *testing.
 }
 
 func TestReadHowDoYouKnowYourCertificateProviderForm(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"how":         {"friend"},
 		"description": {"What"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readHowDoYouKnowYourCertificateProviderForm(r)

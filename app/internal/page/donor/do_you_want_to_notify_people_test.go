@@ -217,12 +217,12 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.WantToNotify, func(t *testing.T) {
-			form := url.Values{
+			f := url.Values{
 				"want-to-notify": {tc.WantToNotify},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &page.MockLpaStore{}
@@ -266,12 +266,12 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 }
 
 func TestPostDoYouWantToNotifyPeopleWhenStoreErrors(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"want-to-notify": {"yes"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -320,11 +320,11 @@ func TestPostDoYouWantToNotifyPeopleWhenValidationErrors(t *testing.T) {
 }
 
 func TestReadDoYouWantToNotifyPeopleForm(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"want-to-notify": {"yes"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readDoYouWantToNotifyPeople(r)

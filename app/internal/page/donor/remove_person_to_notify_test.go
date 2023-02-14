@@ -109,12 +109,12 @@ func TestGetRemovePersonToNotifyAttorneyDoesNotExist(t *testing.T) {
 }
 
 func TestPostRemovePersonToNotify(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"remove-person-to-notify": {"yes"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := &page.MockLogger{}
@@ -151,12 +151,12 @@ func TestPostRemovePersonToNotify(t *testing.T) {
 }
 
 func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"remove-person-to-notify": {"no"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := &page.MockLogger{}
@@ -190,12 +190,12 @@ func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
 }
 
 func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"remove-person-to-notify": {"yes"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := &page.MockTemplate{}
@@ -235,12 +235,12 @@ func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
 }
 
 func TestRemovePersonToNotifyFormValidation(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"remove-person-to-notify": {""},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	personToNotifyWithoutAddress := actor.PersonToNotify{
@@ -271,12 +271,12 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 }
 
 func TestRemovePersonToNotifyRemoveLastPersonRedirectsToChoosePeopleToNotify(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"remove-person-to-notify": {"yes"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := &page.MockLogger{}

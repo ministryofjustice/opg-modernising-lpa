@@ -64,12 +64,12 @@ func TestGetChoosePeopleToNotifySummaryWhenStoreErrors(t *testing.T) {
 }
 
 func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"add-person-to-notify": {"yes"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -87,12 +87,12 @@ func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
 }
 
 func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"add-person-to-notify": {"no"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -121,12 +121,12 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 }
 
 func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"add-person-to-notify": {""},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}

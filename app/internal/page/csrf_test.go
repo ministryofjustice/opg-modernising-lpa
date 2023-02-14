@@ -15,10 +15,10 @@ import (
 func TestPostMakeHandleCsrfTokenValid(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	form := url.Values{
+	f := url.Values{
 		"csrf": {"123"},
 	}
-	r, _ := http.NewRequest(http.MethodPost, "/path?a=b", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/path?a=b", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
 	sessionsStore := &MockSessionsStore{}
@@ -36,10 +36,10 @@ func TestPostMakeHandleCsrfTokenValid(t *testing.T) {
 func TestPostMakeHandleCsrfTokensNotEqual(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	form := url.Values{
+	f := url.Values{
 		"csrf": {"321"},
 	}
-	r, _ := http.NewRequest(http.MethodPost, "/path?a=b", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/path?a=b", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
 	sessionsStore := &MockSessionsStore{}
@@ -57,10 +57,10 @@ func TestPostMakeHandleCsrfTokensNotEqual(t *testing.T) {
 func TestPostMakeHandleCsrfTokenCookieValueEmpty(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	form := url.Values{
+	f := url.Values{
 		"csrf": {"123"},
 	}
-	r, _ := http.NewRequest(http.MethodPost, "/path?a=b", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/path?a=b", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
 	sessionsStore := &MockSessionsStore{}
@@ -78,10 +78,10 @@ func TestPostMakeHandleCsrfTokenCookieValueEmpty(t *testing.T) {
 func TestPostMakeHandleCsrfTokenErrorWhenDecodingSession(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	form := url.Values{
+	f := url.Values{
 		"csrf": {"123"},
 	}
-	r, _ := http.NewRequest(http.MethodPost, "/path?a=b", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/path?a=b", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
 	sessionsStore := &MockSessionsStore{}

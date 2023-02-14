@@ -122,10 +122,10 @@ func TestPostWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 }
 
 func TestPostWhoDoYouWantToBeCertificateProviderGuidanceWhenWillDoLater(t *testing.T) {
-	form := url.Values{"will-do-this-later": {"1"}}
+	f := url.Values{"will-do-this-later": {"1"}}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}

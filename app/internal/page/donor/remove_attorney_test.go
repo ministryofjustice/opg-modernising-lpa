@@ -109,12 +109,12 @@ func TestGetRemoveAttorneyAttorneyDoesNotExist(t *testing.T) {
 }
 
 func TestPostRemoveAttorney(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"remove-attorney": {"yes"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := &page.MockLogger{}
@@ -151,12 +151,12 @@ func TestPostRemoveAttorney(t *testing.T) {
 }
 
 func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"remove-attorney": {"no"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := &page.MockLogger{}
@@ -190,12 +190,12 @@ func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 }
 
 func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"remove-attorney": {"yes"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := &page.MockTemplate{}
@@ -235,12 +235,12 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 }
 
 func TestRemoveAttorneyFormValidation(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"remove-attorney": {""},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	attorneyWithoutAddress := actor.Attorney{
@@ -271,12 +271,12 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 }
 
 func TestRemoveAttorneyRemoveLastAttorneyRedirectsToChooseAttorney(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"remove-attorney": {"yes"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := &page.MockLogger{}
