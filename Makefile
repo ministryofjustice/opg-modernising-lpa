@@ -65,6 +65,6 @@ update-secrets-baseline: ##@security Updates detect-secrets baseline file for fa
 audit-secrets: ##@security Interactive CLI tool for marking discovered as in/valid (requires yelp/detect-secrets local installation)
 	detect-secrets audit .secrets.baseline
 
-create-c4model:
+run-structurizr:
 	docker pull structurizr/lite
 	docker run -it --rm -p 8080:8080 -v $(PWD)/docs/architecture/dsl:/usr/local/structurizr structurizr/lite
