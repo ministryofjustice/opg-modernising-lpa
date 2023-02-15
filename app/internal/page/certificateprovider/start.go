@@ -15,14 +15,18 @@ type startData struct {
 	Start  string
 }
 
-func Start(tmpl template.Template, lpaStore page.LpaStore) page.Handler {
+func Start(tmpl template.Template, lpaStore page.LpaStore, dataStore page.DataStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		sessionID := r.FormValue("sessionId")
-		lpaID := r.FormValue("lpaId")
+		shareCode := r.FormValue("share-code")
+
+		var v page.ShareCodeData
+		if err := dataStore.Get(r.Context(), "SHARECODE#"+shareCode, "#METADATA#"+shareCode, &v); err != nil {
+			return err
+		}
 
 		_, err := lpaStore.Get(page.ContextWithSessionData(r.Context(), &page.SessionData{
-			SessionID: sessionID,
-			LpaID:     lpaID,
+			SessionID: v.SessionID,
+			LpaID:     v.LpaID,
 		}))
 		if err != nil {
 			return err
@@ -30,7 +34,7 @@ func Start(tmpl template.Template, lpaStore page.LpaStore) page.Handler {
 
 		data := &startData{
 			App:   appData,
-			Start: page.Paths.CertificateProviderLogin + "?" + url.Values{"lpaId": {lpaID}, "sessionId": {sessionID}}.Encode(),
+			Start: page.Paths.CertificateProviderLogin + "?" + url.Values{"lpaId": {v.LpaID}, "sessionId": {v.SessionID}}.Encode(),
 		}
 
 		return tmpl(w, data)
