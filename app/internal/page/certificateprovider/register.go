@@ -30,7 +30,7 @@ func Register(
 	handleRoot(page.Paths.CertificateProviderYourDetails, RequireSession,
 		YourDetails(tmpls.Get("certificate_provider_your_details.gohtml"), lpaStore, sessionStore))
 	handleRoot(page.Paths.CertificateProviderYourAddress, RequireSession,
-		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
+		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore, sessionStore))
 	handleRoot(page.Paths.CertificateProviderReadTheLpa, RequireSession,
 		page.Guidance(tmpls.Get("your_address.gohtml"), "/the-next-page", lpaStore))
 }

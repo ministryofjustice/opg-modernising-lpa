@@ -166,13 +166,7 @@ func TestPostYourAddressManual(t *testing.T) {
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
 			You: actor.Person{
-				Address: place.Address{
-					Line1:      "a",
-					Line2:      "b",
-					Line3:      "c",
-					TownOrCity: "d",
-					Postcode:   "e",
-				},
+				Address: page.TestAddress,
 			},
 		}).
 		Return(nil)
@@ -207,13 +201,7 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
 			You: actor.Person{
-				Address: place.Address{
-					Line1:      "a",
-					Line2:      "b",
-					Line3:      "c",
-					TownOrCity: "d",
-					Postcode:   "e",
-				},
+				Address: page.TestAddress,
 			},
 		}).
 		Return(page.ExpectedError)
@@ -252,13 +240,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			You: actor.Person{
 				FirstNames: "John",
-				Address: place.Address{
-					Line1:      "a",
-					Line2:      "b",
-					Line3:      "c",
-					TownOrCity: "d",
-					Postcode:   "e",
-				},
+				Address:    page.TestAddress,
 			},
 			WhoFor: "me",
 		}).
