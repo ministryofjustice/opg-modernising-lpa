@@ -1,4 +1,4 @@
-package page
+package certificateprovider
 
 import (
 	"context"
@@ -7,19 +7,16 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-
 	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/mock"
 )
-
-var MockRandom = func(int) string { return "123" }
 
 var (
 	TestAddress = place.Address{
@@ -30,11 +27,11 @@ var (
 		Postcode:   "e",
 	}
 	ExpectedError = errors.New("err")
-	TestAppData   = AppData{
+	TestAppData   = page.AppData{
 		SessionID: "session-id",
 		LpaID:     "lpa-id",
 		Lang:      localize.En,
-		Paths:     Paths,
+		Paths:     page.Paths,
 	}
 )
 
@@ -42,30 +39,30 @@ type MockLpaStore struct {
 	mock.Mock
 }
 
-func (m *MockLpaStore) Create(ctx context.Context) (*Lpa, error) {
+func (m *MockLpaStore) Create(ctx context.Context) (*page.Lpa, error) {
 	args := m.Called(ctx)
 
-	return args.Get(0).(*Lpa), args.Error(1)
+	return args.Get(0).(*page.Lpa), args.Error(1)
 }
 
-func (m *MockLpaStore) GetAll(ctx context.Context) ([]*Lpa, error) {
+func (m *MockLpaStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
 	args := m.Called(ctx)
-	return args.Get(0).([]*Lpa), args.Error(1)
+	return args.Get(0).([]*page.Lpa), args.Error(1)
 }
 
-func (m *MockLpaStore) Get(ctx context.Context) (*Lpa, error) {
+func (m *MockLpaStore) Get(ctx context.Context) (*page.Lpa, error) {
 	args := m.Called(ctx)
-	return args.Get(0).(*Lpa), args.Error(1)
+	return args.Get(0).(*page.Lpa), args.Error(1)
 }
 
-func (m *MockLpaStore) Put(ctx context.Context, v *Lpa) error {
+func (m *MockLpaStore) Put(ctx context.Context, v *page.Lpa) error {
 	return m.Called(ctx, v).Error(0)
 }
 
 func (m *MockLpaStore) WillReturnEmptyLpa(r *http.Request) *MockLpaStore {
 	m.
 		On("Get", r.Context()).
-		Return(&Lpa{
+		Return(&page.Lpa{
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
 			},
@@ -76,16 +73,16 @@ func (m *MockLpaStore) WillReturnEmptyLpa(r *http.Request) *MockLpaStore {
 
 func (m *MockLpaStore) WithCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string) *MockLpaStore {
 	m.
-		On("Put", r.Context(), &Lpa{
+		On("Put", r.Context(), &page.Lpa{
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
 			},
-			PaymentDetails: PaymentDetails{
+			PaymentDetails: page.PaymentDetails{
 				PaymentId:        paymentId,
 				PaymentReference: paymentReference,
 			},
-			Tasks: Tasks{
-				PayForLpa: TaskCompleted,
+			Tasks: page.Tasks{
+				PayForLpa: page.TaskCompleted,
 			},
 		}).
 		Return(nil)

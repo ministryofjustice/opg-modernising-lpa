@@ -18,20 +18,20 @@ func TestGetRestrictions(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &page.MockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &restrictionsData{
-			App: page.TestAppData,
+			App: TestAppData,
 			Lpa: &page.Lpa{},
 		}).
 		Return(nil)
 
-	err := Restrictions(template.Func, lpaStore)(page.TestAppData, w, r)
+	err := Restrictions(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -43,20 +43,20 @@ func TestGetRestrictionsFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Restrictions: "blah"}, nil)
 
-	template := &page.MockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &restrictionsData{
-			App: page.TestAppData,
+			App: TestAppData,
 			Lpa: &page.Lpa{Restrictions: "blah"},
 		}).
 		Return(nil)
 
-	err := Restrictions(template.Func, lpaStore)(page.TestAppData, w, r)
+	err := Restrictions(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -68,15 +68,15 @@ func TestGetRestrictionsWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, page.ExpectedError)
+		Return(&page.Lpa{}, ExpectedError)
 
-	err := Restrictions(nil, lpaStore)(page.TestAppData, w, r)
+	err := Restrictions(nil, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, page.ExpectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
@@ -85,23 +85,23 @@ func TestGetRestrictionsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &page.MockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &restrictionsData{
-			App: page.TestAppData,
+			App: TestAppData,
 			Lpa: &page.Lpa{},
 		}).
-		Return(page.ExpectedError)
+		Return(ExpectedError)
 
-	err := Restrictions(template.Func, lpaStore)(page.TestAppData, w, r)
+	err := Restrictions(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, page.ExpectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
@@ -115,7 +115,7 @@ func TestPostRestrictions(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -128,7 +128,7 @@ func TestPostRestrictions(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := Restrictions(nil, lpaStore)(page.TestAppData, w, r)
+	err := Restrictions(nil, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -147,7 +147,7 @@ func TestPostRestrictionsWhenAnswerLater(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -159,7 +159,7 @@ func TestPostRestrictionsWhenAnswerLater(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := Restrictions(nil, lpaStore)(page.TestAppData, w, r)
+	err := Restrictions(nil, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -177,17 +177,17 @@ func TestPostRestrictionsWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{Restrictions: "blah", Tasks: page.Tasks{Restrictions: page.TaskCompleted}}).
-		Return(page.ExpectedError)
+		Return(ExpectedError)
 
-	err := Restrictions(nil, lpaStore)(page.TestAppData, w, r)
+	err := Restrictions(nil, lpaStore)(TestAppData, w, r)
 
-	assert.Equal(t, page.ExpectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -200,21 +200,21 @@ func TestPostRestrictionsWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &page.MockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &restrictionsData{
-			App:    page.TestAppData,
+			App:    TestAppData,
 			Errors: validation.With("restrictions", validation.StringTooLongError{Label: "restrictions", Length: 10000}),
 			Lpa:    &page.Lpa{},
 		}).
 		Return(nil)
 
-	err := Restrictions(template.Func, lpaStore)(page.TestAppData, w, r)
+	err := Restrictions(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

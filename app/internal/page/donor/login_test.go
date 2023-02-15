@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/gorilla/sessions"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -16,12 +15,12 @@ func TestLogin(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?locale=cy", nil)
 
-	client := &page.MockOneLoginClient{}
+	client := &MockOneLoginClient{}
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "cy", false).
 		Return("http://auth")
 
-	sessionsStore := &page.MockSessionsStore{}
+	sessionsStore := &MockSessionsStore{}
 
 	session := sessions.NewSession(sessionsStore, "params")
 
@@ -53,12 +52,12 @@ func TestLoginDefaultLocale(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	client := &page.MockOneLoginClient{}
+	client := &MockOneLoginClient{}
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "en", false).
 		Return("http://auth")
 
-	sessionsStore := &page.MockSessionsStore{}
+	sessionsStore := &MockSessionsStore{}
 
 	session := sessions.NewSession(sessionsStore, "params")
 
@@ -90,19 +89,19 @@ func TestLoginWhenStoreSaveError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	logger := &page.MockLogger{}
+	logger := &MockLogger{}
 	logger.
-		On("Print", page.ExpectedError)
+		On("Print", ExpectedError)
 
-	client := &page.MockOneLoginClient{}
+	client := &MockOneLoginClient{}
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "en", false).
 		Return("http://auth?locale=en")
 
-	sessionsStore := &page.MockSessionsStore{}
+	sessionsStore := &MockSessionsStore{}
 	sessionsStore.
 		On("Save", r, w, mock.Anything).
-		Return(page.ExpectedError)
+		Return(ExpectedError)
 
 	Login(logger, client, sessionsStore, func(int) string { return "i am random" })(w, r)
 	resp := w.Result()

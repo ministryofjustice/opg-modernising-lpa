@@ -18,7 +18,7 @@ func TestMakeHandle(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
-	sessionsStore := &page.MockSessionsStore{}
+	sessionsStore := &MockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &sesh.DonorSession{Sub: "random"}}}, nil)
@@ -49,7 +49,7 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
 
-	sessionsStore := &page.MockSessionsStore{}
+	sessionsStore := &MockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &sesh.DonorSession{Sub: "random"}}}, nil)
@@ -80,11 +80,11 @@ func TestMakeHandleErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
-	logger := &page.MockLogger{}
+	logger := &MockLogger{}
 	logger.
-		On("Print", fmt.Sprintf("Error rendering page for path '%s': %s", "/path", page.ExpectedError.Error()))
+		On("Print", fmt.Sprintf("Error rendering page for path '%s': %s", "/path", ExpectedError.Error()))
 
-	sessionsStore := &page.MockSessionsStore{}
+	sessionsStore := &MockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &sesh.DonorSession{Sub: "random"}}}, nil)
@@ -92,7 +92,7 @@ func TestMakeHandleErrors(t *testing.T) {
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, logger, sessionsStore, None)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
-		return page.ExpectedError
+		return ExpectedError
 	})
 
 	mux.ServeHTTP(w, r)
@@ -106,14 +106,14 @@ func TestMakeHandleSessionError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
-	logger := &page.MockLogger{}
+	logger := &MockLogger{}
 	logger.
-		On("Print", page.ExpectedError)
+		On("Print", ExpectedError)
 
-	sessionsStore := &page.MockSessionsStore{}
+	sessionsStore := &MockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{}, page.ExpectedError)
+		Return(&sessions.Session{}, ExpectedError)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, logger, sessionsStore, None)
@@ -131,11 +131,11 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
-	logger := &page.MockLogger{}
+	logger := &MockLogger{}
 	logger.
 		On("Print", sesh.MissingSessionError("donor"))
 
-	sessionsStore := &page.MockSessionsStore{}
+	sessionsStore := &MockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{}}, nil)

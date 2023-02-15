@@ -18,20 +18,20 @@ func TestGetHowDoYouKnowYourCertificateProvider(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &page.MockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &howDoYouKnowYourCertificateProviderData{
-			App:  page.TestAppData,
+			App:  TestAppData,
 			Form: &howDoYouKnowYourCertificateProviderForm{},
 		}).
 		Return(nil)
 
-	err := HowDoYouKnowYourCertificateProvider(template.Func, lpaStore)(page.TestAppData, w, r)
+	err := HowDoYouKnowYourCertificateProvider(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -43,14 +43,14 @@ func TestGetHowDoYouKnowYourCertificateProviderWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, page.ExpectedError)
+		Return(&page.Lpa{}, ExpectedError)
 
-	err := HowDoYouKnowYourCertificateProvider(nil, lpaStore)(page.TestAppData, w, r)
+	err := HowDoYouKnowYourCertificateProvider(nil, lpaStore)(TestAppData, w, r)
 
-	assert.Equal(t, page.ExpectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -61,23 +61,23 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 	certificateProvider := actor.CertificateProvider{
 		Relationship: "friend",
 	}
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			CertificateProvider: certificateProvider,
 		}, nil)
 
-	template := &page.MockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &howDoYouKnowYourCertificateProviderData{
-			App:                 page.TestAppData,
+			App:                 TestAppData,
 			CertificateProvider: certificateProvider,
 			Form:                &howDoYouKnowYourCertificateProviderForm{How: "friend"},
 		}).
 		Return(nil)
 
-	err := HowDoYouKnowYourCertificateProvider(template.Func, lpaStore)(page.TestAppData, w, r)
+	err := HowDoYouKnowYourCertificateProvider(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -89,20 +89,20 @@ func TestGetHowDoYouKnowYourCertificateProviderWhenTemplateErrors(t *testing.T) 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &page.MockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, mock.Anything).
-		Return(page.ExpectedError)
+		Return(ExpectedError)
 
-	err := HowDoYouKnowYourCertificateProvider(template.Func, lpaStore)(page.TestAppData, w, r)
+	err := HowDoYouKnowYourCertificateProvider(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, page.ExpectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
 }
@@ -181,7 +181,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := &page.MockLpaStore{}
+			lpaStore := &MockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
@@ -202,7 +202,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := HowDoYouKnowYourCertificateProvider(nil, lpaStore)(page.TestAppData, w, r)
+			err := HowDoYouKnowYourCertificateProvider(nil, lpaStore)(TestAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -222,17 +222,17 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), mock.Anything).
-		Return(page.ExpectedError)
+		Return(ExpectedError)
 
-	err := HowDoYouKnowYourCertificateProvider(nil, lpaStore)(page.TestAppData, w, r)
+	err := HowDoYouKnowYourCertificateProvider(nil, lpaStore)(TestAppData, w, r)
 
-	assert.Equal(t, page.ExpectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -241,21 +241,21 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenValidationErrors(t *testing.
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &page.MockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &howDoYouKnowYourCertificateProviderData{
-			App:    page.TestAppData,
+			App:    TestAppData,
 			Form:   &howDoYouKnowYourCertificateProviderForm{},
 			Errors: validation.With("how", validation.SelectError{Label: "howYouKnowCertificateProvider"}),
 		}).
 		Return(nil)
 
-	err := HowDoYouKnowYourCertificateProvider(template.Func, lpaStore)(page.TestAppData, w, r)
+	err := HowDoYouKnowYourCertificateProvider(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

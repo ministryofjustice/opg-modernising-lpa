@@ -17,21 +17,21 @@ func TestGetCheckYourLpa(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &page.MockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &checkYourLpaData{
-			App:  page.TestAppData,
+			App:  TestAppData,
 			Form: &checkYourLpaForm{},
 			Lpa:  &page.Lpa{},
 		}).
 		Return(nil)
 
-	err := CheckYourLpa(template.Func, lpaStore)(page.TestAppData, w, r)
+	err := CheckYourLpa(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -43,15 +43,15 @@ func TestGetCheckYourLpaWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, page.ExpectedError)
+		Return(&page.Lpa{}, ExpectedError)
 
-	err := CheckYourLpa(nil, lpaStore)(page.TestAppData, w, r)
+	err := CheckYourLpa(nil, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, page.ExpectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
@@ -65,15 +65,15 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 		HappyToShare: true,
 	}
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	template := &page.MockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &checkYourLpaData{
-			App: page.TestAppData,
+			App: TestAppData,
 			Lpa: lpa,
 			Form: &checkYourLpaForm{
 				Checked: true,
@@ -82,7 +82,7 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CheckYourLpa(template.Func, lpaStore)(page.TestAppData, w, r)
+	err := CheckYourLpa(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -106,7 +106,7 @@ func TestPostCheckYourLpa(t *testing.T) {
 		Tasks:        page.Tasks{CheckYourLpa: page.TaskInProgress},
 	}
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
@@ -118,7 +118,7 @@ func TestPostCheckYourLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CheckYourLpa(nil, lpaStore)(page.TestAppData, w, r)
+	err := CheckYourLpa(nil, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -137,7 +137,7 @@ func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -147,11 +147,11 @@ func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {
 			HappyToShare: true,
 			Tasks:        page.Tasks{CheckYourLpa: page.TaskCompleted},
 		}).
-		Return(page.ExpectedError)
+		Return(ExpectedError)
 
-	err := CheckYourLpa(nil, lpaStore)(page.TestAppData, w, r)
+	err := CheckYourLpa(nil, lpaStore)(TestAppData, w, r)
 
-	assert.Equal(t, page.ExpectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -164,19 +164,19 @@ func TestPostCheckYourLpaWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &page.MockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, mock.MatchedBy(func(data *checkYourLpaData) bool {
 			return assert.Equal(t, validation.With("happy", validation.SelectError{Label: "happyToShareLpa"}), data.Errors)
 		})).
 		Return(nil)
 
-	err := CheckYourLpa(template.Func, lpaStore)(page.TestAppData, w, r)
+	err := CheckYourLpa(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

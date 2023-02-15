@@ -18,20 +18,20 @@ func TestGetWantReplacementAttorneys(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &page.MockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &wantReplacementAttorneysData{
-			App: page.TestAppData,
+			App: TestAppData,
 			Lpa: &page.Lpa{},
 		}).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Func, lpaStore)(page.TestAppData, w, r)
+	err := WantReplacementAttorneys(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -43,7 +43,7 @@ func TestGetWantReplacementAttorneysWithExistingReplacementAttorneys(t *testing.
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -52,9 +52,9 @@ func TestGetWantReplacementAttorneysWithExistingReplacementAttorneys(t *testing.
 			},
 		}, nil)
 
-	template := &page.MockTemplate{}
+	template := &MockTemplate{}
 
-	err := WantReplacementAttorneys(template.Func, lpaStore)(page.TestAppData, w, r)
+	err := WantReplacementAttorneys(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -68,21 +68,21 @@ func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{WantReplacementAttorneys: "yes"}, nil)
 
-	template := &page.MockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &wantReplacementAttorneysData{
-			App:  page.TestAppData,
+			App:  TestAppData,
 			Want: "yes",
 			Lpa:  &page.Lpa{WantReplacementAttorneys: "yes"},
 		}).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Func, lpaStore)(page.TestAppData, w, r)
+	err := WantReplacementAttorneys(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -94,15 +94,15 @@ func TestGetWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, page.ExpectedError)
+		Return(&page.Lpa{}, ExpectedError)
 
-	err := WantReplacementAttorneys(nil, lpaStore)(page.TestAppData, w, r)
+	err := WantReplacementAttorneys(nil, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, page.ExpectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
@@ -111,23 +111,23 @@ func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &page.MockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &wantReplacementAttorneysData{
-			App: page.TestAppData,
+			App: TestAppData,
 			Lpa: &page.Lpa{},
 		}).
-		Return(page.ExpectedError)
+		Return(ExpectedError)
 
-	err := WantReplacementAttorneys(template.Func, lpaStore)(page.TestAppData, w, r)
+	err := WantReplacementAttorneys(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, page.ExpectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
@@ -169,7 +169,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := &page.MockLpaStore{}
+			lpaStore := &MockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
@@ -183,7 +183,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := WantReplacementAttorneys(nil, lpaStore)(page.TestAppData, w, r)
+			err := WantReplacementAttorneys(nil, lpaStore)(TestAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -204,17 +204,17 @@ func TestPostWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), mock.Anything).
-		Return(page.ExpectedError)
+		Return(ExpectedError)
 
-	err := WantReplacementAttorneys(nil, lpaStore)(page.TestAppData, w, r)
+	err := WantReplacementAttorneys(nil, lpaStore)(TestAppData, w, r)
 
-	assert.Equal(t, page.ExpectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -223,21 +223,21 @@ func TestPostWantReplacementAttorneysWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &page.MockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &page.MockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &wantReplacementAttorneysData{
-			App:    page.TestAppData,
+			App:    TestAppData,
 			Errors: validation.With("want", validation.SelectError{Label: "yesToAddReplacementAttorneys"}),
 			Lpa:    &page.Lpa{},
 		}).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Func, lpaStore)(page.TestAppData, w, r)
+	err := WantReplacementAttorneys(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
