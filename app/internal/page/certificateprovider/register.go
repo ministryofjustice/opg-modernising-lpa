@@ -28,9 +28,9 @@ func Register(
 	handleRoot(page.Paths.CertificateProviderLoginCallback, None,
 		LoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, lpaStore))
 	handleRoot(page.Paths.CertificateProviderYourDetails, RequireSession,
-		YourDetails(tmpls.Get("certificate_provider_your_details.gohtml"), lpaStore, sessionStore))
+		YourDetails(tmpls.Get("certificate_provider_your_details.gohtml"), lpaStore))
 	handleRoot(page.Paths.CertificateProviderYourAddress, RequireSession,
-		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore, sessionStore))
+		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
 	handleRoot(page.Paths.CertificateProviderReadTheLpa, RequireSession,
 		page.Guidance(tmpls.Get("your_address.gohtml"), "/the-next-page", lpaStore))
 }

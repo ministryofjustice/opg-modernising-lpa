@@ -4,9 +4,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/gorilla/sessions"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/form"
 
@@ -22,20 +19,11 @@ type yourAddressData struct {
 	Form      *form.AddressForm
 }
 
-func YourAddress(logger page.Logger, tmpl template.Template, addressClient page.AddressClient, lpaStore page.LpaStore, sessionStore sessions.Store) page.Handler {
+func YourAddress(logger page.Logger, tmpl template.Template, addressClient page.AddressClient, lpaStore page.LpaStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
-		}
-
-		certificateProviderSession, err := sesh.CertificateProvider(sessionStore, r)
-		if err != nil {
-			return err
-		}
-
-		if certificateProviderSession.LpaID != lpa.ID {
-			return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderStart)
 		}
 
 		data := &yourAddressData{
