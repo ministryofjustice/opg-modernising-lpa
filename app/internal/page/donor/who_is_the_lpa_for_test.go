@@ -17,19 +17,19 @@ func TestGetWhoIsTheLpaFor(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &whoIsTheLpaForData{
-			App: appData,
+			App: TestAppData,
 		}).
 		Return(nil)
 
-	err := WhoIsTheLpaFor(template.Func, lpaStore)(appData, w, r)
+	err := WhoIsTheLpaFor(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -41,15 +41,15 @@ func TestGetWhoIsTheLpaForWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
+		Return(&page.Lpa{}, ExpectedError)
 
-	err := WhoIsTheLpaFor(nil, lpaStore)(appData, w, r)
+	err := WhoIsTheLpaFor(nil, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
@@ -58,20 +58,20 @@ func TestGetWhoIsTheLpaForFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{WhoFor: "me"}, nil)
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &whoIsTheLpaForData{
-			App:    appData,
+			App:    TestAppData,
 			WhoFor: "me",
 		}).
 		Return(nil)
 
-	err := WhoIsTheLpaFor(template.Func, lpaStore)(appData, w, r)
+	err := WhoIsTheLpaFor(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -83,22 +83,22 @@ func TestGetWhoIsTheLpaForWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &whoIsTheLpaForData{
-			App: appData,
+			App: TestAppData,
 		}).
-		Return(expectedError)
+		Return(ExpectedError)
 
-	err := WhoIsTheLpaFor(template.Func, lpaStore)(appData, w, r)
+	err := WhoIsTheLpaFor(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
 }
@@ -110,9 +110,9 @@ func TestPostWhoIsTheLpaFor(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -120,7 +120,7 @@ func TestPostWhoIsTheLpaFor(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{WhoFor: "me"}).
 		Return(nil)
 
-	err := WhoIsTheLpaFor(nil, lpaStore)(appData, w, r)
+	err := WhoIsTheLpaFor(nil, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -136,41 +136,41 @@ func TestPostWhoIsTheLpaForWhenStoreErrors(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{WhoFor: "me"}).
-		Return(expectedError)
+		Return(ExpectedError)
 
-	err := WhoIsTheLpaFor(nil, lpaStore)(appData, w, r)
+	err := WhoIsTheLpaFor(nil, lpaStore)(TestAppData, w, r)
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostWhoIsTheLpaForWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &whoIsTheLpaForData{
-			App:    appData,
+			App:    TestAppData,
 			Errors: validation.With("who-for", validation.SelectError{Label: "whoTheLpaIsFor"}),
 		}).
 		Return(nil)
 
-	err := WhoIsTheLpaFor(template.Func, lpaStore)(appData, w, r)
+	err := WhoIsTheLpaFor(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -184,7 +184,7 @@ func TestReadWhoIsTheLpaForForm(t *testing.T) {
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readWhoIsTheLpaForForm(r)
 

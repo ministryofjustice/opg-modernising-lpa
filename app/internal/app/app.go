@@ -50,6 +50,7 @@ func App(
 		sessionStore,
 		lpaStore,
 		oneLoginClient,
+		addressClient,
 	)
 
 	donor.Register(

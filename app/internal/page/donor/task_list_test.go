@@ -66,15 +66,15 @@ func TestGetTaskList(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			lpaStore := &mockLpaStore{}
+			lpaStore := &MockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
 				Return(tc.lpa, nil)
 
-			template := &mockTemplate{}
+			template := &MockTemplate{}
 			template.
 				On("Func", w, &taskListData{
-					App: appData,
+					App: TestAppData,
 					Lpa: tc.lpa,
 					Sections: tc.expected([]taskListSection{
 						{
@@ -112,7 +112,7 @@ func TestGetTaskList(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := TaskList(template.Func, lpaStore)(appData, w, r)
+			err := TaskList(template.Func, lpaStore)(TestAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -126,14 +126,14 @@ func TestGetTaskListWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
+		Return(&page.Lpa{}, ExpectedError)
 
-	err := TaskList(nil, lpaStore)(appData, w, r)
+	err := TaskList(nil, lpaStore)(TestAppData, w, r)
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -141,20 +141,20 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, mock.Anything).
-		Return(expectedError)
+		Return(ExpectedError)
 
-	err := TaskList(template.Func, lpaStore)(appData, w, r)
+	err := TaskList(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
