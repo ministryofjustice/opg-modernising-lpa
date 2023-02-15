@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 
 	"github.com/gorilla/sessions"
@@ -61,7 +63,13 @@ func (m *MockLpaStore) Put(ctx context.Context, v *Lpa) error {
 }
 
 func (m *MockLpaStore) WillReturnEmptyLpa(r *http.Request) *MockLpaStore {
-	m.On("Get", r.Context()).Return(&Lpa{}, nil)
+	m.
+		On("Get", r.Context()).
+		Return(&Lpa{
+			CertificateProvider: actor.CertificateProvider{
+				Email: "certificateprovider@example.com",
+			},
+		}, nil)
 
 	return m
 }
@@ -69,6 +77,9 @@ func (m *MockLpaStore) WillReturnEmptyLpa(r *http.Request) *MockLpaStore {
 func (m *MockLpaStore) WithCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string) *MockLpaStore {
 	m.
 		On("Put", r.Context(), &Lpa{
+			CertificateProvider: actor.CertificateProvider{
+				Email: "certificateprovider@example.com",
+			},
 			PaymentDetails: PaymentDetails{
 				PaymentId:        paymentId,
 				PaymentReference: paymentReference,

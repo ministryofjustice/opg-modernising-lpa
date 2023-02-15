@@ -8,6 +8,9 @@ geckodriver.log
 **__pycache__
 **/environment_config.json
 
+.structurizr
+docs/architecture/dsl/workspace.json
+
 .python-version
 .pytest_cache
 .coverage
