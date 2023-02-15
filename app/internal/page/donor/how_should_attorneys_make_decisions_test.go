@@ -115,13 +115,13 @@ func TestGetHowShouldAttorneysMakeDecisionsWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"decision-type": {"jointly"},
 		"mixed-details": {""},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -172,13 +172,13 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			f := url.Values{
+			form := url.Values{
 				"decision-type": {tc.formType},
 				"mixed-details": {tc.formDetails},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &page.MockLpaStore{}
@@ -203,13 +203,13 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 }
 
 func TestPostHowShouldAttorneysMakeDecisionsWhenStoreErrors(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"decision-type": {"jointly"},
 		"mixed-details": {"some decisions"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -226,12 +226,12 @@ func TestPostHowShouldAttorneysMakeDecisionsWhenStoreErrors(t *testing.T) {
 }
 
 func TestPostHowShouldAttorneysMakeDecisionsWhenValidationErrors(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"decision-type": {""},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -294,25 +294,25 @@ func TestHowShouldAttorneysMakeDecisionsFormValidate(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			f := howShouldAttorneysMakeDecisionsForm{
+			form := howShouldAttorneysMakeDecisionsForm{
 				DecisionsType:    tc.DecisionType,
 				DecisionsDetails: tc.DecisionDetail,
 				errorLabel:       "xyz",
 			}
 
-			assert.Equal(t, tc.ExpectedErrors, f.Validate())
+			assert.Equal(t, tc.ExpectedErrors, form.Validate())
 		})
 	}
 }
 
 func TestPostHowShouldAttorneysMakeDecisionsErrorOnPutStore(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"decision-type": {"jointly"},
 		"mixed-details": {""},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}

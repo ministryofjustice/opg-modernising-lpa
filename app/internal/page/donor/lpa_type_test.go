@@ -104,12 +104,12 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostLpaType(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"lpa-type": {page.LpaTypePropertyFinance},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -130,12 +130,12 @@ func TestPostLpaType(t *testing.T) {
 }
 
 func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"lpa-type": {page.LpaTypePropertyFinance},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -179,11 +179,11 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 }
 
 func TestReadLpaTypeForm(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"lpa-type": {page.LpaTypePropertyFinance},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readLpaTypeForm(r)

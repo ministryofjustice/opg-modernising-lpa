@@ -297,7 +297,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 }
 
 func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"first-names":         {"John"},
 		"last-name":           {"Doe"},
 		"mobile":              {"07535111111"},
@@ -307,7 +307,7 @@ func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -327,7 +327,7 @@ func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 func TestReadCertificateProviderDetailsForm(t *testing.T) {
 	assert := assert.New(t)
 
-	f := url.Values{
+	form := url.Values{
 		"first-names":         {"  John "},
 		"last-name":           {"Doe"},
 		"mobile":              {"07535111111"},
@@ -336,7 +336,7 @@ func TestReadCertificateProviderDetailsForm(t *testing.T) {
 		"date-of-birth-year":  {"1990"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readCertificateProviderDetailsForm(r)
@@ -408,7 +408,7 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 }
 
 func TestUkMobileFormatValidation(t *testing.T) {
-	f := &certificateProviderDetailsForm{
+	form := &certificateProviderDetailsForm{
 		FirstNames: "A",
 		LastName:   "B",
 		Dob:        date.Today().AddDate(-18, 0, -1),
@@ -462,8 +462,8 @@ func TestUkMobileFormatValidation(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			f.Mobile = tc.Mobile
-			assert.Equal(t, tc.Error, f.Validate())
+			form.Mobile = tc.Mobile
+			assert.Equal(t, tc.Error, form.Validate())
 		})
 	}
 }

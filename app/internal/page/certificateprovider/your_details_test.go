@@ -302,7 +302,7 @@ func TestPostCertificateProviderYourDetailsWhenInputRequired(t *testing.T) {
 }
 
 func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"email":               {"name@example.com"},
 		"mobile":              {"07535111222"},
 		"date-of-birth-day":   {"2"},
@@ -312,7 +312,7 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -331,7 +331,7 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 func TestReadYourDetailsForm(t *testing.T) {
 	assert := assert.New(t)
 
-	f := url.Values{
+	form := url.Values{
 		"email":               {"name@example.com"},
 		"mobile":              {"07535111222"},
 		"date-of-birth-day":   {"2"},
@@ -340,7 +340,7 @@ func TestReadYourDetailsForm(t *testing.T) {
 		"ignore-dob-warning":  {"xyz"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readYourDetailsForm(r)

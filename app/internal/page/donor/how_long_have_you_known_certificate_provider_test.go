@@ -110,12 +110,12 @@ func TestGetHowLongHaveYouKnownCertificateProviderWhenTemplateErrors(t *testing.
 }
 
 func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"how-long": {"gte-2-years"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -145,12 +145,12 @@ func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 }
 
 func TestPostHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"how-long": {"gte-2-years"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -194,11 +194,11 @@ func TestPostHowLongHaveYouKnownCertificateProviderWhenValidationErrors(t *testi
 }
 
 func TestReadHowLongHaveYouKnownCertificateProviderForm(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"how-long": {"gte-2-years"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readHowLongHaveYouKnownCertificateProviderForm(r)

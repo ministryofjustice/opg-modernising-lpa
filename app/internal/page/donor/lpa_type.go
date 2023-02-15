@@ -27,12 +27,12 @@ func LpaType(tmpl template.Template, lpaStore page.LpaStore) page.Handler {
 		}
 
 		if r.Method == http.MethodPost {
-			f := readLpaTypeForm(r)
-			data.Errors = f.Validate()
+			form := readLpaTypeForm(r)
+			data.Errors = form.Validate()
 
 			if data.Errors.None() {
 				lpa.Tasks.YourDetails = page.TaskCompleted
-				lpa.Type = f.LpaType
+				lpa.Type = form.LpaType
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}

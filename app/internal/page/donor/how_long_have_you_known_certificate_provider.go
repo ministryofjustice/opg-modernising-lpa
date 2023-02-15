@@ -30,12 +30,12 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, lpaStore pag
 		}
 
 		if r.Method == http.MethodPost {
-			f := readHowLongHaveYouKnownCertificateProviderForm(r)
-			data.Errors = f.Validate()
+			form := readHowLongHaveYouKnownCertificateProviderForm(r)
+			data.Errors = form.Validate()
 
 			if data.Errors.None() {
 				lpa.Tasks.CertificateProvider = page.TaskCompleted
-				lpa.CertificateProvider.RelationshipLength = f.HowLong
+				lpa.CertificateProvider.RelationshipLength = form.HowLong
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}

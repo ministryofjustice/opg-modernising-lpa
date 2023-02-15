@@ -107,12 +107,12 @@ func TestGetRestrictionsWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostRestrictions(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"restrictions": {"blah"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -138,13 +138,13 @@ func TestPostRestrictions(t *testing.T) {
 }
 
 func TestPostRestrictionsWhenAnswerLater(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"restrictions": {"what"},
 		"answer-later": {"1"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -169,12 +169,12 @@ func TestPostRestrictionsWhenAnswerLater(t *testing.T) {
 }
 
 func TestPostRestrictionsWhenStoreErrors(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"restrictions": {"blah"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -192,12 +192,12 @@ func TestPostRestrictionsWhenStoreErrors(t *testing.T) {
 }
 
 func TestPostRestrictionsWhenValidationErrors(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"restrictions": {random.String(10001)},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -223,12 +223,12 @@ func TestPostRestrictionsWhenValidationErrors(t *testing.T) {
 }
 
 func TestReadRestrictionsForm(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"restrictions": {"blah"},
 		"answer-later": {"1"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readRestrictionsForm(r)

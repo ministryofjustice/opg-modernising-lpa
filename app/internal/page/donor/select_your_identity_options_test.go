@@ -106,12 +106,12 @@ func TestGetSelectYourIdentityOptionsWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostSelectYourIdentityOptions(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"option": {"passport"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -143,12 +143,12 @@ func TestPostSelectYourIdentityOptionsNone(t *testing.T) {
 		2: "/lpa/lpa-id" + page.Paths.TaskList,
 	} {
 		t.Run(fmt.Sprintf("Page%d", pageIndex), func(t *testing.T) {
-			f := url.Values{
+			form := url.Values{
 				"option": {"none"},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &page.MockLpaStore{}
@@ -168,12 +168,12 @@ func TestPostSelectYourIdentityOptionsNone(t *testing.T) {
 }
 
 func TestPostSelectYourIdentityOptionsWhenStoreErrors(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"option": {"passport"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -218,11 +218,11 @@ func TestPostSelectYourIdentityOptionsWhenValidationErrors(t *testing.T) {
 }
 
 func TestReadSelectYourIdentityOptionsForm(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"option": {"passport"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readSelectYourIdentityOptionsForm(r)

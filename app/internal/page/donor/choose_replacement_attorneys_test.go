@@ -325,7 +325,7 @@ func TestPostChooseReplacementAttorneysFromAnotherPage(t *testing.T) {
 
 	for testname, tc := range testcases {
 		t.Run(testname, func(t *testing.T) {
-			f := url.Values{
+			form := url.Values{
 				"first-names":         {"John"},
 				"last-name":           {"Doe"},
 				"email":               {"john@example.com"},
@@ -335,7 +335,7 @@ func TestPostChooseReplacementAttorneysFromAnotherPage(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, tc.requestUrl, strings.NewReader(f.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, tc.requestUrl, strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &page.MockLpaStore{}
@@ -510,7 +510,7 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 }
 
 func TestPostChooseReplacementAttorneysWhenStoreErrors(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"first-names":         {"John"},
 		"last-name":           {"Doe"},
 		"email":               {"john@example.com"},
@@ -520,7 +520,7 @@ func TestPostChooseReplacementAttorneysWhenStoreErrors(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}

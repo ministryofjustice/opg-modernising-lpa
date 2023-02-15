@@ -161,12 +161,12 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.Want, func(t *testing.T) {
-			f := url.Values{
+			form := url.Values{
 				"want": {tc.Want},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &page.MockLpaStore{}
@@ -196,12 +196,12 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 }
 
 func TestPostWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"want": {"yes"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -246,11 +246,11 @@ func TestPostWantReplacementAttorneysWhenValidationErrors(t *testing.T) {
 }
 
 func TestReadWantReplacementAttorneysForm(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"want": {"yes"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readWantReplacementAttorneysForm(r)

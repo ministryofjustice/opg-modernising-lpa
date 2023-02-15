@@ -31,14 +31,14 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, lpaStore page.LpaStore) page.Ha
 		}
 
 		if r.Method == http.MethodPost {
-			f := readWhenCanTheLpaBeUsedForm(r)
-			data.Errors = f.Validate()
+			form := readWhenCanTheLpaBeUsedForm(r)
+			data.Errors = form.Validate()
 
-			if data.Errors.None() || f.AnswerLater {
-				if f.AnswerLater {
+			if data.Errors.None() || form.AnswerLater {
+				if form.AnswerLater {
 					lpa.Tasks.WhenCanTheLpaBeUsed = page.TaskInProgress
 				} else {
-					lpa.WhenCanTheLpaBeUsed = f.When
+					lpa.WhenCanTheLpaBeUsed = form.When
 					lpa.Tasks.WhenCanTheLpaBeUsed = page.TaskCompleted
 				}
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {

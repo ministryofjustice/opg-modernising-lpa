@@ -288,7 +288,7 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 }
 
 func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"first-names":         {"John"},
 		"last-name":           {"Doe"},
 		"date-of-birth-day":   {"2"},
@@ -297,7 +297,7 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -345,7 +345,7 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			f := url.Values{
+			form := url.Values{
 				"first-names":         {"John"},
 				"last-name":           {"Doe"},
 				"date-of-birth-day":   {"2"},
@@ -354,7 +354,7 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &page.MockLpaStore{}
@@ -378,7 +378,7 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 func TestReadYourDetailsForm(t *testing.T) {
 	assert := assert.New(t)
 
-	f := url.Values{
+	form := url.Values{
 		"first-names":         {"  John "},
 		"last-name":           {"Doe"},
 		"other-names":         {"Somebody"},
@@ -388,7 +388,7 @@ func TestReadYourDetailsForm(t *testing.T) {
 		"ignore-dob-warning":  {"xyz"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readYourDetailsForm(r)

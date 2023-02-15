@@ -95,12 +95,12 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 }
 
 func TestPostSignYourLpa(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"sign-lpa": {"want-to-sign", "want-to-apply"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -133,12 +133,12 @@ func TestPostSignYourLpa(t *testing.T) {
 }
 
 func TestPostSignYourLpaWhenStoreErrors(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"sign-lpa": {"want-to-sign", "want-to-apply"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -156,12 +156,12 @@ func TestPostSignYourLpaWhenStoreErrors(t *testing.T) {
 }
 
 func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
-	f := url.Values{
+	form := url.Values{
 		"sign-lpa": {"unrecognised-signature", "another-unrecognised-signature"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &page.MockLpaStore{}
@@ -193,11 +193,11 @@ func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
 func TestReadSignYourLpaForm(t *testing.T) {
 	assert := assert.New(t)
 
-	f := url.Values{
+	form := url.Values{
 		"sign-lpa": {"want-to-sign", "want-to-apply"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readSignYourLpaForm(r)
