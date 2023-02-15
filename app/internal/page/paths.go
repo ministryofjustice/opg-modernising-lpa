@@ -149,5 +149,5 @@ func IsLpaPath(url string) bool {
 
 	return path != Paths.Auth && path != Paths.AuthRedirect &&
 		path != Paths.Dashboard && path != Paths.Start &&
-		path != Paths.CertificateProviderLogin && path != Paths.CertificateProviderLoginCallback && path != Paths.CertificateProviderYourDetails
+		path != Paths.CertificateProviderStart && path != Paths.CertificateProviderLogin && path != Paths.CertificateProviderLoginCallback && path != Paths.CertificateProviderYourDetails
 }

@@ -17,11 +17,12 @@ func Register(
 	sessionStore sesh.Store,
 	lpaStore page.LpaStore,
 	oneLoginClient page.OneLoginClient,
+	dataStore page.DataStore,
 ) {
 	handleRoot := makeHandle(rootMux, logger, sessionStore, None)
 
 	handleRoot(page.Paths.CertificateProviderStart, None,
-		Start(tmpls.Get("certificate_provider_start.gohtml"), lpaStore))
+		Start(tmpls.Get("certificate_provider_start.gohtml"), lpaStore, dataStore))
 	handleRoot(page.Paths.CertificateProviderLogin, None,
 		Login(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.CertificateProviderLoginCallback, None,
