@@ -17,6 +17,7 @@ func Register(
 	sessionStore sesh.Store,
 	lpaStore page.LpaStore,
 	oneLoginClient page.OneLoginClient,
+	addressClient page.AddressClient,
 ) {
 	handleRoot := makeHandle(rootMux, logger, sessionStore, None)
 
@@ -27,7 +28,11 @@ func Register(
 	handleRoot(page.Paths.CertificateProviderLoginCallback, None,
 		LoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, lpaStore))
 	handleRoot(page.Paths.CertificateProviderYourDetails, RequireSession,
-		page.Guidance(tmpls.Get("certificate_provider_your_details.gohtml"), "", lpaStore))
+		YourDetails(tmpls.Get("certificate_provider_your_details.gohtml"), lpaStore, sessionStore))
+	handleRoot(page.Paths.CertificateProviderYourAddress, RequireSession,
+		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore, sessionStore))
+	handleRoot(page.Paths.CertificateProviderReadTheLpa, RequireSession,
+		page.Guidance(tmpls.Get("your_address.gohtml"), "/the-next-page", lpaStore))
 }
 
 type handleOpt byte
@@ -53,7 +58,7 @@ func makeHandle(mux *http.ServeMux, logger page.Logger, store sesh.Store, defaul
 				session, err := sesh.CertificateProvider(store, r)
 				if err != nil {
 					logger.Print(err)
-					http.Redirect(w, r, page.Paths.Start, http.StatusFound)
+					http.Redirect(w, r, page.Paths.CertificateProviderStart, http.StatusFound)
 					return
 				}
 

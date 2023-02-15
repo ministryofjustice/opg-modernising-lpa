@@ -1,45 +1,51 @@
-package donor
+package certificateprovider
 
 import (
 	"errors"
 	"net/http"
 
+	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/form"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type chooseReplacementAttorneysAddressData struct {
+type yourAddressData struct {
 	App       page.AppData
 	Errors    validation.List
-	Attorney  actor.Attorney
 	Addresses []place.Address
 	Form      *form.AddressForm
 }
 
-func ChooseReplacementAttorneysAddress(logger page.Logger, tmpl template.Template, addressClient page.AddressClient, lpaStore page.LpaStore) page.Handler {
+func YourAddress(logger page.Logger, tmpl template.Template, addressClient page.AddressClient, lpaStore page.LpaStore, sessionStore sessions.Store) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
-		attorneyId := r.FormValue("id")
-		ra, _ := lpa.ReplacementAttorneys.Get(attorneyId)
-
-		data := &chooseReplacementAttorneysAddressData{
-			App:      appData,
-			Attorney: ra,
-			Form:     &form.AddressForm{},
+		certificateProviderSession, err := sesh.CertificateProvider(sessionStore, r)
+		if err != nil {
+			return err
 		}
 
-		if ra.Address.Line1 != "" {
+		if certificateProviderSession.LpaID != lpa.ID {
+			return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderStart)
+		}
+
+		data := &yourAddressData{
+			App:  appData,
+			Form: &form.AddressForm{},
+		}
+
+		if lpa.CertificateProviderProvidedDetails.Address.Line1 != "" {
 			data.Form.Action = "manual"
-			data.Form.Address = &ra.Address
+			data.Form.Address = &lpa.CertificateProviderProvidedDetails.Address
 		}
 
 		if r.Method == http.MethodPost {
@@ -47,33 +53,16 @@ func ChooseReplacementAttorneysAddress(logger page.Logger, tmpl template.Templat
 			data.Errors = data.Form.Validate()
 
 			if data.Form.Action == "manual" && data.Errors.None() {
-				ra.Address = *data.Form.Address
-				lpa.ReplacementAttorneys.Put(ra)
-				lpa.Tasks.ChooseReplacementAttorneys = page.TaskCompleted
-
+				lpa.CertificateProviderProvidedDetails.Address = *data.Form.Address
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				from := r.FormValue("from")
-
-				if from == "" {
-					from = appData.Paths.ChooseReplacementAttorneysSummary
-				}
-
-				return appData.Redirect(w, r, lpa, from)
+				return appData.Redirect(w, r, lpa, appData.Paths.CertificateProviderReadTheLpa)
 			}
 
-			// Force the manual address view after selecting
 			if data.Form.Action == "select" && data.Errors.None() {
 				data.Form.Action = "manual"
-
-				ra.Address = *data.Form.Address
-				lpa.ReplacementAttorneys.Put(ra)
-
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
-					return err
-				}
 			}
 
 			if data.Form.Action == "lookup" && data.Errors.None() ||

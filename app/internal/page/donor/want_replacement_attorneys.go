@@ -30,14 +30,14 @@ func WantReplacementAttorneys(tmpl template.Template, lpaStore page.LpaStore) pa
 		}
 
 		if r.Method == http.MethodPost {
-			form := readWantReplacementAttorneysForm(r)
-			data.Errors = form.Validate()
+			f := readWantReplacementAttorneysForm(r)
+			data.Errors = f.Validate()
 
 			if data.Errors.None() {
-				lpa.WantReplacementAttorneys = form.Want
+				lpa.WantReplacementAttorneys = f.Want
 				var redirectUrl string
 
-				if form.Want == "no" {
+				if f.Want == "no" {
 					lpa.ReplacementAttorneys = actor.Attorneys{}
 					lpa.Tasks.ChooseReplacementAttorneys = page.TaskCompleted
 					redirectUrl = appData.Paths.TaskList

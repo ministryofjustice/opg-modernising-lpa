@@ -14,17 +14,17 @@ import (
 func TestGetIdentityWithTodo(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	template := &mockTemplate{}
+	template := &page.MockTemplate{}
 	template.
 		On("Func", w, &identityWithTodoData{
-			App:            appData,
+			App:            page.TestAppData,
 			IdentityOption: identity.Passport,
 		}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := IdentityWithTodo(template.Func, identity.Passport)(appData, w, r)
+	err := IdentityWithTodo(template.Func, identity.Passport)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -36,7 +36,7 @@ func TestPostIdentityWithTodo(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := IdentityWithTodo(nil, identity.Passport)(appData, w, r)
+	err := IdentityWithTodo(nil, identity.Passport)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

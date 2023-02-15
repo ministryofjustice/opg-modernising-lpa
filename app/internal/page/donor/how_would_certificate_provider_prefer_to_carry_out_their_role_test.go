@@ -18,20 +18,20 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := &page.MockTemplate{}
 	template.
 		On("Func", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
-			App:  appData,
+			App:  page.TestAppData,
 			Form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Func, lpaStore)(appData, w, r)
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Func, lpaStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -43,23 +43,23 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *tes
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"},
 		}, nil)
 
-	template := &mockTemplate{}
+	template := &page.MockTemplate{}
 	template.
 		On("Func", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
-			App:                 appData,
+			App:                 page.TestAppData,
 			CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"},
 			Form:                &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{CarryOutBy: "paper"},
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Func, lpaStore)(appData, w, r)
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Func, lpaStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -72,15 +72,15 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenStoreErrors(
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
+		Return(&page.Lpa{}, page.ExpectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, lpaStore)(appData, w, r)
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, lpaStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, page.ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
@@ -89,23 +89,23 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := &page.MockTemplate{}
 	template.
 		On("Func", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
-			App:  appData,
+			App:  page.TestAppData,
 			Form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
 		}).
-		Return(expectedError)
+		Return(page.ExpectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Func, lpaStore)(appData, w, r)
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Func, lpaStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, page.ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
@@ -129,16 +129,16 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 
 	for _, tc := range testCases {
 		t.Run(tc.carryOutBy, func(t *testing.T) {
-			form := url.Values{
+			f := url.Values{
 				"carry-out-by": {tc.carryOutBy},
 				"email":        {tc.email},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := &mockLpaStore{}
+			lpaStore := &page.MockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{}, nil)
@@ -148,7 +148,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 				}).
 				Return(nil)
 
-			err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, lpaStore)(appData, w, r)
+			err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, lpaStore)(page.TestAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -160,48 +160,48 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 }
 
 func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenStoreErrors(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"carry-out-by": {"paper"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), mock.Anything).
-		Return(expectedError)
+		Return(page.ExpectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, lpaStore)(appData, w, r)
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, lpaStore)(page.TestAppData, w, r)
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, page.ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader("nope"))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := &page.MockTemplate{}
 	template.
 		On("Func", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
-			App:    appData,
+			App:    page.TestAppData,
 			Errors: validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}),
 			Form:   &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Func, lpaStore)(appData, w, r)
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Func, lpaStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -210,13 +210,13 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationE
 }
 
 func TestReadHowWouldCertificateProviderPreferToCarryOutTheirRoleForm(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"carry-out-by": {"email"},
 		"email":        {"someone@example.com"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readHowWouldCertificateProviderPreferToCarryOutTheirRole(r)
 

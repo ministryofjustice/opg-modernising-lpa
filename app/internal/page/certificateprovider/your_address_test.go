@@ -1,4 +1,4 @@
-package donor
+package certificateprovider
 
 import (
 	"net/http"
@@ -7,10 +7,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/form"
+	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +26,18 @@ func TestGetYourAddress(t *testing.T) {
 	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{ID: "lpa-id"}, nil)
+
+	sessionStore := &page.MockSessionsStore{}
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{
+			"certificate-provider": &sesh.CertificateProviderSession{
+				Sub:            "random",
+				DonorSessionID: "session-id",
+				LpaID:          "lpa-id",
+			},
+		}}, nil)
 
 	template := &page.MockTemplate{}
 	template.
@@ -34,12 +47,12 @@ func TestGetYourAddress(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Func, nil, lpaStore)(page.TestAppData, w, r)
+	err := YourAddress(nil, template.Func, nil, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, lpaStore, template, sessionStore)
 }
 
 func TestGetYourAddressWhenStoreErrors(t *testing.T) {
@@ -51,7 +64,7 @@ func TestGetYourAddressWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, page.ExpectedError)
 
-	err := YourAddress(nil, nil, nil, lpaStore)(page.TestAppData, w, r)
+	err := YourAddress(nil, nil, nil, lpaStore, nil)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, page.ExpectedError, err)
@@ -68,10 +81,22 @@ func TestGetYourAddressFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			You: actor.Person{
+			ID: "lpa-id",
+			CertificateProviderProvidedDetails: actor.CertificateProvider{
 				Address: address,
 			},
 		}, nil)
+
+	sessionStore := &page.MockSessionsStore{}
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{
+			"certificate-provider": &sesh.CertificateProviderSession{
+				Sub:            "random",
+				DonorSessionID: "session-id",
+				LpaID:          "lpa-id",
+			},
+		}}, nil)
 
 	template := &page.MockTemplate{}
 	template.
@@ -84,12 +109,12 @@ func TestGetYourAddressFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Func, nil, lpaStore)(page.TestAppData, w, r)
+	err := YourAddress(nil, template.Func, nil, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, lpaStore, template, sessionStore)
 }
 
 func TestGetYourAddressManual(t *testing.T) {
@@ -99,7 +124,18 @@ func TestGetYourAddressManual(t *testing.T) {
 	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{ID: "lpa-id"}, nil)
+
+	sessionStore := &page.MockSessionsStore{}
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{
+			"certificate-provider": &sesh.CertificateProviderSession{
+				Sub:            "random",
+				DonorSessionID: "session-id",
+				LpaID:          "lpa-id",
+			},
+		}}, nil)
 
 	template := &page.MockTemplate{}
 	template.
@@ -112,12 +148,63 @@ func TestGetYourAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Func, nil, lpaStore)(page.TestAppData, w, r)
+	err := YourAddress(nil, template.Func, nil, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
+	mock.AssertExpectationsForObjects(t, template, lpaStore, sessionStore)
+}
+
+func TestGetCertificateProviderYourAddressWhenSessionStoreErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	lpaStore := &page.MockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{}, nil)
+
+	sessionStore := &page.MockSessionsStore{}
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{}, page.ExpectedError)
+
+	err := YourAddress(nil, nil, nil, lpaStore, sessionStore)(page.TestAppData, w, r)
+	resp := w.Result()
+
+	assert.Equal(t, page.ExpectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	mock.AssertExpectationsForObjects(t, lpaStore, sessionStore)
+}
+
+func TestGetCertificateProviderYourAddressWhenLpaIdMismatch(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	lpaStore := &page.MockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{ID: "lpa-id"}, nil)
+
+	sessionStore := &page.MockSessionsStore{}
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{
+			"certificate-provider": &sesh.CertificateProviderSession{
+				Sub:            "random",
+				DonorSessionID: "session-id",
+				LpaID:          "not-lpa-id",
+			},
+		}}, nil)
+
+	err := YourAddress(nil, nil, nil, lpaStore, sessionStore)(page.TestAppData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "/lpa/lpa-id"+page.Paths.CertificateProviderStart, resp.Header.Get("Location"))
+	mock.AssertExpectationsForObjects(t, lpaStore, sessionStore)
 }
 
 func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
@@ -127,7 +214,18 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{ID: "lpa-id"}, nil)
+
+	sessionStore := &page.MockSessionsStore{}
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{
+			"certificate-provider": &sesh.CertificateProviderSession{
+				Sub:            "random",
+				DonorSessionID: "session-id",
+				LpaID:          "lpa-id",
+			},
+		}}, nil)
 
 	template := &page.MockTemplate{}
 	template.
@@ -137,12 +235,12 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(page.ExpectedError)
 
-	err := YourAddress(nil, template.Func, nil, lpaStore)(page.TestAppData, w, r)
+	err := YourAddress(nil, template.Func, nil, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, page.ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
+	mock.AssertExpectationsForObjects(t, template, lpaStore, sessionStore)
 }
 
 func TestPostYourAddressManual(t *testing.T) {
@@ -162,21 +260,33 @@ func TestPostYourAddressManual(t *testing.T) {
 	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{ID: "lpa-id"}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			You: actor.Person{
+			ID: "lpa-id",
+			CertificateProviderProvidedDetails: actor.CertificateProvider{
 				Address: page.TestAddress,
 			},
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, nil, nil, lpaStore)(page.TestAppData, w, r)
+	sessionStore := &page.MockSessionsStore{}
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{
+			"certificate-provider": &sesh.CertificateProviderSession{
+				Sub:            "random",
+				DonorSessionID: "session-id",
+				LpaID:          "lpa-id",
+			},
+		}}, nil)
+
+	err := YourAddress(nil, nil, nil, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.WhoIsTheLpaFor, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProviderReadTheLpa, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -197,16 +307,28 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{ID: "lpa-id"}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			You: actor.Person{
+			ID: "lpa-id",
+			CertificateProviderProvidedDetails: actor.CertificateProvider{
 				Address: page.TestAddress,
 			},
 		}).
 		Return(page.ExpectedError)
 
-	err := YourAddress(nil, nil, nil, lpaStore)(page.TestAppData, w, r)
+	sessionStore := &page.MockSessionsStore{}
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{
+			"certificate-provider": &sesh.CertificateProviderSession{
+				Sub:            "random",
+				DonorSessionID: "session-id",
+				LpaID:          "lpa-id",
+			},
+		}}, nil)
+
+	err := YourAddress(nil, nil, nil, lpaStore, sessionStore)(page.TestAppData, w, r)
 
 	assert.Equal(t, page.ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
@@ -230,28 +352,37 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			You: actor.Person{
-				FirstNames: "John",
-				Address:    place.Address{Line1: "abc"},
+			ID: "lpa-id",
+			CertificateProviderProvidedDetails: actor.CertificateProvider{
+				Address: place.Address{Line1: "abc"},
 			},
-			WhoFor: "me",
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			You: actor.Person{
-				FirstNames: "John",
-				Address:    page.TestAddress,
+			ID: "lpa-id",
+			CertificateProviderProvidedDetails: actor.CertificateProvider{
+				Address: page.TestAddress,
 			},
-			WhoFor: "me",
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, nil, nil, lpaStore)(page.TestAppData, w, r)
+	sessionStore := &page.MockSessionsStore{}
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{
+			"certificate-provider": &sesh.CertificateProviderSession{
+				Sub:            "random",
+				DonorSessionID: "session-id",
+				LpaID:          "lpa-id",
+			},
+		}}, nil)
+
+	err := YourAddress(nil, nil, nil, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.WhoIsTheLpaFor, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProviderReadTheLpa, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -270,7 +401,18 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{ID: "lpa-id"}, nil)
+
+	sessionStore := &page.MockSessionsStore{}
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{
+			"certificate-provider": &sesh.CertificateProviderSession{
+				Sub:            "random",
+				DonorSessionID: "session-id",
+				LpaID:          "lpa-id",
+			},
+		}}, nil)
 
 	template := &page.MockTemplate{}
 	template.
@@ -288,12 +430,12 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Func, nil, lpaStore)(page.TestAppData, w, r)
+	err := YourAddress(nil, template.Func, nil, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, lpaStore, template, sessionStore)
 }
 
 func TestPostYourAddressSelect(t *testing.T) {
@@ -314,6 +456,22 @@ func TestPostYourAddressSelect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	lpaStore := &page.MockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{ID: "lpa-id"}, nil)
+
+	sessionStore := &page.MockSessionsStore{}
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{
+			"certificate-provider": &sesh.CertificateProviderSession{
+				Sub:            "random",
+				DonorSessionID: "session-id",
+				LpaID:          "lpa-id",
+			},
+		}}, nil)
+
 	template := &page.MockTemplate{}
 	template.
 		On("Func", w, &yourAddressData{
@@ -326,17 +484,12 @@ func TestPostYourAddressSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	lpaStore := &page.MockLpaStore{}
-	lpaStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
-	err := YourAddress(nil, template.Func, nil, lpaStore)(page.TestAppData, w, r)
+	err := YourAddress(nil, template.Func, nil, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, lpaStore, template, sessionStore)
 }
 
 func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
@@ -356,7 +509,18 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{ID: "lpa-id"}, nil)
+
+	sessionStore := &page.MockSessionsStore{}
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{
+			"certificate-provider": &sesh.CertificateProviderSession{
+				Sub:            "random",
+				DonorSessionID: "session-id",
+				LpaID:          "lpa-id",
+			},
+		}}, nil)
 
 	addressClient := &page.MockAddressClient{}
 	addressClient.
@@ -376,12 +540,12 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Func, addressClient, lpaStore)(page.TestAppData, w, r)
+	err := YourAddress(nil, template.Func, addressClient, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
+	mock.AssertExpectationsForObjects(t, template, lpaStore, sessionStore)
 }
 
 func TestPostYourAddressLookup(t *testing.T) {
@@ -394,6 +558,22 @@ func TestPostYourAddressLookup(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	lpaStore := &page.MockLpaStore{}
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{ID: "lpa-id"}, nil)
+
+	sessionStore := &page.MockSessionsStore{}
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{
+			"certificate-provider": &sesh.CertificateProviderSession{
+				Sub:            "random",
+				DonorSessionID: "session-id",
+				LpaID:          "lpa-id",
+			},
+		}}, nil)
+
 	addresses := []place.Address{
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
@@ -402,11 +582,6 @@ func TestPostYourAddressLookup(t *testing.T) {
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
 		Return(addresses, nil)
-
-	lpaStore := &page.MockLpaStore{}
-	lpaStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	template := &page.MockTemplate{}
 	template.
@@ -420,12 +595,12 @@ func TestPostYourAddressLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Func, addressClient, lpaStore)(page.TestAppData, w, r)
+	err := YourAddress(nil, template.Func, addressClient, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, addressClient, template)
+	mock.AssertExpectationsForObjects(t, addressClient, template, lpaStore, sessionStore)
 }
 
 func TestPostYourAddressLookupError(t *testing.T) {
@@ -445,7 +620,18 @@ func TestPostYourAddressLookupError(t *testing.T) {
 	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{ID: "lpa-id"}, nil)
+
+	sessionStore := &page.MockSessionsStore{}
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{
+			"certificate-provider": &sesh.CertificateProviderSession{
+				Sub:            "random",
+				DonorSessionID: "session-id",
+				LpaID:          "lpa-id",
+			},
+		}}, nil)
 
 	addressClient := &page.MockAddressClient{}
 	addressClient.
@@ -465,12 +651,12 @@ func TestPostYourAddressLookupError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(logger, template.Func, addressClient, lpaStore)(page.TestAppData, w, r)
+	err := YourAddress(logger, template.Func, addressClient, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+	mock.AssertExpectationsForObjects(t, addressClient, template, logger, sessionStore)
 }
 
 func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
@@ -495,7 +681,18 @@ func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
 	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{ID: "lpa-id"}, nil)
+
+	sessionStore := &page.MockSessionsStore{}
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{
+			"certificate-provider": &sesh.CertificateProviderSession{
+				Sub:            "random",
+				DonorSessionID: "session-id",
+				LpaID:          "lpa-id",
+			},
+		}}, nil)
 
 	addressClient := &page.MockAddressClient{}
 	addressClient.
@@ -515,12 +712,12 @@ func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(logger, template.Func, addressClient, lpaStore)(page.TestAppData, w, r)
+	err := YourAddress(logger, template.Func, addressClient, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+	mock.AssertExpectationsForObjects(t, addressClient, template, logger, sessionStore)
 }
 
 func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
@@ -539,7 +736,18 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{ID: "lpa-id"}, nil)
+
+	sessionStore := &page.MockSessionsStore{}
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{
+			"certificate-provider": &sesh.CertificateProviderSession{
+				Sub:            "random",
+				DonorSessionID: "session-id",
+				LpaID:          "lpa-id",
+			},
+		}}, nil)
 
 	addressClient := &page.MockAddressClient{}
 	addressClient.
@@ -559,12 +767,12 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(logger, template.Func, addressClient, lpaStore)(page.TestAppData, w, r)
+	err := YourAddress(logger, template.Func, addressClient, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+	mock.AssertExpectationsForObjects(t, addressClient, template, logger, sessionStore)
 }
 
 func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
@@ -579,7 +787,18 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 	lpaStore := &page.MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{ID: "lpa-id"}, nil)
+
+	sessionStore := &page.MockSessionsStore{}
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{
+			"certificate-provider": &sesh.CertificateProviderSession{
+				Sub:            "random",
+				DonorSessionID: "session-id",
+				LpaID:          "lpa-id",
+			},
+		}}, nil)
 
 	template := &page.MockTemplate{}
 	template.
@@ -592,10 +811,10 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Func, nil, lpaStore)(page.TestAppData, w, r)
+	err := YourAddress(nil, template.Func, nil, lpaStore, sessionStore)(page.TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
+	mock.AssertExpectationsForObjects(t, template, lpaStore, sessionStore)
 }

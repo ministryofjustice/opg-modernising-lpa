@@ -29,15 +29,15 @@ func Restrictions(tmpl template.Template, lpaStore page.LpaStore) page.Handler {
 		}
 
 		if r.Method == http.MethodPost {
-			form := readRestrictionsForm(r)
-			data.Errors = form.Validate()
+			f := readRestrictionsForm(r)
+			data.Errors = f.Validate()
 
-			if data.Errors.None() || form.AnswerLater {
-				if form.AnswerLater {
+			if data.Errors.None() || f.AnswerLater {
+				if f.AnswerLater {
 					lpa.Tasks.Restrictions = page.TaskInProgress
 				} else {
 					lpa.Tasks.Restrictions = page.TaskCompleted
-					lpa.Restrictions = form.Restrictions
+					lpa.Restrictions = f.Restrictions
 				}
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err

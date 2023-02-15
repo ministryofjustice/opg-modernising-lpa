@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/form"
+
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -16,7 +18,7 @@ type certificateProviderAddressData struct {
 	Errors              validation.List
 	CertificateProvider actor.CertificateProvider
 	Addresses           []place.Address
-	Form                *addressForm
+	Form                *form.AddressForm
 }
 
 func CertificateProviderAddress(logger page.Logger, tmpl template.Template, addressClient page.AddressClient, lpaStore page.LpaStore) page.Handler {
@@ -29,7 +31,7 @@ func CertificateProviderAddress(logger page.Logger, tmpl template.Template, addr
 		data := &certificateProviderAddressData{
 			App:                 appData,
 			CertificateProvider: lpa.CertificateProvider,
-			Form:                &addressForm{},
+			Form:                &form.AddressForm{},
 		}
 
 		if lpa.CertificateProvider.Address.Line1 != "" {
@@ -38,7 +40,7 @@ func CertificateProviderAddress(logger page.Logger, tmpl template.Template, addr
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readAddressForm(r)
+			data.Form = form.ReadAddressForm(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Form.Action == "manual" && data.Errors.None() {

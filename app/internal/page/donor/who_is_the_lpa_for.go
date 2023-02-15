@@ -27,11 +27,11 @@ func WhoIsTheLpaFor(tmpl template.Template, lpaStore page.LpaStore) page.Handler
 		}
 
 		if r.Method == http.MethodPost {
-			form := readWhoIsTheLpaForForm(r)
-			data.Errors = form.Validate()
+			f := readWhoIsTheLpaForForm(r)
+			data.Errors = f.Validate()
 
 			if data.Errors.None() {
-				lpa.WhoFor = form.WhoFor
+				lpa.WhoFor = f.WhoFor
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
