@@ -2,6 +2,7 @@ package donor
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -171,4 +172,25 @@ func (m *mockNotifyClient) Email(ctx context.Context, email notify.Email) (strin
 func (m *mockNotifyClient) Sms(ctx context.Context, sms notify.Sms) (string, error) {
 	args := m.Called(ctx, sms)
 	return args.String(0), args.Error(1)
+}
+
+type mockDataStore struct {
+	data interface{}
+	mock.Mock
+}
+
+func (m *mockDataStore) GetAll(ctx context.Context, pk string, v interface{}) error {
+	data, _ := json.Marshal(m.data)
+	json.Unmarshal(data, v)
+	return m.Called(ctx, pk).Error(0)
+}
+
+func (m *mockDataStore) Get(ctx context.Context, pk, sk string, v interface{}) error {
+	data, _ := json.Marshal(m.data)
+	json.Unmarshal(data, v)
+	return m.Called(ctx, pk, sk).Error(0)
+}
+
+func (m *mockDataStore) Put(ctx context.Context, pk, sk string, v interface{}) error {
+	return m.Called(ctx, pk, sk, v).Error(0)
 }
