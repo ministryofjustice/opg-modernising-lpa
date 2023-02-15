@@ -19,7 +19,7 @@ type paymentConfirmationData struct {
 	Continue         string
 }
 
-func PaymentConfirmation(logger page.Logger, tmpl template.Template, payClient page.PayClient, notifyClient page.NotifyClient, lpaStore page.LpaStore, sessionStore sessions.Store, appPublicURL string) page.Handler {
+func PaymentConfirmation(logger page.Logger, tmpl template.Template, payClient page.PayClient, notifyClient page.NotifyClient, lpaStore page.LpaStore, sessionStore sessions.Store, appPublicURL string, dataStore page.DataStore, randomString func(int) string) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
@@ -39,11 +39,20 @@ func PaymentConfirmation(logger page.Logger, tmpl template.Template, payClient p
 			return err
 		}
 
+		shareCode := randomString(12)
+
+		if err := dataStore.Put(r.Context(), "SHARECODE#"+shareCode, "#METADATA#"+shareCode, page.ShareCodeData{
+			SessionID: appData.SessionID,
+			LpaID:     appData.LpaID,
+		}); err != nil {
+			return err
+		}
+
 		if _, err := notifyClient.Email(r.Context(), notify.Email{
 			TemplateID:   notifyClient.TemplateID(notify.CertificateProviderInviteEmail),
 			EmailAddress: lpa.CertificateProvider.Email,
 			Personalisation: map[string]string{
-				"link": fmt.Sprintf("%s%s?lpaId=%s&sessionId=%s", appPublicURL, page.Paths.CertificateProviderStart, appData.LpaID, appData.SessionID),
+				"link": fmt.Sprintf("%s%s?share-code=%s", appPublicURL, page.Paths.CertificateProviderStart, shareCode),
 			},
 		}); err != nil {
 			return fmt.Errorf("error email certificate provider after payment: %w", err)

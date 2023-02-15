@@ -42,7 +42,7 @@
             </div>
 
             <form novalidate action="/cookies-consent" method="post">
-              <input type="hidden" name="cookies-redirect" value="{{ link .App .App.Page }}" />
+              <input type="hidden" name="cookies-redirect" value="{{ link .App .App.Page }}{{ .App.Query }}" />
               <div class="govuk-button-group">
                 <button value="accept" type="submit" name="cookies" class="govuk-button" data-module="govuk-button">
                   {{ tr .App "acceptCookies" }}

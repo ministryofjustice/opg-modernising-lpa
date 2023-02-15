@@ -64,13 +64,6 @@ func LoginCallback(tmpl template.Template, oneLoginClient page.OneLoginClient, s
 
 		data := &loginCallbackData{App: appData}
 
-		if lpa.CertificateProviderUserData.OK {
-			data.FullName = lpa.CertificateProviderUserData.FullName
-			data.ConfirmedAt = lpa.CertificateProviderUserData.RetrievedAt
-
-			return tmpl(w, data)
-		}
-
 		if r.FormValue("error") == "access_denied" {
 			data.CouldNotConfirm = true
 
@@ -85,6 +78,22 @@ func LoginCallback(tmpl template.Template, oneLoginClient page.OneLoginClient, s
 		userInfo, err := oneLoginClient.UserInfo(ctx, accessToken)
 		if err != nil {
 			return err
+		}
+
+		if lpa.CertificateProviderUserData.OK {
+			data.FullName = lpa.CertificateProviderUserData.FullName
+			data.ConfirmedAt = lpa.CertificateProviderUserData.RetrievedAt
+
+			if err := sesh.SetCertificateProvider(sessionStore, r, w, &sesh.CertificateProviderSession{
+				Sub:            userInfo.Sub,
+				Email:          userInfo.Email,
+				LpaID:          oneLoginSession.LpaID,
+				DonorSessionID: oneLoginSession.SessionID,
+			}); err != nil {
+				return err
+			}
+
+			return tmpl(w, data)
 		}
 
 		userData, err := oneLoginClient.ParseIdentityClaim(ctx, userInfo)
