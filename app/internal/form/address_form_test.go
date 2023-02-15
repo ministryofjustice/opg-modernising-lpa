@@ -1,4 +1,4 @@
-package donor
+package form
 
 import (
 	"net/http"
@@ -6,20 +6,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 )
-
-var mockRandom = func(int) string { return "123" }
-
-var address = place.Address{
-	Line1:      "a",
-	Line2:      "b",
-	Line3:      "c",
-	TownOrCity: "d",
-	Postcode:   "e",
-}
 
 func TestReadAddressForm(t *testing.T) {
 	expectedAddress := &place.Address{
@@ -32,14 +24,14 @@ func TestReadAddressForm(t *testing.T) {
 
 	testCases := map[string]struct {
 		form   url.Values
-		result *addressForm
+		result *AddressForm
 	}{
 		"lookup": {
 			form: url.Values{
 				"action":          {"lookup"},
 				"lookup-postcode": {"NG1"},
 			},
-			result: &addressForm{
+			result: &AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
@@ -49,7 +41,7 @@ func TestReadAddressForm(t *testing.T) {
 				"action":         {"select"},
 				"select-address": {expectedAddress.Encode()},
 			},
-			result: &addressForm{
+			result: &AddressForm{
 				Action:  "select",
 				Address: expectedAddress,
 			},
@@ -59,7 +51,7 @@ func TestReadAddressForm(t *testing.T) {
 				"action":         {"select"},
 				"select-address": {""},
 			},
-			result: &addressForm{
+			result: &AddressForm{
 				Action:  "select",
 				Address: nil,
 			},
@@ -73,7 +65,7 @@ func TestReadAddressForm(t *testing.T) {
 				"address-town":     {"d"},
 				"address-postcode": {"e"},
 			},
-			result: &addressForm{
+			result: &AddressForm{
 				Action:  "manual",
 				Address: expectedAddress,
 			},
@@ -83,9 +75,9 @@ func TestReadAddressForm(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			actual := readAddressForm(r)
+			actual := ReadAddressForm(r)
 			assert.Equal(t, tc.result, actual)
 		})
 	}
@@ -93,36 +85,36 @@ func TestReadAddressForm(t *testing.T) {
 
 func TestAddressFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *addressForm
+		form   *AddressForm
 		errors validation.List
 	}{
 		"lookup valid": {
-			form: &addressForm{
+			form: &AddressForm{
 				Action:         "lookup",
 				LookupPostcode: "NG1",
 			},
 		},
 		"lookup missing postcode": {
-			form: &addressForm{
+			form: &AddressForm{
 				Action: "lookup",
 			},
 			errors: validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
 		},
 		"select valid": {
-			form: &addressForm{
+			form: &AddressForm{
 				Action:  "select",
 				Address: &place.Address{},
 			},
 		},
 		"select not selected": {
-			form: &addressForm{
+			form: &AddressForm{
 				Action:  "select",
 				Address: nil,
 			},
 			errors: validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 		},
 		"manual valid": {
-			form: &addressForm{
+			form: &AddressForm{
 				Action: "manual",
 				Address: &place.Address{
 					Line1:      "a",
@@ -132,7 +124,7 @@ func TestAddressFormValidate(t *testing.T) {
 			},
 		},
 		"manual missing all": {
-			form: &addressForm{
+			form: &AddressForm{
 				Action:  "manual",
 				Address: &place.Address{},
 			},
@@ -142,7 +134,7 @@ func TestAddressFormValidate(t *testing.T) {
 				With("address-postcode", validation.EnterError{Label: "aPostcode"}),
 		},
 		"manual max length": {
-			form: &addressForm{
+			form: &AddressForm{
 				Action: "manual",
 				Address: &place.Address{
 					Line1:      strings.Repeat("x", 50),
@@ -154,7 +146,7 @@ func TestAddressFormValidate(t *testing.T) {
 			},
 		},
 		"manual too long": {
-			form: &addressForm{
+			form: &AddressForm{
 				Action: "manual",
 				Address: &place.Address{
 					Line1:      strings.Repeat("x", 51),

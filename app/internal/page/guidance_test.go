@@ -2,7 +2,6 @@ package page
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,34 +11,23 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var appData = AppData{}
-
-type mockTemplate struct {
-	mock.Mock
-}
-
-func (m *mockTemplate) Func(w io.Writer, data interface{}) error {
-	args := m.Called(w, data)
-	return args.Error(0)
-}
-
 func TestGuidance(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpa := &Lpa{}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 	template.
-		On("Func", w, &guidanceData{App: appData, Continue: "/somewhere", Lpa: lpa}).
+		On("Func", w, &guidanceData{App: TestAppData, Continue: "/somewhere", Lpa: lpa}).
 		Return(nil)
 
-	err := Guidance(template.Func, "/somewhere", lpaStore)(appData, w, r)
+	err := Guidance(template.Func, "/somewhere", lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -53,7 +41,7 @@ func TestGuidanceWhenContinueIsAuthAndLangCy(t *testing.T) {
 
 	lpa := &Lpa{}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
@@ -63,7 +51,7 @@ func TestGuidanceWhenContinueIsAuthAndLangCy(t *testing.T) {
 		SessionID: "session-id",
 	}
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &guidanceData{App: cyAppData, Continue: fmt.Sprintf("%s?locale=cy", Paths.Auth), Lpa: lpa}).
 		Return(nil)
@@ -79,14 +67,14 @@ func TestGuidanceWhenContinueIsAuthAndLangCy(t *testing.T) {
 func TestGuidanceWhenNilDataStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 	template.
-		On("Func", w, &guidanceData{App: appData, Continue: "/somewhere"}).
+		On("Func", w, &guidanceData{App: TestAppData, Continue: "/somewhere"}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := Guidance(template.Func, "/somewhere", nil)(appData, w, r)
+	err := Guidance(template.Func, "/somewhere", nil)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -100,14 +88,14 @@ func TestGuidanceWhenDataStoreErrors(t *testing.T) {
 
 	lpa := &Lpa{}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(lpa, expectedError)
+		Return(lpa, ExpectedError)
 
-	err := Guidance(nil, "/somewhere", lpaStore)(appData, w, r)
+	err := Guidance(nil, "/somewhere", lpaStore)(TestAppData, w, r)
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -115,18 +103,18 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 	template.
-		On("Func", w, &guidanceData{App: appData, Continue: "/somewhere", Lpa: &Lpa{}}).
-		Return(expectedError)
+		On("Func", w, &guidanceData{App: TestAppData, Continue: "/somewhere", Lpa: &Lpa{}}).
+		Return(ExpectedError)
 
-	err := Guidance(template.Func, "/somewhere", lpaStore)(appData, w, r)
+	err := Guidance(template.Func, "/somewhere", lpaStore)(TestAppData, w, r)
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
