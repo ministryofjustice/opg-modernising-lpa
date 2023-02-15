@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -16,7 +18,7 @@ type chooseReplacementAttorneysAddressData struct {
 	Errors    validation.List
 	Attorney  actor.Attorney
 	Addresses []place.Address
-	Form      *addressForm
+	Form      *form.AddressForm
 }
 
 func ChooseReplacementAttorneysAddress(logger page.Logger, tmpl template.Template, addressClient page.AddressClient, lpaStore page.LpaStore) page.Handler {
@@ -32,7 +34,7 @@ func ChooseReplacementAttorneysAddress(logger page.Logger, tmpl template.Templat
 		data := &chooseReplacementAttorneysAddressData{
 			App:      appData,
 			Attorney: ra,
-			Form:     &addressForm{},
+			Form:     &form.AddressForm{},
 		}
 
 		if ra.Address.Line1 != "" {
@@ -41,7 +43,7 @@ func ChooseReplacementAttorneysAddress(logger page.Logger, tmpl template.Templat
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readAddressForm(r)
+			data.Form = form.ReadAddressForm(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Form.Action == "manual" && data.Errors.None() {

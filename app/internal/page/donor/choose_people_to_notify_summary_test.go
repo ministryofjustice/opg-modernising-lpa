@@ -19,21 +19,21 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &choosePeopleToNotifySummaryData{
-			App:  appData,
+			App:  TestAppData,
 			Lpa:  &page.Lpa{},
 			Form: &choosePeopleToNotifySummaryForm{},
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifySummary(nil, template.Func, lpaStore)(appData, w, r)
+	err := ChoosePeopleToNotifySummary(nil, template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -45,20 +45,20 @@ func TestGetChoosePeopleToNotifySummaryWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
+		Return(&page.Lpa{}, ExpectedError)
 
-	logger := &mockLogger{}
+	logger := &MockLogger{}
 	logger.
 		On("Print", "error getting lpa from store: err").
 		Return(nil)
 
-	err := ChoosePeopleToNotifySummary(logger, nil, lpaStore)(appData, w, r)
+	err := ChoosePeopleToNotifySummary(logger, nil, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore, logger)
 }
@@ -70,14 +70,14 @@ func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}}, nil)
 
-	err := ChoosePeopleToNotifySummary(nil, nil, lpaStore)(appData, w, r)
+	err := ChoosePeopleToNotifySummary(nil, nil, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -93,9 +93,9 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -111,7 +111,7 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 			},
 		}, nil)
 
-	err := ChoosePeopleToNotifySummary(nil, nil, lpaStore)(appData, w, r)
+	err := ChoosePeopleToNotifySummary(nil, nil, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -127,23 +127,23 @@ func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
 	validationError := validation.With("add-person-to-notify", validation.SelectError{Label: "yesToAddAnotherPersonToNotify"})
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, mock.MatchedBy(func(data *choosePeopleToNotifySummaryData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)
 
-	err := ChoosePeopleToNotifySummary(nil, template.Func, lpaStore)(appData, w, r)
+	err := ChoosePeopleToNotifySummary(nil, template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

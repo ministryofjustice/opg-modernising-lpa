@@ -158,8 +158,6 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			lpa.Tasks.PayForLpa = TaskCompleted
 		}
 
-		_ = lpaStore.Put(ctx, lpa)
-
 		if r.FormValue("cookiesAccepted") == "1" {
 			http.SetCookie(w, &http.Cookie{
 				Name:   "cookies-consent",
@@ -176,7 +174,12 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				DonorSessionID: sessionID,
 				LpaID:          lpa.ID,
 			})
+
+			lpa.CertificateProviderUserData.FullName = "Barbara Smith"
+			lpa.CertificateProviderUserData.OK = true
 		}
+
+		_ = lpaStore.Put(ctx, lpa)
 
 		random.UseTestCode = true
 

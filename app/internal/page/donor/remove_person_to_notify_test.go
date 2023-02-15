@@ -20,7 +20,7 @@ func TestGetRemovePersonToNotify(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
 
-	logger := &mockLogger{}
+	logger := &MockLogger{}
 
 	personToNotify := actor.PersonToNotify{
 		ID: "123",
@@ -29,22 +29,22 @@ func TestGetRemovePersonToNotify(t *testing.T) {
 		},
 	}
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &removePersonToNotifyData{
-			App:            appData,
+			App:            TestAppData,
 			PersonToNotify: personToNotify,
 			Errors:         nil,
 			Form:           &removePersonToNotifyForm{},
 		}).
 		Return(nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
-	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
+	err := RemovePersonToNotify(logger, template.Func, lpaStore)(TestAppData, w, r)
 
 	resp := w.Result()
 
@@ -57,23 +57,23 @@ func TestGetRemovePersonToNotifyErrorOnStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
 
-	logger := &mockLogger{}
+	logger := &MockLogger{}
 	logger.
 		On("Print", "error getting lpa from store: err").
 		Return(nil)
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
+		Return(&page.Lpa{}, ExpectedError)
 
-	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
+	err := RemovePersonToNotify(logger, template.Func, lpaStore)(TestAppData, w, r)
 
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore, logger)
 }
@@ -82,9 +82,9 @@ func TestGetRemovePersonToNotifyAttorneyDoesNotExist(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=invalid-id", nil)
 
-	logger := &mockLogger{}
+	logger := &MockLogger{}
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 
 	personToNotify := actor.PersonToNotify{
 		ID: "123",
@@ -93,12 +93,12 @@ func TestGetRemovePersonToNotifyAttorneyDoesNotExist(t *testing.T) {
 		},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
-	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
+	err := RemovePersonToNotify(logger, template.Func, lpaStore)(TestAppData, w, r)
 
 	resp := w.Result()
 
@@ -115,10 +115,10 @@ func TestPostRemovePersonToNotify(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	logger := &mockLogger{}
-	template := &mockTemplate{}
+	logger := &MockLogger{}
+	template := &MockTemplate{}
 
 	personToNotifyWithAddress := actor.PersonToNotify{
 		ID: "with-address",
@@ -132,7 +132,7 @@ func TestPostRemovePersonToNotify(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}}, nil)
@@ -140,7 +140,7 @@ func TestPostRemovePersonToNotify(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithAddress}}).
 		Return(nil)
 
-	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
+	err := RemovePersonToNotify(logger, template.Func, lpaStore)(TestAppData, w, r)
 
 	resp := w.Result()
 
@@ -157,10 +157,10 @@ func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	logger := &mockLogger{}
-	template := &mockTemplate{}
+	logger := &MockLogger{}
+	template := &MockTemplate{}
 
 	personToNotifyWithAddress := actor.PersonToNotify{
 		ID: "with-address",
@@ -174,12 +174,12 @@ func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}}, nil)
 
-	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
+	err := RemovePersonToNotify(logger, template.Func, lpaStore)(TestAppData, w, r)
 
 	resp := w.Result()
 
@@ -196,11 +196,11 @@ func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 
-	logger := &mockLogger{}
+	logger := &MockLogger{}
 	logger.
 		On("Print", "error removing PersonToNotify from LPA: err").
 		Return(nil)
@@ -217,19 +217,19 @@ func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithAddress}}).
-		Return(expectedError)
+		Return(ExpectedError)
 
-	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
+	err := RemovePersonToNotify(logger, template.Func, lpaStore)(TestAppData, w, r)
 
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore, template, logger)
 }
@@ -241,28 +241,28 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	personToNotifyWithoutAddress := actor.PersonToNotify{
 		ID:      "without-address",
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress}}, nil)
 
 	validationError := validation.With("remove-person-to-notify", validation.SelectError{Label: "removePersonToNotify"})
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, mock.MatchedBy(func(data *removePersonToNotifyData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)
 
-	err := RemovePersonToNotify(nil, template.Func, lpaStore)(appData, w, r)
+	err := RemovePersonToNotify(nil, template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -277,17 +277,17 @@ func TestRemovePersonToNotifyRemoveLastPersonRedirectsToChoosePeopleToNotify(t *
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	logger := &mockLogger{}
-	template := &mockTemplate{}
+	logger := &MockLogger{}
+	template := &MockTemplate{}
 
 	personToNotifyWithoutAddress := actor.PersonToNotify{
 		ID:      "without-address",
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -301,7 +301,7 @@ func TestRemovePersonToNotifyRemoveLastPersonRedirectsToChoosePeopleToNotify(t *
 		}).
 		Return(nil)
 
-	err := RemovePersonToNotify(logger, template.Func, lpaStore)(appData, w, r)
+	err := RemovePersonToNotify(logger, template.Func, lpaStore)(TestAppData, w, r)
 
 	resp := w.Result()
 
