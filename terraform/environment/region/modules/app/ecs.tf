@@ -277,7 +277,7 @@ locals {
         },
         {
           name  = "APP_PUBLIC_URL",
-          value = var.app_env_vars.app_public_url == "" ? local.dev_app_fqdn : var.app_env_vars.app_public_url
+          value = var.app_env_vars.app_public_url == "" ? "https://${local.dev_app_fqdn}" : var.app_env_vars.app_public_url
         },
         {
           # this is not the final value, but will allow signin to be tested while the real redirectURL is changed
