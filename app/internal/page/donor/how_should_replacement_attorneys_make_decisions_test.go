@@ -17,20 +17,20 @@ func TestGetHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &howShouldReplacementAttorneysMakeDecisionsData{
-			App:  appData,
+			App:  TestAppData,
 			Form: &howShouldAttorneysMakeDecisionsForm{},
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -42,15 +42,15 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{HowReplacementAttorneysMakeDecisionsDetails: "some decisions", HowReplacementAttorneysMakeDecisions: "jointly"}, nil)
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &howShouldReplacementAttorneysMakeDecisionsData{
-			App: appData,
+			App: TestAppData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
 				DecisionsType:    "jointly",
 				DecisionsDetails: "some decisions",
@@ -58,7 +58,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -70,15 +70,15 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsWhenStoreErrors(t *testing
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
+		Return(&page.Lpa{}, ExpectedError)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(nil, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysMakeDecisions(nil, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
@@ -87,26 +87,26 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsWhenTemplateErrors(t *test
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &howShouldReplacementAttorneysMakeDecisionsData{
-			App: appData,
+			App: TestAppData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
 				DecisionsType:    "",
 				DecisionsDetails: "",
 			},
 		}).
-		Return(expectedError)
+		Return(ExpectedError)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
@@ -119,9 +119,9 @@ func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{HowReplacementAttorneysMakeDecisionsDetails: "", HowReplacementAttorneysMakeDecisions: ""}, nil)
@@ -129,9 +129,9 @@ func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{HowReplacementAttorneysMakeDecisionsDetails: "", HowReplacementAttorneysMakeDecisions: "jointly"}).
 		Return(nil)
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -176,9 +176,9 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := &mockLpaStore{}
+			lpaStore := &MockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{HowReplacementAttorneysMakeDecisionsDetails: tc.existingDetails, HowReplacementAttorneysMakeDecisions: tc.existingType}, nil)
@@ -186,9 +186,9 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 				On("Put", r.Context(), &page.Lpa{HowReplacementAttorneysMakeDecisionsDetails: tc.updatedDetails, HowReplacementAttorneysMakeDecisions: tc.updatedType}).
 				Return(nil)
 
-			template := &mockTemplate{}
+			template := &MockTemplate{}
 
-			err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(appData, w, r)
+			err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(TestAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -207,17 +207,17 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenStoreErrors(t *testin
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
+		Return(&page.Lpa{}, ExpectedError)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(nil, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysMakeDecisions(nil, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
@@ -229,17 +229,17 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenValidationErrors(t *t
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{HowReplacementAttorneysMakeDecisionsDetails: "", HowReplacementAttorneysMakeDecisions: ""}, nil)
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 	template.
 		On("Func", w, &howShouldReplacementAttorneysMakeDecisionsData{
-			App:    appData,
+			App:    TestAppData,
 			Errors: validation.With("decision-type", validation.SelectError{Label: "howReplacementAttorneysShouldMakeDecisions"}),
 			Form: &howShouldAttorneysMakeDecisionsForm{
 				DecisionsType:    "",
@@ -249,7 +249,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenValidationErrors(t *t
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -265,22 +265,22 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsErrorOnPutStore(t *testin
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := &MockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{HowReplacementAttorneysMakeDecisionsDetails: "", HowReplacementAttorneysMakeDecisions: ""}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{HowReplacementAttorneysMakeDecisionsDetails: "", HowReplacementAttorneysMakeDecisions: "jointly"}).
-		Return(expectedError)
+		Return(ExpectedError)
 
-	template := &mockTemplate{}
+	template := &MockTemplate{}
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(TestAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, ExpectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }

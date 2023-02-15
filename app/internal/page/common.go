@@ -12,6 +12,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
+const FormUrlEncoded = "application/x-www-form-urlencoded"
+
 type Logger interface {
 	Print(v ...interface{})
 }

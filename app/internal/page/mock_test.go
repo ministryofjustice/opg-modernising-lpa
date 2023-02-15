@@ -1,4 +1,4 @@
-package donor
+package page
 
 import (
 	"context"
@@ -7,36 +7,26 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/stretchr/testify/mock"
 )
 
 var MockRandom = func(int) string { return "123" }
 
 var (
-	TestAddress = place.Address{
-		Line1:      "a",
-		Line2:      "b",
-		Line3:      "c",
-		TownOrCity: "d",
-		Postcode:   "e",
-	}
 	ExpectedError = errors.New("err")
-	TestAppData   = page.AppData{
+	TestAppData   = AppData{
 		SessionID: "session-id",
 		LpaID:     "lpa-id",
 		Lang:      localize.En,
-		Paths:     page.Paths,
+		Paths:     Paths,
 	}
 )
 
@@ -44,30 +34,30 @@ type MockLpaStore struct {
 	mock.Mock
 }
 
-func (m *MockLpaStore) Create(ctx context.Context) (*page.Lpa, error) {
+func (m *MockLpaStore) Create(ctx context.Context) (*Lpa, error) {
 	args := m.Called(ctx)
 
-	return args.Get(0).(*page.Lpa), args.Error(1)
+	return args.Get(0).(*Lpa), args.Error(1)
 }
 
-func (m *MockLpaStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
+func (m *MockLpaStore) GetAll(ctx context.Context) ([]*Lpa, error) {
 	args := m.Called(ctx)
-	return args.Get(0).([]*page.Lpa), args.Error(1)
+	return args.Get(0).([]*Lpa), args.Error(1)
 }
 
-func (m *MockLpaStore) Get(ctx context.Context) (*page.Lpa, error) {
+func (m *MockLpaStore) Get(ctx context.Context) (*Lpa, error) {
 	args := m.Called(ctx)
-	return args.Get(0).(*page.Lpa), args.Error(1)
+	return args.Get(0).(*Lpa), args.Error(1)
 }
 
-func (m *MockLpaStore) Put(ctx context.Context, v *page.Lpa) error {
+func (m *MockLpaStore) Put(ctx context.Context, v *Lpa) error {
 	return m.Called(ctx, v).Error(0)
 }
 
 func (m *MockLpaStore) WillReturnEmptyLpa(r *http.Request) *MockLpaStore {
 	m.
 		On("Get", r.Context()).
-		Return(&page.Lpa{
+		Return(&Lpa{
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
 			},
@@ -78,16 +68,16 @@ func (m *MockLpaStore) WillReturnEmptyLpa(r *http.Request) *MockLpaStore {
 
 func (m *MockLpaStore) WithCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string) *MockLpaStore {
 	m.
-		On("Put", r.Context(), &page.Lpa{
+		On("Put", r.Context(), &Lpa{
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
 			},
-			PaymentDetails: page.PaymentDetails{
+			PaymentDetails: PaymentDetails{
 				PaymentId:        paymentId,
 				PaymentReference: paymentReference,
 			},
-			Tasks: page.Tasks{
-				PayForLpa: page.TaskCompleted,
+			Tasks: Tasks{
+				PayForLpa: TaskCompleted,
 			},
 		}).
 		Return(nil)
@@ -134,15 +124,6 @@ func (m *MockOneLoginClient) UserInfo(ctx context.Context, accessToken string) (
 func (m *MockOneLoginClient) ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error) {
 	args := m.Called(ctx, userInfo)
 	return args.Get(0).(identity.UserData), args.Error(1)
-}
-
-type MockAddressClient struct {
-	mock.Mock
-}
-
-func (m *MockAddressClient) LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error) {
-	args := m.Called(ctx, postcode)
-	return args.Get(0).([]place.Address), args.Error(1)
 }
 
 type MockSessionsStore struct {
@@ -196,55 +177,4 @@ func (m *MockSessionsStore) WithExpiredPaySession(r *http.Request, w *httptest.R
 	m.On("Save", r, w, storeSession).Return(nil)
 
 	return m
-}
-
-type mockYotiClient struct {
-	mock.Mock
-}
-
-func (m *mockYotiClient) IsTest() bool {
-	return m.Called().Bool(0)
-}
-
-func (m *mockYotiClient) SdkID() string {
-	return m.Called().String(0)
-}
-
-func (m *mockYotiClient) User(token string) (identity.UserData, error) {
-	args := m.Called(token)
-
-	return args.Get(0).(identity.UserData), args.Error(1)
-}
-
-type mockPayClient struct {
-	mock.Mock
-	BaseURL string
-}
-
-func (m *mockPayClient) CreatePayment(body pay.CreatePaymentBody) (pay.CreatePaymentResponse, error) {
-	args := m.Called(body)
-	return args.Get(0).(pay.CreatePaymentResponse), args.Error(1)
-}
-
-func (m *mockPayClient) GetPayment(paymentId string) (pay.GetPaymentResponse, error) {
-	args := m.Called(paymentId)
-	return args.Get(0).(pay.GetPaymentResponse), args.Error(1)
-}
-
-type mockNotifyClient struct {
-	mock.Mock
-}
-
-func (m *mockNotifyClient) TemplateID(id notify.TemplateId) string {
-	return m.Called(id).String(0)
-}
-
-func (m *mockNotifyClient) Email(ctx context.Context, email notify.Email) (string, error) {
-	args := m.Called(ctx, email)
-	return args.String(0), args.Error(1)
-}
-
-func (m *mockNotifyClient) Sms(ctx context.Context, sms notify.Sms) (string, error) {
-	args := m.Called(ctx, sms)
-	return args.String(0), args.Error(1)
 }

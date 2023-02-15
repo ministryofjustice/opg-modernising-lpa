@@ -73,19 +73,19 @@ type signYourLpaForm struct {
 func readSignYourLpaForm(r *http.Request) *signYourLpaForm {
 	r.ParseForm()
 
-	f := &signYourLpaForm{}
+	form := &signYourLpaForm{}
 
 	for _, checkBox := range r.PostForm["sign-lpa"] {
 		if checkBox == WantToSignLpa {
-			f.WantToSign = true
+			form.WantToSign = true
 		}
 
 		if checkBox == WantToApplyForLpa {
-			f.WantToApply = true
+			form.WantToApply = true
 		}
 	}
 
-	return f
+	return form
 }
 
 func (f *signYourLpaForm) Validate() validation.List {
