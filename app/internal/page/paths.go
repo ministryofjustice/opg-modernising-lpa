@@ -28,7 +28,6 @@ type AppPaths struct {
 	ChooseReplacementAttorneys                           string
 	ChooseReplacementAttorneysAddress                    string
 	ChooseReplacementAttorneysSummary                    string
-	CpYourAddress                                        string
 	CookiesConsent                                       string
 	Dashboard                                            string
 	DoYouWantReplacementAttorneys                        string
