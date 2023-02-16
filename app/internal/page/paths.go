@@ -12,6 +12,7 @@ type AppPaths struct {
 	AuthRedirect                                         string
 	CertificateProviderAddress                           string
 	CertificateProviderDetails                           string
+	CertificateProviderGuidance                          string
 	CertificateProviderLogin                             string
 	CertificateProviderLoginCallback                     string
 	CertificateProviderReadTheLpa                        string
@@ -85,6 +86,7 @@ var Paths = AppPaths{
 	AuthRedirect:                                         "/auth/redirect",
 	CertificateProviderAddress:                           "/certificate-provider-address",
 	CertificateProviderDetails:                           "/certificate-provider-details",
+	CertificateProviderGuidance:                          "/being-a-certificate-provider",
 	CertificateProviderLogin:                             "/certificate-provider-login",
 	CertificateProviderLoginCallback:                     "/certificate-provider-login-callback",
 	CertificateProviderReadTheLpa:                        "/certificate-provider-read-the-lpa",
@@ -166,5 +168,6 @@ func IsLpaPath(url string) bool {
 		Paths.CertificateProviderYourDetails,
 		Paths.CertificateProviderYourAddress,
 		Paths.CertificateProviderReadTheLpa,
+		Paths.CertificateProviderGuidance,
 	}, path)
 }
