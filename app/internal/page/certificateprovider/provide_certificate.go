@@ -36,7 +36,7 @@ func ProvideCertificate(tmpl template.Template, lpaStore page.LpaStore, now func
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readProviderCertificateForm(r)
+			data.Form = readProvideCertificateForm(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
@@ -58,7 +58,7 @@ type provideCertificateForm struct {
 	AgreeToStatement bool
 }
 
-func readProviderCertificateForm(r *http.Request) *provideCertificateForm {
+func readProvideCertificateForm(r *http.Request) *provideCertificateForm {
 	return &provideCertificateForm{
 		AgreeToStatement: page.PostFormString(r, "agree-to-statement") == "1",
 	}
