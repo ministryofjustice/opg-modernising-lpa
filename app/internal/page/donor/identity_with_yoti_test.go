@@ -25,13 +25,13 @@ func TestGetIdentityWithYoti(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &identityWithYotiData{
-			App:         appData,
+			App:         testAppData,
 			ClientSdkID: "an-sdk-id",
 			ScenarioID:  "a-scenario-id",
 		}).
 		Return(nil)
 
-	err := IdentityWithYoti(template.Func, lpaStore, yotiClient, "a-scenario-id")(appData, w, r)
+	err := IdentityWithYoti(template.Func, lpaStore, yotiClient, "a-scenario-id")(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -46,7 +46,7 @@ func TestGetIdentityWithYotiWhenAlreadyProvided(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.On("Get", r.Context()).Return(&page.Lpa{YotiUserData: identity.UserData{OK: true}}, nil)
 
-	err := IdentityWithYoti(nil, lpaStore, nil, "")(appData, w, r)
+	err := IdentityWithYoti(nil, lpaStore, nil, "")(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -65,7 +65,7 @@ func TestGetIdentityWithYotiWhenTest(t *testing.T) {
 	yotiClient := &mockYotiClient{}
 	yotiClient.On("IsTest").Return(true)
 
-	err := IdentityWithYoti(nil, lpaStore, yotiClient, "")(appData, w, r)
+	err := IdentityWithYoti(nil, lpaStore, yotiClient, "")(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -81,7 +81,7 @@ func TestGetIdentityWithYotiWhenDataStoreError(t *testing.T) {
 	lpaStore := &mockLpaStore{}
 	lpaStore.On("Get", r.Context()).Return(&page.Lpa{}, expectedError)
 
-	err := IdentityWithYoti(nil, lpaStore, nil, "a-scenario-id")(appData, w, r)
+	err := IdentityWithYoti(nil, lpaStore, nil, "a-scenario-id")(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
@@ -103,7 +103,7 @@ func TestGetIdentityWithYotiWhenTemplateError(t *testing.T) {
 		On("Func", w, mock.Anything).
 		Return(expectedError)
 
-	err := IdentityWithYoti(template.Func, lpaStore, yotiClient, "a-scenario-id")(appData, w, r)
+	err := IdentityWithYoti(template.Func, lpaStore, yotiClient, "a-scenario-id")(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore, yotiClient, template)

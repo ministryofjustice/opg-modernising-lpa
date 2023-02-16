@@ -26,12 +26,12 @@ func TestGetWantReplacementAttorneys(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &wantReplacementAttorneysData{
-			App: appData,
+			App: testAppData,
 			Lpa: &page.Lpa{},
 		}).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Func, lpaStore)(appData, w, r)
+	err := WantReplacementAttorneys(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -54,7 +54,7 @@ func TestGetWantReplacementAttorneysWithExistingReplacementAttorneys(t *testing.
 
 	template := &mockTemplate{}
 
-	err := WantReplacementAttorneys(template.Func, lpaStore)(appData, w, r)
+	err := WantReplacementAttorneys(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -76,13 +76,13 @@ func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &wantReplacementAttorneysData{
-			App:  appData,
+			App:  testAppData,
 			Want: "yes",
 			Lpa:  &page.Lpa{WantReplacementAttorneys: "yes"},
 		}).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Func, lpaStore)(appData, w, r)
+	err := WantReplacementAttorneys(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -99,7 +99,7 @@ func TestGetWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := WantReplacementAttorneys(nil, lpaStore)(appData, w, r)
+	err := WantReplacementAttorneys(nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -119,12 +119,12 @@ func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &wantReplacementAttorneysData{
-			App: appData,
+			App: testAppData,
 			Lpa: &page.Lpa{},
 		}).
 		Return(expectedError)
 
-	err := WantReplacementAttorneys(template.Func, lpaStore)(appData, w, r)
+	err := WantReplacementAttorneys(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -167,7 +167,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &mockLpaStore{}
 			lpaStore.
@@ -183,7 +183,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := WantReplacementAttorneys(nil, lpaStore)(appData, w, r)
+			err := WantReplacementAttorneys(nil, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -202,7 +202,7 @@ func TestPostWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -212,7 +212,7 @@ func TestPostWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WantReplacementAttorneys(nil, lpaStore)(appData, w, r)
+	err := WantReplacementAttorneys(nil, lpaStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
@@ -221,7 +221,7 @@ func TestPostWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
 func TestPostWantReplacementAttorneysWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -231,13 +231,13 @@ func TestPostWantReplacementAttorneysWhenValidationErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &wantReplacementAttorneysData{
-			App:    appData,
+			App:    testAppData,
 			Errors: validation.With("want", validation.SelectError{Label: "yesToAddReplacementAttorneys"}),
 			Lpa:    &page.Lpa{},
 		}).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Func, lpaStore)(appData, w, r)
+	err := WantReplacementAttorneys(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -251,7 +251,7 @@ func TestReadWantReplacementAttorneysForm(t *testing.T) {
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readWantReplacementAttorneysForm(r)
 

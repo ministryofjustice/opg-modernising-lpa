@@ -26,12 +26,12 @@ func TestGetHowShouldReplacementAttorneysStepIn(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howShouldReplacementAttorneysStepInData{
-			App:  appData,
+			App:  testAppData,
 			Form: &howShouldReplacementAttorneysStepInForm{},
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -54,7 +54,7 @@ func TestGetHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howShouldReplacementAttorneysStepInData{
-			App: appData,
+			App: testAppData,
 			Form: &howShouldReplacementAttorneysStepInForm{
 				WhenToStepIn: page.SomeOtherWay,
 				OtherDetails: "some details",
@@ -62,7 +62,7 @@ func TestGetHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -81,7 +81,7 @@ func TestGetHowShouldReplacementAttorneysStepInWhenStoreError(t *testing.T) {
 
 	template := &mockTemplate{}
 
-	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -97,7 +97,7 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -114,7 +114,7 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 
 	template := &mockTemplate{}
 
-	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -172,7 +172,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &mockLpaStore{}
 			lpaStore.
@@ -192,7 +192,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 
 			template := &mockTemplate{}
 
-			err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(appData, w, r)
+			err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -239,7 +239,7 @@ func TestPostHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &mockLpaStore{}
 			lpaStore.
@@ -256,7 +256,7 @@ func TestPostHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 
 			template := &mockTemplate{}
 
-			err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(appData, w, r)
+			err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -275,7 +275,7 @@ func TestPostHowShouldReplacementAttorneysStepInFormValidation(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -285,13 +285,13 @@ func TestPostHowShouldReplacementAttorneysStepInFormValidation(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howShouldReplacementAttorneysStepInData{
-			App:    appData,
+			App:    testAppData,
 			Errors: validation.With("when-to-step-in", validation.SelectError{Label: "whenYourReplacementAttorneysStepIn"}),
 			Form:   &howShouldReplacementAttorneysStepInForm{},
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -307,7 +307,7 @@ func TestPostHowShouldReplacementAttorneysStepInWhenPutStoreError(t *testing.T) 
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -324,7 +324,7 @@ func TestPostHowShouldReplacementAttorneysStepInWhenPutStoreError(t *testing.T) 
 
 	template := &mockTemplate{}
 
-	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

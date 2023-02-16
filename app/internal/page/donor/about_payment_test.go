@@ -32,12 +32,12 @@ func TestGetAboutPayment(t *testing.T) {
 
 		template := &mockTemplate{}
 		template.
-			On("Func", w, &aboutPaymentData{App: appData}).
+			On("Func", w, &aboutPaymentData{App: testAppData}).
 			Return(nil)
 
 		payClient := mockPayClient{BaseURL: "http://base.url"}
 
-		err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl, random, lpaStore)(appData, w, r)
+		err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl, random, lpaStore)(testAppData, w, r)
 		resp := w.Result()
 
 		assert.Nil(t, err)
@@ -58,7 +58,7 @@ func TestGetAboutPayment(t *testing.T) {
 
 		payClient := mockPayClient{BaseURL: "http://base.url"}
 
-		err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl, random, lpaStore)(appData, w, r)
+		err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl, random, lpaStore)(testAppData, w, r)
 		resp := w.Result()
 
 		assert.Equal(t, err, expectedError)
@@ -77,12 +77,12 @@ func TestGetAboutPayment(t *testing.T) {
 
 		template := &mockTemplate{}
 		template.
-			On("Func", w, &aboutPaymentData{App: appData}).
+			On("Func", w, &aboutPaymentData{App: testAppData}).
 			Return(expectedError)
 
 		payClient := mockPayClient{BaseURL: "http://base.url"}
 
-		err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl, random, lpaStore)(appData, w, r)
+		err := AboutPayment(&mockLogger{}, template.Func, &mockSessionsStore{}, &payClient, publicUrl, random, lpaStore)(testAppData, w, r)
 		resp := w.Result()
 
 		assert.Equal(t, expectedError, err)
@@ -121,7 +121,7 @@ func TestPostAboutPayment(t *testing.T) {
 
 				template := &mockTemplate{}
 				template.
-					On("Func", w, &aboutPaymentData{App: appData}).
+					On("Func", w, &aboutPaymentData{App: testAppData}).
 					Return(nil)
 
 				sessionsStore := &mockSessionsStore{}
@@ -161,7 +161,7 @@ func TestPostAboutPayment(t *testing.T) {
 						},
 					}, nil)
 
-				err := AboutPayment(&mockLogger{}, template.Func, sessionsStore, &payClient, publicUrl, random, lpaStore)(appData, w, r)
+				err := AboutPayment(&mockLogger{}, template.Func, sessionsStore, &payClient, publicUrl, random, lpaStore)(testAppData, w, r)
 				resp := w.Result()
 
 				assert.Nil(t, err)
@@ -196,7 +196,7 @@ func TestPostAboutPayment(t *testing.T) {
 			On("CreatePayment", mock.Anything).
 			Return(pay.CreatePaymentResponse{}, expectedError)
 
-		err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl, random, lpaStore)(appData, w, r)
+		err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl, random, lpaStore)(testAppData, w, r)
 
 		assert.Equal(t, expectedError, err, "Expected error was not returned")
 		mock.AssertExpectationsForObjects(t, logger, &payClient)
@@ -227,7 +227,7 @@ func TestPostAboutPayment(t *testing.T) {
 			On("CreatePayment", mock.Anything).
 			Return(pay.CreatePaymentResponse{Links: map[string]pay.Link{"next_url": {Href: "http://example.url"}}}, nil)
 
-		err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl, random, lpaStore)(appData, w, r)
+		err := AboutPayment(logger, template.Func, sessionsStore, &payClient, publicUrl, random, lpaStore)(testAppData, w, r)
 
 		assert.Equal(t, expectedError, err, "Expected error was not returned")
 		mock.AssertExpectationsForObjects(t, sessionsStore, &payClient)

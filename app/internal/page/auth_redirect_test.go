@@ -1,60 +1,23 @@
 package page
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gorilla/sessions"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-var expectedError = errors.New("err")
-
-type mockLogger struct {
-	mock.Mock
-}
-
-func (m *mockLogger) Print(v ...interface{}) {
-	m.Called(v...)
-}
-
-type mockOneLoginClient struct {
-	mock.Mock
-}
-
-func (m *mockOneLoginClient) AuthCodeURL(state, nonce, locale string, identity bool) string {
-	args := m.Called(state, nonce, locale, identity)
-	return args.String(0)
-}
-
-func (m *mockOneLoginClient) Exchange(ctx context.Context, code, nonce string) (string, error) {
-	args := m.Called(ctx, code, nonce)
-	return args.Get(0).(string), args.Error(1)
-}
-
-func (m *mockOneLoginClient) UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error) {
-	args := m.Called(ctx, accessToken)
-	return args.Get(0).(onelogin.UserInfo), args.Error(1)
-}
-
-func (m *mockOneLoginClient) ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error) {
-	args := m.Called(ctx, userInfo)
-	return args.Get(0).(identity.UserData), args.Error(1)
-}
-
 func TestAuthRedirect(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
-	client := &mockOneLoginClient{}
+	client := &MockOneLoginClient{}
 	client.
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
 		Return("a JWT", nil)
@@ -62,7 +25,7 @@ func TestAuthRedirect(t *testing.T) {
 		On("UserInfo", r.Context(), "a JWT").
 		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
 
-	sessionsStore := &mockSessionsStore{}
+	sessionsStore := &MockSessionsStore{}
 
 	session := sessions.NewSession(sessionsStore, "session")
 	session.Options = &sessions.Options{
@@ -103,7 +66,7 @@ func TestAuthRedirectWithIdentity(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
-	sessionsStore := &mockSessionsStore{}
+	sessionsStore := &MockSessionsStore{}
 
 	sessionsStore.
 		On("Get", r, "params").
@@ -131,7 +94,7 @@ func TestAuthRedirectWithCertificateProvider(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
-	sessionsStore := &mockSessionsStore{}
+	sessionsStore := &MockSessionsStore{}
 
 	sessionsStore.
 		On("Get", r, "params").
@@ -161,7 +124,7 @@ func TestAuthRedirectWithCyLocale(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
-	client := &mockOneLoginClient{}
+	client := &MockOneLoginClient{}
 	client.
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
 		Return("a JWT", nil)
@@ -169,7 +132,7 @@ func TestAuthRedirectWithCyLocale(t *testing.T) {
 		On("UserInfo", r.Context(), "a JWT").
 		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
 
-	sessionsStore := &mockSessionsStore{}
+	sessionsStore := &MockSessionsStore{}
 
 	session := sessions.NewSession(sessionsStore, "session")
 	session.Options = &sessions.Options{
@@ -218,8 +181,8 @@ func TestAuthRedirectSessionMissing(t *testing.T) {
 		"missing session": {
 			url:         "/?code=auth-code&state=my-state",
 			session:     nil,
-			getErr:      expectedError,
-			expectedErr: expectedError,
+			getErr:      ExpectedError,
+			expectedErr: ExpectedError,
 		},
 		"missing state": {
 			url:         "/?code=auth-code&state=my-state",
@@ -251,11 +214,11 @@ func TestAuthRedirectSessionMissing(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 
-			logger := &mockLogger{}
+			logger := &MockLogger{}
 			logger.
 				On("Print", tc.expectedErr)
 
-			sessionsStore := &mockSessionsStore{}
+			sessionsStore := &MockSessionsStore{}
 			sessionsStore.
 				On("Get", r, "params").
 				Return(tc.session, tc.getErr)
@@ -273,11 +236,11 @@ func TestAuthRedirectStateIncorrect(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=hello", nil)
 
-	logger := &mockLogger{}
+	logger := &MockLogger{}
 	logger.
 		On("Print", "state incorrect")
 
-	sessionsStore := &mockSessionsStore{}
+	sessionsStore := &MockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "params").
 		Return(&sessions.Session{
@@ -297,16 +260,16 @@ func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
-	logger := &mockLogger{}
+	logger := &MockLogger{}
 	logger.
-		On("Print", expectedError)
+		On("Print", ExpectedError)
 
-	client := &mockOneLoginClient{}
+	client := &MockOneLoginClient{}
 	client.
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
-		Return("", expectedError)
+		Return("", ExpectedError)
 
-	sessionsStore := &mockSessionsStore{}
+	sessionsStore := &MockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "params").
 		Return(&sessions.Session{
@@ -324,19 +287,19 @@ func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
-	logger := &mockLogger{}
+	logger := &MockLogger{}
 	logger.
-		On("Print", expectedError)
+		On("Print", ExpectedError)
 
-	client := &mockOneLoginClient{}
+	client := &MockOneLoginClient{}
 	client.
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
 		Return("a JWT", nil)
 	client.
 		On("UserInfo", r.Context(), "a JWT").
-		Return(onelogin.UserInfo{}, expectedError)
+		Return(onelogin.UserInfo{}, ExpectedError)
 
-	sessionsStore := &mockSessionsStore{}
+	sessionsStore := &MockSessionsStore{}
 	sessionsStore.
 		On("Get", r, "params").
 		Return(&sessions.Session{

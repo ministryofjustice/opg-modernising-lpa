@@ -9,14 +9,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const formUrlEncoded = "application/x-www-form-urlencoded"
-
 func TestCookieConsent(t *testing.T) {
 	for _, consent := range []string{"accept", "reject"} {
 		t.Run(consent, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader("cookies="+consent))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r.Header.Add("Content-Type", FormUrlEncoded)
 
 			CookieConsent(Paths)(w, r)
 			resp := w.Result()
@@ -40,7 +38,7 @@ func TestCookieConsent(t *testing.T) {
 func TestCookieConsentRedirect(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader("cookies-redirect=/here&cookies=accept"))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", FormUrlEncoded)
 
 	CookieConsent(Paths)(w, r)
 	resp := w.Result()
@@ -62,7 +60,7 @@ func TestCookieConsentRedirect(t *testing.T) {
 func TestCookieConsentBadRedirect(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader("cookies-redirect=http://google&cookies=accept"))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", FormUrlEncoded)
 
 	CookieConsent(Paths)(w, r)
 	resp := w.Result()

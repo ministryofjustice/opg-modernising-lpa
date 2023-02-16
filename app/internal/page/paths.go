@@ -1,6 +1,10 @@
 package page
 
-import "strings"
+import (
+	"strings"
+
+	"golang.org/x/exp/slices"
+)
 
 type AppPaths struct {
 	AboutPayment                                         string
@@ -10,7 +14,9 @@ type AppPaths struct {
 	CertificateProviderDetails                           string
 	CertificateProviderLogin                             string
 	CertificateProviderLoginCallback                     string
+	CertificateProviderReadTheLpa                        string
 	CertificateProviderStart                             string
+	CertificateProviderYourAddress                       string
 	CertificateProviderYourDetails                       string
 	CheckYourLpa                                         string
 	ChooseAttorneys                                      string
@@ -81,7 +87,9 @@ var Paths = AppPaths{
 	CertificateProviderDetails:                           "/certificate-provider-details",
 	CertificateProviderLogin:                             "/certificate-provider-login",
 	CertificateProviderLoginCallback:                     "/certificate-provider-login-callback",
+	CertificateProviderReadTheLpa:                        "/certificate-provider-read-the-lpa",
 	CertificateProviderStart:                             "/certificate-provider-start",
+	CertificateProviderYourAddress:                       "/certificate-provider-your-address",
 	CertificateProviderYourDetails:                       "/certificate-provider-your-details",
 	CheckYourLpa:                                         "/check-your-lpa",
 	ChooseAttorneys:                                      "/choose-attorneys",
@@ -147,7 +155,16 @@ var Paths = AppPaths{
 func IsLpaPath(url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 
-	return path != Paths.Auth && path != Paths.AuthRedirect &&
-		path != Paths.Dashboard && path != Paths.Start &&
-		path != Paths.CertificateProviderStart && path != Paths.CertificateProviderLogin && path != Paths.CertificateProviderLoginCallback && path != Paths.CertificateProviderYourDetails
+	return !slices.Contains([]string{
+		Paths.Auth,
+		Paths.AuthRedirect,
+		Paths.Dashboard,
+		Paths.Start,
+		Paths.CertificateProviderStart,
+		Paths.CertificateProviderLogin,
+		Paths.CertificateProviderLoginCallback,
+		Paths.CertificateProviderYourDetails,
+		Paths.CertificateProviderYourAddress,
+		Paths.CertificateProviderReadTheLpa,
+	}, path)
 }
