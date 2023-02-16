@@ -3,15 +3,12 @@ package page
 import (
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"golang.org/x/exp/slices"
 )
 
 const (
@@ -42,12 +39,24 @@ const (
 func (t TaskState) InProgress() bool { return t == TaskInProgress }
 func (t TaskState) Completed() bool  { return t == TaskCompleted }
 
+func (t TaskState) String() string {
+	switch t {
+	case TaskNotStarted:
+		return "notStarted"
+	case TaskInProgress:
+		return "inProgress"
+	case TaskCompleted:
+		return "completed"
+	}
+	return ""
+}
+
 type Lpa struct {
 	ID                                          string
 	UpdatedAt                                   time.Time
-	You                                         Person
-	Attorneys                                   []Attorney
-	CertificateProvider                         CertificateProvider
+	You                                         actor.Person
+	Attorneys                                   actor.Attorneys
+	CertificateProvider                         actor.CertificateProvider
 	WhoFor                                      string
 	Contact                                     []string
 	Type                                        string
@@ -64,23 +73,26 @@ type Lpa struct {
 	EnteredSignatureCode                        string
 	SignatureEmailID                            string
 	SignatureSmsID                              string
-	IdentityOption                              IdentityOption
+	IdentityOption                              identity.Option
 	YotiUserData                                identity.UserData
 	OneLoginUserData                            identity.UserData
 	HowAttorneysMakeDecisions                   string
 	HowAttorneysMakeDecisionsDetails            string
-	ReplacementAttorneys                        []Attorney
+	ReplacementAttorneys                        actor.Attorneys
 	HowReplacementAttorneysMakeDecisions        string
 	HowReplacementAttorneysMakeDecisionsDetails string
 	HowShouldReplacementAttorneysStepIn         string
 	HowShouldReplacementAttorneysStepInDetails  string
 	DoYouWantToNotifyPeople                     string
-	PeopleToNotify                              []PersonToNotify
+	PeopleToNotify                              actor.PeopleToNotify
 	WitnessCode                                 WitnessCode
-	CPWitnessedDonorSign                        bool
 	WantToApplyForLpa                           bool
-	CPWitnessCodeValidated                      bool
+	WantToSignLpa                               bool
 	Submitted                                   time.Time
+	CPWitnessCodeValidated                      bool
+
+	CertificateProviderUserData        identity.UserData
+	CertificateProviderProvidedDetails actor.CertificateProvider
 }
 
 type PaymentDetails struct {
@@ -101,65 +113,13 @@ type Tasks struct {
 	PeopleToNotify             TaskState
 }
 
-type Person struct {
-	FirstNames  string
-	LastName    string
-	Email       string
-	OtherNames  string
-	DateOfBirth time.Time
-	Address     place.Address
-}
-
-type PersonToNotify struct {
-	FirstNames string
-	LastName   string
-	Email      string
-	Address    place.Address
-	ID         string
-}
-
-type Attorney struct {
-	ID          string
-	FirstNames  string
-	LastName    string
-	Email       string
-	DateOfBirth time.Time
-	Address     place.Address
-}
-
-type CertificateProvider struct {
-	FirstNames              string
-	LastName                string
-	Email                   string
-	Address                 place.Address
-	Mobile                  string
-	DateOfBirth             time.Time
-	CarryOutBy              string
-	Relationship            string
-	RelationshipDescription string
-	RelationshipLength      string
-}
-
-type AddressClient interface {
-	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
-}
-
-type Date struct {
-	Day   string
-	Month string
-	Year  string
-}
-
-func (d *Date) Entered() bool {
-	return d.Day != "" && d.Month != "" && d.Year != ""
-}
-
-func readDate(t time.Time) Date {
-	return Date{
-		Day:   t.Format("2"),
-		Month: t.Format("1"),
-		Year:  t.Format("2006"),
-	}
+type Progress struct {
+	LpaSigned                   TaskState
+	CertificateProviderDeclared TaskState
+	AttorneysDeclared           TaskState
+	LpaSubmitted                TaskState
+	StatutoryWaitingPeriod      TaskState
+	LpaRegistered               TaskState
 }
 
 type WitnessCode struct {
@@ -178,62 +138,19 @@ type LpaStore interface {
 	Put(context.Context, *Lpa) error
 }
 
-type sessionData struct {
+type SessionData struct {
 	SessionID string
 	LpaID     string
 }
 
-func sessionDataFromContext(ctx context.Context) *sessionData {
-	data, _ := ctx.Value((*sessionData)(nil)).(*sessionData)
+func SessionDataFromContext(ctx context.Context) *SessionData {
+	data, _ := ctx.Value((*SessionData)(nil)).(*SessionData)
 
 	return data
 }
 
-func contextWithSessionData(ctx context.Context, data *sessionData) context.Context {
-	return context.WithValue(ctx, (*sessionData)(nil), data)
-}
-
-type lpaStore struct {
-	dataStore DataStore
-	randomInt func(int) int
-}
-
-func (s *lpaStore) Create(ctx context.Context) (*Lpa, error) {
-	lpa := &Lpa{ID: "10" + strconv.Itoa(s.randomInt(100000))}
-	err := s.Put(ctx, lpa)
-
-	return lpa, err
-}
-
-func (s *lpaStore) GetAll(ctx context.Context) ([]*Lpa, error) {
-	var lpas []*Lpa
-	err := s.dataStore.GetAll(ctx, sessionDataFromContext(ctx).SessionID, &lpas)
-
-	slices.SortFunc(lpas, func(a, b *Lpa) bool {
-		return a.UpdatedAt.After(b.UpdatedAt)
-	})
-
-	return lpas, err
-}
-
-func (s *lpaStore) Get(ctx context.Context) (*Lpa, error) {
-	data := sessionDataFromContext(ctx)
-	if data.LpaID == "" {
-		return nil, errors.New("lpaStore.Get requires LpaID to retrieve")
-	}
-
-	var lpa Lpa
-	if err := s.dataStore.Get(ctx, data.SessionID, data.LpaID, &lpa); err != nil {
-		return nil, err
-	}
-
-	return &lpa, nil
-}
-
-func (s *lpaStore) Put(ctx context.Context, lpa *Lpa) error {
-	lpa.UpdatedAt = time.Now()
-
-	return s.dataStore.Put(ctx, sessionDataFromContext(ctx).SessionID, lpa.ID, lpa)
+func ContextWithSessionData(ctx context.Context, data *SessionData) context.Context {
+	return context.WithValue(ctx, (*SessionData)(nil), data)
 }
 
 func DecodeAddress(s string) *place.Address {
@@ -246,169 +163,7 @@ func (l *Lpa) IdentityConfirmed() bool {
 	return l.YotiUserData.OK || l.OneLoginUserData.OK
 }
 
-func (l *Lpa) GetAttorney(id string) (Attorney, bool) {
-	idx := slices.IndexFunc(l.Attorneys, func(a Attorney) bool { return a.ID == id })
-
-	if idx == -1 {
-		return Attorney{}, false
-	}
-
-	return l.Attorneys[idx], true
-}
-
-func (l *Lpa) PutAttorney(attorney Attorney) bool {
-	idx := slices.IndexFunc(l.Attorneys, func(a Attorney) bool { return a.ID == attorney.ID })
-
-	if idx == -1 {
-		return false
-	}
-
-	l.Attorneys[idx] = attorney
-
-	return true
-}
-
-func (l *Lpa) DeleteAttorney(attorney Attorney) bool {
-	idx := slices.IndexFunc(l.Attorneys, func(a Attorney) bool { return a.ID == attorney.ID })
-
-	if idx == -1 {
-		return false
-	}
-
-	l.Attorneys = slices.Delete(l.Attorneys, idx, idx+1)
-
-	return true
-}
-
-func (l *Lpa) GetReplacementAttorney(id string) (Attorney, bool) {
-	idx := slices.IndexFunc(l.ReplacementAttorneys, func(a Attorney) bool { return a.ID == id })
-
-	if idx == -1 {
-		return Attorney{}, false
-	}
-
-	return l.ReplacementAttorneys[idx], true
-}
-
-func (l *Lpa) PutReplacementAttorney(attorney Attorney) bool {
-	idx := slices.IndexFunc(l.ReplacementAttorneys, func(a Attorney) bool { return a.ID == attorney.ID })
-
-	if idx == -1 {
-		return false
-	}
-
-	l.ReplacementAttorneys[idx] = attorney
-
-	return true
-}
-
-func (l *Lpa) DeleteReplacementAttorney(attorney Attorney) bool {
-	idx := slices.IndexFunc(l.ReplacementAttorneys, func(a Attorney) bool { return a.ID == attorney.ID })
-
-	if idx == -1 {
-		return false
-	}
-
-	l.ReplacementAttorneys = slices.Delete(l.ReplacementAttorneys, idx, idx+1)
-
-	return true
-}
-
-func (l *Lpa) GetPersonToNotify(id string) (PersonToNotify, bool) {
-	idx := slices.IndexFunc(l.PeopleToNotify, func(p PersonToNotify) bool { return p.ID == id })
-
-	if idx == -1 {
-		return PersonToNotify{}, false
-	}
-
-	return l.PeopleToNotify[idx], true
-}
-
-func (l *Lpa) PutPersonToNotify(person PersonToNotify) bool {
-	idx := slices.IndexFunc(l.PeopleToNotify, func(p PersonToNotify) bool { return p.ID == person.ID })
-
-	if idx == -1 {
-		return false
-	}
-
-	l.PeopleToNotify[idx] = person
-
-	return true
-}
-
-func (l *Lpa) DeletePersonToNotify(personToNotify PersonToNotify) bool {
-	idx := slices.IndexFunc(l.PeopleToNotify, func(p PersonToNotify) bool { return p.ID == personToNotify.ID })
-
-	if idx == -1 {
-		return false
-	}
-
-	l.PeopleToNotify = slices.Delete(l.PeopleToNotify, idx, idx+1)
-
-	return true
-}
-
-func (l *Lpa) AttorneysFullNames() string {
-	var names []string
-
-	for _, a := range l.Attorneys {
-		names = append(names, fmt.Sprintf("%s %s", a.FirstNames, a.LastName))
-	}
-
-	return concatSentence(names)
-}
-
-func (l *Lpa) AttorneysFirstNames() string {
-	var names []string
-
-	for _, a := range l.Attorneys {
-		names = append(names, a.FirstNames)
-	}
-
-	return concatSentence(names)
-}
-
-func (l *Lpa) ReplacementAttorneysFullNames() string {
-	var names []string
-
-	for _, a := range l.ReplacementAttorneys {
-		names = append(names, fmt.Sprintf("%s %s", a.FirstNames, a.LastName))
-	}
-
-	return concatSentence(names)
-}
-
-func (l *Lpa) ReplacementAttorneysFirstNames() string {
-	var names []string
-
-	for _, a := range l.ReplacementAttorneys {
-		names = append(names, a.FirstNames)
-	}
-
-	return concatSentence(names)
-}
-
-func concatSentence(list []string) string {
-	switch len(list) {
-	case 0:
-		return ""
-	case 1:
-		return list[0]
-	default:
-		last := len(list) - 1
-		return fmt.Sprintf("%s and %s", strings.Join(list[:last], ", "), list[last])
-	}
-}
-
-func (l *Lpa) DonorFullName() string {
-	return fmt.Sprintf("%s %s", l.You.FirstNames, l.You.LastName)
-}
-
-func (l *Lpa) CertificateProviderFullName() string {
-	return fmt.Sprintf("%s %s", l.CertificateProvider.FirstNames, l.CertificateProvider.LastName)
-}
-
-func (l *Lpa) LpaLegalTermTransKey() string {
+func (l *Lpa) TypeLegalTermTransKey() string {
 	switch l.Type {
 	case LpaTypePropertyFinance:
 		return "pfaLegalTerm"
@@ -428,11 +183,17 @@ func (l *Lpa) CanGoTo(url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 
 	switch path {
-	case Paths.WhenCanTheLpaBeUsed, Paths.Restrictions, Paths.WhoDoYouWantToBeCertificateProviderGuidance:
-		return l.Tasks.ChooseAttorneys.Completed()
+	case Paths.WhenCanTheLpaBeUsed, Paths.Restrictions, Paths.WhoDoYouWantToBeCertificateProviderGuidance, Paths.DoYouWantToNotifyPeople:
+		return l.Tasks.YourDetails.Completed() &&
+			l.Tasks.ChooseAttorneys.Completed()
 	case Paths.CheckYourLpa:
-		return l.Tasks.ChooseAttorneys.Completed() &&
-			l.Tasks.CertificateProvider.Completed()
+		return l.Tasks.YourDetails.Completed() &&
+			l.Tasks.ChooseAttorneys.Completed() &&
+			l.Tasks.ChooseReplacementAttorneys.Completed() &&
+			l.Tasks.WhenCanTheLpaBeUsed.Completed() &&
+			l.Tasks.Restrictions.Completed() &&
+			l.Tasks.CertificateProvider.Completed() &&
+			l.Tasks.PeopleToNotify.Completed()
 	case Paths.AboutPayment:
 		return l.Tasks.YourDetails.Completed() &&
 			l.Tasks.ChooseAttorneys.Completed() &&
@@ -449,4 +210,32 @@ func (l *Lpa) CanGoTo(url string) bool {
 	default:
 		return true
 	}
+}
+
+func (l *Lpa) Progress() Progress {
+	p := Progress{
+		LpaSigned:                   TaskInProgress,
+		CertificateProviderDeclared: TaskNotStarted,
+		AttorneysDeclared:           TaskNotStarted,
+		LpaSubmitted:                TaskNotStarted,
+		StatutoryWaitingPeriod:      TaskNotStarted,
+		LpaRegistered:               TaskNotStarted,
+	}
+
+	if !l.Submitted.IsZero() {
+		p.LpaSigned = TaskCompleted
+	}
+
+	if p.LpaSigned.Completed() {
+		p.CertificateProviderDeclared = TaskInProgress
+	}
+
+	// Further logic to be added as we build the rest of the flow
+
+	return p
+}
+
+type ShareCodeData struct {
+	SessionID string
+	LpaID     string
 }

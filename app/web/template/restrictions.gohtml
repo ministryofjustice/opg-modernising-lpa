@@ -7,14 +7,14 @@
     <div class="govuk-grid-column-two-thirds">
       <form novalidate method="post">
         <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">
-          {{ trFormat .App "restrictionsOnYourAttorneysPower" "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+          {{ trFormat .App "restrictionsOnYourAttorneysPower" "AllAttorneysFirstNames" .Lpa.Attorneys.FirstNames }}
         </h1>
 
-        {{ trFormatHtml .App "restrictionsOnYourAttorneysPowerContent" "AllAttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+        {{ trFormatHtml .App "restrictionsOnYourAttorneysPowerContent" "AllAttorneysFirstNames" .Lpa.Attorneys.FirstNames }}
 
         {{ template "details" (details . "restrictionExamples" "restrictionExamplesContent" false) }}
 
-        <div class="govuk-form-group {{ if index .Errors "restrictions" }}govuk-form-group--error{{ end }}">
+        <div class="govuk-form-group {{ if .Errors.Has "restrictions" }}govuk-form-group--error{{ end }}">
           <label class="govuk-label govuk-label--s" for="f-restrictions">
             {{ tr .App "restrictions" }}
           </label>
@@ -22,7 +22,7 @@
             {{ tr .App "restrictionsHint" }}
           </div>
           {{ template "error-message" (errorMessage . "restrictions") }}
-          <textarea class="govuk-textarea {{ if index .Errors "restrictions" }}govuk-textarea--error{{ end }}" id="f-restrictions" name="restrictions" rows="5">{{ .Lpa.Restrictions }}</textarea>
+          <textarea class="govuk-textarea {{ if .Errors.Has "restrictions" }}govuk-textarea--error{{ end }}" id="f-restrictions" name="restrictions" rows="5">{{ .Lpa.Restrictions }}</textarea>
         </div>
 
         <div class="govuk-button-group">
@@ -31,6 +31,7 @@
             <button type="submit" name="answer-later" value="1" class="govuk-button govuk-button--secondary">{{ tr .App "answerLater" }}</button>
           {{ end }}
         </div>
+        {{ template "csrf-field" . }}
       </form>
     </div>
   </div>

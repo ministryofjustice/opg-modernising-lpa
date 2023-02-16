@@ -14,7 +14,7 @@
               </h1>
             </legend>
 
-            <div class="govuk-form-group {{ if index .Errors "remove-person-to-notify" }}govuk-form-group--error{{ end }}">
+            <div class="govuk-form-group {{ if .Errors.Has "remove-person-to-notify" }}govuk-form-group--error{{ end }}">
               {{ template "error-message" (errorMessage . "remove-person-to-notify") }}
 
               {{ template "radios" (items . "remove-person-to-notify" ""
@@ -28,6 +28,7 @@
         <div class="govuk-button-group">
           {{ template "continue-button" . }}
         </div>
+        {{ template "csrf-field" . }}
       </form>
     </div>
   </div>

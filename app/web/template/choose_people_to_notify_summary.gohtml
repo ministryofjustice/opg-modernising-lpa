@@ -9,7 +9,7 @@
 
       {{ trHtml .App "weCanNotifyUpTo5PeopleContent" }}
 
-      {{ template "people-to-notify-summary" (listPeopleToNotify .Lpa.PeopleToNotify .App .App.Paths.ChoosePeopleToNotify .App.Paths.ChoosePeopleToNotifyAddress .App.Paths.RemovePersonToNotify) }}
+        {{ template "people-to-notify-summary" (listPeopleToNotify .App true  .Lpa) }}
 
       {{ if eq 5 (len .Lpa.PeopleToNotify) }}
         {{ template "warning" (warning .App "addedMaxPeople") }}
@@ -23,12 +23,12 @@
         </form>
       {{ else }}
         <form novalidate method="post">
-          <div class="govuk-form-group">
+          <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
               {{ tr .App "doYouWantToAddAnotherPersonToNotify" }}
             </legend>
 
-            <div class="govuk-form-group {{ if index .Errors "add-person-to-notify" }}govuk-form-group--error{{ end }}">
+            <div class="govuk-form-group {{ if .Errors.Has "add-person-to-notify" }}govuk-form-group--error{{ end }}">
               {{ template "error-message" (errorMessage . "add-person-to-notify") }}
 
               {{ template "radios" (items . "add-person-to-notify" ""
@@ -36,11 +36,12 @@
                 (item "no" "no")
               ) }}
             </div>
-          </div>
+          </fieldset>
 
           <div class="govuk-button-group">
             {{ template "continue-button" . }}
           </div>
+          {{ template "csrf-field" . }}
         </form>
       {{ end }}
     </div>

@@ -42,7 +42,7 @@
             </div>
 
             <form novalidate action="/cookies-consent" method="post">
-              <input type="hidden" name="cookies-redirect" value="{{ link .App .App.Page }}" />
+              <input type="hidden" name="cookies-redirect" value="{{ link .App .App.Page }}{{ .App.Query }}" />
               <div class="govuk-button-group">
                 <button value="accept" type="submit" name="cookies" class="govuk-button" data-module="govuk-button">
                   {{ tr .App "acceptCookies" }}
@@ -52,6 +52,7 @@
                 </button>
                 <a class="govuk-link" href="#">{{ tr .App "viewCookies" }}</a>
               </div>
+              {{ template "csrf-field" . }}
             </form>
           </div>
         </div>
@@ -121,7 +122,6 @@
 
         <main class="govuk-main-wrapper app-main-class" id="main-content" role="main">
           {{ template "error-summary" . }}
-
           {{ template "main" . }}
         </main>
       </div>
@@ -149,11 +149,6 @@
                 </li>
                 <li class="govuk-footer__inline-list-item">
                   <a class="govuk-footer__link" href="#4">
-                    {{ tr .App "termsAndConditions" }}
-                  </a>
-                </li>
-                <li class="govuk-footer__inline-list-item">
-                  <a class="govuk-footer__link" href="#5">
                     {{ tr .App "termsAndConditions" }}
                   </a>
                 </li>

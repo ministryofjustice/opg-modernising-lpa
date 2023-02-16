@@ -5,19 +5,21 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestIsEnglish(t *testing.T) {
-	assert.True(t, isEnglish(page.En))
-	assert.False(t, isEnglish(page.Cy))
+	assert.True(t, isEnglish(localize.En))
+	assert.False(t, isEnglish(localize.Cy))
 }
 
 func TestIsWelsh(t *testing.T) {
-	assert.True(t, isWelsh(page.Cy))
-	assert.False(t, isWelsh(page.En))
+	assert.True(t, isWelsh(localize.Cy))
+	assert.False(t, isWelsh(localize.En))
 }
 
 func TestInput(t *testing.T) {
@@ -132,9 +134,9 @@ func TestInc(t *testing.T) {
 
 func TestLink(t *testing.T) {
 	assert.Equal(t, "/dashboard", link(page.AppData{}, "/dashboard"))
-	assert.Equal(t, "/cy/dashboard", link(page.AppData{Lang: page.Cy}, "/dashboard"))
+	assert.Equal(t, "/cy/dashboard", link(page.AppData{Lang: localize.Cy}, "/dashboard"))
 	assert.Equal(t, "/lpa/123/somewhere", link(page.AppData{LpaID: "123"}, "/somewhere"))
-	assert.Equal(t, "/cy/lpa/123/somewhere", link(page.AppData{Lang: page.Cy, LpaID: "123"}, "/somewhere"))
+	assert.Equal(t, "/cy/lpa/123/somewhere", link(page.AppData{Lang: localize.Cy, LpaID: "123"}, "/somewhere"))
 }
 
 func TestContains(t *testing.T) {
@@ -234,6 +236,7 @@ func TestAddDays(t *testing.T) {
 
 func TestFormatDate(t *testing.T) {
 	assert.Equal(t, "7 March 2020", formatDate(time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "7 March 2020", formatDate(date.New("2020", "3", "7")))
 }
 
 func TestFormatDateTime(t *testing.T) {
@@ -245,26 +248,56 @@ func TestLowerFirst(t *testing.T) {
 	assert.Equal(t, "hello", lowerFirst("hello"))
 }
 
-func TestListAttorneys(t *testing.T) {
-	attorneys := []page.Attorney{
+func TestListAttorneysWithAttorneys(t *testing.T) {
+	attorneys := actor.Attorneys{
 		{ID: "123"},
 		{ID: "123"},
 	}
 
-	detailsPath := "/some-path"
-	addressPath := "/some-other-path"
-	removePath := "/more-path?"
-	app := page.AppData{SessionID: "abc"}
+	app := page.AppData{SessionID: "abc", Page: "/here"}
+	withHeaders := true
+	lpa := &page.Lpa{}
+	attorneyType := "attorney"
 
 	want := map[string]interface{}{
-		"Attorneys":   attorneys,
-		"App":         app,
-		"DetailsPath": detailsPath,
-		"AddressPath": addressPath,
-		"RemovePath":  removePath,
+		"Attorneys":    attorneys,
+		"App":          app,
+		"WithHeaders":  withHeaders,
+		"Lpa":          lpa,
+		"AttorneyType": attorneyType,
+		"DetailsPath":  app.Paths.ChooseAttorneys + "?from=/here",
+		"AddressPath":  app.Paths.ChooseAttorneysAddress + "?from=/here",
+		"RemovePath":   app.Paths.RemoveAttorney + "?from=/here",
 	}
 
-	got := listAttorneys(attorneys, app, detailsPath, addressPath, removePath)
+	got := listAttorneys(attorneys, app, attorneyType, withHeaders, lpa)
+
+	assert.Equal(t, want, got)
+}
+
+func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
+	attorneys := actor.Attorneys{
+		{ID: "123"},
+		{ID: "123"},
+	}
+
+	app := page.AppData{SessionID: "abc", Page: "/here"}
+	withHeaders := true
+	lpa := &page.Lpa{}
+	attorneyType := "replacement"
+
+	want := map[string]interface{}{
+		"Attorneys":    attorneys,
+		"App":          app,
+		"WithHeaders":  withHeaders,
+		"Lpa":          lpa,
+		"AttorneyType": attorneyType,
+		"DetailsPath":  app.Paths.ChooseReplacementAttorneys + "?from=/here",
+		"AddressPath":  app.Paths.ChooseReplacementAttorneysAddress + "?from=/here",
+		"RemovePath":   app.Paths.RemoveReplacementAttorney + "?from=/here",
+	}
+
+	got := listAttorneys(attorneys, app, attorneyType, withHeaders, lpa)
 
 	assert.Equal(t, want, got)
 }
@@ -280,25 +313,47 @@ func TestWarning(t *testing.T) {
 }
 
 func TestListPeopleToNotify(t *testing.T) {
-	peopleToNotify := []page.PersonToNotify{
-		{ID: "123"},
-		{ID: "123"},
-	}
-
-	detailsPath := "/some-path"
-	addressPath := "/some-other-path"
-	removePath := "/more-path?"
 	app := page.AppData{SessionID: "abc"}
+	withHeaders := true
+	lpa := &page.Lpa{}
 
 	want := map[string]interface{}{
-		"PeopleToNotify": peopleToNotify,
-		"App":            app,
-		"DetailsPath":    detailsPath,
-		"AddressPath":    addressPath,
-		"RemovePath":     removePath,
+		"App":         app,
+		"WithHeaders": withHeaders,
+		"Lpa":         lpa,
 	}
 
-	got := listPeopleToNotify(peopleToNotify, app, detailsPath, addressPath, removePath)
+	got := listPeopleToNotify(app, withHeaders, lpa)
+
+	assert.Equal(t, want, got)
+}
+
+func TestProgressbar(t *testing.T) {
+	app := page.AppData{SessionID: "abc"}
+	lpa := &page.Lpa{}
+
+	want := map[string]interface{}{
+		"App": app,
+		"Lpa": lpa,
+	}
+
+	got := progressBar(app, lpa)
+
+	assert.Equal(t, want, got)
+}
+
+func TestListPeopleNamedOnLpa(t *testing.T) {
+	app := page.AppData{SessionID: "abc"}
+	withHeaders := true
+	lpa := &page.Lpa{}
+
+	want := map[string]interface{}{
+		"App":               app,
+		"ShowPeopleHeaders": withHeaders,
+		"Lpa":               lpa,
+	}
+
+	got := peopleNamedOnLpa(app, lpa, withHeaders)
 
 	assert.Equal(t, want, got)
 }

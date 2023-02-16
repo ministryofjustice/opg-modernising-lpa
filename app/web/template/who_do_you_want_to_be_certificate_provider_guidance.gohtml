@@ -9,7 +9,7 @@
       {{ trHtml .App "whoDoYouWantToBeCertificateProviderGuidanceIntro" }}
       {{ trHtml .App "whatYourCertificateProviderHasToDo" }}
       {{ trHtml .App "whoToChooseAsYourCertificateProvider" }}
-      {{ trFormatHtml .App "whoCannotBeACertificateProvider" "AttorneysFirstNames" .Lpa.AttorneysFirstNames }}
+      {{ trFormatHtml .App "whoCannotBeACertificateProvider" "AttorneysFirstNames" .Lpa.Attorneys.FirstNames }}
       {{ trHtml .App "detailsYoullNeedAboutYourCertificateProvider" }}
 
       <form novalidate method="post">
@@ -19,6 +19,7 @@
             <button type="submit" name="will-do-this-later" value="1" class="govuk-button govuk-button--secondary">{{ tr .App "willDoThisLater" }}</button>
           {{ end }}
         </div>
+        {{ template "csrf-field" . }}
       </form>
     </div>
   </div>

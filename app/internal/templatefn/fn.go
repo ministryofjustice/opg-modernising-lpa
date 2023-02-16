@@ -7,6 +7,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"golang.org/x/exp/slices"
 )
@@ -37,14 +39,16 @@ var All = map[string]interface{}{
 	"listAttorneys":      listAttorneys,
 	"warning":            warning,
 	"listPeopleToNotify": listPeopleToNotify,
+	"progressBar":        progressBar,
+	"peopleNamedOnLpa":   peopleNamedOnLpa,
 }
 
-func isEnglish(lang page.Lang) bool {
-	return lang == page.En
+func isEnglish(lang localize.Lang) bool {
+	return lang == localize.En
 }
 
-func isWelsh(lang page.Lang) bool {
-	return lang == page.Cy
+func isWelsh(lang localize.Lang) bool {
+	return lang == localize.Cy
 }
 
 func input(top interface{}, name, label string, value interface{}, attrs ...interface{}) map[string]interface{} {
@@ -211,7 +215,12 @@ func addDays(days int, t time.Time) time.Time {
 	return t.AddDate(0, 0, days)
 }
 
-func formatDate(t time.Time) string {
+type dateOrTime interface {
+	IsZero() bool
+	Format(string) string
+}
+
+func formatDate(t dateOrTime) string {
 	if t.IsZero() {
 		return ""
 	}
@@ -232,23 +241,33 @@ func lowerFirst(s string) string {
 	return string(unicode.ToLower(r)) + s[n:]
 }
 
-func listAttorneys(attorneys []page.Attorney, app page.AppData, detailsPath, addressPath, removePath string) map[string]interface{} {
-	return map[string]interface{}{
-		"Attorneys":   attorneys,
-		"App":         app,
-		"DetailsPath": detailsPath,
-		"AddressPath": addressPath,
-		"RemovePath":  removePath,
+func listAttorneys(attorneys actor.Attorneys, app page.AppData, attorneyType string, withHeaders bool, lpa *page.Lpa) map[string]interface{} {
+	props := map[string]interface{}{
+		"Attorneys":    attorneys,
+		"App":          app,
+		"WithHeaders":  withHeaders,
+		"Lpa":          lpa,
+		"AttorneyType": attorneyType,
 	}
+
+	if attorneyType == "replacement" {
+		props["DetailsPath"] = fmt.Sprintf("%s?from=%s", app.Paths.ChooseReplacementAttorneys, app.Page)
+		props["AddressPath"] = fmt.Sprintf("%s?from=%s", app.Paths.ChooseReplacementAttorneysAddress, app.Page)
+		props["RemovePath"] = fmt.Sprintf("%s?from=%s", app.Paths.RemoveReplacementAttorney, app.Page)
+	} else {
+		props["DetailsPath"] = fmt.Sprintf("%s?from=%s", app.Paths.ChooseAttorneys, app.Page)
+		props["AddressPath"] = fmt.Sprintf("%s?from=%s", app.Paths.ChooseAttorneysAddress, app.Page)
+		props["RemovePath"] = fmt.Sprintf("%s?from=%s", app.Paths.RemoveAttorney, app.Page)
+	}
+
+	return props
 }
 
-func listPeopleToNotify(peopleToNotify []page.PersonToNotify, app page.AppData, detailsPath, addressPath, removePath string) map[string]interface{} {
+func listPeopleToNotify(app page.AppData, withHeaders bool, lpa *page.Lpa) map[string]interface{} {
 	return map[string]interface{}{
-		"PeopleToNotify": peopleToNotify,
-		"App":            app,
-		"DetailsPath":    detailsPath,
-		"AddressPath":    addressPath,
-		"RemovePath":     removePath,
+		"App":         app,
+		"WithHeaders": withHeaders,
+		"Lpa":         lpa,
 	}
 }
 
@@ -256,5 +275,20 @@ func warning(app page.AppData, content string) map[string]interface{} {
 	return map[string]interface{}{
 		"app":     app,
 		"content": content,
+	}
+}
+
+func progressBar(app page.AppData, lpa *page.Lpa) map[string]interface{} {
+	return map[string]interface{}{
+		"App": app,
+		"Lpa": lpa,
+	}
+}
+
+func peopleNamedOnLpa(app page.AppData, lpa *page.Lpa, showPeopleHeaders bool) map[string]interface{} {
+	return map[string]interface{}{
+		"App":               app,
+		"Lpa":               lpa,
+		"ShowPeopleHeaders": showPeopleHeaders,
 	}
 }

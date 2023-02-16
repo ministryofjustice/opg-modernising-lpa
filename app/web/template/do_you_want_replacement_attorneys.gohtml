@@ -6,38 +6,41 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <form novalidate method="post">
-        <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-          <h1 class="govuk-fieldset__heading govuk-!-margin-bottom-6">{{ tr .App "wantReplacementAttorneys" }}</h1>
-        </legend>
+        <div class="govuk-form-group {{ if .Errors.Has "want" }}govuk-form-group--error{{ end }}">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+              <h1 class="govuk-fieldset__heading govuk-!-margin-bottom-6">{{ tr .App "wantReplacementAttorneys" }}</h1>
+            </legend>
 
-        <p class="govuk-body-l">{{ tr .App "replacementAttorneysStepIn" }}</p>
+            <p class="govuk-body-l">{{ tr .App "replacementAttorneysStepIn" }}</p>
 
-        <p class="govuk-body">{{ trFormatCount .App "replacementAttorneysStepInExplanation" (len .Lpa.Attorneys) "AttorneysFullNames" .Lpa.AttorneysFullNames }}</p>
+            <p class="govuk-body">{{ trFormatCount .App "replacementAttorneysStepInExplanation" (len .Lpa.Attorneys) "AttorneysFullNames" .Lpa.Attorneys.FullNames }}</p>
 
-        <p class="govuk-body">{{ tr .App "replacementAttorneyRequirements" }}</p>
+            <p class="govuk-body">{{ tr .App "replacementAttorneyRequirements" }}</p>
 
-        {{ trHtml .App "findOutMoreAboutReplacementAttorneysContent" }}
+            {{ trHtml .App "findOutMoreAboutReplacementAttorneysContent" }}
 
-        <div>
-          {{ if eq .Lpa.HowAttorneysMakeDecisions "jointly" }}
-            {{ template "warning" (warning .App "jointlyReplacementWarning") }}
-            {{ trHtml .App "jointlyReplacementWarningContent" }}
-          {{ else if eq .Lpa.HowAttorneysMakeDecisions "mixed" }}
-            {{ template "warning" (warning .App "mixedReplacementWarning") }}
-            {{ trHtml .App "mixedReplacementWarningContent" }}
-          {{ end }}
+            {{ if eq .Lpa.HowAttorneysMakeDecisions "jointly" }}
+              {{ template "warning" (warning .App "jointlyReplacementWarning") }}
+              {{ trHtml .App "jointlyReplacementWarningContent" }}
+            {{ else if eq .Lpa.HowAttorneysMakeDecisions "mixed" }}
+              {{ template "warning" (warning .App "mixedReplacementWarning") }}
+              {{ trHtml .App "mixedReplacementWarningContent" }}
+            {{ end }}
 
-          <div class="govuk-form-group {{ if index .Errors "want" }}govuk-form-group--error{{ end }}">
             {{ template "error-message" (errorMessage . "want") }}
 
             {{ template "radios" (items . "want" .Want
-            (item "yes" "yesReplacementAttorneys")
-            (item "no" "noReplacementAttorneys")
+              (item "yes" "yesReplacementAttorneys")
+              (item "no" "noReplacementAttorneys")
             ) }}
-          </div>
 
-          {{ template "continue-button" . }}
+            <div class="govuk-button-group govuk-!-margin-top-6">
+              {{ template "continue-button" . }}
+            </div>
+          </fieldset>
         </div>
+        {{ template "csrf-field" . }}
       </form>
     </div>
   </div>

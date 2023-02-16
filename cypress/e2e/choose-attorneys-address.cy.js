@@ -1,56 +1,42 @@
+import {AddressFormAssertions} from "../support/e2e";
+
 describe('Choose attorneys address', () => {
-    it('address can be looked up', () => {
+    beforeEach(() => {
         cy.visit('/testing-start?redirect=/choose-attorneys-address?id=without-address&withIncompleteAttorneys=1');
+    });
 
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
-
-        cy.get('#f-lookup-postcode').type('B14 7ED');
-        cy.contains('button', 'Find address').click();
-
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
-
-        cy.get('#f-select-address').select('2 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
-        cy.contains('button', 'Continue').click();
-
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
-
-        cy.get('#f-address-line-1').should('have.value', '2 RICHMOND PLACE');
-        cy.get('#f-address-line-2').should('have.value', '');
-        cy.get('#f-address-line-3').should('have.value', '');
-        cy.get('#f-address-town').should('have.value', 'BIRMINGHAM');
-        cy.get('#f-address-postcode').should('have.value', 'B14 7ED');
-
-        cy.contains('button', 'Continue').click();
+    it('address can be looked up', () => {
+        AddressFormAssertions.assertCanAddAddressFromSelect()
         cy.url().should('contain', '/choose-attorneys-summary');
     });
 
-    it('address can be entered manually', () => {
-        cy.visit('/testing-start?redirect=/choose-attorneys-address?id=without-address&withIncompleteAttorneys=1');
-
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
-
-        cy.get('#f-lookup-postcode').type('NG1');
-        cy.contains('button', 'Find address').click();
-
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
-
-        cy.contains('a', "Can not find address?").click();
-
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
-
-        cy.get('#f-address-line-1').type('Flat 2');
-        cy.get('#f-address-line-2').type('123 Fake Street');
-        cy.get('#f-address-line-3').type('Pretendingham');
-        cy.get('#f-address-town').type('Someville');
-        cy.get('#f-address-postcode').type('NG1');
-
-        cy.contains('button', 'Continue').click();
+    it('address can be entered manually if not found', () => {
+        AddressFormAssertions.assertCanAddAddressManually('I can’t find their address in the list')
         cy.url().should('contain', '/choose-attorneys-summary');
+    });
+
+    it('address can be entered manually on invalid postcode', () => {
+        AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
+        cy.url().should('contain', '/choose-attorneys-summary');
+    });
+
+    it('errors when empty postcode', () => {
+        AddressFormAssertions.assertErrorsWhenPostcodeEmpty()
+    });
+
+    it('errors when invalid postcode', () => {
+        AddressFormAssertions.assertErrorsWhenInvalidPostcode()
+    });
+
+    it('errors when valid postcode and no addresses', () => {
+        AddressFormAssertions.assertErrorsWhenValidPostcodeFormatButNoAddressesFound()
+    });
+
+    it('errors when unselected', () => {
+        AddressFormAssertions.assertErrorsWhenUnselected()
+    });
+
+    it('errors when manual incorrect', () => {
+        AddressFormAssertions.assertErrorsWhenManualIncorrect('I can’t find their address in the list')
     });
 });

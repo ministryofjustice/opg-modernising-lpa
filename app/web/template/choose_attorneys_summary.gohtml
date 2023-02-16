@@ -7,7 +7,8 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ trCount .App "attorneysAdded" (len .Lpa.Attorneys) }}</h1>
 
-      {{ template "attorney-summary" (listAttorneys .Lpa.Attorneys .App .App.Paths.ChooseAttorneys .App.Paths.ChooseAttorneysAddress .App.Paths.RemoveAttorney) }}
+        {{ $showHeaders := not (eq .Lpa.Tasks.CheckYourLpa.String "completed") }}
+        {{ template "attorney-summary" (listAttorneys .Lpa.Attorneys .App "attorney" $showHeaders .Lpa ) }}
 
       <form novalidate method="post">
         <div class="govuk-form-group">
@@ -15,7 +16,7 @@
             {{ tr .App "doYouWantToAddAnotherAttorney" }}
           </legend>
 
-          <div class="govuk-form-group {{ if index .Errors "add-attorney" }}govuk-form-group--error{{ end }}">
+          <div class="govuk-form-group {{ if .Errors.Has "add-attorney" }}govuk-form-group--error{{ end }}">
             {{ template "error-message" (errorMessage . "add-attorney") }}
 
             {{ template "radios" (items . "add-attorney" ""
@@ -28,6 +29,7 @@
         <div class="govuk-button-group">
           {{ template "continue-button" . }}
         </div>
+        {{ template "csrf-field" . }}
       </form>
     </div>
   </div>

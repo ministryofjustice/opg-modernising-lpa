@@ -14,13 +14,13 @@ func TestCookieConsent(t *testing.T) {
 		t.Run(consent, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader("cookies="+consent))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r.Header.Add("Content-Type", FormUrlEncoded)
 
-			CookieConsent(appData.Paths)(w, r)
+			CookieConsent(Paths)(w, r)
 			resp := w.Result()
 
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, appData.Paths.Start, resp.Header.Get("Location"))
+			assert.Equal(t, Paths.Start, resp.Header.Get("Location"))
 
 			cookies := resp.Cookies()
 			if assert.Len(t, cookies, 1) {
@@ -38,9 +38,9 @@ func TestCookieConsent(t *testing.T) {
 func TestCookieConsentRedirect(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader("cookies-redirect=/here&cookies=accept"))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", FormUrlEncoded)
 
-	CookieConsent(appData.Paths)(w, r)
+	CookieConsent(Paths)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -60,13 +60,13 @@ func TestCookieConsentRedirect(t *testing.T) {
 func TestCookieConsentBadRedirect(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader("cookies-redirect=http://google&cookies=accept"))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", FormUrlEncoded)
 
-	CookieConsent(appData.Paths)(w, r)
+	CookieConsent(Paths)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, appData.Paths.Start, resp.Header.Get("Location"))
+	assert.Equal(t, Paths.Start, resp.Header.Get("Location"))
 
 	cookies := resp.Cookies()
 	if assert.Len(t, cookies, 1) {

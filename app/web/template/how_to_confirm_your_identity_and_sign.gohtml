@@ -9,15 +9,15 @@
 
         <p class="govuk-body-l">{{ tr .App "howToConfirmYourIdentityAndSignIntro" }}</p>
 
-        {{ template "warning" (warning .App (trFormat .App "yourCertificateProviderMustBeWithYou" "CertificateProviderName" .Lpa.CertificateProviderFullName)) }}
+        {{ template "warning" (warning .App (trFormat .App "yourCertificateProviderMustBeWithYou" "CertificateProviderName" .Lpa.CertificateProvider.FullName)) }}
         
         <div class="moj-ticket-panel govuk-!-margin-bottom-6">
           <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
-            {{ trFormatHtml .App "howToConfirmYourIdentityAndSignSteps" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "CertificateProviderFullName" .Lpa.CertificateProviderFullName "AttorneysFullNames" .Lpa.AttorneysFullNames }}
+            {{ trFormatHtml .App "howToConfirmYourIdentityAndSignSteps" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "CertificateProviderFullName" .Lpa.CertificateProvider.FullName "AttorneysFullNames" .Lpa.Attorneys.FullNames }}
           </div>
         </div>
 
-        <a class="govuk-button" href="{{ link .App .Continue }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+        <a class="govuk-button" href="{{ link .App .App.Paths.WhatYoullNeedToConfirmYourIdentity }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
       </div>
     </div>
 {{ end }}

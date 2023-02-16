@@ -1,11 +1,25 @@
 package page
 
+import (
+	"strings"
+
+	"golang.org/x/exp/slices"
+)
+
 type AppPaths struct {
 	AboutPayment                                         string
 	Auth                                                 string
 	AuthRedirect                                         string
 	CertificateProviderAddress                           string
+	CertificateProviderConfirmation                      string
 	CertificateProviderDetails                           string
+	CertificateProviderGuidance                          string
+	CertificateProviderLogin                             string
+	CertificateProviderLoginCallback                     string
+	CertificateProviderReadTheLpa                        string
+	CertificateProviderStart                             string
+	CertificateProviderYourAddress                       string
+	CertificateProviderYourDetails                       string
 	CheckYourLpa                                         string
 	ChooseAttorneys                                      string
 	ChooseAttorneysAddress                               string
@@ -28,7 +42,6 @@ type AppPaths struct {
 	HowShouldReplacementAttorneysStepIn                  string
 	HowToConfirmYourIdentityAndSign                      string
 	HowWouldCertificateProviderPreferToCarryOutTheirRole string
-	HowWouldYouLikeToBeContacted                         string
 	IdentityConfirmed                                    string
 	IdentityWithBiometricResidencePermit                 string
 	IdentityWithDrivingLicencePaper                      string
@@ -41,6 +54,7 @@ type AppPaths struct {
 	IdentityWithYotiCallback                             string
 	LpaType                                              string
 	PaymentConfirmation                                  string
+	Progress                                             string
 	ReadYourLpa                                          string
 	RemoveAttorney                                       string
 	RemovePersonToNotify                                 string
@@ -64,6 +78,7 @@ type AppPaths struct {
 	YourAddress                                          string
 	YourChosenIdentityOptions                            string
 	YourDetails                                          string
+	YourLegalRightsAndResponsibilities                   string
 }
 
 var Paths = AppPaths{
@@ -71,7 +86,15 @@ var Paths = AppPaths{
 	Auth:                                                 "/auth",
 	AuthRedirect:                                         "/auth/redirect",
 	CertificateProviderAddress:                           "/certificate-provider-address",
+	CertificateProviderConfirmation:                      "/certificate-provider-confirmation",
 	CertificateProviderDetails:                           "/certificate-provider-details",
+	CertificateProviderGuidance:                          "/being-a-certificate-provider",
+	CertificateProviderLogin:                             "/certificate-provider-login",
+	CertificateProviderLoginCallback:                     "/certificate-provider-login-callback",
+	CertificateProviderReadTheLpa:                        "/certificate-provider-read-the-lpa",
+	CertificateProviderStart:                             "/certificate-provider-start",
+	CertificateProviderYourAddress:                       "/certificate-provider-your-address",
+	CertificateProviderYourDetails:                       "/certificate-provider-your-details",
 	CheckYourLpa:                                         "/check-your-lpa",
 	ChooseAttorneys:                                      "/choose-attorneys",
 	ChooseAttorneysAddress:                               "/choose-attorneys-address",
@@ -94,7 +117,6 @@ var Paths = AppPaths{
 	HowShouldReplacementAttorneysStepIn:                  "/how-should-replacement-attorneys-step-in",
 	HowToConfirmYourIdentityAndSign:                      "/how-to-confirm-your-identity-and-sign",
 	HowWouldCertificateProviderPreferToCarryOutTheirRole: "/how-would-certificate-provider-prefer-to-carry-out-their-role",
-	HowWouldYouLikeToBeContacted:                         "/how-would-you-like-to-be-contacted",
 	IdentityConfirmed:                                    "/identity-confirmed",
 	IdentityWithBiometricResidencePermit:                 "/id/biometric-residence-permit",
 	IdentityWithDrivingLicencePaper:                      "/id/driving-licence-paper",
@@ -107,6 +129,7 @@ var Paths = AppPaths{
 	IdentityWithYotiCallback:                             "/id/yoti/callback",
 	LpaType:                                              "/lpa-type",
 	PaymentConfirmation:                                  "/payment-confirmation",
+	Progress:                                             "/progress",
 	ReadYourLpa:                                          "/read-your-lpa",
 	RemoveAttorney:                                       "/remove-attorney",
 	RemovePersonToNotify:                                 "/remove-person-to-notify",
@@ -130,4 +153,24 @@ var Paths = AppPaths{
 	YourAddress:                                          "/your-address",
 	YourChosenIdentityOptions:                            "/your-chosen-identity-options",
 	YourDetails:                                          "/your-details",
+	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
+}
+
+func IsLpaPath(url string) bool {
+	path, _, _ := strings.Cut(url, "?")
+
+	return !slices.Contains([]string{
+		Paths.Auth,
+		Paths.AuthRedirect,
+		Paths.Dashboard,
+		Paths.Start,
+		Paths.CertificateProviderStart,
+		Paths.CertificateProviderLogin,
+		Paths.CertificateProviderLoginCallback,
+		Paths.CertificateProviderYourDetails,
+		Paths.CertificateProviderYourAddress,
+		Paths.CertificateProviderReadTheLpa,
+		Paths.CertificateProviderGuidance,
+		Paths.CertificateProviderConfirmation,
+	}, path)
 }

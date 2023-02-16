@@ -5,27 +5,34 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "removeAnAttorney" }}</h1>
-
       <form novalidate method="post">
-        <div class="govuk-form-group">
-          <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-            {{ trFormat .App "doYouWantToRemove" "FirstNames" .Attorney.FirstNames "LastName" .Attorney.LastName }}
+        <fieldset class="govuk-fieldset">
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+            <h1 class="govuk-fieldset__heading">
+              {{ tr .App "removeAnAttorney" }}
+            </h1>
           </legend>
 
-          <div class="govuk-form-group {{ if index .Errors "remove-attorney" }}govuk-form-group--error{{ end }}">
-            {{ template "error-message" (errorMessage . "remove-attorney") }}
+          <div class="govuk-form-group">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+              {{ trFormat .App "doYouWantToRemove" "FirstNames" .Attorney.FirstNames "LastName" .Attorney.LastName }}
+            </legend>
 
-            {{ template "radios" (items . "remove-attorney" ""
-              (item "yes" "yes")
-              (item "no" "no")
-            ) }}
+            <div class="govuk-form-group {{ if .Errors.Has "remove-attorney" }}govuk-form-group--error{{ end }}">
+              {{ template "error-message" (errorMessage . "remove-attorney") }}
+
+              {{ template "radios" (items . "remove-attorney" ""
+                (item "yes" "yes")
+                (item "no" "no")
+              ) }}
+            </div>
           </div>
-        </div>
 
-        <div class="govuk-button-group">
-          {{ template "continue-button" . }}
-        </div>
+          <div class="govuk-button-group">
+            {{ template "continue-button" . }}
+          </div>
+          {{ template "csrf-field" . }}
+        </fieldset>
       </form>
     </div>
   </div>

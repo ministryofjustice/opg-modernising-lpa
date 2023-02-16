@@ -6,30 +6,21 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-var validAttorney = Attorney{
+var validAttorney = actor.Attorney{
 	ID:          "123",
 	Address:     address,
 	FirstNames:  "Joan",
 	LastName:    "Jones",
-	DateOfBirth: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+	DateOfBirth: date.New("2000", "1", "2"),
 }
-
-var validPersonToNotify = PersonToNotify{
-	ID:         "123",
-	Address:    address,
-	FirstNames: "Johnny",
-	LastName:   "Jones",
-	Email:      "user@example.org",
-}
-
-var mockRandom = func(int) string { return "123" }
 
 var address = place.Address{
 	Line1:      "a",
@@ -37,12 +28,6 @@ var address = place.Address{
 	Line3:      "c",
 	TownOrCity: "d",
 	Postcode:   "e",
-}
-
-func TestReadDate(t *testing.T) {
-	date := readDate(time.Date(2020, time.March, 12, 0, 0, 0, 0, time.Local))
-
-	assert.Equal(t, Date{Day: "12", Month: "3", Year: "2020"}, date)
 }
 
 type mockDataStore struct {
@@ -64,73 +49,6 @@ func (m *mockDataStore) Get(ctx context.Context, pk, sk string, v interface{}) e
 
 func (m *mockDataStore) Put(ctx context.Context, pk, sk string, v interface{}) error {
 	return m.Called(ctx, pk, sk, v).Error(0)
-}
-
-func TestLpaStoreGetAll(t *testing.T) {
-	ctx := contextWithSessionData(context.Background(), &sessionData{SessionID: "an-id", LpaID: "123"})
-
-	lpas := []*Lpa{{ID: "10100000"}}
-
-	dataStore := &mockDataStore{data: lpas}
-	dataStore.On("GetAll", ctx, "an-id").Return(nil)
-
-	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
-
-	result, err := lpaStore.GetAll(ctx)
-	assert.Nil(t, err)
-	assert.Equal(t, lpas, result)
-}
-
-func TestLpaStoreGet(t *testing.T) {
-	ctx := contextWithSessionData(context.Background(), &sessionData{SessionID: "an-id", LpaID: "123"})
-
-	dataStore := &mockDataStore{data: &Lpa{ID: "10100000"}}
-	dataStore.On("Get", ctx, "an-id", "123").Return(nil)
-
-	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
-
-	lpa, err := lpaStore.Get(ctx)
-	assert.Nil(t, err)
-	assert.Equal(t, &Lpa{ID: "10100000"}, lpa)
-}
-
-func TestLpaStoreGetWhenExists(t *testing.T) {
-	ctx := contextWithSessionData(context.Background(), &sessionData{SessionID: "an-id", LpaID: "123"})
-	existingLpa := &Lpa{ID: "an-id"}
-
-	dataStore := &mockDataStore{data: existingLpa}
-	dataStore.On("Get", ctx, "an-id", "123").Return(nil)
-
-	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
-
-	lpa, err := lpaStore.Get(ctx)
-	assert.Nil(t, err)
-	assert.Equal(t, existingLpa, lpa)
-}
-
-func TestLpaStoreGetWhenDataStoreError(t *testing.T) {
-	ctx := contextWithSessionData(context.Background(), &sessionData{SessionID: "an-id", LpaID: "123"})
-
-	dataStore := &mockDataStore{}
-	dataStore.On("Get", ctx, "an-id", "123").Return(expectedError)
-
-	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
-
-	_, err := lpaStore.Get(ctx)
-	assert.Equal(t, expectedError, err)
-}
-
-func TestLpaStorePut(t *testing.T) {
-	ctx := contextWithSessionData(context.Background(), &sessionData{SessionID: "an-id", LpaID: "123"})
-	lpa := &Lpa{ID: "5"}
-
-	dataStore := &mockDataStore{}
-	dataStore.On("Put", ctx, "an-id", "5", lpa).Return(expectedError)
-
-	lpaStore := &lpaStore{dataStore: dataStore}
-
-	err := lpaStore.Put(ctx, lpa)
-	assert.Equal(t, expectedError, err)
 }
 
 func TestIdentityConfirmed(t *testing.T) {
@@ -159,340 +77,7 @@ func TestIdentityConfirmed(t *testing.T) {
 	}
 }
 
-func TestGetAttorney(t *testing.T) {
-	testCases := map[string]struct {
-		lpa              *Lpa
-		expectedAttorney Attorney
-		id               string
-		expectedFound    bool
-	}{
-		"attorney exists": {
-			lpa: &Lpa{
-				Attorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
-			},
-			expectedAttorney: Attorney{ID: "1", FirstNames: "Bob"},
-			id:               "1",
-			expectedFound:    true,
-		},
-		"attorney does not exist": {
-			lpa: &Lpa{
-				Attorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
-			},
-			expectedAttorney: Attorney{},
-			id:               "4",
-			expectedFound:    false,
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			a, found := tc.lpa.GetAttorney(tc.id)
-
-			assert.Equal(t, tc.expectedFound, found)
-			assert.Equal(t, tc.expectedAttorney, a)
-		})
-	}
-}
-
-func TestPutAttorney(t *testing.T) {
-	testCases := map[string]struct {
-		lpa             *Lpa
-		expectedLpa     *Lpa
-		updatedAttorney Attorney
-		expectedUpdated bool
-	}{
-		"attorney exists": {
-			lpa: &Lpa{
-				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
-			},
-			expectedLpa: &Lpa{
-				Attorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
-			},
-			updatedAttorney: Attorney{ID: "1", FirstNames: "Bob"},
-			expectedUpdated: true,
-		},
-		"attorney does not exist": {
-			lpa: &Lpa{
-				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
-			},
-			expectedLpa: &Lpa{
-				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
-			},
-			updatedAttorney: Attorney{ID: "3", FirstNames: "Bob"},
-			expectedUpdated: false,
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			deleted := tc.lpa.PutAttorney(tc.updatedAttorney)
-
-			assert.Equal(t, tc.expectedUpdated, deleted)
-			assert.Equal(t, tc.expectedLpa, tc.lpa)
-		})
-	}
-}
-
-func TestGetReplacementAttorney(t *testing.T) {
-	testCases := map[string]struct {
-		lpa              *Lpa
-		expectedAttorney Attorney
-		id               string
-		expectedFound    bool
-	}{
-		"attorney exists": {
-			lpa: &Lpa{
-				ReplacementAttorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
-			},
-			expectedAttorney: Attorney{ID: "1", FirstNames: "Bob"},
-			id:               "1",
-			expectedFound:    true,
-		},
-		"attorney does not exist": {
-			lpa: &Lpa{
-				ReplacementAttorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
-			},
-			expectedAttorney: Attorney{},
-			id:               "4",
-			expectedFound:    false,
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			a, found := tc.lpa.GetReplacementAttorney(tc.id)
-
-			assert.Equal(t, tc.expectedFound, found)
-			assert.Equal(t, tc.expectedAttorney, a)
-		})
-	}
-}
-
-func TestPutReplacementAttorney(t *testing.T) {
-	testCases := map[string]struct {
-		lpa             *Lpa
-		expectedLpa     *Lpa
-		updatedAttorney Attorney
-		expectedUpdated bool
-	}{
-		"attorney exists": {
-			lpa: &Lpa{
-				ReplacementAttorneys: []Attorney{{ID: "1"}, {ID: "2"}},
-			},
-			expectedLpa: &Lpa{
-				ReplacementAttorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
-			},
-			updatedAttorney: Attorney{ID: "1", FirstNames: "Bob"},
-			expectedUpdated: true,
-		},
-		"attorney does not exist": {
-			lpa: &Lpa{
-				ReplacementAttorneys: []Attorney{{ID: "1"}, {ID: "2"}},
-			},
-			expectedLpa: &Lpa{
-				ReplacementAttorneys: []Attorney{{ID: "1"}, {ID: "2"}},
-			},
-			updatedAttorney: Attorney{ID: "3", FirstNames: "Bob"},
-			expectedUpdated: false,
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			deleted := tc.lpa.PutReplacementAttorney(tc.updatedAttorney)
-
-			assert.Equal(t, tc.expectedUpdated, deleted)
-			assert.Equal(t, tc.expectedLpa, tc.lpa)
-		})
-	}
-}
-
-func TestDeleteAttorney(t *testing.T) {
-	testCases := map[string]struct {
-		lpa              *Lpa
-		expectedLpa      *Lpa
-		attorneyToDelete Attorney
-		expectedDeleted  bool
-	}{
-		"attorney exists": {
-			lpa: &Lpa{
-				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
-			},
-			expectedLpa: &Lpa{
-				Attorneys: []Attorney{{ID: "1"}},
-			},
-			attorneyToDelete: Attorney{ID: "2"},
-			expectedDeleted:  true,
-		},
-		"attorney does not exist": {
-			lpa: &Lpa{
-				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
-			},
-			expectedLpa: &Lpa{
-				Attorneys: []Attorney{{ID: "1"}, {ID: "2"}},
-			},
-			attorneyToDelete: Attorney{ID: "3"},
-			expectedDeleted:  false,
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			deleted := tc.lpa.DeleteAttorney(tc.attorneyToDelete)
-
-			assert.Equal(t, tc.expectedDeleted, deleted)
-			assert.Equal(t, tc.expectedLpa, tc.lpa)
-		})
-	}
-}
-
-func TestDeleteReplacementAttorney(t *testing.T) {
-	testCases := map[string]struct {
-		lpa              *Lpa
-		expectedLpa      *Lpa
-		attorneyToDelete Attorney
-		expectedDeleted  bool
-	}{
-		"attorney exists": {
-			lpa: &Lpa{
-				ReplacementAttorneys: []Attorney{{ID: "1"}, {ID: "2"}},
-			},
-			expectedLpa: &Lpa{
-				ReplacementAttorneys: []Attorney{{ID: "1"}},
-			},
-			attorneyToDelete: Attorney{ID: "2"},
-			expectedDeleted:  true,
-		},
-		"attorney does not exist": {
-			lpa: &Lpa{
-				ReplacementAttorneys: []Attorney{{ID: "1"}, {ID: "2"}},
-			},
-			expectedLpa: &Lpa{
-				ReplacementAttorneys: []Attorney{{ID: "1"}, {ID: "2"}},
-			},
-			attorneyToDelete: Attorney{ID: "3"},
-			expectedDeleted:  false,
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			deleted := tc.lpa.DeleteReplacementAttorney(tc.attorneyToDelete)
-
-			assert.Equal(t, tc.expectedDeleted, deleted)
-			assert.Equal(t, tc.expectedLpa, tc.lpa)
-		})
-	}
-}
-
-func TestAttorneysFullNames(t *testing.T) {
-	l := &Lpa{
-		Attorneys: []Attorney{
-			{
-				FirstNames: "Bob Alan George",
-				LastName:   "Jones",
-			},
-			{
-				FirstNames: "Samantha",
-				LastName:   "Smith",
-			},
-			{
-				FirstNames: "Abby Helen",
-				LastName:   "Burns-Simpson",
-			},
-		},
-	}
-
-	assert.Equal(t, "Bob Alan George Jones, Samantha Smith and Abby Helen Burns-Simpson", l.AttorneysFullNames())
-}
-
-func TestAttorneysFirstNames(t *testing.T) {
-	l := &Lpa{
-		Attorneys: []Attorney{
-			{
-				FirstNames: "Bob Alan George",
-				LastName:   "Jones",
-			},
-			{
-				FirstNames: "Samantha",
-				LastName:   "Smith",
-			},
-			{
-				FirstNames: "Abby Helen",
-				LastName:   "Burns-Simpson",
-			},
-		},
-	}
-
-	assert.Equal(t, "Bob Alan George, Samantha and Abby Helen", l.AttorneysFirstNames())
-}
-
-func TestReplacementAttorneysFullNames(t *testing.T) {
-	l := &Lpa{
-		ReplacementAttorneys: []Attorney{
-			{
-				FirstNames: "Bob Alan George",
-				LastName:   "Jones",
-			},
-			{
-				FirstNames: "Samantha",
-				LastName:   "Smith",
-			},
-			{
-				FirstNames: "Abby Helen",
-				LastName:   "Burns-Simpson",
-			},
-		},
-	}
-
-	assert.Equal(t, "Bob Alan George Jones, Samantha Smith and Abby Helen Burns-Simpson", l.ReplacementAttorneysFullNames())
-}
-
-func TestReplacementAttorneysFirstNames(t *testing.T) {
-	l := &Lpa{
-		ReplacementAttorneys: []Attorney{
-			{
-				FirstNames: "Bob Alan George",
-				LastName:   "Jones",
-			},
-			{
-				FirstNames: "Samantha",
-				LastName:   "Smith",
-			},
-			{
-				FirstNames: "Abby Helen",
-				LastName:   "Burns-Simpson",
-			},
-		},
-	}
-
-	assert.Equal(t, "Bob Alan George, Samantha and Abby Helen", l.ReplacementAttorneysFirstNames())
-}
-
-func TestConcatSentence(t *testing.T) {
-	assert.Equal(t, "Bob Smith, Alice Jones, John Doe and Paul Compton", concatSentence([]string{"Bob Smith", "Alice Jones", "John Doe", "Paul Compton"}))
-	assert.Equal(t, "Bob Smith, Alice Jones and John Doe", concatSentence([]string{"Bob Smith", "Alice Jones", "John Doe"}))
-	assert.Equal(t, "Bob Smith and John Doe", concatSentence([]string{"Bob Smith", "John Doe"}))
-	assert.Equal(t, "Bob Smith", concatSentence([]string{"Bob Smith"}))
-}
-
-func TestDonorFullName(t *testing.T) {
-	l := &Lpa{
-		You: Person{FirstNames: "Bob Alan George", LastName: "Smith Jones-Doe"},
-	}
-
-	assert.Equal(t, "Bob Alan George Smith Jones-Doe", l.DonorFullName())
-}
-
-func TestCertificateProviderFullName(t *testing.T) {
-	l := &Lpa{
-		CertificateProvider: CertificateProvider{FirstNames: "Bob Alan George", LastName: "Smith Jones-Doe"},
-	}
-
-	assert.Equal(t, "Bob Alan George Smith Jones-Doe", l.CertificateProviderFullName())
-}
-
-func TestLpaLegalTermTransKey(t *testing.T) {
+func TestTypeLegalTermTransKey(t *testing.T) {
 	testCases := map[string]struct {
 		LpaType           string
 		ExpectedLegalTerm string
@@ -522,7 +107,7 @@ func TestLpaLegalTermTransKey(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			lpa := Lpa{Type: tc.LpaType}
-			assert.Equal(t, tc.ExpectedLegalTerm, lpa.LpaLegalTermTransKey())
+			assert.Equal(t, tc.ExpectedLegalTerm, lpa.TypeLegalTermTransKey())
 		})
 	}
 }
@@ -628,50 +213,28 @@ func TestCanGoTo(t *testing.T) {
 	}
 }
 
-func TestEntered(t *testing.T) {
-	testCases := map[string]struct {
-		Date     Date
-		Expected bool
+func TestTaskStateString(t *testing.T) {
+	testCases := []struct {
+		State    TaskState
+		Expected string
 	}{
-		"valid": {
-			Date: Date{
-				Day:   "1",
-				Month: "2",
-				Year:  "3",
-			},
-			Expected: true,
+		{
+			State:    TaskNotStarted,
+			Expected: "notStarted",
 		},
-		"missing day": {
-			Date: Date{
-				Month: "2",
-				Year:  "3",
-			},
-			Expected: false,
+		{
+			State:    TaskInProgress,
+			Expected: "inProgress",
 		},
-		"missing month": {
-			Date: Date{
-				Day:  "1",
-				Year: "3",
-			},
-			Expected: false,
-		},
-		"missing year": {
-			Date: Date{
-				Day:   "1",
-				Month: "2",
-			},
-			Expected: false,
-		},
-		"missing all": {
-			Date:     Date{},
-			Expected: false,
+		{
+			State:    TaskCompleted,
+			Expected: "completed",
 		},
 	}
 
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.Expected, tc.Date.Entered())
+	for _, tc := range testCases {
+		t.Run(tc.Expected, func(t *testing.T) {
+			assert.Equal(t, tc.Expected, tc.State.String())
 		})
 	}
-
 }
