@@ -116,9 +116,9 @@ func Register(
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, notifyClient, lpaStore, sessionStore, appPublicUrl, dataStore, random.String))
 
 	handleLpa(page.Paths.HowToConfirmYourIdentityAndSign, CanGoBack,
-		page.Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml"), page.Paths.WhatYoullNeedToConfirmYourIdentity, lpaStore))
+		page.Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml"), lpaStore))
 	handleLpa(page.Paths.WhatYoullNeedToConfirmYourIdentity, CanGoBack,
-		page.Guidance(tmpls.Get("what_youll_need_to_confirm_your_identity.gohtml"), page.Paths.SelectYourIdentityOptions, lpaStore))
+		page.Guidance(tmpls.Get("what_youll_need_to_confirm_your_identity.gohtml"), lpaStore))
 
 	for path, page := range map[string]int{
 		page.Paths.SelectYourIdentityOptions:  0,
@@ -152,9 +152,9 @@ func Register(
 	}
 
 	handleLpa(page.Paths.ReadYourLpa, CanGoBack,
-		page.Guidance(tmpls.Get("read_your_lpa.gohtml"), page.Paths.YourLegalRightsAndResponsibilities, lpaStore))
+		page.Guidance(tmpls.Get("read_your_lpa.gohtml"), lpaStore))
 	handleLpa(page.Paths.YourLegalRightsAndResponsibilities, CanGoBack,
-		page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml"), page.Paths.SignYourLpa, lpaStore))
+		page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml"), lpaStore))
 	handleLpa(page.Paths.SignYourLpa, CanGoBack,
 		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), lpaStore))
 	handleLpa(page.Paths.WitnessingYourSignature, CanGoBack,
@@ -162,10 +162,10 @@ func Register(
 	handleLpa(page.Paths.WitnessingAsCertificateProvider, CanGoBack,
 		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), lpaStore, time.Now))
 	handleLpa(page.Paths.YouHaveSubmittedYourLpa, CanGoBack,
-		page.Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml"), page.Paths.TaskList, lpaStore))
+		page.Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml"), lpaStore))
 
 	handleLpa(page.Paths.Progress, CanGoBack,
-		page.Guidance(tmpls.Get("lpa_progress.gohtml"), page.Paths.Dashboard, lpaStore))
+		page.Guidance(tmpls.Get("lpa_progress.gohtml"), lpaStore))
 }
 
 type handleOpt byte
