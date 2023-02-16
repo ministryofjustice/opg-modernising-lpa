@@ -391,9 +391,36 @@ func TestGetLoginCallbackWhenReturning(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	now := time.Date(2012, time.January, 1, 2, 3, 4, 5, time.UTC)
+	userInfo := onelogin.UserInfo{Sub: "a-sub", Email: "a-email", CoreIdentityJWT: "an-identity-jwt"}
 	userData := identity.UserData{OK: true, FullName: "a-full-name", RetrievedAt: now}
 
+	oneLoginClient := &mockOneLoginClient{}
+	oneLoginClient.
+		On("Exchange", mock.Anything, mock.Anything, mock.Anything).
+		Return("a-jwt", nil)
+	oneLoginClient.
+		On("UserInfo", mock.Anything, mock.Anything).
+		Return(userInfo, nil)
+
 	sessionStore := &mockSessionsStore{}
+	session := sessions.NewSession(sessionStore, "session")
+
+	session.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400,
+		SameSite: http.SameSiteLaxMode,
+		HttpOnly: true,
+		Secure:   true,
+	}
+	session.Values = map[any]any{
+		"certificate-provider": &sesh.CertificateProviderSession{
+			Sub:            "a-sub",
+			Email:          "a-email",
+			LpaID:          "lpa-id",
+			DonorSessionID: "session-id",
+		},
+	}
+
 	sessionStore.
 		On("Get", mock.Anything, "params").
 		Return(&sessions.Session{
@@ -408,6 +435,9 @@ func TestGetLoginCallbackWhenReturning(t *testing.T) {
 				},
 			},
 		}, nil)
+	sessionStore.
+		On("Save", r, w, session).
+		Return(nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.On("Get", mock.Anything).Return(&page.Lpa{CertificateProviderUserData: userData}, nil)
@@ -421,7 +451,7 @@ func TestGetLoginCallbackWhenReturning(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LoginCallback(template.Func, nil, sessionStore, lpaStore)(appData, w, r)
+	err := LoginCallback(template.Func, oneLoginClient, sessionStore, lpaStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

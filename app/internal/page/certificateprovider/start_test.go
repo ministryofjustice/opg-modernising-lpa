@@ -2,6 +2,7 @@ package certificateprovider
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,57 +12,112 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestCertificateProviderStart(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?sessionId=123&lpaId=456", nil)
+type mockDataStore struct {
+	data interface{}
+	mock.Mock
+}
 
-	lpa := &page.Lpa{}
+func (m *mockDataStore) GetAll(ctx context.Context, pk string, v interface{}) error {
+	data, _ := json.Marshal(m.data)
+	json.Unmarshal(data, v)
+	return m.Called(ctx, pk).Error(0)
+}
+
+func (m *mockDataStore) Get(ctx context.Context, pk, sk string, v interface{}) error {
+	data, _ := json.Marshal(m.data)
+	json.Unmarshal(data, v)
+	return m.Called(ctx, pk, sk).Error(0)
+}
+
+func (m *mockDataStore) Put(ctx context.Context, pk, sk string, v interface{}) error {
+	return m.Called(ctx, pk, sk, v).Error(0)
+}
+
+func TestStart(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?share-code=a-share-code", nil)
+
+	dataStore := &mockDataStore{
+		data: page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"},
+	}
+	dataStore.
+		On("Get", r.Context(), "SHARECODE#a-share-code", "#METADATA#a-share-code").
+		Return(nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.MatchedBy(func(ctx context.Context) bool {
 			session := page.SessionDataFromContext(ctx)
 
-			return assert.Equal(t, &page.SessionData{SessionID: "123", LpaID: "456"}, session)
+			return assert.Equal(t, &page.SessionData{SessionID: "session-id", LpaID: "lpa-id"}, session)
 		})).
-		Return(lpa, nil)
+		Return(&page.Lpa{}, nil)
 
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &startData{
 			App:   appData,
-			Start: page.Paths.CertificateProviderLogin + "?lpaId=456&sessionId=123",
+			Start: page.Paths.CertificateProviderLogin + "?lpaId=lpa-id&sessionId=session-id",
 		}).
 		Return(nil)
 
-	err := Start(template.Func, lpaStore)(appData, w, r)
+	err := Start(template.Func, lpaStore, dataStore)(appData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, dataStore, lpaStore, template)
 }
 
-func TestCertificateProviderStartWhenDataStoreErrors(t *testing.T) {
+func TestStartWhenGettingShareCodeErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?share-code=a-share-code", nil)
 
-	lpa := &page.Lpa{}
+	dataStore := &mockDataStore{
+		data: page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"},
+	}
+	dataStore.
+		On("Get", mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := Start(nil, nil, dataStore)(appData, w, r)
+
+	assert.Equal(t, expectedError, err)
+	mock.AssertExpectationsForObjects(t, dataStore)
+}
+
+func TestStartWhenGettingLpaErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?share-code=a-share-code", nil)
+
+	dataStore := &mockDataStore{
+		data: page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"},
+	}
+	dataStore.
+		On("Get", mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything).
-		Return(lpa, expectedError)
+		Return(&page.Lpa{}, expectedError)
 
-	err := Start(nil, lpaStore)(appData, w, r)
+	err := Start(nil, lpaStore, dataStore)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, lpaStore)
+	mock.AssertExpectationsForObjects(t, dataStore, lpaStore)
 }
 
-func TestCertificateProviderStartWhenTemplateErrors(t *testing.T) {
+func TestStartWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	dataStore := &mockDataStore{
+		data: page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"},
+	}
+	dataStore.
+		On("Get", mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -73,7 +129,7 @@ func TestCertificateProviderStartWhenTemplateErrors(t *testing.T) {
 		On("Func", mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := Start(template.Func, lpaStore)(appData, w, r)
+	err := Start(template.Func, lpaStore, dataStore)(appData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
