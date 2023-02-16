@@ -528,5 +528,12 @@
     "myLpa": "Welsh {{ .LpaType }} welsh",
 
     "yourLegalRightsAndResponsibilities": "Welsh",
-    "yourLegalRightsAndResponsibilitiesContent": "<p class=\"govuk-body\">Welsh</p>"
+    "yourLegalRightsAndResponsibilitiesContent": "<p class=\"govuk-body\">Welsh</p>",
+
+    "beingACertificateProvider": "Welsh",
+    "beingDonorsCertificateProvider": "Welsh {{.FullName}}",
+    "beingACertificateProviderContent": "<p class=\"govuk-body\">Welsh</p>",
+
+    "finishedForNow": "Welsh",
+    "finishedForNowContent": "<p class=\"govuk-body\">Welsh</p>"
 }
