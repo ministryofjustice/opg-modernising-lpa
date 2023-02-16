@@ -33,7 +33,7 @@ func Register(
 	handleRoot(page.Paths.CertificateProviderYourAddress, RequireSession,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
 	handleRoot(page.Paths.CertificateProviderReadTheLpa, RequireSession,
-		page.Guidance(tmpls.Get("your_address.gohtml"), "/the-next-page", lpaStore))
+		page.Guidance(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), "/the-next-page", lpaStore))
 }
 
 type handleOpt byte
