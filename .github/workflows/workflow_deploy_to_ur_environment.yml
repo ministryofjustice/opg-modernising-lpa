@@ -1,0 +1,115 @@
+name: "Deploy to UR Environment"
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_to_deploy:
+        description: 'Tag to deploy to ur environment'
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: write
+  security-events: write
+  pull-requests: read
+  actions: none
+  checks: none
+  deployments: none
+  issues: none
+  packages: none
+  repository-projects: none
+  statuses: none
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  docker_build_scan_push:
+    name: Docker Build, Scan and Push
+    if: |
+      always() &&
+      (needs.detect_changes.outputs.changes_detected == 'true') &&
+      (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped')
+    uses: ./.github/workflows/docker_job.yml
+    needs: [
+      go_unit_tests,
+      create_tags
+      ]
+    with:
+      tag: ${{ input.tag_to_deploy }}
+      checkout_tag : ${{ input.tag_to_deploy }}
+
+  ui_tests_image:
+    name: Run Cypress UI Tests On Images
+    if: |
+      needs.detect_changes.outputs.changes_detected == 'true' &&
+      needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped'
+    uses: ./.github/workflows/ui_test_job.yml
+    needs: [docker_build_scan_push, create_tags]
+    with:
+      run_against_image: true
+      tag: ${{ input.tag_to_deploy}}
+      checkout_tag: ${{ input.tag_to_deploy}}
+    secrets: inherit # pragma: allowlist secret
+
+  pr_deploy:
+      name: PR Environment Deploy
+      if: |
+        always() &&
+        (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped') &&
+        (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped') &&
+        (needs.ui_tests_image.result == 'success' || needs.ui_tests_image.result == 'skipped')
+      needs: [
+        create_tags,
+        go_unit_tests,
+        docker_build_scan_push,
+        ui_tests_image
+      ]
+      uses: ./.github/workflows/terraform_environment_job.yml
+      with:
+        workspace_name: ur
+        version_tag: ${{ input.tag_to_deploy}}
+        checkout_tag: ${{ input.tag_to_deploy}}
+      secrets: inherit # pragma: allowlist secret
+
+  ui_tests_pr_env:
+    name: Run Cypress UI Tests On PR Environment
+    if: |
+      always() &&
+      needs.pr_deploy.result == 'success'
+    uses: ./.github/workflows/ui_test_job.yml
+    needs: [pr_deploy, create_tags]
+    with:
+      run_against_image: false
+      base_url: "https://${{ needs.pr_deploy.outputs.url }}"
+      tag: ${{ input.tag_to_deploy}}
+      checkout_tag: ${{ input.tag_to_deploy}}
+    secrets: inherit # pragma: allowlist secret
+
+  always_remove_ingress:
+    name: Remove CI ingress from environment
+    if: always()
+    uses: ./.github/workflows/remove_ingress_job.yml
+    needs: [ui_tests_pr_env]
+    secrets: inherit # pragma: allowlist secret
+
+  end_of_ur_deployment_workflow:
+    name: End of UR Deployment Workflow
+    if: |
+      always() &&
+      needs.pr_deploy.result == 'success' &&
+      needs.create_tags.result == 'success' &&
+      needs.ui_tests_pr_env.result == 'success'
+    runs-on: ubuntu-latest
+    environment:
+      name: "ur"
+      url: "https://${{ needs.pr_deploy.outputs.url }}"
+    needs: [pr_deploy, ui_tests_pr_env]
+    steps:
+      - name: End of UR Deployment Workflow
+        run: |
+          echo "${{ needs.pr_deploy.outputs.terraform_workspace_name }} PR environment tested, built and deployed"
+          echo "Tag Deployed: ${{ needs.pr_deploy.outputs.terraform_container_version }}"
+          echo "URL: https://${{ needs.pr_deploy.outputs.url }}"
