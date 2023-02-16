@@ -234,3 +234,8 @@ func (l *Lpa) Progress() Progress {
 
 	return p
 }
+
+type ShareCodeData struct {
+	SessionID string
+	LpaID     string
+}

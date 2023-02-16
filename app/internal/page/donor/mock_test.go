@@ -2,6 +2,7 @@ package donor
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -21,18 +22,18 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var MockRandom = func(int) string { return "123" }
+var mockRandom = func(int) string { return "123" }
 
 var (
-	TestAddress = place.Address{
+	testAddress = place.Address{
 		Line1:      "a",
 		Line2:      "b",
 		Line3:      "c",
 		TownOrCity: "d",
 		Postcode:   "e",
 	}
-	ExpectedError = errors.New("err")
-	TestAppData   = page.AppData{
+	expectedError = errors.New("err")
+	testAppData   = page.AppData{
 		SessionID: "session-id",
 		LpaID:     "lpa-id",
 		Lang:      localize.En,
@@ -40,31 +41,31 @@ var (
 	}
 )
 
-type MockLpaStore struct {
+type mockLpaStore struct {
 	mock.Mock
 }
 
-func (m *MockLpaStore) Create(ctx context.Context) (*page.Lpa, error) {
+func (m *mockLpaStore) Create(ctx context.Context) (*page.Lpa, error) {
 	args := m.Called(ctx)
 
 	return args.Get(0).(*page.Lpa), args.Error(1)
 }
 
-func (m *MockLpaStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
+func (m *mockLpaStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
 	args := m.Called(ctx)
 	return args.Get(0).([]*page.Lpa), args.Error(1)
 }
 
-func (m *MockLpaStore) Get(ctx context.Context) (*page.Lpa, error) {
+func (m *mockLpaStore) Get(ctx context.Context) (*page.Lpa, error) {
 	args := m.Called(ctx)
 	return args.Get(0).(*page.Lpa), args.Error(1)
 }
 
-func (m *MockLpaStore) Put(ctx context.Context, v *page.Lpa) error {
+func (m *mockLpaStore) Put(ctx context.Context, v *page.Lpa) error {
 	return m.Called(ctx, v).Error(0)
 }
 
-func (m *MockLpaStore) WillReturnEmptyLpa(r *http.Request) *MockLpaStore {
+func (m *mockLpaStore) WillReturnEmptyLpa(r *http.Request) *mockLpaStore {
 	m.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -76,7 +77,7 @@ func (m *MockLpaStore) WillReturnEmptyLpa(r *http.Request) *MockLpaStore {
 	return m
 }
 
-func (m *MockLpaStore) WithCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string) *MockLpaStore {
+func (m *mockLpaStore) WithCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string) *mockLpaStore {
 	m.
 		On("Put", r.Context(), &page.Lpa{
 			CertificateProvider: actor.CertificateProvider{
@@ -95,76 +96,76 @@ func (m *MockLpaStore) WithCompletedPaymentLpaData(r *http.Request, paymentId, p
 	return m
 }
 
-type MockTemplate struct {
+type mockTemplate struct {
 	mock.Mock
 }
 
-func (m *MockTemplate) Func(w io.Writer, data interface{}) error {
+func (m *mockTemplate) Func(w io.Writer, data interface{}) error {
 	args := m.Called(w, data)
 	return args.Error(0)
 }
 
-type MockLogger struct {
+type mockLogger struct {
 	mock.Mock
 }
 
-func (m *MockLogger) Print(v ...interface{}) {
+func (m *mockLogger) Print(v ...interface{}) {
 	m.Called(v...)
 }
 
-type MockOneLoginClient struct {
+type mockOneLoginClient struct {
 	mock.Mock
 }
 
-func (m *MockOneLoginClient) AuthCodeURL(state, nonce, locale string, identity bool) string {
+func (m *mockOneLoginClient) AuthCodeURL(state, nonce, locale string, identity bool) string {
 	args := m.Called(state, nonce, locale, identity)
 	return args.String(0)
 }
 
-func (m *MockOneLoginClient) Exchange(ctx context.Context, code, nonce string) (string, error) {
+func (m *mockOneLoginClient) Exchange(ctx context.Context, code, nonce string) (string, error) {
 	args := m.Called(ctx, code, nonce)
 	return args.Get(0).(string), args.Error(1)
 }
 
-func (m *MockOneLoginClient) UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error) {
+func (m *mockOneLoginClient) UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error) {
 	args := m.Called(ctx, accessToken)
 	return args.Get(0).(onelogin.UserInfo), args.Error(1)
 }
 
-func (m *MockOneLoginClient) ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error) {
+func (m *mockOneLoginClient) ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error) {
 	args := m.Called(ctx, userInfo)
 	return args.Get(0).(identity.UserData), args.Error(1)
 }
 
-type MockAddressClient struct {
+type mockAddressClient struct {
 	mock.Mock
 }
 
-func (m *MockAddressClient) LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error) {
+func (m *mockAddressClient) LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error) {
 	args := m.Called(ctx, postcode)
 	return args.Get(0).([]place.Address), args.Error(1)
 }
 
-type MockSessionsStore struct {
+type mockSessionsStore struct {
 	mock.Mock
 }
 
-func (m *MockSessionsStore) New(r *http.Request, name string) (*sessions.Session, error) {
+func (m *mockSessionsStore) New(r *http.Request, name string) (*sessions.Session, error) {
 	args := m.Called(r, name)
 	return args.Get(0).(*sessions.Session), args.Error(1)
 }
 
-func (m *MockSessionsStore) Get(r *http.Request, name string) (*sessions.Session, error) {
+func (m *mockSessionsStore) Get(r *http.Request, name string) (*sessions.Session, error) {
 	args := m.Called(r, name)
 	return args.Get(0).(*sessions.Session), args.Error(1)
 }
 
-func (m *MockSessionsStore) Save(r *http.Request, w http.ResponseWriter, session *sessions.Session) error {
+func (m *mockSessionsStore) Save(r *http.Request, w http.ResponseWriter, session *sessions.Session) error {
 	args := m.Called(r, w, session)
 	return args.Error(0)
 }
 
-func (m *MockSessionsStore) WithPaySession(r *http.Request) *MockSessionsStore {
+func (m *mockSessionsStore) WithPaySession(r *http.Request) *mockSessionsStore {
 	getSession := sessions.NewSession(m, "pay")
 
 	getSession.Options = &sessions.Options{
@@ -181,7 +182,7 @@ func (m *MockSessionsStore) WithPaySession(r *http.Request) *MockSessionsStore {
 	return m
 }
 
-func (m *MockSessionsStore) WithExpiredPaySession(r *http.Request, w *httptest.ResponseRecorder) *MockSessionsStore {
+func (m *mockSessionsStore) WithExpiredPaySession(r *http.Request, w *httptest.ResponseRecorder) *mockSessionsStore {
 	storeSession := sessions.NewSession(m, "pay")
 
 	// Expire cookie
@@ -247,4 +248,25 @@ func (m *mockNotifyClient) Email(ctx context.Context, email notify.Email) (strin
 func (m *mockNotifyClient) Sms(ctx context.Context, sms notify.Sms) (string, error) {
 	args := m.Called(ctx, sms)
 	return args.String(0), args.Error(1)
+}
+
+type mockDataStore struct {
+	data interface{}
+	mock.Mock
+}
+
+func (m *mockDataStore) GetAll(ctx context.Context, pk string, v interface{}) error {
+	data, _ := json.Marshal(m.data)
+	json.Unmarshal(data, v)
+	return m.Called(ctx, pk).Error(0)
+}
+
+func (m *mockDataStore) Get(ctx context.Context, pk, sk string, v interface{}) error {
+	data, _ := json.Marshal(m.data)
+	json.Unmarshal(data, v)
+	return m.Called(ctx, pk, sk).Error(0)
+}
+
+func (m *mockDataStore) Put(ctx context.Context, pk, sk string, v interface{}) error {
+	return m.Called(ctx, pk, sk, v).Error(0)
 }

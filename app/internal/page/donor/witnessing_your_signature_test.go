@@ -21,17 +21,17 @@ func TestGetWitnessingYourSignature(t *testing.T) {
 
 	lpa := &page.Lpa{CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"}}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
-		On("Func", w, &witnessingYourSignatureData{App: TestAppData, Lpa: lpa}).
+		On("Func", w, &witnessingYourSignatureData{App: testAppData, Lpa: lpa}).
 		Return(nil)
 
-	err := WitnessingYourSignature(template.Func, lpaStore, nil, nil, nil)(TestAppData, w, r)
+	err := WitnessingYourSignature(template.Func, lpaStore, nil, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -43,14 +43,14 @@ func TestGetWitnessingYourSignatureWhenLpaStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, ExpectedError)
+		Return(&page.Lpa{}, expectedError)
 
-	err := WitnessingYourSignature(nil, lpaStore, nil, nil, nil)(TestAppData, w, r)
+	err := WitnessingYourSignature(nil, lpaStore, nil, nil, nil)(testAppData, w, r)
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -60,19 +60,19 @@ func TestGetWitnessingYourSignatureWhenTemplateErrors(t *testing.T) {
 
 	lpa := &page.Lpa{CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"}}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
-		On("Func", w, &witnessingYourSignatureData{App: TestAppData, Lpa: lpa}).
-		Return(ExpectedError)
+		On("Func", w, &witnessingYourSignatureData{App: testAppData, Lpa: lpa}).
+		Return(expectedError)
 
-	err := WitnessingYourSignature(template.Func, lpaStore, nil, nil, nil)(TestAppData, w, r)
+	err := WitnessingYourSignature(template.Func, lpaStore, nil, nil, nil)(testAppData, w, r)
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
@@ -82,7 +82,7 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 
 	lpa := &page.Lpa{CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"}}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
@@ -109,7 +109,7 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 		}).
 		Return("sms-id", nil)
 
-	err := WitnessingYourSignature(nil, lpaStore, notifyClient, func(l int) string { return "1234" }, func() time.Time { return now })(TestAppData, w, r)
+	err := WitnessingYourSignature(nil, lpaStore, notifyClient, func(l int) string { return "1234" }, func() time.Time { return now })(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -124,7 +124,7 @@ func TestPostWitnessingYourSignatureWhenNotifyErrors(t *testing.T) {
 
 	lpa := &page.Lpa{CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"}}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
@@ -135,11 +135,11 @@ func TestPostWitnessingYourSignatureWhenNotifyErrors(t *testing.T) {
 		Return("xyz")
 	notifyClient.
 		On("Sms", mock.Anything, mock.Anything).
-		Return("", ExpectedError)
+		Return("", expectedError)
 
-	err := WitnessingYourSignature(nil, lpaStore, notifyClient, func(l int) string { return "1234" }, func() time.Time { return now })(TestAppData, w, r)
+	err := WitnessingYourSignature(nil, lpaStore, notifyClient, func(l int) string { return "1234" }, func() time.Time { return now })(testAppData, w, r)
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore, notifyClient)
 }
 
@@ -149,13 +149,13 @@ func TestPostWitnessingYourSignatureWhenLpaStoreErrors(t *testing.T) {
 
 	lpa := &page.Lpa{CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"}}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
 	lpaStore.
 		On("Put", r.Context(), mock.Anything).
-		Return(ExpectedError)
+		Return(expectedError)
 
 	notifyClient := &mockNotifyClient{}
 	notifyClient.
@@ -165,8 +165,8 @@ func TestPostWitnessingYourSignatureWhenLpaStoreErrors(t *testing.T) {
 		On("Sms", mock.Anything, mock.Anything).
 		Return("sms-id", nil)
 
-	err := WitnessingYourSignature(nil, lpaStore, notifyClient, func(l int) string { return "1234" }, func() time.Time { return now })(TestAppData, w, r)
+	err := WitnessingYourSignature(nil, lpaStore, notifyClient, func(l int) string { return "1234" }, func() time.Time { return now })(testAppData, w, r)
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore, notifyClient)
 }

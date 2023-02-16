@@ -16,17 +16,17 @@ func TestGetDashboard(t *testing.T) {
 
 	lpas := []*page.Lpa{{ID: "123"}, {ID: "456"}}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("GetAll", r.Context()).
 		Return(lpas, nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
-		On("Func", w, &dashboardData{App: TestAppData, Lpas: lpas}).
+		On("Func", w, &dashboardData{App: testAppData, Lpas: lpas}).
 		Return(nil)
 
-	err := Dashboard(template.Func, lpaStore)(TestAppData, w, r)
+	err := Dashboard(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -40,14 +40,14 @@ func TestGetDashboardWhenDataStoreErrors(t *testing.T) {
 
 	lpas := []*page.Lpa{{}}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("GetAll", r.Context()).
-		Return(lpas, ExpectedError)
+		Return(lpas, expectedError)
 
-	err := Dashboard(nil, lpaStore)(TestAppData, w, r)
+	err := Dashboard(nil, lpaStore)(testAppData, w, r)
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -57,19 +57,19 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 
 	lpas := []*page.Lpa{{}}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("GetAll", r.Context()).
 		Return(lpas, nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
-		On("Func", w, &dashboardData{App: TestAppData, Lpas: lpas}).
-		Return(ExpectedError)
+		On("Func", w, &dashboardData{App: testAppData, Lpas: lpas}).
+		Return(expectedError)
 
-	err := Dashboard(template.Func, lpaStore)(TestAppData, w, r)
+	err := Dashboard(template.Func, lpaStore)(testAppData, w, r)
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
@@ -77,12 +77,12 @@ func TestPostDashboard(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Create", r.Context()).
 		Return(&page.Lpa{ID: "123"}, nil)
 
-	err := Dashboard(nil, lpaStore)(TestAppData, w, r)
+	err := Dashboard(nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -160,6 +160,7 @@ func IsLpaPath(url string) bool {
 		Paths.AuthRedirect,
 		Paths.Dashboard,
 		Paths.Start,
+		Paths.CertificateProviderStart,
 		Paths.CertificateProviderLogin,
 		Paths.CertificateProviderLoginCallback,
 		Paths.CertificateProviderYourDetails,

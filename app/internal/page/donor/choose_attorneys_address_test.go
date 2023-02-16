@@ -26,21 +26,21 @@ func TestGetChooseAttorneysAddress(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysAddressData{
-			App:      TestAppData,
+			App:      testAppData,
 			Form:     &form.AddressForm{},
 			Attorney: attorney,
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, template.Func, nil, lpaStore)(TestAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Func, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -52,15 +52,15 @@ func TestGetChooseAttorneysAddressWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, ExpectedError)
+		Return(&page.Lpa{}, expectedError)
 
-	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(TestAppData, w, r)
+	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
@@ -71,29 +71,29 @@ func TestGetChooseAttorneysAddressFromStore(t *testing.T) {
 
 	attorney := actor.Attorney{
 		ID:      "123",
-		Address: TestAddress,
+		Address: testAddress,
 	}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			Attorneys: actor.Attorneys{attorney},
 		}, nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysAddressData{
-			App:      TestAppData,
+			App:      testAppData,
 			Attorney: attorney,
 			Form: &form.AddressForm{
 				Action:  "manual",
-				Address: &TestAddress,
+				Address: &testAddress,
 			},
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, template.Func, nil, lpaStore)(TestAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Func, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -107,18 +107,18 @@ func TestGetChooseAttorneysAddressManual(t *testing.T) {
 
 	attorney := actor.Attorney{
 		ID:      "123",
-		Address: TestAddress,
+		Address: testAddress,
 	}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysAddressData{
-			App: TestAppData,
+			App: testAppData,
 			Form: &form.AddressForm{
 				Action:  "manual",
 				Address: &place.Address{},
@@ -127,7 +127,7 @@ func TestGetChooseAttorneysAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, template.Func, nil, lpaStore)(TestAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Func, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -144,24 +144,24 @@ func TestGetChooseAttorneysAddressWhenTemplateErrors(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysAddressData{
-			App:      TestAppData,
+			App:      testAppData,
 			Form:     &form.AddressForm{},
 			Attorney: attorney,
 		}).
-		Return(ExpectedError)
+		Return(expectedError)
 
-	err := ChooseAttorneysAddress(nil, template.Func, nil, lpaStore)(TestAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Func, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
 }
@@ -180,7 +180,7 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{{
@@ -192,13 +192,13 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			Attorneys: actor.Attorneys{{
 				ID:      "123",
-				Address: TestAddress,
+				Address: testAddress,
 			}},
 			Tasks: page.Tasks{ChooseAttorneys: page.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(TestAppData, w, r)
+	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -221,7 +221,7 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -233,11 +233,11 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 
 	lpaStore.
 		On("Put", r.Context(), mock.Anything).
-		Return(ExpectedError)
+		Return(expectedError)
 
-	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(TestAppData, w, r)
+	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
@@ -255,7 +255,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -272,14 +272,14 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 			Attorneys: actor.Attorneys{{
 				ID:         "123",
 				FirstNames: "John",
-				Address:    TestAddress,
+				Address:    testAddress,
 			}},
 			WhoFor: "me",
 			Tasks:  page.Tasks{ChooseAttorneys: page.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(TestAppData, w, r)
+	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -305,7 +305,7 @@ func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
@@ -316,10 +316,10 @@ func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 		Postcode:   "d",
 	}
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysAddressData{
-			App:      TestAppData,
+			App:      testAppData,
 			Attorney: attorney,
 			Form: &form.AddressForm{
 				Action:  "manual",
@@ -329,7 +329,7 @@ func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, template.Func, nil, lpaStore)(TestAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Func, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -341,7 +341,7 @@ func TestPostChooseAttorneysAddressSelect(t *testing.T) {
 	f := url.Values{
 		"action":          {"select"},
 		"lookup-postcode": {"NG1"},
-		"select-address":  {TestAddress.Encode()},
+		"select-address":  {testAddress.Encode()},
 	}
 
 	w := httptest.NewRecorder()
@@ -353,7 +353,7 @@ func TestPostChooseAttorneysAddressSelect(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
@@ -373,20 +373,20 @@ func TestPostChooseAttorneysAddressSelect(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{Attorneys: actor.Attorneys{updatedAttorney}}).
 		Return(nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysAddressData{
-			App:      TestAppData,
+			App:      testAppData,
 			Attorney: attorney,
 			Form: &form.AddressForm{
 				Action:         "manual",
 				LookupPostcode: "NG1",
-				Address:        &TestAddress,
+				Address:        &testAddress,
 			},
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, template.Func, nil, lpaStore)(TestAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Func, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -413,20 +413,20 @@ func TestPostChooseAttorneysAddressSelectWhenValidationError(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
-	addressClient := &MockAddressClient{}
+	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
 		Return(addresses, nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysAddressData{
-			App:      TestAppData,
+			App:      testAppData,
 			Attorney: attorney,
 			Form: &form.AddressForm{
 				Action:         "select",
@@ -437,7 +437,7 @@ func TestPostChooseAttorneysAddressSelectWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, template.Func, addressClient, lpaStore)(TestAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Func, addressClient, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -459,7 +459,7 @@ func TestPostChooseAttorneysAddressLookup(t *testing.T) {
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
 
-	addressClient := &MockAddressClient{}
+	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
 		Return(addresses, nil)
@@ -469,15 +469,15 @@ func TestPostChooseAttorneysAddressLookup(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysAddressData{
-			App:      TestAppData,
+			App:      testAppData,
 			Attorney: attorney,
 			Form: &form.AddressForm{
 				Action:         "lookup",
@@ -487,7 +487,7 @@ func TestPostChooseAttorneysAddressLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, template.Func, addressClient, lpaStore)(TestAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Func, addressClient, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -505,29 +505,29 @@ func TestPostChooseAttorneysAddressLookupError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	logger := &MockLogger{}
+	logger := &mockLogger{}
 	logger.
-		On("Print", ExpectedError)
+		On("Print", expectedError)
 
 	attorney := actor.Attorney{
 		ID:      "123",
 		Address: place.Address{},
 	}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
-	addressClient := &MockAddressClient{}
+	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
-		Return([]place.Address{}, ExpectedError)
+		Return([]place.Address{}, expectedError)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysAddressData{
-			App:      TestAppData,
+			App:      testAppData,
 			Attorney: attorney,
 			Form: &form.AddressForm{
 				Action:         "lookup",
@@ -538,7 +538,7 @@ func TestPostChooseAttorneysAddressLookupError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(logger, template.Func, addressClient, lpaStore)(TestAppData, w, r)
+	err := ChooseAttorneysAddress(logger, template.Func, addressClient, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -561,7 +561,7 @@ func TestPostChooseAttorneysInvalidPostcodeError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	logger := &MockLogger{}
+	logger := &mockLogger{}
 	logger.
 		On("Print", invalidPostcodeErr)
 
@@ -570,20 +570,20 @@ func TestPostChooseAttorneysInvalidPostcodeError(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
-	addressClient := &MockAddressClient{}
+	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", mock.Anything, "XYZ").
 		Return([]place.Address{}, invalidPostcodeErr)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysAddressData{
-			App:      TestAppData,
+			App:      testAppData,
 			Attorney: attorney,
 			Form: &form.AddressForm{
 				Action:         "lookup",
@@ -594,7 +594,7 @@ func TestPostChooseAttorneysInvalidPostcodeError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(logger, template.Func, addressClient, lpaStore)(TestAppData, w, r)
+	err := ChooseAttorneysAddress(logger, template.Func, addressClient, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -613,27 +613,27 @@ func TestPostChooseAttorneysValidPostcodeNoAddresses(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	logger := &MockLogger{}
+	logger := &mockLogger{}
 
 	attorney := actor.Attorney{
 		ID:      "123",
 		Address: place.Address{},
 	}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
-	addressClient := &MockAddressClient{}
+	addressClient := &mockAddressClient{}
 	addressClient.
 		On("LookupPostcode", mock.Anything, "XYZ").
 		Return([]place.Address{}, nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysAddressData{
-			App:      TestAppData,
+			App:      testAppData,
 			Attorney: attorney,
 			Form: &form.AddressForm{
 				Action:         "lookup",
@@ -644,7 +644,7 @@ func TestPostChooseAttorneysValidPostcodeNoAddresses(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(logger, template.Func, addressClient, lpaStore)(TestAppData, w, r)
+	err := ChooseAttorneysAddress(logger, template.Func, addressClient, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -666,15 +666,15 @@ func TestPostChooseAttorneysAddressLookupWhenValidationError(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysAddressData{
-			App:      TestAppData,
+			App:      testAppData,
 			Attorney: attorney,
 			Form: &form.AddressForm{
 				Action: "lookup",
@@ -683,7 +683,7 @@ func TestPostChooseAttorneysAddressLookupWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, template.Func, nil, lpaStore)(TestAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Func, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -736,7 +736,7 @@ func TestPostChooseAttorneysManuallyFromAnotherPage(t *testing.T) {
 				},
 			}
 
-			lpaStore := &MockLpaStore{}
+			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
 				Return(lpa, nil)
@@ -744,7 +744,7 @@ func TestPostChooseAttorneysManuallyFromAnotherPage(t *testing.T) {
 				On("Put", r.Context(), lpa).
 				Return(nil)
 
-			err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(TestAppData, w, r)
+			err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)

@@ -36,21 +36,21 @@ func TestGetWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			lpaStore := &MockLpaStore{}
+			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
 				Return(tc.data, nil)
 
-			template := &MockTemplate{}
+			template := &mockTemplate{}
 			template.
 				On("Func", w, &whoDoYouWantToBeCertificateProviderGuidanceData{
-					App:        TestAppData,
+					App:        testAppData,
 					NotStarted: tc.notStarted,
 					Lpa:        tc.data,
 				}).
 				Return(nil)
 
-			err := WhoDoYouWantToBeCertificateProviderGuidance(template.Func, lpaStore)(TestAppData, w, r)
+			err := WhoDoYouWantToBeCertificateProviderGuidance(template.Func, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -64,15 +64,15 @@ func TestGetWhoDoYouWantToBeCertificateProviderGuidanceWhenStoreErrors(t *testin
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, ExpectedError)
+		Return(&page.Lpa{}, expectedError)
 
-	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, lpaStore)(TestAppData, w, r)
+	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }
@@ -81,20 +81,20 @@ func TestGetWhoDoYouWantToBeCertificateProviderGuidanceWhenTemplateErrors(t *tes
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", w, mock.Anything).
-		Return(ExpectedError)
+		Return(expectedError)
 
-	err := WhoDoYouWantToBeCertificateProviderGuidance(template.Func, lpaStore)(TestAppData, w, r)
+	err := WhoDoYouWantToBeCertificateProviderGuidance(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	mock.AssertExpectationsForObjects(t, template)
 }
@@ -104,7 +104,7 @@ func TestPostWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -112,7 +112,7 @@ func TestPostWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{Tasks: page.Tasks{CertificateProvider: page.TaskInProgress}}).
 		Return(nil)
 
-	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, lpaStore)(TestAppData, w, r)
+	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -128,12 +128,12 @@ func TestPostWhoDoYouWantToBeCertificateProviderGuidanceWhenWillDoLater(t *testi
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, lpaStore)(TestAppData, w, r)
+	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -147,16 +147,16 @@ func TestPostWhoDoYouWantToBeCertificateProviderGuidanceWhenStoreErrors(t *testi
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), mock.Anything).
-		Return(ExpectedError)
+		Return(expectedError)
 
-	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, lpaStore)(TestAppData, w, r)
+	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, lpaStore)(testAppData, w, r)
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
 }

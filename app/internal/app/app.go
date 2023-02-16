@@ -50,6 +50,7 @@ func App(
 		sessionStore,
 		lpaStore,
 		oneLoginClient,
+		dataStore,
 		addressClient,
 	)
 
@@ -66,6 +67,7 @@ func App(
 		yotiClient,
 		yotiScenarioID,
 		notifyClient,
+		dataStore,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String), localizer, lang, rumConfig, staticHash)

@@ -28,6 +28,7 @@ func Register(
 	yotiClient page.YotiClient,
 	yotiScenarioID string,
 	notifyClient page.NotifyClient,
+	dataStore page.DataStore,
 ) {
 	handleRoot := makeHandle(rootMux, logger, sessionStore, None)
 
@@ -112,7 +113,7 @@ func Register(
 	handleLpa(page.Paths.AboutPayment, CanGoBack,
 		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String, lpaStore))
 	handleLpa(page.Paths.PaymentConfirmation, CanGoBack,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, notifyClient, lpaStore, sessionStore, appPublicUrl))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, notifyClient, lpaStore, sessionStore, appPublicUrl, dataStore, random.String))
 
 	handleLpa(page.Paths.HowToConfirmYourIdentityAndSign, CanGoBack,
 		page.Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml"), page.Paths.WhatYoullNeedToConfirmYourIdentity, lpaStore))
