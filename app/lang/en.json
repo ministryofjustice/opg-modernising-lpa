@@ -1,5 +1,5 @@
 {
-    "cookiesOn": "Cookies on Make a lasting power of attorney",
+    "cookiesOn": "Add some text to commit Cookies on Make a lasting power of attorney",
     "cookiesContent": "<p class=\"govuk-body\">We use some essential cookies to make this service work.</p><p class=\"govuk-body\">We’d also like to use analytics cookies so we can understand how you use the service and make improvements.</p>",
     "acceptCookies": "Accept analytics cookies",
     "rejectCookies": "Reject analytics cookies",
@@ -30,7 +30,6 @@
     "yes": "Yes",
     "no": "No",
     "confirm": "Confirm",
-
     "yourDetails": "Your details",
     "firstNames": "First names",
     "lastName": "Last name",
@@ -45,7 +44,6 @@
     "and": "and",
     "dateOfBirthIsUnder18": "You are under 18. I understand that I must be at least 18 on the date I sign the LPA, otherwise the LPA will be rejected.",
     "dateOfBirthIsOver100": "By saving this section, you confirm that the person is more than 100 years old. If not, please change the date.",
-
     "errorEnter": "Enter {{.Label}}",
     "errorStringTooLong": "{{.Label}} must be {{.Length}} characters or less",
     "errorStringLength": "{{.Label}} must be {{.Length}} characters",
@@ -55,7 +53,6 @@
     "errorMobile": "{{.Label}} must be a UK mobile number, like 07700 900 982 or +44 7700 900 982",
     "errorSelect": "Select {{.Label}}",
     "errorEmail": "{{.Label}} must be in the correct format, like name@example.com",
-
     "donorMatchesActorWarning": "The donor’s name is also {{.FirstNames}} {{.LastName}}. The donor cannot be {{.Type}}.",
     "attorneyMatchesActorWarning": "There is also an attorney called {{.FirstNames}} {{.LastName}}. An attorney cannot be {{.Type}}.",
     "attorneyMatchesAttorneyWarning": "There is already an attorney called {{.FirstNames}} {{.LastName}}.",
@@ -65,13 +62,11 @@
     "personToNotifyMatchesActorWarning": "There is also a person to notify called {{.FirstNames}} {{.LastName}}. A person to notify cannot be {{.Type}}.",
     "personToNotifyMatchesPersonToNotifyWarning": "There is already a person to notify called {{.FirstNames}} {{.LastName}}.",
     "bySavingThisSectionDifferentPeople": "By saving this section, you are confirming that these are 2 different people with the same name.",
-
     "theDonor": "the donor",
     "anAttorney": "an attorney",
     "aReplacementAttorney": "a replacement attorney",
     "theCertificateProvider": "the certificate provider",
     "aPersonToNotify": "a person to notify",
-
     "whatIsYourAddress": "What is your address?",
     "postcode": "Postcode",
     "findAddress": "Find address",
@@ -94,7 +89,6 @@
     "aPostcode": "a postcode",
     "anAddressFromTheList": "an address from the list",
     "noAddressesFound": "We could not find any addresses for that postcode. Check your postcode is correct, or enter your address manually.",
-
     "whoIsThisLpaFor": "Who is this LPA for?",
     "whoTheLpaIsFor": "who the LPA is for",
     "forMe": "For me",
@@ -104,7 +98,6 @@
     "phone": "Phone",
     "textMessage": "Text message",
     "post": "Post",
-
     "whichTypeOfLpaToMake": "Which type of LPA do you want to make?",
     "whichTypeOfLpaToMakeContent": "<p class=\"govuk-body\">There are 2 types of LPA. You can make an LPA that covers decisions about your:</p><ul class=\"govuk-list govuk-list--bullet\"><li>money, finances and any property you own</li><li>health care, medical treatment and personal welfare</li></ul><p class=\"govuk-body\">You can have one or both types of LPA.</p><p class=\"govuk-body\">They do not have to be made at the same time and you can reuse any information you enter to make other LPAs later.</p><p class=\"govuk-body\">You can choose different people to be your attorneys for each LPA.</p><p class=\"govuk-body\"><a class=\"govuk-link\" href=\"#\">Find out more about the 2 types of LPAs</a></p>",
     "theTypeOfLpaToMake": "the type of LPA to make",
@@ -115,7 +108,6 @@
     "lpaTypeHwHumanised": "An LPA that covers decisions about my health care, medical treatment and personal welfare",
     "lpaTypeHwHint": "In legal terms, this is called a ‘personal welfare’ LPA. You may also hear it called a ‘health and welfare’ LPA",
     "lpaTypeBoth": "Both",
-
     "taskListHeading": "My LPA",
     "taskListHelp": "Help with making this LPA",
     "taskListHelpContent": "<p>There’s help included with every question, and you can also read our <a href=\"#\" class=\"govuk-link\">full guide to making an LPA</a>.</p> <p>You may want to look at our <a href=\"#\" class=\"govuk-link\">before you begin help page</a>. It explains the decisions you have to make about your LPA and the information you’ll need to provide.</p> <p>We’ll save the LPA as you progress - you don’t need to complete it in one go. You can sign out at any time and come back later.</p>",
@@ -153,7 +145,6 @@
     "yesToRemoveReplacementAttorney": "yes to remove the replacement attorney",
     "doYouWantToRemovePersonToNotify": "Are you sure you want to remove this person to notify?",
     "doYouWantToRemoveReplacementAttorney": "Are you sure you want to remove this replacement attorney?",
-
     "whoWouldYouLikeToBeTheAttorneys": "Who would you like to choose as your attorneys?",
     "whoWouldYouLikeToBeTheAttorneysDetailsTitle": "Guidance on choosing an attorney",
     "whoWouldYouLikeToBeTheAttorneysDetailsContent": "<p class=\"govuk-body\">Your attorneys are the people who’ll be able to help you make decisions about your finances, if you ever want or need their help in the future.</p> <p class=\"govuk-body\">It’s important that you choose people you trust to respect your wishes and act in your best interests.</p> <p class=\"govuk-body\">You can have more than 1 attorney. Most people have between 1 and 3.</p><p class=\"govuk-body\">An attorney must:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>be aged 18 or over</li> <li>have mental capacity (be able to make decisions)</li> </ul> <p class=\"govuk-body\">Someone cannot be an attorney if they are:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>bankrupt or have a debt relief order</li> <li>on the Disclosure and Barring Service barred list (someone is normally put on this list if they have a criminal conviction or caution that means they’re not allowed to work with vulnerable people)</li> </ul> <p class=\"govuk-body\">You’ll be asked if you would like to add <a href=\"#\" class=\"govuk-link\">replacement attorneys</a> in a separate question. They step in if your original attorneys are unable or unwilling to continue.</p> <p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">Find out more about attorneys</a></p>",
@@ -162,7 +153,6 @@
     "attorneyAddressTitle": "Attorney’s address",
     "replacementAttorneyAddressTitle": "Replacement attorney’s address",
     "attorneyDateOfBirthIsUnder18": "This attorney is under 18 years old. You will not be able to finish making this LPA until they are 18.",
-
     "wantReplacementAttorneys": "Do you want any replacement attorneys?",
     "yesToAddReplacementAttorneys": "yes to add replacement attorneys",
     "replacementAttorneysStepIn": "Replacement attorneys step in if one of your original attorneys dies or has to step down from the role.",
@@ -172,12 +162,10 @@
     },
     "replacementAttorneyRequirements": "A replacement attorney must meet the same requirements as an original attorney. This includes being 18 or over.",
     "findOutMoreAboutReplacementAttorneysContent": "<p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">Find out more about replacement attorneys</a></p>",
-
     "yesReplacementAttorneys": "Yes, I want replacement attorneys",
     "noReplacementAttorneys": "No, I do not want replacement attorneys",
     "replacementAttorneys": "Replacement attorneys",
     "replacementAttorney": "Replacement attorney",
-
     "whenCanYourAttorneysUseYourLpa": "When can your attorneys use your LPA",
     "whenYourAttorneysCanUseYourLpa": "When your attorneys can use your LPA",
     "youCanDecideHeader": "<p class=\"govuk-body-l\">You can decide whether you want your attorney to be able to use the LPA as soon as it’s registered or only if you lose mental capacity.</p>",
@@ -198,7 +186,6 @@
     },
     "asSoonAsItsRegistered": "As soon as it’s registered",
     "onlyWhenIDoNotHaveMentalCapacity": "Only when I do not have mental capacity",
-
     "restrictionsOnYourAttorneysPower": "Restrict the decisions {{.AllAttorneysFirstNames}} can make",
     "restrictionsOnYourAttorneysPowerTitle": "Restrict the decisions your attorneys can make",
     "restrictionsOnYourAttorneysPowerContent": "<p class=\"govuk-body\">This optional section lets you add extra information for your attorneys, {{.AllAttorneysFirstNames}}, to guide the decisions they can make on your behalf. We call this adding ‘restrictions and conditions’ to your LPA.</p> <p class=\"govuk-body\">What you say here will tell {{.AllAttorneysFirstNames}} things they:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>must not do (‘restrictions’)</li> <li>can only do in certain circumstances (‘conditions’)</li> </ul> <p class=\"govuk-body\">You do not have to add restrictions or conditions to your LPA. You may prefer to talk to {{.AllAttorneysFirstNames}} about your wishes, rather than writing them into your LPA.</p> <p class=\"govuk-body\">There are legal rules about what you can and cannot tell your attorneys to do, so it’s important to read our <a href=\"#\" class=\"govuk-link\">guidance on writing restrictions and conditions.</a></p>",
@@ -207,20 +194,17 @@
     "restrictions": "Restrictions and conditions",
     "restrictionsHint": "It’s important that you word any restrictions and conditions clearly and carefully.",
     "restrictionsTooLong": "Restrictions must be 10,000 or fewer characters",
-
     "whoDoYouWantToBeCertificateProviderTitle": "Who do you want to be your certificate provider?",
     "whoDoYouWantToBeCertificateProviderGuidanceIntro": "<p class=\"govuk-body\">A certificate provider is an independent person who talks to you to check you understand your LPA and want to make it.</p> <p class=\"govuk-body\">Most people choose a friend, neighbour or colleague to be their certificate provider.</p>",
     "whatYourCertificateProviderHasToDo": "<h2 class=\"govuk-heading-m\">What your certificate provider has to do</h2> <p class=\"govuk-body\">Your certificate provider has to:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>read your LPA once you’ve finished making it</li> <li>meet you in person to talk about your LPA in private</li> <li>witness you signing your LPA</li> </ul> <p class=\"govuk-body\">We’ll then ask your certificate provider to:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>confirm their identity</li> <li>confirm they’ve discussed your LPA with you</li> <li>tell us if they have any concerns about your LPA - for example, if they think someone is pressuring you to make it</li> </ul> <p class=\"govuk-body\">We call this ‘providing a certificate’. They can do this using our online service or a paper form.</p> <p class=\"govuk-body\">If we ever have any concerns about your LPA, we may ask your certificate provider to tell us more about the conversation they had with you.</p>",
     "whoToChooseAsYourCertificateProvider": "<h2 class=\"govuk-heading-m\">Who to choose as your certificate provider</h2> <p class=\"govuk-body\">You can choose either:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>someone you’ve known well for at least 2 years, for example, a friend or neighbour (but not a relative)</li> <li>a doctor, lawyer or another professional with the skills to check whether you understand your LPA</li> </ul> <p class=\"govuk-body\">Choose someone:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>you’re comfortable having an open, honest conversation with</li> <li>who will speak up if they think something is wrong</li> </ul> <p class=\"govuk-body\">They’ll need to have their own mobile phone.</p>",
     "whoCannotBeACertificateProvider": "<h2 class=\"govuk-heading-m\">Who cannot be a certificate provider</h2> <p class=\"govuk-body\">Your certificate provider cannot be:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>under 18 years old</li> <li>an attorney on your LPA</li> <li>related to you or {{ .AttorneysFirstNames }} (this includes step-relations, in-laws, husbands, wives, partners, boyfriends and girlfriends)</li> <li>a business partner or employee of you or {{ .AttorneysFirstNames }}</li> <li>someone who works for a care home where you live, or their relative</li> </ul>",
     "detailsYoullNeedAboutYourCertificateProvider": "<h2 class=\"govuk-heading-m\">Details you’ll need about your certificate provider</h2> <p class=\"govuk-body\">You’ll need their:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>full name</li> <li>date of birth</li> <li>mobile phone number</li> <li>email or postal address</li> </ul> <p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">Find out more about certificate providers</a>, and who can and cannot take on the role.</p>",
-
     "certificateProviderDetails": "Your certificate provider’s details",
     "certificateProviderDetailsHint": "Remember, your certificate provider must be 18 or over. They cannot be a member of your family (this includes step-relations and in-laws) or of the attorneys’ families.",
     "certificateProviderDobContext": "We need your certificate provider’s date of birth to check they are over 18.",
     "certificateProviderMobileContext": "We need your certificate provider’s mobile number so we can send them a code to use when they witness you signing your LPA.",
     "mobile": "Mobile number",
-
     "howWouldCertificateProviderPreferToCarryOutTheirRole": "How would {{.FirstNames}} prefer to carry out their role?",
     "howWouldCertificateProviderPreferToCarryOutTheirRoleTitle": "How would your certificate provider prefer to carry out their role?",
     "howYourCertificateProviderWouldPreferToCarryOutTheirRole": "how your certificate provider would prefer to carry out their role",
@@ -231,7 +215,6 @@
     "certificateProvidersEmail": "Certificate provider’s email address",
     "certificateProviderAddress": "{{.FirstNames}}’s address",
     "certificateProviderAddressTitle": "Certificate provider’s address",
-
     "aboutPayment": "About payment",
     "aboutPaymentContent": "<p class=\"govuk-body\">It costs £82 to apply for an LPA. </p>",
     "feeCoversContent": "The fee covers the cost of:",
@@ -240,7 +223,6 @@
     "lowIncome": "If you have a low income or get certain means-tested benefits, you can apply to pay a lower fee or no fee",
     "qualifyingForReduction": "Find out more about qualifying for a reduction",
     "continueToPayment": "Continue to payment",
-
     "howDoYouKnowYourCertificateProvider": "How do you know {{.FirstNames}} {{.LastName}}, your certificate provider?",
     "howDoYouKnowYourCertificateProviderTitle": "How do you know your certificate provider?",
     "pleaseDescribe": "Briefly explain how you know {{.FirstNames}} {{.LastName}}",
@@ -252,14 +234,12 @@
     "or": "Or",
     "Other": "Other",
     "howYouKnowCertificateProvider": "how you know your certificate provider",
-
     "howLongHaveYouKnownCertificateProvider": "How long have you known {{.FirstNames}} {{.LastName}}?",
     "howLongHaveYouKnownCertificateProviderTitle": "How long have you known your certificate provider?",
     "twoYearsOrMore": "2 years or more",
     "lessThanTwoYears": "Less than 2 years",
     "mustHaveKnownCertificateProviderTwoYears": "You must have known your non-professional certificate provider for 2 years or more",
     "howLongYouHaveKnownCertificateProvider": "how long you have known your certificate provider",
-
     "checkedLpa": "that you have checked your LPA and don’t wish to make changes",
     "happyToShareLpa": "that you are happy to share your LPA with your certificate provider",
     "checkYourLpa": "Check your LPA",
@@ -295,12 +275,10 @@
     "whatHappensIfIChange": "What happens if I need to make changes later?",
     "whatHappensIfIChangeDetails": "<p class=\"govuk-body\">If you want to change your LPA after you’ve had the conversation with your certificate provider, you can.</p> <p class=\"govuk-body\">After you’ve made the changes, you’ll need to have the conversation with your certificate provider again, so you can talk about the updated LPA.</p>",
     "onceYouClickConfirmWarning": "Once you click the confirm button, you will not be able to make any more changes.",
-
     "paymentReceivedHeader": "Payment received",
     "yourRefNumber": "Your reference number",
     "thankYouHeader": "Thank you for your payment.",
     "paymentConfirmationContent": "<p class=\"govuk-body\">You have successfully paid for your property and affairs LPA.</p><p class=\"govuk-body\">We’ve sent you an email to confirm we’ve received your LPA application fee.</p><p class=\"govuk-body\">If the email has not arrived in a few minutes, check your spam folder.</p>",
-
     "readYourLpa": "Read your LPA",
     "readAndCheckYourLpa": "You must read and check your LPA carefully before you sign it.",
     "whatHappensIfIWantToMakeChanges": "What happens if I want to make changes after I’ve signed?",
@@ -310,7 +288,6 @@
     "typeSignatureCode": "Type your signature code to sign",
     "iHaventReceivedSignatureCode": "I haven’t received a signature code",
     "continueToSigningPage": "Continue to signing page",
-
     "signYourLpa": "Sign your LPA",
     "signYourLpaHeader": "<h2 class=\"govuk-heading-m\">Signing the LPA is an important and powerful legal step.</h2>",
     "bySigningIConfirm": "By signing my {{ .LpaType}} LPA, I confirm all of the following:",
@@ -330,11 +307,9 @@
     "submitSignature": "Submit my signature",
     "bothBoxesToSignAndApply": "You must select both boxes to sign and apply to register your LPA",
     "iWantToSignThisLpa": "I want to sign this LPA",
-
     "witnessYourSignature": "Witnessing your signature",
     "witnessYourSignatureContent": "<p class=\"govuk-body govuk-!-font-weight-bold\">We now need {{ .CpFullName }}, your certificate provider to confirm that they are with you and have witnessed you signing your LPA.</p> <ol class=\"govuk-list govuk-list--number govuk-list--spaced\"> <li>When you press continue, we’ll send {{ .CpFirstNames }} a text message containing a unique code</li> <li>{{ .CpFirstNames }} will need to type in this code on the next screen</li> </ol>",
     "witnessCodeTimeWarning": "When {{ .CpFirstNames }} receives this code, it is valid for 30 minutes. Please use the code within this time.",
-
     "selectYourIdentityOptions": "Select how you will confirm your identity",
     "pleaseSelectOneFormOfIdentity": "Please select one form of identity from this list",
     "yourOneLogin": "Your GOV.UK One Login Identity",
@@ -354,19 +329,16 @@
     "iDoNotHaveAnyOfTheseTypesOfIdentity": "I do not have any of these types of identity",
     "weWillAdviseOnOtherWays": "We will advise on other ways you can confirm your identity",
     "fromTheListedOptions": "from the listed options",
-
     "yourChosenIdentityOptions": "Your chosen identity options",
     "yourChosenIdentityOptionsContent": "You told us that you have the following things to confirm your identity:",
     "whenYouAreReadyToCompleteTheIdentityConfirmationChecks": "When you are ready to complete the identity confirmation checks, please press continue.",
     "yourBankAccount": "your bank account",
-
     "identifyYourselfWithYoti": "Identify yourself with the Yoti app",
     "scanWithTheYotiApp": "Scan with the Yoti app",
     "yourIdentityConfirmedWithYoti": "Your identity details confirmed with Yoti",
     "yourIdentityConfirmedWithOneLogin": "Your identity details confirmed with GOV.UK One Login",
     "yourIdentityNotConfirmedWithOneLogin": "Your identity details could not be confirmed with GOV.UK One Login",
     "pleaseContinueWithADifferentMethod": "Don’t give up, you can (hopefully) continue with a different method.",
-
     "witnessingAsCP": "Witnessing as the certificate provider",
     "enterUniqueCodeLabel": "Enter your unique code",
     "enterUniqueCodeHint": "{{ .CpFirstName }}, please type in the code we have sent you, to prove that you are with {{ .DonorFullName }} and have witnessed them sign their LPA.",
@@ -374,13 +346,11 @@
     "witnessCodeDoesNotMatch": "The code you entered is incorrect, please check it and try again",
     "witnessCodeExpired": "The code you entered has expired",
     "theCodeWeSentCertificateProvider": "The code we sent to the certificate provider",
-
     "submittedYourLpa": "You’ve submitted your LPA",
     "whatHappensNext": "What happens next",
     "nextStepsList": "<ol class=\"govuk-list govuk-list--number govuk-list--spaced\"><li>We’ll contact {{ .CpFirstNames }} and ask them to confirm their identity. They also need to sign your LPA to confirm they’ve discussed it with you. We call this ‘providing a certificate’.</li><li>We’ll then contact {{ .AttorneysFullNames }} and ask them to sign your LPA as your attorneys.</li><li>Once the attorneys have signed, your LPA will automatically be sent to us to be checked and registered. If we find any problems with your LPA, we’ll contact you.</li><li>The law says we then have to wait 4 weeks before registering your LPA. This is in case anyone wants to object to your LPA’s registration.</li><li>We’ll register your LPA.</li></ol>",
     "weWillEmailYou": "<p class=\"govuk-body\">We’ll email you at each step to update you with the progress of your LPA’s registration. You can also track progress by logging into this service.</p>",
     "signIn4WeeksWarning": "{{ .CpFirstNames }} and your attorneys must sign your LPA by {{ .AttorneysAndCpSigningDeadline }}. If they do not sign by this date, you will have to meet with {{ .CpFirstNames }} and sign your LPA again.",
-
     "myLastingPowersOfAttorney": "My lasting powers of attorney",
     "myLastingPowersOfAttorneyHint": "On this page you will find all your in-progress and registered LPAs.",
     "youCanCreateANewLpa": "You can create a new LPA or re-use the details of an LPA to make another one, using the ‘Options’ button",
@@ -392,7 +362,6 @@
     "options": "Options",
     "lastSaved": "Last saved",
     "statusTag": "Status tag",
-
     "howShouldAttorneysMakeDecisions": "How should your attorneys make decisions?",
     "jointlyAndSeverallyHumanised": "Together and separately",
     "jointlyAndSeverallyHint": "<p>Your attorneys can make decisions together or on their own.</p><p>This means your attorneys can share tasks and responsibilities. It also means that if one of your attorneys is unable to act, decisions can still be made without them. Most people choose this option as it’s the most practical.</p><p class=\"govuk-hint\">In legal terms, this is known as your attorneys acting ‘jointly and severally’.</p>",
@@ -404,13 +373,11 @@
     "details": "Details",
     "howAttorneysShouldMakeDecisions": "how the attorneys should make decisions",
     "howReplacementAttorneysShouldMakeDecisions": "how the replacement attorneys should make decisions",
-
     "warning": "Warning",
     "jointlyReplacementWarning": "Replacement attorneys are an important backup when attorneys are appointed to act jointly.",
     "jointlyReplacementWarningContent": "<p class=\"govuk-body\">If you do not appoint any replacement attorneys and one of the original attorneys dies or can no longer act, the LPA will stop working.</p><p class=\"govuk-body\">If you appoint replacement attorneys and one of the original attorneys dies or can no longer act:</p><ul class=\"govuk-list govuk-list--bullet\"><li>ALL the original attorneys will be replaced by the replacement attorneys, unless you state otherwise in your instructions</li><li>the original attorneys will not be able to make any decisions on your behalf anymore</li></ul>",
     "mixedReplacementWarning": "You appointed your attorneys to act jointly for some decisions, and jointly and severally for others.",
     "mixedReplacementWarningContent": "<p class=\"govuk-body\">This means that if an original attorney dies or can no longer act:</p><ul class=\"govuk-list govuk-list--bullet\"><li>all the replacement attorneys step in and take over making the joint decisions</li><li>the remaining original attorneys will not be able to make the joint decisions anymore, unless you state otherwise in your instructions</li><li>the replacement and remaining original attorneys can make all other decisions together or individually</li></ul>",
-
     "whoWouldYouLikeToBeTheReplacementAttorneys": "Who would you like to be your replacement attorneys?",
     "doYouWantToAddAnotherReplacementAttorney": "Do you want to add another replacement attorney?",
     "removeAReplacementAttorney": "Remove a replacement attorney",
@@ -418,13 +385,11 @@
         "one": "You have added {{.PluralCount}} replacement attorney",
         "other": "You have added {{.PluralCount}} replacement attorneys"
     },
-
     "howShouldReplacementAttorneysMakeDecisions": "How should the replacement attorneys make decisions?",
     "howShouldReplacementAttorneysMakeDecisionsDetail": "Your choice here is very important as it affects how your LPA can be used. Whichever option you choose, your replacement attorneys must always act in your best interests.",
     "jointlyAndSeverallyHintReplacementAttorneys": "Replacement attorneys can make decisions on their own or together. Most people choose this option because it’s the most practical.",
     "jointlyHintReplacementAttorneys": "Replacement attorneys must agree unanimously on every decision, however big or small. If one replacement attorney can no longer act, the others will not be able to act either, unless you states otherwise in your instructions.",
     "jointlyAndSeverallyMixedHintReplacementAttorneys": "Replacement attorneys must agree unanimously on some decisions, but can make others on their own. You must state which decisions need to be agreed unanimously.",
-
     "howShouldReplacementAttorneysStepIn": "How should your replacement attorneys step in?",
     "howShouldReplacementAttorneysStepInDetail": "<p class=\"govuk-body\">You can choose when your replacement attorneys step in and in what order.</p><p class=\"govuk-body\">Once they’ve stepped in, the replacement attorneys will be able to make any decision jointly and severally along with the remaining original attorneys.</p><p class=\"govuk-body\">Most donors choose for all the replacement attorneys to step in together as soon as 1 of the original attorneys can no longer act. However, if you would prefer the replacement attorneys to step in later or in a specific order, select 1 of the other 2 options.</p>",
     "whenOneCanNoLongerAct": "As soon as <span class=\"govuk-!-font-weight-bold\">one</span> of the original attorneys can no longer act, all the replacement attorneys should step in together",
@@ -433,13 +398,11 @@
     "otherWayHint": "<p class=\"govuk-body\">Describe below how you would like this to happen. Be careful - the more specific the instructions, the greater the chance that they will not be able to be followed. If in doubt, seek legal advice. <a class=\"govuk-link\" href=\"#\">Not sure what to put?</a></p>",
     "whenYourReplacementAttorneysStepIn": "when your replacement attorneys should step in",
     "detailsOfWhenToStepIn": "details of when your replacement attorneys should step in",
-
     "jointly-and-severally": "<p class=\"govuk-body\">Your attorneys can make decisions together or on their own.</p> <p class=\"govuk-body\">In legal terms, this is known as your attorneys working ‘jointly and severally’.</p>",
     "jointly": "<p class=\"govuk-body\">Your attorneys must make and agree all decisions together.</p> <p class=\"govuk-body\">In legal terms, this is known as your attorneys working ‘jointly’</p>",
-    "mixed":                 "<p class=\"govuk-body\">Your attorneys must make certain decisions together.</p> <p class=\"govuk-body\">In legal terms, this is known as your attorneys working ‘jointly for some decisions and jointly and severally for others’.</p>",
-    "when-registered":       "As soon as it’s registered",
-    "when-capacity-lost":    "Only when I do not have mental capacity",
-
+    "mixed": "<p class=\"govuk-body\">Your attorneys must make certain decisions together.</p> <p class=\"govuk-body\">In legal terms, this is known as your attorneys working ‘jointly for some decisions and jointly and severally for others’.</p>",
+    "when-registered": "As soon as it’s registered",
+    "when-capacity-lost": "Only when I do not have mental capacity",
     "peopleToNotify": "People to notify about your LPA",
     "wantPeopleToNotify": "Do you want to notify anyone about your LPA?",
     "yesToNotifySomeoneAboutYourLpa": "yes to notify someone about your LPA",
@@ -464,18 +427,15 @@
     "addedMaxPeople": "You’ve now added the maximum number of people we can notify about your LPA. If you want to add someone else, you must remove a person you’ve already added.",
     "yesToAddAnotherPersonToNotify": "yes to add another person to notify",
     "removeAPersonToNotify": "Remove a person to notify",
-
     "howToConfirmYourIdentityAndSign": "How to confirm your identity and sign the LPA",
     "howToConfirmYourIdentityAndSignIntro": "There are 3 steps to signing your LPA. You must complete these steps in one go.",
     "yourCertificateProviderMustBeWithYou": "{{.CertificateProviderName}}, your certificate provider, must be with you in person when you complete these steps.",
     "howToConfirmYourIdentityAndSignSteps": "<h2 class=\"govuk-heading-m\">1. Confirm your identity</h2><div class=\"govuk-body\"><p>This is so we can be sure it’s you that’s about to sign the LPA. It should take less than 5 minutes.</p></div><h2 class=\"govuk-heading-m\">2. Discuss your LPA with {{.CertificateProviderFirstNames}}</h2><div class=\"govuk-body\"><p>You should meet in private. {{.AttorneysFullNames}} should not be there.</p></div><h2 class=\"govuk-heading-m\">3. Sign your LPA</h2><div class=\"govuk-body\"><p>Sign your LPA online. We will then send {{.CertificateProviderFullName}} a unique code by text message, that you must enter to prove they were with you.</p></div>",
-
     "whatYoullNeedToConfirmYourIdentity": "What you’ll need to confirm your identity",
     "whatYoullNeedToConfirmYourIdentityContent": "<p class=\"govuk-body-l\">To confirm your identity, you’ll need 3 things from this list.</p><ul class=\"govuk-list govuk-list--bullet govuk-list--spaced\"><li><span class=\"govuk-body govuk-!-font-weight-bold\">Your passport</span><br>This must be your current passport or one that expired less than 10 years ago. Your name on your passport must be the same as on your LPA.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">Your driving licence</span><br>This must be your current licence or one that expired less than 10 years ago. Your name and address on your licence must be the same as on your LPA.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">A GOV.UK Account</span><br>We’ll ask you to sign in to your account so we can confirm your name, address and date of birth. We will not see any other information about you.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">Post Office EasyID</span><br>Post Office EasyID is a secure digital app that lets you confirm your identity online. We’ll confirm your name, address and date of birth through Post Office EasyID. We will not see any other information Post Office EasyID holds about you.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">A Department for Work and Pensions (DWP) account and your National Insurance Number</span><br>We’ll check your details with DWP - they’ll confirm your name, address and date of birth. We will not see any other information about you.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">A utility bill</span><br>This must a gas, electric, broadband or landline phone bill issued within the last three months. Your name and address on the bill must be the same as on your LPA. You’ll need to upload a photo, scan or a PDF of the bill.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">A council tax bill</span><br>This must be for the current council tax year. Your name and address on the bill must be the same as on your LPA. You’ll need to upload a photo, scan or a PDF of the bill.</li></ul>",
-
     "lpaSigned": "LPA signed",
     "certificateProviderHasDeclared": "Certificate provider has made their declaration",
-    "attorneysHaveDeclared":{
+    "attorneysHaveDeclared": {
         "one": "Attorney has made their declaration",
         "other": "Attorneys have made their declaration"
     },
@@ -485,7 +445,6 @@
     "trackLpaProgress": "Track LPA progress",
     "backToDashboard": "Back to dashboard",
     "myLpa": "My {{ .LpaType }} lasting power of attorney",
-
     "yourLegalRightsAndResponsibilities": "Your legal rights and responsibilities",
     "yourLegalRightsAndResponsibilitiesContent": "<p class=\"govuk-body-l\">Before signing, you must read your legal rights and responsibilities.</p><h2 class=\"govuk-heading-m\">How your attorneys should act</h2><p class=\"govuk-body\">By signing your LPA, you are appointing your attorneys to make decisions for you.</p><p class=\"govuk-body\">Your attorneys must follow the <a class=\"govuk-link\" href=\"https://www.gov.uk/government/publications/mental-capacity-act-code-of-practice\">Mental Capacity Act Code of Practice</a>:</p><ul class=\"govuk-list govuk-list--bullet\"><li>They must assume you can make your own decisions, unless it is established that you cannot do so.</li><li>They must help you to make as many of your own decisions as you can.</li><li>They must take all practical steps to help you make a decision. They must only treat you as unable to make a decision if they have not succeeded in helping you make a decision through those steps.</li><li>They must not treat you as unable to make a decision because you have made an unwise decision.</li><li>They must act and make decisions in your best interests when you are unable to make a decision.</li><li>Before they make a decision or act for you, they must consider any option that is less restrictive of your rights and freedom which might achieve the same outcome.</li></ul><h2 class=\"govuk-heading-m\">How your LPA can be used</h2><ul class=\"govuk-list govuk-list--bullet\"><li>When you sign your LPA, along with all your attorneys, replacement attorneys and certificate provider, you are forming a legal agreement between you (a deed).</li><li>Your LPA can only be used if it’s registered with the Office of the Public Guardian (OPG).</li><li>You can cancel your LPA at any time if you have mental capacity. <a class=\"govuk-link\" href=\"https://www.gov.uk/power-of-attorney/end\">Find out more about how to cancel your LPA</a>.</li><li>Your attorneys cannot use your LPA to make changes to your will.</li><li>Your LPA will expire when you die.</li></ul>"
 }
