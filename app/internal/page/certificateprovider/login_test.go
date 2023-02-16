@@ -17,12 +17,12 @@ func TestCertificateProviderLogin(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?sessionId=session-id&lpaId=lpa-id", nil)
 
-	client := &MockOneLoginClient{}
+	client := &mockOneLoginClient{}
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "cy", true).
 		Return("http://auth")
 
-	sessionsStore := &MockSessionsStore{}
+	sessionsStore := &mockSessionsStore{}
 
 	session := sessions.NewSession(sessionsStore, "params")
 
@@ -62,12 +62,12 @@ func TestCertificateProviderLoginDefaultLocale(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?sessionId=session-id&lpaId=lpa-id", nil)
 
-	client := &MockOneLoginClient{}
+	client := &mockOneLoginClient{}
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "en", true).
 		Return("http://auth")
 
-	sessionsStore := &MockSessionsStore{}
+	sessionsStore := &mockSessionsStore{}
 
 	session := sessions.NewSession(sessionsStore, "params")
 
@@ -94,7 +94,7 @@ func TestCertificateProviderLoginDefaultLocale(t *testing.T) {
 		On("Save", r, w, session).
 		Return(nil)
 
-	Login(nil, client, sessionsStore, func(int) string { return "i am random" })(TestAppData, w, r)
+	Login(nil, client, sessionsStore, func(int) string { return "i am random" })(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -107,21 +107,21 @@ func TestCertificateProviderLoginWhenStoreSaveError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	logger := &MockLogger{}
+	logger := &mockLogger{}
 	logger.
-		On("Print", ExpectedError)
+		On("Print", expectedError)
 
-	client := &MockOneLoginClient{}
+	client := &mockOneLoginClient{}
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "en", true).
 		Return("http://auth?locale=en")
 
-	sessionsStore := &MockSessionsStore{}
+	sessionsStore := &mockSessionsStore{}
 	sessionsStore.
 		On("Save", r, w, mock.Anything).
-		Return(ExpectedError)
+		Return(expectedError)
 
-	Login(logger, client, sessionsStore, func(int) string { return "i am random" })(TestAppData, w, r)
+	Login(logger, client, sessionsStore, func(int) string { return "i am random" })(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)

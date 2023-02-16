@@ -44,7 +44,7 @@ func TestStart(t *testing.T) {
 		On("Get", r.Context(), "SHARECODE#a-share-code", "#METADATA#a-share-code").
 		Return(nil)
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.MatchedBy(func(ctx context.Context) bool {
 			session := page.SessionDataFromContext(ctx)
@@ -53,15 +53,15 @@ func TestStart(t *testing.T) {
 		})).
 		Return(&page.Lpa{}, nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", w, &startData{
-			App:   TestAppData,
+			App:   testAppData,
 			Start: page.Paths.CertificateProviderLogin + "?lpaId=lpa-id&sessionId=session-id",
 		}).
 		Return(nil)
 
-	err := Start(template.Func, lpaStore, dataStore)(TestAppData, w, r)
+	err := Start(template.Func, lpaStore, dataStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -80,7 +80,7 @@ func TestStartWhenGettingShareCodeErrors(t *testing.T) {
 		On("Get", mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := Start(nil, nil, dataStore)(appData, w, r)
+	err := Start(nil, nil, dataStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, dataStore)
@@ -97,14 +97,14 @@ func TestStartWhenGettingLpaErrors(t *testing.T) {
 		On("Get", mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything).
-		Return(&page.Lpa{}, ExpectedError)
+		Return(&page.Lpa{}, expectedError)
 
-	err := Start(nil, lpaStore, dataStore)(TestAppData, w, r)
+	err := Start(nil, lpaStore, dataStore)(testAppData, w, r)
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, dataStore, lpaStore)
 }
 
@@ -119,18 +119,18 @@ func TestStartWhenTemplateErrors(t *testing.T) {
 		On("Get", mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", mock.Anything).
 		Return(&page.Lpa{}, nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", mock.Anything, mock.Anything).
-		Return(ExpectedError)
+		Return(expectedError)
 
-	err := Start(template.Func, lpaStore, dataStore)(TestAppData, w, r)
+	err := Start(template.Func, lpaStore, dataStore)(testAppData, w, r)
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }

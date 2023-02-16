@@ -65,7 +65,7 @@ func (m *mockLpaStore) Put(ctx context.Context, v *page.Lpa) error {
 	return m.Called(ctx, v).Error(0)
 }
 
-func (m *mockLpaStore) WillReturnEmptyLpa(r *http.Request) *mockLpaStore {
+func (m *mockLpaStore) willReturnEmptyLpa(r *http.Request) *mockLpaStore {
 	m.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -77,7 +77,7 @@ func (m *mockLpaStore) WillReturnEmptyLpa(r *http.Request) *mockLpaStore {
 	return m
 }
 
-func (m *mockLpaStore) WithCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string) *mockLpaStore {
+func (m *mockLpaStore) withCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string) *mockLpaStore {
 	m.
 		On("Put", r.Context(), &page.Lpa{
 			CertificateProvider: actor.CertificateProvider{
@@ -165,7 +165,7 @@ func (m *mockSessionsStore) Save(r *http.Request, w http.ResponseWriter, session
 	return args.Error(0)
 }
 
-func (m *mockSessionsStore) WithPaySession(r *http.Request) *mockSessionsStore {
+func (m *mockSessionsStore) withPaySession(r *http.Request) *mockSessionsStore {
 	getSession := sessions.NewSession(m, "pay")
 
 	getSession.Options = &sessions.Options{
@@ -182,7 +182,7 @@ func (m *mockSessionsStore) WithPaySession(r *http.Request) *mockSessionsStore {
 	return m
 }
 
-func (m *mockSessionsStore) WithExpiredPaySession(r *http.Request, w *httptest.ResponseRecorder) *mockSessionsStore {
+func (m *mockSessionsStore) withExpiredPaySession(r *http.Request, w *httptest.ResponseRecorder) *mockSessionsStore {
 	storeSession := sessions.NewSession(m, "pay")
 
 	// Expire cookie
