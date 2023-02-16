@@ -81,6 +81,6 @@ jobs:
     steps:
       - name: End of UR Deployment Workflow
         run: |
-          echo "${{ needs.ur_deploy.outputs.terraform_workspace_name }} PR environment tested, built and deployed"
+          echo "${{ needs.ur_deploy.outputs.terraform_workspace_name }} UR environment tested, built and deployed"
           echo "Tag Deployed: ${{ needs.ur_deploy.outputs.terraform_container_version }}"
           echo "URL: https://${{ needs.ur_deploy.outputs.url }}"
