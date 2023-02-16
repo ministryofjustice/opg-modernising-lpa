@@ -1,7 +1,6 @@
 package page
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -9,21 +8,15 @@ import (
 )
 
 type guidanceData struct {
-	App      AppData
-	Errors   validation.List
-	Continue string
-	Lpa      *Lpa
+	App    AppData
+	Errors validation.List
+	Lpa    *Lpa
 }
 
-func Guidance(tmpl template.Template, continuePath string, lpaStore LpaStore) Handler {
+func Guidance(tmpl template.Template, lpaStore LpaStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		if continuePath == Paths.Auth {
-			continuePath = fmt.Sprintf("%s?locale=%s", continuePath, appData.Lang.String())
-		}
-
 		data := &guidanceData{
-			App:      appData,
-			Continue: continuePath,
+			App: appData,
 		}
 
 		if lpaStore != nil {
