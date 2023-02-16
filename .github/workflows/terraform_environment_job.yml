@@ -9,6 +9,11 @@ on:
         description: 'The docker image tag to deploy in the environment'
         required: true
         type: string
+      checkout_tag:
+        description: 'Ref or tag to checkout'
+        default: ${{ github.ref }}
+        required: false
+        type: string
     outputs:
       terraform_workspace_name:
         description: "Name of Terraform workspace"
@@ -19,11 +24,7 @@ on:
       url:
         description: "URL for environment"
         value: ${{ jobs.terraform_environment_workflow.outputs.url }}
-      checkout_tag:
-        description: 'Ref or tag to checkout'
-        default: ${{ github.ref }}
-        required: false
-        type: string
+
 jobs:
   terraform_environment_workflow:
     runs-on: ubuntu-latest
