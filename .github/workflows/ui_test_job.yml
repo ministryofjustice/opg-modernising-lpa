@@ -22,7 +22,7 @@ on:
         default: cypress/e2e/**.cy.js
       checkout_tag:
         description: 'Ref or tag to checkout'
-        default: ${{ github.sha }}
+        default: ${{ github.ref }}
         required: false
         type: string
 
