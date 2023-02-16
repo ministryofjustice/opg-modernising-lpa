@@ -10,6 +10,7 @@ type AppPaths struct {
 	AboutPayment                                         string
 	Auth                                                 string
 	AuthRedirect                                         string
+	CertificateProvided                                  string
 	CertificateProviderAddress                           string
 	CertificateProviderDetails                           string
 	CertificateProviderGuidance                          string
@@ -54,6 +55,7 @@ type AppPaths struct {
 	LpaType                                              string
 	PaymentConfirmation                                  string
 	Progress                                             string
+	ProvideCertificate                                   string
 	ReadYourLpa                                          string
 	RemoveAttorney                                       string
 	RemovePersonToNotify                                 string
@@ -84,6 +86,7 @@ var Paths = AppPaths{
 	AboutPayment:                                         "/about-payment",
 	Auth:                                                 "/auth",
 	AuthRedirect:                                         "/auth/redirect",
+	CertificateProvided:                                  "/certificate-provided",
 	CertificateProviderAddress:                           "/certificate-provider-address",
 	CertificateProviderDetails:                           "/certificate-provider-details",
 	CertificateProviderGuidance:                          "/being-a-certificate-provider",
@@ -128,6 +131,7 @@ var Paths = AppPaths{
 	LpaType:                                              "/lpa-type",
 	PaymentConfirmation:                                  "/payment-confirmation",
 	Progress:                                             "/progress",
+	ProvideCertificate:                                   "/provider-certificate",
 	ReadYourLpa:                                          "/read-your-lpa",
 	RemoveAttorney:                                       "/remove-attorney",
 	RemovePersonToNotify:                                 "/remove-person-to-notify",
@@ -169,5 +173,7 @@ func IsLpaPath(url string) bool {
 		Paths.CertificateProviderYourAddress,
 		Paths.CertificateProviderReadTheLpa,
 		Paths.CertificateProviderGuidance,
+		Paths.ProvideCertificate,
+		Paths.CertificateProvided,
 	}, path)
 }

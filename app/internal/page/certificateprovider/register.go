@@ -3,6 +3,7 @@ package certificateprovider
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -36,6 +37,11 @@ func Register(
 		page.Guidance(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), "", lpaStore))
 	handleRoot(page.Paths.CertificateProviderGuidance, RequireSession,
 		page.Guidance(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), "", lpaStore))
+
+	handleRoot(page.Paths.ProvideCertificate, RequireSession,
+		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), lpaStore, time.Now))
+	handleRoot(page.Paths.CertificateProvided, RequireSession,
+		page.Guidance(tmpls.Get("certificate_provided.gohtml"), "", lpaStore))
 }
 
 type handleOpt byte
