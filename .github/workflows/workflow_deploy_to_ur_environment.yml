@@ -30,8 +30,8 @@ jobs:
     name: Docker Build, Scan and Push
     uses: ./.github/workflows/docker_job.yml
     with:
-      tag: ${{ input.tag_to_deploy }}
-      checkout_tag : ${{ input.tag_to_deploy }}
+      tag: ${{ inputs.tag_to_deploy }}
+      checkout_tag : ${{ inputs.tag_to_deploy }}
 
   ui_tests_image:
     name: Run Cypress UI Tests On Images
@@ -39,8 +39,8 @@ jobs:
     needs: [docker_build_scan_push]
     with:
       run_against_image: true
-      tag: ${{ input.tag_to_deploy}}
-      checkout_tag: ${{ input.tag_to_deploy}}
+      tag: ${{ inputs.tag_to_deploy}}
+      checkout_tag: ${{ inputs.tag_to_deploy}}
     secrets: inherit # pragma: allowlist secret
 
   ur_deploy:
@@ -49,8 +49,8 @@ jobs:
       uses: ./.github/workflows/terraform_environment_job.yml
       with:
         workspace_name: ur
-        version_tag: ${{ input.tag_to_deploy}}
-        checkout_tag: ${{ input.tag_to_deploy}}
+        version_tag: ${{ inputs.tag_to_deploy}}
+        checkout_tag: ${{ inputs.tag_to_deploy}}
       secrets: inherit # pragma: allowlist secret
 
   ui_tests_ur_env:
@@ -60,8 +60,8 @@ jobs:
     with:
       run_against_image: false
       base_url: "https://${{ needs.ur_deploy.outputs.url }}"
-      tag: ${{ input.tag_to_deploy}}
-      checkout_tag: ${{ input.tag_to_deploy}}
+      tag: ${{ inputs.tag_to_deploy}}
+      checkout_tag: ${{ inputs.tag_to_deploy}}
     secrets: inherit # pragma: allowlist secret
 
   always_remove_ingress:
