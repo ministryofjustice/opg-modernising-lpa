@@ -1,0 +1,15 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "finishedForNow" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <div class="govuk-panel govuk-panel--confirmation">
+        <h1 class="govuk-panel__title">{{ tr .App "finishedForNow" }}</h1>
+      </div>
+
+      {{ trHtml .App "finishedForNowContent" }}
+    </div>
+  </div>
+{{ end }}
