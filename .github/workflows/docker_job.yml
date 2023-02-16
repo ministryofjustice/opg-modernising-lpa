@@ -7,7 +7,7 @@ on:
         type: string
       checkout_tag:
         description: 'Ref or tag to checkout'
-        default: ${{ github.ref }}
+        default: ${{ github.sha }}
         required: false
         type: string
 
