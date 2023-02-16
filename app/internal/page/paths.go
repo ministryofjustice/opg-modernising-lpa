@@ -131,7 +131,7 @@ var Paths = AppPaths{
 	LpaType:                                              "/lpa-type",
 	PaymentConfirmation:                                  "/payment-confirmation",
 	Progress:                                             "/progress",
-	ProvideCertificate:                                   "/provider-certificate",
+	ProvideCertificate:                                   "/provide-certificate",
 	ReadYourLpa:                                          "/read-your-lpa",
 	RemoveAttorney:                                       "/remove-attorney",
 	RemovePersonToNotify:                                 "/remove-person-to-notify",
