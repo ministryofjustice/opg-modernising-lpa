@@ -23,10 +23,10 @@ func TestGetDashboard(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &dashboardData{App: appData, Lpas: lpas}).
+		On("Func", w, &dashboardData{App: testAppData, Lpas: lpas}).
 		Return(nil)
 
-	err := Dashboard(template.Func, lpaStore)(appData, w, r)
+	err := Dashboard(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -45,7 +45,7 @@ func TestGetDashboardWhenDataStoreErrors(t *testing.T) {
 		On("GetAll", r.Context()).
 		Return(lpas, expectedError)
 
-	err := Dashboard(nil, lpaStore)(appData, w, r)
+	err := Dashboard(nil, lpaStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
@@ -64,10 +64,10 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 
 	template := &mockTemplate{}
 	template.
-		On("Func", w, &dashboardData{App: appData, Lpas: lpas}).
+		On("Func", w, &dashboardData{App: testAppData, Lpas: lpas}).
 		Return(expectedError)
 
-	err := Dashboard(template.Func, lpaStore)(appData, w, r)
+	err := Dashboard(template.Func, lpaStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
@@ -82,7 +82,7 @@ func TestPostDashboard(t *testing.T) {
 		On("Create", r.Context()).
 		Return(&page.Lpa{ID: "123"}, nil)
 
-	err := Dashboard(nil, lpaStore)(appData, w, r)
+	err := Dashboard(nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

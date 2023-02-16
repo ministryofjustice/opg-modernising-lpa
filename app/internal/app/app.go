@@ -51,6 +51,7 @@ func App(
 		lpaStore,
 		oneLoginClient,
 		dataStore,
+		addressClient,
 	)
 
 	donor.Register(

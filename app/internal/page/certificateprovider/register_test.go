@@ -2,7 +2,6 @@ package certificateprovider
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -14,35 +13,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
-
-var expectedError = errors.New("err")
-
-type mockLogger struct {
-	mock.Mock
-}
-
-func (m *mockLogger) Print(v ...any) {
-	m.Called(v...)
-}
-
-type mockSessionsStore struct {
-	mock.Mock
-}
-
-func (m *mockSessionsStore) New(r *http.Request, name string) (*sessions.Session, error) {
-	args := m.Called(r, name)
-	return args.Get(0).(*sessions.Session), args.Error(1)
-}
-
-func (m *mockSessionsStore) Get(r *http.Request, name string) (*sessions.Session, error) {
-	args := m.Called(r, name)
-	return args.Get(0).(*sessions.Session), args.Error(1)
-}
-
-func (m *mockSessionsStore) Save(r *http.Request, w http.ResponseWriter, session *sessions.Session) error {
-	args := m.Called(r, w, session)
-	return args.Error(0)
-}
 
 func TestMakeHandle(t *testing.T) {
 	w := httptest.NewRecorder()
@@ -157,7 +127,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Start, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProviderStart, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, sessionsStore, logger)
 }
 
@@ -182,7 +152,7 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Start, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProviderStart, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, sessionsStore, logger)
 }
 

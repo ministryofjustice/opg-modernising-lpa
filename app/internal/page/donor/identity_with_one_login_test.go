@@ -69,7 +69,7 @@ func TestIdentityWithOneLoginWhenStoreSaveError(t *testing.T) {
 		On("Save", r, w, mock.Anything).
 		Return(expectedError)
 
-	err := IdentityWithOneLogin(logger, client, sessionsStore, func(int) string { return "i am random" })(appData, w, r)
+	err := IdentityWithOneLogin(logger, client, sessionsStore, func(int) string { return "i am random" })(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

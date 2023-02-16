@@ -1,8 +1,7 @@
-package donor
+package certificateprovider
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -10,19 +9,14 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/stretchr/testify/mock"
 )
-
-var mockRandom = func(int) string { return "123" }
 
 var (
 	testAddress = place.Address{
@@ -65,7 +59,7 @@ func (m *mockLpaStore) Put(ctx context.Context, v *page.Lpa) error {
 	return m.Called(ctx, v).Error(0)
 }
 
-func (m *mockLpaStore) willReturnEmptyLpa(r *http.Request) *mockLpaStore {
+func (m *mockLpaStore) WillReturnEmptyLpa(r *http.Request) *mockLpaStore {
 	m.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -77,7 +71,7 @@ func (m *mockLpaStore) willReturnEmptyLpa(r *http.Request) *mockLpaStore {
 	return m
 }
 
-func (m *mockLpaStore) withCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string) *mockLpaStore {
+func (m *mockLpaStore) WithCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string) *mockLpaStore {
 	m.
 		On("Put", r.Context(), &page.Lpa{
 			CertificateProvider: actor.CertificateProvider{
@@ -165,7 +159,7 @@ func (m *mockSessionsStore) Save(r *http.Request, w http.ResponseWriter, session
 	return args.Error(0)
 }
 
-func (m *mockSessionsStore) withPaySession(r *http.Request) *mockSessionsStore {
+func (m *mockSessionsStore) WithPaySession(r *http.Request) *mockSessionsStore {
 	getSession := sessions.NewSession(m, "pay")
 
 	getSession.Options = &sessions.Options{
@@ -182,7 +176,7 @@ func (m *mockSessionsStore) withPaySession(r *http.Request) *mockSessionsStore {
 	return m
 }
 
-func (m *mockSessionsStore) withExpiredPaySession(r *http.Request, w *httptest.ResponseRecorder) *mockSessionsStore {
+func (m *mockSessionsStore) WithExpiredPaySession(r *http.Request, w *httptest.ResponseRecorder) *mockSessionsStore {
 	storeSession := sessions.NewSession(m, "pay")
 
 	// Expire cookie
@@ -197,76 +191,4 @@ func (m *mockSessionsStore) withExpiredPaySession(r *http.Request, w *httptest.R
 	m.On("Save", r, w, storeSession).Return(nil)
 
 	return m
-}
-
-type mockYotiClient struct {
-	mock.Mock
-}
-
-func (m *mockYotiClient) IsTest() bool {
-	return m.Called().Bool(0)
-}
-
-func (m *mockYotiClient) SdkID() string {
-	return m.Called().String(0)
-}
-
-func (m *mockYotiClient) User(token string) (identity.UserData, error) {
-	args := m.Called(token)
-
-	return args.Get(0).(identity.UserData), args.Error(1)
-}
-
-type mockPayClient struct {
-	mock.Mock
-	BaseURL string
-}
-
-func (m *mockPayClient) CreatePayment(body pay.CreatePaymentBody) (pay.CreatePaymentResponse, error) {
-	args := m.Called(body)
-	return args.Get(0).(pay.CreatePaymentResponse), args.Error(1)
-}
-
-func (m *mockPayClient) GetPayment(paymentId string) (pay.GetPaymentResponse, error) {
-	args := m.Called(paymentId)
-	return args.Get(0).(pay.GetPaymentResponse), args.Error(1)
-}
-
-type mockNotifyClient struct {
-	mock.Mock
-}
-
-func (m *mockNotifyClient) TemplateID(id notify.TemplateId) string {
-	return m.Called(id).String(0)
-}
-
-func (m *mockNotifyClient) Email(ctx context.Context, email notify.Email) (string, error) {
-	args := m.Called(ctx, email)
-	return args.String(0), args.Error(1)
-}
-
-func (m *mockNotifyClient) Sms(ctx context.Context, sms notify.Sms) (string, error) {
-	args := m.Called(ctx, sms)
-	return args.String(0), args.Error(1)
-}
-
-type mockDataStore struct {
-	data interface{}
-	mock.Mock
-}
-
-func (m *mockDataStore) GetAll(ctx context.Context, pk string, v interface{}) error {
-	data, _ := json.Marshal(m.data)
-	json.Unmarshal(data, v)
-	return m.Called(ctx, pk).Error(0)
-}
-
-func (m *mockDataStore) Get(ctx context.Context, pk, sk string, v interface{}) error {
-	data, _ := json.Marshal(m.data)
-	json.Unmarshal(data, v)
-	return m.Called(ctx, pk, sk).Error(0)
-}
-
-func (m *mockDataStore) Put(ctx context.Context, pk, sk string, v interface{}) error {
-	return m.Called(ctx, pk, sk, v).Error(0)
 }

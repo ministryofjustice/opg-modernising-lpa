@@ -25,12 +25,12 @@ func TestGetHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howShouldReplacementAttorneysMakeDecisionsData{
-			App:  appData,
+			App:  testAppData,
 			Form: &howShouldAttorneysMakeDecisionsForm{},
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -50,7 +50,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howShouldReplacementAttorneysMakeDecisionsData{
-			App: appData,
+			App: testAppData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
 				DecisionsType:    "jointly",
 				DecisionsDetails: "some decisions",
@@ -58,7 +58,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -75,7 +75,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsWhenStoreErrors(t *testing
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(nil, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysMakeDecisions(nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -95,7 +95,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsWhenTemplateErrors(t *test
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howShouldReplacementAttorneysMakeDecisionsData{
-			App: appData,
+			App: testAppData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
 				DecisionsType:    "",
 				DecisionsDetails: "",
@@ -103,7 +103,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsWhenTemplateErrors(t *test
 		}).
 		Return(expectedError)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -119,7 +119,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -131,7 +131,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 
 	template := &mockTemplate{}
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -176,7 +176,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &mockLpaStore{}
 			lpaStore.
@@ -188,7 +188,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 			template := &mockTemplate{}
 
-			err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(appData, w, r)
+			err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -207,14 +207,14 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenStoreErrors(t *testin
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(nil, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysMakeDecisions(nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -229,7 +229,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenValidationErrors(t *t
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -239,7 +239,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenValidationErrors(t *t
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &howShouldReplacementAttorneysMakeDecisionsData{
-			App:    appData,
+			App:    testAppData,
 			Errors: validation.With("decision-type", validation.SelectError{Label: "howReplacementAttorneysShouldMakeDecisions"}),
 			Form: &howShouldAttorneysMakeDecisionsForm{
 				DecisionsType:    "",
@@ -249,7 +249,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenValidationErrors(t *t
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -265,7 +265,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsErrorOnPutStore(t *testin
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -277,7 +277,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsErrorOnPutStore(t *testin
 
 	template := &mockTemplate{}
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(appData, w, r)
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

@@ -13,8 +13,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var appData = page.AppData{}
-
 func TestCertificateProviderLogin(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?sessionId=session-id&lpaId=lpa-id", nil)
@@ -96,7 +94,7 @@ func TestCertificateProviderLoginDefaultLocale(t *testing.T) {
 		On("Save", r, w, session).
 		Return(nil)
 
-	Login(nil, client, sessionsStore, func(int) string { return "i am random" })(appData, w, r)
+	Login(nil, client, sessionsStore, func(int) string { return "i am random" })(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -123,7 +121,7 @@ func TestCertificateProviderLoginWhenStoreSaveError(t *testing.T) {
 		On("Save", r, w, mock.Anything).
 		Return(expectedError)
 
-	Login(logger, client, sessionsStore, func(int) string { return "i am random" })(appData, w, r)
+	Login(logger, client, sessionsStore, func(int) string { return "i am random" })(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)

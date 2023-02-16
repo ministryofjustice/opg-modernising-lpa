@@ -27,12 +27,12 @@ func TestGetCertificateProviderDetails(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &certificateProviderDetailsData{
-			App:  appData,
+			App:  testAppData,
 			Form: &certificateProviderDetailsForm{},
 		}).
 		Return(nil)
 
-	err := CertificateProviderDetails(template.Func, lpaStore)(appData, w, r)
+	err := CertificateProviderDetails(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -49,7 +49,7 @@ func TestGetCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := CertificateProviderDetails(nil, lpaStore)(appData, w, r)
+	err := CertificateProviderDetails(nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -73,14 +73,14 @@ func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &certificateProviderDetailsData{
-			App: appData,
+			App: testAppData,
 			Form: &certificateProviderDetailsForm{
 				FirstNames: "John",
 			},
 		}).
 		Return(nil)
 
-	err := CertificateProviderDetails(template.Func, lpaStore)(appData, w, r)
+	err := CertificateProviderDetails(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -100,12 +100,12 @@ func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &certificateProviderDetailsData{
-			App:  appData,
+			App:  testAppData,
 			Form: &certificateProviderDetailsForm{},
 		}).
 		Return(expectedError)
 
-	err := CertificateProviderDetails(template.Func, lpaStore)(appData, w, r)
+	err := CertificateProviderDetails(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -157,7 +157,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &mockLpaStore{}
 			lpaStore.
@@ -178,7 +178,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := CertificateProviderDetails(nil, lpaStore)(appData, w, r)
+			err := CertificateProviderDetails(nil, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -272,7 +272,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &mockLpaStore{}
 			lpaStore.
@@ -286,7 +286,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := CertificateProviderDetails(template.Func, lpaStore)(appData, w, r)
+			err := CertificateProviderDetails(template.Func, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -308,7 +308,7 @@ func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -318,7 +318,7 @@ func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := CertificateProviderDetails(nil, lpaStore)(appData, w, r)
+	err := CertificateProviderDetails(nil, lpaStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
@@ -337,7 +337,7 @@ func TestReadCertificateProviderDetailsForm(t *testing.T) {
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readCertificateProviderDetailsForm(r)
 

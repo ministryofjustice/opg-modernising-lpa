@@ -25,13 +25,13 @@ func TestGetCheckYourLpa(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &checkYourLpaData{
-			App:  appData,
+			App:  testAppData,
 			Form: &checkYourLpaForm{},
 			Lpa:  &page.Lpa{},
 		}).
 		Return(nil)
 
-	err := CheckYourLpa(template.Func, lpaStore)(appData, w, r)
+	err := CheckYourLpa(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -48,7 +48,7 @@ func TestGetCheckYourLpaWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := CheckYourLpa(nil, lpaStore)(appData, w, r)
+	err := CheckYourLpa(nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -73,7 +73,7 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &checkYourLpaData{
-			App: appData,
+			App: testAppData,
 			Lpa: lpa,
 			Form: &checkYourLpaForm{
 				Checked: true,
@@ -82,7 +82,7 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CheckYourLpa(template.Func, lpaStore)(appData, w, r)
+	err := CheckYourLpa(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -98,7 +98,7 @@ func TestPostCheckYourLpa(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpa := &page.Lpa{
 		Checked:      false,
@@ -118,7 +118,7 @@ func TestPostCheckYourLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CheckYourLpa(nil, lpaStore)(appData, w, r)
+	err := CheckYourLpa(nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -135,7 +135,7 @@ func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -149,7 +149,7 @@ func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := CheckYourLpa(nil, lpaStore)(appData, w, r)
+	err := CheckYourLpa(nil, lpaStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
@@ -162,7 +162,7 @@ func TestPostCheckYourLpaWhenValidationErrors(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -176,7 +176,7 @@ func TestPostCheckYourLpaWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := CheckYourLpa(template.Func, lpaStore)(appData, w, r)
+	err := CheckYourLpa(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -193,7 +193,7 @@ func TestReadCheckYourLpaForm(t *testing.T) {
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readCheckYourLpaForm(r)
 

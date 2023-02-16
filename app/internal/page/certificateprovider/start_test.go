@@ -56,12 +56,12 @@ func TestStart(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &startData{
-			App:   appData,
+			App:   testAppData,
 			Start: page.Paths.CertificateProviderLogin + "?lpaId=lpa-id&sessionId=session-id",
 		}).
 		Return(nil)
 
-	err := Start(template.Func, lpaStore, dataStore)(appData, w, r)
+	err := Start(template.Func, lpaStore, dataStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -80,7 +80,7 @@ func TestStartWhenGettingShareCodeErrors(t *testing.T) {
 		On("Get", mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := Start(nil, nil, dataStore)(appData, w, r)
+	err := Start(nil, nil, dataStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, dataStore)
@@ -102,7 +102,7 @@ func TestStartWhenGettingLpaErrors(t *testing.T) {
 		On("Get", mock.Anything).
 		Return(&page.Lpa{}, expectedError)
 
-	err := Start(nil, lpaStore, dataStore)(appData, w, r)
+	err := Start(nil, lpaStore, dataStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, dataStore, lpaStore)
@@ -129,7 +129,7 @@ func TestStartWhenTemplateErrors(t *testing.T) {
 		On("Func", mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := Start(template.Func, lpaStore, dataStore)(appData, w, r)
+	err := Start(template.Func, lpaStore, dataStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore, template)
