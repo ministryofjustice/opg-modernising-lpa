@@ -28,10 +28,6 @@ defaults:
 jobs:
   docker_build_scan_push:
     name: Docker Build, Scan and Push
-    if: |
-      always() &&
-      (needs.detect_changes.outputs.changes_detected == 'true') &&
-      (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped')
     uses: ./.github/workflows/docker_job.yml
     with:
       tag: ${{ input.tag_to_deploy }}
@@ -39,9 +35,6 @@ jobs:
 
   ui_tests_image:
     name: Run Cypress UI Tests On Images
-    if: |
-      needs.detect_changes.outputs.changes_detected == 'true' &&
-      needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped'
     uses: ./.github/workflows/ui_test_job.yml
     needs: [docker_build_scan_push]
     with:
@@ -52,11 +45,6 @@ jobs:
 
   ur_deploy:
       name: PR Environment Deploy
-      if: |
-        always() &&
-        (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped') &&
-        (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped') &&
-        (needs.ui_tests_image.result == 'success' || needs.ui_tests_image.result == 'skipped')
       needs: [
         docker_build_scan_push,
         ui_tests_image
@@ -70,9 +58,6 @@ jobs:
 
   ui_tests_ur_env:
     name: Run Cypress UI Tests On PR Environment
-    if: |
-      always() &&
-      needs.ur_deploy.result == 'success'
     uses: ./.github/workflows/ui_test_job.yml
     needs: [ur_deploy]
     with:
@@ -91,11 +76,6 @@ jobs:
 
   end_of_ur_deployment_workflow:
     name: End of UR Deployment Workflow
-    if: |
-      always() &&
-      needs.ur_deploy.result == 'success' &&
-      needs.create_tags.result == 'success' &&
-      needs.ui_tests_pr_env.result == 'success'
     runs-on: ubuntu-latest
     environment:
       name: "ur"
