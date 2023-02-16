@@ -35,7 +35,11 @@ func Register(
 	handleRoot(page.Paths.CertificateProviderReadTheLpa, RequireSession,
 		page.Guidance(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), "", lpaStore))
 	handleRoot(page.Paths.CertificateProviderGuidance, RequireSession,
-		page.Guidance(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), "", lpaStore))
+		page.Guidance(tmpls.Get("certificate_provider_guidance.gohtml"), "", lpaStore))
+	handleRoot(page.Paths.CertificateProviderConfirmation, RequireSession,
+		page.Guidance(tmpls.Get("certificate_provider_confirmation.gohtml"), "", lpaStore))
+	handleRoot("/certificate-provider-next", RequireSession,
+		page.Guidance(tmpls.Get("start.gohtml"), "", lpaStore))
 }
 
 type handleOpt byte
