@@ -33,10 +33,6 @@ jobs:
       (needs.detect_changes.outputs.changes_detected == 'true') &&
       (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped')
     uses: ./.github/workflows/docker_job.yml
-    needs: [
-      go_unit_tests,
-      create_tags
-      ]
     with:
       tag: ${{ input.tag_to_deploy }}
       checkout_tag : ${{ input.tag_to_deploy }}
@@ -47,14 +43,14 @@ jobs:
       needs.detect_changes.outputs.changes_detected == 'true' &&
       needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped'
     uses: ./.github/workflows/ui_test_job.yml
-    needs: [docker_build_scan_push, create_tags]
+    needs: [docker_build_scan_push]
     with:
       run_against_image: true
       tag: ${{ input.tag_to_deploy}}
       checkout_tag: ${{ input.tag_to_deploy}}
     secrets: inherit # pragma: allowlist secret
 
-  pr_deploy:
+  ur_deploy:
       name: PR Environment Deploy
       if: |
         always() &&
@@ -62,8 +58,6 @@ jobs:
         (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped') &&
         (needs.ui_tests_image.result == 'success' || needs.ui_tests_image.result == 'skipped')
       needs: [
-        create_tags,
-        go_unit_tests,
         docker_build_scan_push,
         ui_tests_image
       ]
@@ -74,16 +68,16 @@ jobs:
         checkout_tag: ${{ input.tag_to_deploy}}
       secrets: inherit # pragma: allowlist secret
 
-  ui_tests_pr_env:
+  ui_tests_ur_env:
     name: Run Cypress UI Tests On PR Environment
     if: |
       always() &&
-      needs.pr_deploy.result == 'success'
+      needs.ur_deploy.result == 'success'
     uses: ./.github/workflows/ui_test_job.yml
-    needs: [pr_deploy, create_tags]
+    needs: [ur_deploy]
     with:
       run_against_image: false
-      base_url: "https://${{ needs.pr_deploy.outputs.url }}"
+      base_url: "https://${{ needs.ur_deploy.outputs.url }}"
       tag: ${{ input.tag_to_deploy}}
       checkout_tag: ${{ input.tag_to_deploy}}
     secrets: inherit # pragma: allowlist secret
@@ -99,17 +93,17 @@ jobs:
     name: End of UR Deployment Workflow
     if: |
       always() &&
-      needs.pr_deploy.result == 'success' &&
+      needs.ur_deploy.result == 'success' &&
       needs.create_tags.result == 'success' &&
       needs.ui_tests_pr_env.result == 'success'
     runs-on: ubuntu-latest
     environment:
       name: "ur"
-      url: "https://${{ needs.pr_deploy.outputs.url }}"
-    needs: [pr_deploy, ui_tests_pr_env]
+      url: "https://${{ needs.ur_deploy.outputs.url }}"
+    needs: [ur_deploy, ui_tests_pr_env]
     steps:
       - name: End of UR Deployment Workflow
         run: |
-          echo "${{ needs.pr_deploy.outputs.terraform_workspace_name }} PR environment tested, built and deployed"
-          echo "Tag Deployed: ${{ needs.pr_deploy.outputs.terraform_container_version }}"
-          echo "URL: https://${{ needs.pr_deploy.outputs.url }}"
+          echo "${{ needs.ur_deploy.outputs.terraform_workspace_name }} PR environment tested, built and deployed"
+          echo "Tag Deployed: ${{ needs.ur_deploy.outputs.terraform_container_version }}"
+          echo "URL: https://${{ needs.ur_deploy.outputs.url }}"
