@@ -7,14 +7,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-
 	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -177,4 +176,22 @@ func (m *MockSessionsStore) WithExpiredPaySession(r *http.Request, w *httptest.R
 	m.On("Save", r, w, storeSession).Return(nil)
 
 	return m
+}
+
+type mockNotifyClient struct {
+	mock.Mock
+}
+
+func (m *mockNotifyClient) TemplateID(id notify.TemplateId) string {
+	return m.Called(id).String(0)
+}
+
+func (m *mockNotifyClient) Email(ctx context.Context, email notify.Email) (string, error) {
+	args := m.Called(ctx, email)
+	return args.String(0), args.Error(1)
+}
+
+func (m *mockNotifyClient) Sms(ctx context.Context, sms notify.Sms) (string, error) {
+	args := m.Called(ctx, sms)
+	return args.String(0), args.Error(1)
 }
