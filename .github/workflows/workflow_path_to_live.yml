@@ -101,7 +101,9 @@ jobs:
     if: ${{ always() }}
     uses: ./.github/workflows/remove_ingress_job.yml
     needs: [ui_tests_preproduction_env]
-    secrets: inherit
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
   terraform_account_workflow_production:
     name: TF Apply Prod Account
