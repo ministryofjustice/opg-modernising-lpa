@@ -39,14 +39,15 @@ jobs:
     needs: [go_unit_tests,create_tags]
     with:
       tag: ${{ needs.create_tags.outputs.version_tag }}
-    secrets: inherit
 
   terraform_account_workflow_development:
     name: TF Apply Dev Account
     uses: ./.github/workflows/terraform_account_job.yml
     with:
       workspace_name: development
-    secrets: inherit
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
   terraform_account_workflow_preproduction:
     name: TF Apply Preprod Account
@@ -54,7 +55,9 @@ jobs:
     uses: ./.github/workflows/terraform_account_job.yml
     with:
       workspace_name: preproduction
-    secrets: inherit
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
   preproduction_deploy:
     name: Preproduction Deploy
@@ -63,7 +66,10 @@ jobs:
     with:
       workspace_name: preproduction
       version_tag: ${{ needs.create_tags.outputs.version_tag }}
-    secrets: inherit
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
 
   ui_tests_preproduction_env:
     name: Run Cypress UI Tests On Preproduction Environment
@@ -73,7 +79,11 @@ jobs:
       run_against_image: false
       base_url: "https://${{ needs.preproduction_deploy.outputs.url }}"
       tag: ${{ needs.create_tags.outputs.version_tag }}
-    secrets: inherit
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
+      github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   preproduction_deploy_complete:
     name: Preproduction Deployment
@@ -99,7 +109,9 @@ jobs:
     uses: ./.github/workflows/terraform_account_job.yml
     with:
       workspace_name: production
-    secrets: inherit
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
   production_deploy:
     name: Production Deploy
@@ -108,7 +120,10 @@ jobs:
     with:
       workspace_name: production
       version_tag: ${{ needs.create_tags.outputs.version_tag }}
-    secrets: inherit
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
 
   end_of_main_workflow:
     name: End of Main Workflow
