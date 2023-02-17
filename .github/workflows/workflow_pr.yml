@@ -60,7 +60,10 @@ jobs:
     uses: ./.github/workflows/terraform_account_job.yml
     with:
       workspace_name: development
-    secrets: inherit # pragma: allowlist secret
+    # secrets: inherit # pragma: allowlist secret
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
   terraform_account_workflow_preproduction:
     name: TF Plan Preprod Account
@@ -68,7 +71,10 @@ jobs:
     uses: ./.github/workflows/terraform_account_job.yml
     with:
       workspace_name: preproduction
-    secrets: inherit # pragma: allowlist secret
+    # secrets: inherit # pragma: allowlist secret
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
   terraform_account_workflow_production:
     name: TF Plan Prod Account
@@ -76,7 +82,10 @@ jobs:
     uses: ./.github/workflows/terraform_account_job.yml
     with:
       workspace_name: production
-    secrets: inherit # pragma: allowlist secret
+    # secrets: inherit # pragma: allowlist secret
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
   ui_tests_image:
     name: Run Cypress UI Tests On Images
@@ -88,7 +97,13 @@ jobs:
     with:
       run_against_image: true
       tag: ${{ needs.create_tags.outputs.version_tag }}
-    secrets: inherit # pragma: allowlist secret
+    # secrets: inherit # pragma: allowlist secret
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+
 
   pr_deploy:
       name: PR Environment Deploy
@@ -107,7 +122,11 @@ jobs:
       with:
         workspace_name: ${{ needs.create_tags.outputs.environment_workspace_name }}
         version_tag: ${{ needs.create_tags.outputs.version_tag }}
-      secrets: inherit # pragma: allowlist secret
+      # secrets: inherit # pragma: allowlist secret
+      secrets:
+        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+        ssh_deploy_key: ${{ secrets.OPG_WEBLATE_DEPLOY_KEY_PRIVATE_KEY }}
 
   ui_tests_pr_env:
     name: Run Cypress UI Tests On PR Environment
@@ -120,14 +139,20 @@ jobs:
       run_against_image: false
       base_url: "https://${{ needs.pr_deploy.outputs.url }}"
       tag: ${{ needs.create_tags.outputs.version_tag }}
-    secrets: inherit # pragma: allowlist secret
+    # secrets: inherit # pragma: allowlist secret
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
   always_remove_ingress:
     name: Remove CI ingress from environment
     if: always()
     uses: ./.github/workflows/remove_ingress_job.yml
     needs: [ui_tests_pr_env]
-    secrets: inherit # pragma: allowlist secret
+    # secrets: inherit # pragma: allowlist secret
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
   end_of_pr_workflow:
     name: End of PR Workflow
