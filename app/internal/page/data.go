@@ -93,6 +93,7 @@ type Lpa struct {
 
 	CertificateProviderUserData        identity.UserData
 	CertificateProviderProvidedDetails actor.CertificateProvider
+	Certificate                        Certificate
 }
 
 type PaymentDetails struct {
@@ -238,4 +239,9 @@ func (l *Lpa) Progress() Progress {
 type ShareCodeData struct {
 	SessionID string
 	LpaID     string
+}
+
+type Certificate struct {
+	AgreeToStatement bool
+	Agreed           time.Time
 }
