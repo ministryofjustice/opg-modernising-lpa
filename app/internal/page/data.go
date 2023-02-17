@@ -225,13 +225,13 @@ func (l *Lpa) Progress() Progress {
 
 	if !l.Submitted.IsZero() {
 		p.LpaSigned = TaskCompleted
-	}
-
-	if p.LpaSigned.Completed() {
 		p.CertificateProviderDeclared = TaskInProgress
 	}
 
-	// Further logic to be added as we build the rest of the flow
+	if !l.Certificate.Agreed.IsZero() {
+		p.CertificateProviderDeclared = TaskCompleted
+		p.AttorneysDeclared = TaskInProgress
+	}
 
 	return p
 }

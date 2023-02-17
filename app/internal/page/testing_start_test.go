@@ -891,4 +891,51 @@ func TestTestingStart(t *testing.T) {
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
 		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
 	})
+
+	t.Run("provide certificate", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&provideCertificate=1", nil)
+		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
+
+		sessionsStore := &MockSessionsStore{}
+		sessionsStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := &MockLpaStore{}
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{
+				ID: "123",
+				CertificateProviderUserData: identity.UserData{
+					FullName: "Barbara Smith",
+					OK:       true,
+				},
+				CertificateProviderProvidedDetails: actor.CertificateProvider{
+					Mobile: "07535111222",
+					Email:  "t@example.org",
+					Address: place.Address{
+						Line1:      "5 RICHMOND PLACE",
+						Line2:      "KINGS HEATH",
+						Line3:      "WEST MIDLANDS",
+						TownOrCity: "BIRMINGHAM",
+						Postcode:   "B14 7ED",
+					},
+				},
+				Certificate: Certificate{
+					AgreeToStatement: true,
+					Agreed:           time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
+				},
+			}).
+			Return(nil)
+
+		TestingStart(sessionsStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+	})
 }
