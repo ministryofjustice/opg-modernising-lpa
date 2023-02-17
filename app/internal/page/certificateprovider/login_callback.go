@@ -48,7 +48,7 @@ func LoginCallback(tmpl template.Template, oneLoginClient page.OneLoginClient, s
 		if err != nil {
 			return err
 		}
-		if !oneLoginSession.CertificateProvider || !oneLoginSession.Identity {
+		if !oneLoginSession.CertificateProvider {
 			return errors.New("certificate-provider callback with incorrect session")
 		}
 

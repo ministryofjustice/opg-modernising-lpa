@@ -34,39 +34,57 @@ func (m *mockDataStore) Put(ctx context.Context, pk, sk string, v interface{}) e
 }
 
 func TestStart(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?share-code=a-share-code", nil)
-
-	dataStore := &mockDataStore{
-		data: page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"},
+	testcases := map[string]struct {
+		identity bool
+		query    string
+	}{
+		"identity": {
+			identity: true,
+			query:    "?identity=1&lpaId=lpa-id&sessionId=session-id",
+		},
+		"sign in": {
+			identity: false,
+			query:    "?lpaId=lpa-id&sessionId=session-id",
+		},
 	}
-	dataStore.
-		On("Get", r.Context(), "SHARECODE#a-share-code", "#METADATA#a-share-code").
-		Return(nil)
 
-	lpaStore := &mockLpaStore{}
-	lpaStore.
-		On("Get", mock.MatchedBy(func(ctx context.Context) bool {
-			session := page.SessionDataFromContext(ctx)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/?share-code=a-share-code", nil)
 
-			return assert.Equal(t, &page.SessionData{SessionID: "session-id", LpaID: "lpa-id"}, session)
-		})).
-		Return(&page.Lpa{}, nil)
+			dataStore := &mockDataStore{
+				data: page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: tc.identity},
+			}
+			dataStore.
+				On("Get", r.Context(), "SHARECODE#a-share-code", "#METADATA#a-share-code").
+				Return(nil)
 
-	template := &mockTemplate{}
-	template.
-		On("Func", w, &startData{
-			App:   testAppData,
-			Start: page.Paths.CertificateProviderLogin + "?lpaId=lpa-id&sessionId=session-id",
-		}).
-		Return(nil)
+			lpaStore := &mockLpaStore{}
+			lpaStore.
+				On("Get", mock.MatchedBy(func(ctx context.Context) bool {
+					session := page.SessionDataFromContext(ctx)
 
-	err := Start(template.Func, lpaStore, dataStore)(testAppData, w, r)
-	resp := w.Result()
+					return assert.Equal(t, &page.SessionData{SessionID: "session-id", LpaID: "lpa-id"}, session)
+				})).
+				Return(&page.Lpa{}, nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, dataStore, lpaStore, template)
+			template := &mockTemplate{}
+			template.
+				On("Func", w, &startData{
+					App:   testAppData,
+					Start: page.Paths.CertificateProviderLogin + tc.query,
+				}).
+				Return(nil)
+
+			err := Start(template.Func, lpaStore, dataStore)(testAppData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+			mock.AssertExpectationsForObjects(t, dataStore, lpaStore, template)
+		})
+	}
 }
 
 func TestStartWhenGettingShareCodeErrors(t *testing.T) {
