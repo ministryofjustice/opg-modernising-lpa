@@ -6,7 +6,7 @@ describe('Guidance', () => {
 
         it('goes to the next step', () => {
             cy.contains('Continue').click();
-            cy.url().should('contain', '/certificate-provider-next');
+            cy.url().should('contain', '/provide-certificate');
         });
     });
 
