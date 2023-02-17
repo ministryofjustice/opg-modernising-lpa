@@ -2,26 +2,20 @@ FROM node:18.14.0-alpine3.16 as asset-env
 
 WORKDIR /app
 
-RUN mkdir -p web/static
+COPY package.json yarn.lock ./
+RUN yarn --prod
 
-COPY package.json .
-COPY yarn.lock .
-RUN yarn
-
-COPY app/web/assets web/assets
-RUN yarn build
+COPY web/assets web/assets
+RUN mkdir -p web/static && yarn build
 
 FROM golang:1.20 as build-env
 
 WORKDIR /app
 
-COPY app/go.mod .
-COPY app/go.sum .
-
+COPY app/go.mod app/go.sum ./
 RUN go mod download
 
 COPY /app .
-
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/mlpab
 
 FROM build-env as development
@@ -32,7 +26,7 @@ RUN go install github.com/cosmtrek/air@latest
 
 COPY --from=build-env /app .
 COPY --from=asset-env /app/web/static web/static
-COPY app/web/template web/template
+COPY web/template web/template
 
 CMD ["air"]
 
@@ -40,11 +34,11 @@ FROM alpine:3.17.2 as production
 
 WORKDIR /go/bin
 
-COPY --from=build-env /go/bin/mlpab mlpab
+COPY web/robots.txt web/robots.txt
 COPY --from=asset-env /app/web/static web/static
-COPY app/web/template web/template
-COPY app/lang lang
-COPY app/web/robots.txt web/robots.txt
+COPY --from=build-env /go/bin/mlpab mlpab
+COPY web/template web/template
+COPY lang lang
 
 RUN addgroup -S app && \
   adduser -S -g app app && \
