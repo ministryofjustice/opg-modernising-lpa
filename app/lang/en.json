@@ -493,6 +493,9 @@
     "beingDonorsCertificateProvider": "Being {{.FullName}}’s certificate provider",
     "beingACertificateProviderContent": "<p class=\"govuk-body\">Guidance...</p>",
 
+    "finishedForNow": "Good job, you have finished for now",
+    "finishedForNowContent": "<p class=\"govuk-body\">You will need to come back later once the donor has signed, but for now you can close this page and go for a nice walk.</p>",
+
     "provideTheCertificate": "Provide the certificate",
     "certifyStatementsContent": "<p class=\"govuk-body\">I certify that, as far as I’m aware, at the time of signing section 9:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>the donor understood the purpose of this LPA and the scope of the authority conferred under it</li> <li>no fraud or undue pressure is being used to induce the donor to create this LPA</li> <li>there is nothing else which would prevent this LPA from being created by the completion of this instrument</li> </ul>",
     "bySigningIConfirmContent": "<p class=\"govuk-body\">By signing this section I confirm that:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>I am aged 18 or over</li> <li>I have read this LPA, including section 8 Your legal rights and responsibilities</li> <li>there is no restriction on my acting as a certificate provider</li> <li>the donor has chosen me as someone who has known them personally for at least 2 years OR </li> <li>the donor has chosen me as a person with relevant professional skills and expertise</li> </ul>",
@@ -501,8 +504,5 @@
 
     "certificateProvided": "Congrats! Certificate has been provided",
     "wellDone": "Well done. All your hard work payed off.",
-    "certificateProvidedContent": "<p class=\"govuk-body\">If you fancy it, grab a snack and call it a day now. Some more content here about next steps (maybe?)</p>",
-
-    "finishedForNow": "Good job, you have finished for now",
-    "finishedForNowContent": "<p class=\"govuk-body\">You will need to come back later once the donor has signed, but for now you can close this page and go for a nice walk.</p>"
+    "certificateProvidedContent": "<p class=\"govuk-body\">If you fancy it, grab a snack and call it a day now. Some more content here about next steps (maybe?)</p>"
 }
