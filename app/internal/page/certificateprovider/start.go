@@ -32,9 +32,17 @@ func Start(tmpl template.Template, lpaStore page.LpaStore, dataStore page.DataSt
 			return err
 		}
 
+		query := url.Values{
+			"lpaId":     {v.LpaID},
+			"sessionId": {v.SessionID},
+		}
+		if v.Identity {
+			query.Add("identity", "1")
+		}
+
 		data := &startData{
 			App:   appData,
-			Start: page.Paths.CertificateProviderLogin + "?" + url.Values{"lpaId": {v.LpaID}, "sessionId": {v.SessionID}}.Encode(),
+			Start: page.Paths.CertificateProviderLogin + "?" + query.Encode(),
 		}
 
 		return tmpl(w, data)
