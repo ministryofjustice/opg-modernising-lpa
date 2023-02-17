@@ -1,0 +1,42 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "agreeToStatement" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">
+                {{ tr .App "provideTheCertificate" }}
+            </h1>
+        </div>
+
+        <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m">Certificate provider's statement</h2>
+
+            {{ trHtml .App "certifyStatementsContent" }}
+
+            <form novalidate method="post">
+                <div class="moj-ticket-panel">
+                    <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
+                        {{ trHtml .App "bySigningIConfirmContent" }}
+
+                        <div class="govuk-form-group  {{ if .Errors.Has "agree-to-statement" }}govuk-form-group--error{{ end }}">
+                            {{ template "error-message" (errorMessage . "agree-to-statement") }}
+                            <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="f-agree-to-statement" name="agree-to-statement" type="checkbox" value="1" {{ if .Form.AgreeToStatement }}checked{{ end }}>
+                                    <label class="govuk-label govuk-checkboxes__label" for="f-agree-to-statement">
+                                        {{ tr .App "iAgreeToThisStatement" }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "confirm" }}</button>
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}
