@@ -25,6 +25,19 @@ on:
         default: ${{ github.ref }}
         required: false
         type: string
+    secrets:
+      aws_access_key_id:
+        description: 'AWS Access Key ID'
+        required: true
+      aws_secret_access_key:
+        description: 'AWS Secret Access Key'
+        required: true
+      cypress_record_key:
+        description: 'Cypress Record Key'
+        required: true
+      github_access_token:
+        description: 'Github Token'
+        required: true
 
 defaults:
   run:
@@ -44,8 +57,8 @@ jobs:
         if: inputs.run_against_image
         uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
           aws-region: eu-west-1
           role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-ci
           role-duration-seconds: 900
@@ -70,8 +83,8 @@ jobs:
         if: inputs.run_against_image != true
         uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
           aws-region: eu-west-1
           role-duration-seconds: 900
           role-session-name: OPGModernisingLPATerraformGithubAction
@@ -95,8 +108,8 @@ jobs:
         uses: cypress-io/github-action@v5
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
+          GITHUB_TOKEN: ${{ secrets.github_access_token }}
         with:
           spec: ${{ inputs.spec }}
 
