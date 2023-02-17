@@ -1,0 +1,19 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "beingACertificateProvider" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ trFormat .App "beingDonorsCertificateProvider" "FullName" .Lpa.You.FullName }}</h1>
+
+      {{ trHtml .App "beingACertificateProviderContent" }}
+
+      {{ if .Lpa.Progress.LpaSigned.Completed }}
+        <a class="govuk-button" href="/certificate-provider-next" data-module="govuk-button">{{ tr .App "continue" }}</a>
+      {{ else }}
+        <a class="govuk-button" href="{{ link .App .App.Paths.CertificateProviderConfirmation }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
+      {{ end }}
+    </div>
+  </div>
+{{ end }}

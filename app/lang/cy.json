@@ -530,6 +530,14 @@
     "yourLegalRightsAndResponsibilities": "Welsh",
     "yourLegalRightsAndResponsibilitiesContent": "<p class=\"govuk-body\">Welsh</p>",
 
+
+    "beingACertificateProvider": "Welsh",
+    "beingDonorsCertificateProvider": "Welsh {{.FullName}}",
+    "beingACertificateProviderContent": "<p class=\"govuk-body\">Welsh</p>",
+
+    "finishedForNow": "Welsh",
+    "finishedForNowContent": "<p class=\"govuk-body\">Welsh</p>",
+
     "provideTheCertificate": "Welsh",
     "certifyStatementsContent": "<p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>welsh</li> <li>welsh</li> <li>welsh</li> </ul>",
     "bySigningIConfirmContent": "<p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>welsh</li> <li>welsh</li> <li>welsh</li> <li>welsh</li> <li>welsh</li> </ul>",
