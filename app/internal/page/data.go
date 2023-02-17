@@ -93,6 +93,7 @@ type Lpa struct {
 
 	CertificateProviderUserData        identity.UserData
 	CertificateProviderProvidedDetails actor.CertificateProvider
+	Certificate                        Certificate
 }
 
 type PaymentDetails struct {
@@ -224,13 +225,13 @@ func (l *Lpa) Progress() Progress {
 
 	if !l.Submitted.IsZero() {
 		p.LpaSigned = TaskCompleted
-	}
-
-	if p.LpaSigned.Completed() {
 		p.CertificateProviderDeclared = TaskInProgress
 	}
 
-	// Further logic to be added as we build the rest of the flow
+	if !l.Certificate.Agreed.IsZero() {
+		p.CertificateProviderDeclared = TaskCompleted
+		p.AttorneysDeclared = TaskInProgress
+	}
 
 	return p
 }
@@ -238,4 +239,9 @@ func (l *Lpa) Progress() Progress {
 type ShareCodeData struct {
 	SessionID string
 	LpaID     string
+}
+
+type Certificate struct {
+	AgreeToStatement bool
+	Agreed           time.Time
 }
