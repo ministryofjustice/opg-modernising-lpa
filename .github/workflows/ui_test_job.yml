@@ -34,10 +34,10 @@ on:
         required: true
       cypress_record_key:
         description: 'Cypress Record Key'
-        required: true
+        required: false
       github_access_token:
         description: 'Github Token'
-        required: true
+        required: false
 
 defaults:
   run:
