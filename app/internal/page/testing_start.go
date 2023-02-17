@@ -16,8 +16,9 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 	return func(w http.ResponseWriter, r *http.Request) {
 		sub := randomString(12)
 		sessionID := base64.StdEncoding.EncodeToString([]byte(sub))
+		donorSesh := &sesh.DonorSession{Sub: sub, Email: "simulate-delivered@notifications.service.gov.uk"}
 
-		_ = sesh.SetDonor(store, r, w, &sesh.DonorSession{Sub: sub, Email: "simulate-delivered@notifications.service.gov.uk"})
+		_ = sesh.SetDonor(store, r, w, donorSesh)
 
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: sessionID})
 
@@ -167,7 +168,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			})
 		}
 
-		if r.FormValue("asCertificateProvider") == "1" {
+		if r.FormValue("asCertificateProvider") == "1" || r.FormValue("provideCertificate") == "1" {
 			_ = sesh.SetCertificateProvider(store, r, w, &sesh.CertificateProviderSession{
 				Sub:            randomString(12),
 				Email:          "simulate-delivered@notifications.service.gov.uk",
@@ -177,6 +178,29 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 
 			lpa.CertificateProviderUserData.FullName = "Barbara Smith"
 			lpa.CertificateProviderUserData.OK = true
+
+		}
+
+		if r.FormValue("provideCertificate") == "1" {
+			lpa.CertificateProviderProvidedDetails.Mobile = "07535111222"
+			lpa.CertificateProviderProvidedDetails.Email = "t@example.org"
+			lpa.CertificateProviderProvidedDetails.Address = place.Address{
+				Line1:      "5 RICHMOND PLACE",
+				Line2:      "KINGS HEATH",
+				Line3:      "WEST MIDLANDS",
+				TownOrCity: "BIRMINGHAM",
+				Postcode:   "B14 7ED",
+			}
+
+			lpa.Certificate = Certificate{
+				AgreeToStatement: true,
+				Agreed:           time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
+			}
+		}
+
+		// used to switch back to donor after CP fixtures have run
+		if r.FormValue("asDonor") == "1" {
+			_ = sesh.SetDonor(store, r, w, donorSesh)
 		}
 
 		_ = lpaStore.Put(ctx, lpa)
