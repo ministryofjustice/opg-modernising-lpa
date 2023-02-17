@@ -35,7 +35,7 @@ on:
       cypress_record_key:
         description: 'Cypress Record Key'
         required: true
-      github_token:
+      github_access_token:
         description: 'Github Token'
         required: true
 
@@ -109,7 +109,7 @@ jobs:
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
-          GITHUB_TOKEN: ${{ secrets.github_token }}
+          GITHUB_TOKEN: ${{ secrets.github_access_token }}
         with:
           spec: ${{ inputs.spec }}
 
