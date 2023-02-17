@@ -1,5 +1,12 @@
 on:
   workflow_call:
+    secrets:
+      aws_access_key_id:
+        description: 'AWS Access Key ID'
+        required: true
+      aws_secret_access_key:
+        description: 'AWS Secret Access Key'
+        required: true
 
 defaults:
   run:
@@ -15,8 +22,8 @@ jobs:
       - name: Manage Ingress/Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
           aws-region: eu-west-1
           role-duration-seconds: 900
           role-session-name: OPGModernisingLPATerraformGithubAction
