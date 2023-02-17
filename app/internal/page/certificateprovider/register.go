@@ -39,12 +39,10 @@ func Register(
 		page.Guidance(tmpls.Get("certificate_provider_guidance.gohtml"), lpaStore))
 	handleRoot(page.Paths.CertificateProviderConfirmation, RequireSession,
 		page.Guidance(tmpls.Get("certificate_provider_confirmation.gohtml"), lpaStore))
-
 	handleRoot(page.Paths.ProvideCertificate, RequireSession,
 		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), lpaStore, time.Now))
 	handleRoot(page.Paths.CertificateProvided, RequireSession,
 		page.Guidance(tmpls.Get("certificate_provided.gohtml"), lpaStore))
-
 }
 
 type handleOpt byte

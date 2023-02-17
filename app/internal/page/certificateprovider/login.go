@@ -28,7 +28,7 @@ func Login(logger page.Logger, oneLoginClient page.OneLoginClient, store sesh.St
 			Nonce:               nonce,
 			Locale:              locale,
 			CertificateProvider: true,
-			Identity:            true,
+			Identity:            r.FormValue("identity") == "1",
 			SessionID:           sessionID,
 			LpaID:               lpaID,
 		}); err != nil {
