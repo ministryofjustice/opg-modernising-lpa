@@ -270,3 +270,12 @@ func (m *mockDataStore) Get(ctx context.Context, pk, sk string, v interface{}) e
 func (m *mockDataStore) Put(ctx context.Context, pk, sk string, v interface{}) error {
 	return m.Called(ctx, pk, sk, v).Error(0)
 }
+
+type mockShareCodeSender struct {
+	mock.Mock
+}
+
+func (m *mockShareCodeSender) Send(ctx context.Context, template notify.TemplateId, appData page.AppData, email string) error {
+	args := m.Called(ctx, template, appData, email)
+	return args.Error(0)
+}
