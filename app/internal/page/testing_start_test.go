@@ -73,7 +73,7 @@ func TestTestingStart(t *testing.T) {
 
 	t.Run("with payment", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withPayment=1", nil)
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&paymentComplete=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
 		sessionsStore := &MockSessionsStore{}
