@@ -18,9 +18,6 @@ workspace {
                 mlpaPaperIngestionAPI = container "LPA Paper Ingestion API" "Handles the ingestion of the Paper Journey." "API Gateway, Go" "Container"
                 mlpaSiriusPublicAPI = container "Sirius Public API" "Interaction point between Sirius Case Management and other services." "API Gateway, Go" "Existing System"
 
-                mlpaUaLPA = container "Use an LPA" "Use an LPA Service." "PHP, HTML, CSS, JS" "Web Browser Existing System"
-                mlpaVaLPA = container "View an LPA" "View an LPA Service." "PHP, HTML, CSS, JS" "Web Browser Existing System"
-                
                 mlpaSiriusCaseManagement = container "Sirius Case Management" "Case Management for case working LPAs." "Go, HTML, CSS, JS" "Component" {
                     mlpaSiriusInternalAPI = component "Sirius Internal API" "" "API Gateway, PHP" "Existing System"
                     mlpaSiriusDatabase = component "Sirius Database" "Stores Case Management data." "AuroraDB" "Database Existing System"
@@ -34,6 +31,7 @@ workspace {
         // External Systems
         externalSoftwareSystems = softwareSystem "External Services" "GOV.UK Notify, Pay, One Login, Yoti, Ordanance Survey" "Existing System"
         externalScanningSoftware = softwareSystem "Scanning Software" "TBC" "Existing System"
+        mlpaUaLPA = softwareSystem "Use an LPA" "Use/View an LPA Service." "Web Browser Existing System"
 
         actor -> makeSoftwareSystem "interacts with"
         makeSoftwareSystem -> externalSoftwareSystems "interacts with"
@@ -41,13 +39,12 @@ workspace {
 
         mlpaOnlineContainer -> mlpaStaging "makes calls to"
         mlpaLPAIDAPI -> mlpaStaging "gets LPA Code from"
-        //mlpaLPAIDAPI -> mlpaSiriusCaseManagement "gets LPA Code from"
+
         mlpaStaging -> mlpaOpgRegisterWriteAPI "writes validated data to"
         mlpaStaging -> mlpaSiriusPublicAPI "writes case management data to and read data from"
         
         mlpaUaLPA -> mlpaSiriusPublicAPI "read data from"
-        mlpaVaLPA -> mlpaSiriusPublicAPI "read data from"
-        mlpaVaLPA -> mlpaOpgRegisterReadAPI "read data from"
+        mlpaUaLPA -> mlpaOpgRegisterReadAPI "read data from"
         
         mlpaOpgRegisterWriteAPI -> mlpaOpgRegisterDatabase "interacts with"
         mlpaOpgRegisterReadAPI -> mlpaOpgRegisterDatabase "interacts with"
@@ -56,13 +53,7 @@ workspace {
         mlpaPaperIngestionAPI -> mlpaSiriusPublicAPI "reads data from"
         mlpaPaperIngestionAPI -> mlpaStaging "writes data to"
 
-        //mlpaSiriusMSRegisteredCaseManagement -> mlpaSiriusCaseManagement "writes and reads data from"
-        //mlpaSiriusMSPreRegistrationCaseManagement -> mlpaSiriusCaseManagement "writes and reads data from"
-        //mlpaSiriusMSPaperCaseManagement -> mlpaSiriusCaseManagement "writes and reads data from"
-
-        //mlpaSiriusCaseManagement -> mlpaSiriusAPI "writes and reads data from"
-        mlpaSiriusCaseManagement -> mlpaOpgRegisterWriteAPI "writes and reads data from"
-        mlpaSiriusCaseManagement -> mlpaOpgRegisterReadAPI "writes and reads data from"
+        mlpaSiriusCaseManagement -> mlpaOpgRegisterReadAPI "reads data from"
     }
 
     views {
