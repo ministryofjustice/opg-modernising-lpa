@@ -37,6 +37,8 @@ import (
 	"golang.org/x/mod/sumdb/dirhash"
 )
 
+var Tag string
+
 func main() {
 	ctx := context.Background()
 	logger := logging.New(os.Stdout, "opg-modernising-lpa")
@@ -90,7 +92,7 @@ func main() {
 		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
 	}
 
-	tmpls, err := template.Parse(webDir+"/template", templatefn.All)
+	tmpls, err := template.Parse(webDir+"/template", templatefn.All(Tag))
 	if err != nil {
 		logger.Fatal(err)
 	}
