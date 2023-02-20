@@ -1,8 +1,12 @@
 package page
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
 	"time"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -237,17 +241,64 @@ func GetAttorneyByFirstNames(lpa *Lpa, firstNames string) (actor.Attorney, bool)
 }
 
 type fixtureData struct {
-	App AppData
+	App    AppData
+	Errors validation.List
+	Form   *fixturesForm
 }
 
-func Fixtures(tmpl template.Template, lpaStore LpaStore) Handler {
+type fixturesForm struct {
+	DonorDetails         string
+	Attorneys            string
+	ReplacementAttorneys string
+	WhenCanLpaBeUsed     string
+	Restrictions         string
+	CertificateProvider  string
+	PeopleToNotify       string
+	CheckAndSend         string
+	Pay                  string
+	IdAndSign            string
+}
+
+func readFixtures(r *http.Request) *fixturesForm {
+	return &fixturesForm{
+		DonorDetails:         PostFormString(r, "donor-details"),
+		Attorneys:            PostFormString(r, "choose-attorneys"),
+		ReplacementAttorneys: PostFormString(r, "choose-replacement-attorneys"),
+		WhenCanLpaBeUsed:     PostFormString(r, "when-can-lpa-be-used"),
+		Restrictions:         PostFormString(r, "restrictions"),
+		CertificateProvider:  PostFormString(r, "certificate-provider"),
+		PeopleToNotify:       PostFormString(r, "people-to-notify"),
+		CheckAndSend:         PostFormString(r, "check-and-send-to-cp"),
+		Pay:                  PostFormString(r, "pay-for-lpa"),
+		IdAndSign:            PostFormString(r, "confirm-id-and-sign"),
+	}
+}
+
+func Fixtures(tmpl template.Template) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &fixtureData{
-			App: appData,
+			App:  appData,
+			Form: &fixturesForm{},
 		}
 
 		if r.Method == http.MethodPost {
+			data.Form = readFixtures(r)
 
+			values := url.Values{
+				data.Form.DonorDetails:         {"1"},
+				data.Form.Attorneys:            {"1"},
+				data.Form.ReplacementAttorneys: {"1"},
+				data.Form.WhenCanLpaBeUsed:     {"1"},
+				data.Form.Restrictions:         {"1"},
+				data.Form.CertificateProvider:  {"1"},
+				data.Form.PeopleToNotify:       {"1"},
+				data.Form.CheckAndSend:         {"1"},
+				data.Form.Pay:                  {"1"},
+				data.Form.IdAndSign:            {"1"},
+			}
+
+			http.Redirect(w, r, fmt.Sprintf("%s?%s", Paths.TestingStart, values.Encode()), http.StatusFound)
+			return nil
 		}
 
 		return tmpl(w, data)
