@@ -1,0 +1,89 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}Pre-complete donor flow{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset" aria-describedby="waste-hint">
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                            <h1 class="govuk-fieldset__heading">
+                                Pre-complete donor flow
+                            </h1>
+                        </legend>
+                        <div id="waste-hint" class="govuk-hint">
+                            Select all that apply.
+                        </div>
+                        <div class="govuk-checkboxes govuk-!-margin-bottom-3" data-module="govuk-checkboxes">
+                            <div class="govuk-checkboxes__item">
+                                <input class="govuk-checkboxes__input" id="f-donor-details" name="donor-details" type="checkbox" value="withDonorDetails">
+                                <label class="govuk-label govuk-checkboxes__label" for="f-donor-details">
+                                    Provide your details
+                                </label>
+                            </div>
+                            <div class="govuk-checkboxes__item">
+                                <input class="govuk-checkboxes__input" id="f-choose-attorneys" name="choose-attorneys" type="checkbox" value="withAttorneys">
+                                <label class="govuk-label govuk-checkboxes__label" for="f-choose-attorneys">
+                                    Choose your attorneys (adds 2)
+                                </label>
+                            </div>
+                            <div class="govuk-checkboxes__item">
+                                <input class="govuk-checkboxes__input" id="f-choose-replacement-attorneys" name="choose-replacement-attorneys" type="checkbox" value="withReplacementAttorneys">
+                                <label class="govuk-label govuk-checkboxes__label" for="f-choose-replacement-attorneys">
+                                    Choose your replacement attorneys (adds 2)
+                                </label>
+                            </div>
+                            <div class="govuk-checkboxes__item">
+                                <input class="govuk-checkboxes__input" id="f-when-can-lpa-be-used" name="when-can-lpa-be-used" type="checkbox" value="whenCanBeUsedComplete">
+                                <label class="govuk-label govuk-checkboxes__label" for="f-when-can-lpa-be-used">
+                                    Choose when the LPA can be used
+                                </label>
+                            </div>
+                            <div class="govuk-checkboxes__item">
+                                <input class="govuk-checkboxes__input" id="f-restrictions" name="restrictions" type="checkbox" value="withRestrictions">
+                                <label class="govuk-label govuk-checkboxes__label" for="f-restrictions">
+                                    Add restrictions to the LPA
+                                </label>
+                            </div>
+                            <div class="govuk-checkboxes__item">
+                                <input class="govuk-checkboxes__input" id="f-certificate-provider" name="certificate-provider" type="checkbox" value="withCP">
+                                <label class="govuk-label govuk-checkboxes__label" for="f-certificate-provider">
+                                    Choose your certificate provider
+                                </label>
+                            </div>
+                            <div class="govuk-checkboxes__item">
+                                <input class="govuk-checkboxes__input" id="f-people-to-notify" name="people-to-notify" type="checkbox" value="withPeopleToNotify">
+                                <label class="govuk-label govuk-checkboxes__label" for="f-people-to-notify">
+                                    People to notify about your LPA (adds 2)
+                                </label>
+                            </div>
+                            <div class="govuk-checkboxes__item">
+                                <input class="govuk-checkboxes__input" id="f-check-and-send-to-cp" name="check-and-send-to-cp" type="checkbox" value="lpaChecked">
+                                <label class="govuk-label govuk-checkboxes__label" for="f-check-and-send-to-cp">
+                                    Check and send to your certificate provider
+                                </label>
+                            </div>
+                            <div class="govuk-checkboxes__item">
+                                <input class="govuk-checkboxes__input" id="f-pay-for-lpa" name="pay-for-lpa" type="checkbox" value="paymentComplete">
+                                <label class="govuk-label govuk-checkboxes__label" for="f-pay-for-lpa">
+                                    Pay for the LPA
+                                </label>
+                            </div>
+                            <div class="govuk-checkboxes__item">
+                                <input class="govuk-checkboxes__input" id="f-confirm-id-and-sign" name="confirm-id-and-sign" type="checkbox" value="idConfirmedAndSigned">
+                                <label class="govuk-label govuk-checkboxes__label" for="f-confirm-id-and-sign">
+                                    Confirm your identity and sign the LPA
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="govuk-button" data-module="govuk-button">Create LPA</button>
+                    </fieldset>
+                </div>
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}
