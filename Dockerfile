@@ -11,12 +11,13 @@ RUN mkdir -p web/static && yarn build
 FROM golang:1.20 as build-env
 
 WORKDIR /app
+ARG TAG=v0.0.0
 
 COPY app/go.mod app/go.sum ./
 RUN go mod download
 
 COPY /app .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/mlpab
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab
 
 FROM alpine:3.17.2 as production
 
