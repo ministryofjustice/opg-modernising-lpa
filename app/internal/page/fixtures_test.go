@@ -40,6 +40,7 @@ func TestPostFixtures(t *testing.T) {
 		"check-and-send-to-cp":         {"lpaChecked"},
 		"pay-for-lpa":                  {"paymentComplete"},
 		"confirm-id-and-sign":          {"idConfirmedAndSigned"},
+		"complete-all":                 {"completeLpa"},
 	}
 
 	w := httptest.NewRecorder()
@@ -56,6 +57,6 @@ func TestPostFixtures(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	expectedPath := "/testing-start?idConfirmedAndSigned=1&lpaChecked=1&paymentComplete=1&whenCanBeUsedComplete=1&withAttorneys=1&withCP=1&withDonorDetails=1&withPeopleToNotify=1&withReplacementAttorneys=1&withRestrictions=1"
+	expectedPath := "/testing-start?completeLpa=1&idConfirmedAndSigned=1&lpaChecked=1&paymentComplete=1&whenCanBeUsedComplete=1&withAttorneys=1&withCP=1&withDonorDetails=1&withPeopleToNotify=1&withReplacementAttorneys=1&withRestrictions=1"
 	assert.Equal(t, expectedPath, resp.Header.Get("Location"))
 }

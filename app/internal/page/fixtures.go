@@ -113,7 +113,7 @@ func CompleteDonorDetails(lpa *Lpa) {
 	lpa.Tasks.YourDetails = TaskCompleted
 }
 
-func AddAttorneys(lpa *Lpa, count int) (*Lpa, []string) {
+func AddAttorneys(lpa *Lpa, count int) []string {
 	if count > len(AttorneyNames) {
 		count = len(AttorneyNames)
 	}
@@ -129,10 +129,10 @@ func AddAttorneys(lpa *Lpa, count int) (*Lpa, []string) {
 	}
 
 	lpa.Tasks.ChooseAttorneys = TaskCompleted
-	return lpa, firstNames
+	return firstNames
 }
 
-func AddReplacementAttorneys(lpa *Lpa, count int) (*Lpa, []string) {
+func AddReplacementAttorneys(lpa *Lpa, count int) []string {
 	if count > len(ReplacementAttorneyNames) {
 		count = len(ReplacementAttorneyNames)
 	}
@@ -151,10 +151,10 @@ func AddReplacementAttorneys(lpa *Lpa, count int) (*Lpa, []string) {
 	}
 
 	lpa.Tasks.ChooseReplacementAttorneys = TaskCompleted
-	return lpa, firstNames
+	return firstNames
 }
 
-func CompleteHowAttorneysAct(lpa *Lpa, howTheyAct string) *Lpa {
+func CompleteHowAttorneysAct(lpa *Lpa, howTheyAct string) {
 	switch howTheyAct {
 	case Jointly:
 		lpa.HowAttorneysMakeDecisions = Jointly
@@ -164,29 +164,24 @@ func CompleteHowAttorneysAct(lpa *Lpa, howTheyAct string) *Lpa {
 		lpa.HowAttorneysMakeDecisions = JointlyForSomeSeverallyForOthers
 		lpa.HowAttorneysMakeDecisionsDetails = "some details"
 	}
-
-	return lpa
 }
 
-func CompleteWhenCanLpaBeUsed(lpa *Lpa) *Lpa {
+func CompleteWhenCanLpaBeUsed(lpa *Lpa) {
 	lpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
 	lpa.Tasks.WhenCanTheLpaBeUsed = TaskCompleted
-	return lpa
 }
 
-func CompleteRestrictions(lpa *Lpa) *Lpa {
+func CompleteRestrictions(lpa *Lpa) {
 	lpa.Restrictions = "Some restrictions on how Attorneys act"
 	lpa.Tasks.Restrictions = TaskCompleted
-	return lpa
 }
 
-func AddCertificateProvider(lpa *Lpa, firstNames string) *Lpa {
+func AddCertificateProvider(lpa *Lpa, firstNames string) {
 	lpa.CertificateProvider = MakeCertificateProvider(firstNames)
 	lpa.Tasks.CertificateProvider = TaskCompleted
-	return lpa
 }
 
-func AddPeopleToNotify(lpa *Lpa, count int) (*Lpa, []string) {
+func AddPeopleToNotify(lpa *Lpa, count int) []string {
 	if count > len(PeopleToNotifyNames) {
 		count = len(PeopleToNotifyNames)
 	}
@@ -200,23 +195,21 @@ func AddPeopleToNotify(lpa *Lpa, count int) (*Lpa, []string) {
 	lpa.DoYouWantToNotifyPeople = "yes"
 	lpa.Tasks.PeopleToNotify = TaskCompleted
 
-	return lpa, firstNames
+	return firstNames
 }
 
-func CompleteCheckYourLpa(lpa *Lpa) *Lpa {
+func CompleteCheckYourLpa(lpa *Lpa) {
 	lpa.Checked = true
 	lpa.HappyToShare = true
 	lpa.Tasks.CheckYourLpa = TaskCompleted
-	return lpa
 }
 
-func PayForLpa(lpa *Lpa, store sesh.Store, r *http.Request, w http.ResponseWriter) *Lpa {
+func PayForLpa(lpa *Lpa, store sesh.Store, r *http.Request, w http.ResponseWriter) {
 	sesh.SetPayment(store, r, w, &sesh.PaymentSession{PaymentID: random.String(12)})
 	lpa.Tasks.PayForLpa = TaskCompleted
-	return lpa
 }
 
-func ConfirmIdAndSign(lpa *Lpa) *Lpa {
+func ConfirmIdAndSign(lpa *Lpa) {
 	lpa.OneLoginUserData = identity.UserData{
 		OK:          true,
 		RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
@@ -228,7 +221,6 @@ func ConfirmIdAndSign(lpa *Lpa) *Lpa {
 	lpa.Submitted = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 	lpa.CPWitnessCodeValidated = true
 	lpa.Tasks.ConfirmYourIdentityAndSign = TaskCompleted
-	return lpa
 }
 
 func GetAttorneyByFirstNames(lpa *Lpa, firstNames string) (actor.Attorney, bool) {
@@ -241,9 +233,11 @@ func GetAttorneyByFirstNames(lpa *Lpa, firstNames string) (actor.Attorney, bool)
 }
 
 type fixtureData struct {
-	App    AppData
-	Errors validation.List
-	Form   *fixturesForm
+	App                     AppData
+	Errors                  validation.List
+	Form                    *fixturesForm
+	CPStartLpaNotSignedPath string
+	CPStartLpaSignedPath    string
 }
 
 type fixturesForm struct {
@@ -257,6 +251,7 @@ type fixturesForm struct {
 	CheckAndSend         string
 	Pay                  string
 	IdAndSign            string
+	CompleteAll          string
 }
 
 func readFixtures(r *http.Request) *fixturesForm {
@@ -271,14 +266,17 @@ func readFixtures(r *http.Request) *fixturesForm {
 		CheckAndSend:         PostFormString(r, "check-and-send-to-cp"),
 		Pay:                  PostFormString(r, "pay-for-lpa"),
 		IdAndSign:            PostFormString(r, "confirm-id-and-sign"),
+		CompleteAll:          PostFormString(r, "complete-all-sections"),
 	}
 }
 
 func Fixtures(tmpl template.Template) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &fixtureData{
-			App:  appData,
-			Form: &fixturesForm{},
+			App:                     appData,
+			Form:                    &fixturesForm{},
+			CPStartLpaNotSignedPath: fmt.Sprintf("%s?redirect=%s&withCP=1&withDonorDetails=1&startCpFlowWithoutId=1", Paths.TestingStart, Paths.CertificateProviderStart),
+			CPStartLpaSignedPath:    fmt.Sprintf("%s?redirect=%s&completeLpa=1&startCpFlowWithId=1", Paths.TestingStart, Paths.CertificateProviderStart),
 		}
 
 		if r.Method == http.MethodPost {
@@ -295,6 +293,7 @@ func Fixtures(tmpl template.Template) Handler {
 				data.Form.CheckAndSend:         {"1"},
 				data.Form.Pay:                  {"1"},
 				data.Form.IdAndSign:            {"1"},
+				data.Form.CompleteAll:          {"1"},
 			}
 
 			http.Redirect(w, r, fmt.Sprintf("%s?%s", Paths.TestingStart, values.Encode()), http.StatusFound)

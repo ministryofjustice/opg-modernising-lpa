@@ -11,7 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string) http.HandlerFunc {
+func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string, dataStore DataStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sub := randomString(12)
 		sessionID := base64.StdEncoding.EncodeToString([]byte(sub))
@@ -28,16 +28,15 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		}
 
 		if r.FormValue("withAttorney") != "" {
-			lpa, _ = AddAttorneys(lpa, 1)
+			AddAttorneys(lpa, 1)
 		}
 
 		if r.FormValue("withAttorneys") != "" || r.FormValue("completeLpa") != "" {
-			lpa, _ = AddAttorneys(lpa, 2)
+			AddAttorneys(lpa, 2)
 		}
 
 		if r.FormValue("withIncompleteAttorneys") != "" {
-			var firstNames []string
-			lpa, firstNames = AddAttorneys(lpa, 2)
+			firstNames := AddAttorneys(lpa, 2)
 
 			withAddress, _ := GetAttorneyByFirstNames(lpa, firstNames[0])
 			withAddress.ID = "with-address"
@@ -65,31 +64,31 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		}
 
 		if r.FormValue("howAttorneysAct") != "" {
-			lpa = CompleteHowAttorneysAct(lpa, r.FormValue("howAttorneysAct"))
+			CompleteHowAttorneysAct(lpa, r.FormValue("howAttorneysAct"))
 		}
 
 		if r.FormValue("withReplacementAttorneys") != "" || r.FormValue("completeLpa") != "" {
-			lpa, _ = AddReplacementAttorneys(lpa, 2)
+			AddReplacementAttorneys(lpa, 2)
 		}
 
 		if r.FormValue("whenCanBeUsedComplete") != "" || r.FormValue("completeLpa") != "" {
-			lpa = CompleteWhenCanLpaBeUsed(lpa)
+			CompleteWhenCanLpaBeUsed(lpa)
 		}
 
 		if r.FormValue("withRestrictions") != "" || r.FormValue("completeLpa") != "" {
-			lpa = CompleteRestrictions(lpa)
+			CompleteRestrictions(lpa)
 		}
 
 		if r.FormValue("withCP") != "" || r.FormValue("completeLpa") != "" {
-			lpa = AddCertificateProvider(lpa, "Barbara")
+			AddCertificateProvider(lpa, "Barbara")
 		}
 
 		if r.FormValue("withPeopleToNotify") != "" || r.FormValue("completeLpa") != "" {
-			lpa, _ = AddPeopleToNotify(lpa, 2)
+			AddPeopleToNotify(lpa, 2)
 		}
 
 		if r.FormValue("withIncompletePeopleToNotify") != "" {
-			lpa, _ = AddPeopleToNotify(lpa, 1)
+			AddPeopleToNotify(lpa, 1)
 
 			joanna := lpa.PeopleToNotify[0]
 			joanna.Address = place.Address{}
@@ -101,15 +100,15 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		}
 
 		if r.FormValue("lpaChecked") != "" || r.FormValue("completeLpa") != "" {
-			lpa = CompleteCheckYourLpa(lpa)
+			CompleteCheckYourLpa(lpa)
 		}
 
 		if r.FormValue("paymentComplete") != "" || r.FormValue("completeLpa") != "" {
-			lpa = PayForLpa(lpa, store, r, w)
+			PayForLpa(lpa, store, r, w)
 		}
 
 		if r.FormValue("idConfirmedAndSigned") != "" || r.FormValue("completeLpa") != "" {
-			lpa = ConfirmIdAndSign(lpa)
+			ConfirmIdAndSign(lpa)
 		}
 
 		if r.FormValue("cookiesAccepted") != "" {
@@ -119,6 +118,30 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				MaxAge: 365 * 24 * 60 * 60,
 				Path:   "/",
 			})
+		}
+
+		if r.FormValue("startCpFlowWithId") != "" {
+			shareCode := randomString(12)
+			dataStore.Put(ctx, "SHARECODE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
+				SessionID: sessionID,
+				LpaID:     lpa.ID,
+				Identity:  true,
+			})
+
+			redirect := Paths.CertificateProviderStart + "?" + "share-code=" + shareCode
+			r.Form.Set("redirect", redirect)
+		}
+
+		if r.FormValue("startCpFlowWithoutId") != "" {
+			shareCode := randomString(12)
+			dataStore.Put(ctx, "SHARECODE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
+				SessionID: sessionID,
+				LpaID:     lpa.ID,
+				Identity:  false,
+			})
+
+			redirect := Paths.CertificateProviderStart + "?" + "share-code=" + shareCode
+			r.Form.Set("redirect", redirect)
 		}
 
 		if r.FormValue("asCertificateProvider") != "" || r.FormValue("provideCertificate") != "" {
@@ -131,7 +154,6 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 
 			lpa.CertificateProviderUserData.FullName = "Barbara Smith"
 			lpa.CertificateProviderUserData.OK = true
-
 		}
 
 		if r.FormValue("provideCertificate") != "" {
