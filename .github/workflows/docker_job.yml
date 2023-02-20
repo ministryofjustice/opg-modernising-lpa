@@ -31,7 +31,7 @@ jobs:
       - name: Build Image
         id: build_image
         run: |
-          docker build -t app .
+          docker build -t app --build-arg TAG=${{inputs.tag}} .
       - name: Trivy Image Vulnerability Scanner
         id: trivy_scan
         uses: aquasecurity/trivy-action@0.9.1
