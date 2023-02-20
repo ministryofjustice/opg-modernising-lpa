@@ -18,17 +18,18 @@ func Login(logger page.Logger, oneLoginClient page.OneLoginClient, store sesh.St
 		state := randomString(12)
 		nonce := randomString(12)
 
-		authCodeURL := oneLoginClient.AuthCodeURL(state, nonce, locale, true)
-
+		identity := r.FormValue("identity") == "1"
 		sessionID := r.FormValue("sessionId")
 		lpaID := r.FormValue("lpaId")
+
+		authCodeURL := oneLoginClient.AuthCodeURL(state, nonce, locale, identity)
 
 		if err := sesh.SetOneLogin(store, r, w, &sesh.OneLoginSession{
 			State:               state,
 			Nonce:               nonce,
 			Locale:              locale,
 			CertificateProvider: true,
-			Identity:            true,
+			Identity:            identity,
 			SessionID:           sessionID,
 			LpaID:               lpaID,
 		}); err != nil {
