@@ -1,16 +1,25 @@
 package page
 
-import "strings"
+import (
+	"strings"
+
+	"golang.org/x/exp/slices"
+)
 
 type AppPaths struct {
 	AboutPayment                                         string
 	Auth                                                 string
 	AuthRedirect                                         string
+	CertificateProvided                                  string
 	CertificateProviderAddress                           string
+	CertificateProviderConfirmation                      string
 	CertificateProviderDetails                           string
+	CertificateProviderGuidance                          string
 	CertificateProviderLogin                             string
 	CertificateProviderLoginCallback                     string
+	CertificateProviderReadTheLpa                        string
 	CertificateProviderStart                             string
+	CertificateProviderYourAddress                       string
 	CertificateProviderYourDetails                       string
 	CheckYourLpa                                         string
 	ChooseAttorneys                                      string
@@ -47,6 +56,7 @@ type AppPaths struct {
 	LpaType                                              string
 	PaymentConfirmation                                  string
 	Progress                                             string
+	ProvideCertificate                                   string
 	ReadYourLpa                                          string
 	RemoveAttorney                                       string
 	RemovePersonToNotify                                 string
@@ -77,11 +87,16 @@ var Paths = AppPaths{
 	AboutPayment:                                         "/about-payment",
 	Auth:                                                 "/auth",
 	AuthRedirect:                                         "/auth/redirect",
+	CertificateProvided:                                  "/certificate-provided",
 	CertificateProviderAddress:                           "/certificate-provider-address",
+	CertificateProviderConfirmation:                      "/certificate-provider-confirmation",
 	CertificateProviderDetails:                           "/certificate-provider-details",
+	CertificateProviderGuidance:                          "/being-a-certificate-provider",
 	CertificateProviderLogin:                             "/certificate-provider-login",
 	CertificateProviderLoginCallback:                     "/certificate-provider-login-callback",
+	CertificateProviderReadTheLpa:                        "/certificate-provider-read-the-lpa",
 	CertificateProviderStart:                             "/certificate-provider-start",
+	CertificateProviderYourAddress:                       "/certificate-provider-your-address",
 	CertificateProviderYourDetails:                       "/certificate-provider-your-details",
 	CheckYourLpa:                                         "/check-your-lpa",
 	ChooseAttorneys:                                      "/choose-attorneys",
@@ -118,6 +133,7 @@ var Paths = AppPaths{
 	LpaType:                                              "/lpa-type",
 	PaymentConfirmation:                                  "/payment-confirmation",
 	Progress:                                             "/progress",
+	ProvideCertificate:                                   "/provide-certificate",
 	ReadYourLpa:                                          "/read-your-lpa",
 	RemoveAttorney:                                       "/remove-attorney",
 	RemovePersonToNotify:                                 "/remove-person-to-notify",
@@ -147,7 +163,20 @@ var Paths = AppPaths{
 func IsLpaPath(url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 
-	return path != Paths.Auth && path != Paths.AuthRedirect &&
-		path != Paths.Dashboard && path != Paths.Start &&
-		path != Paths.CertificateProviderLogin && path != Paths.CertificateProviderLoginCallback && path != Paths.CertificateProviderYourDetails
+	return !slices.Contains([]string{
+		Paths.Auth,
+		Paths.AuthRedirect,
+		Paths.Dashboard,
+		Paths.Start,
+		Paths.CertificateProviderStart,
+		Paths.CertificateProviderLogin,
+		Paths.CertificateProviderLoginCallback,
+		Paths.CertificateProviderYourDetails,
+		Paths.CertificateProviderYourAddress,
+		Paths.CertificateProviderReadTheLpa,
+		Paths.CertificateProviderGuidance,
+		Paths.CertificateProviderConfirmation,
+		Paths.ProvideCertificate,
+		Paths.CertificateProvided,
+	}, path)
 }

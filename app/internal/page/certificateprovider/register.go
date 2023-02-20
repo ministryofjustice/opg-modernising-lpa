@@ -3,6 +3,7 @@ package certificateprovider
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -17,17 +18,31 @@ func Register(
 	sessionStore sesh.Store,
 	lpaStore page.LpaStore,
 	oneLoginClient page.OneLoginClient,
+	dataStore page.DataStore,
+	addressClient page.AddressClient,
 ) {
 	handleRoot := makeHandle(rootMux, logger, sessionStore, None)
 
 	handleRoot(page.Paths.CertificateProviderStart, None,
-		Start(tmpls.Get("certificate_provider_start.gohtml"), lpaStore))
+		Start(tmpls.Get("certificate_provider_start.gohtml"), lpaStore, dataStore))
 	handleRoot(page.Paths.CertificateProviderLogin, None,
 		Login(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.CertificateProviderLoginCallback, None,
 		LoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, lpaStore))
 	handleRoot(page.Paths.CertificateProviderYourDetails, RequireSession,
-		page.Guidance(tmpls.Get("certificate_provider_your_details.gohtml"), "", lpaStore))
+		YourDetails(tmpls.Get("certificate_provider_your_details.gohtml"), lpaStore))
+	handleRoot(page.Paths.CertificateProviderYourAddress, RequireSession,
+		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
+	handleRoot(page.Paths.CertificateProviderReadTheLpa, RequireSession,
+		page.Guidance(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), lpaStore))
+	handleRoot(page.Paths.CertificateProviderGuidance, RequireSession,
+		page.Guidance(tmpls.Get("certificate_provider_guidance.gohtml"), lpaStore))
+	handleRoot(page.Paths.CertificateProviderConfirmation, RequireSession,
+		page.Guidance(tmpls.Get("certificate_provider_confirmation.gohtml"), lpaStore))
+	handleRoot(page.Paths.ProvideCertificate, RequireSession,
+		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), lpaStore, time.Now))
+	handleRoot(page.Paths.CertificateProvided, RequireSession,
+		page.Guidance(tmpls.Get("certificate_provided.gohtml"), lpaStore))
 }
 
 type handleOpt byte
@@ -53,7 +68,7 @@ func makeHandle(mux *http.ServeMux, logger page.Logger, store sesh.Store, defaul
 				session, err := sesh.CertificateProvider(store, r)
 				if err != nil {
 					logger.Print(err)
-					http.Redirect(w, r, page.Paths.Start, http.StatusFound)
+					http.Redirect(w, r, page.Paths.CertificateProviderStart, http.StatusFound)
 					return
 				}
 

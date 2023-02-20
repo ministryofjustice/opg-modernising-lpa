@@ -1,6 +1,7 @@
 package donor
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"net/http"
@@ -10,10 +11,15 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
+
+type ShareCodeSender interface {
+	Send(ctx context.Context, template notify.TemplateId, appData page.AppData, email string, identity bool) error
+}
 
 func Register(
 	rootMux *http.ServeMux,
@@ -28,7 +34,10 @@ func Register(
 	yotiClient page.YotiClient,
 	yotiScenarioID string,
 	notifyClient page.NotifyClient,
+	dataStore page.DataStore,
 ) {
+	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)
+
 	handleRoot := makeHandle(rootMux, logger, sessionStore, None)
 
 	handleRoot(page.Paths.Dashboard, RequireSession,
@@ -39,11 +48,6 @@ func Register(
 	rootMux.Handle("/lpa/", routeToLpa(lpaMux))
 
 	handleLpa := makeHandle(lpaMux, logger, sessionStore, RequireSession)
-
-	handleLpa("/testing-certificate-provider-start", None, func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		http.Redirect(w, r, fmt.Sprintf("%s?sessionId=%s&lpaId=%s", page.Paths.CertificateProviderStart, appData.SessionID, appData.LpaID), http.StatusFound)
-		return nil
-	})
 
 	handleLpa(page.Paths.YourDetails, None,
 		YourDetails(tmpls.Get("your_details.gohtml"), lpaStore, sessionStore))
@@ -117,12 +121,12 @@ func Register(
 	handleLpa(page.Paths.AboutPayment, CanGoBack,
 		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String, lpaStore))
 	handleLpa(page.Paths.PaymentConfirmation, CanGoBack,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, lpaStore, sessionStore))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, lpaStore, sessionStore, shareCodeSender))
 
 	handleLpa(page.Paths.HowToConfirmYourIdentityAndSign, CanGoBack,
-		page.Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml"), page.Paths.WhatYoullNeedToConfirmYourIdentity, lpaStore))
+		page.Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml"), lpaStore))
 	handleLpa(page.Paths.WhatYoullNeedToConfirmYourIdentity, CanGoBack,
-		page.Guidance(tmpls.Get("what_youll_need_to_confirm_your_identity.gohtml"), page.Paths.SelectYourIdentityOptions, lpaStore))
+		page.Guidance(tmpls.Get("what_youll_need_to_confirm_your_identity.gohtml"), lpaStore))
 
 	for path, page := range map[string]int{
 		page.Paths.SelectYourIdentityOptions:  0,
@@ -156,20 +160,20 @@ func Register(
 	}
 
 	handleLpa(page.Paths.ReadYourLpa, CanGoBack,
-		page.Guidance(tmpls.Get("read_your_lpa.gohtml"), page.Paths.YourLegalRightsAndResponsibilities, lpaStore))
+		page.Guidance(tmpls.Get("read_your_lpa.gohtml"), lpaStore))
 	handleLpa(page.Paths.YourLegalRightsAndResponsibilities, CanGoBack,
-		page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml"), page.Paths.SignYourLpa, lpaStore))
+		page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml"), lpaStore))
 	handleLpa(page.Paths.SignYourLpa, CanGoBack,
 		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), lpaStore))
 	handleLpa(page.Paths.WitnessingYourSignature, CanGoBack,
 		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), lpaStore, notifyClient, random.Code, time.Now))
 	handleLpa(page.Paths.WitnessingAsCertificateProvider, CanGoBack,
-		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), lpaStore, time.Now))
+		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), lpaStore, shareCodeSender, time.Now))
 	handleLpa(page.Paths.YouHaveSubmittedYourLpa, CanGoBack,
-		page.Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml"), page.Paths.TaskList, lpaStore))
+		page.Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml"), lpaStore))
 
 	handleLpa(page.Paths.Progress, CanGoBack,
-		page.Guidance(tmpls.Get("lpa_progress.gohtml"), page.Paths.Dashboard, lpaStore))
+		page.Guidance(tmpls.Get("lpa_progress.gohtml"), lpaStore))
 }
 
 type handleOpt byte

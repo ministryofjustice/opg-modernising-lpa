@@ -26,13 +26,13 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &chooseAttorneysSummaryData{
-			App:  appData,
+			App:  testAppData,
 			Lpa:  &page.Lpa{},
 			Form: &chooseAttorneysSummaryForm{},
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysSummary(nil, template.Func, lpaStore)(appData, w, r)
+	err := ChooseAttorneysSummary(nil, template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -54,7 +54,7 @@ func TestGetChooseAttorneysSummaryWhenStoreErrors(t *testing.T) {
 		On("Print", "error getting lpa from store: err").
 		Return(nil)
 
-	err := ChooseAttorneysSummary(logger, nil, lpaStore)(appData, w, r)
+	err := ChooseAttorneysSummary(logger, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -93,14 +93,14 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-			r.Header.Add("Content-Type", formUrlEncoded)
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := &mockLpaStore{}
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{Attorneys: tc.Attorneys}, nil)
 
-			err := ChooseAttorneysSummary(nil, nil, lpaStore)(appData, w, r)
+			err := ChooseAttorneysSummary(nil, nil, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -118,7 +118,7 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", formUrlEncoded)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStore := &mockLpaStore{}
 	lpaStore.
@@ -134,7 +134,7 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChooseAttorneysSummary(nil, template.Func, lpaStore)(appData, w, r)
+	err := ChooseAttorneysSummary(nil, template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

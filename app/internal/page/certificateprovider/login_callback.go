@@ -48,7 +48,7 @@ func LoginCallback(tmpl template.Template, oneLoginClient page.OneLoginClient, s
 		if err != nil {
 			return err
 		}
-		if !oneLoginSession.CertificateProvider || !oneLoginSession.Identity {
+		if !oneLoginSession.CertificateProvider {
 			return errors.New("certificate-provider callback with incorrect session")
 		}
 
@@ -63,13 +63,6 @@ func LoginCallback(tmpl template.Template, oneLoginClient page.OneLoginClient, s
 		}
 
 		data := &loginCallbackData{App: appData}
-
-		if lpa.CertificateProviderUserData.OK {
-			data.FullName = lpa.CertificateProviderUserData.FullName
-			data.ConfirmedAt = lpa.CertificateProviderUserData.RetrievedAt
-
-			return tmpl(w, data)
-		}
 
 		if r.FormValue("error") == "access_denied" {
 			data.CouldNotConfirm = true
@@ -87,32 +80,37 @@ func LoginCallback(tmpl template.Template, oneLoginClient page.OneLoginClient, s
 			return err
 		}
 
-		userData, err := oneLoginClient.ParseIdentityClaim(ctx, userInfo)
-		if err != nil {
+		userData := lpa.CertificateProviderUserData
+		if !userData.OK {
+			userData, err = oneLoginClient.ParseIdentityClaim(ctx, userInfo)
+			if err != nil {
+				return err
+			}
+
+			if !userData.OK {
+				data.CouldNotConfirm = true
+
+				return tmpl(w, data)
+			} else {
+				lpa.CertificateProviderUserData = userData
+
+				if err := lpaStore.Put(ctx, lpa); err != nil {
+					return err
+				}
+			}
+		}
+
+		if err := sesh.SetCertificateProvider(sessionStore, r, w, &sesh.CertificateProviderSession{
+			Sub:            userInfo.Sub,
+			Email:          userInfo.Email,
+			LpaID:          oneLoginSession.LpaID,
+			DonorSessionID: oneLoginSession.SessionID,
+		}); err != nil {
 			return err
 		}
 
-		if !userData.OK {
-			data.CouldNotConfirm = true
-		} else {
-			lpa.CertificateProviderUserData = userData
-
-			if err := lpaStore.Put(ctx, lpa); err != nil {
-				return err
-			}
-
-			if err := sesh.SetCertificateProvider(sessionStore, r, w, &sesh.CertificateProviderSession{
-				Sub:            userInfo.Sub,
-				Email:          userInfo.Email,
-				LpaID:          oneLoginSession.LpaID,
-				DonorSessionID: oneLoginSession.SessionID,
-			}); err != nil {
-				return err
-			}
-
-			data.FullName = userData.FullName
-			data.ConfirmedAt = userData.RetrievedAt
-		}
+		data.FullName = lpa.CertificateProviderUserData.FullName
+		data.ConfirmedAt = lpa.CertificateProviderUserData.RetrievedAt
 
 		return tmpl(w, data)
 	}

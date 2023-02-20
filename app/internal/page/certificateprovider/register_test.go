@@ -2,46 +2,27 @@ package certificateprovider
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-var expectedError = errors.New("err")
+func TestRegister(t *testing.T) {
+	mux := http.NewServeMux()
+	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, nil, &place.Client{})
 
-type mockLogger struct {
-	mock.Mock
-}
-
-func (m *mockLogger) Print(v ...any) {
-	m.Called(v...)
-}
-
-type mockSessionsStore struct {
-	mock.Mock
-}
-
-func (m *mockSessionsStore) New(r *http.Request, name string) (*sessions.Session, error) {
-	args := m.Called(r, name)
-	return args.Get(0).(*sessions.Session), args.Error(1)
-}
-
-func (m *mockSessionsStore) Get(r *http.Request, name string) (*sessions.Session, error) {
-	args := m.Called(r, name)
-	return args.Get(0).(*sessions.Session), args.Error(1)
-}
-
-func (m *mockSessionsStore) Save(r *http.Request, w http.ResponseWriter, session *sessions.Session) error {
-	args := m.Called(r, w, session)
-	return args.Error(0)
+	assert.Implements(t, (*http.Handler)(nil), mux)
 }
 
 func TestMakeHandle(t *testing.T) {
@@ -157,7 +138,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Start, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProviderStart, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, sessionsStore, logger)
 }
 
@@ -182,7 +163,7 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Start, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProviderStart, resp.Header.Get("Location"))
 	mock.AssertExpectationsForObjects(t, sessionsStore, logger)
 }
 

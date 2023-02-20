@@ -41,7 +41,7 @@ func App(
 
 	handleRoot := makeHandle(rootMux, logger, sessionStore)
 
-	handleRoot(paths.Start, page.Guidance(tmpls.Get("start.gohtml"), paths.Auth, nil))
+	handleRoot(paths.Start, page.Guidance(tmpls.Get("start.gohtml"), nil))
 
 	certificateprovider.Register(
 		rootMux,
@@ -50,6 +50,8 @@ func App(
 		sessionStore,
 		lpaStore,
 		oneLoginClient,
+		dataStore,
+		addressClient,
 	)
 
 	donor.Register(
@@ -65,6 +67,7 @@ func App(
 		yotiClient,
 		yotiScenarioID,
 		notifyClient,
+		dataStore,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String), localizer, lang, rumConfig, staticHash)

@@ -74,7 +74,7 @@ func TestGetTaskList(t *testing.T) {
 			template := &mockTemplate{}
 			template.
 				On("Func", w, &taskListData{
-					App: appData,
+					App: testAppData,
 					Lpa: tc.lpa,
 					Sections: tc.expected([]taskListSection{
 						{
@@ -112,7 +112,7 @@ func TestGetTaskList(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := TaskList(template.Func, lpaStore)(appData, w, r)
+			err := TaskList(template.Func, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -131,7 +131,7 @@ func TestGetTaskListWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := TaskList(nil, lpaStore)(appData, w, r)
+	err := TaskList(nil, lpaStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
@@ -151,7 +151,7 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 		On("Func", w, mock.Anything).
 		Return(expectedError)
 
-	err := TaskList(template.Func, lpaStore)(appData, w, r)
+	err := TaskList(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

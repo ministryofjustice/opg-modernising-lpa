@@ -25,12 +25,12 @@ func TestGetYourChosenIdentityOptions(t *testing.T) {
 	template := &mockTemplate{}
 	template.
 		On("Func", w, &yourChosenIdentityOptionsData{
-			App:            appData,
+			App:            testAppData,
 			IdentityOption: identity.Passport,
 		}).
 		Return(nil)
 
-	err := YourChosenIdentityOptions(template.Func, lpaStore)(appData, w, r)
+	err := YourChosenIdentityOptions(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -47,7 +47,7 @@ func TestGetYourChosenIdentityOptionsWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := YourChosenIdentityOptions(nil, lpaStore)(appData, w, r)
+	err := YourChosenIdentityOptions(nil, lpaStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 	mock.AssertExpectationsForObjects(t, lpaStore)
@@ -69,7 +69,7 @@ func TestGetYourChosenIdentityOptionsWhenTemplateErrors(t *testing.T) {
 		On("Func", w, mock.Anything).
 		Return(expectedError)
 
-	err := YourChosenIdentityOptions(template.Func, lpaStore)(appData, w, r)
+	err := YourChosenIdentityOptions(template.Func, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -88,7 +88,7 @@ func TestPostYourChosenIdentityOptions(t *testing.T) {
 			IdentityOption: identity.Passport,
 		}, nil)
 
-	err := YourChosenIdentityOptions(nil, lpaStore)(appData, w, r)
+	err := YourChosenIdentityOptions(nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

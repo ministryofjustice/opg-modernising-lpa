@@ -1,0 +1,36 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "yourDetails" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <form novalidate method="post">
+        <div class="govuk-form-group">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+              <h1 class="govuk-fieldset__heading">{{ tr .App "yourDetails" }}</h1>
+            </legend>
+
+            <h2 class="govuk-heading-m">{{ tr .App "donor" }}</h2>
+            <p class="govuk-body">{{ .Lpa.You.FullName }}</p>
+
+            <h2 class="govuk-heading-m">{{ tr .App "yourDetails" }}</h2>
+            <p class="govuk-body">{{ .Lpa.CertificateProviderUserData.FullName }}</p>
+
+            {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
+
+            {{ template "dob-warning" . }}
+
+            {{ template "input" (input . "email" "email" .Form.Email "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
+
+            {{ template "input" (input . "mobile" "mobile" .Form.Mobile "classes" "govuk-input--width-20 govuk-!-margin-bottom-6" "type" "tel" "autocomplete" "tel") }}
+
+            {{ template "continue-button" . }}
+          </fieldset>
+        </div>
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}
