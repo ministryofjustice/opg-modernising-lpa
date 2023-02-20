@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -16,7 +17,7 @@ type witnessingAsCertificateProviderData struct {
 	Lpa    *page.Lpa
 }
 
-func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore page.LpaStore, now func() time.Time) page.Handler {
+func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore page.LpaStore, shareCodeSender ShareCodeSender, now func() time.Time) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
@@ -44,6 +45,12 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore page.LpaSt
 				lpa.Submitted = now()
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
+				}
+
+				if lpa.CertificateProviderUserData.OK {
+					if err := shareCodeSender.Send(r.Context(), notify.CertificateProviderCertifyEmail, appData, lpa.CertificateProvider.Email, false); err != nil {
+						return err
+					}
 				}
 
 				return appData.Redirect(w, r, lpa, page.Paths.YouHaveSubmittedYourLpa)

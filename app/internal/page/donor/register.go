@@ -1,6 +1,7 @@
 package donor
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"net/http"
@@ -10,10 +11,15 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
+
+type ShareCodeSender interface {
+	Send(ctx context.Context, template notify.TemplateId, appData page.AppData, email string, identity bool) error
+}
 
 func Register(
 	rootMux *http.ServeMux,
@@ -30,6 +36,8 @@ func Register(
 	notifyClient page.NotifyClient,
 	dataStore page.DataStore,
 ) {
+	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)
+
 	handleRoot := makeHandle(rootMux, logger, sessionStore, None)
 
 	handleRoot(page.Paths.Dashboard, RequireSession,
@@ -113,7 +121,7 @@ func Register(
 	handleLpa(page.Paths.AboutPayment, CanGoBack,
 		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String, lpaStore))
 	handleLpa(page.Paths.PaymentConfirmation, CanGoBack,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, notifyClient, lpaStore, sessionStore, appPublicUrl, dataStore, random.String))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, lpaStore, sessionStore, shareCodeSender))
 
 	handleLpa(page.Paths.HowToConfirmYourIdentityAndSign, CanGoBack,
 		page.Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml"), lpaStore))
@@ -160,7 +168,7 @@ func Register(
 	handleLpa(page.Paths.WitnessingYourSignature, CanGoBack,
 		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), lpaStore, notifyClient, random.Code, time.Now))
 	handleLpa(page.Paths.WitnessingAsCertificateProvider, CanGoBack,
-		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), lpaStore, time.Now))
+		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), lpaStore, shareCodeSender, time.Now))
 	handleLpa(page.Paths.YouHaveSubmittedYourLpa, CanGoBack,
 		page.Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml"), lpaStore))
 
