@@ -220,7 +220,7 @@ func ConfirmIdAndSign(lpa *Lpa) *Lpa {
 	lpa.OneLoginUserData = identity.UserData{
 		OK:          true,
 		RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
-		FullName:    lpa.You.FullName(),
+		FullName:    "Jose Smith",
 	}
 
 	lpa.WantToApplyForLpa = true

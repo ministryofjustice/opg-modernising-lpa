@@ -609,6 +609,7 @@ func TestTestingStart(t *testing.T) {
 						Address:    place.Address{},
 					},
 				},
+				Tasks: Tasks{PeopleToNotify: TaskInProgress},
 			}).
 			Return(nil)
 
