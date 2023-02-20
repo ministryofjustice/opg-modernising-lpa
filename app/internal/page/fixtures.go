@@ -1,10 +1,44 @@
 package page
 
 import (
+	"net/http"
+	"time"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+
+	"golang.org/x/exp/slices"
+
+	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
+
+var AttorneyNames = map[int]string{
+	0: "John",
+	1: "Joan",
+	2: "Johan",
+	3: "Jilly",
+	4: "James",
+}
+
+var ReplacementAttorneyNames = map[int]string{
+	0: "Jane",
+	1: "Jorge",
+	2: "Jackson",
+	3: "Jacob",
+	4: "Joshua",
+}
+
+var PeopleToNotifyNames = map[int]string{
+	0: "Joanna",
+	1: "Jonathan",
+	2: "Julian",
+	3: "Jayden",
+	4: "Juniper",
+}
 
 func MakePerson() actor.Person {
 	return actor.Person{
@@ -65,5 +99,157 @@ func MakeCertificateProvider(firstNames string) actor.CertificateProvider {
 		Relationship:            "friend",
 		RelationshipDescription: "",
 		RelationshipLength:      "gte-2-years",
+	}
+}
+
+func CompleteDonorDetails(lpa *Lpa) {
+	lpa.You = MakePerson()
+	lpa.WhoFor = "me"
+	lpa.Type = "pfa"
+	lpa.Tasks.YourDetails = TaskCompleted
+}
+
+func AddAttorneys(lpa *Lpa, count int) (*Lpa, []string) {
+	if count > len(AttorneyNames) {
+		count = len(AttorneyNames)
+	}
+
+	var firstNames []string
+	for i := 0; i < count; i++ {
+		lpa.Attorneys = append(lpa.Attorneys, MakeAttorney(AttorneyNames[i]))
+		firstNames = append(firstNames, AttorneyNames[i])
+	}
+
+	if count > 1 {
+		lpa.HowAttorneysMakeDecisions = JointlyAndSeverally
+	}
+
+	lpa.Tasks.ChooseAttorneys = TaskCompleted
+	return lpa, firstNames
+}
+
+func AddReplacementAttorneys(lpa *Lpa, count int) (*Lpa, []string) {
+	if count > len(ReplacementAttorneyNames) {
+		count = len(ReplacementAttorneyNames)
+	}
+
+	var firstNames []string
+	for i := 0; i < count; i++ {
+		lpa.ReplacementAttorneys = append(lpa.ReplacementAttorneys, MakeAttorney(ReplacementAttorneyNames[i]))
+		firstNames = append(firstNames, ReplacementAttorneyNames[i])
+	}
+
+	lpa.WantReplacementAttorneys = "yes"
+
+	if count > 1 {
+		lpa.HowReplacementAttorneysMakeDecisions = JointlyAndSeverally
+		lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
+	}
+
+	lpa.Tasks.ChooseReplacementAttorneys = TaskCompleted
+	return lpa, firstNames
+}
+
+func CompleteHowAttorneysAct(lpa *Lpa, howTheyAct string) *Lpa {
+	switch howTheyAct {
+	case Jointly:
+		lpa.HowAttorneysMakeDecisions = Jointly
+	case JointlyAndSeverally:
+		lpa.HowAttorneysMakeDecisions = JointlyAndSeverally
+	default:
+		lpa.HowAttorneysMakeDecisions = JointlyForSomeSeverallyForOthers
+		lpa.HowAttorneysMakeDecisionsDetails = "some details"
+	}
+
+	return lpa
+}
+
+func CompleteWhenCanLpaBeUsed(lpa *Lpa) *Lpa {
+	lpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
+	lpa.Tasks.WhenCanTheLpaBeUsed = TaskCompleted
+	return lpa
+}
+
+func CompleteRestrictions(lpa *Lpa) *Lpa {
+	lpa.Restrictions = "Some restrictions on how Attorneys act"
+	lpa.Tasks.Restrictions = TaskCompleted
+	return lpa
+}
+
+func AddCertificateProvider(lpa *Lpa, firstNames string) *Lpa {
+	lpa.CertificateProvider = MakeCertificateProvider(firstNames)
+	lpa.Tasks.CertificateProvider = TaskCompleted
+	return lpa
+}
+
+func AddPeopleToNotify(lpa *Lpa, count int) (*Lpa, []string) {
+	if count > len(PeopleToNotifyNames) {
+		count = len(PeopleToNotifyNames)
+	}
+
+	var firstNames []string
+	for i := 0; i < count; i++ {
+		lpa.PeopleToNotify = append(lpa.PeopleToNotify, MakePersonToNotify(PeopleToNotifyNames[i]))
+		firstNames = append(firstNames, PeopleToNotifyNames[i])
+	}
+
+	lpa.DoYouWantToNotifyPeople = "yes"
+	lpa.Tasks.PeopleToNotify = TaskCompleted
+
+	return lpa, firstNames
+}
+
+func CompleteCheckYourLpa(lpa *Lpa) *Lpa {
+	lpa.Checked = true
+	lpa.HappyToShare = true
+	lpa.Tasks.CheckYourLpa = TaskCompleted
+	return lpa
+}
+
+func PayForLpa(lpa *Lpa, store sesh.Store, r *http.Request, w http.ResponseWriter) *Lpa {
+	sesh.SetPayment(store, r, w, &sesh.PaymentSession{PaymentID: random.String(12)})
+	lpa.Tasks.PayForLpa = TaskCompleted
+	return lpa
+}
+
+func ConfirmIdAndSign(lpa *Lpa) *Lpa {
+	lpa.OneLoginUserData = identity.UserData{
+		OK:          true,
+		RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
+		FullName:    lpa.You.FullName(),
+	}
+
+	lpa.WantToApplyForLpa = true
+	lpa.WantToSignLpa = true
+	lpa.Submitted = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
+	lpa.CPWitnessCodeValidated = true
+	lpa.Tasks.ConfirmYourIdentityAndSign = TaskCompleted
+	return lpa
+}
+
+func GetAttorneyByFirstNames(lpa *Lpa, firstNames string) (actor.Attorney, bool) {
+	idx := slices.IndexFunc(lpa.Attorneys, func(a actor.Attorney) bool { return a.FirstNames == firstNames })
+	if idx == -1 {
+		return actor.Attorney{}, false
+	}
+
+	return lpa.Attorneys[idx], true
+}
+
+type fixtureData struct {
+	App AppData
+}
+
+func Fixtures(tmpl template.Template, lpaStore LpaStore) Handler {
+	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+		data := &fixtureData{
+			App: appData,
+		}
+
+		if r.Method == http.MethodPost {
+
+		}
+
+		return tmpl(w, data)
 	}
 }
