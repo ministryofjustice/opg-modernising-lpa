@@ -14,7 +14,7 @@ type dashboardData struct {
 	Lpas   []*page.Lpa
 }
 
-func Dashboard(tmpl template.Template, lpaStore page.LpaStore) page.Handler {
+func Dashboard(tmpl template.Template, lpaStore LpaStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		if r.Method == http.MethodPost {
 			lpa, err := lpaStore.Create(r.Context())

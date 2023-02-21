@@ -3,11 +3,10 @@ package donor
 import (
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func Login(logger page.Logger, oneLoginClient page.OneLoginClient, store sesh.Store, randomString func(int) string) http.HandlerFunc {
+func Login(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, randomString func(int) string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		locale := "en"
 

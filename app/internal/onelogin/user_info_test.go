@@ -27,7 +27,7 @@ func TestUserInfo(t *testing.T) {
 
 	data, _ := json.Marshal(expectedUserInfo)
 
-	httpClient := &mockHttpClient{}
+	httpClient := newMockHttpClient(t)
 	httpClient.
 		On("Do", mock.MatchedBy(func(r *http.Request) bool {
 			return assert.Equal(t, http.MethodGet, r.Method) &&
@@ -49,12 +49,10 @@ func TestUserInfo(t *testing.T) {
 	userinfo, err := c.UserInfo(context.Background(), "hey")
 	assert.Nil(t, err)
 	assert.Equal(t, expectedUserInfo, userinfo)
-
-	mock.AssertExpectationsForObjects(t, httpClient)
 }
 
 func TestUserInfoWhenRequestError(t *testing.T) {
-	httpClient := &mockHttpClient{}
+	httpClient := newMockHttpClient(t)
 	httpClient.
 		On("Do", mock.Anything).
 		Return(&http.Response{}, expectedError)
@@ -68,8 +66,6 @@ func TestUserInfoWhenRequestError(t *testing.T) {
 
 	_, err := c.UserInfo(context.Background(), "hey")
 	assert.Equal(t, expectedError, err)
-
-	mock.AssertExpectationsForObjects(t, httpClient)
 }
 
 func TestParseIdentityClaim(t *testing.T) {
@@ -78,7 +74,7 @@ func TestParseIdentityClaim(t *testing.T) {
 
 	publicKeyBytes, _ := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
 
-	secretsClient := &mockSecretsClient{}
+	secretsClient := newMockSecretsClient(t)
 	secretsClient.
 		On("SecretBytes", ctx, secrets.GovUkOneLoginIdentityPublicKey).
 		Return(pem.EncodeToMemory(
@@ -209,7 +205,7 @@ func TestParseIdentityClaim(t *testing.T) {
 }
 
 func TestParseIdentityClaimWhenSecretBytesError(t *testing.T) {
-	secretsClient := &mockSecretsClient{}
+	secretsClient := newMockSecretsClient(t)
 	secretsClient.
 		On("SecretBytes", ctx, secrets.GovUkOneLoginIdentityPublicKey).
 		Return([]byte{}, expectedError)
@@ -221,7 +217,7 @@ func TestParseIdentityClaimWhenSecretBytesError(t *testing.T) {
 }
 
 func TestParseIdentityClaimWhenPublicKeyInvalid(t *testing.T) {
-	secretsClient := &mockSecretsClient{}
+	secretsClient := newMockSecretsClient(t)
 	secretsClient.
 		On("SecretBytes", ctx, secrets.GovUkOneLoginIdentityPublicKey).
 		Return([]byte("not a key"), nil)

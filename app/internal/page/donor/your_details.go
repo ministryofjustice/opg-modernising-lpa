@@ -21,7 +21,7 @@ type yourDetailsData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func YourDetails(tmpl template.Template, lpaStore page.LpaStore, sessionStore sessions.Store) page.Handler {
+func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore sessions.Store) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
