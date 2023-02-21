@@ -18,8 +18,18 @@ terraform {
 
 variable "default_role" {
   type    = string
+  default = "modernising-lpa-ci"
+}
+
+variable "default_web_identity_role" {
+  type    = string
   default = "modernising-lpa-github-actions-ci-terraform"
-  # default = "modernising-lpa-ci"
+}
+
+variable "ci_cd_web_identity_token" {
+  type      = string
+  default   = "FAILSAFE"
+  sensitive = true
 }
 
 provider "aws" {
@@ -31,6 +41,11 @@ provider "aws" {
   assume_role {
     role_arn     = "arn:aws:iam::${local.environment.account_id}:role/${var.default_role}"
     session_name = "opg-modernising-lpa-terraform-session"
+  }
+  assume_role_with_web_identity {
+    role_arn           = "arn:aws:iam::${local.environment.account_id}:role/${var.default_web_identity_role}"
+    session_name       = "opg-modernising-lpa-terraform-web-identity-session"
+    web_identity_token = var.ci_cd_web_identity_token
   }
 }
 
