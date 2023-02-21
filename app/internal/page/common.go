@@ -22,6 +22,7 @@ type Logger interface {
 	Print(v ...interface{})
 }
 
+//go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
 type DataStore interface {
 	GetAll(context.Context, string, interface{}) error
 	Get(context.Context, string, string, interface{}) error
