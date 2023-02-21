@@ -8,9 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
-
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -19,7 +18,7 @@ func TestGetProvideCertificate(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Submitted: time.Now()}, nil)
@@ -37,14 +36,14 @@ func TestGetProvideCertificate(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, lpaStore)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetProvideCertificateRedirectsToStartOnLpaNotSubmitted(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -55,14 +54,13 @@ func TestGetProvideCertificateRedirectsToStartOnLpaNotSubmitted(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, page.Paths.CertificateProviderStart, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestGetProvideCertificateWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
@@ -72,7 +70,6 @@ func TestGetProvideCertificateWhenStoreErrors(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostProvideCertificate(t *testing.T) {
@@ -86,7 +83,7 @@ func TestPostProvideCertificate(t *testing.T) {
 
 	now := time.Now()
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Submitted: now}, nil)
@@ -106,7 +103,6 @@ func TestPostProvideCertificate(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, page.Paths.CertificateProvided, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostProvideCertificateOnStoreError(t *testing.T) {
@@ -120,7 +116,7 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 
 	now := time.Now()
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Submitted: now}, nil)
@@ -139,7 +135,6 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostProvideCertificateWhenValidationErrors(t *testing.T) {
@@ -153,7 +148,7 @@ func TestPostProvideCertificateWhenValidationErrors(t *testing.T) {
 
 	now := time.Now()
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Submitted: now}, nil)
@@ -170,7 +165,7 @@ func TestPostProvideCertificateWhenValidationErrors(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestReadProvideCertificateForm(t *testing.T) {

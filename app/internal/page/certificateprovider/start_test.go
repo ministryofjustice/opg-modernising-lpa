@@ -60,7 +60,7 @@ func TestStart(t *testing.T) {
 				On("Get", r.Context(), "SHARECODE#a-share-code", "#METADATA#a-share-code").
 				Return(nil)
 
-			lpaStore := &mockLpaStore{}
+			lpaStore := newMockLpaStore(t)
 			lpaStore.
 				On("Get", mock.MatchedBy(func(ctx context.Context) bool {
 					session := page.SessionDataFromContext(ctx)
@@ -82,7 +82,7 @@ func TestStart(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-			mock.AssertExpectationsForObjects(t, dataStore, lpaStore, template)
+			mock.AssertExpectationsForObjects(t, dataStore, template)
 		})
 	}
 }
@@ -115,7 +115,7 @@ func TestStartWhenGettingLpaErrors(t *testing.T) {
 		On("Get", mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", mock.Anything).
 		Return(&page.Lpa{}, expectedError)
@@ -123,7 +123,7 @@ func TestStartWhenGettingLpaErrors(t *testing.T) {
 	err := Start(nil, lpaStore, dataStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, dataStore, lpaStore)
+	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
 func TestStartWhenTemplateErrors(t *testing.T) {
@@ -137,7 +137,7 @@ func TestStartWhenTemplateErrors(t *testing.T) {
 		On("Get", mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", mock.Anything).
 		Return(&page.Lpa{}, nil)
@@ -150,5 +150,5 @@ func TestStartWhenTemplateErrors(t *testing.T) {
 	err := Start(template.Func, lpaStore, dataStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }

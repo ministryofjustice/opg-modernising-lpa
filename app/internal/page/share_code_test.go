@@ -26,7 +26,7 @@ func TestShareCodeSenderSend(t *testing.T) {
 				On("Put", ctx, "SHARECODE#123", "#METADATA#123", ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", Identity: identity}).
 				Return(nil)
 
-			notifyClient := &mockNotifyClient{}
+			notifyClient := newMockNotifyClient(t)
 			notifyClient.
 				On("TemplateID", notify.TemplateId(99)).
 				Return("template-id")
@@ -44,7 +44,7 @@ func TestShareCodeSenderSend(t *testing.T) {
 			err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", identity)
 
 			assert.Nil(t, err)
-			mock.AssertExpectationsForObjects(t, notifyClient, dataStore)
+			mock.AssertExpectationsForObjects(t, dataStore)
 		})
 	}
 }
@@ -57,7 +57,7 @@ func TestShareCodeSenderSendWhenEmailErrors(t *testing.T) {
 		On("Put", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	notifyClient := &mockNotifyClient{}
+	notifyClient := newMockNotifyClient(t)
 	notifyClient.
 		On("TemplateID", notify.TemplateId(99)).
 		Return("template-id")
@@ -75,7 +75,7 @@ func TestShareCodeSenderSendWhenEmailErrors(t *testing.T) {
 	err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true)
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
-	mock.AssertExpectationsForObjects(t, notifyClient, dataStore)
+	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
 func TestShareCodeSenderSendWhenDataStoreErrors(t *testing.T) {

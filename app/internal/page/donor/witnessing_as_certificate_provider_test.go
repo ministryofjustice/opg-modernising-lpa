@@ -21,7 +21,7 @@ func TestGetWitnessingAsCertificateProvider(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -40,14 +40,14 @@ func TestGetWitnessingAsCertificateProvider(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetWitnessingAsCertificateProviderWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
@@ -59,14 +59,14 @@ func TestGetWitnessingAsCertificateProviderWhenStoreErrors(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -89,14 +89,14 @@ func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -115,7 +115,7 @@ func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostWitnessingAsCertificateProvider(t *testing.T) {
@@ -128,7 +128,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 	now := time.Now()
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -148,7 +148,6 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.YouHaveSubmittedYourLpa, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) {
@@ -161,7 +160,7 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 	now := time.Now()
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -179,7 +178,7 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 		}).
 		Return(nil)
 
-	shareCodeSender := &mockShareCodeSender{}
+	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
 		On("Send", r.Context(), notify.CertificateProviderCertifyEmail, testAppData, "name@example.com", false).
 		Return(nil)
@@ -190,7 +189,6 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.YouHaveSubmittedYourLpa, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore, shareCodeSender)
 }
 
 func TestPostWitnessingAsCertificateProviderWhenShareCodeSendErrors(t *testing.T) {
@@ -203,7 +201,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendErrors(t *testing.T
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 	now := time.Now()
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -221,7 +219,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendErrors(t *testing.T
 		}).
 		Return(nil)
 
-	shareCodeSender := &mockShareCodeSender{}
+	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
 		On("Send", r.Context(), notify.CertificateProviderCertifyEmail, testAppData, "name@example.com", false).
 		Return(expectedError)
@@ -229,7 +227,6 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendErrors(t *testing.T
 	err := WitnessingAsCertificateProvider(nil, lpaStore, shareCodeSender, func() time.Time { return now })(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, lpaStore, shareCodeSender)
 }
 
 func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
@@ -244,7 +241,7 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 	now := time.Now()
 	invalidCreated := now.Add(-45 * time.Minute)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -268,7 +265,7 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostWitnessingAsCertificateProviderExpiryTrumpsMismatch(t *testing.T) {
@@ -283,7 +280,7 @@ func TestPostWitnessingAsCertificateProviderExpiryTrumpsMismatch(t *testing.T) {
 	now := time.Now()
 	invalidCreated := now.Add(-45 * time.Minute)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -307,7 +304,7 @@ func TestPostWitnessingAsCertificateProviderExpiryTrumpsMismatch(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
@@ -321,7 +318,7 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 
 	now := time.Now()
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -345,7 +342,7 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestReadWitnessingAsCertificateProviderForm(t *testing.T) {

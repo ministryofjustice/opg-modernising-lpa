@@ -26,7 +26,7 @@ func TestGetChoosePeopleToNotifyAddress(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
@@ -52,7 +52,7 @@ func TestGetChoosePeopleToNotifyAddressWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
@@ -74,7 +74,7 @@ func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
 		Address: testAddress,
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -110,7 +110,7 @@ func TestGetChoosePeopleToNotifyAddressManual(t *testing.T) {
 		Address: testAddress,
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
@@ -144,7 +144,7 @@ func TestGetChoosePeopleToNotifyAddressWhenTemplateErrors(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
@@ -185,7 +185,7 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -230,7 +230,7 @@ func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
@@ -270,7 +270,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 		Address:    place.Address{Line1: "line1"},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -313,7 +313,7 @@ func TestPostChoosePeopleToNotifyAddressSelect(t *testing.T) {
 		Address:    place.Address{Line1: "abc"},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
@@ -374,12 +374,12 @@ func TestPostChoosePeopleToNotifyAddressSelectWhenValidationError(t *testing.T) 
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
-	addressClient := &mockAddressClient{}
+	addressClient := newMockAddressClient(t)
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
 		Return(addresses, nil)
@@ -420,7 +420,7 @@ func TestPostChoosePeopleToNotifyAddressLookup(t *testing.T) {
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
 
-	addressClient := &mockAddressClient{}
+	addressClient := newMockAddressClient(t)
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
 		Return(addresses, nil)
@@ -431,7 +431,7 @@ func TestPostChoosePeopleToNotifyAddressLookup(t *testing.T) {
 		FirstNames: "John",
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
@@ -467,7 +467,7 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 	logger.
 		On("Print", expectedError)
 
@@ -476,12 +476,12 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
-	addressClient := &mockAddressClient{}
+	addressClient := newMockAddressClient(t)
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
 		Return([]place.Address{}, expectedError)
@@ -505,7 +505,7 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostChoosePeopleToNotifyAddressInvalidPostcodeError(t *testing.T) {
@@ -523,7 +523,7 @@ func TestPostChoosePeopleToNotifyAddressInvalidPostcodeError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 	logger.
 		On("Print", invalidPostcodeErr)
 
@@ -532,12 +532,12 @@ func TestPostChoosePeopleToNotifyAddressInvalidPostcodeError(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
-	addressClient := &mockAddressClient{}
+	addressClient := newMockAddressClient(t)
 	addressClient.
 		On("LookupPostcode", mock.Anything, "XYZ").
 		Return([]place.Address{}, invalidPostcodeErr)
@@ -561,7 +561,7 @@ func TestPostChoosePeopleToNotifyAddressInvalidPostcodeError(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostChoosePeopleToNotifyAddressPostcodeNoAddresses(t *testing.T) {
@@ -575,19 +575,19 @@ func TestPostChoosePeopleToNotifyAddressPostcodeNoAddresses(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 
 	personToNotify := actor.PersonToNotify{
 		ID:      "123",
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
-	addressClient := &mockAddressClient{}
+	addressClient := newMockAddressClient(t)
 	addressClient.
 		On("LookupPostcode", mock.Anything, "XYZ").
 		Return([]place.Address{}, nil)
@@ -611,7 +611,7 @@ func TestPostChoosePeopleToNotifyAddressPostcodeNoAddresses(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostChoosePeopleToNotifyAddressLookupWhenValidationError(t *testing.T) {
@@ -628,7 +628,7 @@ func TestPostChoosePeopleToNotifyAddressLookupWhenValidationError(t *testing.T) 
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
@@ -685,7 +685,7 @@ func TestPostPersonToNotifyAddressManuallyFromAnotherPage(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, tc.requestUrl, strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := &mockLpaStore{}
+			lpaStore := newMockLpaStore(t)
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
@@ -722,7 +722,6 @@ func TestPostPersonToNotifyAddressManuallyFromAnotherPage(t *testing.T) {
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 			assert.Equal(t, tc.expectedNextUrl, resp.Header.Get("Location"))
-			mock.AssertExpectationsForObjects(t, lpaStore)
 		})
 	}
 }
