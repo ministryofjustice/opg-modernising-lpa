@@ -43,12 +43,13 @@ func App(
 
 	rootMux := http.NewServeMux()
 
-	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String))
+	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, dataStore))
 	rootMux.Handle(paths.Root, page.Root(paths))
 
 	handleRoot := makeHandle(rootMux, logger, sessionStore)
 
 	handleRoot(paths.Start, page.Guidance(tmpls.Get("start.gohtml"), nil))
+	handleRoot(paths.Fixtures, page.Fixtures(tmpls.Get("fixtures.gohtml")))
 
 	certificateprovider.Register(
 		rootMux,

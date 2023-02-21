@@ -2,7 +2,7 @@
     "person1": {
       "firstNames": "Joan",
       "lastName": "Smith",
-      "email": "jsmith@example.org",
+      "email": "simulate-delivered@notifications.service.gov.uk",
       "address": {
         "line1": "2 RICHMOND PLACE",
         "line2": "",
@@ -14,7 +14,7 @@
     "person2": {
       "firstNames": "Bill",
       "lastName": "Smith",
-      "email": "bsmith@example.org",
+      "email": "simulate-delivered@notifications.service.gov.uk",
       "address": {
         "line1": "1 RICHMOND PLACE",
         "line2": "",

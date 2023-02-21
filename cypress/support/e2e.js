@@ -20,6 +20,11 @@ import './commands'
 // require('./commands')
 import 'cypress-axe'
 
+export const
+    TestEmail = 'simulate-delivered@notifications.service.gov.uk',
+    TestEmail2 = 'simulate-delivered-2@notifications.service.gov.uk',
+    TestMobile = '07700900000'
+
 export const AddressFormAssertions = {
     assertCanAddAddressManually(manualAddressLinkText, withInvalidPostcode = false) {
         cy.injectAxe();

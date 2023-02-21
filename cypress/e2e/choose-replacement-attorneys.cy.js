@@ -1,3 +1,5 @@
+import {TestEmail} from "../support/e2e";
+
 describe('Choose replacement attorneys', () => {
     beforeEach(() => {
         cy.visit('/testing-start?redirect=/choose-replacement-attorneys');
@@ -7,7 +9,7 @@ describe('Choose replacement attorneys', () => {
     it('can be submitted', () => {
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
-        cy.get('#f-email').type('name@example.com');
+        cy.get('#f-email').type(TestEmail);
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
@@ -74,7 +76,7 @@ describe('Choose replacement attorneys', () => {
 
         cy.get('#f-first-names').type('Jose');
         cy.get('#f-last-name').type('Smith');
-        cy.get('#f-email').type('name@example.com');
+        cy.get('#f-email').type(TestEmail);
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
