@@ -17,7 +17,12 @@ func TestGetFixtures(t *testing.T) {
 
 	template := &MockTemplate{}
 	template.
-		On("Func", w, &fixtureData{App: TestAppData, Form: &fixturesForm{}}).
+		On("Func", w, &fixtureData{
+			App:                     TestAppData,
+			Form:                    &fixturesForm{},
+			CPStartLpaNotSignedPath: "/testing-start?redirect=/certificate-provider-start&withCP=1&withDonorDetails=1&startCpFlowWithoutId=1",
+			CPStartLpaSignedPath:    "/testing-start?redirect=/certificate-provider-start&completeLpa=1&startCpFlowWithId=1",
+		}).
 		Return(nil)
 
 	err := Fixtures(template.Func)(TestAppData, w, r)
@@ -40,7 +45,7 @@ func TestPostFixtures(t *testing.T) {
 		"check-and-send-to-cp":         {"lpaChecked"},
 		"pay-for-lpa":                  {"paymentComplete"},
 		"confirm-id-and-sign":          {"idConfirmedAndSigned"},
-		"complete-all":                 {"completeLpa"},
+		"complete-all-sections":        {"completeLpa"},
 	}
 
 	w := httptest.NewRecorder()
@@ -49,7 +54,12 @@ func TestPostFixtures(t *testing.T) {
 
 	template := &MockTemplate{}
 	template.
-		On("Func", w, &fixtureData{App: TestAppData, Form: &fixturesForm{}}).
+		On("Func", w, &fixtureData{
+			App:                     TestAppData,
+			Form:                    &fixturesForm{},
+			CPStartLpaNotSignedPath: "/testing-start?redirect=/certificate-provider-start&withCP=1&withDonorDetails=1&startCpFlowWithoutId=1",
+			CPStartLpaSignedPath:    "/testing-start?redirect=/certificate-provider-start&completeLpa=1&startCpFlowWithId=1",
+		}).
 		Return(nil)
 
 	err := Fixtures(template.Func)(TestAppData, w, r)
