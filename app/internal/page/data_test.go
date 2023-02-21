@@ -1,8 +1,6 @@
 package page
 
 import (
-	"context"
-	"encoding/json"
 	"testing"
 	"time"
 
@@ -11,7 +9,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 var validAttorney = actor.Attorney{
@@ -28,27 +25,6 @@ var address = place.Address{
 	Line3:      "c",
 	TownOrCity: "d",
 	Postcode:   "e",
-}
-
-type mockDataStore struct {
-	data interface{}
-	mock.Mock
-}
-
-func (m *mockDataStore) GetAll(ctx context.Context, pk string, v interface{}) error {
-	data, _ := json.Marshal(m.data)
-	json.Unmarshal(data, v)
-	return m.Called(ctx, pk).Error(0)
-}
-
-func (m *mockDataStore) Get(ctx context.Context, pk, sk string, v interface{}) error {
-	data, _ := json.Marshal(m.data)
-	json.Unmarshal(data, v)
-	return m.Called(ctx, pk, sk).Error(0)
-}
-
-func (m *mockDataStore) Put(ctx context.Context, pk, sk string, v interface{}) error {
-	return m.Called(ctx, pk, sk, v).Error(0)
 }
 
 func TestIdentityConfirmed(t *testing.T) {

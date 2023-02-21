@@ -38,9 +38,9 @@ func TestCertificateProviderLogin(t *testing.T) {
 				On("AuthCodeURL", "i am random", "i am random", "cy", tc.identity).
 				Return("http://auth")
 
-			sessionsStore := &mockSessionsStore{}
+			sessionStore := newMockSessionStore(t)
 
-			session := sessions.NewSession(sessionsStore, "params")
+			session := sessions.NewSession(sessionStore, "params")
 
 			session.Options = &sessions.Options{
 				Path:     "/",
@@ -61,17 +61,15 @@ func TestCertificateProviderLogin(t *testing.T) {
 				},
 			}
 
-			sessionsStore.
+			sessionStore.
 				On("Save", r, w, session).
 				Return(nil)
 
-			Login(nil, client, sessionsStore, func(int) string { return "i am random" })(page.AppData{Lang: localize.Cy, Paths: page.Paths}, w, r)
+			Login(nil, client, sessionStore, func(int) string { return "i am random" })(page.AppData{Lang: localize.Cy, Paths: page.Paths}, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 			assert.Equal(t, "http://auth", resp.Header.Get("Location"))
-
-			mock.AssertExpectationsForObjects(t, sessionsStore)
 		})
 	}
 }
@@ -85,9 +83,9 @@ func TestCertificateProviderLoginDefaultLocale(t *testing.T) {
 		On("AuthCodeURL", "i am random", "i am random", "en", true).
 		Return("http://auth")
 
-	sessionsStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 
-	session := sessions.NewSession(sessionsStore, "params")
+	session := sessions.NewSession(sessionStore, "params")
 
 	session.Options = &sessions.Options{
 		Path:     "/",
@@ -108,17 +106,15 @@ func TestCertificateProviderLoginDefaultLocale(t *testing.T) {
 		},
 	}
 
-	sessionsStore.
+	sessionStore.
 		On("Save", r, w, session).
 		Return(nil)
 
-	Login(nil, client, sessionsStore, func(int) string { return "i am random" })(testAppData, w, r)
+	Login(nil, client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "http://auth", resp.Header.Get("Location"))
-
-	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestCertificateProviderLoginWhenStoreSaveError(t *testing.T) {
@@ -134,15 +130,13 @@ func TestCertificateProviderLoginWhenStoreSaveError(t *testing.T) {
 		On("AuthCodeURL", "i am random", "i am random", "en", false).
 		Return("http://auth?locale=en")
 
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Save", r, w, mock.Anything).
 		Return(expectedError)
 
-	Login(logger, client, sessionsStore, func(int) string { return "i am random" })(testAppData, w, r)
+	Login(logger, client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-
-	mock.AssertExpectationsForObjects(t, sessionsStore)
 }

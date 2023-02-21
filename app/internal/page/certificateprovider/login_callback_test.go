@@ -2,6 +2,7 @@ package certificateprovider
 
 import (
 	"context"
+	io "io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -23,7 +24,7 @@ func TestGetLoginCallback(t *testing.T) {
 	userInfo := onelogin.UserInfo{Sub: "a-sub", Email: "a-email", CoreIdentityJWT: "an-identity-jwt"}
 	userData := identity.UserData{OK: true, FullName: "John Doe", RetrievedAt: now}
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 	session := sessions.NewSession(sessionStore, "session")
 
 	session.Options = &sessions.Options{
@@ -87,28 +88,28 @@ func TestGetLoginCallback(t *testing.T) {
 		On("ParseIdentityClaim", ctxMatcher, userInfo).
 		Return(userData, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &loginCallbackData{
+		On("Execute", w, &loginCallbackData{
 			App:         testAppData,
 			FullName:    "John Doe",
 			ConfirmedAt: now,
 		}).
 		Return(nil)
 
-	err := LoginCallback(template.Func, oneLoginClient, sessionStore, lpaStore)(testAppData, w, r)
+	err := LoginCallback(template.Execute, oneLoginClient, sessionStore, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
 
 	testCases := map[string]struct {
-		oneLoginClient func(t *testing.T) *mockOneLoginClient
+		oneLoginClient func(*testing.T) *mockOneLoginClient
+		template       func(*testing.T, io.Writer) *mockTemplate
 		url            string
 		error          error
 	}{
@@ -127,6 +128,16 @@ func TestGetLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 					Return(identity.UserData{}, nil)
 				return oneLoginClient
 			},
+			template: func(t *testing.T, w io.Writer) *mockTemplate {
+				template := newMockTemplate(t)
+				template.
+					On("Execute", w, &loginCallbackData{
+						App:             testAppData,
+						CouldNotConfirm: true,
+					}).
+					Return(nil)
+				return template
+			},
 		},
 		"errored on parse": {
 			url: "/?code=a-code",
@@ -143,6 +154,9 @@ func TestGetLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 					Return(identity.UserData{OK: true}, expectedError)
 				return oneLoginClient
 			},
+			template: func(t *testing.T, w io.Writer) *mockTemplate {
+				return nil
+			},
 			error: expectedError,
 		},
 		"errored on userinfo": {
@@ -157,6 +171,9 @@ func TestGetLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 					Return(onelogin.UserInfo{}, expectedError)
 				return oneLoginClient
 			},
+			template: func(t *testing.T, w io.Writer) *mockTemplate {
+				return nil
+			},
 			error: expectedError,
 		},
 		"errored on exchange": {
@@ -168,12 +185,25 @@ func TestGetLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 					Return("", expectedError)
 				return oneLoginClient
 			},
+			template: func(t *testing.T, w io.Writer) *mockTemplate {
+				return nil
+			},
 			error: expectedError,
 		},
 		"provider access denied": {
 			url: "/?error=access_denied",
 			oneLoginClient: func(t *testing.T) *mockOneLoginClient {
-				return newMockOneLoginClient(t)
+				return nil
+			},
+			template: func(t *testing.T, w io.Writer) *mockTemplate {
+				template := newMockTemplate(t)
+				template.
+					On("Execute", w, &loginCallbackData{
+						App:             testAppData,
+						CouldNotConfirm: true,
+					}).
+					Return(nil)
+				return template
 			},
 		},
 	}
@@ -188,7 +218,7 @@ func TestGetLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 				On("Get", mock.Anything).
 				Return(&page.Lpa{}, nil)
 
-			sessionStore := &mockSessionsStore{}
+			sessionStore := newMockSessionStore(t)
 			sessionStore.
 				On("Get", mock.Anything, "params").
 				Return(&sessions.Session{
@@ -205,16 +235,9 @@ func TestGetLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 				}, nil)
 
 			oneLoginClient := tc.oneLoginClient(t)
+			template := tc.template(t, w)
 
-			template := &mockTemplate{}
-			template.
-				On("Func", w, &loginCallbackData{
-					App:             testAppData,
-					CouldNotConfirm: true,
-				}).
-				Return(nil)
-
-			err := LoginCallback(template.Func, oneLoginClient, sessionStore, lpaStore)(testAppData, w, r)
+			err := LoginCallback(template.Execute, oneLoginClient, sessionStore, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, tc.error, err)
@@ -227,7 +250,7 @@ func TestGetLoginCallbackWhenGetDataStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", mock.Anything, "params").
 		Return(&sessions.Session{
@@ -249,7 +272,6 @@ func TestGetLoginCallbackWhenGetDataStoreError(t *testing.T) {
 	err := LoginCallback(nil, nil, sessionStore, lpaStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, sessionStore)
 }
 
 func TestGetLoginCallbackWhenPutDataStoreError(t *testing.T) {
@@ -265,7 +287,7 @@ func TestGetLoginCallbackWhenPutDataStoreError(t *testing.T) {
 		On("Put", mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", mock.Anything, "params").
 		Return(&sessions.Session{
@@ -312,7 +334,7 @@ func TestGetLoginCallbackWhenReturning(t *testing.T) {
 		On("UserInfo", mock.Anything, mock.Anything).
 		Return(userInfo, nil)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 	session := sessions.NewSession(sessionStore, "session")
 
 	session.Options = &sessions.Options{
@@ -352,28 +374,27 @@ func TestGetLoginCallbackWhenReturning(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.On("Get", mock.Anything).Return(&page.Lpa{CertificateProviderUserData: userData}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &loginCallbackData{
+		On("Execute", w, &loginCallbackData{
 			App:         testAppData,
 			FullName:    "a-full-name",
 			ConfirmedAt: now,
 		}).
 		Return(nil)
 
-	err := LoginCallback(template.Func, oneLoginClient, sessionStore, lpaStore)(testAppData, w, r)
+	err := LoginCallback(template.Execute, oneLoginClient, sessionStore, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, sessionStore, template)
 }
 
 func TestPostCertificateProviderLoginCallback(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{
@@ -407,7 +428,7 @@ func TestPostCertificateProviderLoginCallbackNotConfirmed(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{
