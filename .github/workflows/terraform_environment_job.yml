@@ -57,7 +57,7 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::631181914621:role/modernising-lpa-github-actions-terraform
           aws-region: eu-west-1
-          role-duration-seconds: 3599
+          role-duration-seconds: 3000
           role-session-name: OPGModernisingLPATerraformGithubAction
       - uses: webfactory/ssh-agent@v0.7.0
         with:
