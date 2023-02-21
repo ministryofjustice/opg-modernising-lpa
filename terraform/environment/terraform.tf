@@ -18,7 +18,8 @@ terraform {
 
 variable "default_role" {
   type    = string
-  default = "modernising-lpa-ci"
+  default = "modernising-lpa-github-actions-ci-terraform"
+  # default = "modernising-lpa-ci"
 }
 
 provider "aws" {
