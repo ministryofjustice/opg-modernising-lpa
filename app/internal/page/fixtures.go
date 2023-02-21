@@ -20,6 +20,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
+const TestEmail = "simulate-delivered@notifications.service.gov.uk"
+const TestMobile = "07700900000"
+
 var AttorneyNames = []string{
 	"John",
 	"Joan",
@@ -55,7 +58,7 @@ func MakePerson() actor.Person {
 			TownOrCity: "BIRMINGHAM",
 			Postcode:   "B14 7ED",
 		},
-		Email:       "simulate-delivered@notifications.service.gov.uk",
+		Email:       TestEmail,
 		DateOfBirth: date.New("2000", "1", "2"),
 	}
 }
@@ -65,7 +68,7 @@ func MakeAttorney(firstNames string) actor.Attorney {
 		ID:          firstNames + "Smith",
 		FirstNames:  firstNames,
 		LastName:    "Smith",
-		Email:       firstNames + "@example.org",
+		Email:       TestEmail,
 		DateOfBirth: date.New("2000", "1", "2"),
 		Address: place.Address{
 			Line1:      "2 RICHMOND PLACE",
@@ -82,7 +85,7 @@ func MakePersonToNotify(firstNames string) actor.PersonToNotify {
 		ID:         firstNames + "Smith",
 		FirstNames: firstNames,
 		LastName:   "Smith",
-		Email:      firstNames + "@example.org",
+		Email:      TestEmail,
 		Address: place.Address{
 			Line1:      "4 RICHMOND PLACE",
 			Line2:      "KINGS HEATH",
@@ -97,8 +100,8 @@ func MakeCertificateProvider(firstNames string) actor.CertificateProvider {
 	return actor.CertificateProvider{
 		FirstNames:              firstNames,
 		LastName:                "Smith",
-		Email:                   firstNames + "@example.org",
-		Mobile:                  "07535111111",
+		Email:                   TestEmail,
+		Mobile:                  TestMobile,
 		DateOfBirth:             date.New("1997", "1", "2"),
 		Relationship:            "friend",
 		RelationshipDescription: "",

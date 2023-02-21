@@ -15,7 +15,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 	return func(w http.ResponseWriter, r *http.Request) {
 		sub := randomString(12)
 		sessionID := base64.StdEncoding.EncodeToString([]byte(sub))
-		donorSesh := &sesh.DonorSession{Sub: sub, Email: "simulate-delivered@notifications.service.gov.uk"}
+		donorSesh := &sesh.DonorSession{Sub: sub, Email: TestEmail}
 
 		_ = sesh.SetDonor(store, r, w, donorSesh)
 
@@ -147,7 +147,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		if r.FormValue("asCertificateProvider") != "" || r.FormValue("provideCertificate") != "" {
 			_ = sesh.SetCertificateProvider(store, r, w, &sesh.CertificateProviderSession{
 				Sub:            randomString(12),
-				Email:          "simulate-delivered@notifications.service.gov.uk",
+				Email:          TestEmail,
 				DonorSessionID: sessionID,
 				LpaID:          lpa.ID,
 			})
@@ -157,8 +157,8 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		}
 
 		if r.FormValue("provideCertificate") != "" {
-			lpa.CertificateProviderProvidedDetails.Mobile = "07535111222"
-			lpa.CertificateProviderProvidedDetails.Email = "t@example.org"
+			lpa.CertificateProviderProvidedDetails.Mobile = TestMobile
+			lpa.CertificateProviderProvidedDetails.Email = TestEmail
 			lpa.CertificateProviderProvidedDetails.Address = place.Address{
 				Line1:      "5 RICHMOND PLACE",
 				Line2:      "KINGS HEATH",
