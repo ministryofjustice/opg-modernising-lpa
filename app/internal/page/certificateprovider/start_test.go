@@ -69,20 +69,20 @@ func TestStart(t *testing.T) {
 				})).
 				Return(&page.Lpa{}, nil)
 
-			template := &mockTemplate{}
+			template := newMockTemplate(t)
 			template.
-				On("Func", w, &startData{
+				On("Execute", w, &startData{
 					App:   testAppData,
 					Start: page.Paths.CertificateProviderLogin + tc.query,
 				}).
 				Return(nil)
 
-			err := Start(template.Func, lpaStore, dataStore)(testAppData, w, r)
+			err := Start(template.Execute, lpaStore, dataStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-			mock.AssertExpectationsForObjects(t, dataStore, template)
+			mock.AssertExpectationsForObjects(t, dataStore)
 		})
 	}
 }
@@ -142,13 +142,12 @@ func TestStartWhenTemplateErrors(t *testing.T) {
 		On("Get", mock.Anything).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", mock.Anything, mock.Anything).
+		On("Execute", mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := Start(template.Func, lpaStore, dataStore)(testAppData, w, r)
+	err := Start(template.Execute, lpaStore, dataStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, template)
 }

@@ -23,21 +23,20 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &chooseAttorneysSummaryData{
+		On("Execute", w, &chooseAttorneysSummaryData{
 			App:  testAppData,
 			Lpa:  &page.Lpa{},
 			Form: &chooseAttorneysSummaryForm{},
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysSummary(nil, template.Func, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysSummary(nil, template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetChooseAttorneysSummaryWhenStoreErrors(t *testing.T) {
@@ -125,19 +124,18 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 
 	validationError := validation.With("add-attorney", validation.SelectError{Label: "yesToAddAnotherAttorney"})
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, mock.MatchedBy(func(data *chooseAttorneysSummaryData) bool {
+		On("Execute", w, mock.MatchedBy(func(data *chooseAttorneysSummaryData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)
 
-	err := ChooseAttorneysSummary(nil, template.Func, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysSummary(nil, template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestChooseAttorneysSummaryFormValidate(t *testing.T) {

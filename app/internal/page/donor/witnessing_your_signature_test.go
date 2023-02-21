@@ -26,17 +26,16 @@ func TestGetWitnessingYourSignature(t *testing.T) {
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &witnessingYourSignatureData{App: testAppData, Lpa: lpa}).
+		On("Execute", w, &witnessingYourSignatureData{App: testAppData, Lpa: lpa}).
 		Return(nil)
 
-	err := WitnessingYourSignature(template.Func, lpaStore, nil, nil, nil)(testAppData, w, r)
+	err := WitnessingYourSignature(template.Execute, lpaStore, nil, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetWitnessingYourSignatureWhenLpaStoreErrors(t *testing.T) {
@@ -64,15 +63,14 @@ func TestGetWitnessingYourSignatureWhenTemplateErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &witnessingYourSignatureData{App: testAppData, Lpa: lpa}).
+		On("Execute", w, &witnessingYourSignatureData{App: testAppData, Lpa: lpa}).
 		Return(expectedError)
 
-	err := WitnessingYourSignature(template.Func, lpaStore, nil, nil, nil)(testAppData, w, r)
+	err := WitnessingYourSignature(template.Execute, lpaStore, nil, nil, nil)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostWitnessingYourSignature(t *testing.T) {
@@ -138,7 +136,6 @@ func TestPostWitnessingYourSignatureWhenNotifyErrors(t *testing.T) {
 	err := WitnessingYourSignature(nil, lpaStore, notifyClient, func(l int) string { return "1234" }, func() time.Time { return now })(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, lpaStore, notifyClient)
 }
 
 func TestPostWitnessingYourSignatureWhenLpaStoreErrors(t *testing.T) {

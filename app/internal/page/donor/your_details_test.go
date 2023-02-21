@@ -29,20 +29,19 @@ func TestGetYourDetails(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &yourDetailsData{
+		On("Execute", w, &yourDetailsData{
 			App:  testAppData,
 			Form: &yourDetailsForm{},
 		}).
 		Return(nil)
 
-	err := YourDetails(template.Func, lpaStore, nil)(testAppData, w, r)
+	err := YourDetails(template.Execute, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetYourDetailsWhenStoreErrors(t *testing.T) {
@@ -74,9 +73,9 @@ func TestGetYourDetailsFromStore(t *testing.T) {
 			},
 		}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &yourDetailsData{
+		On("Execute", w, &yourDetailsData{
 			App: testAppData,
 			Form: &yourDetailsForm{
 				FirstNames: "John",
@@ -84,12 +83,11 @@ func TestGetYourDetailsFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourDetails(template.Func, lpaStore, nil)(testAppData, w, r)
+	err := YourDetails(template.Execute, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetYourDetailsWhenTemplateErrors(t *testing.T) {
@@ -101,20 +99,19 @@ func TestGetYourDetailsWhenTemplateErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &yourDetailsData{
+		On("Execute", w, &yourDetailsData{
 			App:  testAppData,
 			Form: &yourDetailsForm{},
 		}).
 		Return(expectedError)
 
-	err := YourDetails(template.Func, lpaStore, nil)(testAppData, w, r)
+	err := YourDetails(template.Execute, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostYourDetails(t *testing.T) {
@@ -259,9 +256,9 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			template := &mockTemplate{}
+			template := newMockTemplate(t)
 			template.
-				On("Func", w, mock.MatchedBy(func(data *yourDetailsData) bool {
+				On("Execute", w, mock.MatchedBy(func(data *yourDetailsData) bool {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
@@ -276,12 +273,12 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 				On("Get", mock.Anything, "session").
 				Return(&sessions.Session{Values: map[any]any{"donor": &sesh.DonorSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
-			err := YourDetails(template.Func, lpaStore, sessionStore)(testAppData, w, r)
+			err := YourDetails(template.Execute, lpaStore, sessionStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-			mock.AssertExpectationsForObjects(t, template, sessionStore)
+			mock.AssertExpectationsForObjects(t, sessionStore)
 		})
 	}
 }

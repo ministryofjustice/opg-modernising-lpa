@@ -2,7 +2,6 @@ package page
 
 import (
 	"errors"
-	"io"
 	"net/http"
 	"net/http/httptest"
 
@@ -54,15 +53,6 @@ func mockLpaStoreWithCompletedPaymentLpaData(m *mockLpaStore, r *http.Request, p
 		Return(nil)
 
 	return m
-}
-
-type mockTemplate struct {
-	mock.Mock
-}
-
-func (m *mockTemplate) Func(w io.Writer, data interface{}) error {
-	args := m.Called(w, data)
-	return args.Error(0)
 }
 
 type mockSessionsStore struct {

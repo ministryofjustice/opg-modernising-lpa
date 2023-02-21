@@ -24,21 +24,20 @@ func TestGetSelectYourIdentityOptions(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &selectYourIdentityOptionsData{
+		On("Execute", w, &selectYourIdentityOptionsData{
 			App:  testAppData,
 			Page: 2,
 			Form: &selectYourIdentityOptionsForm{},
 		}).
 		Return(nil)
 
-	err := SelectYourIdentityOptions(template.Func, lpaStore, 2)(testAppData, w, r)
+	err := SelectYourIdentityOptions(template.Execute, lpaStore, 2)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetSelectYourIdentityOptionsWhenStoreErrors(t *testing.T) {
@@ -66,20 +65,19 @@ func TestGetSelectYourIdentityOptionsFromStore(t *testing.T) {
 			IdentityOption: identity.Passport,
 		}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &selectYourIdentityOptionsData{
+		On("Execute", w, &selectYourIdentityOptionsData{
 			App:  testAppData,
 			Form: &selectYourIdentityOptionsForm{Selected: identity.Passport},
 		}).
 		Return(nil)
 
-	err := SelectYourIdentityOptions(template.Func, lpaStore, 0)(testAppData, w, r)
+	err := SelectYourIdentityOptions(template.Execute, lpaStore, 0)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetSelectYourIdentityOptionsWhenTemplateErrors(t *testing.T) {
@@ -91,17 +89,16 @@ func TestGetSelectYourIdentityOptionsWhenTemplateErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, mock.Anything).
+		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := SelectYourIdentityOptions(template.Func, lpaStore, 0)(testAppData, w, r)
+	err := SelectYourIdentityOptions(template.Execute, lpaStore, 0)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostSelectYourIdentityOptions(t *testing.T) {
@@ -196,21 +193,20 @@ func TestPostSelectYourIdentityOptionsWhenValidationErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &selectYourIdentityOptionsData{
+		On("Execute", w, &selectYourIdentityOptionsData{
 			App:    testAppData,
 			Form:   &selectYourIdentityOptionsForm{},
 			Errors: validation.With("option", validation.SelectError{Label: "fromTheListedOptions"}),
 		}).
 		Return(nil)
 
-	err := SelectYourIdentityOptions(template.Func, lpaStore, 0)(testAppData, w, r)
+	err := SelectYourIdentityOptions(template.Execute, lpaStore, 0)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestReadSelectYourIdentityOptionsForm(t *testing.T) {

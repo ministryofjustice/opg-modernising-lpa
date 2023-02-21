@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestGetHowShouldAttorneysMakeDecisions(t *testing.T) {
@@ -22,21 +21,20 @@ func TestGetHowShouldAttorneysMakeDecisions(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &howShouldAttorneysMakeDecisionsData{
+		On("Execute", w, &howShouldAttorneysMakeDecisionsData{
 			App:  testAppData,
 			Form: &howShouldAttorneysMakeDecisionsForm{},
 			Lpa:  &page.Lpa{},
 		}).
 		Return(nil)
 
-	err := HowShouldAttorneysMakeDecisions(template.Func, lpaStore)(testAppData, w, r)
+	err := HowShouldAttorneysMakeDecisions(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
@@ -48,9 +46,9 @@ func TestGetHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{HowAttorneysMakeDecisionsDetails: "some decisions", HowAttorneysMakeDecisions: "jointly"}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &howShouldAttorneysMakeDecisionsData{
+		On("Execute", w, &howShouldAttorneysMakeDecisionsData{
 			App: testAppData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
 				DecisionsType:    "jointly",
@@ -60,12 +58,11 @@ func TestGetHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowShouldAttorneysMakeDecisions(template.Func, lpaStore)(testAppData, w, r)
+	err := HowShouldAttorneysMakeDecisions(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetHowShouldAttorneysMakeDecisionsWhenStoreErrors(t *testing.T) {
@@ -93,9 +90,9 @@ func TestGetHowShouldAttorneysMakeDecisionsWhenTemplateErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &howShouldAttorneysMakeDecisionsData{
+		On("Execute", w, &howShouldAttorneysMakeDecisionsData{
 			App: testAppData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
 				DecisionsType:    "",
@@ -105,12 +102,11 @@ func TestGetHowShouldAttorneysMakeDecisionsWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := HowShouldAttorneysMakeDecisions(template.Func, lpaStore)(testAppData, w, r)
+	err := HowShouldAttorneysMakeDecisions(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
@@ -131,9 +127,9 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{HowAttorneysMakeDecisionsDetails: "", HowAttorneysMakeDecisions: "jointly"}).
 		Return(nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 
-	err := HowShouldAttorneysMakeDecisions(template.Func, lpaStore)(testAppData, w, r)
+	err := HowShouldAttorneysMakeDecisions(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -187,9 +183,9 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 				On("Put", r.Context(), &page.Lpa{HowAttorneysMakeDecisionsDetails: tc.updatedDetails, HowAttorneysMakeDecisions: tc.updatedType}).
 				Return(nil)
 
-			template := &mockTemplate{}
+			template := newMockTemplate(t)
 
-			err := HowShouldAttorneysMakeDecisions(template.Func, lpaStore)(testAppData, w, r)
+			err := HowShouldAttorneysMakeDecisions(template.Execute, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -235,9 +231,9 @@ func TestPostHowShouldAttorneysMakeDecisionsWhenValidationErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{HowAttorneysMakeDecisionsDetails: "", HowAttorneysMakeDecisions: ""}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &howShouldAttorneysMakeDecisionsData{
+		On("Execute", w, &howShouldAttorneysMakeDecisionsData{
 			App:    testAppData,
 			Errors: validation.With("decision-type", validation.SelectError{Label: "howAttorneysShouldMakeDecisions"}),
 			Form: &howShouldAttorneysMakeDecisionsForm{
@@ -249,12 +245,11 @@ func TestPostHowShouldAttorneysMakeDecisionsWhenValidationErrors(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowShouldAttorneysMakeDecisions(template.Func, lpaStore)(testAppData, w, r)
+	err := HowShouldAttorneysMakeDecisions(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestHowShouldAttorneysMakeDecisionsFormValidate(t *testing.T) {
@@ -319,9 +314,9 @@ func TestPostHowShouldAttorneysMakeDecisionsErrorOnPutStore(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{HowAttorneysMakeDecisionsDetails: "", HowAttorneysMakeDecisions: "jointly"}).
 		Return(expectedError)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 
-	err := HowShouldAttorneysMakeDecisions(template.Func, lpaStore)(testAppData, w, r)
+	err := HowShouldAttorneysMakeDecisions(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

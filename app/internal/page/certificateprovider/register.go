@@ -3,6 +3,7 @@ package certificateprovider
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -46,6 +47,9 @@ type DataStore interface {
 type AddressClient interface {
 	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
 }
+
+//go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
+type Template func(io.Writer, interface{}) error
 
 func Register(
 	rootMux *http.ServeMux,

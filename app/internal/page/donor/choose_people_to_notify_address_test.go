@@ -7,9 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -31,16 +30,16 @@ func TestGetChoosePeopleToNotifyAddress(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &choosePeopleToNotifyAddressData{
+		On("Execute", w, &choosePeopleToNotifyAddressData{
 			App:            testAppData,
 			Form:           &form.AddressForm{},
 			PersonToNotify: personToNotify,
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Func, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -81,9 +80,9 @@ func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
 			PeopleToNotify: actor.PeopleToNotify{personToNotify},
 		}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &choosePeopleToNotifyAddressData{
+		On("Execute", w, &choosePeopleToNotifyAddressData{
 			App:            testAppData,
 			PersonToNotify: personToNotify,
 			Form: &form.AddressForm{
@@ -93,7 +92,7 @@ func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Func, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -115,9 +114,9 @@ func TestGetChoosePeopleToNotifyAddressManual(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &choosePeopleToNotifyAddressData{
+		On("Execute", w, &choosePeopleToNotifyAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:  "manual",
@@ -127,12 +126,11 @@ func TestGetChoosePeopleToNotifyAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Func, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetChoosePeopleToNotifyAddressWhenTemplateErrors(t *testing.T) {
@@ -149,21 +147,20 @@ func TestGetChoosePeopleToNotifyAddressWhenTemplateErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &choosePeopleToNotifyAddressData{
+		On("Execute", w, &choosePeopleToNotifyAddressData{
 			App:            testAppData,
 			Form:           &form.AddressForm{},
 			PersonToNotify: personToNotify,
 		}).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Func, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
@@ -334,9 +331,9 @@ func TestPostChoosePeopleToNotifyAddressSelect(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{PeopleToNotify: actor.PeopleToNotify{updatedPersonToNotify}}).
 		Return(nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &choosePeopleToNotifyAddressData{
+		On("Execute", w, &choosePeopleToNotifyAddressData{
 			App:            testAppData,
 			PersonToNotify: personToNotify,
 			Form: &form.AddressForm{
@@ -347,7 +344,7 @@ func TestPostChoosePeopleToNotifyAddressSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Func, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -384,9 +381,9 @@ func TestPostChoosePeopleToNotifyAddressSelectWhenValidationError(t *testing.T) 
 		On("LookupPostcode", mock.Anything, "NG1").
 		Return(addresses, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &choosePeopleToNotifyAddressData{
+		On("Execute", w, &choosePeopleToNotifyAddressData{
 			App:            testAppData,
 			PersonToNotify: personToNotify,
 			Form: &form.AddressForm{
@@ -398,12 +395,11 @@ func TestPostChoosePeopleToNotifyAddressSelectWhenValidationError(t *testing.T) 
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Func, addressClient, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, addressClient, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostChoosePeopleToNotifyAddressLookup(t *testing.T) {
@@ -436,9 +432,9 @@ func TestPostChoosePeopleToNotifyAddressLookup(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &choosePeopleToNotifyAddressData{
+		On("Execute", w, &choosePeopleToNotifyAddressData{
 			App:            testAppData,
 			PersonToNotify: personToNotify,
 			Form: &form.AddressForm{
@@ -449,12 +445,11 @@ func TestPostChoosePeopleToNotifyAddressLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Func, addressClient, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, addressClient, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, addressClient, template)
 }
 
 func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
@@ -486,9 +481,9 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 		On("LookupPostcode", mock.Anything, "NG1").
 		Return([]place.Address{}, expectedError)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &choosePeopleToNotifyAddressData{
+		On("Execute", w, &choosePeopleToNotifyAddressData{
 			App:            testAppData,
 			PersonToNotify: personToNotify,
 			Form: &form.AddressForm{
@@ -500,12 +495,11 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(logger, template.Func, addressClient, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostChoosePeopleToNotifyAddressInvalidPostcodeError(t *testing.T) {
@@ -542,9 +536,9 @@ func TestPostChoosePeopleToNotifyAddressInvalidPostcodeError(t *testing.T) {
 		On("LookupPostcode", mock.Anything, "XYZ").
 		Return([]place.Address{}, invalidPostcodeErr)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &choosePeopleToNotifyAddressData{
+		On("Execute", w, &choosePeopleToNotifyAddressData{
 			App:            testAppData,
 			PersonToNotify: personToNotify,
 			Form: &form.AddressForm{
@@ -556,12 +550,11 @@ func TestPostChoosePeopleToNotifyAddressInvalidPostcodeError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(logger, template.Func, addressClient, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostChoosePeopleToNotifyAddressPostcodeNoAddresses(t *testing.T) {
@@ -592,9 +585,9 @@ func TestPostChoosePeopleToNotifyAddressPostcodeNoAddresses(t *testing.T) {
 		On("LookupPostcode", mock.Anything, "XYZ").
 		Return([]place.Address{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &choosePeopleToNotifyAddressData{
+		On("Execute", w, &choosePeopleToNotifyAddressData{
 			App:            testAppData,
 			PersonToNotify: personToNotify,
 			Form: &form.AddressForm{
@@ -606,12 +599,11 @@ func TestPostChoosePeopleToNotifyAddressPostcodeNoAddresses(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(logger, template.Func, addressClient, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostChoosePeopleToNotifyAddressLookupWhenValidationError(t *testing.T) {
@@ -633,9 +625,9 @@ func TestPostChoosePeopleToNotifyAddressLookupWhenValidationError(t *testing.T) 
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &choosePeopleToNotifyAddressData{
+		On("Execute", w, &choosePeopleToNotifyAddressData{
 			App:            testAppData,
 			PersonToNotify: personToNotify,
 			Form: &form.AddressForm{
@@ -645,12 +637,11 @@ func TestPostChoosePeopleToNotifyAddressLookupWhenValidationError(t *testing.T) 
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Func, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostPersonToNotifyAddressManuallyFromAnotherPage(t *testing.T) {

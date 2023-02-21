@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -19,6 +20,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
+
+//go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
+type Template func(io.Writer, interface{}) error
 
 //go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
 type Logger interface {

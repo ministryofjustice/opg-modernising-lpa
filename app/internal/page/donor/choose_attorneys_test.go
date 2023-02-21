@@ -14,7 +14,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -28,21 +27,20 @@ func TestGetChooseAttorneys(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &chooseAttorneysData{
+		On("Execute", w, &chooseAttorneysData{
 			App:         testAppData,
 			Form:        &chooseAttorneysForm{},
 			ShowDetails: true,
 		}).
 		Return(nil)
 
-	err := ChooseAttorneys(template.Func, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChooseAttorneys(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetChooseAttorneysWhenStoreErrors(t *testing.T) {
@@ -74,9 +72,9 @@ func TestGetChooseAttorneysFromStore(t *testing.T) {
 			},
 		}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 
-	err := ChooseAttorneys(template.Func, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChooseAttorneys(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -93,21 +91,20 @@ func TestGetChooseAttorneysWhenTemplateErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &chooseAttorneysData{
+		On("Execute", w, &chooseAttorneysData{
 			App:         testAppData,
 			Form:        &chooseAttorneysForm{},
 			ShowDetails: true,
 		}).
 		Return(expectedError)
 
-	err := ChooseAttorneys(template.Func, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChooseAttorneys(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostChooseAttorneysAttorneyDoesNotExist(t *testing.T) {
@@ -502,19 +499,18 @@ func TestPostChooseAttorneysWhenInputRequired(t *testing.T) {
 					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
 				}, nil)
 
-			template := &mockTemplate{}
+			template := newMockTemplate(t)
 			template.
-				On("Func", w, mock.MatchedBy(func(data *chooseAttorneysData) bool {
+				On("Execute", w, mock.MatchedBy(func(data *chooseAttorneysData) bool {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
 
-			err := ChooseAttorneys(template.Func, lpaStore, mockRandom)(testAppData, w, r)
+			err := ChooseAttorneys(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-			mock.AssertExpectationsForObjects(t, template)
 		})
 	}
 }

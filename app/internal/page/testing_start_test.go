@@ -97,7 +97,7 @@ func TestTestingStart(t *testing.T) {
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("with attorney", func(t *testing.T) {

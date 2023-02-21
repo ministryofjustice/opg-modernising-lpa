@@ -22,21 +22,20 @@ func TestGetCheckYourLpa(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &checkYourLpaData{
+		On("Execute", w, &checkYourLpaData{
 			App:  testAppData,
 			Form: &checkYourLpaForm{},
 			Lpa:  &page.Lpa{},
 		}).
 		Return(nil)
 
-	err := CheckYourLpa(template.Func, lpaStore)(testAppData, w, r)
+	err := CheckYourLpa(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetCheckYourLpaWhenStoreErrors(t *testing.T) {
@@ -69,9 +68,9 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &checkYourLpaData{
+		On("Execute", w, &checkYourLpaData{
 			App: testAppData,
 			Lpa: lpa,
 			Form: &checkYourLpaForm{
@@ -81,12 +80,11 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CheckYourLpa(template.Func, lpaStore)(testAppData, w, r)
+	err := CheckYourLpa(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostCheckYourLpa(t *testing.T) {
@@ -166,14 +164,14 @@ func TestPostCheckYourLpaWhenValidationErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, mock.MatchedBy(func(data *checkYourLpaData) bool {
+		On("Execute", w, mock.MatchedBy(func(data *checkYourLpaData) bool {
 			return assert.Equal(t, validation.With("happy", validation.SelectError{Label: "happyToShareLpa"}), data.Errors)
 		})).
 		Return(nil)
 
-	err := CheckYourLpa(template.Func, lpaStore)(testAppData, w, r)
+	err := CheckYourLpa(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

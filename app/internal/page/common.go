@@ -2,6 +2,7 @@ package page
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"strings"
 
@@ -11,6 +12,9 @@ import (
 )
 
 const FormUrlEncoded = "application/x-www-form-urlencoded"
+
+//go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
+type Template func(io.Writer, interface{}) error
 
 //go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
 type Logger interface {
