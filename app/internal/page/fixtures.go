@@ -20,28 +20,28 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
-var AttorneyNames = map[int]string{
-	0: "John",
-	1: "Joan",
-	2: "Johan",
-	3: "Jilly",
-	4: "James",
+var AttorneyNames = []string{
+	"John",
+	"Joan",
+	"Johan",
+	"Jilly",
+	"James",
 }
 
-var ReplacementAttorneyNames = map[int]string{
-	0: "Jane",
-	1: "Jorge",
-	2: "Jackson",
-	3: "Jacob",
-	4: "Joshua",
+var ReplacementAttorneyNames = []string{
+	"Jane",
+	"Jorge",
+	"Jackson",
+	"Jacob",
+	"Joshua",
 }
 
-var PeopleToNotifyNames = map[int]string{
-	0: "Joanna",
-	1: "Jonathan",
-	2: "Julian",
-	3: "Jayden",
-	4: "Juniper",
+var PeopleToNotifyNames = []string{
+	"Joanna",
+	"Jonathan",
+	"Julian",
+	"Jayden",
+	"Juniper",
 }
 
 func MakePerson() actor.Person {
@@ -119,9 +119,9 @@ func AddAttorneys(lpa *Lpa, count int) []string {
 	}
 
 	var firstNames []string
-	for i := 0; i < count; i++ {
-		lpa.Attorneys = append(lpa.Attorneys, MakeAttorney(AttorneyNames[i]))
-		firstNames = append(firstNames, AttorneyNames[i])
+	for _, name := range AttorneyNames[:count] {
+		lpa.Attorneys = append(lpa.Attorneys, MakeAttorney(name))
+		firstNames = append(firstNames, name)
 	}
 
 	if count > 1 {
@@ -138,9 +138,9 @@ func AddReplacementAttorneys(lpa *Lpa, count int) []string {
 	}
 
 	var firstNames []string
-	for i := 0; i < count; i++ {
-		lpa.ReplacementAttorneys = append(lpa.ReplacementAttorneys, MakeAttorney(ReplacementAttorneyNames[i]))
-		firstNames = append(firstNames, ReplacementAttorneyNames[i])
+	for _, name := range ReplacementAttorneyNames[:count] {
+		lpa.ReplacementAttorneys = append(lpa.ReplacementAttorneys, MakeAttorney(name))
+		firstNames = append(firstNames, name)
 	}
 
 	lpa.WantReplacementAttorneys = "yes"
@@ -187,9 +187,10 @@ func AddPeopleToNotify(lpa *Lpa, count int) []string {
 	}
 
 	var firstNames []string
-	for i := 0; i < count; i++ {
-		lpa.PeopleToNotify = append(lpa.PeopleToNotify, MakePersonToNotify(PeopleToNotifyNames[i]))
-		firstNames = append(firstNames, PeopleToNotifyNames[i])
+
+	for _, name := range PeopleToNotifyNames[:count] {
+		lpa.PeopleToNotify = append(lpa.PeopleToNotify, MakePersonToNotify(name))
+		firstNames = append(firstNames, name)
 	}
 
 	lpa.DoYouWantToNotifyPeople = "yes"
