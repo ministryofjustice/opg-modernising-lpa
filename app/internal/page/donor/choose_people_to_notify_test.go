@@ -24,20 +24,19 @@ func TestGetChoosePeopleToNotify(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &choosePeopleToNotifyData{
+		On("Execute", w, &choosePeopleToNotifyData{
 			App:  testAppData,
 			Form: &choosePeopleToNotifyForm{},
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotify(template.Func, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChoosePeopleToNotify(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetChoosePeopleToNotifyWhenStoreErrors(t *testing.T) {
@@ -75,9 +74,9 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 			},
 		}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 
-	err := ChoosePeopleToNotify(template.Func, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChoosePeopleToNotify(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -94,20 +93,19 @@ func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &choosePeopleToNotifyData{
+		On("Execute", w, &choosePeopleToNotifyData{
 			App:  testAppData,
 			Form: &choosePeopleToNotifyForm{},
 		}).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotify(template.Func, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChoosePeopleToNotify(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
@@ -409,19 +407,18 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
 				}, nil)
 
-			template := &mockTemplate{}
+			template := newMockTemplate(t)
 			template.
-				On("Func", w, mock.MatchedBy(func(data *choosePeopleToNotifyData) bool {
+				On("Execute", w, mock.MatchedBy(func(data *choosePeopleToNotifyData) bool {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
 
-			err := ChoosePeopleToNotify(template.Func, lpaStore, mockRandom)(testAppData, w, r)
+			err := ChoosePeopleToNotify(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-			mock.AssertExpectationsForObjects(t, template)
 		})
 	}
 }

@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
@@ -22,20 +21,19 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &whenCanTheLpaBeUsedData{
+		On("Execute", w, &whenCanTheLpaBeUsedData{
 			App: testAppData,
 			Lpa: &page.Lpa{},
 		}).
 		Return(nil)
 
-	err := WhenCanTheLpaBeUsed(template.Func, lpaStore)(testAppData, w, r)
+	err := WhenCanTheLpaBeUsed(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
@@ -47,21 +45,20 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{WhenCanTheLpaBeUsed: page.UsedWhenRegistered}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &whenCanTheLpaBeUsedData{
+		On("Execute", w, &whenCanTheLpaBeUsedData{
 			App:  testAppData,
 			When: page.UsedWhenRegistered,
 			Lpa:  &page.Lpa{WhenCanTheLpaBeUsed: page.UsedWhenRegistered},
 		}).
 		Return(nil)
 
-	err := WhenCanTheLpaBeUsed(template.Func, lpaStore)(testAppData, w, r)
+	err := WhenCanTheLpaBeUsed(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
@@ -89,20 +86,19 @@ func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &whenCanTheLpaBeUsedData{
+		On("Execute", w, &whenCanTheLpaBeUsedData{
 			App: testAppData,
 			Lpa: &page.Lpa{},
 		}).
 		Return(expectedError)
 
-	err := WhenCanTheLpaBeUsed(template.Func, lpaStore)(testAppData, w, r)
+	err := WhenCanTheLpaBeUsed(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
@@ -197,21 +193,20 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &whenCanTheLpaBeUsedData{
+		On("Execute", w, &whenCanTheLpaBeUsedData{
 			App:    testAppData,
 			Errors: validation.With("when", validation.SelectError{Label: "whenYourAttorneysCanUseYourLpa"}),
 			Lpa:    &page.Lpa{},
 		}).
 		Return(nil)
 
-	err := WhenCanTheLpaBeUsed(template.Func, lpaStore)(testAppData, w, r)
+	err := WhenCanTheLpaBeUsed(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestReadWhenCanTheLpaBeUsedForm(t *testing.T) {

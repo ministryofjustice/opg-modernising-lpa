@@ -23,20 +23,19 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
+		On("Execute", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:  testAppData,
 			Form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Func, lpaStore)(testAppData, w, r)
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *testing.T) {
@@ -50,22 +49,20 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *tes
 			CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"},
 		}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
+		On("Execute", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:                 testAppData,
 			CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"},
 			Form:                &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{CarryOutBy: "paper"},
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Func, lpaStore)(testAppData, w, r)
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenStoreErrors(t *testing.T) {
@@ -93,20 +90,19 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
+		On("Execute", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:  testAppData,
 			Form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
 		}).
 		Return(expectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Func, lpaStore)(testAppData, w, r)
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
@@ -189,21 +185,20 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationE
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
+		On("Execute", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:    testAppData,
 			Errors: validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}),
 			Form:   &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Func, lpaStore)(testAppData, w, r)
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestReadHowWouldCertificateProviderPreferToCarryOutTheirRoleForm(t *testing.T) {

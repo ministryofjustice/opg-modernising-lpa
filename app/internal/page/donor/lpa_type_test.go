@@ -22,19 +22,18 @@ func TestGetLpaType(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &lpaTypeData{
+		On("Execute", w, &lpaTypeData{
 			App: testAppData,
 		}).
 		Return(nil)
 
-	err := LpaType(template.Func, lpaStore)(testAppData, w, r)
+	err := LpaType(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetLpaTypeFromStore(t *testing.T) {
@@ -46,20 +45,19 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{Type: page.LpaTypePropertyFinance}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &lpaTypeData{
+		On("Execute", w, &lpaTypeData{
 			App:  testAppData,
 			Type: page.LpaTypePropertyFinance,
 		}).
 		Return(nil)
 
-	err := LpaType(template.Func, lpaStore)(testAppData, w, r)
+	err := LpaType(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetLpaTypeWhenStoreErrors(t *testing.T) {
@@ -87,19 +85,18 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &lpaTypeData{
+		On("Execute", w, &lpaTypeData{
 			App: testAppData,
 		}).
 		Return(expectedError)
 
-	err := LpaType(template.Func, lpaStore)(testAppData, w, r)
+	err := LpaType(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostLpaType(t *testing.T) {
@@ -159,20 +156,19 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &lpaTypeData{
+		On("Execute", w, &lpaTypeData{
 			App:    testAppData,
 			Errors: validation.With("lpa-type", validation.SelectError{Label: "theTypeOfLpaToMake"}),
 		}).
 		Return(nil)
 
-	err := LpaType(template.Func, lpaStore)(testAppData, w, r)
+	err := LpaType(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestReadLpaTypeForm(t *testing.T) {

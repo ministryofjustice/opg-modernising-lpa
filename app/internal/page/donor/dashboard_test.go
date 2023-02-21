@@ -7,7 +7,6 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestGetDashboard(t *testing.T) {
@@ -21,17 +20,16 @@ func TestGetDashboard(t *testing.T) {
 		On("GetAll", r.Context()).
 		Return(lpas, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &dashboardData{App: testAppData, Lpas: lpas}).
+		On("Execute", w, &dashboardData{App: testAppData, Lpas: lpas}).
 		Return(nil)
 
-	err := Dashboard(template.Func, lpaStore)(testAppData, w, r)
+	err := Dashboard(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetDashboardWhenDataStoreErrors(t *testing.T) {
@@ -61,15 +59,14 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 		On("GetAll", r.Context()).
 		Return(lpas, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &dashboardData{App: testAppData, Lpas: lpas}).
+		On("Execute", w, &dashboardData{App: testAppData, Lpas: lpas}).
 		Return(expectedError)
 
-	err := Dashboard(template.Func, lpaStore)(testAppData, w, r)
+	err := Dashboard(template.Execute, lpaStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostDashboard(t *testing.T) {

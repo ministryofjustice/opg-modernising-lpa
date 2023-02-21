@@ -9,7 +9,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestGetIdentityWithYotiCallback(t *testing.T) {
@@ -25,21 +24,20 @@ func TestGetIdentityWithYotiCallback(t *testing.T) {
 	yotiClient := newMockYotiClient(t)
 	yotiClient.On("User", "a-token").Return(userData, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &identityWithYotiCallbackData{
+		On("Execute", w, &identityWithYotiCallbackData{
 			App:         testAppData,
 			FullName:    "a-full-name",
 			ConfirmedAt: now,
 		}).
 		Return(nil)
 
-	err := IdentityWithYotiCallback(template.Func, yotiClient, lpaStore)(testAppData, w, r)
+	err := IdentityWithYotiCallback(template.Execute, yotiClient, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetIdentityWithYotiCallbackWhenError(t *testing.T) {
@@ -96,21 +94,20 @@ func TestGetIdentityWithYotiCallbackWhenReturning(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.On("Get", r.Context()).Return(&page.Lpa{YotiUserData: userData}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &identityWithYotiCallbackData{
+		On("Execute", w, &identityWithYotiCallbackData{
 			App:         testAppData,
 			FullName:    "a-full-name",
 			ConfirmedAt: now,
 		}).
 		Return(nil)
 
-	err := IdentityWithYotiCallback(template.Func, nil, lpaStore)(testAppData, w, r)
+	err := IdentityWithYotiCallback(template.Execute, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostIdentityWithYotiCallback(t *testing.T) {

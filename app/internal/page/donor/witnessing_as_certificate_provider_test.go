@@ -14,7 +14,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestGetWitnessingAsCertificateProvider(t *testing.T) {
@@ -26,21 +25,20 @@ func TestGetWitnessingAsCertificateProvider(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &witnessingAsCertificateProviderData{
+		On("Execute", w, &witnessingAsCertificateProviderData{
 			App:  testAppData,
 			Lpa:  &page.Lpa{},
 			Form: &witnessingAsCertificateProviderForm{},
 		}).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(template.Func, lpaStore, nil, time.Now)(testAppData, w, r)
+	err := WitnessingAsCertificateProvider(template.Execute, lpaStore, nil, time.Now)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetWitnessingAsCertificateProviderWhenStoreErrors(t *testing.T) {
@@ -52,14 +50,13 @@ func TestGetWitnessingAsCertificateProviderWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 
-	err := WitnessingAsCertificateProvider(template.Func, lpaStore, nil, time.Now)(testAppData, w, r)
+	err := WitnessingAsCertificateProvider(template.Execute, lpaStore, nil, time.Now)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
@@ -73,9 +70,9 @@ func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
 			CertificateProvider: actor.CertificateProvider{FirstNames: "Joan"},
 		}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &witnessingAsCertificateProviderData{
+		On("Execute", w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Lpa: &page.Lpa{
 				CertificateProvider: actor.CertificateProvider{FirstNames: "Joan"},
@@ -84,12 +81,11 @@ func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(template.Func, lpaStore, nil, time.Now)(testAppData, w, r)
+	err := WitnessingAsCertificateProvider(template.Execute, lpaStore, nil, time.Now)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
@@ -101,21 +97,20 @@ func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &witnessingAsCertificateProviderData{
+		On("Execute", w, &witnessingAsCertificateProviderData{
 			App:  testAppData,
 			Lpa:  &page.Lpa{},
 			Form: &witnessingAsCertificateProviderForm{},
 		}).
 		Return(expectedError)
 
-	err := WitnessingAsCertificateProvider(template.Func, lpaStore, nil, time.Now)(testAppData, w, r)
+	err := WitnessingAsCertificateProvider(template.Execute, lpaStore, nil, time.Now)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostWitnessingAsCertificateProvider(t *testing.T) {
@@ -248,9 +243,9 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 			WitnessCode: page.WitnessCode{Code: "1234", Created: invalidCreated},
 		}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &witnessingAsCertificateProviderData{
+		On("Execute", w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Lpa: &page.Lpa{
 				WitnessCode: page.WitnessCode{Code: "1234", Created: invalidCreated},
@@ -260,12 +255,11 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(template.Func, lpaStore, nil, time.Now)(testAppData, w, r)
+	err := WitnessingAsCertificateProvider(template.Execute, lpaStore, nil, time.Now)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostWitnessingAsCertificateProviderExpiryTrumpsMismatch(t *testing.T) {
@@ -287,9 +281,9 @@ func TestPostWitnessingAsCertificateProviderExpiryTrumpsMismatch(t *testing.T) {
 			WitnessCode: page.WitnessCode{Code: "1234", Created: invalidCreated},
 		}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &witnessingAsCertificateProviderData{
+		On("Execute", w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Lpa: &page.Lpa{
 				WitnessCode: page.WitnessCode{Code: "1234", Created: invalidCreated},
@@ -299,12 +293,11 @@ func TestPostWitnessingAsCertificateProviderExpiryTrumpsMismatch(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(template.Func, lpaStore, nil, time.Now)(testAppData, w, r)
+	err := WitnessingAsCertificateProvider(template.Execute, lpaStore, nil, time.Now)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
@@ -325,9 +318,9 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 			WitnessCode: page.WitnessCode{Code: "1234", Created: now},
 		}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &witnessingAsCertificateProviderData{
+		On("Execute", w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Lpa: &page.Lpa{
 				WitnessCode: page.WitnessCode{Code: "1234", Created: now},
@@ -337,12 +330,11 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(template.Func, lpaStore, nil, time.Now)(testAppData, w, r)
+	err := WitnessingAsCertificateProvider(template.Execute, lpaStore, nil, time.Now)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestReadWitnessingAsCertificateProviderForm(t *testing.T) {

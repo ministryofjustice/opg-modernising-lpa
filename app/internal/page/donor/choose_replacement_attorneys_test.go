@@ -27,20 +27,19 @@ func TestGetChooseReplacementAttorneys(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &chooseReplacementAttorneysData{
+		On("Execute", w, &chooseReplacementAttorneysData{
 			App:  testAppData,
 			Form: &chooseAttorneysForm{},
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneys(template.Func, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChooseReplacementAttorneys(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetChooseReplacementAttorneysWhenStoreErrors(t *testing.T) {
@@ -72,9 +71,9 @@ func TestGetChooseReplacementAttorneysFromStore(t *testing.T) {
 			},
 		}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 
-	err := ChooseReplacementAttorneys(template.Func, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChooseReplacementAttorneys(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -91,20 +90,19 @@ func TestGetChooseReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &chooseReplacementAttorneysData{
+		On("Execute", w, &chooseReplacementAttorneysData{
 			App:  testAppData,
 			Form: &chooseAttorneysForm{},
 		}).
 		Return(expectedError)
 
-	err := ChooseReplacementAttorneys(template.Func, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChooseReplacementAttorneys(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
@@ -487,19 +485,18 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
 				}, nil)
 
-			template := &mockTemplate{}
+			template := newMockTemplate(t)
 			template.
-				On("Func", w, mock.MatchedBy(func(data *chooseReplacementAttorneysData) bool {
+				On("Execute", w, mock.MatchedBy(func(data *chooseReplacementAttorneysData) bool {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
 
-			err := ChooseReplacementAttorneys(template.Func, lpaStore, mockRandom)(testAppData, w, r)
+			err := ChooseReplacementAttorneys(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-			mock.AssertExpectationsForObjects(t, template)
 		})
 	}
 }

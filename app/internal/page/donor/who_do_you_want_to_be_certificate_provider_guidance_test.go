@@ -41,21 +41,21 @@ func TestGetWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 				On("Get", r.Context()).
 				Return(tc.data, nil)
 
-			template := &mockTemplate{}
+			template := newMockTemplate(t)
 			template.
-				On("Func", w, &whoDoYouWantToBeCertificateProviderGuidanceData{
+				On("Execute", w, &whoDoYouWantToBeCertificateProviderGuidanceData{
 					App:        testAppData,
 					NotStarted: tc.notStarted,
 					Lpa:        tc.data,
 				}).
 				Return(nil)
 
-			err := WhoDoYouWantToBeCertificateProviderGuidance(template.Func, lpaStore)(testAppData, w, r)
+			err := WhoDoYouWantToBeCertificateProviderGuidance(template.Execute, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-			mock.AssertExpectationsForObjects(t, template)
+
 		})
 	}
 }
@@ -85,17 +85,16 @@ func TestGetWhoDoYouWantToBeCertificateProviderGuidanceWhenTemplateErrors(t *tes
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, mock.Anything).
+		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := WhoDoYouWantToBeCertificateProviderGuidance(template.Func, lpaStore)(testAppData, w, r)
+	err := WhoDoYouWantToBeCertificateProviderGuidance(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {

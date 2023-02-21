@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 	"net/http/httptest"
 
@@ -68,35 +67,7 @@ func (m *mockLpaStore) withCompletedPaymentLpaData(r *http.Request, paymentId, p
 	return m
 }
 
-type mockTemplate struct {
-	mock.Mock
-}
-
-func (m *mockTemplate) Func(w io.Writer, data interface{}) error {
-	args := m.Called(w, data)
-	return args.Error(0)
-}
-
-type mockSessionsStore struct {
-	mock.Mock
-}
-
-func (m *mockSessionsStore) New(r *http.Request, name string) (*sessions.Session, error) {
-	args := m.Called(r, name)
-	return args.Get(0).(*sessions.Session), args.Error(1)
-}
-
-func (m *mockSessionsStore) Get(r *http.Request, name string) (*sessions.Session, error) {
-	args := m.Called(r, name)
-	return args.Get(0).(*sessions.Session), args.Error(1)
-}
-
-func (m *mockSessionsStore) Save(r *http.Request, w http.ResponseWriter, session *sessions.Session) error {
-	args := m.Called(r, w, session)
-	return args.Error(0)
-}
-
-func (m *mockSessionsStore) withPaySession(r *http.Request) *mockSessionsStore {
+func (m *mockSessionStore) withPaySession(r *http.Request) *mockSessionStore {
 	getSession := sessions.NewSession(m, "pay")
 
 	getSession.Options = &sessions.Options{
@@ -113,7 +84,7 @@ func (m *mockSessionsStore) withPaySession(r *http.Request) *mockSessionsStore {
 	return m
 }
 
-func (m *mockSessionsStore) withExpiredPaySession(r *http.Request, w *httptest.ResponseRecorder) *mockSessionsStore {
+func (m *mockSessionStore) withExpiredPaySession(r *http.Request, w *httptest.ResponseRecorder) *mockSessionStore {
 	storeSession := sessions.NewSession(m, "pay")
 
 	// Expire cookie

@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestGetWhoIsTheLpaFor(t *testing.T) {
@@ -22,19 +21,18 @@ func TestGetWhoIsTheLpaFor(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &whoIsTheLpaForData{
+		On("Execute", w, &whoIsTheLpaForData{
 			App: testAppData,
 		}).
 		Return(nil)
 
-	err := WhoIsTheLpaFor(template.Func, lpaStore)(testAppData, w, r)
+	err := WhoIsTheLpaFor(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetWhoIsTheLpaForWhenStoreErrors(t *testing.T) {
@@ -62,20 +60,19 @@ func TestGetWhoIsTheLpaForFromStore(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{WhoFor: "me"}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &whoIsTheLpaForData{
+		On("Execute", w, &whoIsTheLpaForData{
 			App:    testAppData,
 			WhoFor: "me",
 		}).
 		Return(nil)
 
-	err := WhoIsTheLpaFor(template.Func, lpaStore)(testAppData, w, r)
+	err := WhoIsTheLpaFor(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetWhoIsTheLpaForWhenTemplateErrors(t *testing.T) {
@@ -87,19 +84,18 @@ func TestGetWhoIsTheLpaForWhenTemplateErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &whoIsTheLpaForData{
+		On("Execute", w, &whoIsTheLpaForData{
 			App: testAppData,
 		}).
 		Return(expectedError)
 
-	err := WhoIsTheLpaFor(template.Func, lpaStore)(testAppData, w, r)
+	err := WhoIsTheLpaFor(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostWhoIsTheLpaFor(t *testing.T) {
@@ -159,20 +155,19 @@ func TestPostWhoIsTheLpaForWhenValidationErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &whoIsTheLpaForData{
+		On("Execute", w, &whoIsTheLpaForData{
 			App:    testAppData,
 			Errors: validation.With("who-for", validation.SelectError{Label: "whoTheLpaIsFor"}),
 		}).
 		Return(nil)
 
-	err := WhoIsTheLpaFor(template.Func, lpaStore)(testAppData, w, r)
+	err := WhoIsTheLpaFor(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestReadWhoIsTheLpaForForm(t *testing.T) {
