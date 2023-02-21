@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -51,11 +52,18 @@ type AddressClient interface {
 //go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
 type Template func(io.Writer, interface{}) error
 
+//go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
+type SessionStore interface {
+	Get(r *http.Request, name string) (*sessions.Session, error)
+	New(r *http.Request, name string) (*sessions.Session, error)
+	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
 	tmpls template.Templates,
-	sessionStore sesh.Store,
+	sessionStore SessionStore,
 	lpaStore LpaStore,
 	oneLoginClient OneLoginClient,
 	dataStore DataStore,

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -48,6 +49,13 @@ type LpaStore interface {
 	GetAll(context.Context) ([]*Lpa, error)
 	Get(context.Context) (*Lpa, error)
 	Put(context.Context, *Lpa) error
+}
+
+//go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
+type SessionStore interface {
+	Get(r *http.Request, name string) (*sessions.Session, error)
+	New(r *http.Request, name string) (*sessions.Session, error)
+	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
 }
 
 func PostFormString(r *http.Request, name string) string {

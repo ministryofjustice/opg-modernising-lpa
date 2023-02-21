@@ -24,7 +24,7 @@ func TestGetLoginCallback(t *testing.T) {
 	userInfo := onelogin.UserInfo{Sub: "a-sub", Email: "a-email", CoreIdentityJWT: "an-identity-jwt"}
 	userData := identity.UserData{OK: true, FullName: "John Doe", RetrievedAt: now}
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 	session := sessions.NewSession(sessionStore, "session")
 
 	session.Options = &sessions.Options{
@@ -218,7 +218,7 @@ func TestGetLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 				On("Get", mock.Anything).
 				Return(&page.Lpa{}, nil)
 
-			sessionStore := &mockSessionsStore{}
+			sessionStore := newMockSessionStore(t)
 			sessionStore.
 				On("Get", mock.Anything, "params").
 				Return(&sessions.Session{
@@ -250,7 +250,7 @@ func TestGetLoginCallbackWhenGetDataStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", mock.Anything, "params").
 		Return(&sessions.Session{
@@ -272,7 +272,6 @@ func TestGetLoginCallbackWhenGetDataStoreError(t *testing.T) {
 	err := LoginCallback(nil, nil, sessionStore, lpaStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, sessionStore)
 }
 
 func TestGetLoginCallbackWhenPutDataStoreError(t *testing.T) {
@@ -288,7 +287,7 @@ func TestGetLoginCallbackWhenPutDataStoreError(t *testing.T) {
 		On("Put", mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", mock.Anything, "params").
 		Return(&sessions.Session{
@@ -335,7 +334,7 @@ func TestGetLoginCallbackWhenReturning(t *testing.T) {
 		On("UserInfo", mock.Anything, mock.Anything).
 		Return(userInfo, nil)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 	session := sessions.NewSession(sessionStore, "session")
 
 	session.Options = &sessions.Options{
@@ -389,14 +388,13 @@ func TestGetLoginCallbackWhenReturning(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, sessionStore)
 }
 
 func TestPostCertificateProviderLoginCallback(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{
@@ -430,7 +428,7 @@ func TestPostCertificateProviderLoginCallbackNotConfirmed(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{

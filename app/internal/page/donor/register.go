@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -75,11 +76,18 @@ type NotifyClient interface {
 	TemplateID(id notify.TemplateId) string
 }
 
+//go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
+type SessionStore interface {
+	Get(r *http.Request, name string) (*sessions.Session, error)
+	New(r *http.Request, name string) (*sessions.Session, error)
+	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
 	tmpls template.Templates,
-	sessionStore sesh.Store,
+	sessionStore SessionStore,
 	lpaStore LpaStore,
 	oneLoginClient OneLoginClient,
 	addressClient AddressClient,

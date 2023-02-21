@@ -9,11 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -186,11 +184,6 @@ func TestPostCertificateProviderYourDetails(t *testing.T) {
 				}).
 				Return(nil)
 
-			sessionStore := &mockSessionsStore{}
-			sessionStore.
-				On("Get", r, "session").
-				Return(&sessions.Session{Values: map[any]any{"certificate-provider": &sesh.CertificateProviderSession{Sub: "xyz", LpaID: "lpa-id"}}}, nil)
-
 			err := YourDetails(nil, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
@@ -277,11 +270,6 @@ func TestPostCertificateProviderYourDetailsWhenInputRequired(t *testing.T) {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
-
-			sessionStore := &mockSessionsStore{}
-			sessionStore.
-				On("Get", r, "session").
-				Return(&sessions.Session{Values: map[any]any{"certificate-provider": &sesh.CertificateProviderSession{Sub: "xyz", LpaID: "lpa-id"}}}, nil)
 
 			err := YourDetails(template.Execute, lpaStore)(testAppData, w, r)
 			resp := w.Result()

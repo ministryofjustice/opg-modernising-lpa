@@ -179,7 +179,7 @@ func TestPostYourDetails(t *testing.T) {
 				}).
 				Return(nil)
 
-			sessionStore := &mockSessionsStore{}
+			sessionStore := newMockSessionStore(t)
 			sessionStore.
 				On("Get", r, "session").
 				Return(&sessions.Session{Values: map[any]any{"donor": &sesh.DonorSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
@@ -190,7 +190,6 @@ func TestPostYourDetails(t *testing.T) {
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 			assert.Equal(t, "/lpa/lpa-id"+page.Paths.YourAddress, resp.Header.Get("Location"))
-			mock.AssertExpectationsForObjects(t, sessionStore)
 		})
 	}
 }
@@ -268,7 +267,7 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 				On("Get", r.Context()).
 				Return(&page.Lpa{}, nil)
 
-			sessionStore := &mockSessionsStore{}
+			sessionStore := newMockSessionStore(t)
 			sessionStore.
 				On("Get", mock.Anything, "session").
 				Return(&sessions.Session{Values: map[any]any{"donor": &sesh.DonorSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
@@ -278,7 +277,6 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-			mock.AssertExpectationsForObjects(t, sessionStore)
 		})
 	}
 }
@@ -309,7 +307,7 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", mock.Anything, "session").
 		Return(&sessions.Session{Values: map[any]any{"donor": &sesh.DonorSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
@@ -317,7 +315,6 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 	err := YourDetails(nil, lpaStore, sessionStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, sessionStore)
 }
 
 func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
@@ -358,7 +355,7 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 				On("Get", r.Context()).
 				Return(&page.Lpa{}, nil)
 
-			sessionStore := &mockSessionsStore{}
+			sessionStore := newMockSessionStore(t)
 			sessionStore.
 				On("Get", mock.Anything, "session").
 				Return(tc.session, tc.error)
@@ -366,7 +363,6 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 			err := YourDetails(nil, lpaStore, sessionStore)(testAppData, w, r)
 
 			assert.NotNil(t, err)
-			mock.AssertExpectationsForObjects(t, sessionStore)
 		})
 	}
 }
