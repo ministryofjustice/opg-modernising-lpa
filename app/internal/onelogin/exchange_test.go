@@ -22,15 +22,6 @@ import (
 
 var ctx = context.TODO()
 
-type mockSecretsClient struct {
-	mock.Mock
-}
-
-func (m *mockSecretsClient) SecretBytes(ctx context.Context, name string) ([]byte, error) {
-	args := m.Called(ctx, name)
-	return args.Get(0).([]byte), args.Error(1)
-}
-
 func TestExchange(t *testing.T) {
 	privateKey, _ := rsa.GenerateKey(rand.New(rand.NewSource(99)), 2048)
 	jwks := keyfunc.NewGiven(map[string]keyfunc.GivenKey{
@@ -60,7 +51,7 @@ func TestExchange(t *testing.T) {
 
 	data, _ := json.Marshal(response)
 
-	secretsClient := &mockSecretsClient{}
+	secretsClient := newMockSecretsClient(t)
 	secretsClient.
 		On("SecretBytes", ctx, secrets.GovUkOneLoginPrivateKey).
 		Return(pem.EncodeToMemory(
@@ -70,7 +61,7 @@ func TestExchange(t *testing.T) {
 			},
 		), nil)
 
-	httpClient := &mockHttpClient{}
+	httpClient := newMockHttpClient(t)
 	httpClient.
 		On("Do", mock.MatchedBy(func(r *http.Request) bool {
 			clientAssertion, _ := jwt.Parse(r.FormValue("client_assertion"), func(token *jwt.Token) (interface{}, error) {
@@ -113,12 +104,10 @@ func TestExchange(t *testing.T) {
 	result, err := client.Exchange(ctx, "my-code", "my-nonce")
 	assert.Nil(t, err)
 	assert.Equal(t, "a", result)
-
-	mock.AssertExpectationsForObjects(t, httpClient, secretsClient)
 }
 
 func TestExchangeWhenPrivateKeyError(t *testing.T) {
-	secretsClient := &mockSecretsClient{}
+	secretsClient := newMockSecretsClient(t)
 	secretsClient.
 		On("SecretBytes", ctx, secrets.GovUkOneLoginPrivateKey).
 		Return([]byte{}, expectedError)
@@ -129,14 +118,12 @@ func TestExchangeWhenPrivateKeyError(t *testing.T) {
 
 	_, err := client.Exchange(ctx, "my-code", "my-nonce")
 	assert.Equal(t, expectedError, err)
-
-	mock.AssertExpectationsForObjects(t, secretsClient)
 }
 
 func TestExchangeWhenTokenRequestError(t *testing.T) {
 	privateKey, _ := rsa.GenerateKey(rand.New(rand.NewSource(99)), 2048)
 
-	secretsClient := &mockSecretsClient{}
+	secretsClient := newMockSecretsClient(t)
 	secretsClient.
 		On("SecretBytes", ctx, secrets.GovUkOneLoginPrivateKey).
 		Return(pem.EncodeToMemory(
@@ -146,7 +133,7 @@ func TestExchangeWhenTokenRequestError(t *testing.T) {
 			},
 		), nil)
 
-	httpClient := &mockHttpClient{}
+	httpClient := newMockHttpClient(t)
 	httpClient.
 		On("Do", mock.Anything).
 		Return(&http.Response{}, expectedError)
@@ -162,8 +149,6 @@ func TestExchangeWhenTokenRequestError(t *testing.T) {
 
 	_, err := client.Exchange(ctx, "my-code", "my-nonce")
 	assert.Equal(t, expectedError, err)
-
-	mock.AssertExpectationsForObjects(t, httpClient, secretsClient)
 }
 
 func TestExchangeWhenInvalidToken(t *testing.T) {
@@ -269,7 +254,7 @@ func TestExchangeWhenInvalidToken(t *testing.T) {
 
 			data, _ := json.Marshal(response)
 
-			secretsClient := &mockSecretsClient{}
+			secretsClient := newMockSecretsClient(t)
 			secretsClient.
 				On("SecretBytes", ctx, secrets.GovUkOneLoginPrivateKey).
 				Return(pem.EncodeToMemory(
@@ -279,7 +264,7 @@ func TestExchangeWhenInvalidToken(t *testing.T) {
 					},
 				), nil)
 
-			httpClient := &mockHttpClient{}
+			httpClient := newMockHttpClient(t)
 			httpClient.
 				On("Do", mock.MatchedBy(func(r *http.Request) bool {
 					clientAssertion, _ := jwt.Parse(r.FormValue("client_assertion"), func(token *jwt.Token) (interface{}, error) {
@@ -321,8 +306,6 @@ func TestExchangeWhenInvalidToken(t *testing.T) {
 
 			_, err = client.Exchange(ctx, "my-code", "my-nonce")
 			assert.NotNil(t, err)
-
-			mock.AssertExpectationsForObjects(t, httpClient, secretsClient)
 		})
 	}
 }

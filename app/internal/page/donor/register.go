@@ -12,28 +12,78 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
+//go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
+type Logger interface {
+	Print(v ...interface{})
+}
+
+//go:generate mockery --testonly --inpackage --name LpaStore --structname mockLpaStore
+type LpaStore interface {
+	Create(context.Context) (*page.Lpa, error)
+	GetAll(context.Context) ([]*page.Lpa, error)
+	Get(context.Context) (*page.Lpa, error)
+	Put(context.Context, *page.Lpa) error
+}
+
+//go:generate mockery --testonly --inpackage --name PayClient --structname mockPayClient
+type PayClient interface {
+	CreatePayment(body pay.CreatePaymentBody) (pay.CreatePaymentResponse, error)
+	GetPayment(paymentId string) (pay.GetPaymentResponse, error)
+}
+
+//go:generate mockery --testonly --inpackage --name AddressClient --structname mockAddressClient
+type AddressClient interface {
+	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
+}
+
+//go:generate mockery --testonly --inpackage --name ShareCodeSender --structname mockShareCodeSender
 type ShareCodeSender interface {
 	Send(ctx context.Context, template notify.TemplateId, appData page.AppData, email string, identity bool) error
 }
 
+//go:generate mockery --testonly --inpackage --name YotiClient --structname mockYotiClient
+type YotiClient interface {
+	IsTest() bool
+	SdkID() string
+	User(string) (identity.UserData, error)
+}
+
+//go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
+type OneLoginClient interface {
+	AuthCodeURL(state, nonce, locale string, identity bool) string
+	Exchange(ctx context.Context, code, nonce string) (string, error)
+	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
+	ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error)
+}
+
+//go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient
+type NotifyClient interface {
+	Email(ctx context.Context, email notify.Email) (string, error)
+	Sms(ctx context.Context, sms notify.Sms) (string, error)
+	TemplateID(id notify.TemplateId) string
+}
+
 func Register(
 	rootMux *http.ServeMux,
-	logger page.Logger,
+	logger Logger,
 	tmpls template.Templates,
 	sessionStore sesh.Store,
-	lpaStore page.LpaStore,
-	oneLoginClient page.OneLoginClient,
-	addressClient page.AddressClient,
+	lpaStore LpaStore,
+	oneLoginClient OneLoginClient,
+	addressClient AddressClient,
 	appPublicUrl string,
-	payClient page.PayClient,
-	yotiClient page.YotiClient,
+	payClient PayClient,
+	yotiClient YotiClient,
 	yotiScenarioID string,
-	notifyClient page.NotifyClient,
+	notifyClient NotifyClient,
 	dataStore page.DataStore,
 ) {
 	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)
@@ -184,7 +234,7 @@ const (
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, logger page.Logger, store sesh.Store, defaultOptions handleOpt) func(string, handleOpt, page.Handler) {
+func makeHandle(mux *http.ServeMux, logger Logger, store sesh.Store, defaultOptions handleOpt) func(string, handleOpt, page.Handler) {
 	return func(path string, opt handleOpt, h page.Handler) {
 		opt = opt | defaultOptions
 

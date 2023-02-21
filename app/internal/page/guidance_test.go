@@ -15,12 +15,12 @@ func TestGuidance(t *testing.T) {
 
 	lpa := &Lpa{}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", w, &guidanceData{App: TestAppData, Lpa: lpa}).
 		Return(nil)
@@ -30,13 +30,13 @@ func TestGuidance(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGuidanceWhenNilDataStore(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", w, &guidanceData{App: TestAppData}).
 		Return(nil)
@@ -57,7 +57,7 @@ func TestGuidanceWhenDataStoreErrors(t *testing.T) {
 
 	lpa := &Lpa{}
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(lpa, ExpectedError)
@@ -65,19 +65,18 @@ func TestGuidanceWhenDataStoreErrors(t *testing.T) {
 	err := Guidance(nil, lpaStore)(TestAppData, w, r)
 
 	assert.Equal(t, ExpectedError, err)
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestGuidanceWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &MockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&Lpa{}, nil)
 
-	template := &MockTemplate{}
+	template := &mockTemplate{}
 	template.
 		On("Func", w, &guidanceData{App: TestAppData, Lpa: &Lpa{}}).
 		Return(ExpectedError)
@@ -85,5 +84,5 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 	err := Guidance(template.Func, lpaStore)(TestAppData, w, r)
 
 	assert.Equal(t, ExpectedError, err)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }

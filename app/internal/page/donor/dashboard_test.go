@@ -16,7 +16,7 @@ func TestGetDashboard(t *testing.T) {
 
 	lpas := []*page.Lpa{{ID: "123"}, {ID: "456"}}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("GetAll", r.Context()).
 		Return(lpas, nil)
@@ -31,7 +31,7 @@ func TestGetDashboard(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetDashboardWhenDataStoreErrors(t *testing.T) {
@@ -40,7 +40,7 @@ func TestGetDashboardWhenDataStoreErrors(t *testing.T) {
 
 	lpas := []*page.Lpa{{}}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("GetAll", r.Context()).
 		Return(lpas, expectedError)
@@ -48,7 +48,6 @@ func TestGetDashboardWhenDataStoreErrors(t *testing.T) {
 	err := Dashboard(nil, lpaStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestGetDashboardWhenTemplateErrors(t *testing.T) {
@@ -57,7 +56,7 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 
 	lpas := []*page.Lpa{{}}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("GetAll", r.Context()).
 		Return(lpas, nil)
@@ -70,14 +69,14 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 	err := Dashboard(template.Func, lpaStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostDashboard(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Create", r.Context()).
 		Return(&page.Lpa{ID: "123"}, nil)
@@ -88,5 +87,4 @@ func TestPostDashboard(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.YourDetails, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }

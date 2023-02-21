@@ -33,7 +33,7 @@ func TestCertificateProviderLogin(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 
-			client := &mockOneLoginClient{}
+			client := newMockOneLoginClient(t)
 			client.
 				On("AuthCodeURL", "i am random", "i am random", "cy", tc.identity).
 				Return("http://auth")
@@ -71,7 +71,7 @@ func TestCertificateProviderLogin(t *testing.T) {
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 			assert.Equal(t, "http://auth", resp.Header.Get("Location"))
 
-			mock.AssertExpectationsForObjects(t, client, sessionsStore)
+			mock.AssertExpectationsForObjects(t, sessionsStore)
 		})
 	}
 }
@@ -80,7 +80,7 @@ func TestCertificateProviderLoginDefaultLocale(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?sessionId=session-id&lpaId=lpa-id&identity=1", nil)
 
-	client := &mockOneLoginClient{}
+	client := newMockOneLoginClient(t)
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "en", true).
 		Return("http://auth")
@@ -118,18 +118,18 @@ func TestCertificateProviderLoginDefaultLocale(t *testing.T) {
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "http://auth", resp.Header.Get("Location"))
 
-	mock.AssertExpectationsForObjects(t, client, sessionsStore)
+	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestCertificateProviderLoginWhenStoreSaveError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 	logger.
 		On("Print", expectedError)
 
-	client := &mockOneLoginClient{}
+	client := newMockOneLoginClient(t)
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "en", false).
 		Return("http://auth?locale=en")
@@ -144,5 +144,5 @@ func TestCertificateProviderLoginWhenStoreSaveError(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	mock.AssertExpectationsForObjects(t, logger, client, sessionsStore)
+	mock.AssertExpectationsForObjects(t, sessionsStore)
 }

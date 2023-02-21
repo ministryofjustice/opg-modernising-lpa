@@ -1,5 +1,6 @@
 package validation
 
+//go:generate mockery --testonly --inpackage --name Localizer --structname mockLocalizer
 type Localizer interface {
 	Format(string, map[string]any) string
 	T(string) string

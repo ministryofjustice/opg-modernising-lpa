@@ -15,7 +15,7 @@ func TestLogin(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?locale=cy", nil)
 
-	client := &mockOneLoginClient{}
+	client := newMockOneLoginClient(t)
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "cy", false).
 		Return("http://auth")
@@ -45,14 +45,14 @@ func TestLogin(t *testing.T) {
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "http://auth", resp.Header.Get("Location"))
 
-	mock.AssertExpectationsForObjects(t, client, sessionsStore)
+	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestLoginDefaultLocale(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	client := &mockOneLoginClient{}
+	client := newMockOneLoginClient(t)
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "en", false).
 		Return("http://auth")
@@ -82,18 +82,18 @@ func TestLoginDefaultLocale(t *testing.T) {
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "http://auth", resp.Header.Get("Location"))
 
-	mock.AssertExpectationsForObjects(t, client, sessionsStore)
+	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestLoginWhenStoreSaveError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 	logger.
 		On("Print", expectedError)
 
-	client := &mockOneLoginClient{}
+	client := newMockOneLoginClient(t)
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "en", false).
 		Return("http://auth?locale=en")
@@ -108,5 +108,5 @@ func TestLoginWhenStoreSaveError(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	mock.AssertExpectationsForObjects(t, logger, client, sessionsStore)
+	mock.AssertExpectationsForObjects(t, sessionsStore)
 }

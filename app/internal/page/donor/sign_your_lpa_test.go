@@ -17,7 +17,7 @@ func TestGetSignYourLpa(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -38,14 +38,14 @@ func TestGetSignYourLpa(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, lpaStore)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetSignYourLpaWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
@@ -55,7 +55,6 @@ func TestGetSignYourLpaWhenStoreErrors(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestGetSignYourLpaFromStore(t *testing.T) {
@@ -67,7 +66,7 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 		WantToApplyForLpa: false,
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
@@ -91,7 +90,7 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, lpaStore)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostSignYourLpa(t *testing.T) {
@@ -103,7 +102,7 @@ func TestPostSignYourLpa(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -129,7 +128,6 @@ func TestPostSignYourLpa(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.WitnessingYourSignature, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostSignYourLpaWhenStoreErrors(t *testing.T) {
@@ -141,7 +139,7 @@ func TestPostSignYourLpaWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -152,7 +150,6 @@ func TestPostSignYourLpaWhenStoreErrors(t *testing.T) {
 	err := SignYourLpa(nil, lpaStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
@@ -164,7 +161,7 @@ func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -187,7 +184,6 @@ func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestReadSignYourLpaForm(t *testing.T) {

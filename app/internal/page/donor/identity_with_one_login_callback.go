@@ -19,7 +19,7 @@ type identityWithOneLoginCallbackData struct {
 	CouldNotConfirm bool
 }
 
-func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient page.OneLoginClient, sessionStore sessions.Store, lpaStore page.LpaStore) page.Handler {
+func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLoginClient, sessionStore sessions.Store, lpaStore LpaStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {

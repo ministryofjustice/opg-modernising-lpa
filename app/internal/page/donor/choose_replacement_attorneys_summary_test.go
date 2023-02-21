@@ -20,7 +20,7 @@ func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -39,19 +39,19 @@ func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetChooseReplacementAttorneySummaryWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 	logger.
 		On("Print", "error getting lpa from store: err").
 		Return(nil)
@@ -61,7 +61,6 @@ func TestGetChooseReplacementAttorneySummaryWhenStoreErrors(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, logger)
 }
 
 func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
@@ -73,7 +72,7 @@ func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{ReplacementAttorneys: actor.Attorneys{}}, nil)
@@ -84,7 +83,6 @@ func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseReplacementAttorneys+"?addAnother=1", resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
@@ -148,7 +146,7 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := &mockLpaStore{}
+			lpaStore := newMockLpaStore(t)
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
@@ -168,7 +166,6 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 			assert.Equal(t, "/lpa/lpa-id"+tc.expectedUrl, resp.Header.Get("Location"))
-			mock.AssertExpectationsForObjects(t, lpaStore)
 		})
 	}
 }
@@ -182,7 +179,7 @@ func TestPostChooseReplacementAttorneySummaryFormValidation(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -201,5 +198,5 @@ func TestPostChooseReplacementAttorneySummaryFormValidation(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }

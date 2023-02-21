@@ -8,7 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func Login(logger page.Logger, oneLoginClient page.OneLoginClient, store sesh.Store, randomString func(int) string) page.Handler {
+func Login(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, randomString func(int) string) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		locale := "en"
 		if appData.Lang == localize.Cy {
