@@ -4,7 +4,7 @@ terraform {
     key            = "opg-modernising-lpa-environment/terraform.tfstate"
     encrypt        = true
     region         = "eu-west-1"
-    role_arn       = "arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ci-terraform"
+    role_arn       = "arn:aws:iam::311462405659:role/modernising-lpa-ci"
     dynamodb_table = "remote_lock"
   }
   required_providers {

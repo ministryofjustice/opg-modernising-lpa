@@ -52,13 +52,14 @@ jobs:
         with:
           terraform_version: 1.2.6
           terraform_wrapper: false
-      # - name: Configure AWS Credentials For Terraform
-      #   uses: aws-actions/configure-aws-credentials@v1
-      #   with:
-      #     role-to-assume: arn:aws:iam::631181914621:role/modernising-lpa-github-actions-terraform
-      #     aws-region: eu-west-1
-      #     role-duration-seconds: 3000
-      #     role-session-name: OPGModernisingLPATerraformGithubAction
+      - name: Configure AWS Credentials For Terraform
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          aws-region: eu-west-1
+          role-duration-seconds: 3600
+          role-session-name: OPGModernisingLPATerraformGithubAction
       - uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.ssh_deploy_key }}
