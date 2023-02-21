@@ -12,25 +12,14 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type mockDataStore struct {
-	data interface{}
-	mock.Mock
-}
-
-func (m *mockDataStore) GetAll(ctx context.Context, pk string, v interface{}) error {
-	data, _ := json.Marshal(m.data)
-	json.Unmarshal(data, v)
-	return m.Called(ctx, pk).Error(0)
-}
-
-func (m *mockDataStore) Get(ctx context.Context, pk, sk string, v interface{}) error {
-	data, _ := json.Marshal(m.data)
-	json.Unmarshal(data, v)
-	return m.Called(ctx, pk, sk).Error(0)
-}
-
-func (m *mockDataStore) Put(ctx context.Context, pk, sk string, v interface{}) error {
-	return m.Called(ctx, pk, sk, v).Error(0)
+func (m *mockDataStore) ExpectGet(ctx, pk, sk, data interface{}, err error) {
+	m.
+		On("Get", ctx, pk, sk, mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		})
 }
 
 func TestStart(t *testing.T) {
@@ -53,12 +42,10 @@ func TestStart(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/?share-code=a-share-code", nil)
 
-			dataStore := &mockDataStore{
-				data: page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: tc.identity},
-			}
+			dataStore := newMockDataStore(t)
 			dataStore.
-				On("Get", r.Context(), "SHARECODE#a-share-code", "#METADATA#a-share-code").
-				Return(nil)
+				ExpectGet(r.Context(), "SHARECODE#a-share-code", "#METADATA#a-share-code",
+					page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: tc.identity}, nil)
 
 			lpaStore := newMockLpaStore(t)
 			lpaStore.
@@ -82,7 +69,6 @@ func TestStart(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-			mock.AssertExpectationsForObjects(t, dataStore)
 		})
 	}
 }
@@ -91,29 +77,24 @@ func TestStartWhenGettingShareCodeErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?share-code=a-share-code", nil)
 
-	dataStore := &mockDataStore{
-		data: page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"},
-	}
+	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Get", mock.Anything, mock.Anything, mock.Anything).
-		Return(expectedError)
+		ExpectGet(mock.Anything, mock.Anything, mock.Anything,
+			nil, expectedError)
 
 	err := Start(nil, nil, dataStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
 func TestStartWhenGettingLpaErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?share-code=a-share-code", nil)
 
-	dataStore := &mockDataStore{
-		data: page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"},
-	}
+	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Get", mock.Anything, mock.Anything, mock.Anything).
-		Return(nil)
+		ExpectGet(mock.Anything, mock.Anything, mock.Anything,
+			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"}, nil)
 
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
@@ -123,19 +104,16 @@ func TestStartWhenGettingLpaErrors(t *testing.T) {
 	err := Start(nil, lpaStore, dataStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
 func TestStartWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	dataStore := &mockDataStore{
-		data: page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"},
-	}
+	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Get", mock.Anything, mock.Anything, mock.Anything).
-		Return(nil)
+		ExpectGet(mock.Anything, mock.Anything, mock.Anything,
+			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"}, nil)
 
 	lpaStore := newMockLpaStore(t)
 	lpaStore.

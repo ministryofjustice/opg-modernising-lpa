@@ -21,7 +21,7 @@ func TestShareCodeSenderSend(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
 
-			dataStore := &mockDataStore{}
+			dataStore := newMockDataStore(t)
 			dataStore.
 				On("Put", ctx, "SHARECODE#123", "#METADATA#123", ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", Identity: identity}).
 				Return(nil)
@@ -44,7 +44,6 @@ func TestShareCodeSenderSend(t *testing.T) {
 			err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", identity)
 
 			assert.Nil(t, err)
-			mock.AssertExpectationsForObjects(t, dataStore)
 		})
 	}
 }
@@ -52,7 +51,7 @@ func TestShareCodeSenderSend(t *testing.T) {
 func TestShareCodeSenderSendWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
 
-	dataStore := &mockDataStore{}
+	dataStore := newMockDataStore(t)
 	dataStore.
 		On("Put", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
@@ -75,13 +74,12 @@ func TestShareCodeSenderSendWhenEmailErrors(t *testing.T) {
 	err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true)
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
-	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
 func TestShareCodeSenderSendWhenDataStoreErrors(t *testing.T) {
 	ctx := context.Background()
 
-	dataStore := &mockDataStore{}
+	dataStore := newMockDataStore(t)
 	dataStore.
 		On("Put", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(ExpectedError)
@@ -90,5 +88,4 @@ func TestShareCodeSenderSendWhenDataStoreErrors(t *testing.T) {
 	err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true)
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
-	mock.AssertExpectationsForObjects(t, dataStore)
 }

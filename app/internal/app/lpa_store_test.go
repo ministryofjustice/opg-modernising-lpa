@@ -8,30 +8,29 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+	mock "github.com/stretchr/testify/mock"
 )
 
 var expectedError = errors.New("err")
 
-type mockDataStore struct {
-	data interface{}
-	mock.Mock
+func (m *mockDataStore) ExpectGet(ctx, pk, sk, data interface{}, err error) {
+	m.
+		On("Get", ctx, pk, sk, mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		})
 }
 
-func (m *mockDataStore) GetAll(ctx context.Context, pk string, v interface{}) error {
-	data, _ := json.Marshal(m.data)
-	json.Unmarshal(data, v)
-	return m.Called(ctx, pk).Error(0)
-}
-
-func (m *mockDataStore) Get(ctx context.Context, pk, sk string, v interface{}) error {
-	data, _ := json.Marshal(m.data)
-	json.Unmarshal(data, v)
-	return m.Called(ctx, pk, sk).Error(0)
-}
-
-func (m *mockDataStore) Put(ctx context.Context, pk, sk string, v interface{}) error {
-	return m.Called(ctx, pk, sk, v).Error(0)
+func (m *mockDataStore) ExpectGetAll(ctx, pk, data interface{}, err error) {
+	m.
+		On("GetAll", ctx, pk, mock.Anything).
+		Return(func(ctx context.Context, pk string, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		})
 }
 
 func TestLpaStoreGetAll(t *testing.T) {
@@ -39,8 +38,9 @@ func TestLpaStoreGetAll(t *testing.T) {
 
 	lpas := []*page.Lpa{{ID: "10100000"}}
 
-	dataStore := &mockDataStore{data: lpas}
-	dataStore.On("GetAll", ctx, "an-id").Return(nil)
+	dataStore := newMockDataStore(t)
+	dataStore.ExpectGetAll(ctx, "an-id",
+		lpas, nil)
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
 
@@ -52,8 +52,9 @@ func TestLpaStoreGetAll(t *testing.T) {
 func TestLpaStoreGet(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", LpaID: "123"})
 
-	dataStore := &mockDataStore{data: &page.Lpa{ID: "10100000"}}
-	dataStore.On("Get", ctx, "an-id", "123").Return(nil)
+	dataStore := newMockDataStore(t)
+	dataStore.ExpectGet(ctx, "an-id", "123",
+		&page.Lpa{ID: "10100000"}, nil)
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
 
@@ -66,8 +67,9 @@ func TestLpaStoreGetWhenExists(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", LpaID: "123"})
 	existingLpa := &page.Lpa{ID: "an-id"}
 
-	dataStore := &mockDataStore{data: existingLpa}
-	dataStore.On("Get", ctx, "an-id", "123").Return(nil)
+	dataStore := newMockDataStore(t)
+	dataStore.ExpectGet(ctx, "an-id", "123",
+		existingLpa, nil)
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
 
@@ -79,8 +81,9 @@ func TestLpaStoreGetWhenExists(t *testing.T) {
 func TestLpaStoreGetWhenDataStoreError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", LpaID: "123"})
 
-	dataStore := &mockDataStore{}
-	dataStore.On("Get", ctx, "an-id", "123").Return(expectedError)
+	dataStore := newMockDataStore(t)
+	dataStore.ExpectGet(ctx, "an-id", "123",
+		nil, expectedError)
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
 
@@ -92,7 +95,7 @@ func TestLpaStorePut(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", LpaID: "123"})
 	lpa := &page.Lpa{ID: "5"}
 
-	dataStore := &mockDataStore{}
+	dataStore := newMockDataStore(t)
 	dataStore.On("Put", ctx, "an-id", "5", lpa).Return(expectedError)
 
 	lpaStore := &lpaStore{dataStore: dataStore}
