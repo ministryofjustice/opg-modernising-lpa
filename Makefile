@@ -26,6 +26,9 @@ help: ##@other Show this help.
 go-test: ##@testing Runs full go test suite
 	find . -name go.mod -execdir go test ./... -race -covermode=atomic -coverprofile=coverage.out \;
 
+go-generate: ##@testing Runs go generate
+	find . -name go.mod -execdir go generate ./... \;
+
 coverage: ##@testing Produces coverage report and launches browser line based coverage explorer. To test a specific internal package pass in the package name e.g. make coverage package=page
 ifdef package
 	$(eval t="/tmp/go-cover.$(package).tmp")
