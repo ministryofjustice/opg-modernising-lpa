@@ -34,7 +34,7 @@ func TestTestingStart(t *testing.T) {
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -62,7 +62,7 @@ func TestTestingStart(t *testing.T) {
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -71,7 +71,7 @@ func TestTestingStart(t *testing.T) {
 
 	t.Run("with payment", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withPayment=1", nil)
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&paymentComplete=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
 		sessionStore := newMockSessionStore(t)
@@ -90,7 +90,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -119,7 +119,7 @@ func TestTestingStart(t *testing.T) {
 						ID:          "JohnSmith",
 						FirstNames:  "John",
 						LastName:    "Smith",
-						Email:       "John@example.org",
+						Email:       TestEmail,
 						DateOfBirth: date.New("2000", "1", "2"),
 						Address: place.Address{
 							Line1:      "2 RICHMOND PLACE",
@@ -136,7 +136,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -153,7 +153,7 @@ func TestTestingStart(t *testing.T) {
 				ID:          "with-address",
 				FirstNames:  "John",
 				LastName:    "Smith",
-				Email:       "John@example.org",
+				Email:       TestEmail,
 				DateOfBirth: date.New("2000", "1", "2"),
 				Address: place.Address{
 					Line1:      "2 RICHMOND PLACE",
@@ -167,7 +167,7 @@ func TestTestingStart(t *testing.T) {
 				ID:          "without-address",
 				FirstNames:  "Joan",
 				LastName:    "Smith",
-				Email:       "Joan@example.org",
+				Email:       TestEmail,
 				DateOfBirth: date.New("2000", "1", "2"),
 				Address:     place.Address{},
 			},
@@ -200,7 +200,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -217,7 +217,7 @@ func TestTestingStart(t *testing.T) {
 				ID:          "JohnSmith",
 				FirstNames:  "John",
 				LastName:    "Smith",
-				Email:       "John@example.org",
+				Email:       TestEmail,
 				DateOfBirth: date.New("2000", "1", "2"),
 				Address: place.Address{
 					Line1:      "2 RICHMOND PLACE",
@@ -231,7 +231,7 @@ func TestTestingStart(t *testing.T) {
 				ID:          "JoanSmith",
 				FirstNames:  "Joan",
 				LastName:    "Smith",
-				Email:       "Joan@example.org",
+				Email:       TestEmail,
 				DateOfBirth: date.New("2000", "1", "2"),
 				Address: place.Address{
 					Line1:      "2 RICHMOND PLACE",
@@ -263,7 +263,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -303,7 +303,7 @@ func TestTestingStart(t *testing.T) {
 					}).
 					Return(nil)
 
-				TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+				TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 				resp := w.Result()
 
 				assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -333,8 +333,8 @@ func TestTestingStart(t *testing.T) {
 				CertificateProvider: actor.CertificateProvider{
 					FirstNames:              "Barbara",
 					LastName:                "Smith",
-					Email:                   "Barbara@example.org",
-					Mobile:                  "07535111111",
+					Email:                   TestEmail,
+					Mobile:                  TestMobile,
 					DateOfBirth:             date.New("1997", "1", "2"),
 					Relationship:            "friend",
 					RelationshipDescription: "",
@@ -344,7 +344,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -378,7 +378,7 @@ func TestTestingStart(t *testing.T) {
 						TownOrCity: "BIRMINGHAM",
 						Postcode:   "B14 7ED",
 					},
-					Email:       "simulate-delivered@notifications.service.gov.uk",
+					Email:       TestEmail,
 					DateOfBirth: date.New("2000", "1", "2"),
 				},
 				WhoFor: "me",
@@ -387,7 +387,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -426,7 +426,7 @@ func TestTestingStart(t *testing.T) {
 							TownOrCity: "BIRMINGHAM",
 							Postcode:   "B14 7ED",
 						},
-						Email:       "Jane@example.org",
+						Email:       TestEmail,
 						DateOfBirth: date.New("2000", "1", "2"),
 						ID:          "JaneSmith",
 					},
@@ -440,7 +440,7 @@ func TestTestingStart(t *testing.T) {
 							TownOrCity: "BIRMINGHAM",
 							Postcode:   "B14 7ED",
 						},
-						Email:       "Jorge@example.org",
+						Email:       TestEmail,
 						DateOfBirth: date.New("2000", "1", "2"),
 						ID:          "JorgeSmith",
 					},
@@ -448,7 +448,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -477,7 +477,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -506,7 +506,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -537,7 +537,7 @@ func TestTestingStart(t *testing.T) {
 						ID:         "JoannaSmith",
 						FirstNames: "Joanna",
 						LastName:   "Smith",
-						Email:      "Joanna@example.org",
+						Email:      TestEmail,
 						Address: place.Address{
 							Line1:      "4 RICHMOND PLACE",
 							Line2:      "KINGS HEATH",
@@ -550,7 +550,7 @@ func TestTestingStart(t *testing.T) {
 						ID:         "JonathanSmith",
 						FirstNames: "Jonathan",
 						LastName:   "Smith",
-						Email:      "Jonathan@example.org",
+						Email:      TestEmail,
 						Address: place.Address{
 							Line1:      "4 RICHMOND PLACE",
 							Line2:      "KINGS HEATH",
@@ -563,7 +563,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -593,14 +593,15 @@ func TestTestingStart(t *testing.T) {
 						ID:         "JoannaSmith",
 						FirstNames: "Joanna",
 						LastName:   "Smith",
-						Email:      "Joanna@example.org",
+						Email:      TestEmail,
 						Address:    place.Address{},
 					},
 				},
+				Tasks: Tasks{PeopleToNotify: TaskInProgress},
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -630,7 +631,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -667,7 +668,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -708,7 +709,7 @@ func TestTestingStart(t *testing.T) {
 						ID:         "JoannaSmith",
 						FirstNames: "Joanna",
 						LastName:   "Smith",
-						Email:      "Joanna@example.org",
+						Email:      TestEmail,
 						Address: place.Address{
 							Line1:      "4 RICHMOND PLACE",
 							Line2:      "KINGS HEATH",
@@ -721,7 +722,7 @@ func TestTestingStart(t *testing.T) {
 						ID:         "JonathanSmith",
 						FirstNames: "Jonathan",
 						LastName:   "Smith",
-						Email:      "Jonathan@example.org",
+						Email:      TestEmail,
 						Address: place.Address{
 							Line1:      "4 RICHMOND PLACE",
 							Line2:      "KINGS HEATH",
@@ -747,7 +748,7 @@ func TestTestingStart(t *testing.T) {
 							TownOrCity: "BIRMINGHAM",
 							Postcode:   "B14 7ED",
 						},
-						Email:       "Jane@example.org",
+						Email:       TestEmail,
 						DateOfBirth: date.New("2000", "1", "2"),
 						ID:          "JaneSmith",
 					},
@@ -761,7 +762,7 @@ func TestTestingStart(t *testing.T) {
 							TownOrCity: "BIRMINGHAM",
 							Postcode:   "B14 7ED",
 						},
-						Email:       "Jorge@example.org",
+						Email:       TestEmail,
 						DateOfBirth: date.New("2000", "1", "2"),
 						ID:          "JorgeSmith",
 					},
@@ -776,7 +777,7 @@ func TestTestingStart(t *testing.T) {
 						TownOrCity: "BIRMINGHAM",
 						Postcode:   "B14 7ED",
 					},
-					Email:       "simulate-delivered@notifications.service.gov.uk",
+					Email:       TestEmail,
 					DateOfBirth: date.New("2000", "1", "2"),
 				},
 				WhoFor: "me",
@@ -784,8 +785,8 @@ func TestTestingStart(t *testing.T) {
 				CertificateProvider: actor.CertificateProvider{
 					FirstNames:              "Barbara",
 					LastName:                "Smith",
-					Email:                   "Barbara@example.org",
-					Mobile:                  "07535111111",
+					Email:                   TestEmail,
+					Mobile:                  TestMobile,
 					DateOfBirth:             date.New("1997", "1", "2"),
 					Relationship:            "friend",
 					RelationshipDescription: "",
@@ -796,7 +797,7 @@ func TestTestingStart(t *testing.T) {
 						ID:          "JohnSmith",
 						FirstNames:  "John",
 						LastName:    "Smith",
-						Email:       "John@example.org",
+						Email:       TestEmail,
 						DateOfBirth: date.New("2000", "1", "2"),
 						Address: place.Address{
 							Line1:      "2 RICHMOND PLACE",
@@ -810,7 +811,7 @@ func TestTestingStart(t *testing.T) {
 						ID:          "JoanSmith",
 						FirstNames:  "Joan",
 						LastName:    "Smith",
-						Email:       "Joan@example.org",
+						Email:       TestEmail,
 						DateOfBirth: date.New("2000", "1", "2"),
 						Address: place.Address{
 							Line1:      "2 RICHMOND PLACE",
@@ -837,7 +838,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -868,7 +869,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -897,8 +898,8 @@ func TestTestingStart(t *testing.T) {
 					OK:       true,
 				},
 				CertificateProviderProvidedDetails: actor.CertificateProvider{
-					Mobile: "07535111222",
-					Email:  "t@example.org",
+					Mobile: TestMobile,
+					Email:  TestEmail,
 					Address: place.Address{
 						Line1:      "5 RICHMOND PLACE",
 						Line2:      "KINGS HEATH",
@@ -914,10 +915,76 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
+	})
+
+	t.Run("start certificate provider flow with identity", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowWithId=1", nil)
+		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
+
+		sessionStore := newMockSessionStore(t)
+		sessionStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := newMockLpaStore(t)
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{
+				ID: "123",
+			}).
+			Return(nil)
+
+		dataStore := &mockDataStore{}
+		dataStore.
+			On("Put", ctx, "SHARECODE#123", "#METADATA#123", ShareCodeData{SessionID: "MTIz", LpaID: "123", Identity: true}).
+			Return(nil)
+
+		TestingStart(sessionStore, lpaStore, MockRandom, dataStore).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/certificate-provider-start?share-code=123", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionStore, lpaStore, dataStore)
+	})
+
+	t.Run("start certificate provider flow without identity", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowWithoutId=1", nil)
+		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
+
+		sessionStore := newMockSessionStore(t)
+		sessionStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := newMockLpaStore(t)
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{
+				ID: "123",
+			}).
+			Return(nil)
+
+		dataStore := &mockDataStore{}
+		dataStore.
+			On("Put", ctx, "SHARECODE#123", "#METADATA#123", ShareCodeData{SessionID: "MTIz", LpaID: "123", Identity: false}).
+			Return(nil)
+
+		TestingStart(sessionStore, lpaStore, MockRandom, dataStore).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/certificate-provider-start?share-code=123", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionStore, lpaStore, dataStore)
 	})
 }
