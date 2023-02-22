@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestAuthRedirect(t *testing.T) {
@@ -25,9 +24,9 @@ func TestAuthRedirect(t *testing.T) {
 		On("UserInfo", r.Context(), "a JWT").
 		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
 
-	sessionsStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 
-	session := sessions.NewSession(sessionsStore, "session")
+	session := sessions.NewSession(sessionStore, "session")
 	session.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   86400,
@@ -39,7 +38,7 @@ func TestAuthRedirect(t *testing.T) {
 		"donor": &sesh.DonorSession{Sub: "random", Email: "name@example.com"},
 	}
 
-	sessionsStore.
+	sessionStore.
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
@@ -50,25 +49,23 @@ func TestAuthRedirect(t *testing.T) {
 				},
 			},
 		}, nil)
-	sessionsStore.
+	sessionStore.
 		On("Save", r, w, session).
 		Return(nil)
 
-	AuthRedirect(nil, client, sessionsStore)(w, r)
+	AuthRedirect(nil, client, sessionStore)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, Paths.Dashboard, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestAuthRedirectWithIdentity(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
-	sessionsStore := &mockSessionsStore{}
-
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
@@ -82,21 +79,19 @@ func TestAuthRedirectWithIdentity(t *testing.T) {
 			},
 		}, nil)
 
-	AuthRedirect(nil, nil, sessionsStore)(w, r)
+	AuthRedirect(nil, nil, sessionStore)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/123"+Paths.IdentityWithOneLoginCallback+"?code=auth-code&state=my-state", resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestAuthRedirectWithCertificateProvider(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
-	sessionsStore := &mockSessionsStore{}
-
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
@@ -112,12 +107,11 @@ func TestAuthRedirectWithCertificateProvider(t *testing.T) {
 			},
 		}, nil)
 
-	AuthRedirect(nil, nil, sessionsStore)(w, r)
+	AuthRedirect(nil, nil, sessionStore)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, Paths.CertificateProviderLoginCallback+"?code=auth-code&state=my-state", resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestAuthRedirectWithCyLocale(t *testing.T) {
@@ -132,9 +126,9 @@ func TestAuthRedirectWithCyLocale(t *testing.T) {
 		On("UserInfo", r.Context(), "a JWT").
 		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
 
-	sessionsStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 
-	session := sessions.NewSession(sessionsStore, "session")
+	session := sessions.NewSession(sessionStore, "session")
 	session.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   86400,
@@ -146,7 +140,7 @@ func TestAuthRedirectWithCyLocale(t *testing.T) {
 		"donor": &sesh.DonorSession{Sub: "random", Email: "name@example.com"},
 	}
 
-	sessionsStore.
+	sessionStore.
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
@@ -157,18 +151,17 @@ func TestAuthRedirectWithCyLocale(t *testing.T) {
 				},
 			},
 		}, nil)
-	sessionsStore.
+	sessionStore.
 		On("Save", r, w, session).
 		Return(nil)
 
-	AuthRedirect(nil, client, sessionsStore)(w, r)
+	AuthRedirect(nil, client, sessionStore)(w, r)
 	resp := w.Result()
 
 	redirect := fmt.Sprintf("/cy%s", Paths.Dashboard)
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, redirect, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestAuthRedirectSessionMissing(t *testing.T) {
@@ -218,16 +211,15 @@ func TestAuthRedirectSessionMissing(t *testing.T) {
 			logger.
 				On("Print", tc.expectedErr)
 
-			sessionsStore := &mockSessionsStore{}
-			sessionsStore.
+			sessionStore := newMockSessionStore(t)
+			sessionStore.
 				On("Get", r, "params").
 				Return(tc.session, tc.getErr)
 
-			AuthRedirect(logger, nil, sessionsStore)(w, r)
+			AuthRedirect(logger, nil, sessionStore)(w, r)
 			resp := w.Result()
 
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-			mock.AssertExpectationsForObjects(t, sessionsStore)
 		})
 	}
 }
@@ -240,8 +232,8 @@ func TestAuthRedirectStateIncorrect(t *testing.T) {
 	logger.
 		On("Print", "state incorrect")
 
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
@@ -249,11 +241,10 @@ func TestAuthRedirectStateIncorrect(t *testing.T) {
 			},
 		}, nil)
 
-	AuthRedirect(logger, nil, sessionsStore)(w, r)
+	AuthRedirect(logger, nil, sessionStore)(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
@@ -269,8 +260,8 @@ func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
 		Return("", ExpectedError)
 
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
@@ -278,7 +269,7 @@ func TestAuthRedirectWhenExchangeErrors(t *testing.T) {
 			},
 		}, nil)
 
-	AuthRedirect(logger, client, sessionsStore)(w, r)
+	AuthRedirect(logger, client, sessionStore)(w, r)
 }
 
 func TestAuthRedirectWhenUserInfoError(t *testing.T) {
@@ -297,8 +288,8 @@ func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 		On("UserInfo", r.Context(), "a JWT").
 		Return(onelogin.UserInfo{}, ExpectedError)
 
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
@@ -306,5 +297,5 @@ func TestAuthRedirectWhenUserInfoError(t *testing.T) {
 			},
 		}, nil)
 
-	AuthRedirect(logger, client, sessionsStore)(w, r)
+	AuthRedirect(logger, client, sessionStore)(w, r)
 }

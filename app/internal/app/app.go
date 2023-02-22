@@ -1,13 +1,13 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -21,13 +21,20 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
+//go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
+type DataStore interface {
+	GetAll(context.Context, string, interface{}) error
+	Get(context.Context, string, string, interface{}) error
+	Put(context.Context, string, string, interface{}) error
+}
+
 func App(
 	logger *logging.Logger,
 	localizer localize.Localizer,
 	lang localize.Lang,
 	tmpls template.Templates,
 	sessionStore sesh.Store,
-	dataStore *dynamo.Client,
+	dataStore DataStore,
 	appPublicUrl string,
 	payClient *pay.Client,
 	yotiClient *identity.YotiClient,

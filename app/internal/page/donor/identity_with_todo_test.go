@@ -8,15 +8,14 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestGetIdentityWithTodo(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &identityWithTodoData{
+		On("Execute", w, &identityWithTodoData{
 			App:            testAppData,
 			IdentityOption: identity.Passport,
 		}).
@@ -24,12 +23,11 @@ func TestGetIdentityWithTodo(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := IdentityWithTodo(template.Func, identity.Passport)(testAppData, w, r)
+	err := IdentityWithTodo(template.Execute, identity.Passport)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostIdentityWithTodo(t *testing.T) {

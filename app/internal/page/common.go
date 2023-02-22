@@ -2,9 +2,11 @@ package page
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"strings"
 
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -12,11 +14,15 @@ import (
 
 const FormUrlEncoded = "application/x-www-form-urlencoded"
 
+//go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
+type Template func(io.Writer, interface{}) error
+
 //go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
 type Logger interface {
 	Print(v ...interface{})
 }
 
+//go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
 type DataStore interface {
 	GetAll(context.Context, string, interface{}) error
 	Get(context.Context, string, string, interface{}) error
@@ -44,6 +50,13 @@ type LpaStore interface {
 	GetAll(context.Context) ([]*Lpa, error)
 	Get(context.Context) (*Lpa, error)
 	Put(context.Context, *Lpa) error
+}
+
+//go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
+type SessionStore interface {
+	Get(r *http.Request, name string) (*sessions.Session, error)
+	New(r *http.Request, name string) (*sessions.Session, error)
+	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
 }
 
 func PostFormString(r *http.Request, name string) string {

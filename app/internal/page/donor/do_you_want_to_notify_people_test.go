@@ -11,7 +11,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestGetDoYouWantToNotifyPeople(t *testing.T) {
@@ -23,20 +22,19 @@ func TestGetDoYouWantToNotifyPeople(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &doYouWantToNotifyPeopleData{
+		On("Execute", w, &doYouWantToNotifyPeopleData{
 			App: testAppData,
 			Lpa: &page.Lpa{},
 		}).
 		Return(nil)
 
-	err := DoYouWantToNotifyPeople(template.Func, lpaStore)(testAppData, w, r)
+	err := DoYouWantToNotifyPeople(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
@@ -50,9 +48,9 @@ func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
 			DoYouWantToNotifyPeople: "yes",
 		}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &doYouWantToNotifyPeopleData{
+		On("Execute", w, &doYouWantToNotifyPeopleData{
 			App:          testAppData,
 			WantToNotify: "yes",
 			Lpa: &page.Lpa{
@@ -61,13 +59,11 @@ func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := DoYouWantToNotifyPeople(template.Func, lpaStore)(testAppData, w, r)
+	err := DoYouWantToNotifyPeople(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
@@ -102,9 +98,9 @@ func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 					HowAttorneysMakeDecisions: tc.howWorkTogether,
 				}, nil)
 
-			template := &mockTemplate{}
+			template := newMockTemplate(t)
 			template.
-				On("Func", w, &doYouWantToNotifyPeopleData{
+				On("Execute", w, &doYouWantToNotifyPeopleData{
 					App:          testAppData,
 					WantToNotify: "yes",
 					Lpa: &page.Lpa{
@@ -115,16 +111,13 @@ func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := DoYouWantToNotifyPeople(template.Func, lpaStore)(testAppData, w, r)
+			err := DoYouWantToNotifyPeople(template.Execute, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-
-			mock.AssertExpectationsForObjects(t, template)
 		})
 	}
-
 }
 
 func TestGetDoYouWantToNotifyPeopleFromStoreWithPeople(t *testing.T) {
@@ -140,16 +133,14 @@ func TestGetDoYouWantToNotifyPeopleFromStoreWithPeople(t *testing.T) {
 			},
 		}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 
-	err := DoYouWantToNotifyPeople(template.Func, lpaStore)(testAppData, w, r)
+	err := DoYouWantToNotifyPeople(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChoosePeopleToNotifySummary, resp.Header.Get("Location"))
-
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetDoYouWantToNotifyPeopleWhenStoreErrors(t *testing.T) {
@@ -177,20 +168,19 @@ func TestGetDoYouWantToNotifyPeopleWhenTemplateErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &doYouWantToNotifyPeopleData{
+		On("Execute", w, &doYouWantToNotifyPeopleData{
 			App: testAppData,
 			Lpa: &page.Lpa{},
 		}).
 		Return(expectedError)
 
-	err := DoYouWantToNotifyPeople(template.Func, lpaStore)(testAppData, w, r)
+	err := DoYouWantToNotifyPeople(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostDoYouWantToNotifyPeople(t *testing.T) {
@@ -298,9 +288,9 @@ func TestPostDoYouWantToNotifyPeopleWhenValidationErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &doYouWantToNotifyPeopleData{
+		On("Execute", w, &doYouWantToNotifyPeopleData{
 			App:    testAppData,
 			Errors: validation.With("want-to-notify", validation.SelectError{Label: "yesToNotifySomeoneAboutYourLpa"}),
 			Form:   &doYouWantToNotifyPeopleForm{},
@@ -308,12 +298,11 @@ func TestPostDoYouWantToNotifyPeopleWhenValidationErrors(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := DoYouWantToNotifyPeople(template.Func, lpaStore)(testAppData, w, r)
+	err := DoYouWantToNotifyPeople(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestReadDoYouWantToNotifyPeopleForm(t *testing.T) {

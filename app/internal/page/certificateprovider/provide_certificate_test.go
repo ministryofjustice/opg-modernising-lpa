@@ -23,20 +23,19 @@ func TestGetProvideCertificate(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{Submitted: time.Now()}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &provideCertificateData{
+		On("Execute", w, &provideCertificateData{
 			App:  testAppData,
 			Form: &provideCertificateForm{},
 		}).
 		Return(nil)
 
-	err := ProvideCertificate(template.Func, lpaStore, time.Now)(testAppData, w, r)
+	err := ProvideCertificate(template.Execute, lpaStore, time.Now)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetProvideCertificateRedirectsToStartOnLpaNotSubmitted(t *testing.T) {
@@ -153,19 +152,18 @@ func TestPostProvideCertificateWhenValidationErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{Submitted: now}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, mock.MatchedBy(func(data *provideCertificateData) bool {
+		On("Execute", w, mock.MatchedBy(func(data *provideCertificateData) bool {
 			return assert.Equal(t, validation.With("agree-to-statement", validation.SelectError{Label: "agreeToStatement"}), data.Errors)
 		})).
 		Return(nil)
 
-	err := ProvideCertificate(template.Func, lpaStore, func() time.Time { return now })(testAppData, w, r)
+	err := ProvideCertificate(template.Execute, lpaStore, func() time.Time { return now })(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestReadProvideCertificateForm(t *testing.T) {

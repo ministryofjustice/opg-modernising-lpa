@@ -11,7 +11,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestGetRestrictions(t *testing.T) {
@@ -23,20 +22,19 @@ func TestGetRestrictions(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &restrictionsData{
+		On("Execute", w, &restrictionsData{
 			App: testAppData,
 			Lpa: &page.Lpa{},
 		}).
 		Return(nil)
 
-	err := Restrictions(template.Func, lpaStore)(testAppData, w, r)
+	err := Restrictions(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetRestrictionsFromStore(t *testing.T) {
@@ -48,20 +46,19 @@ func TestGetRestrictionsFromStore(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{Restrictions: "blah"}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &restrictionsData{
+		On("Execute", w, &restrictionsData{
 			App: testAppData,
 			Lpa: &page.Lpa{Restrictions: "blah"},
 		}).
 		Return(nil)
 
-	err := Restrictions(template.Func, lpaStore)(testAppData, w, r)
+	err := Restrictions(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetRestrictionsWhenStoreErrors(t *testing.T) {
@@ -89,20 +86,19 @@ func TestGetRestrictionsWhenTemplateErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &restrictionsData{
+		On("Execute", w, &restrictionsData{
 			App: testAppData,
 			Lpa: &page.Lpa{},
 		}).
 		Return(expectedError)
 
-	err := Restrictions(template.Func, lpaStore)(testAppData, w, r)
+	err := Restrictions(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostRestrictions(t *testing.T) {
@@ -201,21 +197,20 @@ func TestPostRestrictionsWhenValidationErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &restrictionsData{
+		On("Execute", w, &restrictionsData{
 			App:    testAppData,
 			Errors: validation.With("restrictions", validation.StringTooLongError{Label: "restrictions", Length: 10000}),
 			Lpa:    &page.Lpa{},
 		}).
 		Return(nil)
 
-	err := Restrictions(template.Func, lpaStore)(testAppData, w, r)
+	err := Restrictions(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestReadRestrictionsForm(t *testing.T) {
