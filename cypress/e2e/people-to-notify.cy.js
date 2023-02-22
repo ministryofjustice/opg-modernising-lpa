@@ -1,4 +1,4 @@
-import {AddressFormAssertions} from "../support/e2e";
+import {AddressFormAssertions, TestEmail, TestEmail2} from "../support/e2e";
 
 describe('People to notify', () => {
     let person1
@@ -72,14 +72,14 @@ describe('People to notify', () => {
 
         cy.get('#f-first-names').clear().type('Changed')
         cy.get('#f-last-name').clear().type('Altered')
-        cy.get('#f-email').clear().type('different@example.org')
+        cy.get('#f-email').clear().type(TestEmail2)
 
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/choose-people-to-notify-summary');
 
         cy.get('#name-1').contains('Changed Altered')
-        cy.get('#email-1').contains('different@example.org')
+        cy.get('#email-1').contains(TestEmail2)
 
         cy.contains(person1.address.line1).parent().contains('a', 'Change').click();
 
@@ -207,7 +207,7 @@ describe('People to notify', () => {
 
         cy.get('#f-first-names').type('Jose');
         cy.get('#f-last-name').type('Smith');
-        cy.get('#f-email').type('name@example.com');
+        cy.get('#f-email').type(TestEmail);
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/choose-people-to-notify');
 

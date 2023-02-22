@@ -35,6 +35,7 @@ type AppPaths struct {
 	Dashboard                                            string
 	DoYouWantReplacementAttorneys                        string
 	DoYouWantToNotifyPeople                              string
+	Fixtures                                             string
 	HealthCheck                                          string
 	HowDoYouKnowYourCertificateProvider                  string
 	HowLongHaveYouKnownCertificateProvider               string
@@ -112,6 +113,7 @@ var Paths = AppPaths{
 	Dashboard:                                            "/dashboard",
 	DoYouWantReplacementAttorneys:                        "/do-you-want-replacement-attorneys",
 	DoYouWantToNotifyPeople:                              "/do-you-want-to-notify-people",
+	Fixtures:                                             "/fixtures",
 	HealthCheck:                                          "/health-check",
 	HowDoYouKnowYourCertificateProvider:                  "/how-do-you-know-your-certificate-provider",
 	HowLongHaveYouKnownCertificateProvider:               "/how-long-have-you-known-certificate-provider",

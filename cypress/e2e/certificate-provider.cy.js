@@ -1,5 +1,5 @@
 import {
-    AddressFormAssertions
+    AddressFormAssertions, TestEmail, TestMobile
 } from "../support/e2e";
 
 describe('Certificate provider task', () => {
@@ -58,7 +58,7 @@ describe('Certificate provider task', () => {
 
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
-        cy.get('#f-mobile').type('07535111111');
+        cy.get('#f-mobile').type(TestMobile);
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
@@ -69,7 +69,7 @@ describe('Certificate provider task', () => {
         cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
 
         cy.contains('label', 'Online and by email').click();
-        cy.get('#f-email').type('someone@example.com');
+        cy.get('#f-email').type(TestEmail);
         cy.contains('button', 'Continue').click()
 
         cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
@@ -106,7 +106,7 @@ describe('Certificate provider task', () => {
 
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
-        cy.get('#f-mobile').type('07535111111');
+        cy.get('#f-mobile').type(TestMobile);
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
@@ -294,12 +294,12 @@ describe('Certificate provider task', () => {
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
-        cy.get('#f-mobile').type('07535111111');
+        cy.get('#f-mobile').type(TestMobile);
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/certificate-provider-details');
 
         cy.contains('There is also an attorney called John Smith.');
-        
+
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
     });
