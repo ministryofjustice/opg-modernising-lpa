@@ -30,11 +30,13 @@ workspace {
 
         // External Systems
         externalSoftwareSystems = softwareSystem "External Services" "GOV.UK Notify, Pay, One Login, Yoti, Ordanance Survey" "Existing System"
+        externalOPGSoftwareSystems = softwareSystem "OPG Services" "Court Ordered Severances" "Existing System"
         externalScanningSoftware = softwareSystem "Scanning Software" "TBC" "Existing System"
         mlpaUaLPA = softwareSystem "Use an LPA" "Use/View an LPA Service." "Web Browser Existing System"
 
         actor -> makeSoftwareSystem "interacts with"
         makeSoftwareSystem -> externalSoftwareSystems "interacts with"
+        externalOPGSoftwareSystems -> makeSoftwareSystem "sends data to"
         externalScanningSoftware -> mlpaPaperIngestionAPI "sends scanned LPA Data to"
 
         mlpaOnlineContainer -> mlpaStaging "makes calls to"
