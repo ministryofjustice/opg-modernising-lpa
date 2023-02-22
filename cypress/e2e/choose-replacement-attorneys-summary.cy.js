@@ -1,3 +1,5 @@
+import {TestEmail} from "../support/e2e";
+
 describe('Choose replacement attorneys summary', () => {
     beforeEach(() => {
         cy.visit('/testing-start?redirect=/choose-replacement-attorneys-summary&withIncompleteAttorneys=1&cookiesAccepted=1');
@@ -79,7 +81,7 @@ describe('Choose replacement attorneys summary', () => {
 
         cy.get('#f-first-names').clear().type('Bob Arnold');
         cy.get('#f-last-name').clear().type('Jones');
-        cy.get('#f-email').clear().type('dd@example.org');
+        cy.get('#f-email').clear().type(TestEmail);
         cy.get('input[name="date-of-birth-day"]').clear().type('31');
         cy.get('input[name="date-of-birth-month"]').clear().type('12');
         cy.get('input[name="date-of-birth-year"]').clear().type('1995');
@@ -135,7 +137,7 @@ describe('Choose replacement attorneys summary', () => {
 
         cy.url().should('contain', '/do-you-want-replacement-attorneys');
     });
-    
+
     it('errors when remove not selected', () => {
         cy.contains('a', 'Remove John Smith').click();
 
