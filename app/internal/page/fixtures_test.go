@@ -15,9 +15,9 @@ func TestGetFixtures(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	template := &MockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &fixtureData{
+		On("Execute", w, &fixtureData{
 			App:                     TestAppData,
 			Form:                    &fixturesForm{},
 			CPStartLpaNotSignedPath: "/testing-start?redirect=/certificate-provider-start&withCP=1&withDonorDetails=1&startCpFlowWithoutId=1",
@@ -25,7 +25,7 @@ func TestGetFixtures(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := Fixtures(template.Func)(TestAppData, w, r)
+	err := Fixtures(template.Execute)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -52,17 +52,9 @@ func TestPostFixtures(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
-	template := &MockTemplate{}
-	template.
-		On("Func", w, &fixtureData{
-			App:                     TestAppData,
-			Form:                    &fixturesForm{},
-			CPStartLpaNotSignedPath: "/testing-start?redirect=/certificate-provider-start&withCP=1&withDonorDetails=1&startCpFlowWithoutId=1",
-			CPStartLpaSignedPath:    "/testing-start?redirect=/certificate-provider-start&completeLpa=1&startCpFlowWithId=1",
-		}).
-		Return(nil)
+	template := newMockTemplate(t)
 
-	err := Fixtures(template.Func)(TestAppData, w, r)
+	err := Fixtures(template.Execute)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

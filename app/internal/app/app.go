@@ -1,36 +1,50 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"net/http"
 
+	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/donor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
+//go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
+type DataStore interface {
+	GetAll(context.Context, string, interface{}) error
+	Get(context.Context, string, string, interface{}) error
+	Put(context.Context, string, string, interface{}) error
+}
+
 func App(
-	logger page.Logger,
+	logger *logging.Logger,
 	localizer localize.Localizer,
 	lang localize.Lang,
 	tmpls template.Templates,
 	sessionStore sesh.Store,
-	dataStore page.DataStore,
+	dataStore DataStore,
 	appPublicUrl string,
-	payClient page.PayClient,
-	yotiClient page.YotiClient,
+	payClient *pay.Client,
+	yotiClient *identity.YotiClient,
 	yotiScenarioID string,
-	notifyClient page.NotifyClient,
-	addressClient page.AddressClient,
+	notifyClient *notify.Client,
+	addressClient *place.Client,
 	rumConfig page.RumConfig,
 	staticHash string,
 	paths page.AppPaths,
-	oneLoginClient page.OneLoginClient,
+	oneLoginClient *onelogin.Client,
 ) http.Handler {
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
 

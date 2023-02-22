@@ -20,24 +20,23 @@ func TestGetHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &howLongHaveYouKnownCertificateProviderData{
+		On("Execute", w, &howLongHaveYouKnownCertificateProviderData{
 			App: testAppData,
 		}).
 		Return(nil)
 
-	err := HowLongHaveYouKnownCertificateProvider(template.Func, lpaStore)(testAppData, w, r)
+	err := HowLongHaveYouKnownCertificateProvider(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
 
 func TestGetHowLongHaveYouKnownCertificateProviderFromStore(t *testing.T) {
@@ -46,33 +45,32 @@ func TestGetHowLongHaveYouKnownCertificateProviderFromStore(t *testing.T) {
 
 	certificateProvider := actor.CertificateProvider{RelationshipLength: "gte-2-years"}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{CertificateProvider: certificateProvider}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &howLongHaveYouKnownCertificateProviderData{
+		On("Execute", w, &howLongHaveYouKnownCertificateProviderData{
 			App:                 testAppData,
 			CertificateProvider: certificateProvider,
 			HowLong:             "gte-2-years",
 		}).
 		Return(nil)
 
-	err := HowLongHaveYouKnownCertificateProvider(template.Func, lpaStore)(testAppData, w, r)
+	err := HowLongHaveYouKnownCertificateProvider(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
 
 func TestGetHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
@@ -82,31 +80,29 @@ func TestGetHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T) 
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestGetHowLongHaveYouKnownCertificateProviderWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &howLongHaveYouKnownCertificateProviderData{
+		On("Execute", w, &howLongHaveYouKnownCertificateProviderData{
 			App: testAppData,
 		}).
 		Return(expectedError)
 
-	err := HowLongHaveYouKnownCertificateProvider(template.Func, lpaStore)(testAppData, w, r)
+	err := HowLongHaveYouKnownCertificateProvider(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
 
 func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
@@ -118,7 +114,7 @@ func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -141,7 +137,6 @@ func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.DoYouWantToNotifyPeople, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T) {
@@ -153,7 +148,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T)
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -164,7 +159,6 @@ func TestPostHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T)
 	err := HowLongHaveYouKnownCertificateProvider(nil, lpaStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostHowLongHaveYouKnownCertificateProviderWhenValidationErrors(t *testing.T) {
@@ -172,25 +166,24 @@ func TestPostHowLongHaveYouKnownCertificateProviderWhenValidationErrors(t *testi
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &howLongHaveYouKnownCertificateProviderData{
+		On("Execute", w, &howLongHaveYouKnownCertificateProviderData{
 			App:    testAppData,
 			Errors: validation.With("how-long", validation.SelectError{Label: "howLongYouHaveKnownCertificateProvider"}),
 		}).
 		Return(nil)
 
-	err := HowLongHaveYouKnownCertificateProvider(template.Func, lpaStore)(testAppData, w, r)
+	err := HowLongHaveYouKnownCertificateProvider(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestReadHowLongHaveYouKnownCertificateProviderForm(t *testing.T) {

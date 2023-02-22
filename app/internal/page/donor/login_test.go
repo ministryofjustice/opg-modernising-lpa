@@ -15,14 +15,14 @@ func TestLogin(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?locale=cy", nil)
 
-	client := &mockOneLoginClient{}
+	client := newMockOneLoginClient(t)
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "cy", false).
 		Return("http://auth")
 
-	sessionsStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 
-	session := sessions.NewSession(sessionsStore, "params")
+	session := sessions.NewSession(sessionStore, "params")
 
 	session.Options = &sessions.Options{
 		Path:     "/",
@@ -35,31 +35,29 @@ func TestLogin(t *testing.T) {
 		"one-login": &sesh.OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "cy"},
 	}
 
-	sessionsStore.
+	sessionStore.
 		On("Save", r, w, session).
 		Return(nil)
 
-	Login(nil, client, sessionsStore, func(int) string { return "i am random" })(w, r)
+	Login(nil, client, sessionStore, func(int) string { return "i am random" })(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "http://auth", resp.Header.Get("Location"))
-
-	mock.AssertExpectationsForObjects(t, client, sessionsStore)
 }
 
 func TestLoginDefaultLocale(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	client := &mockOneLoginClient{}
+	client := newMockOneLoginClient(t)
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "en", false).
 		Return("http://auth")
 
-	sessionsStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 
-	session := sessions.NewSession(sessionsStore, "params")
+	session := sessions.NewSession(sessionStore, "params")
 
 	session.Options = &sessions.Options{
 		Path:     "/",
@@ -72,41 +70,37 @@ func TestLoginDefaultLocale(t *testing.T) {
 		"one-login": &sesh.OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "en"},
 	}
 
-	sessionsStore.
+	sessionStore.
 		On("Save", r, w, session).
 		Return(nil)
 
-	Login(nil, client, sessionsStore, func(int) string { return "i am random" })(w, r)
+	Login(nil, client, sessionStore, func(int) string { return "i am random" })(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "http://auth", resp.Header.Get("Location"))
-
-	mock.AssertExpectationsForObjects(t, client, sessionsStore)
 }
 
 func TestLoginWhenStoreSaveError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 	logger.
 		On("Print", expectedError)
 
-	client := &mockOneLoginClient{}
+	client := newMockOneLoginClient(t)
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "en", false).
 		Return("http://auth?locale=en")
 
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Save", r, w, mock.Anything).
 		Return(expectedError)
 
-	Login(logger, client, sessionsStore, func(int) string { return "i am random" })(w, r)
+	Login(logger, client, sessionStore, func(int) string { return "i am random" })(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-
-	mock.AssertExpectationsForObjects(t, logger, client, sessionsStore)
 }

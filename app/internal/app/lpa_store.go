@@ -11,7 +11,7 @@ import (
 )
 
 type lpaStore struct {
-	dataStore page.DataStore
+	dataStore DataStore
 	randomInt func(int) int
 }
 

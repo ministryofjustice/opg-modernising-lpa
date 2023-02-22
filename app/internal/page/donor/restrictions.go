@@ -15,7 +15,7 @@ type restrictionsData struct {
 	Lpa       *page.Lpa
 }
 
-func Restrictions(tmpl template.Template, lpaStore page.LpaStore) page.Handler {
+func Restrictions(tmpl template.Template, lpaStore LpaStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {

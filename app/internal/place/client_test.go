@@ -13,15 +13,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type mockDoer struct {
-	mock.Mock
-}
-
-func (m *mockDoer) Do(req *http.Request) (*http.Response, error) {
-	args := m.Called(req)
-	return args.Get(0).(*http.Response), args.Error(1)
-}
-
 func TestLookupPostcode(t *testing.T) {
 	multipleAddressJson, _ := os.ReadFile("testdata/postcode-multiple-addresses.json")
 	noAddressJson, _ := os.ReadFile("testdata/postcode-no-addresses.json")
@@ -112,12 +103,12 @@ func TestLookupPostcode(t *testing.T) {
 
 		defer server.Close()
 
-		mockDoer := mockDoer{}
+		mockDoer := newMockDoer(t)
 		mockDoer.
 			On("Do", mock.Anything).
 			Return(&http.Response{}, errors.New("an error occurred"))
 
-		client := NewClient(server.URL, "fake-api-key", &mockDoer)
+		client := NewClient(server.URL, "fake-api-key", mockDoer)
 		_, err := client.LookupPostcode(ctx, "ABC")
 
 		assert.ErrorContains(t, err, "an error occurred")

@@ -24,6 +24,7 @@ type openidConfiguration struct {
 	JwksURI               string `json:"jwks_uri"`
 }
 
+//go:generate mockery --testonly --inpackage --name Doer --structname mockHttpClient
 type Doer interface {
 	Do(r *http.Request) (*http.Response, error)
 }
@@ -32,6 +33,7 @@ type Logger interface {
 	Print(v ...interface{})
 }
 
+//go:generate mockery --testonly --inpackage --name SecretsClient --structname mockSecretsClient
 type SecretsClient interface {
 	SecretBytes(ctx context.Context, name string) ([]byte, error)
 }

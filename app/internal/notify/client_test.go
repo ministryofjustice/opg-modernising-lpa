@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"testing"
@@ -14,15 +15,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
-
-type mockDoer struct {
-	mock.Mock
-}
-
-func (m *mockDoer) Do(req *http.Request) (*http.Response, error) {
-	args := m.Called(req)
-	return args.Get(0).(*http.Response), args.Error(1)
-}
 
 func TestNew(t *testing.T) {
 	client, err := New(true, "http://base", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", http.DefaultClient)
@@ -49,11 +41,15 @@ func TestEmail(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 
-	doer := &mockDoer{}
+	doer := newMockDoer(t)
 	doer.
 		On("Do", mock.MatchedBy(func(req *http.Request) bool {
+			var buf bytes.Buffer
+			io.Copy(&buf, req.Body)
+			req.Body = ioutil.NopCloser(&buf)
+
 			var v map[string]string
-			json.NewDecoder(req.Body).Decode(&v)
+			json.Unmarshal(buf.Bytes(), &v)
 
 			return assert.Equal("me@example.com", v["email_address"]) &&
 				assert.Equal("template-123", v["template_id"])
@@ -74,7 +70,7 @@ func TestEmailWhenError(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 
-	doer := &mockDoer{}
+	doer := newMockDoer(t)
 	doer.
 		On("Do", mock.Anything).
 		Return(&http.Response{
@@ -100,7 +96,7 @@ func TestTemplateID(t *testing.T) {
 func TestRequest(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
-	doer := &mockDoer{}
+	doer := newMockDoer(t)
 
 	var jsonBody bytes.Buffer
 	jsonBody.WriteString(`{"some": "json"}`)
@@ -119,7 +115,7 @@ func TestRequest(t *testing.T) {
 
 func TestRequestWhenNewRequestError(t *testing.T) {
 	assert := assert.New(t)
-	doer := &mockDoer{}
+	doer := newMockDoer(t)
 
 	var jsonBody bytes.Buffer
 	jsonBody.WriteString(`{"some": "json"}`)
@@ -137,7 +133,7 @@ func TestDoRequest(t *testing.T) {
 	ctx := context.Background()
 	jsonString := `{"id": "123", "status_code": 400}`
 
-	doer := &mockDoer{}
+	doer := newMockDoer(t)
 	doer.
 		On("Do", mock.Anything).
 		Return(&http.Response{
@@ -164,7 +160,7 @@ func TestDoRequestWhenContainsErrorList(t *testing.T) {
 	ctx := context.Background()
 	jsonString := `{"id": "123", "status_code": 400, "errors": [{"error":"SomeError","message":"This happened"}, {"error":"AndError","message":"Plus this"}]}`
 
-	doer := &mockDoer{}
+	doer := newMockDoer(t)
 	doer.
 		On("Do", mock.Anything).
 		Return(&http.Response{
@@ -209,7 +205,7 @@ func TestDoRequestWhenRequestError(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 
-	doer := &mockDoer{}
+	doer := newMockDoer(t)
 	doer.
 		On("Do", mock.Anything).
 		Return(&http.Response{
@@ -234,7 +230,7 @@ func TestDoRequestWhenJsonDecodeFails(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 
-	doer := &mockDoer{}
+	doer := newMockDoer(t)
 	doer.
 		On("Do", mock.Anything).
 		Return(&http.Response{
@@ -259,11 +255,15 @@ func TestSms(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 
-	doer := &mockDoer{}
+	doer := newMockDoer(t)
 	doer.
 		On("Do", mock.MatchedBy(func(req *http.Request) bool {
+			var buf bytes.Buffer
+			io.Copy(&buf, req.Body)
+			req.Body = ioutil.NopCloser(&buf)
+
 			var v map[string]string
-			json.NewDecoder(req.Body).Decode(&v)
+			json.Unmarshal(buf.Bytes(), &v)
 
 			return assert.Equal("+447535111111", v["phone_number"]) &&
 				assert.Equal("template-123", v["template_id"])
@@ -285,7 +285,7 @@ func TestSmsWhenError(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 
-	doer := &mockDoer{}
+	doer := newMockDoer(t)
 	doer.
 		On("Do", mock.Anything).
 		Return(&http.Response{

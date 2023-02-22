@@ -9,7 +9,6 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestPostMakeHandleCsrfTokenValid(t *testing.T) {
@@ -21,16 +20,15 @@ func TestPostMakeHandleCsrfTokenValid(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/path?a=b", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
-	sessionsStore := &MockSessionsStore{}
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Get", r, "csrf").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}, nil)
 
-	ValidateCsrf(http.NotFoundHandler(), sessionsStore, MockRandom).ServeHTTP(w, r)
+	ValidateCsrf(http.NotFoundHandler(), sessionStore, MockRandom).ServeHTTP(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestPostMakeHandleCsrfTokensNotEqual(t *testing.T) {
@@ -42,16 +40,15 @@ func TestPostMakeHandleCsrfTokensNotEqual(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/path?a=b", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
-	sessionsStore := &MockSessionsStore{}
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Get", r, "csrf").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}, nil)
 
-	ValidateCsrf(http.NotFoundHandler(), sessionsStore, MockRandom).ServeHTTP(w, r)
+	ValidateCsrf(http.NotFoundHandler(), sessionStore, MockRandom).ServeHTTP(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusForbidden, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestPostMakeHandleCsrfTokenCookieValueEmpty(t *testing.T) {
@@ -63,16 +60,15 @@ func TestPostMakeHandleCsrfTokenCookieValueEmpty(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/path?a=b", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
-	sessionsStore := &MockSessionsStore{}
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Get", r, "csrf").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"not-token": "123"}}, nil)
 
-	ValidateCsrf(http.NotFoundHandler(), sessionsStore, MockRandom).ServeHTTP(w, r)
+	ValidateCsrf(http.NotFoundHandler(), sessionStore, MockRandom).ServeHTTP(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusForbidden, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestPostMakeHandleCsrfTokenErrorWhenDecodingSession(t *testing.T) {
@@ -84,16 +80,15 @@ func TestPostMakeHandleCsrfTokenErrorWhenDecodingSession(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/path?a=b", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
-	sessionsStore := &MockSessionsStore{}
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Get", r, "csrf").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{}}, ExpectedError)
 
-	ValidateCsrf(http.NotFoundHandler(), sessionsStore, MockRandom).ServeHTTP(w, r)
+	ValidateCsrf(http.NotFoundHandler(), sessionStore, MockRandom).ServeHTTP(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestGetMakeHandleCsrfSessionSavedWhenNew(t *testing.T) {
@@ -101,11 +96,11 @@ func TestGetMakeHandleCsrfSessionSavedWhenNew(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
-	sessionsStore := &MockSessionsStore{}
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Get", r, "csrf").
 		Return(&sessions.Session{IsNew: true}, nil)
-	sessionsStore.
+	sessionStore.
 		On("Save", r, w, &sessions.Session{
 			IsNew:  true,
 			Values: map[interface{}]interface{}{"token": "123"},
@@ -118,9 +113,8 @@ func TestGetMakeHandleCsrfSessionSavedWhenNew(t *testing.T) {
 		}).
 		Return(nil)
 
-	ValidateCsrf(http.NotFoundHandler(), sessionsStore, MockRandom).ServeHTTP(w, r)
+	ValidateCsrf(http.NotFoundHandler(), sessionStore, MockRandom).ServeHTTP(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, sessionsStore)
 }

@@ -5,23 +5,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
-type mockLocalizer struct {
-	mock.Mock
-}
-
-func (m *mockLocalizer) T(name string) string {
-	return m.Called(name).String(0)
-}
-
-func (m *mockLocalizer) Format(name string, data map[string]any) string {
-	return m.Called(name, data).String(0)
-}
-
 func TestValidation(t *testing.T) {
-	l := &mockLocalizer{}
+	l := newMockLocalizer(t)
 	l.On("T", "a").Return("A")
 	l.On("T", "c").Return("C")
 	l.On("Format", "errorStringTooLong", map[string]any{"Label": "A", "Length": 4}).Return("a-tooLong")
