@@ -11,7 +11,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestGetHowShouldReplacementAttorneysStepIn(t *testing.T) {
@@ -23,20 +22,19 @@ func TestGetHowShouldReplacementAttorneysStepIn(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &howShouldReplacementAttorneysStepInData{
+		On("Execute", w, &howShouldReplacementAttorneysStepInData{
 			App:  testAppData,
 			Form: &howShouldReplacementAttorneysStepInForm{},
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(testAppData, w, r)
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
@@ -51,9 +49,9 @@ func TestGetHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 			HowShouldReplacementAttorneysStepInDetails: "some details",
 		}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &howShouldReplacementAttorneysStepInData{
+		On("Execute", w, &howShouldReplacementAttorneysStepInData{
 			App: testAppData,
 			Form: &howShouldReplacementAttorneysStepInForm{
 				WhenToStepIn: page.SomeOtherWay,
@@ -62,12 +60,11 @@ func TestGetHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(testAppData, w, r)
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetHowShouldReplacementAttorneysStepInWhenStoreError(t *testing.T) {
@@ -79,14 +76,13 @@ func TestGetHowShouldReplacementAttorneysStepInWhenStoreError(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(testAppData, w, r)
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
@@ -112,15 +108,14 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 			HowShouldReplacementAttorneysStepInDetails: "some details"}).
 		Return(nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(testAppData, w, r)
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.TaskList, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
@@ -190,15 +185,15 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 					HowShouldReplacementAttorneysStepIn: tc.HowShouldReplacementAttorneysStepIn}).
 				Return(nil)
 
-			template := &mockTemplate{}
+			template := newMockTemplate(t)
 
-			err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(testAppData, w, r)
+			err := HowShouldReplacementAttorneysStepIn(template.Execute, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 			assert.Equal(t, tc.ExpectedRedirectUrl, resp.Header.Get("Location"))
-			mock.AssertExpectationsForObjects(t, template)
+
 		})
 	}
 }
@@ -254,15 +249,15 @@ func TestPostHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 					HowShouldReplacementAttorneysStepInDetails: tc.updatedOtherDetails}).
 				Return(nil)
 
-			template := &mockTemplate{}
+			template := newMockTemplate(t)
 
-			err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(testAppData, w, r)
+			err := HowShouldReplacementAttorneysStepIn(template.Execute, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 			assert.Equal(t, "/lpa/lpa-id"+page.Paths.TaskList, resp.Header.Get("Location"))
-			mock.AssertExpectationsForObjects(t, template)
+
 		})
 	}
 }
@@ -282,21 +277,20 @@ func TestPostHowShouldReplacementAttorneysStepInFormValidation(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &howShouldReplacementAttorneysStepInData{
+		On("Execute", w, &howShouldReplacementAttorneysStepInData{
 			App:    testAppData,
 			Errors: validation.With("when-to-step-in", validation.SelectError{Label: "whenYourReplacementAttorneysStepIn"}),
 			Form:   &howShouldReplacementAttorneysStepInForm{},
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(testAppData, w, r)
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostHowShouldReplacementAttorneysStepInWhenPutStoreError(t *testing.T) {
@@ -322,14 +316,13 @@ func TestPostHowShouldReplacementAttorneysStepInWhenPutStoreError(t *testing.T) 
 			HowShouldReplacementAttorneysStepInDetails: "some details"}).
 		Return(expectedError)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Func, lpaStore)(testAppData, w, r)
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestHowShouldReplacementAttorneysStepInFormValidate(t *testing.T) {

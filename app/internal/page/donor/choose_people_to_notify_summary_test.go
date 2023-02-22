@@ -24,21 +24,20 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &choosePeopleToNotifySummaryData{
+		On("Execute", w, &choosePeopleToNotifySummaryData{
 			App:  testAppData,
 			Lpa:  &page.Lpa{},
 			Form: &choosePeopleToNotifySummaryForm{},
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifySummary(nil, template.Func, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifySummary(nil, template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetChoosePeopleToNotifySummaryWhenStoreErrors(t *testing.T) {
@@ -60,7 +59,6 @@ func TestGetChoosePeopleToNotifySummaryWhenStoreErrors(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, logger)
 }
 
 func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
@@ -134,19 +132,18 @@ func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 
 	validationError := validation.With("add-person-to-notify", validation.SelectError{Label: "yesToAddAnotherPersonToNotify"})
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, mock.MatchedBy(func(data *choosePeopleToNotifySummaryData) bool {
+		On("Execute", w, mock.MatchedBy(func(data *choosePeopleToNotifySummaryData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)
 
-	err := ChoosePeopleToNotifySummary(nil, template.Func, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifySummary(nil, template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestChoosePeopleToNotifySummaryFormValidate(t *testing.T) {

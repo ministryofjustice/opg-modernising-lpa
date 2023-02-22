@@ -18,7 +18,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestRegister(t *testing.T) {
@@ -32,13 +31,13 @@ func TestMakeHandle(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &sesh.DonorSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, sessionsStore, None)
+	handle := makeHandle(mux, nil, sessionStore, None)
 	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/path",
@@ -55,7 +54,6 @@ func TestMakeHandle(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestMakeHandleExistingSessionData(t *testing.T) {
@@ -63,13 +61,13 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
 
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &sesh.DonorSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, sessionsStore, None)
+	handle := makeHandle(mux, nil, sessionStore, None)
 	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/path",
@@ -87,7 +85,6 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestMakeHandleErrors(t *testing.T) {
@@ -98,13 +95,13 @@ func TestMakeHandleErrors(t *testing.T) {
 	logger.
 		On("Print", fmt.Sprintf("Error rendering page for path '%s': %s", "/path", expectedError.Error()))
 
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &sesh.DonorSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, None)
+	handle := makeHandle(mux, logger, sessionStore, None)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
@@ -113,7 +110,6 @@ func TestMakeHandleErrors(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestMakeHandleSessionError(t *testing.T) {
@@ -124,13 +120,13 @@ func TestMakeHandleSessionError(t *testing.T) {
 	logger.
 		On("Print", expectedError)
 
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, None)
+	handle := makeHandle(mux, logger, sessionStore, None)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -138,7 +134,6 @@ func TestMakeHandleSessionError(t *testing.T) {
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, page.Paths.Start, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestMakeHandleSessionMissing(t *testing.T) {
@@ -149,13 +144,13 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 	logger.
 		On("Print", sesh.MissingSessionError("donor"))
 
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionsStore, None)
+	handle := makeHandle(mux, logger, sessionStore, None)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -163,7 +158,6 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, page.Paths.Start, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestMakeHandleNoSessionRequired(t *testing.T) {

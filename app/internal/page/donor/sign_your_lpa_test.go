@@ -22,9 +22,9 @@ func TestGetSignYourLpa(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &signYourLpaData{
+		On("Execute", w, &signYourLpaData{
 			App:                  testAppData,
 			Form:                 &signYourLpaForm{},
 			Lpa:                  &page.Lpa{},
@@ -33,12 +33,11 @@ func TestGetSignYourLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := SignYourLpa(template.Func, lpaStore)(testAppData, w, r)
+	err := SignYourLpa(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetSignYourLpaWhenStoreErrors(t *testing.T) {
@@ -71,9 +70,9 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &signYourLpaData{
+		On("Execute", w, &signYourLpaData{
 			App: testAppData,
 			Lpa: lpa,
 			Form: &signYourLpaForm{
@@ -85,12 +84,11 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := SignYourLpa(template.Func, lpaStore)(testAppData, w, r)
+	err := SignYourLpa(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostSignYourLpa(t *testing.T) {
@@ -172,14 +170,14 @@ func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
 		}).
 		Return(nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, mock.MatchedBy(func(data *signYourLpaData) bool {
+		On("Execute", w, mock.MatchedBy(func(data *signYourLpaData) bool {
 			return assert.Equal(t, validation.With("sign-lpa", validation.CustomError{Label: "bothBoxesToSignAndApply"}), data.Errors)
 		})).
 		Return(nil)
 
-	err := SignYourLpa(template.Func, lpaStore)(testAppData, w, r)
+	err := SignYourLpa(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

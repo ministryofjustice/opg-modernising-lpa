@@ -24,20 +24,19 @@ func TestGetCertificateProviderDetails(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &certificateProviderDetailsData{
+		On("Execute", w, &certificateProviderDetailsData{
 			App:  testAppData,
 			Form: &certificateProviderDetailsForm{},
 		}).
 		Return(nil)
 
-	err := CertificateProviderDetails(template.Func, lpaStore)(testAppData, w, r)
+	err := CertificateProviderDetails(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
@@ -69,9 +68,9 @@ func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 			},
 		}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &certificateProviderDetailsData{
+		On("Execute", w, &certificateProviderDetailsData{
 			App: testAppData,
 			Form: &certificateProviderDetailsForm{
 				FirstNames: "John",
@@ -79,12 +78,11 @@ func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderDetails(template.Func, lpaStore)(testAppData, w, r)
+	err := CertificateProviderDetails(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
@@ -96,20 +94,19 @@ func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &certificateProviderDetailsData{
+		On("Execute", w, &certificateProviderDetailsData{
 			App:  testAppData,
 			Form: &certificateProviderDetailsForm{},
 		}).
 		Return(expectedError)
 
-	err := CertificateProviderDetails(template.Func, lpaStore)(testAppData, w, r)
+	err := CertificateProviderDetails(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostCertificateProviderDetails(t *testing.T) {
@@ -277,19 +274,18 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				On("Get", r.Context()).
 				Return(tc.existingLpa, nil)
 
-			template := &mockTemplate{}
+			template := newMockTemplate(t)
 			template.
-				On("Func", w, mock.MatchedBy(func(data *certificateProviderDetailsData) bool {
+				On("Execute", w, mock.MatchedBy(func(data *certificateProviderDetailsData) bool {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
 
-			err := CertificateProviderDetails(template.Func, lpaStore)(testAppData, w, r)
+			err := CertificateProviderDetails(template.Execute, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-			mock.AssertExpectationsForObjects(t, template)
 		})
 	}
 }
