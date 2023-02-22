@@ -37,6 +37,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    # These files are causing autobuild to fail, at some point in the future this step may not be required
+    - name: Remove go.work files
+      run: rm go.work go.work.sum
+
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
