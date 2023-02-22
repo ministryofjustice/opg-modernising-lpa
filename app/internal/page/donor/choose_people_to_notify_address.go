@@ -20,7 +20,7 @@ type choosePeopleToNotifyAddressData struct {
 	Form           *form.AddressForm
 }
 
-func ChoosePeopleToNotifyAddress(logger page.Logger, tmpl template.Template, addressClient page.AddressClient, lpaStore page.LpaStore) page.Handler {
+func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {

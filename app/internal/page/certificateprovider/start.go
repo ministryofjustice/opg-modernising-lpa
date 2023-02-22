@@ -15,7 +15,7 @@ type startData struct {
 	Start  string
 }
 
-func Start(tmpl template.Template, lpaStore page.LpaStore, dataStore page.DataStore) page.Handler {
+func Start(tmpl template.Template, lpaStore LpaStore, dataStore page.DataStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		shareCode := r.FormValue("share-code")
 

@@ -15,7 +15,7 @@ type identityWithYotiData struct {
 	ScenarioID  string
 }
 
-func IdentityWithYoti(tmpl template.Template, lpaStore page.LpaStore, yotiClient page.YotiClient, yotiScenarioID string) page.Handler {
+func IdentityWithYoti(tmpl template.Template, lpaStore LpaStore, yotiClient YotiClient, yotiScenarioID string) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {

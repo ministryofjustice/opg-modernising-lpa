@@ -101,7 +101,7 @@ func TestMakeHandleErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 	logger.
 		On("Print", fmt.Sprintf("Error rendering page for path '%s': %s", "/path", expectedError.Error()))
 
@@ -121,7 +121,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 	logger.
 		On("Print", expectedError)
 
@@ -139,14 +139,14 @@ func TestMakeHandleSessionError(t *testing.T) {
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, page.Paths.CertificateProviderStart, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, sessionsStore, logger)
+	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestMakeHandleSessionMissing(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 	logger.
 		On("Print", sesh.MissingSessionError("certificate-provider"))
 
@@ -164,7 +164,7 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, page.Paths.CertificateProviderStart, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, sessionsStore, logger)
+	mock.AssertExpectationsForObjects(t, sessionsStore)
 }
 
 func TestMakeHandleNoSessionRequired(t *testing.T) {

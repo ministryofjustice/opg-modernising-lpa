@@ -25,7 +25,7 @@ func TestGetCertificateProviderAddress(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{CertificateProvider: certificateProvider}, nil)
@@ -44,14 +44,14 @@ func TestGetCertificateProviderAddress(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetCertificateProviderAddressWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
@@ -61,7 +61,6 @@ func TestGetCertificateProviderAddressWhenStoreErrors(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestGetCertificateProviderAddressFromStore(t *testing.T) {
@@ -72,7 +71,7 @@ func TestGetCertificateProviderAddressFromStore(t *testing.T) {
 		Address: testAddress,
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -96,7 +95,7 @@ func TestGetCertificateProviderAddressFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetCertificateProviderAddressManual(t *testing.T) {
@@ -107,7 +106,7 @@ func TestGetCertificateProviderAddressManual(t *testing.T) {
 		Address: testAddress,
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{CertificateProvider: certificateProvider}, nil)
@@ -136,7 +135,7 @@ func TestGetCertificateProviderAddressWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -171,7 +170,7 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -188,7 +187,6 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.HowDoYouKnowYourCertificateProvider, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
@@ -205,7 +203,7 @@ func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -219,7 +217,6 @@ func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 	err := CertificateProviderAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
@@ -236,7 +233,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -263,7 +260,6 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.HowDoYouKnowYourCertificateProvider, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
@@ -278,7 +274,7 @@ func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -306,7 +302,7 @@ func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostCertificateProviderAddressSelect(t *testing.T) {
@@ -320,7 +316,7 @@ func TestPostCertificateProviderAddressSelect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -347,7 +343,7 @@ func TestPostCertificateProviderAddressSelect(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostCertificateProviderAddressSelectWhenValidationError(t *testing.T) {
@@ -364,12 +360,12 @@ func TestPostCertificateProviderAddressSelectWhenValidationError(t *testing.T) {
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	addressClient := &mockAddressClient{}
+	addressClient := newMockAddressClient(t)
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
 		Return(addresses, nil)
@@ -409,12 +405,12 @@ func TestPostCertificateProviderAddressLookup(t *testing.T) {
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
 
-	addressClient := &mockAddressClient{}
+	addressClient := newMockAddressClient(t)
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
 		Return(addresses, nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
@@ -436,7 +432,7 @@ func TestPostCertificateProviderAddressLookup(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, addressClient, template)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostCertificateProviderAddressLookupError(t *testing.T) {
@@ -449,16 +445,16 @@ func TestPostCertificateProviderAddressLookupError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 	logger.
 		On("Print", expectedError)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	addressClient := &mockAddressClient{}
+	addressClient := newMockAddressClient(t)
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
 		Return([]place.Address{}, expectedError)
@@ -472,7 +468,7 @@ func TestPostCertificateProviderAddressLookupError(t *testing.T) {
 				LookupPostcode: "NG1",
 			},
 			Addresses: []place.Address{},
-			Errors:    validation.With("lookup-postcode", validation.CustomError{"couldNotLookupPostcode"}),
+			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
 		}).
 		Return(nil)
 
@@ -481,7 +477,7 @@ func TestPostCertificateProviderAddressLookupError(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostCertificateProviderAddressInvalidPostcodeError(t *testing.T) {
@@ -499,16 +495,16 @@ func TestPostCertificateProviderAddressInvalidPostcodeError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 	logger.
 		On("Print", invalidPostcodeErr)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	addressClient := &mockAddressClient{}
+	addressClient := newMockAddressClient(t)
 	addressClient.
 		On("LookupPostcode", mock.Anything, "XYZ").
 		Return([]place.Address{}, invalidPostcodeErr)
@@ -522,7 +518,7 @@ func TestPostCertificateProviderAddressInvalidPostcodeError(t *testing.T) {
 				LookupPostcode: "XYZ",
 			},
 			Addresses: []place.Address{},
-			Errors:    validation.With("lookup-postcode", validation.EnterError{"invalidPostcode"}),
+			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
 		}).
 		Return(nil)
 
@@ -531,7 +527,7 @@ func TestPostCertificateProviderAddressInvalidPostcodeError(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostCertificateProviderAddressValidPostcodeNoAddresses(t *testing.T) {
@@ -545,14 +541,14 @@ func TestPostCertificateProviderAddressValidPostcodeNoAddresses(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	addressClient := &mockAddressClient{}
+	addressClient := newMockAddressClient(t)
 	addressClient.
 		On("LookupPostcode", mock.Anything, "XYZ").
 		Return([]place.Address{}, nil)
@@ -575,7 +571,7 @@ func TestPostCertificateProviderAddressValidPostcodeNoAddresses(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, addressClient, template, logger)
+	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostCertificateProviderAddressLookupWhenValidationError(t *testing.T) {
@@ -587,7 +583,7 @@ func TestPostCertificateProviderAddressLookupWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)

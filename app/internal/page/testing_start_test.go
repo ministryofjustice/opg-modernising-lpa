@@ -21,7 +21,7 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -29,7 +29,7 @@ func TestTestingStart(t *testing.T) {
 			On("Put", ctx, &Lpa{ID: "123"}).
 			Return(nil)
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
@@ -47,7 +47,7 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&paymentComplete=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -58,7 +58,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
@@ -76,12 +76,12 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&paymentComplete=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -105,12 +105,12 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withAttorney=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -144,7 +144,7 @@ func TestTestingStart(t *testing.T) {
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("with incomplete attorneys", func(t *testing.T) {
@@ -177,12 +177,12 @@ func TestTestingStart(t *testing.T) {
 			},
 		}
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -209,7 +209,7 @@ func TestTestingStart(t *testing.T) {
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("with attorneys", func(t *testing.T) {
@@ -248,12 +248,12 @@ func TestTestingStart(t *testing.T) {
 			},
 		}
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -273,7 +273,7 @@ func TestTestingStart(t *testing.T) {
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("how attorneys act", func(t *testing.T) {
@@ -292,12 +292,12 @@ func TestTestingStart(t *testing.T) {
 				r, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/?redirect=/somewhere&howAttorneysAct=%s", tc.DecisionsType), nil)
 				ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-				sessionsStore := &MockSessionsStore{}
+				sessionsStore := &mockSessionsStore{}
 				sessionsStore.
 					On("Save", r, w, mock.Anything).
 					Return(nil)
 
-				lpaStore := &MockLpaStore{}
+				lpaStore := newMockLpaStore(t)
 				lpaStore.
 					On("Create", ctx).
 					Return(&Lpa{ID: "123"}, nil)
@@ -314,7 +314,7 @@ func TestTestingStart(t *testing.T) {
 
 				assert.Equal(t, http.StatusFound, resp.StatusCode)
 				assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-				mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+				mock.AssertExpectationsForObjects(t, sessionsStore)
 			})
 		}
 	})
@@ -324,12 +324,12 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withCP=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -355,7 +355,7 @@ func TestTestingStart(t *testing.T) {
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("with donor details", func(t *testing.T) {
@@ -363,12 +363,12 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withDonorDetails=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -399,7 +399,7 @@ func TestTestingStart(t *testing.T) {
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("with replacement attorneys", func(t *testing.T) {
@@ -407,12 +407,12 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withReplacementAttorneys=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -461,7 +461,7 @@ func TestTestingStart(t *testing.T) {
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("when can be used completed", func(t *testing.T) {
@@ -469,12 +469,12 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&whenCanBeUsedComplete=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -491,7 +491,7 @@ func TestTestingStart(t *testing.T) {
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("with restrictions", func(t *testing.T) {
@@ -499,12 +499,12 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withRestrictions=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -521,7 +521,7 @@ func TestTestingStart(t *testing.T) {
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("with people to notify", func(t *testing.T) {
@@ -529,12 +529,12 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withPeopleToNotify=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -579,7 +579,7 @@ func TestTestingStart(t *testing.T) {
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("with incomplete people to notify", func(t *testing.T) {
@@ -587,12 +587,12 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withIncompletePeopleToNotify=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -618,7 +618,7 @@ func TestTestingStart(t *testing.T) {
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("lpa checked", func(t *testing.T) {
@@ -626,12 +626,12 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&lpaChecked=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -649,7 +649,7 @@ func TestTestingStart(t *testing.T) {
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("id confirmed and signed", func(t *testing.T) {
@@ -657,12 +657,12 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&idConfirmedAndSigned=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -687,7 +687,7 @@ func TestTestingStart(t *testing.T) {
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("complete LPA", func(t *testing.T) {
@@ -695,12 +695,12 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&completeLpa=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -858,7 +858,7 @@ func TestTestingStart(t *testing.T) {
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("as certificate provider", func(t *testing.T) {
@@ -866,12 +866,12 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&asCertificateProvider=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -890,7 +890,7 @@ func TestTestingStart(t *testing.T) {
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("provide certificate", func(t *testing.T) {
@@ -898,12 +898,12 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&provideCertificate=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		sessionsStore := &MockSessionsStore{}
+		sessionsStore := &mockSessionsStore{}
 		sessionsStore.
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		lpaStore := &MockLpaStore{}
+		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
@@ -937,7 +937,7 @@ func TestTestingStart(t *testing.T) {
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionsStore, lpaStore)
+		mock.AssertExpectationsForObjects(t, sessionsStore)
 	})
 
 	t.Run("start certificate provider flow with identity", func(t *testing.T) {

@@ -20,7 +20,7 @@ type aboutPaymentData struct {
 	CertificateProvider actor.CertificateProvider
 }
 
-func AboutPayment(logger page.Logger, tmpl template.Template, sessionStore sessions.Store, payClient page.PayClient, appPublicUrl string, randomString func(int) string, lpaStore page.LpaStore) page.Handler {
+func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.Store, payClient PayClient, appPublicUrl string, randomString func(int) string, lpaStore LpaStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {

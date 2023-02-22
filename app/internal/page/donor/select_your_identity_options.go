@@ -16,7 +16,7 @@ type selectYourIdentityOptionsData struct {
 	Page   int
 }
 
-func SelectYourIdentityOptions(tmpl template.Template, lpaStore page.LpaStore, pageIndex int) page.Handler {
+func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, pageIndex int) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
