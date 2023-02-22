@@ -3,7 +3,6 @@ package page
 import (
 	"context"
 	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -35,7 +34,8 @@ func TestShareCodeSenderSend(t *testing.T) {
 					TemplateID:   "template-id",
 					EmailAddress: "name@example.com",
 					Personalisation: map[string]string{
-						"link": fmt.Sprintf("http://app%s?share-code=123", Paths.CertificateProviderStart),
+						"link":      Paths.CertificateProviderStart,
+						"shareCode": "123",
 					},
 				}).
 				Return("", nil)
@@ -65,7 +65,8 @@ func TestShareCodeSenderSendWhenEmailErrors(t *testing.T) {
 			TemplateID:   "template-id",
 			EmailAddress: "name@example.com",
 			Personalisation: map[string]string{
-				"link": fmt.Sprintf("http://app%s?share-code=123", Paths.CertificateProviderStart),
+				"link":      Paths.CertificateProviderStart,
+				"shareCode": "123",
 			},
 		}).
 		Return("", ExpectedError)

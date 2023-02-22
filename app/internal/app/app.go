@@ -47,10 +47,11 @@ func App(
 	oneLoginClient *onelogin.Client,
 ) http.Handler {
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
+	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)
 
 	rootMux := http.NewServeMux()
 
-	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, dataStore))
+	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, dataStore, shareCodeSender))
 	rootMux.Handle(paths.Root, page.Root(paths))
 
 	handleRoot := makeHandle(rootMux, logger, sessionStore)
@@ -82,7 +83,7 @@ func App(
 		yotiClient,
 		yotiScenarioID,
 		notifyClient,
-		dataStore,
+		shareCodeSender,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String), localizer, lang, rumConfig, staticHash)

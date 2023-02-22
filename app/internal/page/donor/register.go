@@ -96,10 +96,8 @@ func Register(
 	yotiClient YotiClient,
 	yotiScenarioID string,
 	notifyClient NotifyClient,
-	dataStore page.DataStore,
+	shareCodeSender *page.ShareCodeSender,
 ) {
-	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)
-
 	handleRoot := makeHandle(rootMux, logger, sessionStore, None)
 
 	handleRoot(page.Paths.Dashboard, RequireSession,

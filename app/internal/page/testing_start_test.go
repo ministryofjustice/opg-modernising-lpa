@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -34,7 +36,7 @@ func TestTestingStart(t *testing.T) {
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -62,7 +64,7 @@ func TestTestingStart(t *testing.T) {
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -90,7 +92,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -136,7 +138,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -200,7 +202,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -263,7 +265,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -303,7 +305,7 @@ func TestTestingStart(t *testing.T) {
 					}).
 					Return(nil)
 
-				TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+				TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 				resp := w.Result()
 
 				assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -344,7 +346,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -387,7 +389,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -448,7 +450,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -477,7 +479,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -506,7 +508,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -563,7 +565,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -601,7 +603,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -631,7 +633,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -668,7 +670,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -838,7 +840,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -869,7 +871,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -915,7 +917,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, &mockDataStore{}).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, newMockDataStore(t), nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -942,12 +944,12 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		dataStore := &mockDataStore{}
+		dataStore := newMockDataStore(t)
 		dataStore.
-			On("Put", ctx, "SHARECODE#123", "#METADATA#123", ShareCodeData{SessionID: "MTIz", LpaID: "123", Identity: true}).
+			On("Put", ctx, "SHARECODE#123", "#METADATA#123", sharecode.ShareCodeData{SessionID: "MTIz", LpaID: "123", Identity: true}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, dataStore).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, dataStore, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -975,12 +977,12 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		dataStore := &mockDataStore{}
+		dataStore := newMockDataStore(t)
 		dataStore.
-			On("Put", ctx, "SHARECODE#123", "#METADATA#123", ShareCodeData{SessionID: "MTIz", LpaID: "123", Identity: false}).
+			On("Put", ctx, "SHARECODE#123", "#METADATA#123", sharecode.ShareCodeData{SessionID: "MTIz", LpaID: "123", Identity: false}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, dataStore).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, dataStore, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
