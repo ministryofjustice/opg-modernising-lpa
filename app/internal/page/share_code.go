@@ -13,15 +13,15 @@ type ShareCodeData struct {
 	Identity  bool
 }
 
-type shareCodeSender struct {
+type ShareCodeSender struct {
 	dataStore    DataStore
 	notifyClient NotifyClient
 	appPublicURL string
 	randomString func(int) string
 }
 
-func NewShareCodeSender(dataStore DataStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string) *shareCodeSender {
-	return &shareCodeSender{
+func NewShareCodeSender(dataStore DataStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string) *ShareCodeSender {
+	return &ShareCodeSender{
 		dataStore:    dataStore,
 		notifyClient: notifyClient,
 		appPublicURL: appPublicURL,
@@ -29,7 +29,7 @@ func NewShareCodeSender(dataStore DataStore, notifyClient NotifyClient, appPubli
 	}
 }
 
-func (s *shareCodeSender) Send(ctx context.Context, template notify.TemplateId, appData AppData, email string, identity bool) error {
+func (s *ShareCodeSender) Send(ctx context.Context, template notify.TemplateId, appData AppData, email string, identity bool) error {
 	shareCode := s.randomString(12)
 
 	if err := s.dataStore.Put(ctx, "SHARECODE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
@@ -44,7 +44,8 @@ func (s *shareCodeSender) Send(ctx context.Context, template notify.TemplateId, 
 		TemplateID:   s.notifyClient.TemplateID(template),
 		EmailAddress: email,
 		Personalisation: map[string]string{
-			"link": fmt.Sprintf("%s%s?share-code=%s", s.appPublicURL, Paths.CertificateProviderStart, shareCode),
+			"link":      fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
+			"shareCode": shareCode,
 		},
 	}); err != nil {
 		return fmt.Errorf("email failed: %w", err)
