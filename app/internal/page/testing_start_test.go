@@ -946,6 +946,9 @@ func TestTestingStart(t *testing.T) {
 
 		shareCodeSender := newMockShareCodeSender(t)
 		shareCodeSender.
+			On("UseTestCode").
+			Return(nil)
+		shareCodeSender.
 			On("Send", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123"}, TestEmail, true).
 			Return(nil)
 
@@ -978,6 +981,9 @@ func TestTestingStart(t *testing.T) {
 			Return(nil)
 
 		shareCodeSender := newMockShareCodeSender(t)
+		shareCodeSender.
+			On("UseTestCode").
+			Return(nil)
 		shareCodeSender.
 			On("Send", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123"}, TestEmail, false).
 			Return(nil)

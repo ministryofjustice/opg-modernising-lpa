@@ -28,6 +28,11 @@ func (_m *mockShareCodeSender) Send(ctx context.Context, template notify.Templat
 	return r0
 }
 
+// UseTestCode provides a mock function with given fields:
+func (_m *mockShareCodeSender) UseTestCode() {
+	_m.Called()
+}
+
 type mockConstructorTestingTnewMockShareCodeSender interface {
 	mock.TestingT
 	Cleanup(func())

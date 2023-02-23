@@ -27,9 +27,3 @@ func TestRandomCodeUseTestCode(t *testing.T) {
 
 	assert.Equal(t, "1234", Code(10))
 }
-
-func TestRandomStringUseTestCode(t *testing.T) {
-	UseTestCode = true
-
-	assert.Equal(t, "abcdef123456", String(10))
-}
