@@ -59,8 +59,8 @@ type SessionStore interface {
 	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
 }
 
-//go:generate mockery --testonly --inpackage --name CodeSender --structname mockCodeSender
-type CodeSender interface {
+//go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
+type shareCodeSender interface {
 	Send(ctx context.Context, template notify.TemplateId, appData AppData, email string, identity bool) error
 }
 

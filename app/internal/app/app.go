@@ -51,7 +51,7 @@ func App(
 
 	rootMux := http.NewServeMux()
 
-	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, dataStore, shareCodeSender))
+	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, shareCodeSender))
 	rootMux.Handle(paths.Root, page.Root(paths))
 
 	handleRoot := makeHandle(rootMux, logger, sessionStore)
