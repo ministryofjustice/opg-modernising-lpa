@@ -2,6 +2,7 @@ package app
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/ministryofjustice/opg-go-common/logging"
@@ -48,4 +49,43 @@ func TestQueryString(t *testing.T) {
 			assert.Equal(t, tc.expectedQuery, queryString(r))
 		})
 	}
+}
+
+func TestMakeHandle(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
+
+	mux := http.NewServeMux()
+	handle := makeHandle(mux, nil)
+	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+		assert.Equal(t, page.AppData{
+			Page: "/path",
+		}, appData)
+		assert.Equal(t, w, hw)
+
+		hw.WriteHeader(http.StatusTeapot)
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+}
+
+func TestMakeHandleWhenError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
+
+	errorHandler := newMockErrorHandler(t)
+	errorHandler.
+		On("Execute", w, r, expectedError)
+
+	mux := http.NewServeMux()
+	handle := makeHandle(mux, errorHandler.Execute)
+	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+		return expectedError
+	})
+
+	mux.ServeHTTP(w, r)
 }

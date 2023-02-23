@@ -1,0 +1,12 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "sorryProblem" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">{{ tr .App "sorryProblem" }}</h1>
+      <p class="govuk-body">{{ tr .App "tryAgainLater" }}</p>
+    </div>
+  </div>
+{{ end }}

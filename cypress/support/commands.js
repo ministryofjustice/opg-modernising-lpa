@@ -49,6 +49,6 @@ Cypress.Commands.add('checkA11yVvv', () => {
     cy.checkA11y(null, { rules: { region: { enabled: false } } }, terminalLog);
 });
 
-Cypress.Commands.add('visitLpa', (path) => {
-    cy.url().then(u => cy.visit(u.split('/').slice(3, -1).join('/') + path));
+Cypress.Commands.add('visitLpa', (path, opts = {}) => {
+    cy.url().then(u => cy.visit(u.split('/').slice(3, -1).join('/') + path, opts));
 });
