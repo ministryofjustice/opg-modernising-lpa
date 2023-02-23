@@ -504,5 +504,11 @@
 
     "certificateProvided": "Congrats! Certificate has been provided",
     "wellDone": "Well done. All your hard work payed off.",
-    "certificateProvidedContent": "<p class=\"govuk-body\">If you fancy it, grab a snack and call it a day now. Some more content here about next steps (maybe?)</p>"
+    "certificateProvidedContent": "<p class=\"govuk-body\">If you fancy it, grab a snack and call it a day now. Some more content here about next steps (maybe?)</p>",
+
+    "pageNotFound": "Page not found",
+    "pageNotFoundContent": "<p class=\"govuk-body\">If you typed the web address, check it is correct.</p><p class=\"govuk-body\">If you pasted the web address, check you copied the entire address.</p><p class=\"govuk-body\">Please use your browser to go back to the previous page, or return to the <a class=\"govuk-link\" href=\"{{.Start}}\">start page</a>.</p>",
+
+    "sorryProblem": "Sorry, there is a problem with the service",
+    "tryAgainLater": "Try again later."
 }
