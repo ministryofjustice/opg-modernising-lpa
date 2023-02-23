@@ -1,0 +1,23 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "enterYourReferenceCode" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "enterYourReferenceCode" }}</h1>
+
+            {{ trHtml .App "certificateProviderReferenceCodeContent" }}
+
+            <form novalidate method="post">
+                <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset">
+                        {{ template "input" (input . "reference-code" "" .Form.ReferenceCode "classes" "govuk-input--width-20 govuk-!-margin-bottom-3")}}
+                        {{ template "continue-button" . }}
+                    </fieldset>
+                </div>
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}
