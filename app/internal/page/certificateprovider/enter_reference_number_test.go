@@ -2,6 +2,7 @@ package certificateprovider
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -15,6 +16,16 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
+func (m *mockDataStore) ExpectGet(ctx, pk, sk, data interface{}, err error) {
+	m.
+		On("Get", ctx, pk, sk, mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		})
+}
 
 func TestGetEnterReferenceCode(t *testing.T) {
 	w := httptest.NewRecorder()

@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -944,17 +944,17 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		dataStore := newMockDataStore(t)
-		dataStore.
-			On("Put", ctx, "SHARECODE#123", "#METADATA#123", sharecode.ShareCodeData{SessionID: "MTIz", LpaID: "123", Identity: true}).
+		shareCodeSender := newMockCodeSender(t)
+		shareCodeSender.
+			On("Send", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123"}, TestEmail, true).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, dataStore, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, shareCodeSender).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
-		assert.Equal(t, "/certificate-provider-start?share-code=123", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionStore, lpaStore, dataStore)
+		assert.Equal(t, "/certificate-provider-start", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionStore, lpaStore, shareCodeSender)
 	})
 
 	t.Run("start certificate provider flow without identity", func(t *testing.T) {
@@ -977,16 +977,16 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		dataStore := newMockDataStore(t)
-		dataStore.
-			On("Put", ctx, "SHARECODE#123", "#METADATA#123", sharecode.ShareCodeData{SessionID: "MTIz", LpaID: "123", Identity: false}).
+		shareCodeSender := newMockCodeSender(t)
+		shareCodeSender.
+			On("Send", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123"}, TestEmail, false).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, dataStore, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, shareCodeSender).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
-		assert.Equal(t, "/certificate-provider-start?share-code=123", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionStore, lpaStore, dataStore)
+		assert.Equal(t, "/certificate-provider-start", resp.Header.Get("Location"))
+		mock.AssertExpectationsForObjects(t, sessionStore, lpaStore, shareCodeSender)
 	})
 }

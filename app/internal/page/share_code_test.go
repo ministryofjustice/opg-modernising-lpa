@@ -34,7 +34,7 @@ func TestShareCodeSenderSend(t *testing.T) {
 					TemplateID:   "template-id",
 					EmailAddress: "name@example.com",
 					Personalisation: map[string]string{
-						"link":      Paths.CertificateProviderStart,
+						"link":      "http://app" + Paths.CertificateProviderStart,
 						"shareCode": "123",
 					},
 				}).
@@ -65,7 +65,7 @@ func TestShareCodeSenderSendWhenEmailErrors(t *testing.T) {
 			TemplateID:   "template-id",
 			EmailAddress: "name@example.com",
 			Personalisation: map[string]string{
-				"link":      Paths.CertificateProviderStart,
+				"link":      "http://app" + Paths.CertificateProviderStart,
 				"shareCode": "123",
 			},
 		}).

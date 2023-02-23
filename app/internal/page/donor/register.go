@@ -96,7 +96,7 @@ func Register(
 	yotiClient YotiClient,
 	yotiScenarioID string,
 	notifyClient NotifyClient,
-	shareCodeSender *page.ShareCodeSender,
+	shareCodeSender ShareCodeSender,
 ) {
 	handleRoot := makeHandle(rootMux, logger, sessionStore, None)
 
