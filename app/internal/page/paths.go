@@ -17,6 +17,7 @@ type AppPaths struct {
 	CertificateProviderGuidance                          string
 	CertificateProviderLogin                             string
 	CertificateProviderLoginCallback                     string
+	CertificateProviderOptOut                            string
 	CertificateProviderReadTheLpa                        string
 	CertificateProviderStart                             string
 	CertificateProviderYourAddress                       string
@@ -95,6 +96,7 @@ var Paths = AppPaths{
 	CertificateProviderGuidance:                          "/being-a-certificate-provider",
 	CertificateProviderLogin:                             "/certificate-provider-login",
 	CertificateProviderLoginCallback:                     "/certificate-provider-login-callback",
+	CertificateProviderOptOut:                            "/certificate-provider-opt-out",
 	CertificateProviderReadTheLpa:                        "/certificate-provider-read-the-lpa",
 	CertificateProviderStart:                             "/certificate-provider-start",
 	CertificateProviderYourAddress:                       "/certificate-provider-your-address",

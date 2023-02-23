@@ -59,6 +59,16 @@ type SessionStore interface {
 	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
 }
 
+//go:generate mockery --testonly --inpackage --name Localizer --structname mockLocalizer
+type Localizer interface {
+	Format(string, map[string]any) string
+	T(string) string
+	Count(messageID string, count int) string
+	FormatCount(messageID string, count int, data map[string]interface{}) string
+	ShowTranslationKeys() bool
+	SetShowTranslationKeys(s bool)
+}
+
 func PostFormString(r *http.Request, name string) string {
 	return strings.TrimSpace(r.PostFormValue(name))
 }

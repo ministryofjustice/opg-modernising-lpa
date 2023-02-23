@@ -11,7 +11,7 @@ type AppData struct {
 	Page             string
 	Path             string
 	Query            string
-	Localizer        localize.Localizer
+	Localizer        Localizer
 	Lang             localize.Lang
 	CookieConsentSet bool
 	CanGoBack        bool

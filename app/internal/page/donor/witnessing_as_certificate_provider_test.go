@@ -155,6 +155,13 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 	now := time.Now()
 
+	lpa := &page.Lpa{
+		CertificateProvider:         actor.CertificateProvider{Email: "name@example.com"},
+		CertificateProviderUserData: identity.UserData{OK: true},
+		WitnessCode:                 page.WitnessCode{Code: "1234", Created: now},
+		CPWitnessCodeValidated:      true,
+		Submitted:                   now,
+	}
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
@@ -164,18 +171,12 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 			WitnessCode:                 page.WitnessCode{Code: "1234", Created: now},
 		}, nil)
 	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			CertificateProvider:         actor.CertificateProvider{Email: "name@example.com"},
-			CertificateProviderUserData: identity.UserData{OK: true},
-			WitnessCode:                 page.WitnessCode{Code: "1234", Created: now},
-			CPWitnessCodeValidated:      true,
-			Submitted:                   now,
-		}).
+		On("Put", r.Context(), lpa).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("Send", r.Context(), notify.CertificateProviderCertifyEmail, testAppData, "name@example.com", false).
+		On("Send", r.Context(), notify.CertificateProviderCertifyEmail, testAppData, "name@example.com", false, lpa).
 		Return(nil)
 
 	err := WitnessingAsCertificateProvider(nil, lpaStore, shareCodeSender, func() time.Time { return now })(testAppData, w, r)
@@ -196,6 +197,13 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendErrors(t *testing.T
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 	now := time.Now()
 
+	lpa := &page.Lpa{
+		CertificateProvider:         actor.CertificateProvider{Email: "name@example.com"},
+		CertificateProviderUserData: identity.UserData{OK: true},
+		WitnessCode:                 page.WitnessCode{Code: "1234", Created: now},
+		CPWitnessCodeValidated:      true,
+		Submitted:                   now,
+	}
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
@@ -205,18 +213,12 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendErrors(t *testing.T
 			WitnessCode:                 page.WitnessCode{Code: "1234", Created: now},
 		}, nil)
 	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			CertificateProvider:         actor.CertificateProvider{Email: "name@example.com"},
-			CertificateProviderUserData: identity.UserData{OK: true},
-			WitnessCode:                 page.WitnessCode{Code: "1234", Created: now},
-			CPWitnessCodeValidated:      true,
-			Submitted:                   now,
-		}).
+		On("Put", r.Context(), lpa).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("Send", r.Context(), notify.CertificateProviderCertifyEmail, testAppData, "name@example.com", false).
+		On("Send", r.Context(), notify.CertificateProviderCertifyEmail, testAppData, "name@example.com", false, lpa).
 		Return(expectedError)
 
 	err := WitnessingAsCertificateProvider(nil, lpaStore, shareCodeSender, func() time.Time { return now })(testAppData, w, r)
