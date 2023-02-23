@@ -9,7 +9,12 @@ workspace {
             makeSoftwareSystem = softwareSystem "Modernising Lasting Power of Attorney" "Digital Lasting Power of Attorney infrastructure" {
                 // Components
                 mlpaOnlineContainer = container "Make a Lasting Power of Attorney Online" "Allows users to draft a Lasting Power of Attorney online." "Go, HTML, CSS, JS" "Web Browser"
-                mlpaStaging = container "Staging API/Database" "Stores and manages data for pre-registration." "API Gateway, Go, DynamoDB" "Container"
+                mlpaStaging = container "Staging API/Database" "Stores and manages data for pre-registration." "API Gateway, Go, DynamoDB" "Container" {
+                    mlpaStagingAPI = component "API" "Managing LPA data" "API Gateway, Go" "Component"
+                    mlpaStagingSiriusAPI = component "Sirius Staging API" "Managing Case Worker specific access" "API Gateway, Go" "Component"
+                    mlpaStagingDatabase = component "Draft LPA Database" "Stores Draft LPA data." "DynamoDB" "Database"
+                    mlpaStagingApp = component "App" "Manages data events and business logic." "Go" "Component"
+                }
                 mlpaLPAIDAPI = container "LPA ID API" "Manages the LPA IDs." "API Gateway, Go" "Container"
                 mlpaOpgRegisterDatabase = container "Registered LPA Data Store" "Stores immutable LPA data with high availablility, security and auditing." "AuroraDB" "Database"
                 mlpaOpgRegisterWriteAPI = container "Registered LPA Write API" "API for writing registered LPA data." "API Gateway, Go" "Container"
@@ -36,14 +41,14 @@ workspace {
 
         actor -> makeSoftwareSystem "interacts with"
         makeSoftwareSystem -> externalSoftwareSystems "interacts with"
-        externalOPGSoftwareSystems -> makeSoftwareSystem "sends data to"
+        externalOPGSoftwareSystems -> mlpaSiriusCaseManagement "sends data to"
         externalScanningSoftware -> mlpaPaperIngestionAPI "sends scanned LPA Data to"
 
-        mlpaOnlineContainer -> mlpaStaging "makes calls to"
-        mlpaLPAIDAPI -> mlpaStaging "gets LPA Code from"
+        mlpaOnlineContainer -> mlpaStagingAPI "makes calls to"
+        mlpaLPAIDAPI -> mlpaStagingAPI "gets LPA Code from"
 
-        mlpaStaging -> mlpaOpgRegisterWriteAPI "writes validated data to"
-        mlpaStaging -> mlpaSiriusPublicAPI "writes case management data to and read data from"
+        mlpaStagingSiriusAPI -> mlpaOpgRegisterWriteAPI "writes validated data to"
+        mlpaStagingSiriusAPI -> mlpaSiriusPublicAPI "writes case management data to and read data from"
         
         mlpaUaLPA -> mlpaSiriusPublicAPI "read data from"
         mlpaUaLPA -> mlpaOpgRegisterReadAPI "read data from"
@@ -53,7 +58,7 @@ workspace {
 
         mlpaSiriusPublicAPI -> mlpaSiriusCaseManagement "writes and read data from"
         mlpaPaperIngestionAPI -> mlpaSiriusPublicAPI "reads data from"
-        mlpaPaperIngestionAPI -> mlpaStaging "writes data to"
+        mlpaPaperIngestionAPI -> mlpaStagingAPI "writes data to"
 
         mlpaSiriusCaseManagement -> mlpaOpgRegisterReadAPI "reads data from"
     }
@@ -74,7 +79,12 @@ workspace {
             autoLayout
         }
 
-        component mlpaSiriusCaseManagement "Components" {
+        component mlpaSiriusCaseManagement "SiriusCaseManagementComponents" {
+            include *
+            autoLayout
+        }
+
+        component mlpaStaging "StagingApiComponents" {
             include *
             autoLayout
         }
