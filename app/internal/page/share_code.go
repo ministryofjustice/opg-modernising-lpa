@@ -49,7 +49,7 @@ func (s *shareCodeSender) Send(ctx context.Context, template notify.TemplateId, 
 			"donorFirstNames":   lpa.You.FirstNames,
 			"donorFullName":     lpa.You.FullName(),
 			"lpaLegalTerm":      appData.Localizer.T(lpa.TypeLegalTermTransKey()),
-			"cpLandingPageLink": fmt.Sprintf("%s%s?share-code=%s", s.appPublicURL, Paths.CertificateProviderStart, shareCode),
+			"cpLandingPageLink": fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
 			"optOutLink":        fmt.Sprintf("%s%s?share-code=%s", s.appPublicURL, Paths.CertificateProviderOptOut, shareCode),
 		},
 	}); err != nil {

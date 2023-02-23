@@ -60,7 +60,7 @@ func TestShareCodeSenderSend(t *testing.T) {
 						"donorFirstNames":   "Jan",
 						"donorFullName":     "Jan Smith",
 						"lpaLegalTerm":      "property and affairs",
-						"cpLandingPageLink": fmt.Sprintf("http://app%s?share-code=%s", Paths.CertificateProviderStart, "123"),
+						"cpLandingPageLink": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
 						"optOutLink":        fmt.Sprintf("http://app%s?share-code=%s", Paths.CertificateProviderOptOut, "123"),
 					},
 				}).
@@ -115,7 +115,7 @@ func TestShareCodeSenderSendWhenEmailErrors(t *testing.T) {
 				"donorFirstNames":   "Jan",
 				"donorFullName":     "Jan Smith",
 				"lpaLegalTerm":      "property and affairs",
-				"cpLandingPageLink": fmt.Sprintf("http://app%s?share-code=%s", Paths.CertificateProviderStart, "123"),
+				"cpLandingPageLink": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
 				"optOutLink":        fmt.Sprintf("http://app%s?share-code=%s", Paths.CertificateProviderOptOut, "123"),
 			},
 		}).
