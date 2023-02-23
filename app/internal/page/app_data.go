@@ -9,6 +9,7 @@ import (
 
 type AppData struct {
 	Page             string
+	Path             string
 	Query            string
 	Localizer        localize.Localizer
 	Lang             localize.Lang
