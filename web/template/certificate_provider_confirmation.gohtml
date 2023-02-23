@@ -1,5 +1,6 @@
 {{ template "page" . }}
 
+{{ define "serviceName" }}{{ tr .App "beACertificateProvider" }}{{ end }}
 {{ define "pageTitle" }}{{ tr .App "finishedForNow" }}{{ end }}
 
 {{ define "main" }}

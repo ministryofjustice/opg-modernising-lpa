@@ -551,5 +551,9 @@
     "pageNotFoundContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"{{.Start}}\">Welsh</a>.</p>",
 
     "sorryProblem": "Welsh",
-    "tryAgainLater": "Welsh"
+    "tryAgainLater": "Welsh",
+
+    "beACertificateProvider": "Welsh",
+    "beACertificateProviderContent": "<p class=\"govuk-body\">Welsh</p>",
+    "beACertificateProviderPostStartContent": "<p class=\"govuk-body\">Welsh</p>"
 }
