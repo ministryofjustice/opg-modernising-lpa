@@ -5,14 +5,18 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string, dataStore DataStore) http.HandlerFunc {
+func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string, shareCodeSender shareCodeSender) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		random.UseTestCode = true
 		sub := randomString(12)
 		sessionID := base64.StdEncoding.EncodeToString([]byte(sub))
 		donorSesh := &sesh.DonorSession{Sub: sub, Email: TestEmail}
@@ -121,27 +125,21 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		}
 
 		if r.FormValue("startCpFlowWithId") != "" {
-			shareCode := randomString(12)
-			dataStore.Put(ctx, "SHARECODE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
+			shareCodeSender.Send(ctx, notify.CertificateProviderInviteEmail, AppData{
 				SessionID: sessionID,
 				LpaID:     lpa.ID,
-				Identity:  true,
-			})
+			}, TestEmail, true)
 
-			redirect := Paths.CertificateProviderStart + "?" + "share-code=" + shareCode
-			r.Form.Set("redirect", redirect)
+			r.Form.Set("redirect", Paths.CertificateProviderStart)
 		}
 
 		if r.FormValue("startCpFlowWithoutId") != "" {
-			shareCode := randomString(12)
-			dataStore.Put(ctx, "SHARECODE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
+			shareCodeSender.Send(ctx, notify.CertificateProviderInviteEmail, AppData{
 				SessionID: sessionID,
 				LpaID:     lpa.ID,
-				Identity:  false,
-			})
+			}, TestEmail, false)
 
-			redirect := Paths.CertificateProviderStart + "?" + "share-code=" + shareCode
-			r.Form.Set("redirect", redirect)
+			r.Form.Set("redirect", Paths.CertificateProviderStart)
 		}
 
 		if r.FormValue("asCertificateProvider") != "" || r.FormValue("provideCertificate") != "" {
@@ -179,8 +177,6 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		}
 
 		_ = lpaStore.Put(ctx, lpa)
-
-		random.UseTestCode = true
 
 		AppData{}.Redirect(w, r.WithContext(ctx), lpa, r.FormValue("redirect"))
 	}
