@@ -3,7 +3,6 @@ package donor
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -97,18 +96,21 @@ func Register(
 	yotiScenarioID string,
 	notifyClient NotifyClient,
 	shareCodeSender ShareCodeSender,
+	errorHandler page.ErrorHandler,
+	notFoundHandler page.Handler,
 ) {
-	handleRoot := makeHandle(rootMux, logger, sessionStore, None)
+	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler)
 
 	handleRoot(page.Paths.Dashboard, RequireSession,
 		Dashboard(tmpls.Get("dashboard.gohtml"), lpaStore))
 
 	lpaMux := http.NewServeMux()
 
-	rootMux.Handle("/lpa/", routeToLpa(lpaMux))
+	rootMux.Handle("/lpa/", routeToLpa(lpaMux, notFoundHandler))
 
-	handleLpa := makeHandle(lpaMux, logger, sessionStore, RequireSession)
+	handleLpa := makeHandle(lpaMux, sessionStore, RequireSession, errorHandler)
 
+	handleLpa(page.Paths.Root, None, notFoundHandler)
 	handleLpa(page.Paths.YourDetails, None,
 		YourDetails(tmpls.Get("your_details.gohtml"), lpaStore, sessionStore))
 	handleLpa(page.Paths.YourAddress, None,
@@ -244,7 +246,7 @@ const (
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, logger Logger, store sesh.Store, defaultOptions handleOpt) func(string, handleOpt, page.Handler) {
+func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, errorHandler page.ErrorHandler) func(string, handleOpt, page.Handler) {
 	return func(path string, opt handleOpt, h page.Handler) {
 		opt = opt | defaultOptions
 
@@ -258,7 +260,6 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sesh.Store, defaultOpti
 			if opt&RequireSession != 0 {
 				session, err := sesh.Donor(store, r)
 				if err != nil {
-					logger.Print(err)
 					http.Redirect(w, r, page.Paths.Start, http.StatusFound)
 					return
 				}
@@ -277,22 +278,19 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sesh.Store, defaultOpti
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
-				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
-
-				logger.Print(str)
-				http.Error(w, "Encountered an error", http.StatusInternalServerError)
+				errorHandler(w, r, err)
 			}
 		})
 	}
 }
 
-func routeToLpa(mux http.Handler) http.HandlerFunc {
+func routeToLpa(mux http.Handler, notFoundHandler page.Handler) http.HandlerFunc {
 	const prefixLength = len("/lpa/")
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		parts := strings.SplitN(r.URL.Path, "/", 4)
 		if len(parts) != 4 {
-			http.NotFound(w, r)
+			notFoundHandler(page.AppDataFromContext(r.Context()), w, r)
 			return
 		}
 

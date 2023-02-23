@@ -49,13 +49,16 @@ func App(
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
 	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)
 
+	errorHandler := page.Error(tmpls.Get("error-500.gohtml"), logger)
+	notFoundHandler := page.Root(tmpls.Get("error-404.gohtml"), logger)
+
 	rootMux := http.NewServeMux()
 
 	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, shareCodeSender))
-	rootMux.Handle(paths.Root, page.Root(paths))
 
-	handleRoot := makeHandle(rootMux, logger, sessionStore)
+	handleRoot := makeHandle(rootMux, errorHandler)
 
+	handleRoot(paths.Root, notFoundHandler)
 	handleRoot(paths.Start, page.Guidance(tmpls.Get("start.gohtml"), nil))
 	handleRoot(paths.Fixtures, page.Fixtures(tmpls.Get("fixtures.gohtml")))
 
@@ -68,6 +71,7 @@ func App(
 		oneLoginClient,
 		dataStore,
 		addressClient,
+		errorHandler,
 	)
 
 	donor.Register(
@@ -84,9 +88,11 @@ func App(
 		yotiScenarioID,
 		notifyClient,
 		shareCodeSender,
+		errorHandler,
+		notFoundHandler,
 	)
 
-	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String), localizer, lang, rumConfig, staticHash)
+	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash)
 }
 
 func withAppData(next http.Handler, localizer localize.Localizer, lang localize.Lang, rumConfig page.RumConfig, staticHash string) http.HandlerFunc {
@@ -94,6 +100,7 @@ func withAppData(next http.Handler, localizer localize.Localizer, lang localize.
 		ctx := r.Context()
 
 		appData := page.AppDataFromContext(ctx)
+		appData.Path = r.URL.Path
 		appData.Query = queryString(r)
 		appData.Localizer = localizer
 		appData.Lang = lang
@@ -109,7 +116,7 @@ func withAppData(next http.Handler, localizer localize.Localizer, lang localize.
 	}
 }
 
-func makeHandle(mux *http.ServeMux, logger page.Logger, store sesh.Store) func(string, page.Handler) {
+func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(string, page.Handler) {
 	return func(path string, h page.Handler) {
 		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -118,10 +125,7 @@ func makeHandle(mux *http.ServeMux, logger page.Logger, store sesh.Store) func(s
 			appData.Page = path
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
-				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
-
-				logger.Print(str)
-				http.Error(w, "Encountered an error", http.StatusInternalServerError)
+				errorHandler(w, r, err)
 			}
 		})
 	}

@@ -2,7 +2,6 @@ package certificateprovider
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -69,8 +68,9 @@ func Register(
 	oneLoginClient OneLoginClient,
 	dataStore DataStore,
 	addressClient AddressClient,
+	errorHandler page.ErrorHandler,
 ) {
-	handleRoot := makeHandle(rootMux, logger, sessionStore, None)
+	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
 	handleRoot(page.Paths.CertificateProviderStart, None,
 		page.Guidance(tmpls.Get("certificate_provider_start.gohtml"), nil))
@@ -104,10 +104,8 @@ const (
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, logger Logger, store sesh.Store, defaultOptions handleOpt) func(string, handleOpt, page.Handler) {
+func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(string, handleOpt, page.Handler) {
 	return func(path string, opt handleOpt, h page.Handler) {
-		opt = opt | defaultOptions
-
 		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
@@ -118,7 +116,6 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sesh.Store, defaultOpti
 			if opt&RequireSession != 0 {
 				session, err := sesh.CertificateProvider(store, r)
 				if err != nil {
-					logger.Print(err)
 					http.Redirect(w, r, page.Paths.CertificateProviderStart, http.StatusFound)
 					return
 				}
@@ -130,10 +127,7 @@ func makeHandle(mux *http.ServeMux, logger Logger, store sesh.Store, defaultOpti
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
-				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
-
-				logger.Print(str)
-				http.Error(w, "Encountered an error", http.StatusInternalServerError)
+				errorHandler(w, r, err)
 			}
 		})
 	}
