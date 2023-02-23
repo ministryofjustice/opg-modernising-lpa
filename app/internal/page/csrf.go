@@ -1,6 +1,7 @@
 package page
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -8,19 +9,21 @@ import (
 
 type contextKey string
 
-func ValidateCsrf(next http.Handler, store sessions.Store, randomString func(int) string) http.HandlerFunc {
+var ErrCsrfInvalid = errors.New("CSRF token not valid")
+
+func ValidateCsrf(next http.Handler, store sessions.Store, randomString func(int) string, errorHandler ErrorHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		csrfSession, err := store.Get(r, "csrf")
 
 		if r.Method == http.MethodPost {
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				errorHandler(w, r, err)
 				return
 			}
 
 			if !csrfValid(r, csrfSession) {
-				http.Error(w, "CSRF token not valid", http.StatusForbidden)
+				errorHandler(w, r, ErrCsrfInvalid)
 				return
 			}
 		}

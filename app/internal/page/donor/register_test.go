@@ -2,7 +2,6 @@ package donor
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -22,7 +21,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://public.url", &pay.Client{}, &identity.YotiClient{}, "yoti-scenario-id", &notify.Client{}, nil)
+	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://public.url", &pay.Client{}, &identity.YotiClient{}, "yoti-scenario-id", &notify.Client{}, nil, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -37,7 +36,7 @@ func TestMakeHandle(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &sesh.DonorSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, sessionStore, None)
+	handle := makeHandle(mux, sessionStore, None, nil)
 	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/path",
@@ -67,7 +66,7 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &sesh.DonorSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, sessionStore, None)
+	handle := makeHandle(mux, sessionStore, None, nil)
 	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/path",
@@ -91,9 +90,9 @@ func TestMakeHandleErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
-	logger := newMockLogger(t)
-	logger.
-		On("Print", fmt.Sprintf("Error rendering page for path '%s': %s", "/path", expectedError.Error()))
+	errorHandler := newMockErrorHandler(t)
+	errorHandler.
+		On("Execute", w, r, expectedError)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
@@ -101,24 +100,17 @@ func TestMakeHandleErrors(t *testing.T) {
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &sesh.DonorSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionStore, None)
+	handle := makeHandle(mux, sessionStore, None, errorHandler.Execute)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
 
 	mux.ServeHTTP(w, r)
-	resp := w.Result()
-
-	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
 }
 
 func TestMakeHandleSessionError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
-
-	logger := newMockLogger(t)
-	logger.
-		On("Print", expectedError)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
@@ -126,7 +118,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionStore, None)
+	handle := makeHandle(mux, sessionStore, None, nil)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -140,17 +132,13 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
-	logger := newMockLogger(t)
-	logger.
-		On("Print", sesh.MissingSessionError("donor"))
-
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", r, "session").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, logger, sessionStore, None)
+	handle := makeHandle(mux, sessionStore, None, nil)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -165,7 +153,7 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, nil, None)
+	handle := makeHandle(mux, nil, None, nil)
 	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page: "/path",
@@ -191,7 +179,7 @@ func TestRouteToLpa(t *testing.T) {
 		assert.Equal(t, "/somewhere%2Fwhat", r.URL.RawPath)
 
 		w.WriteHeader(http.StatusTeapot)
-	})).ServeHTTP(w, r)
+	}), nil).ServeHTTP(w, r)
 
 	res := w.Result()
 
@@ -202,11 +190,15 @@ func TestRouteToLpaWithoutID(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/lpa/", nil)
 
+	notFoundHandler := newMockHandler(t)
+	notFoundHandler.
+		On("Execute", page.AppData{}, w, r).
+		Return(nil)
+
 	routeToLpa(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusTeapot)
-	})).ServeHTTP(w, r)
+	}), notFoundHandler.Execute).ServeHTTP(w, r)
 
 	res := w.Result()
-
-	assert.Equal(t, http.StatusNotFound, res.StatusCode)
+	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
