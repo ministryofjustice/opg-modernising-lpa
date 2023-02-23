@@ -5,16 +5,18 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
 func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string, shareCodeSender shareCodeSender) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		random.UseTestCode = true
 		sub := randomString(12)
 		sessionID := base64.StdEncoding.EncodeToString([]byte(sub))
 		donorSesh := &sesh.DonorSession{Sub: sub, Email: TestEmail}
@@ -175,8 +177,6 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		}
 
 		_ = lpaStore.Put(ctx, lpa)
-
-		random.UseTestCode = true
 
 		AppData{}.Redirect(w, r.WithContext(ctx), lpa, r.FormValue("redirect"))
 	}
