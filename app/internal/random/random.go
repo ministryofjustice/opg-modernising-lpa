@@ -7,6 +7,9 @@ import (
 var UseTestCode = false
 
 func String(length int) string {
+	if UseTestCode {
+		return "abcdef123456"
+	}
 	return fromCharset(length, "abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789")
 }
 
