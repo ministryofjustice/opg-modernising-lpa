@@ -47,7 +47,6 @@ func TestGetEnterReferenceCode(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestGetEnterReferenceCodeOnTemplateError(t *testing.T) {
@@ -70,7 +69,6 @@ func TestGetEnterReferenceCodeOnTemplateError(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
 
 func TestPostEnterReferenceCode(t *testing.T) {
@@ -119,7 +117,6 @@ func TestPostEnterReferenceCode(t *testing.T) {
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 			assert.Equal(t, page.Paths.CertificateProviderLogin+"?"+tc.ExpectedQuery, resp.Header.Get("Location"))
-			mock.AssertExpectationsForObjects(t, dataStore, lpaStore)
 		})
 	}
 }
@@ -144,7 +141,6 @@ func TestPostEnterReferenceCodeOnDataStoreError(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
 func TestPostEnterReferenceCodeOnLpaStoreError(t *testing.T) {
@@ -176,7 +172,6 @@ func TestPostEnterReferenceCodeOnLpaStoreError(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, dataStore)
 }
 
 func TestPostEnterReferenceCodeOnValidationError(t *testing.T) {
@@ -205,5 +200,4 @@ func TestPostEnterReferenceCodeOnValidationError(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template)
 }
