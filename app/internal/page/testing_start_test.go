@@ -926,7 +926,7 @@ func TestTestingStart(t *testing.T) {
 
 	t.Run("start certificate provider flow with identity", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowWithId=1", nil)
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowWithId=1&useTestShareCode=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
 		sessionStore := newMockSessionStore(t)
@@ -962,7 +962,7 @@ func TestTestingStart(t *testing.T) {
 
 	t.Run("start certificate provider flow without identity", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowWithoutId=1", nil)
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowWithoutId=1&useTestShareCode=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
 		sessionStore := newMockSessionStore(t)

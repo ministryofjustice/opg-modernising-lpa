@@ -1,9 +1,12 @@
 package certificateprovider
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 
@@ -33,7 +36,12 @@ func EnterReferenceCode(tmpl template.Template, lpaStore LpaStore, dataStore pag
 
 				var v page.ShareCodeData
 				if err := dataStore.Get(r.Context(), "SHARECODE#"+shareCode, "#METADATA#"+shareCode, &v); err != nil {
-					return err
+					if errors.Is(err, &dynamo.NotFoundError{}) {
+						data.Errors.Add("reference-code", validation.CustomError{Label: "incorrectReferenceCode"})
+						return tmpl(w, data)
+					} else {
+						return err
+					}
 				}
 
 				lpa, err := lpaStore.Get(page.ContextWithSessionData(r.Context(), &page.SessionData{
