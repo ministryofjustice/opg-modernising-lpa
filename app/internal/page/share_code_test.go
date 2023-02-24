@@ -3,7 +3,10 @@ package page
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/stretchr/testify/assert"
@@ -15,6 +18,24 @@ func TestShareCodeSenderSend(t *testing.T) {
 		"identity": true,
 		"sign in":  false,
 	}
+	lpa := &Lpa{
+		CertificateProvider: actor.CertificateProvider{
+			FirstNames: "Joanna",
+			LastName:   "Jones",
+		},
+		You: actor.Person{
+			FirstNames: "Jan",
+			LastName:   "Smith",
+		},
+		Type: LpaTypePropertyFinance,
+	}
+
+	localizer := newMockLocalizer(t)
+	localizer.
+		On("T", lpa.TypeLegalTermTransKey()).
+		Return("property and affairs")
+
+	TestAppData.Localizer = localizer
 
 	for name, identity := range testcases {
 		t.Run(name, func(t *testing.T) {
@@ -34,14 +55,19 @@ func TestShareCodeSenderSend(t *testing.T) {
 					TemplateID:   "template-id",
 					EmailAddress: "name@example.com",
 					Personalisation: map[string]string{
-						"link":      "http://app" + Paths.CertificateProviderStart,
-						"shareCode": "123",
+						"shareCode":         "123",
+						"cpFullName":        "Joanna Jones",
+						"donorFirstNames":   "Jan",
+						"donorFullName":     "Jan Smith",
+						"lpaLegalTerm":      "property and affairs",
+						"cpLandingPageLink": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+						"optOutLink":        fmt.Sprintf("http://app%s?share-code=%s", Paths.CertificateProviderOptOut, "123"),
 					},
 				}).
 				Return("", nil)
 
 			sender := NewShareCodeSender(dataStore, notifyClient, "http://app", MockRandom)
-			err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", identity)
+			err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", identity, lpa)
 
 			assert.Nil(t, err)
 		})
@@ -62,6 +88,25 @@ func TestShareCodeSenderSendWithTestCode(t *testing.T) {
 			expectedTestCode: "123",
 		},
 	}
+
+	lpa := &Lpa{
+		CertificateProvider: actor.CertificateProvider{
+			FirstNames: "Joanna",
+			LastName:   "Jones",
+		},
+		You: actor.Person{
+			FirstNames: "Jan",
+			LastName:   "Smith",
+		},
+		Type: LpaTypePropertyFinance,
+	}
+
+	localizer := newMockLocalizer(t)
+	localizer.
+		On("T", lpa.TypeLegalTermTransKey()).
+		Return("property and affairs")
+
+	TestAppData.Localizer = localizer
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
@@ -84,8 +129,13 @@ func TestShareCodeSenderSendWithTestCode(t *testing.T) {
 					TemplateID:   "template-id",
 					EmailAddress: "name@example.com",
 					Personalisation: map[string]string{
-						"link":      "http://app" + Paths.CertificateProviderStart,
-						"shareCode": tc.expectedTestCode,
+						"shareCode":         tc.expectedTestCode,
+						"cpFullName":        "Joanna Jones",
+						"donorFirstNames":   "Jan",
+						"donorFullName":     "Jan Smith",
+						"lpaLegalTerm":      "property and affairs",
+						"cpLandingPageLink": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+						"optOutLink":        fmt.Sprintf("http://app%s?share-code=%s", Paths.CertificateProviderOptOut, tc.expectedTestCode),
 					},
 				}).
 				Return("", nil)
@@ -94,8 +144,13 @@ func TestShareCodeSenderSendWithTestCode(t *testing.T) {
 					TemplateID:   "template-id",
 					EmailAddress: "name@example.com",
 					Personalisation: map[string]string{
-						"link":      "http://app" + Paths.CertificateProviderStart,
-						"shareCode": "123",
+						"shareCode":         "123",
+						"cpFullName":        "Joanna Jones",
+						"donorFirstNames":   "Jan",
+						"donorFullName":     "Jan Smith",
+						"lpaLegalTerm":      "property and affairs",
+						"cpLandingPageLink": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+						"optOutLink":        fmt.Sprintf("http://app%s?share-code=%s", Paths.CertificateProviderOptOut, "123"),
 					},
 				}).
 				Return("", nil)
@@ -106,11 +161,11 @@ func TestShareCodeSenderSendWithTestCode(t *testing.T) {
 				sender.UseTestCode()
 			}
 
-			err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true)
+			err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true, lpa)
 
 			assert.Nil(t, err)
 
-			err = sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true)
+			err = sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true, lpa)
 
 			assert.Nil(t, err)
 		})
@@ -119,6 +174,25 @@ func TestShareCodeSenderSendWithTestCode(t *testing.T) {
 
 func TestShareCodeSenderSendWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
+
+	lpa := &Lpa{
+		CertificateProvider: actor.CertificateProvider{
+			FirstNames: "Joanna",
+			LastName:   "Jones",
+		},
+		You: actor.Person{
+			FirstNames: "Jan",
+			LastName:   "Smith",
+		},
+		Type: LpaTypePropertyFinance,
+	}
+
+	localizer := newMockLocalizer(t)
+	localizer.
+		On("T", lpa.TypeLegalTermTransKey()).
+		Return("property and affairs")
+
+	TestAppData.Localizer = localizer
 
 	dataStore := newMockDataStore(t)
 	dataStore.
@@ -134,14 +208,19 @@ func TestShareCodeSenderSendWhenEmailErrors(t *testing.T) {
 			TemplateID:   "template-id",
 			EmailAddress: "name@example.com",
 			Personalisation: map[string]string{
-				"link":      "http://app" + Paths.CertificateProviderStart,
-				"shareCode": "123",
+				"shareCode":         "123",
+				"cpFullName":        "Joanna Jones",
+				"donorFirstNames":   "Jan",
+				"donorFullName":     "Jan Smith",
+				"lpaLegalTerm":      "property and affairs",
+				"cpLandingPageLink": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+				"optOutLink":        fmt.Sprintf("http://app%s?share-code=%s", Paths.CertificateProviderOptOut, "123"),
 			},
 		}).
 		Return("", ExpectedError)
 
 	sender := NewShareCodeSender(dataStore, notifyClient, "http://app", MockRandom)
-	err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true)
+	err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true, lpa)
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
 }
@@ -155,7 +234,7 @@ func TestShareCodeSenderSendWhenDataStoreErrors(t *testing.T) {
 		Return(ExpectedError)
 
 	sender := NewShareCodeSender(dataStore, nil, "http://app", MockRandom)
-	err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true)
+	err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true, &Lpa{})
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
 }
