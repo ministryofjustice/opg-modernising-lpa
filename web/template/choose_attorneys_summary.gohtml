@@ -7,23 +7,23 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ trCount .App "attorneysAdded" (len .Lpa.Attorneys) }}</h1>
 
-        {{ $showHeaders := not (eq .Lpa.Tasks.CheckYourLpa.String "completed") }}
-        {{ template "attorney-summary" (listAttorneys .Lpa.Attorneys .App "attorney" $showHeaders .Lpa ) }}
+      {{ $showHeaders := not (eq .Lpa.Tasks.CheckYourLpa.String "completed") }}
+      {{ template "attorney-summary" (listAttorneys .Lpa.Attorneys .App "attorney" $showHeaders .Lpa ) }}
 
       <form novalidate method="post">
-        <div class="govuk-form-group">
-          <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-            {{ tr .App "doYouWantToAddAnotherAttorney" }}
-          </legend>
+        <div class="govuk-form-group {{ if .Errors.Has "add-attorney" }}govuk-form-group--error{{ end }}">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+              {{ tr .App "doYouWantToAddAnotherAttorney" }}
+            </legend>
 
-          <div class="govuk-form-group {{ if .Errors.Has "add-attorney" }}govuk-form-group--error{{ end }}">
             {{ template "error-message" (errorMessage . "add-attorney") }}
 
             {{ template "radios" (items . "add-attorney" ""
               (item "yes" "yes")
               (item "no" "no")
             ) }}
-          </div>
+          </fieldset>
         </div>
 
         <div class="govuk-button-group">
