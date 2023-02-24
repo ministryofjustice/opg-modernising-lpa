@@ -236,3 +236,42 @@ func TestPostEnterReferenceCodeOnValidationError(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
+
+func TestValidateEnterReferenceCodeForm(t *testing.T) {
+	testCases := map[string]struct {
+		form   *enterReferenceCodeForm
+		errors validation.List
+	}{
+		"valid": {
+			form:   &enterReferenceCodeForm{ReferenceCode: "abcdef123456"},
+			errors: nil,
+		},
+		"too short": {
+			form: &enterReferenceCodeForm{ReferenceCode: "1"},
+			errors: validation.With("reference-code", validation.StringLengthError{
+				Label:  "referenceCodeMustBeTwelveCharacters",
+				Length: 12,
+			}),
+		},
+		"too long": {
+			form: &enterReferenceCodeForm{ReferenceCode: "abcdef1234567"},
+			errors: validation.With("reference-code", validation.StringLengthError{
+				Label:  "referenceCodeMustBeTwelveCharacters",
+				Length: 12,
+			}),
+		},
+		"empty": {
+			form: &enterReferenceCodeForm{},
+			errors: validation.With("reference-code", validation.EnterError{
+				Label: "twelveCharactersReferenceCode",
+			}),
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.errors, tc.form.Validate())
+		})
+	}
+
+}
