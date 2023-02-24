@@ -117,7 +117,7 @@ func TestGetWhenNotFound(t *testing.T) {
 
 	var v string
 	err := c.Get(ctx, "a-pk", "a-sk", &v)
-	assert.Nil(t, err)
+	assert.Equal(t, &NotFoundError{}, err)
 	assert.Equal(t, "", v)
 }
 
