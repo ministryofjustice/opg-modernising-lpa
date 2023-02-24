@@ -131,7 +131,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			shareCodeSender.Send(ctx, notify.CertificateProviderInviteEmail, AppData{
 				SessionID: sessionID,
 				LpaID:     lpa.ID,
-			}, TestEmail, true)
+			}, TestEmail, true, lpa)
 
 			r.Form.Set("redirect", Paths.CertificateProviderStart)
 		}
@@ -140,7 +140,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			shareCodeSender.Send(ctx, notify.CertificateProviderInviteEmail, AppData{
 				SessionID: sessionID,
 				LpaID:     lpa.ID,
-			}, TestEmail, false)
+			}, TestEmail, false, lpa)
 
 			r.Form.Set("redirect", Paths.CertificateProviderStart)
 		}

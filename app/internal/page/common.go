@@ -71,7 +71,7 @@ type Localizer interface {
 
 //go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
 type shareCodeSender interface {
-	Send(ctx context.Context, template notify.TemplateId, appData AppData, email string, identity bool) error
+	Send(ctx context.Context, template notify.TemplateId, appData AppData, email string, identity bool, lpa *Lpa) error
 	UseTestCode()
 }
 

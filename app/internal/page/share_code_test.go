@@ -89,6 +89,25 @@ func TestShareCodeSenderSendWithTestCode(t *testing.T) {
 		},
 	}
 
+	lpa := &Lpa{
+		CertificateProvider: actor.CertificateProvider{
+			FirstNames: "Joanna",
+			LastName:   "Jones",
+		},
+		You: actor.Person{
+			FirstNames: "Jan",
+			LastName:   "Smith",
+		},
+		Type: LpaTypePropertyFinance,
+	}
+
+	localizer := newMockLocalizer(t)
+	localizer.
+		On("T", lpa.TypeLegalTermTransKey()).
+		Return("property and affairs")
+
+	TestAppData.Localizer = localizer
+
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
@@ -110,8 +129,13 @@ func TestShareCodeSenderSendWithTestCode(t *testing.T) {
 					TemplateID:   "template-id",
 					EmailAddress: "name@example.com",
 					Personalisation: map[string]string{
-						"link":      "http://app" + Paths.CertificateProviderStart,
-						"shareCode": tc.expectedTestCode,
+						"shareCode":         tc.expectedTestCode,
+						"cpFullName":        "Joanna Jones",
+						"donorFirstNames":   "Jan",
+						"donorFullName":     "Jan Smith",
+						"lpaLegalTerm":      "property and affairs",
+						"cpLandingPageLink": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+						"optOutLink":        fmt.Sprintf("http://app%s?share-code=%s", Paths.CertificateProviderOptOut, tc.expectedTestCode),
 					},
 				}).
 				Return("", nil)
@@ -120,8 +144,13 @@ func TestShareCodeSenderSendWithTestCode(t *testing.T) {
 					TemplateID:   "template-id",
 					EmailAddress: "name@example.com",
 					Personalisation: map[string]string{
-						"link":      "http://app" + Paths.CertificateProviderStart,
-						"shareCode": "123",
+						"shareCode":         "123",
+						"cpFullName":        "Joanna Jones",
+						"donorFirstNames":   "Jan",
+						"donorFullName":     "Jan Smith",
+						"lpaLegalTerm":      "property and affairs",
+						"cpLandingPageLink": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+						"optOutLink":        fmt.Sprintf("http://app%s?share-code=%s", Paths.CertificateProviderOptOut, "123"),
 					},
 				}).
 				Return("", nil)
@@ -132,11 +161,11 @@ func TestShareCodeSenderSendWithTestCode(t *testing.T) {
 				sender.UseTestCode()
 			}
 
-			err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true)
+			err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true, lpa)
 
 			assert.Nil(t, err)
 
-			err = sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true)
+			err = sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true, lpa)
 
 			assert.Nil(t, err)
 		})
