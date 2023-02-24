@@ -24,10 +24,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
@@ -189,8 +187,7 @@ func main() {
 		http.ServeFile(w, r, webDir+"/robots.txt")
 	})
 	mux.Handle("/static/", http.StripPrefix("/static", handlers.CompressHandler(page.CacheControlHeaders(http.FileServer(http.Dir(webDir+"/static/"))))))
-	mux.Handle(page.Paths.AuthRedirect, page.AuthRedirect(logger, signInClient, sessionStore))
-	mux.Handle(page.Paths.Auth, donor.Login(logger, signInClient, sessionStore, random.String))
+	mux.Handle(page.Paths.AuthRedirect, page.AuthRedirect(logger, sessionStore))
 	mux.Handle(page.Paths.CookiesConsent, page.CookieConsent(page.Paths))
 	mux.Handle("/cy/", http.StripPrefix("/cy", app.App(logger, bundle.For("cy"), localize.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient)))
 	mux.Handle("/", app.App(logger, bundle.For("en"), localize.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient))

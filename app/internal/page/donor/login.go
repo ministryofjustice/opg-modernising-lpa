@@ -3,15 +3,16 @@ package donor
 import (
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func Login(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, randomString func(int) string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func Login(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, randomString func(int) string) page.Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		locale := "en"
-
-		if r.URL.Query().Has("locale") {
-			locale = r.URL.Query().Get("locale")
+		if appData.Lang == localize.Cy {
+			locale = "cy"
 		}
 
 		state := randomString(12)
@@ -25,9 +26,10 @@ func Login(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, rando
 			Locale: locale,
 		}); err != nil {
 			logger.Print(err)
-			return
+			return nil
 		}
 
 		http.Redirect(w, r, authCodeURL, http.StatusFound)
+		return nil
 	}
 }
