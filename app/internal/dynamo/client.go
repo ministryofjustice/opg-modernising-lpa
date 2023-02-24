@@ -21,6 +21,12 @@ type Client struct {
 	svc   dynamoDB
 }
 
+type NotFoundError struct{}
+
+func (n NotFoundError) Error() string {
+	return "No results found"
+}
+
 func NewClient(cfg aws.Config, tableName string) (*Client, error) {
 	return &Client{table: tableName, svc: dynamodb.NewFromConfig(cfg)}, nil
 }
@@ -63,7 +69,7 @@ func (c *Client) Get(ctx context.Context, pk, sk string, v interface{}) error {
 		return err
 	}
 	if result.Item == nil {
-		return nil
+		return &NotFoundError{}
 	}
 
 	return attributevalue.Unmarshal(result.Item["Data"], v)

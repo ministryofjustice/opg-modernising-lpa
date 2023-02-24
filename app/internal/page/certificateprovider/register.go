@@ -73,7 +73,9 @@ func Register(
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
 	handleRoot(page.Paths.CertificateProviderStart, None,
-		Start(tmpls.Get("certificate_provider_start.gohtml"), lpaStore, dataStore))
+		page.Guidance(tmpls.Get("certificate_provider_start.gohtml"), nil))
+	handleRoot(page.Paths.CertificateProviderEnterReference, None,
+		EnterReferenceCode(tmpls.Get("certificate_provider_enter_reference.gohtml"), lpaStore, dataStore))
 	handleRoot(page.Paths.CertificateProviderLogin, None,
 		Login(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.CertificateProviderLoginCallback, None,
