@@ -51,6 +51,27 @@ func (l List) Has(name string) bool {
 	return false
 }
 
+func (l List) HasForDate(name, part string) bool {
+	for _, field := range l {
+		if field.Name == name {
+			if err, ok := field.Error.(DateMissingError); ok {
+				switch part {
+				case "day":
+					return err.MissingDay
+				case "month":
+					return err.MissingMonth
+				case "year":
+					return err.MissingYear
+				}
+			}
+
+			return true
+		}
+	}
+
+	return false
+}
+
 func (l List) Format(localizer Localizer, name string) string {
 	for _, field := range l {
 		if field.Name == name {
