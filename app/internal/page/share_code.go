@@ -40,6 +40,7 @@ func (s *ShareCodeSender) Send(ctx context.Context, template notify.TemplateId, 
 
 	if useTestCode {
 		shareCode = "abcdef123456"
+		useTestCode = false
 	} else {
 		shareCode = s.randomString(12)
 

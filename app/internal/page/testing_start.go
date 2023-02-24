@@ -123,8 +123,11 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			})
 		}
 
-		if r.FormValue("startCpFlowWithId") != "" {
+		if r.FormValue("useTestShareCode") != "" {
 			shareCodeSender.UseTestCode()
+		}
+
+		if r.FormValue("startCpFlowWithId") != "" {
 			shareCodeSender.Send(ctx, notify.CertificateProviderInviteEmail, AppData{
 				SessionID: sessionID,
 				LpaID:     lpa.ID,
@@ -134,7 +137,6 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		}
 
 		if r.FormValue("startCpFlowWithoutId") != "" {
-			shareCodeSender.UseTestCode()
 			shareCodeSender.Send(ctx, notify.CertificateProviderInviteEmail, AppData{
 				SessionID: sessionID,
 				LpaID:     lpa.ID,
