@@ -949,7 +949,7 @@ func TestTestingStart(t *testing.T) {
 			On("UseTestCode").
 			Return(nil)
 		shareCodeSender.
-			On("Send", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123"}, TestEmail, true).
+			On("Send", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123"}, TestEmail, true, &Lpa{ID: "123"}).
 			Return(nil)
 
 		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender).ServeHTTP(w, r)
@@ -985,7 +985,7 @@ func TestTestingStart(t *testing.T) {
 			On("UseTestCode").
 			Return(nil)
 		shareCodeSender.
-			On("Send", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123"}, TestEmail, false).
+			On("Send", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123"}, TestEmail, false, &Lpa{ID: "123"}).
 			Return(nil)
 
 		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender).ServeHTTP(w, r)
