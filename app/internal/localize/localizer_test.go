@@ -85,3 +85,8 @@ func TestNewBundleWithTransKeys(t *testing.T) {
 	assert.Equal("{6 many formatted} [d]", cy.FormatCount("d", 6, map[string]interface{}{"x": "formatted"}))
 	assert.Equal("{7 other formatted} [d]", cy.FormatCount("d", 7, map[string]interface{}{"x": "formatted"}))
 }
+
+func TestShowTranslationKey(t *testing.T) {
+	localizer := Localizer{showTranslationKeys: true}
+	assert.True(t, localizer.ShowTranslationKeys())
+}
