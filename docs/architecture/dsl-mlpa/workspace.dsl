@@ -8,19 +8,33 @@ workspace {
             // Software Systems
             makeSoftwareSystem = softwareSystem "Modernising Lasting Power of Attorney" "Digital Lasting Power of Attorney infrastructure" {
                 // Components
-                mlpaOnlineContainer = container "Make a Lasting Power of Attorney Online" "Allows users to draft a Lasting Power of Attorney online." "Go, HTML, CSS, JS" "Web Browser"
-                mlpaStaging = container "Staging API/Database" "Stores and manages data for pre-registration." "API Gateway, Go, DynamoDB" "Container" {
+                mlpaOnlineContainer = container "Make a Lasting Power of Attorney Online" "Allows users to draft a Lasting Power of Attorney online." "Go, HTML, CSS, JS" "Web Browser" {
+                    mlpaOnlineContainer_webapp = component "App" "Provides and delivers static content, business logic, routing, third party access and database access" "Go, HTML, CSS, JS" "Web Browser"
+                    mlpaOnlineContainer_database = component "Database" "Stores actor information, Draft LPA details, access logs, etc." "DynamoDB" "Database"
+                    mlpaOnlineContainer_databaseMonitoringTelemetry = component "Monitoring and Telemetery" "Cloudwatch logs, X-Ray and RUM" "AWS Cloudwatch" "Database"
+                }
+
+                mlpaStaging = container "Staging Service" "Stores and manages data for pre-registration." "API Gateway, Go, DynamoDB" "Container" {
                     mlpaStagingAPI = component "API" "Managing LPA data" "API Gateway, Go" "Component"
-                    mlpaStagingSiriusAPI = component "Sirius Staging API" "Managing Case Worker specific access" "API Gateway, Go" "Component"
+                    mlpaStagingSiriusAPI = component "Sirius API" "Managing Case Worker specific access" "API Gateway, Go" "Component"
                     mlpaStagingDatabase = component "Draft LPA Database" "Stores Draft LPA data." "DynamoDB" "Database"
                     mlpaStagingApp = component "App" "Manages data events and business logic." "Go" "Component"
                 }
-                mlpaLPAIDAPI = container "LPA ID API" "Manages the LPA IDs." "API Gateway, Go" "Container"
-                mlpaOpgRegisterDatabase = container "Registered LPA Data Store" "Stores immutable LPA data with high availablility, security and auditing." "AuroraDB" "Database"
-                mlpaOpgRegisterWriteAPI = container "Registered LPA Write API" "API for writing registered LPA data." "API Gateway, Go" "Container"
-                mlpaOpgRegisterReadAPI = container "Registered LPA Read API" "Highly available API for reading and searching the LPA Register " "API Gateway" "Container"
+                mlpaLPAIDAPI = container "LPA ID Service" "Manages the LPA IDs." "API Gateway, Go" "Container"
 
-                mlpaPaperIngestionAPI = container "LPA Paper Ingestion API" "Handles the ingestion of the Paper Journey." "API Gateway, Go" "Container"
+                mlpaOpgRegisterDatabase = container "Registered LPA Data Store" "Stores immutable LPA data with high availablility, security and auditing." "AuroraDB" "Database" {
+                    mlpaOpgRegisterDatabase_database = component "Database" "Stores final Register LPA Data." "AuroraDB" "Database"
+                    mlpaOpgRegisterDatabase_databaseMonitoringTelemetry = component "Monitoring and Telemetery" "Cloudwatch logs and X-Ray" "AWS Cloudwatch" "Database"
+                }
+
+                mlpaOpgRegisterService = container "Registered LPA Service" "Highly available API for reading and searching the LPA Register " "API Gateway" "Container" {
+                    mlpaOpgRegisterService_ReadAPIGateway = component "Registered LPA Read API" "Highly available API for reading and searching the LPA Register " "API Gateway" "Container"
+                    mlpaOpgRegisterService_WriteAPIGateway = component "Registered LPA Write API" "Interface to writing to the Registered LPA Database." "API Gateway, Go" "Container"
+                    mlpaOpgRegisterService_ReadReplicaDatabase = component "Read Replica LPA Database" "Cached version of Registered LPA Data." "AuroraDB" "Database"
+                    mlpaOpgRegisterService_ReadReplicaMonitoringTelemetry = component "Monitoring and Telemetery" "Cloudwatch logs and X-Ray" "AWS Cloudwatch" "Database"
+                }
+
+                mlpaPaperIngestionAPI = container "LPA Paper Ingestion Service" "Handles the ingestion of the Paper Journey." "API Gateway, Go" "Container"
                 mlpaSiriusPublicAPI = container "Sirius Public API" "Interaction point between Sirius Case Management and other services." "API Gateway, Go" "Existing System"
 
                 mlpaSiriusCaseManagement = container "Sirius Case Management" "Case Management for case working LPAs." "Go, HTML, CSS, JS" "Component" {
@@ -47,20 +61,27 @@ workspace {
         mlpaOnlineContainer -> mlpaStagingAPI "makes calls to"
         mlpaLPAIDAPI -> mlpaStagingAPI "gets LPA Code from"
 
-        mlpaStagingSiriusAPI -> mlpaOpgRegisterWriteAPI "writes validated data to"
+        mlpaStagingSiriusAPI -> mlpaOpgRegisterService_WriteAPIGateway "writes validated data to"
         mlpaStagingSiriusAPI -> mlpaSiriusPublicAPI "writes case management data to and read data from"
         
         mlpaUaLPA -> mlpaSiriusPublicAPI "read data from"
-        mlpaUaLPA -> mlpaOpgRegisterReadAPI "read data from"
+        mlpaUaLPA -> mlpaOpgRegisterService_ReadAPIGateway "read data from"
         
-        mlpaOpgRegisterWriteAPI -> mlpaOpgRegisterDatabase "interacts with"
-        mlpaOpgRegisterReadAPI -> mlpaOpgRegisterDatabase "interacts with"
+        mlpaOpgRegisterService_WriteAPIGateway -> mlpaOpgRegisterDatabase_database "writes data to"
+        mlpaOpgRegisterService_ReadAPIGateway -> mlpaOpgRegisterService_ReadReplicaDatabase "reads data from"
+        mlpaOpgRegisterService_ReadReplicaDatabase -> mlpaOpgRegisterService_ReadReplicaMonitoringTelemetry "interacts with"
+        mlpaOpgRegisterService_ReadReplicaDatabase -> mlpaOpgRegisterDatabase_database "syncs with"
+
+        mlpaOpgRegisterDatabase_databaseMonitoringTelemetry -> mlpaOpgRegisterDatabase_database "interacts with"
 
         mlpaSiriusPublicAPI -> mlpaSiriusCaseManagement "writes and read data from"
         mlpaPaperIngestionAPI -> mlpaSiriusPublicAPI "reads data from"
         mlpaPaperIngestionAPI -> mlpaStagingAPI "writes data to"
 
-        mlpaSiriusCaseManagement -> mlpaOpgRegisterReadAPI "reads data from"
+        mlpaSiriusCaseManagement -> mlpaOpgRegisterService_ReadAPIGateway "reads data from"
+
+        mlpaOnlineContainer_webapp -> mlpaOnlineContainer_database "reads and writes data to"
+        mlpaOnlineContainer_database -> mlpaOnlineContainer_databaseMonitoringTelemetry "interacts with"
     }
 
     views {
@@ -75,6 +96,21 @@ workspace {
         }
 
         container makeSoftwareSystem {
+            include *
+            autoLayout
+        }
+
+        component mlpaOpgRegisterDatabase "mlpaOpgRegisterDatabaseComponents" {
+            include *
+            autoLayout
+        }
+
+        component mlpaOnlineContainer "mlpaOnlineContainerComponents" {
+            include *
+            autoLayout
+        }
+
+        component mlpaOpgRegisterService "mlpaOpgRegisterWriteAPIComponents" {
             include *
             autoLayout
         }
