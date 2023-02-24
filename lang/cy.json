@@ -558,7 +558,10 @@
     "beACertificateProviderPostStartContent": "<p class=\"govuk-body\">Welsh</p>",
 
     "enterYourReferenceCode": "Welsh",
-    "certificateProviderReferenceCodeContent": "<p class=\"govuk-body\">Welsh</p>",
-    "referenceCode": "Welsh",
-    "incorrectReferenceCode": "Welsh"
+    "certificateProviderReferenceCodeContent": "<p class=\"govuk-body\">Welsh.</p>",
+    "certificateProviderReference": "Welsh",
+    "certificateProviderReferenceContext": "Welsh XXXXXXXXXXXX",
+    "incorrectReferenceCode": "Welsh",
+    "twelveCharactersReferenceCode": "welsh",
+    "referenceCodeMustBeTwelveCharacters": "Welsh"
 }
