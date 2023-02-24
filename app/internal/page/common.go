@@ -69,6 +69,12 @@ type Localizer interface {
 	SetShowTranslationKeys(s bool)
 }
 
+//go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
+type shareCodeSender interface {
+	Send(ctx context.Context, template notify.TemplateId, appData AppData, email string, identity bool) error
+	UseTestCode()
+}
+
 func PostFormString(r *http.Request, name string) string {
 	return strings.TrimSpace(r.PostFormValue(name))
 }

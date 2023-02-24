@@ -47,18 +47,18 @@ func App(
 	oneLoginClient *onelogin.Client,
 ) http.Handler {
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
+	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)
 
 	errorHandler := page.Error(tmpls.Get("error-500.gohtml"), logger)
 	notFoundHandler := page.Root(tmpls.Get("error-404.gohtml"), logger)
 
 	rootMux := http.NewServeMux()
 
-	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, dataStore))
+	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, shareCodeSender))
 
 	handleRoot := makeHandle(rootMux, errorHandler)
 
 	handleRoot(paths.Root, notFoundHandler)
-	handleRoot(paths.Start, page.Guidance(tmpls.Get("start.gohtml"), nil))
 	handleRoot(paths.Fixtures, page.Fixtures(tmpls.Get("fixtures.gohtml")))
 
 	certificateprovider.Register(
@@ -86,7 +86,7 @@ func App(
 		yotiClient,
 		yotiScenarioID,
 		notifyClient,
-		dataStore,
+		shareCodeSender,
 		errorHandler,
 		notFoundHandler,
 	)

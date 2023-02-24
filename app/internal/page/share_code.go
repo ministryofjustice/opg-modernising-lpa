@@ -7,21 +7,23 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 )
 
+var useTestCode = false
+
 type ShareCodeData struct {
 	SessionID string
 	LpaID     string
 	Identity  bool
 }
 
-type shareCodeSender struct {
+type ShareCodeSender struct {
 	dataStore    DataStore
 	notifyClient NotifyClient
 	appPublicURL string
 	randomString func(int) string
 }
 
-func NewShareCodeSender(dataStore DataStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string) *shareCodeSender {
-	return &shareCodeSender{
+func NewShareCodeSender(dataStore DataStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string) *ShareCodeSender {
+	return &ShareCodeSender{
 		dataStore:    dataStore,
 		notifyClient: notifyClient,
 		appPublicURL: appPublicURL,
@@ -29,8 +31,20 @@ func NewShareCodeSender(dataStore DataStore, notifyClient NotifyClient, appPubli
 	}
 }
 
-func (s *shareCodeSender) Send(ctx context.Context, template notify.TemplateId, appData AppData, email string, identity bool, lpa *Lpa) error {
-	shareCode := s.randomString(12)
+func (s *ShareCodeSender) UseTestCode() {
+	useTestCode = true
+}
+
+func (s *ShareCodeSender) Send(ctx context.Context, template notify.TemplateId, appData AppData, email string, identity bool, lpa *Lpa) error {
+	var shareCode string
+
+	if useTestCode {
+		shareCode = "abcdef123456"
+		useTestCode = false
+	} else {
+		shareCode = s.randomString(12)
+
+	}
 
 	if err := s.dataStore.Put(ctx, "SHARECODE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
 		SessionID: appData.SessionID,
