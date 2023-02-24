@@ -50,7 +50,7 @@ type AddressClient interface {
 
 //go:generate mockery --testonly --inpackage --name ShareCodeSender --structname mockShareCodeSender
 type ShareCodeSender interface {
-	Send(ctx context.Context, template notify.TemplateId, appData page.AppData, email string, identity bool) error
+	Send(ctx context.Context, template notify.TemplateId, appData page.AppData, email string, identity bool, lpa *page.Lpa) error
 }
 
 //go:generate mockery --testonly --inpackage --name YotiClient --structname mockYotiClient
