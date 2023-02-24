@@ -8,7 +8,6 @@ import (
 
 type AppPaths struct {
 	AboutPayment                                         string
-	Auth                                                 string
 	AuthRedirect                                         string
 	CertificateProvided                                  string
 	CertificateProviderAddress                           string
@@ -56,6 +55,8 @@ type AppPaths struct {
 	IdentityWithYoti                                     string
 	IdentityWithYotiCallback                             string
 	LpaType                                              string
+	Login                                                string
+	LoginCallback                                        string
 	PaymentConfirmation                                  string
 	Progress                                             string
 	ProvideCertificate                                   string
@@ -87,7 +88,6 @@ type AppPaths struct {
 
 var Paths = AppPaths{
 	AboutPayment:                                         "/about-payment",
-	Auth:                                                 "/auth",
 	AuthRedirect:                                         "/auth/redirect",
 	CertificateProvided:                                  "/certificate-provided",
 	CertificateProviderAddress:                           "/certificate-provider-address",
@@ -135,6 +135,8 @@ var Paths = AppPaths{
 	IdentityWithYoti:                                     "/id/yoti",
 	IdentityWithYotiCallback:                             "/id/yoti/callback",
 	LpaType:                                              "/lpa-type",
+	Login:                                                "/login",
+	LoginCallback:                                        "/login-callback",
 	PaymentConfirmation:                                  "/payment-confirmation",
 	Progress:                                             "/progress",
 	ProvideCertificate:                                   "/provide-certificate",
@@ -168,7 +170,7 @@ func IsLpaPath(url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 
 	return !slices.Contains([]string{
-		Paths.Auth,
+		Paths.Login,
 		Paths.AuthRedirect,
 		Paths.Dashboard,
 		Paths.Start,
@@ -182,6 +184,7 @@ func IsLpaPath(url string) bool {
 		Paths.CertificateProviderConfirmation,
 		Paths.ProvideCertificate,
 		Paths.CertificateProvided,
+		Paths.LoginCallback,
 		Paths.CertificateProviderEnterReference,
 	}, path)
 }

@@ -59,7 +59,6 @@ func App(
 	handleRoot := makeHandle(rootMux, errorHandler)
 
 	handleRoot(paths.Root, notFoundHandler)
-	handleRoot(paths.Start, page.Guidance(tmpls.Get("start.gohtml"), nil))
 	handleRoot(paths.Fixtures, page.Fixtures(tmpls.Get("fixtures.gohtml")))
 
 	certificateprovider.Register(
