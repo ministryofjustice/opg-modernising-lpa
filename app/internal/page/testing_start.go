@@ -14,7 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string, shareCodeSender shareCodeSender) http.HandlerFunc {
+func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string, shareCodeSender shareCodeSender, localizer Localizer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sub := randomString(12)
 		sessionID := base64.StdEncoding.EncodeToString([]byte(sub))
@@ -127,20 +127,24 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			shareCodeSender.UseTestCode()
 		}
 
-		if r.FormValue("startCpFlowWithId") != "" {
+		if r.FormValue("startCpFlowWithoutId") != "" || r.FormValue("startCpFlowWithId") != "" {
+			emailAddress := TestEmail
+
+			if r.FormValue("withEmail") != "" {
+				emailAddress = r.FormValue("withEmail")
+			}
+
+			identity := true
+
+			if r.FormValue("startCpFlowWithoutId") != "" {
+				identity = false
+			}
+
 			shareCodeSender.Send(ctx, notify.CertificateProviderInviteEmail, AppData{
 				SessionID: sessionID,
 				LpaID:     lpa.ID,
-			}, TestEmail, true, lpa)
-
-			r.Form.Set("redirect", Paths.CertificateProviderStart)
-		}
-
-		if r.FormValue("startCpFlowWithoutId") != "" {
-			shareCodeSender.Send(ctx, notify.CertificateProviderInviteEmail, AppData{
-				SessionID: sessionID,
-				LpaID:     lpa.ID,
-			}, TestEmail, false, lpa)
+				Localizer: localizer,
+			}, emailAddress, identity, lpa)
 
 			r.Form.Set("redirect", Paths.CertificateProviderStart)
 		}

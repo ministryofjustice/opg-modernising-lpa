@@ -43,7 +43,6 @@ func (s *ShareCodeSender) Send(ctx context.Context, template notify.TemplateId, 
 		useTestCode = false
 	} else {
 		shareCode = s.randomString(12)
-
 	}
 
 	if err := s.dataStore.Put(ctx, "SHARECODE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
