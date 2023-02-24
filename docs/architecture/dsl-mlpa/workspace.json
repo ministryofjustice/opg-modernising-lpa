@@ -2,9 +2,9 @@
   "id" : 1,
   "name" : "Name",
   "description" : "Description",
-  "lastModifiedDate" : "2023-02-23T16:08:09Z",
+  "lastModifiedDate" : "2023-02-24T12:09:09Z",
   "properties" : {
-    "structurizr.dsl" : "d29ya3NwYWNlIHsKCiAgICBtb2RlbCB7CiAgICAgICAgLy8gVXNlcnMKICAgICAgICBhY3RvciA9IHBlcnNvbiAiQWN0b3IiICJBY3RvciBpbnRlcmFjdGluZyB3aXRoIGEgTGFzdGluZyBQb3dlciBvZiBBdHRvcm5leS4iCgogICAgICAgIGVudGVycHJpc2UgIk1vZGVybmlzaW5nIExhc3RpbmcgUG93ZXIgb2YgQXR0b3JuZXkiIHsKICAgICAgICAgICAgLy8gU29mdHdhcmUgU3lzdGVtcwogICAgICAgICAgICBtYWtlU29mdHdhcmVTeXN0ZW0gPSBzb2Z0d2FyZVN5c3RlbSAiTW9kZXJuaXNpbmcgTGFzdGluZyBQb3dlciBvZiBBdHRvcm5leSIgIkRpZ2l0YWwgTGFzdGluZyBQb3dlciBvZiBBdHRvcm5leSBpbmZyYXN0cnVjdHVyZSIgewogICAgICAgICAgICAgICAgLy8gQ29tcG9uZW50cwogICAgICAgICAgICAgICAgbWxwYU9ubGluZUNvbnRhaW5lciA9IGNvbnRhaW5lciAiTWFrZSBhIExhc3RpbmcgUG93ZXIgb2YgQXR0b3JuZXkgT25saW5lIiAiQWxsb3dzIHVzZXJzIHRvIGRyYWZ0IGEgTGFzdGluZyBQb3dlciBvZiBBdHRvcm5leSBvbmxpbmUuIiAiR28sIEhUTUwsIENTUywgSlMiICJXZWIgQnJvd3NlciIKICAgICAgICAgICAgICAgIG1scGFTdGFnaW5nID0gY29udGFpbmVyICJTdGFnaW5nIEFQSS9EYXRhYmFzZSIgIlN0b3JlcyBhbmQgbWFuYWdlcyBkYXRhIGZvciBwcmUtcmVnaXN0cmF0aW9uLiIgIkFQSSBHYXRld2F5LCBHbywgRHluYW1vREIiICJDb250YWluZXIiIHsKICAgICAgICAgICAgICAgICAgICBtbHBhU3RhZ2luZ0FQSSA9IGNvbXBvbmVudCAiQVBJIiAiTWFuYWdpbmcgTFBBIGRhdGEiICJBUEkgR2F0ZXdheSwgR28iICJDb21wb25lbnQiCiAgICAgICAgICAgICAgICAgICAgbWxwYVN0YWdpbmdTaXJpdXNBUEkgPSBjb21wb25lbnQgIlNpcml1cyBTdGFnaW5nIEFQSSIgIk1hbmFnaW5nIENhc2UgV29ya2VyIHNwZWNpZmljIGFjY2VzcyIgIkFQSSBHYXRld2F5LCBHbyIgIkNvbXBvbmVudCIKICAgICAgICAgICAgICAgICAgICBtbHBhU3RhZ2luZ0RhdGFiYXNlID0gY29tcG9uZW50ICJEcmFmdCBMUEEgRGF0YWJhc2UiICJTdG9yZXMgRHJhZnQgTFBBIGRhdGEuIiAiRHluYW1vREIiICJEYXRhYmFzZSIKICAgICAgICAgICAgICAgICAgICBtbHBhU3RhZ2luZ0FwcCA9IGNvbXBvbmVudCAiQXBwIiAiTWFuYWdlcyBkYXRhIGV2ZW50cyBhbmQgYnVzaW5lc3MgbG9naWMuIiAiR28iICJDb21wb25lbnQiCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICBtbHBhTFBBSURBUEkgPSBjb250YWluZXIgIkxQQSBJRCBBUEkiICJNYW5hZ2VzIHRoZSBMUEEgSURzLiIgIkFQSSBHYXRld2F5LCBHbyIgIkNvbnRhaW5lciIKICAgICAgICAgICAgICAgIG1scGFPcGdSZWdpc3RlckRhdGFiYXNlID0gY29udGFpbmVyICJSZWdpc3RlcmVkIExQQSBEYXRhIFN0b3JlIiAiU3RvcmVzIGltbXV0YWJsZSBMUEEgZGF0YSB3aXRoIGhpZ2ggYXZhaWxhYmxpbGl0eSwgc2VjdXJpdHkgYW5kIGF1ZGl0aW5nLiIgIkF1cm9yYURCIiAiRGF0YWJhc2UiCiAgICAgICAgICAgICAgICBtbHBhT3BnUmVnaXN0ZXJXcml0ZUFQSSA9IGNvbnRhaW5lciAiUmVnaXN0ZXJlZCBMUEEgV3JpdGUgQVBJIiAiQVBJIGZvciB3cml0aW5nIHJlZ2lzdGVyZWQgTFBBIGRhdGEuIiAiQVBJIEdhdGV3YXksIEdvIiAiQ29udGFpbmVyIgogICAgICAgICAgICAgICAgbWxwYU9wZ1JlZ2lzdGVyUmVhZEFQSSA9IGNvbnRhaW5lciAiUmVnaXN0ZXJlZCBMUEEgUmVhZCBBUEkiICJIaWdobHkgYXZhaWxhYmxlIEFQSSBmb3IgcmVhZGluZyBhbmQgc2VhcmNoaW5nIHRoZSBMUEEgUmVnaXN0ZXIgIiAiQVBJIEdhdGV3YXkiICJDb250YWluZXIiCgogICAgICAgICAgICAgICAgbWxwYVBhcGVySW5nZXN0aW9uQVBJID0gY29udGFpbmVyICJMUEEgUGFwZXIgSW5nZXN0aW9uIEFQSSIgIkhhbmRsZXMgdGhlIGluZ2VzdGlvbiBvZiB0aGUgUGFwZXIgSm91cm5leS4iICJBUEkgR2F0ZXdheSwgR28iICJDb250YWluZXIiCiAgICAgICAgICAgICAgICBtbHBhU2lyaXVzUHVibGljQVBJID0gY29udGFpbmVyICJTaXJpdXMgUHVibGljIEFQSSIgIkludGVyYWN0aW9uIHBvaW50IGJldHdlZW4gU2lyaXVzIENhc2UgTWFuYWdlbWVudCBhbmQgb3RoZXIgc2VydmljZXMuIiAiQVBJIEdhdGV3YXksIEdvIiAiRXhpc3RpbmcgU3lzdGVtIgoKICAgICAgICAgICAgICAgIG1scGFTaXJpdXNDYXNlTWFuYWdlbWVudCA9IGNvbnRhaW5lciAiU2lyaXVzIENhc2UgTWFuYWdlbWVudCIgIkNhc2UgTWFuYWdlbWVudCBmb3IgY2FzZSB3b3JraW5nIExQQXMuIiAiR28sIEhUTUwsIENTUywgSlMiICJDb21wb25lbnQiIHsKICAgICAgICAgICAgICAgICAgICBtbHBhU2lyaXVzSW50ZXJuYWxBUEkgPSBjb21wb25lbnQgIlNpcml1cyBJbnRlcm5hbCBBUEkiICIiICJBUEkgR2F0ZXdheSwgUEhQIiAiRXhpc3RpbmcgU3lzdGVtIgogICAgICAgICAgICAgICAgICAgIG1scGFTaXJpdXNEYXRhYmFzZSA9IGNvbXBvbmVudCAiU2lyaXVzIERhdGFiYXNlIiAiU3RvcmVzIENhc2UgTWFuYWdlbWVudCBkYXRhLiIgIkF1cm9yYURCIiAiRGF0YWJhc2UgRXhpc3RpbmcgU3lzdGVtIgogICAgICAgICAgICAgICAgICAgIG1scGFTaXJpdXNNU1ByZVJlZ2lzdHJhdGlvbkNhc2VNYW5hZ2VtZW50ID0gY29tcG9uZW50ICJTaXJpdXMgUHJlLVJlZ2lzdGVyZWQgQ2FzZSBNYW5hZ2VtZW50IiAiU2lyaXVzIE1pY3Jvc2VydmljZSBmb3IgUHJlLVJlZ2lzdGVyZWQgTFBBcy4iICJHbywgSFRNTCwgQ1NTLCBKUyIKICAgICAgICAgICAgICAgICAgICBtbHBhU2lyaXVzTVNSZWdpc3RlcmVkQ2FzZU1hbmFnZW1lbnQgPSBjb21wb25lbnQgIlNpcml1cyBSZWdpc3RlcmVkIENhc2UgTWFuYWdlbWVudCIgIlNpcml1cyBNaWNyb3NlcnZpY2UgZm9yIFJlZ2lzdGVyZWQgTFBBcy4iICJHbywgSFRNTCwgQ1NTLCBKUyIKICAgICAgICAgICAgICAgICAgICBtbHBhU2lyaXVzTVNQYXBlckNhc2VNYW5hZ2VtZW50ID0gY29tcG9uZW50ICJTaXJpdXMgUGFwZXIgQ2hhbm5lbCBDYXNlIE1hbmFnZW1lbnQiICJTaXJpdXMgTWljcm9zZXJ2aWNlIGZvciBQYXBlciBDaGFubmVsIExQQXMuIiAiR28sIEhUTUwsIENTUywgSlMiCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0KICAgICAgICB9CgogICAgICAgIC8vIEV4dGVybmFsIFN5c3RlbXMKICAgICAgICBleHRlcm5hbFNvZnR3YXJlU3lzdGVtcyA9IHNvZnR3YXJlU3lzdGVtICJFeHRlcm5hbCBTZXJ2aWNlcyIgIkdPVi5VSyBOb3RpZnksIFBheSwgT25lIExvZ2luLCBZb3RpLCBPcmRhbmFuY2UgU3VydmV5IiAiRXhpc3RpbmcgU3lzdGVtIgogICAgICAgIGV4dGVybmFsT1BHU29mdHdhcmVTeXN0ZW1zID0gc29mdHdhcmVTeXN0ZW0gIk9QRyBTZXJ2aWNlcyIgIkNvdXJ0IE9yZGVyZWQgU2V2ZXJhbmNlcyIgIkV4aXN0aW5nIFN5c3RlbSIKICAgICAgICBleHRlcm5hbFNjYW5uaW5nU29mdHdhcmUgPSBzb2Z0d2FyZVN5c3RlbSAiU2Nhbm5pbmcgU29mdHdhcmUiICJUQkMiICJFeGlzdGluZyBTeXN0ZW0iCiAgICAgICAgbWxwYVVhTFBBID0gc29mdHdhcmVTeXN0ZW0gIlVzZSBhbiBMUEEiICJVc2UvVmlldyBhbiBMUEEgU2VydmljZS4iICJXZWIgQnJvd3NlciBFeGlzdGluZyBTeXN0ZW0iCgogICAgICAgIGFjdG9yIC0+IG1ha2VTb2Z0d2FyZVN5c3RlbSAiaW50ZXJhY3RzIHdpdGgiCiAgICAgICAgbWFrZVNvZnR3YXJlU3lzdGVtIC0+IGV4dGVybmFsU29mdHdhcmVTeXN0ZW1zICJpbnRlcmFjdHMgd2l0aCIKICAgICAgICBleHRlcm5hbE9QR1NvZnR3YXJlU3lzdGVtcyAtPiBtbHBhU2lyaXVzQ2FzZU1hbmFnZW1lbnQgInNlbmRzIGRhdGEgdG8iCiAgICAgICAgZXh0ZXJuYWxTY2FubmluZ1NvZnR3YXJlIC0+IG1scGFQYXBlckluZ2VzdGlvbkFQSSAic2VuZHMgc2Nhbm5lZCBMUEEgRGF0YSB0byIKCiAgICAgICAgbWxwYU9ubGluZUNvbnRhaW5lciAtPiBtbHBhU3RhZ2luZ0FQSSAibWFrZXMgY2FsbHMgdG8iCiAgICAgICAgbWxwYUxQQUlEQVBJIC0+IG1scGFTdGFnaW5nQVBJICJnZXRzIExQQSBDb2RlIGZyb20iCgogICAgICAgIG1scGFTdGFnaW5nU2lyaXVzQVBJIC0+IG1scGFPcGdSZWdpc3RlcldyaXRlQVBJICJ3cml0ZXMgdmFsaWRhdGVkIGRhdGEgdG8iCiAgICAgICAgbWxwYVN0YWdpbmdTaXJpdXNBUEkgLT4gbWxwYVNpcml1c1B1YmxpY0FQSSAid3JpdGVzIGNhc2UgbWFuYWdlbWVudCBkYXRhIHRvIGFuZCByZWFkIGRhdGEgZnJvbSIKICAgICAgICAKICAgICAgICBtbHBhVWFMUEEgLT4gbWxwYVNpcml1c1B1YmxpY0FQSSAicmVhZCBkYXRhIGZyb20iCiAgICAgICAgbWxwYVVhTFBBIC0+IG1scGFPcGdSZWdpc3RlclJlYWRBUEkgInJlYWQgZGF0YSBmcm9tIgogICAgICAgIAogICAgICAgIG1scGFPcGdSZWdpc3RlcldyaXRlQVBJIC0+IG1scGFPcGdSZWdpc3RlckRhdGFiYXNlICJpbnRlcmFjdHMgd2l0aCIKICAgICAgICBtbHBhT3BnUmVnaXN0ZXJSZWFkQVBJIC0+IG1scGFPcGdSZWdpc3RlckRhdGFiYXNlICJpbnRlcmFjdHMgd2l0aCIKCiAgICAgICAgbWxwYVNpcml1c1B1YmxpY0FQSSAtPiBtbHBhU2lyaXVzQ2FzZU1hbmFnZW1lbnQgIndyaXRlcyBhbmQgcmVhZCBkYXRhIGZyb20iCiAgICAgICAgbWxwYVBhcGVySW5nZXN0aW9uQVBJIC0+IG1scGFTaXJpdXNQdWJsaWNBUEkgInJlYWRzIGRhdGEgZnJvbSIKICAgICAgICBtbHBhUGFwZXJJbmdlc3Rpb25BUEkgLT4gbWxwYVN0YWdpbmdBUEkgIndyaXRlcyBkYXRhIHRvIgoKICAgICAgICBtbHBhU2lyaXVzQ2FzZU1hbmFnZW1lbnQgLT4gbWxwYU9wZ1JlZ2lzdGVyUmVhZEFQSSAicmVhZHMgZGF0YSBmcm9tIgogICAgfQoKICAgIHZpZXdzIHsKICAgICAgICBzeXN0ZW1sYW5kc2NhcGUgIlN5c3RlbUxhbmRzY2FwZSIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgc3lzdGVtQ29udGV4dCBtYWtlU29mdHdhcmVTeXN0ZW0gIlN5c3RlbUNvbnRleHQiIHsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgICAgIGF1dG9MYXlvdXQKICAgICAgICB9CgogICAgICAgIGNvbnRhaW5lciBtYWtlU29mdHdhcmVTeXN0ZW0gewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgY29tcG9uZW50IG1scGFTaXJpdXNDYXNlTWFuYWdlbWVudCAiU2lyaXVzQ2FzZU1hbmFnZW1lbnRDb21wb25lbnRzIiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvTGF5b3V0CiAgICAgICAgfQoKICAgICAgICBjb21wb25lbnQgbWxwYVN0YWdpbmcgIlN0YWdpbmdBcGlDb21wb25lbnRzIiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvTGF5b3V0CiAgICAgICAgfQoKICAgICAgICB0aGVtZSBkZWZhdWx0CgogICAgICAgIHN0eWxlcyB7CiAgICAgICAgICAgIGVsZW1lbnQgIkV4aXN0aW5nIFN5c3RlbSIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjOTk5OTk5CiAgICAgICAgICAgICAgICBjb2xvciAjZmZmZmZmCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxlbWVudCAiV2ViIEJyb3dzZXIiIHsKICAgICAgICAgICAgICAgIHNoYXBlIFdlYkJyb3dzZXIKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJEYXRhYmFzZSIgewogICAgICAgICAgICAgICAgc2hhcGUgQ3lsaW5kZXIKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJEYXRhYmFzZSBFeGlzdGluZyBTeXN0ZW0iIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzk5OTk5OQogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICAgICAgc2hhcGUgQ3lsaW5kZXIKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJXZWIgQnJvd3NlciBFeGlzdGluZyBTeXN0ZW0iIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzk5OTk5OQogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICAgICAgc2hhcGUgV2ViQnJvd3NlcgogICAgICAgICAgICB9CiAgICAgICAgfQogICAgfQp9Cg=="
+    "structurizr.dsl" : "d29ya3NwYWNlIHsKCiAgICBtb2RlbCB7CiAgICAgICAgLy8gVXNlcnMKICAgICAgICBhY3RvciA9IHBlcnNvbiAiQWN0b3IiICJBY3RvciBpbnRlcmFjdGluZyB3aXRoIGEgTGFzdGluZyBQb3dlciBvZiBBdHRvcm5leS4iCgogICAgICAgIGVudGVycHJpc2UgIk1vZGVybmlzaW5nIExhc3RpbmcgUG93ZXIgb2YgQXR0b3JuZXkiIHsKICAgICAgICAgICAgLy8gU29mdHdhcmUgU3lzdGVtcwogICAgICAgICAgICBtYWtlU29mdHdhcmVTeXN0ZW0gPSBzb2Z0d2FyZVN5c3RlbSAiTW9kZXJuaXNpbmcgTGFzdGluZyBQb3dlciBvZiBBdHRvcm5leSIgIkRpZ2l0YWwgTGFzdGluZyBQb3dlciBvZiBBdHRvcm5leSBpbmZyYXN0cnVjdHVyZSIgewogICAgICAgICAgICAgICAgLy8gQ29tcG9uZW50cwogICAgICAgICAgICAgICAgbWxwYU9ubGluZUNvbnRhaW5lciA9IGNvbnRhaW5lciAiTWFrZSBhIExhc3RpbmcgUG93ZXIgb2YgQXR0b3JuZXkgT25saW5lIiAiQWxsb3dzIHVzZXJzIHRvIGRyYWZ0IGEgTGFzdGluZyBQb3dlciBvZiBBdHRvcm5leSBvbmxpbmUuIiAiR28sIEhUTUwsIENTUywgSlMiICJXZWIgQnJvd3NlciIgewogICAgICAgICAgICAgICAgICAgIG1scGFPbmxpbmVDb250YWluZXJfd2ViYXBwID0gY29tcG9uZW50ICJBcHAiICJQcm92aWRlcyBhbmQgZGVsaXZlcnMgc3RhdGljIGNvbnRlbnQsIGJ1c2luZXNzIGxvZ2ljLCByb3V0aW5nLCB0aGlyZCBwYXJ0eSBhY2Nlc3MgYW5kIGRhdGFiYXNlIGFjY2VzcyIgIkdvLCBIVE1MLCBDU1MsIEpTIiAiV2ViIEJyb3dzZXIiCiAgICAgICAgICAgICAgICAgICAgbWxwYU9ubGluZUNvbnRhaW5lcl9kYXRhYmFzZSA9IGNvbXBvbmVudCAiRGF0YWJhc2UiICJTdG9yZXMgYWN0b3IgaW5mb3JtYXRpb24sIERyYWZ0IExQQSBkZXRhaWxzLCBhY2Nlc3MgbG9ncywgZXRjLiIgIkR5bmFtb0RCIiAiRGF0YWJhc2UiCiAgICAgICAgICAgICAgICAgICAgbWxwYU9ubGluZUNvbnRhaW5lcl9kYXRhYmFzZU1vbml0b3JpbmdUZWxlbWV0cnkgPSBjb21wb25lbnQgIk1vbml0b3JpbmcgYW5kIFRlbGVtZXRlcnkiICJDbG91ZHdhdGNoIGxvZ3MsIFgtUmF5IGFuZCBSVU0iICJBV1MgQ2xvdWR3YXRjaCIgIkRhdGFiYXNlIgogICAgICAgICAgICAgICAgfQoKICAgICAgICAgICAgICAgIG1scGFTdGFnaW5nID0gY29udGFpbmVyICJTdGFnaW5nIFNlcnZpY2UiICJTdG9yZXMgYW5kIG1hbmFnZXMgZGF0YSBmb3IgcHJlLXJlZ2lzdHJhdGlvbi4iICJBUEkgR2F0ZXdheSwgR28sIER5bmFtb0RCIiAiQ29udGFpbmVyIiB7CiAgICAgICAgICAgICAgICAgICAgbWxwYVN0YWdpbmdBUEkgPSBjb21wb25lbnQgIkFQSSIgIk1hbmFnaW5nIExQQSBkYXRhIiAiQVBJIEdhdGV3YXksIEdvIiAiQ29tcG9uZW50IgogICAgICAgICAgICAgICAgICAgIG1scGFTdGFnaW5nU2lyaXVzQVBJID0gY29tcG9uZW50ICJTaXJpdXMgQVBJIiAiTWFuYWdpbmcgQ2FzZSBXb3JrZXIgc3BlY2lmaWMgYWNjZXNzIiAiQVBJIEdhdGV3YXksIEdvIiAiQ29tcG9uZW50IgogICAgICAgICAgICAgICAgICAgIG1scGFTdGFnaW5nRGF0YWJhc2UgPSBjb21wb25lbnQgIkRyYWZ0IExQQSBEYXRhYmFzZSIgIlN0b3JlcyBEcmFmdCBMUEEgZGF0YS4iICJEeW5hbW9EQiIgIkRhdGFiYXNlIgogICAgICAgICAgICAgICAgICAgIG1scGFTdGFnaW5nQXBwID0gY29tcG9uZW50ICJBcHAiICJNYW5hZ2VzIGRhdGEgZXZlbnRzIGFuZCBidXNpbmVzcyBsb2dpYy4iICJHbyIgIkNvbXBvbmVudCIKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIG1scGFMUEFJREFQSSA9IGNvbnRhaW5lciAiTFBBIElEIFNlcnZpY2UiICJNYW5hZ2VzIHRoZSBMUEEgSURzLiIgIkFQSSBHYXRld2F5LCBHbyIgIkNvbnRhaW5lciIKCiAgICAgICAgICAgICAgICBtbHBhT3BnUmVnaXN0ZXJEYXRhYmFzZSA9IGNvbnRhaW5lciAiUmVnaXN0ZXJlZCBMUEEgRGF0YSBTdG9yZSIgIlN0b3JlcyBpbW11dGFibGUgTFBBIGRhdGEgd2l0aCBoaWdoIGF2YWlsYWJsaWxpdHksIHNlY3VyaXR5IGFuZCBhdWRpdGluZy4iICJBdXJvcmFEQiIgIkRhdGFiYXNlIiB7CiAgICAgICAgICAgICAgICAgICAgbWxwYU9wZ1JlZ2lzdGVyRGF0YWJhc2VfZGF0YWJhc2UgPSBjb21wb25lbnQgIkRhdGFiYXNlIiAiU3RvcmVzIGZpbmFsIFJlZ2lzdGVyIExQQSBEYXRhLiIgIkF1cm9yYURCIiAiRGF0YWJhc2UiCiAgICAgICAgICAgICAgICAgICAgbWxwYU9wZ1JlZ2lzdGVyRGF0YWJhc2VfZGF0YWJhc2VNb25pdG9yaW5nVGVsZW1ldHJ5ID0gY29tcG9uZW50ICJNb25pdG9yaW5nIGFuZCBUZWxlbWV0ZXJ5IiAiQ2xvdWR3YXRjaCBsb2dzIGFuZCBYLVJheSIgIkFXUyBDbG91ZHdhdGNoIiAiRGF0YWJhc2UiCiAgICAgICAgICAgICAgICB9CgogICAgICAgICAgICAgICAgbWxwYU9wZ1JlZ2lzdGVyU2VydmljZSA9IGNvbnRhaW5lciAiUmVnaXN0ZXJlZCBMUEEgU2VydmljZSIgIkhpZ2hseSBhdmFpbGFibGUgQVBJIGZvciByZWFkaW5nIGFuZCBzZWFyY2hpbmcgdGhlIExQQSBSZWdpc3RlciAiICJBUEkgR2F0ZXdheSIgIkNvbnRhaW5lciIgewogICAgICAgICAgICAgICAgICAgIG1scGFPcGdSZWdpc3RlclNlcnZpY2VfUmVhZEFQSUdhdGV3YXkgPSBjb21wb25lbnQgIlJlZ2lzdGVyZWQgTFBBIFJlYWQgQVBJIiAiSGlnaGx5IGF2YWlsYWJsZSBBUEkgZm9yIHJlYWRpbmcgYW5kIHNlYXJjaGluZyB0aGUgTFBBIFJlZ2lzdGVyICIgIkFQSSBHYXRld2F5IiAiQ29udGFpbmVyIgogICAgICAgICAgICAgICAgICAgIG1scGFPcGdSZWdpc3RlclNlcnZpY2VfV3JpdGVBUElHYXRld2F5ID0gY29tcG9uZW50ICJSZWdpc3RlcmVkIExQQSBXcml0ZSBBUEkiICJJbnRlcmZhY2UgdG8gd3JpdGluZyB0byB0aGUgUmVnaXN0ZXJlZCBMUEEgRGF0YWJhc2UuIiAiQVBJIEdhdGV3YXksIEdvIiAiQ29udGFpbmVyIgogICAgICAgICAgICAgICAgICAgIG1scGFPcGdSZWdpc3RlclNlcnZpY2VfUmVhZFJlcGxpY2FEYXRhYmFzZSA9IGNvbXBvbmVudCAiUmVhZCBSZXBsaWNhIExQQSBEYXRhYmFzZSIgIkNhY2hlZCB2ZXJzaW9uIG9mIFJlZ2lzdGVyZWQgTFBBIERhdGEuIiAiQXVyb3JhREIiICJEYXRhYmFzZSIKICAgICAgICAgICAgICAgICAgICBtbHBhT3BnUmVnaXN0ZXJTZXJ2aWNlX1JlYWRSZXBsaWNhTW9uaXRvcmluZ1RlbGVtZXRyeSA9IGNvbXBvbmVudCAiTW9uaXRvcmluZyBhbmQgVGVsZW1ldGVyeSIgIkNsb3Vkd2F0Y2ggbG9ncyBhbmQgWC1SYXkiICJBV1MgQ2xvdWR3YXRjaCIgIkRhdGFiYXNlIgogICAgICAgICAgICAgICAgfQoKICAgICAgICAgICAgICAgIG1scGFQYXBlckluZ2VzdGlvbkFQSSA9IGNvbnRhaW5lciAiTFBBIFBhcGVyIEluZ2VzdGlvbiBTZXJ2aWNlIiAiSGFuZGxlcyB0aGUgaW5nZXN0aW9uIG9mIHRoZSBQYXBlciBKb3VybmV5LiIgIkFQSSBHYXRld2F5LCBHbyIgIkNvbnRhaW5lciIKICAgICAgICAgICAgICAgIG1scGFTaXJpdXNQdWJsaWNBUEkgPSBjb250YWluZXIgIlNpcml1cyBQdWJsaWMgQVBJIiAiSW50ZXJhY3Rpb24gcG9pbnQgYmV0d2VlbiBTaXJpdXMgQ2FzZSBNYW5hZ2VtZW50IGFuZCBvdGhlciBzZXJ2aWNlcy4iICJBUEkgR2F0ZXdheSwgR28iICJFeGlzdGluZyBTeXN0ZW0iCgogICAgICAgICAgICAgICAgbWxwYVNpcml1c0Nhc2VNYW5hZ2VtZW50ID0gY29udGFpbmVyICJTaXJpdXMgQ2FzZSBNYW5hZ2VtZW50IiAiQ2FzZSBNYW5hZ2VtZW50IGZvciBjYXNlIHdvcmtpbmcgTFBBcy4iICJHbywgSFRNTCwgQ1NTLCBKUyIgIkNvbXBvbmVudCIgewogICAgICAgICAgICAgICAgICAgIG1scGFTaXJpdXNJbnRlcm5hbEFQSSA9IGNvbXBvbmVudCAiU2lyaXVzIEludGVybmFsIEFQSSIgIiIgIkFQSSBHYXRld2F5LCBQSFAiICJFeGlzdGluZyBTeXN0ZW0iCiAgICAgICAgICAgICAgICAgICAgbWxwYVNpcml1c0RhdGFiYXNlID0gY29tcG9uZW50ICJTaXJpdXMgRGF0YWJhc2UiICJTdG9yZXMgQ2FzZSBNYW5hZ2VtZW50IGRhdGEuIiAiQXVyb3JhREIiICJEYXRhYmFzZSBFeGlzdGluZyBTeXN0ZW0iCiAgICAgICAgICAgICAgICAgICAgbWxwYVNpcml1c01TUHJlUmVnaXN0cmF0aW9uQ2FzZU1hbmFnZW1lbnQgPSBjb21wb25lbnQgIlNpcml1cyBQcmUtUmVnaXN0ZXJlZCBDYXNlIE1hbmFnZW1lbnQiICJTaXJpdXMgTWljcm9zZXJ2aWNlIGZvciBQcmUtUmVnaXN0ZXJlZCBMUEFzLiIgIkdvLCBIVE1MLCBDU1MsIEpTIgogICAgICAgICAgICAgICAgICAgIG1scGFTaXJpdXNNU1JlZ2lzdGVyZWRDYXNlTWFuYWdlbWVudCA9IGNvbXBvbmVudCAiU2lyaXVzIFJlZ2lzdGVyZWQgQ2FzZSBNYW5hZ2VtZW50IiAiU2lyaXVzIE1pY3Jvc2VydmljZSBmb3IgUmVnaXN0ZXJlZCBMUEFzLiIgIkdvLCBIVE1MLCBDU1MsIEpTIgogICAgICAgICAgICAgICAgICAgIG1scGFTaXJpdXNNU1BhcGVyQ2FzZU1hbmFnZW1lbnQgPSBjb21wb25lbnQgIlNpcml1cyBQYXBlciBDaGFubmVsIENhc2UgTWFuYWdlbWVudCIgIlNpcml1cyBNaWNyb3NlcnZpY2UgZm9yIFBhcGVyIENoYW5uZWwgTFBBcy4iICJHbywgSFRNTCwgQ1NTLCBKUyIKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfQogICAgICAgIH0KCiAgICAgICAgLy8gRXh0ZXJuYWwgU3lzdGVtcwogICAgICAgIGV4dGVybmFsU29mdHdhcmVTeXN0ZW1zID0gc29mdHdhcmVTeXN0ZW0gIkV4dGVybmFsIFNlcnZpY2VzIiAiR09WLlVLIE5vdGlmeSwgUGF5LCBPbmUgTG9naW4sIFlvdGksIE9yZGFuYW5jZSBTdXJ2ZXkiICJFeGlzdGluZyBTeXN0ZW0iCiAgICAgICAgZXh0ZXJuYWxPUEdTb2Z0d2FyZVN5c3RlbXMgPSBzb2Z0d2FyZVN5c3RlbSAiT1BHIFNlcnZpY2VzIiAiQ291cnQgT3JkZXJlZCBTZXZlcmFuY2VzIiAiRXhpc3RpbmcgU3lzdGVtIgogICAgICAgIGV4dGVybmFsU2Nhbm5pbmdTb2Z0d2FyZSA9IHNvZnR3YXJlU3lzdGVtICJTY2FubmluZyBTb2Z0d2FyZSIgIlRCQyIgIkV4aXN0aW5nIFN5c3RlbSIKICAgICAgICBtbHBhVWFMUEEgPSBzb2Z0d2FyZVN5c3RlbSAiVXNlIGFuIExQQSIgIlVzZS9WaWV3IGFuIExQQSBTZXJ2aWNlLiIgIldlYiBCcm93c2VyIEV4aXN0aW5nIFN5c3RlbSIKCiAgICAgICAgYWN0b3IgLT4gbWFrZVNvZnR3YXJlU3lzdGVtICJpbnRlcmFjdHMgd2l0aCIKICAgICAgICBtYWtlU29mdHdhcmVTeXN0ZW0gLT4gZXh0ZXJuYWxTb2Z0d2FyZVN5c3RlbXMgImludGVyYWN0cyB3aXRoIgogICAgICAgIGV4dGVybmFsT1BHU29mdHdhcmVTeXN0ZW1zIC0+IG1scGFTaXJpdXNDYXNlTWFuYWdlbWVudCAic2VuZHMgZGF0YSB0byIKICAgICAgICBleHRlcm5hbFNjYW5uaW5nU29mdHdhcmUgLT4gbWxwYVBhcGVySW5nZXN0aW9uQVBJICJzZW5kcyBzY2FubmVkIExQQSBEYXRhIHRvIgoKICAgICAgICBtbHBhT25saW5lQ29udGFpbmVyIC0+IG1scGFTdGFnaW5nQVBJICJtYWtlcyBjYWxscyB0byIKICAgICAgICBtbHBhTFBBSURBUEkgLT4gbWxwYVN0YWdpbmdBUEkgImdldHMgTFBBIENvZGUgZnJvbSIKCiAgICAgICAgbWxwYVN0YWdpbmdTaXJpdXNBUEkgLT4gbWxwYU9wZ1JlZ2lzdGVyU2VydmljZV9Xcml0ZUFQSUdhdGV3YXkgIndyaXRlcyB2YWxpZGF0ZWQgZGF0YSB0byIKICAgICAgICBtbHBhU3RhZ2luZ1Npcml1c0FQSSAtPiBtbHBhU2lyaXVzUHVibGljQVBJICJ3cml0ZXMgY2FzZSBtYW5hZ2VtZW50IGRhdGEgdG8gYW5kIHJlYWQgZGF0YSBmcm9tIgogICAgICAgIAogICAgICAgIG1scGFVYUxQQSAtPiBtbHBhU2lyaXVzUHVibGljQVBJICJyZWFkIGRhdGEgZnJvbSIKICAgICAgICBtbHBhVWFMUEEgLT4gbWxwYU9wZ1JlZ2lzdGVyU2VydmljZV9SZWFkQVBJR2F0ZXdheSAicmVhZCBkYXRhIGZyb20iCiAgICAgICAgCiAgICAgICAgbWxwYU9wZ1JlZ2lzdGVyU2VydmljZV9Xcml0ZUFQSUdhdGV3YXkgLT4gbWxwYU9wZ1JlZ2lzdGVyRGF0YWJhc2VfZGF0YWJhc2UgIndyaXRlcyBkYXRhIHRvIgogICAgICAgIG1scGFPcGdSZWdpc3RlclNlcnZpY2VfUmVhZEFQSUdhdGV3YXkgLT4gbWxwYU9wZ1JlZ2lzdGVyU2VydmljZV9SZWFkUmVwbGljYURhdGFiYXNlICJyZWFkcyBkYXRhIGZyb20iCiAgICAgICAgbWxwYU9wZ1JlZ2lzdGVyU2VydmljZV9SZWFkUmVwbGljYURhdGFiYXNlIC0+IG1scGFPcGdSZWdpc3RlclNlcnZpY2VfUmVhZFJlcGxpY2FNb25pdG9yaW5nVGVsZW1ldHJ5ICJpbnRlcmFjdHMgd2l0aCIKICAgICAgICBtbHBhT3BnUmVnaXN0ZXJTZXJ2aWNlX1JlYWRSZXBsaWNhRGF0YWJhc2UgLT4gbWxwYU9wZ1JlZ2lzdGVyRGF0YWJhc2VfZGF0YWJhc2UgInN5bmNzIHdpdGgiCgogICAgICAgIG1scGFPcGdSZWdpc3RlckRhdGFiYXNlX2RhdGFiYXNlTW9uaXRvcmluZ1RlbGVtZXRyeSAtPiBtbHBhT3BnUmVnaXN0ZXJEYXRhYmFzZV9kYXRhYmFzZSAiaW50ZXJhY3RzIHdpdGgiCgogICAgICAgIG1scGFTaXJpdXNQdWJsaWNBUEkgLT4gbWxwYVNpcml1c0Nhc2VNYW5hZ2VtZW50ICJ3cml0ZXMgYW5kIHJlYWQgZGF0YSBmcm9tIgogICAgICAgIG1scGFQYXBlckluZ2VzdGlvbkFQSSAtPiBtbHBhU2lyaXVzUHVibGljQVBJICJyZWFkcyBkYXRhIGZyb20iCiAgICAgICAgbWxwYVBhcGVySW5nZXN0aW9uQVBJIC0+IG1scGFTdGFnaW5nQVBJICJ3cml0ZXMgZGF0YSB0byIKCiAgICAgICAgbWxwYVNpcml1c0Nhc2VNYW5hZ2VtZW50IC0+IG1scGFPcGdSZWdpc3RlclNlcnZpY2VfUmVhZEFQSUdhdGV3YXkgInJlYWRzIGRhdGEgZnJvbSIKCiAgICAgICAgbWxwYU9ubGluZUNvbnRhaW5lcl93ZWJhcHAgLT4gbWxwYU9ubGluZUNvbnRhaW5lcl9kYXRhYmFzZSAicmVhZHMgYW5kIHdyaXRlcyBkYXRhIHRvIgogICAgICAgIG1scGFPbmxpbmVDb250YWluZXJfZGF0YWJhc2UgLT4gbWxwYU9ubGluZUNvbnRhaW5lcl9kYXRhYmFzZU1vbml0b3JpbmdUZWxlbWV0cnkgImludGVyYWN0cyB3aXRoIgogICAgfQoKICAgIHZpZXdzIHsKICAgICAgICBzeXN0ZW1sYW5kc2NhcGUgIlN5c3RlbUxhbmRzY2FwZSIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgc3lzdGVtQ29udGV4dCBtYWtlU29mdHdhcmVTeXN0ZW0gIlN5c3RlbUNvbnRleHQiIHsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgICAgIGF1dG9MYXlvdXQKICAgICAgICB9CgogICAgICAgIGNvbnRhaW5lciBtYWtlU29mdHdhcmVTeXN0ZW0gewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgY29tcG9uZW50IG1scGFPcGdSZWdpc3RlckRhdGFiYXNlICJtbHBhT3BnUmVnaXN0ZXJEYXRhYmFzZUNvbXBvbmVudHMiIHsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgICAgIGF1dG9MYXlvdXQKICAgICAgICB9CgogICAgICAgIGNvbXBvbmVudCBtbHBhT25saW5lQ29udGFpbmVyICJtbHBhT25saW5lQ29udGFpbmVyQ29tcG9uZW50cyIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgY29tcG9uZW50IG1scGFPcGdSZWdpc3RlclNlcnZpY2UgIm1scGFPcGdSZWdpc3RlcldyaXRlQVBJQ29tcG9uZW50cyIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgY29tcG9uZW50IG1scGFTaXJpdXNDYXNlTWFuYWdlbWVudCAiU2lyaXVzQ2FzZU1hbmFnZW1lbnRDb21wb25lbnRzIiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvTGF5b3V0CiAgICAgICAgfQoKICAgICAgICBjb21wb25lbnQgbWxwYVN0YWdpbmcgIlN0YWdpbmdBcGlDb21wb25lbnRzIiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvTGF5b3V0CiAgICAgICAgfQoKICAgICAgICB0aGVtZSBkZWZhdWx0CgogICAgICAgIHN0eWxlcyB7CiAgICAgICAgICAgIGVsZW1lbnQgIkV4aXN0aW5nIFN5c3RlbSIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjOTk5OTk5CiAgICAgICAgICAgICAgICBjb2xvciAjZmZmZmZmCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxlbWVudCAiV2ViIEJyb3dzZXIiIHsKICAgICAgICAgICAgICAgIHNoYXBlIFdlYkJyb3dzZXIKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJEYXRhYmFzZSIgewogICAgICAgICAgICAgICAgc2hhcGUgQ3lsaW5kZXIKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJEYXRhYmFzZSBFeGlzdGluZyBTeXN0ZW0iIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzk5OTk5OQogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICAgICAgc2hhcGUgQ3lsaW5kZXIKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJXZWIgQnJvd3NlciBFeGlzdGluZyBTeXN0ZW0iIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzk5OTk5OQogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICAgICAgc2hhcGUgV2ViQnJvd3NlcgogICAgICAgICAgICB9CiAgICAgICAgfQogICAgfQp9Cg=="
   },
   "configuration" : { },
   "model" : {
@@ -20,7 +20,7 @@
       "name" : "Actor",
       "description" : "Actor interacting with a Lasting Power of Attorney.",
       "relationships" : [ {
-        "id" : "25",
+        "id" : "33",
         "tags" : "Relationship",
         "sourceId" : "1",
         "destinationId" : "2",
@@ -37,10 +37,10 @@
       "name" : "Modernising Lasting Power of Attorney",
       "description" : "Digital Lasting Power of Attorney infrastructure",
       "relationships" : [ {
-        "id" : "26",
+        "id" : "34",
         "tags" : "Relationship",
         "sourceId" : "2",
-        "destinationId" : "21",
+        "destinationId" : "29",
         "description" : "interacts with"
       } ],
       "location" : "Internal",
@@ -48,73 +48,27 @@
         "id" : "12",
         "tags" : "Element,Container",
         "properties" : {
-          "structurizr.dsl.identifier" : "mlpaopgregisterreadapi"
-        },
-        "name" : "Registered LPA Read API",
-        "description" : "Highly available API for reading and searching the LPA Register",
-        "relationships" : [ {
-          "id" : "43",
-          "tags" : "Relationship",
-          "sourceId" : "12",
-          "destinationId" : "10",
-          "description" : "interacts with"
-        } ],
-        "technology" : "API Gateway",
-        "documentation" : { }
-      }, {
-        "id" : "13",
-        "tags" : "Element,Container",
-        "properties" : {
-          "structurizr.dsl.identifier" : "mlpapaperingestionapi"
-        },
-        "name" : "LPA Paper Ingestion API",
-        "description" : "Handles the ingestion of the Paper Journey.",
-        "relationships" : [ {
-          "id" : "45",
-          "tags" : "Relationship",
-          "sourceId" : "13",
-          "destinationId" : "14",
-          "description" : "reads data from"
-        }, {
-          "id" : "46",
-          "tags" : "Relationship",
-          "sourceId" : "13",
-          "destinationId" : "5",
-          "description" : "writes data to"
-        }, {
-          "id" : "47",
-          "sourceId" : "13",
-          "destinationId" : "4",
-          "description" : "writes data to",
-          "linkedRelationshipId" : "46"
-        } ],
-        "technology" : "API Gateway, Go",
-        "documentation" : { }
-      }, {
-        "id" : "9",
-        "tags" : "Element,Container",
-        "properties" : {
           "structurizr.dsl.identifier" : "mlpalpaidapi"
         },
-        "name" : "LPA ID API",
+        "name" : "LPA ID Service",
         "description" : "Manages the LPA IDs.",
         "relationships" : [ {
-          "id" : "33",
+          "id" : "41",
           "tags" : "Relationship",
-          "sourceId" : "9",
-          "destinationId" : "5",
+          "sourceId" : "12",
+          "destinationId" : "8",
           "description" : "gets LPA Code from"
         }, {
-          "id" : "34",
-          "sourceId" : "9",
-          "destinationId" : "4",
+          "id" : "42",
+          "sourceId" : "12",
+          "destinationId" : "7",
           "description" : "gets LPA Code from",
-          "linkedRelationshipId" : "33"
+          "linkedRelationshipId" : "41"
         } ],
         "technology" : "API Gateway, Go",
         "documentation" : { }
       }, {
-        "id" : "15",
+        "id" : "23",
         "tags" : "Element,Container,Component",
         "properties" : {
           "structurizr.dsl.identifier" : "mlpasiriuscasemanagement"
@@ -122,15 +76,21 @@
         "name" : "Sirius Case Management",
         "description" : "Case Management for case working LPAs.",
         "relationships" : [ {
-          "id" : "48",
+          "id" : "66",
           "tags" : "Relationship",
-          "sourceId" : "15",
-          "destinationId" : "12",
+          "sourceId" : "23",
+          "destinationId" : "17",
           "description" : "reads data from"
+        }, {
+          "id" : "67",
+          "sourceId" : "23",
+          "destinationId" : "16",
+          "description" : "reads data from",
+          "linkedRelationshipId" : "66"
         } ],
         "technology" : "Go, HTML, CSS, JS",
         "components" : [ {
-          "id" : "18",
+          "id" : "26",
           "tags" : "Element,Component",
           "properties" : {
             "structurizr.dsl.identifier" : "mlpasiriusmspreregistrationcasemanagement"
@@ -140,7 +100,26 @@
           "technology" : "Go, HTML, CSS, JS",
           "size" : 0
         }, {
-          "id" : "17",
+          "id" : "28",
+          "tags" : "Element,Component",
+          "properties" : {
+            "structurizr.dsl.identifier" : "mlpasiriusmspapercasemanagement"
+          },
+          "name" : "Sirius Paper Channel Case Management",
+          "description" : "Sirius Microservice for Paper Channel LPAs.",
+          "technology" : "Go, HTML, CSS, JS",
+          "size" : 0
+        }, {
+          "id" : "24",
+          "tags" : "Element,Component,Existing System",
+          "properties" : {
+            "structurizr.dsl.identifier" : "mlpasiriusinternalapi"
+          },
+          "name" : "Sirius Internal API",
+          "technology" : "API Gateway, PHP",
+          "size" : 0
+        }, {
+          "id" : "25",
           "tags" : "Element,Component,Database Existing System",
           "properties" : {
             "structurizr.dsl.identifier" : "mlpasiriusdatabase"
@@ -150,16 +129,7 @@
           "technology" : "AuroraDB",
           "size" : 0
         }, {
-          "id" : "16",
-          "tags" : "Element,Component,Existing System",
-          "properties" : {
-            "structurizr.dsl.identifier" : "mlpasiriusinternalapi"
-          },
-          "name" : "Sirius Internal API",
-          "technology" : "API Gateway, PHP",
-          "size" : 0
-        }, {
-          "id" : "19",
+          "id" : "27",
           "tags" : "Element,Component",
           "properties" : {
             "structurizr.dsl.identifier" : "mlpasiriusmsregisteredcasemanagement"
@@ -168,17 +138,165 @@
           "description" : "Sirius Microservice for Registered LPAs.",
           "technology" : "Go, HTML, CSS, JS",
           "size" : 0
-        }, {
-          "id" : "20",
-          "tags" : "Element,Component",
+        } ],
+        "documentation" : { }
+      }, {
+        "id" : "13",
+        "tags" : "Element,Container,Database",
+        "properties" : {
+          "structurizr.dsl.identifier" : "mlpaopgregisterdatabase"
+        },
+        "name" : "Registered LPA Data Store",
+        "description" : "Stores immutable LPA data with high availablility, security and auditing.",
+        "technology" : "AuroraDB",
+        "components" : [ {
+          "id" : "15",
+          "tags" : "Element,Component,Database",
           "properties" : {
-            "structurizr.dsl.identifier" : "mlpasiriusmspapercasemanagement"
+            "structurizr.dsl.identifier" : "mlpaopgregisterdatabase_databasemonitoringtelemetry"
           },
-          "name" : "Sirius Paper Channel Case Management",
-          "description" : "Sirius Microservice for Paper Channel LPAs.",
-          "technology" : "Go, HTML, CSS, JS",
+          "name" : "Monitoring and Telemetery",
+          "description" : "Cloudwatch logs and X-Ray",
+          "relationships" : [ {
+            "id" : "61",
+            "tags" : "Relationship",
+            "sourceId" : "15",
+            "destinationId" : "14",
+            "description" : "interacts with"
+          } ],
+          "technology" : "AWS Cloudwatch",
+          "size" : 0
+        }, {
+          "id" : "14",
+          "tags" : "Element,Component,Database",
+          "properties" : {
+            "structurizr.dsl.identifier" : "mlpaopgregisterdatabase_database"
+          },
+          "name" : "Database",
+          "description" : "Stores final Register LPA Data.",
+          "technology" : "AuroraDB",
           "size" : 0
         } ],
+        "documentation" : { }
+      }, {
+        "id" : "16",
+        "tags" : "Element,Container",
+        "properties" : {
+          "structurizr.dsl.identifier" : "mlpaopgregisterservice"
+        },
+        "name" : "Registered LPA Service",
+        "description" : "Highly available API for reading and searching the LPA Register",
+        "relationships" : [ {
+          "id" : "55",
+          "sourceId" : "16",
+          "destinationId" : "14",
+          "description" : "writes data to",
+          "linkedRelationshipId" : "53"
+        }, {
+          "id" : "56",
+          "sourceId" : "16",
+          "destinationId" : "13",
+          "description" : "writes data to",
+          "linkedRelationshipId" : "53"
+        } ],
+        "technology" : "API Gateway",
+        "components" : [ {
+          "id" : "19",
+          "tags" : "Element,Component,Database",
+          "properties" : {
+            "structurizr.dsl.identifier" : "mlpaopgregisterservice_readreplicadatabase"
+          },
+          "name" : "Read Replica LPA Database",
+          "description" : "Cached version of Registered LPA Data.",
+          "relationships" : [ {
+            "id" : "58",
+            "tags" : "Relationship",
+            "sourceId" : "19",
+            "destinationId" : "20",
+            "description" : "interacts with"
+          }, {
+            "id" : "59",
+            "tags" : "Relationship",
+            "sourceId" : "19",
+            "destinationId" : "14",
+            "description" : "syncs with"
+          }, {
+            "id" : "60",
+            "sourceId" : "19",
+            "destinationId" : "13",
+            "description" : "syncs with",
+            "linkedRelationshipId" : "59"
+          } ],
+          "technology" : "AuroraDB",
+          "size" : 0
+        }, {
+          "id" : "17",
+          "tags" : "Element,Component,Container",
+          "properties" : {
+            "structurizr.dsl.identifier" : "mlpaopgregisterservice_readapigateway"
+          },
+          "name" : "Registered LPA Read API",
+          "description" : "Highly available API for reading and searching the LPA Register",
+          "relationships" : [ {
+            "id" : "57",
+            "tags" : "Relationship",
+            "sourceId" : "17",
+            "destinationId" : "19",
+            "description" : "reads data from"
+          } ],
+          "technology" : "API Gateway",
+          "size" : 0
+        }, {
+          "id" : "20",
+          "tags" : "Element,Component,Database",
+          "properties" : {
+            "structurizr.dsl.identifier" : "mlpaopgregisterservice_readreplicamonitoringtelemetry"
+          },
+          "name" : "Monitoring and Telemetery",
+          "description" : "Cloudwatch logs and X-Ray",
+          "technology" : "AWS Cloudwatch",
+          "size" : 0
+        }, {
+          "id" : "18",
+          "tags" : "Element,Component,Container",
+          "properties" : {
+            "structurizr.dsl.identifier" : "mlpaopgregisterservice_writeapigateway"
+          },
+          "name" : "Registered LPA Write API",
+          "description" : "Interface to writing to the Registered LPA Database.",
+          "relationships" : [ {
+            "id" : "53",
+            "tags" : "Relationship",
+            "sourceId" : "18",
+            "destinationId" : "14",
+            "description" : "writes data to"
+          }, {
+            "id" : "54",
+            "sourceId" : "18",
+            "destinationId" : "13",
+            "description" : "writes data to",
+            "linkedRelationshipId" : "53"
+          } ],
+          "technology" : "API Gateway, Go",
+          "size" : 0
+        } ],
+        "documentation" : { }
+      }, {
+        "id" : "22",
+        "tags" : "Element,Container,Existing System",
+        "properties" : {
+          "structurizr.dsl.identifier" : "mlpasiriuspublicapi"
+        },
+        "name" : "Sirius Public API",
+        "description" : "Interaction point between Sirius Case Management and other services.",
+        "relationships" : [ {
+          "id" : "62",
+          "tags" : "Relationship",
+          "sourceId" : "22",
+          "destinationId" : "23",
+          "description" : "writes and read data from"
+        } ],
+        "technology" : "API Gateway, Go",
         "documentation" : { }
       }, {
         "id" : "3",
@@ -189,84 +307,105 @@
         "name" : "Make a Lasting Power of Attorney Online",
         "description" : "Allows users to draft a Lasting Power of Attorney online.",
         "relationships" : [ {
-          "id" : "31",
+          "id" : "39",
           "tags" : "Relationship",
           "sourceId" : "3",
-          "destinationId" : "5",
+          "destinationId" : "8",
           "description" : "makes calls to"
         }, {
-          "id" : "32",
+          "id" : "40",
           "sourceId" : "3",
-          "destinationId" : "4",
+          "destinationId" : "7",
           "description" : "makes calls to",
-          "linkedRelationshipId" : "31"
+          "linkedRelationshipId" : "39"
         } ],
         "technology" : "Go, HTML, CSS, JS",
-        "documentation" : { }
-      }, {
-        "id" : "14",
-        "tags" : "Element,Container,Existing System",
-        "properties" : {
-          "structurizr.dsl.identifier" : "mlpasiriuspublicapi"
-        },
-        "name" : "Sirius Public API",
-        "description" : "Interaction point between Sirius Case Management and other services.",
-        "relationships" : [ {
-          "id" : "44",
-          "tags" : "Relationship",
-          "sourceId" : "14",
-          "destinationId" : "15",
-          "description" : "writes and read data from"
+        "components" : [ {
+          "id" : "4",
+          "tags" : "Element,Component,Web Browser",
+          "properties" : {
+            "structurizr.dsl.identifier" : "mlpaonlinecontainer_webapp"
+          },
+          "name" : "App",
+          "description" : "Provides and delivers static content, business logic, routing, third party access and database access",
+          "relationships" : [ {
+            "id" : "68",
+            "tags" : "Relationship",
+            "sourceId" : "4",
+            "destinationId" : "5",
+            "description" : "reads and writes data to"
+          } ],
+          "technology" : "Go, HTML, CSS, JS",
+          "size" : 0
+        }, {
+          "id" : "5",
+          "tags" : "Element,Component,Database",
+          "properties" : {
+            "structurizr.dsl.identifier" : "mlpaonlinecontainer_database"
+          },
+          "name" : "Database",
+          "description" : "Stores actor information, Draft LPA details, access logs, etc.",
+          "relationships" : [ {
+            "id" : "69",
+            "tags" : "Relationship",
+            "sourceId" : "5",
+            "destinationId" : "6",
+            "description" : "interacts with"
+          } ],
+          "technology" : "DynamoDB",
+          "size" : 0
+        }, {
+          "id" : "6",
+          "tags" : "Element,Component,Database",
+          "properties" : {
+            "structurizr.dsl.identifier" : "mlpaonlinecontainer_databasemonitoringtelemetry"
+          },
+          "name" : "Monitoring and Telemetery",
+          "description" : "Cloudwatch logs, X-Ray and RUM",
+          "technology" : "AWS Cloudwatch",
+          "size" : 0
         } ],
-        "technology" : "API Gateway, Go",
         "documentation" : { }
       }, {
-        "id" : "4",
+        "id" : "7",
         "tags" : "Element,Container",
         "properties" : {
           "structurizr.dsl.identifier" : "mlpastaging"
         },
-        "name" : "Staging API/Database",
+        "name" : "Staging Service",
         "description" : "Stores and manages data for pre-registration.",
         "relationships" : [ {
-          "id" : "36",
-          "sourceId" : "4",
-          "destinationId" : "11",
+          "id" : "45",
+          "sourceId" : "7",
+          "destinationId" : "18",
           "description" : "writes validated data to",
-          "linkedRelationshipId" : "35"
+          "linkedRelationshipId" : "43"
         }, {
-          "id" : "38",
-          "sourceId" : "4",
-          "destinationId" : "14",
+          "id" : "46",
+          "sourceId" : "7",
+          "destinationId" : "16",
+          "description" : "writes validated data to",
+          "linkedRelationshipId" : "43"
+        }, {
+          "id" : "48",
+          "sourceId" : "7",
+          "destinationId" : "22",
           "description" : "writes case management data to and read data from",
-          "linkedRelationshipId" : "37"
+          "linkedRelationshipId" : "47"
         } ],
         "technology" : "API Gateway, Go, DynamoDB",
         "components" : [ {
-          "id" : "6",
+          "id" : "8",
           "tags" : "Element,Component",
           "properties" : {
-            "structurizr.dsl.identifier" : "mlpastagingsiriusapi"
+            "structurizr.dsl.identifier" : "mlpastagingapi"
           },
-          "name" : "Sirius Staging API",
-          "description" : "Managing Case Worker specific access",
-          "relationships" : [ {
-            "id" : "35",
-            "tags" : "Relationship",
-            "sourceId" : "6",
-            "destinationId" : "11",
-            "description" : "writes validated data to"
-          }, {
-            "id" : "37",
-            "tags" : "Relationship",
-            "sourceId" : "6",
-            "destinationId" : "14",
-            "description" : "writes case management data to and read data from"
-          } ],
+          "name" : "API",
+          "description" : "Managing LPA data",
           "technology" : "API Gateway, Go",
           "size" : 0
         }, {
-          "id" : "7",
+          "id" : "10",
           "tags" : "Element,Component,Database",
           "properties" : {
             "structurizr.dsl.identifier" : "mlpastagingdatabase"
@@ -276,7 +415,7 @@
           "technology" : "DynamoDB",
           "size" : 0
         }, {
-          "id" : "8",
+          "id" : "11",
           "tags" : "Element,Component",
           "properties" : {
             "structurizr.dsl.identifier" : "mlpastagingapp"
@@ -286,48 +425,69 @@
           "technology" : "Go",
           "size" : 0
         }, {
-          "id" : "5",
+          "id" : "9",
           "tags" : "Element,Component",
           "properties" : {
-            "structurizr.dsl.identifier" : "mlpastagingapi"
+            "structurizr.dsl.identifier" : "mlpastagingsiriusapi"
           },
-          "name" : "API",
-          "description" : "Managing LPA data",
+          "name" : "Sirius API",
+          "description" : "Managing Case Worker specific access",
+          "relationships" : [ {
+            "id" : "43",
+            "tags" : "Relationship",
+            "sourceId" : "9",
+            "destinationId" : "18",
+            "description" : "writes validated data to"
+          }, {
+            "id" : "44",
+            "sourceId" : "9",
+            "destinationId" : "16",
+            "description" : "writes validated data to",
+            "linkedRelationshipId" : "43"
+          }, {
+            "id" : "47",
+            "tags" : "Relationship",
+            "sourceId" : "9",
+            "destinationId" : "22",
+            "description" : "writes case management data to and read data from"
+          } ],
           "technology" : "API Gateway, Go",
           "size" : 0
         } ],
         "documentation" : { }
       }, {
-        "id" : "11",
+        "id" : "21",
         "tags" : "Element,Container",
         "properties" : {
-          "structurizr.dsl.identifier" : "mlpaopgregisterwriteapi"
+          "structurizr.dsl.identifier" : "mlpapaperingestionapi"
         },
-        "name" : "Registered LPA Write API",
-        "description" : "API for writing registered LPA data.",
+        "name" : "LPA Paper Ingestion Service",
+        "description" : "Handles the ingestion of the Paper Journey.",
         "relationships" : [ {
-          "id" : "42",
+          "id" : "63",
           "tags" : "Relationship",
-          "sourceId" : "11",
-          "destinationId" : "10",
-          "description" : "interacts with"
+          "sourceId" : "21",
+          "destinationId" : "22",
+          "description" : "reads data from"
+        }, {
+          "id" : "64",
+          "tags" : "Relationship",
+          "sourceId" : "21",
+          "destinationId" : "8",
+          "description" : "writes data to"
+        }, {
+          "id" : "65",
+          "sourceId" : "21",
+          "destinationId" : "7",
+          "description" : "writes data to",
+          "linkedRelationshipId" : "64"
         } ],
         "technology" : "API Gateway, Go",
-        "documentation" : { }
-      }, {
-        "id" : "10",
-        "tags" : "Element,Container,Database",
-        "properties" : {
-          "structurizr.dsl.identifier" : "mlpaopgregisterdatabase"
-        },
-        "name" : "Registered LPA Data Store",
-        "description" : "Stores immutable LPA data with high availablility, security and auditing.",
-        "technology" : "AuroraDB",
         "documentation" : { }
       } ],
       "documentation" : { }
     }, {
-      "id" : "21",
+      "id" : "29",
       "tags" : "Element,Software System,Existing System",
       "properties" : {
         "structurizr.dsl.identifier" : "externalsoftwaresystems"
@@ -337,7 +497,7 @@
       "location" : "External",
       "documentation" : { }
     }, {
-      "id" : "22",
+      "id" : "30",
       "tags" : "Element,Software System,Existing System",
       "properties" : {
         "structurizr.dsl.identifier" : "externalopgsoftwaresystems"
@@ -345,22 +505,22 @@
       "name" : "OPG Services",
       "description" : "Court Ordered Severances",
       "relationships" : [ {
-        "id" : "27",
+        "id" : "35",
         "tags" : "Relationship",
-        "sourceId" : "22",
-        "destinationId" : "15",
+        "sourceId" : "30",
+        "destinationId" : "23",
         "description" : "sends data to"
       }, {
-        "id" : "28",
-        "sourceId" : "22",
+        "id" : "36",
+        "sourceId" : "30",
         "destinationId" : "2",
         "description" : "sends data to",
-        "linkedRelationshipId" : "27"
+        "linkedRelationshipId" : "35"
       } ],
       "location" : "External",
       "documentation" : { }
     }, {
-      "id" : "23",
+      "id" : "31",
       "tags" : "Element,Software System,Existing System",
       "properties" : {
         "structurizr.dsl.identifier" : "externalscanningsoftware"
@@ -368,22 +528,22 @@
       "name" : "Scanning Software",
       "description" : "TBC",
       "relationships" : [ {
-        "id" : "29",
+        "id" : "37",
         "tags" : "Relationship",
-        "sourceId" : "23",
-        "destinationId" : "13",
+        "sourceId" : "31",
+        "destinationId" : "21",
         "description" : "sends scanned LPA Data to"
       }, {
-        "id" : "30",
-        "sourceId" : "23",
+        "id" : "38",
+        "sourceId" : "31",
         "destinationId" : "2",
         "description" : "sends scanned LPA Data to",
-        "linkedRelationshipId" : "29"
+        "linkedRelationshipId" : "37"
       } ],
       "location" : "External",
       "documentation" : { }
     }, {
-      "id" : "24",
+      "id" : "32",
       "tags" : "Element,Software System,Web Browser Existing System",
       "properties" : {
         "structurizr.dsl.identifier" : "mlpaualpa"
@@ -391,23 +551,29 @@
       "name" : "Use an LPA",
       "description" : "Use/View an LPA Service.",
       "relationships" : [ {
-        "id" : "39",
+        "id" : "49",
         "tags" : "Relationship",
-        "sourceId" : "24",
-        "destinationId" : "14",
+        "sourceId" : "32",
+        "destinationId" : "22",
         "description" : "read data from"
       }, {
-        "id" : "40",
-        "sourceId" : "24",
+        "id" : "50",
+        "sourceId" : "32",
         "destinationId" : "2",
         "description" : "read data from",
-        "linkedRelationshipId" : "39"
+        "linkedRelationshipId" : "49"
       }, {
-        "id" : "41",
+        "id" : "51",
         "tags" : "Relationship",
-        "sourceId" : "24",
-        "destinationId" : "12",
+        "sourceId" : "32",
+        "destinationId" : "17",
         "description" : "read data from"
+      }, {
+        "id" : "52",
+        "sourceId" : "32",
+        "destinationId" : "16",
+        "description" : "read data from",
+        "linkedRelationshipId" : "51"
       } ],
       "location" : "External",
       "documentation" : { }
@@ -428,14 +594,6 @@
       },
       "enterpriseBoundaryVisible" : true,
       "elements" : [ {
-        "id" : "22",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "23",
-        "x" : 0,
-        "y" : 0
-      }, {
         "id" : "1",
         "x" : 0,
         "y" : 0
@@ -444,24 +602,32 @@
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "24",
+        "id" : "29",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "21",
+        "id" : "30",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "31",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "32",
         "x" : 0,
         "y" : 0
       } ],
       "relationships" : [ {
-        "id" : "28"
+        "id" : "50"
       }, {
-        "id" : "26"
+        "id" : "36"
       }, {
-        "id" : "40"
+        "id" : "34"
       }, {
-        "id" : "25"
+        "id" : "33"
       }, {
-        "id" : "30"
+        "id" : "38"
       } ]
     } ],
     "systemContextViews" : [ {
@@ -478,15 +644,7 @@
       },
       "enterpriseBoundaryVisible" : true,
       "elements" : [ {
-        "id" : "22",
-        "x" : 0,
-        "y" : 0
-      }, {
         "id" : "1",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "23",
         "x" : 0,
         "y" : 0
       }, {
@@ -494,24 +652,32 @@
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "24",
+        "id" : "29",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "21",
+        "id" : "30",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "31",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "32",
         "x" : 0,
         "y" : 0
       } ],
       "relationships" : [ {
-        "id" : "28"
+        "id" : "50"
       }, {
-        "id" : "26"
+        "id" : "36"
       }, {
-        "id" : "25"
+        "id" : "34"
       }, {
-        "id" : "40"
+        "id" : "33"
       }, {
-        "id" : "30"
+        "id" : "38"
       } ]
     } ],
     "containerViews" : [ {
@@ -532,10 +698,6 @@
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "11",
-        "x" : 0,
-        "y" : 0
-      }, {
         "id" : "12",
         "x" : 0,
         "y" : 0
@@ -544,19 +706,7 @@
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "24",
-        "x" : 0,
-        "y" : 0
-      }, {
         "id" : "13",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "14",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "15",
         "x" : 0,
         "y" : 0
       }, {
@@ -564,51 +714,61 @@
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "4",
+        "id" : "16",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "9",
+        "id" : "7",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "10",
+        "id" : "30",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "31",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "32",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "21",
         "x" : 0,
         "y" : 0
       } ],
       "relationships" : [ {
-        "id" : "41"
+        "id" : "40"
+      }, {
+        "id" : "63"
+      }, {
+        "id" : "52"
+      }, {
+        "id" : "62"
       }, {
         "id" : "42"
       }, {
-        "id" : "43"
+        "id" : "65"
       }, {
-        "id" : "32"
+        "id" : "37"
       }, {
-        "id" : "29"
+        "id" : "35"
       }, {
-        "id" : "27"
+        "id" : "67"
       }, {
-        "id" : "36"
+        "id" : "56"
       }, {
-        "id" : "34"
-      }, {
-        "id" : "44"
-      }, {
-        "id" : "45"
-      }, {
-        "id" : "47"
+        "id" : "46"
       }, {
         "id" : "48"
       }, {
-        "id" : "38"
-      }, {
-        "id" : "39"
+        "id" : "49"
       } ]
     } ],
     "componentViews" : [ {
-      "key" : "SiriusCaseManagementComponents",
-      "order" : 4,
+      "key" : "mlpaOpgRegisterWriteAPIComponents",
+      "order" : 6,
       "automaticLayout" : {
         "implementation" : "Graphviz",
         "rankDirection" : "TopBottom",
@@ -617,10 +777,14 @@
         "edgeSeparation" : 0,
         "vertices" : false
       },
-      "containerId" : "15",
+      "containerId" : "16",
       "externalContainerBoundariesVisible" : true,
       "elements" : [ {
-        "id" : "16",
+        "id" : "23",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "13",
         "x" : 0,
         "y" : 0
       }, {
@@ -632,6 +796,10 @@
         "x" : 0,
         "y" : 0
       }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
         "id" : "19",
         "x" : 0,
         "y" : 0
@@ -639,9 +807,59 @@
         "id" : "20",
         "x" : 0,
         "y" : 0
+      }, {
+        "id" : "32",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "relationships" : [ {
+        "id" : "60"
+      }, {
+        "id" : "51"
+      }, {
+        "id" : "54"
+      }, {
+        "id" : "66"
+      }, {
+        "id" : "45"
+      }, {
+        "id" : "57"
+      }, {
+        "id" : "58"
       } ]
     }, {
-      "key" : "StagingApiComponents",
+      "key" : "mlpaOpgRegisterDatabaseComponents",
+      "order" : 4,
+      "automaticLayout" : {
+        "implementation" : "Graphviz",
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "nodeSeparation" : 300,
+        "edgeSeparation" : 0,
+        "vertices" : false
+      },
+      "containerId" : "13",
+      "externalContainerBoundariesVisible" : true,
+      "elements" : [ {
+        "id" : "14",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "15",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "16",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "relationships" : [ {
+        "id" : "61"
+      }, {
+        "id" : "55"
+      } ]
+    }, {
+      "key" : "mlpaOnlineContainerComponents",
       "order" : 5,
       "automaticLayout" : {
         "implementation" : "Graphviz",
@@ -651,22 +869,10 @@
         "edgeSeparation" : 0,
         "vertices" : false
       },
-      "containerId" : "4",
+      "containerId" : "3",
       "externalContainerBoundariesVisible" : true,
       "elements" : [ {
-        "id" : "11",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "13",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "14",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "3",
+        "id" : "4",
         "x" : 0,
         "y" : 0
       }, {
@@ -677,8 +883,77 @@
         "id" : "6",
         "x" : 0,
         "y" : 0
+      } ],
+      "relationships" : [ {
+        "id" : "69"
       }, {
-        "id" : "7",
+        "id" : "68"
+      } ]
+    }, {
+      "key" : "SiriusCaseManagementComponents",
+      "order" : 7,
+      "automaticLayout" : {
+        "implementation" : "Graphviz",
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "nodeSeparation" : 300,
+        "edgeSeparation" : 0,
+        "vertices" : false
+      },
+      "containerId" : "23",
+      "externalContainerBoundariesVisible" : true,
+      "elements" : [ {
+        "id" : "24",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "25",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "26",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "27",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "28",
+        "x" : 0,
+        "y" : 0
+      } ]
+    }, {
+      "key" : "StagingApiComponents",
+      "order" : 8,
+      "automaticLayout" : {
+        "implementation" : "Graphviz",
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "nodeSeparation" : 300,
+        "edgeSeparation" : 0,
+        "vertices" : false
+      },
+      "containerId" : "7",
+      "externalContainerBoundariesVisible" : true,
+      "elements" : [ {
+        "id" : "11",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "22",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "12",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "16",
         "x" : 0,
         "y" : 0
       }, {
@@ -689,19 +964,27 @@
         "id" : "9",
         "x" : 0,
         "y" : 0
+      }, {
+        "id" : "21",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
       } ],
       "relationships" : [ {
-        "id" : "37"
+        "id" : "63"
       }, {
-        "id" : "35"
+        "id" : "41"
       }, {
-        "id" : "33"
+        "id" : "64"
       }, {
-        "id" : "45"
+        "id" : "44"
       }, {
-        "id" : "31"
+        "id" : "47"
       }, {
-        "id" : "46"
+        "id" : "39"
       } ]
     } ],
     "configuration" : {
