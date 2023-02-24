@@ -9,6 +9,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -140,6 +142,39 @@ func TestPostEnterReferenceCodeOnDataStoreError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostEnterReferenceCodeOnDataStoreNotFoundError(t *testing.T) {
+	form := url.Values{
+		"reference-code": {"a-ref-code"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	data := enterReferenceCodeData{
+		App:    testAppData,
+		Form:   &enterReferenceCodeForm{ReferenceCode: "a-ref-code"},
+		Errors: validation.With("reference-code", validation.CustomError{Label: "incorrectReferenceCode"}),
+	}
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, data).
+		Return(nil)
+
+	dataStore := newMockDataStore(t)
+	dataStore.
+		ExpectGet(r.Context(), "SHARECODE#a-ref-code", "#METADATA#a-ref-code",
+			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, &dynamo.NotFoundError{})
+
+	err := EnterReferenceCode(template.Execute, nil, dataStore)(testAppData, w, r)
+
+	resp := w.Result()
+
+	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
