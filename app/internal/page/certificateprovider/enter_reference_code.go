@@ -37,7 +37,7 @@ func EnterReferenceCode(tmpl template.Template, lpaStore LpaStore, dataStore pag
 
 				var v page.ShareCodeData
 				if err := dataStore.Get(r.Context(), "SHARECODE#"+shareCode, "#METADATA#"+shareCode, &v); err != nil {
-					if errors.Is(err, &dynamo.NotFoundError{}) {
+					if errors.Is(err, dynamo.NotFoundError{}) {
 						data.Errors.Add("reference-code", validation.CustomError{Label: "incorrectReferenceCode"})
 						return tmpl(w, data)
 					} else {

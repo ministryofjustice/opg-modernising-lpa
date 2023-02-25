@@ -91,7 +91,7 @@ func TestPostEnterReferenceCode(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				"reference-code": {"a-ref-code"},
+				"reference-code": {"aRefCode1234"},
 			}
 
 			w := httptest.NewRecorder()
@@ -100,7 +100,7 @@ func TestPostEnterReferenceCode(t *testing.T) {
 
 			dataStore := newMockDataStore(t)
 			dataStore.
-				ExpectGet(r.Context(), "SHARECODE#a-ref-code", "#METADATA#a-ref-code",
+				ExpectGet(r.Context(), "SHARECODE#aRefCode1234", "#METADATA#aRefCode1234",
 					page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: tc.Identity}, nil)
 
 			lpaStore := newMockLpaStore(t)
@@ -125,7 +125,7 @@ func TestPostEnterReferenceCode(t *testing.T) {
 
 func TestPostEnterReferenceCodeOnDataStoreError(t *testing.T) {
 	form := url.Values{
-		"reference-code": {"  a-ref-code  "},
+		"reference-code": {"  aRefCode1234  "},
 	}
 
 	w := httptest.NewRecorder()
@@ -134,7 +134,7 @@ func TestPostEnterReferenceCodeOnDataStoreError(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		ExpectGet(r.Context(), "SHARECODE#a-ref-code", "#METADATA#a-ref-code",
+		ExpectGet(r.Context(), "SHARECODE#aRefCode1234", "#METADATA#aRefCode1234",
 			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, expectedError)
 
 	err := EnterReferenceCode(nil, nil, dataStore)(testAppData, w, r)
@@ -147,7 +147,7 @@ func TestPostEnterReferenceCodeOnDataStoreError(t *testing.T) {
 
 func TestPostEnterReferenceCodeOnDataStoreNotFoundError(t *testing.T) {
 	form := url.Values{
-		"reference-code": {"a-ref-code"},
+		"reference-code": {"aRefCode1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -156,7 +156,7 @@ func TestPostEnterReferenceCodeOnDataStoreNotFoundError(t *testing.T) {
 
 	data := enterReferenceCodeData{
 		App:    testAppData,
-		Form:   &enterReferenceCodeForm{ReferenceCode: "a-ref-code"},
+		Form:   &enterReferenceCodeForm{ReferenceCode: "aRefCode1234"},
 		Errors: validation.With("reference-code", validation.CustomError{Label: "incorrectReferenceCode"}),
 	}
 
@@ -167,8 +167,8 @@ func TestPostEnterReferenceCodeOnDataStoreNotFoundError(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		ExpectGet(r.Context(), "SHARECODE#a-ref-code", "#METADATA#a-ref-code",
-			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, &dynamo.NotFoundError{})
+		ExpectGet(r.Context(), "SHARECODE#aRefCode1234", "#METADATA#aRefCode1234",
+			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, dynamo.NotFoundError{})
 
 	err := EnterReferenceCode(template.Execute, nil, dataStore)(testAppData, w, r)
 
@@ -180,7 +180,7 @@ func TestPostEnterReferenceCodeOnDataStoreNotFoundError(t *testing.T) {
 
 func TestPostEnterReferenceCodeOnLpaStoreError(t *testing.T) {
 	form := url.Values{
-		"reference-code": {"a-ref-code"},
+		"reference-code": {"aRefCode1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -189,7 +189,7 @@ func TestPostEnterReferenceCodeOnLpaStoreError(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		ExpectGet(r.Context(), "SHARECODE#a-ref-code", "#METADATA#a-ref-code",
+		ExpectGet(r.Context(), "SHARECODE#aRefCode1234", "#METADATA#aRefCode1234",
 			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, nil)
 
 	lpaStore := newMockLpaStore(t)
@@ -221,7 +221,7 @@ func TestPostEnterReferenceCodeOnValidationError(t *testing.T) {
 	data := enterReferenceCodeData{
 		App:    testAppData,
 		Form:   &enterReferenceCodeForm{},
-		Errors: validation.With("reference-code", validation.EnterError{Label: "referenceCode"}),
+		Errors: validation.With("reference-code", validation.EnterError{Label: "twelveCharactersReferenceCode"}),
 	}
 
 	template := newMockTemplate(t)
