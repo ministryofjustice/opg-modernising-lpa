@@ -18,6 +18,7 @@ type enterReferenceCodeData struct {
 	App    page.AppData
 	Errors validation.List
 	Form   *enterReferenceCodeForm
+	Lpa    *page.Lpa
 }
 
 func EnterReferenceCode(tmpl template.Template, lpaStore LpaStore, dataStore page.DataStore) page.Handler {
@@ -36,7 +37,7 @@ func EnterReferenceCode(tmpl template.Template, lpaStore LpaStore, dataStore pag
 
 				var v page.ShareCodeData
 				if err := dataStore.Get(r.Context(), "SHARECODE#"+shareCode, "#METADATA#"+shareCode, &v); err != nil {
-					if errors.Is(err, &dynamo.NotFoundError{}) {
+					if errors.Is(err, dynamo.NotFoundError{}) {
 						data.Errors.Add("reference-code", validation.CustomError{Label: "incorrectReferenceCode"})
 						return tmpl(w, data)
 					} else {
@@ -76,8 +77,12 @@ type enterReferenceCodeForm struct {
 func (f *enterReferenceCodeForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("reference-code", "referenceCode", strings.ReplaceAll(f.ReferenceCode, " ", ""),
+	errors.String("reference-code", "twelveCharactersReferenceCode", strings.ReplaceAll(f.ReferenceCode, " ", ""),
 		validation.Empty(),
+	)
+
+	errors.String("reference-code", "referenceCodeMustBeTwelveCharacters", strings.ReplaceAll(f.ReferenceCode, " ", ""),
+		validation.StringLength(12),
 	)
 
 	return errors
