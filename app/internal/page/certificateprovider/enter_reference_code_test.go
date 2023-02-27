@@ -168,7 +168,7 @@ func TestPostEnterReferenceCodeOnDataStoreNotFoundError(t *testing.T) {
 	dataStore := newMockDataStore(t)
 	dataStore.
 		ExpectGet(r.Context(), "SHARECODE#a-ref-code", "#METADATA#a-ref-code",
-			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, &dynamo.NotFoundError{})
+			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, dynamo.NotFoundError{})
 
 	err := EnterReferenceCode(template.Execute, nil, dataStore)(testAppData, w, r)
 
