@@ -66,39 +66,39 @@ func TestPostFixturesCPFlow(t *testing.T) {
 		form         url.Values
 		expectedPath string
 	}{
-		"With ID and email": {
+		"Donor has paid": {
 			form: url.Values{
 				"email":            {"a@example.org"},
 				"useTestShareCode": {"1"},
-				"cp-flow-id":       {"startCpFlowWithId"},
+				"cp-flow-id":       {"startCpFlowDonorHasPaid"},
 				"completeLpa":      {"1"},
 			},
-			expectedPath: "/testing-start?completeLpa=1&startCpFlowWithId=1&useTestShareCode=1&withEmail=a%40example.org",
+			expectedPath: "/testing-start?completeLpa=1&startCpFlowDonorHasPaid=1&useTestShareCode=1&withEmail=a%40example.org",
 		},
-		"With ID no email": {
+		"Donor has not paid": {
 			form: url.Values{
 				"useTestShareCode": {"1"},
-				"cp-flow-id":       {"startCpFlowWithId"},
+				"cp-flow-id":       {"startCpFlowDonorHasNotPaid"},
 				"completeLpa":      {"1"},
 			},
-			expectedPath: "/testing-start?completeLpa=1&startCpFlowWithId=1&useTestShareCode=1",
+			expectedPath: "/testing-start?completeLpa=1&startCpFlowDonorHasNotPaid=1&useTestShareCode=1",
 		},
-		"Without ID and email": {
+		"Donor has not paid and email": {
 			form: url.Values{
 				"email":            {"a@example.org"},
 				"useTestShareCode": {"1"},
-				"cp-flow-id":       {"startCpFlowWithoutId"},
+				"cp-flow-id":       {"startCpFlowDonorHasNotPaid"},
 				"completeLpa":      {"1"},
 			},
-			expectedPath: "/testing-start?startCpFlowWithoutId=1&useTestShareCode=1&withCP=1&withDonorDetails=1&withEmail=a%40example.org",
+			expectedPath: "/testing-start?completeLpa=1&startCpFlowDonorHasNotPaid=1&useTestShareCode=1&withEmail=a%40example.org",
 		},
-		"Without ID no email": {
+		"Donor has not paid no email": {
 			form: url.Values{
 				"useTestShareCode": {"1"},
-				"cp-flow-id":       {"startCpFlowWithoutId"},
+				"cp-flow-id":       {"startCpFlowDonorHasNotPaid"},
 				"completeLpa":      {"1"},
 			},
-			expectedPath: "/testing-start?startCpFlowWithoutId=1&useTestShareCode=1&withCP=1&withDonorDetails=1",
+			expectedPath: "/testing-start?completeLpa=1&startCpFlowDonorHasNotPaid=1&useTestShareCode=1",
 		},
 	}
 
