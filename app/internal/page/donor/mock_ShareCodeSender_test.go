@@ -16,13 +16,13 @@ type mockShareCodeSender struct {
 	mock.Mock
 }
 
-// Send provides a mock function with given fields: ctx, template, appData, email, identity
-func (_m *mockShareCodeSender) Send(ctx context.Context, template notify.TemplateId, appData page.AppData, email string, identity bool) error {
-	ret := _m.Called(ctx, template, appData, email, identity)
+// Send provides a mock function with given fields: ctx, template, appData, identity, lpa
+func (_m *mockShareCodeSender) Send(ctx context.Context, template notify.TemplateId, appData page.AppData, identity bool, lpa *page.Lpa) error {
+	ret := _m.Called(ctx, template, appData, identity, lpa)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, notify.TemplateId, page.AppData, string, bool) error); ok {
-		r0 = rf(ctx, template, appData, email, identity)
+	if rf, ok := ret.Get(0).(func(context.Context, notify.TemplateId, page.AppData, bool, *page.Lpa) error); ok {
+		r0 = rf(ctx, template, appData, identity, lpa)
 	} else {
 		r0 = ret.Error(0)
 	}

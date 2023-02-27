@@ -49,7 +49,7 @@ func TestNewBundleWithTransKeys(t *testing.T) {
 	bundle := NewBundle("testdata/en.json", "testdata/cy.json")
 
 	en := bundle.For("en")
-	en.ShowTranslationKeys = true
+	en.SetShowTranslationKeys(true)
 
 	assert.Equal("{A} [a]", en.T("a"))
 	assert.Equal("{key does not exist} [key does not exist]", en.T("key does not exist"))
@@ -63,7 +63,7 @@ func TestNewBundleWithTransKeys(t *testing.T) {
 	assert.Equal("{2 OTHER FORMATTED} [d]", en.FormatCount("d", 2, map[string]interface{}{"x": "FORMATTED"}))
 
 	cy := bundle.For("cy")
-	cy.ShowTranslationKeys = true
+	cy.SetShowTranslationKeys(true)
 
 	assert.Equal("{C} [a]", cy.T("a"))
 
@@ -84,4 +84,9 @@ func TestNewBundleWithTransKeys(t *testing.T) {
 	assert.Equal("{5 other formatted} [d]", cy.FormatCount("d", 5, map[string]interface{}{"x": "formatted"}))
 	assert.Equal("{6 many formatted} [d]", cy.FormatCount("d", 6, map[string]interface{}{"x": "formatted"}))
 	assert.Equal("{7 other formatted} [d]", cy.FormatCount("d", 7, map[string]interface{}{"x": "formatted"}))
+}
+
+func TestShowTranslationKey(t *testing.T) {
+	localizer := Localizer{showTranslationKeys: true}
+	assert.True(t, localizer.ShowTranslationKeys())
 }

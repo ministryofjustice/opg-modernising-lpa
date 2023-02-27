@@ -30,7 +30,7 @@ type DataStore interface {
 
 func App(
 	logger *logging.Logger,
-	localizer localize.Localizer,
+	localizer page.Localizer,
 	lang localize.Lang,
 	tmpls template.Templates,
 	sessionStore sesh.Store,
@@ -54,7 +54,7 @@ func App(
 
 	rootMux := http.NewServeMux()
 
-	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, shareCodeSender))
+	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, shareCodeSender, localizer))
 
 	handleRoot := makeHandle(rootMux, errorHandler)
 
@@ -94,9 +94,10 @@ func App(
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash)
 }
 
-func withAppData(next http.Handler, localizer localize.Localizer, lang localize.Lang, rumConfig page.RumConfig, staticHash string) http.HandlerFunc {
+func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang, rumConfig page.RumConfig, staticHash string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+		localizer.SetShowTranslationKeys(r.FormValue("showTranslationKeys") == "1")
 
 		appData := page.AppDataFromContext(ctx)
 		appData.Path = r.URL.Path
@@ -106,7 +107,6 @@ func withAppData(next http.Handler, localizer localize.Localizer, lang localize.
 		appData.RumConfig = rumConfig
 		appData.StaticHash = staticHash
 		appData.Paths = page.Paths
-		appData.Localizer.ShowTranslationKeys = r.FormValue("showTranslationKeys") == "1"
 
 		_, cookieErr := r.Cookie("cookies-consent")
 		appData.CookieConsentSet = cookieErr != http.ErrNoCookie
