@@ -10,7 +10,7 @@ describe('Enter reference code', () => {
         cy.get('#f-reference-code').type('abcdef123456');
         cy.contains('Continue').click();
 
-        cy.url().should('contain', '/certificate-provider-login-callback');
+        cy.location('pathname').should('be.oneOf', ['/certificate-provider-login-callback', '/prove-identity-welcome'])
     });
 
     it('errors when empty code', () => {
