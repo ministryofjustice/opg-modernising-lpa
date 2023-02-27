@@ -519,5 +519,18 @@
     "enterYourReferenceCode": "Enter your reference code",
     "certificateProviderReferenceCodeContent": "<p class=\"govuk-body\">Some content asking the CP to enter their ref code</p>",
     "referenceCode": "Reference code",
-    "incorrectReferenceCode": "Incorrect reference code - try again"
+    "incorrectReferenceCode": "Incorrect reference code - try again",
+
+    "howDoYouKnowTheDonorTitle": "How do you know the donor?",
+    "howDoYouKnowTheDonor": "How do you know {{.FullName}}?",
+    "personally": "Personally",
+    "personallyHint": "For example, as a friend or neighbour",
+    "professionally": "In a professional capacity",
+    "professionallyHint": "For example, as their GP or solicitor, with the relevant professional skills and expertise to check whether they understand their LPA.",
+    "howYouKnowDonor": "how you know the donor",
+    
+    "howLongHaveYouKnownDonorTitle": "How long have you know the donor?",
+    "howLongHaveYouKnownDonor": "How long have you know {{.FullName}}?",
+    "howLongYouHaveKnownDonor": "how long you have known the donor",
+    "mustHaveKnownDonorTwoYears": "You must have known the donor for 2 years or more"
 }
