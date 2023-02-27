@@ -38,7 +38,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			return err
 		}
 
-		if err := shareCodeSender.Send(r.Context(), notify.CertificateProviderInviteEmail, appData, lpa.CertificateProvider.Email, true, lpa); err != nil {
+		if err := shareCodeSender.Send(r.Context(), notify.CertificateProviderInviteEmail, appData, true, lpa); err != nil {
 			return err
 		}
 

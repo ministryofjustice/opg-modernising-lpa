@@ -22,6 +22,7 @@ func TestShareCodeSenderSend(t *testing.T) {
 		CertificateProvider: actor.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
+			Email:      "name@example.org",
 		},
 		You: actor.Person{
 			FirstNames: "Jan",
@@ -53,7 +54,7 @@ func TestShareCodeSenderSend(t *testing.T) {
 			notifyClient.
 				On("Email", ctx, notify.Email{
 					TemplateID:   "template-id",
-					EmailAddress: "name@example.com",
+					EmailAddress: "name@example.org",
 					Personalisation: map[string]string{
 						"shareCode":         "123",
 						"cpFullName":        "Joanna Jones",
@@ -67,7 +68,7 @@ func TestShareCodeSenderSend(t *testing.T) {
 				Return("", nil)
 
 			sender := NewShareCodeSender(dataStore, notifyClient, "http://app", MockRandom)
-			err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", identity, lpa)
+			err := sender.Send(ctx, notify.TemplateId(99), TestAppData, identity, lpa)
 
 			assert.Nil(t, err)
 		})
@@ -93,6 +94,7 @@ func TestShareCodeSenderSendWithTestCode(t *testing.T) {
 		CertificateProvider: actor.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
+			Email:      "name@example.org",
 		},
 		You: actor.Person{
 			FirstNames: "Jan",
@@ -127,7 +129,7 @@ func TestShareCodeSenderSendWithTestCode(t *testing.T) {
 			notifyClient.
 				On("Email", ctx, notify.Email{
 					TemplateID:   "template-id",
-					EmailAddress: "name@example.com",
+					EmailAddress: "name@example.org",
 					Personalisation: map[string]string{
 						"shareCode":         tc.expectedTestCode,
 						"cpFullName":        "Joanna Jones",
@@ -142,7 +144,7 @@ func TestShareCodeSenderSendWithTestCode(t *testing.T) {
 			notifyClient.
 				On("Email", ctx, notify.Email{
 					TemplateID:   "template-id",
-					EmailAddress: "name@example.com",
+					EmailAddress: "name@example.org",
 					Personalisation: map[string]string{
 						"shareCode":         "123",
 						"cpFullName":        "Joanna Jones",
@@ -161,11 +163,11 @@ func TestShareCodeSenderSendWithTestCode(t *testing.T) {
 				sender.UseTestCode()
 			}
 
-			err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true, lpa)
+			err := sender.Send(ctx, notify.TemplateId(99), TestAppData, true, lpa)
 
 			assert.Nil(t, err)
 
-			err = sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true, lpa)
+			err = sender.Send(ctx, notify.TemplateId(99), TestAppData, true, lpa)
 
 			assert.Nil(t, err)
 		})
@@ -179,6 +181,7 @@ func TestShareCodeSenderSendWhenEmailErrors(t *testing.T) {
 		CertificateProvider: actor.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
+			Email:      "name@example.org",
 		},
 		You: actor.Person{
 			FirstNames: "Jan",
@@ -206,7 +209,7 @@ func TestShareCodeSenderSendWhenEmailErrors(t *testing.T) {
 	notifyClient.
 		On("Email", ctx, notify.Email{
 			TemplateID:   "template-id",
-			EmailAddress: "name@example.com",
+			EmailAddress: "name@example.org",
 			Personalisation: map[string]string{
 				"shareCode":         "123",
 				"cpFullName":        "Joanna Jones",
@@ -220,7 +223,7 @@ func TestShareCodeSenderSendWhenEmailErrors(t *testing.T) {
 		Return("", ExpectedError)
 
 	sender := NewShareCodeSender(dataStore, notifyClient, "http://app", MockRandom)
-	err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true, lpa)
+	err := sender.Send(ctx, notify.TemplateId(99), TestAppData, true, lpa)
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
 }
@@ -234,7 +237,7 @@ func TestShareCodeSenderSendWhenDataStoreErrors(t *testing.T) {
 		Return(ExpectedError)
 
 	sender := NewShareCodeSender(dataStore, nil, "http://app", MockRandom)
-	err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true, &Lpa{})
+	err := sender.Send(ctx, notify.TemplateId(99), TestAppData, true, &Lpa{})
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
 }

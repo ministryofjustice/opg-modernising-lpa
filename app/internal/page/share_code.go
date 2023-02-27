@@ -35,7 +35,7 @@ func (s *ShareCodeSender) UseTestCode() {
 	useTestCode = true
 }
 
-func (s *ShareCodeSender) Send(ctx context.Context, template notify.TemplateId, appData AppData, email string, identity bool, lpa *Lpa) error {
+func (s *ShareCodeSender) Send(ctx context.Context, template notify.TemplateId, appData AppData, identity bool, lpa *Lpa) error {
 	var shareCode string
 
 	if useTestCode {
@@ -55,7 +55,7 @@ func (s *ShareCodeSender) Send(ctx context.Context, template notify.TemplateId, 
 
 	if _, err := s.notifyClient.Email(ctx, notify.Email{
 		TemplateID:   s.notifyClient.TemplateID(template),
-		EmailAddress: email,
+		EmailAddress: lpa.CertificateProvider.Email,
 		Personalisation: map[string]string{
 			"shareCode":         shareCode,
 			"cpFullName":        lpa.CertificateProvider.FullName(),

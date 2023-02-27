@@ -128,10 +128,10 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		}
 
 		if r.FormValue("startCpFlowWithoutId") != "" || r.FormValue("startCpFlowWithId") != "" {
-			emailAddress := TestEmail
+			lpa.CertificateProvider.Email = TestEmail
 
 			if r.FormValue("withEmail") != "" {
-				emailAddress = r.FormValue("withEmail")
+				lpa.CertificateProvider.Email = r.FormValue("withEmail")
 			}
 
 			identity := true
@@ -144,7 +144,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				SessionID: sessionID,
 				LpaID:     lpa.ID,
 				Localizer: localizer,
-			}, emailAddress, identity, lpa)
+			}, identity, lpa)
 
 			r.Form.Set("redirect", Paths.CertificateProviderStart)
 		}
