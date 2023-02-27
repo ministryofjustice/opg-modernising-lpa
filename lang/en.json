@@ -522,5 +522,18 @@
     "certificateProviderReferenceContext": "This will be made up of 12 characters like XXXXXXXXXXXX",
     "incorrectReferenceCode": "The certificate provider reference you entered is incorrect, please check it and try again",
     "twelveCharactersReferenceCode": "your 12 character certificate provider reference",
-    "referenceCodeMustBeTwelveCharacters": "The certificate provider reference number you enter must contain 12 characters"
+    "referenceCodeMustBeTwelveCharacters": "The certificate provider reference number you enter must contain 12 characters",
+
+    "howDoYouKnowTheDonorTitle": "How do you know the donor?",
+    "howDoYouKnowTheDonor": "How do you know {{.FullName}}?",
+    "personally": "Personally",
+    "personallyHint": "For example, as a friend or neighbour",
+    "professionally": "In a professional capacity",
+    "professionallyHint": "For example, as their GP or solicitor, with the relevant professional skills and expertise to check whether they understand their LPA.",
+    "howYouKnowDonor": "how you know the donor",
+
+    "howLongHaveYouKnownDonorTitle": "How long have you know the donor?",
+    "howLongHaveYouKnownDonor": "How long have you know {{.FullName}}?",
+    "howLongYouHaveKnownDonor": "how long you have known the donor",
+    "mustHaveKnownDonorTwoYears": "You must have known the donor for 2 years or more"
 }

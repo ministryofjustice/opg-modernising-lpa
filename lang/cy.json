@@ -558,10 +558,24 @@
     "beACertificateProviderPostStartContent": "<p class=\"govuk-body\">Welsh</p>",
 
     "enterYourReferenceCode": "Welsh",
+    "referenceCode": "Welsh",
     "certificateProviderReferenceCodeContent": "<p class=\"govuk-body\">Welsh.</p>",
     "certificateProviderReference": "Welsh",
     "certificateProviderReferenceContext": "Welsh XXXXXXXXXXXX",
     "incorrectReferenceCode": "Welsh",
     "twelveCharactersReferenceCode": "welsh",
-    "referenceCodeMustBeTwelveCharacters": "Welsh"
+    "referenceCodeMustBeTwelveCharacters": "Welsh",
+
+    "howDoYouKnowTheDonorTitle": "Welsh",
+    "howDoYouKnowTheDonor": "Welsh {{.FullName}}",
+    "personally": "Welsh",
+    "personallyHint": "Welsh",
+    "professionally": "Welsh",
+    "professionallyHint": "Welsh",
+    "howYouKnowDonor": "Welsh",
+
+    "howLongHaveYouKnownDonorTitle": "Welsh",
+    "howLongHaveYouKnownDonor": "Welsh {{.FullName}}",
+    "howLongYouHaveKnownDonor": "Welsh",
+    "mustHaveKnownDonorTwoYears": "Welsh"
 }

@@ -38,7 +38,7 @@ func LoginCallback(tmpl template.Template, oneLoginClient OneLoginClient, sessio
 			}
 
 			if lpa.CertificateProviderUserData.OK {
-				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderYourDetails)
+				return appData.Redirect(w, r, lpa, page.Paths.HowDoYouKnowTheDonor)
 			} else {
 				return appData.Redirect(w, r, lpa, page.Paths.Start)
 			}
