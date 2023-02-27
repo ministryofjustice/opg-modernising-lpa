@@ -6,10 +6,10 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <form novalidate method="post">
-        <fieldset class="govuk-fieldset">
-          <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ trFormat .App "howDoYouKnowYourCertificateProvider" "FirstNames" .CertificateProvider.FirstNames "LastName" .CertificateProvider.LastName }}</h1>
+        <div class="govuk-form-group {{ if .Errors.Has "how" }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
+          <fieldset class="govuk-fieldset">
+            <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ trFormat .App "howDoYouKnowYourCertificateProvider" "FirstNames" .CertificateProvider.FirstNames "LastName" .CertificateProvider.LastName }}</h1>
 
-          <div class="govuk-form-group {{ if .Errors.Has "how" }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
             {{ template "error-message" (errorMessage . "how") }}
 
             <div class="govuk-radios  {{ if .Errors.Has "how" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
@@ -55,7 +55,7 @@
                 </label>
               </div>
               <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-how">
-                <div class="govuk-form-group">
+                <div class="govuk-form-group {{ if .Errors.Has "description" }}govuk-form-group--error{{ end }}">
                   <label class="govuk-label" for="f-description">
                     {{ trFormat .App "pleaseDescribe" "FirstNames" .CertificateProvider.FirstNames "LastName" .CertificateProvider.LastName }}
                   </label>
@@ -64,10 +64,10 @@
                 </div>
               </div>
             </div>
-          </div>
+          </fieldset>
+        </div>
 
-          {{ template "continue-button" . }}
-        </fieldset>
+        {{ template "continue-button" . }}
         {{ template "csrf-field" . }}
       </form>
     </div>
