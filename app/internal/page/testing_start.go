@@ -127,24 +127,24 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			shareCodeSender.UseTestCode()
 		}
 
-		if r.FormValue("startCpFlowWithoutId") != "" || r.FormValue("startCpFlowWithId") != "" {
+		if r.FormValue("startCpFlowDonorHasPaid") != "" || r.FormValue("startCpFlowDonorHasNotPaid") != "" {
+			CompleteSectionOne(lpa)
+
+			if r.FormValue("startCpFlowDonorHasPaid") != "" {
+				PayForLpa(lpa, store, r, w)
+			}
+
 			lpa.CertificateProvider.Email = TestEmail
 
 			if r.FormValue("withEmail") != "" {
 				lpa.CertificateProvider.Email = r.FormValue("withEmail")
 			}
 
-			identity := true
-
-			if r.FormValue("startCpFlowWithoutId") != "" {
-				identity = false
-			}
-
 			shareCodeSender.Send(ctx, notify.CertificateProviderInviteEmail, AppData{
 				SessionID: sessionID,
 				LpaID:     lpa.ID,
 				Localizer: localizer,
-			}, identity, lpa)
+			}, false, lpa)
 
 			r.Form.Set("redirect", Paths.CertificateProviderStart)
 		}
