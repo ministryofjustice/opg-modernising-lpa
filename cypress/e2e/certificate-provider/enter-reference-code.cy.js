@@ -10,8 +10,14 @@ describe('Enter reference code', () => {
         cy.get('#f-reference-code').type('abcdef123456');
         cy.contains('Continue').click();
 
-        // account for slow OneLogin integration env
-        cy.location('pathname', {timeout: 10000}).should('be.oneOf', ['/certificate-provider-login-callback', '/prove-identity-welcome'])
+        if (Cypress.config().baseUrl.includes('localhost')) {
+            console.log(Cypress.config().baseUrl)
+            cy.location('pathname').should('eq', '/certificate-provider-login-callback')
+        } else {
+            cy.origin('account.gov.uk', () => {
+                cy.location('pathname').should('eq', '/prove-identity-welcome')
+            })
+        }
     });
 
     it('errors when empty code', () => {
