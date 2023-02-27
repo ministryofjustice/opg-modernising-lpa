@@ -11,6 +11,7 @@ type AppPaths struct {
 	AuthRedirect                                         string
 	CertificateProvided                                  string
 	CertificateProviderAddress                           string
+	CertificateProviderCheckName                         string
 	CertificateProviderConfirmation                      string
 	CertificateProviderDetails                           string
 	CertificateProviderEnterReference                    string
@@ -92,6 +93,7 @@ var Paths = AppPaths{
 	AuthRedirect:                                         "/auth/redirect",
 	CertificateProvided:                                  "/certificate-provided",
 	CertificateProviderAddress:                           "/certificate-provider-address",
+	CertificateProviderCheckName:                         "/certificate-provider-check-name",
 	CertificateProviderConfirmation:                      "/certificate-provider-confirmation",
 	CertificateProviderDetails:                           "/certificate-provider-details",
 	CertificateProviderEnterReference:                    "/certificate-provider-enter-reference",
