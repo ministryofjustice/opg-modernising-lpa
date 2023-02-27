@@ -9,7 +9,9 @@
         <div class="govuk-form-group {{ if .Errors.Has "remove-attorney" }}govuk-form-group--error{{ end }}">
           <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-              {{ trFormat .App "doYouWantToRemove" "FirstNames" .Attorney.FirstNames "LastName" .Attorney.LastName }}
+              <h1 class="govuk-fieldset__heading">
+                {{ trFormat .App "doYouWantToRemove" "FirstNames" .Attorney.FirstNames "LastName" .Attorney.LastName }}
+              </h1>
             </legend>
 
             {{ template "error-message" (errorMessage . "remove-attorney") }}
