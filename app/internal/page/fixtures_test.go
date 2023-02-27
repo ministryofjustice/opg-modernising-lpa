@@ -18,10 +18,8 @@ func TestGetFixtures(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &fixtureData{
-			App:                     TestAppData,
-			Form:                    &fixturesForm{},
-			CPStartLpaNotSignedPath: "/testing-start?redirect=/certificate-provider-start&withCP=1&withDonorDetails=1&startCpFlowWithoutId=1",
-			CPStartLpaSignedPath:    "/testing-start?redirect=/certificate-provider-start&completeLpa=1&startCpFlowWithId=1",
+			App:  TestAppData,
+			Form: &fixturesForm{},
 		}).
 		Return(nil)
 
@@ -33,7 +31,7 @@ func TestGetFixtures(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, template)
 }
 
-func TestPostFixtures(t *testing.T) {
+func TestPostFixturesDonorFlow(t *testing.T) {
 	form := url.Values{
 		"donor-details":                {"withDonorDetails"},
 		"choose-attorneys":             {"withAttorneys"},
@@ -61,4 +59,64 @@ func TestPostFixtures(t *testing.T) {
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	expectedPath := "/testing-start?completeLpa=1&idConfirmedAndSigned=1&lpaChecked=1&paymentComplete=1&whenCanBeUsedComplete=1&withAttorneys=1&withCP=1&withDonorDetails=1&withPeopleToNotify=1&withReplacementAttorneys=1&withRestrictions=1"
 	assert.Equal(t, expectedPath, resp.Header.Get("Location"))
+}
+
+func TestPostFixturesCPFlow(t *testing.T) {
+	testCases := map[string]struct {
+		form         url.Values
+		expectedPath string
+	}{
+		"With ID and email": {
+			form: url.Values{
+				"email":            {"a@example.org"},
+				"useTestShareCode": {"1"},
+				"cp-flow-id":       {"startCpFlowWithId"},
+				"completeLpa":      {"1"},
+			},
+			expectedPath: "/testing-start?completeLpa=1&startCpFlowWithId=1&useTestShareCode=1&withEmail=a%40example.org",
+		},
+		"With ID no email": {
+			form: url.Values{
+				"useTestShareCode": {"1"},
+				"cp-flow-id":       {"startCpFlowWithId"},
+				"completeLpa":      {"1"},
+			},
+			expectedPath: "/testing-start?completeLpa=1&startCpFlowWithId=1&useTestShareCode=1",
+		},
+		"Without ID and email": {
+			form: url.Values{
+				"email":            {"a@example.org"},
+				"useTestShareCode": {"1"},
+				"cp-flow-id":       {"startCpFlowWithoutId"},
+				"completeLpa":      {"1"},
+			},
+			expectedPath: "/testing-start?startCpFlowWithoutId=1&useTestShareCode=1&withCP=1&withDonorDetails=1&withEmail=a%40example.org",
+		},
+		"Without ID no email": {
+			form: url.Values{
+				"useTestShareCode": {"1"},
+				"cp-flow-id":       {"startCpFlowWithoutId"},
+				"completeLpa":      {"1"},
+			},
+			expectedPath: "/testing-start?startCpFlowWithoutId=1&useTestShareCode=1&withCP=1&withDonorDetails=1",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
+			r.Header.Add("Content-Type", FormUrlEncoded)
+
+			template := newMockTemplate(t)
+
+			err := Fixtures(template.Execute)(TestAppData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.expectedPath, resp.Header.Get("Location"))
+		})
+
+	}
 }

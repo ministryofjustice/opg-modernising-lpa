@@ -69,7 +69,7 @@ func (c *Client) Get(ctx context.Context, pk, sk string, v interface{}) error {
 		return err
 	}
 	if result.Item == nil {
-		return &NotFoundError{}
+		return NotFoundError{}
 	}
 
 	return attributevalue.Unmarshal(result.Item["Data"], v)

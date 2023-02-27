@@ -22,13 +22,13 @@ func NewBundle(paths ...string) Bundle {
 	return Bundle{bundle}
 }
 
-func (b Bundle) For(lang ...string) Localizer {
-	return Localizer{i18n.NewLocalizer(b.Bundle, lang...), false}
+func (b Bundle) For(lang ...string) *Localizer {
+	return &Localizer{i18n.NewLocalizer(b.Bundle, lang...), false}
 }
 
 type Localizer struct {
 	*i18n.Localizer
-	ShowTranslationKeys bool
+	showTranslationKeys bool
 }
 
 func (l Localizer) T(messageID string) string {
@@ -55,9 +55,17 @@ func (l Localizer) FormatCount(messageID string, count int, data map[string]inte
 }
 
 func (l Localizer) translate(translation, messageID string) string {
-	if l.ShowTranslationKeys {
+	if l.showTranslationKeys {
 		return fmt.Sprintf("{%s} [%s]", translation, messageID)
 	} else {
 		return translation
 	}
+}
+
+func (l Localizer) ShowTranslationKeys() bool {
+	return l.showTranslationKeys
+}
+
+func (l *Localizer) SetShowTranslationKeys(s bool) {
+	l.showTranslationKeys = s
 }

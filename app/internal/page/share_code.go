@@ -35,7 +35,7 @@ func (s *ShareCodeSender) UseTestCode() {
 	useTestCode = true
 }
 
-func (s *ShareCodeSender) Send(ctx context.Context, template notify.TemplateId, appData AppData, email string, identity bool) error {
+func (s *ShareCodeSender) Send(ctx context.Context, template notify.TemplateId, appData AppData, identity bool, lpa *Lpa) error {
 	var shareCode string
 
 	if useTestCode {
@@ -43,7 +43,6 @@ func (s *ShareCodeSender) Send(ctx context.Context, template notify.TemplateId, 
 		useTestCode = false
 	} else {
 		shareCode = s.randomString(12)
-
 	}
 
 	if err := s.dataStore.Put(ctx, "SHARECODE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
@@ -56,10 +55,15 @@ func (s *ShareCodeSender) Send(ctx context.Context, template notify.TemplateId, 
 
 	if _, err := s.notifyClient.Email(ctx, notify.Email{
 		TemplateID:   s.notifyClient.TemplateID(template),
-		EmailAddress: email,
+		EmailAddress: lpa.CertificateProvider.Email,
 		Personalisation: map[string]string{
-			"link":      fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
-			"shareCode": shareCode,
+			"shareCode":         shareCode,
+			"cpFullName":        lpa.CertificateProvider.FullName(),
+			"donorFirstNames":   lpa.You.FirstNames,
+			"donorFullName":     lpa.You.FullName(),
+			"lpaLegalTerm":      appData.Localizer.T(lpa.TypeLegalTermTransKey()),
+			"cpLandingPageLink": fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
+			"optOutLink":        fmt.Sprintf("%s%s?share-code=%s", s.appPublicURL, Paths.CertificateProviderOptOut, shareCode),
 		},
 	}); err != nil {
 		return fmt.Errorf("email failed: %w", err)
