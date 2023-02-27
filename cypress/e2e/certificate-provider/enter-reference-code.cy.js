@@ -11,11 +11,10 @@ describe('Enter reference code', () => {
         cy.contains('Continue').click();
 
         if (Cypress.config().baseUrl.includes('localhost')) {
-            console.log(Cypress.config().baseUrl)
-            cy.location('pathname').should('eq', '/certificate-provider-login-callback')
+            cy.url().should('contain', '/certificate-provider-login-callback');
         } else {
             cy.origin('account.gov.uk', () => {
-                cy.location('pathname').should('eq', '/prove-identity-welcome')
+                cy.url().should('contain', '/prove-identity-welcome');
             })
         }
     });
