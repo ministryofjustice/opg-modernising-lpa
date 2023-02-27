@@ -24,32 +24,31 @@ func TestGetYourDetails(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &yourDetailsData{
+		On("Execute", w, &yourDetailsData{
 			App:  testAppData,
 			Form: &yourDetailsForm{},
 		}).
 		Return(nil)
 
-	err := YourDetails(template.Func, lpaStore, nil)(testAppData, w, r)
+	err := YourDetails(template.Execute, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
 
 func TestGetYourDetailsWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
@@ -59,14 +58,13 @@ func TestGetYourDetailsWhenStoreErrors(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestGetYourDetailsFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -75,9 +73,9 @@ func TestGetYourDetailsFromStore(t *testing.T) {
 			},
 		}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &yourDetailsData{
+		On("Execute", w, &yourDetailsData{
 			App: testAppData,
 			Form: &yourDetailsForm{
 				FirstNames: "John",
@@ -85,37 +83,35 @@ func TestGetYourDetailsFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourDetails(template.Func, lpaStore, nil)(testAppData, w, r)
+	err := YourDetails(template.Execute, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
 
 func TestGetYourDetailsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &yourDetailsData{
+		On("Execute", w, &yourDetailsData{
 			App:  testAppData,
 			Form: &yourDetailsForm{},
 		}).
 		Return(expectedError)
 
-	err := YourDetails(template.Func, lpaStore, nil)(testAppData, w, r)
+	err := YourDetails(template.Execute, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, lpaStore)
 }
 
 func TestPostYourDetails(t *testing.T) {
@@ -167,7 +163,7 @@ func TestPostYourDetails(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := &mockLpaStore{}
+			lpaStore := newMockLpaStore(t)
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
@@ -183,7 +179,7 @@ func TestPostYourDetails(t *testing.T) {
 				}).
 				Return(nil)
 
-			sessionStore := &mockSessionsStore{}
+			sessionStore := newMockSessionStore(t)
 			sessionStore.
 				On("Get", r, "session").
 				Return(&sessions.Session{Values: map[any]any{"donor": &sesh.DonorSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
@@ -194,7 +190,6 @@ func TestPostYourDetails(t *testing.T) {
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 			assert.Equal(t, "/lpa/lpa-id"+page.Paths.YourAddress, resp.Header.Get("Location"))
-			mock.AssertExpectationsForObjects(t, lpaStore, sessionStore)
 		})
 	}
 }
@@ -260,29 +255,28 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			template := &mockTemplate{}
+			template := newMockTemplate(t)
 			template.
-				On("Func", w, mock.MatchedBy(func(data *yourDetailsData) bool {
+				On("Execute", w, mock.MatchedBy(func(data *yourDetailsData) bool {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
 
-			lpaStore := &mockLpaStore{}
+			lpaStore := newMockLpaStore(t)
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{}, nil)
 
-			sessionStore := &mockSessionsStore{}
+			sessionStore := newMockSessionStore(t)
 			sessionStore.
 				On("Get", mock.Anything, "session").
 				Return(&sessions.Session{Values: map[any]any{"donor": &sesh.DonorSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
-			err := YourDetails(template.Func, lpaStore, sessionStore)(testAppData, w, r)
+			err := YourDetails(template.Execute, lpaStore, sessionStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-			mock.AssertExpectationsForObjects(t, template, lpaStore, sessionStore)
 		})
 	}
 }
@@ -300,7 +294,7 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -313,7 +307,7 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	sessionStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", mock.Anything, "session").
 		Return(&sessions.Session{Values: map[any]any{"donor": &sesh.DonorSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
@@ -321,7 +315,6 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 	err := YourDetails(nil, lpaStore, sessionStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, lpaStore, sessionStore)
 }
 
 func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
@@ -357,12 +350,12 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := &mockLpaStore{}
+			lpaStore := newMockLpaStore(t)
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{}, nil)
 
-			sessionStore := &mockSessionsStore{}
+			sessionStore := newMockSessionStore(t)
 			sessionStore.
 				On("Get", mock.Anything, "session").
 				Return(tc.session, tc.error)
@@ -370,7 +363,6 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 			err := YourDetails(nil, lpaStore, sessionStore)(testAppData, w, r)
 
 			assert.NotNil(t, err)
-			mock.AssertExpectationsForObjects(t, lpaStore, sessionStore)
 		})
 	}
 }

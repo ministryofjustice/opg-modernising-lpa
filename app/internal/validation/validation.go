@@ -1,5 +1,6 @@
 package validation
 
+//go:generate mockery --testonly --inpackage --name Localizer --structname mockLocalizer
 type Localizer interface {
 	Format(string, map[string]any) string
 	T(string) string
@@ -43,6 +44,27 @@ func (l *List) Add(name string, error FormattableError) {
 func (l List) Has(name string) bool {
 	for _, field := range l {
 		if field.Name == name {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (l List) HasForDate(name, part string) bool {
+	for _, field := range l {
+		if field.Name == name {
+			if err, ok := field.Error.(DateMissingError); ok {
+				switch part {
+				case "day":
+					return err.MissingDay
+				case "month":
+					return err.MissingMonth
+				case "year":
+					return err.MissingYear
+				}
+			}
+
 			return true
 		}
 	}

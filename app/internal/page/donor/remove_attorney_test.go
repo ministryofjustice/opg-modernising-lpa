@@ -11,7 +11,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -20,7 +19,7 @@ func TestGetRemoveAttorney(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 
 	attorney := actor.Attorney{
 		ID: "123",
@@ -29,9 +28,9 @@ func TestGetRemoveAttorney(t *testing.T) {
 		},
 	}
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &removeAttorneyData{
+		On("Execute", w, &removeAttorneyData{
 			App:      testAppData,
 			Attorney: attorney,
 			Errors:   nil,
@@ -39,52 +38,50 @@ func TestGetRemoveAttorney(t *testing.T) {
 		}).
 		Return(nil)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
-	err := RemoveAttorney(logger, template.Func, lpaStore)(testAppData, w, r)
+	err := RemoveAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
 func TestGetRemoveAttorneyErrorOnStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 	logger.
 		On("Print", "error getting lpa from store: err").
 		Return(nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := RemoveAttorney(logger, template.Func, lpaStore)(testAppData, w, r)
+	err := RemoveAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
 
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, logger)
 }
 
 func TestGetRemoveAttorneyAttorneyDoesNotExist(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=invalid-id", nil)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 
 	attorney := actor.Attorney{
 		ID: "123",
@@ -93,19 +90,18 @@ func TestGetRemoveAttorneyAttorneyDoesNotExist(t *testing.T) {
 		},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
-	err := RemoveAttorney(logger, template.Func, lpaStore)(testAppData, w, r)
+	err := RemoveAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseAttorneysSummary, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestPostRemoveAttorney(t *testing.T) {
@@ -117,8 +113,8 @@ func TestPostRemoveAttorney(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	logger := &mockLogger{}
-	template := &mockTemplate{}
+	logger := newMockLogger(t)
+	template := newMockTemplate(t)
 
 	attorneyWithAddress := actor.Attorney{
 		ID: "with-address",
@@ -132,7 +128,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorneyWithoutAddress, attorneyWithAddress}}, nil)
@@ -140,14 +136,13 @@ func TestPostRemoveAttorney(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{Attorneys: actor.Attorneys{attorneyWithAddress}}).
 		Return(nil)
 
-	err := RemoveAttorney(logger, template.Func, lpaStore)(testAppData, w, r)
+	err := RemoveAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseAttorneysSummary, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
 func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
@@ -159,8 +154,8 @@ func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	logger := &mockLogger{}
-	template := &mockTemplate{}
+	logger := newMockLogger(t)
+	template := newMockTemplate(t)
 
 	attorneyWithAddress := actor.Attorney{
 		ID: "with-address",
@@ -174,19 +169,18 @@ func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorneyWithoutAddress, attorneyWithAddress}}, nil)
 
-	err := RemoveAttorney(logger, template.Func, lpaStore)(testAppData, w, r)
+	err := RemoveAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseAttorneysSummary, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
 func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
@@ -198,9 +192,9 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 	logger.
 		On("Print", "error removing Attorney from LPA: err").
 		Return(nil)
@@ -217,7 +211,7 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorneyWithoutAddress, attorneyWithAddress}}, nil)
@@ -225,13 +219,12 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{Attorneys: actor.Attorneys{attorneyWithAddress}}).
 		Return(expectedError)
 
-	err := RemoveAttorney(logger, template.Func, lpaStore)(testAppData, w, r)
+	err := RemoveAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
 
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template, logger)
 }
 
 func TestRemoveAttorneyFormValidation(t *testing.T) {
@@ -248,26 +241,25 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorneyWithoutAddress}}, nil)
 
 	validationError := validation.With("remove-attorney", validation.SelectError{Label: "yesToRemoveAttorney"})
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, mock.MatchedBy(func(data *removeAttorneyData) bool {
+		On("Execute", w, mock.MatchedBy(func(data *removeAttorneyData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)
 
-	err := RemoveAttorney(nil, template.Func, lpaStore)(testAppData, w, r)
+	err := RemoveAttorney(nil, template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
 func TestRemoveAttorneyRemoveLastAttorneyRedirectsToChooseAttorney(t *testing.T) {
@@ -279,10 +271,10 @@ func TestRemoveAttorneyRemoveLastAttorneyRedirectsToChooseAttorney(t *testing.T)
 	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	logger := &mockLogger{}
-	template := &mockTemplate{}
+	logger := newMockLogger(t)
+	template := newMockTemplate(t)
 
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{{ID: "without-address"}}, Tasks: page.Tasks{ChooseAttorneys: page.TaskCompleted}}, nil)
@@ -290,14 +282,13 @@ func TestRemoveAttorneyRemoveLastAttorneyRedirectsToChooseAttorney(t *testing.T)
 		On("Put", r.Context(), &page.Lpa{Attorneys: actor.Attorneys{}, Tasks: page.Tasks{ChooseAttorneys: page.TaskInProgress}}).
 		Return(nil)
 
-	err := RemoveAttorney(logger, template.Func, lpaStore)(testAppData, w, r)
+	err := RemoveAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseAttorneys, resp.Header.Get("Location"))
-	mock.AssertExpectationsForObjects(t, lpaStore, template)
 }
 
 func TestRemoveAttorneyFormValidate(t *testing.T) {

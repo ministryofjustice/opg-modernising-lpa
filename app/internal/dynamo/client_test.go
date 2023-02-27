@@ -15,32 +15,13 @@ import (
 
 var expectedError = errors.New("err")
 
-type mockDynamoDB struct {
-	mock.Mock
-}
-
-func (m *mockDynamoDB) Query(ctx context.Context, input *dynamodb.QueryInput, opts ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error) {
-	args := m.Called(ctx, input)
-	return args.Get(0).(*dynamodb.QueryOutput), args.Error(1)
-}
-
-func (m *mockDynamoDB) GetItem(ctx context.Context, input *dynamodb.GetItemInput, opts ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error) {
-	args := m.Called(ctx, input)
-	return args.Get(0).(*dynamodb.GetItemOutput), args.Error(1)
-}
-
-func (m *mockDynamoDB) PutItem(ctx context.Context, input *dynamodb.PutItemInput, opts ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error) {
-	args := m.Called(ctx, input)
-	return args.Get(0).(*dynamodb.PutItemOutput), args.Error(1)
-}
-
 func TestGetAll(t *testing.T) {
 	ctx := context.Background()
 
 	pkey, _ := attributevalue.Marshal("a-pk")
 	data, _ := attributevalue.Marshal("hello")
 
-	dynamoDB := &mockDynamoDB{}
+	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
 		On("Query", ctx, &dynamodb.QueryInput{
 			TableName:                 aws.String("this"),
@@ -61,7 +42,7 @@ func TestGetAll(t *testing.T) {
 func TestGetAllWhenError(t *testing.T) {
 	ctx := context.Background()
 
-	dynamoDB := &mockDynamoDB{}
+	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
 		On("Query", ctx, mock.Anything).
 		Return(&dynamodb.QueryOutput{}, expectedError)
@@ -82,7 +63,7 @@ func TestGet(t *testing.T) {
 	skey, _ := attributevalue.Marshal("a-sk")
 	data, _ := attributevalue.Marshal(result)
 
-	dynamoDB := &mockDynamoDB{}
+	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
 		On("GetItem", ctx, &dynamodb.GetItemInput{
 			TableName: aws.String("this"),
@@ -103,7 +84,7 @@ func TestGetWhenError(t *testing.T) {
 	pkey, _ := attributevalue.Marshal("a-pk")
 	skey, _ := attributevalue.Marshal("a-sk")
 
-	dynamoDB := &mockDynamoDB{}
+	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
 		On("GetItem", ctx, &dynamodb.GetItemInput{
 			TableName: aws.String("this"),
@@ -124,7 +105,7 @@ func TestGetWhenNotFound(t *testing.T) {
 	pkey, _ := attributevalue.Marshal("a-pk")
 	skey, _ := attributevalue.Marshal("a-sk")
 
-	dynamoDB := &mockDynamoDB{}
+	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
 		On("GetItem", ctx, &dynamodb.GetItemInput{
 			TableName: aws.String("this"),
@@ -136,7 +117,7 @@ func TestGetWhenNotFound(t *testing.T) {
 
 	var v string
 	err := c.Get(ctx, "a-pk", "a-sk", &v)
-	assert.Nil(t, err)
+	assert.Equal(t, &NotFoundError{}, err)
 	assert.Equal(t, "", v)
 }
 
@@ -146,7 +127,7 @@ func TestPut(t *testing.T) {
 	skey, _ := attributevalue.Marshal("a-sk")
 	data, _ := attributevalue.Marshal("hello")
 
-	dynamoDB := &mockDynamoDB{}
+	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
 		On("PutItem", ctx, &dynamodb.PutItemInput{
 			TableName: aws.String("this"),
@@ -170,7 +151,7 @@ func TestPutWhenError(t *testing.T) {
 	skey, _ := attributevalue.Marshal("a-sk")
 	data, _ := attributevalue.Marshal("hello")
 
-	dynamoDB := &mockDynamoDB{}
+	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
 		On("PutItem", ctx, &dynamodb.PutItemInput{
 			TableName: aws.String("this"),

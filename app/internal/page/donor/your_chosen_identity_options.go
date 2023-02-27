@@ -17,7 +17,7 @@ type yourChosenIdentityOptionsData struct {
 	You            actor.Person
 }
 
-func YourChosenIdentityOptions(tmpl template.Template, lpaStore page.LpaStore) page.Handler {
+func YourChosenIdentityOptions(tmpl template.Template, lpaStore LpaStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {

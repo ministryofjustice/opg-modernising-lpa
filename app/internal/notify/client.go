@@ -13,6 +13,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+//go:generate mockery --testonly --inpackage --name Doer --structname mockDoer
 type Doer interface {
 	Do(*http.Request) (*http.Response, error)
 }
@@ -99,9 +100,9 @@ func (c *Client) TemplateID(id TemplateId) string {
 		case SignatureCodeSms:
 			return "a0997cbf-cfd9-4f01-acb2-f33b07074662"
 		case CertificateProviderInviteEmail:
-			return "d2fc97a7-a69a-48e0-b092-2c1d31ab7a5b"
+			return "c0229aa9-a138-4683-89ed-1ed6cb8e98ea"
 		case CertificateProviderCertifyEmail:
-			return "2cb46000-74c4-4384-9f21-817983330c26"
+			return "05468550-d208-4b6c-9044-a84515f4d1c3"
 		}
 	} else {
 		switch id {
@@ -110,7 +111,7 @@ func (c *Client) TemplateID(id TemplateId) string {
 		case SignatureCodeSms:
 			return "0aa5b61c-ef30-410a-8473-915df9d343a5"
 		case CertificateProviderInviteEmail, CertificateProviderCertifyEmail:
-			return "f719dfa9-6dc5-4848-b330-07e91770abd1"
+			return "4b6dd7b8-83a8-49ed-8270-4908ae30a087"
 		}
 	}
 

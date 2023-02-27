@@ -17,7 +17,7 @@ type choosePeopleToNotifyData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func ChoosePeopleToNotify(tmpl template.Template, lpaStore page.LpaStore, randomString func(int) string) page.Handler {
+func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {

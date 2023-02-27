@@ -545,5 +545,20 @@
 
     "certificateProvided": "Welsh",
     "wellDone": "Welsh",
-    "certificateProvidedContent": "<p class=\"govuk-body\">Welsh</p>"
+    "certificateProvidedContent": "<p class=\"govuk-body\">Welsh</p>",
+
+    "pageNotFound": "Welsh",
+    "pageNotFoundContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"{{.Start}}\">Welsh</a>.</p>",
+
+    "sorryProblem": "Welsh",
+    "tryAgainLater": "Welsh",
+
+    "beACertificateProvider": "Welsh",
+    "beACertificateProviderContent": "<p class=\"govuk-body\">Welsh</p>",
+    "beACertificateProviderPostStartContent": "<p class=\"govuk-body\">Welsh</p>",
+
+    "enterYourReferenceCode": "Welsh",
+    "certificateProviderReferenceCodeContent": "<p class=\"govuk-body\">Welsh</p>",
+    "referenceCode": "Welsh",
+    "incorrectReferenceCode": "Welsh"
 }

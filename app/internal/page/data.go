@@ -132,13 +132,6 @@ func (w *WitnessCode) HasExpired() bool {
 	return w.Created.Before(time.Now().Add(-30 * time.Minute))
 }
 
-type LpaStore interface {
-	Create(context.Context) (*Lpa, error)
-	GetAll(context.Context) ([]*Lpa, error)
-	Get(context.Context) (*Lpa, error)
-	Put(context.Context, *Lpa) error
-}
-
 type SessionData struct {
 	SessionID string
 	LpaID     string

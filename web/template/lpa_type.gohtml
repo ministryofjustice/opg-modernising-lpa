@@ -7,9 +7,9 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "whichTypeOfLpaToMake" }}</h1>
 
-      <form novalidate method="post">
-        {{ trHtml .App "whichTypeOfLpaToMakeContent" }}
+      {{ trHtml .App "whichTypeOfLpaToMakeContent" }}
 
+      <form novalidate method="post">
         <div class="govuk-form-group {{ if .Errors.Has "lpa-type" }}govuk-form-group--error{{ end }}">
           <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">

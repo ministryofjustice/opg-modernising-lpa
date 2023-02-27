@@ -1,20 +1,14 @@
 package page
 
 import (
-	"context"
 	"errors"
-	"io"
 	"net/http"
 	"net/http/httptest"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/stretchr/testify/mock"
 )
 
 var MockRandom = func(int) string { return "123" }
@@ -29,31 +23,7 @@ var (
 	}
 )
 
-type MockLpaStore struct {
-	mock.Mock
-}
-
-func (m *MockLpaStore) Create(ctx context.Context) (*Lpa, error) {
-	args := m.Called(ctx)
-
-	return args.Get(0).(*Lpa), args.Error(1)
-}
-
-func (m *MockLpaStore) GetAll(ctx context.Context) ([]*Lpa, error) {
-	args := m.Called(ctx)
-	return args.Get(0).([]*Lpa), args.Error(1)
-}
-
-func (m *MockLpaStore) Get(ctx context.Context) (*Lpa, error) {
-	args := m.Called(ctx)
-	return args.Get(0).(*Lpa), args.Error(1)
-}
-
-func (m *MockLpaStore) Put(ctx context.Context, v *Lpa) error {
-	return m.Called(ctx, v).Error(0)
-}
-
-func (m *MockLpaStore) WillReturnEmptyLpa(r *http.Request) *MockLpaStore {
+func mockLpaStoreWillReturnEmptyLpa(m *mockLpaStore, r *http.Request) *mockLpaStore {
 	m.
 		On("Get", r.Context()).
 		Return(&Lpa{
@@ -65,7 +35,7 @@ func (m *MockLpaStore) WillReturnEmptyLpa(r *http.Request) *MockLpaStore {
 	return m
 }
 
-func (m *MockLpaStore) WithCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string) *MockLpaStore {
+func mockLpaStoreWithCompletedPaymentLpaData(m *mockLpaStore, r *http.Request, paymentId, paymentReference string) *mockLpaStore {
 	m.
 		On("Put", r.Context(), &Lpa{
 			CertificateProvider: actor.CertificateProvider{
@@ -84,67 +54,7 @@ func (m *MockLpaStore) WithCompletedPaymentLpaData(r *http.Request, paymentId, p
 	return m
 }
 
-type MockTemplate struct {
-	mock.Mock
-}
-
-func (m *MockTemplate) Func(w io.Writer, data interface{}) error {
-	args := m.Called(w, data)
-	return args.Error(0)
-}
-
-type MockLogger struct {
-	mock.Mock
-}
-
-func (m *MockLogger) Print(v ...interface{}) {
-	m.Called(v...)
-}
-
-type MockOneLoginClient struct {
-	mock.Mock
-}
-
-func (m *MockOneLoginClient) AuthCodeURL(state, nonce, locale string, identity bool) string {
-	args := m.Called(state, nonce, locale, identity)
-	return args.String(0)
-}
-
-func (m *MockOneLoginClient) Exchange(ctx context.Context, code, nonce string) (string, error) {
-	args := m.Called(ctx, code, nonce)
-	return args.Get(0).(string), args.Error(1)
-}
-
-func (m *MockOneLoginClient) UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error) {
-	args := m.Called(ctx, accessToken)
-	return args.Get(0).(onelogin.UserInfo), args.Error(1)
-}
-
-func (m *MockOneLoginClient) ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error) {
-	args := m.Called(ctx, userInfo)
-	return args.Get(0).(identity.UserData), args.Error(1)
-}
-
-type MockSessionsStore struct {
-	mock.Mock
-}
-
-func (m *MockSessionsStore) New(r *http.Request, name string) (*sessions.Session, error) {
-	args := m.Called(r, name)
-	return args.Get(0).(*sessions.Session), args.Error(1)
-}
-
-func (m *MockSessionsStore) Get(r *http.Request, name string) (*sessions.Session, error) {
-	args := m.Called(r, name)
-	return args.Get(0).(*sessions.Session), args.Error(1)
-}
-
-func (m *MockSessionsStore) Save(r *http.Request, w http.ResponseWriter, session *sessions.Session) error {
-	args := m.Called(r, w, session)
-	return args.Error(0)
-}
-
-func (m *MockSessionsStore) WithPaySession(r *http.Request) *MockSessionsStore {
+func (m *mockSessionStore) WithPaySession(r *http.Request) *mockSessionStore {
 	getSession := sessions.NewSession(m, "pay")
 
 	getSession.Options = &sessions.Options{
@@ -161,7 +71,7 @@ func (m *MockSessionsStore) WithPaySession(r *http.Request) *MockSessionsStore {
 	return m
 }
 
-func (m *MockSessionsStore) WithExpiredPaySession(r *http.Request, w *httptest.ResponseRecorder) *MockSessionsStore {
+func (m *mockSessionStore) WithExpiredPaySession(r *http.Request, w *httptest.ResponseRecorder) *mockSessionStore {
 	storeSession := sessions.NewSession(m, "pay")
 
 	// Expire cookie
@@ -176,22 +86,4 @@ func (m *MockSessionsStore) WithExpiredPaySession(r *http.Request, w *httptest.R
 	m.On("Save", r, w, storeSession).Return(nil)
 
 	return m
-}
-
-type mockNotifyClient struct {
-	mock.Mock
-}
-
-func (m *mockNotifyClient) TemplateID(id notify.TemplateId) string {
-	return m.Called(id).String(0)
-}
-
-func (m *mockNotifyClient) Email(ctx context.Context, email notify.Email) (string, error) {
-	args := m.Called(ctx, email)
-	return args.String(0), args.Error(1)
-}
-
-func (m *mockNotifyClient) Sms(ctx context.Context, sms notify.Sms) (string, error) {
-	args := m.Called(ctx, sms)
-	return args.String(0), args.Error(1)
 }

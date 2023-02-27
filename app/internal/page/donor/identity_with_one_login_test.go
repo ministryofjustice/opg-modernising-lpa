@@ -17,14 +17,14 @@ func TestIdentityWithOneLogin(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	client := &mockOneLoginClient{}
+	client := newMockOneLoginClient(t)
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "cy", true).
 		Return("http://auth")
 
-	sessionsStore := &mockSessionsStore{}
+	sessionStore := newMockSessionStore(t)
 
-	session := sessions.NewSession(sessionsStore, "params")
+	session := sessions.NewSession(sessionStore, "params")
 
 	session.Options = &sessions.Options{
 		Path:     "/",
@@ -37,43 +37,39 @@ func TestIdentityWithOneLogin(t *testing.T) {
 		"one-login": &sesh.OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "cy", Identity: true, LpaID: "123"},
 	}
 
-	sessionsStore.
+	sessionStore.
 		On("Save", r, w, session).
 		Return(nil)
 
-	err := IdentityWithOneLogin(nil, client, sessionsStore, func(int) string { return "i am random" })(page.AppData{Lang: localize.Cy, LpaID: "123"}, w, r)
+	err := IdentityWithOneLogin(nil, client, sessionStore, func(int) string { return "i am random" })(page.AppData{Lang: localize.Cy, LpaID: "123"}, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "http://auth", resp.Header.Get("Location"))
-
-	mock.AssertExpectationsForObjects(t, client, sessionsStore)
 }
 
 func TestIdentityWithOneLoginWhenStoreSaveError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 	logger.
 		On("Print", expectedError)
 
-	client := &mockOneLoginClient{}
+	client := newMockOneLoginClient(t)
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "", true).
 		Return("http://auth?locale=en")
 
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Save", r, w, mock.Anything).
 		Return(expectedError)
 
-	err := IdentityWithOneLogin(logger, client, sessionsStore, func(int) string { return "i am random" })(testAppData, w, r)
+	err := IdentityWithOneLogin(logger, client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-
-	mock.AssertExpectationsForObjects(t, logger, client, sessionsStore)
 }

@@ -16,7 +16,7 @@ type provideCertificateData struct {
 	Form        *provideCertificateForm
 }
 
-func ProvideCertificate(tmpl template.Template, lpaStore page.LpaStore, now func() time.Time) page.Handler {
+func ProvideCertificate(tmpl template.Template, lpaStore LpaStore, now func() time.Time) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {

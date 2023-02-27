@@ -19,7 +19,7 @@ type loginCallbackData struct {
 	CouldNotConfirm bool
 }
 
-func LoginCallback(tmpl template.Template, oneLoginClient page.OneLoginClient, sessionStore sesh.Store, lpaStore page.LpaStore) page.Handler {
+func LoginCallback(tmpl template.Template, oneLoginClient OneLoginClient, sessionStore sesh.Store, lpaStore LpaStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		if r.Method == http.MethodPost {
 			certificateProviderSession, err := sesh.CertificateProvider(sessionStore, r)

@@ -3,52 +3,120 @@ package donor
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
+//go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
+type Template func(io.Writer, interface{}) error
+
+//go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
+type Logger interface {
+	Print(v ...interface{})
+}
+
+//go:generate mockery --testonly --inpackage --name LpaStore --structname mockLpaStore
+type LpaStore interface {
+	Create(context.Context) (*page.Lpa, error)
+	GetAll(context.Context) ([]*page.Lpa, error)
+	Get(context.Context) (*page.Lpa, error)
+	Put(context.Context, *page.Lpa) error
+}
+
+//go:generate mockery --testonly --inpackage --name PayClient --structname mockPayClient
+type PayClient interface {
+	CreatePayment(body pay.CreatePaymentBody) (pay.CreatePaymentResponse, error)
+	GetPayment(paymentId string) (pay.GetPaymentResponse, error)
+}
+
+//go:generate mockery --testonly --inpackage --name AddressClient --structname mockAddressClient
+type AddressClient interface {
+	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
+}
+
+//go:generate mockery --testonly --inpackage --name ShareCodeSender --structname mockShareCodeSender
 type ShareCodeSender interface {
 	Send(ctx context.Context, template notify.TemplateId, appData page.AppData, email string, identity bool) error
 }
 
+//go:generate mockery --testonly --inpackage --name YotiClient --structname mockYotiClient
+type YotiClient interface {
+	IsTest() bool
+	SdkID() string
+	User(string) (identity.UserData, error)
+}
+
+//go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
+type OneLoginClient interface {
+	AuthCodeURL(state, nonce, locale string, identity bool) string
+	Exchange(ctx context.Context, code, nonce string) (string, error)
+	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
+	ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error)
+}
+
+//go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient
+type NotifyClient interface {
+	Email(ctx context.Context, email notify.Email) (string, error)
+	Sms(ctx context.Context, sms notify.Sms) (string, error)
+	TemplateID(id notify.TemplateId) string
+}
+
+//go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
+type SessionStore interface {
+	Get(r *http.Request, name string) (*sessions.Session, error)
+	New(r *http.Request, name string) (*sessions.Session, error)
+	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
-	logger page.Logger,
+	logger Logger,
 	tmpls template.Templates,
-	sessionStore sesh.Store,
-	lpaStore page.LpaStore,
-	oneLoginClient page.OneLoginClient,
-	addressClient page.AddressClient,
+	sessionStore SessionStore,
+	lpaStore LpaStore,
+	oneLoginClient OneLoginClient,
+	addressClient AddressClient,
 	appPublicUrl string,
-	payClient page.PayClient,
-	yotiClient page.YotiClient,
+	payClient PayClient,
+	yotiClient YotiClient,
 	yotiScenarioID string,
-	notifyClient page.NotifyClient,
-	dataStore page.DataStore,
+	notifyClient NotifyClient,
+	shareCodeSender ShareCodeSender,
+	errorHandler page.ErrorHandler,
+	notFoundHandler page.Handler,
 ) {
-	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)
+	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler)
 
-	handleRoot := makeHandle(rootMux, logger, sessionStore, None)
-
+	handleRoot(page.Paths.Start, None,
+		page.Guidance(tmpls.Get("start.gohtml"), nil))
+	handleRoot(page.Paths.Login, None,
+		Login(logger, oneLoginClient, sessionStore, random.String))
+	handleRoot(page.Paths.LoginCallback, None,
+		LoginCallback(oneLoginClient, sessionStore))
 	handleRoot(page.Paths.Dashboard, RequireSession,
 		Dashboard(tmpls.Get("dashboard.gohtml"), lpaStore))
 
 	lpaMux := http.NewServeMux()
 
-	rootMux.Handle("/lpa/", routeToLpa(lpaMux))
+	rootMux.Handle("/lpa/", routeToLpa(lpaMux, notFoundHandler))
 
-	handleLpa := makeHandle(lpaMux, logger, sessionStore, RequireSession)
+	handleLpa := makeHandle(lpaMux, sessionStore, RequireSession, errorHandler)
 
+	handleLpa(page.Paths.Root, None, notFoundHandler)
 	handleLpa(page.Paths.YourDetails, None,
 		YourDetails(tmpls.Get("your_details.gohtml"), lpaStore, sessionStore))
 	handleLpa(page.Paths.YourAddress, None,
@@ -184,7 +252,7 @@ const (
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, logger page.Logger, store sesh.Store, defaultOptions handleOpt) func(string, handleOpt, page.Handler) {
+func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, errorHandler page.ErrorHandler) func(string, handleOpt, page.Handler) {
 	return func(path string, opt handleOpt, h page.Handler) {
 		opt = opt | defaultOptions
 
@@ -198,7 +266,6 @@ func makeHandle(mux *http.ServeMux, logger page.Logger, store sesh.Store, defaul
 			if opt&RequireSession != 0 {
 				session, err := sesh.Donor(store, r)
 				if err != nil {
-					logger.Print(err)
 					http.Redirect(w, r, page.Paths.Start, http.StatusFound)
 					return
 				}
@@ -217,22 +284,19 @@ func makeHandle(mux *http.ServeMux, logger page.Logger, store sesh.Store, defaul
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
-				str := fmt.Sprintf("Error rendering page for path '%s': %s", path, err.Error())
-
-				logger.Print(str)
-				http.Error(w, "Encountered an error", http.StatusInternalServerError)
+				errorHandler(w, r, err)
 			}
 		})
 	}
 }
 
-func routeToLpa(mux http.Handler) http.HandlerFunc {
+func routeToLpa(mux http.Handler, notFoundHandler page.Handler) http.HandlerFunc {
 	const prefixLength = len("/lpa/")
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		parts := strings.SplitN(r.URL.Path, "/", 4)
 		if len(parts) != 4 {
-			http.NotFound(w, r)
+			notFoundHandler(page.AppDataFromContext(r.Context()), w, r)
 			return
 		}
 

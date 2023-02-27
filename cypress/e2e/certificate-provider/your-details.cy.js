@@ -1,3 +1,5 @@
+import {TestEmail, TestMobile} from "../../support/e2e";
+
 describe('Your details', () => {
     beforeEach(() => {
         cy.visit('/testing-start?redirect=/certificate-provider-your-details&completeLpa=1&asCertificateProvider=1');
@@ -13,8 +15,8 @@ describe('Your details', () => {
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
-        cy.get('#f-email').type('name@example.com');
-        cy.get('#f-mobile').type('07535111111');
+        cy.get('#f-email').type(TestEmail);
+        cy.get('#f-mobile').type(TestMobile);
 
         cy.contains('button', 'Continue').click();
 

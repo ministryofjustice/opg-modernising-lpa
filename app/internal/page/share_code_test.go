@@ -3,7 +3,6 @@ package page
 import (
 	"context"
 	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -21,12 +20,12 @@ func TestShareCodeSenderSend(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
 
-			dataStore := &mockDataStore{}
+			dataStore := newMockDataStore(t)
 			dataStore.
 				On("Put", ctx, "SHARECODE#123", "#METADATA#123", ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", Identity: identity}).
 				Return(nil)
 
-			notifyClient := &mockNotifyClient{}
+			notifyClient := newMockNotifyClient(t)
 			notifyClient.
 				On("TemplateID", notify.TemplateId(99)).
 				Return("template-id")
@@ -35,7 +34,8 @@ func TestShareCodeSenderSend(t *testing.T) {
 					TemplateID:   "template-id",
 					EmailAddress: "name@example.com",
 					Personalisation: map[string]string{
-						"link": fmt.Sprintf("http://app%s?share-code=123", Paths.CertificateProviderStart),
+						"link":      "http://app" + Paths.CertificateProviderStart,
+						"shareCode": "123",
 					},
 				}).
 				Return("", nil)
@@ -44,7 +44,75 @@ func TestShareCodeSenderSend(t *testing.T) {
 			err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", identity)
 
 			assert.Nil(t, err)
-			mock.AssertExpectationsForObjects(t, notifyClient, dataStore)
+		})
+	}
+}
+
+func TestShareCodeSenderSendWithTestCode(t *testing.T) {
+	testcases := map[string]struct {
+		useTestCode      bool
+		expectedTestCode string
+	}{
+		"with test code": {
+			useTestCode:      true,
+			expectedTestCode: "abcdef123456",
+		},
+		"without test code": {
+			useTestCode:      false,
+			expectedTestCode: "123",
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			ctx := context.Background()
+
+			dataStore := newMockDataStore(t)
+			dataStore.
+				On("Put", ctx, "SHARECODE#"+tc.expectedTestCode, "#METADATA#"+tc.expectedTestCode, ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", Identity: true}).
+				Return(nil)
+			dataStore.
+				On("Put", ctx, "SHARECODE#123", "#METADATA#123", ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", Identity: true}).
+				Return(nil)
+
+			notifyClient := newMockNotifyClient(t)
+			notifyClient.
+				On("TemplateID", notify.TemplateId(99)).
+				Return("template-id")
+			notifyClient.
+				On("Email", ctx, notify.Email{
+					TemplateID:   "template-id",
+					EmailAddress: "name@example.com",
+					Personalisation: map[string]string{
+						"link":      "http://app" + Paths.CertificateProviderStart,
+						"shareCode": tc.expectedTestCode,
+					},
+				}).
+				Return("", nil)
+			notifyClient.
+				On("Email", ctx, notify.Email{
+					TemplateID:   "template-id",
+					EmailAddress: "name@example.com",
+					Personalisation: map[string]string{
+						"link":      "http://app" + Paths.CertificateProviderStart,
+						"shareCode": "123",
+					},
+				}).
+				Return("", nil)
+
+			sender := NewShareCodeSender(dataStore, notifyClient, "http://app", MockRandom)
+
+			if tc.useTestCode {
+				sender.UseTestCode()
+			}
+
+			err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true)
+
+			assert.Nil(t, err)
+
+			err = sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true)
+
+			assert.Nil(t, err)
 		})
 	}
 }
@@ -52,12 +120,12 @@ func TestShareCodeSenderSend(t *testing.T) {
 func TestShareCodeSenderSendWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
 
-	dataStore := &mockDataStore{}
+	dataStore := newMockDataStore(t)
 	dataStore.
 		On("Put", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	notifyClient := &mockNotifyClient{}
+	notifyClient := newMockNotifyClient(t)
 	notifyClient.
 		On("TemplateID", notify.TemplateId(99)).
 		Return("template-id")
@@ -66,7 +134,8 @@ func TestShareCodeSenderSendWhenEmailErrors(t *testing.T) {
 			TemplateID:   "template-id",
 			EmailAddress: "name@example.com",
 			Personalisation: map[string]string{
-				"link": fmt.Sprintf("http://app%s?share-code=123", Paths.CertificateProviderStart),
+				"link":      "http://app" + Paths.CertificateProviderStart,
+				"shareCode": "123",
 			},
 		}).
 		Return("", ExpectedError)
@@ -75,13 +144,12 @@ func TestShareCodeSenderSendWhenEmailErrors(t *testing.T) {
 	err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true)
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
-	mock.AssertExpectationsForObjects(t, notifyClient, dataStore)
 }
 
 func TestShareCodeSenderSendWhenDataStoreErrors(t *testing.T) {
 	ctx := context.Background()
 
-	dataStore := &mockDataStore{}
+	dataStore := newMockDataStore(t)
 	dataStore.
 		On("Put", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(ExpectedError)
@@ -90,5 +158,4 @@ func TestShareCodeSenderSendWhenDataStoreErrors(t *testing.T) {
 	err := sender.Send(ctx, notify.TemplateId(99), TestAppData, "name@example.com", true)
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
-	mock.AssertExpectationsForObjects(t, dataStore)
 }

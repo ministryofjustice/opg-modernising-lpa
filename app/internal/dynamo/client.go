@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
+//go:generate mockery --testonly --inpackage --name dynamoDB --structname mockDynamoDB
 type dynamoDB interface {
 	Query(context.Context, *dynamodb.QueryInput, ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)
 	GetItem(context.Context, *dynamodb.GetItemInput, ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
@@ -18,6 +19,12 @@ type dynamoDB interface {
 type Client struct {
 	table string
 	svc   dynamoDB
+}
+
+type NotFoundError struct{}
+
+func (n NotFoundError) Error() string {
+	return "No results found"
 }
 
 func NewClient(cfg aws.Config, tableName string) (*Client, error) {
@@ -62,7 +69,7 @@ func (c *Client) Get(ctx context.Context, pk, sk string, v interface{}) error {
 		return err
 	}
 	if result.Item == nil {
-		return nil
+		return &NotFoundError{}
 	}
 
 	return attributevalue.Unmarshal(result.Item["Data"], v)

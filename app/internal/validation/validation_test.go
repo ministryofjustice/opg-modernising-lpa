@@ -5,23 +5,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
-type mockLocalizer struct {
-	mock.Mock
-}
-
-func (m *mockLocalizer) T(name string) string {
-	return m.Called(name).String(0)
-}
-
-func (m *mockLocalizer) Format(name string, data map[string]any) string {
-	return m.Called(name, data).String(0)
-}
-
 func TestValidation(t *testing.T) {
-	l := &mockLocalizer{}
+	l := newMockLocalizer(t)
 	l.On("T", "a").Return("A")
 	l.On("T", "c").Return("C")
 	l.On("Format", "errorStringTooLong", map[string]any{"Label": "A", "Length": 4}).Return("a-tooLong")
@@ -57,6 +44,32 @@ func TestValidation(t *testing.T) {
 		With("lastName", StringTooLongError{Label: "c", Length: 3})
 
 	assert.Equal(t, list, with)
+}
+
+func TestValidationForDates(t *testing.T) {
+	var list List
+	assert.True(t, list.None())
+
+	list.Add("day", DateMissingError{Label: "a", MissingDay: true})
+	list.Add("month", DateMissingError{Label: "b", MissingMonth: true})
+	list.Add("year", DateMissingError{Label: "c", MissingYear: true})
+	list.Add("enter", EnterError{Label: "d"})
+
+	assert.True(t, list.HasForDate("day", "day"))
+	assert.False(t, list.HasForDate("day", "month"))
+	assert.False(t, list.HasForDate("day", "year"))
+
+	assert.False(t, list.HasForDate("month", "day"))
+	assert.True(t, list.HasForDate("month", "month"))
+	assert.False(t, list.HasForDate("month", "year"))
+
+	assert.False(t, list.HasForDate("year", "day"))
+	assert.False(t, list.HasForDate("year", "month"))
+	assert.True(t, list.HasForDate("year", "year"))
+
+	assert.True(t, list.HasForDate("enter", "day"))
+	assert.True(t, list.HasForDate("enter", "month"))
+	assert.True(t, list.HasForDate("enter", "year"))
 }
 
 func flatten(l Localizer, list List) []string {

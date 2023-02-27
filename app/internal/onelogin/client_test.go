@@ -8,17 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
-
-type mockHttpClient struct {
-	mock.Mock
-}
-
-func (m *mockHttpClient) Do(r *http.Request) (*http.Response, error) {
-	args := m.Called(r)
-	return args.Get(0).(*http.Response), args.Error(1)
-}
 
 func TestDiscover(t *testing.T) {
 	expectedConfiguration := openidConfiguration{

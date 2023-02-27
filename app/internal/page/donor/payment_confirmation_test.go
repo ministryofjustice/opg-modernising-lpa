@@ -18,177 +18,160 @@ func TestGetPaymentConfirmation(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
-	payClient := (&mockPayClient{BaseURL: "http://base.url"}).
+	payClient := newMockPayClient(t).
 		withASuccessfulPayment("abc123", "123456789012")
 
-	shareCodeSender := &mockShareCodeSender{}
+	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
 		On("Send", r.Context(), notify.CertificateProviderInviteEmail, testAppData, "certificateprovider@example.com", true).
 		Return(nil)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, &paymentConfirmationData{App: testAppData, PaymentReference: "123456789012"}).
+		On("Execute", w, &paymentConfirmationData{App: testAppData, PaymentReference: "123456789012"}).
 		Return(nil)
 
-	sessionsStore := (&mockSessionsStore{}).
+	sessionStore := newMockSessionStore(t).
 		withPaySession(r).
 		withExpiredPaySession(r, w)
 
-	lpaStore := (&mockLpaStore{}).
+	lpaStore := newMockLpaStore(t).
 		willReturnEmptyLpa(r).
 		withCompletedPaymentLpaData(r, "abc123", "123456789012")
 
-	err := PaymentConfirmation(&mockLogger{}, template.Func, payClient, lpaStore, sessionsStore, shareCodeSender)(testAppData, w, r)
+	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, lpaStore, sessionStore, shareCodeSender)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, template, payClient, lpaStore, sessionsStore, shareCodeSender)
 }
 
 func TestGetPaymentConfirmationGettingLpaErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
-	template := &mockTemplate{}
-	lpaStore := &mockLpaStore{}
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	logger := &mockLogger{}
-	logger.
-		On("Print", fmt.Sprintf("unable to retrieve item from data store using key '%s': %s", "session-id", expectedError.Error())).
-		Return(nil)
-
-	err := PaymentConfirmation(logger, template.Func, &mockPayClient{}, lpaStore, &mockSessionsStore{}, nil)(testAppData, w, r)
+	err := PaymentConfirmation(nil, nil, nil, lpaStore, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore)
 }
 
 func TestGetPaymentConfirmationWhenErrorGettingSession(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
-	template := &mockTemplate{}
-	lpaStore := (&mockLpaStore{}).
+	template := newMockTemplate(t)
+	lpaStore := newMockLpaStore(t).
 		willReturnEmptyLpa(r)
 
-	sessionsStore := &mockSessionsStore{}
-	sessionsStore.
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
 		On("Get", r, "pay").
 		Return(&sessions.Session{}, expectedError)
 
-	err := PaymentConfirmation(nil, template.Func, &mockPayClient{}, lpaStore, sessionsStore, nil)(testAppData, w, r)
+	err := PaymentConfirmation(nil, template.Execute, newMockPayClient(t), lpaStore, sessionStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, sessionsStore)
 }
 
 func TestGetPaymentConfirmationWhenErrorGettingPayment(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
-	lpaStore := (&mockLpaStore{}).
+	lpaStore := newMockLpaStore(t).
 		willReturnEmptyLpa(r)
 
-	sessionsStore := (&mockSessionsStore{}).
+	sessionStore := newMockSessionStore(t).
 		withPaySession(r)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 	logger.
 		On("Print", fmt.Sprintf("unable to retrieve payment info: %s", expectedError.Error())).
 		Return(nil)
 
-	payClient := &mockPayClient{}
+	payClient := newMockPayClient(t)
 	payClient.
 		On("GetPayment", "abc123").
 		Return(pay.GetPaymentResponse{}, expectedError)
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 
-	err := PaymentConfirmation(logger, template.Func, payClient, lpaStore, sessionsStore, nil)(testAppData, w, r)
+	err := PaymentConfirmation(logger, template.Execute, payClient, lpaStore, sessionStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, sessionsStore, logger, payClient)
 }
 
 func TestGetPaymentConfirmationWhenErrorSendingShareCode(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
-	lpaStore := (&mockLpaStore{}).
+	lpaStore := newMockLpaStore(t).
 		willReturnEmptyLpa(r)
 
-	sessionsStore := (&mockSessionsStore{}).
+	sessionStore := newMockSessionStore(t).
 		withPaySession(r)
 
-	payClient := (&mockPayClient{}).
+	payClient := newMockPayClient(t).
 		withASuccessfulPayment("abc123", "123456789012")
 
-	shareCodeSender := &mockShareCodeSender{}
+	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
 		On("Send", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	template := &mockTemplate{}
-	template.
-		On("Func", w, mock.Anything).
-		Return(nil)
-
-	err := PaymentConfirmation(nil, template.Func, payClient, lpaStore, sessionsStore, shareCodeSender)(testAppData, w, r)
+	err := PaymentConfirmation(nil, nil, payClient, lpaStore, sessionStore, shareCodeSender)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-	mock.AssertExpectationsForObjects(t, shareCodeSender, lpaStore, sessionsStore, payClient)
 }
 
 func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
-	lpaStore := (&mockLpaStore{}).
+	lpaStore := newMockLpaStore(t).
 		willReturnEmptyLpa(r).
 		withCompletedPaymentLpaData(r, "abc123", "123456789012")
 
-	shareCodeSender := &mockShareCodeSender{}
+	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
 		On("Send", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	sessionsStore := (&mockSessionsStore{}).
+	sessionStore := newMockSessionStore(t).
 		withPaySession(r)
 
-	sessionsStore.
+	sessionStore.
 		On("Save", r, w, mock.Anything).
 		Return(expectedError)
 
-	logger := &mockLogger{}
+	logger := newMockLogger(t)
 	logger.
 		On("Print", fmt.Sprintf("unable to expire cookie in session: %s", expectedError.Error())).
 		Return(nil)
 
-	payClient := (&mockPayClient{}).
+	payClient := newMockPayClient(t).
 		withASuccessfulPayment("abc123", "123456789012")
 
-	template := &mockTemplate{}
+	template := newMockTemplate(t)
 	template.
-		On("Func", w, mock.Anything).
+		On("Execute", w, mock.Anything).
 		Return(nil)
 
-	err := PaymentConfirmation(logger, template.Func, payClient, lpaStore, sessionsStore, shareCodeSender)(testAppData, w, r)
+	err := PaymentConfirmation(logger, template.Execute, payClient, lpaStore, sessionStore, shareCodeSender)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	mock.AssertExpectationsForObjects(t, lpaStore, sessionsStore, logger, payClient)
 }
 
 func (m *mockPayClient) withASuccessfulPayment(paymentId, reference string) *mockPayClient {

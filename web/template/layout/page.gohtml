@@ -3,7 +3,7 @@
   <html lang="en" class="govuk-template app-html-class">
     <head>
       <meta charset="utf-8">
-      <title>{{ if .Errors }}Error: {{ end }} {{ if not (eq .App.Page .App.Paths.Start) }}{{ template "pageTitle" . }} - {{ end }}{{ tr .App "serviceName" }}</title>
+      <title>{{ if .Errors }}Error: {{ end }} {{ if not (eq .App.Page .App.Paths.Start .App.Paths.CertificateProviderStart) }}{{ block "pageTitle" . }}{{ end }} - {{ end }}{{ block "serviceName" . }}{{ tr .App "serviceName" }}{{ end }}</title>
       <link rel="preload" href="/static/stylesheets/all.css?{{ .App.StaticHash }}" as="style">
       <link rel="preload" href="/static/javascript/main.js?{{ .App.StaticHash }}" as="script">
       <link rel="preconnect" href="//dataplane.rum.eu-west-1.amazonaws.com">
@@ -81,7 +81,7 @@
           </div>
           <div class="govuk-header__content">
             <a href="#" class="govuk-header__link govuk-header__service-name">
-              {{ tr .App "serviceName" }}
+              {{ template "serviceName" . }}
             </a>
           </div>
         </div>
@@ -106,13 +106,13 @@
 
           <ul class="trans-switch" id="language-switch" aria-label="Change your language">
             <li class="govuk-list trans-switch__list govuk-body-s" id="language-switch-en" lang="en-gb">
-              {{ if isWelsh .App.Lang }}<a href="{{ .App.BuildUrlWithoutLang .App.Page }}{{ .App.Query }}" class="govuk-link"><span class="govuk-visually-hidden">Change language to </span>{{ end }}
+              {{ if isWelsh .App.Lang }}<a href="{{ .App.Path }}{{ .App.Query }}" class="govuk-link"><span class="govuk-visually-hidden">Change language to </span>{{ end }}
                 {{ if isEnglish .App.Lang }}<span class="govuk-visually-hidden">Current language is </span>{{ end }}
                 English
                 {{ if isWelsh .App.Lang }}</a>{{ end }}
             </li>
             <li class="govuk-list trans-switch__list govuk-body-s" id="language-switch-cy" lang="cy-gb">
-              {{ if isEnglish .App.Lang }}<a href="/cy{{ .App.BuildUrlWithoutLang .App.Page }}{{ .App.Query }}" class="govuk-link" aria-label="Newid iaith i'r Gymraeg">{{ end }}
+              {{ if isEnglish .App.Lang }}<a href="/cy{{ .App.Path }}{{ .App.Query }}" class="govuk-link" aria-label="Newid iaith i'r Gymraeg">{{ end }}
                 Cymraeg
                 {{ if isEnglish .App.Lang }}</a>{{ end }}
                 {{ if isWelsh .App.Lang }}<span class="govuk-visually-hidden"> yw'r iaith bresennol</span>{{ end }}

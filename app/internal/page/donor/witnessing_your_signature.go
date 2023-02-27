@@ -16,7 +16,7 @@ type witnessingYourSignatureData struct {
 	Lpa    *page.Lpa
 }
 
-func WitnessingYourSignature(tmpl template.Template, lpaStore page.LpaStore, notifyClient page.NotifyClient, randomCode func(int) string, now func() time.Time) page.Handler {
+func WitnessingYourSignature(tmpl template.Template, lpaStore LpaStore, notifyClient NotifyClient, randomCode func(int) string, now func() time.Time) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
