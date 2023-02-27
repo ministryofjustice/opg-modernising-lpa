@@ -23,20 +23,20 @@
         </form>
       {{ else }}
         <form novalidate method="post">
-          <fieldset class="govuk-fieldset">
-            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-              {{ tr .App "doYouWantToAddAnotherPersonToNotify" }}
-            </legend>
+          <div class="govuk-form-group {{ if .Errors.Has "add-person-to-notify" }}govuk-form-group--error{{ end }}">
+            <fieldset class="govuk-fieldset">
+              <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                {{ tr .App "doYouWantToAddAnotherPersonToNotify" }}
+              </legend>
 
-            <div class="govuk-form-group {{ if .Errors.Has "add-person-to-notify" }}govuk-form-group--error{{ end }}">
               {{ template "error-message" (errorMessage . "add-person-to-notify") }}
 
               {{ template "radios" (items . "add-person-to-notify" ""
                 (item "yes" "yes")
                 (item "no" "no")
               ) }}
-            </div>
-          </fieldset>
+            </fieldset>
+          </div>
 
           <div class="govuk-button-group">
             {{ template "continue-button" . }}
