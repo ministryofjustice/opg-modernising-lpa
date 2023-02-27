@@ -15,11 +15,6 @@ on:
         required: false
         type: string
         default: latest
-      spec:
-        description: 'Value to pass to cypress --spec argument'
-        required: false
-        type: string
-        default: cypress/e2e/**.cy.js
       checkout_tag:
         description: 'Ref or tag to checkout'
         default: ${{ github.ref }}
@@ -110,8 +105,6 @@ jobs:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
           GITHUB_TOKEN: ${{ secrets.github_access_token }}
-        with:
-          spec: ${{ inputs.spec }}
 
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()
