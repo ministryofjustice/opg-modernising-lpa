@@ -46,6 +46,32 @@ func TestValidation(t *testing.T) {
 	assert.Equal(t, list, with)
 }
 
+func TestValidationForDates(t *testing.T) {
+	var list List
+	assert.True(t, list.None())
+
+	list.Add("day", DateMissingError{Label: "a", MissingDay: true})
+	list.Add("month", DateMissingError{Label: "b", MissingMonth: true})
+	list.Add("year", DateMissingError{Label: "c", MissingYear: true})
+	list.Add("enter", EnterError{Label: "d"})
+
+	assert.True(t, list.HasForDate("day", "day"))
+	assert.False(t, list.HasForDate("day", "month"))
+	assert.False(t, list.HasForDate("day", "year"))
+
+	assert.False(t, list.HasForDate("month", "day"))
+	assert.True(t, list.HasForDate("month", "month"))
+	assert.False(t, list.HasForDate("month", "year"))
+
+	assert.False(t, list.HasForDate("year", "day"))
+	assert.False(t, list.HasForDate("year", "month"))
+	assert.True(t, list.HasForDate("year", "year"))
+
+	assert.True(t, list.HasForDate("enter", "day"))
+	assert.True(t, list.HasForDate("enter", "month"))
+	assert.True(t, list.HasForDate("enter", "year"))
+}
+
 func flatten(l Localizer, list List) []string {
 	var s []string
 	for _, field := range list {
