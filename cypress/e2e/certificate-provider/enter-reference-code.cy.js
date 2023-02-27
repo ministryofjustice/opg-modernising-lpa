@@ -1,6 +1,6 @@
 describe('Enter reference code', () => {
     it('can enter a valid reference code', () => {
-        cy.visit('/testing-start?completeLpa=1&startCpFlowWithId=1&useTestShareCode=1');
+        cy.visit('/testing-start?completeLpa=1&startCpFlowDonorHasPaid=1&useTestShareCode=1');
 
         cy.contains('a', 'Start').click()
 
@@ -14,7 +14,7 @@ describe('Enter reference code', () => {
     });
 
     it('can enter a valid reference code', () => {
-        cy.visit('/testing-start?completeLpa=1&startCpFlowWithId=1&useTestShareCode=1');
+        cy.visit('/testing-start?completeLpa=1&startCpFlowDonorHasPaid=1&useTestShareCode=1');
 
         cy.contains('a', 'Start').click()
 
@@ -34,7 +34,7 @@ describe('Enter reference code', () => {
     });
 
     it('errors when empty code', () => {
-        cy.visit('/testing-start?completeLpa=1&startCpFlowWithId=1&useTestShareCode=1');
+        cy.visit('/testing-start?completeLpa=1&startCpFlowDonorHasPaid=1&useTestShareCode=1');
 
         cy.contains('a', 'Start').click()
 
@@ -51,7 +51,7 @@ describe('Enter reference code', () => {
     });
 
     it('errors when incorrect code', () => {
-        cy.visit('/testing-start?completeLpa=1&startCpFlowWithId=1&useTestShareCode=1');
+        cy.visit('/testing-start?completeLpa=1&startCpFlowDonorHasPaid=1&useTestShareCode=1');
 
         cy.contains('a', 'Start').click()
 
@@ -69,7 +69,7 @@ describe('Enter reference code', () => {
     });
 
     it('errors when incorrect code length', () => {
-        cy.visit('/testing-start?completeLpa=1&startCpFlowWithId=1&useTestShareCode=1');
+        cy.visit('/testing-start?completeLpa=1&startCpFlowDonorHasPaid=1&useTestShareCode=1');
 
         cy.contains('a', 'Start').click()
 
