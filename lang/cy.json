@@ -560,5 +560,18 @@
     "enterYourReferenceCode": "Welsh",
     "certificateProviderReferenceCodeContent": "<p class=\"govuk-body\">Welsh</p>",
     "referenceCode": "Welsh",
-    "incorrectReferenceCode": "Welsh"
+    "incorrectReferenceCode": "Welsh",
+
+    "howDoYouKnowTheDonorTitle": "Welsh",
+    "howDoYouKnowTheDonor": "Welsh {{.FullName}}",
+    "personally": "Welsh",
+    "personallyHint": "Welsh",
+    "professionally": "Welsh",
+    "professionallyHint": "Welsh",
+    "howYouKnowDonor": "Welsh",
+
+    "howLongHaveYouKnownDonorTitle": "Welsh",
+    "howLongHaveYouKnownDonor": "Welsh {{.FullName}}",
+    "howLongYouHaveKnownDonor": "Welsh",
+    "mustHaveKnownDonorTwoYears": "Welsh"
 }
