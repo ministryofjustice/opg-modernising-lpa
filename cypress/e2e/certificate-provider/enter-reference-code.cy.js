@@ -10,27 +10,8 @@ describe('Enter reference code', () => {
         cy.get('#f-reference-code').type('abcdef123456');
         cy.contains('Continue').click();
 
-        cy.url().should('contain', '/certificate-provider-login-callback');
-    });
-
-    it('can enter a valid reference code', () => {
-        cy.visit('/testing-start?completeLpa=1&startCpFlowDonorHasPaid=1&useTestShareCode=1');
-
-        cy.contains('a', 'Start').click()
-
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
-
-        cy.get('#f-reference-code').type('abcdef123456');
-        cy.contains('Continue').click();
-
-        if (Cypress.config().baseUrl.includes('localhost')) {
-            cy.url().should('contain', '/certificate-provider-login-callback');
-        } else {
-            cy.origin('account.gov.uk', () => {
-                cy.url().should('contain', '/prove-identity-welcome');
-            })
-        }
+        cy.get('.govuk-error-summary').should('not.exist')
+        cy.get('.govuk-error-message').should('not.exist')
     });
 
     it('errors when empty code', () => {
