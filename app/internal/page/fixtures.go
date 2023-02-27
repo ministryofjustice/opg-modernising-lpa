@@ -237,11 +237,9 @@ func GetAttorneyByFirstNames(lpa *Lpa, firstNames string) (actor.Attorney, bool)
 }
 
 type fixtureData struct {
-	App                     AppData
-	Errors                  validation.List
-	Form                    *fixturesForm
-	CPStartLpaNotSignedPath string
-	CPStartLpaSignedPath    string
+	App    AppData
+	Errors validation.List
+	Form   *fixturesForm
 }
 
 type fixturesForm struct {
@@ -256,6 +254,8 @@ type fixturesForm struct {
 	Pay                  string
 	IdAndSign            string
 	CompleteAll          string
+	Email                string
+	CpFlowId             string
 }
 
 func readFixtures(r *http.Request) *fixturesForm {
@@ -271,39 +271,73 @@ func readFixtures(r *http.Request) *fixturesForm {
 		Pay:                  PostFormString(r, "pay-for-lpa"),
 		IdAndSign:            PostFormString(r, "confirm-id-and-sign"),
 		CompleteAll:          PostFormString(r, "complete-all-sections"),
+		Email:                PostFormString(r, "email"),
+		CpFlowId:             PostFormString(r, "cp-flow-id"),
 	}
 }
 
 func Fixtures(tmpl template.Template) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &fixtureData{
-			App:                     appData,
-			Form:                    &fixturesForm{},
-			CPStartLpaNotSignedPath: fmt.Sprintf("%s?redirect=%s&withCP=1&withDonorDetails=1&startCpFlowWithoutId=1", Paths.TestingStart, Paths.CertificateProviderStart),
-			CPStartLpaSignedPath:    fmt.Sprintf("%s?redirect=%s&completeLpa=1&startCpFlowWithId=1", Paths.TestingStart, Paths.CertificateProviderStart),
+			App:  appData,
+			Form: &fixturesForm{},
 		}
 
 		if r.Method == http.MethodPost {
 			data.Form = readFixtures(r)
+			data.Errors = data.Form.Validate()
 
-			values := url.Values{
-				data.Form.DonorDetails:         {"1"},
-				data.Form.Attorneys:            {"1"},
-				data.Form.ReplacementAttorneys: {"1"},
-				data.Form.WhenCanLpaBeUsed:     {"1"},
-				data.Form.Restrictions:         {"1"},
-				data.Form.CertificateProvider:  {"1"},
-				data.Form.PeopleToNotify:       {"1"},
-				data.Form.CheckAndSend:         {"1"},
-				data.Form.Pay:                  {"1"},
-				data.Form.IdAndSign:            {"1"},
-				data.Form.CompleteAll:          {"1"},
+			if len(data.Errors) == 0 {
+				var values url.Values
+
+				if data.Form.CpFlowId != "" {
+					values = url.Values{
+						"useTestShareCode": {"1"},
+						data.Form.CpFlowId: {"1"},
+					}
+
+					if data.Form.Email != "" {
+						values.Add("withEmail", data.Form.Email)
+					}
+
+					if data.Form.CpFlowId == "startCpFlowWithId" {
+						values.Add("completeLpa", "1")
+					} else {
+						values.Add("withCP", "1")
+						values.Add("withDonorDetails", "1")
+					}
+				} else {
+					values = url.Values{
+						data.Form.DonorDetails:         {"1"},
+						data.Form.Attorneys:            {"1"},
+						data.Form.ReplacementAttorneys: {"1"},
+						data.Form.WhenCanLpaBeUsed:     {"1"},
+						data.Form.Restrictions:         {"1"},
+						data.Form.CertificateProvider:  {"1"},
+						data.Form.PeopleToNotify:       {"1"},
+						data.Form.CheckAndSend:         {"1"},
+						data.Form.Pay:                  {"1"},
+						data.Form.IdAndSign:            {"1"},
+						data.Form.CompleteAll:          {"1"},
+					}
+				}
+
+				http.Redirect(w, r, fmt.Sprintf("%s?%s", Paths.TestingStart, values.Encode()), http.StatusFound)
+				return nil
 			}
-
-			http.Redirect(w, r, fmt.Sprintf("%s?%s", Paths.TestingStart, values.Encode()), http.StatusFound)
-			return nil
 		}
 
 		return tmpl(w, data)
 	}
+}
+
+func (f *fixturesForm) Validate() validation.List {
+	var errors validation.List
+
+	if f.Email != "" && f.CpFlowId == "" {
+		errors.String("cp-flow-id", "how to start the CP flow", f.CpFlowId,
+			validation.Select("startCpFlowWithId", "startCpFlowWithoutId"))
+	}
+
+	return errors
 }
