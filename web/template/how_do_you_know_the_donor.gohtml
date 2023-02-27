@@ -1,0 +1,28 @@
+{{ template "page" . }}
+
+{{ define "serviceName" }}{{ tr .App "beACertificateProvider" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "howDoYouKnowTheDonorTitle" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <form novalidate method="post">
+        <div class="govuk-form-group {{ if .Errors.Has "how" }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
+          <fieldset class="govuk-fieldset">
+            <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ trFormat .App "howDoYouKnowTheDonor" "FullName" .Donor.FullName }}</h1>
+
+            {{ template "error-message" (errorMessage . "how") }}
+
+            {{ template "radios" (items . "how" .Form.How
+              (item "personally" "personally" "hint" "personallyHint")
+              (item "professionally" "professionally" "hint" "professionallyHint")
+            ) }}
+          </fieldset>
+        </div>
+
+        {{ template "continue-button" . }}
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}

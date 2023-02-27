@@ -421,7 +421,7 @@ func TestPostCertificateProviderLoginCallback(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderYourDetails, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.HowDoYouKnowTheDonor, resp.Header.Get("Location"))
 }
 
 func TestPostCertificateProviderLoginCallbackNotConfirmed(t *testing.T) {
