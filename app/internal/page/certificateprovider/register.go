@@ -80,6 +80,10 @@ func Register(
 		Login(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.CertificateProviderLoginCallback, None,
 		LoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, lpaStore))
+	handleRoot(page.Paths.HowDoYouKnowTheDonor, RequireSession,
+		HowDoYouKnowTheDonor(tmpls.Get("how_do_you_know_the_donor.gohtml"), lpaStore))
+	handleRoot(page.Paths.HowLongHaveYouKnownDonor, RequireSession,
+		HowLongHaveYouKnownDonor(tmpls.Get("how_long_have_you_known_donor.gohtml"), lpaStore))
 	handleRoot(page.Paths.CertificateProviderYourDetails, RequireSession,
 		YourDetails(tmpls.Get("certificate_provider_your_details.gohtml"), lpaStore))
 	handleRoot(page.Paths.CertificateProviderYourAddress, RequireSession,
