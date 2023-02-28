@@ -1,7 +1,7 @@
 {{ template "page" . }}
 
 {{ define "serviceName" }}
-  {{ if eq .App.Page .App.Paths.CertificateProviderLoginCallback }}
+  {{ if eq .App.Page .App.Paths.CertificateProviderIdentityWithOneLoginCallback }}
     {{ tr .App "beACertificateProvider" }}
   {{ else }}
     {{ tr .App "serviceName" }}

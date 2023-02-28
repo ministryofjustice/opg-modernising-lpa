@@ -8,9 +8,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func Login(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, randomString func(int) string) page.Handler {
+func IdentityWithOneLogin(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, randomString func(int) string) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		locale := "en"
+		locale := ""
 		if appData.Lang == localize.Cy {
 			locale = "cy"
 		}
@@ -18,19 +18,14 @@ func Login(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, rando
 		state := randomString(12)
 		nonce := randomString(12)
 
-		sessionID := r.FormValue("sessionId")
-		lpaID := r.FormValue("lpaId")
-
-		authCodeURL := oneLoginClient.AuthCodeURL(state, nonce, locale, false)
+		authCodeURL := oneLoginClient.AuthCodeURL(state, nonce, locale, true)
 
 		if err := sesh.SetOneLogin(store, r, w, &sesh.OneLoginSession{
 			State:               state,
 			Nonce:               nonce,
 			Locale:              locale,
 			CertificateProvider: true,
-			Identity:            false,
-			SessionID:           sessionID,
-			LpaID:               lpaID,
+			Identity:            true,
 		}); err != nil {
 			logger.Print(err)
 			return nil

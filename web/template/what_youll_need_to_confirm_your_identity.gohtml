@@ -1,5 +1,12 @@
 {{ template "page" . }}
 
+{{ define "serviceName" }}
+  {{ if eq .App.Page .App.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity }}
+    {{ tr .App "beACertificateProvider" }}
+  {{ else }}
+    {{ tr .App "serviceName" }}
+  {{ end }}
+{{ end }}
 {{ define "pageTitle" }}{{ tr .App "whatYoullNeedToConfirmYourIdentity" }}{{ end }}
 
 {{ define "main" }}
@@ -9,7 +16,11 @@
 
       {{ trHtml .App "whatYoullNeedToConfirmYourIdentityContent" }}
 
-      <a class="govuk-button govuk-!-margin-top-4" href="{{ link .App .App.Paths.SelectYourIdentityOptions }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+      {{ if eq .App.Page .App.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity }}
+        <a class="govuk-button govuk-!-margin-top-4" href="{{ link .App .App.Paths.CertificateProviderSelectYourIdentityOptions }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+      {{ else }}
+        <a class="govuk-button govuk-!-margin-top-4" href="{{ link .App .App.Paths.SelectYourIdentityOptions }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+      {{ end }}
     </div>
   </div>
 {{ end }}
