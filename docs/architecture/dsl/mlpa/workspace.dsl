@@ -3,6 +3,7 @@ workspace {
     model {
         // Users
         actor = person "Actor" "Actor interacting with a Lasting Power of Attorney."
+        solicitor = person "Solicitor Software" "Solicitor interacting with a Lasting Power of Attorney."
 
         enterprise "Modernising Lasting Power of Attorney" {
             // Software Systems
@@ -20,8 +21,9 @@ workspace {
                     mlpaDraftingServiceDatabase = component "Draft LPA Database" "Stores Draft LPA data." "DynamoDB" "Database"
                     mlpaDraftingServiceApp = component "App" "Manages data events and business logic." "Go" "Component"
                 }
+                mlpaSupporterAPI = container "Public LPA Support API" "Allows external companies to add submit LPAs." "API Gateway, Go" "Container"
                 mlpaLPAIDAPI = container "LPA ID Service" "Manages the LPA IDs." "API Gateway, Go" "Container"
-
+                
                 mlpaOpgRegisterDatabase = container "Registered LPA Data Store" "Stores immutable LPA data with high availablility, security and auditing." "AuroraDB" "Database" {
                     mlpaOpgRegisterDatabase_database = component "Database" "Stores final Register LPA Data." "AuroraDB" "Database"
                     mlpaOpgRegisterDatabase_databaseMonitoringTelemetry = component "Monitoring and Telemetery" "Cloudwatch logs and X-Ray" "AWS Cloudwatch" "Database"
@@ -50,6 +52,7 @@ workspace {
         }
 
         // External Systems
+        mlpaOPGAuthService = softwareSystem "OPG Authentication Service" "User facing central Authentication service." "Container"
         externalSoftwareSystems = softwareSystem "External Services" "GOV.UK Notify, Pay, One Login, Yoti, Ordanance Survey" "Existing System"
         externalOPGSoftwareSystems = softwareSystem "OPG Services" "Court Ordered Severances" "Existing System"
         externalScanningSoftware = softwareSystem "Scanning Software" "TBC" "Existing System"
@@ -60,12 +63,18 @@ workspace {
         externalOPGSoftwareSystems -> mlpaSiriusCaseManagement "sends data to"
         externalScanningSoftware -> mlpaPaperIngestionAPI "sends scanned LPA Data to"
 
+        mlpaSupporterAPI -> mlpaDraftingServiceAPI "makes calls to"
+        solicitor -> mlpaSupporterAPI "interacts with"
+
         mlpaOnlineContainer -> mlpaDraftingServiceAPI "makes calls to"
         mlpaLPAIDAPI -> mlpaDraftingServiceAPI "gets LPA Code from"
 
         mlpaDraftingServiceSiriusAPI -> mlpaOpgRegisterService_WriteAPIGateway "writes validated data to"
         mlpaDraftingServiceSiriusAPI -> mlpaSiriusPublicAPI "writes case management data to and read data from"
         
+        mlpaOnlineContainer -> mlpaOPGAuthService "authenticates with"
+        mlpaUaLPA -> mlpaOPGAuthService "authenticates with"
+
         mlpaUaLPA -> mlpaSiriusPublicAPI "read data from"
         mlpaUaLPA -> mlpaOpgRegisterService_ReadAPIGateway "read data from"
         
