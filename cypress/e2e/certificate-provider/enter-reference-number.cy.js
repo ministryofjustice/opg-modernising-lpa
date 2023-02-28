@@ -14,7 +14,7 @@ describe('Enter reference number', () => {
             cy.url().should('contain', '/how-do-you-know-the-donor')
         } else {
             cy.origin('https://signin.integration.account.gov.uk', () => {
-                cy.url().should('contain', '/')
+                cy.url({ timeout: 6000 }).should('contain', '/')
             })
         }
     });
