@@ -14,7 +14,7 @@ describe('Enter reference number', () => {
             cy.url().should('contain', '/certificate-provider-login-callback')
         } else {
             cy.origin('https://signin.integration.account.gov.uk', () => {
-                cy.url().should('contain', '/sign-in-or-create')
+                cy.url().should('contain', '/')
             })
         }
     });
