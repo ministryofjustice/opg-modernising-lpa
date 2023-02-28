@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -37,7 +39,7 @@ func TestGetEnterYourName(t *testing.T) {
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	err := CheckYourName(template.Execute, lpaStore)(testAppData, w, r)
+	err := CheckYourName(template.Execute, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -55,7 +57,7 @@ func TestGetEnterYourNameOnStoreError(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := CheckYourName(template.Execute, lpaStore)(testAppData, w, r)
+	err := CheckYourName(template.Execute, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -85,7 +87,7 @@ func TestGetEnterYourNameOnTemplateError(t *testing.T) {
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	err := CheckYourName(template.Execute, lpaStore)(testAppData, w, r)
+	err := CheckYourName(template.Execute, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -110,7 +112,7 @@ func TestPostEnterYourName(t *testing.T) {
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	err := CheckYourName(nil, lpaStore)(testAppData, w, r)
+	err := CheckYourName(nil, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -129,6 +131,7 @@ func TestPostEnterYourNameWithCorrectedName(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	lpa := &page.Lpa{
+		You:                 actor.Person{Email: "a@example.com"},
 		CertificateProvider: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
 	}
 
@@ -143,7 +146,19 @@ func TestPostEnterYourNameWithCorrectedName(t *testing.T) {
 		On("Put", r.Context(), lpa).
 		Return(nil)
 
-	err := CheckYourName(nil, lpaStore)(testAppData, w, r)
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.
+		On("TemplateID", notify.CertificateProviderNameChangeEmail).
+		Return("abc-123")
+	notifyClient.
+		On("Email", r.Context(), notify.Email{
+			EmailAddress:    "a@example.com",
+			TemplateID:      "abc-123",
+			Personalisation: map[string]string{"declaredName": "Bobby Smith"},
+		}).
+		Return("", nil)
+
+	err := CheckYourName(nil, lpaStore, notifyClient)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -177,7 +192,7 @@ func TestPostEnterYourNameWithCorrectedNameWhenStoreError(t *testing.T) {
 		On("Put", r.Context(), lpa).
 		Return(expectedError)
 
-	err := CheckYourName(nil, lpaStore)(testAppData, w, r)
+	err := CheckYourName(nil, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -216,7 +231,7 @@ func TestPostEnterYourNameOnValidationError(t *testing.T) {
 		On("Execute", w, data).
 		Return(nil)
 
-	err := CheckYourName(template.Execute, lpaStore)(testAppData, w, r)
+	err := CheckYourName(template.Execute, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

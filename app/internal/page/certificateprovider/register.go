@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -64,6 +66,13 @@ type YotiClient interface {
 	IsTest() bool
 	SdkID() string
 	User(string) (identity.UserData, error)
+}
+
+//go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient
+type NotifyClient interface {
+	Email(ctx context.Context, email notify.Email) (string, error)
+	Sms(ctx context.Context, sms notify.Sms) (string, error)
+	TemplateID(id notify.TemplateId) string
 }
 
 func Register(

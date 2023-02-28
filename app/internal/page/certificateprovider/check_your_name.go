@@ -3,6 +3,8 @@ package certificateprovider
 import (
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -15,7 +17,7 @@ type checkYourNameData struct {
 	Lpa    *page.Lpa
 }
 
-func CheckYourName(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient NotifyClient) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 
@@ -38,6 +40,16 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore) page.Handler {
 					lpa.CertificateProvider.DeclaredFullName = data.Form.CorrectedName
 
 					if err := lpaStore.Put(r.Context(), lpa); err != nil {
+						return err
+					}
+
+					_, err := notifyClient.Email(r.Context(), notify.Email{
+						EmailAddress:    lpa.You.Email,
+						TemplateID:      notifyClient.TemplateID(notify.CertificateProviderNameChangeEmail),
+						Personalisation: map[string]string{"declaredName": lpa.CertificateProvider.DeclaredFullName},
+					})
+
+					if err != nil {
 						return err
 					}
 				}
