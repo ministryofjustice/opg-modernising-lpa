@@ -38,7 +38,8 @@ func App(
 	appPublicUrl string,
 	payClient *pay.Client,
 	yotiClient *identity.YotiClient,
-	yotiScenarioID string,
+	yotiDonorScenarioID string,
+	yotiCertificateProviderScenarioID string,
 	notifyClient *notify.Client,
 	addressClient *place.Client,
 	rumConfig page.RumConfig,
@@ -71,6 +72,8 @@ func App(
 		dataStore,
 		addressClient,
 		errorHandler,
+		yotiClient,
+		yotiCertificateProviderScenarioID,
 	)
 
 	donor.Register(
@@ -84,7 +87,7 @@ func App(
 		appPublicUrl,
 		payClient,
 		yotiClient,
-		yotiScenarioID,
+		yotiDonorScenarioID,
 		notifyClient,
 		shareCodeSender,
 		errorHandler,

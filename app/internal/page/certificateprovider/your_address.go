@@ -45,7 +45,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, appData.Paths.CertificateProviderReadTheLpa)
+				return appData.Redirect(w, r, lpa, appData.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity)
 			}
 
 			if data.Form.Action == "select" && data.Errors.None() {
