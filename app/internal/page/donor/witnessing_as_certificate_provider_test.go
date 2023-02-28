@@ -156,19 +156,19 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 	now := time.Now()
 
 	lpa := &page.Lpa{
-		CertificateProvider:         actor.CertificateProvider{Email: "name@example.com"},
-		CertificateProviderUserData: identity.UserData{OK: true},
-		WitnessCode:                 page.WitnessCode{Code: "1234", Created: now},
-		CPWitnessCodeValidated:      true,
-		Submitted:                   now,
+		CertificateProvider:                 actor.CertificateProvider{Email: "name@example.com"},
+		CertificateProviderOneLoginUserData: identity.UserData{OK: true},
+		WitnessCode:                         page.WitnessCode{Code: "1234", Created: now},
+		CPWitnessCodeValidated:              true,
+		Submitted:                           now,
 	}
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProvider:         actor.CertificateProvider{Email: "name@example.com"},
-			CertificateProviderUserData: identity.UserData{OK: true},
-			WitnessCode:                 page.WitnessCode{Code: "1234", Created: now},
+			CertificateProvider:                 actor.CertificateProvider{Email: "name@example.com"},
+			CertificateProviderOneLoginUserData: identity.UserData{OK: true},
+			WitnessCode:                         page.WitnessCode{Code: "1234", Created: now},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), lpa).
@@ -198,19 +198,19 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendErrors(t *testing.T
 	now := time.Now()
 
 	lpa := &page.Lpa{
-		CertificateProvider:         actor.CertificateProvider{Email: "name@example.com"},
-		CertificateProviderUserData: identity.UserData{OK: true},
-		WitnessCode:                 page.WitnessCode{Code: "1234", Created: now},
-		CPWitnessCodeValidated:      true,
-		Submitted:                   now,
+		CertificateProvider:                 actor.CertificateProvider{Email: "name@example.com"},
+		CertificateProviderOneLoginUserData: identity.UserData{OK: true},
+		WitnessCode:                         page.WitnessCode{Code: "1234", Created: now},
+		CPWitnessCodeValidated:              true,
+		Submitted:                           now,
 	}
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProvider:         actor.CertificateProvider{Email: "name@example.com"},
-			CertificateProviderUserData: identity.UserData{OK: true},
-			WitnessCode:                 page.WitnessCode{Code: "1234", Created: now},
+			CertificateProvider:                 actor.CertificateProvider{Email: "name@example.com"},
+			CertificateProviderOneLoginUserData: identity.UserData{OK: true},
+			WitnessCode:                         page.WitnessCode{Code: "1234", Created: now},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), lpa).

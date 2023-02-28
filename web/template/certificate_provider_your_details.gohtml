@@ -13,7 +13,11 @@
         <p class="govuk-body">{{ .Lpa.You.FullName }}</p>
 
         <h2 class="govuk-heading-m">{{ tr .App "yourDetails" }}</h2>
-        <p class="govuk-body">{{ .Lpa.CertificateProviderUserData.FullName }}</p>
+        {{ if .Lpa.CertificateProviderOneLoginUserData.OK }}
+          <p class="govuk-body">{{ .Lpa.CertificateProviderOneLoginUserData.FullName }}</p>
+        {{ else }}
+          <p class="govuk-body">{{ .Lpa.CertificateProviderYotiUserData.FullName }}</p>
+        {{ end }}
 
         {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
 

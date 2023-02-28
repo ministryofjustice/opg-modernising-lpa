@@ -42,23 +42,24 @@ func main() {
 	logger := logging.New(os.Stdout, "opg-modernising-lpa")
 
 	var (
-		appPublicURL          = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
-		authRedirectBaseURL   = env.Get("AUTH_REDIRECT_BASE_URL", "http://localhost:5050")
-		webDir                = env.Get("WEB_DIR", "web")
-		awsBaseURL            = env.Get("AWS_BASE_URL", "")
-		clientID              = env.Get("CLIENT_ID", "client-id-value")
-		issuer                = env.Get("ISSUER", "http://sign-in-mock:7012")
-		dynamoTableLpas       = env.Get("DYNAMODB_TABLE_LPAS", "")
-		notifyBaseURL         = env.Get("GOVUK_NOTIFY_BASE_URL", "")
-		notifyIsProduction    = env.Get("GOVUK_NOTIFY_IS_PRODUCTION", "") == "1"
-		ordnanceSurveyBaseUrl = env.Get("ORDNANCE_SURVEY_BASE_URL", "http://ordnance-survey-mock:4011")
-		payBaseUrl            = env.Get("GOVUK_PAY_BASE_URL", "http://pay-mock:4010")
-		port                  = env.Get("APP_PORT", "8080")
-		yotiClientSdkID       = env.Get("YOTI_CLIENT_SDK_ID", "")
-		yotiScenarioID        = env.Get("YOTI_SCENARIO_ID", "")
-		yotiSandbox           = env.Get("YOTI_SANDBOX", "") == "1"
-		xrayEnabled           = env.Get("XRAY_ENABLED", "") == "1"
-		rumConfig             = page.RumConfig{
+		appPublicURL                      = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
+		authRedirectBaseURL               = env.Get("AUTH_REDIRECT_BASE_URL", "http://localhost:5050")
+		webDir                            = env.Get("WEB_DIR", "web")
+		awsBaseURL                        = env.Get("AWS_BASE_URL", "")
+		clientID                          = env.Get("CLIENT_ID", "client-id-value")
+		issuer                            = env.Get("ISSUER", "http://sign-in-mock:7012")
+		dynamoTableLpas                   = env.Get("DYNAMODB_TABLE_LPAS", "")
+		notifyBaseURL                     = env.Get("GOVUK_NOTIFY_BASE_URL", "")
+		notifyIsProduction                = env.Get("GOVUK_NOTIFY_IS_PRODUCTION", "") == "1"
+		ordnanceSurveyBaseUrl             = env.Get("ORDNANCE_SURVEY_BASE_URL", "http://ordnance-survey-mock:4011")
+		payBaseUrl                        = env.Get("GOVUK_PAY_BASE_URL", "http://pay-mock:4010")
+		port                              = env.Get("APP_PORT", "8080")
+		yotiClientSdkID                   = env.Get("YOTI_CLIENT_SDK_ID", "")
+		yotiDonorScenarioID               = env.Get("YOTI_SCENARIO_ID", "")
+		yotiCertificateProviderScenarioID = env.Get("YOTI_CERTIFICATE_PROVIDER_SCENARIO_ID", "")
+		yotiSandbox                       = env.Get("YOTI_SANDBOX", "") == "1"
+		xrayEnabled                       = env.Get("XRAY_ENABLED", "") == "1"
+		rumConfig                         = page.RumConfig{
 			GuestRoleArn:      env.Get("AWS_RUM_GUEST_ROLE_ARN", ""),
 			Endpoint:          env.Get("AWS_RUM_ENDPOINT", ""),
 			ApplicationRegion: env.Get("AWS_RUM_APPLICATION_REGION", ""),
@@ -189,8 +190,8 @@ func main() {
 	mux.Handle("/static/", http.StripPrefix("/static", handlers.CompressHandler(page.CacheControlHeaders(http.FileServer(http.Dir(webDir+"/static/"))))))
 	mux.Handle(page.Paths.AuthRedirect, page.AuthRedirect(logger, sessionStore))
 	mux.Handle(page.Paths.CookiesConsent, page.CookieConsent(page.Paths))
-	mux.Handle("/cy/", http.StripPrefix("/cy", app.App(logger, bundle.For("cy"), localize.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient)))
-	mux.Handle("/", app.App(logger, bundle.For("en"), localize.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiScenarioID, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient))
+	mux.Handle("/cy/", http.StripPrefix("/cy", app.App(logger, bundle.For("cy"), localize.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiDonorScenarioID, yotiCertificateProviderScenarioID, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient)))
+	mux.Handle("/", app.App(logger, bundle.For("en"), localize.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, yotiDonorScenarioID, yotiCertificateProviderScenarioID, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient))
 
 	var handler http.Handler = mux
 	if xrayEnabled {
