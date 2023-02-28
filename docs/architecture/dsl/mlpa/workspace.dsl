@@ -21,7 +21,7 @@ workspace {
                     mlpaDraftingServiceDatabase = component "Draft LPA Database" "Stores Draft LPA data." "DynamoDB" "Database"
                     mlpaDraftingServiceApp = component "App" "Manages data events and business logic." "Go" "Component"
                 }
-                mlpaSupporterAPI = container "Public LPA Support API" "Allows external companies to add submit LPAs." "API Gateway, Go" "Container"
+                mlpaSupporterAPI = container "Public LPA Support API" "Allows external companies to add submit LPAs." "API Gateway, Go" "Container t-vega t-vega-owner t-mlpa"
                 mlpaLPAIDAPI = container "LPA ID Service" "Manages the LPA IDs." "API Gateway, Go" "Container"
                 
                 mlpaOpgRegisterDatabase = container "Registered LPA Data Store" "Stores immutable LPA data with high availablility, security and auditing." "AuroraDB" "Database" {
