@@ -560,7 +560,7 @@
     "enterYourReferenceNumber": "Welsh",
     "certificateProviderReferenceNumberContent": "<p class=\"govuk-body\">Welsh.</p>",
     "certificateProviderReferenceNumber": "Welsh",
-    "certificateProviderReferenceNumberHint": "Welsh XXXXXXXXXXXX",
+    "certificateProviderReferenceNumberHint": "Welsh ABCD 1234 5678",
     "incorrectReferenceNumber": "Welsh",
     "twelveCharactersReferenceNumber": "welsh",
     "referenceNumberMustBeTwelveCharacters": "Welsh",

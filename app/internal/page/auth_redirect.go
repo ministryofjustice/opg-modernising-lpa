@@ -28,7 +28,9 @@ func AuthRedirect(logger Logger, store sesh.Store) http.HandlerFunc {
 		appData := AppData{Lang: lang, LpaID: oneLoginSession.LpaID}
 
 		redirect := Paths.LoginCallback
-		if oneLoginSession.CertificateProvider {
+		if oneLoginSession.CertificateProvider && oneLoginSession.Identity {
+			redirect = Paths.CertificateProviderIdentityWithOneLoginCallback
+		} else if oneLoginSession.CertificateProvider {
 			redirect = Paths.CertificateProviderLoginCallback
 		} else if oneLoginSession.Identity {
 			redirect = Paths.IdentityWithOneLoginCallback

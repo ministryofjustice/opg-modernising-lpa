@@ -519,7 +519,7 @@
     "enterYourReferenceNumber": "Enter your certificate provider reference number",
     "certificateProviderReferenceNumberContent": "<p class=\"govuk-body\">You can find this in the email inviting you to be a certificate provider.</p>",
     "certificateProviderReferenceNumber": "Certificate provider reference number",
-    "certificateProviderReferenceNumberHint": "This will be made up of 12 characters like XXXXXXXXXXXX",
+    "certificateProviderReferenceNumberHint": "This will be made up of 12 characters like ABCD 1234 5678",
     "incorrectReferenceNumber": "The certificate provider reference number you entered is incorrect, please check it and try again",
     "twelveCharactersReferenceNumber": "your 12 character certificate provider reference number",
     "referenceNumberMustBeTwelveCharacters": "The certificate provider reference number you enter must contain 12 characters",

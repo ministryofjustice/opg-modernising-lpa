@@ -11,7 +11,7 @@ describe('Enter reference number', () => {
         cy.contains('Continue').click();
 
         if (Cypress.config().baseUrl.includes('localhost')) {
-            cy.url().should('contain', '/certificate-provider-login-callback')
+            cy.url().should('contain', '/how-do-you-know-the-donor')
         } else {
             cy.origin('https://signin.integration.account.gov.uk', () => {
                 cy.url().should('contain', '/')

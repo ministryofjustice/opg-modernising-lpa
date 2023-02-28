@@ -844,7 +844,7 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
-				CertificateProviderUserData: identity.UserData{
+				CertificateProviderOneLoginUserData: identity.UserData{
 					FullName: "Barbara Smith",
 					OK:       true,
 				},
@@ -875,7 +875,7 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
-				CertificateProviderUserData: identity.UserData{
+				CertificateProviderOneLoginUserData: identity.UserData{
 					FullName: "Barbara Smith",
 					OK:       true,
 				},
