@@ -15,7 +15,7 @@ type checkYourNameData struct {
 	Lpa    *page.Lpa
 }
 
-func CheckYourName(tmpl template.Template, lpaStore LpaStore, dataStore page.DataStore) page.Handler {
+func CheckYourName(tmpl template.Template, lpaStore LpaStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 
