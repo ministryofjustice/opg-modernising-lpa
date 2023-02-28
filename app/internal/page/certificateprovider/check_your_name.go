@@ -34,7 +34,15 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore) page.Handler {
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				appData.Redirect(w, r, lpa, page.Paths.CertificateProviderDetails)
+				if data.Form.CorrectedName != "" {
+					lpa.CertificateProvider.DeclaredFullName = data.Form.CorrectedName
+
+					if err := lpaStore.Put(r.Context(), lpa); err != nil {
+						return err
+					}
+				}
+
+				appData.Redirect(w, r, lpa, page.Paths.CertificateProviderYourDetails)
 				return nil
 			}
 		}
@@ -44,20 +52,29 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore) page.Handler {
 }
 
 type checkYourNameForm struct {
-	NameCorrect   bool
+	IsNameCorrect string
 	CorrectedName string
 }
 
 func readCheckYourNameForm(r *http.Request) *checkYourNameForm {
 
 	return &checkYourNameForm{
-		NameCorrect:   page.PostFormString(r, "name-correct") == "1",
+		IsNameCorrect: page.PostFormString(r, "is-name-correct"),
 		CorrectedName: page.PostFormString(r, "corrected-name"),
 	}
 }
 
 func (f *checkYourNameForm) Validate() validation.List {
 	errors := validation.List{}
+
+	errors.String("is-name-correct", "yesIfTheNameIsCorrect", f.IsNameCorrect,
+		validation.Select("yes", "no"))
+
+	if f.IsNameCorrect == "no" && f.CorrectedName == "" {
+		errors.String("corrected-name", "yourFullName", f.CorrectedName,
+			validation.Empty(),
+		)
+	}
 
 	return errors
 }
