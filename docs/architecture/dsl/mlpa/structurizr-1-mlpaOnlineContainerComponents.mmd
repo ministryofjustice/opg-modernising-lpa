@@ -1,0 +1,20 @@
+graph TB
+  linkStyle default fill:#ffffff
+
+  subgraph diagram [Modernising Lasting Power of Attorney - Make a Lasting Power of Attorney Online - Components]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    subgraph 3 [Make a Lasting Power of Attorney Online]
+      style 3 fill:#ffffff,stroke:#444444,color:#444444
+
+      4["<div style='font-weight: bold'>App</div><div style='font-size: 70%; margin-top: 0px'>[Component: Go, HTML, CSS, JS]</div><div style='font-size: 80%; margin-top:10px'>Provides and delivers static<br />content, business logic,<br />routing, third party access<br />and database access</div>"]
+      style 4 fill:#85bbf0,stroke:#5d82a8,color:#000000
+      5[("<div style='font-weight: bold'>Database</div><div style='font-size: 70%; margin-top: 0px'>[Component: DynamoDB]</div><div style='font-size: 80%; margin-top:10px'>Stores actor information,<br />Draft LPA details, access<br />logs, etc.</div>")]
+      style 5 fill:#85bbf0,stroke:#5d82a8,color:#000000
+      6[("<div style='font-weight: bold'>Monitoring and Telemetery</div><div style='font-size: 70%; margin-top: 0px'>[Component: AWS Cloudwatch]</div><div style='font-size: 80%; margin-top:10px'>Cloudwatch logs, X-Ray and<br />RUM</div>")]
+      style 6 fill:#85bbf0,stroke:#5d82a8,color:#000000
+    end
+
+    4-. "<div>reads and writes data to</div><div style='font-size: 70%'></div>" .->5
+    5-. "<div>interacts with</div><div style='font-size: 70%'></div>" .->6
+  end

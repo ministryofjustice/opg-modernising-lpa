@@ -1,0 +1,39 @@
+graph TB
+  linkStyle default fill:#ffffff
+
+  subgraph diagram [Make a Lasting Power of Attorney Online - System Context]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    subgraph enterprise [Modernising Lasting Power of Attorney]
+      style enterprise fill:#ffffff,stroke:#444444,color:#444444
+
+      4("<div style='font-weight: bold'>Make a Lasting Power of Attorney Online</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Allows users to draft a<br />Lasting Power of Attorney<br />online.</div>")
+      style 4 fill:#1168bd,stroke:#0b4884,color:#ffffff
+    end
+
+    1["<div style='font-weight: bold'>Attorney</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Attorney interacting with a<br />Lasting Power of Attorney.</div>"]
+    style 1 fill:#08427b,stroke:#052e56,color:#ffffff
+    10("<div style='font-weight: bold'>GOV.UK Notify</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles SMS, Email and<br />Letters.</div>")
+    style 10 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    11("<div style='font-weight: bold'>GOV.UK Pay</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles Payments for Donors.</div>")
+    style 11 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    12("<div style='font-weight: bold'>GOV.UK One Login</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles Authentication and<br />Identification of Actors.</div>")
+    style 12 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    13("<div style='font-weight: bold'>Yoti</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Used for identity.</div>")
+    style 13 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    14("<div style='font-weight: bold'>Ordanance survey</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Used for identity.</div>")
+    style 14 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    2["<div style='font-weight: bold'>Donor</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Donor drafting the Lasting<br />Power of Attorney.</div>"]
+    style 2 fill:#08427b,stroke:#052e56,color:#ffffff
+    3["<div style='font-weight: bold'>Certificate Provider</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Certificate Provider<br />interacting with a Lasting<br />Power of Attorney.</div>"]
+    style 3 fill:#08427b,stroke:#052e56,color:#ffffff
+
+    3-. "<div>Uses</div><div style='font-size: 70%'></div>" .->4
+    2-. "<div>Uses</div><div style='font-size: 70%'></div>" .->4
+    1-. "<div>Uses</div><div style='font-size: 70%'></div>" .->4
+    4-. "<div>Sends communication with</div><div style='font-size: 70%'></div>" .->10
+    4-. "<div>Handles payment with</div><div style='font-size: 70%'></div>" .->11
+    4-. "<div>Authenticates users with</div><div style='font-size: 70%'></div>" .->12
+    4-. "<div>Identifies users with</div><div style='font-size: 70%'></div>" .->13
+    4-. "<div>Looks up addressed with</div><div style='font-size: 70%'></div>" .->14
+  end

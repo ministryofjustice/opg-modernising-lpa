@@ -70,8 +70,15 @@ audit-secrets: ##@security Interactive CLI tool for marking discovered as in/val
 
 run-structurizr:
 	docker pull structurizr/lite
-	docker run -it --rm -p 8080:8080 -v $(PWD)/docs/architecture/dsl:/usr/local/structurizr structurizr/lite
+ifdef mlpa
+	docker run -it --rm -p 8080:8080 -v $(PWD)/docs/architecture/dsl/mlpa:/usr/local/structurizr structurizr/lite
+else
+	docker run -it --rm -p 8080:8080 -v $(PWD)/docs/architecture/dsl/local:/usr/local/structurizr structurizr/lite
+endif
 
-run-structurizr-mlpa:
-	docker pull structurizr/lite
-	docker run -it --rm -p 8080:8080 -v $(PWD)/docs/architecture/dsl-mlpa:/usr/local/structurizr structurizr/lite
+run-structurizr-export:
+ifdef mlpa
+	structurizr-cli export -workspace $(PWD)/docs/architecture/dsl/mlpa/workspace.json -format mermaid
+else
+	structurizr-cli export -workspace $(PWD)/docs/architecture/dsl/local/workspace.json -format mermaid
+endif

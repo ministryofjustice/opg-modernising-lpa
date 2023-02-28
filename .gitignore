@@ -9,7 +9,7 @@ geckodriver.log
 **/environment_config.json
 
 .structurizr
-docs/architecture/dsl/workspace.json
+docs/architecture/dsl/**/workspace.json
 
 .python-version
 .pytest_cache
