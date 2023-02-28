@@ -134,8 +134,6 @@ func Register(
 
 	handleRoot(page.Paths.CertificateProviderReadTheLpa, RequireSession,
 		page.Guidance(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), lpaStore))
-	handleRoot(page.Paths.CertificateProviderGuidance, RequireSession,
-		page.Guidance(tmpls.Get("certificate_provider_guidance.gohtml"), lpaStore))
 	handleRoot(page.Paths.CertificateProviderWhatHappensNext, RequireSession,
 		page.Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), lpaStore))
 	handleRoot(page.Paths.ProvideCertificate, RequireSession,
