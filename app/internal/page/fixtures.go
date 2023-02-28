@@ -9,7 +9,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 
 	"golang.org/x/exp/slices"
@@ -208,8 +207,13 @@ func CompleteCheckYourLpa(lpa *Lpa) {
 	lpa.Tasks.CheckYourLpa = TaskCompleted
 }
 
-func PayForLpa(lpa *Lpa, store sesh.Store, r *http.Request, w http.ResponseWriter) {
-	sesh.SetPayment(store, r, w, &sesh.PaymentSession{PaymentID: random.String(12)})
+func PayForLpa(lpa *Lpa, store sesh.Store, r *http.Request, w http.ResponseWriter, ref string) {
+	sesh.SetPayment(store, r, w, &sesh.PaymentSession{PaymentID: ref})
+
+	lpa.PaymentDetails = PaymentDetails{
+		PaymentReference: ref,
+		PaymentId:        ref,
+	}
 	lpa.Tasks.PayForLpa = TaskCompleted
 }
 

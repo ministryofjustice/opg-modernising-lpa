@@ -107,7 +107,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		}
 
 		if r.FormValue("paymentComplete") != "" || r.FormValue("completeLpa") != "" {
-			PayForLpa(lpa, store, r, w)
+			PayForLpa(lpa, store, r, w, randomString(12))
 		}
 
 		if r.FormValue("idConfirmedAndSigned") != "" || r.FormValue("completeLpa") != "" {
@@ -131,7 +131,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			CompleteSectionOne(lpa)
 
 			if r.FormValue("startCpFlowDonorHasPaid") != "" {
-				PayForLpa(lpa, store, r, w)
+				PayForLpa(lpa, store, r, w, randomString(12))
 			}
 
 			lpa.CertificateProvider.Email = TestEmail
