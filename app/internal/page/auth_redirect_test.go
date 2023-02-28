@@ -12,81 +12,72 @@ import (
 )
 
 func TestAuthRedirect(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "params").
-		Return(&sessions.Session{
-			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{
-					State:  "my-state",
-					Nonce:  "my-nonce",
-					Locale: "en",
-				},
+	testcases := map[string]struct {
+		session  *sesh.OneLoginSession
+		redirect string
+	}{
+		"donor login": {
+			session: &sesh.OneLoginSession{
+				State:  "my-state",
+				Nonce:  "my-nonce",
+				Locale: "en",
 			},
-		}, nil)
-
-	AuthRedirect(nil, sessionStore)(w, r)
-	resp := w.Result()
-
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, Paths.LoginCallback+"?code=auth-code&state=my-state", resp.Header.Get("Location"))
-}
-
-func TestAuthRedirectWithIdentity(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "params").
-		Return(&sessions.Session{
-			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{
-					State:    "my-state",
-					Nonce:    "my-nonce",
-					Locale:   "en",
-					Identity: true,
-					LpaID:    "123",
-				},
+			redirect: Paths.LoginCallback,
+		},
+		"donor identity": {
+			session: &sesh.OneLoginSession{
+				State:    "my-state",
+				Nonce:    "my-nonce",
+				Locale:   "en",
+				Identity: true,
+				LpaID:    "123",
 			},
-		}, nil)
-
-	AuthRedirect(nil, sessionStore)(w, r)
-	resp := w.Result()
-
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/123"+Paths.IdentityWithOneLoginCallback+"?code=auth-code&state=my-state", resp.Header.Get("Location"))
-}
-
-func TestAuthRedirectWithCertificateProvider(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "params").
-		Return(&sessions.Session{
-			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{
-					State:               "my-state",
-					Nonce:               "my-nonce",
-					Locale:              "en",
-					Identity:            true,
-					CertificateProvider: true,
-					SessionID:           "456",
-					LpaID:               "123",
-				},
+			redirect: "/lpa/123" + Paths.IdentityWithOneLoginCallback,
+		},
+		"certificate provider login": {
+			session: &sesh.OneLoginSession{
+				State:               "my-state",
+				Nonce:               "my-nonce",
+				Locale:              "en",
+				CertificateProvider: true,
+				SessionID:           "456",
+				LpaID:               "123",
 			},
-		}, nil)
+			redirect: Paths.CertificateProviderLoginCallback,
+		},
+		"certificate provider identity": {
+			session: &sesh.OneLoginSession{
+				State:               "my-state",
+				Nonce:               "my-nonce",
+				Locale:              "en",
+				Identity:            true,
+				CertificateProvider: true,
+			},
+			redirect: Paths.CertificateProviderIdentityWithOneLoginCallback,
+		},
+	}
 
-	AuthRedirect(nil, sessionStore)(w, r)
-	resp := w.Result()
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, Paths.CertificateProviderLoginCallback+"?code=auth-code&state=my-state", resp.Header.Get("Location"))
+			sessionStore := newMockSessionStore(t)
+			sessionStore.
+				On("Get", r, "params").
+				Return(&sessions.Session{
+					Values: map[any]any{
+						"one-login": tc.session,
+					},
+				}, nil)
+
+			AuthRedirect(nil, sessionStore)(w, r)
+			resp := w.Result()
+
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.redirect+"?code=auth-code&state=my-state", resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestAuthRedirectWithCyLocale(t *testing.T) {
