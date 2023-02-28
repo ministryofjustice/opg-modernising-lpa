@@ -1,7 +1,7 @@
 package donor
 
 import (
-	io "io"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"

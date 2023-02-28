@@ -56,40 +56,16 @@ func TestTestingStart(t *testing.T) {
 			On("Put", ctx, &Lpa{
 				ID:    "123",
 				Tasks: Tasks{PayForLpa: TaskCompleted},
+				PaymentDetails: PaymentDetails{
+					PaymentReference: "123",
+					PaymentId:        "123",
+				},
 			}).
 			Return(nil)
 
 		sessionStore := newMockSessionStore(t)
 		sessionStore.
 			On("Save", r, w, mock.Anything).
-			Return(nil)
-
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil).ServeHTTP(w, r)
-		resp := w.Result()
-
-		assert.Equal(t, http.StatusFound, resp.StatusCode)
-		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-	})
-
-	t.Run("with payment", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&paymentComplete=1", nil)
-		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
-
-		sessionStore := newMockSessionStore(t)
-		sessionStore.
-			On("Save", r, w, mock.Anything).
-			Return(nil)
-
-		lpaStore := newMockLpaStore(t)
-		lpaStore.
-			On("Create", ctx).
-			Return(&Lpa{ID: "123"}, nil)
-		lpaStore.
-			On("Put", ctx, &Lpa{
-				ID:    "123",
-				Tasks: Tasks{PayForLpa: TaskCompleted},
-			}).
 			Return(nil)
 
 		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil).ServeHTTP(w, r)
@@ -699,9 +675,13 @@ func TestTestingStart(t *testing.T) {
 					RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
 					FullName:    "Jose Smith",
 				},
-				WantToApplyForLpa:       true,
-				WantToSignLpa:           true,
-				CPWitnessCodeValidated:  true,
+				WantToApplyForLpa:      true,
+				WantToSignLpa:          true,
+				CPWitnessCodeValidated: true,
+				PaymentDetails: PaymentDetails{
+					PaymentReference: "123",
+					PaymentId:        "123",
+				},
 				Submitted:               time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
 				Checked:                 true,
 				HappyToShare:            true,
@@ -864,7 +844,7 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
-				CertificateProviderUserData: identity.UserData{
+				CertificateProviderOneLoginUserData: identity.UserData{
 					FullName: "Barbara Smith",
 					OK:       true,
 				},
@@ -895,7 +875,7 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
-				CertificateProviderUserData: identity.UserData{
+				CertificateProviderOneLoginUserData: identity.UserData{
 					FullName: "Barbara Smith",
 					OK:       true,
 				},
@@ -924,9 +904,9 @@ func TestTestingStart(t *testing.T) {
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
 	})
 
-	t.Run("start certificate provider flow with identity", func(t *testing.T) {
+	t.Run("start certificate provider flow - donor has paid", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowWithId=1&useTestShareCode=1", nil)
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowDonorHasPaid=1&useTestShareCode=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
 		sessionStore := newMockSessionStore(t)
@@ -942,6 +922,12 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(lpa, nil)
+
+		lpa.PaymentDetails = PaymentDetails{
+			PaymentReference: "123",
+			PaymentId:        "123",
+		}
+
 		lpaStore.
 			On("Put", ctx, lpa).
 			Return(nil)
@@ -953,7 +939,7 @@ func TestTestingStart(t *testing.T) {
 			On("UseTestCode").
 			Return(nil)
 		shareCodeSender.
-			On("Send", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, true, lpa).
+			On("Send", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, false, lpa).
 			Return(nil)
 
 		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer).ServeHTTP(w, r)
@@ -961,12 +947,11 @@ func TestTestingStart(t *testing.T) {
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/certificate-provider-start", resp.Header.Get("Location"))
-		mock.AssertExpectationsForObjects(t, sessionStore, lpaStore, shareCodeSender)
 	})
 
-	t.Run("start certificate provider flow without identity", func(t *testing.T) {
+	t.Run("start certificate provider flow - donor has not paid", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowWithoutId=1&useTestShareCode=1", nil)
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowDonorHasNotPaid=1&useTestShareCode=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
 		sessionStore := newMockSessionStore(t)
@@ -1006,7 +991,7 @@ func TestTestingStart(t *testing.T) {
 
 	t.Run("start certificate provider flow with email", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowWithoutId=1&useTestShareCode=1&withEmail=a@example.org", nil)
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowDonorHasNotPaid=1&useTestShareCode=1&withEmail=a@example.org", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
 		sessionStore := newMockSessionStore(t)

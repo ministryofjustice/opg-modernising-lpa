@@ -7,17 +7,17 @@ describe('Certificate provider providing their address', () => {
 
     it('address can be looked up', () => {
         AddressFormAssertions.assertCanAddAddressFromSelect()
-        cy.url().should('contain', '/certificate-provider-read-the-lpa');
+        cy.url().should('contain', '/certificate-provider-what-youll-need-to-confirm-your-identity');
     });
 
     it('address can be entered manually if not found', () => {
         AddressFormAssertions.assertCanAddAddressManually('I can’t find my address in the list')
-        cy.url().should('contain', '/certificate-provider-read-the-lpa');
+        cy.url().should('contain', '/certificate-provider-what-youll-need-to-confirm-your-identity');
     });
 
     it('address can be entered manually on invalid postcode', () => {
         AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
-        cy.url().should('contain', '/certificate-provider-read-the-lpa');
+        cy.url().should('contain', '/certificate-provider-what-youll-need-to-confirm-your-identity');
     });
 
     it('errors when empty postcode', () => {

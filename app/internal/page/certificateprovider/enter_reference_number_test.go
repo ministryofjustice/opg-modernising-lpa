@@ -29,13 +29,13 @@ func (m *mockDataStore) ExpectGet(ctx, pk, sk, data interface{}, err error) {
 		})
 }
 
-func TestGetEnterReferenceCode(t *testing.T) {
+func TestGetEnterReferenceNumber(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	data := enterReferenceCodeData{
+	data := enterReferenceNumberData{
 		App:  testAppData,
-		Form: &enterReferenceCodeForm{},
+		Form: &enterReferenceNumberForm{},
 	}
 
 	template := newMockTemplate(t)
@@ -43,7 +43,7 @@ func TestGetEnterReferenceCode(t *testing.T) {
 		On("Execute", w, data).
 		Return(nil)
 
-	err := EnterReferenceCode(template.Execute, newMockLpaStore(t), newMockDataStore(t))(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, newMockLpaStore(t), newMockDataStore(t))(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -51,13 +51,13 @@ func TestGetEnterReferenceCode(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetEnterReferenceCodeOnTemplateError(t *testing.T) {
+func TestGetEnterReferenceNumberOnTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	data := enterReferenceCodeData{
+	data := enterReferenceNumberData{
 		App:  testAppData,
-		Form: &enterReferenceCodeForm{},
+		Form: &enterReferenceNumberForm{},
 	}
 
 	template := newMockTemplate(t)
@@ -65,7 +65,7 @@ func TestGetEnterReferenceCodeOnTemplateError(t *testing.T) {
 		On("Execute", w, data).
 		Return(expectedError)
 
-	err := EnterReferenceCode(template.Execute, newMockLpaStore(t), newMockDataStore(t))(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, newMockLpaStore(t), newMockDataStore(t))(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -73,7 +73,7 @@ func TestGetEnterReferenceCodeOnTemplateError(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterReferenceCode(t *testing.T) {
+func TestPostEnterReferenceNumber(t *testing.T) {
 	testCases := map[string]struct {
 		Identity      bool
 		ExpectedQuery string
@@ -91,7 +91,7 @@ func TestPostEnterReferenceCode(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				"reference-code": {"a-ref-code"},
+				"reference-number": {"aRefNumber12"},
 			}
 
 			w := httptest.NewRecorder()
@@ -100,7 +100,7 @@ func TestPostEnterReferenceCode(t *testing.T) {
 
 			dataStore := newMockDataStore(t)
 			dataStore.
-				ExpectGet(r.Context(), "SHARECODE#a-ref-code", "#METADATA#a-ref-code",
+				ExpectGet(r.Context(), "SHARECODE#aRefNumber12", "#METADATA#aRefNumber12",
 					page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: tc.Identity}, nil)
 
 			lpaStore := newMockLpaStore(t)
@@ -112,7 +112,7 @@ func TestPostEnterReferenceCode(t *testing.T) {
 				})).
 				Return(&page.Lpa{}, nil)
 
-			err := EnterReferenceCode(nil, lpaStore, dataStore)(testAppData, w, r)
+			err := EnterReferenceNumber(nil, lpaStore, dataStore)(testAppData, w, r)
 
 			resp := w.Result()
 
@@ -123,9 +123,9 @@ func TestPostEnterReferenceCode(t *testing.T) {
 	}
 }
 
-func TestPostEnterReferenceCodeOnDataStoreError(t *testing.T) {
+func TestPostEnterReferenceNumberOnDataStoreError(t *testing.T) {
 	form := url.Values{
-		"reference-code": {"  a-ref-code  "},
+		"reference-number": {"  aRefNumber12  "},
 	}
 
 	w := httptest.NewRecorder()
@@ -134,10 +134,10 @@ func TestPostEnterReferenceCodeOnDataStoreError(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		ExpectGet(r.Context(), "SHARECODE#a-ref-code", "#METADATA#a-ref-code",
+		ExpectGet(r.Context(), "SHARECODE#aRefNumber12", "#METADATA#aRefNumber12",
 			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, expectedError)
 
-	err := EnterReferenceCode(nil, nil, dataStore)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, nil, dataStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -145,19 +145,19 @@ func TestPostEnterReferenceCodeOnDataStoreError(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterReferenceCodeOnDataStoreNotFoundError(t *testing.T) {
+func TestPostEnterReferenceNumberOnDataStoreNotFoundError(t *testing.T) {
 	form := url.Values{
-		"reference-code": {"a-ref-code"},
+		"reference-number": {"aRefNumber12"},
 	}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	data := enterReferenceCodeData{
+	data := enterReferenceNumberData{
 		App:    testAppData,
-		Form:   &enterReferenceCodeForm{ReferenceCode: "a-ref-code"},
-		Errors: validation.With("reference-code", validation.CustomError{Label: "incorrectReferenceCode"}),
+		Form:   &enterReferenceNumberForm{ReferenceNumber: "aRefNumber12"},
+		Errors: validation.With("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"}),
 	}
 
 	template := newMockTemplate(t)
@@ -167,10 +167,10 @@ func TestPostEnterReferenceCodeOnDataStoreNotFoundError(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		ExpectGet(r.Context(), "SHARECODE#a-ref-code", "#METADATA#a-ref-code",
+		ExpectGet(r.Context(), "SHARECODE#aRefNumber12", "#METADATA#aRefNumber12",
 			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, dynamo.NotFoundError{})
 
-	err := EnterReferenceCode(template.Execute, nil, dataStore)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, nil, dataStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -178,9 +178,9 @@ func TestPostEnterReferenceCodeOnDataStoreNotFoundError(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterReferenceCodeOnLpaStoreError(t *testing.T) {
+func TestPostEnterReferenceNumberOnLpaStoreError(t *testing.T) {
 	form := url.Values{
-		"reference-code": {"a-ref-code"},
+		"reference-number": {"aRefNumber12"},
 	}
 
 	w := httptest.NewRecorder()
@@ -189,7 +189,7 @@ func TestPostEnterReferenceCodeOnLpaStoreError(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		ExpectGet(r.Context(), "SHARECODE#a-ref-code", "#METADATA#a-ref-code",
+		ExpectGet(r.Context(), "SHARECODE#aRefNumber12", "#METADATA#aRefNumber12",
 			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, nil)
 
 	lpaStore := newMockLpaStore(t)
@@ -201,7 +201,7 @@ func TestPostEnterReferenceCodeOnLpaStoreError(t *testing.T) {
 		})).
 		Return(&page.Lpa{}, expectedError)
 
-	err := EnterReferenceCode(nil, lpaStore, dataStore)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, lpaStore, dataStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -209,19 +209,19 @@ func TestPostEnterReferenceCodeOnLpaStoreError(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterReferenceCodeOnValidationError(t *testing.T) {
+func TestPostEnterReferenceNumberOnValidationError(t *testing.T) {
 	form := url.Values{
-		"reference-code": {""},
+		"reference-number": {""},
 	}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	data := enterReferenceCodeData{
+	data := enterReferenceNumberData{
 		App:    testAppData,
-		Form:   &enterReferenceCodeForm{},
-		Errors: validation.With("reference-code", validation.EnterError{Label: "referenceCode"}),
+		Form:   &enterReferenceNumberForm{},
+		Errors: validation.With("reference-number", validation.EnterError{Label: "twelveCharactersReferenceNumber"}),
 	}
 
 	template := newMockTemplate(t)
@@ -229,10 +229,49 @@ func TestPostEnterReferenceCodeOnValidationError(t *testing.T) {
 		On("Execute", w, data).
 		Return(nil)
 
-	err := EnterReferenceCode(template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, nil, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestValidateEnterReferenceNumberForm(t *testing.T) {
+	testCases := map[string]struct {
+		form   *enterReferenceNumberForm
+		errors validation.List
+	}{
+		"valid": {
+			form:   &enterReferenceNumberForm{ReferenceNumber: "abcdef123456"},
+			errors: nil,
+		},
+		"too short": {
+			form: &enterReferenceNumberForm{ReferenceNumber: "1"},
+			errors: validation.With("reference-number", validation.StringLengthError{
+				Label:  "referenceNumberMustBeTwelveCharacters",
+				Length: 12,
+			}),
+		},
+		"too long": {
+			form: &enterReferenceNumberForm{ReferenceNumber: "abcdef1234567"},
+			errors: validation.With("reference-number", validation.StringLengthError{
+				Label:  "referenceNumberMustBeTwelveCharacters",
+				Length: 12,
+			}),
+		},
+		"empty": {
+			form: &enterReferenceNumberForm{},
+			errors: validation.With("reference-number", validation.EnterError{
+				Label: "twelveCharactersReferenceNumber",
+			}),
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.errors, tc.form.Validate())
+		})
+	}
+
 }

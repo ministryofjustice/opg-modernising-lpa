@@ -59,6 +59,13 @@ type SessionStore interface {
 	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
 }
 
+//go:generate mockery --testonly --inpackage --name YotiClient --structname mockYotiClient
+type YotiClient interface {
+	IsTest() bool
+	SdkID() string
+	User(string) (identity.UserData, error)
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -69,21 +76,62 @@ func Register(
 	dataStore DataStore,
 	addressClient AddressClient,
 	errorHandler page.ErrorHandler,
+	yotiClient YotiClient,
+	yotiScenarioID string,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
 	handleRoot(page.Paths.CertificateProviderStart, None,
 		page.Guidance(tmpls.Get("certificate_provider_start.gohtml"), nil))
-	handleRoot(page.Paths.CertificateProviderEnterReference, None,
-		EnterReferenceCode(tmpls.Get("certificate_provider_enter_reference.gohtml"), lpaStore, dataStore))
+	handleRoot(page.Paths.CertificateProviderEnterReferenceNumber, None,
+		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), lpaStore, dataStore))
 	handleRoot(page.Paths.CertificateProviderLogin, None,
 		Login(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.CertificateProviderLoginCallback, None,
-		LoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, lpaStore))
+		LoginCallback(oneLoginClient, sessionStore))
+	handleRoot(page.Paths.HowDoYouKnowTheDonor, RequireSession,
+		HowDoYouKnowTheDonor(tmpls.Get("how_do_you_know_the_donor.gohtml"), lpaStore))
+	handleRoot(page.Paths.HowLongHaveYouKnownDonor, RequireSession,
+		HowLongHaveYouKnownDonor(tmpls.Get("how_long_have_you_known_donor.gohtml"), lpaStore))
 	handleRoot(page.Paths.CertificateProviderYourDetails, RequireSession,
 		YourDetails(tmpls.Get("certificate_provider_your_details.gohtml"), lpaStore))
 	handleRoot(page.Paths.CertificateProviderYourAddress, RequireSession,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
+
+	handleRoot(page.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity, RequireSession,
+		page.Guidance(tmpls.Get("what_youll_need_to_confirm_your_identity.gohtml"), lpaStore))
+
+	for path, page := range map[string]int{
+		page.Paths.CertificateProviderSelectYourIdentityOptions:  0,
+		page.Paths.CertificateProviderSelectYourIdentityOptions1: 1,
+		page.Paths.CertificateProviderSelectYourIdentityOptions2: 2,
+	} {
+		handleRoot(path, RequireSession,
+			SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), lpaStore, page))
+	}
+
+	handleRoot(page.Paths.CertificateProviderYourChosenIdentityOptions, RequireSession,
+		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), lpaStore))
+	handleRoot(page.Paths.CertificateProviderIdentityWithYoti, RequireSession,
+		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), lpaStore, yotiClient, yotiScenarioID))
+	handleRoot(page.Paths.CertificateProviderIdentityWithYotiCallback, RequireSession,
+		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, lpaStore))
+	handleRoot(page.Paths.CertificateProviderIdentityWithOneLogin, RequireSession,
+		IdentityWithOneLogin(logger, oneLoginClient, sessionStore, random.String))
+	handleRoot(page.Paths.CertificateProviderIdentityWithOneLoginCallback, RequireSession,
+		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, lpaStore))
+
+	for path, identityOption := range map[string]identity.Option{
+		page.Paths.CertificateProviderIdentityWithPassport:                 identity.Passport,
+		page.Paths.CertificateProviderIdentityWithBiometricResidencePermit: identity.BiometricResidencePermit,
+		page.Paths.CertificateProviderIdentityWithDrivingLicencePaper:      identity.DrivingLicencePaper,
+		page.Paths.CertificateProviderIdentityWithDrivingLicencePhotocard:  identity.DrivingLicencePhotocard,
+		page.Paths.CertificateProviderIdentityWithOnlineBankAccount:        identity.OnlineBankAccount,
+	} {
+		handleRoot(path, RequireSession,
+			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), identityOption))
+	}
+
 	handleRoot(page.Paths.CertificateProviderReadTheLpa, RequireSession,
 		page.Guidance(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), lpaStore))
 	handleRoot(page.Paths.CertificateProviderGuidance, RequireSession,
