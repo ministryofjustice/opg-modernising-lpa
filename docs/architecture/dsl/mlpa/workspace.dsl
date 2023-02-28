@@ -67,7 +67,8 @@ workspace {
         solicitor -> mlpaSupporterAPI "interacts with"
 
         mlpaOnlineContainer -> mlpaDraftingServiceAPI "makes calls to"
-        mlpaLPAIDAPI -> mlpaDraftingServiceAPI "gets LPA Code from"
+        mlpaDraftingServiceAPI -> mlpaLPAIDAPI "gets LPA Code from"
+        mlpaSiriusCaseManagement -> mlpaLPAIDAPI "gets LPA Code from"
 
         mlpaDraftingServiceSiriusAPI -> mlpaOpgRegisterService_WriteAPIGateway "writes validated data to"
         mlpaDraftingServiceSiriusAPI -> mlpaSiriusPublicAPI "writes case management data to and read data from"
