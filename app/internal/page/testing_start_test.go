@@ -924,9 +924,9 @@ func TestTestingStart(t *testing.T) {
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
 	})
 
-	t.Run("start certificate provider flow with identity", func(t *testing.T) {
+	t.Run("start certificate provider flow - donor has paid", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowWithId=1&useTestShareCode=1", nil)
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowDonorHasPaid=1&useTestShareCode=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
 		sessionStore := newMockSessionStore(t)
@@ -953,7 +953,7 @@ func TestTestingStart(t *testing.T) {
 			On("UseTestCode").
 			Return(nil)
 		shareCodeSender.
-			On("Send", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, true, lpa).
+			On("Send", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, false, lpa).
 			Return(nil)
 
 		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer).ServeHTTP(w, r)
@@ -964,9 +964,9 @@ func TestTestingStart(t *testing.T) {
 		mock.AssertExpectationsForObjects(t, sessionStore, lpaStore, shareCodeSender)
 	})
 
-	t.Run("start certificate provider flow without identity", func(t *testing.T) {
+	t.Run("start certificate provider flow - donor has not paid", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowWithoutId=1&useTestShareCode=1", nil)
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowDonorHasNotPaid=1&useTestShareCode=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
 		sessionStore := newMockSessionStore(t)
@@ -1006,7 +1006,7 @@ func TestTestingStart(t *testing.T) {
 
 	t.Run("start certificate provider flow with email", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowWithoutId=1&useTestShareCode=1&withEmail=a@example.org", nil)
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowDonorHasNotPaid=1&useTestShareCode=1&withEmail=a@example.org", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
 		sessionStore := newMockSessionStore(t)
