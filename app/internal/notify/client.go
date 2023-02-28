@@ -105,7 +105,7 @@ func (c *Client) TemplateID(id TemplateId) string {
 		case CertificateProviderReturnEmail:
 			return "453917cd-d8bb-44af-90a1-d73ae0f3fd07"
 		case CertificateProviderNameChangeEmail:
-			return "abc-123"
+			return "9f8be86f-864a-4cda-a58a-5768522bd325"
 		}
 	} else {
 		switch id {
@@ -116,7 +116,7 @@ func (c *Client) TemplateID(id TemplateId) string {
 		case CertificateProviderInviteEmail, CertificateProviderReturnEmail:
 			return "7fde634d-96b5-4a82-855a-712ebd56397b"
 		case CertificateProviderNameChangeEmail:
-			return "abc-123"
+			return "0f111ed1-5c58-47eb-a13f-931f2077523b"
 		}
 	}
 
