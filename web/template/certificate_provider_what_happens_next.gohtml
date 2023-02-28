@@ -1,0 +1,14 @@
+{{ template "page" . }}
+
+{{ define "serviceName" }}{{ tr .App "beACertificateProvider" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "whatHappensNext" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "whatHappensNext" }}</h1>
+
+      {{ trFormatHtml .App "whatHappensNextContent" "DonorFullName" .Lpa.You.FullName }}
+    </div>
+  </div>
+{{ end }}
