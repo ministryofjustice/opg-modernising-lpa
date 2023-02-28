@@ -13,7 +13,7 @@ type AppPaths struct {
 	CertificateProviderAddress                              string
 	CertificateProviderConfirmation                         string
 	CertificateProviderDetails                              string
-	CertificateProviderEnterReference                       string
+	CertificateProviderEnterReferenceNumber                 string
 	CertificateProviderGuidance                             string
 	CertificateProviderIdentityWithBiometricResidencePermit string
 	CertificateProviderIdentityWithDrivingLicencePaper      string
@@ -104,14 +104,14 @@ type AppPaths struct {
 }
 
 var Paths = AppPaths{
-	AboutPayment:                      "/about-payment",
-	AuthRedirect:                      "/auth/redirect",
-	CertificateProvided:               "/certificate-provided",
-	CertificateProviderAddress:        "/certificate-provider-address",
-	CertificateProviderConfirmation:   "/certificate-provider-confirmation",
-	CertificateProviderDetails:        "/certificate-provider-details",
-	CertificateProviderEnterReference: "/certificate-provider-enter-reference",
-	CertificateProviderGuidance:       "/being-a-certificate-provider",
+	AboutPayment:                                            "/about-payment",
+	AuthRedirect:                                            "/auth/redirect",
+	CertificateProvided:                                     "/certificate-provided",
+	CertificateProviderAddress:                              "/certificate-provider-address",
+	CertificateProviderConfirmation:                         "/certificate-provider-confirmation",
+	CertificateProviderDetails:                              "/certificate-provider-details",
+	CertificateProviderEnterReferenceNumber:                 "/certificate-provider-enter-reference-number",
+	CertificateProviderGuidance:                             "/being-a-certificate-provider",
 	CertificateProviderIdentityWithBiometricResidencePermit: "/certificate-provider/id/brp",
 	CertificateProviderIdentityWithDrivingLicencePaper:      "/certificate-provider/id/dlpaper",
 	CertificateProviderIdentityWithDrivingLicencePhotocard:  "/certificate-provider/id/dlphoto",
@@ -207,7 +207,7 @@ func IsLpaPath(url string) bool {
 		Paths.AuthRedirect,
 		Paths.CertificateProvided,
 		Paths.CertificateProviderConfirmation,
-		Paths.CertificateProviderEnterReference,
+		Paths.CertificateProviderEnterReferenceNumber,
 		Paths.CertificateProviderGuidance,
 		Paths.CertificateProviderIdentityWithBiometricResidencePermit,
 		Paths.CertificateProviderIdentityWithDrivingLicencePaper,
