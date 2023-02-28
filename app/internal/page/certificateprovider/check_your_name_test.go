@@ -211,7 +211,7 @@ func TestPostEnterYourNameOnValidationError(t *testing.T) {
 
 	data := checkYourNameData{
 		App:    testAppData,
-		Form:   &checkYourNameForm{},
+		Form:   &checkYourNameForm{IsNameCorrect: "no"},
 		Lpa:    lpa,
 		Errors: validation.With("corrected-name", validation.EnterError{Label: "yourFullName"}),
 	}
