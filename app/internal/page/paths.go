@@ -11,7 +11,6 @@ type AppPaths struct {
 	AuthRedirect                                            string
 	CertificateProvided                                     string
 	CertificateProviderAddress                              string
-	CertificateProviderConfirmation                         string
 	CertificateProviderDetails                              string
 	CertificateProviderEnterReferenceNumber                 string
 	CertificateProviderGuidance                             string
@@ -32,6 +31,7 @@ type AppPaths struct {
 	CertificateProviderSelectYourIdentityOptions1           string
 	CertificateProviderSelectYourIdentityOptions2           string
 	CertificateProviderStart                                string
+	CertificateProviderWhatHappensNext                      string
 	CertificateProviderWhatYoullNeedToConfirmYourIdentity   string
 	CertificateProviderYourAddress                          string
 	CertificateProviderYourChosenIdentityOptions            string
@@ -104,14 +104,13 @@ type AppPaths struct {
 }
 
 var Paths = AppPaths{
-	AboutPayment:                                            "/about-payment",
-	AuthRedirect:                                            "/auth/redirect",
-	CertificateProvided:                                     "/certificate-provided",
-	CertificateProviderAddress:                              "/certificate-provider-address",
-	CertificateProviderConfirmation:                         "/certificate-provider-confirmation",
-	CertificateProviderDetails:                              "/certificate-provider-details",
-	CertificateProviderEnterReferenceNumber:                 "/certificate-provider-enter-reference-number",
-	CertificateProviderGuidance:                             "/being-a-certificate-provider",
+	AboutPayment:                            "/about-payment",
+	AuthRedirect:                            "/auth/redirect",
+	CertificateProvided:                     "/certificate-provided",
+	CertificateProviderAddress:              "/certificate-provider-address",
+	CertificateProviderDetails:              "/certificate-provider-details",
+	CertificateProviderEnterReferenceNumber: "/certificate-provider-enter-reference-number",
+	CertificateProviderGuidance:             "/being-a-certificate-provider",
 	CertificateProviderIdentityWithBiometricResidencePermit: "/certificate-provider/id/brp",
 	CertificateProviderIdentityWithDrivingLicencePaper:      "/certificate-provider/id/dlpaper",
 	CertificateProviderIdentityWithDrivingLicencePhotocard:  "/certificate-provider/id/dlphoto",
@@ -129,6 +128,7 @@ var Paths = AppPaths{
 	CertificateProviderSelectYourIdentityOptions2:           "/certificate-provider-select-your-identity-options-2",
 	CertificateProviderSelectYourIdentityOptions:            "/certificate-provider-select-your-identity-options",
 	CertificateProviderStart:                                "/certificate-provider-start",
+	CertificateProviderWhatHappensNext:                      "/certificate-provider-what-happens-next",
 	CertificateProviderWhatYoullNeedToConfirmYourIdentity:   "/certificate-provider-what-youll-need-to-confirm-your-identity",
 	CertificateProviderYourAddress:                          "/certificate-provider-your-address",
 	CertificateProviderYourChosenIdentityOptions:            "/certificate-provider-your-chosen-identity-options",
@@ -206,7 +206,6 @@ func IsLpaPath(url string) bool {
 	return !slices.Contains([]string{
 		Paths.AuthRedirect,
 		Paths.CertificateProvided,
-		Paths.CertificateProviderConfirmation,
 		Paths.CertificateProviderEnterReferenceNumber,
 		Paths.CertificateProviderGuidance,
 		Paths.CertificateProviderIdentityWithBiometricResidencePermit,
@@ -225,6 +224,7 @@ func IsLpaPath(url string) bool {
 		Paths.CertificateProviderSelectYourIdentityOptions1,
 		Paths.CertificateProviderSelectYourIdentityOptions2,
 		Paths.CertificateProviderStart,
+		Paths.CertificateProviderWhatHappensNext,
 		Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity,
 		Paths.CertificateProviderYourAddress,
 		Paths.CertificateProviderYourChosenIdentityOptions,
