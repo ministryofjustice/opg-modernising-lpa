@@ -227,6 +227,17 @@ func ConfirmIdAndSign(lpa *Lpa) {
 	lpa.Tasks.ConfirmYourIdentityAndSign = TaskCompleted
 }
 
+func CompleteSectionOne(lpa *Lpa) {
+	CompleteDonorDetails(lpa)
+	AddAttorneys(lpa, 2)
+	AddReplacementAttorneys(lpa, 2)
+	CompleteWhenCanLpaBeUsed(lpa)
+	CompleteRestrictions(lpa)
+	AddCertificateProvider(lpa, "Barbara")
+	AddPeopleToNotify(lpa, 2)
+	CompleteCheckYourLpa(lpa)
+}
+
 func GetAttorneyByFirstNames(lpa *Lpa, firstNames string) (actor.Attorney, bool) {
 	idx := slices.IndexFunc(lpa.Attorneys, func(a actor.Attorney) bool { return a.FirstNames == firstNames })
 	if idx == -1 {
@@ -294,17 +305,11 @@ func Fixtures(tmpl template.Template) Handler {
 					values = url.Values{
 						"useTestShareCode": {"1"},
 						data.Form.CpFlowId: {"1"},
+						"completeLpa":      {"1"},
 					}
 
 					if data.Form.Email != "" {
 						values.Add("withEmail", data.Form.Email)
-					}
-
-					if data.Form.CpFlowId == "startCpFlowWithId" {
-						values.Add("completeLpa", "1")
-					} else {
-						values.Add("withCP", "1")
-						values.Add("withDonorDetails", "1")
 					}
 				} else {
 					values = url.Values{
