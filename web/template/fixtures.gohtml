@@ -102,8 +102,8 @@
                 {{ template "error-message" (errorMessage . "cp-flow-id") }}
 
                 {{ template "radios" (items . "cp-flow-id" ""
-                    (item "startCpFlowWithId" "LPA signed and ID confirmed")
-                    (item "startCpFlowWithoutId" "LPA not signed and ID not confirmed")
+                    (item "startCpFlowDonorHasPaid" "Donor has paid")
+                    (item "startCpFlowDonorHasNotPaid" "Donor has not paid")
                 ) }}
 
                 <div class="govuk-button-group govuk-!-padding-top-3">
