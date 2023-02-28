@@ -14,31 +14,31 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
-type enterReferenceCodeData struct {
+type enterReferenceNumberData struct {
 	App    page.AppData
 	Errors validation.List
-	Form   *enterReferenceCodeForm
+	Form   *enterReferenceNumberForm
 	Lpa    *page.Lpa
 }
 
-func EnterReferenceCode(tmpl template.Template, lpaStore LpaStore, dataStore page.DataStore) page.Handler {
+func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore page.DataStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		data := enterReferenceCodeData{
+		data := enterReferenceNumberData{
 			App:  appData,
-			Form: &enterReferenceCodeForm{},
+			Form: &enterReferenceNumberForm{},
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readEnterReferenceCodeForm(r)
+			data.Form = readEnterReferenceNumberForm(r)
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				shareCode := data.Form.ReferenceCode
+				referenceNumber := data.Form.ReferenceNumber
 
 				var v page.ShareCodeData
-				if err := dataStore.Get(r.Context(), "SHARECODE#"+shareCode, "#METADATA#"+shareCode, &v); err != nil {
+				if err := dataStore.Get(r.Context(), "SHARECODE#"+referenceNumber, "#METADATA#"+referenceNumber, &v); err != nil {
 					if errors.Is(err, dynamo.NotFoundError{}) {
-						data.Errors.Add("reference-code", validation.CustomError{Label: "incorrectReferenceCode"})
+						data.Errors.Add("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"})
 						return tmpl(w, data)
 					} else {
 						return err
@@ -70,26 +70,26 @@ func EnterReferenceCode(tmpl template.Template, lpaStore LpaStore, dataStore pag
 	}
 }
 
-type enterReferenceCodeForm struct {
-	ReferenceCode string
+type enterReferenceNumberForm struct {
+	ReferenceNumber string
 }
 
-func (f *enterReferenceCodeForm) Validate() validation.List {
+func (f *enterReferenceNumberForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("reference-code", "twelveCharactersReferenceCode", strings.ReplaceAll(f.ReferenceCode, " ", ""),
+	errors.String("reference-number", "twelveCharactersReferenceNumber", strings.ReplaceAll(f.ReferenceNumber, " ", ""),
 		validation.Empty(),
 	)
 
-	errors.String("reference-code", "referenceCodeMustBeTwelveCharacters", strings.ReplaceAll(f.ReferenceCode, " ", ""),
+	errors.String("reference-number", "referenceNumberMustBeTwelveCharacters", strings.ReplaceAll(f.ReferenceNumber, " ", ""),
 		validation.StringLength(12),
 	)
 
 	return errors
 }
 
-func readEnterReferenceCodeForm(r *http.Request) *enterReferenceCodeForm {
-	return &enterReferenceCodeForm{
-		ReferenceCode: page.PostFormString(r, "reference-code"),
+func readEnterReferenceNumberForm(r *http.Request) *enterReferenceNumberForm {
+	return &enterReferenceNumberForm{
+		ReferenceNumber: page.PostFormString(r, "reference-number"),
 	}
 }

@@ -1,18 +1,18 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "enterYourReferenceCode" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "enterYourReferenceNumber" }}{{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ tr .App "enterYourReferenceCode" }}</h1>
+            <h1 class="govuk-heading-xl">{{ tr .App "enterYourReferenceNumber" }}</h1>
 
-            {{ trHtml .App "certificateProviderReferenceCodeContent" }}
+            {{ trHtml .App "certificateProviderReferenceNumberContent" }}
 
             <form novalidate method="post">
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset">
-                        {{ template "input" (input . "reference-code" "certificateProviderReference" .Form.ReferenceCode "classes" "govuk-input--width-20 govuk-!-margin-bottom-3" "hint" "certificateProviderReferenceContext")}}
+                        {{ template "input" (input . "reference-number" "certificateProviderReferenceNumber" .Form.ReferenceNumber "classes" "govuk-input--width-20 govuk-!-margin-bottom-3" "hint" "certificateProviderReferenceNumberHint")}}
                         {{ template "continue-button" . }}
                     </fieldset>
                 </div>
