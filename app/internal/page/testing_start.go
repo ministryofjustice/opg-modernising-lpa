@@ -157,8 +157,8 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				LpaID:          lpa.ID,
 			})
 
-			lpa.CertificateProviderUserData.FullName = "Barbara Smith"
-			lpa.CertificateProviderUserData.OK = true
+			lpa.CertificateProviderOneLoginUserData.FullName = "Barbara Smith"
+			lpa.CertificateProviderOneLoginUserData.OK = true
 		}
 
 		if r.FormValue("provideCertificate") != "" {

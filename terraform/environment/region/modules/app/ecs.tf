@@ -301,6 +301,10 @@ locals {
           value = var.app_env_vars.yoti_scenario_id
         },
         {
+          name = "YOTI_CERTIFICATE_PROVIDER_SCENARIO_ID",
+          value = var.app_env_vars.yoti_certificate_provider_scenario_id,
+        },
+        {
           name  = "YOTI_SANDBOX",
           value = var.app_env_vars.yoti_sandbox
         },

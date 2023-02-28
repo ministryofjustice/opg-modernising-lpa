@@ -67,7 +67,7 @@ type OneLoginSession struct {
 
 func (s OneLoginSession) Valid() bool {
 	ok := s.State != "" && s.Nonce != ""
-	if s.CertificateProvider {
+	if s.CertificateProvider && !s.Identity {
 		ok = ok && s.SessionID != "" && s.LpaID != ""
 	}
 
