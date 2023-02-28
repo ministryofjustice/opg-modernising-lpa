@@ -9,7 +9,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 
 	"golang.org/x/exp/slices"
@@ -208,8 +207,13 @@ func CompleteCheckYourLpa(lpa *Lpa) {
 	lpa.Tasks.CheckYourLpa = TaskCompleted
 }
 
-func PayForLpa(lpa *Lpa, store sesh.Store, r *http.Request, w http.ResponseWriter) {
-	sesh.SetPayment(store, r, w, &sesh.PaymentSession{PaymentID: random.String(12)})
+func PayForLpa(lpa *Lpa, store sesh.Store, r *http.Request, w http.ResponseWriter, ref string) {
+	sesh.SetPayment(store, r, w, &sesh.PaymentSession{PaymentID: ref})
+
+	lpa.PaymentDetails = PaymentDetails{
+		PaymentReference: ref,
+		PaymentId:        ref,
+	}
 	lpa.Tasks.PayForLpa = TaskCompleted
 }
 
@@ -225,6 +229,17 @@ func ConfirmIdAndSign(lpa *Lpa) {
 	lpa.Submitted = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 	lpa.CPWitnessCodeValidated = true
 	lpa.Tasks.ConfirmYourIdentityAndSign = TaskCompleted
+}
+
+func CompleteSectionOne(lpa *Lpa) {
+	CompleteDonorDetails(lpa)
+	AddAttorneys(lpa, 2)
+	AddReplacementAttorneys(lpa, 2)
+	CompleteWhenCanLpaBeUsed(lpa)
+	CompleteRestrictions(lpa)
+	AddCertificateProvider(lpa, "Barbara")
+	AddPeopleToNotify(lpa, 2)
+	CompleteCheckYourLpa(lpa)
 }
 
 func GetAttorneyByFirstNames(lpa *Lpa, firstNames string) (actor.Attorney, bool) {
@@ -294,17 +309,11 @@ func Fixtures(tmpl template.Template) Handler {
 					values = url.Values{
 						"useTestShareCode": {"1"},
 						data.Form.CpFlowId: {"1"},
+						"completeLpa":      {"1"},
 					}
 
 					if data.Form.Email != "" {
 						values.Add("withEmail", data.Form.Email)
-					}
-
-					if data.Form.CpFlowId == "startCpFlowWithId" {
-						values.Add("completeLpa", "1")
-					} else {
-						values.Add("withCP", "1")
-						values.Add("withDonorDetails", "1")
 					}
 				} else {
 					values = url.Values{
