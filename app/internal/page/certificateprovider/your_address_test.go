@@ -172,7 +172,7 @@ func TestPostYourAddressManual(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderReadTheLpa, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity, resp.Header.Get("Location"))
 }
 
 func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
@@ -244,7 +244,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderReadTheLpa, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity, resp.Header.Get("Location"))
 }
 
 func TestPostYourAddressManualWhenValidationError(t *testing.T) {
