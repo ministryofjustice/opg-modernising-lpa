@@ -10,8 +10,13 @@ describe('Enter reference code', () => {
         cy.get('#f-reference-code').type('abcdef123456');
         cy.contains('Continue').click();
 
-        cy.get('.govuk-error-summary').should('not.exist')
-        cy.get('.govuk-error-message').should('not.exist')
+        if (Cypress.config().baseUrl.includes('localhost')) {
+            cy.location('pathname').should('eq', '/certificate-provider-login-callback')
+        } else {
+            cy.origin('https://signin.integration.account.gov.uk', () => {
+                cy.location('pathname').should('eq', '/sign-in-or-create')
+            })
+        }
     });
 
     it('errors when empty code', () => {
