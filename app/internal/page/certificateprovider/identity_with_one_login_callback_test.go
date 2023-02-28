@@ -1,4 +1,4 @@
-package donor
+package certificateprovider
 
 import (
 	"io"
@@ -29,7 +29,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 		Return(&page.Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			OneLoginUserData: userData,
+			CertificateProviderOneLoginUserData: userData,
 		}).
 		Return(nil)
 
@@ -38,7 +38,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 		On("Get", mock.Anything, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce"},
+				"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", CertificateProvider: true, Identity: true},
 			},
 		}, nil)
 
@@ -93,7 +93,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			On("Get", mock.Anything, "params").
 			Return(&sessions.Session{
 				Values: map[any]any{
-					"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce"},
+					"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", CertificateProvider: true, Identity: true},
 				},
 			}, nil)
 		return sessionStore
@@ -239,7 +239,7 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDataStoreError(t *testing.T) {
 		On("Get", mock.Anything, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce"},
+				"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", CertificateProvider: true, Identity: true},
 			},
 		}, nil)
 
@@ -266,7 +266,7 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 	userData := identity.UserData{OK: true, FullName: "a-full-name", RetrievedAt: now}
 
 	lpaStore := newMockLpaStore(t)
-	lpaStore.On("Get", r.Context()).Return(&page.Lpa{OneLoginUserData: userData}, nil)
+	lpaStore.On("Get", r.Context()).Return(&page.Lpa{CertificateProviderOneLoginUserData: userData}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -290,7 +290,7 @@ func TestPostIdentityWithOneLoginCallback(t *testing.T) {
 
 	lpaStore := newMockLpaStore(t)
 	lpaStore.On("Get", r.Context()).Return(&page.Lpa{
-		OneLoginUserData: identity.UserData{OK: true},
+		CertificateProviderOneLoginUserData: identity.UserData{OK: true},
 	}, nil)
 
 	err := IdentityWithOneLoginCallback(nil, nil, nil, lpaStore)(testAppData, w, r)
@@ -298,7 +298,7 @@ func TestPostIdentityWithOneLoginCallback(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ReadYourLpa, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProviderReadTheLpa, resp.Header.Get("Location"))
 }
 
 func TestPostIdentityWithOneLoginCallbackNotConfirmed(t *testing.T) {
@@ -313,5 +313,5 @@ func TestPostIdentityWithOneLoginCallbackNotConfirmed(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.SelectYourIdentityOptions1, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProviderSelectYourIdentityOptions1, resp.Header.Get("Location"))
 }
