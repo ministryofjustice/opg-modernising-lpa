@@ -37,6 +37,8 @@ workspace {
                 mlpaPaperIngestionAPI = container "LPA Paper Ingestion Service" "Handles the ingestion of the Paper Journey." "API Gateway, Go" "Container"
                 mlpaSiriusPublicAPI = container "Sirius Public API" "Interaction point between Sirius Case Management and other services." "API Gateway, Go" "Existing System"
 
+                mlpaInternalPaymentService = container "OPG Internal Payment Service" "Handles GOV.UK Pay and Remissions and Exemptions information between all services and Sirius." "API Gateway, Go" "Existing System"
+
                 mlpaSiriusCaseManagement = container "Sirius Case Management" "Case Management for case working LPAs." "Go, HTML, CSS, JS" "Component" {
                     mlpaSiriusInternalAPI = component "Sirius Internal API" "" "API Gateway, PHP" "Existing System"
                     mlpaSiriusDatabase = component "Sirius Database" "Stores Case Management data." "AuroraDB" "Database Existing System"
@@ -74,6 +76,7 @@ workspace {
 
         mlpaOpgRegisterDatabase_databaseMonitoringTelemetry -> mlpaOpgRegisterDatabase_database "interacts with"
 
+        mlpaSiriusCaseManagement -> mlpaInternalPaymentService "writes and read data from"
         mlpaSiriusPublicAPI -> mlpaSiriusCaseManagement "writes and read data from"
         mlpaPaperIngestionAPI -> mlpaSiriusPublicAPI "reads data from"
         mlpaPaperIngestionAPI -> mlpaDraftingServiceAPI "writes data to"
