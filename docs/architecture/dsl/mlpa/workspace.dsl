@@ -14,11 +14,11 @@ workspace {
                     mlpaOnlineContainer_databaseMonitoringTelemetry = component "Monitoring and Telemetery" "Cloudwatch logs, X-Ray and RUM" "AWS Cloudwatch" "Database"
                 }
 
-                mlpaStaging = container "Staging Service" "Stores and manages data for pre-registration." "API Gateway, Go, DynamoDB" "Container" {
-                    mlpaStagingAPI = component "API" "Managing LPA data" "API Gateway, Go" "Component"
-                    mlpaStagingSiriusAPI = component "Sirius API" "Managing Case Worker specific access" "API Gateway, Go" "Component"
-                    mlpaStagingDatabase = component "Draft LPA Database" "Stores Draft LPA data." "DynamoDB" "Database"
-                    mlpaStagingApp = component "App" "Manages data events and business logic." "Go" "Component"
+                mlpaDraftingService = container "LPA Drafting Service" "Stores and manages data for pre-registration." "API Gateway, Go, DynamoDB" "Container" {
+                    mlpaDraftingServiceAPI = component "API" "Managing LPA data" "API Gateway, Go" "Component"
+                    mlpaDraftingServiceSiriusAPI = component "Sirius API" "Managing Case Worker specific access" "API Gateway, Go" "Component"
+                    mlpaDraftingServiceDatabase = component "Draft LPA Database" "Stores Draft LPA data." "DynamoDB" "Database"
+                    mlpaDraftingServiceApp = component "App" "Manages data events and business logic." "Go" "Component"
                 }
                 mlpaLPAIDAPI = container "LPA ID Service" "Manages the LPA IDs." "API Gateway, Go" "Container"
 
@@ -58,11 +58,11 @@ workspace {
         externalOPGSoftwareSystems -> mlpaSiriusCaseManagement "sends data to"
         externalScanningSoftware -> mlpaPaperIngestionAPI "sends scanned LPA Data to"
 
-        mlpaOnlineContainer -> mlpaStagingAPI "makes calls to"
-        mlpaLPAIDAPI -> mlpaStagingAPI "gets LPA Code from"
+        mlpaOnlineContainer -> mlpaDraftingServiceAPI "makes calls to"
+        mlpaLPAIDAPI -> mlpaDraftingServiceAPI "gets LPA Code from"
 
-        mlpaStagingSiriusAPI -> mlpaOpgRegisterService_WriteAPIGateway "writes validated data to"
-        mlpaStagingSiriusAPI -> mlpaSiriusPublicAPI "writes case management data to and read data from"
+        mlpaDraftingServiceSiriusAPI -> mlpaOpgRegisterService_WriteAPIGateway "writes validated data to"
+        mlpaDraftingServiceSiriusAPI -> mlpaSiriusPublicAPI "writes case management data to and read data from"
         
         mlpaUaLPA -> mlpaSiriusPublicAPI "read data from"
         mlpaUaLPA -> mlpaOpgRegisterService_ReadAPIGateway "read data from"
@@ -76,7 +76,7 @@ workspace {
 
         mlpaSiriusPublicAPI -> mlpaSiriusCaseManagement "writes and read data from"
         mlpaPaperIngestionAPI -> mlpaSiriusPublicAPI "reads data from"
-        mlpaPaperIngestionAPI -> mlpaStagingAPI "writes data to"
+        mlpaPaperIngestionAPI -> mlpaDraftingServiceAPI "writes data to"
 
         mlpaSiriusCaseManagement -> mlpaOpgRegisterService_ReadAPIGateway "reads data from"
 
@@ -120,7 +120,7 @@ workspace {
             autoLayout
         }
 
-        component mlpaStaging "StagingApiComponents" {
+        component mlpaDraftingService "StagingApiComponents" {
             include *
             autoLayout
         }
