@@ -13,7 +13,7 @@
       {{ if .Lpa.Progress.LpaSigned.Completed }}
         <a class="govuk-button" href="{{ link .App .App.Paths.ProvideCertificate }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
       {{ else }}
-        <a class="govuk-button" href="{{ link .App .App.Paths.CertificateProviderConfirmation }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
+        <a class="govuk-button" href="{{ link .App .App.Paths.CertificateProviderWhatHappensNext }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
       {{ end }}
     </div>
   </div>
