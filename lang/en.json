@@ -534,5 +534,12 @@
     "howLongHaveYouKnownDonorTitle": "How long have you know the donor?",
     "howLongHaveYouKnownDonor": "How long have you know {{.FullName}}?",
     "howLongYouHaveKnownDonor": "how long you have known the donor",
-    "mustHaveKnownDonorTwoYears": "You must have known the donor for 2 years or more"
+    "mustHaveKnownDonorTwoYears": "You must have known the donor for 2 years or more",
+
+    "checkAndConfirmYourName": "Check and confirm your name",
+    "checkAndConfirmYourNameContent": "<p class=\"govuk-body\">We need your name to check your identity. This should be your full name, as written on your passport or birth certificate.</p> <p class=\"govuk-body\">This is the name the donor, {{ .DonorFullName }}, provided for you:</p> <div class=\"govuk-inset-text\">{{ .CertificateProviderFullName }}</div>",
+    "isYourNameCorrect": "Is your name correct?",
+    "enterYourFullName": "Enter your full name, as written on your passport",
+    "yourFullName": "your full name",
+    "yesIfTheNameIsCorrect": "yes if the name is correct"
 }
