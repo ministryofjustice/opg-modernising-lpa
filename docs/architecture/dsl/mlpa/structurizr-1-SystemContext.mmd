@@ -7,24 +7,31 @@ graph TB
     subgraph enterprise [Modernising Lasting Power of Attorney]
       style enterprise fill:#ffffff,stroke:#444444,color:#444444
 
-      2("<div style='font-weight: bold'>Modernising Lasting Power of Attorney</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Digital Lasting Power of<br />Attorney infrastructure</div>")
-      style 2 fill:#1168bd,stroke:#0b4884,color:#ffffff
+      3("<div style='font-weight: bold'>Modernising Lasting Power of Attorney</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Digital Lasting Power of<br />Attorney infrastructure</div>")
+      style 3 fill:#1168bd,stroke:#0b4884,color:#ffffff
     end
 
     1["<div style='font-weight: bold'>Actor</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Actor interacting with a<br />Lasting Power of Attorney.</div>"]
     style 1 fill:#08427b,stroke:#052e56,color:#ffffff
-    29("<div style='font-weight: bold'>External Services</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>GOV.UK Notify, Pay, One<br />Login, Yoti, Ordanance Survey</div>")
-    style 29 fill:#999999,stroke:#6b6b6b,color:#ffffff
-    30("<div style='font-weight: bold'>OPG Services</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Court Ordered Severances</div>")
-    style 30 fill:#999999,stroke:#6b6b6b,color:#ffffff
-    31("<div style='font-weight: bold'>Scanning Software</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>TBC</div>")
-    style 31 fill:#999999,stroke:#6b6b6b,color:#ffffff
-    32["<div style='font-weight: bold'>Use an LPA</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Use/View an LPA Service.</div>"]
-    style 32 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    2["<div style='font-weight: bold'>Solicitor Software</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Solicitor interacting with a<br />Lasting Power of Attorney.</div>"]
+    style 2 fill:#08427b,stroke:#052e56,color:#ffffff
+    32("<div style='font-weight: bold'>OPG Authentication Service</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>User facing central<br />Authentication service.<br />[Owner: UaLPA, Users:<br />Modernising]</div>")
+    style 32 fill:#438dd5,stroke:#2e6295,color:#ffffff
+    33("<div style='font-weight: bold'>External Services</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>GOV.UK Notify, Pay, One<br />Login, Yoti, Ordanance Survey</div>")
+    style 33 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    34("<div style='font-weight: bold'>OPG Services</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Court Ordered Severances</div>")
+    style 34 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    35("<div style='font-weight: bold'>Scanning Software</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>TBC</div>")
+    style 35 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    36["<div style='font-weight: bold'>Use an LPA</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Use/View an LPA Service.<br />[Owner: Vega]</div>"]
+    style 36 fill:#999999,stroke:#6b6b6b,color:#ffffff
 
-    1-. "<div>interacts with</div><div style='font-size: 70%'></div>" .->2
-    2-. "<div>interacts with</div><div style='font-size: 70%'></div>" .->29
-    30-. "<div>sends data to</div><div style='font-size: 70%'></div>" .->2
-    31-. "<div>sends scanned LPA Data to</div><div style='font-size: 70%'></div>" .->2
-    32-. "<div>read data from</div><div style='font-size: 70%'></div>" .->2
+    1-. "<div>interacts with</div><div style='font-size: 70%'></div>" .->3
+    3-. "<div>interacts with</div><div style='font-size: 70%'></div>" .->33
+    34-. "<div>sends data to</div><div style='font-size: 70%'></div>" .->3
+    35-. "<div>sends scanned LPA Data to</div><div style='font-size: 70%'></div>" .->3
+    2-. "<div>interacts with</div><div style='font-size: 70%'></div>" .->3
+    3-. "<div>authenticates with</div><div style='font-size: 70%'></div>" .->32
+    36-. "<div>authenticates with</div><div style='font-size: 70%'></div>" .->32
+    36-. "<div>read data from</div><div style='font-size: 70%'></div>" .->3
   end

@@ -4,33 +4,33 @@ graph TB
   subgraph diagram [Modernising Lasting Power of Attorney - Registered LPA Service - Components]
     style diagram fill:#ffffff,stroke:#ffffff
 
-    23("<div style='font-weight: bold'>Sirius Case Management</div><div style='font-size: 70%; margin-top: 0px'>[Container: Go, HTML, CSS, JS]</div><div style='font-size: 80%; margin-top:10px'>Case Management for case<br />working LPAs.</div>")
-    style 23 fill:#85bbf0,stroke:#5d82a8,color:#000000
-    13[("<div style='font-weight: bold'>Registered LPA Data Store</div><div style='font-size: 70%; margin-top: 0px'>[Container: AuroraDB]</div><div style='font-size: 80%; margin-top:10px'>Stores immutable LPA data<br />with high availablility,<br />security and auditing.</div>")]
-    style 13 fill:#438dd5,stroke:#2e6295,color:#ffffff
-    7("<div style='font-weight: bold'>Staging Service</div><div style='font-size: 70%; margin-top: 0px'>[Container: API Gateway, Go, DynamoDB]</div><div style='font-size: 80%; margin-top:10px'>Stores and manages data for<br />pre-registration.</div>")
-    style 7 fill:#438dd5,stroke:#2e6295,color:#ffffff
-    32["<div style='font-weight: bold'>Use an LPA</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Use/View an LPA Service.</div>"]
-    style 32 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    36["<div style='font-weight: bold'>Use an LPA</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Use/View an LPA Service.<br />[Owner: Vega]</div>"]
+    style 36 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    15[("<div style='font-weight: bold'>Registered LPA Data Store</div><div style='font-size: 70%; margin-top: 0px'>[Container: AuroraDB]</div><div style='font-size: 80%; margin-top:10px'>Stores immutable LPA data<br />with high availablility,<br />security and auditing.<br />[Owner: Modernising, Users:<br />Vega]</div>")]
+    style 15 fill:#438dd5,stroke:#2e6295,color:#ffffff
+    26("<div style='font-weight: bold'>Sirius Case Management</div><div style='font-size: 70%; margin-top: 0px'>[Container: Go, HTML, CSS, JS]</div><div style='font-size: 80%; margin-top:10px'>Case Management for case<br />working LPAs. [Owner: Vega,<br />Users: Modernising]</div>")
+    style 26 fill:#85bbf0,stroke:#5d82a8,color:#000000
+    8("<div style='font-weight: bold'>LPA Drafting Service</div><div style='font-size: 70%; margin-top: 0px'>[Container: API Gateway, Go, DynamoDB]</div><div style='font-size: 80%; margin-top:10px'>Stores and manages data for<br />pre-registration. [Owner:<br />Modernising, Users: Vega]</div>")
+    style 8 fill:#438dd5,stroke:#2e6295,color:#ffffff
 
-    subgraph 16 [Registered LPA Service]
-      style 16 fill:#ffffff,stroke:#444444,color:#444444
+    subgraph 18 [Registered LPA Service]
+      style 18 fill:#ffffff,stroke:#444444,color:#444444
 
-      17("<div style='font-weight: bold'>Registered LPA Read API</div><div style='font-size: 70%; margin-top: 0px'>[Component: API Gateway]</div><div style='font-size: 80%; margin-top:10px'>Highly available API for<br />reading and searching the LPA<br />Register</div>")
-      style 17 fill:#438dd5,stroke:#2e6295,color:#ffffff
-      18("<div style='font-weight: bold'>Registered LPA Write API</div><div style='font-size: 70%; margin-top: 0px'>[Component: API Gateway, Go]</div><div style='font-size: 80%; margin-top:10px'>Interface to writing to the<br />Registered LPA Database.</div>")
-      style 18 fill:#438dd5,stroke:#2e6295,color:#ffffff
-      19[("<div style='font-weight: bold'>Read Replica LPA Database</div><div style='font-size: 70%; margin-top: 0px'>[Component: AuroraDB]</div><div style='font-size: 80%; margin-top:10px'>Cached version of Registered<br />LPA Data.</div>")]
-      style 19 fill:#85bbf0,stroke:#5d82a8,color:#000000
-      20[("<div style='font-weight: bold'>Monitoring and Telemetery</div><div style='font-size: 70%; margin-top: 0px'>[Component: AWS Cloudwatch]</div><div style='font-size: 80%; margin-top:10px'>Cloudwatch logs and X-Ray</div>")]
-      style 20 fill:#85bbf0,stroke:#5d82a8,color:#000000
+      19("<div style='font-weight: bold'>Registered LPA Read API</div><div style='font-size: 70%; margin-top: 0px'>[Component: API Gateway]</div><div style='font-size: 80%; margin-top:10px'>Highly available API for<br />reading and searching the LPA<br />Register</div>")
+      style 19 fill:#438dd5,stroke:#2e6295,color:#ffffff
+      20("<div style='font-weight: bold'>Registered LPA Write API</div><div style='font-size: 70%; margin-top: 0px'>[Component: API Gateway, Go]</div><div style='font-size: 80%; margin-top:10px'>Interface to writing to the<br />Registered LPA Database.</div>")
+      style 20 fill:#438dd5,stroke:#2e6295,color:#ffffff
+      21[("<div style='font-weight: bold'>Read Replica LPA Database</div><div style='font-size: 70%; margin-top: 0px'>[Component: AuroraDB]</div><div style='font-size: 80%; margin-top:10px'>Cached version of Registered<br />LPA Data.</div>")]
+      style 21 fill:#85bbf0,stroke:#5d82a8,color:#000000
+      22[("<div style='font-weight: bold'>Monitoring and Telemetery</div><div style='font-size: 70%; margin-top: 0px'>[Component: AWS Cloudwatch]</div><div style='font-size: 80%; margin-top:10px'>Cloudwatch logs and X-Ray</div>")]
+      style 22 fill:#85bbf0,stroke:#5d82a8,color:#000000
     end
 
-    7-. "<div>writes validated data to</div><div style='font-size: 70%'></div>" .->18
-    32-. "<div>read data from</div><div style='font-size: 70%'></div>" .->17
-    18-. "<div>writes data to</div><div style='font-size: 70%'></div>" .->13
-    17-. "<div>reads data from</div><div style='font-size: 70%'></div>" .->19
-    19-. "<div>interacts with</div><div style='font-size: 70%'></div>" .->20
-    19-. "<div>syncs with</div><div style='font-size: 70%'></div>" .->13
-    23-. "<div>reads data from</div><div style='font-size: 70%'></div>" .->17
+    8-. "<div>writes validated data to</div><div style='font-size: 70%'></div>" .->20
+    36-. "<div>read data from</div><div style='font-size: 70%'></div>" .->19
+    20-. "<div>writes data to</div><div style='font-size: 70%'></div>" .->15
+    19-. "<div>reads data from</div><div style='font-size: 70%'></div>" .->21
+    21-. "<div>interacts with</div><div style='font-size: 70%'></div>" .->22
+    21-. "<div>syncs with</div><div style='font-size: 70%'></div>" .->15
+    26-. "<div>reads data from</div><div style='font-size: 70%'></div>" .->19
   end

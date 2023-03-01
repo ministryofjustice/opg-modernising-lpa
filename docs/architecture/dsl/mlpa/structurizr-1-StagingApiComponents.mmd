@@ -1,37 +1,40 @@
 graph TB
   linkStyle default fill:#ffffff
 
-  subgraph diagram [Modernising Lasting Power of Attorney - Staging Service - Components]
+  subgraph diagram [Modernising Lasting Power of Attorney - LPA Drafting Service - Components]
     style diagram fill:#ffffff,stroke:#ffffff
 
-    22("<div style='font-weight: bold'>Sirius Public API</div><div style='font-size: 70%; margin-top: 0px'>[Container: API Gateway, Go]</div><div style='font-size: 80%; margin-top:10px'>Interaction point between<br />Sirius Case Management and<br />other services.</div>")
-    style 22 fill:#999999,stroke:#6b6b6b,color:#ffffff
-    12("<div style='font-weight: bold'>LPA ID Service</div><div style='font-size: 70%; margin-top: 0px'>[Container: API Gateway, Go]</div><div style='font-size: 80%; margin-top:10px'>Manages the LPA IDs.</div>")
-    style 12 fill:#438dd5,stroke:#2e6295,color:#ffffff
-    3["<div style='font-weight: bold'>Make a Lasting Power of Attorney Online</div><div style='font-size: 70%; margin-top: 0px'>[Container: Go, HTML, CSS, JS]</div><div style='font-size: 80%; margin-top:10px'>Allows users to draft a<br />Lasting Power of Attorney<br />online.</div>"]
-    style 3 fill:#438dd5,stroke:#2e6295,color:#ffffff
-    16("<div style='font-weight: bold'>Registered LPA Service</div><div style='font-size: 70%; margin-top: 0px'>[Container: API Gateway]</div><div style='font-size: 80%; margin-top:10px'>Highly available API for<br />reading and searching the LPA<br />Register</div>")
-    style 16 fill:#438dd5,stroke:#2e6295,color:#ffffff
-    21("<div style='font-weight: bold'>LPA Paper Ingestion Service</div><div style='font-size: 70%; margin-top: 0px'>[Container: API Gateway, Go]</div><div style='font-size: 80%; margin-top:10px'>Handles the ingestion of the<br />Paper Journey.</div>")
-    style 21 fill:#438dd5,stroke:#2e6295,color:#ffffff
+    23("<div style='font-weight: bold'>LPA Paper Ingestion Service</div><div style='font-size: 70%; margin-top: 0px'>[Container: API Gateway, Go]</div><div style='font-size: 80%; margin-top:10px'>Handles the ingestion of the<br />Paper Journey. [Owner:<br />Modernising, Users: Vega]</div>")
+    style 23 fill:#438dd5,stroke:#2e6295,color:#ffffff
+    13("<div style='font-weight: bold'>Public LPA Support API</div><div style='font-size: 70%; margin-top: 0px'>[Container: API Gateway, Go]</div><div style='font-size: 80%; margin-top:10px'>Allows external companies to<br />add submit LPAs. [Owner:<br />Vega, Users: Modernising]</div>")
+    style 13 fill:#438dd5,stroke:#2e6295,color:#ffffff
+    24("<div style='font-weight: bold'>Sirius Public API</div><div style='font-size: 70%; margin-top: 0px'>[Container: API Gateway, Go]</div><div style='font-size: 80%; margin-top:10px'>Interaction point between<br />Sirius Case Management and<br />other services. [Owner: Vega,<br />Users: UaLPA, Modernising]</div>")
+    style 24 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    14("<div style='font-weight: bold'>LPA ID Service</div><div style='font-size: 70%; margin-top: 0px'>[Container: API Gateway, Go]</div><div style='font-size: 80%; margin-top:10px'>Manages the LPA IDs.</div>")
+    style 14 fill:#438dd5,stroke:#2e6295,color:#ffffff
+    4["<div style='font-weight: bold'>Make a Lasting Power of Attorney Online</div><div style='font-size: 70%; margin-top: 0px'>[Container: Go, HTML, CSS, JS]</div><div style='font-size: 80%; margin-top:10px'>Allows users to draft a<br />Lasting Power of Attorney<br />online. [Owner: Modernising,<br />Users: Vega]</div>"]
+    style 4 fill:#438dd5,stroke:#2e6295,color:#ffffff
+    18("<div style='font-weight: bold'>Registered LPA Service</div><div style='font-size: 70%; margin-top: 0px'>[Container: API Gateway]</div><div style='font-size: 80%; margin-top:10px'>Highly available API for<br />reading and searching the LPA<br />Register. [Owner:<br />Modernising, Users: UaLPA,<br />Vega]</div>")
+    style 18 fill:#438dd5,stroke:#2e6295,color:#ffffff
 
-    subgraph 7 [Staging Service]
-      style 7 fill:#ffffff,stroke:#444444,color:#444444
+    subgraph 8 [LPA Drafting Service]
+      style 8 fill:#ffffff,stroke:#444444,color:#444444
 
-      10[("<div style='font-weight: bold'>Draft LPA Database</div><div style='font-size: 70%; margin-top: 0px'>[Component: DynamoDB]</div><div style='font-size: 80%; margin-top:10px'>Stores Draft LPA data.</div>")]
+      10("<div style='font-weight: bold'>Sirius API</div><div style='font-size: 70%; margin-top: 0px'>[Component: API Gateway, Go]</div><div style='font-size: 80%; margin-top:10px'>Managing Case Worker specific<br />access</div>")
       style 10 fill:#85bbf0,stroke:#5d82a8,color:#000000
-      11("<div style='font-weight: bold'>App</div><div style='font-size: 70%; margin-top: 0px'>[Component: Go]</div><div style='font-size: 80%; margin-top:10px'>Manages data events and<br />business logic.</div>")
+      11[("<div style='font-weight: bold'>Draft LPA Database</div><div style='font-size: 70%; margin-top: 0px'>[Component: DynamoDB]</div><div style='font-size: 80%; margin-top:10px'>Stores Draft LPA data.</div>")]
       style 11 fill:#85bbf0,stroke:#5d82a8,color:#000000
-      8("<div style='font-weight: bold'>API</div><div style='font-size: 70%; margin-top: 0px'>[Component: API Gateway, Go]</div><div style='font-size: 80%; margin-top:10px'>Managing LPA data</div>")
-      style 8 fill:#85bbf0,stroke:#5d82a8,color:#000000
-      9("<div style='font-weight: bold'>Sirius API</div><div style='font-size: 70%; margin-top: 0px'>[Component: API Gateway, Go]</div><div style='font-size: 80%; margin-top:10px'>Managing Case Worker specific<br />access</div>")
+      12("<div style='font-weight: bold'>App</div><div style='font-size: 70%; margin-top: 0px'>[Component: Go]</div><div style='font-size: 80%; margin-top:10px'>Manages data events and<br />business logic.</div>")
+      style 12 fill:#85bbf0,stroke:#5d82a8,color:#000000
+      9("<div style='font-weight: bold'>API</div><div style='font-size: 70%; margin-top: 0px'>[Component: API Gateway, Go]</div><div style='font-size: 80%; margin-top:10px'>Managing LPA data</div>")
       style 9 fill:#85bbf0,stroke:#5d82a8,color:#000000
     end
 
-    3-. "<div>makes calls to</div><div style='font-size: 70%'></div>" .->8
-    12-. "<div>gets LPA Code from</div><div style='font-size: 70%'></div>" .->8
-    9-. "<div>writes validated data to</div><div style='font-size: 70%'></div>" .->16
-    9-. "<div>writes case management data<br />to and read data from</div><div style='font-size: 70%'></div>" .->22
-    21-. "<div>reads data from</div><div style='font-size: 70%'></div>" .->22
-    21-. "<div>writes data to</div><div style='font-size: 70%'></div>" .->8
+    13-. "<div>makes calls to</div><div style='font-size: 70%'></div>" .->9
+    4-. "<div>makes calls to</div><div style='font-size: 70%'></div>" .->9
+    9-. "<div>gets LPA Code from</div><div style='font-size: 70%'></div>" .->14
+    10-. "<div>writes validated data to</div><div style='font-size: 70%'></div>" .->18
+    10-. "<div>writes case management data<br />to and read data from</div><div style='font-size: 70%'></div>" .->24
+    23-. "<div>reads data from</div><div style='font-size: 70%'></div>" .->24
+    23-. "<div>writes data to</div><div style='font-size: 70%'></div>" .->9
   end
