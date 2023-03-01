@@ -55,10 +55,18 @@
               </label>
             </div>
             <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-people-to-notify" name="people-to-notify" type="checkbox" value="withPeopleToNotify">
+              <input class="govuk-checkboxes__input" id="f-people-to-notify" name="people-to-notify" type="checkbox" value="withPeopleToNotify" data-aria-controls="conditional-ptn-count">
               <label class="govuk-label govuk-checkboxes__label" for="f-people-to-notify">
-                People to notify about your LPA (adds 2)
+                People to notify about your LPA
               </label>
+            </div>
+            <div class="govuk-checkboxes__conditional" id="conditional-ptn-count">
+              <div class="govuk-form-group">
+                <label class="govuk-label" for="f-ptn-count">
+                  How many? (Max 5)
+                </label>
+                <input class="govuk-input govuk-!-width-one-third" id="f-ptn-count" name="ptn-count">
+              </div>
             </div>
             <div class="govuk-checkboxes__item">
               <input class="govuk-checkboxes__input" id="f-check-and-send-to-cp" name="check-and-send-to-cp" type="checkbox" value="lpaChecked">

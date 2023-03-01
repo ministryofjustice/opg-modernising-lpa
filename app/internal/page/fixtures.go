@@ -265,6 +265,7 @@ type fixturesForm struct {
 	Restrictions         string
 	CertificateProvider  string
 	PeopleToNotify       string
+	PeopleToNotifyCount  string
 	CheckAndSend         string
 	Pay                  string
 	IdAndSign            string
@@ -282,6 +283,7 @@ func readFixtures(r *http.Request) *fixturesForm {
 		Restrictions:         PostFormString(r, "restrictions"),
 		CertificateProvider:  PostFormString(r, "certificate-provider"),
 		PeopleToNotify:       PostFormString(r, "people-to-notify"),
+		PeopleToNotifyCount:  PostFormString(r, "ptn-count"),
 		CheckAndSend:         PostFormString(r, "check-and-send-to-cp"),
 		Pay:                  PostFormString(r, "pay-for-lpa"),
 		IdAndSign:            PostFormString(r, "confirm-id-and-sign"),
@@ -328,6 +330,10 @@ func Fixtures(tmpl template.Template) Handler {
 						data.Form.Pay:                  {"1"},
 						data.Form.IdAndSign:            {"1"},
 						data.Form.CompleteAll:          {"1"},
+					}
+
+					if data.Form.PeopleToNotify != "" {
+						values.Add("peopleToNotifyCount", data.Form.PeopleToNotifyCount)
 					}
 				}
 
