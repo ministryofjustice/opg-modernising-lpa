@@ -564,19 +564,6 @@
     "twelveCharactersReferenceNumber": "welsh",
     "referenceNumberMustBeTwelveCharacters": "Welsh",
 
-    "howDoYouKnowTheDonorTitle": "Welsh",
-    "howDoYouKnowTheDonor": "Welsh {{.FullName}}",
-    "personally": "Welsh",
-    "personallyHint": "Welsh",
-    "professionally": "Welsh",
-    "professionallyHint": "Welsh",
-    "howYouKnowDonor": "Welsh",
-
-    "howLongHaveYouKnownDonorTitle": "Welsh",
-    "howLongHaveYouKnownDonor": "Welsh {{.FullName}}",
-    "howLongYouHaveKnownDonor": "Welsh",
-    "mustHaveKnownDonorTwoYears": "Welsh",
-
     "checkAndConfirmYourName": "Welsh",
     "checkAndConfirmYourNameContent": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh {{ .DonorFullName }}, welsh:</p> <div class=\"govuk-inset-text\">{{ .CertificateProviderFullName }}</div>",
     "isYourNameCorrect": "Welsh?",
