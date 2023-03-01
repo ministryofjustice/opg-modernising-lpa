@@ -130,6 +130,10 @@ describe('People to notify', () => {
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
         cy.contains('Do you want to add another person to notify?').should('not.exist');
+
+        cy.contains('button', 'Continue').click();
+
+        cy.url().should('contain', '/check-your-lpa');
     })
 
     it('errors when unselected', () => {
