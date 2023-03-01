@@ -37,6 +37,6 @@ func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store) page.
 			return err
 		}
 
-		return appData.Redirect(w, r, nil, page.Paths.HowDoYouKnowTheDonor)
+		return appData.Redirect(w, r, nil, page.Paths.CertificateProviderYourDetails)
 	}
 }
