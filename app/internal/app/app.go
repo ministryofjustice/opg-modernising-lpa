@@ -74,6 +74,7 @@ func App(
 		errorHandler,
 		yotiClient,
 		yotiCertificateProviderScenarioID,
+		notifyClient,
 	)
 
 	donor.Register(

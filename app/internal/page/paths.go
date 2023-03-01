@@ -11,6 +11,7 @@ type AppPaths struct {
 	AuthRedirect                                            string
 	CertificateProvided                                     string
 	CertificateProviderAddress                              string
+	CertificateProviderCheckYourName                        string
 	CertificateProviderDetails                              string
 	CertificateProviderEnterReferenceNumber                 string
 	CertificateProviderIdentityWithBiometricResidencePermit string
@@ -107,6 +108,7 @@ var Paths = AppPaths{
 	AuthRedirect:                            "/auth/redirect",
 	CertificateProvided:                     "/certificate-provided",
 	CertificateProviderAddress:              "/certificate-provider-address",
+	CertificateProviderCheckYourName:        "/certificate-provider-check-your-name",
 	CertificateProviderDetails:              "/certificate-provider-details",
 	CertificateProviderEnterReferenceNumber: "/certificate-provider-enter-reference-number",
 	CertificateProviderIdentityWithBiometricResidencePermit: "/certificate-provider/id/brp",
@@ -204,6 +206,7 @@ func IsLpaPath(url string) bool {
 	return !slices.Contains([]string{
 		Paths.AuthRedirect,
 		Paths.CertificateProvided,
+		Paths.CertificateProviderCheckYourName,
 		Paths.CertificateProviderEnterReferenceNumber,
 		Paths.CertificateProviderIdentityWithBiometricResidencePermit,
 		Paths.CertificateProviderIdentityWithDrivingLicencePaper,

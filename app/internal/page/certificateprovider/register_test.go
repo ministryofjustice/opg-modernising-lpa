@@ -7,6 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -19,7 +21,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, nil, &place.Client{}, nil, &identity.YotiClient{}, "")
+	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, nil, &place.Client{}, nil, &identity.YotiClient{}, "", &notify.Client{})
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
