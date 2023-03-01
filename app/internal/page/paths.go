@@ -51,10 +51,8 @@ type AppPaths struct {
 	DoYouWantToNotifyPeople                                 string
 	Fixtures                                                string
 	HealthCheck                                             string
-	HowDoYouKnowTheDonor                                    string
 	HowDoYouKnowYourCertificateProvider                     string
 	HowLongHaveYouKnownCertificateProvider                  string
-	HowLongHaveYouKnownDonor                                string
 	HowShouldAttorneysMakeDecisions                         string
 	HowShouldReplacementAttorneysMakeDecisions              string
 	HowShouldReplacementAttorneysStepIn                     string
@@ -147,10 +145,8 @@ var Paths = AppPaths{
 	DoYouWantToNotifyPeople:                                 "/do-you-want-to-notify-people",
 	Fixtures:                                                "/fixtures",
 	HealthCheck:                                             "/health-check",
-	HowDoYouKnowTheDonor:                                    "/how-do-you-know-the-donor",
 	HowDoYouKnowYourCertificateProvider:                     "/how-do-you-know-your-certificate-provider",
 	HowLongHaveYouKnownCertificateProvider:                  "/how-long-have-you-known-certificate-provider",
-	HowLongHaveYouKnownDonor:                                "/how-long-have-you-known-donor",
 	HowShouldAttorneysMakeDecisions:                         "/how-should-attorneys-make-decisions",
 	HowShouldReplacementAttorneysMakeDecisions:              "/how-should-replacement-attorneys-make-decisions",
 	HowShouldReplacementAttorneysStepIn:                     "/how-should-replacement-attorneys-step-in",
@@ -227,8 +223,6 @@ func IsLpaPath(url string) bool {
 		Paths.CertificateProviderYourChosenIdentityOptions,
 		Paths.CertificateProviderYourDetails,
 		Paths.Dashboard,
-		Paths.HowDoYouKnowTheDonor,
-		Paths.HowLongHaveYouKnownDonor,
 		Paths.Login,
 		Paths.LoginCallback,
 		Paths.ProvideCertificate,
