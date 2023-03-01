@@ -562,18 +562,5 @@
     "certificateProviderReferenceNumberHint": "Welsh ABCD 1234 5678",
     "incorrectReferenceNumber": "Welsh",
     "twelveCharactersReferenceNumber": "welsh",
-    "referenceNumberMustBeTwelveCharacters": "Welsh",
-
-    "howDoYouKnowTheDonorTitle": "Welsh",
-    "howDoYouKnowTheDonor": "Welsh {{.FullName}}",
-    "personally": "Welsh",
-    "personallyHint": "Welsh",
-    "professionally": "Welsh",
-    "professionallyHint": "Welsh",
-    "howYouKnowDonor": "Welsh",
-
-    "howLongHaveYouKnownDonorTitle": "Welsh",
-    "howLongHaveYouKnownDonor": "Welsh {{.FullName}}",
-    "howLongYouHaveKnownDonor": "Welsh",
-    "mustHaveKnownDonorTwoYears": "Welsh"
+    "referenceNumberMustBeTwelveCharacters": "Welsh"
 }
