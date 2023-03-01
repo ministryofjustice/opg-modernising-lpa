@@ -33,13 +33,13 @@
                                     {{ tr .App "no" }}
                                 </label>
                             </div>
-                            <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-is-name-correct">
+                            <div class="govuk-radios__conditional" id="conditional-is-name-correct">
                                 <div class="govuk-form-group {{ if .Errors.Has "corrected-name" }}govuk-form-group--error{{ end }}">
                                     <label class="govuk-label" for="f-corrected-name">
                                         {{ tr .App "enterYourFullName" }}
                                     </label>
                                     {{ template "error-message" (errorMessage . "corrected-name") }}
-                                    <input class="govuk-input govuk-input--width-10 {{ if .Errors.Has "corrected-name" }}govuk-textarea--error{{ end }}" id="f-corrected-name" name="corrected-name" >{{ .Form.CorrectedName }}</input>
+                                    <input class="govuk-input govuk-input--width-20 {{ if .Errors.Has "corrected-name" }}govuk-textarea--error{{ end }}" id="f-corrected-name" name="corrected-name" >{{ .Form.CorrectedName }}</input>
                                 </div>
                             </div>
                         </div>
