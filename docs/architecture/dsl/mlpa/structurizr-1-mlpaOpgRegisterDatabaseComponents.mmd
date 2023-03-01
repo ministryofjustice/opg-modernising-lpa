@@ -1,0 +1,21 @@
+graph TB
+  linkStyle default fill:#ffffff
+
+  subgraph diagram [Modernising Lasting Power of Attorney - Registered LPA Data Store - Components]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    18("<div style='font-weight: bold'>Registered LPA Service</div><div style='font-size: 70%; margin-top: 0px'>[Container: API Gateway]</div><div style='font-size: 80%; margin-top:10px'>Highly available API for<br />reading and searching the LPA<br />Register. [Owner:<br />Modernising, Users: UaLPA,<br />Vega]</div>")
+    style 18 fill:#438dd5,stroke:#2e6295,color:#ffffff
+
+    subgraph 15 [Registered LPA Data Store]
+      style 15 fill:#ffffff,stroke:#444444,color:#444444
+
+      16[("<div style='font-weight: bold'>Database</div><div style='font-size: 70%; margin-top: 0px'>[Component: AuroraDB]</div><div style='font-size: 80%; margin-top:10px'>Stores final Register LPA<br />Data.</div>")]
+      style 16 fill:#85bbf0,stroke:#5d82a8,color:#000000
+      17[("<div style='font-weight: bold'>Monitoring and Telemetery</div><div style='font-size: 70%; margin-top: 0px'>[Component: AWS Cloudwatch]</div><div style='font-size: 80%; margin-top:10px'>Cloudwatch logs and X-Ray</div>")]
+      style 17 fill:#85bbf0,stroke:#5d82a8,color:#000000
+    end
+
+    18-. "<div>writes data to</div><div style='font-size: 70%'></div>" .->16
+    17-. "<div>interacts with</div><div style='font-size: 70%'></div>" .->16
+  end

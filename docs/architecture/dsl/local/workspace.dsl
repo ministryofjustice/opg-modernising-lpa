@@ -2,15 +2,21 @@ workspace {
 
     model {
         // Users
-        //attorney = person "Attorney" "Attorney interacting with a Lasting Power of Attorney."
+        attorney = person "Attorney" "Attorney interacting with a Lasting Power of Attorney."
         donor = person "Donor" "Donor drafting the Lasting Power of Attorney."
         certificateProvider = person "Certificate Provider" "Certificate Provider interacting with a Lasting Power of Attorney."
 
-        // Software Systems
-        makeSoftwareSystem = softwareSystem "Make a Lasting Power of Attorney Online" "Allows users to draft a Lasting Power of Attorney online." {
-            webapp = container "App" "Provides and delivers static content, business logic, routing, third party access and database access" "Go, HTML, CSS, JS" "Web Browser"
-            database = container "Database" "Stores actor information, Draft LPA details, access logs, etc." "DynamoDB" "Database"
-            databaseMonitoringTelemetry = container "Monitoring and Telemetery" "Cloudwatch logs, X-Ray and RUM" "AWS Cloudwatch" "Database"
+        enterprise "Modernising Lasting Power of Attorney" {
+            // Software Systems
+            makeSoftwareSystem = softwareSystem "Make a Lasting Power of Attorney Online" "Allows users to draft a Lasting Power of Attorney online." {
+                webapp = container "App" "Provides and delivers static content, business logic, routing, third party access and database access" "Go, HTML, CSS, JS" "Web Browser"
+                database = container "Database" "Stores actor information, Draft LPA details, access logs, etc." "DynamoDB" "Database"
+                databaseMonitoringTelemetry = container "Monitoring and Telemetery" "Cloudwatch logs, X-Ray and RUM" "AWS Cloudwatch" "Database"
+            }
+
+            makePaperSoftwareSystem = softwareSystem "Make a Lasting Power of Attorney Paper Journey" "Allows users to draft a Lasting Power of Attorney via paper." {
+                paperApp = container "Unknown App" "TBC" "TBC" "Container"
+            }
         }
 
         // External Systems
@@ -21,8 +27,11 @@ workspace {
         osExternalSoftwareSystem = softwareSystem "Ordanance survey" "Used for identity." "Existing System"
 
         certificateProvider -> webapp "Uses"
-        //attorney -> webapp "Uses"
         donor -> webapp "Uses"
+        attorney -> webapp "Uses"
+        certificateProvider -> makePaperSoftwareSystem "Uses"
+        donor -> makePaperSoftwareSystem "Uses"
+        attorney -> makePaperSoftwareSystem "Uses"
 
         webapp -> database "Reads from and writes to"
         webapp -> databaseMonitoringTelemetry "Writes to"
@@ -35,6 +44,11 @@ workspace {
     }
 
     views {
+        systemlandscape "SystemLandscape" {
+            include *
+            autoLayout
+        }
+
         systemContext makeSoftwareSystem "SystemContext" {
             include *
             autoLayout
