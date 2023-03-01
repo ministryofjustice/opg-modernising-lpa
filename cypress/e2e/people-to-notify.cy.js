@@ -2,12 +2,10 @@ import {AddressFormAssertions, TestEmail, TestEmail2} from "../support/e2e";
 
 describe('People to notify', () => {
     let person1
-    let person2
 
     before(() => {
         cy.fixture('peopleToNotify.json').then(p => {
             person1 = p.person1
-            person2 = p.person2
         })
     })
 
@@ -35,35 +33,18 @@ describe('People to notify', () => {
         cy.get('input[name="add-person-to-notify"]').check('yes')
         cy.contains('button', 'Continue').click();
 
-        addPersonToNotify(person2, false)
-
-        cy.contains('People to notify about your LPA');
-
-        cy.get('#name-2').contains(`${person2.firstNames} ${person2.lastName}`);
-        cy.get('#address-2').contains(person2.address.line1);
-        cy.get('#address-2').contains(person2.address.town);
-        cy.get('#address-2').contains(person2.address.postcode);
-
-        cy.get('input[name="add-person-to-notify"]').check('no')
-        cy.contains('button', 'Continue').click();
-
         cy.visitLpa('/task-list')
 
-        cy.contains('a', 'People to notify').parent().parent().contains('Completed (2)')
+        cy.contains('a', 'People to notify').parent().parent().contains('Completed (1)')
     });
 
     it('can modify a person to notifys details', () => {
-        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&withDonorDetails=1&withAttorney=1');
+        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&withDonorDetails=1&withAttorney=1&withPeopleToNotify=1');
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.get('input[name="want-to-notify"]').check('yes')
-        cy.contains('button', 'Continue').click();
-
-        addPersonToNotify(person1)
-
-        cy.contains(`${person1.firstNames} ${person1.lastName}`).parent().contains('a', 'Change').click();
+        cy.contains('Joanna Smith').parent().contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-people-to-notify');
 
@@ -81,7 +62,7 @@ describe('People to notify', () => {
         cy.get('#name-1').contains('Changed Altered')
         cy.get('#email-1').contains(TestEmail2)
 
-        cy.contains(person1.address.line1).parent().contains('a', 'Change').click();
+        cy.contains('4 RICHMOND PLACE').parent().contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-people-to-notify-address');
 
@@ -106,22 +87,12 @@ describe('People to notify', () => {
     });
 
     it('can remove a person to notify', () => {
-        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&withDonorDetails=1&withAttorney=1');
+        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&withDonorDetails=1&withAttorney=1&withPeopleToNotify=1');
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
 
-        cy.get('input[name="want-to-notify"]').check('yes')
-        cy.contains('button', 'Continue').click();
-
-        addPersonToNotify(person1)
-
-        cy.get('input[name="add-person-to-notify"]').check('yes')
-        cy.contains('button', 'Continue').click();
-
-        addPersonToNotify(person2)
-
-        cy.get('#remove-person-to-notify-2').contains(`Remove ${person2.firstNames} ${person2.lastName}`).click();
+        cy.get('#remove-person-to-notify-2').contains(`Remove Jonathan Smith`).click();
 
         cy.url().should('contain', '/remove-person-to-notify');
 
@@ -133,7 +104,7 @@ describe('People to notify', () => {
 
         cy.url().should('contain', '/choose-people-to-notify-summary');
 
-        cy.get('#remove-person-to-notify-1').contains(`Remove ${person1.firstNames} ${person1.lastName}`).click();
+        cy.get('#remove-person-to-notify-1').contains(`Remove Joanna Smith`).click();
 
         cy.url().should('contain', '/remove-person-to-notify');
 
@@ -142,6 +113,24 @@ describe('People to notify', () => {
 
         cy.url().should('contain', '/do-you-want-to-notify-people');
     });
+
+    it('hides action links when LPA has been signed', () => {
+        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&completeLpa=1&withPeopleToNotify=1');
+
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+        cy.contains('Joanna Smith').parent().contains('a', 'Change').should('not.exist');
+    });
+
+    it('limits people to notify to 5', () => {
+        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&completeLpa=1&withPeopleToNotify=1&peopleToNotifyCount=5');
+
+        cy.injectAxe();
+        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+
+        cy.contains('Do you want to add another person to notify?').should('not.exist');
+    })
 
     it('errors when unselected', () => {
         cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&withDonorDetails=1&withAttorney=1');
@@ -183,15 +172,10 @@ describe('People to notify', () => {
     });
 
     it('errors when another not selected', () => {
-        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&withDonorDetails=1&withAttorney=1');
+        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&withDonorDetails=1&withAttorney=1&withPeopleToNotify=1');
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
-
-        cy.get('input[name="want-to-notify"]').check('yes')
-        cy.contains('button', 'Continue').click();
-
-        addPersonToNotify(person1, true)
 
         cy.contains('button', 'Continue').click();
 

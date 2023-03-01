@@ -548,6 +548,102 @@ func TestTestingStart(t *testing.T) {
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
 	})
 
+	t.Run("with people to notify count", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withPeopleToNotify=1&peopleToNotifyCount=5", nil)
+		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
+
+		sessionStore := newMockSessionStore(t)
+		sessionStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := newMockLpaStore(t)
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{
+				ID:                      "123",
+				DoYouWantToNotifyPeople: "yes",
+				Tasks:                   Tasks{PeopleToNotify: TaskCompleted},
+				PeopleToNotify: actor.PeopleToNotify{
+					{
+						ID:         "JoannaSmith",
+						FirstNames: "Joanna",
+						LastName:   "Smith",
+						Email:      TestEmail,
+						Address: place.Address{
+							Line1:      "4 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+					},
+					{
+						ID:         "JonathanSmith",
+						FirstNames: "Jonathan",
+						LastName:   "Smith",
+						Email:      TestEmail,
+						Address: place.Address{
+							Line1:      "4 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+					},
+					{
+						ID:         "JulianSmith",
+						FirstNames: "Julian",
+						LastName:   "Smith",
+						Email:      TestEmail,
+						Address: place.Address{
+							Line1:      "4 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+					},
+					{
+						ID:         "JaydenSmith",
+						FirstNames: "Jayden",
+						LastName:   "Smith",
+						Email:      TestEmail,
+						Address: place.Address{
+							Line1:      "4 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+					},
+					{
+						ID:         "JuniperSmith",
+						FirstNames: "Juniper",
+						LastName:   "Smith",
+						Email:      TestEmail,
+						Address: place.Address{
+							Line1:      "4 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+					},
+				},
+			}).
+			Return(nil)
+
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
+	})
+
 	t.Run("with incomplete people to notify", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withIncompletePeopleToNotify=1", nil)
