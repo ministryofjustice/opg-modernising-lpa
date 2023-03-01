@@ -9,39 +9,39 @@ workspace {
             // Software Systems
             makeSoftwareSystem = softwareSystem "Modernising Lasting Power of Attorney" "Digital Lasting Power of Attorney infrastructure" {
                 // Components
-                mlpaOnlineContainer = container "Make a Lasting Power of Attorney Online" "Allows users to draft a Lasting Power of Attorney online." "Go, HTML, CSS, JS" "Web Browser" {
+                mlpaOnlineContainer = container "Make a Lasting Power of Attorney Online" "Allows users to draft a Lasting Power of Attorney online. [Owner: Modernising, Users: Vega]" "Go, HTML, CSS, JS" "Web Browser" {
                     mlpaOnlineContainer_webapp = component "App" "Provides and delivers static content, business logic, routing, third party access and database access" "Go, HTML, CSS, JS" "Web Browser"
                     mlpaOnlineContainer_database = component "Database" "Stores actor information, Draft LPA details, access logs, etc." "DynamoDB" "Database"
                     mlpaOnlineContainer_databaseMonitoringTelemetry = component "Monitoring and Telemetery" "Cloudwatch logs, X-Ray and RUM" "AWS Cloudwatch" "Database"
                 }
 
-                mlpaDraftingService = container "LPA Drafting Service" "Stores and manages data for pre-registration." "API Gateway, Go, DynamoDB" "Container" {
+                mlpaDraftingService = container "LPA Drafting Service" "Stores and manages data for pre-registration. [Owner: Modernising, Users: Vega]" "API Gateway, Go, DynamoDB" "Container" {
                     mlpaDraftingServiceAPI = component "API" "Managing LPA data" "API Gateway, Go" "Component"
                     mlpaDraftingServiceSiriusAPI = component "Sirius API" "Managing Case Worker specific access" "API Gateway, Go" "Component"
                     mlpaDraftingServiceDatabase = component "Draft LPA Database" "Stores Draft LPA data." "DynamoDB" "Database"
                     mlpaDraftingServiceApp = component "App" "Manages data events and business logic." "Go" "Component"
                 }
-                mlpaSupporterAPI = container "Public LPA Support API" "Allows external companies to add submit LPAs." "API Gateway, Go" "Container t-vega t-vega-owner t-mlpa"
+                mlpaSupporterAPI = container "Public LPA Support API" "Allows external companies to add submit LPAs. [Owner: Vega, Users: Modernising]" "API Gateway, Go" "Container"
                 mlpaLPAIDAPI = container "LPA ID Service" "Manages the LPA IDs." "API Gateway, Go" "Container"
                 
-                mlpaOpgRegisterDatabase = container "Registered LPA Data Store" "Stores immutable LPA data with high availablility, security and auditing." "AuroraDB" "Database" {
+                mlpaOpgRegisterDatabase = container "Registered LPA Data Store" "Stores immutable LPA data with high availablility, security and auditing. [Owner: Modernising, Users: Vega]" "AuroraDB" "Database" {
                     mlpaOpgRegisterDatabase_database = component "Database" "Stores final Register LPA Data." "AuroraDB" "Database"
                     mlpaOpgRegisterDatabase_databaseMonitoringTelemetry = component "Monitoring and Telemetery" "Cloudwatch logs and X-Ray" "AWS Cloudwatch" "Database"
                 }
 
-                mlpaOpgRegisterService = container "Registered LPA Service" "Highly available API for reading and searching the LPA Register " "API Gateway" "Container" {
+                mlpaOpgRegisterService = container "Registered LPA Service" "Highly available API for reading and searching the LPA Register. [Owner: Modernising, Users: UaLPA, Vega]" "API Gateway" "Container" {
                     mlpaOpgRegisterService_ReadAPIGateway = component "Registered LPA Read API" "Highly available API for reading and searching the LPA Register " "API Gateway" "Container"
                     mlpaOpgRegisterService_WriteAPIGateway = component "Registered LPA Write API" "Interface to writing to the Registered LPA Database." "API Gateway, Go" "Container"
                     mlpaOpgRegisterService_ReadReplicaDatabase = component "Read Replica LPA Database" "Cached version of Registered LPA Data." "AuroraDB" "Database"
                     mlpaOpgRegisterService_ReadReplicaMonitoringTelemetry = component "Monitoring and Telemetery" "Cloudwatch logs and X-Ray" "AWS Cloudwatch" "Database"
                 }
 
-                mlpaPaperIngestionAPI = container "LPA Paper Ingestion Service" "Handles the ingestion of the Paper Journey." "API Gateway, Go" "Container"
-                mlpaSiriusPublicAPI = container "Sirius Public API" "Interaction point between Sirius Case Management and other services." "API Gateway, Go" "Existing System"
+                mlpaPaperIngestionAPI = container "LPA Paper Ingestion Service" "Handles the ingestion of the Paper Journey. [Owner: Modernising, Users: Vega]" "API Gateway, Go" "Container"
+                mlpaSiriusPublicAPI = container "Sirius Public API" "Interaction point between Sirius Case Management and other services. [Owner: Vega, Users: UaLPA, Modernising]" "API Gateway, Go" "Existing System"
 
-                mlpaInternalPaymentService = container "OPG Internal Payment Service" "Handles GOV.UK Pay and Remissions and Exemptions information between all services and Sirius." "API Gateway, Go" "Existing System"
+                mlpaInternalPaymentService = container "OPG Internal Payment Service" "Handles GOV.UK Pay and Remissions and Exemptions information between all services and Sirius. [Owner: Vega, Users: Modernising]" "API Gateway, Go" "Existing System"
 
-                mlpaSiriusCaseManagement = container "Sirius Case Management" "Case Management for case working LPAs." "Go, HTML, CSS, JS" "Component" {
+                mlpaSiriusCaseManagement = container "Sirius Case Management" "Case Management for case working LPAs. [Owner: Vega, Users: Modernising]" "Go, HTML, CSS, JS" "Component" {
                     mlpaSiriusInternalAPI = component "Sirius Internal API" "" "API Gateway, PHP" "Existing System"
                     mlpaSiriusDatabase = component "Sirius Database" "Stores Case Management data." "AuroraDB" "Database Existing System"
                     mlpaSiriusMSPreRegistrationCaseManagement = component "Sirius Pre-Registered Case Management" "Sirius Microservice for Pre-Registered LPAs." "Go, HTML, CSS, JS"
@@ -52,11 +52,11 @@ workspace {
         }
 
         // External Systems
-        mlpaOPGAuthService = softwareSystem "OPG Authentication Service" "User facing central Authentication service." "Container"
+        mlpaOPGAuthService = softwareSystem "OPG Authentication Service" "User facing central Authentication service. [Owner: UaLPA, Users: Modernising]" "Container"
         externalSoftwareSystems = softwareSystem "External Services" "GOV.UK Notify, Pay, One Login, Yoti, Ordanance Survey" "Existing System"
         externalOPGSoftwareSystems = softwareSystem "OPG Services" "Court Ordered Severances" "Existing System"
         externalScanningSoftware = softwareSystem "Scanning Software" "TBC" "Existing System"
-        mlpaUaLPA = softwareSystem "Use an LPA" "Use/View an LPA Service." "Web Browser Existing System"
+        mlpaUaLPA = softwareSystem "Use an LPA" "Use/View an LPA Service. [Owner: Vega]" "Web Browser Existing System"
 
         actor -> makeSoftwareSystem "interacts with"
         makeSoftwareSystem -> externalSoftwareSystems "interacts with"
