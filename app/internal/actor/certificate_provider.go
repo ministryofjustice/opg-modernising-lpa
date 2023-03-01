@@ -20,6 +20,7 @@ type CertificateProvider struct {
 	RelationshipLength         string
 	DeclaredRelationship       string
 	DeclaredRelationshipLength string
+	DeclaredFullName           string
 }
 
 func (p CertificateProvider) FullName() string {
