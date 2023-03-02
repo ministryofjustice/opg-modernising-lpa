@@ -493,7 +493,7 @@ func TestTestingStart(t *testing.T) {
 
 	t.Run("with people to notify", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withPeopleToNotify=1", nil)
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withPeopleToNotify=5", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
 		sessionStore := newMockSessionStore(t)
@@ -527,6 +527,45 @@ func TestTestingStart(t *testing.T) {
 					{
 						ID:         "JonathanSmith",
 						FirstNames: "Jonathan",
+						LastName:   "Smith",
+						Email:      TestEmail,
+						Address: place.Address{
+							Line1:      "4 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+					},
+					{
+						ID:         "JulianSmith",
+						FirstNames: "Julian",
+						LastName:   "Smith",
+						Email:      TestEmail,
+						Address: place.Address{
+							Line1:      "4 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+					},
+					{
+						ID:         "JaydenSmith",
+						FirstNames: "Jayden",
+						LastName:   "Smith",
+						Email:      TestEmail,
+						Address: place.Address{
+							Line1:      "4 RICHMOND PLACE",
+							Line2:      "KINGS HEATH",
+							Line3:      "WEST MIDLANDS",
+							TownOrCity: "BIRMINGHAM",
+							Postcode:   "B14 7ED",
+						},
+					},
+					{
+						ID:         "JuniperSmith",
+						FirstNames: "Juniper",
 						LastName:   "Smith",
 						Email:      TestEmail,
 						Address: place.Address{

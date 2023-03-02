@@ -3,6 +3,7 @@ package page
 import (
 	"encoding/base64"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -87,7 +88,12 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		}
 
 		if r.FormValue("withPeopleToNotify") != "" || r.FormValue("completeLpa") != "" {
-			AddPeopleToNotify(lpa, 2)
+			count, err := strconv.Atoi(r.FormValue("withPeopleToNotify"))
+			if err != nil {
+				count = 2
+			}
+
+			AddPeopleToNotify(lpa, count)
 		}
 
 		if r.FormValue("withIncompletePeopleToNotify") != "" {
