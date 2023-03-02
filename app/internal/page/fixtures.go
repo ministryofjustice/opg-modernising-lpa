@@ -325,7 +325,6 @@ func Fixtures(tmpl template.Template) Handler {
 						data.Form.WhenCanLpaBeUsed:     {"1"},
 						data.Form.Restrictions:         {"1"},
 						data.Form.CertificateProvider:  {"1"},
-						data.Form.PeopleToNotify:       {"1"},
 						data.Form.CheckAndSend:         {"1"},
 						data.Form.Pay:                  {"1"},
 						data.Form.IdAndSign:            {"1"},
@@ -333,7 +332,7 @@ func Fixtures(tmpl template.Template) Handler {
 					}
 
 					if data.Form.PeopleToNotify != "" {
-						values.Add("peopleToNotifyCount", data.Form.PeopleToNotifyCount)
+						values.Add("withPeopleToNotify", data.Form.PeopleToNotifyCount)
 					}
 				}
 

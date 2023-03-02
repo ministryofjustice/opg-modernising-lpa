@@ -88,16 +88,12 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		}
 
 		if r.FormValue("withPeopleToNotify") != "" || r.FormValue("completeLpa") != "" {
-			if r.FormValue("peopleToNotifyCount") != "" {
-				count, err := strconv.Atoi(r.FormValue("peopleToNotifyCount"))
-				if err != nil {
-					count = 2
-				}
-
-				AddPeopleToNotify(lpa, count)
-			} else {
-				AddPeopleToNotify(lpa, 2)
+			count, err := strconv.Atoi(r.FormValue("withPeopleToNotify"))
+			if err != nil {
+				count = 2
 			}
+
+			AddPeopleToNotify(lpa, count)
 		}
 
 		if r.FormValue("withIncompletePeopleToNotify") != "" {

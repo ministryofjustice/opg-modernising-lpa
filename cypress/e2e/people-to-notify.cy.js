@@ -87,7 +87,7 @@ describe('People to notify', () => {
     });
 
     it('can remove a person to notify', () => {
-        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&withDonorDetails=1&withAttorney=1&withPeopleToNotify=1');
+        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&withDonorDetails=1&withAttorney=1&withPeopleToNotify=2');
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
@@ -124,7 +124,7 @@ describe('People to notify', () => {
     });
 
     it('limits people to notify to 5', () => {
-        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&completeLpa=1&withPeopleToNotify=1&peopleToNotifyCount=5');
+        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&completeLpa=1&withPeopleToNotify=5');
 
         cy.injectAxe();
         cy.checkA11y(null, { rules: { region: { enabled: false } } });
