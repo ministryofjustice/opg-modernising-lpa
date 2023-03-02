@@ -74,7 +74,7 @@ func TestPostFixturesCPFlow(t *testing.T) {
 				"cp-flow-has-donor-paid": {"startCpFlowDonorHasPaid"},
 				"completeLpa":            {"1"},
 			},
-			expectedPath: "/testing-start?completeLpa=1&startCpFlowDonorHasPaid=1&useTestShareCode=1&withEmail=a%40example.org",
+			expectedPath: "/testing-start?startCpFlowDonorHasPaid=1&useTestShareCode=1&withEmail=a%40example.org",
 		},
 		"Donor has not paid": {
 			form: url.Values{
@@ -82,7 +82,7 @@ func TestPostFixturesCPFlow(t *testing.T) {
 				"cp-flow-has-donor-paid": {"startCpFlowDonorHasNotPaid"},
 				"completeLpa":            {"1"},
 			},
-			expectedPath: "/testing-start?completeLpa=1&startCpFlowDonorHasNotPaid=1&useTestShareCode=1",
+			expectedPath: "/testing-start?startCpFlowDonorHasNotPaid=1&useTestShareCode=1",
 		},
 		"Donor has not paid and email": {
 			form: url.Values{
@@ -91,7 +91,7 @@ func TestPostFixturesCPFlow(t *testing.T) {
 				"cp-flow-has-donor-paid": {"startCpFlowDonorHasNotPaid"},
 				"completeLpa":            {"1"},
 			},
-			expectedPath: "/testing-start?completeLpa=1&startCpFlowDonorHasNotPaid=1&useTestShareCode=1&withEmail=a%40example.org",
+			expectedPath: "/testing-start?startCpFlowDonorHasNotPaid=1&useTestShareCode=1&withEmail=a%40example.org",
 		},
 		"Donor has not paid no email": {
 			form: url.Values{
@@ -99,7 +99,7 @@ func TestPostFixturesCPFlow(t *testing.T) {
 				"cp-flow-has-donor-paid": {"startCpFlowDonorHasNotPaid"},
 				"completeLpa":            {"1"},
 			},
-			expectedPath: "/testing-start?completeLpa=1&startCpFlowDonorHasNotPaid=1&useTestShareCode=1",
+			expectedPath: "/testing-start?startCpFlowDonorHasNotPaid=1&useTestShareCode=1",
 		},
 	}
 
