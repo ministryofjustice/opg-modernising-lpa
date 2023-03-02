@@ -287,15 +287,15 @@
     "lpaDecisions": "Penderfyniadau LPA",
     "typeOfLpa": "Math o LPA",
     "whenYourAttorneysCanUseYourLpa": "welsh",
-    "whoAreTheAttorneys": {
+    "whoAreYourAttorneys": {
         "one": "Pwy yw eich atwrnai",
         "two": "Pwy yw eich atwrneiod",
         "few": "Pwy yw eich atwrneiod",
         "many": "Pwy yw eich atwrneiod",
         "other": "Pwy yw eich atwrneiod"
     },
-    "howTheAttorneysMustMakeDecisions": "Sut ydych chi am i’ch atwrneiod wneud penderfyniadau?",
-    "whoAreTheReplacementAttorneys": {
+    "howYourAttorneysMustMakeDecisions": "Sut ydych chi am i’ch atwrneiod wneud penderfyniadau?",
+    "whoAreYourReplacementAttorneys": {
         "zero": "Pwy yw eich atwrneiod wrth gefn",
         "one": "Pwy yw eich atwrnai wrth gefn",
         "two": "Pwy yw eich atwrneiod wrth gefn",
@@ -569,5 +569,18 @@
     "isYourNameCorrect": "Welsh?",
     "enterYourFullName": "Welsh",
     "yourFullName": "welsh",
-    "yesIfTheNameIsCorrect": "welsh"
+    "yesIfTheNameIsCorrect": "welsh",
+
+    "whenAttorneysCanUseTheLpa": "Welsh",
+    "theirAttorneys": {
+        "one": "Welsh",
+        "other": "Welsh"
+    },
+    "howAttorneysMustMakeDecisions": "Welsh",
+    "theirReplacementAttorneys": {
+        "one": "Welsh",
+        "other": "Welsh"
+    },
+    "readDonorNameLpa": "Welsh {{ .DonorFullName }}’s welsh",
+    "youMustReadLpaCarefully": "Welsh."
 }
