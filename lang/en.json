@@ -267,12 +267,12 @@
     "idVerifiedTag": "ID Verified",
     "lpaDecisions": "LPA decisions",
     "typeOfLpa": "Type of LPA",
-    "whoAreTheAttorneys": {
+    "whoAreYourAttorneys": {
         "one": "Who is your attorney",
         "other": "Who are your attorneys"
     },
-    "howTheAttorneysMustMakeDecisions": "How your attorneys must make decisions",
-    "whoAreTheReplacementAttorneys": {
+    "howYourAttorneysMustMakeDecisions": "How your attorneys must make decisions",
+    "whoAreYourReplacementAttorneys": {
         "one": "Who is your replacement attorney",
         "other": "Who are your replacement attorneys"
     },
@@ -528,5 +528,18 @@
     "isYourNameCorrect": "Is your name correct?",
     "enterYourFullName": "Enter your full name, as written on your passport",
     "yourFullName": "your full name",
-    "yesIfTheNameIsCorrect": "yes if the name is correct"
+    "yesIfTheNameIsCorrect": "yes if the name is correct",
+
+    "whenAttorneysCanUseTheLpa": "When attorneys can use the LPA",
+    "theirAttorneys": {
+        "one": "Their attorney",
+        "other": "Their attorneys"
+    },
+    "howAttorneysMustMakeDecisions": "How attorneys must make decisions",
+    "theirReplacementAttorneys": {
+        "one": "Their replacement attorney",
+        "other": "Their replacement attorneys"
+    },
+    "readDonorNameLpa": "Read {{ .DonorFullName }}’s LPA",
+    "youMustReadLpaCarefully": "You must read this LPA carefully."
 }
