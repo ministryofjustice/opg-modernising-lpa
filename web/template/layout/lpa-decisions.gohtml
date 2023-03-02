@@ -17,7 +17,11 @@
 
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
-                {{ tr .App "whenYourAttorneysCanUseYourLpa" }}
+                {{ if .DonorIsViewing }}
+                    {{ tr .App "whenYourAttorneysCanUseYourLpa" }}
+                {{ else}}
+                    {{ tr .App "whenAttorneysCanUseTheLpa" }}
+                {{ end }}
             </dt>
             <dd class="govuk-summary-list__value">
                 {{ tr .App .Lpa.WhenCanTheLpaBeUsed }}
@@ -33,7 +37,11 @@
 
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
-                {{ trCount .App "whoAreTheAttorneys" (len .Lpa.Attorneys) }}
+                {{ if .DonorIsViewing }}
+                    {{ trCount .App "whoAreYourAttorneys" (len .Lpa.Attorneys) }}
+                {{ else}}
+                    {{ trCount .App "theirAttorneys" (len .Lpa.Attorneys) }}
+                {{ end }}
             </dt>
             <dd class="govuk-summary-list__value">
                 {{ .Lpa.Attorneys.FullNames }}
@@ -50,7 +58,11 @@
         {{ if gt (len .Lpa.Attorneys) 1 }}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
-                    {{ tr .App "howTheAttorneysMustMakeDecisions" }}
+                    {{ if .DonorIsViewing }}
+                        {{ tr .App "howYourAttorneysMustMakeDecisions" }}
+                    {{ else}}
+                        {{ tr .App "howAttorneysMustMakeDecisions" }}
+                    {{ end }}
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {{ trHtml .App .Lpa.HowAttorneysMakeDecisions }}
@@ -67,7 +79,11 @@
 
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
-                {{ trCount .App "whoAreTheReplacementAttorneys" (len .Lpa.ReplacementAttorneys) }}
+                {{ if .DonorIsViewing }}
+                    {{ trCount .App "whoAreYourReplacementAttorneys" (len .Lpa.ReplacementAttorneys) }}
+                {{ else}}
+                    {{ trCount .App "theirReplacementAttorneys" (len .Lpa.ReplacementAttorneys) }}
+                {{ end }}
             </dt>
             <dd class="govuk-summary-list__value">
                 {{ if eq 0 (len .Lpa.ReplacementAttorneys) }}

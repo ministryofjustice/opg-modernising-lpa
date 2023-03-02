@@ -104,9 +104,9 @@
             <form novalidate method="post">
                 {{ template "input" (input . "email" "email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
 
-                {{ template "error-message" (errorMessage . "cp-flow-id") }}
+                {{ template "error-message" (errorMessage . "cp-flow-has-donor-paid") }}
 
-                {{ template "radios" (items . "cp-flow-id" ""
+                {{ template "radios" (items . "cp-flow-has-donor-paid" ""
                     (item "startCpFlowDonorHasPaid" "Donor has paid")
                     (item "startCpFlowDonorHasNotPaid" "Donor has not paid")
                 ) }}
