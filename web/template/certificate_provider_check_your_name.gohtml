@@ -1,0 +1,55 @@
+{{ template "page" . }}
+
+{{ define "serviceName" }}{{ tr .App "beACertificateProvider" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "checkAndConfirmYourName" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ tr .App "checkAndConfirmYourName" }}</h1>
+
+            {{ trFormatHtml .App "checkAndConfirmYourNameContent" "DonorFullName" .Lpa.You.FullName "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
+
+            <form novalidate method="post">
+                <div class="govuk-form-group {{ if .Errors.Has "is-name-correct" }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
+                    <fieldset class="govuk-fieldset">
+                        {{ template "error-message" (errorMessage . "is-name-correct") }}
+
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                            <h2 class="govuk-fieldset__heading">
+                                {{ tr .App "isYourNameCorrect" }}
+                            </h2>
+                        </legend>
+                        <div class="govuk-radios {{ if .Errors.Has "is-name-correct" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="f-is-name-correct" name="is-name-correct" type="radio" value="yes" {{ if eq "yes" .Form.IsNameCorrect }}checked{{ end }}>
+                                <label class="govuk-label govuk-radios__label" for="f-is-name-correct">
+                                    {{ tr .App "yes" }}
+                                </label>
+                            </div>
+
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="f-is-name-correct-2" name="is-name-correct" type="radio" value="no" {{ if eq "no" .Form.IsNameCorrect }}checked{{ end }} data-aria-controls="conditional-is-name-correct">
+                                <label class="govuk-label govuk-radios__label" for="f-is-name-correct-2">
+                                    {{ tr .App "no" }}
+                                </label>
+                            </div>
+                            <div class="govuk-radios__conditional" id="conditional-is-name-correct">
+                                <div class="govuk-form-group {{ if .Errors.Has "corrected-name" }}govuk-form-group--error{{ end }}">
+                                    <label class="govuk-label" for="f-corrected-name">
+                                        {{ tr .App "enterYourFullName" }}
+                                    </label>
+                                    {{ template "error-message" (errorMessage . "corrected-name") }}
+                                    <input class="govuk-input govuk-input--width-20 {{ if .Errors.Has "corrected-name" }}govuk-textarea--error{{ end }}" id="f-corrected-name" name="corrected-name" >{{ .Form.CorrectedName }}</input>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                {{ template "continue-button" . }}
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}

@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -66,6 +67,13 @@ type YotiClient interface {
 	User(string) (identity.UserData, error)
 }
 
+//go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient
+type NotifyClient interface {
+	Email(ctx context.Context, email notify.Email) (string, error)
+	Sms(ctx context.Context, sms notify.Sms) (string, error)
+	TemplateID(id notify.TemplateId) string
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -78,6 +86,7 @@ func Register(
 	errorHandler page.ErrorHandler,
 	yotiClient YotiClient,
 	yotiScenarioID string,
+	notifyClient NotifyClient,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -93,6 +102,8 @@ func Register(
 		HowDoYouKnowTheDonor(tmpls.Get("how_do_you_know_the_donor.gohtml"), lpaStore))
 	handleRoot(page.Paths.HowLongHaveYouKnownDonor, RequireSession,
 		HowLongHaveYouKnownDonor(tmpls.Get("how_long_have_you_known_donor.gohtml"), lpaStore))
+	handleRoot(page.Paths.CertificateProviderCheckYourName, RequireSession,
+		CheckYourName(tmpls.Get("certificate_provider_check_your_name.gohtml"), lpaStore, notifyClient))
 	handleRoot(page.Paths.CertificateProviderYourDetails, RequireSession,
 		YourDetails(tmpls.Get("certificate_provider_your_details.gohtml"), lpaStore))
 	handleRoot(page.Paths.CertificateProviderYourAddress, RequireSession,
