@@ -18,7 +18,7 @@
                 <dd class="govuk-summary-list__value">
                     {{ $p.FirstNames }} {{ $p.LastName }}
                 </dd>
-                {{ if not (eq $.Lpa.Tasks.CheckYourLpa.String "completed") }}
+                {{ if not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed }}
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link" href="{{ link $.App $detailsLink }}#f-first-names">
                             {{ trFormatHtml $.App "changeNameLinkText" "FirstNames" $p.FirstNames "LastName" $p.LastName }}
@@ -33,7 +33,7 @@
                 <dd class="govuk-summary-list__value">
                     {{ $p.Email }}
                 </dd>
-                {{ if not (eq $.Lpa.Tasks.CheckYourLpa.String "completed") }}
+                {{ if not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed }}
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link" href="{{ link $.App $detailsLink }}#f-email">
                             {{ trFormatHtml $.App "changeEmailLinkText" "FirstNames" $p.FirstNames "LastName" $p.LastName }}
@@ -52,7 +52,7 @@
                     {{ if $p.Address.TownOrCity }}{{ $p.Address.TownOrCity }}<br>{{end}}
                     {{ $p.Address.Postcode }}
                 </dd>
-                {{ if not (eq $.Lpa.Tasks.CheckYourLpa.String "completed") }}
+                {{ if not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed }}
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link" href="{{ link $.App $addressLink }}#f-address-line-1">
                             {{ trFormatHtml $.App "changeAddressLink" "FirstNames" $p.FirstNames "LastName" $p.LastName }}
@@ -62,7 +62,7 @@
             </div>
         </dl>
 
-        {{ if not (eq $.Lpa.Tasks.CheckYourLpa.String "completed") }}
+        {{ if not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed }}
             <div class="govuk-grid-row" id="remove-person-to-notify-{{ $personNumber }}">
                 <div class="govuk-grid-column-full">
                     <div class="app-float-right">
