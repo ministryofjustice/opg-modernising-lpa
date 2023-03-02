@@ -14,9 +14,6 @@
               Pre-complete donor flow
             </h2>
           </legend>
-          <div id="waste-hint" class="govuk-hint">
-            Select all that apply.
-          </div>
           <div class="govuk-checkboxes govuk-!-margin-bottom-3" data-module="govuk-checkboxes">
             <div class="govuk-checkboxes__item">
               <input class="govuk-checkboxes__input" id="f-donor-details" name="donor-details" type="checkbox" value="withDonorDetails">
@@ -55,10 +52,18 @@
               </label>
             </div>
             <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-people-to-notify" name="people-to-notify" type="checkbox" value="withPeopleToNotify">
+              <input class="govuk-checkboxes__input" id="f-people-to-notify" name="people-to-notify" type="checkbox" value="withPeopleToNotify" data-aria-controls="conditional-ptn-count">
               <label class="govuk-label govuk-checkboxes__label" for="f-people-to-notify">
-                People to notify about your LPA (adds 2)
+                People to notify about your LPA
               </label>
+            </div>
+            <div class="govuk-checkboxes__conditional" id="conditional-ptn-count">
+              <div class="govuk-form-group">
+                <label class="govuk-label" for="f-ptn-count">
+                  How many? (Max 5)
+                </label>
+                <input class="govuk-input govuk-!-width-one-third" id="f-ptn-count" name="ptn-count" value="2">
+              </div>
             </div>
             <div class="govuk-checkboxes__item">
               <input class="govuk-checkboxes__input" id="f-check-and-send-to-cp" name="check-and-send-to-cp" type="checkbox" value="lpaChecked">
