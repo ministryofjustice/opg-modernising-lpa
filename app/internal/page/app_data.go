@@ -21,6 +21,7 @@ type AppData struct {
 	Paths            AppPaths
 	LpaID            string
 	CsrfToken        string
+	IsDonor          bool
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, lpa *Lpa, url string) error {

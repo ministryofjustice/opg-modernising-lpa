@@ -14,7 +14,7 @@
         {{ tr .App "lpaDecisions" }}
       </h2>
 
-      {{ template "lpa-decisions" (lpaDecisions .App false .Lpa) }}
+      {{ template "lpa-decisions" . }}
 
       <h2 class="govuk-heading-l govuk-!-margin-bottom-2">
         {{ tr .App "peopleNamedOnTheLpa" }}

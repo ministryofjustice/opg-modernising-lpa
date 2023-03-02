@@ -22,7 +22,7 @@
 
             <h2 class="govuk-heading-m">{{ tr .App "lpaDecisions"}}</h2>
 
-            {{ template "lpa-decisions" (lpaDecisions .App true .Lpa) }}
+            {{ template "lpa-decisions" . }}
             {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa false) }}
         </div>
     </div>
