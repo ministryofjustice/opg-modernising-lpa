@@ -17,12 +17,16 @@
 
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
-                {{ tr .App "whenYourAttorneysCanUseYourLpa" }}
+                {{ if .App.IsDonor }}
+                    {{ tr .App "whenYourAttorneysCanUseYourLpa" }}
+                {{ else}}
+                    {{ tr .App "whenAttorneysCanUseTheLpa" }}
+                {{ end }}
             </dt>
             <dd class="govuk-summary-list__value">
                 {{ tr .App .Lpa.WhenCanTheLpaBeUsed }}
             </dd>
-            {{ if not (eq .Lpa.Tasks.CheckYourLpa.String "completed") }}
+            {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link" href="{{ link .App .App.Paths.WhenCanTheLpaBeUsed }}">
                         {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "whenYourAttorneysCanUseYourLpa" }}</span>
@@ -33,12 +37,16 @@
 
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
-                {{ trCount .App "whoAreTheAttorneys" (len .Lpa.Attorneys) }}
+                {{ if .App.IsDonor }}
+                    {{ trCount .App "whoAreYourAttorneys" (len .Lpa.Attorneys) }}
+                {{ else}}
+                    {{ trCount .App "theirAttorneys" (len .Lpa.Attorneys) }}
+                {{ end }}
             </dt>
             <dd class="govuk-summary-list__value">
                 {{ .Lpa.Attorneys.FullNames }}
             </dd>
-            {{ if not (eq .Lpa.Tasks.CheckYourLpa.String "completed") }}
+            {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link" href="{{ link .App .App.Paths.ChooseAttorneys }}">
                         {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "yourAttorneys" }}</span>
@@ -50,12 +58,16 @@
         {{ if gt (len .Lpa.Attorneys) 1 }}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
-                    {{ tr .App "howTheAttorneysMustMakeDecisions" }}
+                    {{ if .App.IsDonor }}
+                        {{ tr .App "howYourAttorneysMustMakeDecisions" }}
+                    {{ else}}
+                        {{ tr .App "howAttorneysMustMakeDecisions" }}
+                    {{ end }}
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {{ trHtml .App .Lpa.HowAttorneysMakeDecisions }}
                 </dd>
-                {{ if not (eq .Lpa.Tasks.CheckYourLpa.String "completed") }}
+                {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link" href="{{ link .App .App.Paths.HowShouldAttorneysMakeDecisions }}">
                             {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ .Lpa.HowAttorneysMakeDecisionsDetails }}</span>
@@ -67,7 +79,11 @@
 
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
-                {{ trCount .App "whoAreTheReplacementAttorneys" (len .Lpa.ReplacementAttorneys) }}
+                {{ if .App.IsDonor }}
+                    {{ trCount .App "whoAreYourReplacementAttorneys" (len .Lpa.ReplacementAttorneys) }}
+                {{ else}}
+                    {{ trCount .App "theirReplacementAttorneys" (len .Lpa.ReplacementAttorneys) }}
+                {{ end }}
             </dt>
             <dd class="govuk-summary-list__value">
                 {{ if eq 0 (len .Lpa.ReplacementAttorneys) }}
@@ -76,7 +92,7 @@
                     {{ .Lpa.ReplacementAttorneys.FullNames }}
                 {{ end }}
             </dd>
-            {{ if not (eq .Lpa.Tasks.CheckYourLpa.String "completed") }}
+            {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link" href="{{ link .App .App.Paths.ChooseReplacementAttorneys }}">
                         {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ tr .App "yourReplacementAttorneys" }}</span>
@@ -92,7 +108,7 @@
             <dd class="govuk-summary-list__value">
                 <p class="govuk-body">{{ .Lpa.Restrictions }}</p>
             </dd>
-            {{ if not (eq .Lpa.Tasks.CheckYourLpa.String "completed") }}
+            {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link" href="{{ link .App .App.Paths.Restrictions }}">
                         {{ tr .App "change" }}<span class="govuk-visually-hidden">  {{ tr .App "yourRestrictions" }}</span>
