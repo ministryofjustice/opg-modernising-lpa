@@ -8,19 +8,17 @@ import (
 )
 
 type CertificateProvider struct {
-	FirstNames                 string
-	LastName                   string
-	Email                      string
-	Address                    place.Address
-	Mobile                     string
-	DateOfBirth                date.Date
-	CarryOutBy                 string
-	Relationship               string
-	RelationshipDescription    string
-	RelationshipLength         string
-	DeclaredRelationship       string
-	DeclaredRelationshipLength string
-	DeclaredFullName           string
+	FirstNames              string
+	LastName                string
+	Email                   string
+	Address                 place.Address
+	Mobile                  string
+	DateOfBirth             date.Date
+	CarryOutBy              string
+	Relationship            string
+	RelationshipDescription string
+	RelationshipLength      string
+	DeclaredFullName        string
 }
 
 func (p CertificateProvider) FullName() string {
