@@ -165,7 +165,6 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 			appData := page.AppDataFromContext(ctx)
 			appData.Page = path
 			appData.CanGoBack = opt&CanGoBack != 0
-			appData.IsDonor = false
 
 			if opt&RequireSession != 0 {
 				session, err := sesh.CertificateProvider(store, r)
