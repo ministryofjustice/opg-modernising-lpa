@@ -43,7 +43,6 @@ func All(tag string) map[string]any {
 		"listPeopleToNotify": listPeopleToNotify,
 		"progressBar":        progressBar,
 		"peopleNamedOnLpa":   peopleNamedOnLpa,
-		"lpaDecisions":       lpaDecisions,
 	}
 }
 
@@ -294,13 +293,5 @@ func peopleNamedOnLpa(app page.AppData, lpa *page.Lpa, showPeopleHeaders bool) m
 		"App":               app,
 		"Lpa":               lpa,
 		"ShowPeopleHeaders": showPeopleHeaders,
-	}
-}
-
-func lpaDecisions(app page.AppData, donorIsViewing bool, lpa *page.Lpa) map[string]interface{} {
-	return map[string]interface{}{
-		"App":            app,
-		"DonorIsViewing": donorIsViewing,
-		"Lpa":            lpa,
 	}
 }

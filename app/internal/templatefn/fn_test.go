@@ -357,19 +357,3 @@ func TestListPeopleNamedOnLpa(t *testing.T) {
 
 	assert.Equal(t, want, got)
 }
-
-func TestLpaDecisions(t *testing.T) {
-	app := page.AppData{SessionID: "abc"}
-	donorIsViewing := true
-	lpa := &page.Lpa{}
-
-	want := map[string]interface{}{
-		"App":            app,
-		"DonorIsViewing": donorIsViewing,
-		"Lpa":            lpa,
-	}
-
-	got := lpaDecisions(app, donorIsViewing, lpa)
-
-	assert.Equal(t, want, got)
-}
