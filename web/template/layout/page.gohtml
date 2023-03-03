@@ -153,6 +153,11 @@
                   </a>
                 </li>
                 <li class="govuk-footer__inline-list-item">
+                  <a class="govuk-footer__link" href="{{ linkLang .App .App.Paths.YourLegalRightsAndResponsibilities }}">
+                    {{ tr .App "yourLegalRightsAndResponsibilities" }}
+                  </a>
+                </li>
+                <li class="govuk-footer__inline-list-item">
                   <a class="govuk-footer__link" href="{{ if .App.Localizer.ShowTranslationKeys }}{{ .App.BuildUrl .App.Page }}{{ else }}{{ .App.BuildUrl .App.Page }}?showTranslationKeys=1{{ end }}">
                     {{ tr .App "toggleTransKeys" }}
                   </a>
