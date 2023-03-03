@@ -31,10 +31,10 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 		data := &yourDetailsData{
 			App: appData,
 			Form: &yourDetailsForm{
-				FirstNames: lpa.You.FirstNames,
-				LastName:   lpa.You.LastName,
-				OtherNames: lpa.You.OtherNames,
-				Dob:        lpa.You.DateOfBirth,
+				FirstNames: lpa.Donor.FirstNames,
+				LastName:   lpa.Donor.LastName,
+				OtherNames: lpa.Donor.OtherNames,
+				Dob:        lpa.Donor.DateOfBirth,
 			},
 		}
 
@@ -67,11 +67,11 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 			}
 
 			if !data.Errors.Any() && data.DobWarning == "" && data.NameWarning == nil {
-				lpa.You.FirstNames = data.Form.FirstNames
-				lpa.You.LastName = data.Form.LastName
-				lpa.You.OtherNames = data.Form.OtherNames
-				lpa.You.DateOfBirth = data.Form.Dob
-				lpa.You.Email = donorSession.Email
+				lpa.Donor.FirstNames = data.Form.FirstNames
+				lpa.Donor.LastName = data.Form.LastName
+				lpa.Donor.OtherNames = data.Form.OtherNames
+				lpa.Donor.DateOfBirth = data.Form.Dob
+				lpa.Donor.Email = donorSession.Email
 				lpa.Tasks.YourDetails = page.TaskInProgress
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {

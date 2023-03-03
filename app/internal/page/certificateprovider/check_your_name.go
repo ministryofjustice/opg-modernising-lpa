@@ -44,7 +44,7 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 					}
 
 					_, err := notifyClient.Email(r.Context(), notify.Email{
-						EmailAddress:    lpa.You.Email,
+						EmailAddress:    lpa.Donor.Email,
 						TemplateID:      notifyClient.TemplateID(notify.CertificateProviderNameChangeEmail),
 						Personalisation: map[string]string{"declaredName": lpa.CertificateProvider.DeclaredFullName},
 					})

@@ -68,7 +68,7 @@ func TestGetYourDetailsFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			You: actor.Person{
+			Donor: actor.Person{
 				FirstNames: "John",
 			},
 		}, nil)
@@ -167,14 +167,14 @@ func TestPostYourDetails(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					You: actor.Person{
+					Donor: actor.Person{
 						FirstNames: "John",
 						Address:    place.Address{Line1: "abc"},
 					},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
-					You:   tc.person,
+					Donor: tc.person,
 					Tasks: page.Tasks{YourDetails: page.TaskInProgress},
 				}).
 				Return(nil)
@@ -298,7 +298,7 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			You: actor.Person{
+			Donor: actor.Person{
 				FirstNames: "John",
 				Address:    place.Address{Line1: "abc"},
 			},
@@ -518,7 +518,7 @@ func TestYourDetailsFormDobWarning(t *testing.T) {
 
 func TestDonorMatches(t *testing.T) {
 	lpa := &page.Lpa{
-		You: actor.Person{FirstNames: "a", LastName: "b"},
+		Donor: actor.Person{FirstNames: "a", LastName: "b"},
 		Attorneys: actor.Attorneys{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},

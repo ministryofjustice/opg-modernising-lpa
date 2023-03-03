@@ -132,7 +132,7 @@ func (f *choosePeopleToNotifyForm) Validate() validation.List {
 }
 
 func personToNotifyMatches(lpa *page.Lpa, id, firstNames, lastName string) actor.Type {
-	if lpa.You.FirstNames == firstNames && lpa.You.LastName == lastName {
+	if lpa.Donor.FirstNames == firstNames && lpa.Donor.LastName == lastName {
 		return actor.TypeDonor
 	}
 

@@ -38,7 +38,7 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 				Reference:   randomString(12),
 				Description: "Property and Finance LPA",
 				ReturnUrl:   appPublicUrl + appData.BuildUrl(page.Paths.PaymentConfirmation),
-				Email:       lpa.You.Email,
+				Email:       lpa.Donor.Email,
 				Language:    appData.Lang.String(),
 			}
 
