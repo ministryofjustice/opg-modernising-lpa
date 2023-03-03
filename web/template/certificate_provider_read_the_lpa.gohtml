@@ -1,12 +1,14 @@
 {{ template "page" . }}
 
 {{ define "serviceName" }}{{ tr .App "beACertificateProvider" }}{{ end }}
-{{ define "pageTitle" }}{{ tr .App "readYourLpa" }}{{ end }}
+{{ define "pageTitle" }}{{ trFormat .App "readDonorNameLpa" "DonorFullName" .Lpa.You.FullName }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "readYourLpa" }}</h1>
+      <h1 class="govuk-heading-xl">{{ trFormat .App "readDonorNameLpa" "DonorFullName" .Lpa.You.FullName }}</h1>
+
+      {{ template "warning" (warning .App "youMustReadLpaCarefully") }}
 
       <h2 id="decisions" class="govuk-heading-l govuk-!-margin-bottom-2">
         {{ tr .App "lpaDecisions" }}
