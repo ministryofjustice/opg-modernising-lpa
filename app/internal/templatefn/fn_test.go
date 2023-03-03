@@ -139,6 +139,13 @@ func TestLink(t *testing.T) {
 	assert.Equal(t, "/cy/lpa/123/somewhere", link(page.AppData{Lang: localize.Cy, LpaID: "123"}, "/somewhere"))
 }
 
+func TestLinkLang(t *testing.T) {
+	assert.Equal(t, "/dashboard", linkLang(page.AppData{}, "/dashboard"))
+	assert.Equal(t, "/cy/dashboard", linkLang(page.AppData{Lang: localize.Cy}, "/dashboard"))
+	assert.Equal(t, "/somewhere", linkLang(page.AppData{LpaID: "123"}, "/somewhere"))
+	assert.Equal(t, "/cy/somewhere", linkLang(page.AppData{Lang: localize.Cy, LpaID: "123"}, "/somewhere"))
+}
+
 func TestContains(t *testing.T) {
 	assert.True(t, contains("b", []string{"a", "b", "c"}))
 	assert.False(t, contains("d", []string{"a", "b", "c"}))

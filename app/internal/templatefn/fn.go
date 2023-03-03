@@ -26,6 +26,7 @@ func All(tag string) map[string]any {
 		"details":            details,
 		"inc":                inc,
 		"link":               link,
+		"linkLang":           linkLang,
 		"contains":           contains,
 		"tr":                 tr,
 		"trFormat":           trFormat,
@@ -129,6 +130,14 @@ func inc(i int) int {
 
 func link(app page.AppData, path string) string {
 	return app.BuildUrl(path)
+}
+
+func linkLang(app page.AppData, path string) string {
+	if app.Lang == localize.Cy {
+		return "/" + app.Lang.String() + path
+	}
+
+	return path
 }
 
 func contains(needle string, list []string) bool {
