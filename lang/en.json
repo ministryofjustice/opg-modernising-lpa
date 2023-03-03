@@ -134,7 +134,6 @@
     "checkAndSendToYourCertificateProvider": "Check and send to your certificate provider",
     "payForTheLpa": "Pay for the LPA",
     "confirmYourIdentityAndSign": "Confirm your identity and sign the LPA",
-    "registerTheLpa": "Register the LPA",
     "attorneysAdded": {
         "one": "You have added {{.PluralCount}} attorney",
         "other": "You have added {{.PluralCount}} attorneys"
