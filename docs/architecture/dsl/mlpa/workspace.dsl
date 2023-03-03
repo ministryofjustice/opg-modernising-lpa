@@ -29,7 +29,7 @@ workspace {
                     mlpaOpgRegisterDatabase_databaseMonitoringTelemetry = component "Monitoring and Telemetery" "Cloudwatch logs and X-Ray" "AWS Cloudwatch" "Database"
                 }
 
-                mlpaOpgRegisterService = container "Registered LPA Service" "Highly available API for reading and searching the LPA Register. [Owner: Modernising, Users: UaLPA, Vega]" "API Gateway" "Container" {
+                mlpaOpgRegisterService = container "Registered LPA Service" "Highly available API for reading and searching the LPA Register. [Owner: Vega, Users: UaLPA, Modernising]" "API Gateway" "Container" {
                     mlpaOpgRegisterService_ReadAPIGateway = component "Registered LPA Read API" "Highly available API for reading and searching the LPA Register " "API Gateway" "Container"
                     mlpaOpgRegisterService_WriteAPIGateway = component "Registered LPA Write API" "Interface to writing to the Registered LPA Database." "API Gateway, Go" "Container"
                     mlpaOpgRegisterService_ReadReplicaDatabase = component "Read Replica LPA Database" "Cached version of Registered LPA Data." "AuroraDB" "Database"
