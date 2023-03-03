@@ -102,12 +102,6 @@ func TestGetTaskList(t *testing.T) {
 								{Name: "confirmYourIdentityAndSign", Path: page.Paths.HowToConfirmYourIdentityAndSign},
 							},
 						},
-						{
-							Heading: "registerTheLpa",
-							Items: []taskListItem{
-								{Name: "registerTheLpa"},
-							},
-						},
 					}),
 				}).
 				Return(nil)
