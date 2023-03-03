@@ -69,37 +69,37 @@ func TestPostFixturesCPFlow(t *testing.T) {
 	}{
 		"Donor has paid": {
 			form: url.Values{
-				"email":            {"a@example.org"},
-				"useTestShareCode": {"1"},
-				"cp-flow-id":       {"startCpFlowDonorHasPaid"},
-				"completeLpa":      {"1"},
+				"email":                  {"a@example.org"},
+				"useTestShareCode":       {"1"},
+				"cp-flow-has-donor-paid": {"startCpFlowDonorHasPaid"},
+				"completeLpa":            {"1"},
 			},
-			expectedPath: "/testing-start?completeLpa=1&startCpFlowDonorHasPaid=1&useTestShareCode=1&withEmail=a%40example.org",
+			expectedPath: "/testing-start?startCpFlowDonorHasPaid=1&useTestShareCode=1&withEmail=a%40example.org",
 		},
 		"Donor has not paid": {
 			form: url.Values{
-				"useTestShareCode": {"1"},
-				"cp-flow-id":       {"startCpFlowDonorHasNotPaid"},
-				"completeLpa":      {"1"},
+				"useTestShareCode":       {"1"},
+				"cp-flow-has-donor-paid": {"startCpFlowDonorHasNotPaid"},
+				"completeLpa":            {"1"},
 			},
-			expectedPath: "/testing-start?completeLpa=1&startCpFlowDonorHasNotPaid=1&useTestShareCode=1",
+			expectedPath: "/testing-start?startCpFlowDonorHasNotPaid=1&useTestShareCode=1",
 		},
 		"Donor has not paid and email": {
 			form: url.Values{
-				"email":            {"a@example.org"},
-				"useTestShareCode": {"1"},
-				"cp-flow-id":       {"startCpFlowDonorHasNotPaid"},
-				"completeLpa":      {"1"},
+				"email":                  {"a@example.org"},
+				"useTestShareCode":       {"1"},
+				"cp-flow-has-donor-paid": {"startCpFlowDonorHasNotPaid"},
+				"completeLpa":            {"1"},
 			},
-			expectedPath: "/testing-start?completeLpa=1&startCpFlowDonorHasNotPaid=1&useTestShareCode=1&withEmail=a%40example.org",
+			expectedPath: "/testing-start?startCpFlowDonorHasNotPaid=1&useTestShareCode=1&withEmail=a%40example.org",
 		},
 		"Donor has not paid no email": {
 			form: url.Values{
-				"useTestShareCode": {"1"},
-				"cp-flow-id":       {"startCpFlowDonorHasNotPaid"},
-				"completeLpa":      {"1"},
+				"useTestShareCode":       {"1"},
+				"cp-flow-has-donor-paid": {"startCpFlowDonorHasNotPaid"},
+				"completeLpa":            {"1"},
 			},
-			expectedPath: "/testing-start?completeLpa=1&startCpFlowDonorHasNotPaid=1&useTestShareCode=1",
+			expectedPath: "/testing-start?startCpFlowDonorHasNotPaid=1&useTestShareCode=1",
 		},
 	}
 

@@ -48,7 +48,7 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "chooseWhenTheLpaCanBeUsed", Path: page.Paths.WhenCanTheLpaBeUsed, State: page.TaskInProgress},
 					{Name: "addRestrictionsToTheLpa", Path: page.Paths.Restrictions, State: page.TaskCompleted},
 					{Name: "chooseYourCertificateProvider", Path: page.Paths.WhoDoYouWantToBeCertificateProviderGuidance, State: page.TaskInProgress},
-					{Name: "peopleToNotify", Path: page.Paths.DoYouWantToNotifyPeople},
+					{Name: "peopleToNotifyAboutYourLpa", Path: page.Paths.DoYouWantToNotifyPeople},
 					{Name: "checkAndSendToYourCertificateProvider", Path: page.Paths.CheckYourLpa, State: page.TaskCompleted},
 				}
 
@@ -86,7 +86,7 @@ func TestGetTaskList(t *testing.T) {
 								{Name: "chooseWhenTheLpaCanBeUsed", Path: page.Paths.WhenCanTheLpaBeUsed},
 								{Name: "addRestrictionsToTheLpa", Path: page.Paths.Restrictions},
 								{Name: "chooseYourCertificateProvider", Path: page.Paths.WhoDoYouWantToBeCertificateProviderGuidance},
-								{Name: "peopleToNotify", Path: page.Paths.DoYouWantToNotifyPeople},
+								{Name: "peopleToNotifyAboutYourLpa", Path: page.Paths.DoYouWantToNotifyPeople},
 								{Name: "checkAndSendToYourCertificateProvider", Path: page.Paths.CheckYourLpa},
 							},
 						},

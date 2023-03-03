@@ -271,7 +271,7 @@ type fixturesForm struct {
 	IdAndSign            string
 	CompleteAll          string
 	Email                string
-	CpFlowId             string
+	CpFlowHasDonorPaid   string
 }
 
 func readFixtures(r *http.Request) *fixturesForm {
@@ -289,7 +289,7 @@ func readFixtures(r *http.Request) *fixturesForm {
 		IdAndSign:            PostFormString(r, "confirm-id-and-sign"),
 		CompleteAll:          PostFormString(r, "complete-all-sections"),
 		Email:                PostFormString(r, "email"),
-		CpFlowId:             PostFormString(r, "cp-flow-id"),
+		CpFlowHasDonorPaid:   PostFormString(r, "cp-flow-has-donor-paid"),
 	}
 }
 
@@ -307,11 +307,10 @@ func Fixtures(tmpl template.Template) Handler {
 			if len(data.Errors) == 0 {
 				var values url.Values
 
-				if data.Form.CpFlowId != "" {
+				if data.Form.CpFlowHasDonorPaid != "" {
 					values = url.Values{
-						"useTestShareCode": {"1"},
-						data.Form.CpFlowId: {"1"},
-						"completeLpa":      {"1"},
+						"useTestShareCode":           {"1"},
+						data.Form.CpFlowHasDonorPaid: {"1"},
 					}
 
 					if data.Form.Email != "" {
@@ -348,8 +347,8 @@ func Fixtures(tmpl template.Template) Handler {
 func (f *fixturesForm) Validate() validation.List {
 	var errors validation.List
 
-	if f.Email != "" && f.CpFlowId == "" {
-		errors.String("cp-flow-id", "how to start the CP flow", f.CpFlowId,
+	if f.Email != "" && f.CpFlowHasDonorPaid == "" {
+		errors.String("cp-flow-has-donor-paid", "how to start the CP flow", f.CpFlowHasDonorPaid,
 			validation.Select("startCpFlowWithId", "startCpFlowWithoutId"))
 	}
 

@@ -42,6 +42,7 @@ func TestMakeHandle(t *testing.T) {
 			Page:      "/path",
 			CanGoBack: true,
 			SessionID: "cmFuZG9t",
+			IsDonor:   true,
 		}, appData)
 		assert.Equal(t, w, hw)
 		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t"}, page.SessionDataFromContext(hr.Context()))
@@ -73,6 +74,7 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 			SessionID: "cmFuZG9t",
 			CanGoBack: true,
 			LpaID:     "123",
+			IsDonor:   true,
 		}, appData)
 		assert.Equal(t, w, hw)
 		assert.Equal(t, &page.SessionData{LpaID: "123", SessionID: "cmFuZG9t"}, page.SessionDataFromContext(hr.Context()))
@@ -156,10 +158,11 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	handle := makeHandle(mux, nil, None, nil)
 	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
-			Page: "/path",
+			Page:    "/path",
+			IsDonor: true,
 		}, appData)
 		assert.Equal(t, w, hw)
-		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{Page: "/path"})), hr)
+		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{Page: "/path", IsDonor: true})), hr)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
