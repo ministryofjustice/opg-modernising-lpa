@@ -74,7 +74,7 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) page.Handler {
 							State: lpa.Tasks.CertificateProvider,
 						},
 						{
-							Name:  "peopleToNotify",
+							Name:  "peopleToNotifyAboutYourLpa",
 							Path:  page.Paths.DoYouWantToNotifyPeople,
 							State: lpa.Tasks.PeopleToNotify,
 							Count: len(lpa.PeopleToNotify),
