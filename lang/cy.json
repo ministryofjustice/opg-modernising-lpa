@@ -138,7 +138,6 @@
     "checkAndSendToYourCertificateProvider": "Gwiriwch a’i hanfon at eich darparwr tystysgrif",
     "payForTheLpa": "Talu am yr LPA",
     "confirmYourIdentityAndSign": "Cadarnhau pwy ydych a llofnodi’r LPA",
-    "registerTheLpa": "Cofrestru’r LPA",
     "attorneysAdded": {
         "one": "Rydych wedi ychwanegu {{.PluralCount}} atwrnai",
         "two": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod",
