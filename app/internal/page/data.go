@@ -54,7 +54,7 @@ func (t TaskState) String() string {
 type Lpa struct {
 	ID                                          string
 	UpdatedAt                                   time.Time
-	You                                         actor.Person
+	Donor                                       actor.Person
 	Attorneys                                   actor.Attorneys
 	CertificateProvider                         actor.CertificateProvider
 	WhoFor                                      string

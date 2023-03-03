@@ -209,11 +209,11 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					Donor: actor.Person{FirstNames: "Jane", LastName: "Doe"},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
-					You:            actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					Donor:          actor.Person{FirstNames: "Jane", LastName: "Doe"},
 					PeopleToNotify: actor.PeopleToNotify{tc.personToNotify},
 					Tasks:          page.Tasks{PeopleToNotify: page.TaskInProgress},
 				}).
@@ -404,7 +404,7 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					Donor: actor.Person{FirstNames: "Jane", LastName: "Doe"},
 				}, nil)
 
 			template := newMockTemplate(t)
@@ -521,7 +521,7 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 
 func TestPersonToNotifyMatches(t *testing.T) {
 	lpa := &page.Lpa{
-		You: actor.Person{FirstNames: "a", LastName: "b"},
+		Donor: actor.Person{FirstNames: "a", LastName: "b"},
 		Attorneys: actor.Attorneys{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},

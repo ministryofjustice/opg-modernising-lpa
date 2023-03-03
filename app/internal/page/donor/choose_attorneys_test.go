@@ -179,14 +179,14 @@ func TestPostChooseAttorneysAttorneyDoesNotExist(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					You: actor.Person{
+					Donor: actor.Person{
 						FirstNames: "Jane",
 						LastName:   "Doe",
 					},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
-					You: actor.Person{
+					Donor: actor.Person{
 						FirstNames: "Jane",
 						LastName:   "Doe",
 					},
@@ -280,7 +280,7 @@ func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					Donor: actor.Person{FirstNames: "Jane", LastName: "Doe"},
 					Attorneys: actor.Attorneys{
 						{
 							FirstNames: "John",
@@ -291,7 +291,7 @@ func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
-					You:       actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					Donor:     actor.Person{FirstNames: "Jane", LastName: "Doe"},
 					Attorneys: actor.Attorneys{tc.attorney},
 				}).
 				Return(nil)
@@ -496,7 +496,7 @@ func TestPostChooseAttorneysWhenInputRequired(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					You: actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					Donor: actor.Person{FirstNames: "Jane", LastName: "Doe"},
 				}, nil)
 
 			template := newMockTemplate(t)
@@ -704,7 +704,7 @@ func TestChooseAttorneysFormDobWarning(t *testing.T) {
 
 func TestAttorneyMatches(t *testing.T) {
 	lpa := &page.Lpa{
-		You: actor.Person{FirstNames: "a", LastName: "b"},
+		Donor: actor.Person{FirstNames: "a", LastName: "b"},
 		Attorneys: actor.Attorneys{
 			{FirstNames: "c", LastName: "d"},
 			{ID: "123", FirstNames: "e", LastName: "f"},

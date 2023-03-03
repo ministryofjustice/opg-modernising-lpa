@@ -43,7 +43,7 @@
             <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
               <strong class="moj-badge app-float-right govuk-!-margin-left-2">{{ tr $.App "statusTag" }}</strong>
               <p class="govuk-body app-float-right"><strong>{{ tr $.App "lastSaved" }}:</strong> {{ formatDateTime .UpdatedAt }}</p>
-              <h2 class="govuk-heading-m govuk-!-padding-top-0 govuk-!-margin-bottom-1">{{ if eq "pfa" .Type }}{{ tr $.App "lpaTypePfa" }}{{ else }}{{ tr $.App "lpaTypeHw" }}{{ end }}: <span class="govuk-!-font-weight-regular">{{ .You.FirstNames }} {{ .You.LastName }}</span></h2>
+              <h2 class="govuk-heading-m govuk-!-padding-top-0 govuk-!-margin-bottom-1">{{ if eq "pfa" .Type }}{{ tr $.App "lpaTypePfa" }}{{ else }}{{ tr $.App "lpaTypeHw" }}{{ end }}: <span class="govuk-!-font-weight-regular">{{ .Donor.FirstNames }} {{ .Donor.LastName }}</span></h2>
               <span class="govuk-hint"><strong>{{ tr $.App "applicationNumber" }}:</strong> {{ .ID }}</span>
               <div class="govuk-button-group govuk-!-margin-top-4">
                 {{ if .Progress.LpaSigned.Completed }}

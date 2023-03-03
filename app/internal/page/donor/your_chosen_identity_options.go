@@ -31,7 +31,7 @@ func YourChosenIdentityOptions(tmpl template.Template, lpaStore LpaStore) page.H
 		data := &yourChosenIdentityOptionsData{
 			App:            appData,
 			IdentityOption: lpa.IdentityOption,
-			You:            lpa.You,
+			You:            lpa.Donor,
 		}
 
 		return tmpl(w, data)

@@ -109,7 +109,7 @@ func MakeCertificateProvider(firstNames string) actor.CertificateProvider {
 }
 
 func CompleteDonorDetails(lpa *Lpa) {
-	lpa.You = MakePerson()
+	lpa.Donor = MakePerson()
 	lpa.WhoFor = "me"
 	lpa.Type = "pfa"
 	lpa.Tasks.YourDetails = TaskCompleted
