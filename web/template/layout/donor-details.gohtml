@@ -5,7 +5,7 @@
             {{ tr .App "name" }}
         </dt>
         <dd class="govuk-summary-list__value">
-            {{ .Lpa.You.FirstNames }} {{ .Lpa.You.LastName }}
+            {{ .Lpa.Donor.FirstNames }} {{ .Lpa.Donor.LastName }}
         </dd>
         {{ if .Lpa.IdentityConfirmed }}
             <dd class="govuk-summary-list__value">
@@ -19,7 +19,7 @@
             {{ tr .App "dateOfBirth" }}
         </dt>
         <dd class="govuk-summary-list__value">
-            {{ formatDate .Lpa.You.DateOfBirth }}
+            {{ formatDate .Lpa.Donor.DateOfBirth }}
         </dd>
     </div>
 
@@ -28,7 +28,7 @@
             {{ tr .App "email" }}
         </dt>
         <dd class="govuk-summary-list__value">
-            {{ .Lpa.You.Email }}
+            {{ .Lpa.Donor.Email }}
         </dd>
     </div>
 
@@ -37,10 +37,10 @@
             {{ tr .App "address" }}
         </dt>
         <dd class="govuk-summary-list__value">
-            <div>{{ .Lpa.You.Address.Line1 }}</div>
-            <div>{{ .Lpa.You.Address.Line2 }}</div>
-            <div>{{ .Lpa.You.Address.TownOrCity }}</div>
-            <div>{{ .Lpa.You.Address.Postcode }}</div>
+            <div>{{ .Lpa.Donor.Address.Line1 }}</div>
+            <div>{{ .Lpa.Donor.Address.Line2 }}</div>
+            <div>{{ .Lpa.Donor.Address.TownOrCity }}</div>
+            <div>{{ .Lpa.Donor.Address.Postcode }}</div>
         </dd>
     </div>
 </dl>

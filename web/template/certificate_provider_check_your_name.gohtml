@@ -8,7 +8,7 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ tr .App "checkAndConfirmYourName" }}</h1>
 
-            {{ trFormatHtml .App "checkAndConfirmYourNameContent" "DonorFullName" .Lpa.You.FullName "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
+            {{ trFormatHtml .App "checkAndConfirmYourNameContent" "DonorFullName" .Lpa.Donor.FullName "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
 
             <form novalidate method="post">
                 <div class="govuk-form-group {{ if .Errors.Has "is-name-correct" }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
