@@ -475,7 +475,7 @@
     "when-registered": "Cyn gynted ag y bydd wedi’i gofrestru",
     "when-capacity-lost": "Dim ond pan nad oes gennyf alluedd meddyliol",
 
-    "peopleToNotify": "Welsh",
+    "peopleToNotifyAboutYourLpa": "Welsh",
     "wantPeopleToNotify": "Ydych chi eisiau hysbysu unrhyw un am eich LPA?",
     "wantPeopleToNotifyContent": "<p class=\"govuk-body-l\">Cynnwys am bobl i’w hysbysu</p>",
     "yesToNotifySomeoneAboutYourLpa": "Welsh",
@@ -582,5 +582,6 @@
         "other": "Welsh"
     },
     "readDonorNameLpa": "Welsh {{ .DonorFullName }}’s welsh",
-    "youMustReadLpaCarefully": "Welsh."
+    "youMustReadLpaCarefully": "Welsh.",
+    "peopleToNotifyAboutTheLpa": "Welsh"
 }
