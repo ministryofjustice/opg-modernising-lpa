@@ -8,12 +8,14 @@
       <h1 class="govuk-heading-xl">{{ tr .App "yourLegalRightsAndResponsibilities" }}</h1>
 
       {{ trHtml .App "yourLegalRightsAndResponsibilitiesContent" }}
-      
-      <p class="govuk-button-group govuk-!-margin-top-8">
-        <a href="{{ link .App .App.Paths.SignYourLpa }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
-          {{ tr .App "continueToSigningPage" }}
-        </a>
-      </p>
+
+      {{ if .Lpa }}
+        <p class="govuk-button-group govuk-!-margin-top-8">
+          <a href="{{ link .App .App.Paths.SignYourLpa }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
+            {{ tr .App "continueToSigningPage" }}
+          </a>
+        </p>
+      {{ end }}
     </div>
   </div>
 {{ end }}
