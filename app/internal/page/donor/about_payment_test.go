@@ -106,7 +106,7 @@ func TestPostAboutPayment(t *testing.T) {
 				lpaStore := newMockLpaStore(t)
 				lpaStore.
 					On("Get", r.Context()).
-					Return(&page.Lpa{CertificateProvider: actor.CertificateProvider{}}, nil)
+					Return(&page.Lpa{Donor: actor.Person{Email: "a@b.com"}, CertificateProvider: actor.CertificateProvider{}}, nil)
 
 				template := newMockTemplate(t)
 				template.

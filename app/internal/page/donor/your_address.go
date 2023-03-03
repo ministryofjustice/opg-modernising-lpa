@@ -30,9 +30,9 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			Form: &form.AddressForm{},
 		}
 
-		if lpa.You.Address.Line1 != "" {
+		if lpa.Donor.Address.Line1 != "" {
 			data.Form.Action = "manual"
-			data.Form.Address = &lpa.You.Address
+			data.Form.Address = &lpa.Donor.Address
 		}
 
 		if r.Method == http.MethodPost {
@@ -40,7 +40,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			data.Errors = data.Form.Validate()
 
 			if data.Form.Action == "manual" && data.Errors.None() {
-				lpa.You.Address = *data.Form.Address
+				lpa.Donor.Address = *data.Form.Address
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}

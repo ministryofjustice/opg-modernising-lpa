@@ -24,7 +24,7 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"mixed": {
 			lpa: &page.Lpa{
-				You: actor.Person{
+				Donor: actor.Person{
 					FirstNames: "this",
 				},
 				Attorneys:            actor.Attorneys{{}, {}},
