@@ -106,14 +106,6 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) page.Handler {
 						},
 					},
 				},
-				{
-					Heading: "registerTheLpa",
-					Items: []taskListItem{
-						{
-							Name: "registerTheLpa",
-						},
-					},
-				},
 			},
 		}
 
