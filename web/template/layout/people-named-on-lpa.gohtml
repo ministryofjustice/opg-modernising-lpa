@@ -27,7 +27,12 @@
 
     {{ if gt (len .Lpa.PeopleToNotify) 0  }}
         <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
-            {{ tr .App "peopleToNotify" }}
+            {{ if .App.IsDonor }}
+                {{ tr .App "peopleToNotifyAboutYourLpa" }}
+            {{ else}}
+                {{ tr .App "peopleToNotifyAboutTheLpa" }}
+            {{ end }}
+
         </h3>
 
         {{ template "people-to-notify-summary" (listPeopleToNotify .App .ShowPeopleHeaders .Lpa) }}

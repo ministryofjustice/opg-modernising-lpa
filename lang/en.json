@@ -267,12 +267,12 @@
     "idVerifiedTag": "ID Verified",
     "lpaDecisions": "LPA decisions",
     "typeOfLpa": "Type of LPA",
-    "whoAreTheAttorneys": {
+    "whoAreYourAttorneys": {
         "one": "Who is your attorney",
         "other": "Who are your attorneys"
     },
-    "howTheAttorneysMustMakeDecisions": "How your attorneys must make decisions",
-    "whoAreTheReplacementAttorneys": {
+    "howYourAttorneysMustMakeDecisions": "How your attorneys must make decisions",
+    "whoAreYourReplacementAttorneys": {
         "one": "Who is your replacement attorney",
         "other": "Who are your replacement attorneys"
     },
@@ -440,7 +440,7 @@
     "when-registered":       "As soon as it’s registered",
     "when-capacity-lost":    "Only when I do not have mental capacity",
 
-    "peopleToNotify": "People to notify about your LPA",
+    "peopleToNotifyAboutYourLpa": "People to notify about your LPA",
     "wantPeopleToNotify": "Do you want to notify anyone about your LPA?",
     "yesToNotifySomeoneAboutYourLpa": "yes to notify someone about your LPA",
     "wantPeopleToNotifyContent": "<p class=\"govuk-body\">You can choose to notify up to 5 people about your LPA. Most people choose family members or close friends. These people can raise any concerns before your LPA is registered.</p><p class=\"govuk-body\">We call these ‘people to notify’. Having people to notify is optional.</p><p class=\"govuk-body\">If you choose to notify a person about your LPA, we’ll send them information as soon as we have received and checked your application.</p>",
@@ -528,5 +528,19 @@
     "isYourNameCorrect": "Is your name correct?",
     "enterYourFullName": "Enter your full name, as written on your passport",
     "yourFullName": "your full name",
-    "yesIfTheNameIsCorrect": "yes if the name is correct"
+    "yesIfTheNameIsCorrect": "yes if the name is correct",
+
+    "whenAttorneysCanUseTheLpa": "When attorneys can use the LPA",
+    "theirAttorneys": {
+        "one": "Their attorney",
+        "other": "Their attorneys"
+    },
+    "howAttorneysMustMakeDecisions": "How attorneys must make decisions",
+    "theirReplacementAttorneys": {
+        "one": "Their replacement attorney",
+        "other": "Their replacement attorneys"
+    },
+    "readDonorNameLpa": "Read {{ .DonorFullName }}’s LPA",
+    "youMustReadLpaCarefully": "You must read this LPA carefully.",
+    "peopleToNotifyAboutTheLpa": "People to notify about the LPA"
 }
