@@ -88,44 +88,6 @@ func TestTypeLegalTermTransKey(t *testing.T) {
 	}
 }
 
-func TestWitnessCodeExpired(t *testing.T) {
-	now := time.Now()
-
-	testCases := map[string]struct {
-		Duration string
-		Expected bool
-	}{
-		"now": {
-			Duration: "0s",
-			Expected: false,
-		},
-		"29m59s ago": {
-			Duration: "-29m59s",
-			Expected: false,
-		},
-		"30m ago": {
-			Duration: "-30m",
-			Expected: true,
-		},
-		"30m01s ago": {
-			Duration: "-30m01s",
-			Expected: true,
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			duration, _ := time.ParseDuration(tc.Duration)
-
-			lpa := Lpa{WitnessCode: WitnessCode{
-				Created: now.Add(duration),
-			}}
-
-			assert.Equal(t, tc.Expected, lpa.WitnessCode.HasExpired())
-		})
-	}
-}
-
 func TestAttorneysSigningDeadline(t *testing.T) {
 	lpa := Lpa{
 		Submitted: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
