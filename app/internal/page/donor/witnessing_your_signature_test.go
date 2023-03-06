@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -31,7 +30,7 @@ func TestGetWitnessingYourSignature(t *testing.T) {
 		On("Execute", w, &witnessingYourSignatureData{App: testAppData, Lpa: lpa}).
 		Return(nil)
 
-	err := WitnessingYourSignature(template.Execute, lpaStore, nil, nil, nil)(testAppData, w, r)
+	err := WitnessingYourSignature(template.Execute, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -47,7 +46,7 @@ func TestGetWitnessingYourSignatureWhenLpaStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := WitnessingYourSignature(nil, lpaStore, nil, nil, nil)(testAppData, w, r)
+	err := WitnessingYourSignature(nil, lpaStore, nil)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -68,7 +67,7 @@ func TestGetWitnessingYourSignatureWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, &witnessingYourSignatureData{App: testAppData, Lpa: lpa}).
 		Return(expectedError)
 
-	err := WitnessingYourSignature(template.Execute, lpaStore, nil, nil, nil)(testAppData, w, r)
+	err := WitnessingYourSignature(template.Execute, lpaStore, nil)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -83,30 +82,13 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
-	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"},
-			WitnessCode: page.WitnessCode{
-				Code:    "1234",
-				Created: now,
-			},
-			SignatureSmsID: "sms-id",
-		}).
+
+	witnessCodeSender := newMockWitnessCodeSender(t)
+	witnessCodeSender.
+		On("Send", r.Context(), lpa).
 		Return(nil)
 
-	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("TemplateID", notify.SignatureCodeSms).
-		Return("xyz")
-	notifyClient.
-		On("Sms", mock.Anything, notify.Sms{
-			PhoneNumber:     "07535111111",
-			TemplateID:      "xyz",
-			Personalisation: map[string]string{"code": "1234"},
-		}).
-		Return("sms-id", nil)
-
-	err := WitnessingYourSignature(nil, lpaStore, notifyClient, func(l int) string { return "1234" }, func() time.Time { return now })(testAppData, w, r)
+	err := WitnessingYourSignature(nil, lpaStore, witnessCodeSender)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -114,7 +96,7 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.WitnessingAsCertificateProvider, resp.Header.Get("Location"))
 }
 
-func TestPostWitnessingYourSignatureWhenNotifyErrors(t *testing.T) {
+func TestPostWitnessingYourSignatureWhenWitnessCodeSenderErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
@@ -125,42 +107,12 @@ func TestPostWitnessingYourSignatureWhenNotifyErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("TemplateID", notify.SignatureCodeSms).
-		Return("xyz")
-	notifyClient.
-		On("Sms", mock.Anything, mock.Anything).
-		Return("", expectedError)
-
-	err := WitnessingYourSignature(nil, lpaStore, notifyClient, func(l int) string { return "1234" }, func() time.Time { return now })(testAppData, w, r)
-
-	assert.Equal(t, expectedError, err)
-}
-
-func TestPostWitnessingYourSignatureWhenLpaStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", nil)
-
-	lpa := &page.Lpa{CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"}}
-
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
-		Return(lpa, nil)
-	lpaStore.
-		On("Put", r.Context(), mock.Anything).
+	witnessCodeSender := newMockWitnessCodeSender(t)
+	witnessCodeSender.
+		On("Send", mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("TemplateID", notify.SignatureCodeSms).
-		Return("xyz")
-	notifyClient.
-		On("Sms", mock.Anything, mock.Anything).
-		Return("sms-id", nil)
-
-	err := WitnessingYourSignature(nil, lpaStore, notifyClient, func(l int) string { return "1234" }, func() time.Time { return now })(testAppData, w, r)
+	err := WitnessingYourSignature(nil, lpaStore, witnessCodeSender)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }

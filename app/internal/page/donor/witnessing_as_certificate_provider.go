@@ -34,10 +34,11 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, 
 			data.Form = readWitnessingAsCertificateProviderForm(r)
 			data.Errors = data.Form.Validate()
 
-			if lpa.WitnessCode.HasExpired() {
-				data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeExpired"})
-			} else if lpa.WitnessCode.Code != data.Form.Code {
+			code, found := lpa.WitnessCodes.Find(data.Form.Code)
+			if !found {
 				data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeDoesNotMatch"})
+			} else if code.HasExpired() {
+				data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeExpired"})
 			}
 
 			if data.Errors.None() {
