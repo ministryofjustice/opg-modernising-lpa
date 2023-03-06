@@ -7,7 +7,7 @@ describe('When can the LPA be used', () => {
     it('can be submitted', () => {
         cy.get('#f-when').check('when-registered');
 
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/restrictions');

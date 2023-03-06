@@ -8,7 +8,7 @@ describe('How should replacement attorneys step in', () => {
         cy.contains('h1', 'How should your replacement attorneys step in?');
 
         // see https://github.com/alphagov/govuk-frontend/issues/979
-        cy.checkA11y(null, { rules: { region: { enabled: false }, 'aria-allowed-attr': { enabled: false } } });
+        cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.get('input[name="when-to-step-in"]').check('one');
 
@@ -17,7 +17,7 @@ describe('How should replacement attorneys step in', () => {
         cy.url().should('contain', '/task-list');
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
     });
 
@@ -29,25 +29,25 @@ describe('How should replacement attorneys step in', () => {
 
         cy.url().should('contain', '/task-list');
     });
-        
+
     it('errors when unselected', () => {
         cy.contains('button', 'Continue').click();
-        
+
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Select when your replacement attorneys should step in');
         });
-        
+
         cy.contains('.govuk-fieldset .govuk-error-message', 'Select when your replacement attorneys should step in');
     });
 
     it('errors when other and details empty', () => {
         cy.get('input[name="when-to-step-in"]').check('other');
         cy.contains('button', 'Continue').click();
-        
+
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter details of when your replacement attorneys should step in');
         });
-        
+
         cy.contains('.govuk-fieldset .govuk-error-message', 'Enter details of when your replacement attorneys should step in');
     });
 });

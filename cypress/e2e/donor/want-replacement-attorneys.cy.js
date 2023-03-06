@@ -7,7 +7,7 @@ describe('Do you want replacement attorneys', () => {
 
         cy.get('input[name="want"]').check('yes')
 
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/choose-replacement-attorneys');
@@ -21,7 +21,7 @@ describe('Do you want replacement attorneys', () => {
 
         cy.get('input[name="want"]').check('yes')
 
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/choose-replacement-attorneys');
@@ -35,7 +35,7 @@ describe('Do you want replacement attorneys', () => {
 
         cy.get('input[name="want"]').check('yes')
 
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/choose-replacement-attorneys');
@@ -49,7 +49,7 @@ describe('Do you want replacement attorneys', () => {
 
         cy.get('input[name="want"]').check('no')
 
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/task-list');
@@ -60,11 +60,11 @@ describe('Do you want replacement attorneys', () => {
     it('errors when unselected', () => {
         cy.visit('/testing-start?redirect=/do-you-want-replacement-attorneys&howAttorneysAct=jointly-and-severally');
         cy.contains('button', 'Continue').click();
-        
+
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Select yes to add replacement attorneys');
         });
-        
+
         cy.contains('.govuk-fieldset .govuk-error-message', 'Select yes to add replacement attorneys');
     });
 });
