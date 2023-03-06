@@ -140,13 +140,6 @@ data "aws_ip_ranges" "route53_healthchecks" {
   provider = aws.region
 }
 
-resource "aws_security_group" "loadbalancer_route53" {
-  name_prefix = "${data.aws_default_tags.current.tags.environment-name}-loadbalancer-route53"
-  description = "Allow Route53 healthchecks"
-  vpc_id      = var.network.vpc_id
-  provider    = aws.region
-}
-
 resource "aws_security_group_rule" "loadbalancer_ingress_route53_healthchecks" {
   description       = "Loadbalancer ingresss from Route53 healthchecks"
   type              = "ingress"
@@ -154,6 +147,6 @@ resource "aws_security_group_rule" "loadbalancer_ingress_route53_healthchecks" {
   from_port         = "443"
   to_port           = "443"
   cidr_blocks       = data.aws_ip_ranges.route53_healthchecks.cidr_blocks
-  security_group_id = aws_security_group.loadbalancer_route53.id
+  security_group_id = aws_security_group.app_loadbalancer.id
   provider          = aws.region
 }
