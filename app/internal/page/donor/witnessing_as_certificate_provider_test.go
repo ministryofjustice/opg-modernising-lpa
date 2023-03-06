@@ -127,11 +127,11 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			WitnessCode: page.WitnessCode{Code: "1234", Created: now},
+			WitnessCodes: page.WitnessCodes{{Code: "1234", Created: now}},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			WitnessCode:            page.WitnessCode{Code: "1234", Created: now},
+			WitnessCodes:           page.WitnessCodes{{Code: "1234", Created: now}},
 			CPWitnessCodeValidated: true,
 			Submitted:              now,
 		}).
@@ -158,7 +158,7 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 	lpa := &page.Lpa{
 		CertificateProvider:                 actor.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderOneLoginUserData: identity.UserData{OK: true},
-		WitnessCode:                         page.WitnessCode{Code: "1234", Created: now},
+		WitnessCodes:                        page.WitnessCodes{{Code: "1234", Created: now}},
 		CPWitnessCodeValidated:              true,
 		Submitted:                           now,
 	}
@@ -168,7 +168,7 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 		Return(&page.Lpa{
 			CertificateProvider:                 actor.CertificateProvider{Email: "name@example.com"},
 			CertificateProviderOneLoginUserData: identity.UserData{OK: true},
-			WitnessCode:                         page.WitnessCode{Code: "1234", Created: now},
+			WitnessCodes:                        page.WitnessCodes{{Code: "1234", Created: now}},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), lpa).
@@ -200,7 +200,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendErrors(t *testing.T
 	lpa := &page.Lpa{
 		CertificateProvider:                 actor.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderOneLoginUserData: identity.UserData{OK: true},
-		WitnessCode:                         page.WitnessCode{Code: "1234", Created: now},
+		WitnessCodes:                        page.WitnessCodes{{Code: "1234", Created: now}},
 		CPWitnessCodeValidated:              true,
 		Submitted:                           now,
 	}
@@ -210,7 +210,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendErrors(t *testing.T
 		Return(&page.Lpa{
 			CertificateProvider:                 actor.CertificateProvider{Email: "name@example.com"},
 			CertificateProviderOneLoginUserData: identity.UserData{OK: true},
-			WitnessCode:                         page.WitnessCode{Code: "1234", Created: now},
+			WitnessCodes:                        page.WitnessCodes{{Code: "1234", Created: now}},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), lpa).
@@ -242,7 +242,7 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			WitnessCode: page.WitnessCode{Code: "1234", Created: invalidCreated},
+			WitnessCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 		}, nil)
 
 	template := newMockTemplate(t)
@@ -250,48 +250,10 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 		On("Execute", w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Lpa: &page.Lpa{
-				WitnessCode: page.WitnessCode{Code: "1234", Created: invalidCreated},
+				WitnessCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeExpired"}),
 			Form:   &witnessingAsCertificateProviderForm{Code: "1234"},
-		}).
-		Return(nil)
-
-	err := WitnessingAsCertificateProvider(template.Execute, lpaStore, nil, time.Now)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestPostWitnessingAsCertificateProviderExpiryTrumpsMismatch(t *testing.T) {
-	form := url.Values{
-		"witness-code": {"4321"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	now := time.Now()
-	invalidCreated := now.Add(-45 * time.Minute)
-
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			WitnessCode: page.WitnessCode{Code: "1234", Created: invalidCreated},
-		}, nil)
-
-	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &witnessingAsCertificateProviderData{
-			App: testAppData,
-			Lpa: &page.Lpa{
-				WitnessCode: page.WitnessCode{Code: "1234", Created: invalidCreated},
-			},
-			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeExpired"}),
-			Form:   &witnessingAsCertificateProviderForm{Code: "4321"},
 		}).
 		Return(nil)
 
@@ -317,7 +279,7 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			WitnessCode: page.WitnessCode{Code: "1234", Created: now},
+			WitnessCodes: page.WitnessCodes{{Code: "1234", Created: now}},
 		}, nil)
 
 	template := newMockTemplate(t)
@@ -325,10 +287,48 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 		On("Execute", w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Lpa: &page.Lpa{
-				WitnessCode: page.WitnessCode{Code: "1234", Created: now},
+				WitnessCodes: page.WitnessCodes{{Code: "1234", Created: now}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeDoesNotMatch"}),
 			Form:   &witnessingAsCertificateProviderForm{Code: "4321"},
+		}).
+		Return(nil)
+
+	err := WitnessingAsCertificateProvider(template.Execute, lpaStore, nil, time.Now)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostWitnessingAsCertificateProviderWhenCodeExpired(t *testing.T) {
+	form := url.Values{
+		"witness-code": {"1234"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	now := time.Now()
+	invalidCreated := now.Add(-45 * time.Minute)
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{
+			WitnessCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+		}, nil)
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &witnessingAsCertificateProviderData{
+			App: testAppData,
+			Lpa: &page.Lpa{
+				WitnessCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+			},
+			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeExpired"}),
+			Form:   &witnessingAsCertificateProviderForm{Code: "1234"},
 		}).
 		Return(nil)
 
