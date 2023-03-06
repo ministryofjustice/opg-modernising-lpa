@@ -4,13 +4,13 @@ graph TB
   subgraph diagram [Modernising Lasting Power of Attorney - Registered LPA Service - Components]
     style diagram fill:#ffffff,stroke:#ffffff
 
-    36["<div style='font-weight: bold'>Use an LPA</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Use/View an LPA Service.<br />[Owner: Vega]</div>"]
+    36["<div style='font-weight: bold'>Use an LPA</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Use/View an LPA Service.<br />[Owner: UaLPA]</div>"]
     style 36 fill:#999999,stroke:#6b6b6b,color:#ffffff
-    15[("<div style='font-weight: bold'>Registered LPA Data Store</div><div style='font-size: 70%; margin-top: 0px'>[Container: AuroraDB]</div><div style='font-size: 80%; margin-top:10px'>Stores immutable LPA data<br />with high availablility,<br />security and auditing.<br />[Owner: Modernising, Users:<br />Vega]</div>")]
-    style 15 fill:#438dd5,stroke:#2e6295,color:#ffffff
     26("<div style='font-weight: bold'>Sirius Case Management</div><div style='font-size: 70%; margin-top: 0px'>[Container: Go, HTML, CSS, JS]</div><div style='font-size: 80%; margin-top:10px'>Case Management for case<br />working LPAs. [Owner: Vega,<br />Users: Modernising]</div>")
     style 26 fill:#85bbf0,stroke:#5d82a8,color:#000000
-    8("<div style='font-weight: bold'>LPA Drafting Service</div><div style='font-size: 70%; margin-top: 0px'>[Container: API Gateway, Go, DynamoDB]</div><div style='font-size: 80%; margin-top:10px'>Stores and manages data for<br />pre-registration. [Owner:<br />Modernising, Users: Vega]</div>")
+    15[("<div style='font-weight: bold'>Registered LPA Data Store</div><div style='font-size: 70%; margin-top: 0px'>[Container: AuroraDB]</div><div style='font-size: 80%; margin-top:10px'>Stores immutable LPA data<br />with high availablility,<br />security and auditing.<br />[Owner: Modernising, Users:<br />Vega]</div>")]
+    style 15 fill:#438dd5,stroke:#2e6295,color:#ffffff
+    8("<div style='font-weight: bold'>LPA Drafting Service</div><div style='font-size: 70%; margin-top: 0px'>[Container: API Gateway, Go, DynamoDB]</div><div style='font-size: 80%; margin-top:10px'>Stores and manages data for<br />pre-registration. [Owner:<br />Modernising, Users: Vega]<br />Owned by Modernising</div>")
     style 8 fill:#438dd5,stroke:#2e6295,color:#ffffff
 
     subgraph 18 [Registered LPA Service]
