@@ -79,6 +79,7 @@ type AppPaths struct {
 	RemoveAttorney                                          string
 	RemovePersonToNotify                                    string
 	RemoveReplacementAttorney                               string
+	ResendWitnessCode                                       string
 	Restrictions                                            string
 	Root                                                    string
 	SelectYourIdentityOptions                               string
@@ -174,6 +175,7 @@ var Paths = AppPaths{
 	RemoveAttorney:                                          "/remove-attorney",
 	RemovePersonToNotify:                                    "/remove-person-to-notify",
 	RemoveReplacementAttorney:                               "/remove-replacement-attorney",
+	ResendWitnessCode:                                       "/resend-witness-code",
 	Restrictions:                                            "/restrictions",
 	Root:                                                    "/",
 	SelectYourIdentityOptions1:                              "/select-your-identity-options-1",
