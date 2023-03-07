@@ -26,6 +26,6 @@ resource "aws_route53_health_check" "service_root" {
   request_interval  = 30
   resource_path     = "/health-check"
   measure_latency   = true
-  regions           = ["us-east-1", "eu-west-1"]
+  regions           = ["us-east-1", "eu-west-1", "ap-southeast-1"]
   provider          = aws.global
 }
