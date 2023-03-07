@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestGetWitnessingAsCertificateProvider(t *testing.T) {
@@ -244,6 +245,14 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 		Return(&page.Lpa{
 			WitnessCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 		}, nil)
+	lpaStore.
+		On("Put", r.Context(), mock.MatchedBy(func(lpa *page.Lpa) bool {
+			lpa.WitnessCodeLimiter = nil
+			return assert.Equal(t, lpa, &page.Lpa{
+				WitnessCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+			})
+		})).
+		Return(nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -281,6 +290,14 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 		Return(&page.Lpa{
 			WitnessCodes: page.WitnessCodes{{Code: "1234", Created: now}},
 		}, nil)
+	lpaStore.
+		On("Put", r.Context(), mock.MatchedBy(func(lpa *page.Lpa) bool {
+			lpa.WitnessCodeLimiter = nil
+			return assert.Equal(t, lpa, &page.Lpa{
+				WitnessCodes: page.WitnessCodes{{Code: "1234", Created: now}},
+			})
+		})).
+		Return(nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -319,6 +336,14 @@ func TestPostWitnessingAsCertificateProviderWhenCodeExpired(t *testing.T) {
 		Return(&page.Lpa{
 			WitnessCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 		}, nil)
+	lpaStore.
+		On("Put", r.Context(), mock.MatchedBy(func(lpa *page.Lpa) bool {
+			lpa.WitnessCodeLimiter = nil
+			return assert.Equal(t, lpa, &page.Lpa{
+				WitnessCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+			})
+		})).
+		Return(nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -329,6 +354,52 @@ func TestPostWitnessingAsCertificateProviderWhenCodeExpired(t *testing.T) {
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeExpired"}),
 			Form:   &witnessingAsCertificateProviderForm{Code: "1234"},
+		}).
+		Return(nil)
+
+	err := WitnessingAsCertificateProvider(template.Execute, lpaStore, nil, time.Now)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostWitnessingAsCertificateProviderCodeLimitBreached(t *testing.T) {
+	form := url.Values{
+		"witness-code": {"4321"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	now := time.Now()
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{
+			WitnessCodeLimiter: page.NewLimiter(time.Minute, 0, 10),
+			WitnessCodes:       page.WitnessCodes{{Code: "1234", Created: now}},
+		}, nil)
+	lpaStore.
+		On("Put", r.Context(), mock.MatchedBy(func(lpa *page.Lpa) bool {
+			lpa.WitnessCodeLimiter = nil
+			return assert.Equal(t, lpa, &page.Lpa{
+				WitnessCodes: page.WitnessCodes{{Code: "1234", Created: now}},
+			})
+		})).
+		Return(nil)
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &witnessingAsCertificateProviderData{
+			App: testAppData,
+			Lpa: &page.Lpa{
+				WitnessCodes: page.WitnessCodes{{Code: "1234", Created: now}},
+			},
+			Errors: validation.With("witness-code", validation.CustomError{Label: "tooManyWitnessCodeAttempts"}),
+			Form:   &witnessingAsCertificateProviderForm{Code: "4321"},
 		}).
 		Return(nil)
 
