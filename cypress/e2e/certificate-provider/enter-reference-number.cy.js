@@ -4,7 +4,6 @@ describe('Enter reference number', () => {
 
         cy.contains('a', 'Start').click()
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.get('#f-reference-number').type('abcdef123456');
@@ -24,7 +23,6 @@ describe('Enter reference number', () => {
 
         cy.contains('a', 'Start').click()
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.contains('Continue').click();
@@ -41,7 +39,6 @@ describe('Enter reference number', () => {
 
         cy.contains('a', 'Start').click()
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.get('#f-reference-number').type('notATestCode');
@@ -59,7 +56,6 @@ describe('Enter reference number', () => {
 
         cy.contains('a', 'Start').click()
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.get('#f-reference-number').type('tooShort');

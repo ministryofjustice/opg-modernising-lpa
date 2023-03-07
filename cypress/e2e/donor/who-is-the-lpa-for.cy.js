@@ -1,7 +1,6 @@
 describe('Who is the lpa for', () => {
     beforeEach(() => {
         cy.visit('/testing-start?redirect=/who-is-the-lpa-for');
-        cy.injectAxe();
     });
 
     it('can be submitted', () => {

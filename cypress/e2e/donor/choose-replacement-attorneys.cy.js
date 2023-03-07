@@ -3,7 +3,6 @@ import {TestEmail} from "../../support/e2e";
 describe('Choose replacement attorneys', () => {
     beforeEach(() => {
         cy.visit('/testing-start?redirect=/choose-replacement-attorneys');
-        cy.injectAxe();
     });
 
     it('can be submitted', () => {
@@ -14,7 +13,7 @@ describe('Choose replacement attorneys', () => {
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
 
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/choose-replacement-attorneys-address');

@@ -2,7 +2,6 @@ describe('LPA progress', () => {
     it('when nothing completed', () => {
         cy.visit('/testing-start?redirect=/progress');
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.contains('li', 'LPA signed In progress');
@@ -16,7 +15,6 @@ describe('LPA progress', () => {
     it('when LPA submitted', () => {
         cy.visit('/testing-start?redirect=/progress&completeLpa=1');
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.contains('li', 'LPA signed Completed');
@@ -30,7 +28,6 @@ describe('LPA progress', () => {
     it('when certificate provided', () => {
         cy.visit('/testing-start?redirect=/progress&completeLpa=1&provideCertificate=1&asDonor=1');
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.contains('li', 'LPA signed Completed');

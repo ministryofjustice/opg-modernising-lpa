@@ -13,7 +13,6 @@ describe('Certificate provider task', () => {
             .find('a')
             .click();
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.contains('button', 'I will do this later').click();
@@ -29,7 +28,6 @@ describe('Certificate provider task', () => {
             .find('a')
             .click();
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
@@ -47,13 +45,11 @@ describe('Certificate provider task', () => {
             .find('a')
             .click();
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/certificate-provider-details');
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.get('#f-first-names').type('John');
@@ -65,7 +61,6 @@ describe('Certificate provider task', () => {
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
-        cy.injectAxe();
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.contains('label', 'Online and by email').click();
@@ -73,7 +68,6 @@ describe('Certificate provider task', () => {
         cy.contains('button', 'Continue').click()
 
         cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
-        cy.injectAxe();
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.contains('How do you know John Doe, your certificate provider?');
@@ -81,7 +75,6 @@ describe('Certificate provider task', () => {
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/do-you-want-to-notify-people');
-        cy.injectAxe();
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.visitLpa('/task-list')
@@ -95,13 +88,11 @@ describe('Certificate provider task', () => {
             .find('a')
             .click();
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/certificate-provider-details');
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.get('#f-first-names').type('John');
@@ -113,7 +104,6 @@ describe('Certificate provider task', () => {
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
-        cy.injectAxe();
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.contains('label', 'Using paper forms').click();
@@ -124,7 +114,6 @@ describe('Certificate provider task', () => {
         AddressFormAssertions.assertCanAddAddressFromSelect()
 
         cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
-        cy.injectAxe();
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.contains('How do you know John Doe, your certificate provider?');
@@ -132,7 +121,6 @@ describe('Certificate provider task', () => {
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/how-long-have-you-known-certificate-provider');
-        cy.injectAxe();
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.contains('How long have you known John Doe?');
@@ -140,7 +128,6 @@ describe('Certificate provider task', () => {
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/do-you-want-to-notify-people');
-        cy.injectAxe();
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.visitLpa('/task-list')

@@ -6,7 +6,6 @@ describe('Check the LPA', () => {
     it("can submit the completed LPA", () => {
         cy.contains('h1', "Check your LPA")
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.contains('h2', "LPA decisions")

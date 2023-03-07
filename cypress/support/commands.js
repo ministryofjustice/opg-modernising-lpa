@@ -46,9 +46,10 @@ function terminalLog(violations) {
 
 // Sets base axe config and displays failures in table format
 Cypress.Commands.add('checkA11yApp', (options= {}) => {
-    let opts = {rules: { region: { enabled: false } } }
+    const opts = {rules: { region: { enabled: false } } }
     opts.rules = {...opts.rules, ...options.rules}
 
+    cy.injectAxe()
     cy.checkA11y(null, opts, terminalLog);
 });
 

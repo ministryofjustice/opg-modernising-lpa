@@ -5,7 +5,6 @@ describe('Read the LPA', () => {
         });
 
         it('goes to the next step', () => {
-            cy.injectAxe();
             cy.checkA11yApp();
 
             cy.contains('Continue').click();

@@ -1,7 +1,6 @@
 describe('How should replacement attorneys make decisions', () => {
     beforeEach(() => {
         cy.visit('/testing-start?redirect=/how-should-replacement-attorneys-make-decisions?cookiesAccepted=1');
-        cy.injectAxe();
     });
 
     it('can choose how replacement attorneys act', () => {

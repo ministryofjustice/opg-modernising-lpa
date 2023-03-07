@@ -2,7 +2,6 @@ describe('Error pages', () => {
     it('shows for 404s', () => {
         cy.visit('/not-a-real-page', {failOnStatusCode: false});
         cy.contains('Page not found');
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.visit('/lpa', {failOnStatusCode: false});
@@ -20,7 +19,6 @@ describe('Error pages', () => {
         cy.visitLpa('/payment-confirmation', { failOnStatusCode: false });
 
         cy.contains('Sorry, there is a problem with the service');
-        cy.injectAxe();
         cy.checkA11yApp();
     });
 

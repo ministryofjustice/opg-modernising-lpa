@@ -1,7 +1,6 @@
 describe('How should replacement attorneys step in', () => {
     beforeEach(() => {
         cy.visit('/testing-start?redirect=/how-should-replacement-attorneys-step-in&cookiesAccepted=1');
-        cy.injectAxe();
     });
 
     it('can choose how replacement attorneys step in', () => {
@@ -16,9 +15,7 @@ describe('How should replacement attorneys step in', () => {
 
         cy.url().should('contain', '/task-list');
 
-        cy.injectAxe();
         cy.checkA11yApp();
-
     });
 
     it('can choose how replacement attorneys step in - some other way', () => {

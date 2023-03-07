@@ -8,7 +8,6 @@ export const
 
 export const AddressFormAssertions = {
     assertCanAddAddressManually(manualAddressLinkText, withInvalidPostcode = false) {
-        cy.injectAxe();
         cy.checkA11yApp();
 
         if (withInvalidPostcode) {
@@ -19,12 +18,10 @@ export const AddressFormAssertions = {
 
         cy.contains('button', 'Find address').click();
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.contains('a', manualAddressLinkText).click();
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.get('#f-address-line-1').type('Flat 2');
@@ -37,19 +34,16 @@ export const AddressFormAssertions = {
     },
 
     assertCanAddAddressFromSelect() {
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.get('#f-lookup-postcode').type('B14 7ED');
         cy.contains('button', 'Find address').click();
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.get('#f-select-address').select('2 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
         cy.contains('button', 'Continue').click();
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.get('#f-address-line-1').should('have.value', '2 RICHMOND PLACE');

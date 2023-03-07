@@ -3,7 +3,6 @@ import {TestEmail} from "../../support/e2e";
 describe('Choose attorneys', () => {
     beforeEach(() => {
         cy.visit('/testing-start?redirect=/choose-attorneys');
-        cy.injectAxe();
     });
 
     it('can be submitted', () => {

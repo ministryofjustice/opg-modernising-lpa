@@ -2,7 +2,6 @@ describe('Check your name', () => {
     it('can confirm name matches', () => {
         cy.visit('/testing-start?redirect=/certificate-provider-check-your-name&completeLpa=1&asCertificateProvider=1');
 
-        cy.injectAxe();
         // see https://github.com/alphagov/govuk-frontend/issues/979
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
@@ -18,7 +17,6 @@ describe('Check your name', () => {
         cy.get('input[name="is-name-correct"]').check('no');
         cy.get('#f-corrected-name').type('New Name');
 
-        cy.injectAxe();
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.contains('Continue').click();
@@ -33,7 +31,6 @@ describe('Check your name', () => {
 
         cy.url().should('contain', '/certificate-provider-check-your-name');
 
-        cy.injectAxe();
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.get('.govuk-error-summary').within(() => {
@@ -51,7 +48,6 @@ describe('Check your name', () => {
 
         cy.url().should('contain', '/certificate-provider-check-your-name');
 
-        cy.injectAxe();
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.get('.govuk-error-summary').within(() => {

@@ -6,7 +6,6 @@ describe('Payment', () => {
 
             cy.visit('/testing-start?redirect=/task-list&withCP=1');
             cy.visitLpa('/about-payment');
-            cy.injectAxe();
 
             cy.get('h1').should('contain', 'About payment');
 
@@ -24,8 +23,6 @@ describe('Payment', () => {
             cy.getCookie('pay').should('exist')
 
             cy.visitLpa('/payment-confirmation');
-
-            cy.injectAxe();
 
             cy.get('h1').should('contain', 'Payment received');
             cy.checkA11yApp();

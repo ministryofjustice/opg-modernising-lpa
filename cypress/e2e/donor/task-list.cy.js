@@ -1,7 +1,6 @@
 describe('Task list', () => {
     beforeEach(() => {
         cy.visit('/testing-start?redirect=/task-list&withDonorDetails=1');
-        cy.injectAxe();
     });
 
     it('shows tasks', () => {

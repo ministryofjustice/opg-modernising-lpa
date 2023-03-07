@@ -6,7 +6,6 @@ describe('Choose replacement attorneys summary', () => {
     });
 
     it('multiple attorneys details are listed', () => {
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.contains('You have added 2 replacement attorneys');
@@ -24,7 +23,6 @@ describe('Choose replacement attorneys summary', () => {
     });
 
     it('can amend attorney details', () => {
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.get('#replacement-name-1').contains('a', 'Change').click();
@@ -43,7 +41,6 @@ describe('Choose replacement attorneys summary', () => {
     });
 
     it('can amend attorney address', () => {
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.get('#replacement-address-2').contains('a', 'Change').click();
@@ -71,7 +68,6 @@ describe('Choose replacement attorneys summary', () => {
     });
 
     it('can add another attorney from summary page', () => {
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.get('#f-add-attorney').check('yes');
@@ -108,7 +104,6 @@ describe('Choose replacement attorneys summary', () => {
     });
 
     it('can remove an attorney', () => {
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.get('#remove-replacement-1').contains('a', 'Remove').click();
@@ -116,7 +111,6 @@ describe('Choose replacement attorneys summary', () => {
         cy.url().should('contain', '/remove-replacement-attorney');
         cy.url().should('match', /id=\w*/);
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.contains('Are you sure you want to remove John Smith?');
@@ -126,7 +120,6 @@ describe('Choose replacement attorneys summary', () => {
 
         cy.url().should('contain', '/choose-replacement-attorneys-summary');
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.get('main').should('not.contain', 'John Smith');

@@ -10,7 +10,6 @@ describe('Donor details', () => {
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
 
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();

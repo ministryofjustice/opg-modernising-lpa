@@ -1,7 +1,6 @@
 describe('LPA type', () => {
     beforeEach(() => {
         cy.visit('/testing-start?redirect=/lpa-type');
-        cy.injectAxe();
     });
 
     it('can be submitted', () => {

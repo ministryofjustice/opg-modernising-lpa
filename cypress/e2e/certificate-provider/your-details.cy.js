@@ -6,7 +6,6 @@ describe('Your details', () => {
     });
 
     it('can be completed', () => {
-        cy.injectAxe();
         cy.checkA11yApp();
 
         cy.contains('Jose Smith');
@@ -22,7 +21,6 @@ describe('Your details', () => {
 
         cy.url().should('contain', '/certificate-provider-your-address');
 
-        cy.injectAxe();
         cy.checkA11yApp();
     });
 

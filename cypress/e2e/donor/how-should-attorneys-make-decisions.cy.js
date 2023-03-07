@@ -1,7 +1,6 @@
 describe('How should attorneys make decisions', () => {
     beforeEach(() => {
         cy.visit('/testing-start?redirect=/how-should-attorneys-make-decisions?cookiesAccepted=1');
-        cy.injectAxe();
 
         // see https://github.com/alphagov/govuk-frontend/issues/979
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
