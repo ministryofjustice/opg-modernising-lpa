@@ -13,7 +13,7 @@ permissions:
   actions: none
   checks: none
   deployments: none
-  issues: none
+  issues: write
   packages: none
   repository-projects: none
   statuses: none
