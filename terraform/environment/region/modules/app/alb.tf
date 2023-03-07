@@ -100,13 +100,19 @@ resource "aws_security_group_rule" "app_loadbalancer_port_80_redirect_ingress" {
   provider          = aws.region
 }
 
+data "aws_ip_ranges" "route53_healthchecks" {
+  services = ["route53_healthchecks"]
+  regions  = ["GLOBAL"]
+  provider = aws.region
+}
+
 resource "aws_security_group_rule" "app_loadbalancer_ingress" {
   description       = "Port 443 ingress from the allow list to the application load balancer"
   type              = "ingress"
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  cidr_blocks       = var.ingress_allow_list_cidr #tfsec:ignore:aws-vpc-no-public-ingress-sgr
+  cidr_blocks       = concat(var.ingress_allow_list_cidr, data.aws_ip_ranges.route53_healthchecks.cidr_blocks) #tfsec:ignore:aws-vpc-no-public-ingress-sgr
   security_group_id = aws_security_group.app_loadbalancer.id
   provider          = aws.region
 }
@@ -134,19 +140,14 @@ resource "aws_security_group_rule" "app_loadbalancer_egress" {
   provider          = aws.region
 }
 
-data "aws_ip_ranges" "route53_healthchecks" {
-  services = ["route53_healthchecks"]
-  regions  = ["GLOBAL"]
-  provider = aws.region
-}
 
-resource "aws_security_group_rule" "loadbalancer_ingress_route53_healthchecks" {
-  description       = "Loadbalancer ingresss from Route53 healthchecks"
-  type              = "ingress"
-  protocol          = "tcp"
-  from_port         = "443"
-  to_port           = "443"
-  cidr_blocks       = data.aws_ip_ranges.route53_healthchecks.cidr_blocks
-  security_group_id = aws_security_group.app_loadbalancer.id
-  provider          = aws.region
-}
+# resource "aws_security_group_rule" "loadbalancer_ingress_route53_healthchecks" {
+#   description       = "Loadbalancer ingresss from Route53 healthchecks"
+#   type              = "ingress"
+#   protocol          = "tcp"
+#   from_port         = "443"
+#   to_port           = "443"
+#   cidr_blocks       = data.aws_ip_ranges.route53_healthchecks.cidr_blocks
+#   security_group_id = aws_security_group.app_loadbalancer.id
+#   provider          = aws.region
+# }
