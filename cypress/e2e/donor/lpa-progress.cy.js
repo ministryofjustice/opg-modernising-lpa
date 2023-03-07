@@ -3,7 +3,7 @@ describe('LPA progress', () => {
         cy.visit('/testing-start?redirect=/progress');
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('li', 'LPA signed In progress');
         cy.contains('li', 'Certificate provider has made their declaration Not started');
@@ -17,7 +17,7 @@ describe('LPA progress', () => {
         cy.visit('/testing-start?redirect=/progress&completeLpa=1');
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('li', 'LPA signed Completed');
         cy.contains('li', 'Certificate provider has made their declaration In progress');
@@ -31,7 +31,7 @@ describe('LPA progress', () => {
         cy.visit('/testing-start?redirect=/progress&completeLpa=1&provideCertificate=1&asDonor=1');
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('li', 'LPA signed Completed');
         cy.contains('li', 'Certificate provider has made their declaration Completed');

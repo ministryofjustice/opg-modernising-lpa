@@ -5,7 +5,7 @@ describe('Enter reference number', () => {
         cy.contains('a', 'Start').click()
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#f-reference-number').type('abcdef123456');
         cy.contains('Continue').click();
@@ -25,7 +25,7 @@ describe('Enter reference number', () => {
         cy.contains('a', 'Start').click()
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('Continue').click();
 
@@ -42,7 +42,7 @@ describe('Enter reference number', () => {
         cy.contains('a', 'Start').click()
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#f-reference-number').type('notATestCode');
         cy.contains('Continue').click();
@@ -60,7 +60,7 @@ describe('Enter reference number', () => {
         cy.contains('a', 'Start').click()
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#f-reference-number').type('tooShort');
         cy.contains('Continue').click();

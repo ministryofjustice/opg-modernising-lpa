@@ -10,7 +10,7 @@ describe('Payment', () => {
 
             cy.get('h1').should('contain', 'About payment');
 
-            cy.checkA11y(null, { rules: { region: { enabled: false } } });
+            cy.checkA11yApp();
 
             cy.intercept('**/v1/payments', (req) => {
                 cy.getCookie('pay').should('exist')
@@ -28,7 +28,7 @@ describe('Payment', () => {
             cy.injectAxe();
 
             cy.get('h1').should('contain', 'Payment received');
-            cy.checkA11y(null, { rules: { region: { enabled: false } } });
+            cy.checkA11yApp();
 
             cy.getCookie('pay').should('not.exist')
 

@@ -1,23 +1,4 @@
-// ***********************************************************
-// This example support/e2e.js is processed and
-// loaded automatically before your test files.
-//
-// This is a great place to put global configuration and
-// behavior that modifies Cypress.
-//
-// You can change the location of this file or turn off
-// automatically serving support files with the
-// 'supportFile' configuration option.
-//
-// You can read more here:
-// https://on.cypress.io/configuration
-// ***********************************************************
-
-// Import commands.js using ES2015 syntax:
 import './commands'
-
-// Alternatively you can use CommonJS syntax:
-// require('./commands')
 import 'cypress-axe'
 
 export const
@@ -28,7 +9,7 @@ export const
 export const AddressFormAssertions = {
     assertCanAddAddressManually(manualAddressLinkText, withInvalidPostcode = false) {
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         if (withInvalidPostcode) {
             cy.get('#f-lookup-postcode').type('INVALID');
@@ -39,12 +20,12 @@ export const AddressFormAssertions = {
         cy.contains('button', 'Find address').click();
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('a', manualAddressLinkText).click();
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#f-address-line-1').type('Flat 2');
         cy.get('#f-address-line-2').type('123 Fake Street');
@@ -57,19 +38,19 @@ export const AddressFormAssertions = {
 
     assertCanAddAddressFromSelect() {
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#f-lookup-postcode').type('B14 7ED');
         cy.contains('button', 'Find address').click();
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#f-select-address').select('2 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
         cy.contains('button', 'Continue').click();
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#f-address-line-1').should('have.value', '2 RICHMOND PLACE');
         cy.get('#f-address-line-2').should('have.value', '');
@@ -150,5 +131,22 @@ export const AddressFormAssertions = {
         });
 
         cy.contains('[for=f-lookup-postcode] + .govuk-error-message', 'We could not find any addresses for that postcode. Check your postcode is correct, or enter your address manually.');
+    }
+}
+
+export const AccessibilityChecks = {
+    assertSufficientContrast() {
+        const axeOptions = {
+            runOnly: {
+                type: 'tag',
+                values: ['cat.color']
+            },
+            rules: { region: { enabled: false }
+            }
+        };
+
+        const stopOnError = true;
+
+        cy.OPGCheckA11y(axeOptions, stopOnError);
     }
 }

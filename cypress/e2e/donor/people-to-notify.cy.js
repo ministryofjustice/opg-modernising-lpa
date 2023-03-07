@@ -1,4 +1,4 @@
-import {AddressFormAssertions, TestEmail, TestEmail2} from "../support/e2e";
+import {AddressFormAssertions, TestEmail, TestEmail2} from "../../support/e2e";
 
 describe('People to notify', () => {
     let person1
@@ -13,7 +13,7 @@ describe('People to notify', () => {
         cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&withDonorDetails=1&withAttorney=1');
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('input[name="want-to-notify"]').check('yes')
         cy.contains('button', 'Continue').click();
@@ -21,7 +21,7 @@ describe('People to notify', () => {
         addPersonToNotify(person1, true)
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('People to notify about your LPA');
 
@@ -42,14 +42,14 @@ describe('People to notify', () => {
         cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&withDonorDetails=1&withAttorney=1&withPeopleToNotify=1');
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('Joanna Smith').parent().contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-people-to-notify');
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#f-first-names').clear().type('Changed')
         cy.get('#f-last-name').clear().type('Altered')
@@ -67,7 +67,7 @@ describe('People to notify', () => {
         cy.url().should('contain', '/choose-people-to-notify-address');
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#f-address-line-1').clear().type('1 New Road');
         cy.get('#f-address-line-2').clear().type('Changeville');
@@ -90,14 +90,14 @@ describe('People to notify', () => {
         cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&withDonorDetails=1&withAttorney=1&withPeopleToNotify=2');
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#remove-person-to-notify-2').contains(`Remove Jonathan Smith`).click();
 
         cy.url().should('contain', '/remove-person-to-notify');
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('input[name="remove-person-to-notify"]').check('yes')
         cy.contains('button', 'Continue').click();
@@ -118,7 +118,7 @@ describe('People to notify', () => {
         cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&completeLpa=1&withPeopleToNotify=1');
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('Joanna Smith').parent().contains('a', 'Change').should('not.exist');
     });
@@ -127,7 +127,7 @@ describe('People to notify', () => {
         cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&completeLpa=1&withPeopleToNotify=5');
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('Do you want to add another person to notify?').should('not.exist');
 
@@ -179,7 +179,7 @@ describe('People to notify', () => {
         cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&withDonorDetails=1&withAttorney=1&withPeopleToNotify=1');
 
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
 
