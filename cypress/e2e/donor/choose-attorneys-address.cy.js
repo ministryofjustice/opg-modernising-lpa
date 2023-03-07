@@ -1,23 +1,23 @@
-import {AddressFormAssertions} from "../support/e2e";
+import {AddressFormAssertions} from "../../support/e2e";
 
-describe('Donor address', () => {
+describe('Choose attorneys address', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/your-address');
+        cy.visit('/testing-start?redirect=/choose-attorneys-address?id=without-address&withIncompleteAttorneys=1');
     });
 
     it('address can be looked up', () => {
         AddressFormAssertions.assertCanAddAddressFromSelect()
-        cy.url().should('contain', '/who-is-the-lpa-for');
+        cy.url().should('contain', '/choose-attorneys-summary');
     });
 
     it('address can be entered manually if not found', () => {
-        AddressFormAssertions.assertCanAddAddressManually('I can’t find my address in the list')
-        cy.url().should('contain', '/who-is-the-lpa-for');
+        AddressFormAssertions.assertCanAddAddressManually('I can’t find their address in the list')
+        cy.url().should('contain', '/choose-attorneys-summary');
     });
 
     it('address can be entered manually on invalid postcode', () => {
         AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
-        cy.url().should('contain', '/who-is-the-lpa-for');
+        cy.url().should('contain', '/choose-attorneys-summary');
     });
 
     it('errors when empty postcode', () => {
@@ -37,6 +37,6 @@ describe('Donor address', () => {
     });
 
     it('errors when manual incorrect', () => {
-        AddressFormAssertions.assertErrorsWhenManualIncorrect('I can’t find my address in the list')
+        AddressFormAssertions.assertErrorsWhenManualIncorrect('I can’t find their address in the list')
     });
 });
