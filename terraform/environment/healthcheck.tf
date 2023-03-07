@@ -1,6 +1,6 @@
-resource "aws_cloudwatch_metric_alarm" "service_root" {
-  alarm_description   = "${local.environment_name} service root health check"
-  alarm_name          = "${local.environment_name}-service-root-healthcheck-alarm"
+resource "aws_cloudwatch_metric_alarm" "health_check" {
+  alarm_description   = "${local.environment_name} health check"
+  alarm_name          = "${local.environment_name}-healthcheck-alarm"
   actions_enabled     = false
   comparison_operator = "LessThanThreshold"
   datapoints_to_alarm = 1
@@ -11,15 +11,15 @@ resource "aws_cloudwatch_metric_alarm" "service_root" {
   statistic           = "Minimum"
   threshold           = 1
   dimensions = {
-    HealthCheckId = aws_route53_health_check.service_root.id
+    HealthCheckId = aws_route53_health_check.health_check.id
   }
 
   provider = aws.global
 }
 
-resource "aws_route53_health_check" "service_root" {
+resource "aws_route53_health_check" "health_check" {
   fqdn              = aws_route53_record.app.fqdn
-  reference_name    = "${substr(local.environment_name, 0, 20)}-service-root"
+  reference_name    = "${substr(local.environment_name, 0, 20)}-health-check"
   port              = 443
   type              = "HTTPS"
   failure_threshold = 1
