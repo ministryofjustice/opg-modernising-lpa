@@ -133,20 +133,3 @@ export const AddressFormAssertions = {
         cy.contains('[for=f-lookup-postcode] + .govuk-error-message', 'We could not find any addresses for that postcode. Check your postcode is correct, or enter your address manually.');
     }
 }
-
-export const AccessibilityChecks = {
-    assertSufficientContrast() {
-        const axeOptions = {
-            runOnly: {
-                type: 'tag',
-                values: ['cat.color']
-            },
-            rules: { region: { enabled: false }
-            }
-        };
-
-        const stopOnError = true;
-
-        cy.OPGCheckA11y(axeOptions, stopOnError);
-    }
-}
