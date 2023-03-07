@@ -34,7 +34,7 @@ on:
       ssh_deploy_key:
         description: 'SSH Deploy Key'
         required: true
-      github_token:
+      github_access_token:
         description: 'Github Token'
         required: true
 
@@ -91,7 +91,7 @@ jobs:
 
       - uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.github_token }}
+          github-token: ${{ secrets.github_access_token }}
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,
