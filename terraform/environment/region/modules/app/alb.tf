@@ -91,7 +91,7 @@ resource "aws_security_group" "app_loadbalancer" {
 
 data "aws_ip_ranges" "route53_healthchecks" {
   services = ["route53_healthchecks"]
-  regions  = ["us-east-1", "us-west-1", "us-west-2", "eu-west-1", "ap-southeast-1", "ap-southeast-2", "ap-northeast-1", "sa-east-1"]
+  regions  = ["us-east-1", "eu-west-1"]
   provider = aws.region
 }
 
