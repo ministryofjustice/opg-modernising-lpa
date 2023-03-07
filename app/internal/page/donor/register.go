@@ -82,6 +82,11 @@ type SessionStore interface {
 	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
 }
 
+//go:generate mockery --testonly --inpackage --name WitnessCodeSender --structname mockWitnessCodeSender
+type WitnessCodeSender interface {
+	Send(context.Context, *page.Lpa) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -99,6 +104,8 @@ func Register(
 	errorHandler page.ErrorHandler,
 	notFoundHandler page.Handler,
 ) {
+	witnessCodeSender := page.NewWitnessCodeSender(lpaStore, notifyClient)
+
 	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler)
 
 	handleRoot(page.Paths.Start, None,
@@ -234,9 +241,11 @@ func Register(
 	handleLpa(page.Paths.SignYourLpa, CanGoBack,
 		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), lpaStore))
 	handleLpa(page.Paths.WitnessingYourSignature, CanGoBack,
-		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), lpaStore, notifyClient, random.Code, time.Now))
+		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), lpaStore, witnessCodeSender))
 	handleLpa(page.Paths.WitnessingAsCertificateProvider, CanGoBack,
 		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), lpaStore, shareCodeSender, time.Now))
+	handleLpa(page.Paths.ResendWitnessCode, CanGoBack,
+		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), lpaStore, witnessCodeSender, time.Now))
 	handleLpa(page.Paths.YouHaveSubmittedYourLpa, CanGoBack,
 		page.Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml"), lpaStore))
 
