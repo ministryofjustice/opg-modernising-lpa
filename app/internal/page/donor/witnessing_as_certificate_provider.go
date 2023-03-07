@@ -34,19 +34,32 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, 
 			data.Form = readWitnessingAsCertificateProviderForm(r)
 			data.Errors = data.Form.Validate()
 
-			if lpa.WitnessCode.HasExpired() {
-				data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeExpired"})
-			} else if lpa.WitnessCode.Code != data.Form.Code {
-				data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeDoesNotMatch"})
+			if lpa.WitnessCodeLimiter == nil {
+				lpa.WitnessCodeLimiter = page.NewLimiter(time.Minute, 5, 10)
+			}
+
+			if !lpa.WitnessCodeLimiter.Allow(now()) {
+				data.Errors.Add("witness-code", validation.CustomError{Label: "tooManyWitnessCodeAttempts"})
+			} else {
+				code, found := lpa.WitnessCodes.Find(data.Form.Code)
+				if !found {
+					data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeDoesNotMatch"})
+				} else if code.HasExpired() {
+					data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeExpired"})
+				}
 			}
 
 			if data.Errors.None() {
+				lpa.WitnessCodeLimiter = nil
 				lpa.CPWitnessCodeValidated = true
 				lpa.Submitted = now()
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
-					return err
-				}
+			}
 
+			if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				return err
+			}
+
+			if data.Errors.None() {
 				if lpa.CertificateProviderOneLoginUserData.OK {
 					if err := shareCodeSender.Send(r.Context(), notify.CertificateProviderReturnEmail, appData, false, lpa); err != nil {
 						return err

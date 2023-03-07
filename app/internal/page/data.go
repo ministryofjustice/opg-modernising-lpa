@@ -71,8 +71,6 @@ type Lpa struct {
 	ConfirmFreeWill                             bool
 	SignatureCode                               string
 	EnteredSignatureCode                        string
-	SignatureEmailID                            string
-	SignatureSmsID                              string
 	IdentityOption                              identity.Option
 	YotiUserData                                identity.UserData
 	OneLoginUserData                            identity.UserData
@@ -85,11 +83,12 @@ type Lpa struct {
 	HowShouldReplacementAttorneysStepInDetails  string
 	DoYouWantToNotifyPeople                     string
 	PeopleToNotify                              actor.PeopleToNotify
-	WitnessCode                                 WitnessCode
+	WitnessCodes                                WitnessCodes
 	WantToApplyForLpa                           bool
 	WantToSignLpa                               bool
 	Submitted                                   time.Time
 	CPWitnessCodeValidated                      bool
+	WitnessCodeLimiter                          *Limiter
 
 	CertificateProviderIdentityOption   identity.Option
 	CertificateProviderYotiUserData     identity.UserData
@@ -123,15 +122,6 @@ type Progress struct {
 	LpaSubmitted                TaskState
 	StatutoryWaitingPeriod      TaskState
 	LpaRegistered               TaskState
-}
-
-type WitnessCode struct {
-	Code    string
-	Created time.Time
-}
-
-func (w *WitnessCode) HasExpired() bool {
-	return w.Created.Before(time.Now().Add(-30 * time.Minute))
 }
 
 type SessionData struct {

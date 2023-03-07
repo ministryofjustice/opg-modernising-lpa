@@ -1,11 +1,10 @@
 describe('Enter reference number', () => {
-    it('can enter a valid reference number', () => {
+    it('can enter a valid reference number', { pageLoadTimeout: 6000 }, () => {
         cy.visit('/testing-start?completeLpa=1&startCpFlowDonorHasPaid=1&useTestShareCode=1');
 
         cy.contains('a', 'Start').click()
 
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#f-reference-number').type('abcdef123456');
         cy.contains('Continue').click();
@@ -14,7 +13,7 @@ describe('Enter reference number', () => {
             cy.url().should('contain', '/certificate-provider-check-your-name')
         } else {
             cy.origin('https://signin.integration.account.gov.uk', () => {
-                cy.url({ timeout: 6000 }).should('contain', '/')
+                cy.url().should('contain', '/')
             })
         }
     });
@@ -24,8 +23,7 @@ describe('Enter reference number', () => {
 
         cy.contains('a', 'Start').click()
 
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('Continue').click();
 
@@ -41,8 +39,7 @@ describe('Enter reference number', () => {
 
         cy.contains('a', 'Start').click()
 
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#f-reference-number').type('notATestCode');
         cy.contains('Continue').click();
@@ -59,8 +56,7 @@ describe('Enter reference number', () => {
 
         cy.contains('a', 'Start').click()
 
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#f-reference-number').type('tooShort');
         cy.contains('Continue').click();
