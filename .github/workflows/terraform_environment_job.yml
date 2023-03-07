@@ -75,13 +75,26 @@ jobs:
         working-directory: ./terraform/environment
 
       - name: Terraform Plan
+        id: terraform_plan
         env:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
           TF_VAR_container_version: ${{ inputs.version_tag }}
         run: |
           terraform workspace show
+          # echo "plan_summary=$(terraform plan -lock-timeout=300s -input=false -parallelism=30 | grep Plan:)" >> $GITHUB_OUTPUT
           terraform plan -lock-timeout=300s -input=false -parallelism=30
+
         working-directory: ./terraform/environment
+
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Terraform Plan Summary: \n' + '${{ steps.terraform_plan.outputs.plan_summary }}
+            })
 
       - name: Protect environment workspace
         if: github.ref != 'refs/heads/main'
