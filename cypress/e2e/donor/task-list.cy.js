@@ -10,6 +10,6 @@ describe('Task list', () => {
         cy.contains('li', "Pay for the LPA").should('contain', 'Cannot start yet');
         cy.contains('li', 'Confirm your identity and sign the LPA').should('contain', 'Cannot start yet');
 
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
     });
 });

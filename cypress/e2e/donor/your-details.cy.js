@@ -1,24 +1,20 @@
-import {TestEmail} from "../support/e2e";
-
-describe('Choose replacement attorneys', () => {
+describe('Donor details', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/choose-replacement-attorneys');
-        cy.injectAxe();
+        cy.visit('/testing-start?redirect=/your-details');
     });
 
     it('can be submitted', () => {
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
-        cy.get('#f-email').type(TestEmail);
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
 
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.injectAxe();
+        cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/choose-replacement-attorneys-address');
-        cy.contains("John Doe’s address");
+        cy.url().should('contain', '/your-address');
     });
 
     it('errors when empty', () => {
@@ -27,32 +23,24 @@ describe('Choose replacement attorneys', () => {
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter first names');
             cy.contains('Enter last name');
-            cy.contains('Enter email address');
             cy.contains('Enter date of birth');
         });
 
         cy.contains('[for=f-first-names] + .govuk-error-message', 'Enter first names');
         cy.contains('[for=f-last-name] + .govuk-error-message', 'Enter last name');
-        cy.contains('[for=f-email] + .govuk-error-message', 'Enter email address');
         cy.contains('#date-of-birth-hint + .govuk-error-message', 'Enter date of birth');
     });
 
     it('errors when names too long', () => {
         cy.get('#f-first-names').invoke('val', 'a'.repeat(54));
         cy.get('#f-last-name').invoke('val', 'b'.repeat(62));
+        cy.get('#f-other-names').invoke('val', 'c'.repeat(51));
 
         cy.contains('button', 'Continue').click();
 
         cy.contains('[for=f-first-names] + .govuk-error-message', 'First names must be 53 characters or less');
         cy.contains('[for=f-last-name] + .govuk-error-message', 'Last name must be 61 characters or less');
-    });
-
-    it('errors when invalid email', () => {
-        cy.get('#f-email').type('not-an-email');
-
-        cy.contains('button', 'Continue').click();
-
-        cy.contains('[for=f-email] + .govuk-error-message', 'Email address must be in the correct format, like name@example.com');
+        cy.contains('[for=f-other-names] + .govuk-error-message', 'Other names must be 50 characters or less');
     });
 
     it('errors when invalid dates of birth', () => {
@@ -72,20 +60,19 @@ describe('Choose replacement attorneys', () => {
     });
 
     it('warns when name shared with other actor', () => {
-        cy.visit('/testing-start?redirect=/choose-replacement-attorneys&withDonorDetails=1');
+        cy.visit('/testing-start?redirect=/your-details&withAttorney=1');
 
-        cy.get('#f-first-names').type('Jose');
+        cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Smith');
-        cy.get('#f-email').type(TestEmail);
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/choose-replacement-attorneys');
+        cy.url().should('contain', '/your-details');
 
-        cy.contains('The donor’s name is also Jose Smith.');
+        cy.contains('There is also an attorney called John Smith.');
 
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/choose-replacement-attorneys-address');
+        cy.url().should('contain', '/your-address');
     });
 });

@@ -3,7 +3,7 @@ describe('Error pages', () => {
         cy.visit('/not-a-real-page', {failOnStatusCode: false});
         cy.contains('Page not found');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.visit('/lpa', {failOnStatusCode: false});
         cy.contains('Page not found');
@@ -21,7 +21,7 @@ describe('Error pages', () => {
 
         cy.contains('Sorry, there is a problem with the service');
         cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
     });
 
     it('shows for invalid CSRF tokens', () => {
