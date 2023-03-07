@@ -1,4 +1,4 @@
-import {TestEmail} from "../support/e2e";
+import {TestEmail} from "../../support/e2e";
 
 describe('Choose attorneys summary', () => {
     beforeEach(() => {
@@ -6,8 +6,7 @@ describe('Choose attorneys summary', () => {
     });
 
     it('multiple attorneys details are listed', () => {
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('You have added 2 attorneys');
 
@@ -24,8 +23,7 @@ describe('Choose attorneys summary', () => {
     });
 
     it('can amend attorney details', () => {
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#attorney-name-1').contains('a', 'Change').click();
 
@@ -43,8 +41,7 @@ describe('Choose attorneys summary', () => {
     });
 
     it('can amend attorney address', () => {
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#attorney-address-2').contains('a', 'Change').click();
 
@@ -72,8 +69,7 @@ describe('Choose attorneys summary', () => {
     });
 
     it('can add another attorney from summary page', () => {
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#f-add-attorney').check('yes');
         cy.contains('button', 'Continue').click();
@@ -109,16 +105,14 @@ describe('Choose attorneys summary', () => {
     });
 
     it('can remove an attorney', () => {
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#remove-attorney-1').contains('a', 'Remove').click();
 
         cy.url().should('contain', '/remove-attorney');
         cy.url().should('match', /id=\w*/);
 
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('Are you sure you want to remove John Smith?');
 
@@ -127,8 +121,7 @@ describe('Choose attorneys summary', () => {
 
         cy.url().should('contain', '/choose-attorneys-summary');
 
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('main').should('not.contain', 'John Smith');
 
