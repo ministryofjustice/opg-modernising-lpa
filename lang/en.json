@@ -546,5 +546,7 @@
     "requestANewWitnessCode": "Request a new witness code",
     "textMessagesSometimesTakeAFewMinutes": "Text messages sometimes take a few minutes to arrive. If you do not receive the text message, you can request a new one.",
     "requestANewCode": "Request a new code",
-    "pleaseWaitOneMinute": "Please wait at least one minute for the previous text message to arrive before requesting a new code"
+    "pleaseWaitOneMinute": "Please wait at least one minute for the previous text message to arrive before requesting a new code",
+
+    "tooManyWitnessCodeAttempts": "Wait a bit before attempting to enter the witness code again"
 }
