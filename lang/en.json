@@ -371,7 +371,7 @@
     "enterUniqueCodeHint": "{{ .CpFirstName }}, please type in the code we have sent you, to prove that you are with {{ .DonorFullName }} and have witnessed them sign their LPA.",
     "cpNotReceivedCodeLink": "{{ .CpFirstName }} has not received a text message with the code",
     "witnessCodeDoesNotMatch": "The code you entered is incorrect, please check it and try again",
-    "witnessCodeExpired": "The code has expired. New code sent.",
+    "witnessCodeExpired": "The code has expired",
     "theCodeWeSentCertificateProvider": "The code we sent to the certificate provider",
 
     "submittedYourLpa": "You’ve submitted your LPA",
@@ -546,5 +546,7 @@
     "requestANewWitnessCode": "Request a new witness code",
     "textMessagesSometimesTakeAFewMinutes": "Text messages sometimes take a few minutes to arrive. If you do not receive the text message, you can request a new one.",
     "requestANewCode": "Request a new code",
-    "pleaseWaitOneMinute": "Please wait at least one minute for the previous text message to arrive before requesting a new code"
+    "pleaseWaitOneMinute": "Please wait at least one minute for the previous text message to arrive before requesting a new code",
+
+    "tooManyWitnessCodeAttempts": "Wait a bit before attempting to enter the witness code again"
 }
