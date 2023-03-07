@@ -1,23 +1,18 @@
-import {AddressFormAssertions} from "../support/e2e";
+import {AddressFormAssertions} from "../../support/e2e";
 
-describe('Choose attorneys address', () => {
+describe('Choose replacement attorneys address', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/choose-attorneys-address?id=without-address&withIncompleteAttorneys=1');
+        cy.visit('/testing-start?redirect=/choose-replacement-attorneys-address?id=without-address&withIncompleteAttorneys=1');
     });
 
     it('address can be looked up', () => {
         AddressFormAssertions.assertCanAddAddressFromSelect()
-        cy.url().should('contain', '/choose-attorneys-summary');
+        cy.url().should('contain', '/choose-replacement-attorneys-summary');
     });
 
     it('address can be entered manually if not found', () => {
         AddressFormAssertions.assertCanAddAddressManually('I can’t find their address in the list')
-        cy.url().should('contain', '/choose-attorneys-summary');
-    });
-
-    it('address can be entered manually on invalid postcode', () => {
-        AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
-        cy.url().should('contain', '/choose-attorneys-summary');
+        cy.url().should('contain', '/choose-replacement-attorneys-summary');
     });
 
     it('errors when empty postcode', () => {

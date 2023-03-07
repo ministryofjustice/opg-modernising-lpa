@@ -4,8 +4,7 @@ describe('Provide the certificate', () => {
     });
 
     it('can provide the certificate', () => {
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.get('#f-agree-to-statement').check()
 

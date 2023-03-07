@@ -1,13 +1,12 @@
 describe('Do you want replacement attorneys', () => {
     it('wants replacement attorneys - acting jointly', () => {
         cy.visit('/testing-start?redirect=/do-you-want-replacement-attorneys&howAttorneysAct=jointly');
-        cy.injectAxe();
 
         cy.get('div.govuk-warning-text').should('contain', 'Replacement attorneys are an important backup when attorneys are appointed to act jointly.')
 
         cy.get('input[name="want"]').check('yes')
 
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/choose-replacement-attorneys');
@@ -15,13 +14,12 @@ describe('Do you want replacement attorneys', () => {
 
     it('wants replacement attorneys - acting jointly for some and severally for others', () => {
         cy.visit('/testing-start?redirect=/do-you-want-replacement-attorneys&howAttorneysAct=mixed');
-        cy.injectAxe();
 
         cy.get('div.govuk-warning-text').should('contain', 'You appointed your attorneys to act jointly for some decisions, and jointly and severally for others.')
 
         cy.get('input[name="want"]').check('yes')
 
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/choose-replacement-attorneys');
@@ -29,13 +27,12 @@ describe('Do you want replacement attorneys', () => {
 
     it('wants replacement attorneys - acting jointly and severally', () => {
         cy.visit('/testing-start?redirect=/do-you-want-replacement-attorneys&howAttorneysAct=jointly-and-severally');
-        cy.injectAxe();
 
         cy.get('div.govuk-warning-text').should('not.exist')
 
         cy.get('input[name="want"]').check('yes')
 
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/choose-replacement-attorneys');
@@ -43,13 +40,12 @@ describe('Do you want replacement attorneys', () => {
 
     it('does not want replacement attorneys', () => {
         cy.visit('/testing-start?redirect=/do-you-want-replacement-attorneys&howAttorneysAct=jointly-and-severally');
-        cy.injectAxe();
 
         cy.get('div.govuk-warning-text').should('not.exist')
 
         cy.get('input[name="want"]').check('no')
 
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/task-list');
@@ -60,11 +56,11 @@ describe('Do you want replacement attorneys', () => {
     it('errors when unselected', () => {
         cy.visit('/testing-start?redirect=/do-you-want-replacement-attorneys&howAttorneysAct=jointly-and-severally');
         cy.contains('button', 'Continue').click();
-        
+
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Select yes to add replacement attorneys');
         });
-        
+
         cy.contains('.govuk-fieldset .govuk-error-message', 'Select yes to add replacement attorneys');
     });
 });

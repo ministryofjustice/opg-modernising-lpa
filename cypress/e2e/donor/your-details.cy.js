@@ -10,8 +10,7 @@ describe('Donor details', () => {
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
 
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/your-address');
@@ -71,7 +70,7 @@ describe('Donor details', () => {
         cy.url().should('contain', '/your-details');
 
         cy.contains('There is also an attorney called John Smith.');
-        
+
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/your-address');
     });
