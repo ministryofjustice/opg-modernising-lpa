@@ -88,6 +88,7 @@ type Lpa struct {
 	WantToSignLpa                               bool
 	Submitted                                   time.Time
 	CPWitnessCodeValidated                      bool
+	WitnessCodeLimiter                          *Limiter
 
 	CertificateProviderIdentityOption   identity.Option
 	CertificateProviderYotiUserData     identity.UserData
