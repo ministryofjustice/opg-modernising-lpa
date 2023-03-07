@@ -38,6 +38,11 @@ on:
         description: 'Github Token'
         required: true
 
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
 jobs:
   terraform_environment_workflow:
     runs-on: ubuntu-latest
