@@ -1,5 +1,5 @@
 describe('Enter reference number', () => {
-    it('can enter a valid reference number', () => {
+    it('can enter a valid reference number', { pageLoadTimeout: 6000 }, () => {
         cy.visit('/testing-start?completeLpa=1&startCpFlowDonorHasPaid=1&useTestShareCode=1');
 
         cy.contains('a', 'Start').click()
@@ -13,7 +13,7 @@ describe('Enter reference number', () => {
             cy.url().should('contain', '/certificate-provider-check-your-name')
         } else {
             cy.origin('https://signin.integration.account.gov.uk', () => {
-                cy.url({ timeout: 6000 }).should('contain', '/')
+                cy.url().should('contain', '/')
             })
         }
     });
