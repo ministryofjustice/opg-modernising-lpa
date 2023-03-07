@@ -44,9 +44,12 @@ function terminalLog(violations) {
     cy.task('table', violationData)
 }
 
-// Adds a table to the terminal with violation details
-Cypress.Commands.add('checkA11yVvv', () => {
-    cy.checkA11y(null, { rules: { region: { enabled: false } } }, terminalLog);
+// Sets base axe config and displays failures in table format
+Cypress.Commands.add('checkA11yApp', (options= {}) => {
+    let opts = {rules: { region: { enabled: false } } }
+    opts.rules = {...opts.rules, ...options.rules}
+
+    cy.checkA11y(null, opts, terminalLog);
 });
 
 Cypress.Commands.add('visitLpa', (path, opts = {}) => {

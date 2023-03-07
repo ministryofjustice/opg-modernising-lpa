@@ -6,7 +6,7 @@ describe('Read the LPA', () => {
 
         it('goes to the next step', () => {
             cy.injectAxe();
-            cy.checkA11y(null, { rules: { region: { enabled: false } } });
+            cy.checkA11yApp();
 
             cy.contains('Continue').click();
             cy.url().should('contain', '/provide-certificate');
