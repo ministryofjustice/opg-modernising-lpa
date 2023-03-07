@@ -28,4 +28,7 @@ resource "aws_route53_health_check" "health_check" {
   measure_latency   = true
   regions           = ["us-east-1", "eu-west-1", "ap-southeast-1"]
   provider          = aws.global
+  tags = {
+    Name = "${local.environment_name}-health-check"
+  }
 }
