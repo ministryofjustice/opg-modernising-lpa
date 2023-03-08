@@ -288,7 +288,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				"date-of-birth-year":  {"1990"},
 			},
 			existingLpa: &page.Lpa{
-				Donor: actor.Person{
+				Donor: actor.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
 				},
