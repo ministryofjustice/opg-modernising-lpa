@@ -3,9 +3,8 @@ package certificateprovider
 import (
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )

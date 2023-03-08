@@ -7,12 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
-
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -131,7 +129,7 @@ func TestPostEnterYourNameWithCorrectedName(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	lpa := &page.Lpa{
-		Donor:               actor.Person{Email: "a@example.com"},
+		Donor:               actor.Donor{Email: "a@example.com"},
 		CertificateProvider: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
 	}
 

@@ -7,7 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
-type Person struct {
+type Donor struct {
 	FirstNames  string
 	LastName    string
 	Email       string
@@ -16,6 +16,6 @@ type Person struct {
 	Address     place.Address
 }
 
-func (p Person) FullName() string {
+func (p Donor) FullName() string {
 	return fmt.Sprintf("%s %s", p.FirstNames, p.LastName)
 }

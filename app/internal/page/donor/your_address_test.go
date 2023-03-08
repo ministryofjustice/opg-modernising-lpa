@@ -65,7 +65,7 @@ func TestGetYourAddressFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			Donor: actor.Person{
+			Donor: actor.Donor{
 				Address: address,
 			},
 		}, nil)
@@ -159,7 +159,7 @@ func TestPostYourAddressManual(t *testing.T) {
 		Return(&page.Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			Donor: actor.Person{
+			Donor: actor.Donor{
 				Address: testAddress,
 			},
 		}).
@@ -193,7 +193,7 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 		Return(&page.Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			Donor: actor.Person{
+			Donor: actor.Donor{
 				Address: testAddress,
 			},
 		}).
@@ -222,7 +222,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			Donor: actor.Person{
+			Donor: actor.Donor{
 				FirstNames: "John",
 				Address:    place.Address{Line1: "abc"},
 			},
@@ -230,7 +230,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			Donor: actor.Person{
+			Donor: actor.Donor{
 				FirstNames: "John",
 				Address:    testAddress,
 			},

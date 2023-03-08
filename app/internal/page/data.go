@@ -54,11 +54,10 @@ func (t TaskState) String() string {
 type Lpa struct {
 	ID                                          string
 	UpdatedAt                                   time.Time
-	Donor                                       actor.Person
+	Donor                                       actor.Donor
 	Attorneys                                   actor.Attorneys
 	CertificateProvider                         actor.CertificateProvider
 	WhoFor                                      string
-	Contact                                     []string
 	Type                                        string
 	WantReplacementAttorneys                    string
 	WhenCanTheLpaBeUsed                         string
@@ -67,10 +66,6 @@ type Lpa struct {
 	Checked                                     bool
 	HappyToShare                                bool
 	PaymentDetails                              PaymentDetails
-	CheckedAgain                                bool
-	ConfirmFreeWill                             bool
-	SignatureCode                               string
-	EnteredSignatureCode                        string
 	IdentityOption                              identity.Option
 	YotiUserData                                identity.UserData
 	OneLoginUserData                            identity.UserData
