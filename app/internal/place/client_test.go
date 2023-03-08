@@ -8,9 +8,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/mock"
-
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestLookupPostcode(t *testing.T) {

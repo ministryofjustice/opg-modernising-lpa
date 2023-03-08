@@ -6,17 +6,14 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-
-	"golang.org/x/exp/slices"
-
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+	"golang.org/x/exp/slices"
 )
 
 const TestEmail = "simulate-delivered@notifications.service.gov.uk"
