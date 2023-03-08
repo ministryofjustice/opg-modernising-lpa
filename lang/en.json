@@ -370,9 +370,9 @@
     "witnessingAsCP": "Witnessing as the certificate provider",
     "enterUniqueCodeLabel": "Enter your unique code",
     "enterUniqueCodeHint": "{{ .CpFirstName }}, please type in the code we have sent you, to prove that you are with {{ .DonorFullName }} and have witnessed them sign their LPA.",
-    "cpNotReceivedCodeLink": "<p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">{{ .CpFirstName }} has not received a text message with the code</a></p>",
+    "cpNotReceivedCodeLink": "{{ .CpFirstName }} has not received a text message with the code",
     "witnessCodeDoesNotMatch": "The code you entered is incorrect, please check it and try again",
-    "witnessCodeExpired": "The code you entered has expired",
+    "witnessCodeExpired": "The code has expired",
     "theCodeWeSentCertificateProvider": "The code we sent to the certificate provider",
 
     "submittedYourLpa": "You’ve submitted your LPA",
@@ -542,5 +542,12 @@
     },
     "readDonorNameLpa": "Read {{ .DonorFullName }}’s LPA",
     "youMustReadLpaCarefully": "You must read this LPA carefully.",
-    "peopleToNotifyAboutTheLpa": "People to notify about the LPA"
+    "peopleToNotifyAboutTheLpa": "People to notify about the LPA",
+
+    "requestANewWitnessCode": "Request a new witness code",
+    "textMessagesSometimesTakeAFewMinutes": "Text messages sometimes take a few minutes to arrive. If you do not receive the text message, you can request a new one.",
+    "requestANewCode": "Request a new code",
+    "pleaseWaitOneMinute": "Please wait at least one minute for the previous text message to arrive before requesting a new code",
+
+    "tooManyWitnessCodeAttempts": "Wait a bit before attempting to enter the witness code again"
 }

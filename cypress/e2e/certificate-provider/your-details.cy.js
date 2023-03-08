@@ -6,8 +6,7 @@ describe('Your details', () => {
     });
 
     it('can be completed', () => {
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
 
         cy.contains('Jose Smith');
         cy.contains('Barbara Smith');
@@ -22,8 +21,7 @@ describe('Your details', () => {
 
         cy.url().should('contain', '/certificate-provider-your-address');
 
-        cy.injectAxe();
-        cy.checkA11y(null, { rules: { region: { enabled: false } } });
+        cy.checkA11yApp();
     });
 
     it('errors when all empty', () => {

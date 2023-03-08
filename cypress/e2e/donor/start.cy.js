@@ -1,13 +1,10 @@
 describe('Start', () => {
     beforeEach(() => {
         cy.visit('/');
-        cy.injectAxe();
     });
 
     afterEach(() => {
-        cy.checkA11y(null, {
-            rules: { region: { enabled: false } },
-        });
+        cy.checkA11yApp();
     });
 
     it('has a title', () => {

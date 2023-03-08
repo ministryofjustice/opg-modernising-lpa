@@ -15,7 +15,9 @@
           </div>
         </div>
 
-        {{ trFormatHtml .App "cpNotReceivedCodeLink" "CpFirstName" .Lpa.CertificateProvider.FirstNames }}
+        <p class="govuk-body">
+          <a href="{{ link .App .App.Paths.ResendWitnessCode }}" class="govuk-link">{{ trFormat .App "cpNotReceivedCodeLink" "CpFirstName" .Lpa.CertificateProvider.FirstNames }}</a>
+        </p>
 
         {{ template "continue-button" . }}
         {{ template "csrf-field" . }}

@@ -176,14 +176,14 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					Donor: actor.Person{
+					Donor: actor.Donor{
 						FirstNames: "Jane",
 						LastName:   "Doe",
 					},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
-					Donor: actor.Person{
+					Donor: actor.Donor{
 						FirstNames: "Jane",
 						LastName:   "Doe",
 					},
@@ -230,7 +230,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				"date-of-birth-year":  {"1990"},
 			},
 			existingLpa: &page.Lpa{
-				Donor: actor.Person{
+				Donor: actor.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
 				},
@@ -249,7 +249,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				"ignore-name-warning": {"errorDonorMatchesActor|theCertificateProvider|John|Doe"},
 			},
 			existingLpa: &page.Lpa{
-				Donor: actor.Person{
+				Donor: actor.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
 				},
@@ -269,7 +269,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				"ignore-name-warning": {"errorAttorneyMatchesActor|theCertificateProvider|John|Doe"},
 			},
 			existingLpa: &page.Lpa{
-				Donor: actor.Person{
+				Donor: actor.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
 				},
@@ -500,7 +500,7 @@ func TestUkMobileFormatValidation(t *testing.T) {
 
 func TestCertificateProviderMatches(t *testing.T) {
 	lpa := &page.Lpa{
-		Donor: actor.Person{FirstNames: "a", LastName: "b"},
+		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
 		Attorneys: actor.Attorneys{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},

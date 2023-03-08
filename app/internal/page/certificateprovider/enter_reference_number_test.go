@@ -10,11 +10,8 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
-
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
