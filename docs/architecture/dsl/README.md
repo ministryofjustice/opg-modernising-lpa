@@ -8,13 +8,11 @@ This should be updated as changes to the application occur and can be used to pl
 
 ## Instructions
 
-There are two directories, one containing this applications C4Model diagram and the other the whole MLPA architecture.
-
-Each folder contains Diagrams as Code that can be run with the following commands.
+The local folder contains Diagrams as Code that can be run with the following commands.
 
 ### To run in browser locally
 
-- Run `make run-structurizr` for this application, `make run-structurizr mlpa=1` for the entire MLPA architecture
+- Run `make run-structurizr`
 - Open a browser to [http://localhost:8080](http://localhost:8080)
 - Open the workspace.dsl file and edit
 - Every 2 seconds the website will check for updates and refresh if changes are detected
@@ -22,5 +20,5 @@ Each folder contains Diagrams as Code that can be run with the following command
 ### To export Mermaid files
 
 - Ensure you have installed `brew install structurizr-cli`
-- Run `make run-structurizr-export` for this application, `make run-structurizr-export mlpa=1` for the entire MLPA architecture
+- Run `make run-structurizr-export`
 - Commit and save the exported `.mmd` files
