@@ -183,13 +183,13 @@ describe('People to notify', () => {
     it('warns when name shared with other actor', () => {
         cy.visit('/testing-start?redirect=/choose-people-to-notify&withDonorDetails=1');
 
-        cy.get('#f-first-names').type('Jose');
+        cy.get('#f-first-names').type('Jamie');
         cy.get('#f-last-name').type('Smith');
         cy.get('#f-email').type(TestEmail);
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/choose-people-to-notify');
 
-        cy.contains('The donor’s name is also Jose Smith.');
+        cy.contains('The donor’s name is also Jamie Smith.');
 
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/choose-people-to-notify-address');

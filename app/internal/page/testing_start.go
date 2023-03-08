@@ -82,7 +82,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		}
 
 		if r.FormValue("withCP") != "" || r.FormValue("completeLpa") != "" {
-			AddCertificateProvider(lpa, "Barbara")
+			AddCertificateProvider(lpa, "Jessie")
 		}
 
 		if r.FormValue("withPeopleToNotify") != "" || r.FormValue("completeLpa") != "" {
@@ -161,7 +161,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				LpaID:          lpa.ID,
 			})
 
-			lpa.CertificateProviderOneLoginUserData.FullName = "Barbara Smith"
+			lpa.CertificateProviderOneLoginUserData.FullName = "Jessie Jones"
 			lpa.CertificateProviderOneLoginUserData.OK = true
 		}
 
