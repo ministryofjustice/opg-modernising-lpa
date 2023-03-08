@@ -219,6 +219,7 @@
     "certificateProviderDobContext": "We need your certificate provider’s date of birth to check they are over 18.",
     "certificateProviderMobileContext": "We need your certificate provider’s mobile number so we can send them a code to use when they witness you signing your LPA.",
     "mobile": "Mobile number",
+    "donorAndCertificateProviderShareLastnameWarning": "<strong class=\"govuk-warning-text__text govuk-!-padding-bottom-3\">Your certificate provider’s last name is the same as yours or very similar. Please check that they are not any of the following as these people cannot be your certificate provider:</strong> <ul class=\"govuk-list govuk-list--bullet\"> <strong class=\"govuk-warning-text__text\"><li>a member of your family (this includes step-relations and in-laws) or of the attorneys’ families</li></strong> <strong class=\"govuk-warning-text__text\"><li>a spouse or partner</li></strong> </ul> </strong>",
 
     "howWouldCertificateProviderPreferToCarryOutTheirRole": "How would {{.FirstNames}} prefer to carry out their role?",
     "howWouldCertificateProviderPreferToCarryOutTheirRoleTitle": "How would your certificate provider prefer to carry out their role?",

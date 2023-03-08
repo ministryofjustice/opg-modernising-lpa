@@ -12,10 +12,11 @@ import (
 )
 
 type certificateProviderDetailsData struct {
-	App         page.AppData
-	Errors      validation.List
-	Form        *certificateProviderDetailsForm
-	NameWarning *actor.SameNameWarning
+	App                 page.AppData
+	Errors              validation.List
+	Form                *certificateProviderDetailsForm
+	NameWarning         *actor.SameNameWarning
+	SameLastnameAsDonor bool
 }
 
 func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) page.Handler {
@@ -39,18 +40,22 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) page.
 			data.Form = readCertificateProviderDetailsForm(r)
 			data.Errors = data.Form.Validate()
 
-			nameWarning := actor.NewSameNameWarning(
+			sameNameWarning := actor.NewSameNameWarning(
 				actor.TypeCertificateProvider,
 				certificateProviderMatches(lpa, data.Form.FirstNames, data.Form.LastName),
 				data.Form.FirstNames,
 				data.Form.LastName,
 			)
 
-			if data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String() {
-				data.NameWarning = nameWarning
+			if data.Errors.Any() || data.Form.IgnoreNameWarning != sameNameWarning.String() {
+				data.NameWarning = sameNameWarning
 			}
 
-			if data.Errors.None() && data.NameWarning == nil {
+			if lpa.Donor.LastName == data.Form.LastName && !data.Form.IgnoreSimilarNameWarning && sameNameWarning == nil {
+				data.SameLastnameAsDonor = true
+			}
+
+			if data.Errors.None() && data.NameWarning == nil && !data.SameLastnameAsDonor {
 				lpa.CertificateProvider.FirstNames = data.Form.FirstNames
 				lpa.CertificateProvider.LastName = data.Form.LastName
 				lpa.CertificateProvider.DateOfBirth = data.Form.Dob
@@ -69,20 +74,22 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) page.
 }
 
 type certificateProviderDetailsForm struct {
-	FirstNames        string
-	LastName          string
-	Dob               date.Date
-	Mobile            string
-	IgnoreNameWarning string
+	FirstNames               string
+	LastName                 string
+	Dob                      date.Date
+	Mobile                   string
+	IgnoreNameWarning        string
+	IgnoreSimilarNameWarning bool
 }
 
 func readCertificateProviderDetailsForm(r *http.Request) *certificateProviderDetailsForm {
 	return &certificateProviderDetailsForm{
-		FirstNames:        page.PostFormString(r, "first-names"),
-		LastName:          page.PostFormString(r, "last-name"),
-		Dob:               date.New(page.PostFormString(r, "date-of-birth-year"), page.PostFormString(r, "date-of-birth-month"), page.PostFormString(r, "date-of-birth-day")),
-		Mobile:            page.PostFormString(r, "mobile"),
-		IgnoreNameWarning: page.PostFormString(r, "ignore-name-warning"),
+		FirstNames:               page.PostFormString(r, "first-names"),
+		LastName:                 page.PostFormString(r, "last-name"),
+		Dob:                      date.New(page.PostFormString(r, "date-of-birth-year"), page.PostFormString(r, "date-of-birth-month"), page.PostFormString(r, "date-of-birth-day")),
+		Mobile:                   page.PostFormString(r, "mobile"),
+		IgnoreNameWarning:        page.PostFormString(r, "ignore-name-warning"),
+		IgnoreSimilarNameWarning: page.PostFormString(r, "ignore-similar-name-warning") == "yes",
 	}
 }
 
