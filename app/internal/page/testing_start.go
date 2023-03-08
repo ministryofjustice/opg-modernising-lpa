@@ -6,12 +6,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 

@@ -6,9 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
 	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"

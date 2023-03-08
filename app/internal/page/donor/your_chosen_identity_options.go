@@ -14,7 +14,7 @@ type yourChosenIdentityOptionsData struct {
 	App            page.AppData
 	Errors         validation.List
 	IdentityOption identity.Option
-	You            actor.Person
+	You            actor.Donor
 }
 
 func YourChosenIdentityOptions(tmpl template.Template, lpaStore LpaStore) page.Handler {
