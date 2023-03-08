@@ -131,7 +131,7 @@ func TestPostEnterYourNameWithCorrectedName(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	lpa := &page.Lpa{
-		Donor:               actor.Person{Email: "a@example.com"},
+		Donor:               actor.Donor{Email: "a@example.com"},
 		CertificateProvider: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
 	}
 

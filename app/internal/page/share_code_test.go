@@ -24,7 +24,7 @@ func TestShareCodeSenderSend(t *testing.T) {
 			LastName:   "Jones",
 			Email:      "name@example.org",
 		},
-		Donor: actor.Person{
+		Donor: actor.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
@@ -96,7 +96,7 @@ func TestShareCodeSenderSendWithTestCode(t *testing.T) {
 			LastName:   "Jones",
 			Email:      "name@example.org",
 		},
-		Donor: actor.Person{
+		Donor: actor.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
@@ -183,7 +183,7 @@ func TestShareCodeSenderSendWhenEmailErrors(t *testing.T) {
 			LastName:   "Jones",
 			Email:      "name@example.org",
 		},
-		Donor: actor.Person{
+		Donor: actor.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},

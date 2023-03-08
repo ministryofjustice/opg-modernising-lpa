@@ -7,7 +7,7 @@ import (
 )
 
 func TestPersonFullName(t *testing.T) {
-	p := Person{FirstNames: "Bob Alan George", LastName: "Smith Jones-Doe"}
+	p := Donor{FirstNames: "Bob Alan George", LastName: "Smith Jones-Doe"}
 
 	assert.Equal(t, "Bob Alan George Smith Jones-Doe", p.FullName())
 }

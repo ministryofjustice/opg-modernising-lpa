@@ -46,8 +46,8 @@ var PeopleToNotifyNames = []string{
 	"Juniper",
 }
 
-func MakePerson() actor.Person {
-	return actor.Person{
+func MakePerson() actor.Donor {
+	return actor.Donor{
 		FirstNames: "Jose",
 		LastName:   "Smith",
 		Address: place.Address{

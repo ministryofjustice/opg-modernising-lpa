@@ -79,7 +79,7 @@ func TestPostResendWitnessCode(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpa := &page.Lpa{Donor: actor.Person{FirstNames: "john"}}
+	lpa := &page.Lpa{Donor: actor.Donor{FirstNames: "john"}}
 
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
@@ -104,7 +104,7 @@ func TestPostResendWitnessCodeWhenSendErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpa := &page.Lpa{Donor: actor.Person{FirstNames: "john"}}
+	lpa := &page.Lpa{Donor: actor.Donor{FirstNames: "john"}}
 
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
@@ -127,7 +127,7 @@ func TestPostResendWitnessCodeWhenTooRecentlySent(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpa := &page.Lpa{
-		Donor:        actor.Person{FirstNames: "john"},
+		Donor:        actor.Donor{FirstNames: "john"},
 		WitnessCodes: page.WitnessCodes{{Created: time.Now()}},
 	}
 

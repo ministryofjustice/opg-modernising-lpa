@@ -346,7 +346,7 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
-				Donor: actor.Person{
+				Donor: actor.Donor{
 					FirstNames: "Jose",
 					LastName:   "Smith",
 					Address: place.Address{
@@ -788,7 +788,7 @@ func TestTestingStart(t *testing.T) {
 						ID:          "JorgeSmith",
 					},
 				},
-				Donor: actor.Person{
+				Donor: actor.Donor{
 					FirstNames: "Jose",
 					LastName:   "Smith",
 					Address: place.Address{

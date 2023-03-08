@@ -177,11 +177,11 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					Donor: actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
-					Donor:                actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					Donor:                actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					ReplacementAttorneys: actor.Attorneys{tc.attorney},
 					Tasks:                page.Tasks{ChooseReplacementAttorneys: page.TaskInProgress},
 				}).
@@ -272,7 +272,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					Donor: actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					ReplacementAttorneys: actor.Attorneys{
 						{
 							FirstNames: "John",
@@ -283,7 +283,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
-					Donor:                actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					Donor:                actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					ReplacementAttorneys: actor.Attorneys{tc.attorney},
 				}).
 				Return(nil)
@@ -482,7 +482,7 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					Donor: actor.Person{FirstNames: "Jane", LastName: "Doe"},
+					Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 				}, nil)
 
 			template := newMockTemplate(t)
@@ -530,7 +530,7 @@ func TestPostChooseReplacementAttorneysWhenStoreErrors(t *testing.T) {
 
 func TestReplacementAttorneyMatches(t *testing.T) {
 	lpa := &page.Lpa{
-		Donor: actor.Person{FirstNames: "a", LastName: "b"},
+		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
 		Attorneys: actor.Attorneys{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},
