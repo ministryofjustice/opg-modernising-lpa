@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -19,6 +20,18 @@ func TestGetTaskList(t *testing.T) {
 		"empty": {
 			lpa: &page.Lpa{},
 			expected: func(sections []taskListSection) []taskListSection {
+				return sections
+			},
+		},
+		"confirmed identity": {
+			lpa: &page.Lpa{
+				IdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[2].Items = []taskListItem{
+					{Name: "confirmYourIdentityAndSign", Path: page.Paths.ReadYourLpa},
+				}
+
 				return sections
 			},
 		},

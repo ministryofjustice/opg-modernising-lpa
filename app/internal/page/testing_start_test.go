@@ -671,10 +671,12 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
-				OneLoginUserData: identity.UserData{
+				IdentityUserData: identity.UserData{
 					OK:          true,
+					Provider:    identity.OneLogin,
 					RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
-					FullName:    "Jamie Smith",
+					FirstNames:  "Jamie",
+					LastName:    "Smith",
 				},
 				WantToApplyForLpa:      true,
 				WantToSignLpa:          true,
@@ -708,10 +710,12 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
-				OneLoginUserData: identity.UserData{
+				IdentityUserData: identity.UserData{
 					OK:          true,
+					Provider:    identity.OneLogin,
 					RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
-					FullName:    "Jamie Smith",
+					FirstNames:  "Jamie",
+					LastName:    "Smith",
 				},
 				WantToApplyForLpa:      true,
 				WantToSignLpa:          true,
@@ -882,9 +886,11 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
-				CertificateProviderOneLoginUserData: identity.UserData{
-					FullName: "Jessie Jones",
-					OK:       true,
+				CertificateProviderIdentityUserData: identity.UserData{
+					OK:         true,
+					Provider:   identity.OneLogin,
+					FirstNames: "Jessie",
+					LastName:   "Jones",
 				},
 			}).
 			Return(nil)
@@ -913,9 +919,11 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
-				CertificateProviderOneLoginUserData: identity.UserData{
-					FullName: "Jessie Jones",
-					OK:       true,
+				CertificateProviderIdentityUserData: identity.UserData{
+					OK:         true,
+					Provider:   identity.OneLogin,
+					FirstNames: "Jessie",
+					LastName:   "Jones",
 				},
 				CertificateProviderProvidedDetails: actor.CertificateProvider{
 					Mobile: TestMobile,

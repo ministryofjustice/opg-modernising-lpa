@@ -67,8 +67,7 @@ type Lpa struct {
 	HappyToShare                                bool
 	PaymentDetails                              PaymentDetails
 	IdentityOption                              identity.Option
-	YotiUserData                                identity.UserData
-	OneLoginUserData                            identity.UserData
+	IdentityUserData                            identity.UserData
 	HowAttorneysMakeDecisions                   string
 	HowAttorneysMakeDecisionsDetails            string
 	ReplacementAttorneys                        actor.Attorneys
@@ -86,8 +85,7 @@ type Lpa struct {
 	WitnessCodeLimiter                          *Limiter
 
 	CertificateProviderIdentityOption   identity.Option
-	CertificateProviderYotiUserData     identity.UserData
-	CertificateProviderOneLoginUserData identity.UserData
+	CertificateProviderIdentityUserData identity.UserData
 	CertificateProviderProvidedDetails  actor.CertificateProvider
 	Certificate                         Certificate
 }
@@ -141,7 +139,13 @@ func DecodeAddress(s string) *place.Address {
 }
 
 func (l *Lpa) IdentityConfirmed() bool {
-	return l.YotiUserData.OK || l.OneLoginUserData.OK
+	return l.IdentityUserData.OK && l.IdentityUserData.Provider != identity.UnknownOption &&
+		l.IdentityUserData.MatchName(l.Donor.FirstNames, l.Donor.LastName)
+}
+
+func (l *Lpa) CertificateProviderIdentityConfirmed() bool {
+	return l.CertificateProviderIdentityUserData.OK && l.CertificateProviderIdentityUserData.Provider != identity.UnknownOption &&
+		l.CertificateProviderIdentityUserData.MatchName(l.CertificateProvider.FirstNames, l.CertificateProvider.LastName)
 }
 
 func (l *Lpa) TypeLegalTermTransKey() string {
@@ -164,6 +168,8 @@ func (l *Lpa) CanGoTo(url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 
 	switch path {
+	case Paths.ReadYourLpa, Paths.SignYourLpa, Paths.WitnessingYourSignature, Paths.WitnessingAsCertificateProvider, Paths.YouHaveSubmittedYourLpa:
+		return l.IdentityConfirmed()
 	case Paths.WhenCanTheLpaBeUsed, Paths.Restrictions, Paths.WhoDoYouWantToBeCertificateProviderGuidance, Paths.DoYouWantToNotifyPeople:
 		return l.Tasks.YourDetails.Completed() &&
 			l.Tasks.ChooseAttorneys.Completed()
