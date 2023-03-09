@@ -89,8 +89,8 @@ jobs:
           TF_VAR_container_version: ${{ inputs.version_tag }}
         run: |
           terraform workspace show
-          echo "plan_summary=$(terraform plan -no-color -lock-timeout=300s -input=false -parallelism=30 | grep -ioE 'Plan: [[:digit:]]+ to add, [[:digit:]]+ to change, [[:digit:]]+ to destroy')" >> $GITHUB_OUTPUT
-          terraform plan -lock-timeout=300s -input=false -parallelism=30
+          echo "plan_summary=$(terraform plan -no-color -lock-timeout=300s -input=false -parallelism=30 | tee /dev/tty | grep -ioE 'Plan: [[:digit:]]+ to add, [[:digit:]]+ to change, [[:digit:]]+ to destroy')" >> $GITHUB_OUTPUT
+          # terraform plan -lock-timeout=300s -input=false -parallelism=30
 
         working-directory: ./terraform/environment
 
