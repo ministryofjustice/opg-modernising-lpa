@@ -109,7 +109,7 @@ jobs:
             })
 
             // 2. Prepare format of the comment
-            const output = `#### Terraform Plan Summary \`${{ steps.terraform_plan.outputs.plan_summary }}\`
+
 
             // 3. If we have a comment, update it, otherwise create a new one
             if (botComment) {
@@ -117,14 +117,14 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 comment_id: botComment.id,
-                body: output
+                body: ${{ steps.terraform_plan.outputs.plan_summary }}
               })
             } else {
               github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: output
+                body: ${{ steps.terraform_plan.outputs.plan_summary }}
               })
             }
 
