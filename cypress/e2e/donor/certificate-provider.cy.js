@@ -290,4 +290,23 @@ describe('Certificate provider task', () => {
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
     });
+
+    it('warns when lastname shared with other donor', () => {
+        cy.visitLpa('/certificate-provider-details');
+        cy.contains('button', 'Continue').click();
+
+        cy.get('#f-first-names').type('Jill');
+        cy.get('#f-last-name').type('Smith');
+        cy.get('#f-date-of-birth').type('1');
+        cy.get('#f-date-of-birth-month').type('2');
+        cy.get('#f-date-of-birth-year').type('1990');
+        cy.get('#f-mobile').type(TestMobile);
+        cy.contains('button', 'Continue').click();
+        cy.url().should('contain', '/certificate-provider-details');
+
+        cy.contains('Your certificate provider’s last name is the same as yours or very similar');
+
+        cy.contains('button', 'Continue').click();
+        cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
+    });
 });
