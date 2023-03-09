@@ -29,6 +29,8 @@ jobs:
     uses: ./.github/workflows/send_pr_comment.yml
     with:
       body: 'hello'
+    secrets:
+      github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   # detect_changes:
   #   name: Detect Changes
