@@ -89,12 +89,13 @@ jobs:
           TF_VAR_container_version: ${{ inputs.version_tag }}
         run: |
           terraform workspace show
-          echo "plan_summary=$(terraform plan -lock-timeout=300s -input=false -parallelism=30 | grep --color=never --null Plan:)" >> $GITHUB_OUTPUT
+          echo "plan_summary=$(terraform plan -lock-timeout=300s -input=false -parallelism=30 | grep -E 'Plan: [0-9]+ to add, [0-9]+ to change, [0-9]+ to destroy')" >> $GITHUB_OUTPUT
           terraform plan -lock-timeout=300s -input=false -parallelism=30
 
         working-directory: ./terraform/environment
 
       - uses: actions/github-script@v6
+        name: Add plan summary to PR comment
         with:
           github-token: ${{ secrets.github_access_token }}
           script: |
@@ -108,7 +109,7 @@ jobs:
               return comment.user.type === 'Bot' && comment.body.includes('Terraform Plan Summary')
             })
 
-            const output = `#### Terraform Plan Summary 📖\
+            const output = `#### Terraform Plan Summary 📖
             \n
             ${{ steps.terraform_plan.outputs.plan_summary }}`;
 
