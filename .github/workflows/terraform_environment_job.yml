@@ -109,7 +109,7 @@ jobs:
               return comment.user.type === 'Bot' && comment.body.includes('Terraform Plan Summary')
             })
 
-            const output = `### Terraform Plan Summary 📖
+            const output = `### Terraform Plan Summary
             \n
             ${{ steps.terraform_plan.outputs.plan_summary }}`;
 
