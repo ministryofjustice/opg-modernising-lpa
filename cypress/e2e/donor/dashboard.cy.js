@@ -6,7 +6,7 @@ describe('Dashboard', () => {
 
         it('shows my lasting power of attorney', () => {
             cy.contains('Property and affairs');
-            cy.contains('Jose Smith');
+            cy.contains('Jamie Smith');
             cy.contains('a', 'Continue').click();
 
             cy.url().should('contain', '/task-list');
@@ -31,7 +31,7 @@ describe('Dashboard', () => {
 
             cy.visit('/dashboard');
 
-            cy.contains('Property and affairs: Jose Smith');
+            cy.contains('Property and affairs: Jamie Smith');
             cy.contains('Personal welfare: Jane Smith');
         });
     })
@@ -43,7 +43,7 @@ describe('Dashboard', () => {
             cy.get('button').should('not.contain', 'Continue');
 
             cy.contains('Property and affairs');
-            cy.contains('Jose Smith');
+            cy.contains('Jamie Smith');
             cy.contains('a', 'Track LPA progress').click();
 
             cy.url().should('contain', '/progress');

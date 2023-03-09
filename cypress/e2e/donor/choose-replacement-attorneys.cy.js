@@ -73,7 +73,7 @@ describe('Choose replacement attorneys', () => {
     it('warns when name shared with other actor', () => {
         cy.visit('/testing-start?redirect=/choose-replacement-attorneys&withDonorDetails=1');
 
-        cy.get('#f-first-names').type('Jose');
+        cy.get('#f-first-names').type('Jamie');
         cy.get('#f-last-name').type('Smith');
         cy.get('#f-email').type(TestEmail);
         cy.get('#f-date-of-birth').type('1');
@@ -82,7 +82,7 @@ describe('Choose replacement attorneys', () => {
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/choose-replacement-attorneys');
 
-        cy.contains('The donor’s name is also Jose Smith.');
+        cy.contains('The donor’s name is also Jamie Smith.');
 
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/choose-replacement-attorneys-address');
