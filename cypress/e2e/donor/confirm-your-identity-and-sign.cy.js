@@ -31,16 +31,22 @@ describe('Confirm your identity and sign', () => {
         cy.url().should('contain', '/select-your-identity-options');
         cy.checkA11yApp();
 
-        cy.contains('label', 'Your GOV.UK One Login Identity').click();
+        cy.contains('label', 'I do not have either of these types of accounts').click();
+        cy.contains('button', 'Continue').click();
+
+        cy.url().should('contain', '/select-your-identity-options-1');
+        cy.checkA11yApp();
+
+        cy.contains('label', 'Your passport').click();
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/your-chosen-identity-options');
         cy.checkA11yApp();
-
-        cy.contains('Your GOV.UK One Login Identity');
-        // can't click continue as the real flow would begin
-        cy.visitLpa('/read-your-lpa');
-
+        
+        cy.contains('passport');
+        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Continue').click();
+        
         cy.url().should('contain', '/read-your-lpa');
         cy.checkA11yApp();
 
@@ -122,6 +128,9 @@ describe('Confirm your identity and sign', () => {
     });
 
     it('errors when not witnessed', () => {
+        cy.visitLpa('/id/passport');
+        cy.contains('button', 'Continue').click();
+
         cy.visitLpa('/witnessing-your-signature');
         cy.contains('button', 'Continue').click();
 

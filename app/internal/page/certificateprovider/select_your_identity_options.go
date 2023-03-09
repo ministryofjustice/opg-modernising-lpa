@@ -27,7 +27,7 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, pageIn
 			App:  appData,
 			Page: pageIndex,
 			Form: &selectYourIdentityOptionsForm{
-				Selected: lpa.IdentityOption,
+				Selected: lpa.DonorIdentityOption,
 			},
 		}
 

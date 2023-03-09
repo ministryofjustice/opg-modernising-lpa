@@ -62,7 +62,7 @@ func TestGetSelectYourIdentityOptionsFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			IdentityOption: identity.Passport,
+			DonorIdentityOption: identity.Passport,
 		}, nil)
 
 	template := newMockTemplate(t)
