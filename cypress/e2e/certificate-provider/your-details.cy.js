@@ -8,8 +8,8 @@ describe('Your details', () => {
     it('can be completed', () => {
         cy.checkA11yApp();
 
-        cy.contains('Jose Smith');
-        cy.contains('Barbara Smith');
+        cy.contains('Jamie Smith');
+        cy.contains('Jessie Jones');
 
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
