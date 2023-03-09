@@ -215,10 +215,12 @@ func PayForLpa(lpa *Lpa, store sesh.Store, r *http.Request, w http.ResponseWrite
 }
 
 func ConfirmIdAndSign(lpa *Lpa) {
-	lpa.OneLoginUserData = identity.UserData{
+	lpa.IdentityUserData = identity.UserData{
 		OK:          true,
+		Provider:    identity.OneLogin,
 		RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
-		FullName:    "Jamie Smith",
+		FirstNames:  "Jamie",
+		LastName:    "Smith",
 	}
 
 	lpa.WantToApplyForLpa = true

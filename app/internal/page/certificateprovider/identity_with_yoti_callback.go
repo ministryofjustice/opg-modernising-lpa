@@ -10,10 +10,11 @@ import (
 )
 
 type identityWithYotiCallbackData struct {
-	App         page.AppData
-	Errors      validation.List
-	FullName    string
-	ConfirmedAt time.Time
+	App             page.AppData
+	Errors          validation.List
+	FullName        string
+	ConfirmedAt     time.Time
+	CouldNotConfirm bool
 }
 
 func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, lpaStore LpaStore) page.Handler {
@@ -24,27 +25,38 @@ func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, lpa
 		}
 
 		if r.Method == http.MethodPost {
-			return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderReadTheLpa)
+			if lpa.CertificateProviderIdentityConfirmed() {
+				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderReadTheLpa)
+			} else {
+				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderSelectYourIdentityOptions1)
+			}
 		}
 
 		data := &identityWithYotiCallbackData{App: appData}
 
-		if lpa.CertificateProviderYotiUserData.OK {
-			data.FullName = lpa.CertificateProviderYotiUserData.FullName
-			data.ConfirmedAt = lpa.CertificateProviderYotiUserData.RetrievedAt
-		} else {
-			user, err := yotiClient.User(r.FormValue("token"))
-			if err != nil {
-				return err
-			}
+		if lpa.CertificateProviderIdentityConfirmed() {
+			data.FullName = lpa.CertificateProviderIdentityUserData.FirstNames + " " + lpa.CertificateProviderIdentityUserData.LastName
+			data.ConfirmedAt = lpa.CertificateProviderIdentityUserData.RetrievedAt
 
-			lpa.CertificateProviderYotiUserData = user
+			return tmpl(w, data)
+		}
+
+		user, err := yotiClient.User(r.FormValue("token"))
+		if err != nil {
+			return err
+		}
+
+		lpa.CertificateProviderIdentityUserData = user
+
+		if lpa.CertificateProviderIdentityConfirmed() {
 			if err := lpaStore.Put(r.Context(), lpa); err != nil {
 				return err
 			}
 
-			data.FullName = user.FullName
+			data.FullName = user.FirstNames + " " + user.LastName
 			data.ConfirmedAt = user.RetrievedAt
+		} else {
+			data.CouldNotConfirm = true
 		}
 
 		return tmpl(w, data)
