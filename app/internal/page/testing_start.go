@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -161,8 +162,12 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				LpaID:          lpa.ID,
 			})
 
-			lpa.CertificateProviderOneLoginUserData.FullName = "Jessie Jones"
-			lpa.CertificateProviderOneLoginUserData.OK = true
+			lpa.CertificateProviderIdentityUserData = identity.UserData{
+				OK:         true,
+				Provider:   identity.OneLogin,
+				FirstNames: "Jessie",
+				LastName:   "Jones",
+			}
 		}
 
 		if r.FormValue("provideCertificate") != "" {
