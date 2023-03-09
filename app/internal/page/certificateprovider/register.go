@@ -106,7 +106,7 @@ func Register(
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
 
 	handleRoot(page.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity, RequireSession,
-		page.Guidance(tmpls.Get("what_youll_need_to_confirm_your_identity.gohtml"), lpaStore))
+		page.Guidance(tmpls.Get("certificate_provider_what_youll_need_to_confirm_your_identity.gohtml"), lpaStore))
 
 	for path, page := range map[string]int{
 		page.Paths.CertificateProviderSelectYourIdentityOptions:  0,
