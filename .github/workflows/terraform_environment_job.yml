@@ -59,7 +59,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.2.6
-          terraform_wrapper: true
+          terraform_wrapper: false
       - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -98,12 +98,40 @@ jobs:
         with:
           github-token: ${{ secrets.github_access_token }}
           script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
+            // 1. Retrieve existing bot comments for the PR
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Terraform Plan Summary: \n' + '${{ steps.terraform_plan.outputs.plan_summary }}'
+              issue_number: context.issue.number,
             })
+            const botComment = comments.find(comment => {
+              return comment.user.type === 'Bot' && comment.body.includes('Terraform Plan Summary')
+            })
+
+            // 2. Prepare format of the comment
+            const output = `#### Terraform Plan Summary \`body: 'Terraform Plan Summary: \n'
+            <details>
+            \`\`\`\n
+            ${{ steps.terraform_plan.outputs.plan_summary }}
+            \`\`\`
+            </details>
+
+            // 3. If we have a comment, update it, otherwise create a new one
+            if (botComment) {
+              github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: output
+              })
+            } else {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              })
+            }
 
       - name: Protect environment workspace
         if: github.ref != 'refs/heads/main'
