@@ -133,7 +133,7 @@ func (c *Client) ParseIdentityClaim(ctx context.Context, u UserInfo) (identity.U
 
 	currentName := claims.Vc.CredentialSubject.CurrentNameParts()
 	if len(currentName) == 0 || claims.IssuedAt == nil {
-		return identity.UserData{OK: false}, nil
+		return identity.UserData{OK: false, Provider: identity.OneLogin}, nil
 	}
 
 	var givenName, familyName []string
@@ -147,7 +147,9 @@ func (c *Client) ParseIdentityClaim(ctx context.Context, u UserInfo) (identity.U
 
 	return identity.UserData{
 		OK:          true,
-		FullName:    strings.Join(givenName, " ") + " " + strings.Join(familyName, " "),
+		Provider:    identity.OneLogin,
+		FirstNames:  strings.Join(givenName, " "),
+		LastName:    strings.Join(familyName, " "),
 		RetrievedAt: claims.IssuedAt.Time,
 	}, nil
 }
