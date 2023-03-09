@@ -117,14 +117,14 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 comment_id: botComment.id,
-                body: ${{ steps.terraform_plan.outputs.plan_summary }}
+                body: '${{ steps.terraform_plan.outputs.plan_summary }}'
               })
             } else {
               github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: ${{ steps.terraform_plan.outputs.plan_summary }}
+                body: '${{ steps.terraform_plan.outputs.plan_summary }}'
               })
             }
 
