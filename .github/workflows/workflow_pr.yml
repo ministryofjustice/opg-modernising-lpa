@@ -9,11 +9,11 @@ permissions:
   id-token: write
   contents: write
   security-events: write
-  pull-requests: read
+  pull-requests: write
   actions: none
   checks: none
   deployments: none
-  issues: none
+  issues: write
   packages: none
   repository-projects: none
   statuses: none
@@ -23,7 +23,6 @@ defaults:
     shell: bash
 
 jobs:
-
   detect_changes:
     name: Detect Changes
     uses: ./.github/workflows/detect_changes_to_app_job.yml
@@ -60,7 +59,6 @@ jobs:
     uses: ./.github/workflows/terraform_account_job.yml
     with:
       workspace_name: development
-    # secrets: inherit # pragma: allowlist secret
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -71,7 +69,6 @@ jobs:
     uses: ./.github/workflows/terraform_account_job.yml
     with:
       workspace_name: preproduction
-    # secrets: inherit # pragma: allowlist secret
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -82,7 +79,6 @@ jobs:
     uses: ./.github/workflows/terraform_account_job.yml
     with:
       workspace_name: production
-    # secrets: inherit # pragma: allowlist secret
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -97,7 +93,6 @@ jobs:
     with:
       run_against_image: true
       tag: ${{ needs.create_tags.outputs.version_tag }}
-    # secrets: inherit # pragma: allowlist secret
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -122,11 +117,11 @@ jobs:
       with:
         workspace_name: ${{ needs.create_tags.outputs.environment_workspace_name }}
         version_tag: ${{ needs.create_tags.outputs.version_tag }}
-      # secrets: inherit # pragma: allowlist secret
       secrets:
         aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
         aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
         ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
+        github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   ui_tests_pr_env:
     name: Run Cypress UI Tests On PR Environment
@@ -139,7 +134,6 @@ jobs:
       run_against_image: false
       base_url: "https://${{ needs.pr_deploy.outputs.url }}"
       tag: ${{ needs.create_tags.outputs.version_tag }}
-    # secrets: inherit # pragma: allowlist secret
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -151,7 +145,6 @@ jobs:
     if: always()
     uses: ./.github/workflows/remove_ingress_job.yml
     needs: [ui_tests_pr_env]
-    # secrets: inherit # pragma: allowlist secret
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
