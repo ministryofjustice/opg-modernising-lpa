@@ -105,10 +105,10 @@ jobs:
               issue_number: context.issue.number,
             })
             const botComment = comments.find(comment => {
-              return comment.user.type === 'Bot' && comment.body.includes('Terraform Plan Summary')
+              return comment.user.type === 'Bot' && comment.body.includes('PR Environment Terraform Plan Summary')
             })
 
-            const output = `### Terraform Plan Summary
+            const output = `### PR Environment Terraform Plan Summary
             \n
             ${{ steps.terraform_plan.outputs.plan_summary }}`;
 
