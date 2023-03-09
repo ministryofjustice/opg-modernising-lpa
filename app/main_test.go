@@ -8,8 +8,8 @@ import (
 )
 
 func TestLanguageFilesMatch(t *testing.T) {
-	en := loadTranslations("lang/en.json")
-	cy := loadTranslations("lang/cy.json")
+	en := loadTranslations("../lang/en.json")
+	cy := loadTranslations("../lang/cy.json")
 
 	for k := range en {
 		if _, ok := cy[k]; !ok {
@@ -27,8 +27,8 @@ func TestLanguageFilesMatch(t *testing.T) {
 }
 
 func TestApostrophesAreCurly(t *testing.T) {
-	en := loadTranslations("lang/en.json")
-	cy := loadTranslations("lang/cy.json")
+	en := loadTranslations("../lang/en.json")
+	cy := loadTranslations("../lang/cy.json")
 
 	for k, v := range en {
 		if strings.Contains(v, "'") {
