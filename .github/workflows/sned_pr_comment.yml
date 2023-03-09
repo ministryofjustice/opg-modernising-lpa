@@ -1,0 +1,31 @@
+on:
+  workflow_call:
+    inputs:
+      body:
+        description: 'content body for pr comment'
+        required: true
+        type: string
+    secrets:
+      github_access_token:
+        description: 'Github Token'
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  send_pr_comment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.github_access_token }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: ${{ input.body }}
+            })
