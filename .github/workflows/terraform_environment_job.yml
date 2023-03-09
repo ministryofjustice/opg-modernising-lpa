@@ -109,8 +109,7 @@ jobs:
             })
 
             // 2. Prepare format of the comment
-            const output = `#### Terraform Plan Summary \`body: 'Terraform Plan Summary: \n ${{ steps.terraform_plan.outputs.plan_summary }}'
-
+            const output = `#### Terraform Plan Summary \`${{ steps.terraform_plan.outputs.plan_summary }}\`
 
             // 3. If we have a comment, update it, otherwise create a new one
             if (botComment) {
