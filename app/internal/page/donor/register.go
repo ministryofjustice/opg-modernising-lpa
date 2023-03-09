@@ -231,7 +231,7 @@ func Register(
 		page.Paths.IdentityWithOnlineBankAccount:        identity.OnlineBankAccount,
 	} {
 		handleLpa(path, CanGoBack,
-			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), identityOption))
+			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, time.Now, identityOption))
 	}
 
 	handleLpa(page.Paths.ReadYourLpa, CanGoBack,

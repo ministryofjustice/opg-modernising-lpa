@@ -22,7 +22,7 @@ func IdentityWithYoti(tmpl template.Template, lpaStore LpaStore, yotiClient Yoti
 			return err
 		}
 
-		if lpa.YotiUserData.OK || yotiClient.IsTest() {
+		if lpa.IdentityConfirmed() || yotiClient.IsTest() {
 			return appData.Redirect(w, r, lpa, page.Paths.IdentityWithYotiCallback)
 		}
 
