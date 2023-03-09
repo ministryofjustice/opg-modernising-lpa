@@ -108,13 +108,9 @@ jobs:
               return comment.user.type === 'Bot' && comment.body.includes('Terraform Plan Summary')
             })
 
-            const output = `#### Terraform Plan Summary 📖\`
-            <details><summary>Show Plan</summary>
-
-            \`\`\`\n
-            ${{ steps.terraform_plan.outputs.plan_summary }}
-            \`\`\`
-            </details>`;
+            const output = `#### Terraform Plan Summary 📖\
+            \n
+            ${{ steps.terraform_plan.outputs.plan_summary }}`;
 
             // 3. If we have a comment, update it, otherwise create a new one
             if (botComment) {
