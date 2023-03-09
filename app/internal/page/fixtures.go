@@ -45,7 +45,7 @@ var PeopleToNotifyNames = []string{
 
 func MakePerson() actor.Donor {
 	return actor.Donor{
-		FirstNames: "Jose",
+		FirstNames: "Jamie",
 		LastName:   "Smith",
 		Address: place.Address{
 			Line1:      "1 RICHMOND PLACE",
@@ -95,7 +95,7 @@ func MakePersonToNotify(firstNames string) actor.PersonToNotify {
 func MakeCertificateProvider(firstNames string) actor.CertificateProvider {
 	return actor.CertificateProvider{
 		FirstNames:              firstNames,
-		LastName:                "Smith",
+		LastName:                "Jones",
 		Email:                   TestEmail,
 		Mobile:                  TestMobile,
 		DateOfBirth:             date.New("1997", "1", "2"),
@@ -218,7 +218,7 @@ func ConfirmIdAndSign(lpa *Lpa) {
 	lpa.OneLoginUserData = identity.UserData{
 		OK:          true,
 		RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
-		FullName:    "Jose Smith",
+		FullName:    "Jamie Smith",
 	}
 
 	lpa.WantToApplyForLpa = true
@@ -234,7 +234,7 @@ func CompleteSectionOne(lpa *Lpa) {
 	AddReplacementAttorneys(lpa, 2)
 	CompleteWhenCanLpaBeUsed(lpa)
 	CompleteRestrictions(lpa)
-	AddCertificateProvider(lpa, "Barbara")
+	AddCertificateProvider(lpa, "Jessie")
 	AddPeopleToNotify(lpa, 2)
 	CompleteCheckYourLpa(lpa)
 }

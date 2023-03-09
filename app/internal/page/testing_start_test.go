@@ -308,8 +308,8 @@ func TestTestingStart(t *testing.T) {
 			On("Put", ctx, &Lpa{
 				ID: "123",
 				CertificateProvider: actor.CertificateProvider{
-					FirstNames:              "Barbara",
-					LastName:                "Smith",
+					FirstNames:              "Jessie",
+					LastName:                "Jones",
 					Email:                   TestEmail,
 					Mobile:                  TestMobile,
 					DateOfBirth:             date.New("1997", "1", "2"),
@@ -346,7 +346,7 @@ func TestTestingStart(t *testing.T) {
 			On("Put", ctx, &Lpa{
 				ID: "123",
 				Donor: actor.Donor{
-					FirstNames: "Jose",
+					FirstNames: "Jamie",
 					LastName:   "Smith",
 					Address: place.Address{
 						Line1:      "1 RICHMOND PLACE",
@@ -674,7 +674,7 @@ func TestTestingStart(t *testing.T) {
 				OneLoginUserData: identity.UserData{
 					OK:          true,
 					RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
-					FullName:    "Jose Smith",
+					FullName:    "Jamie Smith",
 				},
 				WantToApplyForLpa:      true,
 				WantToSignLpa:          true,
@@ -711,7 +711,7 @@ func TestTestingStart(t *testing.T) {
 				OneLoginUserData: identity.UserData{
 					OK:          true,
 					RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
-					FullName:    "Jose Smith",
+					FullName:    "Jamie Smith",
 				},
 				WantToApplyForLpa:      true,
 				WantToSignLpa:          true,
@@ -788,7 +788,7 @@ func TestTestingStart(t *testing.T) {
 					},
 				},
 				Donor: actor.Donor{
-					FirstNames: "Jose",
+					FirstNames: "Jamie",
 					LastName:   "Smith",
 					Address: place.Address{
 						Line1:      "1 RICHMOND PLACE",
@@ -803,8 +803,8 @@ func TestTestingStart(t *testing.T) {
 				WhoFor: "me",
 				Type:   LpaTypePropertyFinance,
 				CertificateProvider: actor.CertificateProvider{
-					FirstNames:              "Barbara",
-					LastName:                "Smith",
+					FirstNames:              "Jessie",
+					LastName:                "Jones",
 					Email:                   TestEmail,
 					Mobile:                  TestMobile,
 					DateOfBirth:             date.New("1997", "1", "2"),
@@ -883,7 +883,7 @@ func TestTestingStart(t *testing.T) {
 			On("Put", ctx, &Lpa{
 				ID: "123",
 				CertificateProviderOneLoginUserData: identity.UserData{
-					FullName: "Barbara Smith",
+					FullName: "Jessie Jones",
 					OK:       true,
 				},
 			}).
@@ -914,7 +914,7 @@ func TestTestingStart(t *testing.T) {
 			On("Put", ctx, &Lpa{
 				ID: "123",
 				CertificateProviderOneLoginUserData: identity.UserData{
-					FullName: "Barbara Smith",
+					FullName: "Jessie Jones",
 					OK:       true,
 				},
 				CertificateProviderProvidedDetails: actor.CertificateProvider{
