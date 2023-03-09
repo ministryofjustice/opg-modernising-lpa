@@ -117,7 +117,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 		"valid": {
 			form: url.Values{
 				"first-names":         {"John"},
-				"last-name":           {"Doe"},
+				"last-name":           {"Rey"},
 				"mobile":              {"07535111111"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
@@ -125,7 +125,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 			},
 			certificateProvider: actor.CertificateProvider{
 				FirstNames:  "John",
-				LastName:    "Doe",
+				LastName:    "Rey",
 				Mobile:      "07535111111",
 				DateOfBirth: date.New("1990", "1", "2"),
 			},
@@ -142,6 +142,23 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 			},
 			certificateProvider: actor.CertificateProvider{
 				FirstNames:  "Jane",
+				LastName:    "Doe",
+				Mobile:      "07535111111",
+				DateOfBirth: date.New("1990", "1", "2"),
+			},
+		},
+		"similar name warning ignored": {
+			form: url.Values{
+				"first-names":                 {"Joyce"},
+				"last-name":                   {"Doe"},
+				"mobile":                      {"07535111111"},
+				"date-of-birth-day":           {"2"},
+				"date-of-birth-month":         {"1"},
+				"date-of-birth-year":          {"1990"},
+				"ignore-similar-name-warning": {"yes"},
+			},
+			certificateProvider: actor.CertificateProvider{
+				FirstNames:  "Joyce",
 				LastName:    "Doe",
 				Mobile:      "07535111111",
 				DateOfBirth: date.New("1990", "1", "2"),
@@ -261,6 +278,26 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeCertificateProvider, actor.TypeDonor, "John", "Doe"), data.NameWarning)
 			},
 		},
+		"same last name as donor warning": {
+			form: url.Values{
+				"first-names":         {"Joyce"},
+				"last-name":           {"Doe"},
+				"mobile":              {"07535111111"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1990"},
+			},
+			existingLpa: &page.Lpa{
+				Donor: actor.Donor{
+					FirstNames: "John",
+					LastName:   "Doe",
+				},
+			},
+			dataMatcher: func(t *testing.T, data *certificateProviderDetailsData) bool {
+				assert.True(t, data.SameLastnameAsDonor)
+				return assert.Equal(t, (*actor.SameNameWarning)(nil), data.NameWarning)
+			},
+		},
 	}
 
 	for name, tc := range testCases {
@@ -321,12 +358,14 @@ func TestReadCertificateProviderDetailsForm(t *testing.T) {
 	assert := assert.New(t)
 
 	form := url.Values{
-		"first-names":         {"  John "},
-		"last-name":           {"Doe"},
-		"mobile":              {"07535111111"},
-		"date-of-birth-day":   {"2"},
-		"date-of-birth-month": {"1"},
-		"date-of-birth-year":  {"1990"},
+		"first-names":                 {"  John "},
+		"last-name":                   {"Doe"},
+		"mobile":                      {"07535111111"},
+		"date-of-birth-day":           {"2"},
+		"date-of-birth-month":         {"1"},
+		"date-of-birth-year":          {"1990"},
+		"ignore-name-warning":         {"a warning"},
+		"ignore-similar-name-warning": {"yes"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -338,6 +377,8 @@ func TestReadCertificateProviderDetailsForm(t *testing.T) {
 	assert.Equal("Doe", result.LastName)
 	assert.Equal("07535111111", result.Mobile)
 	assert.Equal(date.New("1990", "1", "2"), result.Dob)
+	assert.Equal("a warning", result.IgnoreNameWarning)
+	assert.Equal(true, result.IgnoreSimilarNameWarning)
 }
 
 func TestCertificateProviderDetailsFormValidate(t *testing.T) {
