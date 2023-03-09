@@ -59,7 +59,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.2.6
-          terraform_wrapper: false
+          terraform_wrapper: true
       - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -102,7 +102,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Terraform Plan Summary: \n' + '${{ steps.terraform_plan.outputs.plan_summary }}
+              body: 'Terraform Plan Summary: \n' + '${{ steps.terraform_plan.outputs.plan_summary }}'
             })
 
       - name: Protect environment workspace
