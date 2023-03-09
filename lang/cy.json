@@ -583,5 +583,11 @@
     },
     "readDonorNameLpa": "Welsh {{ .DonorFullName }}’s welsh",
     "youMustReadLpaCarefully": "Welsh.",
-    "peopleToNotifyAboutTheLpa": "Welsh"
+    "peopleToNotifyAboutTheLpa": "Welsh",
+
+    "pleaseWaitOneMinute": "welsh",
+    "tooManyWitnessCodeAttempts": "welsh",
+    "textMessagesSometimesTakeAFewMinutes":  "welsh",
+    "requestANewCode": "welsh",
+    "requestANewWitnessCode":  "welsh"
 }
