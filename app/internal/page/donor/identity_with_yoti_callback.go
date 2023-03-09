@@ -10,10 +10,11 @@ import (
 )
 
 type identityWithYotiCallbackData struct {
-	App         page.AppData
-	Errors      validation.List
-	FullName    string
-	ConfirmedAt time.Time
+	App             page.AppData
+	Errors          validation.List
+	FullName        string
+	ConfirmedAt     time.Time
+	CouldNotConfirm bool
 }
 
 func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, lpaStore LpaStore) page.Handler {
@@ -24,27 +25,38 @@ func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, lpa
 		}
 
 		if r.Method == http.MethodPost {
-			return appData.Redirect(w, r, lpa, page.Paths.ReadYourLpa)
+			if lpa.DonorIdentityConfirmed() {
+				return appData.Redirect(w, r, lpa, page.Paths.ReadYourLpa)
+			} else {
+				return appData.Redirect(w, r, lpa, page.Paths.SelectYourIdentityOptions1)
+			}
 		}
 
 		data := &identityWithYotiCallbackData{App: appData}
 
-		if lpa.YotiUserData.OK {
-			data.FullName = lpa.YotiUserData.FullName
-			data.ConfirmedAt = lpa.YotiUserData.RetrievedAt
-		} else {
-			user, err := yotiClient.User(r.FormValue("token"))
-			if err != nil {
-				return err
-			}
+		if lpa.DonorIdentityConfirmed() {
+			data.FullName = lpa.DonorIdentityUserData.FirstNames + " " + lpa.DonorIdentityUserData.LastName
+			data.ConfirmedAt = lpa.DonorIdentityUserData.RetrievedAt
 
-			lpa.YotiUserData = user
+			return tmpl(w, data)
+		}
+
+		user, err := yotiClient.User(r.FormValue("token"))
+		if err != nil {
+			return err
+		}
+
+		lpa.DonorIdentityUserData = user
+
+		if lpa.DonorIdentityConfirmed() {
 			if err := lpaStore.Put(r.Context(), lpa); err != nil {
 				return err
 			}
 
-			data.FullName = user.FullName
+			data.FullName = user.FirstNames + " " + user.LastName
 			data.ConfirmedAt = user.RetrievedAt
+		} else {
+			data.CouldNotConfirm = true
 		}
 
 		return tmpl(w, data)

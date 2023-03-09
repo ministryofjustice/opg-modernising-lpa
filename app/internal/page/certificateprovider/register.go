@@ -136,7 +136,7 @@ func Register(
 		page.Paths.CertificateProviderIdentityWithOnlineBankAccount:        identity.OnlineBankAccount,
 	} {
 		handleRoot(path, RequireSession,
-			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), identityOption))
+			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, time.Now, identityOption))
 	}
 
 	handleRoot(page.Paths.CertificateProviderReadTheLpa, RequireSession,

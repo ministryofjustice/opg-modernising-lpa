@@ -25,12 +25,12 @@ func YourChosenIdentityOptions(tmpl template.Template, lpaStore LpaStore) page.H
 		}
 
 		if r.Method == http.MethodPost {
-			return appData.Redirect(w, r, lpa, identityOptionPath(appData.Paths, lpa.IdentityOption))
+			return appData.Redirect(w, r, lpa, identityOptionPath(appData.Paths, lpa.DonorIdentityOption))
 		}
 
 		data := &yourChosenIdentityOptionsData{
 			App:            appData,
-			IdentityOption: lpa.IdentityOption,
+			IdentityOption: lpa.DonorIdentityOption,
 			You:            lpa.Donor,
 		}
 

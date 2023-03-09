@@ -32,13 +32,27 @@ func TestIdentityConfirmed(t *testing.T) {
 		lpa      *Lpa
 		expected bool
 	}{
-		"yoti": {
-			lpa:      &Lpa{YotiUserData: identity.UserData{OK: true}},
+		"set": {
+			lpa: &Lpa{
+				Donor:                 actor.Donor{FirstNames: "a", LastName: "b"},
+				DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "a", LastName: "b"},
+			},
 			expected: true,
 		},
-		"one login": {
-			lpa:      &Lpa{OneLoginUserData: identity.UserData{OK: true}},
-			expected: true,
+		"missing provider": {
+			lpa:      &Lpa{DonorIdentityUserData: identity.UserData{OK: true}},
+			expected: false,
+		},
+		"not ok": {
+			lpa:      &Lpa{DonorIdentityUserData: identity.UserData{Provider: identity.OneLogin}},
+			expected: false,
+		},
+		"no match": {
+			lpa: &Lpa{
+				Donor:                 actor.Donor{FirstNames: "a", LastName: "b"},
+				DonorIdentityUserData: identity.UserData{Provider: identity.OneLogin},
+			},
+			expected: false,
 		},
 		"none": {
 			lpa:      &Lpa{},
@@ -48,7 +62,47 @@ func TestIdentityConfirmed(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, tc.lpa.IdentityConfirmed())
+			assert.Equal(t, tc.expected, tc.lpa.DonorIdentityConfirmed())
+		})
+	}
+}
+
+func TestCertificateProviderIdentityConfirmed(t *testing.T) {
+	testCases := map[string]struct {
+		lpa      *Lpa
+		expected bool
+	}{
+		"set": {
+			lpa: &Lpa{
+				CertificateProvider:                 actor.CertificateProvider{FirstNames: "a", LastName: "b"},
+				CertificateProviderIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "a", LastName: "b"},
+			},
+			expected: true,
+		},
+		"missing provider": {
+			lpa:      &Lpa{CertificateProviderIdentityUserData: identity.UserData{OK: true}},
+			expected: false,
+		},
+		"not ok": {
+			lpa:      &Lpa{CertificateProviderIdentityUserData: identity.UserData{Provider: identity.OneLogin}},
+			expected: false,
+		},
+		"no match": {
+			lpa: &Lpa{
+				CertificateProvider:                 actor.CertificateProvider{FirstNames: "a", LastName: "b"},
+				CertificateProviderIdentityUserData: identity.UserData{Provider: identity.OneLogin},
+			},
+			expected: false,
+		},
+		"none": {
+			lpa:      &Lpa{},
+			expected: false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, tc.lpa.CertificateProviderIdentityConfirmed())
 		})
 	}
 }
