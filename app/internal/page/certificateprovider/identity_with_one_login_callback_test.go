@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -21,15 +22,18 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	now := time.Now()
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
-	userData := identity.UserData{OK: true, FullName: "John Doe", RetrievedAt: now}
+	userData := identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
 
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{
+			CertificateProvider: actor.CertificateProvider{FirstNames: "John", LastName: "Doe"},
+		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			CertificateProviderOneLoginUserData: userData,
+			CertificateProvider:                 actor.CertificateProvider{FirstNames: "John", LastName: "Doe"},
+			CertificateProviderIdentityUserData: userData,
 		}).
 		Return(nil)
 
@@ -252,7 +256,7 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDataStoreError(t *testing.T) {
 		Return(userInfo, nil)
 	oneLoginClient.
 		On("ParseIdentityClaim", mock.Anything, mock.Anything).
-		Return(identity.UserData{OK: true}, nil)
+		Return(identity.UserData{OK: true, Provider: identity.OneLogin}, nil)
 
 	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, lpaStore)(testAppData, w, r)
 
@@ -263,16 +267,21 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	now := time.Date(2012, time.January, 1, 2, 3, 4, 5, time.UTC)
-	userData := identity.UserData{OK: true, FullName: "a-full-name", RetrievedAt: now}
+	userData := identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "first-names", LastName: "last-name", RetrievedAt: now}
 
 	lpaStore := newMockLpaStore(t)
-	lpaStore.On("Get", r.Context()).Return(&page.Lpa{CertificateProviderOneLoginUserData: userData}, nil)
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{
+			CertificateProvider:                 actor.CertificateProvider{FirstNames: "first-names", LastName: "last-name"},
+			CertificateProviderIdentityUserData: userData,
+		}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &identityWithOneLoginCallbackData{
 			App:         testAppData,
-			FullName:    "a-full-name",
+			FullName:    "first-names last-name",
 			ConfirmedAt: now,
 		}).
 		Return(nil)
@@ -289,9 +298,11 @@ func TestPostIdentityWithOneLoginCallback(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	lpaStore := newMockLpaStore(t)
-	lpaStore.On("Get", r.Context()).Return(&page.Lpa{
-		CertificateProviderOneLoginUserData: identity.UserData{OK: true},
-	}, nil)
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{
+			CertificateProviderIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
+		}, nil)
 
 	err := IdentityWithOneLoginCallback(nil, nil, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()

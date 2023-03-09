@@ -1,31 +1,50 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "yourIdentityConfirmedWithYoti" }}{{ end }}
+{{ define "serviceName" }}
+  {{ if eq .App.Page .App.Paths.CertificateProviderIdentityWithOneLoginCallback }}
+    {{ tr .App "beACertificateProvider" }}
+  {{ else }}
+    {{ tr .App "serviceName" }}
+  {{ end }}
+{{ end }}
+{{ define "pageTitle" }}
+  {{ if .CouldNotConfirm }}
+    {{ tr .App "yourIdentityNotConfirmedWithYoti" }}
+  {{ else }}
+    {{ tr .App "yourIdentityConfirmedWithYoti" }}
+  {{ end }}
+{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "yourIdentityConfirmedWithYoti" }}</h1>
+      {{ if .CouldNotConfirm }}
+        <h1 class="govuk-heading-xl">{{ tr .App "yourIdentityNotConfirmedWithYoti" }}</h1>
 
-      <dl class="govuk-summary-list">
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">
-            Full Name
-          </dt>
-          <dd class="govuk-summary-list__value">
-            {{ .FullName }}
-          </dd>
-        </div>
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">
-            Confirmed at
-          </dt>
-          <dd class="govuk-summary-list__value">
-            {{ formatDateTime .ConfirmedAt }}
-          </dd>
-        </div>
-      </dl>
+        <p class="govuk-body">{{ tr .App "pleaseContinueWithADifferentMethod" }}</p>
+      {{ else }}
+        <h1 class="govuk-heading-xl">{{ tr .App "yourIdentityConfirmedWithYoti" }}</h1>
 
+        <dl class="govuk-summary-list">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+              Full Name
+            </dt>
+            <dd class="govuk-summary-list__value">
+              {{ .FullName }}
+            </dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+              Confirmed at
+            </dt>
+            <dd class="govuk-summary-list__value">
+              {{ formatDateTime .ConfirmedAt }}
+            </dd>
+          </div>
+        </dl>
+      {{ end }}
+      
       <form novalidate method="post">
         {{ template "continue-button" . }}
         {{ template "csrf-field" . }}

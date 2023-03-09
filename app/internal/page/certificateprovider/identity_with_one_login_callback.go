@@ -27,7 +27,7 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 		}
 
 		if r.Method == http.MethodPost {
-			if lpa.CertificateProviderOneLoginUserData.OK {
+			if lpa.CertificateProviderIdentityConfirmed() {
 				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderReadTheLpa)
 			} else {
 				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderSelectYourIdentityOptions1)
@@ -36,9 +36,9 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 
 		data := &identityWithOneLoginCallbackData{App: appData}
 
-		if lpa.CertificateProviderOneLoginUserData.OK {
-			data.FullName = lpa.CertificateProviderOneLoginUserData.FullName
-			data.ConfirmedAt = lpa.CertificateProviderOneLoginUserData.RetrievedAt
+		if lpa.CertificateProviderIdentityConfirmed() {
+			data.FullName = lpa.CertificateProviderIdentityUserData.FirstNames + " " + lpa.CertificateProviderIdentityUserData.LastName
+			data.ConfirmedAt = lpa.CertificateProviderIdentityUserData.RetrievedAt
 
 			return tmpl(w, data)
 		}
@@ -72,17 +72,17 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 			return err
 		}
 
-		if !userData.OK {
-			data.CouldNotConfirm = true
-		} else {
-			data.FullName = userData.FullName
-			data.ConfirmedAt = userData.RetrievedAt
+		lpa.CertificateProviderIdentityUserData = userData
 
-			lpa.CertificateProviderOneLoginUserData = userData
+		if lpa.CertificateProviderIdentityConfirmed() {
+			data.FullName = userData.FirstNames + " " + userData.LastName
+			data.ConfirmedAt = userData.RetrievedAt
 
 			if err := lpaStore.Put(r.Context(), lpa); err != nil {
 				return err
 			}
+		} else {
+			data.CouldNotConfirm = true
 		}
 
 		return tmpl(w, data)

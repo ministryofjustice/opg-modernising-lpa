@@ -43,7 +43,7 @@ func TestGetIdentityWithYotiWhenAlreadyProvided(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpaStore := newMockLpaStore(t)
-	lpaStore.On("Get", r.Context()).Return(&page.Lpa{YotiUserData: identity.UserData{OK: true}}, nil)
+	lpaStore.On("Get", r.Context()).Return(&page.Lpa{IdentityUserData: identity.UserData{OK: true, Provider: identity.EasyID}}, nil)
 
 	err := IdentityWithYoti(nil, lpaStore, nil, "")(testAppData, w, r)
 	resp := w.Result()

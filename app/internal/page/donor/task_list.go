@@ -34,6 +34,11 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) page.Handler {
 			return err
 		}
 
+		signTaskPage := page.Paths.HowToConfirmYourIdentityAndSign
+		if lpa.IdentityConfirmed() {
+			signTaskPage = page.Paths.ReadYourLpa
+		}
+
 		data := &taskListData{
 			App: appData,
 			Lpa: lpa,
@@ -101,7 +106,7 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) page.Handler {
 					Items: []taskListItem{
 						{
 							Name:  "confirmYourIdentityAndSign",
-							Path:  page.Paths.HowToConfirmYourIdentityAndSign,
+							Path:  signTaskPage,
 							State: lpa.Tasks.ConfirmYourIdentityAndSign,
 						},
 					},

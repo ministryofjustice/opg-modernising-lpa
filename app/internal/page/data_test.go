@@ -32,12 +32,8 @@ func TestIdentityConfirmed(t *testing.T) {
 		lpa      *Lpa
 		expected bool
 	}{
-		"yoti": {
-			lpa:      &Lpa{YotiUserData: identity.UserData{OK: true}},
-			expected: true,
-		},
-		"one login": {
-			lpa:      &Lpa{OneLoginUserData: identity.UserData{OK: true}},
+		"set": {
+			lpa:      &Lpa{IdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin}},
 			expected: true,
 		},
 		"none": {

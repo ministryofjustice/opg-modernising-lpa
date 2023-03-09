@@ -4,14 +4,37 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetIdentityWithTodo(t *testing.T) {
+	now := time.Now()
 	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{
+			CertificateProvider: actor.CertificateProvider{FirstNames: "a", LastName: "b"},
+		}, nil)
+	lpaStore.
+		On("Put", r.Context(), &page.Lpa{
+			CertificateProvider: actor.CertificateProvider{FirstNames: "a", LastName: "b"},
+			CertificateProviderIdentityUserData: identity.UserData{
+				OK:          true,
+				Provider:    identity.Passport,
+				FirstNames:  "a",
+				LastName:    "b",
+				RetrievedAt: now,
+			},
+		}).
+		Return(nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -21,9 +44,7 @@ func TestGetIdentityWithTodo(t *testing.T) {
 		}).
 		Return(nil)
 
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	err := IdentityWithTodo(template.Execute, identity.Passport)(testAppData, w, r)
+	err := IdentityWithTodo(template.Execute, lpaStore, func() time.Time { return now }, identity.Passport)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -34,7 +55,12 @@ func TestPostIdentityWithTodo(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := IdentityWithTodo(nil, identity.Passport)(testAppData, w, r)
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{}, nil)
+
+	err := IdentityWithTodo(nil, lpaStore, nil, identity.Passport)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
