@@ -238,6 +238,7 @@
     "certificateProviderDobContext": "Mae angen dyddiad geni eich darparwr tystysgrif arnom i wirio eu bod dros 18 oed.",
     "certificateProviderMobileContext": "Welsh",
     "mobile": "Welsh",
+    "donorAndCertificateProviderShareLastnameWarning": "<strong class=\"govuk-warning-text__text govuk-!-padding-bottom-3\">Welsh:</strong> <ul class=\"govuk-list govuk-list--bullet\"> <strong class=\"govuk-warning-text__text\"><li>welsh</li></strong> <strong class=\"govuk-warning-text__text\"><li>welsh</li></strong> </ul> </strong>",
 
     "howWouldCertificateProviderPreferToCarryOutTheirRole": "{{.FirstNames}} Welsh",
     "howWouldCertificateProviderPreferToCarryOutTheirRoleTitle": "Welsh",

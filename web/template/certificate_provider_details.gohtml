@@ -15,8 +15,19 @@
 
         {{ template "name-warning" . }}
 
+        {{ if .SameLastnameAsDonor }}
+          <div class="govuk-warning-text">
+            <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+            <span class="govuk-warning-text__assistive">{{ tr .App "warning" }}</span>
+            {{ trHtml .App "donorAndCertificateProviderShareLastnameWarning" }}
+          </div>
+
+          <input type="hidden" name="ignore-similar-name-warning" value="yes" />
+        {{ end }}
+
         {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "context" "certificateProviderDobContext" "hint" "dateOfBirthHint") }}
         {{ template "input" (input . "mobile" "mobile" .Form.Mobile "context" "certificateProviderMobileContext" "classes" "govuk-input--width-20" "type" "tel" "autocomplete" "tel") }}
+
 
         <div class="govuk-button-group">
           {{ template "continue-button" . }}
