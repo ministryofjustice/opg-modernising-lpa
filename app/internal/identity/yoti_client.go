@@ -10,12 +10,6 @@ import (
 
 const yotiSandboxBaseURL = "https://api.yoti.com/sandbox/v1"
 
-type UserData struct {
-	OK          bool
-	FullName    string
-	RetrievedAt time.Time
-}
-
 type YotiClient struct {
 	yoti      *yoti.Client
 	isSandbox bool
@@ -65,11 +59,17 @@ func (c *YotiClient) IsTest() bool {
 
 func (c *YotiClient) User(token string) (UserData, error) {
 	if c.yoti == nil {
-		return UserData{OK: true, FullName: "Test Person", RetrievedAt: time.Now()}, nil
+		return UserData{OK: true, Provider: EasyID, FirstNames: "Test", LastName: "Person", RetrievedAt: time.Now()}, nil
 	}
 
 	if c.isSandbox {
-		return UserData{OK: true, FullName: c.details.UserProfile.FullName().Value(), RetrievedAt: time.Now()}, nil
+		return UserData{
+			OK:          true,
+			Provider:    EasyID,
+			FirstNames:  c.details.UserProfile.GivenNames().Value(),
+			LastName:    c.details.UserProfile.FamilyName().Value(),
+			RetrievedAt: time.Now(),
+		}, nil
 	}
 
 	details, err := c.yoti.GetActivityDetails(token)
@@ -77,5 +77,11 @@ func (c *YotiClient) User(token string) (UserData, error) {
 		return UserData{}, err
 	}
 
-	return UserData{OK: true, FullName: details.UserProfile.FullName().Value(), RetrievedAt: time.Now()}, nil
+	return UserData{
+		OK:          true,
+		Provider:    EasyID,
+		FirstNames:  details.UserProfile.GivenNames().Value(),
+		LastName:    details.UserProfile.FamilyName().Value(),
+		RetrievedAt: time.Now(),
+	}, nil
 }
