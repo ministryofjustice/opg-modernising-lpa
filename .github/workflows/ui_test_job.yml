@@ -50,7 +50,7 @@ jobs:
         if: inputs.run_against_image
       - name: Run Against Image/Configure AWS Credentials
         if: inputs.run_against_image
-        uses: aws-actions/configure-aws-credentials@v1.7.0
+        uses: aws-actions/configure-aws-credentials@v2.0.0
         with:
           aws-access-key-id: ${{ secrets.aws_access_key_id }}
           aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
@@ -76,7 +76,7 @@ jobs:
 
       - name: Manage Ingress/Configure AWS Credentials
         if: inputs.run_against_image != true
-        uses: aws-actions/configure-aws-credentials@v1.7.0
+        uses: aws-actions/configure-aws-credentials@v2.0.0
         with:
           aws-access-key-id: ${{ secrets.aws_access_key_id }}
           aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
