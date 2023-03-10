@@ -39,10 +39,10 @@ func New(year, month, day string) Date {
 }
 
 func Today() Date {
-	return fromTime(time.Now())
+	return FromTime(time.Now())
 }
 
-func fromTime(t time.Time) Date {
+func FromTime(t time.Time) Date {
 	return Date{
 		year:  t.Format("2006"),
 		month: t.Format("1"),
@@ -79,6 +79,10 @@ func (d Date) String() string {
 	return d.t.Format(dateFormat)
 }
 
+func (d Date) Equals(other Date) bool {
+	return d.String() == other.String()
+}
+
 func (d Date) Before(other Date) bool {
 	return d.t.Before(other.t)
 }
@@ -88,7 +92,7 @@ func (d Date) After(other Date) bool {
 }
 
 func (d Date) AddDate(years, months, days int) Date {
-	return fromTime(d.t.AddDate(years, months, days))
+	return FromTime(d.t.AddDate(years, months, days))
 }
 
 func (d *Date) UnmarshalText(text []byte) error {
