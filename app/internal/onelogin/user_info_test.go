@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/stretchr/testify/assert"
@@ -124,6 +125,11 @@ func TestParseIdentityClaim(t *testing.T) {
 					},
 				},
 			},
+			"birthDate": []map[string]any{
+				{
+					"value": "1970-01-02",
+				},
+			},
 		},
 	}
 
@@ -150,6 +156,7 @@ func TestParseIdentityClaim(t *testing.T) {
 				Provider:    identity.OneLogin,
 				FirstNames:  "Alice Jane Laura",
 				LastName:    "Doe",
+				DateOfBirth: date.New("1970", "01", "02"),
 				RetrievedAt: issuedAt,
 			},
 		},
