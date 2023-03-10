@@ -9,11 +9,8 @@
       <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ tr .App "confirmYourIdentity" }}</h1>
 
       {{ trHtml .App "confirmYourIdentityContent" }}
-      {{ trHtml .App "whatYoullNeed" }}
-      {{ trHtml .App "identityDocumentsList" }}
 
       <a class="govuk-button govuk-!-margin-top-4" href="{{ link .App .App.Paths.CertificateProviderSelectYourIdentityOptions }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
-
     </div>
   </div>
 {{ end }}
