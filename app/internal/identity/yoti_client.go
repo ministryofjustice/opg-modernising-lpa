@@ -76,6 +76,7 @@ func (c *YotiClient) User(token string) (UserData, error) {
 			return UserData{}, err
 		}
 
+		// TODO seems like these values are returning nil on the PR envs
 		return UserData{
 			OK:          true,
 			Provider:    EasyID,
@@ -91,7 +92,7 @@ func (c *YotiClient) User(token string) (UserData, error) {
 		return UserData{}, err
 	}
 
-	dateOfBirth, err := c.details.UserProfile.DateOfBirth()
+	dateOfBirth, err := details.UserProfile.DateOfBirth()
 	if err != nil {
 		return UserData{}, err
 	}
