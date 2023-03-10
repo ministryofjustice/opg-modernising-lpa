@@ -7,7 +7,7 @@
         <dd class="govuk-summary-list__value">
             {{ .Lpa.Donor.FirstNames }} {{ .Lpa.Donor.LastName }}
         </dd>
-        {{ if .Lpa.IdentityConfirmed }}
+        {{ if .Lpa.DonorIdentityConfirmed }}
             <dd class="govuk-summary-list__value">
                 <strong class="govuk-tag app-task-list__tag govuk-tag">{{ tr .App "idVerifiedTag" }}</strong>
             </dd>

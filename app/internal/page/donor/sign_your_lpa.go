@@ -48,15 +48,16 @@ func SignYourLpa(tmpl template.Template, lpaStore LpaStore) page.Handler {
 
 			lpa.WantToApplyForLpa = data.Form.WantToApply
 			lpa.WantToSignLpa = data.Form.WantToSign
+
+			if data.Errors.None() {
+				lpa.Tasks.ConfirmYourIdentityAndSign = page.TaskCompleted
+			}
+
 			if err = lpaStore.Put(r.Context(), lpa); err != nil {
 				return err
 			}
 
 			if data.Errors.None() {
-				lpa.Tasks.ConfirmYourIdentityAndSign = page.TaskCompleted
-				if err = lpaStore.Put(r.Context(), lpa); err != nil {
-					return err
-				}
 				return appData.Redirect(w, r, lpa, page.Paths.WitnessingYourSignature)
 			}
 		}

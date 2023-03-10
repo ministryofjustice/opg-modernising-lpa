@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -103,15 +104,10 @@ func TestPostSignYourLpa(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin}}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			WantToSignLpa:     true,
-			WantToApplyForLpa: true,
-		}).
-		Return(nil)
-	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
+			DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
 			Tasks: page.Tasks{
 				ConfirmYourIdentityAndSign: page.TaskCompleted,
 			},

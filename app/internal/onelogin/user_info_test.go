@@ -147,7 +147,9 @@ func TestParseIdentityClaim(t *testing.T) {
 			}), privateKey),
 			userData: identity.UserData{
 				OK:          true,
-				FullName:    "Alice Jane Laura Doe",
+				Provider:    identity.OneLogin,
+				FirstNames:  "Alice Jane Laura",
+				LastName:    "Doe",
 				RetrievedAt: issuedAt,
 			},
 		},
@@ -158,13 +160,13 @@ func TestParseIdentityClaim(t *testing.T) {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
 				"iat": issuedAt.Unix(),
 			}), privateKey),
-			userData: identity.UserData{OK: false},
+			userData: identity.UserData{OK: false, Provider: identity.OneLogin},
 		},
 		"without iat": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
 				"vc": vc,
 			}), privateKey),
-			userData: identity.UserData{OK: false},
+			userData: identity.UserData{OK: false, Provider: identity.OneLogin},
 		},
 		"with unexpected signing method": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
