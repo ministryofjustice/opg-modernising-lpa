@@ -27,7 +27,7 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 		}
 
 		if r.Method == http.MethodPost {
-			if lpa.OneLoginUserData.OK {
+			if lpa.DonorIdentityConfirmed() {
 				return appData.Redirect(w, r, lpa, page.Paths.ReadYourLpa)
 			} else {
 				return appData.Redirect(w, r, lpa, page.Paths.SelectYourIdentityOptions1)
@@ -36,9 +36,9 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 
 		data := &identityWithOneLoginCallbackData{App: appData}
 
-		if lpa.OneLoginUserData.OK {
-			data.FullName = lpa.OneLoginUserData.FullName
-			data.ConfirmedAt = lpa.OneLoginUserData.RetrievedAt
+		if lpa.DonorIdentityConfirmed() {
+			data.FullName = lpa.DonorIdentityUserData.FirstNames + " " + lpa.DonorIdentityUserData.LastName
+			data.ConfirmedAt = lpa.DonorIdentityUserData.RetrievedAt
 
 			return tmpl(w, data)
 		}
@@ -69,17 +69,17 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 			return err
 		}
 
-		if !userData.OK {
-			data.CouldNotConfirm = true
-		} else {
-			data.FullName = userData.FullName
-			data.ConfirmedAt = userData.RetrievedAt
+		lpa.DonorIdentityUserData = userData
 
-			lpa.OneLoginUserData = userData
-
+		if lpa.DonorIdentityConfirmed() {
 			if err := lpaStore.Put(r.Context(), lpa); err != nil {
 				return err
 			}
+
+			data.FullName = userData.FirstNames + " " + userData.LastName
+			data.ConfirmedAt = userData.RetrievedAt
+		} else {
+			data.CouldNotConfirm = true
 		}
 
 		return tmpl(w, data)
