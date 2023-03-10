@@ -140,12 +140,14 @@ func DecodeAddress(s string) *place.Address {
 
 func (l *Lpa) DonorIdentityConfirmed() bool {
 	return l.DonorIdentityUserData.OK && l.DonorIdentityUserData.Provider != identity.UnknownOption &&
-		l.DonorIdentityUserData.MatchName(l.Donor.FirstNames, l.Donor.LastName)
+		l.DonorIdentityUserData.MatchName(l.Donor.FirstNames, l.Donor.LastName) &&
+		l.DonorIdentityUserData.DateOfBirth.Equals(l.Donor.DateOfBirth)
 }
 
 func (l *Lpa) CertificateProviderIdentityConfirmed() bool {
 	return l.CertificateProviderIdentityUserData.OK && l.CertificateProviderIdentityUserData.Provider != identity.UnknownOption &&
-		l.CertificateProviderIdentityUserData.MatchName(l.CertificateProvider.FirstNames, l.CertificateProvider.LastName)
+		l.CertificateProviderIdentityUserData.MatchName(l.CertificateProvider.FirstNames, l.CertificateProvider.LastName) &&
+		l.CertificateProviderIdentityUserData.DateOfBirth.Equals(l.CertificateProvider.DateOfBirth)
 }
 
 func (l *Lpa) TypeLegalTermTransKey() string {

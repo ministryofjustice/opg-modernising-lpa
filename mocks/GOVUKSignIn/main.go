@@ -196,6 +196,11 @@ func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 								},
 							},
 						},
+						"birthDate": []map[string]any{
+							{
+								"value": "1970-01-02",
+							},
+						},
 					},
 				},
 			}).SignedString(privateKey)

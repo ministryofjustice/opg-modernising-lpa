@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -14,7 +15,9 @@ import (
 type identityWithOneLoginCallbackData struct {
 	App             page.AppData
 	Errors          validation.List
-	FullName        string
+	FirstNames      string
+	LastName        string
+	DateOfBirth     date.Date
 	ConfirmedAt     time.Time
 	CouldNotConfirm bool
 }
@@ -37,7 +40,9 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 		data := &identityWithOneLoginCallbackData{App: appData}
 
 		if lpa.DonorIdentityConfirmed() {
-			data.FullName = lpa.DonorIdentityUserData.FirstNames + " " + lpa.DonorIdentityUserData.LastName
+			data.FirstNames = lpa.DonorIdentityUserData.FirstNames
+			data.LastName = lpa.DonorIdentityUserData.LastName
+			data.DateOfBirth = lpa.DonorIdentityUserData.DateOfBirth
 			data.ConfirmedAt = lpa.DonorIdentityUserData.RetrievedAt
 
 			return tmpl(w, data)
@@ -76,7 +81,9 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 				return err
 			}
 
-			data.FullName = userData.FirstNames + " " + userData.LastName
+			data.FirstNames = userData.FirstNames
+			data.LastName = userData.LastName
+			data.DateOfBirth = userData.DateOfBirth
 			data.ConfirmedAt = userData.RetrievedAt
 		} else {
 			data.CouldNotConfirm = true
