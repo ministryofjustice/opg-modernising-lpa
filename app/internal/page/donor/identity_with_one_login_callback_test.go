@@ -61,7 +61,8 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	template.
 		On("Execute", w, &identityWithOneLoginCallbackData{
 			App:         testAppData,
-			FullName:    "John Doe",
+			FirstNames:  "John",
+			LastName:    "Doe",
 			ConfirmedAt: now,
 		}).
 		Return(nil)
@@ -281,7 +282,8 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 	template.
 		On("Execute", w, &identityWithOneLoginCallbackData{
 			App:         testAppData,
-			FullName:    "first-name last-name",
+			FirstNames:  "first-name",
+			LastName:    "last-name",
 			ConfirmedAt: now,
 		}).
 		Return(nil)
