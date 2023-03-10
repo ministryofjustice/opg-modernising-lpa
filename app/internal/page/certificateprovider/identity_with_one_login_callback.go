@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -14,7 +15,9 @@ import (
 type identityWithOneLoginCallbackData struct {
 	App             page.AppData
 	Errors          validation.List
-	FullName        string
+	FirstNames      string
+	LastName        string
+	DateOfBirth     date.Date
 	ConfirmedAt     time.Time
 	CouldNotConfirm bool
 }
@@ -37,7 +40,9 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 		data := &identityWithOneLoginCallbackData{App: appData}
 
 		if lpa.CertificateProviderIdentityConfirmed() {
-			data.FullName = lpa.CertificateProviderIdentityUserData.FirstNames + " " + lpa.CertificateProviderIdentityUserData.LastName
+			data.FirstNames = lpa.CertificateProviderIdentityUserData.FirstNames
+			data.LastName = lpa.CertificateProviderIdentityUserData.LastName
+			data.DateOfBirth = lpa.CertificateProviderIdentityUserData.DateOfBirth
 			data.ConfirmedAt = lpa.CertificateProviderIdentityUserData.RetrievedAt
 
 			return tmpl(w, data)
@@ -75,7 +80,9 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 		lpa.CertificateProviderIdentityUserData = userData
 
 		if lpa.CertificateProviderIdentityConfirmed() {
-			data.FullName = userData.FirstNames + " " + userData.LastName
+			data.FirstNames = userData.FirstNames
+			data.LastName = userData.LastName
+			data.DateOfBirth = userData.DateOfBirth
 			data.ConfirmedAt = userData.RetrievedAt
 
 			if err := lpaStore.Put(r.Context(), lpa); err != nil {
