@@ -6,6 +6,7 @@ import (
 	"github.com/getyoti/yoti-go-sdk/v3"
 	"github.com/getyoti/yoti-go-sdk/v3/profile"
 	"github.com/getyoti/yoti-go-sdk/v3/profile/sandbox"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 )
 
 const yotiSandboxBaseURL = "https://api.yoti.com/sandbox/v1"
@@ -59,15 +60,28 @@ func (c *YotiClient) IsTest() bool {
 
 func (c *YotiClient) User(token string) (UserData, error) {
 	if c.yoti == nil {
-		return UserData{OK: true, Provider: EasyID, FirstNames: "Test", LastName: "Person", RetrievedAt: time.Now()}, nil
+		return UserData{
+			OK:          true,
+			Provider:    EasyID,
+			FirstNames:  "Test",
+			LastName:    "Person",
+			DateOfBirth: date.New("2000", "1", "2"),
+			RetrievedAt: time.Now(),
+		}, nil
 	}
 
 	if c.isSandbox {
+		dateOfBirth, err := c.details.UserProfile.DateOfBirth()
+		if err != nil {
+			return UserData{}, err
+		}
+
 		return UserData{
 			OK:          true,
 			Provider:    EasyID,
 			FirstNames:  c.details.UserProfile.GivenNames().Value(),
 			LastName:    c.details.UserProfile.FamilyName().Value(),
+			DateOfBirth: date.FromTime(*dateOfBirth.Value()),
 			RetrievedAt: time.Now(),
 		}, nil
 	}
@@ -77,11 +91,17 @@ func (c *YotiClient) User(token string) (UserData, error) {
 		return UserData{}, err
 	}
 
+	dateOfBirth, err := c.details.UserProfile.DateOfBirth()
+	if err != nil {
+		return UserData{}, err
+	}
+
 	return UserData{
 		OK:          true,
 		Provider:    EasyID,
 		FirstNames:  details.UserProfile.GivenNames().Value(),
 		LastName:    details.UserProfile.FamilyName().Value(),
+		DateOfBirth: date.FromTime(*dateOfBirth.Value()),
 		RetrievedAt: time.Now(),
 	}, nil
 }

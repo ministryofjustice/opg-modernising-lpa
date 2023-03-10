@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 )
@@ -39,6 +40,11 @@ type Credential struct {
 
 type CredentialSubject struct {
 	Names []CredentialName `json:"name"`
+
+	// BirthDate may list multiple values if there’s evidence an incorrect date of
+	// birth was previously recorded for your user. The date of birth GOV.UK One
+	// Login has highest confidence in will be the first item in the list.
+	BirthDate []CredentialBirthDate `json:"birthDate"`
 }
 
 func (s CredentialSubject) CurrentNameParts() []NamePart {
@@ -64,6 +70,10 @@ type CredentialName struct {
 	// names may depend on either your user’s preferences or the order they appear
 	// on documents used to prove your user’s identity.
 	NameParts []NamePart `json:"nameParts"`
+}
+
+type CredentialBirthDate struct {
+	Value date.Date `json:"value"`
 }
 
 type NamePart struct {
@@ -145,11 +155,17 @@ func (c *Client) ParseIdentityClaim(ctx context.Context, u UserInfo) (identity.U
 		}
 	}
 
+	birthDates := claims.Vc.CredentialSubject.BirthDate
+	if len(birthDates) == 0 || !birthDates[0].Value.Valid() {
+		return identity.UserData{OK: false, Provider: identity.OneLogin}, nil
+	}
+
 	return identity.UserData{
 		OK:          true,
 		Provider:    identity.OneLogin,
 		FirstNames:  strings.Join(givenName, " "),
 		LastName:    strings.Join(familyName, " "),
+		DateOfBirth: birthDates[0].Value,
 		RetrievedAt: claims.IssuedAt.Time,
 	}, nil
 }
