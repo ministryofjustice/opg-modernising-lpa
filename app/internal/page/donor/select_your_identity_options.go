@@ -27,7 +27,7 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, pageIn
 			App:  appData,
 			Page: pageIndex,
 			Form: &selectYourIdentityOptionsForm{
-				Selected: lpa.IdentityOption,
+				Selected: lpa.DonorIdentityOption,
 			},
 		}
 
@@ -48,7 +48,7 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, pageIn
 			}
 
 			if data.Errors.None() {
-				lpa.IdentityOption = data.Form.Selected
+				lpa.DonorIdentityOption = data.Form.Selected
 				lpa.Tasks.ConfirmYourIdentityAndSign = page.TaskInProgress
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {

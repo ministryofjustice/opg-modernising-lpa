@@ -66,9 +66,8 @@ type Lpa struct {
 	Checked                                     bool
 	HappyToShare                                bool
 	PaymentDetails                              PaymentDetails
-	IdentityOption                              identity.Option
-	YotiUserData                                identity.UserData
-	OneLoginUserData                            identity.UserData
+	DonorIdentityOption                         identity.Option
+	DonorIdentityUserData                       identity.UserData
 	HowAttorneysMakeDecisions                   string
 	HowAttorneysMakeDecisionsDetails            string
 	ReplacementAttorneys                        actor.Attorneys
@@ -86,8 +85,7 @@ type Lpa struct {
 	WitnessCodeLimiter                          *Limiter
 
 	CertificateProviderIdentityOption   identity.Option
-	CertificateProviderYotiUserData     identity.UserData
-	CertificateProviderOneLoginUserData identity.UserData
+	CertificateProviderIdentityUserData identity.UserData
 	CertificateProviderProvidedDetails  actor.CertificateProvider
 	Certificate                         Certificate
 }
@@ -140,8 +138,14 @@ func DecodeAddress(s string) *place.Address {
 	return &v
 }
 
-func (l *Lpa) IdentityConfirmed() bool {
-	return l.YotiUserData.OK || l.OneLoginUserData.OK
+func (l *Lpa) DonorIdentityConfirmed() bool {
+	return l.DonorIdentityUserData.OK && l.DonorIdentityUserData.Provider != identity.UnknownOption &&
+		l.DonorIdentityUserData.MatchName(l.Donor.FirstNames, l.Donor.LastName)
+}
+
+func (l *Lpa) CertificateProviderIdentityConfirmed() bool {
+	return l.CertificateProviderIdentityUserData.OK && l.CertificateProviderIdentityUserData.Provider != identity.UnknownOption &&
+		l.CertificateProviderIdentityUserData.MatchName(l.CertificateProvider.FirstNames, l.CertificateProvider.LastName)
 }
 
 func (l *Lpa) TypeLegalTermTransKey() string {
@@ -164,6 +168,8 @@ func (l *Lpa) CanGoTo(url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 
 	switch path {
+	case Paths.ReadYourLpa, Paths.SignYourLpa, Paths.WitnessingYourSignature, Paths.WitnessingAsCertificateProvider, Paths.YouHaveSubmittedYourLpa:
+		return l.DonorIdentityConfirmed()
 	case Paths.WhenCanTheLpaBeUsed, Paths.Restrictions, Paths.WhoDoYouWantToBeCertificateProviderGuidance, Paths.DoYouWantToNotifyPeople:
 		return l.Tasks.YourDetails.Completed() &&
 			l.Tasks.ChooseAttorneys.Completed()

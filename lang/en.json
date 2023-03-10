@@ -363,6 +363,7 @@
     "identifyYourselfWithYoti": "Identify yourself with the Yoti app",
     "scanWithTheYotiApp": "Scan with the Yoti app",
     "yourIdentityConfirmedWithYoti": "Your identity details confirmed with Yoti",
+    "yourIdentityNotConfirmedWithYoti": "Your identity details could not be confirmed with Yoti",
     "yourIdentityConfirmedWithOneLogin": "Your identity details confirmed with GOV.UK One Login",
     "yourIdentityNotConfirmedWithOneLogin": "Your identity details could not be confirmed with GOV.UK One Login",
     "pleaseContinueWithADifferentMethod": "Don’t give up, you can (hopefully) continue with a different method.",
