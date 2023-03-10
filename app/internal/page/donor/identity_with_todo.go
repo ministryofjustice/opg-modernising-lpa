@@ -32,6 +32,7 @@ func IdentityWithTodo(tmpl template.Template, lpaStore LpaStore, now func() time
 			Provider:    identityOption,
 			FirstNames:  lpa.Donor.FirstNames,
 			LastName:    lpa.Donor.LastName,
+			DateOfBirth: lpa.Donor.DateOfBirth,
 			RetrievedAt: now(),
 		}
 		if err := lpaStore.Put(r.Context(), lpa); err != nil {
