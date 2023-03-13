@@ -26,6 +26,20 @@ func (_m *mockYotiClient) IsTest() bool {
 	return r0
 }
 
+// ScenarioID provides a mock function with given fields:
+func (_m *mockYotiClient) ScenarioID() string {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
 // SdkID provides a mock function with given fields:
 func (_m *mockYotiClient) SdkID() string {
 	ret := _m.Called()
