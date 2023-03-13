@@ -25,7 +25,7 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.14.0
 	go.opentelemetry.io/otel/sdk v1.14.0
 	go.opentelemetry.io/otel/trace v1.14.0
-	golang.org/x/exp v0.0.0-20230306221820-f0f767cdffd6
+	golang.org/x/exp v0.0.0-20230310171629-522b1b587ee0
 	golang.org/x/mod v0.9.0
 	golang.org/x/text v0.8.0
 	google.golang.org/grpc v1.53.0
