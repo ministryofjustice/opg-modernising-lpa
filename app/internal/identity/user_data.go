@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"golang.org/x/exp/slices"
 )
 
@@ -114,6 +115,7 @@ type UserData struct {
 	Provider    Option
 	FirstNames  string
 	LastName    string
+	DateOfBirth date.Date
 	RetrievedAt time.Time
 }
 
