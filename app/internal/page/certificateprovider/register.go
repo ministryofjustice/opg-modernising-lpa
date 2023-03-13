@@ -64,6 +64,7 @@ type SessionStore interface {
 type YotiClient interface {
 	IsTest() bool
 	SdkID() string
+	ScenarioID() string
 	User(string) (identity.UserData, error)
 }
 
@@ -85,7 +86,6 @@ func Register(
 	addressClient AddressClient,
 	errorHandler page.ErrorHandler,
 	yotiClient YotiClient,
-	yotiScenarioID string,
 	notifyClient NotifyClient,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
@@ -120,7 +120,7 @@ func Register(
 	handleRoot(page.Paths.CertificateProviderYourChosenIdentityOptions, RequireSession,
 		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), lpaStore))
 	handleRoot(page.Paths.CertificateProviderIdentityWithYoti, RequireSession,
-		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), lpaStore, yotiClient, yotiScenarioID))
+		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), lpaStore, sessionStore, yotiClient))
 	handleRoot(page.Paths.CertificateProviderIdentityWithYotiCallback, RequireSession,
 		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, lpaStore))
 	handleRoot(page.Paths.CertificateProviderIdentityWithOneLogin, RequireSession,
