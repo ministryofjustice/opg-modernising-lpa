@@ -12,14 +12,15 @@ import (
 const yotiSandboxBaseURL = "https://api.yoti.com/sandbox/v1"
 
 type YotiClient struct {
-	yoti      *yoti.Client
-	isSandbox bool
-	details   profile.ActivityDetails
+	yoti       *yoti.Client
+	isSandbox  bool
+	details    profile.ActivityDetails
+	scenarioID string
 }
 
-func NewYotiClient(clientID string, privateKeyBytes []byte) (*YotiClient, error) {
+func NewYotiClient(scenarioID, clientID string, privateKeyBytes []byte) (*YotiClient, error) {
 	if clientID == "" {
-		return &YotiClient{}, nil
+		return &YotiClient{scenarioID: scenarioID}, nil
 	}
 
 	client, err := yoti.NewClient(clientID, privateKeyBytes)
@@ -27,7 +28,7 @@ func NewYotiClient(clientID string, privateKeyBytes []byte) (*YotiClient, error)
 		return nil, err
 	}
 
-	return &YotiClient{yoti: client}, nil
+	return &YotiClient{yoti: client, scenarioID: scenarioID}, nil
 }
 
 func (c *YotiClient) SetupSandbox() error {
@@ -48,6 +49,10 @@ func (c *YotiClient) SetupSandbox() error {
 	c.details = details
 
 	return err
+}
+
+func (c *YotiClient) ScenarioID() string {
+	return c.scenarioID
 }
 
 func (c *YotiClient) SdkID() string {
