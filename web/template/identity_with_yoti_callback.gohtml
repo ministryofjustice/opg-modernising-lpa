@@ -28,10 +28,26 @@
         <dl class="govuk-summary-list">
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
-              Full Name
+              First Names
             </dt>
             <dd class="govuk-summary-list__value">
-              {{ .FullName }}
+              {{ .FirstNames }}
+            </dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+              LastName
+            </dt>
+            <dd class="govuk-summary-list__value">
+              {{ .LastName }}
+            </dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+              Date of birth
+            </dt>
+            <dd class="govuk-summary-list__value">
+              {{ .DateOfBirth }}
             </dd>
           </div>
           <div class="govuk-summary-list__row">

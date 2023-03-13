@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/stretchr/testify/assert"
@@ -86,44 +87,53 @@ func TestParseIdentityClaim(t *testing.T) {
 
 	c := &Client{secretsClient: secretsClient}
 
-	vc := map[string]any{
-		"credentialSubject": map[string]any{
-			"name": []map[string]any{
+	namePart := []map[string]any{
+		{
+			"validFrom": "2020-03-01",
+			"nameParts": []map[string]string{
 				{
-					"validFrom": "2020-03-01",
-					"nameParts": []map[string]string{
-						{
-							"value": "Alice",
-							"type":  "GivenName",
-						},
-						{
-							"value": "Jane",
-							"type":  "GivenName",
-						},
-						{
-							"value": "Laura",
-							"type":  "GivenName",
-						},
-						{
-							"value": "Doe",
-							"type":  "FamilyName",
-						},
-					},
+					"value": "Alice",
+					"type":  "GivenName",
 				},
 				{
-					"validUntil": "2020-03-01",
-					"nameParts": []map[string]string{
-						{
-							"value": "Alice",
-							"type":  "GivenName",
-						},
-						{
-							"value": "Eod",
-							"type":  "FamilyName",
-						},
-					},
+					"value": "Jane",
+					"type":  "GivenName",
+				},
+				{
+					"value": "Laura",
+					"type":  "GivenName",
+				},
+				{
+					"value": "Doe",
+					"type":  "FamilyName",
 				},
 			},
+		},
+		{
+			"validUntil": "2020-03-01",
+			"nameParts": []map[string]string{
+				{
+					"value": "Alice",
+					"type":  "GivenName",
+				},
+				{
+					"value": "Eod",
+					"type":  "FamilyName",
+				},
+			},
+		},
+	}
+
+	birthDatePart := []map[string]any{
+		{
+			"value": "1970-01-02",
+		},
+	}
+
+	vc := map[string]any{
+		"credentialSubject": map[string]any{
+			"name":      namePart,
+			"birthDate": birthDatePart,
 		},
 	}
 
@@ -150,6 +160,7 @@ func TestParseIdentityClaim(t *testing.T) {
 				Provider:    identity.OneLogin,
 				FirstNames:  "Alice Jane Laura",
 				LastName:    "Doe",
+				DateOfBirth: date.New("1970", "01", "02"),
 				RetrievedAt: issuedAt,
 			},
 		},
@@ -159,6 +170,33 @@ func TestParseIdentityClaim(t *testing.T) {
 		"without name": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
 				"iat": issuedAt.Unix(),
+			}), privateKey),
+			userData: identity.UserData{OK: false, Provider: identity.OneLogin},
+		},
+		"without dob": {
+			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+				"iat": issuedAt.Unix(),
+				"vc": map[string]any{
+					"credentialSubject": map[string]any{
+						"name": namePart,
+					},
+				},
+			}), privateKey),
+			userData: identity.UserData{OK: false, Provider: identity.OneLogin},
+		},
+		"with invalid dob": {
+			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+				"iat": issuedAt.Unix(),
+				"vc": map[string]any{
+					"credentialSubject": map[string]any{
+						"name": namePart,
+						"birthDate": []map[string]any{
+							{
+								"value": "1970-100-02",
+							},
+						},
+					},
+				},
 			}), privateKey),
 			userData: identity.UserData{OK: false, Provider: identity.OneLogin},
 		},
