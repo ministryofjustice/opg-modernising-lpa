@@ -4,11 +4,11 @@ go 1.19
 
 require (
 	github.com/MicahParks/keyfunc v1.9.0
-	github.com/aws/aws-sdk-go-v2 v1.17.5
-	github.com/aws/aws-sdk-go-v2/config v1.18.15
-	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.10.16
-	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.18.6
-	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.18.7
+	github.com/aws/aws-sdk-go-v2 v1.17.6
+	github.com/aws/aws-sdk-go-v2/config v1.18.16
+	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.10.18
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.19.1
+	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.19.0
 	github.com/felixge/httpsnoop v1.0.3
 	github.com/getyoti/yoti-go-sdk/v3 v3.9.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
