@@ -34,7 +34,7 @@ jobs:
           docker build -t app --build-arg TAG=${{inputs.tag}} .
       - name: Trivy Image Vulnerability Scanner
         id: trivy_scan
-        uses: aquasecurity/trivy-action@0.9.1
+        uses: aquasecurity/trivy-action@0.9.2
         with:
           image-ref: app:latest
           severity: 'HIGH,CRITICAL'
