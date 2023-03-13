@@ -40,7 +40,8 @@ func TestGetIdentityWithYotiCallback(t *testing.T) {
 	template.
 		On("Execute", w, &identityWithYotiCallbackData{
 			App:         testAppData,
-			FullName:    "first-name last-name",
+			FirstNames:  "first-name",
+			LastName:    "last-name",
 			ConfirmedAt: now,
 		}).
 		Return(nil)
@@ -186,7 +187,8 @@ func TestGetIdentityWithYotiCallbackWhenReturning(t *testing.T) {
 	template.
 		On("Execute", w, &identityWithYotiCallbackData{
 			App:         testAppData,
-			FullName:    "first-name last-name",
+			FirstNames:  "first-name",
+			LastName:    "last-name",
 			ConfirmedAt: now,
 		}).
 		Return(nil)

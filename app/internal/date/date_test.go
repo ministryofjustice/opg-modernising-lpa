@@ -59,6 +59,22 @@ func TestToday(t *testing.T) {
 	assert.Equal(t, Today().String(), time.Now().Format(dateFormat))
 }
 
+func TestFromTime(t *testing.T) {
+	assert.Equal(t, New("2000", "1", "2"), FromTime(time.Date(2000, time.January, 2, 0, 0, 0, 0, time.UTC)))
+}
+
+func TestEquals(t *testing.T) {
+	a := New("1999", "12", "31")
+	b := New("2000", "1", "1")
+	c := New("2000", "01", "01")
+
+	assert.True(t, a.Equals(a))
+	assert.False(t, a.Equals(b))
+	assert.False(t, b.Equals(a))
+	assert.True(t, b.Equals(c))
+	assert.True(t, c.Equals(b))
+}
+
 func TestBefore(t *testing.T) {
 	a := New("1999", "12", "31")
 	b := New("2000", "1", "1")

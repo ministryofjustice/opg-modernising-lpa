@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"syscall"
 	"time"
 
@@ -199,8 +200,17 @@ func main() {
 	}
 
 	server := &http.Server{
-		Addr:              ":" + port,
-		Handler:           handler,
+		Addr: ":" + port,
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			defer func() {
+				if err := recover(); err != nil {
+					// TODO should also print the error page for the user
+					logger.Print(string(debug.Stack()))
+				}
+			}()
+
+			handler.ServeHTTP(w, r)
+		}),
 		ReadHeaderTimeout: 20 * time.Second,
 	}
 
