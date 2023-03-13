@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -15,7 +16,7 @@ type identityWithYotiData struct {
 	ScenarioID  string
 }
 
-func IdentityWithYoti(tmpl template.Template, lpaStore LpaStore, yotiClient YotiClient, yotiScenarioID string) page.Handler {
+func IdentityWithYoti(tmpl template.Template, lpaStore LpaStore, sessionStore SessionStore, yotiClient YotiClient) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
@@ -26,10 +27,18 @@ func IdentityWithYoti(tmpl template.Template, lpaStore LpaStore, yotiClient Yoti
 			return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderIdentityWithYotiCallback)
 		}
 
+		if err := sesh.SetYoti(sessionStore, r, w, &sesh.YotiSession{
+			Locale:              appData.Lang.String(),
+			LpaID:               appData.LpaID,
+			CertificateProvider: true,
+		}); err != nil {
+			return err
+		}
+
 		data := &identityWithYotiData{
 			App:         appData,
 			ClientSdkID: yotiClient.SdkID(),
-			ScenarioID:  yotiScenarioID,
+			ScenarioID:  yotiClient.ScenarioID(),
 		}
 
 		return tmpl(w, data)
