@@ -19,7 +19,7 @@ import (
 )
 
 func TestApp(t *testing.T) {
-	app := App(&logging.Logger{}, &localize.Localizer{}, localize.En, template.Templates{}, nil, &dynamo.Client{}, "http://public.url", &pay.Client{}, &identity.YotiClient{}, "yoti-donor-scenario-id", "yoti-certificate-provider-scenario-id", &notify.Client{}, &place.Client{}, page.RumConfig{}, "?%3fNEI0t9MN", page.Paths, &onelogin.Client{})
+	app := App(&logging.Logger{}, &localize.Localizer{}, localize.En, template.Templates{}, nil, &dynamo.Client{}, "http://public.url", &pay.Client{}, &identity.YotiClient{}, &notify.Client{}, &place.Client{}, page.RumConfig{}, "?%3fNEI0t9MN", page.Paths, &onelogin.Client{})
 
 	assert.Implements(t, (*http.Handler)(nil), app)
 }
