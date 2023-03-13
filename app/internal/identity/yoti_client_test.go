@@ -8,9 +8,10 @@ import (
 )
 
 func TestMockClient(t *testing.T) {
-	client, err := NewYotiClient("", []byte("hey"))
+	client, err := NewYotiClient("xyz", "", []byte("hey"))
 	assert.Nil(t, err)
 	assert.True(t, client.IsTest())
+	assert.Equal(t, "xyz", client.ScenarioID())
 
 	user, err := client.User("xyz")
 	assert.Nil(t, err)

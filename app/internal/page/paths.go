@@ -95,6 +95,7 @@ type AppPaths struct {
 	WhoIsTheLpaFor                                          string
 	WitnessingAsCertificateProvider                         string
 	WitnessingYourSignature                                 string
+	YotiRedirect                                            string
 	YouHaveSubmittedYourLpa                                 string
 	YourAddress                                             string
 	YourChosenIdentityOptions                               string
@@ -191,6 +192,7 @@ var Paths = AppPaths{
 	WhoIsTheLpaFor:                                          "/who-is-the-lpa-for",
 	WitnessingAsCertificateProvider:                         "/witnessing-as-certificate-provider",
 	WitnessingYourSignature:                                 "/witnessing-your-signature",
+	YotiRedirect:                                            "/yoti/redirect",
 	YouHaveSubmittedYourLpa:                                 "/you-have-submitted-your-lpa",
 	YourAddress:                                             "/your-address",
 	YourChosenIdentityOptions:                               "/your-chosen-identity-options",
@@ -202,6 +204,7 @@ func IsLpaPath(url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 
 	return !slices.Contains([]string{
+		Paths.YotiRedirect,
 		Paths.AuthRedirect,
 		Paths.CertificateProvided,
 		Paths.CertificateProviderCheckYourName,
