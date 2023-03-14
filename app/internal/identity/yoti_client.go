@@ -12,14 +12,15 @@ import (
 const yotiSandboxBaseURL = "https://api.yoti.com/sandbox/v1"
 
 type YotiClient struct {
-	yoti      *yoti.Client
-	isSandbox bool
-	details   profile.ActivityDetails
+	yoti       *yoti.Client
+	isSandbox  bool
+	details    profile.ActivityDetails
+	scenarioID string
 }
 
-func NewYotiClient(clientID string, privateKeyBytes []byte) (*YotiClient, error) {
+func NewYotiClient(scenarioID, clientID string, privateKeyBytes []byte) (*YotiClient, error) {
 	if clientID == "" {
-		return &YotiClient{}, nil
+		return &YotiClient{scenarioID: scenarioID}, nil
 	}
 
 	client, err := yoti.NewClient(clientID, privateKeyBytes)
@@ -27,14 +28,16 @@ func NewYotiClient(clientID string, privateKeyBytes []byte) (*YotiClient, error)
 		return nil, err
 	}
 
-	return &YotiClient{yoti: client}, nil
+	return &YotiClient{yoti: client, scenarioID: scenarioID}, nil
 }
 
 func (c *YotiClient) SetupSandbox() error {
 	sandboxClient := &sandbox.Client{ClientSdkID: c.yoti.SdkID, Key: c.yoti.Key, BaseURL: yotiSandboxBaseURL}
 
 	tokenRequest := (&sandbox.TokenRequest{}).
-		WithFullName("Test Person", nil)
+		WithGivenNames("Test", nil).
+		WithFamilyName("Person", nil).
+		WithDateOfBirth(time.Date(2000, time.January, 2, 0, 0, 0, 0, time.UTC), nil)
 
 	sandboxToken, err := sandboxClient.SetupSharingProfile(tokenRequest)
 	if err != nil {
@@ -48,6 +51,10 @@ func (c *YotiClient) SetupSandbox() error {
 	c.details = details
 
 	return err
+}
+
+func (c *YotiClient) ScenarioID() string {
+	return c.scenarioID
 }
 
 func (c *YotiClient) SdkID() string {
@@ -91,7 +98,7 @@ func (c *YotiClient) User(token string) (UserData, error) {
 		return UserData{}, err
 	}
 
-	dateOfBirth, err := c.details.UserProfile.DateOfBirth()
+	dateOfBirth, err := details.UserProfile.DateOfBirth()
 	if err != nil {
 		return UserData{}, err
 	}
