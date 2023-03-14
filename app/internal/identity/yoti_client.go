@@ -35,7 +35,9 @@ func (c *YotiClient) SetupSandbox() error {
 	sandboxClient := &sandbox.Client{ClientSdkID: c.yoti.SdkID, Key: c.yoti.Key, BaseURL: yotiSandboxBaseURL}
 
 	tokenRequest := (&sandbox.TokenRequest{}).
-		WithFullName("Test Person", nil)
+		WithGivenNames("Test", nil).
+		WithFamilyName("Person", nil).
+		WithDateOfBirth(time.Date(2000, time.January, 2, 0, 0, 0, 0, time.UTC), nil)
 
 	sandboxToken, err := sandboxClient.SetupSharingProfile(tokenRequest)
 	if err != nil {
