@@ -9,7 +9,7 @@
       <form novalidate method="post">
         <h1 class="govuk-heading-xl">{{ tr .App "enterYourUkMobile" }}</h1>
 
-        {{ template "input" (input . "mobile" "" .Form.Mobile "context" "enterYourUkMobileContext" "hint" "enterYourUkMobileHint" "classes" "govuk-input--width-20 govuk-!-margin-bottom-6" "type" "tel" "autocomplete" "tel") }}
+        {{ template "input" (input . "mobile" "mobile" .Form.Mobile "context" "enterYourUkMobileContext" "hint" "enterYourUkMobileHint" "classes" "govuk-input--width-20 govuk-!-margin-bottom-6" "type" "tel" "autocomplete" "tel") }}
 
         {{ template "continue-button" . }}
 

@@ -9,7 +9,7 @@
       <form novalidate method="post">
         <h1 class="govuk-heading-xl">{{ tr .App "enterYourDateOfBirth" }}</h1>
 
-        {{ template "date" (input . "date-of-birth" "" .Form.Dob "hint" "dateOfBirthHint") }}
+        {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
 
         {{ template "warning" (warning .App "18OrOverWarning") }}
 
