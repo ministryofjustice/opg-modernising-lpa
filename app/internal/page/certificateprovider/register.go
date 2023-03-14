@@ -103,7 +103,7 @@ func Register(
 	handleRoot(page.Paths.CertificateProviderEnterDateOfBirth, RequireSession,
 		EnterDateOfBirth(tmpls.Get("certificate_provider_enter_date_of_birth.gohtml"), lpaStore))
 	handleRoot(page.Paths.CertificateProviderEnterMobileNumber, RequireSession,
-		EnterDateOfBirth(tmpls.Get("certificate_provider_enter_mobile_number.gohtml"), lpaStore))
+		EnterMobileNumber(tmpls.Get("certificate_provider_enter_mobile_number.gohtml"), lpaStore))
 	handleRoot(page.Paths.CertificateProviderYourAddress, RequireSession,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
 
