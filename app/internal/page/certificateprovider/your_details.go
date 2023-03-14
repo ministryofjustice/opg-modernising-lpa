@@ -94,9 +94,6 @@ func (f *yourDetailsForm) Validate() validation.List {
 		validation.DateMissing(),
 		validation.DateMustBePast())
 
-	errors.Date("date-of-birth", "aDateOfBirth", f.Dob,
-		validation.DateMustBeReal())
-
 	if !f.Dob.Valid() {
 		errors.Add("date-of-birth", validation.EnterError{Label: "aValidDateOfBirth"})
 	}
@@ -105,7 +102,7 @@ func (f *yourDetailsForm) Validate() validation.List {
 		errors.Add("date-of-birth", validation.CustomError{Label: "youAreUnder18Error"})
 	}
 
-	errors.String("mobile", "mobile", strings.ReplaceAll(f.Mobile, " ", ""),
+	errors.String("mobile", "yourUkMobile", strings.ReplaceAll(f.Mobile, " ", ""),
 		validation.Empty())
 
 	if !validation.MobileRegex.MatchString(f.Mobile) {

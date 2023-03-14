@@ -563,5 +563,6 @@
     "yourDateOfBirth": "Your date of birth",
     "aValidDateOfBirth": "a valid date of birth",
     "youAreUnder18Error": "You’ve entered a date of birth that means you are under 18, you must be 18 to be a certificate provider",
-    "aValidUkMobileLike": "a UK mobile number, like 07700 900 982 or +44 7700 900 982"
+    "aValidUkMobileLike": "a UK mobile number, like 07700 900 982 or +44 7700 900 982",
+    "yourUkMobile": "your UK mobile number"
 }

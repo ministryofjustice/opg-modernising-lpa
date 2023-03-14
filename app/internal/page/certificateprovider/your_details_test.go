@@ -325,7 +325,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 			form: &yourDetailsForm{},
 			errors: validation.
 				With("date-of-birth", validation.EnterError{Label: "yourDateOfBirth"}).
-				With("mobile", validation.EnterError{Label: "mobile"}),
+				With("mobile", validation.EnterError{Label: "yourUkMobile"}),
 		},
 		"future-dob": {
 			form: &yourDetailsForm{
@@ -346,7 +346,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 				Mobile: "07535999222",
 				Dob:    date.New("2000", "22", "2"),
 			},
-			errors: validation.With("date-of-birth", validation.DateMustBeRealError{Label: "aDateOfBirth"}),
+			errors: validation.With("date-of-birth", validation.EnterError{Label: "aValidDateOfBirth"}),
 		},
 		"invalid-missing-dob": {
 			form: &yourDetailsForm{
