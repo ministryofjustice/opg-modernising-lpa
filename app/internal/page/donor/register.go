@@ -57,6 +57,7 @@ type ShareCodeSender interface {
 type YotiClient interface {
 	IsTest() bool
 	SdkID() string
+	ScenarioID() string
 	User(string) (identity.UserData, error)
 }
 
@@ -98,7 +99,6 @@ func Register(
 	appPublicUrl string,
 	payClient PayClient,
 	yotiClient YotiClient,
-	yotiScenarioID string,
 	notifyClient NotifyClient,
 	shareCodeSender ShareCodeSender,
 	errorHandler page.ErrorHandler,
@@ -215,7 +215,7 @@ func Register(
 	handleLpa(page.Paths.YourChosenIdentityOptions, CanGoBack,
 		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), lpaStore))
 	handleLpa(page.Paths.IdentityWithYoti, CanGoBack,
-		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), lpaStore, yotiClient, yotiScenarioID))
+		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), lpaStore, sessionStore, yotiClient))
 	handleLpa(page.Paths.IdentityWithYotiCallback, CanGoBack,
 		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, lpaStore))
 	handleLpa(page.Paths.IdentityWithOneLogin, CanGoBack,
