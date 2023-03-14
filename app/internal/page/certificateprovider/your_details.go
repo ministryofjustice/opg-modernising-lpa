@@ -19,7 +19,6 @@ type yourDetailsData struct {
 }
 
 type yourDetailsForm struct {
-	Email            string
 	Mobile           string
 	Dob              date.Date
 	IgnoreDobWarning string
@@ -36,7 +35,6 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore) page.Handler {
 			App: appData,
 			Lpa: lpa,
 			Form: &yourDetailsForm{
-				Email:  lpa.CertificateProviderProvidedDetails.Email,
 				Mobile: lpa.CertificateProviderProvidedDetails.Mobile,
 				Dob:    lpa.CertificateProviderProvidedDetails.DateOfBirth,
 			},
@@ -54,7 +52,6 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore) page.Handler {
 			if data.Errors.None() && data.DobWarning == "" {
 				lpa.CertificateProviderProvidedDetails.DateOfBirth = data.Form.Dob
 				lpa.CertificateProviderProvidedDetails.Mobile = data.Form.Mobile
-				lpa.CertificateProviderProvidedDetails.Email = data.Form.Email
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
@@ -72,24 +69,18 @@ func readYourDetailsForm(r *http.Request) *yourDetailsForm {
 	return &yourDetailsForm{
 		Dob:              date.New(page.PostFormString(r, "date-of-birth-year"), page.PostFormString(r, "date-of-birth-month"), page.PostFormString(r, "date-of-birth-day")),
 		Mobile:           page.PostFormString(r, "mobile"),
-		Email:            page.PostFormString(r, "email"),
 		IgnoreDobWarning: page.PostFormString(r, "ignore-dob-warning"),
 	}
 }
 
 func (f *yourDetailsForm) DobWarning() string {
 	var (
-		today                = date.Today()
-		hundredYearsEarlier  = today.AddDate(-100, 0, 0)
-		eighteenYearsEarlier = today.AddDate(-18, 0, 0)
+		hundredYearsEarlier = date.Today().AddDate(-100, 0, 0)
 	)
 
 	if !f.Dob.IsZero() {
 		if f.Dob.Before(hundredYearsEarlier) {
 			return "dateOfBirthIsOver100"
-		}
-		if f.Dob.Before(today) && f.Dob.After(eighteenYearsEarlier) {
-			return "dateOfBirthIsUnder18"
 		}
 	}
 
@@ -99,18 +90,27 @@ func (f *yourDetailsForm) DobWarning() string {
 func (f *yourDetailsForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Date("date-of-birth", "dateOfBirth", f.Dob,
+	errors.Date("date-of-birth", "yourDateOfBirth", f.Dob,
 		validation.DateMissing(),
-		validation.DateMustBeReal(),
 		validation.DateMustBePast())
 
-	errors.String("mobile", "mobile", strings.ReplaceAll(f.Mobile, " ", ""),
-		validation.Empty(),
-		validation.Mobile())
+	errors.Date("date-of-birth", "aDateOfBirth", f.Dob,
+		validation.DateMustBeReal())
 
-	errors.String("email", "email", strings.ReplaceAll(f.Email, " ", ""),
-		validation.Empty(),
-		validation.Email())
+	if !f.Dob.Valid() {
+		errors.Add("date-of-birth", validation.EnterError{Label: "aValidDateOfBirth"})
+	}
+
+	if f.Dob.After(date.Today().AddDate(-18, 0, 0)) {
+		errors.Add("date-of-birth", validation.CustomError{Label: "youAreUnder18Error"})
+	}
+
+	errors.String("mobile", "mobile", strings.ReplaceAll(f.Mobile, " ", ""),
+		validation.Empty())
+
+	if !validation.MobileRegex.MatchString(f.Mobile) {
+		errors.Add("mobile", validation.EnterError{Label: "aValidUkMobileLike"})
+	}
 
 	return errors
 }

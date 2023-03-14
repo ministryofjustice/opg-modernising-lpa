@@ -53,7 +53,6 @@ func TestGetCertificateProviderYourDetailsFromStore(t *testing.T) {
 	lpa := &page.Lpa{
 		ID: "lpa-id",
 		CertificateProviderProvidedDetails: actor.CertificateProvider{
-			Email:       "a@example.org",
 			Mobile:      "07535111222",
 			DateOfBirth: date.New("1997", "1", "2"),
 		},
@@ -69,7 +68,6 @@ func TestGetCertificateProviderYourDetailsFromStore(t *testing.T) {
 			App: testAppData,
 			Lpa: lpa,
 			Form: &yourDetailsForm{
-				Email:  "a@example.org",
 				Mobile: "07535111222",
 				Dob:    date.New("1997", "1", "2"),
 			},
@@ -137,7 +135,6 @@ func TestPostCertificateProviderYourDetails(t *testing.T) {
 	}{
 		"valid": {
 			form: url.Values{
-				"email":               {"name@example.com"},
 				"mobile":              {"07535111222"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
@@ -145,13 +142,11 @@ func TestPostCertificateProviderYourDetails(t *testing.T) {
 			},
 			cp: actor.CertificateProvider{
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
-				Email:       "name@example.com",
 				Mobile:      "07535111222",
 			},
 		},
 		"warning ignored": {
 			form: url.Values{
-				"email":               {"name@example.com"},
 				"mobile":              {"07535111222"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
@@ -160,7 +155,6 @@ func TestPostCertificateProviderYourDetails(t *testing.T) {
 			},
 			cp: actor.CertificateProvider{
 				DateOfBirth: date.New("1900", "1", "2"),
-				Email:       "name@example.com",
 				Mobile:      "07535111222",
 			},
 		},
@@ -203,18 +197,17 @@ func TestPostCertificateProviderYourDetailsWhenInputRequired(t *testing.T) {
 	}{
 		"validation error": {
 			form: url.Values{
-				"mobile":              {"07535111222"},
+				"mobile":              {"0123456"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
 			},
 			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
-				return assert.Equal(t, validation.With("email", validation.EnterError{Label: "email"}), data.Errors)
+				return assert.Equal(t, validation.With("mobile", validation.EnterError{Label: "aValidUkMobileLike"}), data.Errors)
 			},
 		},
 		"dob warning": {
 			form: url.Values{
-				"email":               {"name@example.com"},
 				"mobile":              {"07535111222"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
@@ -226,7 +219,7 @@ func TestPostCertificateProviderYourDetailsWhenInputRequired(t *testing.T) {
 		},
 		"dob warning ignored but other errors": {
 			form: url.Values{
-				"mobile":              {"07535111222"},
+				"mobile":              {"0123456"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
@@ -234,20 +227,7 @@ func TestPostCertificateProviderYourDetailsWhenInputRequired(t *testing.T) {
 			},
 			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
 				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning) &&
-					assert.Equal(t, validation.With("email", validation.EnterError{Label: "email"}), data.Errors)
-			},
-		},
-		"other dob warning ignored": {
-			form: url.Values{
-				"email":               {"name@example.com"},
-				"mobile":              {"07535111222"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-				"ignore-dob-warning":  {"dateOfBirthIsUnder18"},
-			},
-			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
-				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
+					assert.Equal(t, validation.With("mobile", validation.EnterError{Label: "aValidUkMobileLike"}), data.Errors)
 			},
 		},
 	}
@@ -282,7 +262,6 @@ func TestPostCertificateProviderYourDetailsWhenInputRequired(t *testing.T) {
 
 func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"email":               {"name@example.com"},
 		"mobile":              {"07535111222"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
@@ -310,7 +289,6 @@ func TestReadYourDetailsForm(t *testing.T) {
 	assert := assert.New(t)
 
 	form := url.Values{
-		"email":               {"name@example.com"},
 		"mobile":              {"07535111222"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
@@ -323,7 +301,6 @@ func TestReadYourDetailsForm(t *testing.T) {
 
 	result := readYourDetailsForm(r)
 
-	assert.Equal("name@example.com", result.Email)
 	assert.Equal("07535111222", result.Mobile)
 	assert.Equal(date.New("1990", "1", "2"), result.Dob)
 	assert.Equal("xyz", result.IgnoreDobWarning)
@@ -341,56 +318,49 @@ func TestYourDetailsFormValidate(t *testing.T) {
 			form: &yourDetailsForm{
 				Dob:              validDob,
 				Mobile:           "07535999222",
-				Email:            "name@example.org",
 				IgnoreDobWarning: "xyz",
 			},
 		},
 		"missing-all": {
 			form: &yourDetailsForm{},
 			errors: validation.
-				With("date-of-birth", validation.EnterError{Label: "dateOfBirth"}).
-				With("mobile", validation.EnterError{Label: "mobile"}).
-				With("email", validation.EnterError{Label: "email"}),
+				With("date-of-birth", validation.EnterError{Label: "yourDateOfBirth"}).
+				With("mobile", validation.EnterError{Label: "mobile"}),
 		},
 		"future-dob": {
 			form: &yourDetailsForm{
 				Mobile: "07535999222",
-				Email:  "name@example.org",
 				Dob:    now.AddDate(0, 0, 1),
 			},
-			errors: validation.With("date-of-birth", validation.DateMustBePastError{Label: "dateOfBirth"}),
+			errors: validation.With("date-of-birth", validation.DateMustBePastError{Label: "yourDateOfBirth"}),
+		},
+		"dob-under-18": {
+			form: &yourDetailsForm{
+				Mobile: "07535999222",
+				Dob:    now.AddDate(0, 0, -1),
+			},
+			errors: validation.With("date-of-birth", validation.CustomError{Label: "youAreUnder18Error"}),
 		},
 		"invalid-dob": {
 			form: &yourDetailsForm{
 				Mobile: "07535999222",
-				Email:  "name@example.org",
 				Dob:    date.New("2000", "22", "2"),
 			},
-			errors: validation.With("date-of-birth", validation.DateMustBeRealError{Label: "dateOfBirth"}),
+			errors: validation.With("date-of-birth", validation.DateMustBeRealError{Label: "aDateOfBirth"}),
 		},
 		"invalid-missing-dob": {
 			form: &yourDetailsForm{
 				Mobile: "07535999222",
-				Email:  "name@example.org",
 				Dob:    date.New("1", "", "1"),
 			},
-			errors: validation.With("date-of-birth", validation.DateMissingError{Label: "dateOfBirth", MissingMonth: true}),
+			errors: validation.With("date-of-birth", validation.DateMissingError{Label: "yourDateOfBirth", MissingMonth: true}),
 		},
 		"invalid-mobile-format": {
 			form: &yourDetailsForm{
 				Mobile: "123",
-				Email:  "name@example.org",
 				Dob:    validDob,
 			},
-			errors: validation.With("mobile", validation.MobileError{Label: "mobile"}),
-		},
-		"invalid-email-format": {
-			form: &yourDetailsForm{
-				Mobile: "07535999222",
-				Email:  "name@",
-				Dob:    validDob,
-			},
-			errors: validation.With("email", validation.EmailError{Label: "email"}),
+			errors: validation.With("mobile", validation.EnterError{Label: "aValidUkMobileLike"}),
 		},
 	}
 
