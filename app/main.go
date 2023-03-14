@@ -56,7 +56,6 @@ func main() {
 		port                  = env.Get("APP_PORT", "8080")
 		yotiClientSdkID       = env.Get("YOTI_CLIENT_SDK_ID", "")
 		yotiScenarioID        = env.Get("YOTI_SCENARIO_ID", "")
-		yotiSandbox           = env.Get("YOTI_SANDBOX", "") == "1"
 		xrayEnabled           = env.Get("XRAY_ENABLED", "") == "1"
 		rumConfig             = page.RumConfig{
 			GuestRoleArn:      env.Get("AWS_RUM_GUEST_ROLE_ARN", ""),
@@ -157,11 +156,6 @@ func main() {
 	yotiClient, err := identity.NewYotiClient(yotiScenarioID, yotiClientSdkID, yotiPrivateKey)
 	if err != nil {
 		logger.Fatal(err)
-	}
-	if yotiSandbox {
-		if err := yotiClient.SetupSandbox(); err != nil {
-			logger.Fatal(err)
-		}
 	}
 
 	osApiKey, err := secretsClient.Secret(ctx, secrets.OrdnanceSurvey)
