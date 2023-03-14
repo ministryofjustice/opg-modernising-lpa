@@ -50,6 +50,7 @@ var (
 
 func init() {
 	gob.Register(&OneLoginSession{})
+	gob.Register(&YotiSession{})
 	gob.Register(&DonorSession{})
 	gob.Register(&CertificateProviderSession{})
 	gob.Register(&PaymentSession{})
@@ -99,6 +100,45 @@ func OneLogin(store sessions.Store, r *http.Request) (*OneLoginSession, error) {
 func SetOneLogin(store sessions.Store, r *http.Request, w http.ResponseWriter, oneLoginSession *OneLoginSession) error {
 	params := sessions.NewSession(store, "params")
 	params.Values = map[any]any{"one-login": oneLoginSession}
+	params.Options = oneLoginCookieOptions
+	return store.Save(r, w, params)
+}
+
+type YotiSession struct {
+	Locale              string
+	LpaID               string
+	CertificateProvider bool
+}
+
+func (s YotiSession) Valid() bool {
+	return s.LpaID != ""
+}
+
+func Yoti(store sessions.Store, r *http.Request) (*YotiSession, error) {
+	params, err := store.Get(r, "yoti")
+	if err != nil {
+		return nil, err
+	}
+
+	session, ok := params.Values["yoti"]
+	if !ok {
+		return nil, MissingSessionError("yoti")
+	}
+
+	yotiSession, ok := session.(*YotiSession)
+	if !ok {
+		return nil, MissingSessionError("yoti")
+	}
+	if !yotiSession.Valid() {
+		return nil, InvalidSessionError("yoti")
+	}
+
+	return yotiSession, nil
+}
+
+func SetYoti(store sessions.Store, r *http.Request, w http.ResponseWriter, yotiSession *YotiSession) error {
+	params := sessions.NewSession(store, "yoti")
+	params.Values = map[any]any{"yoti": yotiSession}
 	params.Options = oneLoginCookieOptions
 	return store.Save(r, w, params)
 }

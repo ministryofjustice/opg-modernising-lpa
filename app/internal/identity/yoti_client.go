@@ -4,22 +4,17 @@ import (
 	"time"
 
 	"github.com/getyoti/yoti-go-sdk/v3"
-	"github.com/getyoti/yoti-go-sdk/v3/profile"
-	"github.com/getyoti/yoti-go-sdk/v3/profile/sandbox"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 )
 
-const yotiSandboxBaseURL = "https://api.yoti.com/sandbox/v1"
-
 type YotiClient struct {
-	yoti      *yoti.Client
-	isSandbox bool
-	details   profile.ActivityDetails
+	yoti       *yoti.Client
+	scenarioID string
 }
 
-func NewYotiClient(clientID string, privateKeyBytes []byte) (*YotiClient, error) {
+func NewYotiClient(scenarioID, clientID string, privateKeyBytes []byte) (*YotiClient, error) {
 	if clientID == "" {
-		return &YotiClient{}, nil
+		return &YotiClient{scenarioID: scenarioID}, nil
 	}
 
 	client, err := yoti.NewClient(clientID, privateKeyBytes)
@@ -27,27 +22,11 @@ func NewYotiClient(clientID string, privateKeyBytes []byte) (*YotiClient, error)
 		return nil, err
 	}
 
-	return &YotiClient{yoti: client}, nil
+	return &YotiClient{yoti: client, scenarioID: scenarioID}, nil
 }
 
-func (c *YotiClient) SetupSandbox() error {
-	sandboxClient := &sandbox.Client{ClientSdkID: c.yoti.SdkID, Key: c.yoti.Key, BaseURL: yotiSandboxBaseURL}
-
-	tokenRequest := (&sandbox.TokenRequest{}).
-		WithFullName("Test Person", nil)
-
-	sandboxToken, err := sandboxClient.SetupSharingProfile(tokenRequest)
-	if err != nil {
-		return err
-	}
-
-	c.yoti.OverrideAPIURL(yotiSandboxBaseURL)
-
-	details, err := c.yoti.GetActivityDetails(sandboxToken)
-	c.isSandbox = true
-	c.details = details
-
-	return err
+func (c *YotiClient) ScenarioID() string {
+	return c.scenarioID
 }
 
 func (c *YotiClient) SdkID() string {
@@ -55,7 +34,7 @@ func (c *YotiClient) SdkID() string {
 }
 
 func (c *YotiClient) IsTest() bool {
-	return c.yoti == nil || c.isSandbox
+	return c.yoti == nil
 }
 
 func (c *YotiClient) User(token string) (UserData, error) {
@@ -70,28 +49,12 @@ func (c *YotiClient) User(token string) (UserData, error) {
 		}, nil
 	}
 
-	if c.isSandbox {
-		dateOfBirth, err := c.details.UserProfile.DateOfBirth()
-		if err != nil {
-			return UserData{}, err
-		}
-
-		return UserData{
-			OK:          true,
-			Provider:    EasyID,
-			FirstNames:  c.details.UserProfile.GivenNames().Value(),
-			LastName:    c.details.UserProfile.FamilyName().Value(),
-			DateOfBirth: date.FromTime(*dateOfBirth.Value()),
-			RetrievedAt: time.Now(),
-		}, nil
-	}
-
 	details, err := c.yoti.GetActivityDetails(token)
 	if err != nil {
 		return UserData{}, err
 	}
 
-	dateOfBirth, err := c.details.UserProfile.DateOfBirth()
+	dateOfBirth, err := details.UserProfile.DateOfBirth()
 	if err != nil {
 		return UserData{}, err
 	}
