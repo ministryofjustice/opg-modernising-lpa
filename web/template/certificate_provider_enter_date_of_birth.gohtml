@@ -1,0 +1,22 @@
+{{ template "page" . }}
+
+{{ define "serviceName" }}{{ tr .App "beACertificateProvider" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "enterYourDateOfBirth" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <form novalidate method="post">
+        <h1 class="govuk-heading-xl">{{ tr .App "enterYourDateOfBirth" }}</h1>
+
+        {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
+
+        {{ template "warning" (warning .App "18OrOverWarning") }}
+
+        {{ template "continue-button" . }}
+
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}

@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetCertificateProviderYourDetails(t *testing.T) {
+func TestGetEnterDateOfBirth(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -32,28 +32,27 @@ func TestGetCertificateProviderYourDetails(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &yourDetailsData{
+		On("Execute", w, &dateOfBirthData{
 			App:  testAppData,
 			Lpa:  lpa,
-			Form: &yourDetailsForm{},
+			Form: &dateOfBirthForm{},
 		}).
 		Return(nil)
 
-	err := YourDetails(template.Execute, lpaStore)(testAppData, w, r)
+	err := EnterDateOfBirth(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetCertificateProviderYourDetailsFromStore(t *testing.T) {
+func TestGetEnterDateOfBirthFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpa := &page.Lpa{
 		ID: "lpa-id",
 		CertificateProviderProvidedDetails: actor.CertificateProvider{
-			Mobile:      "07535111222",
 			DateOfBirth: date.New("1997", "1", "2"),
 		},
 	}
@@ -64,24 +63,23 @@ func TestGetCertificateProviderYourDetailsFromStore(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &yourDetailsData{
+		On("Execute", w, &dateOfBirthData{
 			App: testAppData,
 			Lpa: lpa,
-			Form: &yourDetailsForm{
-				Mobile: "07535111222",
-				Dob:    date.New("1997", "1", "2"),
+			Form: &dateOfBirthForm{
+				Dob: date.New("1997", "1", "2"),
 			},
 		}).
 		Return(nil)
 
-	err := YourDetails(template.Execute, lpaStore)(testAppData, w, r)
+	err := EnterDateOfBirth(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetCertificateProviderYourDetailsWhenStoreErrors(t *testing.T) {
+func TestGetEnterDateOfBirthWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -90,14 +88,14 @@ func TestGetCertificateProviderYourDetailsWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := YourDetails(nil, lpaStore)(testAppData, w, r)
+	err := EnterDateOfBirth(nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetCertificateProviderYourDetailsWhenTemplateErrors(t *testing.T) {
+func TestGetEnterDateOfBirthWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -112,21 +110,21 @@ func TestGetCertificateProviderYourDetailsWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &yourDetailsData{
+		On("Execute", w, &dateOfBirthData{
 			App:  testAppData,
 			Lpa:  lpa,
-			Form: &yourDetailsForm{},
+			Form: &dateOfBirthForm{},
 		}).
 		Return(expectedError)
 
-	err := YourDetails(template.Execute, lpaStore)(testAppData, w, r)
+	err := EnterDateOfBirth(template.Execute, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostCertificateProviderYourDetails(t *testing.T) {
+func TestPostEnterDateOfBirth(t *testing.T) {
 	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
 
 	testCases := map[string]struct {
@@ -135,19 +133,16 @@ func TestPostCertificateProviderYourDetails(t *testing.T) {
 	}{
 		"valid": {
 			form: url.Values{
-				"mobile":              {"07535111222"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
 			},
 			cp: actor.CertificateProvider{
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
-				Mobile:      "07535111222",
 			},
 		},
 		"warning ignored": {
 			form: url.Values{
-				"mobile":              {"07535111222"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
@@ -155,7 +150,6 @@ func TestPostCertificateProviderYourDetails(t *testing.T) {
 			},
 			cp: actor.CertificateProvider{
 				DateOfBirth: date.New("1900", "1", "2"),
-				Mobile:      "07535111222",
 			},
 		},
 	}
@@ -178,56 +172,77 @@ func TestPostCertificateProviderYourDetails(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := YourDetails(nil, lpaStore)(testAppData, w, r)
+			err := EnterDateOfBirth(nil, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.CertificateProviderYourAddress, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.CertificateProviderEnterMobileNumber, resp.Header.Get("Location"))
 		})
 	}
 }
 
-func TestPostCertificateProviderYourDetailsWhenInputRequired(t *testing.T) {
+func TestPostEnterDateOfBirthWhenCPHasAlreadyWitnessed(t *testing.T) {
+	w := httptest.NewRecorder()
+	form := url.Values{
+		"date-of-birth-day":   {"2"},
+		"date-of-birth-month": {"1"},
+		"date-of-birth-year":  {strconv.Itoa(time.Now().Year() - 40)},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{
+			ID:                     "lpa-id",
+			CPWitnessCodeValidated: true,
+		}, nil)
+	lpaStore.
+		On("Put", r.Context(), &page.Lpa{
+			ID: "lpa-id",
+			CertificateProviderProvidedDetails: actor.CertificateProvider{
+				DateOfBirth: date.New("1983", "1", "2"),
+			},
+			CPWitnessCodeValidated: true,
+		}).
+		Return(nil)
+
+	err := EnterDateOfBirth(nil, lpaStore)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.CertificateProviderYourAddress, resp.Header.Get("Location"))
+}
+
+func TestPostEnterDateOfBirthWhenInputRequired(t *testing.T) {
 	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
 
 	testCases := map[string]struct {
 		form        url.Values
-		dataMatcher func(t *testing.T, data *yourDetailsData) bool
+		dataMatcher func(t *testing.T, data *dateOfBirthData) bool
 	}{
 		"validation error": {
 			form: url.Values{
-				"mobile":              {"0123456"},
-				"date-of-birth-day":   {"2"},
+				"date-of-birth-day":   {"55"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
 			},
-			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
-				return assert.Equal(t, validation.With("mobile", validation.EnterError{Label: "aValidUkMobileLike"}), data.Errors)
+			dataMatcher: func(t *testing.T, data *dateOfBirthData) bool {
+				return assert.Equal(t, validation.With("date-of-birth", validation.EnterError{Label: "aValidDateOfBirth"}), data.Errors)
 			},
 		},
 		"dob warning": {
 			form: url.Values{
-				"mobile":              {"07535111222"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
 			},
-			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
+			dataMatcher: func(t *testing.T, data *dateOfBirthData) bool {
 				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
-			},
-		},
-		"dob warning ignored but other errors": {
-			form: url.Values{
-				"mobile":              {"0123456"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
-			},
-			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
-				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning) &&
-					assert.Equal(t, validation.With("mobile", validation.EnterError{Label: "aValidUkMobileLike"}), data.Errors)
 			},
 		},
 	}
@@ -246,12 +261,12 @@ func TestPostCertificateProviderYourDetailsWhenInputRequired(t *testing.T) {
 
 			template := newMockTemplate(t)
 			template.
-				On("Execute", w, mock.MatchedBy(func(data *yourDetailsData) bool {
+				On("Execute", w, mock.MatchedBy(func(data *dateOfBirthData) bool {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
 
-			err := YourDetails(template.Execute, lpaStore)(testAppData, w, r)
+			err := EnterDateOfBirth(template.Execute, lpaStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -262,7 +277,6 @@ func TestPostCertificateProviderYourDetailsWhenInputRequired(t *testing.T) {
 
 func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"mobile":              {"07535111222"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {"1999"},
@@ -278,18 +292,17 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := YourDetails(nil, lpaStore)(testAppData, w, r)
+	err := EnterDateOfBirth(nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestReadYourDetailsForm(t *testing.T) {
+func TestReadDateOfBirthForm(t *testing.T) {
 	assert := assert.New(t)
 
 	form := url.Values{
-		"mobile":              {"07535111222"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {"1990"},
@@ -299,68 +312,54 @@ func TestReadYourDetailsForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readYourDetailsForm(r)
+	result := readDateOfBirthForm(r)
 
-	assert.Equal("07535111222", result.Mobile)
 	assert.Equal(date.New("1990", "1", "2"), result.Dob)
 	assert.Equal("xyz", result.IgnoreDobWarning)
 }
 
-func TestYourDetailsFormValidate(t *testing.T) {
+func TestDateOfBirthFormValidate(t *testing.T) {
 	now := date.Today()
 	validDob := now.AddDate(-18, 0, -1)
 
 	testCases := map[string]struct {
-		form   *yourDetailsForm
+		form   *dateOfBirthForm
 		errors validation.List
 	}{
 		"valid": {
-			form: &yourDetailsForm{
+			form: &dateOfBirthForm{
 				Dob:              validDob,
-				Mobile:           "07535999222",
 				IgnoreDobWarning: "xyz",
 			},
 		},
-		"missing-all": {
-			form: &yourDetailsForm{},
+		"missing": {
+			form: &dateOfBirthForm{},
 			errors: validation.
-				With("date-of-birth", validation.EnterError{Label: "yourDateOfBirth"}).
-				With("mobile", validation.EnterError{Label: "yourUkMobile"}),
+				With("date-of-birth", validation.EnterError{Label: "yourDateOfBirth"}),
 		},
 		"future-dob": {
-			form: &yourDetailsForm{
-				Mobile: "07535999222",
-				Dob:    now.AddDate(0, 0, 1),
+			form: &dateOfBirthForm{
+				Dob: now.AddDate(0, 0, 1),
 			},
 			errors: validation.With("date-of-birth", validation.DateMustBePastError{Label: "yourDateOfBirth"}),
 		},
 		"dob-under-18": {
-			form: &yourDetailsForm{
-				Mobile: "07535999222",
-				Dob:    now.AddDate(0, 0, -1),
+			form: &dateOfBirthForm{
+				Dob: now.AddDate(0, 0, -1),
 			},
 			errors: validation.With("date-of-birth", validation.CustomError{Label: "youAreUnder18Error"}),
 		},
 		"invalid-dob": {
-			form: &yourDetailsForm{
-				Mobile: "07535999222",
-				Dob:    date.New("2000", "22", "2"),
+			form: &dateOfBirthForm{
+				Dob: date.New("2000", "22", "2"),
 			},
 			errors: validation.With("date-of-birth", validation.EnterError{Label: "aValidDateOfBirth"}),
 		},
 		"invalid-missing-dob": {
-			form: &yourDetailsForm{
-				Mobile: "07535999222",
-				Dob:    date.New("1", "", "1"),
+			form: &dateOfBirthForm{
+				Dob: date.New("1", "", "1"),
 			},
 			errors: validation.With("date-of-birth", validation.DateMissingError{Label: "yourDateOfBirth", MissingMonth: true}),
-		},
-		"invalid-mobile-format": {
-			form: &yourDetailsForm{
-				Mobile: "123",
-				Dob:    validDob,
-			},
-			errors: validation.With("mobile", validation.EnterError{Label: "aValidUkMobileLike"}),
 		},
 	}
 
