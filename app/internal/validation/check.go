@@ -177,12 +177,12 @@ func StringLength(length int) StringLengthCheck {
 	return StringLengthCheck{length: length}
 }
 
-var mobileRegex = regexp.MustCompile(`^(?:07|\+?447)\d{9}$`)
+var MobileRegex = regexp.MustCompile(`^(?:07|\+?447)\d{9}$`)
 
 type MobileCheck struct{}
 
 func (c MobileCheck) CheckString(label, value string) FormattableError {
-	if !mobileRegex.MatchString(value) {
+	if !MobileRegex.MatchString(value) {
 		return MobileError{Label: label}
 	}
 
