@@ -8,7 +8,7 @@ describe('Check your name', () => {
         cy.get('input[name="is-name-correct"]').check('yes');
         cy.contains('Continue').click();
 
-        cy.url().should('contain', '/certificate-provider-your-details');
+        cy.url().should('contain', '/certificate-provider-enter-date-of-birth');
     });
 
     it('can provide an updated name', () => {
@@ -21,7 +21,7 @@ describe('Check your name', () => {
 
         cy.contains('Continue').click();
 
-        cy.url().should('contain', '/certificate-provider-your-details');
+        cy.url().should('contain', '/certificate-provider-enter-date-of-birth');
     });
 
     it('errors when not selected', () => {
