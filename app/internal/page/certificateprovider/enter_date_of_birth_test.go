@@ -232,7 +232,7 @@ func TestPostEnterDateOfBirthWhenInputRequired(t *testing.T) {
 				"date-of-birth-year":  {validBirthYear},
 			},
 			dataMatcher: func(t *testing.T, data *dateOfBirthData) bool {
-				return assert.Equal(t, validation.With("date-of-birth", validation.EnterError{Label: "aValidDateOfBirth"}), data.Errors)
+				return assert.Equal(t, validation.With("date-of-birth", validation.DateMustBeRealError{Label: "dateOfBirth"}), data.Errors)
 			},
 		},
 		"dob warning": {
@@ -335,13 +335,13 @@ func TestDateOfBirthFormValidate(t *testing.T) {
 		"missing": {
 			form: &dateOfBirthForm{},
 			errors: validation.
-				With("date-of-birth", validation.EnterError{Label: "yourDateOfBirth"}),
+				With("date-of-birth", validation.EnterError{Label: "dateOfBirth"}),
 		},
 		"future-dob": {
 			form: &dateOfBirthForm{
 				Dob: now.AddDate(0, 0, 1),
 			},
-			errors: validation.With("date-of-birth", validation.DateMustBePastError{Label: "yourDateOfBirth"}),
+			errors: validation.With("date-of-birth", validation.DateMustBePastError{Label: "dateOfBirth"}),
 		},
 		"dob-under-18": {
 			form: &dateOfBirthForm{
@@ -353,13 +353,13 @@ func TestDateOfBirthFormValidate(t *testing.T) {
 			form: &dateOfBirthForm{
 				Dob: date.New("2000", "22", "2"),
 			},
-			errors: validation.With("date-of-birth", validation.EnterError{Label: "aValidDateOfBirth"}),
+			errors: validation.With("date-of-birth", validation.DateMustBeRealError{Label: "dateOfBirth"}),
 		},
 		"invalid-missing-dob": {
 			form: &dateOfBirthForm{
 				Dob: date.New("1", "", "1"),
 			},
-			errors: validation.With("date-of-birth", validation.DateMissingError{Label: "yourDateOfBirth", MissingMonth: true}),
+			errors: validation.With("date-of-birth", validation.DateMissingError{Label: "dateOfBirth", MissingMonth: true}),
 		},
 	}
 

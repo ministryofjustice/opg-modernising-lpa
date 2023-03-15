@@ -167,7 +167,7 @@ func TestPostEnterMobileNumberWhenValidationError(t *testing.T) {
 		Return(&page.Lpa{ID: "lpa-id"}, nil)
 
 	dataMatcher := func(t *testing.T, data *mobileNumberData) bool {
-		return assert.Equal(t, validation.With("mobile", validation.EnterError{Label: "aValidUkMobileLike"}), data.Errors)
+		return assert.Equal(t, validation.With("mobile", validation.MobileError{Label: "mobile"}), data.Errors)
 	}
 
 	template := newMockTemplate(t)
@@ -234,13 +234,13 @@ func TestMobileNumberFormValidate(t *testing.T) {
 		"missing": {
 			form: &mobileNumberForm{},
 			errors: validation.
-				With("mobile", validation.EnterError{Label: "yourUkMobile"}),
+				With("mobile", validation.EnterError{Label: "mobile"}),
 		},
 		"invalid-mobile-format": {
 			form: &mobileNumberForm{
 				Mobile: "123",
 			},
-			errors: validation.With("mobile", validation.EnterError{Label: "aValidUkMobileLike"}),
+			errors: validation.With("mobile", validation.MobileError{Label: "mobile"}),
 		},
 	}
 

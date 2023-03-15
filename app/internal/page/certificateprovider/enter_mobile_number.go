@@ -63,12 +63,9 @@ func readMobileNumberForm(r *http.Request) *mobileNumberForm {
 func (f *mobileNumberForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("mobile", "yourUkMobile", strings.ReplaceAll(f.Mobile, " ", ""),
-		validation.Empty())
-
-	if !validation.MobileRegex.MatchString(f.Mobile) {
-		errors.Add("mobile", validation.EnterError{Label: "aValidUkMobileLike"})
-	}
+	errors.String("mobile", "mobile", strings.ReplaceAll(f.Mobile, " ", ""),
+		validation.Empty(),
+		validation.Mobile())
 
 	return errors
 }

@@ -38,27 +38,27 @@ describe('Enter date of birth', () => {
         cy.contains('button', 'Continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Enter your date of birth');
+            cy.contains('Enter date of birth');
         });
 
-        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Enter your date of birth');
+        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Enter date of birth');
     });
 
     it('errors when invalid dates of birth', () => {
         cy.get('#f-date-of-birth').type('1');
         cy.contains('button', 'Continue').click();
-        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Your date of birth must include a month and year');
+        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must include a month and year');
 
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('2222');
         cy.contains('button', 'Continue').click();
-        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Your date of birth must be in the past');
+        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be in the past');
 
         cy.get('#f-date-of-birth').type('not');
         cy.get('#f-date-of-birth-month').type('valid');
         cy.get('#f-date-of-birth-year').clear().type('values');
         cy.contains('button', 'Continue').click();
-        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Enter a valid date of birth');
+        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be a real date');
     });
 
     it('errors when not over 18', () => {

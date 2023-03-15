@@ -91,13 +91,10 @@ func (f *dateOfBirthForm) DobWarning() string {
 func (f *dateOfBirthForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Date("date-of-birth", "yourDateOfBirth", f.Dob,
+	errors.Date("date-of-birth", "dateOfBirth", f.Dob,
 		validation.DateMissing(),
+		validation.DateMustBeReal(),
 		validation.DateMustBePast())
-
-	if !f.Dob.Valid() {
-		errors.Add("date-of-birth", validation.EnterError{Label: "aValidDateOfBirth"})
-	}
 
 	if f.Dob.After(date.Today().AddDate(-18, 0, 0)) {
 		errors.Add("date-of-birth", validation.CustomError{Label: "youAreUnder18Error"})
