@@ -11,6 +11,8 @@
 
         {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
 
+        {{ template "dob-warning" . }}
+
         {{ template "warning" (warning .App "18OrOverWarning") }}
 
         {{ template "continue-button" . }}
