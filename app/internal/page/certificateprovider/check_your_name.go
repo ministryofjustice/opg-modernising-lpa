@@ -53,7 +53,7 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 					}
 				}
 
-				appData.Redirect(w, r, lpa, page.Paths.CertificateProviderYourDetails)
+				appData.Redirect(w, r, lpa, page.Paths.CertificateProviderEnterDateOfBirth)
 				return nil
 			}
 		}
