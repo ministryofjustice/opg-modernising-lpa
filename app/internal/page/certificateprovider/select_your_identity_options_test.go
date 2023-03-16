@@ -222,8 +222,9 @@ func TestReadSelectYourIdentityOptionsForm(t *testing.T) {
 
 func TestSelectYourIdentityOptionsFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *selectYourIdentityOptionsForm
-		errors validation.List
+		form      *selectYourIdentityOptionsForm
+		errors    validation.List
+		pageIndex int
 	}{
 		"valid": {
 			form: &selectYourIdentityOptionsForm{
@@ -246,11 +247,16 @@ func TestSelectYourIdentityOptionsFormValidate(t *testing.T) {
 			},
 			errors: validation.With("option", validation.SelectError{Label: "fromTheListedOptions"}),
 		},
+		"missing after first page": {
+			form:      &selectYourIdentityOptionsForm{},
+			errors:    validation.With("option", validation.SelectError{Label: "whichDocumentYouWillUse"}),
+			pageIndex: 1,
+		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
+			assert.Equal(t, tc.errors, tc.form.Validate(tc.pageIndex))
 		})
 	}
 }

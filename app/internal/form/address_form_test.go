@@ -84,8 +84,9 @@ func TestReadAddressForm(t *testing.T) {
 
 func TestAddressFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *AddressForm
-		errors validation.List
+		form    *AddressForm
+		errors  validation.List
+		useYour bool
 	}{
 		"lookup valid": {
 			form: &AddressForm{
@@ -99,6 +100,13 @@ func TestAddressFormValidate(t *testing.T) {
 			},
 			errors: validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
 		},
+		"lookup your missing postcode": {
+			form: &AddressForm{
+				Action: "lookup",
+			},
+			errors:  validation.With("lookup-postcode", validation.EnterError{Label: "yourPostcode"}),
+			useYour: true,
+		},
 		"select valid": {
 			form: &AddressForm{
 				Action:  "select",
@@ -111,6 +119,14 @@ func TestAddressFormValidate(t *testing.T) {
 				Address: nil,
 			},
 			errors: validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
+		},
+		"select your address not selected": {
+			form: &AddressForm{
+				Action:  "select",
+				Address: nil,
+			},
+			errors:  validation.With("select-address", validation.SelectError{Label: "yourAddressFromTheList"}),
+			useYour: true,
 		},
 		"manual valid": {
 			form: &AddressForm{
@@ -131,6 +147,17 @@ func TestAddressFormValidate(t *testing.T) {
 				With("address-line-1", validation.EnterError{Label: "addressLine1"}).
 				With("address-town", validation.EnterError{Label: "townOrCity"}).
 				With("address-postcode", validation.EnterError{Label: "aPostcode"}),
+		},
+		"manual missing all your": {
+			form: &AddressForm{
+				Action:  "manual",
+				Address: &place.Address{},
+			},
+			errors: validation.
+				With("address-line-1", validation.EnterError{Label: "addressLine1OfYourAddress"}).
+				With("address-town", validation.EnterError{Label: "yourTownOrCity"}).
+				With("address-postcode", validation.EnterError{Label: "yourPostcode"}),
+			useYour: true,
 		},
 		"manual max length": {
 			form: &AddressForm{
@@ -160,11 +187,28 @@ func TestAddressFormValidate(t *testing.T) {
 				With("address-line-2", validation.StringTooLongError{Label: "addressLine2Label", Length: 50}).
 				With("address-line-3", validation.StringTooLongError{Label: "addressLine3Label", Length: 50}),
 		},
+		"manual your too long": {
+			form: &AddressForm{
+				Action: "manual",
+				Address: &place.Address{
+					Line1:      strings.Repeat("x", 51),
+					Line2:      strings.Repeat("x", 51),
+					Line3:      strings.Repeat("x", 51),
+					TownOrCity: "b",
+					Postcode:   "c",
+				},
+			},
+			errors: validation.
+				With("address-line-1", validation.StringTooLongError{Label: "addressLine1OfYourAddress", Length: 50}).
+				With("address-line-2", validation.StringTooLongError{Label: "addressLine2OfYourAddress", Length: 50}).
+				With("address-line-3", validation.StringTooLongError{Label: "addressLine3OfYourAddress", Length: 50}),
+			useYour: true,
+		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
+			assert.Equal(t, tc.errors, tc.form.Validate(tc.useYour))
 		})
 	}
 }

@@ -43,7 +43,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 
 		if r.Method == http.MethodPost {
 			data.Form = form.ReadAddressForm(r)
-			data.Errors = data.Form.Validate()
+			data.Errors = data.Form.Validate(false)
 
 			if data.Form.Action == "manual" && data.Errors.None() {
 				ra.Address = *data.Form.Address

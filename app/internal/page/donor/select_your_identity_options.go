@@ -33,7 +33,7 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, pageIn
 
 		if r.Method == http.MethodPost {
 			data.Form = readSelectYourIdentityOptionsForm(r)
-			data.Errors = data.Form.Validate()
+			data.Errors = data.Form.Validate(pageIndex)
 
 			if data.Form.None {
 				switch pageIndex {
@@ -77,11 +77,15 @@ func readSelectYourIdentityOptionsForm(r *http.Request) *selectYourIdentityOptio
 	}
 }
 
-func (f *selectYourIdentityOptionsForm) Validate() validation.List {
+func (f *selectYourIdentityOptionsForm) Validate(pageIndex int) validation.List {
 	var errors validation.List
 
 	if f.Selected == identity.UnknownOption && !f.None {
-		errors.Add("option", validation.SelectError{Label: "fromTheListedOptions"})
+		if pageIndex == 0 {
+			errors.Add("option", validation.SelectError{Label: "fromTheListedOptions"})
+		} else {
+			errors.Add("option", validation.SelectError{Label: "whichDocumentYouWillUse"})
+		}
 	}
 
 	return errors
