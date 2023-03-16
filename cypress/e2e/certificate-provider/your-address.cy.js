@@ -21,7 +21,7 @@ describe('Certificate provider providing their address', () => {
     });
 
     it('errors when empty postcode', () => {
-        AddressFormAssertions.assertErrorsWhenPostcodeEmpty()
+        AddressFormAssertions.assertErrorsWhenYourPostcodeEmpty()
     });
 
     it('errors when invalid postcode', () => {
@@ -29,14 +29,14 @@ describe('Certificate provider providing their address', () => {
     });
 
     it('errors when valid postcode and no addresses', () => {
-        AddressFormAssertions.assertErrorsWhenValidPostcodeFormatButNoAddressesFound()
+        AddressFormAssertions.assertErrorsWhenYourValidPostcodeFormatButNoAddressesFound()
     });
 
     it('errors when unselected', () => {
-        AddressFormAssertions.assertErrorsWhenUnselected()
+        AddressFormAssertions.assertErrorsWhenYourAddressUnselected()
     });
 
     it('errors when manual incorrect', () => {
-        AddressFormAssertions.assertErrorsWhenManualIncorrect('I can’t find my address in the list')
+        AddressFormAssertions.assertErrorsWhenYourManualIncorrect('I can’t find my address in the list')
     });
 });
