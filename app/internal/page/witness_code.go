@@ -30,7 +30,7 @@ func NewWitnessCodeSender(lpaStore LpaStore, notifyClient NotifyClient) *Witness
 	}
 }
 
-func (s *WitnessCodeSender) Send(ctx context.Context, lpa *Lpa) error {
+func (s *WitnessCodeSender) Send(ctx context.Context, lpa *Lpa, appData AppData) error {
 	code := s.randomCode(4)
 	lpa.WitnessCodes = append(lpa.WitnessCodes, WitnessCode{Code: code, Created: s.now()})
 
@@ -38,7 +38,9 @@ func (s *WitnessCodeSender) Send(ctx context.Context, lpa *Lpa) error {
 		PhoneNumber: lpa.CertificateProvider.Mobile,
 		TemplateID:  s.notifyClient.TemplateID(notify.SignatureCodeSms),
 		Personalisation: map[string]string{
-			"code": code,
+			"WitnessCode":   code,
+			"DonorFullName": lpa.Donor.PossessiveFullName(),
+			"LpaType":       appData.Localizer.T(lpa.TypeLegalTermTransKey()),
 		},
 	})
 	if err != nil {
