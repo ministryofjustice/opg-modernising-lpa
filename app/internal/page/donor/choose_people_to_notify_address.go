@@ -47,7 +47,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 
 		if r.Method == http.MethodPost {
 			data.Form = form.ReadAddressForm(r)
-			data.Errors = data.Form.Validate()
+			data.Errors = data.Form.Validate(false)
 
 			if data.Form.Action == "manual" && data.Errors.None() {
 				personToNotify.Address = *data.Form.Address
