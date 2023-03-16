@@ -1,0 +1,495 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ministryofjustice/opg-modernising-lpa/internal/page/lpa",
+  "$ref": "#/$defs/Lpa",
+  "$defs": {
+    "Address": {
+      "properties": {
+        "Line1": {
+          "type": "string"
+        },
+        "Line2": {
+          "type": "string"
+        },
+        "Line3": {
+          "type": "string"
+        },
+        "TownOrCity": {
+          "type": "string"
+        },
+        "Postcode": {
+          "type": "string"
+        }
+      },
+      "type": "object",
+      "required": [
+        "Line1",
+        "Line2",
+        "Line3",
+        "TownOrCity",
+        "Postcode"
+      ]
+    },
+    "Attorney": {
+      "properties": {
+        "ID": {
+          "type": "string"
+        },
+        "FirstNames": {
+          "type": "string"
+        },
+        "LastName": {
+          "type": "string"
+        },
+        "Email": {
+          "type": "string"
+        },
+        "DateOfBirth": {
+          "$ref": "#/$defs/Date"
+        },
+        "Address": {
+          "$ref": "#/$defs/Address"
+        }
+      },
+      "type": "object",
+      "required": [
+        "ID",
+        "FirstNames",
+        "LastName",
+        "Email",
+        "DateOfBirth",
+        "Address"
+      ]
+    },
+    "Attorneys": {
+      "items": {
+        "$ref": "#/$defs/Attorney"
+      },
+      "type": "array"
+    },
+    "Certificate": {
+      "properties": {
+        "AgreeToStatement": {
+          "type": "boolean"
+        },
+        "Agreed": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "type": "object",
+      "required": [
+        "AgreeToStatement",
+        "Agreed"
+      ]
+    },
+    "CertificateProvider": {
+      "properties": {
+        "FirstNames": {
+          "type": "string"
+        },
+        "LastName": {
+          "type": "string"
+        },
+        "Email": {
+          "type": "string"
+        },
+        "Address": {
+          "$ref": "#/$defs/Address"
+        },
+        "Mobile": {
+          "type": "string"
+        },
+        "DateOfBirth": {
+          "$ref": "#/$defs/Date"
+        },
+        "CarryOutBy": {
+          "type": "string"
+        },
+        "Relationship": {
+          "type": "string"
+        },
+        "RelationshipDescription": {
+          "type": "string"
+        },
+        "RelationshipLength": {
+          "type": "string"
+        },
+        "DeclaredFullName": {
+          "type": "string"
+        }
+      },
+      "type": "object",
+      "required": [
+        "FirstNames",
+        "LastName",
+        "Email",
+        "Address",
+        "Mobile",
+        "DateOfBirth",
+        "CarryOutBy",
+        "Relationship",
+        "RelationshipDescription",
+        "RelationshipLength",
+        "DeclaredFullName"
+      ]
+    },
+    "Date": {
+      "properties": {},
+      "type": "object"
+    },
+    "Donor": {
+      "properties": {
+        "FirstNames": {
+          "type": "string"
+        },
+        "LastName": {
+          "type": "string"
+        },
+        "Email": {
+          "type": "string"
+        },
+        "OtherNames": {
+          "type": "string"
+        },
+        "DateOfBirth": {
+          "$ref": "#/$defs/Date"
+        },
+        "Address": {
+          "$ref": "#/$defs/Address"
+        }
+      },
+      "type": "object",
+      "required": [
+        "FirstNames",
+        "LastName",
+        "Email",
+        "OtherNames",
+        "DateOfBirth",
+        "Address"
+      ]
+    },
+    "Limiter": {
+      "properties": {
+        "TokenPer": {
+          "type": "integer"
+        },
+        "MaxTokens": {
+          "type": "number"
+        },
+        "Tokens": {
+          "type": "number"
+        },
+        "TokensAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "type": "object",
+      "required": [
+        "TokenPer",
+        "MaxTokens",
+        "Tokens",
+        "TokensAt"
+      ]
+    },
+    "Lpa": {
+      "properties": {
+        "ID": {
+          "type": "string"
+        },
+        "UpdatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "Donor": {
+          "$ref": "#/$defs/Donor"
+        },
+        "Attorneys": {
+          "$ref": "#/$defs/Attorneys"
+        },
+        "CertificateProvider": {
+          "$ref": "#/$defs/CertificateProvider"
+        },
+        "WhoFor": {
+          "type": "string"
+        },
+        "Type": {
+          "type": "string"
+        },
+        "WantReplacementAttorneys": {
+          "type": "string"
+        },
+        "WhenCanTheLpaBeUsed": {
+          "type": "string"
+        },
+        "Restrictions": {
+          "type": "string"
+        },
+        "Tasks": {
+          "$ref": "#/$defs/Tasks"
+        },
+        "Checked": {
+          "type": "boolean"
+        },
+        "HappyToShare": {
+          "type": "boolean"
+        },
+        "PaymentDetails": {
+          "$ref": "#/$defs/PaymentDetails"
+        },
+        "DonorIdentityOption": {
+          "type": "string"
+        },
+        "DonorIdentityUserData": {
+          "$ref": "#/$defs/UserData"
+        },
+        "HowAttorneysMakeDecisions": {
+          "type": "string"
+        },
+        "HowAttorneysMakeDecisionsDetails": {
+          "type": "string"
+        },
+        "ReplacementAttorneys": {
+          "$ref": "#/$defs/Attorneys"
+        },
+        "HowReplacementAttorneysMakeDecisions": {
+          "type": "string"
+        },
+        "HowReplacementAttorneysMakeDecisionsDetails": {
+          "type": "string"
+        },
+        "HowShouldReplacementAttorneysStepIn": {
+          "type": "string"
+        },
+        "HowShouldReplacementAttorneysStepInDetails": {
+          "type": "string"
+        },
+        "DoYouWantToNotifyPeople": {
+          "type": "string"
+        },
+        "PeopleToNotify": {
+          "$ref": "#/$defs/PeopleToNotify"
+        },
+        "WitnessCodes": {
+          "$ref": "#/$defs/WitnessCodes"
+        },
+        "WantToApplyForLpa": {
+          "type": "boolean"
+        },
+        "WantToSignLpa": {
+          "type": "boolean"
+        },
+        "Submitted": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "CPWitnessCodeValidated": {
+          "type": "boolean"
+        },
+        "WitnessCodeLimiter": {
+          "$ref": "#/$defs/Limiter"
+        },
+        "CertificateProviderIdentityOption": {
+          "type": "string"
+        },
+        "CertificateProviderIdentityUserData": {
+          "$ref": "#/$defs/UserData"
+        },
+        "CertificateProviderProvidedDetails": {
+          "$ref": "#/$defs/CertificateProvider"
+        },
+        "Certificate": {
+          "$ref": "#/$defs/Certificate"
+        }
+      },
+      "type": "object",
+      "required": [
+        "ID",
+        "UpdatedAt",
+        "Donor",
+        "Attorneys",
+        "CertificateProvider",
+        "WhoFor",
+        "Type",
+        "WantReplacementAttorneys",
+        "WhenCanTheLpaBeUsed",
+        "Restrictions",
+        "Tasks",
+        "Checked",
+        "HappyToShare",
+        "PaymentDetails",
+        "DonorIdentityOption",
+        "DonorIdentityUserData",
+        "HowAttorneysMakeDecisions",
+        "HowAttorneysMakeDecisionsDetails",
+        "ReplacementAttorneys",
+        "HowReplacementAttorneysMakeDecisions",
+        "HowReplacementAttorneysMakeDecisionsDetails",
+        "HowShouldReplacementAttorneysStepIn",
+        "HowShouldReplacementAttorneysStepInDetails",
+        "DoYouWantToNotifyPeople",
+        "PeopleToNotify",
+        "WitnessCodes",
+        "WantToApplyForLpa",
+        "WantToSignLpa",
+        "Submitted",
+        "CPWitnessCodeValidated",
+        "WitnessCodeLimiter",
+        "CertificateProviderIdentityOption",
+        "CertificateProviderIdentityUserData",
+        "CertificateProviderProvidedDetails",
+        "Certificate"
+      ]
+    },
+    "PaymentDetails": {
+      "properties": {
+        "PaymentReference": {
+          "type": "string"
+        },
+        "PaymentId": {
+          "type": "string"
+        }
+      },
+      "type": "object",
+      "required": [
+        "PaymentReference",
+        "PaymentId"
+      ]
+    },
+    "PeopleToNotify": {
+      "items": {
+        "$ref": "#/$defs/PersonToNotify"
+      },
+      "type": "array"
+    },
+    "PersonToNotify": {
+      "properties": {
+        "FirstNames": {
+          "type": "string"
+        },
+        "LastName": {
+          "type": "string"
+        },
+        "Email": {
+          "type": "string"
+        },
+        "Address": {
+          "$ref": "#/$defs/Address"
+        },
+        "ID": {
+          "type": "string"
+        }
+      },
+      "type": "object",
+      "required": [
+        "FirstNames",
+        "LastName",
+        "Email",
+        "Address",
+        "ID"
+      ]
+    },
+    "Tasks": {
+      "properties": {
+        "YourDetails": {
+          "type": "integer"
+        },
+        "ChooseAttorneys": {
+          "type": "integer"
+        },
+        "ChooseReplacementAttorneys": {
+          "type": "integer"
+        },
+        "WhenCanTheLpaBeUsed": {
+          "type": "integer"
+        },
+        "Restrictions": {
+          "type": "integer"
+        },
+        "CertificateProvider": {
+          "type": "integer"
+        },
+        "CheckYourLpa": {
+          "type": "integer"
+        },
+        "PayForLpa": {
+          "type": "integer"
+        },
+        "ConfirmYourIdentityAndSign": {
+          "type": "integer"
+        },
+        "PeopleToNotify": {
+          "type": "integer"
+        }
+      },
+      "type": "object",
+      "required": [
+        "YourDetails",
+        "ChooseAttorneys",
+        "ChooseReplacementAttorneys",
+        "WhenCanTheLpaBeUsed",
+        "Restrictions",
+        "CertificateProvider",
+        "CheckYourLpa",
+        "PayForLpa",
+        "ConfirmYourIdentityAndSign",
+        "PeopleToNotify"
+      ]
+    },
+    "UserData": {
+      "properties": {
+        "OK": {
+          "type": "boolean"
+        },
+        "Provider": {
+          "type": "string"
+        },
+        "FirstNames": {
+          "type": "string"
+        },
+        "LastName": {
+          "type": "string"
+        },
+        "DateOfBirth": {
+          "$ref": "#/$defs/Date"
+        },
+        "RetrievedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "type": "object",
+      "required": [
+        "OK",
+        "Provider",
+        "FirstNames",
+        "LastName",
+        "DateOfBirth",
+        "RetrievedAt"
+      ]
+    },
+    "WitnessCode": {
+      "properties": {
+        "Code": {
+          "type": "string"
+        },
+        "Created": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "type": "object",
+      "required": [
+        "Code",
+        "Created"
+      ]
+    },
+    "WitnessCodes": {
+      "items": {
+        "$ref": "#/$defs/WitnessCode"
+      },
+      "type": "array"
+    }
+  }
+}

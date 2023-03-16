@@ -13,11 +13,11 @@ require (
 	github.com/getyoti/yoti-go-sdk/v3 v3.9.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/gorilla/sessions v1.2.1
+	github.com/invopop/jsonschema v0.7.0
 	github.com/ministryofjustice/opg-go-common v0.0.0-20220816144329-763497f29f90
 	github.com/nicksnyder/go-i18n/v2 v2.2.1
 	github.com/stretchr/testify v1.8.2
 	github.com/vektra/mockery v1.1.2
-	github.com/vektra/mockery/v2 v2.22.1
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.15.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws v0.40.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.40.0
@@ -35,6 +35,7 @@ require (
 require (
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.20.4 // indirect
 	github.com/brunoscheufler/aws-ecs-metadata-go v0.0.0-20220812150832-b6b31c6eeeaf // indirect
+	github.com/iancoleman/orderedmap v0.0.0-20190318233801-ac98e3ecb4b0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

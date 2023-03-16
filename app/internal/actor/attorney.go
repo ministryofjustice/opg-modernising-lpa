@@ -10,12 +10,18 @@ import (
 )
 
 type Attorney struct {
-	ID          string
-	FirstNames  string
-	LastName    string
-	Email       string
+	// The name of the Attorney
+	ID string
+	// The name of the Attorney
+	FirstNames string
+	// The name of the Attorney
+	LastName string
+	// The name of the Attorney
+	Email string
+	// The name of the Attorney
 	DateOfBirth date.Date
-	Address     place.Address
+	// The name of the Attorney
+	Address place.Address
 }
 
 type Attorneys []Attorney

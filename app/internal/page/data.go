@@ -51,13 +51,21 @@ func (t TaskState) String() string {
 	return ""
 }
 
+// The Lpa
 type Lpa struct {
-	ID                                          string
-	UpdatedAt                                   time.Time
-	Donor                                       actor.Donor
-	Attorneys                                   actor.Attorneys
-	CertificateProvider                         actor.CertificateProvider
-	WhoFor                                      string
+	// Identifies the LPA being drafted
+	ID string
+	// Tracking when the Lpa is updated
+	UpdatedAt time.Time
+	// The Donor drafting the Lpa
+	Donor actor.Donor
+	// Attorneys named in the Lpa
+	Attorneys actor.Attorneys
+	// CertificateProvider named in the Lpa
+	CertificateProvider actor.CertificateProvider
+	// Who the Lpa is being drafted for (set, but not used)
+	WhoFor string
+	// Type of LPA being drafted
 	Type                                        string
 	WantReplacementAttorneys                    string
 	WhenCanTheLpaBeUsed                         string
