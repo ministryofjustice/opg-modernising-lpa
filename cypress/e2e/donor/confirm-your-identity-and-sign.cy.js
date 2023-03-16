@@ -34,7 +34,7 @@ describe('Confirm your identity and sign', () => {
         cy.contains('label', 'I do not have either of these types of accounts').click();
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/select-your-identity-options-1');
+        cy.url().should('contain', '/select-identity-document');
         cy.checkA11yApp();
 
         cy.contains('label', 'Your passport').click();

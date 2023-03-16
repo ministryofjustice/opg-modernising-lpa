@@ -275,7 +275,7 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 					Postcode:   "d",
 				},
 			},
-			Errors: validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
+			Errors: validation.With("address-line-1", validation.EnterError{Label: "addressLine1OfYourAddress"}),
 		}).
 		Return(nil)
 
@@ -361,7 +361,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
-			Errors:    validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
+			Errors:    validation.With("select-address", validation.SelectError{Label: "yourAddressFromTheList"}),
 		}).
 		Return(nil)
 
@@ -572,7 +572,7 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 			Form: &form.AddressForm{
 				Action: "lookup",
 			},
-			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
+			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "yourPostcode"}),
 		}).
 		Return(nil)
 

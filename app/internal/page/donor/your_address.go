@@ -37,7 +37,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 
 		if r.Method == http.MethodPost {
 			data.Form = form.ReadAddressForm(r)
-			data.Errors = data.Form.Validate()
+			data.Errors = data.Form.Validate(true)
 
 			if data.Form.Action == "manual" && data.Errors.None() {
 				lpa.Donor.Address = *data.Form.Address
