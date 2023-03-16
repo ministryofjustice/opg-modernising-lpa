@@ -64,6 +64,16 @@ export const AddressFormAssertions = {
         cy.contains('[for=f-lookup-postcode] + .govuk-error-message', 'Enter a postcode');
     },
 
+    assertErrorsWhenYourPostcodeEmpty() {
+        cy.contains('button', 'Find address').click();
+
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Enter your postcode');
+        });
+
+        cy.contains('[for=f-lookup-postcode] + .govuk-error-message', 'Enter your postcode');
+    },
+
     assertErrorsWhenUnselected() {
         cy.get('#f-lookup-postcode').type('NG1');
         cy.contains('button', 'Find address').click();
@@ -75,6 +85,19 @@ export const AddressFormAssertions = {
         });
 
         cy.contains('[for=f-select-address] + .govuk-error-message', 'Select an address from the list');
+    },
+
+    assertErrorsWhenYourAddressUnselected() {
+        cy.get('#f-lookup-postcode').type('NG1');
+        cy.contains('button', 'Find address').click();
+
+        cy.contains('button', 'Continue').click();
+
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Select your address from the list');
+        });
+
+        cy.contains('[for=f-select-address] + .govuk-error-message', 'Select your address from the list');
     },
 
     assertErrorsWhenManualIncorrect(manualAddressLinkText) {
@@ -103,6 +126,32 @@ export const AddressFormAssertions = {
         cy.contains('[for=f-address-line-3] + .govuk-error-message', 'Address line 3 must be 50 characters or less');
     },
 
+    assertErrorsWhenYourManualIncorrect(manualAddressLinkText) {
+        cy.get('#f-lookup-postcode').type('NG1');
+        cy.contains('button', 'Find address').click();
+        cy.contains('a', manualAddressLinkText).click();
+        cy.contains('button', 'Continue').click();
+
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Enter line 1 of your address');
+            cy.contains('Enter your town or city');
+            cy.contains('Enter your postcode');
+        });
+
+        cy.contains('[for=f-address-line-1] + .govuk-error-message', 'Enter line 1 of your address');
+        cy.contains('[for=f-address-town] + .govuk-error-message', 'Enter your town or city');
+        cy.contains('[for=f-address-postcode] + .govuk-error-message', 'Enter your postcode');
+
+        cy.get('#f-address-line-1').invoke('val', 'a'.repeat(51));
+        cy.get('#f-address-line-2').invoke('val', 'b'.repeat(51));
+        cy.get('#f-address-line-3').invoke('val', 'c'.repeat(51));
+        cy.contains('button', 'Continue').click();
+
+        cy.contains('[for=f-address-line-1] + .govuk-error-message', 'Line 1 of your address must be 50 characters or less');
+        cy.contains('[for=f-address-line-2] + .govuk-error-message', 'Line 2 of your address must be 50 characters or less');
+        cy.contains('[for=f-address-line-3] + .govuk-error-message', 'Line 3 of your address must be 50 characters or less');
+    },
+
     assertErrorsWhenInvalidPostcode() {
         cy.get('#f-lookup-postcode').type('INVALID');
         cy.contains('button', 'Find address').click();
@@ -115,6 +164,19 @@ export const AddressFormAssertions = {
     },
 
     assertErrorsWhenValidPostcodeFormatButNoAddressesFound() {
+        const validFormatPostcodeWithNoAddresses = 'NE234EE'
+
+        cy.get('#f-lookup-postcode').type(validFormatPostcodeWithNoAddresses);
+        cy.contains('button', 'Find address').click();
+
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('We could not find any addresses for that postcode. Check the postcode is correct, or enter the address manually.');
+        });
+
+        cy.contains('[for=f-lookup-postcode] + .govuk-error-message', 'We could not find any addresses for that postcode. Check the postcode is correct, or enter the address manually.');
+    },
+    
+    assertErrorsWhenYourValidPostcodeFormatButNoAddressesFound() {
         const validFormatPostcodeWithNoAddresses = 'NE234EE'
 
         cy.get('#f-lookup-postcode').type(validFormatPostcodeWithNoAddresses);

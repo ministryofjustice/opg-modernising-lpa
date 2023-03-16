@@ -22,7 +22,7 @@ describe('Select your identity options', () => {
         cy.contains('label', 'I do not have either of these types of accounts').click();
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/select-your-identity-options-1');
+        cy.url().should('contain', '/select-identity-document');
         cy.checkA11yApp();
 
         cy.contains('label', 'Your passport').click();
@@ -41,13 +41,13 @@ describe('Select your identity options', () => {
         cy.contains('label', 'I do not have either of these types of accounts').click();
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/select-your-identity-options-1');
+        cy.url().should('contain', '/select-identity-document');
         cy.checkA11yApp();
 
-        cy.contains('label', 'I do not have any of these types of identity').click();
+        cy.contains('label', 'I do not have any of these identity documents').click();
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/select-your-identity-options-2');
+        cy.url().should('contain', '/select-identity-document-2');
         cy.checkA11yApp();
 
         cy.contains('label', 'A bank account').click();
