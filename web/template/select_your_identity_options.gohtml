@@ -7,7 +7,13 @@
     {{ tr .App "serviceName" }}
   {{ end }}
 {{ end }}
-{{ define "pageTitle" }}{{ tr .App "selectYourIdentityOptions" }}{{ end }}
+{{ define "pageTitle" }}
+  {{ if eq .Page 0 }}
+    {{ tr .App "selectYourIdentityOptions" }}
+  {{ else }}
+    {{ tr .App "selectWhichDocumentYouWillUse" }}
+  {{ end }}
+{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
@@ -17,7 +23,11 @@
           <fieldset class="govuk-fieldset" aria-describedby="id-hint">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl govuk-!-margin-bottom-6">
               <h1 class="govuk-fieldset__heading">
-                {{ tr .App "selectYourIdentityOptions" }}
+                {{ if eq .Page 0 }}
+                  {{ tr .App "selectYourIdentityOptions" }}
+                {{ else }}
+                  {{ tr .App "selectWhichDocumentYouWillUse" }}
+                {{ end }}
               </h1>
             </legend>
 
