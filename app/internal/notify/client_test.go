@@ -86,14 +86,14 @@ func TestEmailWhenError(t *testing.T) {
 func TestTemplateID(t *testing.T) {
 	production, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil)
 	assert.Equal(t, "95f7b0a2-1c3a-4ad9-818b-b358c549c88b", production.TemplateID(SignatureCodeEmail))
-	assert.Equal(t, "a0997cbf-cfd9-4f01-acb2-f33b07074662", production.TemplateID(SignatureCodeSms))
+	assert.Equal(t, "e39849c0-ecab-4e16-87ec-6b22afb9d535", production.TemplateID(SignatureCodeSms))
 	assert.Equal(t, "45d39d6d-c5f0-48da-a365-3410269dcbac", production.TemplateID(CertificateProviderInviteEmail))
 	assert.Equal(t, "453917cd-d8bb-44af-90a1-d73ae0f3fd07", production.TemplateID(CertificateProviderReturnEmail))
 	assert.Equal(t, "9f8be86f-864a-4cda-a58a-5768522bd325", production.TemplateID(CertificateProviderNameChangeEmail))
 
 	test, _ := New(false, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil)
 	assert.Equal(t, "7e8564a0-2635-4f61-9155-0166ddbe5607", test.TemplateID(SignatureCodeEmail))
-	assert.Equal(t, "0aa5b61c-ef30-410a-8473-915df9d343a5", test.TemplateID(SignatureCodeSms))
+	assert.Equal(t, "dfa15e16-1f23-494a-bffb-a475513df6cc", test.TemplateID(SignatureCodeSms))
 	assert.Equal(t, "7fde634d-96b5-4a82-855a-712ebd56397b", test.TemplateID(CertificateProviderInviteEmail))
 	assert.Equal(t, "7fde634d-96b5-4a82-855a-712ebd56397b", test.TemplateID(CertificateProviderReturnEmail))
 	assert.Equal(t, "0f111ed1-5c58-47eb-a13f-931f2077523b", test.TemplateID(CertificateProviderNameChangeEmail))
