@@ -21,11 +21,21 @@ func (d Donor) FullName() string {
 }
 
 func (d Donor) PossessiveFullName() string {
-	format := "%s %s’s"
+	if d.LastName == "" {
+		format := "%s’s"
 
-	if d.LastName[len(d.LastName)-1:] == "s" {
-		format = "%s %s’"
+		if d.FirstNames[len(d.FirstNames)-1:] == "s" {
+			format = "%s’"
+		}
+
+		return fmt.Sprintf(format, d.FirstNames)
+	} else {
+		format := "%s %s’s"
+
+		if d.LastName[len(d.LastName)-1:] == "s" {
+			format = "%s %s’"
+		}
+
+		return fmt.Sprintf(format, d.FirstNames, d.LastName)
 	}
-
-	return fmt.Sprintf(format, d.FirstNames, d.LastName)
 }

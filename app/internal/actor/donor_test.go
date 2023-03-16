@@ -25,6 +25,14 @@ func TestDonorPossessiveFullName(t *testing.T) {
 			Donor:    Donor{FirstNames: "Bob Alan George", LastName: "Smith Jones"},
 			Expected: "Bob Alan George Smith Jones’",
 		},
+		"no lastname defaults to firstname - not ending in s": {
+			Donor:    Donor{FirstNames: "Bob Alan George"},
+			Expected: "Bob Alan George’s",
+		},
+		"no lastname defaults to firstname - ending in s": {
+			Donor:    Donor{FirstNames: "Bob Alan James"},
+			Expected: "Bob Alan James’",
+		},
 	}
 
 	for name, tc := range testCases {
