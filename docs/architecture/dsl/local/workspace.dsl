@@ -11,18 +11,18 @@ workspace {
         yotiExternalSoftwareSystem = softwareSystem "Yoti" "Used for identity." "Existing System"
         osExternalSoftwareSystem = softwareSystem "Ordanance survey" "Used for identity." "Existing System"
 
-        certificateProvider -> webapp "Uses"
-        donor -> webapp "Uses"
-        attorney -> webapp "Uses"
+        certificateProvider -> makeRegisterSoftwareSystem_webapp "Uses"
+        donor -> makeRegisterSoftwareSystem_webapp "Uses"
+        attorney -> makeRegisterSoftwareSystem_webapp "Uses"
 
-        webapp -> database "Reads from and writes to"
-        webapp -> databaseMonitoringTelemetry "Writes to"
+        makeRegisterSoftwareSystem_webapp -> makeRegisterSoftwareSystem_database "Reads from and writes to"
+        makeRegisterSoftwareSystem_webapp -> makeRegisterSoftwareSystem_databaseMonitoringTelemetry "Writes to"
 
-        webapp -> notifyExternalSoftwareSystem "Sends communication with"
-        webapp -> payExternalSoftwareSystem "Handles payment with"
-        webapp -> oneLoginExternalSoftwareSystem "Authenticates users with"
-        webapp -> yotiExternalSoftwareSystem "Identifies users with"
-        webapp -> osExternalSoftwareSystem "Looks up addressed with"
+        makeRegisterSoftwareSystem_webapp -> notifyExternalSoftwareSystem "Sends communication with"
+        makeRegisterSoftwareSystem_webapp -> payExternalSoftwareSystem "Handles payment with"
+        makeRegisterSoftwareSystem_webapp -> oneLoginExternalSoftwareSystem "Authenticates users with"
+        makeRegisterSoftwareSystem_webapp -> yotiExternalSoftwareSystem "Identifies users with"
+        makeRegisterSoftwareSystem_webapp -> osExternalSoftwareSystem "Looks up addressed with"
     }
 
     views {
