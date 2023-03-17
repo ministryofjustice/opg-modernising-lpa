@@ -17,7 +17,9 @@ import (
 func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string, shareCodeSender shareCodeSender, localizer Localizer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sub := randomString(12)
+
 		sessionID := base64.StdEncoding.EncodeToString([]byte(sub))
+
 		donorSesh := &sesh.DonorSession{Sub: sub, Email: TestEmail}
 
 		_ = sesh.SetDonor(store, r, w, donorSesh)
