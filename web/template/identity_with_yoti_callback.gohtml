@@ -1,12 +1,5 @@
 {{ template "page" . }}
 
-{{ define "serviceName" }}
-  {{ if eq .App.Page .App.Paths.CertificateProviderIdentityWithOneLoginCallback }}
-    {{ tr .App "beACertificateProvider" }}
-  {{ else }}
-    {{ tr .App "serviceName" }}
-  {{ end }}
-{{ end }}
 {{ define "pageTitle" }}
   {{ if .CouldNotConfirm }}
     {{ tr .App "yourIdentityNotConfirmedWithYoti" }}

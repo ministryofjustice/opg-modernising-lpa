@@ -200,7 +200,7 @@ func main() {
 
 	server := &http.Server{
 		Addr:              ":" + port,
-		Handler:           handler,
+		Handler:           page.Recover(tmpls.Get("error-500.gohtml"), logger, bundle, handler),
 		ReadHeaderTimeout: 20 * time.Second,
 	}
 
