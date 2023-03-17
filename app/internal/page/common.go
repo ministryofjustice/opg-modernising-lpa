@@ -20,6 +20,7 @@ type Template func(io.Writer, interface{}) error
 //go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
 type Logger interface {
 	Print(v ...interface{})
+	Request(*http.Request, error)
 }
 
 //go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore

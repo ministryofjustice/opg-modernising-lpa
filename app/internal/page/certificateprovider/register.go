@@ -165,6 +165,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
+			appData.ServiceName = "beACertificateProvider"
 			appData.Page = path
 			appData.CanGoBack = opt&CanGoBack != 0
 
