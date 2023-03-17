@@ -3,6 +3,7 @@ package localize
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
@@ -22,13 +23,18 @@ func NewBundle(paths ...string) Bundle {
 	return Bundle{bundle}
 }
 
-func (b Bundle) For(lang ...string) *Localizer {
-	return &Localizer{i18n.NewLocalizer(b.Bundle, lang...), false}
+func (b Bundle) For(lang Lang) *Localizer {
+	return &Localizer{
+		i18n.NewLocalizer(b.Bundle, lang.String()),
+		false,
+		lang,
+	}
 }
 
 type Localizer struct {
 	*i18n.Localizer
 	showTranslationKeys bool
+	Lang                Lang
 }
 
 func (l Localizer) T(messageID string) string {
@@ -68,4 +74,18 @@ func (l Localizer) ShowTranslationKeys() bool {
 
 func (l *Localizer) SetShowTranslationKeys(s bool) {
 	l.showTranslationKeys = s
+}
+
+func (l *Localizer) Possessive(s string) string {
+	if l.Lang == Cy {
+		return "Welsh"
+	}
+
+	format := "%s’s"
+
+	if strings.HasSuffix(s, "s") {
+		format = "%s’"
+	}
+
+	return fmt.Sprintf(format, s)
 }

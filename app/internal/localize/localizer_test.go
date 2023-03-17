@@ -10,7 +10,7 @@ func TestNewBundle(t *testing.T) {
 	assert := assert.New(t)
 	bundle := NewBundle("testdata/en.json", "testdata/cy.json")
 
-	en := bundle.For("en")
+	en := bundle.For(En)
 	assert.Equal("A", en.T("a"))
 	assert.Equal("key does not exist", en.T("key does not exist"))
 
@@ -22,7 +22,7 @@ func TestNewBundle(t *testing.T) {
 	assert.Equal("1 ONE FORMATTED", en.FormatCount("d", 1, map[string]interface{}{"x": "FORMATTED"}))
 	assert.Equal("2 OTHER FORMATTED", en.FormatCount("d", 2, map[string]interface{}{"x": "FORMATTED"}))
 
-	cy := bundle.For("cy")
+	cy := bundle.For(Cy)
 	assert.Equal("C", cy.T("a"))
 
 	assert.Equal("C person", cy.Format("af", map[string]interface{}{"x": "person"}))
@@ -48,7 +48,7 @@ func TestNewBundleWithTransKeys(t *testing.T) {
 	assert := assert.New(t)
 	bundle := NewBundle("testdata/en.json", "testdata/cy.json")
 
-	en := bundle.For("en")
+	en := bundle.For(En)
 	en.SetShowTranslationKeys(true)
 
 	assert.Equal("{A} [a]", en.T("a"))
@@ -62,7 +62,7 @@ func TestNewBundleWithTransKeys(t *testing.T) {
 	assert.Equal("{1 ONE FORMATTED} [d]", en.FormatCount("d", 1, map[string]interface{}{"x": "FORMATTED"}))
 	assert.Equal("{2 OTHER FORMATTED} [d]", en.FormatCount("d", 2, map[string]interface{}{"x": "FORMATTED"}))
 
-	cy := bundle.For("cy")
+	cy := bundle.For(Cy)
 	cy.SetShowTranslationKeys(true)
 
 	assert.Equal("{C} [a]", cy.T("a"))
@@ -89,4 +89,31 @@ func TestNewBundleWithTransKeys(t *testing.T) {
 func TestShowTranslationKey(t *testing.T) {
 	localizer := Localizer{showTranslationKeys: true}
 	assert.True(t, localizer.ShowTranslationKeys())
+}
+
+func TestPossessive(t *testing.T) {
+	en := Localizer{Lang: En}
+	cy := Localizer{Lang: Cy}
+
+	testCases := map[string]struct {
+		Str      string
+		Lang     Lang
+		Expected string
+	}{
+		"En - not ending in s": {
+			Str:      "a",
+			Expected: "a’s",
+		},
+		"En - ending in s": {
+			Str:      "s",
+			Expected: "s’",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.Expected, en.Possessive(tc.Str))
+			assert.Equal(t, "Welsh", cy.Possessive(tc.Str))
+		})
+	}
 }

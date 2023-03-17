@@ -51,6 +51,20 @@ func (_m *mockLocalizer) FormatCount(messageID string, count int, data map[strin
 	return r0
 }
 
+// Possessive provides a mock function with given fields: s
+func (_m *mockLocalizer) Possessive(s string) string {
+	ret := _m.Called(s)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string) string); ok {
+		r0 = rf(s)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
 // SetShowTranslationKeys provides a mock function with given fields: s
 func (_m *mockLocalizer) SetShowTranslationKeys(s bool) {
 	_m.Called(s)

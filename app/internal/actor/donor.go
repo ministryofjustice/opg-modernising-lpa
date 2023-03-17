@@ -16,6 +16,6 @@ type Donor struct {
 	Address     place.Address
 }
 
-func (p Donor) FullName() string {
-	return fmt.Sprintf("%s %s", p.FirstNames, p.LastName)
+func (d Donor) FullName() string {
+	return fmt.Sprintf("%s %s", d.FirstNames, d.LastName)
 }

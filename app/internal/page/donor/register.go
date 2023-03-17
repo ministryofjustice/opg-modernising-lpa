@@ -85,7 +85,7 @@ type SessionStore interface {
 
 //go:generate mockery --testonly --inpackage --name WitnessCodeSender --structname mockWitnessCodeSender
 type WitnessCodeSender interface {
-	Send(context.Context, *page.Lpa) error
+	Send(context.Context, *page.Lpa, page.Localizer) error
 }
 
 func Register(
