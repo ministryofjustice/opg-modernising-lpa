@@ -19,6 +19,5 @@ The local folder contains Diagrams as Code that can be run with the following co
 
 ### To export Mermaid files
 
-- Ensure you have installed `brew install structurizr-cli`
 - Run `make run-structurizr-export`
 - Commit and save the exported `.mmd` files
