@@ -46,10 +46,11 @@ func TestMakeHandle(t *testing.T) {
 	handle := makeHandle(mux, sessionStore, nil)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
-			Page:      "/path",
-			SessionID: "session-id",
-			LpaID:     "lpa-id",
-			CanGoBack: false,
+			ServiceName: "beACertificateProvider",
+			Page:        "/path",
+			SessionID:   "session-id",
+			LpaID:       "lpa-id",
+			CanGoBack:   false,
 		}, appData)
 		assert.Equal(t, w, hw)
 
@@ -78,10 +79,11 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 	handle := makeHandle(mux, sessionStore, nil)
 	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
-			Page:      "/path",
-			SessionID: "session-id",
-			CanGoBack: true,
-			LpaID:     "lpa-id",
+			ServiceName: "beACertificateProvider",
+			Page:        "/path",
+			SessionID:   "session-id",
+			CanGoBack:   true,
+			LpaID:       "lpa-id",
 		}, appData)
 		assert.Equal(t, w, hw)
 		assert.Equal(t, &page.SessionData{LpaID: "lpa-id", SessionID: "session-id"}, page.SessionDataFromContext(hr.Context()))
@@ -160,10 +162,11 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	handle := makeHandle(mux, nil, nil)
 	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
-			Page: "/path",
+			ServiceName: "beACertificateProvider",
+			Page:        "/path",
 		}, appData)
 		assert.Equal(t, w, hw)
-		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{Page: "/path"})), hr)
+		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{ServiceName: "beACertificateProvider", Page: "/path"})), hr)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
