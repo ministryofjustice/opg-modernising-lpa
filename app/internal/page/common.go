@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -67,6 +69,7 @@ type Localizer interface {
 	FormatCount(messageID string, count int, data map[string]interface{}) string
 	ShowTranslationKeys() bool
 	SetShowTranslationKeys(s bool)
+	Possessive(s string, lang localize.Lang) string
 }
 
 //go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
