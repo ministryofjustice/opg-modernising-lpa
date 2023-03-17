@@ -361,7 +361,7 @@
     "aBankAccountHint": "We will not access any details from your bank account apart from your name, address and date of birth",
     "iDoNotHaveEitherOfTheseAccounts": "I do not have either of these types of accounts",
     "iDoNotHaveAnyOfTheseTypesOfIdentity": "I do not have any of these identity documents",
-    "weWillAdviseOnOtherWays": "We will advise on other ways you can confirm your identity",
+    "weWillAdviseOnOtherWays": "We will advise on other ways you can confirm your identity.",
     "fromTheListedOptions": "from the listed options",
     "whichDocumentYouWillUse": "which document you will use to confirm your identity",
 

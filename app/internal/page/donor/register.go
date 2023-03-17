@@ -269,6 +269,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, 
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
+			appData.ServiceName = "serviceName"
 			appData.Page = path
 			appData.CanGoBack = opt&CanGoBack != 0
 			appData.IsDonor = true

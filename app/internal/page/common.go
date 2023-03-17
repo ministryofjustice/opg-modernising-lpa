@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 )
@@ -22,6 +23,7 @@ type Template func(io.Writer, interface{}) error
 //go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
 type Logger interface {
 	Print(v ...interface{})
+	Request(*http.Request, error)
 }
 
 //go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
@@ -59,6 +61,11 @@ type SessionStore interface {
 	Get(r *http.Request, name string) (*sessions.Session, error)
 	New(r *http.Request, name string) (*sessions.Session, error)
 	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
+}
+
+//go:generate mockery --testonly --inpackage --name Bundle --structname mockBundle
+type Bundle interface {
+	For(...string) *localize.Localizer
 }
 
 //go:generate mockery --testonly --inpackage --name Localizer --structname mockLocalizer
