@@ -42,30 +42,54 @@ func ReadAddressForm(r *http.Request) *AddressForm {
 	return f
 }
 
-func (f *AddressForm) Validate() validation.List {
+func (f *AddressForm) Validate(useYour bool) validation.List {
 	var errors validation.List
 
 	switch f.Action {
 	case "lookup":
-		errors.String("lookup-postcode", "aPostcode", f.LookupPostcode,
-			validation.Empty())
+		if useYour {
+			errors.String("lookup-postcode", "yourPostcode", f.LookupPostcode,
+				validation.Empty())
+		} else {
+			errors.String("lookup-postcode", "aPostcode", f.LookupPostcode,
+				validation.Empty())
+		}
 
 	case "select":
-		errors.Address("select-address", "anAddressFromTheList", f.Address,
-			validation.Selected())
+		if useYour {
+			errors.Address("select-address", "yourAddressFromTheList", f.Address,
+				validation.Selected())
+		} else {
+			errors.Address("select-address", "anAddressFromTheList", f.Address,
+				validation.Selected())
+		}
 
 	case "manual":
-		errors.String("address-line-1", "addressLine1", f.Address.Line1,
-			validation.Empty(),
-			validation.StringTooLong(50))
-		errors.String("address-line-2", "addressLine2Label", f.Address.Line2,
-			validation.StringTooLong(50))
-		errors.String("address-line-3", "addressLine3Label", f.Address.Line3,
-			validation.StringTooLong(50))
-		errors.String("address-town", "townOrCity", f.Address.TownOrCity,
-			validation.Empty())
-		errors.String("address-postcode", "aPostcode", f.Address.Postcode,
-			validation.Empty())
+		if useYour {
+			errors.String("address-line-1", "addressLine1OfYourAddress", f.Address.Line1,
+				validation.Empty(),
+				validation.StringTooLong(50))
+			errors.String("address-line-2", "addressLine2OfYourAddress", f.Address.Line2,
+				validation.StringTooLong(50))
+			errors.String("address-line-3", "addressLine3OfYourAddress", f.Address.Line3,
+				validation.StringTooLong(50))
+			errors.String("address-town", "yourTownOrCity", f.Address.TownOrCity,
+				validation.Empty())
+			errors.String("address-postcode", "yourPostcode", f.Address.Postcode,
+				validation.Empty())
+		} else {
+			errors.String("address-line-1", "addressLine1", f.Address.Line1,
+				validation.Empty(),
+				validation.StringTooLong(50))
+			errors.String("address-line-2", "addressLine2Label", f.Address.Line2,
+				validation.StringTooLong(50))
+			errors.String("address-line-3", "addressLine3Label", f.Address.Line3,
+				validation.StringTooLong(50))
+			errors.String("address-town", "townOrCity", f.Address.TownOrCity,
+				validation.Empty())
+			errors.String("address-postcode", "aPostcode", f.Address.Postcode,
+				validation.Empty())
+		}
 	}
 
 	return errors

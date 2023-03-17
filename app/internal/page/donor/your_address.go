@@ -37,7 +37,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 
 		if r.Method == http.MethodPost {
 			data.Form = form.ReadAddressForm(r)
-			data.Errors = data.Form.Validate()
+			data.Errors = data.Form.Validate(true)
 
 			if data.Form.Action == "manual" && data.Errors.None() {
 				lpa.Donor.Address = *data.Form.Address
@@ -64,7 +64,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 						data.Errors.Add("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"})
 					}
 				} else if len(addresses) == 0 {
-					data.Errors.Add("lookup-postcode", validation.CustomError{Label: "noAddressesFound"})
+					data.Errors.Add("lookup-postcode", validation.CustomError{Label: "noYourAddressesFound"})
 				}
 
 				data.Addresses = addresses
