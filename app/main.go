@@ -192,6 +192,7 @@ func main() {
 	mux.Handle(page.Paths.CookiesConsent, page.CookieConsent(page.Paths))
 	mux.Handle("/cy/", http.StripPrefix("/cy", app.App(logger, bundle.For("cy"), localize.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient)))
 	mux.Handle("/", app.App(logger, bundle.For("en"), localize.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient))
+	mux.Handle("/schema", Schema())
 
 	var handler http.Handler = mux
 	if xrayEnabled {

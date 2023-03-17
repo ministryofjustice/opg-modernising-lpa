@@ -83,6 +83,7 @@ type AppPaths struct {
 	ResendWitnessCode                                       string
 	Restrictions                                            string
 	Root                                                    string
+	Schema                                                  string
 	SelectYourIdentityOptions                               string
 	SelectYourIdentityOptions1                              string
 	SelectYourIdentityOptions2                              string
@@ -181,6 +182,7 @@ var Paths = AppPaths{
 	ResendWitnessCode:                                    "/resend-witness-code",
 	Restrictions:                                         "/restrictions",
 	Root:                                                 "/",
+	Schema:                                               "/schema",
 	SelectYourIdentityOptions1:                           "/select-identity-document",
 	SelectYourIdentityOptions2:                           "/select-identity-document-2",
 	SelectYourIdentityOptions:                            "/select-your-identity-options",
