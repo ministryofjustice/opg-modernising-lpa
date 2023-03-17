@@ -32,7 +32,7 @@ func Recover(tmpl template.Template, logger Logger, bundle Bundle, next http.Han
 				} else {
 					appData.Lang = localize.En
 				}
-				appData.Localizer = bundle.For(appData.Lang.String())
+				appData.Localizer = bundle.For(appData.Lang)
 
 				if terr := tmpl(w, &errorData{App: appData}); terr != nil {
 					logger.Print(fmt.Sprintf("Error rendering page: %s", terr.Error()))

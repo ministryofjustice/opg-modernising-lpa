@@ -31,7 +31,7 @@ func ResendWitnessCode(tmpl template.Template, lpaStore LpaStore, witnessCodeSen
 				return tmpl(w, data)
 			}
 
-			if err := witnessCodeSender.Send(r.Context(), lpa); err != nil {
+			if err := witnessCodeSender.Send(r.Context(), lpa, appData.Localizer); err != nil {
 				return err
 			}
 

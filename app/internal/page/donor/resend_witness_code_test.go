@@ -92,7 +92,7 @@ func TestPostResendWitnessCode(t *testing.T) {
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
 	witnessCodeSender.
-		On("Send", r.Context(), lpa).
+		On("Send", r.Context(), lpa, mock.Anything).
 		Return(nil)
 
 	err := ResendWitnessCode(nil, lpaStore, witnessCodeSender, time.Now)(testAppData, w, r)
@@ -117,7 +117,7 @@ func TestPostResendWitnessCodeWhenSendErrors(t *testing.T) {
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
 	witnessCodeSender.
-		On("Send", r.Context(), lpa).
+		On("Send", r.Context(), lpa, mock.Anything).
 		Return(expectedError)
 
 	err := ResendWitnessCode(nil, lpaStore, witnessCodeSender, time.Now)(testAppData, w, r)

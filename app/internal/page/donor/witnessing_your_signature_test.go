@@ -89,7 +89,7 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
 	witnessCodeSender.
-		On("Send", r.Context(), lpa).
+		On("Send", r.Context(), lpa, mock.Anything).
 		Return(nil)
 
 	err := WitnessingYourSignature(nil, lpaStore, witnessCodeSender)(testAppData, w, r)
@@ -113,7 +113,7 @@ func TestPostWitnessingYourSignatureWhenWitnessCodeSenderErrors(t *testing.T) {
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
 	witnessCodeSender.
-		On("Send", mock.Anything, mock.Anything).
+		On("Send", mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := WitnessingYourSignature(nil, lpaStore, witnessCodeSender)(testAppData, w, r)

@@ -153,7 +153,7 @@ func TestContains(t *testing.T) {
 
 func TestTr(t *testing.T) {
 	app := page.AppData{
-		Localizer: localize.NewBundle("testdata/en.json").For("en"),
+		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
 	}
 
 	assert.Equal(t, "hi", tr(app, "message-id"))
@@ -162,7 +162,7 @@ func TestTr(t *testing.T) {
 
 func TestTrFormat(t *testing.T) {
 	app := page.AppData{
-		Localizer: localize.NewBundle("testdata/en.json").For("en"),
+		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
 	}
 
 	assert.Equal(t, "hi Person", trFormat(app, "with-format", "name", "Person"))
@@ -171,7 +171,7 @@ func TestTrFormat(t *testing.T) {
 
 func TestTrHtml(t *testing.T) {
 	app := page.AppData{
-		Localizer: localize.NewBundle("testdata/en.json").For("en"),
+		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
 	}
 
 	assert.Equal(t, template.HTML("hi"), trHtml(app, "message-id"))
@@ -180,7 +180,7 @@ func TestTrHtml(t *testing.T) {
 
 func TestTrFormatHtml(t *testing.T) {
 	app := page.AppData{
-		Localizer: localize.NewBundle("testdata/en.json").For("en"),
+		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
 	}
 
 	assert.Equal(t, template.HTML("hi Person"), trFormatHtml(app, "with-format", "name", "Person"))
@@ -189,7 +189,7 @@ func TestTrFormatHtml(t *testing.T) {
 
 func TestTrCount(t *testing.T) {
 	enApp := page.AppData{
-		Localizer: localize.NewBundle("testdata/en.json").For("en"),
+		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
 	}
 
 	assert.Equal(t, "hi one", trCount(enApp, "with-count", 1))
@@ -197,7 +197,7 @@ func TestTrCount(t *testing.T) {
 	assert.Equal(t, "", trCount(enApp, "", 2))
 
 	cyApp := page.AppData{
-		Localizer: localize.NewBundle("testdata/cy.json").For("cy"),
+		Localizer: localize.NewBundle("testdata/cy.json").For(localize.Cy),
 	}
 
 	assert.Equal(t, "cy one", trCount(cyApp, "with-count", 1))
@@ -212,7 +212,7 @@ func TestTrCount(t *testing.T) {
 
 func TestTrFormatCount(t *testing.T) {
 	enApp := page.AppData{
-		Localizer: localize.NewBundle("testdata/en.json").For("en"),
+		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
 	}
 
 	assert.Equal(t, "hi 1 one Person", trFormatCount(enApp, "with-format-count", 1, "name", "Person"))
@@ -220,7 +220,7 @@ func TestTrFormatCount(t *testing.T) {
 	assert.Equal(t, "", trFormatCount(enApp, "", 2, "name", "Person"))
 
 	cyApp := page.AppData{
-		Localizer: localize.NewBundle("testdata/cy.json").For("cy"),
+		Localizer: localize.NewBundle("testdata/cy.json").For(localize.Cy),
 	}
 
 	assert.Equal(t, "cy hi 1 one Person", trFormatCount(cyApp, "with-format-count", 1, "name", "Person"))

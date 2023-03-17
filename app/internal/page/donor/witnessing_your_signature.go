@@ -22,7 +22,7 @@ func WitnessingYourSignature(tmpl template.Template, lpaStore LpaStore, witnessC
 		}
 
 		if r.Method == http.MethodPost {
-			if err := witnessCodeSender.Send(r.Context(), lpa); err != nil {
+			if err := witnessCodeSender.Send(r.Context(), lpa, appData.Localizer); err != nil {
 				return err
 			}
 

@@ -47,7 +47,7 @@ func TestRecover(t *testing.T) {
 
 			bundle := newMockBundle(t)
 			bundle.
-				On("For", lang.String()).
+				On("For", lang).
 				Return(nil)
 
 			Recover(template.Execute, logger, bundle, badHandler).ServeHTTP(w, r)
