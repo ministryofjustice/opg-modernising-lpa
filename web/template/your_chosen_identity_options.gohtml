@@ -1,12 +1,5 @@
 {{ template "page" . }}
 
-{{ define "serviceName" }}
-  {{ if eq .App.Page .App.Paths.CertificateProviderYourChosenIdentityOptions }}
-    {{ tr .App "beACertificateProvider" }}
-  {{ else }}
-    {{ tr .App "serviceName" }}
-  {{ end }}
-{{ end }}
 {{ define "pageTitle" }}{{ tr .App "yourChosenIdentityOptions" }}{{ end }}
 
 {{ define "main" }}
