@@ -1,6 +1,5 @@
 {{ template "page" . }}
 
-{{ define "serviceName" }}{{ tr .App "beACertificateProvider" }}{{ end }}
 {{ define "pageTitle" }}{{ trFormat .App "readDonorNameLpa" "DonorFullName" .Lpa.Donor.FullName }}{{ end }}
 
 {{ define "main" }}

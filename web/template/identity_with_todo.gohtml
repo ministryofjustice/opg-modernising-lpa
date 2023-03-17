@@ -1,12 +1,5 @@
 {{ template "page" . }}
 
-{{ define "serviceName" }}
-  {{ if eq .App.Page .App.Paths.CertificateProviderIdentityWithPassport .App.Paths.CertificateProviderIdentityWithBiometricResidencePermit .App.Paths.CertificateProviderIdentityWithDrivingLicencePaper .App.Paths.CertificateProviderIdentityWithDrivingLicencePhotocard .App.Paths.CertificateProviderIdentityWithOnlineBankAccount }}
-    {{ tr .App "beACertificateProvider" }}
-  {{ else }}
-    {{ tr .App "serviceName" }}
-  {{ end }}
-{{ end }}
 {{ define "pageTitle" }}Identity was (not) confirmed with {{.IdentityOption}}{{ end }}
 
 {{ define "main" }}
