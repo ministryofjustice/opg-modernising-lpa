@@ -11,13 +11,6 @@ workspace {
         yotiExternalSoftwareSystem = softwareSystem "Yoti" "Used for identity." "Existing System"
         osExternalSoftwareSystem = softwareSystem "Ordanance survey" "Used for identity." "Existing System"
 
-        certificateProvider -> makeRegisterSoftwareSystem_webapp "Uses"
-        donor -> makeRegisterSoftwareSystem_webapp "Uses"
-        attorney -> makeRegisterSoftwareSystem_webapp "Uses"
-
-        makeRegisterSoftwareSystem_webapp -> makeRegisterSoftwareSystem_database "Reads from and writes to"
-        makeRegisterSoftwareSystem_webapp -> makeRegisterSoftwareSystem_databaseMonitoringTelemetry "Writes to"
-
         makeRegisterSoftwareSystem_webapp -> notifyExternalSoftwareSystem "Sends communication with"
         makeRegisterSoftwareSystem_webapp -> payExternalSoftwareSystem "Handles payment with"
         makeRegisterSoftwareSystem_webapp -> oneLoginExternalSoftwareSystem "Authenticates users with"
