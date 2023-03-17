@@ -15,11 +15,11 @@ type mockWitnessCodeSender struct {
 }
 
 // Send provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockWitnessCodeSender) Send(_a0 context.Context, _a1 *page.Lpa, _a2 page.AppData) error {
+func (_m *mockWitnessCodeSender) Send(_a0 context.Context, _a1 *page.Lpa, _a2 page.Localizer) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *page.Lpa, page.AppData) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *page.Lpa, page.Localizer) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)

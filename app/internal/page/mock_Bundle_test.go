@@ -12,19 +12,13 @@ type mockBundle struct {
 	mock.Mock
 }
 
-// For provides a mock function with given fields: _a0
-func (_m *mockBundle) For(_a0 ...string) *localize.Localizer {
-	_va := make([]interface{}, len(_a0))
-	for _i := range _a0 {
-		_va[_i] = _a0[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
+// For provides a mock function with given fields: lang
+func (_m *mockBundle) For(lang localize.Lang) *localize.Localizer {
+	ret := _m.Called(lang)
 
 	var r0 *localize.Localizer
-	if rf, ok := ret.Get(0).(func(...string) *localize.Localizer); ok {
-		r0 = rf(_a0...)
+	if rf, ok := ret.Get(0).(func(localize.Lang) *localize.Localizer); ok {
+		r0 = rf(lang)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*localize.Localizer)

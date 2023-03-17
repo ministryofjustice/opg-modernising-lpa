@@ -5,8 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/stretchr/testify/assert"
@@ -48,10 +46,8 @@ func TestWitnessCodeSenderSend(t *testing.T) {
 		On("T", "pfaLegalTerm").
 		Return("property and affairs")
 	localizer.
-		On("Possessive", "Joe Jones", localize.En).
+		On("Possessive", "Joe Jones").
 		Return("Joe Jones’")
-
-	appData := AppData{Localizer: localizer}
 
 	sender := &WitnessCodeSender{
 		lpaStore:     lpaStore,
@@ -63,7 +59,7 @@ func TestWitnessCodeSenderSend(t *testing.T) {
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
 		Type:                LpaTypePropertyFinance,
-	}, appData)
+	}, localizer)
 
 	assert.Nil(t, err)
 }
@@ -82,10 +78,8 @@ func TestWitnessCodeSenderSendWhenNotifyClientErrors(t *testing.T) {
 		On("T", "pfaLegalTerm").
 		Return("property and affairs")
 	localizer.
-		On("Possessive", "Joe Jones", localize.En).
+		On("Possessive", "Joe Jones").
 		Return("Joe Jones’")
-
-	appData := AppData{Localizer: localizer}
 
 	sender := &WitnessCodeSender{
 		notifyClient: notifyClient,
@@ -96,7 +90,7 @@ func TestWitnessCodeSenderSendWhenNotifyClientErrors(t *testing.T) {
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		Type:                LpaTypePropertyFinance,
-	}, appData)
+	}, localizer)
 
 	assert.Equal(t, ExpectedError, err)
 }
@@ -120,10 +114,8 @@ func TestWitnessCodeSenderSendWhenLpaStoreErrors(t *testing.T) {
 		On("T", "pfaLegalTerm").
 		Return("property and affairs")
 	localizer.
-		On("Possessive", "Joe Jones", localize.En).
+		On("Possessive", "Joe Jones").
 		Return("Joe Jones’")
-
-	appData := AppData{Localizer: localizer}
 
 	sender := &WitnessCodeSender{
 		lpaStore:     lpaStore,
@@ -135,7 +127,7 @@ func TestWitnessCodeSenderSendWhenLpaStoreErrors(t *testing.T) {
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		Type:                LpaTypePropertyFinance,
-	}, appData)
+	}, localizer)
 
 	assert.Equal(t, ExpectedError, err)
 }

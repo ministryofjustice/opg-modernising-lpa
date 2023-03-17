@@ -10,7 +10,6 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 )
@@ -65,7 +64,7 @@ type SessionStore interface {
 
 //go:generate mockery --testonly --inpackage --name Bundle --structname mockBundle
 type Bundle interface {
-	For(...string) *localize.Localizer
+	For(lang localize.Lang) *localize.Localizer
 }
 
 //go:generate mockery --testonly --inpackage --name Localizer --structname mockLocalizer
@@ -76,7 +75,7 @@ type Localizer interface {
 	FormatCount(messageID string, count int, data map[string]interface{}) string
 	ShowTranslationKeys() bool
 	SetShowTranslationKeys(s bool)
-	Possessive(s string, lang localize.Lang) string
+	Possessive(s string) string
 }
 
 //go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
