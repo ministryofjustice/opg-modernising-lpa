@@ -90,3 +90,40 @@ func TestShowTranslationKey(t *testing.T) {
 	localizer := Localizer{showTranslationKeys: true}
 	assert.True(t, localizer.ShowTranslationKeys())
 }
+
+func TestPossessive(t *testing.T) {
+	localizer := Localizer{}
+
+	testCases := map[string]struct {
+		Str      string
+		Lang     Lang
+		Expected string
+	}{
+		"En - not ending in s": {
+			Str:      "a",
+			Lang:     En,
+			Expected: "a’s",
+		},
+		"En - ending in s": {
+			Str:      "s",
+			Lang:     En,
+			Expected: "s’",
+		},
+		"Cy - not ending in s": {
+			Str:      "a",
+			Lang:     Cy,
+			Expected: "Welsh",
+		},
+		"Cy - ending in s": {
+			Str:      "s",
+			Lang:     Cy,
+			Expected: "Welsh",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.Expected, localizer.Possessive(tc.Str, tc.Lang))
+		})
+	}
+}

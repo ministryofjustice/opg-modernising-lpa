@@ -3,6 +3,7 @@ package localize
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
@@ -68,4 +69,18 @@ func (l Localizer) ShowTranslationKeys() bool {
 
 func (l *Localizer) SetShowTranslationKeys(s bool) {
 	l.showTranslationKeys = s
+}
+
+func (l *Localizer) Possessive(s string, lang Lang) string {
+	if lang == Cy {
+		return "Welsh"
+	}
+
+	format := "%s’s"
+
+	if strings.HasSuffix(s, "s") {
+		format = "%s’"
+	}
+
+	return fmt.Sprintf(format, s)
 }

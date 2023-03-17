@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/stretchr/testify/assert"
@@ -45,6 +47,9 @@ func TestWitnessCodeSenderSend(t *testing.T) {
 	localizer.
 		On("T", "pfaLegalTerm").
 		Return("property and affairs")
+	localizer.
+		On("Possessive", "Joe Jones", localize.En).
+		Return("Joe Jones’")
 
 	appData := AppData{Localizer: localizer}
 
@@ -76,6 +81,9 @@ func TestWitnessCodeSenderSendWhenNotifyClientErrors(t *testing.T) {
 	localizer.
 		On("T", "pfaLegalTerm").
 		Return("property and affairs")
+	localizer.
+		On("Possessive", "Joe Jones", localize.En).
+		Return("Joe Jones’")
 
 	appData := AppData{Localizer: localizer}
 
@@ -111,6 +119,9 @@ func TestWitnessCodeSenderSendWhenLpaStoreErrors(t *testing.T) {
 	localizer.
 		On("T", "pfaLegalTerm").
 		Return("property and affairs")
+	localizer.
+		On("Possessive", "Joe Jones", localize.En).
+		Return("Joe Jones’")
 
 	appData := AppData{Localizer: localizer}
 

@@ -39,7 +39,7 @@ func (s *WitnessCodeSender) Send(ctx context.Context, lpa *Lpa, appData AppData)
 		TemplateID:  s.notifyClient.TemplateID(notify.SignatureCodeSms),
 		Personalisation: map[string]string{
 			"WitnessCode":   code,
-			"DonorFullName": lpa.Donor.PossessiveFullName(),
+			"DonorFullName": appData.Localizer.Possessive(lpa.Donor.FullName(), appData.Lang),
 			"LpaType":       appData.Localizer.T(lpa.TypeLegalTermTransKey()),
 		},
 	})
