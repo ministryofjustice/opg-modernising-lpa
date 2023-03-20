@@ -10,7 +10,7 @@ describe('Enter reference number', () => {
         cy.contains('Continue').click();
 
         if (Cypress.config().baseUrl.includes('localhost')) {
-            cy.url().should('contain', '/certificate-provider-check-your-name')
+            cy.url().should('contain', '/certificate-provider-who-is-eligible')
         } else {
             cy.origin('https://signin.integration.account.gov.uk', () => {
                 cy.url().should('contain', '/')

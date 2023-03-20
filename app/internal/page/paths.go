@@ -35,6 +35,7 @@ type AppPaths struct {
 	CertificateProviderStart                                string
 	CertificateProviderWhatHappensNext                      string
 	CertificateProviderWhatYoullNeedToConfirmYourIdentity   string
+	CertificateProviderWhoIsEligible                        string
 	CertificateProviderYourAddress                          string
 	CertificateProviderYourChosenIdentityOptions            string
 	CheckYourLpa                                            string
@@ -133,6 +134,7 @@ var Paths = AppPaths{
 	CertificateProviderStart:                                "/certificate-provider-start",
 	CertificateProviderWhatHappensNext:                      "/certificate-provider-what-happens-next",
 	CertificateProviderWhatYoullNeedToConfirmYourIdentity:   "/certificate-provider-what-youll-need-to-confirm-your-identity",
+	CertificateProviderWhoIsEligible:                        "/certificate-provider-who-is-eligible",
 	CertificateProviderYourAddress:                          "/certificate-provider-your-address",
 	CertificateProviderYourChosenIdentityOptions:            "/certificate-provider-your-chosen-identity-options",
 	CheckYourLpa:                                         "/check-your-lpa",
@@ -233,6 +235,7 @@ func IsLpaPath(url string) bool {
 		Paths.CertificateProviderYourChosenIdentityOptions,
 		Paths.CertificateProviderEnterDateOfBirth,
 		Paths.CertificateProviderEnterMobileNumber,
+		Paths.CertificateProviderWhoIsEligible,
 		Paths.Dashboard,
 		Paths.Login,
 		Paths.LoginCallback,

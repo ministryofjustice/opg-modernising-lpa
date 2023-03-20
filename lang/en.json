@@ -101,7 +101,7 @@
     "yourAddressFromTheList": "your address from the list",
     "noAddressesFound": "We could not find any addresses for that postcode. Check the postcode is correct, or enter the address manually.",
     "noYourAddressesFound": "We could not find any addresses for that postcode. Check your postcode is correct, or enter your address manually.",
-    
+
     "whoIsThisLpaFor": "Who is this LPA for?",
     "whoTheLpaIsFor": "who the LPA is for",
     "forMe": "For me",
@@ -570,5 +570,13 @@
     "enterYourUkMobile": "Enter your UK mobile number",
     "enterYourUkMobileContext": "We need your mobile number so we can send you a code to use when you witness the donor signing their LPA.",
     "enterYourUkMobileHint": "For example, 07700 900 982 or +44 7700 900 982",
-    "youAreUnder18Error": "You’ve entered a date of birth that means you are under 18, you must be 18 to be a certificate provider"
+    "youAreUnder18Error": "You’ve entered a date of birth that means you are under 18, you must be 18 to be a certificate provider",
+
+    "success": "Success",
+    "weHaveIdentifiedYourCertificateProviderReferenceNumber": "We have identified your certificate provider reference number",
+    "whoIsEligibleToBeCertificateProvider": "Who is eligible to be a certificate provider",
+    "whoIsEligibleToBeCertificateProviderContent": "<p class=\"govuk-body\">Before you continue, it’s important to check that you can be a certificate provider.</p><p class=\"govuk-body\">To be {{ .DonorFullNamePossessive }} certificate provider, you must <span class=\"govuk-!-font-weight-bold\">either</span>:</p><ul class=\"govuk-list govuk-list--bullet\"> <li>have known the donor, {{ .DonorFirstName }}, personally for at least 2 years (for example, as a friend or neighbour)</li> <li><span class=\"govuk-!-font-weight-bold\">or</span> be someone with the relevant professional skills to make sure the donor understands their LPA and wants to make it</li></ul>",
+    "whoCannotBeCertificateProvider": "Who cannot be a certificate provider",
+    "whoCannotBeCertificateProviderContent": "<p class=\"govuk-body\">You cannot be the certificate provider for this LPA if you are:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>under 18 years old</li> <li>an attorney or replacement attorney named in this LPA (or in any other LPA or enduring power of attorney for {{ .DonorFirstName }})</li> <li>an attorney on a revoked LPA for {{ .DonorFirstName }}</li> <li>related to {{ .DonorFirstName }} or of one of their attorneys (this includes step-relations, in-laws, husbands, wives, partners, boyfriends and girlfriends, whether or not they live at the same address)</li> <li>a business partner or employee of {{ .DonorFirstName }} or one of their attorneys</li> <li>someone who works for a care home where {{ .DonorFirstName }} lives, or is a relative of someone working there</li> <li>a director or an employee of a trust corporation owned by one of {{ .DonorFirstNamePossessive }} attorneys</li></ul>",
+    "ifAnyStatementsApplyYouCannotBeACertificateProvider": "If any of these statements apply to you, you cannot be the certificate provider for this LPA."
 }
