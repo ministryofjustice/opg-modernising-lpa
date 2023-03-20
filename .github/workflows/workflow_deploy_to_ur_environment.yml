@@ -12,11 +12,11 @@ permissions:
   id-token: write
   contents: write
   security-events: write
-  pull-requests: read
+  pull-requests: write
   actions: none
   checks: none
   deployments: none
-  issues: none
+  issues: write
   packages: none
   repository-projects: none
   statuses: none
@@ -41,7 +41,11 @@ jobs:
       run_against_image: true
       tag: ${{ inputs.tag_to_deploy}}
       checkout_tag: ${{ inputs.tag_to_deploy}}
-    secrets: inherit # pragma: allowlist secret
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
+      github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   ur_deploy:
       name: UR Environment Deploy
@@ -51,7 +55,11 @@ jobs:
         workspace_name: ur
         version_tag: ${{ inputs.tag_to_deploy}}
         checkout_tag: ${{ inputs.tag_to_deploy}}
-      secrets: inherit # pragma: allowlist secret
+      secrets:
+        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+        ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
+        github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   ui_tests_ur_env:
     name: Run Cypress UI Tests On PR Environment
@@ -62,14 +70,20 @@ jobs:
       base_url: "https://${{ needs.ur_deploy.outputs.url }}"
       tag: ${{ inputs.tag_to_deploy}}
       checkout_tag: ${{ inputs.tag_to_deploy}}
-    secrets: inherit # pragma: allowlist secret
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
+      github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   always_remove_ingress:
     name: Remove CI ingress from environment
     if: always()
     uses: ./.github/workflows/remove_ingress_job.yml
     needs: [ui_tests_ur_env]
-    secrets: inherit # pragma: allowlist secret
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
   end_of_ur_deployment_workflow:
     name: End of UR Deployment Workflow
