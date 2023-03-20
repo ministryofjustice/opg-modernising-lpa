@@ -3,38 +3,42 @@
 {{ define "pageTitle" }}{{ tr .App "whoIsEligibleToBeCertificateProvider" }}{{ end }}
 
 {{ define "main" }}
-    <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
-         aria-labelledby="govuk-notification-banner-title"
-         data-module="govuk-notification-banner">
-        <div class="govuk-notification-banner__header">
-            <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-                {{ tr .App "success" }}
-            </h2>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
+             aria-labelledby="govuk-notification-banner-title"
+             data-module="govuk-notification-banner">
+            <div class="govuk-notification-banner__header">
+                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                    {{ tr .App "success" }}
+                </h2>
+            </div>
+            <div class="govuk-notification-banner__content">
+                <p class="govuk-notification-banner__heading">
+                    {{ tr .App "weHaveIdentifiedYourCertificateProviderReferenceNumber" }}
+                </p>
+            </div>
         </div>
-        <div class="govuk-notification-banner__content">
-            <h3 class="govuk-notification-banner__heading">
-                {{ tr .App "weHaveIdentifiedYourCertificateProviderReferenceNumber" }}
-            </h3>
-        </div>
+
+        <h1 class="govuk-heading-xl">
+            {{ tr .App "whoIsEligibleToBeCertificateProvider" }}
+        </h1>
+
+        {{ $donorFullNamePossessive := .App.Localizer.Possessive .Lpa.Donor.FullName }}
+
+        {{ trFormatHtml .App "whoIsEligibleToBeCertificateProviderContent" "DonorFullNamePossessive" $donorFullNamePossessive "DonorFirstName" .Lpa.Donor.FirstNames  }}
+
+        {{ template "details" (details . "whoIsEligibleToBeCertificateProviderDetails" "whoIsEligibleToBeCertificateProviderDetailsContent" false) }}
+
+        <h2 class="govuk-heading-m">{{ tr .App "whoCannotBeCertificateProvider" }}</h2>
+
+        {{ $donorFirstNamePossessive := .App.Localizer.Possessive .Lpa.Donor.FirstNames }}
+
+        {{ trFormatHtml .App "whoCannotBeCertificateProviderContent" "DonorFirstName" .Lpa.Donor.FirstNames "DonorFirstNamePossessive" $donorFirstNamePossessive }}
+
+        {{ template "warning" (warning .App "ifAnyStatementsApplyYouCannotBeACertificateProvider") }}
+
+        <a class="govuk-button" href="{{ link .App .App.Paths.CertificateProviderCheckYourName }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
     </div>
-
-    <h1 class="govuk-heading-xl">
-        {{ tr .App "whoIsEligibleToBeCertificateProvider" }}
-    </h1>
-
-    {{ $donorFullNamePossessive := .App.Localizer.Possessive .Lpa.Donor.FullName }}
-
-    {{ trFormatHtml .App "whoIsEligibleToBeCertificateProviderContent" "DonorFullNamePossessive" $donorFullNamePossessive "DonorFirstName" .Lpa.Donor.FirstNames  }}
-
-    {{ template "details" (details . "Examples of who could act as a professional certificate provider" "<p class=\"govuk-body\">People with the relevant professional skills could include:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>registered health care professionals</li> <li>barristers, solicitors or advocates called or admitted in the UK</li> <li>registered social workers</li> <li>independent mental capacity advocates</li></ul>" false) }}
-
-    <h2 class="govuk-heading-m">{{ tr .App "whoCannotBeCertificateProvider" }}</h2>
-
-    {{ $donorFirstNamePossessive := .App.Localizer.Possessive .Lpa.Donor.FirstNames }}
-
-    {{ trFormatHtml .App "whoCannotBeCertificateProviderContent" "DonorFirstName" .Lpa.Donor.FirstNames "DonorFirstNamePossessive" $donorFirstNamePossessive }}
-
-    {{ template "warning" (warning .App "ifAnyStatementsApplyYouCannotBeACertificateProvider") }}
-
-    <a class="govuk-button" href="{{ link .App .App.Paths.CertificateProviderCheckYourName }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
+</div>
 {{ end }}

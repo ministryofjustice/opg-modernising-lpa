@@ -616,7 +616,9 @@
     "weHaveIdentifiedYourCertificateProviderReferenceNumber": "Welsh",
     "whoIsEligibleToBeCertificateProvider": "Welsh",
     "whoIsEligibleToBeCertificateProviderContent": "<p class=\"govuk-body\">Welsh.</p><p class=\"govuk-body\">Welsh {{ .DonorFullNamePossessive }} Welsh <span class=\"govuk-!-font-weight-bold\">Welsh</span>:</p><ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh {{ .DonorFirstName }} Welsh</li> <li><span class=\"govuk-!-font-weight-bold\">Welsh</span> Welsh</li></ul>",
+    "whoIsEligibleToBeCertificateProviderDetails": "Welsh",
+    "whoIsEligibleToBeCertificateProviderDetailsContent": "<p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>welsh</li> <li>welsh</li> <li>welsh</li> <li>welsh</li></ul>",
     "whoCannotBeCertificateProvider": "Welsh",
-    "whoCannotBeCertificateProviderContent": "<p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh {{ .DonorFirstName }})</li> <li>Welsh {{ .DonorFirstName }}</li> <li>Welsh {{ .DonorFirstName }} Welsh</li> <li>Welsh {{ .DonorFirstName }} Welsh</li> <li>Welsh {{ .DonorFirstName }} Welsh</li> <li>Welsh {{ .DonorFirstNamePossessive }} Welsh</li></ul>",
+    "whoCannotBeCertificateProviderContent": "<p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh {{ .DonorFirstName }})</li> <li>Welsh {{ .DonorFirstName }}</li> <li>Welsh {{ .DonorFirstName }} Welsh</li> <li>Welsh {{ .DonorFirstName }} Welsh</li> <li>Welsh {{ .DonorFirstName }} Welsh</li> <li>Welsh {{ .DonorFirstNamePossessive }} Welsh</li><li>welsh</></ul>",
     "ifAnyStatementsApplyYouCannotBeACertificateProvider": "Welsh."
 }
