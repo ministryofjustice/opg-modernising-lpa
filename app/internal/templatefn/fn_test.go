@@ -364,8 +364,3 @@ func TestListPeopleNamedOnLpa(t *testing.T) {
 
 	assert.Equal(t, want, got)
 }
-
-func TestPossessive(t *testing.T) {
-	got := possessive(localize.Localizer{Lang: localize.En}, "word")
-	assert.Equal(t, "word’s", got)
-}

@@ -22,7 +22,7 @@
         {{ tr .App "whoIsEligibleToBeCertificateProvider" }}
     </h1>
 
-    {{ $donorFullNamePossessive := (possessive .App.Localizer .Lpa.Donor.FullName) }}
+    {{ $donorFullNamePossessive := .App.Localizer.Possessive .Lpa.Donor.FullName }}
 
     {{ trFormatHtml .App "whoIsEligibleToBeCertificateProviderContent" "DonorFullNamePossessive" $donorFullNamePossessive "DonorFirstName" .Lpa.Donor.FirstNames  }}
 
@@ -30,7 +30,7 @@
 
     <h2 class="govuk-heading-m">{{ tr .App "whoCannotBeCertificateProvider" }}</h2>
 
-    {{ $donorFirstNamePossessive := (possessive .App.Localizer .Lpa.Donor.FirstNames) }}
+    {{ $donorFirstNamePossessive := .App.Localizer.Possessive .Lpa.Donor.FirstNames }}
 
     {{ trFormatHtml .App "whoCannotBeCertificateProviderContent" "DonorFirstName" .Lpa.Donor.FirstNames "DonorFirstNamePossessive" $donorFirstNamePossessive }}
 
