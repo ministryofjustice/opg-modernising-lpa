@@ -610,5 +610,13 @@
     "enterYourUkMobile": "Welsh",
     "enterYourUkMobileContext": "Welsh",
     "enterYourUkMobileHint": "Welsh",
-    "youAreUnder18Error": "Welsh"
+    "youAreUnder18Error": "Welsh",
+
+    "success": "Welsh",
+    "weHaveIdentifiedYourCertificateProviderReferenceNumber": "Welsh",
+    "whoIsEligibleToBeCertificateProvider": "Welsh",
+    "whoIsEligibleToBeCertificateProviderContent": "<p class=\"govuk-body\">Welsh.</p><p class=\"govuk-body\">Welsh {{ .DonorFullName }}’s Welsh <span class=\"govuk-!-font-weight-bold\">Welsh</span>:</p><ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh {{ .DonorFirstName }} Welsh</li> <li><span class=\"govuk-!-font-weight-bold\">Welsh</span> Welsh</li></ul>",
+    "whoCannotBeCertificateProvider": "Welsh",
+    "whoCannotBeCertificateProviderContent": "<p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh {{ .DonorFirstName }})</li> <li>Welsh {{ .DonorFirstName }}</li> <li>Welsh {{ .DonorFirstName }} Welsh</li> <li>Welsh {{ .DonorFirstName }} Welsh</li> <li>Welsh {{ .DonorFirstName }} Welsh</li> <li>Welsh {{ .DonorFirstName }}’s Welsh</li></ul>",
+    "ifAnyStatementsApplyYouCannotBeACertificateProvider": "Welsh."
 }
