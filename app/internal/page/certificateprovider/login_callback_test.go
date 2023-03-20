@@ -66,7 +66,7 @@ func TestLoginCallback(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderCheckYourName, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProviderWhoIsEligible, resp.Header.Get("Location"))
 }
 
 func TestLoginCallbackSessionMissing(t *testing.T) {
