@@ -55,7 +55,7 @@ services:
       - REDIRECT_URL=http://localhost:5050/auth/redirect
 
   pay-mock:
-    image: stoplight/prism:4.11.0
+    image: stoplight/prism:4.11.1
     command: 'mock /tmp/publicapi_spec.json -h 0.0.0.0'
     container_name: pay-mock
     ports:
