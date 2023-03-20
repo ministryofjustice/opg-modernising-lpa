@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/MicahParks/keyfunc v1.9.0
 	github.com/aws/aws-sdk-go-v2 v1.17.6
-	github.com/aws/aws-sdk-go-v2/config v1.18.17
+	github.com/aws/aws-sdk-go-v2/config v1.18.18
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.10.18
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.19.1
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.19.0
@@ -17,7 +17,7 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.2.1
 	github.com/stretchr/testify v1.8.2
 	github.com/vektra/mockery v1.1.2
-	github.com/vektra/mockery/v2 v2.22.1
+	github.com/vektra/mockery/v2 v2.23.0
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.15.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws v0.40.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.40.0
