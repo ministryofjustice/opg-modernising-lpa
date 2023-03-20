@@ -12,11 +12,11 @@ permissions:
   id-token: write
   contents: write
   security-events: write
-  pull-requests: read
+  pull-requests: write
   actions: none
   checks: none
   deployments: none
-  issues: none
+  issues: write
   packages: none
   repository-projects: none
   statuses: none
