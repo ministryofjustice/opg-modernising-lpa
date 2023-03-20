@@ -22,13 +22,17 @@
         {{ tr .App "whoIsEligibleToBeCertificateProvider" }}
     </h1>
 
-    {{ trFormatHtml .App "whoIsEligibleToBeCertificateProviderContent" "DonorFullName" .Lpa.Donor.FullName "DonorFirstName" .Lpa.Donor.FirstNames }}
+    {{ $donorFullNamePossessive := (possessive .App.Localizer .Lpa.Donor.FullName) }}
+
+    {{ trFormatHtml .App "whoIsEligibleToBeCertificateProviderContent" "DonorFullNamePossessive" $donorFullNamePossessive "DonorFirstName" .Lpa.Donor.FirstNames  }}
 
     {{ template "details" (details . "Examples of who could act as a professional certificate provider" "<p class=\"govuk-body\">People with the relevant professional skills could include:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>registered health care professionals</li> <li>barristers, solicitors or advocates called or admitted in the UK</li> <li>registered social workers</li> <li>independent mental capacity advocates</li></ul>" false) }}
 
     <h2 class="govuk-heading-m">{{ tr .App "whoCannotBeCertificateProvider" }}</h2>
 
-    {{ trFormatHtml .App "whoCannotBeCertificateProviderContent" "DonorFirstName" .Lpa.Donor.FirstNames }}
+    {{ $donorFirstNamePossessive := (possessive .App.Localizer .Lpa.Donor.FirstNames) }}
+
+    {{ trFormatHtml .App "whoCannotBeCertificateProviderContent" "DonorFirstName" .Lpa.Donor.FirstNames "DonorFirstNamePossessive" $donorFirstNamePossessive }}
 
     {{ template "warning" (warning .App "ifAnyStatementsApplyYouCannotBeACertificateProvider") }}
 
