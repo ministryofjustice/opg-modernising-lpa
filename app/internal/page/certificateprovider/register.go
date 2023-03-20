@@ -98,6 +98,8 @@ func Register(
 		Login(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.CertificateProviderLoginCallback, None,
 		LoginCallback(oneLoginClient, sessionStore))
+	handleRoot(page.Paths.CertificateProviderWhoIsEligible, RequireSession,
+		page.Guidance(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), lpaStore))
 	handleRoot(page.Paths.CertificateProviderCheckYourName, RequireSession,
 		CheckYourName(tmpls.Get("certificate_provider_check_your_name.gohtml"), lpaStore, notifyClient))
 	handleRoot(page.Paths.CertificateProviderEnterDateOfBirth, RequireSession,
