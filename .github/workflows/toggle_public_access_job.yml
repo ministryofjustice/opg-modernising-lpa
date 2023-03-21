@@ -6,7 +6,7 @@ on:
         required: true
         type: string
       public_access_enabled:
-        description: 'Enable public access to the UR environment?'
+        description: 'Enable public access to the environment?'
         required: true
         type: boolean
     secrets:
