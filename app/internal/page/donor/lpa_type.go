@@ -59,7 +59,7 @@ func (f *lpaTypeForm) Validate() validation.List {
 	var errors validation.List
 
 	errors.String("lpa-type", "theTypeOfLpaToMake", f.LpaType,
-		validation.Select(page.LpaTypePropertyFinance, page.LpaTypeHealthWelfare, page.LpaTypeCombined))
+		validation.Select(page.LpaTypePropertyFinance, page.LpaTypeHealthWelfare))
 
 	return errors
 }

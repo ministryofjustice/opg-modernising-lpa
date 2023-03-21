@@ -17,7 +17,6 @@ const (
 	Jointly                          = "jointly"
 	JointlyAndSeverally              = "jointly-and-severally"
 	JointlyForSomeSeverallyForOthers = "mixed"
-	LpaTypeCombined                  = "both"
 	LpaTypeHealthWelfare             = "hw"
 	LpaTypePropertyFinance           = "pfa"
 	PayCookieName                    = "pay"
@@ -156,8 +155,6 @@ func (l *Lpa) TypeLegalTermTransKey() string {
 		return "pfaLegalTerm"
 	case LpaTypeHealthWelfare:
 		return "hwLegalTerm"
-	case LpaTypeCombined:
-		return "combinedLegalTerm"
 	}
 	return ""
 }

@@ -120,10 +120,6 @@ func TestTypeLegalTermTransKey(t *testing.T) {
 			LpaType:           LpaTypeHealthWelfare,
 			ExpectedLegalTerm: "hwLegalTerm",
 		},
-		"Combined": {
-			LpaType:           LpaTypeCombined,
-			ExpectedLegalTerm: "combinedLegalTerm",
-		},
 		"unexpected": {
 			LpaType:           "not-a-type",
 			ExpectedLegalTerm: "",
