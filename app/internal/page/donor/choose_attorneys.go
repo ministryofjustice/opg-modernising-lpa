@@ -142,10 +142,8 @@ func (f *chooseAttorneysForm) Validate() validation.List {
 		validation.Empty(),
 		validation.StringTooLong(61))
 
-	if f.Email != "" {
-		errors.String("email", "email", f.Email,
-			validation.Email())
-	}
+	errors.String("email", "email", f.Email,
+		validation.Email())
 
 	errors.Date("date-of-birth", "dateOfBirth", f.Dob,
 		validation.DateMissing(),
