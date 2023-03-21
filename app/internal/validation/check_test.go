@@ -66,6 +66,10 @@ func TestCheckString(t *testing.T) {
 			input:  "name@example.com",
 			checks: []StringChecker{Email()},
 		},
+		"empty email is valid": {
+			input:  "",
+			checks: []StringChecker{Email()},
+		},
 		"email invalid": {
 			input:    "example.com",
 			checks:   []StringChecker{Email()},

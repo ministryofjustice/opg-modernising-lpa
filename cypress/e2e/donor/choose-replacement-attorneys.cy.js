@@ -20,19 +20,32 @@ describe('Choose replacement attorneys', () => {
         cy.contains("John Doe’s address");
     });
 
+    it('can choose not to submit email', () => {
+        cy.get('#f-first-names').type('John');
+        cy.get('#f-last-name').type('Doe');
+        cy.get('#f-date-of-birth').type('1');
+        cy.get('#f-date-of-birth-month').type('2');
+        cy.get('#f-date-of-birth-year').type('1990');
+
+        cy.checkA11yApp();
+
+        cy.contains('button', 'Continue').click();
+        cy.url().should('contain', '/choose-replacement-attorneys-address');
+
+        cy.contains("John Doe’s address");
+    });
+
     it('errors when empty', () => {
         cy.contains('button', 'Continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter first names');
             cy.contains('Enter last name');
-            cy.contains('Enter email address');
             cy.contains('Enter date of birth');
         });
 
         cy.contains('[for=f-first-names] + .govuk-error-message', 'Enter first names');
         cy.contains('[for=f-last-name] + .govuk-error-message', 'Enter last name');
-        cy.contains('[for=f-email] + .govuk-error-message', 'Enter email address');
         cy.contains('#date-of-birth-hint + .govuk-error-message', 'Enter date of birth');
     });
 
@@ -75,7 +88,6 @@ describe('Choose replacement attorneys', () => {
 
         cy.get('#f-first-names').type('Jamie');
         cy.get('#f-last-name').type('Smith');
-        cy.get('#f-email').type(TestEmail);
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
