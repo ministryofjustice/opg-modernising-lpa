@@ -199,11 +199,6 @@ func TestLpaTypeFormValidate(t *testing.T) {
 				LpaType: "hw",
 			},
 		},
-		"both": {
-			form: &lpaTypeForm{
-				LpaType: "both",
-			},
-		},
 		"missing": {
 			form:   &lpaTypeForm{},
 			errors: validation.With("lpa-type", validation.SelectError{Label: "theTypeOfLpaToMake"}),
