@@ -37,14 +37,13 @@ jobs:
         id: bump_version
         uses: anothrNick/github-tag-action@1.61.0
         env:
-          DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           INITIAL_VERSION: 0.0.0
           DEFAULT_BUMP: minor
+          PRERELEASE: true
           PRERELEASE_SUFFIX: ${{ env.BRANCH_NAME }}
           RELEASE_BRANCHES: main
           WITH_V: true
-          VERBOSE: true
     outputs:
       docker_tag: ${{ steps.bump_version.outputs.tag }}
 
