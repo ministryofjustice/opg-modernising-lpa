@@ -2,7 +2,7 @@ on:
   workflow_call:
     outputs:
       changes_detected:
-        description: "Boolean value for changes detected in /app"
+        description: "Boolean value for changes detected in /app, /web and /lang"
         value: ${{ jobs.detect_changes_compared_to_main.outputs.changes_detected }}
 
 jobs:
@@ -12,11 +12,11 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Detect changes in /app compared to main using git diff
+      - name: Detect changes in /app, /web and /lang compared to main using git diff
         id: detect_changes
         if: github.ref != 'refs/heads/main'
         run: |
-          git diff --quiet HEAD origin/main -- app Dockerfile package.json yarn.lock && \
+          git diff --quiet HEAD origin/main -- app lang web Dockerfile package.json yarn.lock && \
           echo "changes=false" >> $GITHUB_OUTPUT || \
           echo "changes=true" >> $GITHUB_OUTPUT
     outputs:
