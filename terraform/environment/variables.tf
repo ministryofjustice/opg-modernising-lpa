@@ -16,6 +16,10 @@ output "container_version" {
   value = var.container_version
 }
 
+output "public_access_enabled" {
+  value = var.public_access_enabled
+}
+
 variable "environments" {
   type = map(
     object({
