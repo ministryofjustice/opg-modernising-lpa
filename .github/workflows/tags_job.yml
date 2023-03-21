@@ -44,6 +44,7 @@ jobs:
           PRERELEASE_SUFFIX: ${{ env.BRANCH_NAME }}
           RELEASE_BRANCHES: main
           WITH_V: true
+          VERBOSE: true
     outputs:
       docker_tag: ${{ steps.bump_version.outputs.tag }}
 
