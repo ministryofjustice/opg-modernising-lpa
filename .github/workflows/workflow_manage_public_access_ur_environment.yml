@@ -1,4 +1,4 @@
-name: "Deploy to UR Environment"
+name: "Toggle public access to UR environment"
 
 on:
   workflow_dispatch:
@@ -26,7 +26,7 @@ defaults:
     shell: bash
 
 jobs:
-  ur_deploy:
+  ur_toggle_public_access:
       name: UR Environment Deploy
       needs: [ui_tests_image]
       uses: ./.github/workflows/toggle_public_access_job.yml

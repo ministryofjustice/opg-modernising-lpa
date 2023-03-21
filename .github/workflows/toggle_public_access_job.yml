@@ -22,7 +22,7 @@ on:
 
 
 jobs:
-  terraform_environment_workflow:
+  toggle_public_access:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
