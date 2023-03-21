@@ -28,7 +28,7 @@ jobs:
     steps:
       - name: Notify jobs will be skipped
         run: |
-          echo '### No Changes Detected in /app!' >> $GITHUB_STEP_SUMMARY
+          echo '### No Changes Detected in /app, /web or /lang!' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
           echo "The following jobs will be skipped" >> $GITHUB_STEP_SUMMARY
           echo "- Create Tags" >> $GITHUB_STEP_SUMMARY
