@@ -158,6 +158,62 @@ func TestGetChooseReplacementAttorneysAddressWhenTemplateErrors(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestPostChooseReplacementAttorneysAddressSkip(t *testing.T) {
+	testcases := map[string]struct {
+		url      string
+		redirect string
+	}{
+		"normal flow": {
+			url:      "/?id=123",
+			redirect: page.Paths.ChooseReplacementAttorneysSummary,
+		},
+		"from": {
+			url:      "/?id=123&from=/blah",
+			redirect: "/blah",
+		},
+	}
+
+	f := url.Values{
+		"action":           {"skip"},
+		"address-line-1":   {"a"},
+		"address-line-2":   {"b"},
+		"address-line-3":   {"c"},
+		"address-town":     {"d"},
+		"address-postcode": {"e"},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, tc.url, strings.NewReader(f.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+			lpaStore := newMockLpaStore(t)
+			lpaStore.
+				On("Get", r.Context()).
+				Return(&page.Lpa{
+					ReplacementAttorneys: actor.Attorneys{{
+						ID:      "123",
+						Address: place.Address{Line1: "abc"},
+					}},
+				}, nil)
+			lpaStore.
+				On("Put", r.Context(), &page.Lpa{
+					ReplacementAttorneys: actor.Attorneys{{ID: "123"}},
+					Tasks:                page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
+				}).
+				Return(nil)
+
+			err := ChooseReplacementAttorneysAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, "/lpa/lpa-id"+tc.redirect, resp.Header.Get("Location"))
+		})
+	}
+}
+
 func TestPostChooseReplacementAttorneysAddressManual(t *testing.T) {
 	f := url.Values{
 		"action":           {"manual"},
