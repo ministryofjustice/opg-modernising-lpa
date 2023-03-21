@@ -19,13 +19,7 @@ on:
       ssh_deploy_key:
         description: 'SSH Deploy Key'
         required: true
-      github_access_token:
-        description: 'Github Token'
-        required: true
 
-permissions:
-  pull-requests: write
-  issues: write
 
 jobs:
   terraform_environment_workflow:
