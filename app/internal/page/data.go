@@ -3,6 +3,7 @@ package page
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -224,4 +225,35 @@ func (l *Lpa) Progress() Progress {
 type Certificate struct {
 	AgreeToStatement bool
 	Agreed           time.Time
+}
+
+func (l *Lpa) ActorAddresses() []AddressDetail {
+	ads := []AddressDetail{
+		{Name: l.Donor.FullName(), Role: "Donor", Address: l.Donor.Address},
+		{Name: l.CertificateProvider.FullName(), Role: "Certificate Provider", Address: l.CertificateProvider.Address},
+	}
+
+	for _, attorney := range l.Attorneys {
+		ads = append(ads, AddressDetail{
+			Name:    fmt.Sprintf("%s %s", attorney.FirstNames, attorney.LastName),
+			Role:    "Attorney",
+			Address: attorney.Address,
+		})
+	}
+
+	for _, replacementAttorney := range l.ReplacementAttorneys {
+		ads = append(ads, AddressDetail{
+			Name:    fmt.Sprintf("%s %s", replacementAttorney.FirstNames, replacementAttorney.LastName),
+			Role:    "Replacement Attorney",
+			Address: replacementAttorney.Address,
+		})
+	}
+
+	return ads
+}
+
+type AddressDetail struct {
+	Name    string
+	Role    string
+	Address place.Address
 }

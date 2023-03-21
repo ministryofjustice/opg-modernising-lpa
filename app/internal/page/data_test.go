@@ -274,3 +274,30 @@ func TestLpaProgress(t *testing.T) {
 	}
 
 }
+
+func TestActorAddresses(t *testing.T) {
+	lpa := &Lpa{
+		Donor: actor.Donor{FirstNames: "Donor", LastName: "Actor", Address: address},
+		Attorneys: []actor.Attorney{
+			{FirstNames: "Attorney One", LastName: "Actor", Address: address},
+			{FirstNames: "Attorney Two", LastName: "Actor", Address: address},
+		},
+		ReplacementAttorneys: []actor.Attorney{
+			{FirstNames: "Replacement Attorney One", LastName: "Actor", Address: address},
+			{FirstNames: "Replacement Attorney Two", LastName: "Actor", Address: address},
+		},
+		CertificateProvider: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor", Address: address},
+	}
+
+	want := []AddressDetail{
+		{Name: "Donor Actor", Role: "Donor", Address: address},
+		{Name: "Certificate Provider Actor", Role: "Certificate Provider", Address: address},
+		{Name: "Attorney One Actor", Role: "Attorney", Address: address},
+		{Name: "Attorney Two Actor", Role: "Attorney", Address: address},
+		{Name: "Replacement Attorney One Actor", Role: "Replacement Attorney", Address: address},
+		{Name: "Replacement Attorney Two Actor", Role: "Replacement Attorney", Address: address},
+	}
+
+	got := lpa.ActorAddresses()
+	assert.Equal(t, want, got)
+}
