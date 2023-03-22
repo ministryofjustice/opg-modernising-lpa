@@ -3,6 +3,8 @@ package donor
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -69,7 +71,7 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestPostDashboard(t *testing.T) {
+func TestPostDashboardCreate(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
@@ -84,4 +86,59 @@ func TestPostDashboard(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.YourDetails, resp.Header.Get("Location"))
+}
+
+func TestPostDashboardCreateErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Create", r.Context()).
+		Return(nil, expectedError)
+
+	err := Dashboard(nil, lpaStore)(testAppData, w, r)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestPostDashboardReuse(t *testing.T) {
+	form := url.Values{
+		"action":   {"reuse"},
+		"reuse-id": {"123"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Clone", r.Context(), "123").
+		Return(&page.Lpa{ID: "123"}, nil)
+
+	err := Dashboard(nil, lpaStore)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "/lpa/lpa-id"+page.Paths.YourDetails, resp.Header.Get("Location"))
+}
+
+func TestPostDashboardReuseErrors(t *testing.T) {
+	form := url.Values{
+		"action":   {"reuse"},
+		"reuse-id": {"123"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Clone", r.Context(), "123").
+		Return(nil, expectedError)
+
+	err := Dashboard(nil, lpaStore)(testAppData, w, r)
+	assert.Equal(t, expectedError, err)
 }
