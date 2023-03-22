@@ -6,6 +6,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -31,6 +32,46 @@ func (m *mockDataStore) ExpectGetAll(ctx, pk, data interface{}, err error) {
 			json.Unmarshal(b, v)
 			return err
 		})
+}
+
+func (m *mockDataStore) ExpectPut(ctx, pk, sk, data interface{}, err error) {
+	m.
+		On("Put", ctx, pk, sk, mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		})
+}
+
+func TestLpaStoreCreate(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+
+	dataStore := newMockDataStore(t)
+	dataStore.ExpectPut(ctx, "an-id", "10100000", &page.Lpa{ID: "10100000"},
+		nil)
+
+	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
+
+	result, err := lpaStore.Create(ctx)
+	assert.Nil(t, err)
+	assert.Equal(t, &page.Lpa{ID: "10100000"}, result)
+}
+
+func TestLpaStoreClone(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+
+	dataStore := newMockDataStore(t)
+	dataStore.ExpectGet(ctx, "an-id", "123",
+		&page.Lpa{ID: "123", Donor: actor.Donor{FirstNames: "John"}}, nil)
+	dataStore.ExpectPut(ctx, "an-id", "10100000", &page.Lpa{ID: "10100000", Donor: actor.Donor{FirstNames: "John"}},
+		nil)
+
+	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
+
+	result, err := lpaStore.Clone(ctx, "123")
+	assert.Nil(t, err)
+	assert.Equal(t, &page.Lpa{ID: "10100000", Donor: actor.Donor{FirstNames: "John"}}, result)
 }
 
 func TestLpaStoreGetAll(t *testing.T) {

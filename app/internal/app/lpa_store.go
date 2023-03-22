@@ -25,6 +25,20 @@ func (s *lpaStore) Create(ctx context.Context) (*page.Lpa, error) {
 	return lpa, err
 }
 
+func (s *lpaStore) Clone(ctx context.Context, id string) (*page.Lpa, error) {
+	data := page.SessionDataFromContext(ctx)
+
+	var lpa page.Lpa
+	if err := s.dataStore.Get(ctx, data.SessionID, id, &lpa); err != nil {
+		return nil, err
+	}
+
+	lpa.ID = "10" + strconv.Itoa(s.randomInt(100000))
+	err := s.Put(ctx, &lpa)
+
+	return &lpa, err
+}
+
 func (s *lpaStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
 	var lpas []*page.Lpa
 	err := s.dataStore.GetAll(ctx, page.SessionDataFromContext(ctx).SessionID, &lpas)
