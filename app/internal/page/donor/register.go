@@ -32,6 +32,7 @@ type Logger interface {
 //go:generate mockery --testonly --inpackage --name LpaStore --structname mockLpaStore
 type LpaStore interface {
 	Create(context.Context) (*page.Lpa, error)
+	Clone(context.Context, string) (*page.Lpa, error)
 	GetAll(context.Context) ([]*page.Lpa, error)
 	Get(context.Context) (*page.Lpa, error)
 	Put(context.Context, *page.Lpa) error
