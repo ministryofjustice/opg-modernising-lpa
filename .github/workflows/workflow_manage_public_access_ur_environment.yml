@@ -1,10 +1,10 @@
-name: "Toggle public access to 411mlpab799 environment"
+name: "Toggle public access to UR environment"
 
 on:
   workflow_dispatch:
     inputs:
       public_access_enabled:
-        description: 'Enable public access to the 411mlpab799 environment?'
+        description: 'Enable public access to the UR environment?'
         required: true
         type: boolean
 
@@ -46,14 +46,12 @@ jobs:
       - uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
-
       - name: Terraform Init
         run: terraform init -input=false
         working-directory: ./terraform/environment
-
-      - name: Terraform Toggle Public Access for 411mlpab799
+      - name: Terraform Toggle Public Access for UR
         env:
-          TF_WORKSPACE: 411mlpab799
+          TF_WORKSPACE: ur
         run: |
           terraform apply -lock-timeout=300s  -input=false -auto-approve -var public_access_enabled=${{ inputs.public_access_enabled }} -target 'module.eu_west_1[0].module.app.aws_security_group_rule.app_loadbalancer_public_access_ingress[0]'
         working-directory: ./terraform/environment
