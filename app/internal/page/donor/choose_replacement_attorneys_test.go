@@ -375,7 +375,6 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 		"validation error": {
 			form: url.Values{
 				"last-name":           {"Doe"},
-				"email":               {"name@example.com"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1990"},
@@ -388,7 +387,6 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 			form: url.Values{
 				"first-names":         {"John"},
 				"last-name":           {"Doe"},
-				"email":               {"name@example.com"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
@@ -400,7 +398,6 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 		"dob warning ignored but other errors": {
 			form: url.Values{
 				"first-names":         {"John"},
-				"email":               {"name@example.com"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
@@ -414,7 +411,6 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 			form: url.Values{
 				"first-names":         {"John"},
 				"last-name":           {"Doe"},
-				"email":               {"name@example.com"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
@@ -428,7 +424,6 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 			form: url.Values{
 				"first-names":         {"Jane"},
 				"last-name":           {"Doe"},
-				"email":               {"name@example.com"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
@@ -445,20 +440,18 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 				"last-name":           {"Doe"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {validBirthYear},
 				"ignore-name-warning": {"errorDonorMatchesActor|aReplacementAttorney|Jane|Doe"},
 			},
 			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
 				return assert.Equal(t, "", data.DobWarning) &&
 					assert.Equal(t, actor.NewSameNameWarning(actor.TypeReplacementAttorney, actor.TypeDonor, "Jane", "Doe"), data.NameWarning) &&
-					assert.Equal(t, validation.With("email", validation.EnterError{Label: "email"}), data.Errors)
+					assert.Equal(t, validation.With("date-of-birth", validation.DateMissingError{Label: "dateOfBirth", MissingDay: false, MissingMonth: false, MissingYear: true}), data.Errors)
 			},
 		},
 		"other name warning ignored": {
 			form: url.Values{
 				"first-names":         {"Jane"},
 				"last-name":           {"Doe"},
-				"email":               {"name@example.com"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},

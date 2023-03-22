@@ -196,8 +196,10 @@ func Mobile() MobileCheck {
 type EmailCheck struct{}
 
 func (c EmailCheck) CheckString(label, value string) FormattableError {
-	if _, err := mail.ParseAddress(fmt.Sprintf("<%s>", value)); err != nil {
-		return EmailError{Label: label}
+	if value != "" {
+		if _, err := mail.ParseAddress(fmt.Sprintf("<%s>", value)); err != nil {
+			return EmailError{Label: label}
+		}
 	}
 
 	return nil
