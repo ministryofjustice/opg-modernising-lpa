@@ -28,7 +28,7 @@
         <p class="govuk-body">{{ tr .App "youCanCreateANewLpa" }}</p>
 
         <form novalidate method="post">
-          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "createAnotherLpa" }}</button>
+          <button type="submit" class="govuk-button" data-module="govuk-button" name="action" value="create">{{ tr .App "createAnotherLpa" }}</button>
           {{ template "csrf-field" . }}
         </form>
       </div>
@@ -45,14 +45,18 @@
               <p class="govuk-body app-float-right"><strong>{{ tr $.App "lastSaved" }}:</strong> {{ formatDateTime .UpdatedAt }}</p>
               <h2 class="govuk-heading-m govuk-!-padding-top-0 govuk-!-margin-bottom-1">{{ if eq "pfa" .Type }}{{ tr $.App "lpaTypePfa" }}{{ else }}{{ tr $.App "lpaTypeHw" }}{{ end }}: <span class="govuk-!-font-weight-regular">{{ .Donor.FirstNames }} {{ .Donor.LastName }}</span></h2>
               <span class="govuk-hint"><strong>{{ tr $.App "applicationNumber" }}:</strong> {{ .ID }}</span>
-              <div class="govuk-button-group govuk-!-margin-top-4">
-                {{ if .Progress.LpaSigned.Completed }}
-                  <a class="govuk-button" href="{{ link $.App (printf "%s%s" .ID $.App.Paths.Progress) }}">{{ tr $.App "trackLpaProgress" }}</a>
-                {{ else }}
-                  <a class="govuk-button" href="{{ link $.App (printf "%s%s" .ID $.App.Paths.TaskList) }}">{{ tr $.App "continue" }}</a>
-                {{ end }}
-                <a class="govuk-button govuk-button--secondary" href="#">{{ tr $.App "options" }}</a>
-              </div>
+              <form novalidate method="post">
+                <input type="hidden" name="reuse-id" value="{{.ID}}" />
+                <div class="govuk-button-group govuk-!-margin-top-4">
+                  {{ if .Progress.LpaSigned.Completed }}
+                    <a class="govuk-button" href="{{ link $.App (printf "%s%s" .ID $.App.Paths.Progress) }}">{{ tr $.App "trackLpaProgress" }}</a>
+                  {{ else }}
+                    <a class="govuk-button" href="{{ link $.App (printf "%s%s" .ID $.App.Paths.TaskList) }}">{{ tr $.App "continue" }}</a>
+                  {{ end }}
+                  <button class="govuk-button govuk-button--secondary" data-module="govuk-button" name="action" value="reuse">{{ tr $.App "reuseLpaDetails" }}</button>
+                </div>
+                {{ template "csrf-field" $ }}
+              </form>
             </div>
           </div>
         {{ end }}

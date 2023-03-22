@@ -395,13 +395,13 @@
 
     "myLastingPowersOfAttorney": "My lasting powers of attorney",
     "myLastingPowersOfAttorneyHint": "On this page you will find all your in-progress and registered LPAs.",
-    "youCanCreateANewLpa": "You can create a new LPA or re-use the details of an LPA to make another one, using the ‘Options’ button",
+    "youCanCreateANewLpa": "You can create a new LPA or re-use the details of an LPA to make another one.",
     "createYourFirstLpa": "Oi, you don’t have any LPAs. Click the button to create your first one.",
     "createAnLpa": "Create an LPA",
     "createAnotherLpa": "Create another LPA",
     "lpasInProgress": "LPAs in progress",
     "applicationNumber": "Application number",
-    "options": "Options",
+    "reuseLpaDetails": "Reuse LPA details",
     "lastSaved": "Last saved",
     "statusTag": "Status tag",
 

@@ -14,6 +14,32 @@ type mockLpaStore struct {
 	mock.Mock
 }
 
+// Clone provides a mock function with given fields: _a0, _a1
+func (_m *mockLpaStore) Clone(_a0 context.Context, _a1 string) (*page.Lpa, error) {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 *page.Lpa
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*page.Lpa, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *page.Lpa); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*page.Lpa)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Create provides a mock function with given fields: _a0
 func (_m *mockLpaStore) Create(_a0 context.Context) (*page.Lpa, error) {
 	ret := _m.Called(_a0)
