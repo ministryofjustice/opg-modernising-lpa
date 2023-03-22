@@ -227,33 +227,45 @@ type Certificate struct {
 	Agreed           time.Time
 }
 
+type AddressDetail struct {
+	Name    string
+	Role    actor.Type
+	Address place.Address
+	ID      string
+}
+
 func (l *Lpa) ActorAddresses() []AddressDetail {
-	ads := []AddressDetail{
-		{Name: l.Donor.FullName(), Role: "Donor", Address: l.Donor.Address},
-		{Name: l.CertificateProvider.FullName(), Role: "Certificate Provider", Address: l.CertificateProvider.Address},
+	var ads []AddressDetail
+
+	if l.CertificateProvider.Address.String() != "" {
+		ads = append(ads, AddressDetail{
+			Name:    l.CertificateProvider.FullName(),
+			Role:    actor.TypeCertificateProvider,
+			Address: l.CertificateProvider.Address,
+		})
 	}
 
 	for _, attorney := range l.Attorneys {
-		ads = append(ads, AddressDetail{
-			Name:    fmt.Sprintf("%s %s", attorney.FirstNames, attorney.LastName),
-			Role:    "Attorney",
-			Address: attorney.Address,
-		})
+		if attorney.Address.String() != "" {
+			ads = append(ads, AddressDetail{
+				Name:    fmt.Sprintf("%s %s", attorney.FirstNames, attorney.LastName),
+				Role:    actor.TypeAttorney,
+				Address: attorney.Address,
+				ID:      attorney.ID,
+			})
+		}
 	}
 
 	for _, replacementAttorney := range l.ReplacementAttorneys {
-		ads = append(ads, AddressDetail{
-			Name:    fmt.Sprintf("%s %s", replacementAttorney.FirstNames, replacementAttorney.LastName),
-			Role:    "Replacement Attorney",
-			Address: replacementAttorney.Address,
-		})
+		if replacementAttorney.Address.String() != "" {
+			ads = append(ads, AddressDetail{
+				Name:    fmt.Sprintf("%s %s", replacementAttorney.FirstNames, replacementAttorney.LastName),
+				Role:    actor.TypeReplacementAttorney,
+				Address: replacementAttorney.Address,
+				ID:      replacementAttorney.ID,
+			})
+		}
 	}
 
 	return ads
-}
-
-type AddressDetail struct {
-	Name    string
-	Role    string
-	Address place.Address
 }

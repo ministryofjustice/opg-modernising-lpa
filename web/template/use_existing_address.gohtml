@@ -1,0 +1,35 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "useExistingAddressFor" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">
+                {{ trFormat .App "useExistingAddressFor" "SubjectFirstNames" .Subject.FirstNames "SubjectLastName" .Subject.LastName }}
+            </h1>
+
+            <form novalidate method="post">
+                <div class="govuk-form-group {{ if .Errors.Has "is-name-correct" }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
+                    <fieldset class="govuk-fieldset">
+                        <div class="govuk-radios {{ if .Errors.Has "is-name-correct" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
+                            {{ range $i, $a := .Addresses }}
+                                {{ if not (eq $.Subject.ID $a.ID) }}
+                                    <div class="govuk-radios__item">
+                                        <input class="govuk-radios__input" id="f-address-{{ $i }}" name="address" type="radio" value="{{ $i }}">
+                                        <label class="govuk-label govuk-radios__label" for="f-address-{{ $i }}">
+                                            {{ $a.Name }} ({{ $a.Role }}) {{ $a.Address }}
+                                        </label>
+                                    </div>
+                                {{ end }}
+                            {{end}}
+                        </div>
+                    </fieldset>
+                </div>
+
+                {{ template "continue-button" . }}
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}

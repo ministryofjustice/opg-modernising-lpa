@@ -6,6 +6,8 @@ import (
 	"math/rand"
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -108,6 +110,7 @@ func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang
 		appData.RumConfig = rumConfig
 		appData.StaticHash = staticHash
 		appData.Paths = page.Paths
+		appData.ActorTypes = actor.ActorTypes
 
 		_, cookieErr := r.Cookie("cookies-consent")
 		appData.CookieConsentSet = cookieErr != http.ErrNoCookie

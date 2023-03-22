@@ -298,6 +298,5 @@ func TestActorAddresses(t *testing.T) {
 		{Name: "Replacement Attorney Two Actor", Role: "Replacement Attorney", Address: address},
 	}
 
-	got := lpa.ActorAddresses()
-	assert.Equal(t, want, got)
+	assert.Equal(t, want, lpa.ActorAddresses())
 }

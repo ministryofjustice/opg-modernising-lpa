@@ -58,6 +58,12 @@
             </div>
 
             <p class="govuk-body">
+              <a href="{{ link .App .App.Paths.UseExistingAddress }}?role={{ .App.ActorTypes.ReplacementAttorney }}&id={{ .Attorney.ID }}&from={{ .App.Page }}" class="govuk-link govuk-link--no-visited-state">
+                {{ tr .App "Use existing address" }}
+              </a>
+            </p>
+
+            <p class="govuk-body">
               <a href="?action=manual&id={{ .Attorney.ID }}" class="govuk-link govuk-link--no-visited-state">
                 {{ tr .App "enterAddressManually" }}
               </a>

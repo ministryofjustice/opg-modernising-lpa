@@ -21,6 +21,6 @@ type CertificateProvider struct {
 	DeclaredFullName        string
 }
 
-func (p CertificateProvider) FullName() string {
-	return fmt.Sprintf("%s %s", p.FirstNames, p.LastName)
+func (c CertificateProvider) FullName() string {
+	return fmt.Sprintf("%s %s", c.FirstNames, c.LastName)
 }

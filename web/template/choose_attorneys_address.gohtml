@@ -63,6 +63,12 @@
               </a>
             </p>
 
+            <p class="govuk-body">
+              <a href="{{ link .App .App.Paths.UseExistingAddress }}?role={{ .App.ActorTypes.Attorney }}&id={{ .Attorney.ID }}&from={{ .App.Page }}" class="govuk-link govuk-link--no-visited-state">
+                {{ tr .App "Use existing address" }}
+              </a>
+            </p>
+
             <button name="action" value="lookup" class="govuk-button" data-module="govuk-button">
               {{ tr .App "findAddress" }}
             </button>

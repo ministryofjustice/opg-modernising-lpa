@@ -620,5 +620,7 @@
     "whoIsEligibleToBeCertificateProviderDetailsContent": "<p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>welsh</li> <li>welsh</li> <li>welsh</li> <li>welsh</li></ul>",
     "whoCannotBeCertificateProvider": "Welsh",
     "whoCannotBeCertificateProviderContent": "<p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh {{ .DonorFirstName }})</li> <li>Welsh {{ .DonorFirstName }}</li> <li>Welsh {{ .DonorFirstName }} Welsh</li> <li>Welsh {{ .DonorFirstName }} Welsh</li> <li>Welsh {{ .DonorFirstName }} Welsh</li> <li>Welsh {{ .DonorFirstNamePossessive }} Welsh</li><li>welsh</></ul>",
-    "ifAnyStatementsApplyYouCannotBeACertificateProvider": "Welsh."
+    "ifAnyStatementsApplyYouCannotBeACertificateProvider": "Welsh.",
+
+    "useExistingAddressFor": "Welsh {{ .SubjectFirstNames }} {{ .SubjectLastName }}"
 }
