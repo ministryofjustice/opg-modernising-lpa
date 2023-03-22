@@ -49,8 +49,13 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			data.Form = form.ReadAddressForm(r)
 			data.Errors = data.Form.Validate(false)
 
-			if data.Form.Action == "manual" && data.Errors.None() {
-				attorney.Address = *data.Form.Address
+			from := r.FormValue("from")
+			if from == "" {
+				from = page.Paths.ChooseAttorneysSummary
+			}
+
+			if data.Form.Action == "skip" {
+				attorney.Address = place.Address{}
 				lpa.Attorneys.Put(attorney)
 				lpa.Tasks.ChooseAttorneys = page.TaskCompleted
 
@@ -58,9 +63,16 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 					return err
 				}
 
-				from := r.FormValue("from")
-				if from == "" {
-					from = appData.Paths.ChooseAttorneysSummary
+				return appData.Redirect(w, r, lpa, from)
+			}
+
+			if data.Form.Action == "manual" && data.Errors.None() {
+				attorney.Address = *data.Form.Address
+				lpa.Attorneys.Put(attorney)
+				lpa.Tasks.ChooseAttorneys = page.TaskCompleted
+
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+					return err
 				}
 
 				return appData.Redirect(w, r, lpa, from)
