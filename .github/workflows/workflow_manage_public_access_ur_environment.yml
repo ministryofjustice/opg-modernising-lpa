@@ -1,0 +1,39 @@
+name: "Toggle public access to UR environment"
+
+on:
+  workflow_dispatch:
+    inputs:
+      public_access_enabled:
+        description: 'Enable public access to the UR environment?'
+        required: true
+        type: boolean
+
+permissions:
+  id-token: write
+  contents: write
+  security-events: write
+  pull-requests: write
+  actions: none
+  checks: none
+  deployments: none
+  issues: write
+  packages: none
+  repository-projects: none
+  statuses: none
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  ur_toggle_public_access:
+      name: UR Environment Deploy
+      needs: [ui_tests_image]
+      uses: ./.github/workflows/toggle_public_access_job.yml
+      with:
+        workspace_name: 411mlpab799
+        public_access_enabled: ${{ inputs.public_access_enabled}}
+      secrets:
+        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+        ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}

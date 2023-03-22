@@ -7,8 +7,17 @@ variable "container_version" {
   default = "latest"
 }
 
+variable "public_access_enabled" {
+  type    = bool
+  default = false
+}
+
 output "container_version" {
   value = var.container_version
+}
+
+output "public_access_enabled" {
+  value = var.public_access_enabled
 }
 
 variable "environments" {
@@ -19,14 +28,13 @@ variable "environments" {
       is_production = bool
       regions       = list(string)
       app = object({
-        public_access_enabled = bool
         env = object({
-          app_public_url                        = string
-          auth_redirect_base_url                = string
-          notify_is_production                  = string
-          yoti_client_sdk_id                    = string
-          yoti_scenario_id                      = string
-          yoti_sandbox                          = string
+          app_public_url         = string
+          auth_redirect_base_url = string
+          notify_is_production   = string
+          yoti_client_sdk_id     = string
+          yoti_scenario_id       = string
+          yoti_sandbox           = string
         })
       })
       backups = object({
