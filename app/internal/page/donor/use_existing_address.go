@@ -47,13 +47,10 @@ func UseExistingAddress(tmpl template.Template, lpaStore LpaStore) page.Handler 
 
 		if r.Method == http.MethodPost {
 			form := readUseExistingAddressForm(r)
-			addressIndex, err := strconv.Atoi(form.Address)
-			if err != nil {
-				return err
-			}
 
+			// if no errors then:
+			addressIndex, _ := strconv.Atoi(form.AddressIndex)
 			subject.Address = addresses[addressIndex].Address
-
 			redirect := appData.Paths.ChooseAttorneysSummary
 
 			if attorneyType == "attorney" {
@@ -84,12 +81,12 @@ func UseExistingAddress(tmpl template.Template, lpaStore LpaStore) page.Handler 
 }
 
 type UseExistingAddressForm struct {
-	Address string
+	AddressIndex string
 }
 
 func readUseExistingAddressForm(r *http.Request) *UseExistingAddressForm {
 	return &UseExistingAddressForm{
-		Address: page.PostFormString(r, "address"),
+		AddressIndex: page.PostFormString(r, "address-index"),
 	}
 }
 
