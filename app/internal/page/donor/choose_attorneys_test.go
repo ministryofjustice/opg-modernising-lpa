@@ -459,13 +459,12 @@ func TestPostChooseAttorneysWhenInputRequired(t *testing.T) {
 				"last-name":           {"Doe"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1990"},
 				"ignore-name-warning": {"errorDonorMatchesActor|anAttorney|Jane|Doe"},
 			},
 			dataMatcher: func(t *testing.T, data *chooseAttorneysData) bool {
 				return assert.Equal(t, "", data.DobWarning) &&
 					assert.Equal(t, actor.NewSameNameWarning(actor.TypeAttorney, actor.TypeDonor, "Jane", "Doe"), data.NameWarning) &&
-					assert.Equal(t, validation.With("email", validation.EnterError{Label: "email"}), data.Errors)
+					assert.Equal(t, validation.With("date-of-birth", validation.DateMissingError{Label: "dateOfBirth", MissingDay: false, MissingMonth: false, MissingYear: true}), data.Errors)
 			},
 		},
 		"other name warning ignored": {
@@ -577,7 +576,6 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 			form: &chooseAttorneysForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Email:      "person@example.com",
 				Dob:        validDob,
 			},
 		},
@@ -585,7 +583,6 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 			form: &chooseAttorneysForm{
 				FirstNames: strings.Repeat("x", 53),
 				LastName:   strings.Repeat("x", 61),
-				Email:      "person@example.com",
 				Dob:        validDob,
 			},
 		},
@@ -594,14 +591,12 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 			errors: validation.
 				With("first-names", validation.EnterError{Label: "firstNames"}).
 				With("last-name", validation.EnterError{Label: "lastName"}).
-				With("email", validation.EnterError{Label: "email"}).
 				With("date-of-birth", validation.EnterError{Label: "dateOfBirth"}),
 		},
 		"too long": {
 			form: &chooseAttorneysForm{
 				FirstNames: strings.Repeat("x", 54),
 				LastName:   strings.Repeat("x", 62),
-				Email:      "person@example.com",
 				Dob:        validDob,
 			},
 			errors: validation.
@@ -612,7 +607,6 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 			form: &chooseAttorneysForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Email:      "person@example.com",
 				Dob:        now.AddDate(0, 0, 1),
 			},
 			errors: validation.With("date-of-birth", validation.DateMustBePastError{Label: "dateOfBirth"}),
@@ -621,7 +615,6 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 			form: &chooseAttorneysForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Email:      "person@example.com",
 				Dob:        date.New("2000", "22", "2"),
 			},
 			errors: validation.With("date-of-birth", validation.DateMustBeRealError{Label: "dateOfBirth"}),
@@ -630,7 +623,6 @@ func TestChooseAttorneysFormValidate(t *testing.T) {
 			form: &chooseAttorneysForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Email:      "person@example.com",
 				Dob:        date.New("1", "", "1"),
 			},
 			errors: validation.With("date-of-birth", validation.DateMissingError{Label: "dateOfBirth", MissingMonth: true}),

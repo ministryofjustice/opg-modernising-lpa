@@ -37,21 +37,23 @@
                     </dd>
                 {{ end }}
             </div>
-            <div class="govuk-summary-list__row" id="{{ $.AttorneyType }}-email-{{ $attorneyNumber }}">
-                <dt class="govuk-summary-list__key ">
-                    {{ tr $.App "email" }}
-                </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ $a.Email }}
-                </dd>
-                {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link" href="{{ link $.App $.DetailsPath }}&id={{ .ID }}#f-email">
-                            {{ trFormatHtml $.App "changeEmailLinkText" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
-                        </a>
+            {{ if $a.Email }}
+                <div class="govuk-summary-list__row" id="{{ $.AttorneyType }}-email-{{ $attorneyNumber }}">
+                    <dt class="govuk-summary-list__key ">
+                        {{ tr $.App "email" }}
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ $a.Email }}
                     </dd>
-                {{ end }}
-            </div>
+                    {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="{{ link $.App $.DetailsPath }}&id={{ .ID }}#f-email">
+                                {{ trFormatHtml $.App "changeEmailLinkText" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
+                            </a>
+                        </dd>
+                    {{ end }}
+                </div>
+            {{ end }}
             <div class="govuk-summary-list__row" id="{{ $.AttorneyType }}-address-{{ $attorneyNumber }}">
                 <dt class="govuk-summary-list__key">
                     {{ tr $.App "address" }}
