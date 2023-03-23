@@ -27,13 +27,31 @@ defaults:
 
 jobs:
   ur_toggle_public_access:
-      name: UR Environment Deploy
-      needs: [ui_tests_image]
-      uses: ./.github/workflows/toggle_public_access_job.yml
-      with:
-        workspace_name: 411mlpab799
-        public_access_enabled: ${{ inputs.public_access_enabled}}
-      secrets:
-        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-        ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: unfor19/install-aws-cli-action@v1
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.2.6
+          terraform_wrapper: false
+      - name: Configure AWS Credentials For Terraform
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          aws-region: eu-west-1
+          role-duration-seconds: 3600
+          role-session-name: OPGModernisingLPATerraformGithubAction
+      - uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
+      - name: Terraform Init
+        run: terraform init -input=false
+        working-directory: ./terraform/environment
+      - name: Terraform Toggle Public Access for UR
+        env:
+          TF_WORKSPACE: ur
+        run: |
+          terraform apply -lock-timeout=300s  -input=false -auto-approve -var public_access_enabled=${{ inputs.public_access_enabled }} -target 'module.eu_west_1[0].module.app.aws_security_group_rule.app_loadbalancer_public_access_ingress[0]'
+        working-directory: ./terraform/environment
