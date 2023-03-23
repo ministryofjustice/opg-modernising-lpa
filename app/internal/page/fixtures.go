@@ -124,7 +124,7 @@ func AddAttorneys(lpa *Lpa, count int) []string {
 	}
 
 	if count > 1 {
-		lpa.HowAttorneysMakeDecisions = JointlyAndSeverally
+		lpa.HowAttorneysMakeDecisions.How = actor.JointlyAndSeverally
 	}
 
 	lpa.Tasks.ChooseAttorneys = TaskCompleted
@@ -145,7 +145,7 @@ func AddReplacementAttorneys(lpa *Lpa, count int) []string {
 	lpa.WantReplacementAttorneys = "yes"
 
 	if count > 1 {
-		lpa.HowReplacementAttorneysMakeDecisions = JointlyAndSeverally
+		lpa.HowReplacementAttorneysMakeDecisions.How = actor.JointlyAndSeverally
 		lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
 	}
 
@@ -155,13 +155,13 @@ func AddReplacementAttorneys(lpa *Lpa, count int) []string {
 
 func CompleteHowAttorneysAct(lpa *Lpa, howTheyAct string) {
 	switch howTheyAct {
-	case Jointly:
-		lpa.HowAttorneysMakeDecisions = Jointly
-	case JointlyAndSeverally:
-		lpa.HowAttorneysMakeDecisions = JointlyAndSeverally
+	case actor.Jointly:
+		lpa.HowAttorneysMakeDecisions.How = actor.Jointly
+	case actor.JointlyAndSeverally:
+		lpa.HowAttorneysMakeDecisions.How = actor.JointlyAndSeverally
 	default:
-		lpa.HowAttorneysMakeDecisions = JointlyForSomeSeverallyForOthers
-		lpa.HowAttorneysMakeDecisionsDetails = "some details"
+		lpa.HowAttorneysMakeDecisions.How = actor.JointlyForSomeSeverallyForOthers
+		lpa.HowAttorneysMakeDecisions.Details = "some details"
 	}
 }
 
