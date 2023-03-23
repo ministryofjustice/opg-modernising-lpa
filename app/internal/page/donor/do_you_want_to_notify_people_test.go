@@ -72,15 +72,15 @@ func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 		expectedTransKey string
 	}{
 		"jointly": {
-			howWorkTogether:  page.Jointly,
+			howWorkTogether:  actor.Jointly,
 			expectedTransKey: "jointlyDescription",
 		},
 		"jointly and severally": {
-			howWorkTogether:  page.JointlyAndSeverally,
+			howWorkTogether:  actor.JointlyAndSeverally,
 			expectedTransKey: "jointlyAndSeverallyDescription",
 		},
 		"jointly for some severally for others": {
-			howWorkTogether:  page.JointlyForSomeSeverallyForOthers,
+			howWorkTogether:  actor.JointlyForSomeSeverallyForOthers,
 			expectedTransKey: "jointlyForSomeSeverallyForOthersDescription",
 		},
 	}
@@ -95,7 +95,7 @@ func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 				On("Get", r.Context()).
 				Return(&page.Lpa{
 					DoYouWantToNotifyPeople:   "yes",
-					HowAttorneysMakeDecisions: tc.howWorkTogether,
+					HowAttorneysMakeDecisions: actor.AttorneyDecisions{How: tc.howWorkTogether},
 				}, nil)
 
 			template := newMockTemplate(t)
@@ -105,7 +105,7 @@ func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 					WantToNotify: "yes",
 					Lpa: &page.Lpa{
 						DoYouWantToNotifyPeople:   "yes",
-						HowAttorneysMakeDecisions: tc.howWorkTogether,
+						HowAttorneysMakeDecisions: actor.AttorneyDecisions{How: tc.howWorkTogether},
 					},
 					HowWorkTogether: tc.expectedTransKey,
 				}).

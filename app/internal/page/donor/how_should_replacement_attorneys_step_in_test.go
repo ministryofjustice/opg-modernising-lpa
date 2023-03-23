@@ -173,7 +173,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					HowAttorneysMakeDecisions: tc.HowAttorneysMakeDecisions,
+					HowAttorneysMakeDecisions: actor.AttorneyDecisions{How: tc.HowAttorneysMakeDecisions},
 					Attorneys:                 tc.Attorneys,
 					ReplacementAttorneys:      tc.ReplacementAttorneys,
 				}, nil)
@@ -181,7 +181,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 				On("Put", r.Context(), &page.Lpa{
 					Attorneys:                           tc.Attorneys,
 					ReplacementAttorneys:                tc.ReplacementAttorneys,
-					HowAttorneysMakeDecisions:           tc.HowAttorneysMakeDecisions,
+					HowAttorneysMakeDecisions:           actor.AttorneyDecisions{How: tc.HowAttorneysMakeDecisions},
 					HowShouldReplacementAttorneysStepIn: tc.HowShouldReplacementAttorneysStepIn}).
 				Return(nil)
 
