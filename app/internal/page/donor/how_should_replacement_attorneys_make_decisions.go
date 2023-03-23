@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -24,8 +25,8 @@ func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, lpaStore
 		data := &howShouldReplacementAttorneysMakeDecisionsData{
 			App: appData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    lpa.HowReplacementAttorneysMakeDecisions,
-				DecisionsDetails: lpa.HowReplacementAttorneysMakeDecisionsDetails,
+				DecisionsType:    lpa.HowReplacementAttorneysMakeDecisions.How,
+				DecisionsDetails: lpa.HowReplacementAttorneysMakeDecisions.Details,
 			},
 		}
 
@@ -34,19 +35,20 @@ func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, lpaStore
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.HowReplacementAttorneysMakeDecisions = data.Form.DecisionsType
-
-				if data.Form.DecisionsType != page.JointlyForSomeSeverallyForOthers {
-					lpa.HowReplacementAttorneysMakeDecisionsDetails = ""
-				} else {
-					lpa.HowReplacementAttorneysMakeDecisionsDetails = data.Form.DecisionsDetails
-				}
+				lpa.HowReplacementAttorneysMakeDecisions = actor.MakeAttorneyDecisions(
+					lpa.HowReplacementAttorneysMakeDecisions,
+					data.Form.DecisionsType,
+					data.Form.DecisionsDetails)
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.TaskList)
+				if lpa.HowReplacementAttorneysMakeDecisions.RequiresHappiness(len(lpa.ReplacementAttorneys)) {
+					return appData.Redirect(w, r, lpa, page.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan)
+				} else {
+					return appData.Redirect(w, r, lpa, page.Paths.TaskList)
+				}
 			}
 		}
 
