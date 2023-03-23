@@ -2,6 +2,7 @@ package donor
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -16,6 +17,7 @@ type UseExistingAddressData struct {
 	Errors    validation.List
 	Addresses []page.AddressDetail
 	Subject   actor.Attorney
+	Form      *UseExistingAddressForm
 }
 
 func UseExistingAddress(tmpl template.Template, lpaStore LpaStore) page.Handler {
@@ -25,12 +27,13 @@ func UseExistingAddress(tmpl template.Template, lpaStore LpaStore) page.Handler 
 			return err
 		}
 
-		attorneyType := r.FormValue("role")
+		attorneyType := r.FormValue("type")
 		actorId := r.FormValue("id")
 
-		subject, err := getSubject(attorneyType, actorId, lpa)
-		if err != nil {
-			return err
+		subject, found := getSubject(attorneyType, actorId, lpa)
+
+		if !found {
+			return fmt.Errorf("%s not found", attorneyType)
 		}
 
 		addresses := lpa.ActorAddresses()
@@ -46,34 +49,39 @@ func UseExistingAddress(tmpl template.Template, lpaStore LpaStore) page.Handler 
 		}
 
 		if r.Method == http.MethodPost {
-			form := readUseExistingAddressForm(r)
+			data.Form = readUseExistingAddressForm(r)
+			var options []string
 
-			// if no errors then:
-			addressIndex, _ := strconv.Atoi(form.AddressIndex)
-			subject.Address = addresses[addressIndex].Address
-			redirect := appData.Paths.ChooseAttorneysSummary
+			for i := 0; i < len(addresses); i++ {
+				options = append(options, strconv.Itoa(i))
+			}
 
-			if attorneyType == "attorney" {
-				ok := lpa.Attorneys.Put(subject)
+			data.Errors = data.Form.Validate(options)
+
+			if data.Errors.None() {
+				addressIndex, _ := strconv.Atoi(data.Form.AddressIndex)
+				subject.Address = addresses[addressIndex].Address
+				redirect := appData.Paths.ChooseAttorneysSummary
+
+				var ok bool
+				if attorneyType == "attorney" {
+					ok = lpa.Attorneys.Put(subject)
+				} else {
+					ok = lpa.ReplacementAttorneys.Put(subject)
+					redirect = appData.Paths.ChooseReplacementAttorneysSummary
+				}
 
 				if !ok {
 					return errors.New("attorney not found")
 				}
-			} else {
-				ok := lpa.ReplacementAttorneys.Put(subject)
 
-				if !ok {
-					return errors.New("replacement attorney not found")
+				err = lpaStore.Put(r.Context(), lpa)
+				if err != nil {
+					return err
 				}
-				redirect = appData.Paths.ChooseReplacementAttorneysSummary
-			}
 
-			err = lpaStore.Put(r.Context(), lpa)
-			if err != nil {
-				return err
+				return appData.Redirect(w, r, lpa, redirect)
 			}
-
-			return appData.Redirect(w, r, lpa, redirect)
 		}
 
 		return tmpl(w, data)
@@ -90,21 +98,20 @@ func readUseExistingAddressForm(r *http.Request) *UseExistingAddressForm {
 	}
 }
 
-func getSubject(attorneyType, id string, lpa *page.Lpa) (actor.Attorney, error) {
+func (f UseExistingAddressForm) Validate(options []string) validation.List {
+	errors := validation.List{}
+
+	errors.String("address-index", "selectAnAddress", f.AddressIndex,
+		validation.Select(options...))
+
+	return errors
+}
+
+func getSubject(attorneyType, id string, lpa *page.Lpa) (actor.Attorney, bool) {
 	if attorneyType == "attorney" {
-		attorney, found := lpa.Attorneys.Get(id)
-		if !found {
-			return actor.Attorney{}, errors.New("attorney not found")
-		}
-
-		return attorney, nil
+		return lpa.Attorneys.Get(id)
 	} else {
-		replacementAttorney, found := lpa.ReplacementAttorneys.Get(id)
-		if !found {
-			return actor.Attorney{}, errors.New("replacement attorney not found")
-		}
-
-		return replacementAttorney, nil
+		return lpa.ReplacementAttorneys.Get(id)
 	}
 }
 
