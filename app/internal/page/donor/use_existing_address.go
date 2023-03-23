@@ -1,7 +1,6 @@
 package donor
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -12,7 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type UseExistingAddressData struct {
+type useExistingAddressData struct {
 	App       page.AppData
 	Errors    validation.List
 	Addresses []page.AddressDetail
@@ -28,9 +27,9 @@ func UseExistingAddress(tmpl template.Template, lpaStore LpaStore) page.Handler 
 		}
 
 		attorneyType := r.FormValue("type")
-		actorId := r.FormValue("id")
+		subjectId := r.FormValue("subjectId")
 
-		subject, found := getSubject(attorneyType, actorId, lpa)
+		subject, found := getSubject(attorneyType, subjectId, lpa)
 
 		if !found {
 			return fmt.Errorf("%s not found", attorneyType)
@@ -42,7 +41,7 @@ func UseExistingAddress(tmpl template.Template, lpaStore LpaStore) page.Handler 
 			return appData.Redirect(w, r, lpa, r.FormValue("from"))
 		}
 
-		data := UseExistingAddressData{
+		data := useExistingAddressData{
 			App:       appData,
 			Addresses: addresses,
 			Subject:   subject,
@@ -61,18 +60,14 @@ func UseExistingAddress(tmpl template.Template, lpaStore LpaStore) page.Handler 
 			if data.Errors.None() {
 				addressIndex, _ := strconv.Atoi(data.Form.AddressIndex)
 				subject.Address = addresses[addressIndex].Address
+
 				redirect := appData.Paths.ChooseAttorneysSummary
 
-				var ok bool
 				if attorneyType == "attorney" {
-					ok = lpa.Attorneys.Put(subject)
+					lpa.Attorneys.Put(subject)
 				} else {
-					ok = lpa.ReplacementAttorneys.Put(subject)
+					lpa.ReplacementAttorneys.Put(subject)
 					redirect = appData.Paths.ChooseReplacementAttorneysSummary
-				}
-
-				if !ok {
-					return errors.New("attorney not found")
 				}
 
 				err = lpaStore.Put(r.Context(), lpa)
@@ -101,7 +96,7 @@ func readUseExistingAddressForm(r *http.Request) *UseExistingAddressForm {
 func (f UseExistingAddressForm) Validate(options []string) validation.List {
 	errors := validation.List{}
 
-	errors.String("address-index", "selectAnAddress", f.AddressIndex,
+	errors.String("address-index", "anAddress", f.AddressIndex,
 		validation.Select(options...))
 
 	return errors
@@ -117,7 +112,7 @@ func getSubject(attorneyType, id string, lpa *page.Lpa) (actor.Attorney, bool) {
 
 func addressDetailsContains(attorney actor.Attorney, addressDetails []page.AddressDetail) bool {
 	for _, ad := range addressDetails {
-		if ad.ID == attorney.ID {
+		if ad.ID == attorney.ID && ad.Name == fmt.Sprintf("%s %s", attorney.FirstNames, attorney.LastName) {
 			return true
 		}
 	}

@@ -18,6 +18,7 @@ type chooseAttorneysAddressData struct {
 	Attorney  actor.Attorney
 	Addresses []place.Address
 	Form      *form.AddressForm
+	Lpa       *page.Lpa
 }
 
 func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) page.Handler {
@@ -38,6 +39,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			App:      appData,
 			Attorney: attorney,
 			Form:     &form.AddressForm{},
+			Lpa:      lpa,
 		}
 
 		if attorney.Address.Line1 != "" {

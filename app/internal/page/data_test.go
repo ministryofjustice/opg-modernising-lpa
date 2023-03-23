@@ -290,12 +290,11 @@ func TestActorAddresses(t *testing.T) {
 	}
 
 	want := []AddressDetail{
-		{Name: "Donor Actor", Role: "Donor", Address: address},
-		{Name: "Certificate Provider Actor", Role: "Certificate Provider", Address: address},
-		{Name: "Attorney One Actor", Role: "Attorney", Address: address},
-		{Name: "Attorney Two Actor", Role: "Attorney", Address: address},
-		{Name: "Replacement Attorney One Actor", Role: "Replacement Attorney", Address: address},
-		{Name: "Replacement Attorney Two Actor", Role: "Replacement Attorney", Address: address},
+		{Name: "Certificate Provider Actor", Role: actor.TypeCertificateProvider, Address: address},
+		{Name: "Attorney One Actor", Role: actor.TypeAttorney, Address: address},
+		{Name: "Attorney Two Actor", Role: actor.TypeAttorney, Address: address},
+		{Name: "Replacement Attorney One Actor", Role: actor.TypeReplacementAttorney, Address: address},
+		{Name: "Replacement Attorney Two Actor", Role: actor.TypeReplacementAttorney, Address: address},
 	}
 
 	assert.Equal(t, want, lpa.ActorAddresses())
