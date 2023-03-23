@@ -7,9 +7,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestGetHowShouldAttorneysMakeDecisions(t *testing.T) {
@@ -44,7 +46,7 @@ func TestGetHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{HowAttorneysMakeDecisionsDetails: "some decisions", HowAttorneysMakeDecisions: "jointly"}, nil)
+		Return(&page.Lpa{AttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: "jointly"}}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -54,7 +56,7 @@ func TestGetHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 				DecisionsType:    "jointly",
 				DecisionsDetails: "some decisions",
 			},
-			Lpa: &page.Lpa{HowAttorneysMakeDecisionsDetails: "some decisions", HowAttorneysMakeDecisions: "jointly"},
+			Lpa: &page.Lpa{AttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: "jointly"}},
 		}).
 		Return(nil)
 
@@ -122,9 +124,14 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{HowAttorneysMakeDecisionsDetails: "", HowAttorneysMakeDecisions: ""}, nil)
+		Return(&page.Lpa{
+			AttorneyDecisions: actor.AttorneyDecisions{Details: "", How: ""},
+		}, nil)
 	lpaStore.
-		On("Put", r.Context(), &page.Lpa{HowAttorneysMakeDecisionsDetails: "", HowAttorneysMakeDecisions: "jointly"}).
+		On("Put", r.Context(), &page.Lpa{
+			AttorneyDecisions: actor.AttorneyDecisions{Details: "", How: "jointly"},
+			Tasks:             page.Tasks{ChooseAttorneys: page.TaskCompleted},
+		}).
 		Return(nil)
 
 	template := newMockTemplate(t)
@@ -145,6 +152,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 		updatedDetails  string
 		formType        string
 		formDetails     string
+		taskState       page.TaskState
 	}{
 		"existing details not set": {
 			existingType:    "jointly-and-severally",
@@ -153,6 +161,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 			updatedDetails:  "some details",
 			formType:        "mixed",
 			formDetails:     "some details",
+			taskState:       page.TaskCompleted,
 		},
 		"existing details set": {
 			existingType:    "mixed",
@@ -161,6 +170,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 			updatedDetails:  "",
 			formType:        "jointly",
 			formDetails:     "some details",
+			taskState:       page.TaskCompleted,
 		},
 	}
 
@@ -178,9 +188,14 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 			lpaStore := newMockLpaStore(t)
 			lpaStore.
 				On("Get", r.Context()).
-				Return(&page.Lpa{HowAttorneysMakeDecisionsDetails: tc.existingDetails, HowAttorneysMakeDecisions: tc.existingType}, nil)
+				Return(&page.Lpa{
+					AttorneyDecisions: actor.AttorneyDecisions{Details: tc.existingDetails, How: tc.existingType},
+				}, nil)
 			lpaStore.
-				On("Put", r.Context(), &page.Lpa{HowAttorneysMakeDecisionsDetails: tc.updatedDetails, HowAttorneysMakeDecisions: tc.updatedType}).
+				On("Put", r.Context(), &page.Lpa{
+					AttorneyDecisions: actor.AttorneyDecisions{Details: tc.updatedDetails, How: tc.updatedType},
+					Tasks:             page.Tasks{ChooseAttorneys: tc.taskState},
+				}).
 				Return(nil)
 
 			template := newMockTemplate(t)
@@ -229,7 +244,7 @@ func TestPostHowShouldAttorneysMakeDecisionsWhenValidationErrors(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{HowAttorneysMakeDecisionsDetails: "", HowAttorneysMakeDecisions: ""}, nil)
+		Return(&page.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -241,7 +256,7 @@ func TestPostHowShouldAttorneysMakeDecisionsWhenValidationErrors(t *testing.T) {
 				DecisionsDetails: "",
 				errorLabel:       "howAttorneysShouldMakeDecisions",
 			},
-			Lpa: &page.Lpa{HowAttorneysMakeDecisionsDetails: "", HowAttorneysMakeDecisions: ""},
+			Lpa: &page.Lpa{},
 		}).
 		Return(nil)
 
@@ -298,7 +313,7 @@ func TestHowShouldAttorneysMakeDecisionsFormValidate(t *testing.T) {
 
 func TestPostHowShouldAttorneysMakeDecisionsErrorOnPutStore(t *testing.T) {
 	form := url.Values{
-		"decision-type": {"jointly"},
+		"decision-type": {"jointly-and-severally"},
 		"mixed-details": {""},
 	}
 
@@ -309,9 +324,9 @@ func TestPostHowShouldAttorneysMakeDecisionsErrorOnPutStore(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{HowAttorneysMakeDecisionsDetails: "", HowAttorneysMakeDecisions: ""}, nil)
+		Return(&page.Lpa{}, nil)
 	lpaStore.
-		On("Put", r.Context(), &page.Lpa{HowAttorneysMakeDecisionsDetails: "", HowAttorneysMakeDecisions: "jointly"}).
+		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
 	template := newMockTemplate(t)

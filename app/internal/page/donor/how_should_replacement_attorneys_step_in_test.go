@@ -120,11 +120,12 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 
 func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 	testCases := map[string]struct {
-		Attorneys                           actor.Attorneys
-		ReplacementAttorneys                actor.Attorneys
-		HowAttorneysMakeDecisions           string
-		HowShouldReplacementAttorneysStepIn string
-		ExpectedRedirectUrl                 string
+		Attorneys                            actor.Attorneys
+		ReplacementAttorneys                 actor.Attorneys
+		HowAttorneysMakeDecisions            string
+		HowReplacementAttorneysMakeDecisions string
+		HowShouldReplacementAttorneysStepIn  string
+		ExpectedRedirectUrl                  string
 	}{
 		"multiple attorneys acting jointly and severally replacements step in when none left": {
 			Attorneys: actor.Attorneys{
@@ -135,25 +136,38 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 				{ID: "123"},
 				{ID: "123"},
 			},
-			HowAttorneysMakeDecisions:           "jointly-and-severally",
+			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: page.AllCanNoLongerAct,
 			ExpectedRedirectUrl:                 "/lpa/lpa-id" + page.Paths.HowShouldReplacementAttorneysMakeDecisions,
+		},
+		"multiple attorneys acting jointly": {
+			ReplacementAttorneys: actor.Attorneys{
+				{ID: "123"},
+				{ID: "123"},
+			},
+			HowReplacementAttorneysMakeDecisions: actor.Jointly,
+			HowShouldReplacementAttorneysStepIn:  page.OneCanNoLongerAct,
+			ExpectedRedirectUrl:                  "/lpa/lpa-id" + page.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan,
 		},
 		"multiple attorneys acting jointly and severally replacements step in when one loses capacity": {
 			Attorneys: actor.Attorneys{
 				{ID: "123"},
 				{ID: "123"},
 			},
-			HowAttorneysMakeDecisions:           "jointly-and-severally",
+			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: page.OneCanNoLongerAct,
 			ExpectedRedirectUrl:                 "/lpa/lpa-id" + page.Paths.TaskList,
 		},
-		"multiple attorneys acting jointly": {
+		"multiple attorneys acting jointly and severally": {
 			Attorneys: actor.Attorneys{
 				{ID: "123"},
 				{ID: "123"},
 			},
-			HowAttorneysMakeDecisions:           "jointly-and-severally",
+			ReplacementAttorneys: actor.Attorneys{
+				{ID: "123"},
+				{ID: "123"},
+			},
+			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: page.OneCanNoLongerAct,
 			ExpectedRedirectUrl:                 "/lpa/lpa-id" + page.Paths.TaskList,
 		},
@@ -173,16 +187,19 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					HowAttorneysMakeDecisions: tc.HowAttorneysMakeDecisions,
-					Attorneys:                 tc.Attorneys,
-					ReplacementAttorneys:      tc.ReplacementAttorneys,
+					Attorneys:                    tc.Attorneys,
+					AttorneyDecisions:            actor.AttorneyDecisions{How: tc.HowAttorneysMakeDecisions},
+					ReplacementAttorneys:         tc.ReplacementAttorneys,
+					ReplacementAttorneyDecisions: actor.AttorneyDecisions{How: tc.HowReplacementAttorneysMakeDecisions},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
 					Attorneys:                           tc.Attorneys,
+					AttorneyDecisions:                   actor.AttorneyDecisions{How: tc.HowAttorneysMakeDecisions},
 					ReplacementAttorneys:                tc.ReplacementAttorneys,
-					HowAttorneysMakeDecisions:           tc.HowAttorneysMakeDecisions,
-					HowShouldReplacementAttorneysStepIn: tc.HowShouldReplacementAttorneysStepIn}).
+					ReplacementAttorneyDecisions:        actor.AttorneyDecisions{How: tc.HowReplacementAttorneysMakeDecisions},
+					HowShouldReplacementAttorneysStepIn: tc.HowShouldReplacementAttorneysStepIn,
+				}).
 				Return(nil)
 
 			template := newMockTemplate(t)

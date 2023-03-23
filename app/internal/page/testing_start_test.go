@@ -161,15 +161,15 @@ func TestTestingStart(t *testing.T) {
 			Return(&Lpa{ID: "123"}, nil)
 		lpaStore.
 			On("Put", ctx, &Lpa{
-				ID:                                   "123",
-				Type:                                 LpaTypePropertyFinance,
-				WhenCanTheLpaBeUsed:                  UsedWhenRegistered,
-				Attorneys:                            attorneys,
-				ReplacementAttorneys:                 attorneys,
-				HowAttorneysMakeDecisions:            JointlyAndSeverally,
-				WantReplacementAttorneys:             "yes",
-				HowReplacementAttorneysMakeDecisions: JointlyAndSeverally,
-				HowShouldReplacementAttorneysStepIn:  OneCanNoLongerAct,
+				ID:                                  "123",
+				Type:                                LpaTypePropertyFinance,
+				WhenCanTheLpaBeUsed:                 UsedWhenRegistered,
+				Attorneys:                           attorneys,
+				ReplacementAttorneys:                attorneys,
+				AttorneyDecisions:                   actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
+				WantReplacementAttorneys:            "yes",
+				ReplacementAttorneyDecisions:        actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
+				HowShouldReplacementAttorneysStepIn: OneCanNoLongerAct,
 				Tasks: Tasks{
 					ChooseAttorneys:            TaskInProgress,
 					ChooseReplacementAttorneys: TaskInProgress,
@@ -231,9 +231,9 @@ func TestTestingStart(t *testing.T) {
 			Return(&Lpa{ID: "123"}, nil)
 		lpaStore.
 			On("Put", ctx, &Lpa{
-				ID:                        "123",
-				Attorneys:                 attorneys,
-				HowAttorneysMakeDecisions: JointlyAndSeverally,
+				ID:                "123",
+				Attorneys:         attorneys,
+				AttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 				Tasks: Tasks{
 					ChooseAttorneys: TaskCompleted,
 				},
@@ -274,9 +274,11 @@ func TestTestingStart(t *testing.T) {
 					Return(&Lpa{ID: "123"}, nil)
 				lpaStore.
 					On("Put", ctx, &Lpa{
-						ID:                               "123",
-						HowAttorneysMakeDecisions:        tc.DecisionsType,
-						HowAttorneysMakeDecisionsDetails: tc.DecisionsDetails,
+						ID: "123",
+						AttorneyDecisions: actor.AttorneyDecisions{
+							How:     tc.DecisionsType,
+							Details: tc.DecisionsDetails,
+						},
 					}).
 					Return(nil)
 
@@ -387,11 +389,13 @@ func TestTestingStart(t *testing.T) {
 			Return(&Lpa{ID: "123"}, nil)
 		lpaStore.
 			On("Put", ctx, &Lpa{
-				ID:                                   "123",
-				WantReplacementAttorneys:             "yes",
-				HowReplacementAttorneysMakeDecisions: JointlyAndSeverally,
-				HowShouldReplacementAttorneysStepIn:  OneCanNoLongerAct,
-				Tasks:                                Tasks{ChooseReplacementAttorneys: TaskCompleted},
+				ID:                       "123",
+				WantReplacementAttorneys: "yes",
+				ReplacementAttorneyDecisions: actor.AttorneyDecisions{
+					How: actor.JointlyAndSeverally,
+				},
+				HowShouldReplacementAttorneysStepIn: OneCanNoLongerAct,
+				Tasks:                               Tasks{ChooseReplacementAttorneys: TaskCompleted},
 				ReplacementAttorneys: actor.Attorneys{
 					{
 						FirstNames: "Jane",
@@ -756,11 +760,13 @@ func TestTestingStart(t *testing.T) {
 						},
 					},
 				},
-				Restrictions:                         "Some restrictions on how Attorneys act",
-				WhenCanTheLpaBeUsed:                  UsedWhenRegistered,
-				WantReplacementAttorneys:             "yes",
-				HowReplacementAttorneysMakeDecisions: JointlyAndSeverally,
-				HowShouldReplacementAttorneysStepIn:  OneCanNoLongerAct,
+				Restrictions:             "Some restrictions on how Attorneys act",
+				WhenCanTheLpaBeUsed:      UsedWhenRegistered,
+				WantReplacementAttorneys: "yes",
+				ReplacementAttorneyDecisions: actor.AttorneyDecisions{
+					How: actor.JointlyAndSeverally,
+				},
+				HowShouldReplacementAttorneysStepIn: OneCanNoLongerAct,
 				ReplacementAttorneys: actor.Attorneys{
 					{
 						FirstNames: "Jane",
@@ -846,7 +852,9 @@ func TestTestingStart(t *testing.T) {
 						},
 					},
 				},
-				HowAttorneysMakeDecisions: JointlyAndSeverally,
+				AttorneyDecisions: actor.AttorneyDecisions{
+					How: actor.JointlyAndSeverally,
+				},
 				Tasks: Tasks{
 					ConfirmYourIdentityAndSign: TaskCompleted,
 					CheckYourLpa:               TaskCompleted,
