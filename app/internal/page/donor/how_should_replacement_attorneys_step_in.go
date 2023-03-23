@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -46,17 +47,13 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 					return err
 				}
 
-				redirectUrl := appData.Paths.TaskList
-
-				if len(lpa.Attorneys) > 1 &&
-					lpa.HowAttorneysMakeDecisions == page.JointlyAndSeverally &&
-					lpa.HowShouldReplacementAttorneysStepIn == page.AllCanNoLongerAct &&
-					len(lpa.ReplacementAttorneys) > 1 {
-					redirectUrl = appData.Paths.HowShouldReplacementAttorneysMakeDecisions
-
+				if len(lpa.Attorneys) > 1 && lpa.AttorneyDecisions.How == actor.JointlyAndSeverally && lpa.HowShouldReplacementAttorneysStepIn == page.AllCanNoLongerAct && len(lpa.ReplacementAttorneys) > 1 {
+					return appData.Redirect(w, r, lpa, appData.Paths.HowShouldReplacementAttorneysMakeDecisions)
+				} else if lpa.ReplacementAttorneyDecisions.RequiresHappiness(len(lpa.ReplacementAttorneys)) {
+					return appData.Redirect(w, r, lpa, appData.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan)
+				} else {
+					return appData.Redirect(w, r, lpa, appData.Paths.TaskList)
 				}
-
-				return appData.Redirect(w, r, lpa, redirectUrl)
 			}
 		}
 

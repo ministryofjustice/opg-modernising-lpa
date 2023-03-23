@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -37,9 +38,9 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 			if data.Errors.None() {
 				var redirectUrl string
 
-				if len(lpa.ReplacementAttorneys) > 1 && len(lpa.Attorneys) > 1 && lpa.HowAttorneysMakeDecisions == page.Jointly {
+				if len(lpa.ReplacementAttorneys) > 1 && len(lpa.Attorneys) > 1 && lpa.AttorneyDecisions.How == actor.Jointly {
 					redirectUrl = appData.Paths.HowShouldReplacementAttorneysMakeDecisions
-				} else if len(lpa.Attorneys) > 1 && lpa.HowAttorneysMakeDecisions == page.JointlyAndSeverally {
+				} else if len(lpa.Attorneys) > 1 && lpa.AttorneyDecisions.How == actor.JointlyAndSeverally {
 					redirectUrl = appData.Paths.HowShouldReplacementAttorneysStepIn
 				} else {
 					redirectUrl = appData.Paths.WhenCanTheLpaBeUsed
