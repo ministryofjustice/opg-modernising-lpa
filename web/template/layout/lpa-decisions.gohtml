@@ -54,25 +54,57 @@
         </div>
 
         {{ if gt (len .Lpa.Attorneys) 1 }}
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                    {{ if .App.IsDonor }}
-                        {{ tr .App "howYourAttorneysMustMakeDecisions" }}
-                    {{ else}}
-                        {{ tr .App "howAttorneysMustMakeDecisions" }}
-                    {{ end }}
-                </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ trHtml .App .Lpa.HowAttorneysMakeDecisions }}
-                </dd>
-                {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link" href="{{ link .App .App.Paths.HowShouldAttorneysMakeDecisions }}">
-                            {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ .Lpa.HowAttorneysMakeDecisionsDetails }}</span>
-                        </a>
-                    </dd>
+          {{ $title := "howAttorneysMustMakeDecisions" }}
+          {{ if .App.IsDonor }}
+            {{ $title = "howYourAttorneysMustMakeDecisions" }}
+          {{ end }}                    
+          
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+              {{ tr .App $title }}
+            </dt>
+            <dd class="govuk-summary-list__value">
+              {{ trHtml .App .Lpa.HowAttorneysMakeDecisions.How }}
+            </dd>
+            {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link" href="{{ link .App .App.Paths.HowShouldAttorneysMakeDecisions }}">
+                  {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
+                </a>
+              </dd>
+            {{ end }}
+          </div>
+        {{ end }}
+
+        {{ if .Lpa.HowAttorneysMakeDecisions.RequiresHappiness (len .Lpa.Attorneys) }}
+          {{ $title := "howAttorneysWillActWhenOneCannot" }}
+          {{ if .App.IsDonor }}
+            {{ $title = "howYourAttorneysWillActWhenOneCannot" }}
+          {{ end }}                    
+
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+              {{ tr .App $title }}
+            </dt>
+            <dd class="govuk-summary-list__value">
+              {{ if .Lpa.HowAttorneysMakeDecisions.HappyIfOneCannotActNoneCan }}
+                <p class="govuk-body">{{ tr .App "ifOneAttorneyCannotActNoneCan" }}</p>
+              {{ else }}
+                {{ if .Lpa.HowAttorneysMakeDecisions.HappyIfRemainingCanContinueToAct }}
+                  <p class="govuk-body">{{ tr .App "ifOneAttorneyCannotActTheRemainingCan" }}</p>
+                {{ else }}
+                  <p class="govuk-body">{{ tr .App "ifOneAttorneyCannotActNoneCanButYouAlsoDontWantTheRemainingOnesToAct" }}</p>
                 {{ end }}
-            </div>
+              {{ end }}
+            </dd>
+            {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link" href="{{ link .App .App.Paths.AreYouHappyIfOneAttorneyCantActNoneCan }}">
+                  {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
+                </a>
+              </dd>
+            {{ end }}
+          </div>
         {{ end }}
 
         <div class="govuk-summary-list__row">
@@ -98,6 +130,37 @@
                 </dd>
             {{ end }}
         </div>
+
+        {{ if .Lpa.HowReplacementAttorneysMakeDecisions.RequiresHappiness (len .Lpa.ReplacementAttorneys) }}
+          {{ $title := "howReplacementAttorneysWillActWhenOneCannot" }}
+          {{ if .App.IsDonor }}
+            {{ $title = "howYourReplacementAttorneysWillActWhenOneCannot" }}
+          {{ end }}                    
+
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+              {{ tr .App $title }}
+            </dt>
+            <dd class="govuk-summary-list__value">
+              {{ if .Lpa.HowReplacementAttorneysMakeDecisions.HappyIfOneCannotActNoneCan }}
+                <p class="govuk-body">{{ tr .App "ifOneReplacementAttorneyCannotActNoneCan" }}</p>
+              {{ else }}
+                {{ if .Lpa.HowReplacementAttorneysMakeDecisions.HappyIfRemainingCanContinueToAct }}
+                  <p class="govuk-body">{{ tr .App "ifOneReplacementAttorneyCannotActTheRemainingCan" }}</p>
+                {{ else }}
+                  <p class="govuk-body">{{ tr .App "ifOneReplacementAttorneyCannotActNoneCanButYouAlsoDontWantTheRemainingOnesToAct" }}</p>
+                {{ end }}
+              {{ end }}
+            </dd>
+            {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link" href="{{ link .App .App.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan }}">
+                  {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
+                </a>
+              </dd>
+            {{ end }}
+          </div>
+        {{ end }}
 
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
