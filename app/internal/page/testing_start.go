@@ -56,10 +56,10 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			lpa.Type = LpaTypePropertyFinance
 			lpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
 
-			lpa.HowAttorneysMakeDecisions = JointlyAndSeverally
+			lpa.AttorneyDecisions.How = actor.JointlyAndSeverally
 
 			lpa.WantReplacementAttorneys = "yes"
-			lpa.HowReplacementAttorneysMakeDecisions = JointlyAndSeverally
+			lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
 			lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
 
 			lpa.Tasks.ChooseAttorneys = TaskInProgress

@@ -118,16 +118,16 @@ func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			Attorneys:                 actor.Attorneys{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}},
-			HowAttorneysMakeDecisions: page.Jointly,
-			Tasks:                     page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
+			Attorneys:         actor.Attorneys{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}},
+			AttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
+			Tasks:             page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			Attorneys:                 actor.Attorneys{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}},
-			HowAttorneysMakeDecisions: page.Jointly,
-			CertificateProvider:       actor.CertificateProvider{RelationshipLength: "gte-2-years"},
-			Tasks:                     page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted, CertificateProvider: page.TaskCompleted},
+			Attorneys:           actor.Attorneys{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}},
+			AttorneyDecisions:   actor.AttorneyDecisions{How: actor.Jointly},
+			CertificateProvider: actor.CertificateProvider{RelationshipLength: "gte-2-years"},
+			Tasks:               page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted, CertificateProvider: page.TaskCompleted},
 		}).
 		Return(nil)
 
