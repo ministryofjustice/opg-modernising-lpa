@@ -15,6 +15,21 @@ describe('Choose replacement attorneys address', () => {
         cy.url().should('contain', '/choose-replacement-attorneys-summary');
     });
 
+    it('address can be copied from another actor', () => {
+        cy.visit('/testing-start?redirect=/choose-replacement-attorneys-address?id=without-address&withIncompleteAttorneys=1&withCP=1');
+        cy.contains('a', 'Use existing address').click();
+
+        cy.url().should('contain', '/use-existing-address');
+        cy.checkA11yApp();
+
+        cy.get('input[name="address-index"]').check('0');
+        cy.contains('button', 'Continue').click();
+
+        cy.url().should('contain', '/choose-replacement-attorneys-summary');
+
+        cy.get('#replacement-address-2').should('contain', '5 RICHMOND PLACE');
+    });
+
     it('errors when empty postcode', () => {
         AddressFormAssertions.assertErrorsWhenPostcodeEmpty()
     });
