@@ -621,5 +621,31 @@
     "whoIsEligibleToBeCertificateProviderDetailsContent": "<p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>welsh</li> <li>welsh</li> <li>welsh</li> <li>welsh</li></ul>",
     "whoCannotBeCertificateProvider": "Welsh",
     "whoCannotBeCertificateProviderContent": "<p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh {{ .DonorFirstName }})</li> <li>Welsh {{ .DonorFirstName }}</li> <li>Welsh {{ .DonorFirstName }} Welsh</li> <li>Welsh {{ .DonorFirstName }} Welsh</li> <li>Welsh {{ .DonorFirstName }} Welsh</li> <li>Welsh {{ .DonorFirstNamePossessive }} Welsh</li><li>welsh</></ul>",
-    "ifAnyStatementsApplyYouCannotBeACertificateProvider": "Welsh."
+    "ifAnyStatementsApplyYouCannotBeACertificateProvider": "Welsh.",
+    
+    "areYouHappyIfOneAttorneyCantActNoneCan": "Welsh",
+    "areYouHappyIfOneAttorneyCantActNoneCanContent": "<p class=\"govuk-body\">Welsh</p>",
+    "yesIfYouAreHappyIfOneAttorneyCantActNoneCan": "welsh",
+    "areYouHappyIfRemainingAttorneysCanContinueToAct": "Welsh",
+    "areYouHappyIfRemainingAttorneysCanContinueToActContent": "<p class=\"govuk-body\">Welsh</p>",
+    "yesIfYouAreHappyIfRemainingAttorneysCanContinueToAct": "welsh",
+
+    "areYouHappyIfOneReplacementAttorneyCantActNoneCan": "Welsh",
+    "areYouHappyIfOneReplacementAttorneyCantActNoneCanContent": "<p class=\"govuk-body\">Welsh</p>",
+    "yesIfYouAreHappyIfOneReplacementAttorneyCantActNoneCan": "welsh",
+    "areYouHappyIfRemainingReplacementAttorneysCanContinueToAct": "Welsh",
+    "areYouHappyIfRemainingReplacementAttorneysCanContinueToActContent": "<p class=\"govuk-body\">Welsh</p>",
+    "yesIfYouAreHappyIfRemainingReplacementAttorneysCanContinueToAct": "welsh",
+
+    "howAttorneysWillActWhenOneCannot": "Welsh",
+    "howYourAttorneysWillActWhenOneCannot": "Welsh",
+    "ifOneAttorneyCannotActNoneCan": "Welsh",
+    "ifOneAttorneyCannotActTheRemainingCan": "Welsh",
+    "ifOneAttorneyCannotActNoneCanButYouAlsoDontWantTheRemainingOnesToAct": "Welsh",
+
+    "howReplacementAttorneysWillActWhenOneCannot": "Welsh",
+    "howYourReplacementAttorneysWillActWhenOneCannot": "Welsh",
+    "ifOneReplacementAttorneyCannotActNoneCan": "Welsh",
+    "ifOneReplacementAttorneyCannotActTheRemainingCan": "Welsh",
+    "ifOneReplacementAttorneyCannotActNoneCanButYouAlsoDontWantTheRemainingOnesToAct": "Welsh"
 }
