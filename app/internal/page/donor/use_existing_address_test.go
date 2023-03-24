@@ -371,7 +371,7 @@ func TestPostUseExistingAddressValidationError(t *testing.T) {
 	template.
 		On("Execute", w, useExistingAddressData{
 			App:    testAppData,
-			Errors: validation.With("address-index", validation.SelectError{Label: "anAddress"}),
+			Errors: validation.With("address-index", validation.SelectError{Label: "address"}),
 			Addresses: []page.AddressDetail{
 				{Address: testAddress, Role: actor.TypeAttorney, ID: "1", Name: "Joe Smith"},
 				{Address: testAddress, Role: actor.TypeAttorney, ID: "2", Name: "Joan Smith"},

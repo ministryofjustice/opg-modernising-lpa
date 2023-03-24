@@ -96,7 +96,7 @@ func readUseExistingAddressForm(r *http.Request) *UseExistingAddressForm {
 func (f UseExistingAddressForm) Validate(options []string) validation.List {
 	errors := validation.List{}
 
-	errors.String("address-index", "anAddress", f.AddressIndex,
+	errors.String("address-index", "address", f.AddressIndex,
 		validation.Select(options...))
 
 	return errors
