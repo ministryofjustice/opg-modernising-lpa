@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -25,8 +26,8 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) 
 		data := &howShouldAttorneysMakeDecisionsData{
 			App: appData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    lpa.HowAttorneysMakeDecisions,
-				DecisionsDetails: lpa.HowAttorneysMakeDecisionsDetails,
+				DecisionsType:    lpa.HowAttorneysMakeDecisions.How,
+				DecisionsDetails: lpa.HowAttorneysMakeDecisions.Details,
 			},
 			Lpa: lpa,
 		}
@@ -36,19 +37,22 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) 
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.HowAttorneysMakeDecisions = data.Form.DecisionsType
+				lpa.HowAttorneysMakeDecisions = actor.MakeAttorneyDecisions(
+					lpa.HowAttorneysMakeDecisions,
+					data.Form.DecisionsType,
+					data.Form.DecisionsDetails)
 
-				if data.Form.DecisionsType != page.JointlyForSomeSeverallyForOthers {
-					lpa.HowAttorneysMakeDecisionsDetails = ""
-				} else {
-					lpa.HowAttorneysMakeDecisionsDetails = data.Form.DecisionsDetails
+				redirect := page.Paths.AreYouHappyIfOneAttorneyCantActNoneCan
+				if !lpa.HowAttorneysMakeDecisions.RequiresHappiness(len(lpa.Attorneys)) {
+					lpa.Tasks.ChooseAttorneys = page.TaskCompleted
+					redirect = page.Paths.DoYouWantReplacementAttorneys
 				}
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.DoYouWantReplacementAttorneys)
+				return appData.Redirect(w, r, lpa, redirect)
 			}
 		}
 
@@ -74,9 +78,9 @@ func (f *howShouldAttorneysMakeDecisionsForm) Validate() validation.List {
 	var errors validation.List
 
 	errors.String("decision-type", f.errorLabel, f.DecisionsType,
-		validation.Select(page.Jointly, page.JointlyAndSeverally, page.JointlyForSomeSeverallyForOthers))
+		validation.Select(actor.Jointly, actor.JointlyAndSeverally, actor.JointlyForSomeSeverallyForOthers))
 
-	if f.DecisionsType == page.JointlyForSomeSeverallyForOthers {
+	if f.DecisionsType == actor.JointlyForSomeSeverallyForOthers {
 		errors.String("mixed-details", "details", f.DecisionsDetails,
 			validation.Empty())
 	}

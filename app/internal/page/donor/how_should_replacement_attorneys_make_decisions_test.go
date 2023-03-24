@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -43,7 +44,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{HowReplacementAttorneysMakeDecisionsDetails: "some decisions", HowReplacementAttorneysMakeDecisions: "jointly"}, nil)
+		Return(&page.Lpa{HowReplacementAttorneysMakeDecisions: actor.AttorneyDecisions{Details: "some decisions", How: "jointly"}}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -119,9 +120,9 @@ func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{HowReplacementAttorneysMakeDecisionsDetails: "", HowReplacementAttorneysMakeDecisions: ""}, nil)
+		Return(&page.Lpa{HowReplacementAttorneysMakeDecisions: actor.AttorneyDecisions{Details: "", How: ""}}, nil)
 	lpaStore.
-		On("Put", r.Context(), &page.Lpa{HowReplacementAttorneysMakeDecisionsDetails: "", HowReplacementAttorneysMakeDecisions: "jointly"}).
+		On("Put", r.Context(), &page.Lpa{HowReplacementAttorneysMakeDecisions: actor.AttorneyDecisions{Details: "", How: "jointly"}}).
 		Return(nil)
 
 	template := newMockTemplate(t)
@@ -136,48 +137,56 @@ func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 
 func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 	testCases := map[string]struct {
-		existingType    string
-		existingDetails string
-		updatedType     string
-		updatedDetails  string
-		formType        string
-		formDetails     string
+		form      url.Values
+		existing  actor.AttorneyDecisions
+		attorneys actor.Attorneys
+		updated   actor.AttorneyDecisions
+		redirect  string
 	}{
 		"existing details not set": {
-			existingType:    "jointly-and-severally",
-			existingDetails: "",
-			updatedType:     "mixed",
-			updatedDetails:  "some details",
-			formType:        "mixed",
-			formDetails:     "some details",
+			form: url.Values{
+				"decision-type": {"mixed"},
+				"mixed-details": {"some details"},
+			},
+			existing:  actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
+			attorneys: actor.Attorneys{{}},
+			updated:   actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, Details: "some details"},
+			redirect:  page.Paths.TaskList,
 		},
 		"existing details set": {
-			existingType:    "mixed",
-			existingDetails: "some details",
-			updatedType:     "jointly",
-			updatedDetails:  "",
-			formType:        "jointly",
-			formDetails:     "some details",
+			form: url.Values{
+				"decision-type": {"jointly"},
+				"mixed-details": {"some details"},
+			},
+			existing:  actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, Details: "some details"},
+			attorneys: actor.Attorneys{{}},
+			updated:   actor.AttorneyDecisions{How: actor.Jointly},
+			redirect:  page.Paths.TaskList,
+		},
+		"requires happiness": {
+			form: url.Values{
+				"decision-type": {"jointly"},
+				"mixed-details": {"some details"},
+			},
+			existing:  actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, Details: "some details"},
+			attorneys: actor.Attorneys{{}, {}},
+			updated:   actor.AttorneyDecisions{How: actor.Jointly},
+			redirect:  page.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			form := url.Values{
-				"decision-type": {tc.formType},
-				"mixed-details": {tc.formDetails},
-			}
-
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpaStore := newMockLpaStore(t)
 			lpaStore.
 				On("Get", r.Context()).
-				Return(&page.Lpa{HowReplacementAttorneysMakeDecisionsDetails: tc.existingDetails, HowReplacementAttorneysMakeDecisions: tc.existingType}, nil)
+				Return(&page.Lpa{ReplacementAttorneys: tc.attorneys, HowReplacementAttorneysMakeDecisions: tc.existing}, nil)
 			lpaStore.
-				On("Put", r.Context(), &page.Lpa{HowReplacementAttorneysMakeDecisionsDetails: tc.updatedDetails, HowReplacementAttorneysMakeDecisions: tc.updatedType}).
+				On("Put", r.Context(), &page.Lpa{ReplacementAttorneys: tc.attorneys, HowReplacementAttorneysMakeDecisions: tc.updated}).
 				Return(nil)
 
 			template := newMockTemplate(t)
@@ -187,7 +196,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+page.Paths.TaskList, resp.Header.Get("Location"))
+			assert.Equal(t, "/lpa/lpa-id"+tc.redirect, resp.Header.Get("Location"))
 		})
 	}
 }
@@ -226,7 +235,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenValidationErrors(t *t
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{HowReplacementAttorneysMakeDecisionsDetails: "", HowReplacementAttorneysMakeDecisions: ""}, nil)
+		Return(&page.Lpa{HowReplacementAttorneysMakeDecisions: actor.AttorneyDecisions{Details: "", How: ""}}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -261,9 +270,9 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsErrorOnPutStore(t *testin
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{HowReplacementAttorneysMakeDecisionsDetails: "", HowReplacementAttorneysMakeDecisions: ""}, nil)
+		Return(&page.Lpa{}, nil)
 	lpaStore.
-		On("Put", r.Context(), &page.Lpa{HowReplacementAttorneysMakeDecisionsDetails: "", HowReplacementAttorneysMakeDecisions: "jointly"}).
+		On("Put", r.Context(), &page.Lpa{HowReplacementAttorneysMakeDecisions: actor.AttorneyDecisions{Details: "", How: "jointly"}}).
 		Return(expectedError)
 
 	template := newMockTemplate(t)

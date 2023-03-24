@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -34,12 +35,12 @@ func DoYouWantToNotifyPeople(tmpl template.Template, lpaStore LpaStore) page.Han
 			Lpa:          lpa,
 		}
 
-		switch lpa.HowAttorneysMakeDecisions {
-		case page.Jointly:
+		switch lpa.HowAttorneysMakeDecisions.How {
+		case actor.Jointly:
 			data.HowWorkTogether = "jointlyDescription"
-		case page.JointlyAndSeverally:
+		case actor.JointlyAndSeverally:
 			data.HowWorkTogether = "jointlyAndSeverallyDescription"
-		case page.JointlyForSomeSeverallyForOthers:
+		case actor.JointlyForSomeSeverallyForOthers:
 			data.HowWorkTogether = "jointlyForSomeSeverallyForOthersDescription"
 		}
 
