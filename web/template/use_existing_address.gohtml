@@ -18,7 +18,7 @@
                                     <div class="govuk-radios__item">
                                         <input class="govuk-radios__input" id="f-address-{{ $i }}" name="address-index" type="radio" value="{{ $i }}">
                                         <label class="govuk-label govuk-radios__label" for="f-address-{{ $i }}">
-                                            {{ $a.Name }} ({{ $a.Role }}) {{ $a.Address }}
+                                            {{ $a.Name }} ({{ tr $.App $a.Role.String }}) {{ $a.Address }}
                                         </label>
                                     </div>
                                 {{ end }}
