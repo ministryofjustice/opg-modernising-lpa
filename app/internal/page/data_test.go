@@ -299,3 +299,25 @@ func TestActorAddresses(t *testing.T) {
 
 	assert.Equal(t, want, lpa.ActorAddresses())
 }
+
+func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
+	lpa := &Lpa{
+		Donor: actor.Donor{FirstNames: "Donor", LastName: "Actor", Address: address},
+		Attorneys: []actor.Attorney{
+			{FirstNames: "Attorney One", LastName: "Actor", Address: address},
+			{FirstNames: "Attorney Two", LastName: "Actor"},
+		},
+		ReplacementAttorneys: []actor.Attorney{
+			{FirstNames: "Replacement Attorney One", LastName: "Actor"},
+			{FirstNames: "Replacement Attorney Two", LastName: "Actor", Address: address},
+		},
+		CertificateProvider: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor"},
+	}
+
+	want := []AddressDetail{
+		{Name: "Attorney One Actor", Role: actor.TypeAttorney, Address: address},
+		{Name: "Replacement Attorney Two Actor", Role: actor.TypeReplacementAttorney, Address: address},
+	}
+
+	assert.Equal(t, want, lpa.ActorAddresses())
+}
