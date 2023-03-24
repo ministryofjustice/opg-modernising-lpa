@@ -28,36 +28,47 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 		}
 
 		attorneyId := r.FormValue("id")
-		ra, _ := lpa.ReplacementAttorneys.Get(attorneyId)
+		attorney, _ := lpa.ReplacementAttorneys.Get(attorneyId)
 
 		data := &chooseReplacementAttorneysAddressData{
 			App:      appData,
-			Attorney: ra,
+			Attorney: attorney,
 			Form:     &form.AddressForm{},
 		}
 
-		if ra.Address.Line1 != "" {
+		if attorney.Address.Line1 != "" {
 			data.Form.Action = "manual"
-			data.Form.Address = &ra.Address
+			data.Form.Address = &attorney.Address
 		}
 
 		if r.Method == http.MethodPost {
 			data.Form = form.ReadAddressForm(r)
 			data.Errors = data.Form.Validate(false)
 
-			if data.Form.Action == "manual" && data.Errors.None() {
-				ra.Address = *data.Form.Address
-				lpa.ReplacementAttorneys.Put(ra)
+			from := r.FormValue("from")
+			if from == "" {
+				from = appData.Paths.ChooseReplacementAttorneysSummary
+			}
+
+			if data.Form.Action == "skip" {
+				attorney.Address = place.Address{}
+				lpa.ReplacementAttorneys.Put(attorney)
 				lpa.Tasks.ChooseReplacementAttorneys = page.TaskCompleted
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				from := r.FormValue("from")
+				return appData.Redirect(w, r, lpa, from)
+			}
 
-				if from == "" {
-					from = appData.Paths.ChooseReplacementAttorneysSummary
+			if data.Form.Action == "manual" && data.Errors.None() {
+				attorney.Address = *data.Form.Address
+				lpa.ReplacementAttorneys.Put(attorney)
+				lpa.Tasks.ChooseReplacementAttorneys = page.TaskCompleted
+
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+					return err
 				}
 
 				return appData.Redirect(w, r, lpa, from)
@@ -67,8 +78,8 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 			if data.Form.Action == "select" && data.Errors.None() {
 				data.Form.Action = "manual"
 
-				ra.Address = *data.Form.Address
-				lpa.ReplacementAttorneys.Put(ra)
+				attorney.Address = *data.Form.Address
+				lpa.ReplacementAttorneys.Put(attorney)
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err

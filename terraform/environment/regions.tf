@@ -22,7 +22,7 @@ module "eu_west_1" {
   alb_deletion_protection_enabled                       = local.environment.application_load_balancer.deletion_protection_enabled
   lpas_table                                            = aws_dynamodb_table.lpas_table
   app_env_vars                                          = local.environment.app.env
-  public_access_enabled                                 = local.environment.app.public_access_enabled
+  public_access_enabled                                 = var.public_access_enabled
   rum_monitor_identity_pool_id_secretsmanager_secret_id = data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_1.arn
   rum_monitor_application_id_secretsmanager_secret_id   = aws_secretsmanager_secret.rum_monitor_application_id_eu_west_1.id
   providers = {
@@ -46,7 +46,7 @@ module "eu_west_2" {
   alb_deletion_protection_enabled                       = local.environment.application_load_balancer.deletion_protection_enabled
   lpas_table                                            = aws_dynamodb_table.lpas_table
   app_env_vars                                          = local.environment.app.env
-  public_access_enabled                                 = local.environment.app.public_access_enabled
+  public_access_enabled                                 = var.public_access_enabled
   rum_monitor_identity_pool_id_secretsmanager_secret_id = data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_1.arn # would be updated to eu_west_2 when that region exists
   rum_monitor_application_id_secretsmanager_secret_id   = aws_secretsmanager_secret.rum_monitor_application_id_eu_west_2.id
   providers = {

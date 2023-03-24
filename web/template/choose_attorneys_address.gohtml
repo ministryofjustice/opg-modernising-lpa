@@ -18,9 +18,15 @@
             {{ template "input" (input . "address-town" "townOrCity" .Form.Address.TownOrCity "classes" "govuk-!-width-two-thirds" "autocomplete" "address-level1") }}
             {{ template "input" (input . "address-postcode" "postcode" .Form.Address.Postcode "classes" "govuk-input--width-10" "autocomplete" "postal-code") }}
 
-            <button name="action" value="manual" class="govuk-button govuk-!-margin-top-6" data-module="govuk-button">
-              {{ tr .App "continue" }}
-            </button>
+            <div class="govuk-button-group">
+              <button name="action" value="manual" class="govuk-button govuk-!-margin-top-6" data-module="govuk-button">
+                {{ tr .App "continue" }}
+              </button>
+
+              <button name="action" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                {{ tr .App "skip" }}
+              </button>
+            </div>
 
           {{ else if .Addresses }}
             <input type="hidden" name="lookup-postcode" value="{{ .Form.LookupPostcode }}" />
@@ -44,9 +50,15 @@
               </a>
             </p>
 
-            <button name="action" value="select" class="govuk-button" data-module="govuk-button">
-              {{ tr .App "continue" }}
-            </button>
+            <div class="govuk-button-group">
+              <button name="action" value="select" class="govuk-button" data-module="govuk-button">
+                {{ tr .App "continue" }}
+              </button>
+
+              <button name="action" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                {{ tr .App "skip" }}
+              </button>
+            </div>
 
           {{ else }}
             <div id="find" class="govuk-form-group govuk-!-margin-bottom-6  {{ if .Errors.Has "lookup-postcode" }}govuk-form-group--error{{ end }}">
@@ -57,12 +69,6 @@
               <input class="govuk-input govuk-input--width-10  {{ if .Errors.Has "lookup-postcode" }}govuk-input--error{{ end }}" id="f-lookup-postcode" name="lookup-postcode" type="text" autocomplete="postal-code" value="{{ .Form.LookupPostcode }}">
             </div>
 
-            <p class="govuk-body">
-              <a href="?action=manual&id={{ .Attorney.ID }}" class="govuk-link govuk-link--no-visited-state">
-                {{ tr .App "enterAddressManually" }}
-              </a>
-            </p>
-
             {{ if gt 0 .Lpa.ActorAddresses }}
               <p class="govuk-body">
                 <a href="{{ link .App .App.Paths.UseExistingAddress }}?type={{ .App.ActorTypes.Attorney }}&id={{ .Attorney.ID }}&from={{ .App.Page }}" class="govuk-link govuk-link--no-visited-state">
@@ -70,6 +76,22 @@
                 </a>
               </p>
             {{ end }}
+
+            <p class="govuk-body">
+              <a href="?action=manual&id={{ .Attorney.ID }}" class="govuk-link govuk-link--no-visited-state">
+                {{ tr .App "enterAddressManually" }}
+              </a>
+            </p>
+
+            <div class="govuk-button-group">
+              <button name="action" value="lookup" class="govuk-button" data-module="govuk-button">
+                {{ tr .App "findAddress" }}
+              </button>
+
+              <button name="action" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                {{ tr .App "skip" }}
+              </button>
+            </div>
 
             <button name="action" value="lookup" class="govuk-button" data-module="govuk-button">
               {{ tr .App "findAddress" }}
