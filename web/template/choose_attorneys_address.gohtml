@@ -69,6 +69,14 @@
               <input class="govuk-input govuk-input--width-10  {{ if .Errors.Has "lookup-postcode" }}govuk-input--error{{ end }}" id="f-lookup-postcode" name="lookup-postcode" type="text" autocomplete="postal-code" value="{{ .Form.LookupPostcode }}">
             </div>
 
+            {{ if gt (len .Lpa.ActorAddresses) 0 }}
+              <p class="govuk-body">
+                <a href="{{ link .App .App.Paths.UseExistingAddress }}?type={{ .App.ActorTypes.Attorney }}&subjectId={{ .Attorney.ID }}&from={{ .App.Page }}" class="govuk-link govuk-link--no-visited-state">
+                  {{ tr .App "Use existing address" }}
+                </a>
+              </p>
+            {{ end }}
+
             <p class="govuk-body">
               <a href="?action=manual&id={{ .Attorney.ID }}" class="govuk-link govuk-link--no-visited-state">
                 {{ tr .App "enterAddressManually" }}

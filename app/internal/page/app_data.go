@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
@@ -23,6 +25,7 @@ type AppData struct {
 	LpaID            string
 	CsrfToken        string
 	IsDonor          bool
+	ActorTypes       actor.Types
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, lpa *Lpa, url string) error {
