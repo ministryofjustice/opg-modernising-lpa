@@ -91,6 +91,7 @@ type AppPaths struct {
 	Start                                                   string
 	TaskList                                                string
 	TestingStart                                            string
+	UseExistingAddress                                      string
 	WhatYoullNeedToConfirmYourIdentity                      string
 	WhenCanTheLpaBeUsed                                     string
 	WhoDoYouWantToBeCertificateProviderGuidance             string
@@ -190,6 +191,7 @@ var Paths = AppPaths{
 	Start:                                                "/start",
 	TaskList:                                             "/task-list",
 	TestingStart:                                         "/testing-start",
+	UseExistingAddress:                                   "/use-existing-address",
 	WhatYoullNeedToConfirmYourIdentity:                   "/what-youll-need-to-confirm-your-identity",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
 	WhoDoYouWantToBeCertificateProviderGuidance:          "/who-do-you-want-to-be-certificate-provider-guidance",
