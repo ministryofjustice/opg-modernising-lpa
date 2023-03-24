@@ -52,7 +52,6 @@ func TestGetUseExistingAddress(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-// GetUseExistingAddressStoreError
 func TestGetUseExistingAddressStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?subjectId=2&type=attorney", nil)
@@ -69,7 +68,6 @@ func TestGetUseExistingAddressStoreError(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-// GetUseExistingAddressSubjectNotFound
 func TestGetUseExistingAddressSubjectNotFound(t *testing.T) {
 	testCases := map[string]struct {
 		Type          string
@@ -98,7 +96,6 @@ func TestGetUseExistingAddressSubjectNotFound(t *testing.T) {
 	}
 }
 
-// GetUseExistingAddressNoAddresses (with both scenarios)
 func TestGetUseExistingAddressNoAddresses(t *testing.T) {
 	testCases := map[string]struct {
 		Addresses []page.AddressDetail
@@ -134,7 +131,6 @@ func TestGetUseExistingAddressNoAddresses(t *testing.T) {
 	}
 }
 
-// GetUseExistingAddressTemplateError
 func TestGetUseExistingAddressTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?subjectId=2&type=attorney", nil)
@@ -170,7 +166,6 @@ func TestGetUseExistingAddressTemplateError(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-// PostUseExistingAddress
 func TestPostUseExistingAddress(t *testing.T) {
 	newAddress := place.Address{Line1: "1 New Road"}
 
@@ -283,7 +278,6 @@ func TestPostUseExistingAddressWithMultipleAddresses(t *testing.T) {
 	assert.Equal(t, "/lpa/lpa-id"+testAppData.Paths.ChooseReplacementAttorneysSummary, resp.Header.Get("Location"))
 }
 
-// PostUseExistingAddressStoreError (attorney and replacement attorney)
 func TestPostUseExistingAddressStoreError(t *testing.T) {
 	newAddress := place.Address{Line1: "1 New Road"}
 
@@ -347,7 +341,6 @@ func TestPostUseExistingAddressStoreError(t *testing.T) {
 	}
 }
 
-// PostUseExistingAddressValidationError
 func TestPostUseExistingAddressValidationError(t *testing.T) {
 	w := httptest.NewRecorder()
 	form := url.Values{
@@ -388,7 +381,6 @@ func TestPostUseExistingAddressValidationError(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-// ReadUseExistingAddressForm
 func TestReadUseExistingAddressForm(t *testing.T) {
 	vals := url.Values{
 		"address-index": {"1"},
