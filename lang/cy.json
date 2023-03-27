@@ -379,7 +379,7 @@
     "wantToApply": "Fy mod am wneud cais i gofrestru’r LPA hon",
     "howTickingActsAsSignature": "Welsh",
     "howTickingActsAsSignatureContent": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh</p>",
-    "submitSignature": "Cyflwyno fy llofnod",
+    "submitMySignature": "Cyflwyno fy llofnod",
     "bothBoxesToSignAndApply": "Welsh",
     "iWantToSignThisLpa": "Welsh",
 
@@ -548,11 +548,12 @@
 
     "whatHappensNextContent": "<p class=\"govuk-body\">Welsh {{.DonorFullName}}</p>",
 
-    "provideTheCertificate": "Welsh",
-    "certifyStatementsContent": "<p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>welsh</li> <li>welsh</li> <li>welsh</li> </ul>",
-    "bySigningIConfirmContent": "<p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>welsh</li> <li>welsh</li> <li>welsh</li> <li>welsh</li> <li>welsh</li> </ul>",
-    "iAgreeToThisStatement": "Welsh",
-    "agreeToStatement": "welsh",
+    "provideTheCertificateForThisLpa": "Welsh",
+    "provideTheCertificateForThisLpaContent": "<p class=\"govuk-body\">Welsh</p>",
+    "yourSignature": "Welsh",
+    "iAgreeToTheseStatements": "Welsh {{.FullName}}",
+    "toSignAsCertificateProvider": "welsh",
+    "submitSignature": "Welsh",
 
     "certificateProvided": "Welsh",
     "wellDone": "Welsh",
