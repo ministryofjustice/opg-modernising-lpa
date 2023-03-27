@@ -99,39 +99,39 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			expectedUrl:          page.Paths.HowShouldReplacementAttorneysStepIn,
 			Attorneys:            actor.Attorneys{attorney1, attorney2},
 			ReplacementAttorneys: actor.Attorneys{attorney1},
-			HowAttorneysAct:      page.JointlyAndSeverally,
+			HowAttorneysAct:      actor.JointlyAndSeverally,
 		},
 		"with multiple attorneys acting jointly and severally and multiple replacement attorney": {
 			expectedUrl:          page.Paths.HowShouldReplacementAttorneysStepIn,
 			Attorneys:            actor.Attorneys{attorney1, attorney2},
 			ReplacementAttorneys: actor.Attorneys{attorney1, attorney2},
-			HowAttorneysAct:      page.JointlyAndSeverally,
+			HowAttorneysAct:      actor.JointlyAndSeverally,
 		},
 		"with multiple attorneys acting jointly for some decisions and jointly and severally for other decisions and single replacement attorney": {
 			expectedUrl:          page.Paths.WhenCanTheLpaBeUsed,
 			Attorneys:            actor.Attorneys{attorney1, attorney2},
 			ReplacementAttorneys: actor.Attorneys{attorney1},
-			HowAttorneysAct:      page.JointlyForSomeSeverallyForOthers,
+			HowAttorneysAct:      actor.JointlyForSomeSeverallyForOthers,
 			DecisionDetails:      "some words",
 		},
 		"with multiple attorneys acting jointly for some decisions, and jointly and severally for other decisions and multiple replacement attorneys": {
 			expectedUrl:          page.Paths.WhenCanTheLpaBeUsed,
 			Attorneys:            actor.Attorneys{attorney1, attorney2},
 			ReplacementAttorneys: actor.Attorneys{attorney1, attorney2},
-			HowAttorneysAct:      page.JointlyForSomeSeverallyForOthers,
+			HowAttorneysAct:      actor.JointlyForSomeSeverallyForOthers,
 			DecisionDetails:      "some words",
 		},
 		"with multiple attorneys acting jointly and single replacement attorneys": {
 			expectedUrl:          page.Paths.WhenCanTheLpaBeUsed,
 			Attorneys:            actor.Attorneys{attorney1, attorney2},
 			ReplacementAttorneys: actor.Attorneys{attorney1},
-			HowAttorneysAct:      page.Jointly,
+			HowAttorneysAct:      actor.Jointly,
 		},
 		"with multiple attorneys acting jointly and multiple replacement attorneys": {
 			expectedUrl:          page.Paths.HowShouldReplacementAttorneysMakeDecisions,
 			Attorneys:            actor.Attorneys{attorney1, attorney2},
 			ReplacementAttorneys: actor.Attorneys{attorney1, attorney2},
-			HowAttorneysAct:      page.Jointly,
+			HowAttorneysAct:      actor.Jointly,
 		},
 	}
 
@@ -149,10 +149,12 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					ReplacementAttorneys:             tc.ReplacementAttorneys,
-					HowAttorneysMakeDecisions:        tc.HowAttorneysAct,
-					HowAttorneysMakeDecisionsDetails: tc.DecisionDetails,
-					Attorneys:                        tc.Attorneys,
+					ReplacementAttorneys: tc.ReplacementAttorneys,
+					AttorneyDecisions: actor.AttorneyDecisions{
+						How:     tc.HowAttorneysAct,
+						Details: tc.DecisionDetails,
+					},
+					Attorneys: tc.Attorneys,
 					Tasks: page.Tasks{
 						YourDetails:     page.TaskCompleted,
 						ChooseAttorneys: page.TaskCompleted,
