@@ -207,7 +207,6 @@ func TestPostChooseAttorneysAddressSkip(t *testing.T) {
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
 					Attorneys: actor.Attorneys{{ID: "123"}},
-					Tasks:     page.Tasks{ChooseAttorneys: page.TaskCompleted},
 				}).
 				Return(nil)
 
@@ -219,6 +218,36 @@ func TestPostChooseAttorneysAddressSkip(t *testing.T) {
 			assert.Equal(t, "/lpa/lpa-id"+tc.redirect, resp.Header.Get("Location"))
 		})
 	}
+}
+
+func TestPostChooseAttorneysAddressSkipWhenStoreErrors(t *testing.T) {
+	f := url.Values{
+		"action":           {"skip"},
+		"address-line-1":   {"a"},
+		"address-line-2":   {"b"},
+		"address-line-3":   {"c"},
+		"address-town":     {"d"},
+		"address-postcode": {"e"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{Attorneys: actor.Attorneys{{
+			ID:      "123",
+			Address: place.Address{Line1: "abc"},
+		}}}, nil)
+	lpaStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(expectedError)
+
+	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+
+	assert.Equal(t, expectedError, err)
 }
 
 func TestPostChooseAttorneysAddressManual(t *testing.T) {
@@ -249,7 +278,6 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 				ID:      "123",
 				Address: testAddress,
 			}},
-			Tasks: page.Tasks{ChooseAttorneys: page.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -328,7 +356,6 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 				Address:    testAddress,
 			}},
 			WhoFor: "me",
-			Tasks:  page.Tasks{ChooseAttorneys: page.TaskCompleted},
 		}).
 		Return(nil)
 

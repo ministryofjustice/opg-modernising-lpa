@@ -13,19 +13,16 @@ import (
 )
 
 const (
-	AllCanNoLongerAct                = "all"
-	CostOfLpaPence                   = 8200
-	Jointly                          = "jointly"
-	JointlyAndSeverally              = "jointly-and-severally"
-	JointlyForSomeSeverallyForOthers = "mixed"
-	LpaTypeHealthWelfare             = "hw"
-	LpaTypePropertyFinance           = "pfa"
-	PayCookieName                    = "pay"
-	PayCookiePaymentIdValueKey       = "paymentId"
-	OneCanNoLongerAct                = "one"
-	SomeOtherWay                     = "other"
-	UsedWhenCapacityLost             = "when-capacity-lost"
-	UsedWhenRegistered               = "when-registered"
+	AllCanNoLongerAct          = "all"
+	CostOfLpaPence             = 8200
+	LpaTypeHealthWelfare       = "hw"
+	LpaTypePropertyFinance     = "pfa"
+	PayCookieName              = "pay"
+	PayCookiePaymentIdValueKey = "paymentId"
+	OneCanNoLongerAct          = "one"
+	SomeOtherWay               = "other"
+	UsedWhenCapacityLost       = "when-capacity-lost"
+	UsedWhenRegistered         = "when-registered"
 )
 
 type TaskState int
@@ -52,37 +49,35 @@ func (t TaskState) String() string {
 }
 
 type Lpa struct {
-	ID                                          string
-	UpdatedAt                                   time.Time
-	Donor                                       actor.Donor
-	Attorneys                                   actor.Attorneys
-	CertificateProvider                         actor.CertificateProvider
-	WhoFor                                      string
-	Type                                        string
-	WantReplacementAttorneys                    string
-	WhenCanTheLpaBeUsed                         string
-	Restrictions                                string
-	Tasks                                       Tasks
-	Checked                                     bool
-	HappyToShare                                bool
-	PaymentDetails                              PaymentDetails
-	DonorIdentityOption                         identity.Option
-	DonorIdentityUserData                       identity.UserData
-	HowAttorneysMakeDecisions                   string
-	HowAttorneysMakeDecisionsDetails            string
-	ReplacementAttorneys                        actor.Attorneys
-	HowReplacementAttorneysMakeDecisions        string
-	HowReplacementAttorneysMakeDecisionsDetails string
-	HowShouldReplacementAttorneysStepIn         string
-	HowShouldReplacementAttorneysStepInDetails  string
-	DoYouWantToNotifyPeople                     string
-	PeopleToNotify                              actor.PeopleToNotify
-	WitnessCodes                                WitnessCodes
-	WantToApplyForLpa                           bool
-	WantToSignLpa                               bool
-	Submitted                                   time.Time
-	CPWitnessCodeValidated                      bool
-	WitnessCodeLimiter                          *Limiter
+	ID                                         string
+	UpdatedAt                                  time.Time
+	Donor                                      actor.Donor
+	Attorneys                                  actor.Attorneys
+	AttorneyDecisions                          actor.AttorneyDecisions
+	CertificateProvider                        actor.CertificateProvider
+	WhoFor                                     string
+	Type                                       string
+	WantReplacementAttorneys                   string
+	WhenCanTheLpaBeUsed                        string
+	Restrictions                               string
+	Tasks                                      Tasks
+	Checked                                    bool
+	HappyToShare                               bool
+	PaymentDetails                             PaymentDetails
+	DonorIdentityOption                        identity.Option
+	DonorIdentityUserData                      identity.UserData
+	ReplacementAttorneys                       actor.Attorneys
+	ReplacementAttorneyDecisions               actor.AttorneyDecisions
+	HowShouldReplacementAttorneysStepIn        string
+	HowShouldReplacementAttorneysStepInDetails string
+	DoYouWantToNotifyPeople                    string
+	PeopleToNotify                             actor.PeopleToNotify
+	WitnessCodes                               WitnessCodes
+	WantToApplyForLpa                          bool
+	WantToSignLpa                              bool
+	Submitted                                  time.Time
+	CPWitnessCodeValidated                     bool
+	WitnessCodeLimiter                         *Limiter
 
 	CertificateProviderIdentityOption   identity.Option
 	CertificateProviderIdentityUserData identity.UserData
