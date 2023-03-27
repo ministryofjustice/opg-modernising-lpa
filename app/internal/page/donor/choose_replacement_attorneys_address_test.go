@@ -36,6 +36,7 @@ func TestGetChooseReplacementAttorneysAddress(t *testing.T) {
 			App:      testAppData,
 			Form:     &form.AddressForm{},
 			Attorney: ra,
+			Lpa:      &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
 		}).
 		Return(nil)
 
@@ -85,6 +86,7 @@ func TestGetChooseReplacementAttorneysAddressFromStore(t *testing.T) {
 				Action:  "manual",
 				Address: &testAddress,
 			},
+			Lpa: &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
 		}).
 		Return(nil)
 
@@ -118,6 +120,7 @@ func TestGetChooseReplacementAttorneysAddressManual(t *testing.T) {
 				Address: &place.Address{},
 			},
 			Attorney: ra,
+			Lpa:      &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
 		}).
 		Return(nil)
 
@@ -148,6 +151,7 @@ func TestGetChooseReplacementAttorneysAddressWhenTemplateErrors(t *testing.T) {
 			App:      testAppData,
 			Form:     &form.AddressForm{},
 			Attorney: ra,
+			Lpa:      &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
 		}).
 		Return(expectedError)
 
@@ -365,6 +369,7 @@ func TestPostChooseReplacementAttorneysAddressManualWhenValidationError(t *testi
 				Address: invalidAddress,
 			},
 			Errors: validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
+			Lpa:    &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
 		}).
 		Return(nil)
 
@@ -421,6 +426,7 @@ func TestPostChooseReplacementAttorneysAddressSelect(t *testing.T) {
 				LookupPostcode: "NG1",
 				Address:        &testAddress,
 			},
+			Lpa: &page.Lpa{ReplacementAttorneys: actor.Attorneys{updatedRa}},
 		}).
 		Return(nil)
 
@@ -471,6 +477,7 @@ func TestPostChooseReplacementAttorneysAddressSelectWhenValidationError(t *testi
 			},
 			Addresses: addresses,
 			Errors:    validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
+			Lpa:       &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
 		}).
 		Return(nil)
 
@@ -520,6 +527,7 @@ func TestPostChooseReplacementAttorneysAddressLookup(t *testing.T) {
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
+			Lpa:       &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
 		}).
 		Return(nil)
 
@@ -570,6 +578,7 @@ func TestPostChooseReplacementAttorneysAddressLookupError(t *testing.T) {
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
+			Lpa:       &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
 		}).
 		Return(nil)
 
@@ -625,6 +634,7 @@ func TestPostChooseReplacementAttorneysInvalidPostcodeError(t *testing.T) {
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
+			Lpa:       &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
 		}).
 		Return(nil)
 
@@ -674,6 +684,7 @@ func TestPostChooseReplacementAttorneysValidPostcodeNoAddresses(t *testing.T) {
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "noAddressesFound"}),
+			Lpa:       &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
 		}).
 		Return(nil)
 
@@ -712,6 +723,7 @@ func TestPostChooseReplacementAttorneysAddressLookupWhenValidationError(t *testi
 				Action: "lookup",
 			},
 			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
+			Lpa:    &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
 		}).
 		Return(nil)
 
