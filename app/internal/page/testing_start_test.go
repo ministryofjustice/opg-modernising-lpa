@@ -318,6 +318,14 @@ func TestTestingStart(t *testing.T) {
 					Relationship:            "friend",
 					RelationshipDescription: "",
 					RelationshipLength:      "gte-2-years",
+					CarryOutBy:              "paper",
+					Address: place.Address{
+						Line1:      "5 RICHMOND PLACE",
+						Line2:      "KINGS HEATH",
+						Line3:      "WEST MIDLANDS",
+						TownOrCity: "BIRMINGHAM",
+						Postcode:   "B14 7ED",
+					},
 				},
 				Tasks: Tasks{CertificateProvider: TaskCompleted},
 			}).
@@ -821,6 +829,14 @@ func TestTestingStart(t *testing.T) {
 					Relationship:            "friend",
 					RelationshipDescription: "",
 					RelationshipLength:      "gte-2-years",
+					CarryOutBy:              "paper",
+					Address: place.Address{
+						Line1:      "5 RICHMOND PLACE",
+						Line2:      "KINGS HEATH",
+						Line3:      "WEST MIDLANDS",
+						TownOrCity: "BIRMINGHAM",
+						Postcode:   "B14 7ED",
+					},
 				},
 				Attorneys: actor.Attorneys{
 					{

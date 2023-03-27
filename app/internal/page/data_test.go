@@ -274,3 +274,50 @@ func TestLpaProgress(t *testing.T) {
 	}
 
 }
+
+func TestActorAddresses(t *testing.T) {
+	lpa := &Lpa{
+		Donor: actor.Donor{FirstNames: "Donor", LastName: "Actor", Address: address},
+		Attorneys: []actor.Attorney{
+			{FirstNames: "Attorney One", LastName: "Actor", Address: address},
+			{FirstNames: "Attorney Two", LastName: "Actor", Address: address},
+		},
+		ReplacementAttorneys: []actor.Attorney{
+			{FirstNames: "Replacement Attorney One", LastName: "Actor", Address: address},
+			{FirstNames: "Replacement Attorney Two", LastName: "Actor", Address: address},
+		},
+		CertificateProvider: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor", Address: address},
+	}
+
+	want := []AddressDetail{
+		{Name: "Certificate Provider Actor", Role: actor.TypeCertificateProvider, Address: address},
+		{Name: "Attorney One Actor", Role: actor.TypeAttorney, Address: address},
+		{Name: "Attorney Two Actor", Role: actor.TypeAttorney, Address: address},
+		{Name: "Replacement Attorney One Actor", Role: actor.TypeReplacementAttorney, Address: address},
+		{Name: "Replacement Attorney Two Actor", Role: actor.TypeReplacementAttorney, Address: address},
+	}
+
+	assert.Equal(t, want, lpa.ActorAddresses())
+}
+
+func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
+	lpa := &Lpa{
+		Donor: actor.Donor{FirstNames: "Donor", LastName: "Actor", Address: address},
+		Attorneys: []actor.Attorney{
+			{FirstNames: "Attorney One", LastName: "Actor", Address: address},
+			{FirstNames: "Attorney Two", LastName: "Actor"},
+		},
+		ReplacementAttorneys: []actor.Attorney{
+			{FirstNames: "Replacement Attorney One", LastName: "Actor"},
+			{FirstNames: "Replacement Attorney Two", LastName: "Actor", Address: address},
+		},
+		CertificateProvider: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor"},
+	}
+
+	want := []AddressDetail{
+		{Name: "Attorney One Actor", Role: actor.TypeAttorney, Address: address},
+		{Name: "Replacement Attorney Two Actor", Role: actor.TypeReplacementAttorney, Address: address},
+	}
+
+	assert.Equal(t, want, lpa.ActorAddresses())
+}
