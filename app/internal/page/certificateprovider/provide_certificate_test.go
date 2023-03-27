@@ -155,7 +155,7 @@ func TestPostProvideCertificateWhenValidationErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.MatchedBy(func(data *provideCertificateData) bool {
-			return assert.Equal(t, validation.With("agree-to-statement", validation.SelectError{Label: "agreeToStatement"}), data.Errors)
+			return assert.Equal(t, validation.With("agree-to-statement", validation.SelectError{Label: "toSignAsCertificateProvider"}), data.Errors)
 		})).
 		Return(nil)
 
@@ -194,7 +194,7 @@ func TestProvideCertificateFormValidate(t *testing.T) {
 		"invalid": {
 			form: &provideCertificateForm{},
 			errors: validation.
-				With("agree-to-statement", validation.SelectError{Label: "agreeToStatement"}),
+				With("agree-to-statement", validation.SelectError{Label: "toSignAsCertificateProvider"}),
 		},
 	}
 
