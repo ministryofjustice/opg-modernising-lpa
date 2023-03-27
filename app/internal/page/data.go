@@ -232,6 +232,14 @@ type AddressDetail struct {
 func (l *Lpa) ActorAddresses() []AddressDetail {
 	var ads []AddressDetail
 
+	if l.Donor.Address.String() != "" {
+		ads = append(ads, AddressDetail{
+			Name:    l.Donor.FullName(),
+			Role:    actor.TypeDonor,
+			Address: l.Donor.Address,
+		})
+	}
+
 	if l.CertificateProvider.Address.String() != "" {
 		ads = append(ads, AddressDetail{
 			Name:    l.CertificateProvider.FullName(),
