@@ -5,15 +5,16 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type provideCertificateData struct {
-	App         page.AppData
-	Errors      validation.List
-	Certificate page.Certificate
-	Form        *provideCertificateForm
+	App                 page.AppData
+	Errors              validation.List
+	CertificateProvider actor.CertificateProvider
+	Form                *provideCertificateForm
 }
 
 func ProvideCertificate(tmpl template.Template, lpaStore LpaStore, now func() time.Time) page.Handler {
@@ -28,8 +29,8 @@ func ProvideCertificate(tmpl template.Template, lpaStore LpaStore, now func() ti
 		}
 
 		data := &provideCertificateData{
-			App:         appData,
-			Certificate: lpa.Certificate,
+			App:                 appData,
+			CertificateProvider: lpa.CertificateProvider,
 			Form: &provideCertificateForm{
 				AgreeToStatement: lpa.Certificate.AgreeToStatement,
 			},
@@ -67,7 +68,7 @@ func readProvideCertificateForm(r *http.Request) *provideCertificateForm {
 func (f *provideCertificateForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Bool("agree-to-statement", "agreeToStatement", f.AgreeToStatement,
+	errors.Bool("agree-to-statement", "toSignAsCertificateProvider", f.AgreeToStatement,
 		validation.Selected())
 
 	return errors
