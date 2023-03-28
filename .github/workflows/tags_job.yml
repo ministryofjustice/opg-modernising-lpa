@@ -89,6 +89,8 @@ jobs:
           else
             environment_name=production
           fi
+          echo ${environment_name}
+
           value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/${environment_name}' | jq -r .Parameter.Value )
           echo ${value}
           echo "tag=${value}" >> $GITHUB_OUTPUT
