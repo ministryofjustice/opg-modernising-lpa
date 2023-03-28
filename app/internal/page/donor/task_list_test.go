@@ -23,6 +23,17 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
+		"hw": {
+			lpa: &page.Lpa{Type: page.LpaTypeHealthWelfare},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[0].Items[3] = taskListItem{
+					Name: "lifeSustainingTreatment",
+					Path: page.Paths.LifeSustainingTreatment,
+				}
+
+				return sections
+			},
+		},
 		"confirmed identity": {
 			lpa: &page.Lpa{
 				DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},

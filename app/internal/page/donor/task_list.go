@@ -39,6 +39,19 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) page.Handler {
 			signTaskPage = page.Paths.ReadYourLpa
 		}
 
+		typeSpecificStep := taskListItem{
+			Name:  "chooseWhenTheLpaCanBeUsed",
+			Path:  page.Paths.WhenCanTheLpaBeUsed,
+			State: lpa.Tasks.WhenCanTheLpaBeUsed,
+		}
+		if lpa.Type == page.LpaTypeHealthWelfare {
+			typeSpecificStep = taskListItem{
+				Name:  "lifeSustainingTreatment",
+				Path:  page.Paths.LifeSustainingTreatment,
+				State: lpa.Tasks.LifeSustainingTreatment,
+			}
+		}
+
 		data := &taskListData{
 			App: appData,
 			Lpa: lpa,
@@ -63,11 +76,7 @@ func TaskList(tmpl template.Template, lpaStore LpaStore) page.Handler {
 							State: lpa.Tasks.ChooseReplacementAttorneys,
 							Count: len(lpa.ReplacementAttorneys),
 						},
-						{
-							Name:  "chooseWhenTheLpaCanBeUsed",
-							Path:  page.Paths.WhenCanTheLpaBeUsed,
-							State: lpa.Tasks.WhenCanTheLpaBeUsed,
-						},
+						typeSpecificStep,
 						{
 							Name:  "addRestrictionsToTheLpa",
 							Path:  page.Paths.Restrictions,
