@@ -25,14 +25,11 @@ jobs:
     outputs:
       changes_detected: ${{ steps.detect_changes.outputs.changes }}
   compare_to_last_push:
-    needs: [
-      compare_to_main,
-    ]
-    if: needs.compare_to_main.outputs.changes_detected == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
+          ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0 # Fetch all history for all tags and branches
       - name: Detect changes in /app, /web and /lang compared to last push using git diff
         id: detect_branch_changes
