@@ -4,11 +4,9 @@ on:
       changes_detected:
         description: "Boolean value for changes detected in /app, /web and /lang"
         value: ${{ jobs.compare_to_main.outputs.changes_detected }}
-        type: boolean
       branch_changes_detected:
         description: "Boolean value for changes detected in /app, /web and /lang since last push"
         value: ${{ jobs.compare_to_last_push.outputs.changes_detected }}
-        type: boolean
 
 jobs:
   compare_to_main:
