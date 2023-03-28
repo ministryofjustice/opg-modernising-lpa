@@ -90,10 +90,10 @@ jobs:
           if ${{ inputs.changes_detected == 'true' }} && ${{ inputs.branch_changes_detected == 'false' }}; then
             environment_name=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
           fi
-          echo ${environment_name}
+          echo ${{environment_name}}
 
           # value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/production' | jq -r .Parameter.Value )
-          value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/$environment_name' | jq -r .Parameter.Value )
+          value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/${{ environment_name }}' | jq -r .Parameter.Value )
           echo ${value}
           echo "tag=${value}" >> $GITHUB_OUTPUT
     outputs:
