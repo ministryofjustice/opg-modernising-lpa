@@ -69,10 +69,29 @@ jobs:
     outputs:
       environment_workspace_name: ${{ steps.name_workspace.outputs.name }}
 
-  pull_tags:
+  get_environment_for_tag:
     if : (inputs.changes_detected == 'false' || inputs.branch_changes_detected == 'false')
     runs-on: ubuntu-latest
     needs: generate_environment_workspace_name
+    steps:
+      - name: get environment for tag
+        id: get_tag_environment
+        run: |
+          if ${{ inputs.changes_detected == 'false' }} && ${{ inputs.branch_changes_detected == 'false' }}; then
+            value=production
+          elif ${{ inputs.changes_detected == 'true' }} && ${{ inputs.branch_changes_detected == 'false' }}; then
+            value=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
+          fi
+
+          echo ${value}
+          echo "environment_tag_to_pull=${value}" >> $GITHUB_OUTPUT
+    outputs:
+      environment_tag_to_pull: ${{ steps.get_tag_environment.outputs.environment_tag_to_pull }}
+
+  pull_tags:
+    if : (inputs.changes_detected == 'false' || inputs.branch_changes_detected == 'false')
+    runs-on: ubuntu-latest
+    needs: get_environment_for_tag
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2.0.0
@@ -84,14 +103,7 @@ jobs:
       - name: Pull previous tag
         id: pull_tag
         run: |
-          if ${{ inputs.changes_detected == 'false' }} && ${{ inputs.branch_changes_detected == 'false' }}; then
-            value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/production' | jq -r .Parameter.Value )
-            echo production
-          fi
-          if ${{ inputs.changes_detected == 'true' }} && ${{ inputs.branch_changes_detected == 'false' }}; then
-            value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}' | jq -r .Parameter.Value )
-            echo ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
-          fi
+          value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/${{ needs.get_environment_for_tag.outputs.environment_tag_to_pull }}' | jq -r .Parameter.Value )
 
           echo ${value}
           echo "tag=${value}" >> $GITHUB_OUTPUT
