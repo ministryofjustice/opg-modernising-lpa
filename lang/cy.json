@@ -141,6 +141,7 @@
     "chooseYourAttorneys": "Dewiswch eich atwrneiod",
     "chooseYourReplacementAttorneys": "Dewiswch eich atwrneiod wrth gefn (dewisol)",
     "chooseWhenTheLpaCanBeUsed": "Dewiswch bryd y gallant ddefnyddio’r LPA",
+    "lifeSustainingTreatment": "Welsh",
     "addRestrictionsToTheLpa": "Ychwanegwch cyfyngiadau i’r LPA (dewisol)",
     "chooseYourCertificateProvider": "Dewiswch ddarparwr tystysgrif",
     "checkAndSendToYourCertificateProvider": "Gwiriwch a’i hanfon at eich darparwr tystysgrif",
@@ -650,5 +651,9 @@
     "howYourReplacementAttorneysWillActWhenOneCannot": "Welsh",
     "ifOneReplacementAttorneyCannotActNoneCan": "Welsh",
     "ifOneReplacementAttorneyCannotActTheRemainingCan": "Welsh",
-    "ifOneReplacementAttorneyCannotActNoneCanButYouAlsoDontWantTheRemainingOnesToAct": "Welsh"
+    "ifOneReplacementAttorneyCannotActNoneCanButYouAlsoDontWantTheRemainingOnesToAct": "Welsh",
+
+    "optionA": "Welsh",
+    "optionB": "Welsh",
+    "ifTheDonorGivesConsentToLifeSustainingTreatment": "welsh"
 }

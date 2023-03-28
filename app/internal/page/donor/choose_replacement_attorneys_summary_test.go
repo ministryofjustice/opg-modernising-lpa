@@ -89,49 +89,60 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 	attorney2 := actor.Attorney{FirstNames: "x", LastName: "y", Address: place.Address{Line1: "z"}, DateOfBirth: date.New("2000", "1", "1")}
 
 	testcases := map[string]struct {
-		expectedUrl          string
-		Attorneys            actor.Attorneys
-		ReplacementAttorneys actor.Attorneys
-		HowAttorneysAct      string
-		DecisionDetails      string
+		redirectUrl          string
+		attorneys            actor.Attorneys
+		replacementAttorneys actor.Attorneys
+		howAttorneysAct      string
+		decisionDetails      string
+		lpaType              string
 	}{
 		"with multiple attorneys acting jointly and severally and single replacement attorney": {
-			expectedUrl:          page.Paths.HowShouldReplacementAttorneysStepIn,
-			Attorneys:            actor.Attorneys{attorney1, attorney2},
-			ReplacementAttorneys: actor.Attorneys{attorney1},
-			HowAttorneysAct:      actor.JointlyAndSeverally,
+			redirectUrl:          page.Paths.HowShouldReplacementAttorneysStepIn,
+			attorneys:            actor.Attorneys{attorney1, attorney2},
+			replacementAttorneys: actor.Attorneys{attorney1},
+			howAttorneysAct:      actor.JointlyAndSeverally,
 		},
 		"with multiple attorneys acting jointly and severally and multiple replacement attorney": {
-			expectedUrl:          page.Paths.HowShouldReplacementAttorneysStepIn,
-			Attorneys:            actor.Attorneys{attorney1, attorney2},
-			ReplacementAttorneys: actor.Attorneys{attorney1, attorney2},
-			HowAttorneysAct:      actor.JointlyAndSeverally,
-		},
-		"with multiple attorneys acting jointly for some decisions and jointly and severally for other decisions and single replacement attorney": {
-			expectedUrl:          page.Paths.WhenCanTheLpaBeUsed,
-			Attorneys:            actor.Attorneys{attorney1, attorney2},
-			ReplacementAttorneys: actor.Attorneys{attorney1},
-			HowAttorneysAct:      actor.JointlyForSomeSeverallyForOthers,
-			DecisionDetails:      "some words",
-		},
-		"with multiple attorneys acting jointly for some decisions, and jointly and severally for other decisions and multiple replacement attorneys": {
-			expectedUrl:          page.Paths.WhenCanTheLpaBeUsed,
-			Attorneys:            actor.Attorneys{attorney1, attorney2},
-			ReplacementAttorneys: actor.Attorneys{attorney1, attorney2},
-			HowAttorneysAct:      actor.JointlyForSomeSeverallyForOthers,
-			DecisionDetails:      "some words",
-		},
-		"with multiple attorneys acting jointly and single replacement attorneys": {
-			expectedUrl:          page.Paths.WhenCanTheLpaBeUsed,
-			Attorneys:            actor.Attorneys{attorney1, attorney2},
-			ReplacementAttorneys: actor.Attorneys{attorney1},
-			HowAttorneysAct:      actor.Jointly,
+			redirectUrl:          page.Paths.HowShouldReplacementAttorneysStepIn,
+			attorneys:            actor.Attorneys{attorney1, attorney2},
+			replacementAttorneys: actor.Attorneys{attorney1, attorney2},
+			howAttorneysAct:      actor.JointlyAndSeverally,
 		},
 		"with multiple attorneys acting jointly and multiple replacement attorneys": {
-			expectedUrl:          page.Paths.HowShouldReplacementAttorneysMakeDecisions,
-			Attorneys:            actor.Attorneys{attorney1, attorney2},
-			ReplacementAttorneys: actor.Attorneys{attorney1, attorney2},
-			HowAttorneysAct:      actor.Jointly,
+			redirectUrl:          page.Paths.HowShouldReplacementAttorneysMakeDecisions,
+			attorneys:            actor.Attorneys{attorney1, attorney2},
+			replacementAttorneys: actor.Attorneys{attorney1, attorney2},
+			howAttorneysAct:      actor.Jointly,
+		},
+		"with multiple attorneys acting jointly for some decisions and jointly and severally for other decisions and single replacement attorney": {
+			redirectUrl:          page.Paths.WhenCanTheLpaBeUsed,
+			attorneys:            actor.Attorneys{attorney1, attorney2},
+			replacementAttorneys: actor.Attorneys{attorney1},
+			howAttorneysAct:      actor.JointlyForSomeSeverallyForOthers,
+			decisionDetails:      "some words",
+			lpaType:              page.LpaTypePropertyFinance,
+		},
+		"with multiple attorneys acting jointly for some decisions, and jointly and severally for other decisions and multiple replacement attorneys": {
+			redirectUrl:          page.Paths.WhenCanTheLpaBeUsed,
+			attorneys:            actor.Attorneys{attorney1, attorney2},
+			replacementAttorneys: actor.Attorneys{attorney1, attorney2},
+			howAttorneysAct:      actor.JointlyForSomeSeverallyForOthers,
+			decisionDetails:      "some words",
+			lpaType:              page.LpaTypePropertyFinance,
+		},
+		"pfa with multiple attorneys acting jointly and single replacement attorneys": {
+			redirectUrl:          page.Paths.WhenCanTheLpaBeUsed,
+			attorneys:            actor.Attorneys{attorney1, attorney2},
+			replacementAttorneys: actor.Attorneys{attorney1},
+			howAttorneysAct:      actor.Jointly,
+			lpaType:              page.LpaTypePropertyFinance,
+		},
+		"hw with multiple attorneys acting jointly and single replacement attorneys": {
+			redirectUrl:          page.Paths.LifeSustainingTreatment,
+			attorneys:            actor.Attorneys{attorney1, attorney2},
+			replacementAttorneys: actor.Attorneys{attorney1},
+			howAttorneysAct:      actor.Jointly,
+			lpaType:              page.LpaTypeHealthWelfare,
 		},
 	}
 
@@ -149,12 +160,13 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					ReplacementAttorneys: tc.ReplacementAttorneys,
+					Type:                 tc.lpaType,
+					ReplacementAttorneys: tc.replacementAttorneys,
 					AttorneyDecisions: actor.AttorneyDecisions{
-						How:     tc.HowAttorneysAct,
-						Details: tc.DecisionDetails,
+						How:     tc.howAttorneysAct,
+						Details: tc.decisionDetails,
 					},
-					Attorneys: tc.Attorneys,
+					Attorneys: tc.attorneys,
 					Tasks: page.Tasks{
 						YourDetails:     page.TaskCompleted,
 						ChooseAttorneys: page.TaskCompleted,
@@ -166,7 +178,7 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+tc.expectedUrl, resp.Header.Get("Location"))
+			assert.Equal(t, "/lpa/lpa-id"+tc.redirectUrl, resp.Header.Get("Location"))
 		})
 	}
 }
