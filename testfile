@@ -1,3 +1,4 @@
 a change that shouldn't require a rebuild, but a commit previous does
 commit that shouldn't trigger, but is bundled with one that should
 change that should skip build
+commit 2 of 2 that when pushed together should return true
