@@ -26,7 +26,6 @@ jobs:
       changes_detected: ${{ steps.detect_changes.outputs.changes }}
   compare_to_last_push:
     runs-on: ubuntu-latest
-    needs: get_sha_of_previous_run_from_aws_parameter_store
     steps:
       - uses: actions/checkout@v3
         with:
