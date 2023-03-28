@@ -33,8 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          # fetch-depth: 0
+          fetch-depth: 0
       - name: Detect changes in /app, /web and /lang compared to last push using git diff
         id: detect_branch_changes
         if: github.ref != 'refs/heads/main'
