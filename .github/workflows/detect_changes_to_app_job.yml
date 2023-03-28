@@ -7,6 +7,13 @@ on:
       branch_changes_detected:
         description: "Boolean value for changes detected in /app, /web and /lang since last push"
         value: ${{ jobs.compare_to_last_push.outputs.changes_detected }}
+    secrets:
+      aws_access_key_id:
+        description: 'AWS Access Key ID'
+        required: true
+      aws_secret_access_key:
+        description: 'AWS Secret Access Key'
+        required: true
 
 jobs:
   compare_to_main:
@@ -26,6 +33,7 @@ jobs:
       changes_detected: ${{ steps.detect_changes.outputs.changes }}
   compare_to_last_push:
     runs-on: ubuntu-latest
+    needs: get_sha_of_previous_run_from_aws_parameter_store
     steps:
       - uses: actions/checkout@v3
         with:
@@ -36,11 +44,11 @@ jobs:
         id: detect_branch_changes
         if: github.ref != 'refs/heads/main'
         run: |
-          git diff --quiet HEAD@{1} -- app lang web Dockerfile package.json yarn.lock && \
+          git diff --quiet ${{github.event.before}} ${{github.sha}} -- app lang web Dockerfile package.json yarn.lock && \
           echo "branch_changes=false" || \
           echo "branch_changes=true"
 
-          git diff --quiet HEAD@{1} -- app lang web Dockerfile package.json yarn.lock && \
+          git diff --quiet ${{github.event.before}} ${{github.sha}} -- app lang web Dockerfile package.json yarn.lock && \
           echo "branch_changes=false" >> $GITHUB_OUTPUT || \
           echo "branch_changes=true" >> $GITHUB_OUTPUT
     outputs:
