@@ -92,7 +92,8 @@ jobs:
           fi
           echo ${environment_name}
 
-          value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/${environment_name}' | jq -r .Parameter.Value )
+          value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/production' | jq -r .Parameter.Value )
+          # value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/${environment_name}' | jq -r .Parameter.Value )
           echo ${value}
           echo "tag=${value}" >> $GITHUB_OUTPUT
     outputs:
