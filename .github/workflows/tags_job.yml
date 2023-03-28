@@ -83,18 +83,18 @@ jobs:
     ]
     steps:
       - name: get environment for tag
-        id: get_tag_environment
+        id: get_environment_tag_to_pull
         run: |
-          if ${{ inputs.changes_detected == 'false' }} && ${{ inputs.branch_changes_detected == 'false' }}; then
-            value=production
-          elif ${{ inputs.changes_detected == 'true' }} && ${{ inputs.branch_changes_detected == 'false' }}; then
+          value="production"
+
+          if ${{ inputs.changes_detected == 'true' }}; then
             value=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
           fi
 
           echo ${value}
           echo "environment_tag_to_pull=${value}" >> $GITHUB_OUTPUT
     outputs:
-      environment_tag_to_pull: ${{ steps.get_tag_environment.outputs.environment_tag_to_pull }}
+      environment_tag_to_pull: ${{ steps.get_environment_tag_to_pull.outputs.environment_tag_to_pull }}
 
   pull_tags:
     if : |
