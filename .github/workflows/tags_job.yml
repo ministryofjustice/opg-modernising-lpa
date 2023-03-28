@@ -19,7 +19,7 @@ on:
 
 jobs:
   create_tags:
-    if : inputs.changes_detected == true && inputs.branch_changes_detected == true
+    if : inputs.changes_detected == true && inputs.branch_changes_detected == true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -85,9 +85,9 @@ jobs:
         id: pull_tag
         run: |
           if ${{ inputs.branch_changes_detected == 'false' }}; then
-            $environment_name=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
+            environment_name=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
           else
-            $environment_name=production
+            environment_name=production
           fi
           value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/${environment_name}' | jq -r .Parameter.Value )
           echo ${value}
