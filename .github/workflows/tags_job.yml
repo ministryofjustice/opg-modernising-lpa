@@ -5,6 +5,10 @@ on:
         description: 'Boolean value for changes detected in /app'
         required: true
         type: string
+      branch_changes_detected:
+        description: 'Boolean value for changes detected in /app'
+        required: true
+        type: string
     outputs:
       version_tag:
         description: "Docker Image Tag"
@@ -68,6 +72,7 @@ jobs:
   pull_tags:
     if : inputs.changes_detected == 'false'
     runs-on: ubuntu-latest
+    needs: generate_environment_workspace_name
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2.0.0
@@ -79,7 +84,12 @@ jobs:
       - name: Pull production environment tag
         id: pull_production_tag
         run: |
-          value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/production' | jq -r .Parameter.Value )
+          if ${{ inputs.branch_changes_detected == 'false' }}; then
+            $environment_name=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
+          else
+            $environment_name=production
+          fi
+          value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/${environment_name}' | jq -r .Parameter.Value )
           echo ${value}
           echo "tag=${value}" >> $GITHUB_OUTPUT
     outputs:

@@ -3,34 +3,84 @@ on:
     outputs:
       changes_detected:
         description: "Boolean value for changes detected in /app, /web and /lang"
-        value: ${{ jobs.detect_changes_compared_to_main.outputs.changes_detected }}
+        value: ${{ jobs.compare_to_main.outputs.changes_detected }}
+      branch_changes_detected:
+        description: "Boolean value for changes detected in /app, /web and /lang since last push"
+        value: ${{ jobs.compare_to_last_push.outputs.changes_detected }}
 
 jobs:
-  detect_changes_compared_to_main:
+  compare_to_main:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Fetch all history for all tags and branches
       - name: Detect changes in /app, /web and /lang compared to main using git diff
         id: detect_changes
         if: github.ref != 'refs/heads/main'
         run: |
           git diff --quiet HEAD origin/main -- app lang web Dockerfile package.json yarn.lock && \
+          echo "changes=false" || \
+          echo "changes=true"
+
+          git diff --quiet HEAD origin/main -- app lang web Dockerfile package.json yarn.lock && \
           echo "changes=false" >> $GITHUB_OUTPUT || \
           echo "changes=true" >> $GITHUB_OUTPUT
     outputs:
       changes_detected: ${{ steps.detect_changes.outputs.changes }}
+  compare_to_last_push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.ref }}
+          fetch-depth: 0 # Fetch all history for all tags and branches
+      - name: Detect changes in /app, /web and /lang compared to last push using git diff
+        id: detect_branch_changes
+        if: github.ref != 'refs/heads/main'
+        run: |
+          git diff --quiet ${{github.event.before}} ${{github.event.after}} -- app lang web Dockerfile package.json yarn.lock && \
+          echo "branch_changes=false" || \
+          echo "branch_changes=true"
+
+          git diff --quiet ${{github.event.before}} ${{github.event.after}} -- app lang web Dockerfile package.json yarn.lock && \
+          echo "branch_changes=false" >> $GITHUB_OUTPUT || \
+          echo "branch_changes=true" >> $GITHUB_OUTPUT
+    outputs:
+      branch_changes_detected: ${{ steps.detect_branch_changes.outputs.branch_changes }}
   notify_jobs_will_be_skipped:
-    needs: detect_changes_compared_to_main
-    if: needs.detect_changes_compared_to_main.outputs.changes_detected == 'false'
+    needs: [
+      compare_to_main,
+      compare_to_last_push,
+    ]
+    if: needs.compare_to_main.outputs.changes_detected == 'false' &&
+      needs.compare_to_last_push.outputs.branch_changes_detected == 'false'
     runs-on: ubuntu-latest
     steps:
       - name: Notify jobs will be skipped
         run: |
           echo '### No Changes Detected in /app, /web or /lang!' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
+          echo "Deploying current production tag" >> $GITHUB_STEP_SUMMARY
           echo "The following jobs will be skipped" >> $GITHUB_STEP_SUMMARY
+          echo "- Create Tags" >> $GITHUB_STEP_SUMMARY
+          echo "- Go Run Unit Tests" >> $GITHUB_STEP_SUMMARY
+          echo "- Docker Build, Scan and Push to ECR" >> $GITHUB_STEP_SUMMARY
+          echo "- Cypress Tests Against Docker Image" >> $GITHUB_STEP_SUMMARY
+  notify_previous_build_on_this_branch_will_be_deployed:
+    needs: [
+      compare_to_main,
+      compare_to_last_push,
+    ]
+    if: needs.compare_to_main.outputs.changes_detected == 'true' &&
+      needs.compare_to_last_push.outputs.branch_changes_detected == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Previous build on this branch will be deployed
+        run: |
+          echo '### No Changes Detected in /app, /web or /lang! since the previous build' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
+          echo "The previous build will be deployed and the following jobs will be skipped" >> $GITHUB_STEP_SUMMARY
           echo "- Create Tags" >> $GITHUB_STEP_SUMMARY
           echo "- Go Run Unit Tests" >> $GITHUB_STEP_SUMMARY
           echo "- Docker Build, Scan and Push to ECR" >> $GITHUB_STEP_SUMMARY
