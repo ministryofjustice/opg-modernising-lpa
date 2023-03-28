@@ -174,6 +174,8 @@ func Register(
 
 	handleLpa(page.Paths.WhenCanTheLpaBeUsed, CanGoBack,
 		WhenCanTheLpaBeUsed(tmpls.Get("when_can_the_lpa_be_used.gohtml"), lpaStore))
+	handleLpa(page.Paths.LifeSustainingTreatment, CanGoBack,
+		LifeSustainingTreatment(tmpls.Get("life_sustaining_treatment.gohtml"), lpaStore))
 	handleLpa(page.Paths.Restrictions, CanGoBack,
 		Restrictions(tmpls.Get("restrictions.gohtml"), lpaStore))
 	handleLpa(page.Paths.WhoDoYouWantToBeCertificateProviderGuidance, CanGoBack,

@@ -137,6 +137,7 @@
     "chooseYourAttorneys": "Choose your attorneys",
     "chooseYourReplacementAttorneys": "Choose your replacement attorneys (optional)",
     "chooseWhenTheLpaCanBeUsed": "Choose when the LPA can be used",
+    "lifeSustainingTreatment": "Life sustaining treatment",
     "addRestrictionsToTheLpa": "Add restrictions to the LPA (optional)",
     "chooseYourCertificateProvider": "Choose your certificate provider",
     "checkAndSendToYourCertificateProvider": "Check and send to your certificate provider",
@@ -610,5 +611,9 @@
     "howYourReplacementAttorneysWillActWhenOneCannot": "How your replacement attorneys will act when one cannot",
     "ifOneReplacementAttorneyCannotActNoneCan": "If one replacement attorney cannot act then none of the replacement attorneys can act",
     "ifOneReplacementAttorneyCannotActTheRemainingCan": "If one replacement attorney cannot act then the remaining replacement attorneys can continue to act",
-    "ifOneReplacementAttorneyCannotActNoneCanButYouAlsoDontWantTheRemainingOnesToAct": "If one replacement attorney cannot act none can but also do not want the remaining replacement attorneys to act, which means you probably wanted to say yes on the first question"
+    "ifOneReplacementAttorneyCannotActNoneCanButYouAlsoDontWantTheRemainingOnesToAct": "If one replacement attorney cannot act none can but also do not want the remaining replacement attorneys to act, which means you probably wanted to say yes on the first question",
+
+    "optionA": "Option A",
+    "optionB": "Option B",
+    "ifTheDonorGivesConsentToLifeSustainingTreatment": "if the donor gives or does not give their attorneys authority to consent to life-sustainng treatment"
 }
