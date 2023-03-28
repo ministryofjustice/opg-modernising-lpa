@@ -38,16 +38,16 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 			if data.Errors.None() {
 				var redirectUrl string
 
-				if len(lpa.ReplacementAttorneys) > 1 && len(lpa.Attorneys) > 1 && lpa.AttorneyDecisions.How == actor.Jointly {
+				if data.Form.AddAttorney == "yes" {
+					redirectUrl = fmt.Sprintf("%s?addAnother=1", appData.Paths.ChooseReplacementAttorneys)
+				} else if len(lpa.ReplacementAttorneys) > 1 && len(lpa.Attorneys) > 1 && lpa.AttorneyDecisions.How == actor.Jointly {
 					redirectUrl = appData.Paths.HowShouldReplacementAttorneysMakeDecisions
 				} else if len(lpa.Attorneys) > 1 && lpa.AttorneyDecisions.How == actor.JointlyAndSeverally {
 					redirectUrl = appData.Paths.HowShouldReplacementAttorneysStepIn
+				} else if lpa.Type == page.LpaTypeHealthWelfare {
+					redirectUrl = page.Paths.LifeSustainingTreatment
 				} else {
-					redirectUrl = appData.Paths.WhenCanTheLpaBeUsed
-				}
-
-				if data.Form.AddAttorney == "yes" {
-					redirectUrl = fmt.Sprintf("%s?addAnother=1", appData.Paths.ChooseReplacementAttorneys)
+					redirectUrl = page.Paths.WhenCanTheLpaBeUsed
 				}
 
 				return appData.Redirect(w, r, lpa, redirectUrl)

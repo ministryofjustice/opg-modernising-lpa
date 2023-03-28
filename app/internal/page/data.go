@@ -23,6 +23,8 @@ const (
 	SomeOtherWay               = "other"
 	UsedWhenCapacityLost       = "when-capacity-lost"
 	UsedWhenRegistered         = "when-registered"
+	OptionA                    = "option-a"
+	OptionB                    = "option-b"
 )
 
 type TaskState int
@@ -59,6 +61,7 @@ type Lpa struct {
 	Type                                       string
 	WantReplacementAttorneys                   string
 	WhenCanTheLpaBeUsed                        string
+	LifeSustainingTreatmentOption              string
 	Restrictions                               string
 	Tasks                                      Tasks
 	Checked                                    bool
@@ -94,7 +97,8 @@ type Tasks struct {
 	YourDetails                TaskState
 	ChooseAttorneys            TaskState
 	ChooseReplacementAttorneys TaskState
-	WhenCanTheLpaBeUsed        TaskState
+	WhenCanTheLpaBeUsed        TaskState // pfa only
+	LifeSustainingTreatment    TaskState // hw only
 	Restrictions               TaskState
 	CertificateProvider        TaskState
 	CheckYourLpa               TaskState
@@ -165,14 +169,14 @@ func (l *Lpa) CanGoTo(url string) bool {
 	switch path {
 	case Paths.ReadYourLpa, Paths.SignYourLpa, Paths.WitnessingYourSignature, Paths.WitnessingAsCertificateProvider, Paths.YouHaveSubmittedYourLpa:
 		return l.DonorIdentityConfirmed()
-	case Paths.WhenCanTheLpaBeUsed, Paths.Restrictions, Paths.WhoDoYouWantToBeCertificateProviderGuidance, Paths.DoYouWantToNotifyPeople:
+	case Paths.WhenCanTheLpaBeUsed, Paths.LifeSustainingTreatment, Paths.Restrictions, Paths.WhoDoYouWantToBeCertificateProviderGuidance, Paths.DoYouWantToNotifyPeople:
 		return l.Tasks.YourDetails.Completed() &&
 			l.Tasks.ChooseAttorneys.Completed()
 	case Paths.CheckYourLpa:
 		return l.Tasks.YourDetails.Completed() &&
 			l.Tasks.ChooseAttorneys.Completed() &&
 			l.Tasks.ChooseReplacementAttorneys.Completed() &&
-			l.Tasks.WhenCanTheLpaBeUsed.Completed() &&
+			(l.Type == LpaTypeHealthWelfare && l.Tasks.LifeSustainingTreatment.Completed() || l.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
 			l.Tasks.Restrictions.Completed() &&
 			l.Tasks.CertificateProvider.Completed() &&
 			l.Tasks.PeopleToNotify.Completed()
@@ -180,7 +184,7 @@ func (l *Lpa) CanGoTo(url string) bool {
 		return l.Tasks.YourDetails.Completed() &&
 			l.Tasks.ChooseAttorneys.Completed() &&
 			l.Tasks.ChooseReplacementAttorneys.Completed() &&
-			l.Tasks.WhenCanTheLpaBeUsed.Completed() &&
+			(l.Type == LpaTypeHealthWelfare && l.Tasks.LifeSustainingTreatment.Completed() || l.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
 			l.Tasks.Restrictions.Completed() &&
 			l.Tasks.CertificateProvider.Completed() &&
 			l.Tasks.PeopleToNotify.Completed() &&

@@ -75,6 +75,7 @@ type AppPaths struct {
 	IdentityWithPassport                                       string
 	IdentityWithYoti                                           string
 	IdentityWithYotiCallback                                   string
+	LifeSustainingTreatment                                    string
 	Login                                                      string
 	LoginCallback                                              string
 	LpaType                                                    string
@@ -179,6 +180,7 @@ var Paths = AppPaths{
 	IdentityWithPassport:                                 "/id/passport",
 	IdentityWithYoti:                                     "/id/yoti",
 	IdentityWithYotiCallback:                             "/id/yoti/callback",
+	LifeSustainingTreatment:                              "/life-sustaining-treatment",
 	Login:                                                "/login",
 	LoginCallback:                                        "/login-callback",
 	LpaType:                                              "/lpa-type",
