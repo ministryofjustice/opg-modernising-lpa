@@ -7,13 +7,6 @@ on:
       branch_changes_detected:
         description: "Boolean value for changes detected in /app, /web and /lang since last push"
         value: ${{ jobs.compare_to_last_push.outputs.changes_detected }}
-    secrets:
-      aws_access_key_id:
-        description: 'AWS Access Key ID'
-        required: true
-      aws_secret_access_key:
-        description: 'AWS Secret Access Key'
-        required: true
 
 jobs:
   compare_to_main:
