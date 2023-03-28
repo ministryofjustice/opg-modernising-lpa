@@ -73,11 +73,12 @@ jobs:
       environment_workspace_name: ${{ steps.name_workspace.outputs.name }}
 
   get_environment_for_tag:
-    if :
-      always() &&
-      (inputs.changes_detected == 'false' || inputs.branch_changes_detected == 'false')
+    if : needs.create_tags.result == 'skipped'
     runs-on: ubuntu-latest
-    needs: generate_environment_workspace_name
+    needs: [
+      create_tags,
+      generate_environment_workspace_name,
+    ]
     steps:
       - name: get environment for tag
         id: get_tag_environment
@@ -94,11 +95,12 @@ jobs:
       environment_tag_to_pull: ${{ steps.get_tag_environment.outputs.environment_tag_to_pull }}
 
   pull_tags:
-    if :
-      always() &&
-      (inputs.changes_detected == 'false' || inputs.branch_changes_detected == 'false')
+    if : needs.create_tags.result == 'skipped'
     runs-on: ubuntu-latest
-    needs: get_environment_for_tag
+    needs: [
+      create_tags,
+      get_environment_for_tag,
+    ]
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2.0.0
