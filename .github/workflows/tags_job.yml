@@ -84,7 +84,7 @@ jobs:
       - name: Pull production environment tag
         id: pull_production_tag
         run: |
-          if ${{ input.branch_changes_detected == 'false' }}; then
+          if ${{ inputs.branch_changes_detected == 'false' }}; then
             $environment_name=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
           else
             $environment_name=production
