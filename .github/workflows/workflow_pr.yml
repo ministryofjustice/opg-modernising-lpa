@@ -27,12 +27,12 @@ jobs:
     name: Detect Changes
     uses: ./.github/workflows/detect_changes_to_app_job.yml
 
-  # create_tags:
-  #   name: Create Tags
-  #   needs: detect_changes
-  #   uses: ./.github/workflows/tags_job.yml
-  #   with:
-  #     changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
+  create_tags:
+    name: Create Tags
+    needs: detect_changes
+    uses: ./.github/workflows/tags_job.yml
+    with:
+      changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
 
   # go_unit_tests:
   #   name: Run Go unit tests
