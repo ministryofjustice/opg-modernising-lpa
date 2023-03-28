@@ -4,11 +4,11 @@ on:
       changes_detected:
         description: 'Boolean value for changes detected in /app'
         required: true
-        type: string
+        type: boolean
       branch_changes_detected:
         description: 'Boolean value for changes detected in /app'
         required: true
-        type: string
+        type: boolean
     outputs:
       version_tag:
         description: "Docker Image Tag"
@@ -70,7 +70,7 @@ jobs:
       environment_workspace_name: ${{ steps.name_workspace.outputs.name }}
 
   pull_tags:
-    if : inputs.changes_detected == 'false' || inputs.branch_changes_detected == 'false'
+    if : inputs.changes_detected == false || inputs.branch_changes_detected == false
     runs-on: ubuntu-latest
     needs: generate_environment_workspace_name
     steps:
@@ -82,7 +82,7 @@ jobs:
           role-duration-seconds: 900
           role-session-name: GithubActionsSSMGetParameter
       - name: Pull production environment tag
-        id: pull_production_tag
+        id: pull_tag
         run: |
           if ${{ inputs.branch_changes_detected == 'false' }}; then
             $environment_name=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
@@ -93,7 +93,7 @@ jobs:
           echo ${value}
           echo "tag=${value}" >> $GITHUB_OUTPUT
     outputs:
-      docker_tag: ${{ steps.pull_production_tag.outputs.tag }}
+      docker_tag: ${{ steps.pull_tag.outputs.tag }}
 
   consolidate_tags:
     needs: [
