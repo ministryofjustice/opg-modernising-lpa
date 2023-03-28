@@ -1,0 +1,8 @@
+make a change since last push
+add a line
+add a line to test change of syntax to @{1}
+add another line to monitor dif in multiple commits
+
+add a change, this should return true
+
+make a change here that returns true, another commit elsewhere will be bundled and should result in returned true
