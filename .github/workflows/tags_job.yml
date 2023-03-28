@@ -2,13 +2,13 @@ on:
   workflow_call:
     inputs:
       changes_detected:
-        description: 'Boolean value for changes detected in /app'
+        description: 'Boolean value for changes detected in /app from main'
         required: true
-        type: boolean
+        type: string
       branch_changes_detected:
-        description: 'Boolean value for changes detected in /app'
+        description: 'Boolean value for changes detected in /app from previous push'
         required: true
-        type: boolean
+        type: string
     outputs:
       version_tag:
         description: "Docker Image Tag"
@@ -19,7 +19,7 @@ on:
 
 jobs:
   create_tags:
-    if : inputs.changes_detected == 'true' && inputs.branch_changes_detected == 'true'
+    if : inputs.changes_detected == true && inputs.branch_changes_detected == true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
