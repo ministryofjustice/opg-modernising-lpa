@@ -134,7 +134,7 @@ jobs:
       - name: consolidate tags
         id: consolidate_tags
         run: |
-          if ${{inputs.changes_detected == 'false'}}; then
+          if ${{needs.create_tags.result == 'skipped'}}; then
             echo "tag=${{needs.pull_tags.outputs.docker_tag}}" >> $GITHUB_OUTPUT
           else
             echo "tag=${{needs.create_tags.outputs.docker_tag}}" >> $GITHUB_OUTPUT
