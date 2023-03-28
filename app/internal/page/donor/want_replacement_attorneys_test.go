@@ -128,36 +128,49 @@ func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostWantReplacementAttorneys(t *testing.T) {
-	testCases := []struct {
-		Want                         string
-		ExpectedRedirect             string
-		ExistingReplacementAttorneys actor.Attorneys
-		ExpectedReplacementAttorneys actor.Attorneys
-		TaskState                    page.TaskState
+	testCases := map[string]struct {
+		want                         string
+		lpaType                      string
+		existingReplacementAttorneys actor.Attorneys
+		expectedReplacementAttorneys actor.Attorneys
+		taskState                    page.TaskState
+		redirectURL                  string
 	}{
-		{
-			Want:                         "yes",
-			ExpectedRedirect:             "/lpa/lpa-id" + page.Paths.ChooseReplacementAttorneys,
-			ExistingReplacementAttorneys: actor.Attorneys{{ID: "123"}},
-			ExpectedReplacementAttorneys: actor.Attorneys{{ID: "123"}},
-			TaskState:                    page.TaskInProgress,
+		"yes": {
+			want:                         "yes",
+			existingReplacementAttorneys: actor.Attorneys{{ID: "123"}},
+			expectedReplacementAttorneys: actor.Attorneys{{ID: "123"}},
+			taskState:                    page.TaskInProgress,
+			redirectURL:                  page.Paths.ChooseReplacementAttorneys,
 		},
-		{
-			Want:             "no",
-			ExpectedRedirect: "/lpa/lpa-id" + page.Paths.TaskList,
-			ExistingReplacementAttorneys: actor.Attorneys{
+		"no pfa": {
+			want:    "no",
+			lpaType: page.LpaTypePropertyFinance,
+			existingReplacementAttorneys: actor.Attorneys{
 				{ID: "123"},
 				{ID: "345"},
 			},
-			ExpectedReplacementAttorneys: actor.Attorneys{},
-			TaskState:                    page.TaskCompleted,
+			expectedReplacementAttorneys: actor.Attorneys{},
+			taskState:                    page.TaskCompleted,
+			redirectURL:                  page.Paths.WhenCanTheLpaBeUsed,
+		},
+		"no hw": {
+			want:    "no",
+			lpaType: page.LpaTypeHealthWelfare,
+			existingReplacementAttorneys: actor.Attorneys{
+				{ID: "123"},
+				{ID: "345"},
+			},
+			expectedReplacementAttorneys: actor.Attorneys{},
+			taskState:                    page.TaskCompleted,
+			redirectURL:                  page.Paths.LifeSustainingTreatment,
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.Want, func(t *testing.T) {
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				"want": {tc.Want},
+				"want": {tc.want},
 			}
 
 			w := httptest.NewRecorder()
@@ -168,13 +181,16 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					ReplacementAttorneys: tc.ExistingReplacementAttorneys,
+					Type:                 tc.lpaType,
+					ReplacementAttorneys: tc.existingReplacementAttorneys,
+					Tasks:                page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
-					WantReplacementAttorneys: tc.Want,
-					ReplacementAttorneys:     tc.ExpectedReplacementAttorneys,
-					Tasks:                    page.Tasks{ChooseReplacementAttorneys: tc.TaskState},
+					Type:                     tc.lpaType,
+					WantReplacementAttorneys: tc.want,
+					ReplacementAttorneys:     tc.expectedReplacementAttorneys,
+					Tasks:                    page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted, ChooseReplacementAttorneys: tc.taskState},
 				}).
 				Return(nil)
 
@@ -183,7 +199,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, tc.ExpectedRedirect, resp.Header.Get("Location"))
+			assert.Equal(t, "/lpa/lpa-id"+tc.redirectURL, resp.Header.Get("Location"))
 		})
 	}
 }

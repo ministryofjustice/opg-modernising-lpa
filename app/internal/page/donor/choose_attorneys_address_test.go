@@ -203,10 +203,10 @@ func TestPostChooseAttorneysAddressSkip(t *testing.T) {
 					ID:      "123",
 					Address: place.Address{Line1: "abc"},
 				}}}, nil)
-
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
 					Attorneys: actor.Attorneys{{ID: "123"}},
+					Tasks:     page.Tasks{ChooseAttorneys: page.TaskCompleted},
 				}).
 				Return(nil)
 
@@ -274,6 +274,7 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
+			Tasks: page.Tasks{ChooseAttorneys: page.TaskCompleted},
 			Attorneys: actor.Attorneys{{
 				ID:      "123",
 				Address: testAddress,
@@ -350,6 +351,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
+			Tasks: page.Tasks{ChooseAttorneys: page.TaskCompleted},
 			Attorneys: actor.Attorneys{{
 				ID:         "123",
 				FirstNames: "John",
