@@ -32,8 +32,9 @@ jobs:
     needs: detect_changes
     uses: ./.github/workflows/tags_job.yml
     with:
-      changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
+      changes_detected: false
       branch_changes_detected: false
+      # changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
       # branch_changes_detected: ${{ needs.detect_changes.outputs.branch_changes_detected }}
 
   go_unit_tests:
