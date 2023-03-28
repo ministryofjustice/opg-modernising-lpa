@@ -78,17 +78,33 @@ func TestGetAreYouHappyIfOneReplacementAttorneyCantActNoneCanWhenTemplateErrors(
 
 func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCan(t *testing.T) {
 	testcases := map[string]struct {
+		happy    string
+		lpaType  string
 		lpa      *page.Lpa
 		redirect string
 	}{
-		"yes": {
+		"yes hw": {
+			happy:   "yes",
+			lpaType: page.LpaTypeHealthWelfare,
 			lpa: &page.Lpa{
+				Type:                         page.LpaTypeHealthWelfare,
+				ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfOneCannotActNoneCan: "yes"},
+				Tasks:                        page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
+			},
+			redirect: page.Paths.LifeSustainingTreatment,
+		},
+		"yes pfa": {
+			happy:   "yes",
+			lpaType: page.LpaTypePropertyFinance,
+			lpa: &page.Lpa{
+				Type:                         page.LpaTypePropertyFinance,
 				ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfOneCannotActNoneCan: "yes"},
 				Tasks:                        page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
 			},
 			redirect: page.Paths.WhenCanTheLpaBeUsed,
 		},
 		"no": {
+			happy: "no",
 			lpa: &page.Lpa{
 				ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfOneCannotActNoneCan: "no"},
 				Tasks:                        page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
@@ -97,10 +113,10 @@ func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCan(t *testing.T) {
 		},
 	}
 
-	for happy, tc := range testcases {
-		t.Run(happy, func(t *testing.T) {
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				"happy": {happy},
+				"happy": {tc.happy},
 			}
 
 			w := httptest.NewRecorder()
@@ -110,7 +126,10 @@ func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCan(t *testing.T) {
 			lpaStore := newMockLpaStore(t)
 			lpaStore.
 				On("Get", r.Context()).
-				Return(&page.Lpa{Tasks: page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted}}, nil)
+				Return(&page.Lpa{
+					Type:  tc.lpaType,
+					Tasks: page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
+				}, nil)
 			lpaStore.
 				On("Put", r.Context(), tc.lpa).
 				Return(nil)

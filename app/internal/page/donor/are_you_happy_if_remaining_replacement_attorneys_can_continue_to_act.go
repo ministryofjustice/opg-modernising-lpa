@@ -38,7 +38,11 @@ func AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(tmpl template.Te
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.WhenCanTheLpaBeUsed)
+				if lpa.Type == page.LpaTypeHealthWelfare {
+					return appData.Redirect(w, r, lpa, page.Paths.LifeSustainingTreatment)
+				} else {
+					return appData.Redirect(w, r, lpa, page.Paths.WhenCanTheLpaBeUsed)
+				}
 			}
 		}
 

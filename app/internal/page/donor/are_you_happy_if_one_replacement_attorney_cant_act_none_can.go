@@ -39,7 +39,11 @@ func AreYouHappyIfOneReplacementAttorneyCantActNoneCan(tmpl template.Template, l
 				}
 
 				if form.Happy == "yes" {
-					return appData.Redirect(w, r, lpa, page.Paths.WhenCanTheLpaBeUsed)
+					if lpa.Type == page.LpaTypeHealthWelfare {
+						return appData.Redirect(w, r, lpa, page.Paths.LifeSustainingTreatment)
+					} else {
+						return appData.Redirect(w, r, lpa, page.Paths.WhenCanTheLpaBeUsed)
+					}
 				} else {
 					return appData.Redirect(w, r, lpa, page.Paths.AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct)
 				}
