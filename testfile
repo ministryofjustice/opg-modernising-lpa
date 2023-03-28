@@ -1,1 +1,2 @@
 a change that shouldn't require a rebuild, but a commit previous does
+commit that shouldn't trigger, but is bundled with one that should
