@@ -33,17 +33,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          # ref: ${{ github.event.pull_request.head.sha }} # Checkout pull request HEAD commit instead of merge commit
           fetch-depth: 0 # Fetch all history for all tags and branches
       - name: Detect changes in /app, /web and /lang compared to last push using git diff
         id: detect_branch_changes
         if: github.ref != 'refs/heads/main'
         run: |
-          git diff --quiet HEAD~1 origin/${{ github.head_ref }} -- app lang web Dockerfile package.json yarn.lock && \
+          git diff --quiet HEAD@{1} origin/${{ github.head_ref }} -- app lang web Dockerfile package.json yarn.lock && \
           echo "branch_changes=false" || \
           echo "branch_changes=true"
 
-          git diff --quiet HEAD~1 origin/${{ github.head_ref }} -- app lang web Dockerfile package.json yarn.lock && \
+          git diff --quiet HEAD@{1} origin/${{ github.head_ref }} -- app lang web Dockerfile package.json yarn.lock && \
           echo "branch_changes=false" >> $GITHUB_OUTPUT || \
           echo "branch_changes=true" >> $GITHUB_OUTPUT
     outputs:
