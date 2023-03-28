@@ -100,7 +100,7 @@ jobs:
           role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ssm-get-parameter
           role-duration-seconds: 900
           role-session-name: GithubActionsSSMGetParameter
-      - name: Pull previous tag
+      - name: Pull ${{ needs.get_environment_for_tag.outputs.environment_tag_to_pull }} tag
         id: pull_tag
         run: |
           value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/${{ needs.get_environment_for_tag.outputs.environment_tag_to_pull }}' | jq -r .Parameter.Value )
