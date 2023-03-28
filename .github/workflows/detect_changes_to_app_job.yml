@@ -3,13 +3,13 @@ on:
     outputs:
       changes_detected:
         description: "Boolean value for changes detected in /app, /web and /lang"
-        value: ${{ jobs.detect_changes_compared_to_main.outputs.changes_detected }}
+        value: ${{ jobs.compare_to_main.outputs.changes_detected }}
       branch_changes_detected:
         description: "Boolean value for changes detected in /app, /web and /lang since last push"
-        value: ${{ jobs.detect_changes_compared_to_main.outputs.changes_detected }}
+        value: ${{ jobs.compare_to_last_push.outputs.changes_detected }}
 
 jobs:
-  detect_changes_compared_to_main:
+  compare_to_main:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -26,8 +26,11 @@ jobs:
           git diff --quiet HEAD origin/main -- app lang web Dockerfile package.json yarn.lock && \
           echo "changes=false" >> $GITHUB_OUTPUT || \
           echo "changes=true" >> $GITHUB_OUTPUT
-  detect_changes_compared_to_last_push:
-    if: needs.detect_changes_compared_to_main.outputs.changes_detected == 'true'
+  compare_to_last_push:
+    needs: [
+      compare_to_main,
+    ]
+    if: needs.compare_to_main.outputs.changes_detected == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -44,9 +47,9 @@ jobs:
       branch_changes_detected: ${{ steps.detect_changes.outputs.branch_changes }}
   notify_jobs_will_be_skipped:
     needs: [
-      detect_changes_compared_to_main,
+      compare_to_main,
     ]
-    if: needs.detect_changes_compared_to_main.outputs.changes_detected == 'false'
+    if: needs.compare_to_main.outputs.changes_detected == 'false'
     runs-on: ubuntu-latest
     steps:
       - name: Notify jobs will be skipped
@@ -60,9 +63,9 @@ jobs:
           echo "- Cypress Tests Against Docker Image" >> $GITHUB_STEP_SUMMARY
   notify_previous_build_on_this_branch_will_be_deployed:
     needs: [
-      detect_changes_compared_to_last_push,
+      compare_to_last_push,
     ]
-    if: needs.detect_changes_compared_to_last_push.outputs.branch_changes_detected == 'true'
+    if: needs.compare_to_last_push.outputs.branch_changes_detected == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Previous build on this branch will be deployed
