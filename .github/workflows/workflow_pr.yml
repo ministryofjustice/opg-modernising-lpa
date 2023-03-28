@@ -23,19 +23,17 @@ defaults:
     shell: bash
 
 jobs:
-  # detect_changes:
-  #   name: Detect Changes
-  #   uses: ./.github/workflows/detect_changes_to_app_job.yml
+  detect_changes:
+    name: Detect Changes
+    uses: ./.github/workflows/detect_changes_to_app_job.yml
 
   create_tags:
     name: Create Tags
-    # needs: detect_changes
+    needs: detect_changes
     uses: ./.github/workflows/tags_job.yml
     with:
-      changes_detected: false
-      branch_changes_detected: false
-      # changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
-      # branch_changes_detected: ${{ needs.detect_changes.outputs.branch_changes_detected }}
+      changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
+      branch_changes_detected: ${{ needs.detect_changes.outputs.branch_changes_detected }}
 
   go_unit_tests:
     name: Run Go unit tests
@@ -101,7 +99,6 @@ jobs:
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
       cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
-
 
   pr_deploy:
       name: PR Environment Deploy
