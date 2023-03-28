@@ -38,7 +38,7 @@ jobs:
         id: detect_branch_changes
         if: github.ref != 'refs/heads/main'
         run: |
-          git diff --quiet HEAD~1 origin/${{ github.head_ref }} -- app lang web Dockerfile package.json yarn.lock && \
+          git diff --quiet HEAD~1 -- app lang web Dockerfile package.json yarn.lock && \
           echo "branch_changes=false" || \
           echo "branch_changes=true"
 
