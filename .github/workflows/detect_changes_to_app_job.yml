@@ -22,6 +22,22 @@ jobs:
           git diff --quiet HEAD origin/main -- app lang web Dockerfile package.json yarn.lock && \
           echo "changes=false" >> $GITHUB_OUTPUT || \
           echo "changes=true" >> $GITHUB_OUTPUT
+  notify_jobs_will_be_skipped:
+    needs: [
+      compare_to_main,
+    ]
+    if: needs.compare_to_main.outputs.changes_detected == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify jobs will be skipped
+        run: |
+          echo '### No Changes Detected in /app, /web or /lang!' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
+          echo "The following jobs will be skipped" >> $GITHUB_STEP_SUMMARY
+          echo "- Create Tags" >> $GITHUB_STEP_SUMMARY
+          echo "- Go Run Unit Tests" >> $GITHUB_STEP_SUMMARY
+          echo "- Docker Build, Scan and Push to ECR" >> $GITHUB_STEP_SUMMARY
+          echo "- Cypress Tests Against Docker Image" >> $GITHUB_STEP_SUMMARY
   compare_to_last_push:
     needs: [
       compare_to_main,
@@ -41,22 +57,6 @@ jobs:
           echo "branch_changes=true"
     outputs:
       branch_changes_detected: ${{ steps.detect_changes.outputs.branch_changes }}
-  notify_jobs_will_be_skipped:
-    needs: [
-      compare_to_main,
-    ]
-    if: needs.compare_to_main.outputs.changes_detected == 'false'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Notify jobs will be skipped
-        run: |
-          echo '### No Changes Detected in /app, /web or /lang!' >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
-          echo "The following jobs will be skipped" >> $GITHUB_STEP_SUMMARY
-          echo "- Create Tags" >> $GITHUB_STEP_SUMMARY
-          echo "- Go Run Unit Tests" >> $GITHUB_STEP_SUMMARY
-          echo "- Docker Build, Scan and Push to ECR" >> $GITHUB_STEP_SUMMARY
-          echo "- Cypress Tests Against Docker Image" >> $GITHUB_STEP_SUMMARY
   notify_previous_build_on_this_branch_will_be_deployed:
     needs: [
       compare_to_last_push,
