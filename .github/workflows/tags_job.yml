@@ -2,7 +2,11 @@ on:
   workflow_call:
     inputs:
       changes_detected:
-        description: 'Boolean value for changes detected in /app'
+        description: 'Boolean value for changes detected in /app from main'
+        required: true
+        type: string
+      branch_changes_detected:
+        description: 'Boolean value for changes detected in /app from previous push'
         required: true
         type: string
     outputs:
@@ -15,7 +19,7 @@ on:
 
 jobs:
   create_tags:
-    if : inputs.changes_detected == 'true'
+    if : ${{ github.event.inputs.branch_changes_detected }} == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -65,9 +69,39 @@ jobs:
     outputs:
       environment_workspace_name: ${{ steps.name_workspace.outputs.name }}
 
-  pull_tags:
-    if : inputs.changes_detected == 'false'
+  get_environment_for_tag:
+    if : |
+      always() &&
+      needs.create_tags.result == 'skipped'
     runs-on: ubuntu-latest
+    needs: [
+      create_tags,
+      generate_environment_workspace_name,
+    ]
+    steps:
+      - name: get environment for tag
+        id: get_environment_tag_to_pull
+        run: |
+          value="production"
+
+          if ${{ inputs.branch_changes_detected == 'true' }}; then
+            value=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
+          fi
+
+          echo ${value}
+          echo "environment_tag_to_pull=${value}" >> $GITHUB_OUTPUT
+    outputs:
+      environment_tag_to_pull: ${{ steps.get_environment_tag_to_pull.outputs.environment_tag_to_pull }}
+
+  pull_tags:
+    if : |
+      always() &&
+      needs.create_tags.result == 'skipped'
+    runs-on: ubuntu-latest
+    needs: [
+      create_tags,
+      get_environment_for_tag,
+    ]
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2.0.0
@@ -76,14 +110,15 @@ jobs:
           role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ssm-get-parameter
           role-duration-seconds: 900
           role-session-name: GithubActionsSSMGetParameter
-      - name: Pull production environment tag
-        id: pull_production_tag
+      - name: Pull ${{ needs.get_environment_for_tag.outputs.environment_tag_to_pull }} tag
+        id: pull_tag
         run: |
-          value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/production' | jq -r .Parameter.Value )
+          value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/${{ needs.get_environment_for_tag.outputs.environment_tag_to_pull }}' | jq -r .Parameter.Value )
+
           echo ${value}
           echo "tag=${value}" >> $GITHUB_OUTPUT
     outputs:
-      docker_tag: ${{ steps.pull_production_tag.outputs.tag }}
+      docker_tag: ${{ steps.pull_tag.outputs.tag }}
 
   consolidate_tags:
     needs: [
@@ -96,7 +131,7 @@ jobs:
       - name: consolidate tags
         id: consolidate_tags
         run: |
-          if ${{inputs.changes_detected == 'false'}}; then
+          if ${{needs.create_tags.result == 'skipped'}}; then
             echo "tag=${{needs.pull_tags.outputs.docker_tag}}" >> $GITHUB_OUTPUT
           else
             echo "tag=${{needs.create_tags.outputs.docker_tag}}" >> $GITHUB_OUTPUT
