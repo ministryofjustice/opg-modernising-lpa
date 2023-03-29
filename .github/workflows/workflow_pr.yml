@@ -32,9 +32,8 @@ jobs:
     needs: detect_changes
     uses: ./.github/workflows/tags_job.yml
     with:
-      changes_detected: if ${{ needs.detect_changes.outputs.changes_detected }} == 'true'; then echo true; else echo false; fi
-      # branch_changes_detected: true
-      branch_changes_detected: if ${{ needs.detect_changes.outputs.branch_changes_detected }} == 'true'; then echo true; else echo false; fi
+      changes_detected: if ${{ needs.detect_changes.outputs.changes_detected }} == 'true'; then echo ${{ true }}; else echo ${{ false }}; fi
+      branch_changes_detected: if ${{ needs.detect_changes.outputs.branch_changes_detected }} == 'true'; then echo ${{ true }}; else echo ${{ false }}; fi
 
   # go_unit_tests:
   #   name: Run Go unit tests
