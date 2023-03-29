@@ -53,13 +53,13 @@ jobs:
       compare_to_main,
       compare_to_last_push,
     ]
-    if: needs.compare_to_main.outputs.changes_detected == "0" &&
-      needs.compare_to_last_push.outputs.branch_changes_detected == "0"
+    if: needs.compare_to_main.outputs.changes_detected == 0 &&
+      needs.compare_to_last_push.outputs.branch_changes_detected == 0
     runs-on: ubuntu-latest
     steps:
       - name: Notify jobs will be skipped
         run: |
-          echo '### No Changes Detected in /app, /web or /lang!' >> $GITHUB_STEP_SUMMARY
+          echo "### No Changes Detected in /app, /web or /lang!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
           echo "Deploying current production tag" >> $GITHUB_STEP_SUMMARY
           echo "The following jobs will be skipped" >> $GITHUB_STEP_SUMMARY
@@ -72,13 +72,13 @@ jobs:
       compare_to_main,
       compare_to_last_push,
     ]
-    if: needs.compare_to_main.outputs.changes_detected == "1" &&
-      needs.compare_to_last_push.outputs.branch_changes_detected == "0"
+    if: needs.compare_to_main.outputs.changes_detected == 1 &&
+      needs.compare_to_last_push.outputs.branch_changes_detected == 0
     runs-on: ubuntu-latest
     steps:
       - name: Previous build on this branch will be deployed
         run: |
-          echo '### No Changes Detected in /app, /web or /lang since the previous build!' >> $GITHUB_STEP_SUMMARY
+          echo "### No Changes Detected in /app, /web or /lang since the previous build!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
           echo "The previous build will be deployed and the following jobs will be skipped" >> $GITHUB_STEP_SUMMARY
           echo "- Create Tags" >> $GITHUB_STEP_SUMMARY
