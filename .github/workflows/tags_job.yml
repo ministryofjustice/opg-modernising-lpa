@@ -84,7 +84,7 @@ jobs:
         run: |
           value="production"
 
-          if ${{ inputs.changes_detected == 'true' }}; then
+          if ${{ inputs.branch_changes_detected == 'true' }}; then
             value=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
           fi
 
