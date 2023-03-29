@@ -19,7 +19,9 @@ on:
 
 jobs:
   create_tags:
-    if : inputs.branch_changes_detected == "true"
+    if : inputs.branch_changes_detected == 'true' ||
+      inputs.branch_changes_detected == 1 ||
+      inputs.branch_changes_detected == '1'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
