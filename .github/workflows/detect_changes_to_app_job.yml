@@ -53,8 +53,8 @@ jobs:
       compare_to_main,
       compare_to_last_push,
     ]
-    if: needs.compare_to_main.outputs.changes_detected == 0 &&
-      needs.compare_to_last_push.outputs.branch_changes_detected == 0
+    if: needs.compare_to_main.outputs.changes_detected == "0" &&
+      needs.compare_to_last_push.outputs.branch_changes_detected == "0"
     runs-on: ubuntu-latest
     steps:
       - name: Notify jobs will be skipped
@@ -72,8 +72,8 @@ jobs:
       compare_to_main,
       compare_to_last_push,
     ]
-    if: needs.compare_to_main.outputs.changes_detected == 1 &&
-      needs.compare_to_last_push.outputs.branch_changes_detected == 0
+    if: needs.compare_to_main.outputs.changes_detected == "1" &&
+      needs.compare_to_last_push.outputs.branch_changes_detected == "0"
     runs-on: ubuntu-latest
     steps:
       - name: Previous build on this branch will be deployed

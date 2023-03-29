@@ -4,11 +4,11 @@ on:
       changes_detected:
         description: 'Boolean value for changes detected in /app from main'
         required: true
-        type: string
+        type: number
       branch_changes_detected:
         description: 'Boolean value for changes detected in /app from previous push'
         required: true
-        type: string
+        type: number
     outputs:
       version_tag:
         description: "Docker Image Tag"
