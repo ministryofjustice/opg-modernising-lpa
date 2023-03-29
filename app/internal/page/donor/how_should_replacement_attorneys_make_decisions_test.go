@@ -149,7 +149,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 				"mixed-details": {"some details"},
 			},
 			existing:  actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			attorneys: actor.Attorneys{{}},
+			attorneys: actor.Attorneys{{FirstNames: "a", Email: "a"}},
 			updated:   actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, Details: "some details"},
 			redirect:  page.Paths.TaskList,
 		},
@@ -159,7 +159,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 				"mixed-details": {"some details"},
 			},
 			existing:  actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, Details: "some details"},
-			attorneys: actor.Attorneys{{}},
+			attorneys: actor.Attorneys{{FirstNames: "a", Email: "a"}},
 			updated:   actor.AttorneyDecisions{How: actor.Jointly},
 			redirect:  page.Paths.TaskList,
 		},
@@ -169,7 +169,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 				"mixed-details": {"some details"},
 			},
 			existing:  actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, Details: "some details"},
-			attorneys: actor.Attorneys{{}, {}},
+			attorneys: actor.Attorneys{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}},
 			updated:   actor.AttorneyDecisions{How: actor.Jointly},
 			redirect:  page.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan,
 		},
@@ -184,9 +184,16 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 			lpaStore := newMockLpaStore(t)
 			lpaStore.
 				On("Get", r.Context()).
-				Return(&page.Lpa{ReplacementAttorneys: tc.attorneys, ReplacementAttorneyDecisions: tc.existing}, nil)
+				Return(&page.Lpa{
+					ReplacementAttorneys:         tc.attorneys,
+					ReplacementAttorneyDecisions: tc.existing,
+				}, nil)
 			lpaStore.
-				On("Put", r.Context(), &page.Lpa{ReplacementAttorneys: tc.attorneys, ReplacementAttorneyDecisions: tc.updated}).
+				On("Put", r.Context(), &page.Lpa{
+					ReplacementAttorneys:         tc.attorneys,
+					ReplacementAttorneyDecisions: tc.updated,
+					Tasks:                        page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
+				}).
 				Return(nil)
 
 			template := newMockTemplate(t)

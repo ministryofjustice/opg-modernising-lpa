@@ -65,8 +65,11 @@ func UseExistingAddress(tmpl template.Template, lpaStore LpaStore) page.Handler 
 
 				if attorneyType == "attorney" {
 					lpa.Attorneys.Put(subject)
+					lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
+					lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 				} else {
 					lpa.ReplacementAttorneys.Put(subject)
+					lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 					redirect = appData.Paths.ChooseReplacementAttorneysSummary
 				}
 

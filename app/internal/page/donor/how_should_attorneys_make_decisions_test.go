@@ -113,7 +113,7 @@ func TestGetHowShouldAttorneysMakeDecisionsWhenTemplateErrors(t *testing.T) {
 
 func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 	form := url.Values{
-		"decision-type": {"jointly"},
+		"decision-type": {"jointly-and-severally"},
 		"mixed-details": {""},
 	}
 
@@ -125,11 +125,12 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			AttorneyDecisions: actor.AttorneyDecisions{Details: "", How: ""},
+			Attorneys: actor.Attorneys{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			AttorneyDecisions: actor.AttorneyDecisions{Details: "", How: "jointly"},
+			Attorneys:         actor.Attorneys{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}},
+			AttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			Tasks:             page.Tasks{ChooseAttorneys: page.TaskCompleted},
 		}).
 		Return(nil)
@@ -152,7 +153,6 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 		updatedDetails  string
 		formType        string
 		formDetails     string
-		taskState       page.TaskState
 	}{
 		"existing details not set": {
 			existingType:    "jointly-and-severally",
@@ -161,7 +161,6 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 			updatedDetails:  "some details",
 			formType:        "mixed",
 			formDetails:     "some details",
-			taskState:       page.TaskCompleted,
 		},
 		"existing details set": {
 			existingType:    "mixed",
@@ -170,7 +169,6 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 			updatedDetails:  "",
 			formType:        "jointly",
 			formDetails:     "some details",
-			taskState:       page.TaskCompleted,
 		},
 	}
 
@@ -189,12 +187,14 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
+					Attorneys:         actor.Attorneys{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}},
 					AttorneyDecisions: actor.AttorneyDecisions{Details: tc.existingDetails, How: tc.existingType},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
+					Attorneys:         actor.Attorneys{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}},
 					AttorneyDecisions: actor.AttorneyDecisions{Details: tc.updatedDetails, How: tc.updatedType},
-					Tasks:             page.Tasks{ChooseAttorneys: tc.taskState},
+					Tasks:             page.Tasks{ChooseAttorneys: page.TaskInProgress},
 				}).
 				Return(nil)
 
@@ -205,7 +205,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+page.Paths.DoYouWantReplacementAttorneys, resp.Header.Get("Location"))
+			assert.Equal(t, "/lpa/lpa-id"+page.Paths.AreYouHappyIfOneAttorneyCantActNoneCan, resp.Header.Get("Location"))
 		})
 	}
 }
