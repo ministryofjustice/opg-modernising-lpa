@@ -82,3 +82,58 @@ func TestAttorneyDecisionsRequiresHappiness(t *testing.T) {
 		})
 	}
 }
+
+func TestAttorneyDecisionsIsComplete(t *testing.T) {
+	testcases := map[string]struct {
+		attorneyCount int
+		decisions     AttorneyDecisions
+		expected      bool
+	}{
+		"jointly attorneys, happy": {
+			attorneyCount: 2,
+			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: "yes"},
+			expected:      true,
+		},
+		"jointly for some severally for others attorney, happy": {
+			attorneyCount: 2,
+			decisions:     AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, HappyIfOneCannotActNoneCan: "yes"},
+			expected:      true,
+		},
+		"jointly attorneys, unhappy": {
+			attorneyCount: 2,
+			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: "no", HappyIfRemainingCanContinueToAct: "no"},
+			expected:      true,
+		},
+		"jointly attorneys, mixed happy": {
+			attorneyCount: 2,
+			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: "no", HappyIfRemainingCanContinueToAct: "yes"},
+			expected:      true,
+		},
+		"jointly attorneys, unhappy missing": {
+			attorneyCount: 2,
+			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: "no"},
+			expected:      false,
+		},
+		"jointly and severally attorney": {
+			attorneyCount: 2,
+			decisions:     AttorneyDecisions{How: JointlyAndSeverally},
+			expected:      true,
+		},
+		"single attorney": {
+			attorneyCount: 1,
+			decisions:     AttorneyDecisions{How: Jointly},
+			expected:      true,
+		},
+		"missing how": {
+			attorneyCount: 1,
+			decisions:     AttorneyDecisions{},
+			expected:      false,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, tc.decisions.IsComplete(tc.attorneyCount))
+		})
+	}
+}

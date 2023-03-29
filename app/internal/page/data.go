@@ -276,3 +276,65 @@ func (l *Lpa) ActorAddresses() []AddressDetail {
 
 	return ads
 }
+
+func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDecisions) TaskState {
+	if len(attorneys) == 0 {
+		return TaskNotStarted
+	}
+
+	for _, a := range attorneys {
+		if a.FirstNames == "" || (a.Address.Line1 == "" && a.Email == "") {
+			return TaskInProgress
+		}
+	}
+
+	if len(attorneys) == 1 {
+		return TaskCompleted
+	}
+
+	if decisions.IsComplete(len(attorneys)) {
+		return TaskCompleted
+	}
+
+	return TaskInProgress
+}
+
+func ChooseReplacementAttorneysState(lpa *Lpa) TaskState {
+	if lpa.WantReplacementAttorneys == "" && len(lpa.ReplacementAttorneys) == 0 {
+		return TaskNotStarted
+	}
+
+	if lpa.WantReplacementAttorneys == "no" {
+		return TaskCompleted
+	}
+
+	if len(lpa.ReplacementAttorneys) == 0 {
+		return TaskInProgress
+	}
+
+	for _, a := range lpa.ReplacementAttorneys {
+		if a.FirstNames == "" || (a.Address.Line1 == "" && a.Email == "") {
+			return TaskInProgress
+		}
+	}
+
+	if lpa.AttorneyDecisions.How == actor.Jointly &&
+		len(lpa.ReplacementAttorneys) > 1 &&
+		!lpa.ReplacementAttorneyDecisions.IsComplete(len(lpa.ReplacementAttorneys)) {
+		return TaskInProgress
+	}
+
+	if lpa.AttorneyDecisions.How == actor.JointlyAndSeverally {
+		if lpa.HowShouldReplacementAttorneysStepIn == "" {
+			return TaskInProgress
+		}
+
+		if len(lpa.ReplacementAttorneys) > 1 &&
+			lpa.HowShouldReplacementAttorneysStepIn == AllCanNoLongerAct &&
+			!lpa.ReplacementAttorneyDecisions.IsComplete(len(lpa.ReplacementAttorneys)) {
+			return TaskInProgress
+		}
+	}
+
+	return TaskCompleted
+}

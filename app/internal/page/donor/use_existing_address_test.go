@@ -176,26 +176,36 @@ func TestPostUseExistingAddress(t *testing.T) {
 		ExpectedUrl string
 	}{
 		"subject is attorney": {
-			Lpa: &page.Lpa{Attorneys: []actor.Attorney{
-				{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
-				{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: testAddress},
-			}},
-			UpdatedLpa: &page.Lpa{Attorneys: []actor.Attorney{
-				{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
-				{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: newAddress},
-			}},
+			Lpa: &page.Lpa{
+				Attorneys: []actor.Attorney{
+					{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
+					{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: testAddress},
+				},
+			},
+			UpdatedLpa: &page.Lpa{
+				Attorneys: []actor.Attorney{
+					{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
+					{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: newAddress},
+				},
+				Tasks: page.Tasks{ChooseAttorneys: page.TaskInProgress},
+			},
 			Type:        "attorney",
 			ExpectedUrl: "/lpa/lpa-id" + testAppData.Paths.ChooseAttorneysSummary,
 		},
 		"subject is replacement attorney": {
-			Lpa: &page.Lpa{ReplacementAttorneys: []actor.Attorney{
-				{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
-				{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: testAddress},
-			}},
-			UpdatedLpa: &page.Lpa{ReplacementAttorneys: []actor.Attorney{
-				{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
-				{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: newAddress},
-			}},
+			Lpa: &page.Lpa{
+				ReplacementAttorneys: []actor.Attorney{
+					{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
+					{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: testAddress},
+				},
+			},
+			UpdatedLpa: &page.Lpa{
+				ReplacementAttorneys: []actor.Attorney{
+					{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
+					{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: newAddress},
+				},
+				Tasks: page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
+			},
 			Type:        "replacementAttorney",
 			ExpectedUrl: "/lpa/lpa-id" + testAppData.Paths.ChooseReplacementAttorneysSummary,
 		},
@@ -255,7 +265,6 @@ func TestPostUseExistingAddressWithMultipleAddresses(t *testing.T) {
 			},
 			CertificateProvider: actor.CertificateProvider{FirstNames: "Jorge", LastName: "Smith", Address: newAddress},
 		}, nil)
-
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
 			Attorneys: []actor.Attorney{
@@ -267,6 +276,7 @@ func TestPostUseExistingAddressWithMultipleAddresses(t *testing.T) {
 				{ID: "2", FirstNames: "JoJo", LastName: "Smith", Address: newAddress},
 			},
 			CertificateProvider: actor.CertificateProvider{FirstNames: "Jorge", LastName: "Smith", Address: newAddress},
+			Tasks:               page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -288,26 +298,36 @@ func TestPostUseExistingAddressStoreError(t *testing.T) {
 		ExpectedUrl string
 	}{
 		"subject is attorney": {
-			Lpa: &page.Lpa{Attorneys: []actor.Attorney{
-				{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
-				{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: testAddress},
-			}},
-			UpdatedLpa: &page.Lpa{Attorneys: []actor.Attorney{
-				{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
-				{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: newAddress},
-			}},
+			Lpa: &page.Lpa{
+				Attorneys: []actor.Attorney{
+					{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
+					{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: testAddress},
+				},
+			},
+			UpdatedLpa: &page.Lpa{
+				Attorneys: []actor.Attorney{
+					{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
+					{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: newAddress},
+				},
+				Tasks: page.Tasks{ChooseAttorneys: page.TaskInProgress},
+			},
 			Type:        "attorney",
 			ExpectedUrl: "/lpa/lpa-id" + testAppData.Paths.ChooseAttorneysSummary,
 		},
 		"subject is replacement attorney": {
-			Lpa: &page.Lpa{ReplacementAttorneys: []actor.Attorney{
-				{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
-				{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: testAddress},
-			}},
-			UpdatedLpa: &page.Lpa{ReplacementAttorneys: []actor.Attorney{
-				{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
-				{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: newAddress},
-			}},
+			Lpa: &page.Lpa{
+				ReplacementAttorneys: []actor.Attorney{
+					{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
+					{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: testAddress},
+				},
+			},
+			UpdatedLpa: &page.Lpa{
+				ReplacementAttorneys: []actor.Attorney{
+					{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
+					{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: newAddress},
+				},
+				Tasks: page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
+			},
 			Type:        "replacementAttorney",
 			ExpectedUrl: "/lpa/lpa-id" + testAppData.Paths.ChooseReplacementAttorneysSummary,
 		},
