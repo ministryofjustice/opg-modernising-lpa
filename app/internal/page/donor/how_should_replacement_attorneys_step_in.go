@@ -43,6 +43,8 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 					lpa.HowShouldReplacementAttorneysStepInDetails = data.Form.OtherDetails
 				}
 
+				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
+
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
