@@ -2,10 +2,10 @@ on:
   workflow_call:
     outputs:
       changes_detected:
-        description: "Boolean value for changes detected in /app, /web and /lang"
+        description: "Number value for changes detected in /app, /web and /lang, true=1, false=0"
         value: ${{ jobs.compare_to_main.outputs.changes_detected }}
       branch_changes_detected:
-        description: "Boolean value for changes detected in /app, /web and /lang since last push"
+        description: "Boolean value for changes detected in /app, /web and /lang since last push, true=1, false=0"
         value: ${{ jobs.compare_to_last_push.outputs.changes_detected }}
 
 jobs:
@@ -20,12 +20,12 @@ jobs:
         if: github.ref != 'refs/heads/main'
         run: |
           git diff --quiet HEAD origin/main -- app lang web Dockerfile package.json yarn.lock && \
-          echo "changes=false" || \
-          echo "changes=true"
+          echo "changes=0" || \
+          echo "changes=1"
 
           git diff --quiet HEAD origin/main -- app lang web Dockerfile package.json yarn.lock && \
-          echo "changes=false" >> $GITHUB_OUTPUT || \
-          echo "changes=true" >> $GITHUB_OUTPUT
+          echo "changes=0" >> $GITHUB_OUTPUT || \
+          echo "changes=1" >> $GITHUB_OUTPUT
     outputs:
       changes_detected: ${{ steps.detect_changes.outputs.changes }}
   compare_to_last_push:
@@ -40,12 +40,12 @@ jobs:
         if: github.ref != 'refs/heads/main'
         run: |
           git diff --quiet ${{github.event.before}} ${{github.event.after}} -- app lang web Dockerfile package.json yarn.lock && \
-          echo "branch_changes=false" || \
-          echo "branch_changes=true"
+          echo "branch_changes=0" || \
+          echo "branch_changes=1"
 
           git diff --quiet ${{github.event.before}} ${{github.event.after}} -- app lang web Dockerfile package.json yarn.lock && \
           echo "branch_changes=false" >> $GITHUB_OUTPUT || \
-          echo "branch_changes=true" >> $GITHUB_OUTPUT
+          echo "branch_changes=1" >> $GITHUB_OUTPUT
     outputs:
       branch_changes_detected: ${{ steps.detect_branch_changes.outputs.branch_changes }}
   notify_jobs_will_be_skipped:
@@ -53,8 +53,8 @@ jobs:
       compare_to_main,
       compare_to_last_push,
     ]
-    if: needs.compare_to_main.outputs.changes_detected == 'false' &&
-      needs.compare_to_last_push.outputs.branch_changes_detected == 'false'
+    if: needs.compare_to_main.outputs.changes_detected == 0 &&
+      needs.compare_to_last_push.outputs.branch_changes_detected == 0
     runs-on: ubuntu-latest
     steps:
       - name: Notify jobs will be skipped
@@ -72,8 +72,8 @@ jobs:
       compare_to_main,
       compare_to_last_push,
     ]
-    if: needs.compare_to_main.outputs.changes_detected == 'true' &&
-      needs.compare_to_last_push.outputs.branch_changes_detected == 'false'
+    if: needs.compare_to_main.outputs.changes_detected == 1 &&
+      needs.compare_to_last_push.outputs.branch_changes_detected == 0
     runs-on: ubuntu-latest
     steps:
       - name: Previous build on this branch will be deployed
