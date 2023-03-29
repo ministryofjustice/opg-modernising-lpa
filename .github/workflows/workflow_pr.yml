@@ -32,15 +32,15 @@ jobs:
     needs: detect_changes
     uses: ./.github/workflows/tags_job.yml
     with:
-      changes_detected: ${{ fromJSON(needs.detect_changes.outputs.changes_detected) }}
+      changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
       # branch_changes_detected: true
-      branch_changes_detected: ${{ fromJSON(needs.detect_changes.outputs.branch_changes_detected) }}
+      branch_changes_detected: ${{ needs.detect_changes.outputs.branch_changes_detected }}
 
   # go_unit_tests:
   #   name: Run Go unit tests
   #   if: |
-  #     (needs.detect_changes.outputs.changes_detected == 1) &&
-  #     (needs.detect_changes.outputs.branch_changes_detected == 1)
+  #     (needs.detect_changes.outputs.changes_detected == 'true') &&
+  #     (needs.detect_changes.outputs.branch_changes_detected == 'true')
   #   needs: create_tags
   #   uses: ./.github/workflows/go-unit-tests.yml
 
@@ -48,8 +48,8 @@ jobs:
   #   name: Docker Build, Scan and Push
   #   if: |
   #     always() &&
-  #     (needs.detect_changes.outputs.changes_detected == 1) &&
-  #     (needs.detect_changes.outputs.branch_changes_detected == 1) &&
+  #     (needs.detect_changes.outputs.changes_detected == 'true') &&
+  #     (needs.detect_changes.outputs.branch_changes_detected == 'true') &&
   #     (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped')
   #   uses: ./.github/workflows/docker_job.yml
   #   needs: [
@@ -91,8 +91,8 @@ jobs:
   # ui_tests_image:
   #   name: Run Cypress UI Tests On Images
   #   if: |
-  #     (needs.detect_changes.outputs.changes_detected == 1) &&
-  #     (needs.detect_changes.outputs.branch_changes_detected == 1) &&
+  #     (needs.detect_changes.outputs.changes_detected == 'true') &&
+  #     (needs.detect_changes.outputs.branch_changes_detected == 'true') &&
   #     (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped')
   #   uses: ./.github/workflows/ui_test_job.yml
   #   needs: [docker_build_scan_push, create_tags]
