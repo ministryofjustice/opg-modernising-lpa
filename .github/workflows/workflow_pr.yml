@@ -33,7 +33,8 @@ jobs:
     uses: ./.github/workflows/tags_job.yml
     with:
       changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
-      branch_changes_detected: ${{ needs.detect_changes.outputs.branch_changes_detected }}
+      branch_changes_detected: true
+      # branch_changes_detected: ${{ needs.detect_changes.outputs.branch_changes_detected }}
 
   # go_unit_tests:
   #   name: Run Go unit tests
