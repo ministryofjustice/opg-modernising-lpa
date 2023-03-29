@@ -35,3 +35,16 @@ func MakeAttorneyDecisions(existing AttorneyDecisions, how, details string) Atto
 func (d AttorneyDecisions) RequiresHappiness(attorneyCount int) bool {
 	return attorneyCount > 1 && (d.How == Jointly || d.How == JointlyForSomeSeverallyForOthers)
 }
+
+func (d AttorneyDecisions) IsComplete(attorneyCount int) bool {
+	if d.How == "" {
+		return false
+	}
+
+	if d.RequiresHappiness(attorneyCount) {
+		return d.HappyIfOneCannotActNoneCan == "yes" ||
+			(d.HappyIfOneCannotActNoneCan == "no" && d.HappyIfRemainingCanContinueToAct != "")
+	}
+
+	return true
+}
