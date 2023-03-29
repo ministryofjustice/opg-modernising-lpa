@@ -39,6 +39,7 @@ func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, lpaStore
 					lpa.ReplacementAttorneyDecisions,
 					data.Form.DecisionsType,
 					data.Form.DecisionsDetails)
+				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
