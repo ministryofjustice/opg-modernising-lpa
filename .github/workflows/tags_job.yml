@@ -4,11 +4,11 @@ on:
       changes_detected:
         description: 'Boolean value for changes detected in /app from main'
         required: true
-        type: string
+        type: boolean
       branch_changes_detected:
         description: 'Boolean value for changes detected in /app from previous push'
         required: true
-        type: string
+        type: boolean
     outputs:
       version_tag:
         description: "Docker Image Tag"
@@ -19,7 +19,7 @@ on:
 
 jobs:
   create_tags:
-    if : ${{ github.event.inputs.branch_changes_detected }} == 'true'
+    if : ${{ github.event.inputs.branch_changes_detected }} == ${{ true }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
