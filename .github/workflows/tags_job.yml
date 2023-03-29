@@ -19,7 +19,7 @@ on:
 
 jobs:
   create_tags:
-    if : ${{ inputs.branch_changes_detected == 1 }}
+    if : ${{ inputs.branch_changes_detected == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -84,7 +84,7 @@ jobs:
         run: |
           value="production"
 
-          if ${{ inputs.branch_changes_detected == 1 }}; then
+          if ${{ inputs.branch_changes_detected == 'true' }}; then
             value=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
           fi
 
