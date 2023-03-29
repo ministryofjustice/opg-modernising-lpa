@@ -39,16 +39,16 @@ func WantReplacementAttorneys(tmpl template.Template, lpaStore LpaStore) page.Ha
 
 				if form.Want == "no" {
 					lpa.ReplacementAttorneys = actor.Attorneys{}
-					lpa.Tasks.ChooseReplacementAttorneys = page.TaskCompleted
 					if lpa.Type == page.LpaTypeHealthWelfare {
 						redirectUrl = page.Paths.LifeSustainingTreatment
 					} else {
 						redirectUrl = page.Paths.WhenCanTheLpaBeUsed
 					}
 				} else {
-					lpa.Tasks.ChooseReplacementAttorneys = page.TaskInProgress
 					redirectUrl = appData.Paths.ChooseReplacementAttorneys
 				}
+
+				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err

@@ -77,26 +77,12 @@ func TestGetAreYouHappyIfOneAttorneyCantActNoneCanWhenTemplateErrors(t *testing.
 }
 
 func TestPostAreYouHappyIfOneAttorneyCantActNoneCan(t *testing.T) {
-	testcases := map[string]struct {
-		lpa      *page.Lpa
-		redirect string
-	}{
-		"yes": {
-			lpa: &page.Lpa{
-				AttorneyDecisions: actor.AttorneyDecisions{HappyIfOneCannotActNoneCan: "yes"},
-				Tasks:             page.Tasks{ChooseAttorneys: page.TaskCompleted},
-			},
-			redirect: page.Paths.DoYouWantReplacementAttorneys,
-		},
-		"no": {
-			lpa: &page.Lpa{
-				AttorneyDecisions: actor.AttorneyDecisions{HappyIfOneCannotActNoneCan: "no"},
-			},
-			redirect: page.Paths.AreYouHappyIfRemainingAttorneysCanContinueToAct,
-		},
+	testcases := map[string]string{
+		"yes": page.Paths.DoYouWantReplacementAttorneys,
+		"no":  page.Paths.AreYouHappyIfRemainingAttorneysCanContinueToAct,
 	}
 
-	for happy, tc := range testcases {
+	for happy, redirect := range testcases {
 		t.Run(happy, func(t *testing.T) {
 			form := url.Values{
 				"happy": {happy},
@@ -111,7 +97,9 @@ func TestPostAreYouHappyIfOneAttorneyCantActNoneCan(t *testing.T) {
 				On("Get", r.Context()).
 				Return(&page.Lpa{}, nil)
 			lpaStore.
-				On("Put", r.Context(), tc.lpa).
+				On("Put", r.Context(), &page.Lpa{
+					AttorneyDecisions: actor.AttorneyDecisions{HappyIfOneCannotActNoneCan: happy},
+				}).
 				Return(nil)
 
 			err := AreYouHappyIfOneAttorneyCantActNoneCan(nil, lpaStore)(testAppData, w, r)
@@ -119,7 +107,7 @@ func TestPostAreYouHappyIfOneAttorneyCantActNoneCan(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+tc.redirect, resp.Header.Get("Location"))
+			assert.Equal(t, "/lpa/lpa-id"+redirect, resp.Header.Get("Location"))
 		})
 	}
 }
