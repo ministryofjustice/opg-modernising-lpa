@@ -41,18 +41,18 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, lpaStore LpaStore) 
 					lpa.AttorneyDecisions,
 					data.Form.DecisionsType,
 					data.Form.DecisionsDetails)
-
-				redirect := page.Paths.AreYouHappyIfOneAttorneyCantActNoneCan
-				if !lpa.AttorneyDecisions.RequiresHappiness(len(lpa.Attorneys)) {
-					lpa.Tasks.ChooseAttorneys = page.TaskCompleted
-					redirect = page.Paths.DoYouWantReplacementAttorneys
-				}
+				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
+				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, redirect)
+				if lpa.AttorneyDecisions.RequiresHappiness(len(lpa.Attorneys)) {
+					return appData.Redirect(w, r, lpa, page.Paths.AreYouHappyIfOneAttorneyCantActNoneCan)
+				} else {
+					return appData.Redirect(w, r, lpa, page.Paths.DoYouWantReplacementAttorneys)
+				}
 			}
 		}
 

@@ -33,6 +33,7 @@ func AreYouHappyIfOneReplacementAttorneyCantActNoneCan(tmpl template.Template, l
 
 			if data.Errors.None() {
 				lpa.ReplacementAttorneyDecisions.HappyIfOneCannotActNoneCan = form.Happy
+				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err

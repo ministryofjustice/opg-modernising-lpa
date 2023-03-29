@@ -133,7 +133,10 @@ func TestPostRemoveAttorney(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorneyWithoutAddress, attorneyWithAddress}}, nil)
 	lpaStore.
-		On("Put", r.Context(), &page.Lpa{Attorneys: actor.Attorneys{attorneyWithAddress}}).
+		On("Put", r.Context(), &page.Lpa{
+			Attorneys: actor.Attorneys{attorneyWithAddress},
+			Tasks:     page.Tasks{ChooseAttorneys: page.TaskInProgress},
+		}).
 		Return(nil)
 
 	err := RemoveAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
@@ -216,7 +219,7 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorneyWithoutAddress, attorneyWithAddress}}, nil)
 	lpaStore.
-		On("Put", r.Context(), &page.Lpa{Attorneys: actor.Attorneys{attorneyWithAddress}}).
+		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := RemoveAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
@@ -277,9 +280,15 @@ func TestRemoveAttorneyRemoveLastAttorneyRedirectsToChooseAttorney(t *testing.T)
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{Attorneys: actor.Attorneys{{ID: "without-address"}}, Tasks: page.Tasks{ChooseAttorneys: page.TaskCompleted}}, nil)
+		Return(&page.Lpa{
+			Attorneys: actor.Attorneys{{ID: "without-address"}},
+			Tasks:     page.Tasks{ChooseAttorneys: page.TaskCompleted},
+		}, nil)
 	lpaStore.
-		On("Put", r.Context(), &page.Lpa{Attorneys: actor.Attorneys{}, Tasks: page.Tasks{ChooseAttorneys: page.TaskInProgress}}).
+		On("Put", r.Context(), &page.Lpa{
+			Attorneys: actor.Attorneys{},
+			Tasks:     page.Tasks{ChooseAttorneys: page.TaskNotStarted},
+		}).
 		Return(nil)
 
 	err := RemoveAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)

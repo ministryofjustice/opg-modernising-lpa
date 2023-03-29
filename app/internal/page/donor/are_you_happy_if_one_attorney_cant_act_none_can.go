@@ -33,18 +33,18 @@ func AreYouHappyIfOneAttorneyCantActNoneCan(tmpl template.Template, lpaStore Lpa
 
 			if data.Errors.None() {
 				lpa.AttorneyDecisions.HappyIfOneCannotActNoneCan = form.Happy
-
-				redirect := page.Paths.AreYouHappyIfRemainingAttorneysCanContinueToAct
-				if form.Happy == "yes" {
-					redirect = page.Paths.DoYouWantReplacementAttorneys
-					lpa.Tasks.ChooseAttorneys = page.TaskCompleted
-				}
+				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
+				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, redirect)
+				if form.Happy == "yes" {
+					return appData.Redirect(w, r, lpa, page.Paths.DoYouWantReplacementAttorneys)
+				} else {
+					return appData.Redirect(w, r, lpa, page.Paths.AreYouHappyIfRemainingAttorneysCanContinueToAct)
+				}
 			}
 		}
 

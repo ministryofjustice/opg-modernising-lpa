@@ -70,6 +70,10 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			CompleteHowAttorneysAct(lpa, r.FormValue("howAttorneysAct"))
 		}
 
+		if r.FormValue("withReplacementAttorney") != "" {
+			AddReplacementAttorneys(lpa, 1)
+		}
+
 		if r.FormValue("withReplacementAttorneys") != "" || r.FormValue("completeLpa") != "" {
 			AddReplacementAttorneys(lpa, 2)
 		}
