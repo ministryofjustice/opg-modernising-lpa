@@ -197,13 +197,15 @@ func TestPostChooseReplacementAttorneysAddressSkip(t *testing.T) {
 				On("Get", r.Context()).
 				Return(&page.Lpa{
 					ReplacementAttorneys: actor.Attorneys{{
-						ID:      "123",
-						Address: place.Address{Line1: "abc"},
+						ID:         "123",
+						FirstNames: "a",
+						Email:      "a",
+						Address:    place.Address{Line1: "abc"},
 					}},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
-					ReplacementAttorneys: actor.Attorneys{{ID: "123"}},
+					ReplacementAttorneys: actor.Attorneys{{ID: "123", FirstNames: "a", Email: "a"}},
 					Tasks:                page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
 				}).
 				Return(nil)
@@ -236,14 +238,15 @@ func TestPostChooseReplacementAttorneysAddressManual(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			ReplacementAttorneys: actor.Attorneys{{ID: "123"}},
+			ReplacementAttorneys: actor.Attorneys{{ID: "123", FirstNames: "a"}},
 		}, nil)
 
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
 			ReplacementAttorneys: actor.Attorneys{{
-				ID:      "123",
-				Address: testAddress,
+				ID:         "123",
+				FirstNames: "a",
+				Address:    testAddress,
 			}},
 			Tasks: page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
 		}).
@@ -396,11 +399,6 @@ func TestPostChooseReplacementAttorneysAddressSelect(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}}, nil)
-
 	updatedRa := actor.Attorney{
 		ID: "123",
 		Address: place.Address{
@@ -412,8 +410,15 @@ func TestPostChooseReplacementAttorneysAddressSelect(t *testing.T) {
 		},
 	}
 
+	lpaStore := newMockLpaStore(t)
 	lpaStore.
-		On("Put", r.Context(), &page.Lpa{ReplacementAttorneys: actor.Attorneys{updatedRa}}).
+		On("Get", r.Context()).
+		Return(&page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}}, nil)
+	lpaStore.
+		On("Put", r.Context(), &page.Lpa{
+			ReplacementAttorneys: actor.Attorneys{updatedRa},
+			Tasks:                page.Tasks{ChooseReplacementAttorneys: page.TaskInProgress},
+		}).
 		Return(nil)
 
 	template := newMockTemplate(t)
@@ -426,7 +431,10 @@ func TestPostChooseReplacementAttorneysAddressSelect(t *testing.T) {
 				LookupPostcode: "NG1",
 				Address:        &testAddress,
 			},
-			Lpa: &page.Lpa{ReplacementAttorneys: actor.Attorneys{updatedRa}},
+			Lpa: &page.Lpa{
+				ReplacementAttorneys: actor.Attorneys{updatedRa},
+				Tasks:                page.Tasks{ChooseReplacementAttorneys: page.TaskInProgress},
+			},
 		}).
 		Return(nil)
 
