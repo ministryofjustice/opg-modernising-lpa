@@ -6,7 +6,7 @@ on:
         value: ${{ jobs.compare_to_main.outputs.changes_detected }}
       branch_changes_detected:
         description: "Boolean value for changes detected in /app, /web and /lang since last push"
-        value: ${{ jobs.compare_to_last_push.outputs.changes_detected }}
+        value: ${{ jobs.compare_to_last_push.outputs.branch_changes_detected }}
 
 jobs:
   compare_to_main:
