@@ -124,6 +124,7 @@ jobs:
     needs: [
       create_tags,
       pull_tags,
+      get_environment_for_tag
       ]
     runs-on: ubuntu-latest
     if: always()
@@ -133,7 +134,7 @@ jobs:
         run: |
           if ${{needs.create_tags.result == 'skipped'}}; then
             echo "tag=${{needs.pull_tags.outputs.docker_tag}}" >> $GITHUB_OUTPUT
-            echo '### Tag for deployment ${{needs.pull_tags.outputs.docker_tag}}' >> $GITHUB_STEP_SUMMARY
+            echo '### Tag for deployment ${{needs.pull_tags.outputs.docker_tag}} pulled from ${{ needs.get_environment_for_tag.outputs.environment_tag_to_pull }}' >> $GITHUB_STEP_SUMMARY
           else
             echo "tag=${{needs.create_tags.outputs.docker_tag}}" >> $GITHUB_OUTPUT
             echo '### Tag for deployment ${{needs.create_tags.outputs.docker_tag}}' >> $GITHUB_STEP_SUMMARY
