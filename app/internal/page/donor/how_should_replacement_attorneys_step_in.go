@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -49,7 +48,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 					return err
 				}
 
-				if len(lpa.Attorneys) > 1 && lpa.AttorneyDecisions.How == actor.JointlyAndSeverally && lpa.HowShouldReplacementAttorneysStepIn == page.AllCanNoLongerAct && len(lpa.ReplacementAttorneys) > 1 {
+				if len(lpa.ReplacementAttorneys) > 1 && lpa.HowShouldReplacementAttorneysStepIn == page.AllCanNoLongerAct {
 					return appData.Redirect(w, r, lpa, appData.Paths.HowShouldReplacementAttorneysMakeDecisions)
 				} else if lpa.ReplacementAttorneyDecisions.RequiresHappiness(len(lpa.ReplacementAttorneys)) {
 					return appData.Redirect(w, r, lpa, appData.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan)
