@@ -44,6 +44,10 @@ func RemoveAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) pa
 
 			if data.Form.RemoveAttorney == "yes" && data.Errors.None() {
 				lpa.Attorneys.Delete(attorney)
+				if len(lpa.Attorneys) == 1 {
+					lpa.AttorneyDecisions = actor.AttorneyDecisions{}
+				}
+
 				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
 				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 

@@ -105,47 +105,77 @@ func TestGetRemoveAttorneyAttorneyDoesNotExist(t *testing.T) {
 }
 
 func TestPostRemoveAttorney(t *testing.T) {
-	form := url.Values{
-		"remove-attorney": {"yes"},
-	}
+	attorneyWithEmail := actor.Attorney{ID: "with-email", Email: "a"}
+	attorneyWithAddress := actor.Attorney{ID: "with-address", Address: place.Address{Line1: "1 Road way"}}
+	attorneyWithoutAddress := actor.Attorney{ID: "without-address"}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	logger := newMockLogger(t)
-	template := newMockTemplate(t)
-
-	attorneyWithAddress := actor.Attorney{
-		ID: "with-address",
-		Address: place.Address{
-			Line1: "1 Road way",
+	testcases := map[string]struct {
+		lpa        *page.Lpa
+		updatedLpa *page.Lpa
+		redirect   string
+	}{
+		"many left": {
+			lpa: &page.Lpa{
+				Attorneys:         actor.Attorneys{attorneyWithEmail, attorneyWithAddress, attorneyWithoutAddress},
+				AttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
+			},
+			updatedLpa: &page.Lpa{
+				Attorneys:         actor.Attorneys{attorneyWithEmail, attorneyWithAddress},
+				AttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
+				Tasks:             page.Tasks{ChooseAttorneys: page.TaskInProgress},
+			},
+			redirect: page.Paths.ChooseAttorneysSummary,
+		},
+		"one left": {
+			lpa: &page.Lpa{
+				Attorneys:         actor.Attorneys{attorneyWithAddress, attorneyWithoutAddress},
+				AttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
+			},
+			updatedLpa: &page.Lpa{
+				Attorneys: actor.Attorneys{attorneyWithAddress},
+				Tasks:     page.Tasks{ChooseAttorneys: page.TaskInProgress},
+			},
+			redirect: page.Paths.ChooseAttorneysSummary,
+		},
+		"none left": {
+			lpa: &page.Lpa{Attorneys: actor.Attorneys{attorneyWithoutAddress}},
+			updatedLpa: &page.Lpa{
+				Attorneys: actor.Attorneys{},
+			},
+			redirect: page.Paths.ChooseAttorneys,
 		},
 	}
 
-	attorneyWithoutAddress := actor.Attorney{
-		ID:      "without-address",
-		Address: place.Address{},
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			form := url.Values{
+				"remove-attorney": {"yes"},
+			}
+
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+			logger := newMockLogger(t)
+			template := newMockTemplate(t)
+
+			lpaStore := newMockLpaStore(t)
+			lpaStore.
+				On("Get", r.Context()).
+				Return(tc.lpa, nil)
+			lpaStore.
+				On("Put", r.Context(), tc.updatedLpa).
+				Return(nil)
+
+			err := RemoveAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
+
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, "/lpa/lpa-id"+tc.redirect, resp.Header.Get("Location"))
+		})
 	}
-
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{Attorneys: actor.Attorneys{attorneyWithoutAddress, attorneyWithAddress}}, nil)
-	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			Attorneys: actor.Attorneys{attorneyWithAddress},
-			Tasks:     page.Tasks{ChooseAttorneys: page.TaskInProgress},
-		}).
-		Return(nil)
-
-	err := RemoveAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
-
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseAttorneysSummary, resp.Header.Get("Location"))
 }
 
 func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
@@ -263,41 +293,6 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestRemoveAttorneyRemoveLastAttorneyRedirectsToChooseAttorney(t *testing.T) {
-	form := url.Values{
-		"remove-attorney": {"yes"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	logger := newMockLogger(t)
-	template := newMockTemplate(t)
-
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Attorneys: actor.Attorneys{{ID: "without-address"}},
-			Tasks:     page.Tasks{ChooseAttorneys: page.TaskCompleted},
-		}, nil)
-	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			Attorneys: actor.Attorneys{},
-			Tasks:     page.Tasks{ChooseAttorneys: page.TaskNotStarted},
-		}).
-		Return(nil)
-
-	err := RemoveAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
-
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseAttorneys, resp.Header.Get("Location"))
 }
 
 func TestRemoveAttorneyFormValidate(t *testing.T) {

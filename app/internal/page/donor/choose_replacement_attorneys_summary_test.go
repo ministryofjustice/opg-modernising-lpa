@@ -123,7 +123,7 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			lpaType:              page.LpaTypePropertyFinance,
 		},
 		"with multiple attorneys acting jointly for some decisions, and jointly and severally for other decisions and multiple replacement attorneys": {
-			redirectUrl:          page.Paths.WhenCanTheLpaBeUsed,
+			redirectUrl:          page.Paths.HowShouldReplacementAttorneysMakeDecisions,
 			attorneys:            actor.Attorneys{attorney1, attorney2},
 			replacementAttorneys: actor.Attorneys{attorney1, attorney2},
 			howAttorneysAct:      actor.JointlyForSomeSeverallyForOthers,

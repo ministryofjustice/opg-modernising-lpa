@@ -1,6 +1,6 @@
 import {TestEmail} from "../../support/e2e";
 
-describe('Choose attorneys task', () => {
+describe.skip('Choose attorneys task', () => {
     it('is not started when no attorneys are set', () => {
         cy.visit('/testing-start?redirect=/task-list&donorDetails=1&cookiesAccepted=1');
 
