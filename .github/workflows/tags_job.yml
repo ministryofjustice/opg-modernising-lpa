@@ -90,8 +90,8 @@ jobs:
         id: pull_tag
         run: |
           echo "env=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}" >> $GITHUB_OUTPUT
+          value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}' | jq -r .Parameter.Value ) || \
           value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/production' | jq -r .Parameter.Value ) && echo "env=production" >> $GITHUB_OUTPUT
-          value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}' | jq -r .Parameter.Value )
 
           echo ${value}
           echo "tag=${value}" >> $GITHUB_OUTPUT
