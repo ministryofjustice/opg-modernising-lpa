@@ -323,3 +323,283 @@ func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
 
 	assert.Equal(t, want, lpa.ActorAddresses())
 }
+
+func TestChooseAttorneysState(t *testing.T) {
+	testcases := map[string]struct {
+		attorneys actor.Attorneys
+		decisions actor.AttorneyDecisions
+		taskState TaskState
+	}{
+		"empty": {
+			taskState: TaskNotStarted,
+		},
+		"single with email": {
+			attorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Email:      "a",
+			}},
+			taskState: TaskCompleted,
+		},
+		"single with address": {
+			attorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Address:    place.Address{Line1: "a"},
+			}},
+			taskState: TaskCompleted,
+		},
+		"single incomplete": {
+			attorneys: actor.Attorneys{{
+				FirstNames: "a",
+			}},
+			taskState: TaskInProgress,
+		},
+		"multiple without decisions": {
+			attorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Email:      "a",
+			}, {
+				FirstNames: "b",
+				Email:      "b",
+			}},
+			taskState: TaskInProgress,
+		},
+		"multiple with decisions": {
+			attorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Email:      "a",
+			}, {
+				FirstNames: "b",
+				Email:      "b",
+			}},
+			decisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
+			taskState: TaskCompleted,
+		},
+		"multiple incomplete with decisions": {
+			attorneys: actor.Attorneys{{
+				FirstNames: "a",
+			}, {
+				FirstNames: "b",
+				Email:      "b",
+			}},
+			decisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
+			taskState: TaskInProgress,
+		},
+		"multiple with happy decisions": {
+			attorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Email:      "a",
+			}, {
+				FirstNames: "b",
+				Email:      "b",
+			}},
+			decisions: actor.AttorneyDecisions{How: actor.Jointly, HappyIfOneCannotActNoneCan: "yes"},
+			taskState: TaskCompleted,
+		},
+		"multiple with unhappy decisions": {
+			attorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Email:      "a",
+			}, {
+				FirstNames: "b",
+				Email:      "b",
+			}},
+			decisions: actor.AttorneyDecisions{How: actor.Jointly, HappyIfOneCannotActNoneCan: "no"},
+			taskState: TaskInProgress,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.taskState, ChooseAttorneysState(tc.attorneys, tc.decisions))
+		})
+	}
+}
+
+func TestChooseReplacementAttorneysState(t *testing.T) {
+	testcases := map[string]struct {
+		want                         string
+		replacementAttorneys         actor.Attorneys
+		attorneyDecisions            actor.AttorneyDecisions
+		howReplacementsStepIn        string
+		replacementAttorneyDecisions actor.AttorneyDecisions
+		taskState                    TaskState
+	}{
+		"empty": {
+			taskState: TaskNotStarted,
+		},
+		"do not want": {
+			want:      "no",
+			taskState: TaskCompleted,
+		},
+		"do want": {
+			want:      "yes",
+			taskState: TaskInProgress,
+		},
+		"single with email": {
+			want: "yes",
+			replacementAttorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Email:      "a",
+			}},
+			taskState: TaskCompleted,
+		},
+		"single with address": {
+			want: "yes",
+			replacementAttorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Address:    place.Address{Line1: "a"},
+			}},
+			taskState: TaskCompleted,
+		},
+		"single incomplete": {
+			want: "yes",
+			replacementAttorneys: actor.Attorneys{{
+				FirstNames: "a",
+			}},
+			taskState: TaskInProgress,
+		},
+		"multiple without decisions": {
+			want: "yes",
+			replacementAttorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Email:      "a",
+			}, {
+				FirstNames: "b",
+				Email:      "b",
+			}},
+			taskState: TaskCompleted,
+		},
+		"jointly attorneys single": {
+			want: "yes",
+			replacementAttorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Email:      "a",
+			}},
+			attorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
+			taskState:         TaskCompleted,
+		},
+		"jointly attorneys multiple without decisions": {
+			want: "yes",
+			replacementAttorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Email:      "a",
+			}, {
+				FirstNames: "b",
+				Email:      "b",
+			}},
+			attorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
+			taskState:         TaskInProgress,
+		},
+		"jointly attorneys multiple with unhappy decisions": {
+			want: "yes",
+			replacementAttorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Email:      "a",
+			}, {
+				FirstNames: "b",
+				Email:      "b",
+			}},
+			attorneyDecisions:            actor.AttorneyDecisions{How: actor.Jointly},
+			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
+			taskState:                    TaskInProgress,
+		},
+		"jointly attorneys multiple with happy decisions": {
+			want: "yes",
+			replacementAttorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Email:      "a",
+			}, {
+				FirstNames: "b",
+				Email:      "b",
+			}},
+			attorneyDecisions:            actor.AttorneyDecisions{How: actor.Jointly},
+			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly, HappyIfOneCannotActNoneCan: "yes"},
+			taskState:                    TaskCompleted,
+		},
+		"jointly and severally attorneys single": {
+			want: "yes",
+			replacementAttorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Email:      "a",
+			}},
+			attorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
+			taskState:         TaskInProgress,
+		},
+		"jointly and severally attorneys single with step in": {
+			want: "yes",
+			replacementAttorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Email:      "a",
+			}},
+			attorneyDecisions:     actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
+			howReplacementsStepIn: "somehow",
+			taskState:             TaskCompleted,
+		},
+		"jointly and severally attorneys multiple with step in": {
+			want: "yes",
+			replacementAttorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Email:      "a",
+			}, {
+				FirstNames: "b",
+				Email:      "b",
+			}},
+			attorneyDecisions:     actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
+			howReplacementsStepIn: "somehow",
+			taskState:             TaskCompleted,
+		},
+		"jointly and severally attorneys multiple with step in when none can act": {
+			want: "yes",
+			replacementAttorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Email:      "a",
+			}, {
+				FirstNames: "b",
+				Email:      "b",
+			}},
+			attorneyDecisions:     actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
+			howReplacementsStepIn: AllCanNoLongerAct,
+			taskState:             TaskInProgress,
+		},
+		"jointly and severally attorneys multiple with step in when none can act and unhappy decisions": {
+			want: "yes",
+			replacementAttorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Email:      "a",
+			}, {
+				FirstNames: "b",
+				Email:      "b",
+			}},
+			attorneyDecisions:            actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
+			howReplacementsStepIn:        AllCanNoLongerAct,
+			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
+			taskState:                    TaskInProgress,
+		},
+		"jointly and severally attorneys multiple with step in when none can act and happy decisions": {
+			want: "yes",
+			replacementAttorneys: actor.Attorneys{{
+				FirstNames: "a",
+				Email:      "a",
+			}, {
+				FirstNames: "b",
+				Email:      "b",
+			}},
+			attorneyDecisions:            actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
+			howReplacementsStepIn:        AllCanNoLongerAct,
+			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly, HappyIfOneCannotActNoneCan: "yes"},
+			taskState:                    TaskCompleted,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.taskState, ChooseReplacementAttorneysState(&Lpa{
+				WantReplacementAttorneys:            tc.want,
+				AttorneyDecisions:                   tc.attorneyDecisions,
+				ReplacementAttorneys:                tc.replacementAttorneys,
+				ReplacementAttorneyDecisions:        tc.replacementAttorneyDecisions,
+				HowShouldReplacementAttorneysStepIn: tc.howReplacementsStepIn,
+			}))
+		})
+	}
+}

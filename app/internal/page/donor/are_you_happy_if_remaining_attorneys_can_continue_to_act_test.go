@@ -94,7 +94,6 @@ func TestPostAreYouHappyIfRemainingAttorneysCanContinueToAct(t *testing.T) {
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
 					AttorneyDecisions: actor.AttorneyDecisions{HappyIfRemainingCanContinueToAct: happy},
-					Tasks:             page.Tasks{ChooseAttorneys: page.TaskCompleted},
 				}).
 				Return(nil)
 

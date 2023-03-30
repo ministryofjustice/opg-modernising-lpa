@@ -59,7 +59,8 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			if data.Form.Action == "skip" {
 				attorney.Address = place.Address{}
 				lpa.Attorneys.Put(attorney)
-				lpa.Tasks.ChooseAttorneys = page.TaskCompleted
+				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
+				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
@@ -71,7 +72,8 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			if data.Form.Action == "manual" && data.Errors.None() {
 				attorney.Address = *data.Form.Address
 				lpa.Attorneys.Put(attorney)
-				lpa.Tasks.ChooseAttorneys = page.TaskCompleted
+				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
+				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
@@ -86,6 +88,8 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 
 				attorney.Address = *data.Form.Address
 				lpa.Attorneys.Put(attorney)
+				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
+				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err

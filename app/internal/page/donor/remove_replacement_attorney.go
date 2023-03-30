@@ -44,13 +44,9 @@ func RemoveReplacementAttorney(logger Logger, tmpl template.Template, lpaStore L
 
 			if data.Form.RemoveAttorney == "yes" && data.Errors.None() {
 				lpa.ReplacementAttorneys.Delete(attorney)
-				if len(lpa.ReplacementAttorneys) == 0 {
-					lpa.Tasks.ChooseReplacementAttorneys = page.TaskInProgress
-				}
+				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
-				err = lpaStore.Put(r.Context(), lpa)
-
-				if err != nil {
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					logger.Print(fmt.Sprintf("error removing replacement Attorney from LPA: %s", err.Error()))
 					return err
 				}
