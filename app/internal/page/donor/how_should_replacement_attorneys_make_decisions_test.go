@@ -141,6 +141,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 		existing  actor.AttorneyDecisions
 		attorneys actor.Attorneys
 		updated   actor.AttorneyDecisions
+		taskState page.TaskState
 		redirect  string
 	}{
 		"existing details not set": {
@@ -151,6 +152,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 			existing:  actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			attorneys: actor.Attorneys{{FirstNames: "a", Email: "a"}},
 			updated:   actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, Details: "some details"},
+			taskState: page.TaskCompleted,
 			redirect:  page.Paths.TaskList,
 		},
 		"existing details set": {
@@ -161,6 +163,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 			existing:  actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, Details: "some details"},
 			attorneys: actor.Attorneys{{FirstNames: "a", Email: "a"}},
 			updated:   actor.AttorneyDecisions{How: actor.Jointly},
+			taskState: page.TaskCompleted,
 			redirect:  page.Paths.TaskList,
 		},
 		"requires happiness": {
@@ -171,6 +174,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 			existing:  actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, Details: "some details"},
 			attorneys: actor.Attorneys{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}},
 			updated:   actor.AttorneyDecisions{How: actor.Jointly},
+			taskState: page.TaskInProgress,
 			redirect:  page.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan,
 		},
 	}
@@ -192,7 +196,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 				On("Put", r.Context(), &page.Lpa{
 					ReplacementAttorneys:         tc.attorneys,
 					ReplacementAttorneyDecisions: tc.updated,
-					Tasks:                        page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
+					Tasks:                        page.Tasks{ChooseReplacementAttorneys: tc.taskState},
 				}).
 				Return(nil)
 
