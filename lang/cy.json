@@ -556,10 +556,6 @@
     "toSignAsCertificateProvider": "welsh",
     "submitSignature": "Welsh",
 
-    "certificateProvided": "Welsh",
-    "wellDone": "Welsh",
-    "certificateProvidedContent": "<p class=\"govuk-body\">Welsh</p>",
-
     "pageNotFound": "Welsh",
     "pageNotFoundContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"{{.Start}}\">Welsh</a>.</p>",
 
@@ -655,5 +651,9 @@
 
     "optionA": "Welsh",
     "optionB": "Welsh",
-    "ifTheDonorGivesConsentToLifeSustainingTreatment": "welsh"
+    "ifTheDonorGivesConsentToLifeSustainingTreatment": "welsh",
+
+    "youveProvidedTheCertificateForThisLpa": "Welsh",
+    "certificateProvidedContent": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh {{ .DonorFirstNamesPossessive }} welsh</p> <h2 class=\"govuk-heading-m\">Welsh</h2> <p class=\"govuk-body\">Welsh {{ .DonorFirstNamesPossessive }} welsh</p> <p class=\"govuk-body\">welsh</p>",
+    "goToYourDashboard": "Welsh"
 }
