@@ -204,7 +204,7 @@ func TestPostUseExistingAddress(t *testing.T) {
 					{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
 					{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: newAddress},
 				},
-				Tasks: page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
+				Tasks: page.Tasks{ChooseReplacementAttorneys: page.TaskInProgress},
 			},
 			Type:        "replacementAttorney",
 			ExpectedUrl: "/lpa/lpa-id" + testAppData.Paths.ChooseReplacementAttorneysSummary,
@@ -276,7 +276,7 @@ func TestPostUseExistingAddressWithMultipleAddresses(t *testing.T) {
 				{ID: "2", FirstNames: "JoJo", LastName: "Smith", Address: newAddress},
 			},
 			CertificateProvider: actor.CertificateProvider{FirstNames: "Jorge", LastName: "Smith", Address: newAddress},
-			Tasks:               page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
+			Tasks:               page.Tasks{ChooseReplacementAttorneys: page.TaskInProgress},
 		}).
 		Return(nil)
 
@@ -326,7 +326,7 @@ func TestPostUseExistingAddressStoreError(t *testing.T) {
 					{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: newAddress},
 					{ID: "2", FirstNames: "Joan", LastName: "Smith", Address: newAddress},
 				},
-				Tasks: page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
+				Tasks: page.Tasks{ChooseReplacementAttorneys: page.TaskInProgress},
 			},
 			Type:        "replacementAttorney",
 			ExpectedUrl: "/lpa/lpa-id" + testAppData.Paths.ChooseReplacementAttorneysSummary,

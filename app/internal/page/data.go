@@ -314,6 +314,12 @@ func ChooseReplacementAttorneysState(lpa *Lpa) TaskState {
 		}
 	}
 
+	if len(lpa.ReplacementAttorneys) > 1 &&
+		lpa.HowShouldReplacementAttorneysStepIn != OneCanNoLongerAct &&
+		!lpa.ReplacementAttorneyDecisions.IsComplete(len(lpa.ReplacementAttorneys)) {
+		return TaskInProgress
+	}
+
 	if lpa.AttorneyDecisions.How == actor.Jointly &&
 		len(lpa.ReplacementAttorneys) > 1 &&
 		!lpa.ReplacementAttorneyDecisions.IsComplete(len(lpa.ReplacementAttorneys)) {
