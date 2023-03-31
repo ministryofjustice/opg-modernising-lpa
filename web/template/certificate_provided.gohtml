@@ -1,18 +1,17 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "certificateProvided" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "youveProvidedTheCertificateForThisLpa" }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <div class="govuk-panel govuk-panel--confirmation">
-        <h1 class="govuk-panel__title">{{ tr .App "certificateProvided" }}</h1>
-        <div class="govuk-panel__body">
-          {{ tr .App "wellDone" }}
-        </div>
+        <h1 class="govuk-panel__title">{{ tr .App "youveProvidedTheCertificateForThisLpa" }}</h1>
       </div>
 
-      {{ trHtml .App "certificateProvidedContent" }}
+      {{ trFormatHtml .App "certificateProvidedContent" "DonorFirstNamesPossessive" (.App.Localizer.Possessive .Lpa.Donor.FirstNames) }}
+
+      <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "goToYourDashboard" }}</button>
     </div>
   </div>
 {{ end }}
