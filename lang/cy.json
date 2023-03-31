@@ -654,6 +654,6 @@
     "ifTheDonorGivesConsentToLifeSustainingTreatment": "welsh",
 
     "youveProvidedTheCertificateForThisLpa": "Welsh",
-    "certificateProvidedContent": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh {{ .DonorFirstNamesPossessive }} welsh</p> <h2 class=\"govuk-heading-m\">Welsh</h2> <p class=\"govuk-body\">Welsh {{ .DonorFirstNamesPossessive }} welsh</p> <p class=\"govuk-body\">welsh</p>",
+    "certificateProvidedContent": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh {{ .DonorFirstNamesPossessive }} welsh</p> <h2 class=\"govuk-heading-m\">Welsh</h2> <p class=\"govuk-body\">Welsh {{ .DonorFirstNamesPossessive }} welsh</p> <p class=\"govuk-body\">welsh <a href=\"#\" class=\"govuk-link\">welsh></p>",
     "goToYourDashboard": "Welsh"
 }

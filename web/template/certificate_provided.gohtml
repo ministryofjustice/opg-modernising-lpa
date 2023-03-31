@@ -9,16 +9,9 @@
         <h1 class="govuk-panel__title">{{ tr .App "youveProvidedTheCertificateForThisLpa" }}</h1>
       </div>
 
-    {{ trFormatHtml .App "certificateProvidedContent" "DonorFirstNamesPossessive" (.App.Localizer.Possessive .Lpa.Donor.FirstNames) }}
-
-{{/*    <p class="govuk-body">You have now signed and provided the certificate for this LPA.</p>*/}}
-{{/*    <p class="govuk-body">This means you’ve done everything you need to do as Jamie’s certificate provider.</p>*/}}
-{{/*    <h2 class="govuk-heading-m">What happens next</h2>*/}}
-{{/*    <p class="govuk-body">If the Office of the Public Guardian ever has any concerns about Jamie’s LPA in future, we may contact you.</p>*/}}
-{{/*    <p class="govuk-body">If you ever need to report a concern, you can do this at any time using the report a concern about an LPA service.</p>*/}}
+      {{ trFormatHtml .App "certificateProvidedContent" "DonorFirstNamesPossessive" (.App.Localizer.Possessive .Lpa.Donor.FirstNames) }}
 
       <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "goToYourDashboard" }}</button>
-
     </div>
   </div>
 {{ end }}
