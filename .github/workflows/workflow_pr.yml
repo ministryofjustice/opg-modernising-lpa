@@ -46,7 +46,6 @@ jobs:
   docker_build_scan_push:
     name: Docker Build, Scan and Push
     if: |
-      always() &&
       ${{ needs.detect_changes.outputs.changes_detected == 'true' }} &&
       ${{ needs.detect_changes.outputs.branch_changes_detected == 'true' }} &&
       (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped')
