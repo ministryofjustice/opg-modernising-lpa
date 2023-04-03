@@ -543,10 +543,6 @@
     "yourLegalRightsAndResponsibilities": "Welsh",
     "yourLegalRightsAndResponsibilitiesContent": "<p class=\"govuk-body\">Welsh</p>",
 
-    "beingACertificateProvider": "Welsh",
-    "beingDonorsCertificateProvider": "Welsh {{.FullName}}",
-    "beingACertificateProviderContent": "<p class=\"govuk-body\">Welsh</p>",
-
     "whatHappensNextContent": "<p class=\"govuk-body\">Welsh {{.DonorFullName}}</p>",
 
     "provideTheCertificateForThisLpa": "Welsh",
