@@ -18,7 +18,7 @@ func TestGetEnterYourName(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 	lpa := &page.Lpa{
-		CertificateProvider: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
+		CertificateProviderDetails: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
 	}
 
 	data := checkYourNameData{
@@ -66,7 +66,7 @@ func TestGetEnterYourNameOnTemplateError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 	lpa := &page.Lpa{
-		CertificateProvider: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
+		CertificateProviderDetails: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
 	}
 
 	data := checkYourNameData{
@@ -102,7 +102,7 @@ func TestPostEnterYourName(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	lpa := &page.Lpa{
-		CertificateProvider: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
+		CertificateProviderDetails: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
 	}
 
 	lpaStore := newMockLpaStore(t)
@@ -129,8 +129,8 @@ func TestPostEnterYourNameWithCorrectedName(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	lpa := &page.Lpa{
-		Donor:               actor.Donor{Email: "a@example.com"},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
+		Donor:                      actor.Donor{Email: "a@example.com"},
+		CertificateProviderDetails: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
 	}
 
 	lpaStore := newMockLpaStore(t)
@@ -138,7 +138,7 @@ func TestPostEnterYourNameWithCorrectedName(t *testing.T) {
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	lpa.CertificateProvider.DeclaredFullName = "Bobby Smith"
+	lpa.CertificateProviderDetails.DeclaredFullName = "Bobby Smith"
 
 	lpaStore.
 		On("Put", r.Context(), lpa).
@@ -176,7 +176,7 @@ func TestPostEnterYourNameWithCorrectedNameWhenStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	lpa := &page.Lpa{
-		CertificateProvider: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
+		CertificateProviderDetails: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
 	}
 
 	lpaStore := newMockLpaStore(t)
@@ -184,7 +184,7 @@ func TestPostEnterYourNameWithCorrectedNameWhenStoreError(t *testing.T) {
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	lpa.CertificateProvider.DeclaredFullName = "Bobby Smith"
+	lpa.CertificateProviderDetails.DeclaredFullName = "Bobby Smith"
 
 	lpaStore.
 		On("Put", r.Context(), lpa).
@@ -204,7 +204,7 @@ func TestPostEnterYourNameOnValidationError(t *testing.T) {
 	}
 
 	lpa := &page.Lpa{
-		CertificateProvider: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
+		CertificateProviderDetails: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
 	}
 
 	data := checkYourNameData{

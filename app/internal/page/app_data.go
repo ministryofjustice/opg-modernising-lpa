@@ -24,8 +24,9 @@ type AppData struct {
 	Paths            AppPaths
 	LpaID            string
 	CsrfToken        string
-	IsDonor          bool
 	ActorTypes       actor.Types
+	ActorType        actor.Type
+	ActorID          string
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, lpa *Lpa, url string) error {
@@ -67,4 +68,8 @@ func AppDataFromContext(ctx context.Context) AppData {
 	appData, _ := ctx.Value(contextKey("appData")).(AppData)
 
 	return appData
+}
+
+func (d AppData) IsDonor() bool {
+	return d.ActorType == actor.TypeDonor
 }

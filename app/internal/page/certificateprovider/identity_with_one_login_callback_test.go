@@ -28,11 +28,11 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProvider: actor.CertificateProvider{FirstNames: "John", LastName: "Doe"},
+			CertificateProviderDetails: actor.CertificateProvider{FirstNames: "John", LastName: "Doe"},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			CertificateProvider:                 actor.CertificateProvider{FirstNames: "John", LastName: "Doe"},
+			CertificateProviderDetails:          actor.CertificateProvider{FirstNames: "John", LastName: "Doe"},
 			CertificateProviderIdentityUserData: userData,
 		}).
 		Return(nil)
@@ -292,7 +292,7 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProvider:                 actor.CertificateProvider{FirstNames: "first-names", LastName: "last-name"},
+			CertificateProviderDetails:          actor.CertificateProvider{FirstNames: "first-names", LastName: "last-name"},
 			CertificateProviderIdentityUserData: userData,
 		}, nil)
 

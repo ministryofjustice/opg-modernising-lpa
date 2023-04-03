@@ -22,15 +22,20 @@ type identityWithOneLoginCallbackData struct {
 	CouldNotConfirm bool
 }
 
-func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLoginClient, sessionStore sesh.Store, lpaStore LpaStore) page.Handler {
+func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLoginClient, sessionStore sesh.Store, lpaStore LpaStore, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
+		certificateProvider, err := certificateProviderStore.Get(r.Context())
+		if err != nil {
+			return err
+		}
+
 		if r.Method == http.MethodPost {
-			if lpa.CertificateProviderIdentityConfirmed() {
+			if certificateProvider.CertificateProviderIdentityConfirmed() {
 				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderReadTheLpa)
 			} else {
 				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderSelectYourIdentityOptions1)
@@ -39,11 +44,11 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 
 		data := &identityWithOneLoginCallbackData{App: appData}
 
-		if lpa.CertificateProviderIdentityConfirmed() {
-			data.FirstNames = lpa.CertificateProviderIdentityUserData.FirstNames
-			data.LastName = lpa.CertificateProviderIdentityUserData.LastName
-			data.DateOfBirth = lpa.CertificateProviderIdentityUserData.DateOfBirth
-			data.ConfirmedAt = lpa.CertificateProviderIdentityUserData.RetrievedAt
+		if certificateProvider.CertificateProviderIdentityConfirmed() {
+			data.FirstNames = certificateProvider.IdentityUserData.FirstNames
+			data.LastName = certificateProvider.IdentityUserData.LastName
+			data.DateOfBirth = certificateProvider.IdentityUserData.DateOfBirth
+			data.ConfirmedAt = certificateProvider.IdentityUserData.RetrievedAt
 
 			return tmpl(w, data)
 		}
@@ -77,15 +82,15 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 			return err
 		}
 
-		lpa.CertificateProviderIdentityUserData = userData
+		certificateProvider.IdentityUserData = userData
 
-		if lpa.CertificateProviderIdentityConfirmed() {
+		if certificateProvider.CertificateProviderIdentityConfirmed() {
 			data.FirstNames = userData.FirstNames
 			data.LastName = userData.LastName
 			data.DateOfBirth = userData.DateOfBirth
 			data.ConfirmedAt = userData.RetrievedAt
 
-			if err := lpaStore.Put(r.Context(), lpa); err != nil {
+			if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 				return err
 			}
 		} else {

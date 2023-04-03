@@ -57,13 +57,14 @@ func init() {
 }
 
 type OneLoginSession struct {
-	State               string
-	Nonce               string
-	Locale              string
-	Identity            bool
-	CertificateProvider bool
-	SessionID           string
-	LpaID               string
+	State                 string
+	Nonce                 string
+	Locale                string
+	Identity              bool
+	CertificateProvider   bool
+	SessionID             string
+	LpaID                 string
+	CertificateProviderID string
 }
 
 func (s OneLoginSession) Valid() bool {
@@ -186,6 +187,7 @@ type CertificateProviderSession struct {
 	Email          string
 	LpaID          string
 	DonorSessionID string
+	ID             string
 }
 
 func (s CertificateProviderSession) Valid() bool {

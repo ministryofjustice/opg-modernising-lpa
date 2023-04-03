@@ -14,7 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string, shareCodeSender shareCodeSender, localizer Localizer) http.HandlerFunc {
+func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string, shareCodeSender shareCodeSender, localizer Localizer, certificateProviderStore CertificateProviderStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sub := randomString(12)
 		sessionID := base64.StdEncoding.EncodeToString([]byte(sub))
@@ -136,6 +136,8 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			shareCodeSender.UseTestCode()
 		}
 
+		certificateProvider, _ := certificateProviderStore.Create(ctx, lpa)
+
 		if r.FormValue("startCpFlowDonorHasPaid") != "" || r.FormValue("startCpFlowDonorHasNotPaid") != "" {
 			CompleteSectionOne(lpa)
 
@@ -143,10 +145,10 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				PayForLpa(lpa, store, r, w, randomString(12))
 			}
 
-			lpa.CertificateProvider.Email = TestEmail
+			lpa.CertificateProviderDetails.Email = TestEmail
 
 			if r.FormValue("withEmail") != "" {
-				lpa.CertificateProvider.Email = r.FormValue("withEmail")
+				lpa.CertificateProviderDetails.Email = r.FormValue("withEmail")
 			}
 
 			shareCodeSender.Send(ctx, notify.CertificateProviderInviteEmail, AppData{
@@ -166,18 +168,20 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				LpaID:          lpa.ID,
 			})
 
-			lpa.CertificateProviderIdentityUserData = identity.UserData{
+			certificateProvider.IdentityUserData = identity.UserData{
 				OK:         true,
 				Provider:   identity.OneLogin,
 				FirstNames: "Jessie",
 				LastName:   "Jones",
 			}
+
+			lpa.CertificateProviderID = certificateProvider.ID
 		}
 
 		if r.FormValue("provideCertificate") != "" {
-			lpa.CertificateProviderProvidedDetails.Mobile = TestMobile
-			lpa.CertificateProviderProvidedDetails.Email = TestEmail
-			lpa.CertificateProviderProvidedDetails.Address = place.Address{
+			certificateProvider.Mobile = TestMobile
+			certificateProvider.Email = TestEmail
+			certificateProvider.Address = place.Address{
 				Line1:      "5 RICHMOND PLACE",
 				Line2:      "KINGS HEATH",
 				Line3:      "WEST MIDLANDS",
@@ -196,6 +200,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			_ = sesh.SetDonor(store, r, w, donorSesh)
 		}
 
+		_ = certificateProviderStore.Put(ctx, certificateProvider)
 		_ = lpaStore.Put(ctx, lpa)
 
 		random.UseTestCode = true

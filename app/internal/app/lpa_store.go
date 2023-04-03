@@ -27,7 +27,7 @@ func (s *lpaStore) Create(ctx context.Context) (*page.Lpa, error) {
 
 func (s *lpaStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
 	var lpas []*page.Lpa
-	err := s.dataStore.GetAll(ctx, page.SessionDataFromContext(ctx).SessionID, &lpas)
+	err := s.dataStore.GetAll(ctx, page.SessionDataFromContext(ctx).LpaID, &lpas)
 
 	slices.SortFunc(lpas, func(a, b *page.Lpa) bool {
 		return a.UpdatedAt.After(b.UpdatedAt)
@@ -42,8 +42,11 @@ func (s *lpaStore) Get(ctx context.Context) (*page.Lpa, error) {
 		return nil, errors.New("lpaStore.Get requires LpaID to retrieve")
 	}
 
+	pk := "LPA#" + data.LpaID
+	sk := "LPA#" + data.LpaID
+
 	var lpa page.Lpa
-	if err := s.dataStore.Get(ctx, data.SessionID, data.LpaID, &lpa); err != nil {
+	if err := s.dataStore.Get(ctx, pk, sk, &lpa); err != nil {
 		return nil, err
 	}
 
@@ -53,5 +56,7 @@ func (s *lpaStore) Get(ctx context.Context) (*page.Lpa, error) {
 func (s *lpaStore) Put(ctx context.Context, lpa *page.Lpa) error {
 	lpa.UpdatedAt = time.Now()
 
-	return s.dataStore.Put(ctx, page.SessionDataFromContext(ctx).SessionID, lpa.ID, lpa)
+	pk := "LPA#" + lpa.ID
+	sk := "LPA#" + lpa.ID
+	return s.dataStore.Put(ctx, pk, sk, lpa)
 }

@@ -19,7 +19,7 @@ type enterReferenceNumberData struct {
 	Lpa    *page.Lpa
 }
 
-func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore page.DataStore) page.Handler {
+func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore page.DataStore, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := enterReferenceNumberData{
 			App:  appData,
@@ -51,9 +51,15 @@ func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore p
 					return err
 				}
 
+				certificateProvider, err := certificateProviderStore.Create(r.Context(), lpa)
+				if err != nil {
+					return err
+				}
+
 				query := url.Values{
 					"lpaId":     {v.LpaID},
 					"sessionId": {v.SessionID},
+					"cpId":      {certificateProvider.ID},
 				}
 				if v.Identity {
 					query.Add("identity", "1")

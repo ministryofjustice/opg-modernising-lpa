@@ -16,14 +16,19 @@ type identityWithYotiData struct {
 	ScenarioID  string
 }
 
-func IdentityWithYoti(tmpl template.Template, lpaStore LpaStore, sessionStore SessionStore, yotiClient YotiClient) page.Handler {
+func IdentityWithYoti(tmpl template.Template, lpaStore LpaStore, sessionStore SessionStore, yotiClient YotiClient, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
-		if lpa.CertificateProviderIdentityConfirmed() || yotiClient.IsTest() {
+		certificateProvider, err := certificateProviderStore.Get(r.Context())
+		if err != nil {
+			return err
+		}
+
+		if certificateProvider.CertificateProviderIdentityConfirmed() || yotiClient.IsTest() {
 			return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderIdentityWithYotiCallback)
 		}
 

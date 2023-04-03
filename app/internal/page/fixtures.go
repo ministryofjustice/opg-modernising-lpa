@@ -184,7 +184,7 @@ func CompleteRestrictions(lpa *Lpa) {
 }
 
 func AddCertificateProvider(lpa *Lpa, firstNames string) {
-	lpa.CertificateProvider = MakeCertificateProvider(firstNames)
+	lpa.CertificateProviderDetails = MakeCertificateProvider(firstNames)
 	lpa.Tasks.CertificateProvider = TaskCompleted
 }
 

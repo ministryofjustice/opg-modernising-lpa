@@ -119,7 +119,7 @@ func replacementAttorneyMatches(lpa *page.Lpa, id, firstNames, lastName string) 
 		}
 	}
 
-	if lpa.CertificateProvider.FirstNames == firstNames && lpa.CertificateProvider.LastName == lastName {
+	if lpa.CertificateProviderDetails.FirstNames == firstNames && lpa.CertificateProviderDetails.LastName == lastName {
 		return actor.TypeCertificateProvider
 	}
 

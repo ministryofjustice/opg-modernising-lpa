@@ -74,7 +74,7 @@ func TestCertificateProviderIdentityConfirmed(t *testing.T) {
 	}{
 		"set": {
 			lpa: &Lpa{
-				CertificateProvider:                 actor.CertificateProvider{FirstNames: "a", LastName: "b"},
+				CertificateProviderDetails:          actor.CertificateProvider{FirstNames: "a", LastName: "b"},
 				CertificateProviderIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "a", LastName: "b"},
 			},
 			expected: true,
@@ -89,7 +89,7 @@ func TestCertificateProviderIdentityConfirmed(t *testing.T) {
 		},
 		"no match": {
 			lpa: &Lpa{
-				CertificateProvider:                 actor.CertificateProvider{FirstNames: "a", LastName: "b"},
+				CertificateProviderDetails:          actor.CertificateProvider{FirstNames: "a", LastName: "b"},
 				CertificateProviderIdentityUserData: identity.UserData{Provider: identity.OneLogin},
 			},
 			expected: false,
@@ -286,7 +286,7 @@ func TestActorAddresses(t *testing.T) {
 			{FirstNames: "Replacement Attorney One", LastName: "Actor", Address: address},
 			{FirstNames: "Replacement Attorney Two", LastName: "Actor", Address: address},
 		},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor", Address: address},
+		CertificateProviderDetails: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor", Address: address},
 	}
 
 	want := []AddressDetail{
@@ -312,7 +312,7 @@ func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
 			{FirstNames: "Replacement Attorney One", LastName: "Actor"},
 			{FirstNames: "Replacement Attorney Two", LastName: "Actor", Address: address},
 		},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor"},
+		CertificateProviderDetails: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor"},
 	}
 
 	want := []AddressDetail{

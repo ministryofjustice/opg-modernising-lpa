@@ -1,6 +1,7 @@
 package certificateprovider
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -16,11 +17,19 @@ type checkYourNameData struct {
 	Lpa    *page.Lpa
 }
 
-func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient NotifyClient) page.Handler {
+func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient NotifyClient, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
-
 		if err != nil {
+			log.Println("LPA not found")
+			return err
+		}
+
+		log.Println("CP ID on LPA is: " + lpa.CertificateProviderID)
+
+		certificateProvider, err := certificateProviderStore.Get(r.Context())
+		if err != nil {
+			log.Println("CP not found")
 			return err
 		}
 
@@ -36,7 +45,7 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 
 			if len(data.Errors) == 0 {
 				if data.Form.CorrectedName != "" {
-					lpa.CertificateProvider.DeclaredFullName = data.Form.CorrectedName
+					certificateProvider.DeclaredFullName = data.Form.CorrectedName
 
 					if err := lpaStore.Put(r.Context(), lpa); err != nil {
 						return err
@@ -45,7 +54,7 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 					_, err := notifyClient.Email(r.Context(), notify.Email{
 						EmailAddress:    lpa.Donor.Email,
 						TemplateID:      notifyClient.TemplateID(notify.CertificateProviderNameChangeEmail),
-						Personalisation: map[string]string{"declaredName": lpa.CertificateProvider.DeclaredFullName},
+						Personalisation: map[string]string{"declaredName": certificateProvider.DeclaredFullName},
 					})
 
 					if err != nil {

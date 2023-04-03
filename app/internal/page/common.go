@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 
 	"github.com/gorilla/sessions"
@@ -53,6 +55,13 @@ type LpaStore interface {
 	GetAll(context.Context) ([]*Lpa, error)
 	Get(context.Context) (*Lpa, error)
 	Put(context.Context, *Lpa) error
+}
+
+//go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
+type CertificateProviderStore interface {
+	Create(context.Context, *Lpa) (*actor.CertificateProvider, error)
+	Get(context.Context) (*actor.CertificateProvider, error)
+	Put(context.Context, *actor.CertificateProvider) error
 }
 
 //go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore

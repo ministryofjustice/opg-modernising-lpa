@@ -167,7 +167,7 @@ func donorMatches(lpa *page.Lpa, firstNames, lastName string) actor.Type {
 		}
 	}
 
-	if lpa.CertificateProvider.FirstNames == firstNames && lpa.CertificateProvider.LastName == lastName {
+	if lpa.CertificateProviderDetails.FirstNames == firstNames && lpa.CertificateProviderDetails.LastName == lastName {
 		return actor.TypeCertificateProvider
 	}
 

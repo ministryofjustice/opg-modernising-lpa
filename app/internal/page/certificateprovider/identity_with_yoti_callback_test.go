@@ -24,11 +24,11 @@ func TestGetIdentityWithYotiCallback(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProvider: actor.CertificateProvider{FirstNames: "first-name", LastName: "last-name"},
+			CertificateProviderDetails: actor.CertificateProvider{FirstNames: "first-name", LastName: "last-name"},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			CertificateProvider:                 actor.CertificateProvider{FirstNames: "first-name", LastName: "last-name"},
+			CertificateProviderDetails:          actor.CertificateProvider{FirstNames: "first-name", LastName: "last-name"},
 			CertificateProviderIdentityUserData: userData,
 		}).
 		Return(nil)
@@ -155,7 +155,7 @@ func TestGetIdentityWithYotiCallbackWhenPutDataStoreError(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProvider: actor.CertificateProvider{FirstNames: "first-name", LastName: "last-name"},
+			CertificateProviderDetails: actor.CertificateProvider{FirstNames: "first-name", LastName: "last-name"},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), mock.Anything).
@@ -179,7 +179,7 @@ func TestGetIdentityWithYotiCallbackWhenReturning(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProvider:                 actor.CertificateProvider{FirstNames: "first-name", LastName: "last-name"},
+			CertificateProviderDetails:          actor.CertificateProvider{FirstNames: "first-name", LastName: "last-name"},
 			CertificateProviderIdentityUserData: userData,
 		}, nil)
 

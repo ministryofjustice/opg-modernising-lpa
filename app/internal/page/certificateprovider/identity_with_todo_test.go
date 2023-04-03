@@ -22,11 +22,11 @@ func TestGetIdentityWithTodo(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProvider: actor.CertificateProvider{FirstNames: "a", LastName: "b"},
+			CertificateProviderDetails: actor.CertificateProvider{FirstNames: "a", LastName: "b"},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			CertificateProvider: actor.CertificateProvider{FirstNames: "a", LastName: "b"},
+			CertificateProviderDetails: actor.CertificateProvider{FirstNames: "a", LastName: "b"},
 			CertificateProviderIdentityUserData: identity.UserData{
 				OK:          true,
 				Provider:    identity.Passport,
@@ -60,7 +60,7 @@ func TestGetIdentityWithTodoWhenLpaStoreGetErrors(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProvider: actor.CertificateProvider{FirstNames: "a", LastName: "b"},
+			CertificateProviderDetails: actor.CertificateProvider{FirstNames: "a", LastName: "b"},
 		}, expectedError)
 
 	err := IdentityWithTodo(nil, lpaStore, nil, identity.Passport)(testAppData, w, r)
@@ -75,7 +75,7 @@ func TestGetIdentityWithTodoWhenLpaStorePutErrors(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProvider: actor.CertificateProvider{FirstNames: "a", LastName: "b"},
+			CertificateProviderDetails: actor.CertificateProvider{FirstNames: "a", LastName: "b"},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), mock.Anything).

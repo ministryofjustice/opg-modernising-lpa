@@ -16,9 +16,14 @@ type selectYourIdentityOptionsData struct {
 	Page   int
 }
 
-func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, pageIndex int) page.Handler {
+func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, pageIndex int, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
+		if err != nil {
+			return err
+		}
+
+		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -27,7 +32,7 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, pageIn
 			App:  appData,
 			Page: pageIndex,
 			Form: &selectYourIdentityOptionsForm{
-				Selected: lpa.DonorIdentityOption,
+				Selected: certificateProvider.IdentityOption,
 			},
 		}
 
@@ -48,9 +53,9 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, pageIn
 			}
 
 			if data.Errors.None() {
-				lpa.CertificateProviderIdentityOption = data.Form.Selected
+				certificateProvider.IdentityOption = data.Form.Selected
 
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return err
 				}
 
