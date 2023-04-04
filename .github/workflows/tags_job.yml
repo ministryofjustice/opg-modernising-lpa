@@ -121,7 +121,7 @@ jobs:
             echo '### Tag for deployment ${{needs.pull_tags.outputs.docker_tag}} pulled from ${{needs.pull_tags.outputs.tag_from}}' >> $GITHUB_STEP_SUMMARY
           else
             echo "tag=${{needs.create_tags.outputs.docker_tag}}" >> $GITHUB_OUTPUT
-            echo '### Tag for deployment ${{needs.create_tags.outputs.docker_tag}}' >> $GITHUB_STEP_SUMMARY
+            echo '### New tag for deployment ${{needs.create_tags.outputs.docker_tag}}' >> $GITHUB_STEP_SUMMARY
           fi
     outputs:
       docker_tag: ${{ steps.consolidate_tags.outputs.tag }}
