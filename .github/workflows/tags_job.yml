@@ -98,7 +98,6 @@ jobs:
               echo "Using $key: $value"
           fi
 
-
           echo "tag=${value}" >> $GITHUB_OUTPUT
           echo "env=${key}" >> $GITHUB_OUTPUT
 
