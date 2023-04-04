@@ -55,34 +55,34 @@ jobs:
     with:
       tag: ${{ needs.create_tags.outputs.version_tag }}
 
-  # terraform_account_workflow_development:
-  #   name: TF Plan Dev Account
-  #   uses: ./.github/workflows/terraform_account_job.yml
-  #   with:
-  #     workspace_name: development
-  #   secrets:
-  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+  terraform_account_workflow_development:
+    name: TF Plan Dev Account
+    uses: ./.github/workflows/terraform_account_job.yml
+    with:
+      workspace_name: development
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
-  # terraform_account_workflow_preproduction:
-  #   name: TF Plan Preprod Account
-  #   needs: terraform_account_workflow_development
-  #   uses: ./.github/workflows/terraform_account_job.yml
-  #   with:
-  #     workspace_name: preproduction
-  #   secrets:
-  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+  terraform_account_workflow_preproduction:
+    name: TF Plan Preprod Account
+    needs: terraform_account_workflow_development
+    uses: ./.github/workflows/terraform_account_job.yml
+    with:
+      workspace_name: preproduction
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
-  # terraform_account_workflow_production:
-  #   name: TF Plan Prod Account
-  #   needs: terraform_account_workflow_development
-  #   uses: ./.github/workflows/terraform_account_job.yml
-  #   with:
-  #     workspace_name: production
-  #   secrets:
-  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+  terraform_account_workflow_production:
+    name: TF Plan Prod Account
+    needs: terraform_account_workflow_development
+    uses: ./.github/workflows/terraform_account_job.yml
+    with:
+      workspace_name: production
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
   ui_tests_image:
     name: Run Cypress UI Tests On Images
