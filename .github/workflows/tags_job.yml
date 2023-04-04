@@ -89,7 +89,8 @@ jobs:
       - name: Pull ${{ needs.get_environment_for_tag.outputs.environment_tag_to_pull }} tag
         id: pull_tag
         run: |
-          value=$( aws ssm get-parameter --name '/modernising-lpa/container-version/${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}' || aws ssm get-parameter --name '/modernising-lpa/container-version/production')
+          value=$(aws ssm get-parameters --names "/modernising-lpa/container-version/${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}" "/modernising-lpa/container-version/production" --query 'Parameters[?Value!=`null`].[Name,Value]' --output text | awk 'NR==1{if($1=="parameterA"){print $2} else if($1=="parameterB"){print $3}}')
+
           tag = echo $value | jq -r .Parameter.Value
           echo ${tag}
           echo "tag=${tag}" >> $GITHUB_OUTPUT
