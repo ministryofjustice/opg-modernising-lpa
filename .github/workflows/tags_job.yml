@@ -89,14 +89,18 @@ jobs:
       - name: Pull ${{ needs.get_environment_for_tag.outputs.environment_tag_to_pull }} tag
         id: pull_tag
         run: |
-          value=$(aws ssm get-parameters --names "/modernising-lpa/container-version/${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}" "/modernising-lpa/container-version/production" --query 'Parameters[?Value!=`null`].[Name,Value]' --output text | awk 'NR==1{if($1=="parameterA"){print $2} else if($1=="parameterB"){print $3}}')
+          if value=$(aws ssm get-parameters --names "/modernising-lpa/container-version/${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}" --query 'Parameters[0].[Name,Value]' --output text 2>/dev/null); then
+              read -r key value <<< "$value"
+              echo "Found $key: $value"
+          else
+              key="/modernising-lpa/container-version/production"
+              value=$(aws ssm get-parameter --name "$key" --query 'Parameter.Value' --output text)
+              echo "Using $key: $value"
+          fi
 
-          tag = echo $value | jq -r .Parameter.Value
-          echo ${tag}
-          echo "tag=${tag}" >> $GITHUB_OUTPUT
-          env = echo $value | jq -r .Parameter.Key
-          echo ${env}
-          echo "env=${env}" >> $GITHUB_OUTPUT
+
+          echo "tag=${value}" >> $GITHUB_OUTPUT
+          echo "env=${key}" >> $GITHUB_OUTPUT
 
     outputs:
       docker_tag: ${{ steps.pull_tag.outputs.tag }}
