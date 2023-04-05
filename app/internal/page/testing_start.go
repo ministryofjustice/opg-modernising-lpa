@@ -2,6 +2,7 @@ package page
 
 import (
 	"encoding/base64"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -18,17 +19,16 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 	return func(w http.ResponseWriter, r *http.Request) {
 		sub := randomString(12)
 		sessionID := base64.StdEncoding.EncodeToString([]byte(sub))
-		donorSesh := &sesh.DonorSession{Sub: sub, Email: TestEmail}
 
-		_ = sesh.SetDonor(store, r, w, donorSesh)
-
-		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: sessionID})
-
-		lpa, _ := lpaStore.Create(ctx)
+		lpa, _ := lpaStore.Create(ContextWithSessionData(r.Context(), &SessionData{SessionID: sessionID}))
+		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: sessionID, LpaID: lpa.ID})
 
 		if r.FormValue("withDonorDetails") != "" || r.FormValue("completeLpa") != "" {
 			CompleteDonorDetails(lpa)
 		}
+
+		donorSesh := &sesh.DonorSession{Sub: sub, Email: TestEmail}
+		_ = sesh.SetDonor(store, r, w, donorSesh)
 
 		if r.FormValue("withAttorney") != "" {
 			AddAttorneys(lpa, 1)
@@ -86,8 +86,8 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			CompleteRestrictions(lpa)
 		}
 
-		if r.FormValue("withCP") != "" || r.FormValue("completeLpa") != "" {
-			AddCertificateProvider(lpa, "Jessie")
+		if r.FormValue("withCPDetails") != "" || r.FormValue("completeLpa") != "" {
+			AddCertificateProviderDetails(lpa, "Jessie")
 		}
 
 		if r.FormValue("withPeopleToNotify") != "" || r.FormValue("completeLpa") != "" {
@@ -136,8 +136,6 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			shareCodeSender.UseTestCode()
 		}
 
-		certificateProvider, _ := certificateProviderStore.Create(ctx, lpa)
-
 		if r.FormValue("startCpFlowDonorHasPaid") != "" || r.FormValue("startCpFlowDonorHasNotPaid") != "" {
 			CompleteSectionOne(lpa)
 
@@ -161,11 +159,14 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		}
 
 		if r.FormValue("asCertificateProvider") != "" || r.FormValue("provideCertificate") != "" {
+			certificateProvider, _ := certificateProviderStore.Create(ctx, lpa, sessionID)
+
 			_ = sesh.SetCertificateProvider(store, r, w, &sesh.CertificateProviderSession{
 				Sub:            randomString(12),
 				Email:          TestEmail,
 				DonorSessionID: sessionID,
 				LpaID:          lpa.ID,
+				ID:             certificateProvider.ID,
 			})
 
 			certificateProvider.IdentityUserData = identity.UserData{
@@ -175,23 +176,21 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				LastName:   "Jones",
 			}
 
-			lpa.CertificateProviderID = certificateProvider.ID
-		}
+			if r.FormValue("provideCertificate") != "" {
+				certificateProvider.Mobile = TestMobile
+				certificateProvider.Email = TestEmail
+				certificateProvider.Address = place.Address{
+					Line1:      "5 RICHMOND PLACE",
+					Line2:      "KINGS HEATH",
+					Line3:      "WEST MIDLANDS",
+					TownOrCity: "BIRMINGHAM",
+					Postcode:   "B14 7ED",
+				}
 
-		if r.FormValue("provideCertificate") != "" {
-			certificateProvider.Mobile = TestMobile
-			certificateProvider.Email = TestEmail
-			certificateProvider.Address = place.Address{
-				Line1:      "5 RICHMOND PLACE",
-				Line2:      "KINGS HEATH",
-				Line3:      "WEST MIDLANDS",
-				TownOrCity: "BIRMINGHAM",
-				Postcode:   "B14 7ED",
-			}
-
-			lpa.Certificate = Certificate{
-				AgreeToStatement: true,
-				Agreed:           time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
+				lpa.Certificate = Certificate{
+					AgreeToStatement: true,
+					Agreed:           time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
+				}
 			}
 		}
 
@@ -200,10 +199,12 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			_ = sesh.SetDonor(store, r, w, donorSesh)
 		}
 
-		_ = certificateProviderStore.Put(ctx, certificateProvider)
 		_ = lpaStore.Put(ctx, lpa)
 
 		random.UseTestCode = true
+
+		log.Println("ctx LpaID just before testing start redirect is:", (SessionDataFromContext(ctx)).LpaID)
+		log.Println("redirecting to: ", r.FormValue("redirect"))
 
 		AppData{}.Redirect(w, r.WithContext(ctx), lpa, r.FormValue("redirect"))
 	}

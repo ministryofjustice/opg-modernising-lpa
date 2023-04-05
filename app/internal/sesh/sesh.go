@@ -147,6 +147,7 @@ func SetYoti(store sessions.Store, r *http.Request, w http.ResponseWriter, yotiS
 type DonorSession struct {
 	Sub   string
 	Email string
+	ID    string
 }
 
 func (s DonorSession) Valid() bool {

@@ -59,7 +59,7 @@ type LpaStore interface {
 
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
 type CertificateProviderStore interface {
-	Create(context.Context, *Lpa) (*actor.CertificateProvider, error)
+	Create(context.Context, *Lpa, string) (*actor.CertificateProvider, error)
 	Get(context.Context) (*actor.CertificateProvider, error)
 	Put(context.Context, *actor.CertificateProvider) error
 }

@@ -41,7 +41,7 @@ type LpaStore interface {
 
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
 type CertificateProviderStore interface {
-	Create(context.Context, *page.Lpa) (*actor.CertificateProvider, error)
+	Create(context.Context, *page.Lpa, string) (*actor.CertificateProvider, error)
 	Get(context.Context) (*actor.CertificateProvider, error)
 	Put(context.Context, *actor.CertificateProvider) error
 }
@@ -257,7 +257,7 @@ func Register(
 	}
 
 	handleLpa(page.Paths.ReadYourLpa, CanGoBack,
-		page.Guidance(tmpls.Get("read_your_lpa.gohtml"), lpaStore, certificateProviderStore))
+		page.Guidance(tmpls.Get("read_your_lpa.gohtml"), lpaStore, nil))
 	handleLpa(page.Paths.YourLegalRightsAndResponsibilities, CanGoBack,
 		page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml"), lpaStore, nil))
 	handleLpa(page.Paths.SignYourLpa, CanGoBack,
@@ -297,13 +297,13 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, 
 			appData.ActorType = actor.TypeDonor
 
 			if opt&RequireSession != 0 {
-				session, err := sesh.Donor(store, r)
+				donorSession, err := sesh.Donor(store, r)
 				if err != nil {
 					http.Redirect(w, r, page.Paths.Start, http.StatusFound)
 					return
 				}
 
-				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
+				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(donorSession.Sub))
 
 				data := page.SessionDataFromContext(ctx)
 				if data != nil {
@@ -312,7 +312,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, 
 
 					appData.LpaID = data.LpaID
 				} else {
-					ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID})
+					ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
 				}
 			}
 

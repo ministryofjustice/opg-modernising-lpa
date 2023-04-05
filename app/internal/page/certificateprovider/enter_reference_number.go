@@ -51,7 +51,7 @@ func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore p
 					return err
 				}
 
-				certificateProvider, err := certificateProviderStore.Create(r.Context(), lpa)
+				certificateProvider, err := certificateProviderStore.Create(r.Context(), lpa, v.SessionID)
 				if err != nil {
 					return err
 				}

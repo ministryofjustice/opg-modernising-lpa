@@ -38,7 +38,7 @@ func TestPostFixturesDonorFlow(t *testing.T) {
 		"choose-replacement-attorneys": {"withReplacementAttorneys"},
 		"when-can-lpa-be-used":         {"whenCanBeUsedComplete"},
 		"restrictions":                 {"withRestrictions"},
-		"certificate-provider":         {"withCP"},
+		"certificate-provider":         {"withCPDetails"},
 		"people-to-notify":             {"withPeopleToNotify"},
 		"ptn-count":                    {"5"},
 		"check-and-send-to-cp":         {"lpaChecked"},
@@ -58,7 +58,7 @@ func TestPostFixturesDonorFlow(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	expectedPath := "/testing-start?completeLpa=1&idConfirmedAndSigned=1&lpaChecked=1&paymentComplete=1&whenCanBeUsedComplete=1&withAttorneys=1&withCP=1&withDonorDetails=1&withPeopleToNotify=5&withReplacementAttorneys=1&withRestrictions=1"
+	expectedPath := "/testing-start?completeLpa=1&idConfirmedAndSigned=1&lpaChecked=1&paymentComplete=1&whenCanBeUsedComplete=1&withAttorneys=1&withCPDetails=1&withDonorDetails=1&withPeopleToNotify=5&withReplacementAttorneys=1&withRestrictions=1"
 	assert.Equal(t, expectedPath, resp.Header.Get("Location"))
 }
 

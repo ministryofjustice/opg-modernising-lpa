@@ -294,7 +294,7 @@ func TestTestingStart(t *testing.T) {
 
 	t.Run("with Certificate Provider", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withCP=1", nil)
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withCPDetails=1", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
 		sessionStore := newMockSessionStore(t)

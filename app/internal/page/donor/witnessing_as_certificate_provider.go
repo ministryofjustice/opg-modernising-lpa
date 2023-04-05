@@ -17,7 +17,7 @@ type witnessingAsCertificateProviderData struct {
 	Lpa    *page.Lpa
 }
 
-func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, shareCodeSender ShareCodeSender, now func() time.Time, certificateProviderStore page.CertificateProviderStore) page.Handler {
+func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, shareCodeSender ShareCodeSender, now func() time.Time, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
@@ -60,14 +60,26 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, 
 			}
 
 			if data.Errors.None() {
-				certificateProvider, err := certificateProviderStore.Get(r.Context())
-				if err != nil {
-					return err
-				}
-
-				if certificateProvider.CertificateProviderIdentityConfirmed() {
+				if lpa.CertificateProviderID == "" {
 					if err := shareCodeSender.Send(r.Context(), notify.CertificateProviderReturnEmail, appData, false, lpa); err != nil {
 						return err
+					}
+				} else {
+					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
+						SessionID:             appData.SessionID,
+						LpaID:                 appData.LpaID,
+						CertificateProviderID: lpa.CertificateProviderID,
+					})
+
+					certificateProvider, err := certificateProviderStore.Get(ctx)
+					if err != nil {
+						return err
+					}
+
+					if certificateProvider.CertificateProviderIdentityConfirmed() {
+						if err := shareCodeSender.Send(r.Context(), notify.CertificateProviderReturnEmail, appData, false, lpa); err != nil {
+							return err
+						}
 					}
 				}
 

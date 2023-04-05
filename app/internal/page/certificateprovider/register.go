@@ -34,7 +34,7 @@ type LpaStore interface {
 
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
 type CertificateProviderStore interface {
-	Create(context.Context, *page.Lpa) (*actor.CertificateProvider, error)
+	Create(context.Context, *page.Lpa, string) (*actor.CertificateProvider, error)
 	Get(context.Context) (*actor.CertificateProvider, error)
 	Put(context.Context, *actor.CertificateProvider) error
 }
@@ -191,12 +191,12 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 
 				appData.SessionID = session.DonorSessionID
 				appData.LpaID = session.LpaID
-				appData.ActorID = session.ID
+				appData.CertificateProviderId = session.ID
 
 				ctx = page.ContextWithSessionData(ctx, &page.SessionData{
-					SessionID: appData.SessionID,
-					LpaID:     appData.LpaID,
-					ActorID:   appData.ActorID,
+					SessionID:             appData.SessionID,
+					LpaID:                 appData.LpaID,
+					CertificateProviderID: appData.CertificateProviderId,
 				})
 			}
 

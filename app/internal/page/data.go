@@ -114,9 +114,9 @@ type Progress struct {
 }
 
 type SessionData struct {
-	SessionID string
-	LpaID     string
-	ActorID   string
+	SessionID             string
+	LpaID                 string
+	CertificateProviderID string
 }
 
 func SessionDataFromContext(ctx context.Context) *SessionData {

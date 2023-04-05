@@ -1,6 +1,6 @@
 describe('Confirm your identity and sign', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/your-details&withIncompleteAttorneys=1&withCP=1&paymentComplete=1');
+        cy.visit('/testing-start?redirect=/your-details&withIncompleteAttorneys=1&withCPDetails=1&paymentComplete=1');
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
         cy.get('#f-date-of-birth').type('1');
@@ -42,11 +42,11 @@ describe('Confirm your identity and sign', () => {
 
         cy.url().should('contain', '/your-chosen-identity-options');
         cy.checkA11yApp();
-        
+
         cy.contains('passport');
         cy.contains('button', 'Continue').click();
         cy.contains('button', 'Continue').click();
-        
+
         cy.url().should('contain', '/read-your-lpa');
         cy.checkA11yApp();
 
