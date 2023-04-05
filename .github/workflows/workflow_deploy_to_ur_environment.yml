@@ -53,7 +53,7 @@ jobs:
       uses: ./.github/workflows/terraform_environment_job.yml
       with:
         workspace_name: ur
-        version_tag: ${{ inputs.tag_to_deploy}}
+        version_tag: ur-${{ inputs.tag_to_deploy}}
         checkout_tag: ${{ inputs.tag_to_deploy}}
       secrets:
         aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
