@@ -30,7 +30,7 @@ jobs:
     name: Docker Build, Scan and Push
     uses: ./.github/workflows/docker_job.yml
     with:
-      tag: ${{ inputs.tag_to_deploy }}
+      tag: ur-${{ inputs.tag_to_deploy }}
       checkout_tag : ${{ inputs.tag_to_deploy }}
 
   ui_tests_image:
