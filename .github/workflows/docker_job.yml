@@ -28,10 +28,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ inputs.checkout_tag }}
-      - name: Check name of workflow
-        id: check_workflow_name
-        run: |
-          echo ${{ github.workflow }}
       - name: Build Image
         id: build_image
         run: |
