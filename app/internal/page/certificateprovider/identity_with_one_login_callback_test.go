@@ -24,16 +24,15 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
 	userData := identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{
-			CertificateProviderDetails: actor.CertificateProvider{FirstNames: "John", LastName: "Doe"},
-		}, nil)
-	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			CertificateProviderDetails:          actor.CertificateProvider{FirstNames: "John", LastName: "Doe"},
-			CertificateProviderIdentityUserData: userData,
+		Return(&actor.CertificateProvider{FirstNames: "John", LastName: "Doe"}, nil)
+	certificateProviderStore.
+		On("Put", r.Context(), &actor.CertificateProvider{
+			FirstNames:       "John",
+			LastName:         "Doe",
+			IdentityUserData: userData,
 		}).
 		Return(nil)
 
@@ -67,7 +66,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := IdentityWithOneLoginCallback(template.Execute, oneLoginClient, sessionStore, lpaStore)(testAppData, w, r)
+	err := IdentityWithOneLoginCallback(template.Execute, oneLoginClient, sessionStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -214,16 +213,16 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			certificateProviderStore := newMockCertificateProviderStore(t)
+			certificateProviderStore.
 				On("Get", r.Context()).
-				Return(&page.Lpa{}, nil)
+				Return(&actor.CertificateProvider{}, nil)
 
 			sessionStore := tc.sessionStore(t)
 			oneLoginClient := tc.oneLoginClient(t)
 			template := tc.template(t, w)
 
-			err := IdentityWithOneLoginCallback(template.Execute, oneLoginClient, sessionStore, lpaStore)(testAppData, w, r)
+			err := IdentityWithOneLoginCallback(template.Execute, oneLoginClient, sessionStore, certificateProviderStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, tc.error, err)
@@ -232,14 +231,16 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 	}
 }
 
-func TestGetIdentityWithOneLoginCallbackWhenGetDataStoreError(t *testing.T) {
+func TestGetIdentityWithOneLoginCallbackWhenGetDataCertificateProviderStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.On("Get", r.Context()).Return(&page.Lpa{}, expectedError)
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
+		On("Get", r.Context()).
+		Return(&actor.CertificateProvider{}, expectedError)
 
-	err := IdentityWithOneLoginCallback(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := IdentityWithOneLoginCallback(nil, nil, nil, certificateProviderStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -249,11 +250,11 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDataStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	lpaStore.
+		Return(&actor.CertificateProvider{}, nil)
+	certificateProviderStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
@@ -277,7 +278,7 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDataStoreError(t *testing.T) {
 		On("ParseIdentityClaim", mock.Anything, mock.Anything).
 		Return(identity.UserData{OK: true, Provider: identity.OneLogin}, nil)
 
-	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, lpaStore)(testAppData, w, r)
+	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, certificateProviderStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -288,12 +289,13 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 	now := time.Date(2012, time.January, 1, 2, 3, 4, 5, time.UTC)
 	userData := identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "first-names", LastName: "last-name", RetrievedAt: now}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{
-			CertificateProviderDetails:          actor.CertificateProvider{FirstNames: "first-names", LastName: "last-name"},
-			CertificateProviderIdentityUserData: userData,
+		Return(&actor.CertificateProvider{
+			FirstNames:       "first-names",
+			LastName:         "last-name",
+			IdentityUserData: userData,
 		}, nil)
 
 	template := newMockTemplate(t)
@@ -306,7 +308,7 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := IdentityWithOneLoginCallback(template.Execute, nil, nil, lpaStore)(testAppData, w, r)
+	err := IdentityWithOneLoginCallback(template.Execute, nil, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -317,14 +319,14 @@ func TestPostIdentityWithOneLoginCallback(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{
-			CertificateProviderIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
+		Return(&actor.CertificateProvider{
+			IdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
 		}, nil)
 
-	err := IdentityWithOneLoginCallback(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := IdentityWithOneLoginCallback(nil, nil, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -336,10 +338,12 @@ func TestPostIdentityWithOneLoginCallbackNotConfirmed(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.On("Get", r.Context()).Return(&page.Lpa{}, nil)
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
+		On("Get", r.Context()).
+		Return(&actor.CertificateProvider{}, nil)
 
-	err := IdentityWithOneLoginCallback(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := IdentityWithOneLoginCallback(nil, nil, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

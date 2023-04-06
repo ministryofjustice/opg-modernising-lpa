@@ -16,13 +16,8 @@ type selectYourIdentityOptionsData struct {
 	Page   int
 }
 
-func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, pageIndex int, certificateProviderStore CertificateProviderStore) page.Handler {
+func SelectYourIdentityOptions(tmpl template.Template, pageIndex int, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
@@ -43,12 +38,12 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, pageIn
 			if data.Form.None {
 				switch pageIndex {
 				case 0:
-					return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderSelectYourIdentityOptions1)
+					return appData.Redirect(w, r, nil, page.Paths.CertificateProviderSelectYourIdentityOptions1)
 				case 1:
-					return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderSelectYourIdentityOptions2)
+					return appData.Redirect(w, r, nil, page.Paths.CertificateProviderSelectYourIdentityOptions2)
 				default:
 					// will go to vouching flow when that is built
-					return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderStart)
+					return appData.Redirect(w, r, nil, page.Paths.CertificateProviderStart)
 				}
 			}
 
@@ -59,7 +54,7 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, pageIn
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderYourChosenIdentityOptions)
+				return appData.Redirect(w, r, nil, page.Paths.CertificateProviderYourChosenIdentityOptions)
 			}
 		}
 

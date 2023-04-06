@@ -15,20 +15,15 @@ type yourChosenIdentityOptionsData struct {
 	IdentityOption identity.Option
 }
 
-func YourChosenIdentityOptions(tmpl template.Template, lpaStore LpaStore, certificateProviderStore CertificateProviderStore) page.Handler {
+func YourChosenIdentityOptions(tmpl template.Template, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
 		if r.Method == http.MethodPost {
-			return appData.Redirect(w, r, lpa, identityOptionPath(appData.Paths, certificateProvider.IdentityOption))
+			return appData.Redirect(w, r, nil, identityOptionPath(appData.Paths, certificateProvider.IdentityOption))
 		}
 
 		data := &yourChosenIdentityOptionsData{

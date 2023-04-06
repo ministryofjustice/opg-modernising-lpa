@@ -20,13 +20,8 @@ type identityWithYotiCallbackData struct {
 	CouldNotConfirm bool
 }
 
-func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, lpaStore LpaStore, certificateProviderStore CertificateProviderStore) page.Handler {
+func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
@@ -34,9 +29,9 @@ func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, lpa
 
 		if r.Method == http.MethodPost {
 			if certificateProvider.CertificateProviderIdentityConfirmed() {
-				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderReadTheLpa)
+				return appData.Redirect(w, r, nil, page.Paths.CertificateProviderReadTheLpa)
 			} else {
-				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderSelectYourIdentityOptions1)
+				return appData.Redirect(w, r, nil, page.Paths.CertificateProviderSelectYourIdentityOptions1)
 			}
 		}
 

@@ -18,13 +18,8 @@ type yourAddressData struct {
 	Form      *form.AddressForm
 }
 
-func YourAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore, certificateProviderStore CertificateProviderStore) page.Handler {
+func YourAddress(logger Logger, tmpl template.Template, addressClient AddressClient, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
@@ -50,7 +45,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, appData.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity)
+				return appData.Redirect(w, r, nil, appData.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity)
 			}
 
 			if data.Form.Action == "select" && data.Errors.None() {

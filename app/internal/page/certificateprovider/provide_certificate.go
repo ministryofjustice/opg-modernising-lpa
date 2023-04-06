@@ -33,6 +33,7 @@ func ProvideCertificate(tmpl template.Template, lpaStore LpaStore, now func() ti
 			return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderStart)
 		}
 
+		//TODO add code to duplicate LPA CP name deets to CP entity on check-your-name
 		data := &provideCertificateData{
 			App:                 appData,
 			CertificateProvider: certificateProvider,

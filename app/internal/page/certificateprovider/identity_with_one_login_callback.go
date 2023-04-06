@@ -22,13 +22,8 @@ type identityWithOneLoginCallbackData struct {
 	CouldNotConfirm bool
 }
 
-func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLoginClient, sessionStore sesh.Store, lpaStore LpaStore, certificateProviderStore CertificateProviderStore) page.Handler {
+func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLoginClient, sessionStore sesh.Store, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
@@ -36,9 +31,9 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 
 		if r.Method == http.MethodPost {
 			if certificateProvider.CertificateProviderIdentityConfirmed() {
-				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderReadTheLpa)
+				return appData.Redirect(w, r, nil, page.Paths.CertificateProviderReadTheLpa)
 			} else {
-				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderSelectYourIdentityOptions1)
+				return appData.Redirect(w, r, nil, page.Paths.CertificateProviderSelectYourIdentityOptions1)
 			}
 		}
 

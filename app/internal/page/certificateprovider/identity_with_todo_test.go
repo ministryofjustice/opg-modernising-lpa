@@ -18,16 +18,15 @@ func TestGetIdentityWithTodo(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{
-			CertificateProviderDetails: actor.CertificateProvider{FirstNames: "a", LastName: "b"},
-		}, nil)
-	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			CertificateProviderDetails: actor.CertificateProvider{FirstNames: "a", LastName: "b"},
-			CertificateProviderIdentityUserData: identity.UserData{
+		Return(&actor.CertificateProvider{FirstNames: "a", LastName: "b"}, nil)
+	certificateProviderStore.
+		On("Put", r.Context(), &actor.CertificateProvider{
+			FirstNames: "a",
+			LastName:   "b",
+			IdentityUserData: identity.UserData{
 				OK:          true,
 				Provider:    identity.Passport,
 				FirstNames:  "a",
@@ -45,25 +44,23 @@ func TestGetIdentityWithTodo(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := IdentityWithTodo(template.Execute, lpaStore, func() time.Time { return now }, identity.Passport)(testAppData, w, r)
+	err := IdentityWithTodo(template.Execute, func() time.Time { return now }, identity.Passport, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetIdentityWithTodoWhenLpaStoreGetErrors(t *testing.T) {
+func TestGetIdentityWithTodoWhenCertificateProviderStoreGetErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{
-			CertificateProviderDetails: actor.CertificateProvider{FirstNames: "a", LastName: "b"},
-		}, expectedError)
+		Return(&actor.CertificateProvider{}, expectedError)
 
-	err := IdentityWithTodo(nil, lpaStore, nil, identity.Passport)(testAppData, w, r)
+	err := IdentityWithTodo(nil, nil, identity.Passport, certificateProviderStore)(testAppData, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -71,17 +68,15 @@ func TestGetIdentityWithTodoWhenLpaStorePutErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{
-			CertificateProviderDetails: actor.CertificateProvider{FirstNames: "a", LastName: "b"},
-		}, nil)
-	lpaStore.
+		Return(&actor.CertificateProvider{FirstNames: "a", LastName: "b"}, nil)
+	certificateProviderStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := IdentityWithTodo(nil, lpaStore, time.Now, identity.Passport)(testAppData, w, r)
+	err := IdentityWithTodo(nil, time.Now, identity.Passport, certificateProviderStore)(testAppData, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -89,12 +84,12 @@ func TestPostIdentityWithTodo(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.CertificateProvider{}, nil)
 
-	err := IdentityWithTodo(nil, lpaStore, nil, identity.Passport)(testAppData, w, r)
+	err := IdentityWithTodo(nil, nil, identity.Passport, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

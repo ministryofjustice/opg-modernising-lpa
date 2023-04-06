@@ -2,7 +2,6 @@ package page
 
 import (
 	"encoding/base64"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -19,9 +18,9 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 	return func(w http.ResponseWriter, r *http.Request) {
 		sub := randomString(12)
 		sessionID := base64.StdEncoding.EncodeToString([]byte(sub))
+		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: sessionID})
 
-		lpa, _ := lpaStore.Create(ContextWithSessionData(r.Context(), &SessionData{SessionID: sessionID}))
-		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: sessionID, LpaID: lpa.ID})
+		lpa, _ := lpaStore.Create(ctx)
 
 		if r.FormValue("withDonorDetails") != "" || r.FormValue("completeLpa") != "" {
 			CompleteDonorDetails(lpa)
@@ -192,6 +191,8 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 					Agreed:           time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
 				}
 			}
+
+			_ = certificateProviderStore.Put(ctx, certificateProvider)
 		}
 
 		// used to switch back to donor after CP fixtures have run
@@ -202,9 +203,6 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		_ = lpaStore.Put(ctx, lpa)
 
 		random.UseTestCode = true
-
-		log.Println("ctx LpaID just before testing start redirect is:", (SessionDataFromContext(ctx)).LpaID)
-		log.Println("redirecting to: ", r.FormValue("redirect"))
 
 		AppData{}.Redirect(w, r.WithContext(ctx), lpa, r.FormValue("redirect"))
 	}

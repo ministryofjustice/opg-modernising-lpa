@@ -1,7 +1,6 @@
 package certificateprovider
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -21,15 +20,11 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
-			log.Println("LPA not found")
 			return err
 		}
 
-		log.Println("CP ID on LPA is: " + lpa.CertificateProviderID)
-
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
-			log.Println("CP not found")
 			return err
 		}
 
@@ -47,7 +42,7 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 				if data.Form.CorrectedName != "" {
 					certificateProvider.DeclaredFullName = data.Form.CorrectedName
 
-					if err := lpaStore.Put(r.Context(), lpa); err != nil {
+					if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 						return err
 					}
 
@@ -61,6 +56,8 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 						return err
 					}
 				}
+
+				// Do we want to bring back CP and LPA on CPStore.Get()?
 
 				appData.Redirect(w, r, lpa, page.Paths.CertificateProviderEnterDateOfBirth)
 				return nil

@@ -2,7 +2,6 @@ package dynamo
 
 import (
 	"context"
-	"log"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -39,8 +38,6 @@ func (c *Client) GetAll(ctx context.Context, pk string, v interface{}) error {
 		return err
 	}
 
-	log.Println("GetAll unmarshalled pk is: ", pk)
-	log.Println("GetAll marshalled pk is: ", pkey)
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                 aws.String(c.table),
 		ExpressionAttributeNames:  map[string]string{"#PK": "PK"},
@@ -56,8 +53,6 @@ func (c *Client) GetAll(ctx context.Context, pk string, v interface{}) error {
 	for _, item := range response.Items {
 		items = append(items, item["Data"])
 	}
-
-	log.Println("Items is: ", items)
 
 	return attributevalue.UnmarshalList(items, v)
 }

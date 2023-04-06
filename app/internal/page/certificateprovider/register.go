@@ -117,7 +117,7 @@ func Register(
 	handleRoot(page.Paths.CertificateProviderEnterMobileNumber, RequireSession,
 		EnterMobileNumber(tmpls.Get("certificate_provider_enter_mobile_number.gohtml"), lpaStore, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderYourAddress, RequireSession,
-		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore, certificateProviderStore))
+		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, certificateProviderStore))
 
 	handleRoot(page.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity, RequireSession,
 		page.Guidance(tmpls.Get("certificate_provider_what_youll_need_to_confirm_your_identity.gohtml"), lpaStore, nil))
@@ -128,19 +128,19 @@ func Register(
 		page.Paths.CertificateProviderSelectYourIdentityOptions2: 2,
 	} {
 		handleRoot(path, RequireSession,
-			SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), lpaStore, page, certificateProviderStore))
+			SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), page, certificateProviderStore))
 	}
 
 	handleRoot(page.Paths.CertificateProviderYourChosenIdentityOptions, RequireSession,
-		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), lpaStore, certificateProviderStore))
+		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderIdentityWithYoti, RequireSession,
-		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), lpaStore, sessionStore, yotiClient, certificateProviderStore))
+		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), sessionStore, yotiClient, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderIdentityWithYotiCallback, RequireSession,
-		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, lpaStore, certificateProviderStore))
+		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderIdentityWithOneLogin, RequireSession,
 		IdentityWithOneLogin(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.CertificateProviderIdentityWithOneLoginCallback, RequireSession,
-		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, lpaStore, certificateProviderStore))
+		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, certificateProviderStore))
 
 	for path, identityOption := range map[string]identity.Option{
 		page.Paths.CertificateProviderIdentityWithPassport:                 identity.Passport,
