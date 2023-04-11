@@ -14,27 +14,48 @@ import (
 )
 
 func TestGetHowShouldReplacementAttorneysStepIn(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	testcases := map[string]struct {
+		attorneys         actor.Attorneys
+		allowSomeOtherWay bool
+	}{
+		"single": {
+			attorneys:         actor.Attorneys{{}},
+			allowSomeOtherWay: true,
+		},
+		"multiple": {
+			attorneys:         actor.Attorneys{{}, {}},
+			allowSomeOtherWay: false,
+		},
+	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &howShouldReplacementAttorneysStepInData{
-			App:  testAppData,
-			Form: &howShouldReplacementAttorneysStepInForm{},
-		}).
-		Return(nil)
+			lpaStore := newMockLpaStore(t)
+			lpaStore.
+				On("Get", r.Context()).
+				Return(&page.Lpa{
+					ReplacementAttorneys: tc.attorneys,
+				}, nil)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Execute, lpaStore)(testAppData, w, r)
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.
+				On("Execute", w, &howShouldReplacementAttorneysStepInData{
+					App:               testAppData,
+					AllowSomeOtherWay: tc.allowSomeOtherWay,
+					Form:              &howShouldReplacementAttorneysStepInForm{},
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := HowShouldReplacementAttorneysStepIn(template.Execute, lpaStore)(testAppData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
