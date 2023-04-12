@@ -48,6 +48,8 @@ jobs:
           echo "branch_changes=${{ false }}" || \
           echo "branch_changes=${{ true }}"
 
+          echo "hey"
+
           git diff --quiet ${{github.event.before}} ${{github.event.after}} -- app lang web Dockerfile package.json yarn.lock && \
           echo "branch_changes=${{ false }}" >> $GITHUB_OUTPUT || \
           echo "branch_changes=${{ true }}" >> $GITHUB_OUTPUT
