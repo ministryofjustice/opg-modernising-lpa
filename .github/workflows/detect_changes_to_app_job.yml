@@ -54,8 +54,8 @@ jobs:
             echo "branch_changes=${{ true }}" >> $GITHUB_OUTPUT
           else
             echo "No last push"
-            echo "branch_changes=${{ false }}"
-            echo "branch_changes=${{ false }}" >> $GITHUB_OUTPUT
+            echo "branch_changes=${{ true }}"
+            echo "branch_changes=${{ true }}" >> $GITHUB_OUTPUT
           fi
     outputs:
       branch_changes_detected: ${{ steps.detect_branch_changes.outputs.branch_changes }}
