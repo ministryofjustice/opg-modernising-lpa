@@ -219,6 +219,14 @@ describe.skip('Choose replacement attorneys task', () => {
 
             cy.contains('a', 'Choose your replacement attorneys (optional)').parent().parent().contains('Completed (1)');
         });
+
+        it('is completed if step in some other way', () => {
+            cy.contains('label', 'In some other way').click();
+            cy.get('textarea').type('Details');
+            cy.contains('button', 'Continue').click();
+
+            cy.contains('a', 'Choose your replacement attorneys (optional)').parent().parent().contains('Completed (1)');
+        });
     });
 
     describe('having jointly attorneys and a single replacement attorney', () => {
@@ -364,6 +372,10 @@ describe.skip('Choose replacement attorneys task', () => {
             cy.contains('button', 'Continue').click();
 
             cy.contains('a', 'Choose your replacement attorneys (optional)').parent().parent().contains('Completed (2)');
+        });
+
+        it('does not allow in some other way', () => {
+            cy.contains('label', 'In some other way').should('not.exist');
         });
     });
 
