@@ -55,6 +55,15 @@ func TestAuthRedirect(t *testing.T) {
 			},
 			redirect: Paths.CertificateProviderIdentityWithOneLoginCallback,
 		},
+		"attorney login": {
+			session: &sesh.OneLoginSession{
+				State:    "my-state",
+				Nonce:    "my-nonce",
+				Locale:   "en",
+				Attorney: true,
+			},
+			redirect: Paths.Attorney.LoginCallback,
+		},
 	}
 
 	for name, tc := range testcases {

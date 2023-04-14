@@ -6,15 +6,15 @@ import (
 	"math/rand"
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -75,6 +75,15 @@ func App(
 		errorHandler,
 		yotiClient,
 		notifyClient,
+	)
+
+	attorney.Register(
+		rootMux,
+		logger,
+		tmpls,
+		sessionStore,
+		oneLoginClient,
+		errorHandler,
 	)
 
 	donor.Register(

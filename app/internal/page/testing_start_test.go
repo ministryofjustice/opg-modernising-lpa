@@ -1099,4 +1099,31 @@ func TestTestingStart(t *testing.T) {
 		assert.Equal(t, "/certificate-provider-start", resp.Header.Get("Location"))
 		mock.AssertExpectationsForObjects(t, sessionStore, lpaStore, shareCodeSender)
 	})
+
+	t.Run("as attorney", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/attorney-start&asAttorney=1", nil)
+		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
+
+		sessionStore := newMockSessionStore(t)
+		sessionStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := newMockLpaStore(t)
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, &Lpa{
+				ID: "123",
+			}).
+			Return(nil)
+
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/attorney-start", resp.Header.Get("Location"))
+	})
 }
