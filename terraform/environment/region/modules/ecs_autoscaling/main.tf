@@ -120,7 +120,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_up" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "scale_down" {
-  provider                  = aws.regions
+  provider                  = aws.region
   alarm_name                = "${var.environment}-${var.aws_ecs_service_name}-scale-down"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "2"
