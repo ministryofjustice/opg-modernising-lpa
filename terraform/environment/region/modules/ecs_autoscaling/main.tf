@@ -1,4 +1,5 @@
 resource "aws_appautoscaling_target" "ecs_service" {
+  provider           = aws.region
   service_namespace  = "ecs"
   resource_id        = "service/${var.aws_ecs_cluster_name}/${var.aws_ecs_service_name}"
   scalable_dimension = "ecs:service:DesiredCount"
@@ -9,6 +10,7 @@ resource "aws_appautoscaling_target" "ecs_service" {
 
 # Automatically scale capacity up by one
 resource "aws_appautoscaling_policy" "up" {
+  provider           = aws.region
   name               = "${var.environment}-${var.aws_ecs_service_name}-scale-up"
   service_namespace  = "ecs"
   resource_id        = aws_appautoscaling_target.ecs_service.resource_id
@@ -30,6 +32,7 @@ resource "aws_appautoscaling_policy" "up" {
 
 # Automatically scale capacity down by one
 resource "aws_appautoscaling_policy" "down" {
+  provider           = aws.region
   name               = "${var.environment}-${var.aws_ecs_service_name}-scale-down"
   service_namespace  = "ecs"
   resource_id        = aws_appautoscaling_target.ecs_service.resource_id
@@ -50,6 +53,7 @@ resource "aws_appautoscaling_policy" "down" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "scale_up" {
+  provider                  = aws.region
   alarm_name                = "${var.environment}-${var.aws_ecs_service_name}-scale-up"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "2"
@@ -116,6 +120,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_up" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "scale_down" {
+  provider                  = aws.regions
   alarm_name                = "${var.environment}-${var.aws_ecs_service_name}-scale-down"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "2"
