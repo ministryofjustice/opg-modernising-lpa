@@ -8,10 +8,10 @@ variable "aws_ecs_service_name" {
   type        = string
 }
 
-# variable "max_scaling_alarm_actions" {
-#   description = "List of alarm actions for maximum autoscaling being reached."
-#   type        = list(string)
-# }
+variable "max_scaling_alarm_actions" {
+  description = "List of alarm actions for maximum autoscaling being reached."
+  type        = list(string)
+}
 
 variable "ecs_autoscaling_service_role_arn" {
   description = "The ARN of the IAM role that allows Application AutoScaling to modify your scalable target on your behalf."
@@ -27,8 +27,6 @@ variable "ecs_task_autoscaling_maximum" {
   description = "The max capacity of the scalable target."
   type        = number
 }
-
-
 
 variable "autoscaling_metric_max_cpu_target" {
   description = "The target value for the CPU metric."
