@@ -53,6 +53,7 @@ func init() {
 	gob.Register(&YotiSession{})
 	gob.Register(&DonorSession{})
 	gob.Register(&CertificateProviderSession{})
+	gob.Register(&AttorneySession{})
 	gob.Register(&PaymentSession{})
 }
 
@@ -62,6 +63,7 @@ type OneLoginSession struct {
 	Locale              string
 	Identity            bool
 	CertificateProvider bool
+	Attorney            bool
 	SessionID           string
 	LpaID               string
 }
@@ -217,6 +219,46 @@ func CertificateProvider(store sessions.Store, r *http.Request) (*CertificatePro
 func SetCertificateProvider(store sessions.Store, r *http.Request, w http.ResponseWriter, certificateProviderSession *CertificateProviderSession) error {
 	session := sessions.NewSession(store, "session")
 	session.Values = map[any]any{"certificate-provider": certificateProviderSession}
+	session.Options = sessionCookieOptions
+	return store.Save(r, w, session)
+}
+
+type AttorneySession struct {
+	Sub            string
+	Email          string
+	LpaID          string
+	DonorSessionID string
+}
+
+func (s AttorneySession) Valid() bool {
+	return s.Sub != ""
+}
+
+func Attorney(store sessions.Store, r *http.Request) (*AttorneySession, error) {
+	params, err := store.Get(r, "session")
+	if err != nil {
+		return nil, err
+	}
+
+	session, ok := params.Values["attorney"]
+	if !ok {
+		return nil, MissingSessionError("attorney")
+	}
+
+	attorneySession, ok := session.(*AttorneySession)
+	if !ok {
+		return nil, MissingSessionError("attorney")
+	}
+	if !attorneySession.Valid() {
+		return nil, InvalidSessionError("attorney")
+	}
+
+	return attorneySession, nil
+}
+
+func SetAttorney(store sessions.Store, r *http.Request, w http.ResponseWriter, attorneySession *AttorneySession) error {
+	session := sessions.NewSession(store, "session")
+	session.Values = map[any]any{"attorney": attorneySession}
 	session.Options = sessionCookieOptions
 	return store.Save(r, w, session)
 }
