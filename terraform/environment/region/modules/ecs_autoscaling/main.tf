@@ -187,20 +187,21 @@ resource "aws_cloudwatch_metric_alarm" "scale_down" {
 }
 
 
-# resource "aws_cloudwatch_metric_alarm" "max_scaling_reached" {
-#   alarm_name                = "${var.environment}-${var.aws_ecs_service_name}-max-scaling-reached"
-#   alarm_actions             = var.max_scaling_alarm_actions
-#   comparison_operator       = "GreaterThanOrEqualToThreshold"
-#   evaluation_periods        = "2"
-#   metric_name               = "RunningTaskCount"
-#   namespace                 = "ECS/ContainerInsights"
-#   period                    = "30"
-#   statistic                 = "Average"
-#   threshold                 = var.ecs_task_autoscaling_maximum
-#   alarm_description         = "This metric monitors ecs running task count for the ${var.environment} ${var.aws_ecs_service_name} service"
-#   insufficient_data_actions = []
-#   dimensions = {
-#     ServiceName = var.aws_ecs_service_name
-#     ClusterName = var.aws_ecs_cluster_name
-#   }
-# }
+resource "aws_cloudwatch_metric_alarm" "max_scaling_reached" {
+  provider                  = aws.region
+  alarm_name                = "${var.environment}-${var.aws_ecs_service_name}-max-scaling-reached"
+  alarm_actions             = var.max_scaling_alarm_actions
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "2"
+  metric_name               = "RunningTaskCount"
+  namespace                 = "ECS/ContainerInsights"
+  period                    = "30"
+  statistic                 = "Average"
+  threshold                 = var.ecs_task_autoscaling_maximum
+  alarm_description         = "This metric monitors ecs running task count for the ${var.environment} ${var.aws_ecs_service_name} service"
+  insufficient_data_actions = []
+  dimensions = {
+    ServiceName = var.aws_ecs_service_name
+    ClusterName = var.aws_ecs_cluster_name
+  }
+}

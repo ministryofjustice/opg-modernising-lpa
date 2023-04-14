@@ -1,23 +1,32 @@
-# ECS Autoscaling
+## Requirements
 
-This module creates autoscaling policies for ECS services that track a combined CPU and memory metric.
+| Name                                                                      | Version  |
+|---------------------------------------------------------------------------|----------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.2.2 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| aws  | 3.38.0  |
+| Name                                                                   | Version |
+|------------------------------------------------------------------------|---------|
+| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | n/a     |
+
+## Modules
+
+No modules.
 
 ## Resources
 
-| Name                                                                                                                                                   | Type     |
-|--------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
-| [aws_appautoscaling_policy.down](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_policy)                    | resource |
-| [aws_appautoscaling_policy.up](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_policy)                      | resource |
-| [aws_appautoscaling_target.target](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_target)                  | resource |
-| [aws_cloudwatch_metric_alarm.max_scaling_reached](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
-| [aws_cloudwatch_metric_alarm.scale_down](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm)          | resource |
-| [aws_cloudwatch_metric_alarm.scale_up](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm)            | resource |
+| Name                                                                                                                                                   | Type        |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
+| [aws_appautoscaling_policy.down](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_policy)                    | resource    |
+| [aws_appautoscaling_policy.up](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_policy)                      | resource    |
+| [aws_appautoscaling_target.ecs_service](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_target)             | resource    |
+| [aws_cloudwatch_metric_alarm.max_scaling_reached](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource    |
+| [aws_cloudwatch_metric_alarm.scale_down](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm)          | resource    |
+| [aws_cloudwatch_metric_alarm.scale_up](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm)            | resource    |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity)                          | data source |
+| [aws_default_tags.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/default_tags)                                | data source |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region)                                            | data source |
 
 ## Inputs
 
@@ -39,4 +48,4 @@ This module creates autoscaling policies for ECS services that track a combined 
 
 ## Outputs
 
-No output.
+No outputs.
