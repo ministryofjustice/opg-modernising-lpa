@@ -6,12 +6,20 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+type AttorneyPaths struct {
+	Start                string
+	EnterReferenceNumber string
+	Login                string
+	LoginCallback        string
+}
+
 type AppPaths struct {
 	AboutPayment                                               string
 	AreYouHappyIfOneAttorneyCantActNoneCan                     string
 	AreYouHappyIfOneReplacementAttorneyCantActNoneCan          string
 	AreYouHappyIfRemainingAttorneysCanContinueToAct            string
 	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct string
+	Attorney                                                   AttorneyPaths
 	AuthRedirect                                               string
 	CertificateProvided                                        string
 	CertificateProviderAddress                                 string
@@ -117,6 +125,12 @@ var Paths = AppPaths{
 	AreYouHappyIfOneReplacementAttorneyCantActNoneCan:          "/are-you-happy-if-one-replacement-attorney-cant-act-none-can",
 	AreYouHappyIfRemainingAttorneysCanContinueToAct:            "/are-you-happy-if-remaining-attorneys-can-continue-to-act",
 	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct: "/are-you-happy-if-remaining-replacement-attorneys-can-continue-to-act",
+	Attorney: AttorneyPaths{
+		Start:                "/attorney-start",
+		EnterReferenceNumber: "/attorney-enter-reference-number",
+		Login:                "/attorney-login",
+		LoginCallback:        "/attorney-login-callback",
+	},
 	AuthRedirect:                                            "/auth/redirect",
 	CertificateProvided:                                     "/certificate-provided",
 	CertificateProviderAddress:                              "/certificate-provider-address",
@@ -221,6 +235,10 @@ func IsLpaPath(url string) bool {
 
 	return !slices.Contains([]string{
 		Paths.YotiRedirect,
+		Paths.Attorney.EnterReferenceNumber,
+		Paths.Attorney.Login,
+		Paths.Attorney.LoginCallback,
+		Paths.Attorney.Start,
 		Paths.AuthRedirect,
 		Paths.CertificateProvided,
 		Paths.CertificateProviderCheckYourName,
