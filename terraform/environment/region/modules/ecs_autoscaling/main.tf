@@ -196,7 +196,7 @@ resource "aws_cloudwatch_metric_alarm" "max_scaling_reached" {
   namespace                 = "ECS/ContainerInsights"
   period                    = "30"
   statistic                 = "Average"
-  threshold                 = var.ecs_task_autoscaling_maximum - 1
+  threshold                 = var.ecs_task_autoscaling_maximum
   alarm_description         = "This metric monitors ecs running task count for the ${var.environment} ${var.aws_ecs_service_name} service"
   insufficient_data_actions = []
   dimensions = {
