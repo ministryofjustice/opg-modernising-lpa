@@ -9,9 +9,10 @@ import (
 )
 
 type howShouldReplacementAttorneysStepInData struct {
-	App    page.AppData
-	Errors validation.List
-	Form   *howShouldReplacementAttorneysStepInForm
+	App               page.AppData
+	Errors            validation.List
+	AllowSomeOtherWay bool
+	Form              *howShouldReplacementAttorneysStepInForm
 }
 
 func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaStore) page.Handler {
@@ -22,7 +23,8 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, lpaStore LpaSto
 		}
 
 		data := &howShouldReplacementAttorneysStepInData{
-			App: appData,
+			App:               appData,
+			AllowSomeOtherWay: len(lpa.ReplacementAttorneys) == 1,
 			Form: &howShouldReplacementAttorneysStepInForm{
 				WhenToStepIn: lpa.HowShouldReplacementAttorneysStepIn,
 				OtherDetails: lpa.HowShouldReplacementAttorneysStepInDetails,
