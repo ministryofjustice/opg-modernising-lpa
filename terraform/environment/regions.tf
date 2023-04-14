@@ -16,6 +16,7 @@ module "eu_west_1" {
   }
   application_log_retention_days                        = local.environment.cloudwatch_log_groups.application_log_retention_days
   ecs_capacity_provider                                 = local.ecs_capacity_provider
+  ecs_task_autoscaling                                  = local.environment.app.autoscaling
   app_service_repository_url                            = data.aws_ecr_repository.app.repository_url
   app_service_container_version                         = var.container_version
   ingress_allow_list_cidr                               = module.allow_list.moj_sites
@@ -40,6 +41,7 @@ module "eu_west_2" {
   }
   application_log_retention_days                        = local.environment.cloudwatch_log_groups.application_log_retention_days
   ecs_capacity_provider                                 = local.ecs_capacity_provider
+  ecs_task_autoscaling                                  = local.environment.app.autoscaling
   app_service_repository_url                            = data.aws_ecr_repository.app.repository_url
   app_service_container_version                         = var.container_version
   ingress_allow_list_cidr                               = module.allow_list.moj_sites
