@@ -36,6 +36,10 @@ variable "environments" {
           yoti_scenario_id       = string
           yoti_sandbox           = string
         })
+        autoscaling = object({
+          minimum = number
+          maximum = number
+        })
       })
       backups = object({
         backup_plan_enabled = bool
@@ -47,6 +51,7 @@ variable "environments" {
       })
       ecs = object({
         fargate_spot_capacity_provider_enabled = bool
+
       })
       cloudwatch_log_groups = object({
         application_log_retention_days = number
