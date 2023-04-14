@@ -62,9 +62,8 @@ resource "aws_cloudwatch_metric_alarm" "scale_up" {
   insufficient_data_actions = []
 
   metric_query {
-    id         = "up"
-    expression = "IF((cpu > 2 OR mem > 2) AND tc < ${var.ecs_task_autoscaling_maximum}, 1, 0)"
-    # expression  = "IF((cpu > ${var.autoscaling_metric_max_cpu_target} OR mem > ${var.autoscaling_metric_max_memory_target}) AND tc < ${var.ecs_task_autoscaling_maximum}, 1, 0)"
+    id          = "up"
+    expression  = "IF((cpu > ${var.autoscaling_metric_max_cpu_target} OR mem > ${var.autoscaling_metric_max_memory_target}) AND tc < ${var.ecs_task_autoscaling_maximum}, 1, 0)"
     label       = "ContainerScaleUp"
     return_data = "true"
   }
@@ -187,7 +186,6 @@ resource "aws_cloudwatch_metric_alarm" "scale_down" {
   alarm_actions = [aws_appautoscaling_policy.down.arn]
 }
 
-
 resource "aws_cloudwatch_metric_alarm" "max_scaling_reached" {
   provider                  = aws.region
   alarm_name                = "${var.environment}-${var.aws_ecs_service_name}-max-scaling-reached"
@@ -198,7 +196,7 @@ resource "aws_cloudwatch_metric_alarm" "max_scaling_reached" {
   namespace                 = "ECS/ContainerInsights"
   period                    = "30"
   statistic                 = "Average"
-  threshold                 = var.ecs_task_autoscaling_maximum
+  threshold                 = var.ecs_task_autoscaling_maximum - 1
   alarm_description         = "This metric monitors ecs running task count for the ${var.environment} ${var.aws_ecs_service_name} service"
   insufficient_data_actions = []
   dimensions = {
