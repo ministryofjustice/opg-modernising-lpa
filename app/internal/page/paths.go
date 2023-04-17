@@ -8,9 +8,13 @@ import (
 
 type AttorneyPaths struct {
 	Start                string
-	EnterReferenceNumber string
 	Login                string
 	LoginCallback        string
+	EnterReferenceNumber string
+	DateOfBirth          string
+	// TODO: remove once the attorney flow is complete, this is just to simplify
+	// development
+	NextPage string
 }
 
 type AppPaths struct {
@@ -127,9 +131,11 @@ var Paths = AppPaths{
 	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct: "/are-you-happy-if-remaining-replacement-attorneys-can-continue-to-act",
 	Attorney: AttorneyPaths{
 		Start:                "/attorney-start",
-		EnterReferenceNumber: "/attorney-enter-reference-number",
 		Login:                "/attorney-login",
 		LoginCallback:        "/attorney-login-callback",
+		EnterReferenceNumber: "/attorney-enter-reference-number",
+		DateOfBirth:          "/attorney-date-of-birth",
+		NextPage:             "/attorney-next-page",
 	},
 	AuthRedirect:                                            "/auth/redirect",
 	CertificateProvided:                                     "/certificate-provided",
@@ -235,10 +241,12 @@ func IsLpaPath(url string) bool {
 
 	return !slices.Contains([]string{
 		Paths.YotiRedirect,
+		Paths.Attorney.DateOfBirth,
 		Paths.Attorney.EnterReferenceNumber,
 		Paths.Attorney.Login,
 		Paths.Attorney.LoginCallback,
 		Paths.Attorney.Start,
+		Paths.Attorney.NextPage,
 		Paths.AuthRedirect,
 		Paths.CertificateProvided,
 		Paths.CertificateProviderCheckYourName,
