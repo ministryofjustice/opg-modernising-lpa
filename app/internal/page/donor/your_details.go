@@ -3,6 +3,7 @@ package donor
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -156,23 +157,23 @@ func (f *yourDetailsForm) DobWarning() string {
 
 func donorMatches(lpa *page.Lpa, firstNames, lastName string) actor.Type {
 	for _, attorney := range lpa.Attorneys {
-		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeAttorney
 		}
 	}
 
 	for _, attorney := range lpa.ReplacementAttorneys {
-		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeReplacementAttorney
 		}
 	}
 
-	if lpa.CertificateProvider.FirstNames == firstNames && lpa.CertificateProvider.LastName == lastName {
+	if strings.EqualFold(lpa.CertificateProvider.FirstNames, firstNames) && strings.EqualFold(lpa.CertificateProvider.LastName, lastName) {
 		return actor.TypeCertificateProvider
 	}
 
 	for _, person := range lpa.PeopleToNotify {
-		if person.FirstNames == firstNames && person.LastName == lastName {
+		if strings.EqualFold(person.FirstNames, firstNames) && strings.EqualFold(person.LastName, lastName) {
 			return actor.TypePersonToNotify
 		}
 	}

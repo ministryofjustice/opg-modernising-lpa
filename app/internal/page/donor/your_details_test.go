@@ -536,11 +536,11 @@ func TestDonorMatches(t *testing.T) {
 
 	assert.Equal(t, actor.TypeNone, donorMatches(lpa, "x", "y"))
 	assert.Equal(t, actor.TypeNone, donorMatches(lpa, "a", "b"))
-	assert.Equal(t, actor.TypeAttorney, donorMatches(lpa, "c", "d"))
+	assert.Equal(t, actor.TypeAttorney, donorMatches(lpa, "C", "D"))
 	assert.Equal(t, actor.TypeAttorney, donorMatches(lpa, "e", "f"))
-	assert.Equal(t, actor.TypeReplacementAttorney, donorMatches(lpa, "g", "h"))
+	assert.Equal(t, actor.TypeReplacementAttorney, donorMatches(lpa, "G", "H"))
 	assert.Equal(t, actor.TypeReplacementAttorney, donorMatches(lpa, "i", "j"))
 	assert.Equal(t, actor.TypeCertificateProvider, donorMatches(lpa, "k", "l"))
 	assert.Equal(t, actor.TypePersonToNotify, donorMatches(lpa, "m", "n"))
-	assert.Equal(t, actor.TypePersonToNotify, donorMatches(lpa, "o", "p"))
+	assert.Equal(t, actor.TypePersonToNotify, donorMatches(lpa, "O", "P"))
 }
