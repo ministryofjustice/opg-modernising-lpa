@@ -265,6 +265,7 @@ type fixtureData struct {
 }
 
 type fixturesForm struct {
+	Journey              string
 	DonorDetails         string
 	Attorneys            string
 	ReplacementAttorneys string
@@ -283,6 +284,7 @@ type fixturesForm struct {
 
 func readFixtures(r *http.Request) *fixturesForm {
 	return &fixturesForm{
+		Journey:              PostFormString(r, "journey"),
 		DonorDetails:         PostFormString(r, "donor-details"),
 		Attorneys:            PostFormString(r, "choose-attorneys"),
 		ReplacementAttorneys: PostFormString(r, "choose-replacement-attorneys"),
@@ -314,7 +316,18 @@ func Fixtures(tmpl template.Template) Handler {
 			if len(data.Errors) == 0 {
 				var values url.Values
 
-				if data.Form.CpFlowHasDonorPaid != "" {
+				switch data.Form.Journey {
+				case "attorney":
+					values = url.Values{
+						"useTestShareCode":  {"1"},
+						"sendAttorneyShare": {"1"},
+						"redirect":          {Paths.Attorney.Start},
+					}
+					if data.Form.Email != "" {
+						values.Add("withEmail", data.Form.Email)
+					}
+
+				case "certificate-provider":
 					values = url.Values{
 						"useTestShareCode":           {"1"},
 						data.Form.CpFlowHasDonorPaid: {"1"},
@@ -323,7 +336,7 @@ func Fixtures(tmpl template.Template) Handler {
 					if data.Form.Email != "" {
 						values.Add("withEmail", data.Form.Email)
 					}
-				} else {
+				case "donor":
 					values = url.Values{
 						data.Form.DonorDetails:         {"1"},
 						data.Form.Attorneys:            {"1"},
@@ -354,7 +367,7 @@ func Fixtures(tmpl template.Template) Handler {
 func (f *fixturesForm) Validate() validation.List {
 	var errors validation.List
 
-	if f.Email != "" && f.CpFlowHasDonorPaid == "" {
+	if f.Journey == "certificate-provider" && f.Email != "" && f.CpFlowHasDonorPaid == "" {
 		errors.String("cp-flow-has-donor-paid", "how to start the CP flow", f.CpFlowHasDonorPaid,
 			validation.Select("startCpFlowWithId", "startCpFlowWithoutId"))
 	}
