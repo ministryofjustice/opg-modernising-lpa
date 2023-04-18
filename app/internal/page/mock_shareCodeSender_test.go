@@ -14,8 +14,22 @@ type mockShareCodeSender struct {
 	mock.Mock
 }
 
-// Send provides a mock function with given fields: ctx, template, appData, identity, lpa
-func (_m *mockShareCodeSender) Send(ctx context.Context, template notify.TemplateId, appData AppData, identity bool, lpa *Lpa) error {
+// SendAttorneys provides a mock function with given fields: ctx, template, appData, lpa
+func (_m *mockShareCodeSender) SendAttorneys(ctx context.Context, template notify.TemplateId, appData AppData, lpa *Lpa) error {
+	ret := _m.Called(ctx, template, appData, lpa)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, notify.TemplateId, AppData, *Lpa) error); ok {
+		r0 = rf(ctx, template, appData, lpa)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SendCertificateProvider provides a mock function with given fields: ctx, template, appData, identity, lpa
+func (_m *mockShareCodeSender) SendCertificateProvider(ctx context.Context, template notify.TemplateId, appData AppData, identity bool, lpa *Lpa) error {
 	ret := _m.Called(ctx, template, appData, identity, lpa)
 
 	var r0 error

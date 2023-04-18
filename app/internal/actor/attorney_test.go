@@ -6,6 +6,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestAttorneyFullName(t *testing.T) {
+	assert.Equal(t, "First Last", Attorney{FirstNames: "First", LastName: "Last"}.FullName())
+}
+
 func TestAttorneysGet(t *testing.T) {
 	testCases := map[string]struct {
 		attorneys        Attorneys

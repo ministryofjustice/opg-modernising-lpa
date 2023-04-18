@@ -149,7 +149,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				lpa.CertificateProvider.Email = r.FormValue("withEmail")
 			}
 
-			shareCodeSender.Send(ctx, notify.CertificateProviderInviteEmail, AppData{
+			shareCodeSender.SendCertificateProvider(ctx, notify.CertificateProviderInviteEmail, AppData{
 				SessionID: sessionID,
 				LpaID:     lpa.ID,
 				Localizer: localizer,
@@ -193,9 +193,26 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 
 		if r.FormValue("asAttorney") != "" {
 			_ = sesh.SetAttorney(store, r, w, &sesh.AttorneySession{
-				Sub:   randomString(12),
-				Email: TestEmail,
+				Sub:            randomString(12),
+				Email:          TestEmail,
+				DonorSessionID: sessionID,
+				LpaID:          lpa.ID,
 			})
+		}
+
+		if r.FormValue("sendAttorneyShare") != "" {
+			lpa.Attorneys = actor.Attorneys{MakeAttorney(AttorneyNames[0])}
+			lpa.Attorneys[0].Email = TestEmail
+
+			if r.FormValue("withEmail") != "" {
+				lpa.Attorneys[0].Email = r.FormValue("withEmail")
+			}
+
+			shareCodeSender.SendAttorneys(ctx, notify.CertificateProviderInviteEmail, AppData{
+				SessionID: sessionID,
+				LpaID:     lpa.ID,
+				Localizer: localizer,
+			}, lpa)
 		}
 
 		// used to switch back to donor after CP fixtures have run

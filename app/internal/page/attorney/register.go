@@ -2,6 +2,7 @@ package attorney
 
 import (
 	"context"
+	"io"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -12,6 +13,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
+
+//go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
+type Template func(io.Writer, interface{}) error
 
 //go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
 type Logger interface {
@@ -33,12 +37,29 @@ type OneLoginClient interface {
 	ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error)
 }
 
+//go:generate mockery --testonly --inpackage --name LpaStore --structname mockLpaStore
+type LpaStore interface {
+	Create(context.Context) (*page.Lpa, error)
+	GetAll(context.Context) ([]*page.Lpa, error)
+	Get(context.Context) (*page.Lpa, error)
+	Put(context.Context, *page.Lpa) error
+}
+
+//go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
+type DataStore interface {
+	GetAll(context.Context, string, interface{}) error
+	Get(context.Context, string, string, interface{}) error
+	Put(context.Context, string, string, interface{}) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
 	tmpls template.Templates,
 	sessionStore SessionStore,
+	lpaStore LpaStore,
 	oneLoginClient OneLoginClient,
+	dataStore DataStore,
 	errorHandler page.ErrorHandler,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
@@ -50,7 +71,9 @@ func Register(
 	handleRoot(page.Paths.Attorney.LoginCallback, None,
 		LoginCallback(oneLoginClient, sessionStore))
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,
-		page.Guidance(tmpls.Get("attorney_start.gohtml"), nil))
+		EnterReferenceNumber(tmpls.Get("attorney_enter_reference_number.gohtml"), lpaStore, dataStore, sessionStore))
+	handleRoot(page.Paths.Attorney.DateOfBirth, RequireLpa,
+		DateOfBirth(tmpls.Get("attorney_date_of_birth.gohtml"), lpaStore))
 }
 
 type handleOpt byte
@@ -58,6 +81,7 @@ type handleOpt byte
 const (
 	None handleOpt = 1 << iota
 	RequireSession
+	RequireLpa
 	CanGoBack
 )
 
@@ -72,11 +96,23 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 			appData.CanGoBack = opt&CanGoBack != 0
 
 			if opt&RequireSession != 0 {
-				_, err := sesh.Attorney(store, r)
-				if err != nil {
+				if _, err := sesh.Attorney(store, r); err != nil {
 					http.Redirect(w, r, page.Paths.Attorney.Start, http.StatusFound)
 					return
 				}
+			}
+
+			if opt&RequireLpa != 0 {
+				session, err := sesh.Attorney(store, r)
+				if err != nil || session.DonorSessionID == "" || session.LpaID == "" {
+					http.Redirect(w, r, page.Paths.Attorney.Start, http.StatusFound)
+					return
+				}
+
+				appData.SessionID = session.DonorSessionID
+				appData.LpaID = session.LpaID
+
+				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
