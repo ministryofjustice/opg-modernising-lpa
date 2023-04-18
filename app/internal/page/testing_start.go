@@ -208,7 +208,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				lpa.Attorneys[0].Email = r.FormValue("withEmail")
 			}
 
-			shareCodeSender.SendAttorneys(ctx, notify.CertificateProviderInviteEmail, AppData{
+			shareCodeSender.SendAttorneys(ctx, notify.AttorneyInviteEmail, AppData{
 				SessionID: sessionID,
 				LpaID:     lpa.ID,
 				Localizer: localizer,
