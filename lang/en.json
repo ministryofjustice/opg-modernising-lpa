@@ -614,5 +614,13 @@
 
     "goToYourDashboard": "Go to your dashboard",
 
-    "beAnAttorney": "Placeholder"
+    "beAnAttorney": "Placeholder",
+    "enterYourAttorneyReferenceNumber": "Placeholder",
+    "attorneyReferenceNumberContent": "Placeholder",
+    "attorneyReferenceNumber": "Placeholder",
+    "attorneyReferenceNumberHint": "Placeholder",
+    "attorneyReferenceNumberMustBeTwelveCharacters": "Placeholder",
+    "twelveCharactersAttorneyReferenceNumber": "Placeholder",
+    "attorney18OrOverWarning": "Placeholder",
+    "youAttorneyAreUnder18Error": "Placeholder"
 }

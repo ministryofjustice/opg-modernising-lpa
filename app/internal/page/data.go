@@ -86,6 +86,8 @@ type Lpa struct {
 	CertificateProviderIdentityUserData identity.UserData
 	CertificateProviderProvidedDetails  actor.CertificateProvider
 	Certificate                         Certificate
+
+	AttorneyProvidedDetails actor.Attorney
 }
 
 type PaymentDetails struct {
