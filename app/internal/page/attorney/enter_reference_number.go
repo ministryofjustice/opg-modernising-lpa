@@ -34,7 +34,7 @@ func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore D
 				referenceNumber := data.Form.ReferenceNumber
 
 				var v page.ShareCodeData
-				if err := dataStore.Get(r.Context(), "SHARECODE#"+referenceNumber, "#METADATA#"+referenceNumber, &v); err != nil {
+				if err := dataStore.Get(r.Context(), "ATTORNEYSHARE#"+referenceNumber, "#METADATA#"+referenceNumber, &v); err != nil {
 					if errors.Is(err, dynamo.NotFoundError{}) {
 						data.Errors.Add("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"})
 						return tmpl(w, data)
