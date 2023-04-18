@@ -1009,7 +1009,7 @@ func TestTestingStart(t *testing.T) {
 			On("UseTestCode").
 			Return(nil)
 		shareCodeSender.
-			On("Send", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, false, lpa).
+			On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, false, lpa).
 			Return(nil)
 
 		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer).ServeHTTP(w, r)
@@ -1048,7 +1048,7 @@ func TestTestingStart(t *testing.T) {
 			On("UseTestCode").
 			Return(nil)
 		shareCodeSender.
-			On("Send", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, false, lpa).
+			On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, false, lpa).
 			Return(nil)
 
 		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer).ServeHTTP(w, r)
@@ -1089,7 +1089,7 @@ func TestTestingStart(t *testing.T) {
 			On("UseTestCode").
 			Return(nil)
 		shareCodeSender.
-			On("Send", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, false, lpa).
+			On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, false, lpa).
 			Return(nil)
 
 		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer).ServeHTTP(w, r)

@@ -18,6 +18,10 @@ type Attorney struct {
 	Address     place.Address
 }
 
+func (a Attorney) FullName() string {
+	return fmt.Sprintf("%s %s", a.FirstNames, a.LastName)
+}
+
 type Attorneys []Attorney
 
 func (as Attorneys) Get(id string) (Attorney, bool) {

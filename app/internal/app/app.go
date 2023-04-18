@@ -82,7 +82,9 @@ func App(
 		logger,
 		tmpls,
 		sessionStore,
+		lpaStore,
 		oneLoginClient,
+		dataStore,
 		errorHandler,
 	)
 

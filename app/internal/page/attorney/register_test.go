@@ -2,14 +2,12 @@ package attorney
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +15,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &log.Logger{}, template.Templates{}, nil, &onelogin.Client{}, nil)
+	Register(mux, nil, template.Templates{}, nil, nil, nil, nil, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
