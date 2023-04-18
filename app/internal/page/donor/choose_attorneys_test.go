@@ -719,8 +719,8 @@ func TestAttorneyMatches(t *testing.T) {
 	assert.Equal(t, actor.TypeAttorney, attorneyMatches(lpa, "123", "c", "d"))
 	assert.Equal(t, actor.TypeNone, attorneyMatches(lpa, "123", "e", "f"))
 	assert.Equal(t, actor.TypeReplacementAttorney, attorneyMatches(lpa, "123", "g", "h"))
-	assert.Equal(t, actor.TypeReplacementAttorney, attorneyMatches(lpa, "123", "i", "j"))
+	assert.Equal(t, actor.TypeReplacementAttorney, attorneyMatches(lpa, "123", "I", "J"))
 	assert.Equal(t, actor.TypeCertificateProvider, attorneyMatches(lpa, "123", "k", "l"))
-	assert.Equal(t, actor.TypePersonToNotify, attorneyMatches(lpa, "123", "m", "n"))
+	assert.Equal(t, actor.TypePersonToNotify, attorneyMatches(lpa, "123", "M", "N"))
 	assert.Equal(t, actor.TypePersonToNotify, attorneyMatches(lpa, "123", "o", "p"))
 }
