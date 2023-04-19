@@ -49,6 +49,7 @@ func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore D
 				}
 				session.LpaID = v.LpaID
 				session.DonorSessionID = v.SessionID
+				session.AttorneyID = v.AttorneyID
 
 				if err := sesh.SetAttorney(sessionStore, r, w, session); err != nil {
 					return err
@@ -62,7 +63,7 @@ func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore D
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.Attorney.DateOfBirth)
+				return appData.Redirect(w, r, lpa, page.Paths.Attorney.CheckYourName)
 			}
 		}
 

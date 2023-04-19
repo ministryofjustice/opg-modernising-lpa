@@ -10,9 +10,10 @@ import (
 var useTestCode = false
 
 type ShareCodeData struct {
-	SessionID string
-	LpaID     string
-	Identity  bool
+	SessionID  string
+	LpaID      string
+	Identity   bool
+	AttorneyID string
 }
 
 type ShareCodeSender struct {
@@ -88,8 +89,9 @@ func (s *ShareCodeSender) SendAttorneys(ctx context.Context, template notify.Tem
 		}
 
 		if err := s.dataStore.Put(ctx, "ATTORNEYSHARE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
-			SessionID: appData.SessionID,
-			LpaID:     appData.LpaID,
+			SessionID:  appData.SessionID,
+			LpaID:      appData.LpaID,
+			AttorneyID: attorney.ID,
 		}); err != nil {
 			return fmt.Errorf("creating attorney share failed: %w", err)
 		}
