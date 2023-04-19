@@ -321,6 +321,7 @@ func Fixtures(tmpl template.Template) Handler {
 					values = url.Values{
 						"useTestShareCode":  {"1"},
 						"sendAttorneyShare": {"1"},
+						"completeLpa":       {"1"},
 						"redirect":          {Paths.Attorney.Start},
 					}
 					if data.Form.Email != "" {

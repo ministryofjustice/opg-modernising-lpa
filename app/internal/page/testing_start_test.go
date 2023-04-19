@@ -1113,10 +1113,11 @@ func TestTestingStart(t *testing.T) {
 		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Create", ctx).
-			Return(&Lpa{ID: "123"}, nil)
+			Return(&Lpa{ID: "123", Attorneys: actor.Attorneys{{ID: "456"}}}, nil)
 		lpaStore.
 			On("Put", ctx, &Lpa{
-				ID: "123",
+				ID:        "123",
+				Attorneys: actor.Attorneys{{ID: "456"}},
 			}).
 			Return(nil)
 
