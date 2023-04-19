@@ -662,5 +662,7 @@
     "attorneyReferenceNumberMustBeTwelveCharacters": "Welsh",
     "twelveCharactersAttorneyReferenceNumber": "Welsh",
     "attorney18OrOverWarning": "Welsh",
-    "youAttorneyAreUnder18Error": "Welsh"
+    "youAttorneyAreUnder18Error": "Welsh",
+    "whatIsYourDateOfBirth": "Welsh",
+    "checkAttorneyNameContent": "<p class=\"govuk-body\">Welsh, {{ .DonorFullName }}, welsh:</p> <div class=\"govuk-inset-text\">{{ .AttorneyFullName }}</div>"
 }

@@ -136,13 +136,13 @@ func TestPostFixturesAttorneyFlow(t *testing.T) {
 				"journey": {"attorney"},
 				"email":   {"a@example.org"},
 			},
-			expectedPath: "/testing-start?redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1&withEmail=a%40example.org",
+			expectedPath: "/testing-start?completeLpa=1&redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1&withEmail=a%40example.org",
 		},
 		"without email": {
 			form: url.Values{
 				"journey": {"attorney"},
 			},
-			expectedPath: "/testing-start?redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1",
+			expectedPath: "/testing-start?completeLpa=1&redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1",
 		},
 	}
 
