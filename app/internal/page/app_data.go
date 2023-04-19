@@ -23,6 +23,7 @@ type AppData struct {
 	StaticHash       string
 	Paths            AppPaths
 	LpaID            string
+	AttorneyID       string
 	CsrfToken        string
 	IsDonor          bool
 	ActorTypes       actor.Types

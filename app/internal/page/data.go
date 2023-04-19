@@ -87,7 +87,7 @@ type Lpa struct {
 	CertificateProviderProvidedDetails  actor.CertificateProvider
 	Certificate                         Certificate
 
-	AttorneyProvidedDetails actor.Attorney
+	AttorneyProvidedDetails actor.Attorneys
 }
 
 type PaymentDetails struct {
@@ -119,8 +119,9 @@ type Progress struct {
 }
 
 type SessionData struct {
-	SessionID string
-	LpaID     string
+	SessionID  string
+	LpaID      string
+	AttorneyID string
 }
 
 func SessionDataFromContext(ctx context.Context) *SessionData {
