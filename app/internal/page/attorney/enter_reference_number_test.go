@@ -176,7 +176,7 @@ func TestPostEnterReferenceNumberOnDataStoreNotFoundError(t *testing.T) {
 	data := enterReferenceNumberData{
 		App:    testAppData,
 		Form:   &enterReferenceNumberForm{ReferenceNumber: "aRefNumber12"},
-		Errors: validation.With("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"}),
+		Errors: validation.With("reference-number", validation.CustomError{Label: "incorrectAttorneyReferenceNumber"}),
 	}
 
 	template := newMockTemplate(t)
