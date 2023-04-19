@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -52,6 +53,13 @@ type DataStore interface {
 	Put(context.Context, string, string, interface{}) error
 }
 
+//go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient
+type NotifyClient interface {
+	Email(ctx context.Context, email notify.Email) (string, error)
+	Sms(ctx context.Context, sms notify.Sms) (string, error)
+	TemplateID(id notify.TemplateId) string
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -61,6 +69,7 @@ func Register(
 	oneLoginClient OneLoginClient,
 	dataStore DataStore,
 	errorHandler page.ErrorHandler,
+	notifyClient NotifyClient,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -72,6 +81,8 @@ func Register(
 		LoginCallback(oneLoginClient, sessionStore))
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(tmpls.Get("attorney_enter_reference_number.gohtml"), lpaStore, dataStore, sessionStore))
+	handleRoot(page.Paths.Attorney.CheckYourName, RequireLpa,
+		CheckYourName(tmpls.Get("attorney_check_your_name.gohtml"), lpaStore, notifyClient))
 	handleRoot(page.Paths.Attorney.DateOfBirth, RequireLpa,
 		DateOfBirth(tmpls.Get("attorney_date_of_birth.gohtml"), lpaStore))
 }
@@ -104,15 +115,20 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 
 			if opt&RequireLpa != 0 {
 				session, err := sesh.Attorney(store, r)
-				if err != nil || session.DonorSessionID == "" || session.LpaID == "" {
+				if err != nil || session.DonorSessionID == "" || session.LpaID == "" || session.AttorneyID == "" {
 					http.Redirect(w, r, page.Paths.Attorney.Start, http.StatusFound)
 					return
 				}
 
 				appData.SessionID = session.DonorSessionID
 				appData.LpaID = session.LpaID
+				appData.AttorneyID = session.AttorneyID
 
-				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+				ctx = page.ContextWithSessionData(ctx, &page.SessionData{
+					SessionID:  appData.SessionID,
+					LpaID:      appData.LpaID,
+					AttorneyID: session.AttorneyID,
+				})
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
