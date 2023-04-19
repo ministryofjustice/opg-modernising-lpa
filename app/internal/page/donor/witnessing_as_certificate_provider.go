@@ -71,15 +71,9 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, 
 					return err
 				}
 
-				if certificateProvider.ID == "" {
+				if certificateProvider.CertificateProviderIdentityConfirmed() {
 					if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderReturnEmail, appData, false, lpa); err != nil {
 						return err
-					}
-				} else {
-					if certificateProvider.CertificateProviderIdentityConfirmed() {
-						if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderReturnEmail, appData, false, lpa); err != nil {
-							return err
-						}
 					}
 				}
 
