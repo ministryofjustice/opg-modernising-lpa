@@ -196,6 +196,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				Sub:            randomString(12),
 				Email:          TestEmail,
 				DonorSessionID: sessionID,
+				AttorneyID:     lpa.Attorneys[0].ID,
 				LpaID:          lpa.ID,
 			})
 		}
