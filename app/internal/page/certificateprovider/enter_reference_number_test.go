@@ -213,6 +213,42 @@ func TestPostEnterReferenceNumberOnLpaStoreError(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestPostEnterReferenceNumberOnCertificateProviderStoreError(t *testing.T) {
+	form := url.Values{
+		"reference-number": {"aRefNumber12"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	dataStore := newMockDataStore(t)
+	dataStore.
+		ExpectGet(r.Context(), "CERTIFICATEPROVIDERSHARE#aRefNumber12", "#METADATA#aRefNumber12",
+			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, nil)
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Get", mock.MatchedBy(func(ctx context.Context) bool {
+			session := page.SessionDataFromContext(ctx)
+
+			return assert.Equal(t, &page.SessionData{SessionID: "session-id", LpaID: "lpa-id"}, session)
+		})).
+		Return(&page.Lpa{}, nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
+		On("Create", r.Context(), &page.Lpa{}, "session-id").
+		Return(&actor.CertificateProvider{}, expectedError)
+
+	err := EnterReferenceNumber(nil, lpaStore, dataStore, certificateProviderStore)(testAppData, w, r)
+
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func TestPostEnterReferenceNumberOnValidationError(t *testing.T) {
 	form := url.Values{
 		"reference-number": {""},
