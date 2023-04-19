@@ -195,6 +195,29 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			_ = certificateProviderStore.Put(ctx, certificateProvider)
 		}
 
+		if r.FormValue("withCertificateProvider") != "" {
+			certificateProvider, _ := certificateProviderStore.Create(ctx, lpa, sessionID)
+
+			certificateProvider.IdentityUserData = identity.UserData{
+				OK:         true,
+				Provider:   identity.OneLogin,
+				FirstNames: "Jessie",
+				LastName:   "Jones",
+			}
+
+			certificateProvider.Mobile = TestMobile
+			certificateProvider.Email = TestEmail
+			certificateProvider.Address = place.Address{
+				Line1:      "5 RICHMOND PLACE",
+				Line2:      "KINGS HEATH",
+				Line3:      "WEST MIDLANDS",
+				TownOrCity: "BIRMINGHAM",
+				Postcode:   "B14 7ED",
+			}
+
+			_ = certificateProviderStore.Put(ctx, certificateProvider)
+		}
+
 		// used to switch back to donor after CP fixtures have run
 		if r.FormValue("asDonor") != "" {
 			_ = sesh.SetDonor(store, r, w, donorSesh)

@@ -148,12 +148,50 @@ func TestPostEnterYourName(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&actor.CertificateProvider{}, nil)
 
+	certificateProviderStore.
+		On("Put", r.Context(), &actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"}).
+		Return(nil)
+
 	err := CheckYourName(nil, lpaStore, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, page.Paths.CertificateProviderEnterDateOfBirth, resp.Header.Get("Location"))
+}
+
+func TestPostEnterYourNameIsCorrectOnStoreError(t *testing.T) {
+	form := url.Values{
+		"is-name-correct": {"yes"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	w := httptest.NewRecorder()
+	lpa := &page.Lpa{
+		CertificateProviderDetails: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
+	}
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Get", r.Context()).
+		Return(lpa, nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
+		On("Get", r.Context()).
+		Return(&actor.CertificateProvider{}, nil)
+
+	certificateProviderStore.
+		On("Put", r.Context(), &actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"}).
+		Return(expectedError)
+
+	err := CheckYourName(nil, lpaStore, nil, certificateProviderStore)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostEnterYourNameWithCorrectedName(t *testing.T) {

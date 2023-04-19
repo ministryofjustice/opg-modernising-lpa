@@ -55,9 +55,14 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 					if err != nil {
 						return err
 					}
-				}
+				} else {
+					certificateProvider.FirstNames = lpa.CertificateProviderDetails.FirstNames
+					certificateProvider.LastName = lpa.CertificateProviderDetails.LastName
 
-				// Do we want to bring back CP and LPA on CPStore.Get()?
+					if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
+						return err
+					}
+				}
 
 				appData.Redirect(w, r, lpa, page.Paths.CertificateProviderEnterDateOfBirth)
 				return nil

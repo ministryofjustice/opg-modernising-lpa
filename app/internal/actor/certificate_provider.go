@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
-// TODO Once updated all cp handlers, look at re-working cp.CertificateProviderDetails to be a details type rather than actual CP
 type CertificateProvider struct {
 	ID                      string
 	LpaID                   string
