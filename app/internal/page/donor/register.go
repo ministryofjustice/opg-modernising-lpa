@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -35,6 +37,13 @@ type LpaStore interface {
 	GetAll(context.Context) ([]*page.Lpa, error)
 	Get(context.Context) (*page.Lpa, error)
 	Put(context.Context, *page.Lpa) error
+}
+
+//go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
+type CertificateProviderStore interface {
+	Create(context.Context, *page.Lpa, string) (*actor.CertificateProvider, error)
+	Get(context.Context) (*actor.CertificateProvider, error)
+	Put(context.Context, *actor.CertificateProvider) error
 }
 
 //go:generate mockery --testonly --inpackage --name PayClient --structname mockPayClient
@@ -104,13 +113,14 @@ func Register(
 	shareCodeSender ShareCodeSender,
 	errorHandler page.ErrorHandler,
 	notFoundHandler page.Handler,
+	certificateProviderStore CertificateProviderStore,
 ) {
 	witnessCodeSender := page.NewWitnessCodeSender(lpaStore, notifyClient)
 
 	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler)
 
 	handleRoot(page.Paths.Start, None,
-		page.Guidance(tmpls.Get("start.gohtml"), nil))
+		page.Guidance(tmpls.Get("start.gohtml"), nil, nil))
 	handleRoot(page.Paths.Login, None,
 		Login(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.LoginCallback, None,
@@ -212,9 +222,9 @@ func Register(
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, lpaStore, sessionStore, shareCodeSender))
 
 	handleLpa(page.Paths.HowToConfirmYourIdentityAndSign, CanGoBack,
-		page.Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml"), lpaStore))
+		page.Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml"), lpaStore, nil))
 	handleLpa(page.Paths.WhatYoullNeedToConfirmYourIdentity, CanGoBack,
-		page.Guidance(tmpls.Get("what_youll_need_to_confirm_your_identity.gohtml"), lpaStore))
+		page.Guidance(tmpls.Get("what_youll_need_to_confirm_your_identity.gohtml"), lpaStore, nil))
 
 	for path, page := range map[string]int{
 		page.Paths.SelectYourIdentityOptions:  0,
@@ -248,22 +258,22 @@ func Register(
 	}
 
 	handleLpa(page.Paths.ReadYourLpa, CanGoBack,
-		page.Guidance(tmpls.Get("read_your_lpa.gohtml"), lpaStore))
+		page.Guidance(tmpls.Get("read_your_lpa.gohtml"), lpaStore, nil))
 	handleLpa(page.Paths.YourLegalRightsAndResponsibilities, CanGoBack,
-		page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml"), lpaStore))
+		page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml"), lpaStore, nil))
 	handleLpa(page.Paths.SignYourLpa, CanGoBack,
 		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), lpaStore))
 	handleLpa(page.Paths.WitnessingYourSignature, CanGoBack,
 		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), lpaStore, witnessCodeSender))
 	handleLpa(page.Paths.WitnessingAsCertificateProvider, CanGoBack,
-		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), lpaStore, shareCodeSender, time.Now))
+		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), lpaStore, shareCodeSender, time.Now, certificateProviderStore))
 	handleLpa(page.Paths.ResendWitnessCode, CanGoBack,
 		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), lpaStore, witnessCodeSender, time.Now))
 	handleLpa(page.Paths.YouHaveSubmittedYourLpa, CanGoBack,
-		page.Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml"), lpaStore))
+		page.Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml"), lpaStore, nil))
 
 	handleLpa(page.Paths.Progress, CanGoBack,
-		page.Guidance(tmpls.Get("lpa_progress.gohtml"), lpaStore))
+		page.Guidance(tmpls.Get("lpa_progress.gohtml"), lpaStore, nil))
 }
 
 type handleOpt byte
@@ -285,16 +295,16 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, 
 			appData.ServiceName = "serviceName"
 			appData.Page = path
 			appData.CanGoBack = opt&CanGoBack != 0
-			appData.IsDonor = true
+			appData.ActorType = actor.TypeDonor
 
 			if opt&RequireSession != 0 {
-				session, err := sesh.Donor(store, r)
+				donorSession, err := sesh.Donor(store, r)
 				if err != nil {
 					http.Redirect(w, r, page.Paths.Start, http.StatusFound)
 					return
 				}
 
-				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
+				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(donorSession.Sub))
 
 				data := page.SessionDataFromContext(ctx)
 				if data != nil {
@@ -303,7 +313,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, 
 
 					appData.LpaID = data.LpaID
 				} else {
-					ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID})
+					ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
 				}
 			}
 

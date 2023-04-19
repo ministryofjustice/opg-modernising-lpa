@@ -56,7 +56,8 @@ type Lpa struct {
 	Donor                                      actor.Donor
 	Attorneys                                  actor.Attorneys
 	AttorneyDecisions                          actor.AttorneyDecisions
-	CertificateProvider                        actor.CertificateProvider
+	CertificateProviderDetails                 actor.CertificateProvider
+	CertificateProviderID                      string
 	WhoFor                                     string
 	Type                                       string
 	WantReplacementAttorneys                   string
@@ -81,13 +82,8 @@ type Lpa struct {
 	Submitted                                  time.Time
 	CPWitnessCodeValidated                     bool
 	WitnessCodeLimiter                         *Limiter
-
-	CertificateProviderIdentityOption   identity.Option
-	CertificateProviderIdentityUserData identity.UserData
-	CertificateProviderProvidedDetails  actor.CertificateProvider
-	Certificate                         Certificate
-
-	AttorneyProvidedDetails actor.Attorneys
+	Certificate                                Certificate
+	AttorneyProvidedDetails                    actor.Attorneys
 }
 
 type PaymentDetails struct {
@@ -119,8 +115,9 @@ type Progress struct {
 }
 
 type SessionData struct {
-	SessionID string
-	LpaID     string
+	SessionID             string
+	LpaID                 string
+	CertificateProviderID string
 }
 
 func SessionDataFromContext(ctx context.Context) *SessionData {
@@ -143,12 +140,6 @@ func (l *Lpa) DonorIdentityConfirmed() bool {
 	return l.DonorIdentityUserData.OK && l.DonorIdentityUserData.Provider != identity.UnknownOption &&
 		l.DonorIdentityUserData.MatchName(l.Donor.FirstNames, l.Donor.LastName) &&
 		l.DonorIdentityUserData.DateOfBirth.Equals(l.Donor.DateOfBirth)
-}
-
-func (l *Lpa) CertificateProviderIdentityConfirmed() bool {
-	return l.CertificateProviderIdentityUserData.OK && l.CertificateProviderIdentityUserData.Provider != identity.UnknownOption &&
-		l.CertificateProviderIdentityUserData.MatchName(l.CertificateProvider.FirstNames, l.CertificateProvider.LastName) &&
-		l.CertificateProviderIdentityUserData.DateOfBirth.Equals(l.CertificateProvider.DateOfBirth)
 }
 
 func (l *Lpa) TypeLegalTermTransKey() string {
@@ -246,11 +237,11 @@ func (l *Lpa) ActorAddresses() []AddressDetail {
 		})
 	}
 
-	if l.CertificateProvider.Address.String() != "" {
+	if l.CertificateProviderDetails.Address.String() != "" {
 		ads = append(ads, AddressDetail{
-			Name:    l.CertificateProvider.FullName(),
+			Name:    l.CertificateProviderDetails.FullName(),
 			Role:    actor.TypeCertificateProvider,
-			Address: l.CertificateProvider.Address,
+			Address: l.CertificateProviderDetails.Address,
 		})
 	}
 

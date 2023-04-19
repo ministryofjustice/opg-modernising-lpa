@@ -39,7 +39,7 @@ func TestLpaStoreGetAll(t *testing.T) {
 	lpas := []*page.Lpa{{ID: "10100000"}}
 
 	dataStore := newMockDataStore(t)
-	dataStore.ExpectGetAll(ctx, "an-id",
+	dataStore.ExpectGetAll(ctx, "DONOR#an-id",
 		lpas, nil)
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
@@ -53,7 +53,7 @@ func TestLpaStoreGet(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", LpaID: "123"})
 
 	dataStore := newMockDataStore(t)
-	dataStore.ExpectGet(ctx, "an-id", "123",
+	dataStore.ExpectGet(ctx, "DONOR#an-id", "#LPA#123",
 		&page.Lpa{ID: "10100000"}, nil)
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
@@ -68,7 +68,7 @@ func TestLpaStoreGetWhenExists(t *testing.T) {
 	existingLpa := &page.Lpa{ID: "an-id"}
 
 	dataStore := newMockDataStore(t)
-	dataStore.ExpectGet(ctx, "an-id", "123",
+	dataStore.ExpectGet(ctx, "DONOR#an-id", "#LPA#123",
 		existingLpa, nil)
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
@@ -82,7 +82,7 @@ func TestLpaStoreGetWhenDataStoreError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", LpaID: "123"})
 
 	dataStore := newMockDataStore(t)
-	dataStore.ExpectGet(ctx, "an-id", "123",
+	dataStore.ExpectGet(ctx, "DONOR#an-id", "#LPA#123",
 		nil, expectedError)
 
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }}
@@ -96,7 +96,7 @@ func TestLpaStorePut(t *testing.T) {
 	lpa := &page.Lpa{ID: "5"}
 
 	dataStore := newMockDataStore(t)
-	dataStore.On("Put", ctx, "an-id", "5", lpa).Return(expectedError)
+	dataStore.On("Put", ctx, "DONOR#an-id", "#LPA#5", lpa).Return(expectedError)
 
 	lpaStore := &lpaStore{dataStore: dataStore}
 

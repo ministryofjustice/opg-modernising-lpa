@@ -22,7 +22,7 @@
         {{ tr .App "peopleNamedOnTheLpa" }}
       </h2>
 
-      {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa false) }}
+      {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa false .Lpa.CertificateProviderDetails) }}
 
       <p class="govuk-body">
         <a href="{{ link .App .App.Paths.YourLegalRightsAndResponsibilities }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">

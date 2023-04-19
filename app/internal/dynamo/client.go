@@ -14,6 +14,7 @@ type dynamoDB interface {
 	Query(context.Context, *dynamodb.QueryInput, ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)
 	GetItem(context.Context, *dynamodb.GetItemInput, ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
 	PutItem(context.Context, *dynamodb.PutItemInput, ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
+	TransactWriteItems(ctx context.Context, params *dynamodb.TransactWriteItemsInput, optFns ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)
 }
 
 type Client struct {
@@ -43,6 +44,7 @@ func (c *Client) GetAll(ctx context.Context, pk string, v interface{}) error {
 		ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey},
 		KeyConditionExpression:    aws.String("#PK = :PK"),
 	})
+
 	if err != nil {
 		return err
 	}
@@ -90,6 +92,37 @@ func (c *Client) Put(ctx context.Context, pk, sk string, v interface{}) error {
 	_, err = c.svc.PutItem(ctx, &dynamodb.PutItemInput{
 		TableName: aws.String(c.table),
 		Item:      item,
+	})
+
+	return err
+}
+
+func (c *Client) PutTransact(ctx context.Context, pk, sk string, v interface{}, update *types.Update) error {
+	item, err := makeKey(pk, sk)
+	if err != nil {
+		return err
+	}
+
+	data, err := attributevalue.Marshal(v)
+	if err != nil {
+		return err
+	}
+	item["Data"] = data
+
+	update.TableName = aws.String(c.table)
+
+	_, err = c.svc.TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
+		TransactItems: []types.TransactWriteItem{
+			{
+				Put: &types.Put{
+					Item:      item,
+					TableName: aws.String(c.table),
+				},
+			},
+			{
+				Update: update,
+			},
+		},
 	})
 
 	return err

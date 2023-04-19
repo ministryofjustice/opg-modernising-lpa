@@ -48,14 +48,14 @@ func TestGetHowLongHaveYouKnownCertificateProviderFromStore(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{CertificateProvider: certificateProvider}, nil)
+		Return(&page.Lpa{CertificateProviderDetails: certificateProvider}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &howLongHaveYouKnownCertificateProviderData{
-			App:                 testAppData,
-			CertificateProvider: certificateProvider,
-			HowLong:             "gte-2-years",
+			App:                        testAppData,
+			CertificateProviderDetails: certificateProvider,
+			HowLong:                    "gte-2-years",
 		}).
 		Return(nil)
 
@@ -124,10 +124,10 @@ func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			Attorneys:           actor.Attorneys{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}},
-			AttorneyDecisions:   actor.AttorneyDecisions{How: actor.Jointly},
-			CertificateProvider: actor.CertificateProvider{RelationshipLength: "gte-2-years"},
-			Tasks:               page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted, CertificateProvider: page.TaskCompleted},
+			Attorneys:                  actor.Attorneys{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}},
+			AttorneyDecisions:          actor.AttorneyDecisions{How: actor.Jointly},
+			CertificateProviderDetails: actor.CertificateProvider{RelationshipLength: "gte-2-years"},
+			Tasks:                      page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted, CertificateProvider: page.TaskCompleted},
 		}).
 		Return(nil)
 
