@@ -36,7 +36,7 @@ func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore D
 				var v page.ShareCodeData
 				if err := dataStore.Get(r.Context(), "ATTORNEYSHARE#"+referenceNumber, "#METADATA#"+referenceNumber, &v); err != nil {
 					if errors.Is(err, dynamo.NotFoundError{}) {
-						data.Errors.Add("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"})
+						data.Errors.Add("reference-number", validation.CustomError{Label: "incorrectAttorneyReferenceNumber"})
 						return tmpl(w, data)
 					} else {
 						return err
