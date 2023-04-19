@@ -27,14 +27,14 @@ func TestGetCertificateProviderAddress(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{CertificateProvider: certificateProvider}, nil)
+		Return(&page.Lpa{CertificateProviderDetails: certificateProvider}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &certificateProviderAddressData{
-			App:                 testAppData,
-			Form:                &form.AddressForm{},
-			CertificateProvider: certificateProvider,
+			App:                        testAppData,
+			Form:                       &form.AddressForm{},
+			CertificateProviderDetails: certificateProvider,
 		}).
 		Return(nil)
 
@@ -73,14 +73,14 @@ func TestGetCertificateProviderAddressFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProvider: certificateProvider,
+			CertificateProviderDetails: certificateProvider,
 		}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &certificateProviderAddressData{
-			App:                 testAppData,
-			CertificateProvider: certificateProvider,
+			App:                        testAppData,
+			CertificateProviderDetails: certificateProvider,
 			Form: &form.AddressForm{
 				Action:  "manual",
 				Address: &testAddress,
@@ -106,7 +106,7 @@ func TestGetCertificateProviderAddressManual(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{CertificateProvider: certificateProvider}, nil)
+		Return(&page.Lpa{CertificateProviderDetails: certificateProvider}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -116,7 +116,7 @@ func TestGetCertificateProviderAddressManual(t *testing.T) {
 				Action:  "manual",
 				Address: &place.Address{},
 			},
-			CertificateProvider: certificateProvider,
+			CertificateProviderDetails: certificateProvider,
 		}).
 		Return(nil)
 
@@ -172,7 +172,7 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			CertificateProvider: actor.CertificateProvider{Address: testAddress},
+			CertificateProviderDetails: actor.CertificateProvider{Address: testAddress},
 		}).
 		Return(nil)
 
@@ -205,7 +205,7 @@ func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			CertificateProvider: actor.CertificateProvider{Address: testAddress},
+			CertificateProviderDetails: actor.CertificateProvider{Address: testAddress},
 		}).
 		Return(expectedError)
 
@@ -232,7 +232,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProvider: actor.CertificateProvider{
+			CertificateProviderDetails: actor.CertificateProvider{
 				FirstNames: "John",
 				Address:    place.Address{Line1: "abc"},
 			},
@@ -241,7 +241,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			CertificateProvider: actor.CertificateProvider{
+			CertificateProviderDetails: actor.CertificateProvider{
 				FirstNames: "John",
 				Address:    testAddress,
 			},
@@ -316,7 +316,7 @@ func TestPostCertificateProviderAddressSelect(t *testing.T) {
 		Return(&page.Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			CertificateProvider: actor.CertificateProvider{Address: testAddress},
+			CertificateProviderDetails: actor.CertificateProvider{Address: testAddress},
 		}).
 		Return(nil)
 

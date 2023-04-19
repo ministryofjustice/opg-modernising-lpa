@@ -5,7 +5,7 @@
         {{ tr .App "name" }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ .Lpa.CertificateProvider.FirstNames }} {{ .Lpa.CertificateProvider.LastName }}
+        {{ .Lpa.CertificateProviderDetails.FirstNames }} {{ .Lpa.CertificateProviderDetails.LastName }}
       </dd>
       {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
         <dd class="govuk-summary-list__actions">
@@ -14,7 +14,7 @@
           </a>
         </dd>
       {{ end }}
-      {{ if .Lpa.CertificateProviderIdentityConfirmed }}
+      {{ if .CertificateProvider.CertificateProviderIdentityConfirmed }}
         <dd class="govuk-summary-list__value">
           <strong class="govuk-tag app-task-list__tag govuk-tag">{{ tr .App "idVerifiedTag" }}</strong>
         </dd>
@@ -26,7 +26,7 @@
         {{ tr .App "mobile" }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ .Lpa.CertificateProvider.Mobile }}
+        {{ .Lpa.CertificateProviderDetails.Mobile }}
       </dd>
       {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
         <dd class="govuk-summary-list__actions">

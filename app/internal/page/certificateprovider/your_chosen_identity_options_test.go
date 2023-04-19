@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -15,12 +17,10 @@ func TestGetYourChosenIdentityOptions(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{
-			CertificateProviderIdentityOption: identity.Passport,
-		}, nil)
+		Return(&actor.CertificateProvider{IdentityOption: identity.Passport}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -30,7 +30,7 @@ func TestGetYourChosenIdentityOptions(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourChosenIdentityOptions(template.Execute, lpaStore)(testAppData, w, r)
+	err := YourChosenIdentityOptions(template.Execute, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -41,12 +41,12 @@ func TestGetYourChosenIdentityOptionsWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
+		Return(&actor.CertificateProvider{}, expectedError)
 
-	err := YourChosenIdentityOptions(nil, lpaStore)(testAppData, w, r)
+	err := YourChosenIdentityOptions(nil, certificateProviderStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -55,19 +55,17 @@ func TestGetYourChosenIdentityOptionsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{
-			CertificateProviderIdentityOption: identity.Passport,
-		}, nil)
+		Return(&actor.CertificateProvider{IdentityOption: identity.Passport}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := YourChosenIdentityOptions(template.Execute, lpaStore)(testAppData, w, r)
+	err := YourChosenIdentityOptions(template.Execute, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -78,14 +76,12 @@ func TestPostYourChosenIdentityOptions(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{
-			CertificateProviderIdentityOption: identity.Passport,
-		}, nil)
+		Return(&actor.CertificateProvider{IdentityOption: identity.Passport}, nil)
 
-	err := YourChosenIdentityOptions(nil, lpaStore)(testAppData, w, r)
+	err := YourChosenIdentityOptions(nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

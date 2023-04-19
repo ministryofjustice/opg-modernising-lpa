@@ -56,10 +56,10 @@ func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template 
 
 	if _, err := s.notifyClient.Email(ctx, notify.Email{
 		TemplateID:   s.notifyClient.TemplateID(template),
-		EmailAddress: lpa.CertificateProvider.Email,
+		EmailAddress: lpa.CertificateProviderDetails.Email,
 		Personalisation: map[string]string{
 			"shareCode":         shareCode,
-			"cpFullName":        lpa.CertificateProvider.FullName(),
+			"cpFullName":        lpa.CertificateProviderDetails.FullName(),
 			"donorFirstNames":   lpa.Donor.FirstNames,
 			"donorFullName":     lpa.Donor.FullName(),
 			"lpaLegalTerm":      appData.Localizer.T(lpa.TypeLegalTermTransKey()),

@@ -74,7 +74,7 @@ func Register(
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
 	handleRoot(page.Paths.Attorney.Start, None,
-		page.Guidance(tmpls.Get("attorney_start.gohtml"), nil))
+		page.Guidance(tmpls.Get("attorney_start.gohtml"), nil, nil))
 	handleRoot(page.Paths.Attorney.Login, None,
 		Login(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.Attorney.LoginCallback, None,

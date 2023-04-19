@@ -13,13 +13,18 @@ import (
 type provideCertificateData struct {
 	App                 page.AppData
 	Errors              validation.List
-	CertificateProvider actor.CertificateProvider
+	CertificateProvider *actor.CertificateProvider
 	Form                *provideCertificateForm
 }
 
-func ProvideCertificate(tmpl template.Template, lpaStore LpaStore, now func() time.Time) page.Handler {
+func ProvideCertificate(tmpl template.Template, lpaStore LpaStore, now func() time.Time, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
+		if err != nil {
+			return err
+		}
+
+		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -30,7 +35,7 @@ func ProvideCertificate(tmpl template.Template, lpaStore LpaStore, now func() ti
 
 		data := &provideCertificateData{
 			App:                 appData,
-			CertificateProvider: lpa.CertificateProvider,
+			CertificateProvider: certificateProvider,
 			Form: &provideCertificateForm{
 				AgreeToStatement: lpa.Certificate.AgreeToStatement,
 			},

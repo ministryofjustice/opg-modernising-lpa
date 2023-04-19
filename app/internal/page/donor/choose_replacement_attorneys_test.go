@@ -534,7 +534,7 @@ func TestReplacementAttorneyMatches(t *testing.T) {
 			{FirstNames: "g", LastName: "h"},
 			{ID: "123", FirstNames: "i", LastName: "j"},
 		},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
+		CertificateProviderDetails: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
 		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},

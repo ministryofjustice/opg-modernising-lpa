@@ -7,6 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -20,7 +22,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, nil, &place.Client{}, nil, &identity.YotiClient{}, &notify.Client{})
+	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, nil, &place.Client{}, nil, &identity.YotiClient{}, &notify.Client{}, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -51,6 +53,7 @@ func TestMakeHandle(t *testing.T) {
 			SessionID:   "session-id",
 			LpaID:       "lpa-id",
 			CanGoBack:   false,
+			ActorType:   actor.TypeCertificateProvider,
 		}, appData)
 		assert.Equal(t, w, hw)
 
@@ -84,6 +87,7 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 			SessionID:   "session-id",
 			CanGoBack:   true,
 			LpaID:       "lpa-id",
+			ActorType:   actor.TypeCertificateProvider,
 		}, appData)
 		assert.Equal(t, w, hw)
 		assert.Equal(t, &page.SessionData{LpaID: "lpa-id", SessionID: "session-id"}, page.SessionDataFromContext(hr.Context()))
@@ -164,9 +168,10 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 		assert.Equal(t, page.AppData{
 			ServiceName: "beACertificateProvider",
 			Page:        "/path",
+			ActorType:   actor.TypeCertificateProvider,
 		}, appData)
 		assert.Equal(t, w, hw)
-		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{ServiceName: "beACertificateProvider", Page: "/path"})), hr)
+		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{ServiceName: "beACertificateProvider", Page: "/path", ActorType: actor.TypeCertificateProvider})), hr)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})

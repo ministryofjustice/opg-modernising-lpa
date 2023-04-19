@@ -113,6 +113,39 @@ func (_m *mockDynamoDB) Query(_a0 context.Context, _a1 *dynamodb.QueryInput, _a2
 	return r0, r1
 }
 
+// TransactWriteItems provides a mock function with given fields: ctx, params, optFns
+func (_m *mockDynamoDB) TransactWriteItems(ctx context.Context, params *dynamodb.TransactWriteItemsInput, optFns ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error) {
+	_va := make([]interface{}, len(optFns))
+	for _i := range optFns {
+		_va[_i] = optFns[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, params)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *dynamodb.TransactWriteItemsOutput
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *dynamodb.TransactWriteItemsInput, ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)); ok {
+		return rf(ctx, params, optFns...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *dynamodb.TransactWriteItemsInput, ...func(*dynamodb.Options)) *dynamodb.TransactWriteItemsOutput); ok {
+		r0 = rf(ctx, params, optFns...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*dynamodb.TransactWriteItemsOutput)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *dynamodb.TransactWriteItemsInput, ...func(*dynamodb.Options)) error); ok {
+		r1 = rf(ctx, params, optFns...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 type mockConstructorTestingTnewMockDynamoDB interface {
 	mock.TestingT
 	Cleanup(func())
