@@ -29,7 +29,7 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 
 		data := &aboutPaymentData{
 			App:                 appData,
-			CertificateProvider: lpa.CertificateProvider,
+			CertificateProvider: lpa.CertificateProviderDetails,
 		}
 
 		if r.Method == http.MethodPost {

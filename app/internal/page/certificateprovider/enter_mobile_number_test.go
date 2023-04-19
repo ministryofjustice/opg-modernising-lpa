@@ -27,6 +27,11 @@ func TestGetEnterMobileNumber(t *testing.T) {
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
+		On("Get", r.Context()).
+		Return(&actor.CertificateProvider{}, nil)
+
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &mobileNumberData{
@@ -36,7 +41,7 @@ func TestGetEnterMobileNumber(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterMobileNumber(template.Execute, lpaStore)(testAppData, w, r)
+	err := EnterMobileNumber(template.Execute, lpaStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -49,14 +54,17 @@ func TestGetEnterMobileNumberFromStore(t *testing.T) {
 
 	lpa := &page.Lpa{
 		ID: "lpa-id",
-		CertificateProviderProvidedDetails: actor.CertificateProvider{
-			Mobile: "07535111222",
-		},
 	}
+
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
+		On("Get", r.Context()).
+		Return(&actor.CertificateProvider{Mobile: "07535111222"}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -69,14 +77,14 @@ func TestGetEnterMobileNumberFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterMobileNumber(template.Execute, lpaStore)(testAppData, w, r)
+	err := EnterMobileNumber(template.Execute, lpaStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetEnterMobileNumberWhenStoreErrors(t *testing.T) {
+func TestGetEnterMobileNumberWhenLpaStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -85,7 +93,7 @@ func TestGetEnterMobileNumberWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := EnterMobileNumber(nil, lpaStore)(testAppData, w, r)
+	err := EnterMobileNumber(nil, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -105,6 +113,11 @@ func TestGetEnterMobileNumberWhenTemplateErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
+		On("Get", r.Context()).
+		Return(&actor.CertificateProvider{}, nil)
+
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &mobileNumberData{
@@ -114,7 +127,7 @@ func TestGetEnterMobileNumberWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := EnterMobileNumber(template.Execute, lpaStore)(testAppData, w, r)
+	err := EnterMobileNumber(template.Execute, lpaStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -134,16 +147,16 @@ func TestPostEnterMobileNumber(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{ID: "lpa-id"}, nil)
-	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			ID: "lpa-id",
-			CertificateProviderProvidedDetails: actor.CertificateProvider{
-				Mobile: "07535111222",
-			},
-		}).
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
+		On("Get", r.Context()).
+		Return(&actor.CertificateProvider{}, nil)
+	certificateProviderStore.
+		On("Put", r.Context(), &actor.CertificateProvider{Mobile: "07535111222"}).
 		Return(nil)
 
-	err := EnterMobileNumber(nil, lpaStore)(testAppData, w, r)
+	err := EnterMobileNumber(nil, lpaStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -166,6 +179,11 @@ func TestPostEnterMobileNumberWhenValidationError(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{ID: "lpa-id"}, nil)
 
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
+		On("Get", r.Context()).
+		Return(&actor.CertificateProvider{}, nil)
+
 	dataMatcher := func(t *testing.T, data *mobileNumberData) bool {
 		return assert.Equal(t, validation.With("mobile", validation.MobileError{Label: "mobile"}), data.Errors)
 	}
@@ -177,14 +195,14 @@ func TestPostEnterMobileNumberWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EnterMobileNumber(template.Execute, lpaStore)(testAppData, w, r)
+	err := EnterMobileNumber(template.Execute, lpaStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterMobileNumberWhenStoreErrors(t *testing.T) {
+func TestPostEnterMobileNumberWhenLpaStoreErrors(t *testing.T) {
 	form := url.Values{
 		"mobile": {"07535111222"},
 	}
@@ -199,7 +217,7 @@ func TestPostEnterMobileNumberWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := EnterMobileNumber(nil, lpaStore)(testAppData, w, r)
+	err := EnterMobileNumber(nil, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

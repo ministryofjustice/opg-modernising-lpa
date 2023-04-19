@@ -19,7 +19,7 @@
         {{ tr .App "peopleNamedOnTheLpa" }}
       </h2>
 
-      {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa false) }}
+      {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa false .CertificateProvider) }}
 
       <p class="govuk-body">
         {{ if .Lpa.Progress.LpaSigned.Completed }}

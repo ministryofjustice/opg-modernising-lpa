@@ -44,7 +44,7 @@ var PeopleToNotifyNames = []string{
 }
 
 func MakePerson() actor.Donor {
-	return actor.Donor{
+	donor := actor.Donor{
 		FirstNames: "Jamie",
 		LastName:   "Smith",
 		Address: place.Address{
@@ -57,6 +57,8 @@ func MakePerson() actor.Donor {
 		Email:       TestEmail,
 		DateOfBirth: date.New("2000", "1", "2"),
 	}
+
+	return donor
 }
 
 func MakeAttorney(firstNames string) actor.Attorney {
@@ -183,8 +185,8 @@ func CompleteRestrictions(lpa *Lpa) {
 	lpa.Tasks.Restrictions = TaskCompleted
 }
 
-func AddCertificateProvider(lpa *Lpa, firstNames string) {
-	lpa.CertificateProvider = MakeCertificateProvider(firstNames)
+func AddCertificateProviderDetails(lpa *Lpa, firstNames string) {
+	lpa.CertificateProviderDetails = MakeCertificateProvider(firstNames)
 	lpa.Tasks.CertificateProvider = TaskCompleted
 }
 
@@ -244,7 +246,7 @@ func CompleteSectionOne(lpa *Lpa) {
 	AddReplacementAttorneys(lpa, 2)
 	CompleteWhenCanLpaBeUsed(lpa)
 	CompleteRestrictions(lpa)
-	AddCertificateProvider(lpa, "Jessie")
+	AddCertificateProviderDetails(lpa, "Jessie")
 	AddPeopleToNotify(lpa, 2)
 	CompleteCheckYourLpa(lpa)
 }
