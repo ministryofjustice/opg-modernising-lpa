@@ -10,9 +10,10 @@ import (
 var (
 	expectedError = errors.New("err")
 	testAppData   = page.AppData{
-		SessionID: "session-id",
-		LpaID:     "lpa-id",
-		Lang:      localize.En,
-		Paths:     page.Paths,
+		SessionID:  "session-id",
+		LpaID:      "lpa-id",
+		AttorneyID: "attorney-id",
+		Lang:       localize.En,
+		Paths:      page.Paths,
 	}
 )
