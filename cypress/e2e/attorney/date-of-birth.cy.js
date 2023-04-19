@@ -1,6 +1,6 @@
 describe('Date of birth', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?asAttorney=1&redirect=/attorney-date-of-birth');
+        cy.visit('/testing-start?withAttorney=1&asAttorney=1&redirect=/attorney-date-of-birth');
     });
 
     it('can be completed', () => {
