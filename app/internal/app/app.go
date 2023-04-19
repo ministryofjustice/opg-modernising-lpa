@@ -86,6 +86,7 @@ func App(
 		oneLoginClient,
 		dataStore,
 		errorHandler,
+		notifyClient,
 	)
 
 	donor.Register(

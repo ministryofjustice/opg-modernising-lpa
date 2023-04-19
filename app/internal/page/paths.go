@@ -11,6 +11,7 @@ type AttorneyPaths struct {
 	Login                string
 	LoginCallback        string
 	EnterReferenceNumber string
+	CheckYourName        string
 	DateOfBirth          string
 	// TODO: remove once the attorney flow is complete, this is just to simplify
 	// development
@@ -134,6 +135,7 @@ var Paths = AppPaths{
 		Login:                "/attorney-login",
 		LoginCallback:        "/attorney-login-callback",
 		EnterReferenceNumber: "/attorney-enter-reference-number",
+		CheckYourName:        "/attorney-check-your-name",
 		DateOfBirth:          "/attorney-date-of-birth",
 		NextPage:             "/attorney-next-page",
 	},
@@ -241,12 +243,13 @@ func IsLpaPath(url string) bool {
 
 	return !slices.Contains([]string{
 		Paths.YotiRedirect,
+		Paths.Attorney.CheckYourName,
 		Paths.Attorney.DateOfBirth,
 		Paths.Attorney.EnterReferenceNumber,
 		Paths.Attorney.Login,
 		Paths.Attorney.LoginCallback,
-		Paths.Attorney.Start,
 		Paths.Attorney.NextPage,
+		Paths.Attorney.Start,
 		Paths.AuthRedirect,
 		Paths.CertificateProvided,
 		Paths.CertificateProviderCheckYourName,

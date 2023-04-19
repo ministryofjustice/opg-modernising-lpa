@@ -15,7 +15,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, nil, template.Templates{}, nil, nil, nil, nil, nil)
+	Register(mux, nil, template.Templates{}, nil, nil, nil, nil, nil, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -95,7 +95,7 @@ func TestMakeHandleExistingLpaData(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[any]any{"attorney": &sesh.AttorneySession{Sub: "random", LpaID: "lpa-id", DonorSessionID: "session-id"}}}, nil)
+		Return(&sessions.Session{Values: map[any]any{"attorney": &sesh.AttorneySession{Sub: "random", LpaID: "lpa-id", DonorSessionID: "session-id", AttorneyID: "attorney-id"}}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, sessionStore, nil)
@@ -106,6 +106,7 @@ func TestMakeHandleExistingLpaData(t *testing.T) {
 			CanGoBack:   true,
 			LpaID:       "lpa-id",
 			SessionID:   "session-id",
+			AttorneyID:  "attorney-id",
 		}, appData)
 		assert.Equal(t, w, hw)
 		assert.Equal(t, &page.SessionData{LpaID: "lpa-id", SessionID: "session-id"}, page.SessionDataFromContext(hr.Context()))

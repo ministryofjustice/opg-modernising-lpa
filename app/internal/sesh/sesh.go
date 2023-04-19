@@ -228,6 +228,7 @@ type AttorneySession struct {
 	Email          string
 	LpaID          string
 	DonorSessionID string
+	AttorneyID     string
 }
 
 func (s AttorneySession) Valid() bool {
