@@ -19,6 +19,7 @@ import (
 type certificateProviderStore struct {
 	dataStore DataStore
 	randomInt func(int) int
+	now       func() time.Time
 }
 
 func (s *certificateProviderStore) Create(ctx context.Context, lpa *page.Lpa, donorSessionID string) (*actor.CertificateProvider, error) {
@@ -27,6 +28,10 @@ func (s *certificateProviderStore) Create(ctx context.Context, lpa *page.Lpa, do
 	}
 
 	lpaPk, err := attributevalue.Marshal("DONOR#" + donorSessionID)
+	if err != nil {
+		return nil, err
+	}
+
 	lpaSk, err := attributevalue.Marshal("#LPA#" + lpa.ID)
 	if err != nil {
 		return nil, err
@@ -75,7 +80,7 @@ func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateP
 }
 
 func (s *certificateProviderStore) Put(ctx context.Context, certificateProvider *actor.CertificateProvider) error {
-	certificateProvider.UpdatedAt = time.Now()
+	certificateProvider.UpdatedAt = s.now()
 
 	pk := "CERTIFICATE_PROVIDER#" + certificateProvider.ID
 	sk := "#LPA#" + certificateProvider.LpaID

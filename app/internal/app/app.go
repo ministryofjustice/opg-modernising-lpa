@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-go-common/logging"
@@ -50,7 +51,7 @@ func App(
 	oneLoginClient *onelogin.Client,
 ) http.Handler {
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
-	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, randomInt: rand.Intn}
+	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, randomInt: rand.Intn, now: time.Now}
 
 	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)
 
