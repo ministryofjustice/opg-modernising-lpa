@@ -662,5 +662,6 @@
     "attorneyReferenceNumberMustBeTwelveCharacters": "Welsh",
     "twelveCharactersAttorneyReferenceNumber": "Welsh",
     "attorney18OrOverWarning": "Welsh",
-    "youAttorneyAreUnder18Error": "Welsh"
+    "youAttorneyAreUnder18Error": "Welsh",
+    "whatIsYourDateOfBirth": "Welsh"
 }

@@ -621,6 +621,7 @@
     "attorneyReferenceNumberHint": "Placeholder",
     "attorneyReferenceNumberMustBeTwelveCharacters": "Placeholder",
     "twelveCharactersAttorneyReferenceNumber": "Placeholder",
-    "attorney18OrOverWarning": "Placeholder",
-    "youAttorneyAreUnder18Error": "Placeholder"
+    "attorney18OrOverWarning": "You must be aged 18 or over to be an attorney.",
+    "youAttorneyAreUnder18Error": "Placeholder",
+    "whatIsYourDateOfBirth": "What is your date of birth?"
 }
