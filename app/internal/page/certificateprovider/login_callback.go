@@ -2,6 +2,7 @@ package certificateprovider
 
 import (
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -28,11 +29,14 @@ func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store) page.
 			return err
 		}
 
+		log.Println("Lpa ID from onelogin session is: ", oneLoginSession.LpaID)
+
 		if err := sesh.SetCertificateProvider(sessionStore, r, w, &sesh.CertificateProviderSession{
 			Sub:            userInfo.Sub,
 			Email:          userInfo.Email,
 			LpaID:          oneLoginSession.LpaID,
 			DonorSessionID: oneLoginSession.SessionID,
+			ID:             oneLoginSession.CertificateProviderID,
 		}); err != nil {
 			return err
 		}

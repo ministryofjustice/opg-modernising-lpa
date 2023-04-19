@@ -63,15 +63,15 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProvider: certificateProvider,
+			CertificateProviderDetails: certificateProvider,
 		}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &howDoYouKnowYourCertificateProviderData{
-			App:                 testAppData,
-			CertificateProvider: certificateProvider,
-			Form:                &howDoYouKnowYourCertificateProviderForm{How: "friend"},
+			App:                        testAppData,
+			CertificateProviderDetails: certificateProvider,
+			Form:                       &howDoYouKnowYourCertificateProviderForm{How: "friend"},
 		}).
 		Return(nil)
 
@@ -181,7 +181,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					CertificateProvider: actor.CertificateProvider{FirstNames: "John", Relationship: "what", RelationshipLength: "gte-2-years"},
+					CertificateProviderDetails: actor.CertificateProvider{FirstNames: "John", Relationship: "what", RelationshipLength: "gte-2-years"},
 					Tasks: page.Tasks{
 						YourDetails:     page.TaskCompleted,
 						ChooseAttorneys: page.TaskCompleted,
@@ -189,7 +189,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
-					CertificateProvider: tc.certificateProvider,
+					CertificateProviderDetails: tc.certificateProvider,
 					Tasks: page.Tasks{
 						YourDetails:         page.TaskCompleted,
 						ChooseAttorneys:     page.TaskCompleted,

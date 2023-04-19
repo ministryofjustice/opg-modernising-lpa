@@ -58,14 +58,15 @@ func init() {
 }
 
 type OneLoginSession struct {
-	State               string
-	Nonce               string
-	Locale              string
-	Identity            bool
-	CertificateProvider bool
-	Attorney            bool
-	SessionID           string
-	LpaID               string
+	State                 string
+	Nonce                 string
+	Locale                string
+	Identity              bool
+	CertificateProvider   bool
+	CertificateProviderID string
+	SessionID             string
+	LpaID                 string
+	Attorney              bool
 }
 
 func (s OneLoginSession) Valid() bool {
@@ -148,6 +149,7 @@ func SetYoti(store sessions.Store, r *http.Request, w http.ResponseWriter, yotiS
 type DonorSession struct {
 	Sub   string
 	Email string
+	ID    string
 }
 
 func (s DonorSession) Valid() bool {
@@ -188,6 +190,7 @@ type CertificateProviderSession struct {
 	Email          string
 	LpaID          string
 	DonorSessionID string
+	ID             string
 }
 
 func (s CertificateProviderSession) Valid() bool {

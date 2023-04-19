@@ -63,7 +63,7 @@ func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProvider: actor.CertificateProvider{
+			CertificateProviderDetails: actor.CertificateProvider{
 				FirstNames: "John",
 			},
 		}, nil)
@@ -187,7 +187,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 						FirstNames: "Jane",
 						LastName:   "Doe",
 					},
-					CertificateProvider: tc.certificateProvider,
+					CertificateProviderDetails: tc.certificateProvider,
 				}).
 				Return(nil)
 
@@ -513,7 +513,7 @@ func TestCertificateProviderMatches(t *testing.T) {
 			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
 		},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
+		CertificateProviderDetails: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
 		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},

@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"time"
 
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -28,6 +30,7 @@ type DataStore interface {
 	GetAll(context.Context, string, interface{}) error
 	Get(context.Context, string, string, interface{}) error
 	Put(context.Context, string, string, interface{}) error
+	PutTransact(context.Context, string, string, interface{}, *types.Update) error
 }
 
 func App(
@@ -48,6 +51,8 @@ func App(
 	oneLoginClient *onelogin.Client,
 ) http.Handler {
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
+	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, randomInt: rand.Intn, now: time.Now}
+
 	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)
 
 	errorHandler := page.Error(tmpls.Get("error-500.gohtml"), logger)
@@ -55,13 +60,13 @@ func App(
 
 	rootMux := http.NewServeMux()
 
-	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, shareCodeSender, localizer))
+	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, shareCodeSender, localizer, certificateProviderStore))
 
 	handleRoot := makeHandle(rootMux, errorHandler)
 
 	handleRoot(paths.Root, notFoundHandler)
 	handleRoot(paths.Fixtures, page.Fixtures(tmpls.Get("fixtures.gohtml")))
-	handleRoot(paths.YourLegalRightsAndResponsibilities, page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml"), nil))
+	handleRoot(paths.YourLegalRightsAndResponsibilities, page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml"), nil, nil))
 
 	certificateprovider.Register(
 		rootMux,
@@ -75,6 +80,7 @@ func App(
 		errorHandler,
 		yotiClient,
 		notifyClient,
+		certificateProviderStore,
 	)
 
 	attorney.Register(
@@ -104,6 +110,7 @@ func App(
 		shareCodeSender,
 		errorHandler,
 		notFoundHandler,
+		certificateProviderStore,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash)
