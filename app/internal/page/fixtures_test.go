@@ -33,6 +33,7 @@ func TestGetFixtures(t *testing.T) {
 
 func TestPostFixturesDonorFlow(t *testing.T) {
 	form := url.Values{
+		"journey":                      {"donor"},
 		"donor-details":                {"withDonorDetails"},
 		"choose-attorneys":             {"withAttorneys"},
 		"choose-replacement-attorneys": {"withReplacementAttorneys"},
@@ -69,6 +70,7 @@ func TestPostFixturesCPFlow(t *testing.T) {
 	}{
 		"Donor has paid": {
 			form: url.Values{
+				"journey":                {"certificate-provider"},
 				"email":                  {"a@example.org"},
 				"useTestShareCode":       {"1"},
 				"cp-flow-has-donor-paid": {"startCpFlowDonorHasPaid"},
@@ -78,6 +80,7 @@ func TestPostFixturesCPFlow(t *testing.T) {
 		},
 		"Donor has not paid": {
 			form: url.Values{
+				"journey":                {"certificate-provider"},
 				"useTestShareCode":       {"1"},
 				"cp-flow-has-donor-paid": {"startCpFlowDonorHasNotPaid"},
 				"completeLpa":            {"1"},
@@ -86,6 +89,7 @@ func TestPostFixturesCPFlow(t *testing.T) {
 		},
 		"Donor has not paid and email": {
 			form: url.Values{
+				"journey":                {"certificate-provider"},
 				"email":                  {"a@example.org"},
 				"useTestShareCode":       {"1"},
 				"cp-flow-has-donor-paid": {"startCpFlowDonorHasNotPaid"},
@@ -95,6 +99,7 @@ func TestPostFixturesCPFlow(t *testing.T) {
 		},
 		"Donor has not paid no email": {
 			form: url.Values{
+				"journey":                {"certificate-provider"},
 				"useTestShareCode":       {"1"},
 				"cp-flow-has-donor-paid": {"startCpFlowDonorHasNotPaid"},
 				"completeLpa":            {"1"},
@@ -118,6 +123,43 @@ func TestPostFixturesCPFlow(t *testing.T) {
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 			assert.Equal(t, tc.expectedPath, resp.Header.Get("Location"))
 		})
+	}
+}
 
+func TestPostFixturesAttorneyFlow(t *testing.T) {
+	testCases := map[string]struct {
+		form         url.Values
+		expectedPath string
+	}{
+		"with email": {
+			form: url.Values{
+				"journey": {"attorney"},
+				"email":   {"a@example.org"},
+			},
+			expectedPath: "/testing-start?completeLpa=1&redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1&withEmail=a%40example.org",
+		},
+		"without email": {
+			form: url.Values{
+				"journey": {"attorney"},
+			},
+			expectedPath: "/testing-start?completeLpa=1&redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
+			r.Header.Add("Content-Type", FormUrlEncoded)
+
+			template := newMockTemplate(t)
+
+			err := Fixtures(template.Execute)(TestAppData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.expectedPath, resp.Header.Get("Location"))
+		})
 	}
 }

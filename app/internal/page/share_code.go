@@ -10,9 +10,10 @@ import (
 var useTestCode = false
 
 type ShareCodeData struct {
-	SessionID string
-	LpaID     string
-	Identity  bool
+	SessionID  string
+	LpaID      string
+	Identity   bool
+	AttorneyID string
 }
 
 type ShareCodeSender struct {
@@ -35,7 +36,7 @@ func (s *ShareCodeSender) UseTestCode() {
 	useTestCode = true
 }
 
-func (s *ShareCodeSender) Send(ctx context.Context, template notify.TemplateId, appData AppData, identity bool, lpa *Lpa) error {
+func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template notify.TemplateId, appData AppData, identity bool, lpa *Lpa) error {
 	var shareCode string
 
 	if useTestCode {
@@ -45,7 +46,7 @@ func (s *ShareCodeSender) Send(ctx context.Context, template notify.TemplateId, 
 		shareCode = s.randomString(12)
 	}
 
-	if err := s.dataStore.Put(ctx, "SHARECODE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
+	if err := s.dataStore.Put(ctx, "CERTIFICATEPROVIDERSHARE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
 		SessionID: appData.SessionID,
 		LpaID:     appData.LpaID,
 		Identity:  identity,
@@ -67,6 +68,48 @@ func (s *ShareCodeSender) Send(ctx context.Context, template notify.TemplateId, 
 		},
 	}); err != nil {
 		return fmt.Errorf("email failed: %w", err)
+	}
+
+	return nil
+}
+
+func (s *ShareCodeSender) SendAttorneys(ctx context.Context, template notify.TemplateId, appData AppData, lpa *Lpa) error {
+	for _, attorney := range lpa.Attorneys {
+		if attorney.Email == "" {
+			continue
+		}
+
+		var shareCode string
+
+		if useTestCode {
+			shareCode = "abcdef123456"
+			useTestCode = false
+		} else {
+			shareCode = s.randomString(12)
+		}
+
+		if err := s.dataStore.Put(ctx, "ATTORNEYSHARE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
+			SessionID:  appData.SessionID,
+			LpaID:      appData.LpaID,
+			AttorneyID: attorney.ID,
+		}); err != nil {
+			return fmt.Errorf("creating attorney share failed: %w", err)
+		}
+
+		if _, err := s.notifyClient.Email(ctx, notify.Email{
+			TemplateID:   s.notifyClient.TemplateID(template),
+			EmailAddress: attorney.Email,
+			Personalisation: map[string]string{
+				"shareCode":        shareCode,
+				"attorneyFullName": attorney.FullName(),
+				"donorFirstNames":  lpa.Donor.FirstNames,
+				"donorFullName":    lpa.Donor.FullName(),
+				"lpaLegalTerm":     appData.Localizer.T(lpa.TypeLegalTermTransKey()),
+				"landingPageLink":  fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
+			},
+		}); err != nil {
+			return fmt.Errorf("email failed: %w", err)
+		}
 	}
 
 	return nil

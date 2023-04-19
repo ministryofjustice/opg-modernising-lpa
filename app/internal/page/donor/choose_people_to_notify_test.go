@@ -539,11 +539,11 @@ func TestPersonToNotifyMatches(t *testing.T) {
 
 	assert.Equal(t, actor.TypeNone, personToNotifyMatches(lpa, "123", "x", "y"))
 	assert.Equal(t, actor.TypeDonor, personToNotifyMatches(lpa, "123", "a", "b"))
-	assert.Equal(t, actor.TypeAttorney, personToNotifyMatches(lpa, "123", "c", "d"))
+	assert.Equal(t, actor.TypeAttorney, personToNotifyMatches(lpa, "123", "C", "D"))
 	assert.Equal(t, actor.TypeAttorney, personToNotifyMatches(lpa, "123", "e", "f"))
-	assert.Equal(t, actor.TypeReplacementAttorney, personToNotifyMatches(lpa, "123", "g", "h"))
+	assert.Equal(t, actor.TypeReplacementAttorney, personToNotifyMatches(lpa, "123", "G", "H"))
 	assert.Equal(t, actor.TypeReplacementAttorney, personToNotifyMatches(lpa, "123", "i", "j"))
-	assert.Equal(t, actor.TypeNone, personToNotifyMatches(lpa, "123", "k", "l"))
+	assert.Equal(t, actor.TypeNone, personToNotifyMatches(lpa, "123", "k", "L"))
 	assert.Equal(t, actor.TypePersonToNotify, personToNotifyMatches(lpa, "123", "m", "n"))
 	assert.Equal(t, actor.TypeNone, personToNotifyMatches(lpa, "123", "o", "p"))
 }

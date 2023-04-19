@@ -115,18 +115,18 @@ func (d *certificateProviderDetailsForm) Validate() validation.List {
 }
 
 func certificateProviderMatches(lpa *page.Lpa, firstNames, lastName string) actor.Type {
-	if lpa.Donor.FirstNames == firstNames && lpa.Donor.LastName == lastName {
+	if strings.EqualFold(lpa.Donor.FirstNames, firstNames) && strings.EqualFold(lpa.Donor.LastName, lastName) {
 		return actor.TypeDonor
 	}
 
 	for _, attorney := range lpa.Attorneys {
-		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeAttorney
 		}
 	}
 
 	for _, attorney := range lpa.ReplacementAttorneys {
-		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeReplacementAttorney
 		}
 	}

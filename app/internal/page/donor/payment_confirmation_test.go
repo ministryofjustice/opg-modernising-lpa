@@ -24,7 +24,7 @@ func TestGetPaymentConfirmation(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("Send", r.Context(), notify.CertificateProviderInviteEmail, testAppData, true, &page.Lpa{CertificateProviderDetails: actor.CertificateProvider{Email: "certificateprovider@example.com"}}).
+		On("SendCertificateProvider", r.Context(), notify.CertificateProviderInviteEmail, testAppData, true, &page.Lpa{CertificateProviderDetails: actor.CertificateProvider{Email: "certificateprovider@example.com"}}).
 		Return(nil)
 
 	template := newMockTemplate(t)
@@ -127,7 +127,7 @@ func TestGetPaymentConfirmationWhenErrorSendingShareCode(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("Send", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		On("SendCertificateProvider", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := PaymentConfirmation(nil, nil, payClient, lpaStore, sessionStore, shareCodeSender)(testAppData, w, r)
@@ -145,7 +145,7 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("Send", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		On("SendCertificateProvider", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t).

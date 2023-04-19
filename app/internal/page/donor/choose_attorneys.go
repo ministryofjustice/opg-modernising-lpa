@@ -3,6 +3,7 @@ package donor
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -172,28 +173,28 @@ func (d *chooseAttorneysForm) DobWarning() string {
 }
 
 func attorneyMatches(lpa *page.Lpa, id, firstNames, lastName string) actor.Type {
-	if lpa.Donor.FirstNames == firstNames && lpa.Donor.LastName == lastName {
+	if strings.EqualFold(lpa.Donor.FirstNames, firstNames) && strings.EqualFold(lpa.Donor.LastName, lastName) {
 		return actor.TypeDonor
 	}
 
 	for _, attorney := range lpa.Attorneys {
-		if attorney.ID != id && attorney.FirstNames == firstNames && attorney.LastName == lastName {
+		if attorney.ID != id && strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeAttorney
 		}
 	}
 
 	for _, attorney := range lpa.ReplacementAttorneys {
-		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeReplacementAttorney
 		}
 	}
 
-	if lpa.CertificateProviderDetails.FirstNames == firstNames && lpa.CertificateProviderDetails.LastName == lastName {
+	if strings.EqualFold(lpa.CertificateProviderDetails.FirstNames, firstNames) && strings.EqualFold(lpa.CertificateProviderDetails.LastName, lastName) {
 		return actor.TypeCertificateProvider
 	}
 
 	for _, person := range lpa.PeopleToNotify {
-		if person.FirstNames == firstNames && person.LastName == lastName {
+		if strings.EqualFold(person.FirstNames, firstNames) && strings.EqualFold(person.LastName, lastName) {
 			return actor.TypePersonToNotify
 		}
 	}

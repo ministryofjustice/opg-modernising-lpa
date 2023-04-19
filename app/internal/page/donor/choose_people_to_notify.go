@@ -3,6 +3,7 @@ package donor
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -132,24 +133,24 @@ func (f *choosePeopleToNotifyForm) Validate() validation.List {
 }
 
 func personToNotifyMatches(lpa *page.Lpa, id, firstNames, lastName string) actor.Type {
-	if lpa.Donor.FirstNames == firstNames && lpa.Donor.LastName == lastName {
+	if strings.EqualFold(lpa.Donor.FirstNames, firstNames) && strings.EqualFold(lpa.Donor.LastName, lastName) {
 		return actor.TypeDonor
 	}
 
 	for _, attorney := range lpa.Attorneys {
-		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeAttorney
 		}
 	}
 
 	for _, attorney := range lpa.ReplacementAttorneys {
-		if attorney.FirstNames == firstNames && attorney.LastName == lastName {
+		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeReplacementAttorney
 		}
 	}
 
 	for _, person := range lpa.PeopleToNotify {
-		if person.ID != id && person.FirstNames == firstNames && person.LastName == lastName {
+		if person.ID != id && strings.EqualFold(person.FirstNames, firstNames) && strings.EqualFold(person.LastName, lastName) {
 			return actor.TypePersonToNotify
 		}
 	}

@@ -5,3 +5,7 @@ output "load_balancer" {
 output "load_balancer_security_group" {
   value = aws_security_group.app_loadbalancer
 }
+
+output "ecs_service" {
+  value = aws_ecs_service.app
+}

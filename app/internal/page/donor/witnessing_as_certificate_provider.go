@@ -72,12 +72,12 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, 
 				}
 
 				if certificateProvider.ID == "" {
-					if err := shareCodeSender.Send(r.Context(), notify.CertificateProviderReturnEmail, appData, false, lpa); err != nil {
+					if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderReturnEmail, appData, false, lpa); err != nil {
 						return err
 					}
 				} else {
 					if certificateProvider.CertificateProviderIdentityConfirmed() {
-						if err := shareCodeSender.Send(r.Context(), notify.CertificateProviderReturnEmail, appData, false, lpa); err != nil {
+						if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderReturnEmail, appData, false, lpa); err != nil {
 							return err
 						}
 					}

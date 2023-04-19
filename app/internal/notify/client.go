@@ -91,6 +91,8 @@ const (
 	CertificateProviderInviteEmail
 	CertificateProviderReturnEmail
 	CertificateProviderNameChangeEmail
+	AttorneyInviteEmail
+	AttorneyNameChangeEmail
 )
 
 func (c *Client) TemplateID(id TemplateId) string {
@@ -106,6 +108,10 @@ func (c *Client) TemplateID(id TemplateId) string {
 			return "453917cd-d8bb-44af-90a1-d73ae0f3fd07"
 		case CertificateProviderNameChangeEmail:
 			return "9f8be86f-864a-4cda-a58a-5768522bd325"
+		case AttorneyInviteEmail:
+			return "9aaedb70-df4a-42a8-9c28-de435cb3d453"
+		case AttorneyNameChangeEmail:
+			return "1e0950c5-63fa-487e-8bf3-f40445412a12"
 		}
 	} else {
 		switch id {
@@ -117,6 +123,10 @@ func (c *Client) TemplateID(id TemplateId) string {
 			return "7fde634d-96b5-4a82-855a-712ebd56397b"
 		case CertificateProviderNameChangeEmail:
 			return "0f111ed1-5c58-47eb-a13f-931f2077523b"
+		case AttorneyInviteEmail:
+			return "9be88a99-21c0-4808-8d6a-52af366e44aa"
+		case AttorneyNameChangeEmail:
+			return "685bbdcc-71b8-48b9-b773-03941472d3b1"
 		}
 	}
 

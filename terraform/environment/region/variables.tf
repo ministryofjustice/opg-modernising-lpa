@@ -24,6 +24,11 @@ variable "ecs_capacity_provider" {
   description = "Name of the capacity provider to use. Valid values are FARGATE_SPOT and FARGATE"
 }
 
+variable "ecs_task_autoscaling" {
+  type        = any
+  description = "task minimum and maximum values for autoscaling"
+}
+
 variable "app_service_repository_url" {
   type        = string
   description = "(optional) describe your variable"

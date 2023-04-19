@@ -27,6 +27,7 @@ type AppData struct {
 	ActorTypes            actor.Types
 	ActorType             actor.Type
 	CertificateProviderId string
+	AttorneyID            string
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, lpa *Lpa, url string) error {

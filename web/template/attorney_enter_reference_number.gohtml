@@ -1,0 +1,20 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "enterYourAttorneyReferenceNumber" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "enterYourAttorneyReferenceNumber" }}</h1>
+
+      {{ trHtml .App "attorneyReferenceNumberContent" }}
+
+      <form novalidate method="post">
+        {{ template "input" (input . "reference-number" "attorneyReferenceNumber" .Form.ReferenceNumber "classes" "govuk-input--width-20 govuk-!-margin-bottom-3" "hint" "attorneyReferenceNumberHint")}}
+        
+        {{ template "continue-button" . }}
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}

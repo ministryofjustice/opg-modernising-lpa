@@ -6,12 +6,25 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+type AttorneyPaths struct {
+	Start                string
+	Login                string
+	LoginCallback        string
+	EnterReferenceNumber string
+	CheckYourName        string
+	DateOfBirth          string
+	// TODO: remove once the attorney flow is complete, this is just to simplify
+	// development
+	NextPage string
+}
+
 type AppPaths struct {
 	AboutPayment                                               string
 	AreYouHappyIfOneAttorneyCantActNoneCan                     string
 	AreYouHappyIfOneReplacementAttorneyCantActNoneCan          string
 	AreYouHappyIfRemainingAttorneysCanContinueToAct            string
 	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct string
+	Attorney                                                   AttorneyPaths
 	AuthRedirect                                               string
 	CertificateProvided                                        string
 	CertificateProviderAddress                                 string
@@ -117,6 +130,15 @@ var Paths = AppPaths{
 	AreYouHappyIfOneReplacementAttorneyCantActNoneCan:          "/are-you-happy-if-one-replacement-attorney-cant-act-none-can",
 	AreYouHappyIfRemainingAttorneysCanContinueToAct:            "/are-you-happy-if-remaining-attorneys-can-continue-to-act",
 	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct: "/are-you-happy-if-remaining-replacement-attorneys-can-continue-to-act",
+	Attorney: AttorneyPaths{
+		Start:                "/attorney-start",
+		Login:                "/attorney-login",
+		LoginCallback:        "/attorney-login-callback",
+		EnterReferenceNumber: "/attorney-enter-reference-number",
+		CheckYourName:        "/attorney-check-your-name",
+		DateOfBirth:          "/attorney-date-of-birth",
+		NextPage:             "/attorney-next-page",
+	},
 	AuthRedirect:                                            "/auth/redirect",
 	CertificateProvided:                                     "/certificate-provided",
 	CertificateProviderAddress:                              "/certificate-provider-address",
@@ -221,6 +243,13 @@ func IsLpaPath(url string) bool {
 
 	return !slices.Contains([]string{
 		Paths.YotiRedirect,
+		Paths.Attorney.CheckYourName,
+		Paths.Attorney.DateOfBirth,
+		Paths.Attorney.EnterReferenceNumber,
+		Paths.Attorney.Login,
+		Paths.Attorney.LoginCallback,
+		Paths.Attorney.NextPage,
+		Paths.Attorney.Start,
 		Paths.AuthRedirect,
 		Paths.CertificateProvided,
 		Paths.CertificateProviderCheckYourName,

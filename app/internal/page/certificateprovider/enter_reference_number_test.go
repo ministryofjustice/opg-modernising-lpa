@@ -99,7 +99,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 
 			dataStore := newMockDataStore(t)
 			dataStore.
-				ExpectGet(r.Context(), "SHARECODE#aRefNumber12", "#METADATA#aRefNumber12",
+				ExpectGet(r.Context(), "CERTIFICATEPROVIDERSHARE#aRefNumber12", "#METADATA#aRefNumber12",
 					page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: tc.Identity}, nil)
 
 			lpaStore := newMockLpaStore(t)
@@ -138,7 +138,7 @@ func TestPostEnterReferenceNumberOnDataStoreError(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		ExpectGet(r.Context(), "SHARECODE#aRefNumber12", "#METADATA#aRefNumber12",
+		ExpectGet(r.Context(), "CERTIFICATEPROVIDERSHARE#aRefNumber12", "#METADATA#aRefNumber12",
 			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, expectedError)
 
 	err := EnterReferenceNumber(nil, nil, dataStore, nil)(testAppData, w, r)
@@ -171,7 +171,7 @@ func TestPostEnterReferenceNumberOnDataStoreNotFoundError(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		ExpectGet(r.Context(), "SHARECODE#aRefNumber12", "#METADATA#aRefNumber12",
+		ExpectGet(r.Context(), "CERTIFICATEPROVIDERSHARE#aRefNumber12", "#METADATA#aRefNumber12",
 			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, dynamo.NotFoundError{})
 
 	err := EnterReferenceNumber(template.Execute, nil, dataStore, nil)(testAppData, w, r)
@@ -193,7 +193,7 @@ func TestPostEnterReferenceNumberOnLpaStoreError(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		ExpectGet(r.Context(), "SHARECODE#aRefNumber12", "#METADATA#aRefNumber12",
+		ExpectGet(r.Context(), "CERTIFICATEPROVIDERSHARE#aRefNumber12", "#METADATA#aRefNumber12",
 			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, nil)
 
 	lpaStore := newMockLpaStore(t)

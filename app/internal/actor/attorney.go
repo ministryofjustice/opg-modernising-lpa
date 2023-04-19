@@ -10,12 +10,17 @@ import (
 )
 
 type Attorney struct {
-	ID          string
-	FirstNames  string
-	LastName    string
-	Email       string
-	DateOfBirth date.Date
-	Address     place.Address
+	ID               string
+	FirstNames       string
+	LastName         string
+	Email            string
+	DateOfBirth      date.Date
+	Address          place.Address
+	DeclaredFullName string
+}
+
+func (a Attorney) FullName() string {
+	return fmt.Sprintf("%s %s", a.FirstNames, a.LastName)
 }
 
 type Attorneys []Attorney

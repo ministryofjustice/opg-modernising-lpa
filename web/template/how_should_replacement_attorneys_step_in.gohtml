@@ -31,23 +31,25 @@
                   {{ trHtml .App "whenNoneCanNoLongerAct" }}
                 </label>
               </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-when-to-step-in-3" name="when-to-step-in" type="radio" value="other" aria-describedby="when-to-step-in-3-item-hint" aria-controls="when-to-step-in-3-conditional-div" {{ if or (eq "other" .Form.WhenToStepIn) (.Errors.Has "other-details") }}checked{{ end }}>
-                <label class="govuk-label govuk-radios__label" for="f-when-to-step-in-3">
-                  {{ tr .App "otherWay" }}
-                </label>
+              {{ if .AllowSomeOtherWay }}
+                <div class="govuk-radios__item">
+                  <input class="govuk-radios__input" id="f-when-to-step-in-3" name="when-to-step-in" type="radio" value="other" aria-describedby="when-to-step-in-3-item-hint" aria-controls="when-to-step-in-3-conditional-div" {{ if or (eq "other" .Form.WhenToStepIn) (.Errors.Has "other-details") }}checked{{ end }}>
+                  <label class="govuk-label govuk-radios__label" for="f-when-to-step-in-3">
+                    {{ tr .App "otherWay" }}
+                  </label>
 
-                <div class="govuk-radios__conditional" id="when-to-step-in-3-conditional-div">
-                  <div class="govuk-form-group {{ if .Errors.Has "other-details" }}govuk-form-group--error{{ end }}">
-                    {{ trHtml .App "otherWayHint" }}
-                    <label class="govuk-label" for="f-other-details">
-                      {{ tr .App "details" }}
-                    </label>
-                    {{ template "error-message" (errorMessage . "other-details") }}
-                    <textarea class="govuk-textarea {{ if .Errors.Has "other-details" }}govuk-input--error{{ end }}" id="f-other-details" name="other-details" rows="10">{{ .Form.OtherDetails }}</textarea>
+                  <div class="govuk-radios__conditional" id="when-to-step-in-3-conditional-div">
+                    <div class="govuk-form-group {{ if .Errors.Has "other-details" }}govuk-form-group--error{{ end }}">
+                      {{ trHtml .App "otherWayHint" }}
+                      <label class="govuk-label" for="f-other-details">
+                        {{ tr .App "details" }}
+                      </label>
+                      {{ template "error-message" (errorMessage . "other-details") }}
+                      <textarea class="govuk-textarea {{ if .Errors.Has "other-details" }}govuk-input--error{{ end }}" id="f-other-details" name="other-details" rows="10">{{ .Form.OtherDetails }}</textarea>
+                    </div>
                   </div>
                 </div>
-              </div>
+              {{ end }}
             </div>
           </fieldset>
 

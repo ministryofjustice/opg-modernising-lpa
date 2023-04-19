@@ -83,6 +83,7 @@ type Lpa struct {
 	CPWitnessCodeValidated                     bool
 	WitnessCodeLimiter                         *Limiter
 	Certificate                                Certificate
+	AttorneyProvidedDetails                    actor.Attorneys
 }
 
 type PaymentDetails struct {

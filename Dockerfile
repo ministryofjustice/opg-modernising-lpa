@@ -1,4 +1,4 @@
-FROM node:18.15.0-alpine3.16 as asset-env
+FROM node:18.16.0-alpine3.16 as asset-env
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ RUN go mod download
 COPY /app .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab
 
-FROM alpine:3.17.2 as production
+FROM alpine:3.17.3 as production
 
 WORKDIR /go/bin
 
