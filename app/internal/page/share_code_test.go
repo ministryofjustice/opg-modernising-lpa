@@ -245,18 +245,34 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 	lpa := &Lpa{
 		Attorneys: actor.Attorneys{
 			{
+				ID:         "1",
 				FirstNames: "Joanna",
 				LastName:   "Jones",
 				Email:      "name@example.org",
 			},
 			{
+				ID:         "2",
 				FirstNames: "John",
 				LastName:   "Jones",
 				Email:      "name2@example.org",
 			},
 			{
+				ID:         "3",
 				FirstNames: "Nope",
 				LastName:   "Jones",
+			},
+		},
+		ReplacementAttorneys: actor.Attorneys{
+			{
+				ID:         "4",
+				FirstNames: "Dave",
+				LastName:   "Davis",
+				Email:      "dave@example.com",
+			},
+			{
+				ID:         "5",
+				FirstNames: "Donny",
+				LastName:   "Davis",
 			},
 		},
 		Donor: actor.Donor{
@@ -277,10 +293,13 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Put", ctx, "ATTORNEYSHARE#123", "#METADATA#123", ShareCodeData{SessionID: "session-id", LpaID: "lpa-id"}).
+		On("Put", ctx, "ATTORNEYSHARE#123", "#METADATA#123", ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "1"}).
 		Return(nil)
 	dataStore.
-		On("Put", ctx, "ATTORNEYSHARE#123", "#METADATA#123", ShareCodeData{SessionID: "session-id", LpaID: "lpa-id"}).
+		On("Put", ctx, "ATTORNEYSHARE#123", "#METADATA#123", ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "2"}).
+		Return(nil)
+	dataStore.
+		On("Put", ctx, "ATTORNEYSHARE#123", "#METADATA#123", ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "4", IsReplacementAttorney: true}).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -308,6 +327,20 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			Personalisation: map[string]string{
 				"shareCode":        "123",
 				"attorneyFullName": "John Jones",
+				"donorFirstNames":  "Jan",
+				"donorFullName":    "Jan Smith",
+				"lpaLegalTerm":     "property and affairs",
+				"landingPageLink":  fmt.Sprintf("http://app%s", Paths.Attorney.Start),
+			},
+		}).
+		Return("", nil)
+	notifyClient.
+		On("Email", ctx, notify.Email{
+			TemplateID:   "template-id",
+			EmailAddress: "dave@example.com",
+			Personalisation: map[string]string{
+				"shareCode":        "123",
+				"attorneyFullName": "Dave Davis",
 				"donorFirstNames":  "Jan",
 				"donorFullName":    "Jan Smith",
 				"lpaLegalTerm":     "property and affairs",

@@ -87,7 +87,8 @@ type Lpa struct {
 	CertificateProviderProvidedDetails  actor.CertificateProvider
 	Certificate                         Certificate
 
-	AttorneyProvidedDetails actor.Attorneys
+	AttorneyProvidedDetails            actor.Attorneys
+	ReplacementAttorneyProvidedDetails actor.Attorneys
 }
 
 type PaymentDetails struct {
