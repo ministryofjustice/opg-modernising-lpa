@@ -100,6 +100,7 @@ resource "aws_lb_listener_rule" "app_maintenance" {
       condition,
     ]
   }
+  provider = aws.region
 }
 
 resource "aws_lb_listener_certificate" "app_loadbalancer_live_service_certificate" {
