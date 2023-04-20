@@ -202,11 +202,17 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		}
 
 		if r.FormValue("sendAttorneyShare") != "" {
-			lpa.Attorneys = actor.Attorneys{MakeAttorney(AttorneyNames[0])}
-			lpa.Attorneys[0].Email = TestEmail
+			attorneys := actor.Attorneys{MakeAttorney(AttorneyNames[0])}
+			attorneys[0].Email = TestEmail
 
 			if r.FormValue("withEmail") != "" {
-				lpa.Attorneys[0].Email = r.FormValue("withEmail")
+				attorneys[0].Email = r.FormValue("withEmail")
+			}
+
+			if r.FormValue("forReplacementAttorney") != "" {
+				lpa.ReplacementAttorneys = attorneys
+			} else {
+				lpa.Attorneys = attorneys
 			}
 
 			shareCodeSender.SendAttorneys(ctx, notify.AttorneyInviteEmail, AppData{
