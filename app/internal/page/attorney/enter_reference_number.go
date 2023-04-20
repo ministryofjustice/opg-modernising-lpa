@@ -50,6 +50,7 @@ func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore D
 				session.LpaID = v.LpaID
 				session.DonorSessionID = v.SessionID
 				session.AttorneyID = v.AttorneyID
+				session.IsReplacementAttorney = v.IsReplacementAttorney
 
 				if err := sesh.SetAttorney(sessionStore, r, w, session); err != nil {
 					return err

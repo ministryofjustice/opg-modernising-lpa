@@ -39,7 +39,7 @@
                                         {{ tr .App "enterYourFullName" }}
                                     </label>
                                     {{ template "error-message" (errorMessage . "corrected-name") }}
-                                    <input class="govuk-input govuk-input--width-20 {{ if .Errors.Has "corrected-name" }}govuk-textarea--error{{ end }}" id="f-corrected-name" name="corrected-name" >{{ .Form.CorrectedName }}</input>
+                                    <input class="govuk-input govuk-input--width-20 {{ if .Errors.Has "corrected-name" }}govuk-input--error{{ end }}" id="f-corrected-name" name="corrected-name" value="{{ .Form.CorrectedName }}" />
                                 </div>
                             </div>
                         </div>
