@@ -73,6 +73,19 @@ resource "aws_lb_listener" "app_loadbalancer" {
   provider = aws.region
 }
 
+resource "aws_ssm_parameter" "app_maintenance_switch" {
+  name            = "/modernising-lpa/maintenance_mode_enabled/${data.aws_default_tags.current.tags.environment-name}"
+  type            = "String"
+  value           = "false"
+  description     = "values of either 'true' or 'false' only"
+  allowed_pattern = "^(true|false)"
+  overwrite       = true
+  lifecycle {
+    ignore_changes = [value]
+  }
+  provider = aws.management_global
+}
+
 resource "aws_lb_listener_rule" "app_maintenance" {
   listener_arn = aws_lb_listener.app_loadbalancer.arn
   priority     = 101 # Specifically set so that maintenance mode scripts can locate the correct rule to modify
