@@ -16,4 +16,12 @@ var (
 		Lang:       localize.En,
 		Paths:      page.Paths,
 	}
+	testReplacementAppData = page.AppData{
+		SessionID:             "session-id",
+		LpaID:                 "lpa-id",
+		AttorneyID:            "attorney-id",
+		Lang:                  localize.En,
+		Paths:                 page.Paths,
+		IsReplacementAttorney: true,
+	}
 )

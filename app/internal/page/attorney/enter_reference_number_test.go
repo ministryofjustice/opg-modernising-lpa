@@ -103,43 +103,61 @@ func TestGetEnterReferenceNumberOnTemplateError(t *testing.T) {
 }
 
 func TestPostEnterReferenceNumber(t *testing.T) {
-	form := url.Values{
-		"reference-number": {"aRefNumber12"},
+	testcases := map[string]struct {
+		shareCode page.ShareCodeData
+		session   *sesh.AttorneySession
+	}{
+		"attorney": {
+			shareCode: page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", AttorneyID: "attorney-id"},
+			session:   &sesh.AttorneySession{Sub: "hey", LpaID: "lpa-id", DonorSessionID: "session-id", AttorneyID: "attorney-id"},
+		},
+		"replacement attorney": {
+			shareCode: page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", AttorneyID: "attorney-id", IsReplacementAttorney: true},
+			session:   &sesh.AttorneySession{Sub: "hey", LpaID: "lpa-id", DonorSessionID: "session-id", AttorneyID: "attorney-id", IsReplacementAttorney: true},
+		},
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			form := url.Values{
+				"reference-number": {"aRefNumber12"},
+			}
 
-	dataStore := newMockDataStore(t)
-	dataStore.
-		ExpectGet(r.Context(), "ATTORNEYSHARE#aRefNumber12", "#METADATA#aRefNumber12",
-			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"}, nil)
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", mock.MatchedBy(func(ctx context.Context) bool {
-			session := page.SessionDataFromContext(ctx)
+			dataStore := newMockDataStore(t)
+			dataStore.
+				ExpectGet(r.Context(), "ATTORNEYSHARE#aRefNumber12", "#METADATA#aRefNumber12",
+					tc.shareCode, nil)
 
-			return assert.Equal(t, &page.SessionData{SessionID: "session-id", LpaID: "lpa-id"}, session)
-		})).
-		Return(&page.Lpa{}, nil)
+			lpaStore := newMockLpaStore(t)
+			lpaStore.
+				On("Get", mock.MatchedBy(func(ctx context.Context) bool {
+					session := page.SessionDataFromContext(ctx)
 
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		ExpectGet(r,
-			map[any]any{"attorney": &sesh.AttorneySession{Sub: "hey"}}, nil)
-	sessionStore.
-		ExpectSet(r, w, map[any]any{"attorney": &sesh.AttorneySession{Sub: "hey", LpaID: "lpa-id", DonorSessionID: "session-id"}},
-			nil)
+					return assert.Equal(t, &page.SessionData{SessionID: "session-id", LpaID: "lpa-id"}, session)
+				})).
+				Return(&page.Lpa{}, nil)
 
-	err := EnterReferenceNumber(nil, lpaStore, dataStore, sessionStore)(testAppData, w, r)
+			sessionStore := newMockSessionStore(t)
+			sessionStore.
+				ExpectGet(r,
+					map[any]any{"attorney": &sesh.AttorneySession{Sub: "hey"}}, nil)
+			sessionStore.
+				ExpectSet(r, w, map[any]any{"attorney": tc.session},
+					nil)
 
-	resp := w.Result()
+			err := EnterReferenceNumber(nil, lpaStore, dataStore, sessionStore)(testAppData, w, r)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.CheckYourName, resp.Header.Get("Location"))
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, page.Paths.Attorney.CheckYourName, resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostEnterReferenceNumberOnDataStoreError(t *testing.T) {
