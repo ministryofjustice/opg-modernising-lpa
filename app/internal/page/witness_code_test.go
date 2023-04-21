@@ -35,7 +35,7 @@ func TestWitnessCodeSenderSend(t *testing.T) {
 	lpaStore.
 		On("Put", ctx, &Lpa{
 			Donor:                      actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-			CertificateProviderDetails: actor.CertificateProvider{Mobile: "0777"},
+			CertificateProviderDetails: CertificateProviderDetails{Mobile: "0777"},
 			WitnessCodes:               WitnessCodes{{Code: "1234", Created: now}},
 			Type:                       LpaTypePropertyFinance,
 		}).
@@ -57,7 +57,7 @@ func TestWitnessCodeSenderSend(t *testing.T) {
 	}
 	err := sender.Send(ctx, &Lpa{
 		Donor:                      actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		CertificateProviderDetails: actor.CertificateProvider{Mobile: "0777"},
+		CertificateProviderDetails: CertificateProviderDetails{Mobile: "0777"},
 		Type:                       LpaTypePropertyFinance,
 	}, localizer)
 
@@ -87,7 +87,7 @@ func TestWitnessCodeSenderSendWhenNotifyClientErrors(t *testing.T) {
 		now:          time.Now,
 	}
 	err := sender.Send(context.Background(), &Lpa{
-		CertificateProviderDetails: actor.CertificateProvider{Mobile: "0777"},
+		CertificateProviderDetails: CertificateProviderDetails{Mobile: "0777"},
 		Donor:                      actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		Type:                       LpaTypePropertyFinance,
 	}, localizer)
@@ -124,7 +124,7 @@ func TestWitnessCodeSenderSendWhenLpaStoreErrors(t *testing.T) {
 		now:          time.Now,
 	}
 	err := sender.Send(context.Background(), &Lpa{
-		CertificateProviderDetails: actor.CertificateProvider{Mobile: "0777"},
+		CertificateProviderDetails: CertificateProviderDetails{Mobile: "0777"},
 		Donor:                      actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		Type:                       LpaTypePropertyFinance,
 	}, localizer)

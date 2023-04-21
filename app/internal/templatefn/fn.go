@@ -297,11 +297,10 @@ func progressBar(app page.AppData, lpa *page.Lpa) map[string]interface{} {
 	}
 }
 
-func peopleNamedOnLpa(app page.AppData, lpa *page.Lpa, showPeopleHeaders bool, certificateProvider *actor.CertificateProvider) map[string]interface{} {
+func peopleNamedOnLpa(app page.AppData, lpa *page.Lpa, showPeopleHeaders bool) map[string]interface{} {
 	return map[string]interface{}{
-		"App":                 app,
-		"Lpa":                 lpa,
-		"ShowPeopleHeaders":   showPeopleHeaders,
-		"CertificateProvider": certificateProvider,
+		"App":               app,
+		"Lpa":               lpa,
+		"ShowPeopleHeaders": showPeopleHeaders,
 	}
 }

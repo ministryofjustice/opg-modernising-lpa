@@ -33,8 +33,8 @@ func (s *lpaStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
 		return nil, errors.New("lpaStore.GetAll requires SessionID to retrieve")
 	}
 
-	pk := "DONOR#" + data.SessionID
-	err := s.dataStore.GetAll(ctx, pk, &lpas)
+	sk := "#DONOR#" + data.SessionID
+	err := s.dataStore.GetAllByGsi(ctx, "ActorIndex", sk, &lpas)
 
 	slices.SortFunc(lpas, func(a, b *page.Lpa) bool {
 		return a.UpdatedAt.After(b.UpdatedAt)
@@ -45,15 +45,14 @@ func (s *lpaStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
 
 func (s *lpaStore) Get(ctx context.Context) (*page.Lpa, error) {
 	data := page.SessionDataFromContext(ctx)
-	if data.LpaID == "" || data.SessionID == "" {
-		return nil, errors.New("lpaStore.Get requires LpaID and SessionID to retrieve")
+	if data.LpaID == "" {
+		return nil, errors.New("lpaStore.Get requires LpaID to retrieve")
 	}
 
-	pk := "DONOR#" + data.SessionID
-	sk := "#LPA#" + data.LpaID
+	pk := "LPA#" + data.LpaID
 
 	var lpa page.Lpa
-	if err := s.dataStore.Get(ctx, pk, sk, &lpa); err != nil {
+	if err := s.dataStore.GetOneByPartialSk(ctx, pk, "#DONOR#", &lpa); err != nil {
 		return nil, err
 	}
 
@@ -68,7 +67,7 @@ func (s *lpaStore) Put(ctx context.Context, lpa *page.Lpa) error {
 
 	lpa.UpdatedAt = time.Now()
 
-	pk := "DONOR#" + data.SessionID
-	sk := "#LPA#" + lpa.ID
+	pk := "LPA#" + lpa.ID
+	sk := "#DONOR#" + data.SessionID
 	return s.dataStore.Put(ctx, pk, sk, lpa)
 }

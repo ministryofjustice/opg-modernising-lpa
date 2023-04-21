@@ -28,33 +28,14 @@ func (n NotFoundError) Error() string {
 	return "No results found"
 }
 
-func NewClient(cfg aws.Config, tableName string) (*Client, error) {
-	return &Client{table: tableName, svc: dynamodb.NewFromConfig(cfg)}, nil
+type MultipleResultsError struct{}
+
+func (n MultipleResultsError) Error() string {
+	return "A single result was expected but multiple results found"
 }
 
-func (c *Client) GetAll(ctx context.Context, pk string, v interface{}) error {
-	pkey, err := attributevalue.Marshal(pk)
-	if err != nil {
-		return err
-	}
-
-	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
-		TableName:                 aws.String(c.table),
-		ExpressionAttributeNames:  map[string]string{"#PK": "PK"},
-		ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey},
-		KeyConditionExpression:    aws.String("#PK = :PK"),
-	})
-
-	if err != nil {
-		return err
-	}
-
-	var items []types.AttributeValue
-	for _, item := range response.Items {
-		items = append(items, item["Data"])
-	}
-
-	return attributevalue.UnmarshalList(items, v)
+func NewClient(cfg aws.Config, tableName string) (*Client, error) {
+	return &Client{table: tableName, svc: dynamodb.NewFromConfig(cfg)}, nil
 }
 
 func (c *Client) Get(ctx context.Context, pk, sk string, v interface{}) error {
@@ -62,7 +43,6 @@ func (c *Client) Get(ctx context.Context, pk, sk string, v interface{}) error {
 	if err != nil {
 		return err
 	}
-
 	result, err := c.svc.GetItem(ctx, &dynamodb.GetItemInput{
 		TableName: aws.String(c.table),
 		Key:       key,
@@ -73,8 +53,70 @@ func (c *Client) Get(ctx context.Context, pk, sk string, v interface{}) error {
 	if result.Item == nil {
 		return NotFoundError{}
 	}
-
 	return attributevalue.Unmarshal(result.Item["Data"], v)
+}
+
+func (c *Client) GetAllByGsi(ctx context.Context, gsi, sk string, v interface{}) error {
+	skey, err := attributevalue.Marshal(sk)
+	if err != nil {
+		return err
+	}
+
+	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
+		TableName:                 aws.String(c.table),
+		IndexName:                 aws.String(gsi),
+		ExpressionAttributeNames:  map[string]string{"#SK": "SK"},
+		ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey},
+		KeyConditionExpression:    aws.String("#SK = :SK"),
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if len(response.Items) == 0 {
+		return NotFoundError{}
+	}
+
+	var items []types.AttributeValue
+	for _, item := range response.Items {
+		items = append(items, item["Data"])
+	}
+
+	return attributevalue.UnmarshalList(items, v)
+}
+
+func (c *Client) GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error {
+	pkey, err := attributevalue.Marshal(pk)
+	if err != nil {
+		return err
+	}
+
+	partialSkey, err := attributevalue.Marshal(partialSk)
+	if err != nil {
+		return err
+	}
+
+	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
+		TableName:                 aws.String(c.table),
+		ExpressionAttributeNames:  map[string]string{"#PK": "PK", "#SK": "SK"},
+		ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey, ":SK": partialSkey},
+		KeyConditionExpression:    aws.String("#PK = :PK and begins_with(#SK, :SK)"),
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if len(response.Items) == 0 {
+		return NotFoundError{}
+	}
+
+	if len(response.Items) > 1 {
+		return MultipleResultsError{}
+	}
+
+	return attributevalue.Unmarshal(response.Items[0]["Data"], v)
 }
 
 func (c *Client) Put(ctx context.Context, pk, sk string, v interface{}) error {
@@ -92,37 +134,6 @@ func (c *Client) Put(ctx context.Context, pk, sk string, v interface{}) error {
 	_, err = c.svc.PutItem(ctx, &dynamodb.PutItemInput{
 		TableName: aws.String(c.table),
 		Item:      item,
-	})
-
-	return err
-}
-
-func (c *Client) PutTransact(ctx context.Context, pk, sk string, v interface{}, update *types.Update) error {
-	item, err := makeKey(pk, sk)
-	if err != nil {
-		return err
-	}
-
-	data, err := attributevalue.Marshal(v)
-	if err != nil {
-		return err
-	}
-	item["Data"] = data
-
-	update.TableName = aws.String(c.table)
-
-	_, err = c.svc.TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
-		TransactItems: []types.TransactWriteItem{
-			{
-				Put: &types.Put{
-					Item:      item,
-					TableName: aws.String(c.table),
-				},
-			},
-			{
-				Update: update,
-			},
-		},
 	})
 
 	return err

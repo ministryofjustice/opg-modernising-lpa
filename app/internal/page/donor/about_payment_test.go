@@ -26,7 +26,7 @@ func TestGetAboutPayment(t *testing.T) {
 		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Get", r.Context()).
-			Return(&page.Lpa{CertificateProviderDetails: actor.CertificateProvider{}}, nil)
+			Return(&page.Lpa{CertificateProviderDetails: page.CertificateProviderDetails{}}, nil)
 
 		template := newMockTemplate(t)
 		template.
@@ -65,7 +65,7 @@ func TestGetAboutPayment(t *testing.T) {
 		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Get", r.Context()).
-			Return(&page.Lpa{CertificateProviderDetails: actor.CertificateProvider{}}, nil)
+			Return(&page.Lpa{CertificateProviderDetails: page.CertificateProviderDetails{}}, nil)
 
 		template := newMockTemplate(t)
 		template.
@@ -106,7 +106,7 @@ func TestPostAboutPayment(t *testing.T) {
 				lpaStore := newMockLpaStore(t)
 				lpaStore.
 					On("Get", r.Context()).
-					Return(&page.Lpa{Donor: actor.Donor{Email: "a@b.com"}, CertificateProviderDetails: actor.CertificateProvider{}}, nil)
+					Return(&page.Lpa{Donor: actor.Donor{Email: "a@b.com"}, CertificateProviderDetails: page.CertificateProviderDetails{}}, nil)
 
 				template := newMockTemplate(t)
 				template.
@@ -167,7 +167,7 @@ func TestPostAboutPayment(t *testing.T) {
 		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Get", r.Context()).
-			Return(&page.Lpa{CertificateProviderDetails: actor.CertificateProvider{}}, nil)
+			Return(&page.Lpa{CertificateProviderDetails: page.CertificateProviderDetails{}}, nil)
 
 		template := newMockTemplate(t)
 
@@ -194,7 +194,7 @@ func TestPostAboutPayment(t *testing.T) {
 		lpaStore := newMockLpaStore(t)
 		lpaStore.
 			On("Get", r.Context()).
-			Return(&page.Lpa{CertificateProviderDetails: actor.CertificateProvider{}}, nil)
+			Return(&page.Lpa{CertificateProviderDetails: page.CertificateProviderDetails{}}, nil)
 
 		template := newMockTemplate(t)
 

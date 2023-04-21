@@ -2,6 +2,7 @@ package certificateprovider
 
 import (
 	"context"
+	"encoding/base64"
 	"io"
 	"net/http"
 	"time"
@@ -34,9 +35,9 @@ type LpaStore interface {
 
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
 type CertificateProviderStore interface {
-	Create(context.Context, *page.Lpa, string) (*actor.CertificateProvider, error)
-	Get(context.Context) (*actor.CertificateProvider, error)
-	Put(context.Context, *actor.CertificateProvider) error
+	Create(ctx context.Context) (*actor.CertificateProvider, error)
+	Get(ctx context.Context) (*actor.CertificateProvider, error)
+	Put(ctx context.Context, certificateProvider *actor.CertificateProvider) error
 }
 
 //go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
@@ -49,9 +50,10 @@ type OneLoginClient interface {
 
 //go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
 type DataStore interface {
-	GetAll(context.Context, string, interface{}) error
-	Get(context.Context, string, string, interface{}) error
+	Get(ctx context.Context, pk, sk string, v interface{}) error
 	Put(context.Context, string, string, interface{}) error
+	GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
+	GetAllByGsi(ctx context.Context, gsi, sk string, v interface{}) error
 }
 
 //go:generate mockery --testonly --inpackage --name AddressClient --structname mockAddressClient
@@ -101,15 +103,15 @@ func Register(
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
 	handleRoot(page.Paths.CertificateProviderStart, None,
-		page.Guidance(tmpls.Get("certificate_provider_start.gohtml"), nil, nil))
+		Guidance(tmpls.Get("certificate_provider_start.gohtml"), nil, nil))
 	handleRoot(page.Paths.CertificateProviderEnterReferenceNumber, None,
-		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), lpaStore, dataStore, certificateProviderStore))
+		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), lpaStore, dataStore))
 	handleRoot(page.Paths.CertificateProviderLogin, None,
 		Login(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.CertificateProviderLoginCallback, None,
-		LoginCallback(oneLoginClient, sessionStore))
+		LoginCallback(oneLoginClient, sessionStore, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderWhoIsEligible, RequireSession,
-		page.Guidance(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), lpaStore, nil))
+		Guidance(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), lpaStore, nil))
 	handleRoot(page.Paths.CertificateProviderCheckYourName, RequireSession,
 		CheckYourName(tmpls.Get("certificate_provider_check_your_name.gohtml"), lpaStore, notifyClient, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderEnterDateOfBirth, RequireSession,
@@ -120,7 +122,7 @@ func Register(
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, certificateProviderStore))
 
 	handleRoot(page.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity, RequireSession,
-		page.Guidance(tmpls.Get("certificate_provider_what_youll_need_to_confirm_your_identity.gohtml"), lpaStore, nil))
+		Guidance(tmpls.Get("certificate_provider_what_youll_need_to_confirm_your_identity.gohtml"), lpaStore, nil))
 
 	for path, page := range map[string]int{
 		page.Paths.CertificateProviderSelectYourIdentityOptions:  0,
@@ -154,13 +156,13 @@ func Register(
 	}
 
 	handleRoot(page.Paths.CertificateProviderReadTheLpa, RequireSession,
-		page.Guidance(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), lpaStore, certificateProviderStore))
+		Guidance(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), lpaStore, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderWhatHappensNext, RequireSession,
-		page.Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), lpaStore, nil))
+		Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), lpaStore, nil))
 	handleRoot(page.Paths.ProvideCertificate, RequireSession,
 		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), lpaStore, time.Now, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProvided, RequireSession,
-		page.Guidance(tmpls.Get("certificate_provided.gohtml"), lpaStore, nil))
+		Guidance(tmpls.Get("certificate_provided.gohtml"), lpaStore, nil))
 }
 
 type handleOpt byte
@@ -189,14 +191,12 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 					return
 				}
 
-				appData.SessionID = session.DonorSessionID
+				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
 				appData.LpaID = session.LpaID
-				appData.CertificateProviderId = session.ID
 
 				ctx = page.ContextWithSessionData(ctx, &page.SessionData{
-					SessionID:             appData.SessionID,
-					LpaID:                 appData.LpaID,
-					CertificateProviderID: appData.CertificateProviderId,
+					SessionID: appData.SessionID,
+					LpaID:     appData.LpaID,
 				})
 			}
 

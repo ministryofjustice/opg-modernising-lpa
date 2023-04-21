@@ -36,10 +36,9 @@ func TestLoginCallback(t *testing.T) {
 	}
 	session.Values = map[any]any{
 		"certificate-provider": &sesh.CertificateProviderSession{
-			Sub:            "random",
-			Email:          "name@example.com",
-			LpaID:          "lpa-id",
-			DonorSessionID: "session-id",
+			Sub:   "random",
+			Email: "name@example.com",
+			LpaID: "lpa-id",
 		},
 	}
 
@@ -61,7 +60,7 @@ func TestLoginCallback(t *testing.T) {
 		On("Save", r, w, session).
 		Return(nil)
 
-	err := LoginCallback(client, sessionStore)(testAppData, w, r)
+	err := LoginCallback(client, sessionStore, nil)(testAppData, w, r)
 	assert.Nil(t, err)
 	resp := w.Result()
 
@@ -117,7 +116,7 @@ func TestLoginCallbackSessionMissing(t *testing.T) {
 				On("Get", r, "params").
 				Return(tc.session, tc.getErr)
 
-			err := LoginCallback(nil, sessionStore)(testAppData, w, r)
+			err := LoginCallback(nil, sessionStore, nil)(testAppData, w, r)
 			assert.Equal(t, tc.expectedErr, err)
 		})
 	}
@@ -141,7 +140,7 @@ func TestLoginCallbackWhenExchangeErrors(t *testing.T) {
 			},
 		}, nil)
 
-	err := LoginCallback(client, sessionStore)(testAppData, w, r)
+	err := LoginCallback(client, sessionStore, nil)(testAppData, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -166,6 +165,6 @@ func TestLoginCallbackWhenUserInfoError(t *testing.T) {
 			},
 		}, nil)
 
-	err := LoginCallback(client, sessionStore)(testAppData, w, r)
+	err := LoginCallback(client, sessionStore, nil)(testAppData, w, r)
 	assert.Equal(t, expectedError, err)
 }

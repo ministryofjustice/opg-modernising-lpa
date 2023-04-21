@@ -158,14 +158,13 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		}
 
 		if r.FormValue("asCertificateProvider") != "" || r.FormValue("provideCertificate") != "" {
-			certificateProvider, _ := certificateProviderStore.Create(ctx, lpa, sessionID)
+			certificateProvider, _ := certificateProviderStore.Create(ctx)
+			cpSub := randomString(12)
 
 			_ = sesh.SetCertificateProvider(store, r, w, &sesh.CertificateProviderSession{
-				Sub:            randomString(12),
-				Email:          TestEmail,
-				DonorSessionID: sessionID,
-				LpaID:          lpa.ID,
-				ID:             certificateProvider.ID,
+				Sub:   cpSub,
+				Email: TestEmail,
+				LpaID: lpa.ID,
 			})
 
 			certificateProvider.IdentityUserData = identity.UserData{
@@ -192,11 +191,18 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				}
 			}
 
+			ctx := ContextWithSessionData(r.Context(), &SessionData{
+				SessionID: base64.StdEncoding.EncodeToString([]byte(cpSub)),
+				LpaID:     lpa.ID,
+			})
+
 			_ = certificateProviderStore.Put(ctx, certificateProvider)
 		}
 
 		if r.FormValue("withCertificateProvider") != "" {
-			certificateProvider, _ := certificateProviderStore.Create(ctx, lpa, sessionID)
+			certificateProvider, _ := certificateProviderStore.Create(ctx)
+
+			cpSub := randomString(12)
 
 			certificateProvider.IdentityUserData = identity.UserData{
 				OK:         true,
@@ -215,7 +221,14 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				Postcode:   "B14 7ED",
 			}
 
-			_ = certificateProviderStore.Put(ctx, certificateProvider)
+			ctx := ContextWithSessionData(r.Context(), &SessionData{
+				SessionID: base64.StdEncoding.EncodeToString([]byte(cpSub)),
+				LpaID:     lpa.ID,
+			})
+
+			certificateProviderStore.Put(ctx, certificateProvider)
+
+			_ = sesh.SetDonor(store, r, w, donorSesh)
 		}
 
 		if r.FormValue("asAttorney") != "" {

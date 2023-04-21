@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -56,8 +58,7 @@ type Lpa struct {
 	Donor                                      actor.Donor
 	Attorneys                                  actor.Attorneys
 	AttorneyDecisions                          actor.AttorneyDecisions
-	CertificateProviderDetails                 actor.CertificateProvider
-	CertificateProviderID                      string
+	CertificateProviderDetails                 CertificateProviderDetails
 	WhoFor                                     string
 	Type                                       string
 	WantReplacementAttorneys                   string
@@ -91,6 +92,23 @@ type PaymentDetails struct {
 	PaymentId        string
 }
 
+type CertificateProviderDetails struct {
+	FirstNames              string
+	LastName                string
+	Address                 place.Address
+	Mobile                  string
+	Email                   string
+	CarryOutBy              string
+	DateOfBirth             date.Date
+	Relationship            string
+	RelationshipDescription string
+	RelationshipLength      string
+}
+
+func (c CertificateProviderDetails) FullName() string {
+	return fmt.Sprintf("%s %s", c.FirstNames, c.LastName)
+}
+
 type Tasks struct {
 	YourDetails                TaskState
 	ChooseAttorneys            TaskState
@@ -115,9 +133,8 @@ type Progress struct {
 }
 
 type SessionData struct {
-	SessionID             string
-	LpaID                 string
-	CertificateProviderID string
+	SessionID string
+	LpaID     string
 }
 
 func SessionDataFromContext(ctx context.Context) *SessionData {

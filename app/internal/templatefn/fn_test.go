@@ -353,16 +353,14 @@ func TestListPeopleNamedOnLpa(t *testing.T) {
 	app := page.AppData{SessionID: "abc"}
 	withHeaders := true
 	lpa := &page.Lpa{}
-	cp := &actor.CertificateProvider{}
 
 	want := map[string]interface{}{
-		"App":                 app,
-		"ShowPeopleHeaders":   withHeaders,
-		"Lpa":                 lpa,
-		"CertificateProvider": cp,
+		"App":               app,
+		"ShowPeopleHeaders": withHeaders,
+		"Lpa":               lpa,
 	}
 
-	got := peopleNamedOnLpa(app, lpa, withHeaders, cp)
+	got := peopleNamedOnLpa(app, lpa, withHeaders)
 
 	assert.Equal(t, want, got)
 }

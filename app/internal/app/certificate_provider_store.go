@@ -3,14 +3,7 @@ package app
 import (
 	"context"
 	"errors"
-	"strconv"
 	"time"
-
-	"github.com/aws/aws-sdk-go-v2/aws"
-
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -18,45 +11,14 @@ import (
 
 type certificateProviderStore struct {
 	dataStore DataStore
-	randomInt func(int) int
 	now       func() time.Time
 }
 
-func (s *certificateProviderStore) Create(ctx context.Context, lpa *page.Lpa, donorSessionID string) (*actor.CertificateProvider, error) {
-	cp := &actor.CertificateProvider{
-		ID: "10" + strconv.Itoa(s.randomInt(100000)),
-	}
+func (s *certificateProviderStore) Create(ctx context.Context) (*actor.CertificateProvider, error) {
+	data := page.SessionDataFromContext(ctx)
 
-	lpaPk, err := attributevalue.Marshal("DONOR#" + donorSessionID)
-	if err != nil {
-		return nil, err
-	}
-
-	lpaSk, err := attributevalue.Marshal("#LPA#" + lpa.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	lpa.CertificateProviderID = cp.ID
-	cp.LpaID = lpa.ID
-
-	lpaData, err := attributevalue.Marshal(lpa)
-	if err != nil {
-		return nil, err
-	}
-
-	update := &types.Update{
-		Key:              map[string]types.AttributeValue{"PK": lpaPk, "SK": lpaSk},
-		UpdateExpression: aws.String("SET #Data = :lpa"),
-		ExpressionAttributeNames: map[string]string{
-			"#Data": "Data",
-		},
-		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":lpa": lpaData,
-		},
-	}
-
-	err = s.dataStore.PutTransact(ctx, "CERTIFICATE_PROVIDER#"+cp.ID, "#LPA#"+lpa.ID, cp, update)
+	cp := &actor.CertificateProvider{LpaID: data.LpaID}
+	err := s.Put(ctx, cp)
 
 	return cp, err
 }
@@ -64,15 +26,15 @@ func (s *certificateProviderStore) Create(ctx context.Context, lpa *page.Lpa, do
 func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateProvider, error) {
 	data := page.SessionDataFromContext(ctx)
 
-	if data.LpaID == "" || data.CertificateProviderID == "" {
-		return nil, errors.New("certificateProviderStore.Get requires LpaID and CertificateProviderId to retrieve")
+	if data.LpaID == "" {
+		return nil, errors.New("certificateProviderStore.Get requires LpaID to retrieve")
 	}
 
 	var certificateProvider actor.CertificateProvider
 
-	pk := "CERTIFICATE_PROVIDER#" + data.CertificateProviderID
-	sk := "#LPA#" + data.LpaID
-	if err := s.dataStore.Get(ctx, pk, sk, &certificateProvider); err != nil {
+	pk := "LPA#" + data.LpaID
+
+	if err := s.dataStore.GetOneByPartialSk(ctx, pk, "#CERTIFICATE_PROVIDER#", &certificateProvider); err != nil {
 		return nil, err
 	}
 
@@ -80,9 +42,16 @@ func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateP
 }
 
 func (s *certificateProviderStore) Put(ctx context.Context, certificateProvider *actor.CertificateProvider) error {
+	data := page.SessionDataFromContext(ctx)
+
+	if data.LpaID == "" || data.SessionID == "" {
+		return errors.New("certificateProviderStore.Put requires LpaID and SessionID to retrieve")
+	}
+
+	pk := "LPA#" + data.LpaID
+	sk := "#CERTIFICATE_PROVIDER#" + data.SessionID
+
 	certificateProvider.UpdatedAt = s.now()
 
-	pk := "CERTIFICATE_PROVIDER#" + certificateProvider.ID
-	sk := "#LPA#" + certificateProvider.LpaID
 	return s.dataStore.Put(ctx, pk, sk, certificateProvider)
 }

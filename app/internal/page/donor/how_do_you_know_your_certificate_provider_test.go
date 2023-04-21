@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -56,7 +55,7 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	certificateProvider := actor.CertificateProvider{
+	certificateProvider := page.CertificateProviderDetails{
 		Relationship: "friend",
 	}
 	lpaStore := newMockLpaStore(t)
@@ -105,14 +104,14 @@ func TestGetHowDoYouKnowYourCertificateProviderWhenTemplateErrors(t *testing.T) 
 
 func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 	testCases := map[string]struct {
-		form                url.Values
-		certificateProvider actor.CertificateProvider
-		taskState           page.TaskState
-		redirect            string
+		form                       url.Values
+		certificateProviderDetails page.CertificateProviderDetails
+		taskState                  page.TaskState
+		redirect                   string
 	}{
 		"legal-professional": {
 			form: url.Values{"how": {"legal-professional"}},
-			certificateProvider: actor.CertificateProvider{
+			certificateProviderDetails: page.CertificateProviderDetails{
 				FirstNames:   "John",
 				Relationship: "legal-professional",
 			},
@@ -121,7 +120,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		},
 		"health-professional": {
 			form: url.Values{"how": {"health-professional"}},
-			certificateProvider: actor.CertificateProvider{
+			certificateProviderDetails: page.CertificateProviderDetails{
 				FirstNames:   "John",
 				Relationship: "health-professional",
 			},
@@ -130,7 +129,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		},
 		"other": {
 			form: url.Values{"how": {"other"}, "description": {"This"}},
-			certificateProvider: actor.CertificateProvider{
+			certificateProviderDetails: page.CertificateProviderDetails{
 				FirstNames:              "John",
 				Relationship:            "other",
 				RelationshipDescription: "This",
@@ -141,7 +140,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		},
 		"lay - friend": {
 			form: url.Values{"how": {"friend"}},
-			certificateProvider: actor.CertificateProvider{
+			certificateProviderDetails: page.CertificateProviderDetails{
 				FirstNames:         "John",
 				Relationship:       "friend",
 				RelationshipLength: "gte-2-years",
@@ -151,7 +150,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		},
 		"lay - neighbour": {
 			form: url.Values{"how": {"neighbour"}},
-			certificateProvider: actor.CertificateProvider{
+			certificateProviderDetails: page.CertificateProviderDetails{
 				FirstNames:         "John",
 				Relationship:       "neighbour",
 				RelationshipLength: "gte-2-years",
@@ -161,7 +160,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		},
 		"lay - colleague": {
 			form: url.Values{"how": {"colleague"}},
-			certificateProvider: actor.CertificateProvider{
+			certificateProviderDetails: page.CertificateProviderDetails{
 				FirstNames:         "John",
 				Relationship:       "colleague",
 				RelationshipLength: "gte-2-years",
@@ -181,7 +180,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					CertificateProviderDetails: actor.CertificateProvider{FirstNames: "John", Relationship: "what", RelationshipLength: "gte-2-years"},
+					CertificateProviderDetails: page.CertificateProviderDetails{FirstNames: "John", Relationship: "what", RelationshipLength: "gte-2-years"},
 					Tasks: page.Tasks{
 						YourDetails:     page.TaskCompleted,
 						ChooseAttorneys: page.TaskCompleted,
@@ -189,7 +188,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
-					CertificateProviderDetails: tc.certificateProvider,
+					CertificateProviderDetails: tc.certificateProviderDetails,
 					Tasks: page.Tasks{
 						YourDetails:         page.TaskCompleted,
 						ChooseAttorneys:     page.TaskCompleted,

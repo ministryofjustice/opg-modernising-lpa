@@ -36,11 +36,7 @@ func TestMakeHandle(t *testing.T) {
 		On("Get", r, "session").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"certificate-provider": &sesh.CertificateProviderSession{
-					Sub:            "random",
-					DonorSessionID: "session-id",
-					LpaID:          "lpa-id",
-				},
+				"certificate-provider": &sesh.CertificateProviderSession{Sub: "random", LpaID: "lpa-id"},
 			},
 		}, nil)
 
@@ -76,7 +72,7 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[any]any{"certificate-provider": &sesh.CertificateProviderSession{Sub: "random", LpaID: "lpa-id", DonorSessionID: "session-id"}}}, nil)
+		Return(&sessions.Session{Values: map[any]any{"certificate-provider": &sesh.CertificateProviderSession{Sub: "random", LpaID: "lpa-id"}}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, sessionStore, nil)

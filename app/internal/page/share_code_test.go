@@ -18,7 +18,7 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 		"sign in":  false,
 	}
 	lpa := &Lpa{
-		CertificateProviderDetails: actor.CertificateProvider{
+		CertificateProviderDetails: CertificateProviderDetails{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
@@ -90,7 +90,7 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 	}
 
 	lpa := &Lpa{
-		CertificateProviderDetails: actor.CertificateProvider{
+		CertificateProviderDetails: CertificateProviderDetails{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
@@ -177,7 +177,7 @@ func TestShareCodeSenderSendCertificateProviderWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
 
 	lpa := &Lpa{
-		CertificateProviderDetails: actor.CertificateProvider{
+		CertificateProviderDetails: CertificateProviderDetails{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",

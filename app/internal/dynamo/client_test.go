@@ -10,50 +10,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 var expectedError = errors.New("err")
-
-func TestGetAll(t *testing.T) {
-	ctx := context.Background()
-
-	pkey, _ := attributevalue.Marshal("a-pk")
-	data, _ := attributevalue.Marshal("hello")
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("Query", ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			ExpressionAttributeNames:  map[string]string{"#PK": "PK"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey},
-			KeyConditionExpression:    aws.String("#PK = :PK"),
-		}).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{{"Data": data}}}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	var v []string
-	err := c.GetAll(ctx, "a-pk", &v)
-	assert.Nil(t, err)
-	assert.Equal(t, []string{"hello"}, v)
-}
-
-func TestGetAllWhenError(t *testing.T) {
-	ctx := context.Background()
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("Query", ctx, mock.Anything).
-		Return(&dynamodb.QueryOutput{}, expectedError)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	var v []string
-	err := c.GetAll(ctx, "a-pk", &v)
-	assert.Equal(t, expectedError, err)
-	assert.Empty(t, v)
-}
 
 func TestGet(t *testing.T) {
 	ctx := context.Background()
@@ -169,88 +128,4 @@ func TestPutWhenError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestPutTransact(t *testing.T) {
-	ctx := context.Background()
-	pkey, _ := attributevalue.Marshal("a-pk")
-	skey, _ := attributevalue.Marshal("a-sk")
-	data, _ := attributevalue.Marshal("hello")
-	update := &types.Update{
-		Key:              map[string]types.AttributeValue{"PK": pkey, "SK": skey},
-		UpdateExpression: aws.String("SET #SomeData = :attrValue"),
-		ExpressionAttributeNames: map[string]string{
-			"#SomeData": "SomeData",
-		},
-		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":attrValue": data,
-		},
-	}
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("TransactWriteItems", ctx, &dynamodb.TransactWriteItemsInput{
-			TransactItems: []types.TransactWriteItem{
-				{
-					Put: &types.Put{
-						Item: map[string]types.AttributeValue{
-							"PK":   pkey,
-							"SK":   skey,
-							"Data": data,
-						},
-						TableName: aws.String("this"),
-					},
-				},
-				{
-					Update: update,
-				},
-			},
-		}).
-		Return(&dynamodb.TransactWriteItemsOutput{}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	err := c.PutTransact(ctx, "a-pk", "a-sk", "hello", update)
-	assert.Nil(t, err)
-}
-
-func TestPutTransactWhenError(t *testing.T) {
-	ctx := context.Background()
-	pkey, _ := attributevalue.Marshal("a-pk")
-	skey, _ := attributevalue.Marshal("a-sk")
-	data, _ := attributevalue.Marshal("hello")
-	update := &types.Update{
-		Key:              map[string]types.AttributeValue{"PK": pkey, "SK": skey},
-		UpdateExpression: aws.String("SET #SomeData = :attrValue"),
-		ExpressionAttributeNames: map[string]string{
-			"#SomeData": "SomeData",
-		},
-		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":attrValue": data,
-		},
-	}
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("TransactWriteItems", ctx, &dynamodb.TransactWriteItemsInput{
-			TransactItems: []types.TransactWriteItem{
-				{
-					Put: &types.Put{
-						Item: map[string]types.AttributeValue{
-							"PK":   pkey,
-							"SK":   skey,
-							"Data": data,
-						},
-						TableName: aws.String("this"),
-					},
-				},
-				{
-					Update: update,
-				},
-			},
-		}).
-		Return(&dynamodb.TransactWriteItemsOutput{}, expectedError)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	err := c.PutTransact(ctx, "a-pk", "a-sk", "hello", update)
-	assert.Equal(t, expectedError, err)
-}
+//TODO write two more func tests

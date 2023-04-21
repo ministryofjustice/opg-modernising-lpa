@@ -9,8 +9,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -42,7 +40,7 @@ func TestGetEnterReferenceNumber(t *testing.T) {
 		On("Execute", w, data).
 		Return(nil)
 
-	err := EnterReferenceNumber(template.Execute, newMockLpaStore(t), newMockDataStore(t), newMockCertificateProviderStore(t))(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, newMockLpaStore(t), newMockDataStore(t))(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -64,7 +62,7 @@ func TestGetEnterReferenceNumberOnTemplateError(t *testing.T) {
 		On("Execute", w, data).
 		Return(expectedError)
 
-	err := EnterReferenceNumber(template.Execute, newMockLpaStore(t), newMockDataStore(t), newMockCertificateProviderStore(t))(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, newMockLpaStore(t), newMockDataStore(t))(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -111,12 +109,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 				})).
 				Return(&page.Lpa{}, nil)
 
-			certificateProviderStore := newMockCertificateProviderStore(t)
-			certificateProviderStore.
-				On("Create", r.Context(), &page.Lpa{}, "session-id").
-				Return(&actor.CertificateProvider{ID: "cp-id"}, nil)
-
-			err := EnterReferenceNumber(nil, lpaStore, dataStore, certificateProviderStore)(testAppData, w, r)
+			err := EnterReferenceNumber(nil, lpaStore, dataStore)(testAppData, w, r)
 
 			resp := w.Result()
 
@@ -141,7 +134,7 @@ func TestPostEnterReferenceNumberOnDataStoreError(t *testing.T) {
 		ExpectGet(r.Context(), "CERTIFICATEPROVIDERSHARE#aRefNumber12", "#METADATA#aRefNumber12",
 			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, expectedError)
 
-	err := EnterReferenceNumber(nil, nil, dataStore, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, nil, dataStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -174,7 +167,7 @@ func TestPostEnterReferenceNumberOnDataStoreNotFoundError(t *testing.T) {
 		ExpectGet(r.Context(), "CERTIFICATEPROVIDERSHARE#aRefNumber12", "#METADATA#aRefNumber12",
 			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, dynamo.NotFoundError{})
 
-	err := EnterReferenceNumber(template.Execute, nil, dataStore, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, nil, dataStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -205,7 +198,7 @@ func TestPostEnterReferenceNumberOnLpaStoreError(t *testing.T) {
 		})).
 		Return(&page.Lpa{}, expectedError)
 
-	err := EnterReferenceNumber(nil, lpaStore, dataStore, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, lpaStore, dataStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -236,12 +229,7 @@ func TestPostEnterReferenceNumberOnCertificateProviderStoreError(t *testing.T) {
 		})).
 		Return(&page.Lpa{}, nil)
 
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Create", r.Context(), &page.Lpa{}, "session-id").
-		Return(&actor.CertificateProvider{}, expectedError)
-
-	err := EnterReferenceNumber(nil, lpaStore, dataStore, certificateProviderStore)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, lpaStore, dataStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -269,7 +257,7 @@ func TestPostEnterReferenceNumberOnValidationError(t *testing.T) {
 		On("Execute", w, data).
 		Return(nil)
 
-	err := EnterReferenceNumber(template.Execute, nil, nil, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, nil, nil)(testAppData, w, r)
 
 	resp := w.Result()
 

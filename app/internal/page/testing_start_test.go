@@ -309,7 +309,7 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
-				CertificateProviderDetails: actor.CertificateProvider{
+				CertificateProviderDetails: CertificateProviderDetails{
 					FirstNames:              "Jessie",
 					LastName:                "Jones",
 					Email:                   TestEmail,
@@ -820,7 +820,7 @@ func TestTestingStart(t *testing.T) {
 				},
 				WhoFor: "me",
 				Type:   LpaTypePropertyFinance,
-				CertificateProviderDetails: actor.CertificateProvider{
+				CertificateProviderDetails: CertificateProviderDetails{
 					FirstNames:              "Jessie",
 					LastName:                "Jones",
 					Email:                   TestEmail,
@@ -1016,7 +1016,7 @@ func TestTestingStart(t *testing.T) {
 
 		lpa := &Lpa{
 			ID:                         "123",
-			CertificateProviderDetails: actor.CertificateProvider{Email: TestEmail},
+			CertificateProviderDetails: CertificateProviderDetails{Email: TestEmail},
 		}
 		lpaStore := newMockLpaStore(t)
 		lpaStore.
@@ -1061,7 +1061,7 @@ func TestTestingStart(t *testing.T) {
 
 		lpa := &Lpa{
 			ID:                         "123",
-			CertificateProviderDetails: actor.CertificateProvider{Email: TestEmail},
+			CertificateProviderDetails: CertificateProviderDetails{Email: TestEmail},
 		}
 		lpaStore := newMockLpaStore(t)
 		lpaStore.
@@ -1101,7 +1101,7 @@ func TestTestingStart(t *testing.T) {
 
 		lpa := &Lpa{
 			ID:                         "123",
-			CertificateProviderDetails: actor.CertificateProvider{Email: TestEmail},
+			CertificateProviderDetails: CertificateProviderDetails{Email: TestEmail},
 		}
 
 		lpaStore := newMockLpaStore(t)

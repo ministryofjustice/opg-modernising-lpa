@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -27,10 +26,10 @@ import (
 
 //go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
 type DataStore interface {
-	GetAll(context.Context, string, interface{}) error
-	Get(context.Context, string, string, interface{}) error
+	Get(ctx context.Context, pk, sk string, v interface{}) error
 	Put(context.Context, string, string, interface{}) error
-	PutTransact(context.Context, string, string, interface{}, *types.Update) error
+	GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
+	GetAllByGsi(ctx context.Context, gsi, sk string, v interface{}) error
 }
 
 func App(
@@ -51,7 +50,7 @@ func App(
 	oneLoginClient *onelogin.Client,
 ) http.Handler {
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
-	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, randomInt: rand.Intn, now: time.Now}
+	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: time.Now}
 
 	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)
 
@@ -66,7 +65,7 @@ func App(
 
 	handleRoot(paths.Root, notFoundHandler)
 	handleRoot(paths.Fixtures, page.Fixtures(tmpls.Get("fixtures.gohtml")))
-	handleRoot(paths.YourLegalRightsAndResponsibilities, page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml"), nil, nil))
+	handleRoot(paths.YourLegalRightsAndResponsibilities, page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml"), nil))
 
 	certificateprovider.Register(
 		rootMux,

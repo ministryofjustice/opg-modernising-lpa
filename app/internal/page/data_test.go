@@ -246,7 +246,7 @@ func TestActorAddresses(t *testing.T) {
 			{FirstNames: "Replacement Attorney One", LastName: "Actor", Address: address},
 			{FirstNames: "Replacement Attorney Two", LastName: "Actor", Address: address},
 		},
-		CertificateProviderDetails: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor", Address: address},
+		CertificateProviderDetails: CertificateProviderDetails{FirstNames: "Certificate Provider", LastName: "Actor", Address: address},
 	}
 
 	want := []AddressDetail{
@@ -272,7 +272,7 @@ func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
 			{FirstNames: "Replacement Attorney One", LastName: "Actor"},
 			{FirstNames: "Replacement Attorney Two", LastName: "Actor", Address: address},
 		},
-		CertificateProviderDetails: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor"},
+		CertificateProviderDetails: CertificateProviderDetails{FirstNames: "Certificate Provider", LastName: "Actor"},
 	}
 
 	want := []AddressDetail{

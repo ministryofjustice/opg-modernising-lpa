@@ -11,22 +11,17 @@ import (
 )
 
 type CertificateProvider struct {
-	ID                      string
-	LpaID                   string
-	UpdatedAt               time.Time
-	FirstNames              string
-	LastName                string
-	Email                   string
-	Address                 place.Address
-	Mobile                  string
-	DateOfBirth             date.Date
-	CarryOutBy              string
-	Relationship            string
-	RelationshipDescription string
-	RelationshipLength      string
-	DeclaredFullName        string
-	IdentityOption          identity.Option
-	IdentityUserData        identity.UserData
+	LpaID            string
+	UpdatedAt        time.Time
+	FirstNames       string
+	LastName         string
+	Email            string
+	Address          place.Address
+	Mobile           string
+	DateOfBirth      date.Date
+	DeclaredFullName string
+	IdentityOption   identity.Option
+	IdentityUserData identity.UserData
 }
 
 func (c CertificateProvider) FullName() string {

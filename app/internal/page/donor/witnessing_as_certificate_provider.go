@@ -61,9 +61,8 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, 
 
 			if data.Errors.None() {
 				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
-					SessionID:             appData.SessionID,
-					LpaID:                 appData.LpaID,
-					CertificateProviderID: lpa.CertificateProviderID,
+					SessionID: appData.SessionID,
+					LpaID:     appData.LpaID,
 				})
 
 				certificateProvider, err := certificateProviderStore.Get(ctx)

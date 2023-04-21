@@ -15,43 +15,17 @@ type mockCertificateProviderStore struct {
 	mock.Mock
 }
 
-// Create provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockCertificateProviderStore) Create(_a0 context.Context, _a1 *Lpa, _a2 string) (*actor.CertificateProvider, error) {
-	ret := _m.Called(_a0, _a1, _a2)
-
-	var r0 *actor.CertificateProvider
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *Lpa, string) (*actor.CertificateProvider, error)); ok {
-		return rf(_a0, _a1, _a2)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, *Lpa, string) *actor.CertificateProvider); ok {
-		r0 = rf(_a0, _a1, _a2)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*actor.CertificateProvider)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, *Lpa, string) error); ok {
-		r1 = rf(_a0, _a1, _a2)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// Get provides a mock function with given fields: _a0
-func (_m *mockCertificateProviderStore) Get(_a0 context.Context) (*actor.CertificateProvider, error) {
-	ret := _m.Called(_a0)
+// Create provides a mock function with given fields: ctx
+func (_m *mockCertificateProviderStore) Create(ctx context.Context) (*actor.CertificateProvider, error) {
+	ret := _m.Called(ctx)
 
 	var r0 *actor.CertificateProvider
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context) (*actor.CertificateProvider, error)); ok {
-		return rf(_a0)
+		return rf(ctx)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context) *actor.CertificateProvider); ok {
-		r0 = rf(_a0)
+		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*actor.CertificateProvider)
@@ -59,7 +33,7 @@ func (_m *mockCertificateProviderStore) Get(_a0 context.Context) (*actor.Certifi
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(_a0)
+		r1 = rf(ctx)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -67,13 +41,39 @@ func (_m *mockCertificateProviderStore) Get(_a0 context.Context) (*actor.Certifi
 	return r0, r1
 }
 
-// Put provides a mock function with given fields: _a0, _a1
-func (_m *mockCertificateProviderStore) Put(_a0 context.Context, _a1 *actor.CertificateProvider) error {
-	ret := _m.Called(_a0, _a1)
+// Get provides a mock function with given fields: ctx
+func (_m *mockCertificateProviderStore) Get(ctx context.Context) (*actor.CertificateProvider, error) {
+	ret := _m.Called(ctx)
+
+	var r0 *actor.CertificateProvider
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (*actor.CertificateProvider, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) *actor.CertificateProvider); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*actor.CertificateProvider)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Put provides a mock function with given fields: ctx, certificateProvider
+func (_m *mockCertificateProviderStore) Put(ctx context.Context, certificateProvider *actor.CertificateProvider) error {
+	ret := _m.Called(ctx, certificateProvider)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, *actor.CertificateProvider) error); ok {
-		r0 = rf(_a0, _a1)
+		r0 = rf(ctx, certificateProvider)
 	} else {
 		r0 = ret.Error(0)
 	}

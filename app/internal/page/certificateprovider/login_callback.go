@@ -1,15 +1,15 @@
 package certificateprovider
 
 import (
+	"encoding/base64"
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store) page.Handler {
+func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		oneLoginSession, err := sesh.OneLogin(sessionStore, r)
 		if err != nil {
@@ -29,15 +29,21 @@ func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store) page.
 			return err
 		}
 
-		log.Println("Lpa ID from onelogin session is: ", oneLoginSession.LpaID)
-
 		if err := sesh.SetCertificateProvider(sessionStore, r, w, &sesh.CertificateProviderSession{
-			Sub:            userInfo.Sub,
-			Email:          userInfo.Email,
-			LpaID:          oneLoginSession.LpaID,
-			DonorSessionID: oneLoginSession.SessionID,
-			ID:             oneLoginSession.CertificateProviderID,
+			Sub:   userInfo.Sub,
+			Email: userInfo.Email,
+			LpaID: oneLoginSession.LpaID,
 		}); err != nil {
+			return err
+		}
+
+		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
+			SessionID: base64.StdEncoding.EncodeToString([]byte(userInfo.Sub)),
+			LpaID:     oneLoginSession.LpaID,
+		})
+
+		_, err = certificateProviderStore.Create(ctx)
+		if err != nil {
 			return err
 		}
 
