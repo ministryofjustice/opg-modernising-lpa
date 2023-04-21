@@ -1,6 +1,7 @@
 package page
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -915,15 +916,19 @@ func TestTestingStart(t *testing.T) {
 
 		certificateProviderStore := newMockCertificateProviderStore(t)
 		certificateProviderStore.
-			On("Create", ctx, &Lpa{
-				ID: "123",
-			}, "MTIz").
+			On("Create", ctx).
 			Return(&actor.CertificateProvider{IdentityUserData: identity.UserData{
 				OK:         true,
 				Provider:   identity.OneLogin,
 				FirstNames: "Jessie",
 				LastName:   "Jones",
 			}}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{
+			SessionID: base64.StdEncoding.EncodeToString([]byte("123")),
+			LpaID:     "123",
+		})
+
 		certificateProviderStore.
 			On("Put", ctx, &actor.CertificateProvider{
 				IdentityUserData: identity.UserData{
@@ -968,15 +973,19 @@ func TestTestingStart(t *testing.T) {
 
 		certificateProviderStore := newMockCertificateProviderStore(t)
 		certificateProviderStore.
-			On("Create", ctx, &Lpa{
-				ID: "123",
-			}, "MTIz").
+			On("Create", ctx).
 			Return(&actor.CertificateProvider{IdentityUserData: identity.UserData{
 				OK:         true,
 				Provider:   identity.OneLogin,
 				FirstNames: "Jessie",
 				LastName:   "Jones",
 			}}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{
+			SessionID: base64.StdEncoding.EncodeToString([]byte("123")),
+			LpaID:     "123",
+		})
+
 		certificateProviderStore.
 			On("Put", ctx, &actor.CertificateProvider{
 				IdentityUserData: identity.UserData{
@@ -1152,15 +1161,19 @@ func TestTestingStart(t *testing.T) {
 
 		certificateProviderStore := newMockCertificateProviderStore(t)
 		certificateProviderStore.
-			On("Create", ctx, &Lpa{
-				ID: "123",
-			}, "MTIz").
+			On("Create", ctx).
 			Return(&actor.CertificateProvider{IdentityUserData: identity.UserData{
 				OK:         true,
 				Provider:   identity.OneLogin,
 				FirstNames: "Jessie",
 				LastName:   "Jones",
 			}}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{
+			SessionID: base64.StdEncoding.EncodeToString([]byte("123")),
+			LpaID:     "123",
+		})
+
 		certificateProviderStore.
 			On("Put", ctx, &actor.CertificateProvider{
 				IdentityUserData: identity.UserData{
