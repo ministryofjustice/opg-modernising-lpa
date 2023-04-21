@@ -2,12 +2,9 @@ package app
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/mock"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -50,12 +47,7 @@ func TestCertificateProviderStoreGet(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		On("GetOneByPartialSk", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", mock.Anything).
-		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
-			b, _ := json.Marshal(&actor.CertificateProvider{LpaID: "123"})
-			json.Unmarshal(b, v)
-			return nil
-		})
+		ExpectGet(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProvider{LpaID: "123"}, nil)
 
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: nil}
 
@@ -78,12 +70,7 @@ func TestCertificateProviderStoreGetOnError(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		On("GetOneByPartialSk", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", mock.Anything).
-		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
-			b, _ := json.Marshal(&actor.CertificateProvider{})
-			json.Unmarshal(b, v)
-			return expectedError
-		})
+		ExpectGet(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProvider{LpaID: "123"}, expectedError)
 
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: nil}
 
