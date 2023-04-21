@@ -1,9 +1,12 @@
 package certificateprovider
 
 import (
+	"encoding/base64"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -60,7 +63,17 @@ func TestLoginCallback(t *testing.T) {
 		On("Save", r, w, session).
 		Return(nil)
 
-	err := LoginCallback(client, sessionStore, nil)(testAppData, w, r)
+	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
+		SessionID: base64.StdEncoding.EncodeToString([]byte("random")),
+		LpaID:     "lpa-id",
+	})
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
+		On("Create", ctx).
+		Return(&actor.CertificateProvider{}, nil)
+
+	err := LoginCallback(client, sessionStore, certificateProviderStore)(testAppData, w, r)
 	assert.Nil(t, err)
 	resp := w.Result()
 
@@ -167,4 +180,69 @@ func TestLoginCallbackWhenUserInfoError(t *testing.T) {
 
 	err := LoginCallback(client, sessionStore, nil)(testAppData, w, r)
 	assert.Equal(t, expectedError, err)
+}
+
+func TestLoginCallbackOnCertificateProviderStoreError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
+
+	client := newMockOneLoginClient(t)
+	client.
+		On("Exchange", r.Context(), "auth-code", "my-nonce").
+		Return("a JWT", nil)
+	client.
+		On("UserInfo", r.Context(), "a JWT").
+		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
+
+	sessionStore := newMockSessionStore(t)
+
+	session := sessions.NewSession(sessionStore, "session")
+	session.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400,
+		SameSite: http.SameSiteLaxMode,
+		HttpOnly: true,
+		Secure:   true,
+	}
+	session.Values = map[any]any{
+		"certificate-provider": &sesh.CertificateProviderSession{
+			Sub:   "random",
+			Email: "name@example.com",
+			LpaID: "lpa-id",
+		},
+	}
+
+	sessionStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{
+			Values: map[any]any{
+				"one-login": &sesh.OneLoginSession{
+					State:               "my-state",
+					Nonce:               "my-nonce",
+					Locale:              "en",
+					CertificateProvider: true,
+					LpaID:               "lpa-id",
+					SessionID:           "session-id",
+				},
+			},
+		}, nil)
+	sessionStore.
+		On("Save", r, w, session).
+		Return(nil)
+
+	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
+		SessionID: base64.StdEncoding.EncodeToString([]byte("random")),
+		LpaID:     "lpa-id",
+	})
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
+		On("Create", ctx).
+		Return(&actor.CertificateProvider{}, expectedError)
+
+	err := LoginCallback(client, sessionStore, certificateProviderStore)(testAppData, w, r)
+	assert.Equal(t, expectedError, err)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }

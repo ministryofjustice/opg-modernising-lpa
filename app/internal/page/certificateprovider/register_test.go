@@ -2,6 +2,7 @@ package certificateprovider
 
 import (
 	"context"
+	"encoding/base64"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -46,14 +47,14 @@ func TestMakeHandle(t *testing.T) {
 		assert.Equal(t, page.AppData{
 			ServiceName: "beACertificateProvider",
 			Page:        "/path",
-			SessionID:   "session-id",
+			SessionID:   base64.StdEncoding.EncodeToString([]byte("random")),
 			LpaID:       "lpa-id",
 			CanGoBack:   false,
 			ActorType:   actor.TypeCertificateProvider,
 		}, appData)
 		assert.Equal(t, w, hw)
 
-		assert.Equal(t, &page.SessionData{SessionID: "session-id", LpaID: "lpa-id"}, page.SessionDataFromContext(hr.Context()))
+		assert.Equal(t, &page.SessionData{SessionID: base64.StdEncoding.EncodeToString([]byte("random")), LpaID: "lpa-id"}, page.SessionDataFromContext(hr.Context()))
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -80,13 +81,13 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 		assert.Equal(t, page.AppData{
 			ServiceName: "beACertificateProvider",
 			Page:        "/path",
-			SessionID:   "session-id",
+			SessionID:   base64.StdEncoding.EncodeToString([]byte("random")),
 			CanGoBack:   true,
 			LpaID:       "lpa-id",
 			ActorType:   actor.TypeCertificateProvider,
 		}, appData)
 		assert.Equal(t, w, hw)
-		assert.Equal(t, &page.SessionData{LpaID: "lpa-id", SessionID: "session-id"}, page.SessionDataFromContext(hr.Context()))
+		assert.Equal(t, &page.SessionData{LpaID: "lpa-id", SessionID: base64.StdEncoding.EncodeToString([]byte("random"))}, page.SessionDataFromContext(hr.Context()))
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})

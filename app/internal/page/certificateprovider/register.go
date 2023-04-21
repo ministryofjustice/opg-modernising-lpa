@@ -105,7 +105,7 @@ func Register(
 	handleRoot(page.Paths.CertificateProviderStart, None,
 		Guidance(tmpls.Get("certificate_provider_start.gohtml"), nil, nil))
 	handleRoot(page.Paths.CertificateProviderEnterReferenceNumber, None,
-		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), lpaStore, dataStore))
+		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), dataStore))
 	handleRoot(page.Paths.CertificateProviderLogin, None,
 		Login(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.CertificateProviderLoginCallback, None,

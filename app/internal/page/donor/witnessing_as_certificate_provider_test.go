@@ -149,7 +149,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", ctx).
-		Return(actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProvider{}, nil)
 
 	err := WitnessingAsCertificateProvider(nil, lpaStore, nil, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()

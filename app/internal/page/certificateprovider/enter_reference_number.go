@@ -19,7 +19,7 @@ type enterReferenceNumberData struct {
 	Lpa    *page.Lpa
 }
 
-func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore page.DataStore) page.Handler {
+func EnterReferenceNumber(tmpl template.Template, dataStore page.DataStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := enterReferenceNumberData{
 			App:  appData,
