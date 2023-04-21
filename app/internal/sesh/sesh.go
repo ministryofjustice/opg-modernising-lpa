@@ -224,11 +224,12 @@ func SetCertificateProvider(store sessions.Store, r *http.Request, w http.Respon
 }
 
 type AttorneySession struct {
-	Sub            string
-	Email          string
-	LpaID          string
-	DonorSessionID string
-	AttorneyID     string
+	Sub                   string
+	Email                 string
+	LpaID                 string
+	DonorSessionID        string
+	AttorneyID            string
+	IsReplacementAttorney bool
 }
 
 func (s AttorneySession) Valid() bool {

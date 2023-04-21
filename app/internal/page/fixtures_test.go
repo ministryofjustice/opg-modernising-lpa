@@ -144,6 +144,13 @@ func TestPostFixturesAttorneyFlow(t *testing.T) {
 			},
 			expectedPath: "/testing-start?completeLpa=1&redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1",
 		},
+		"for replacement attorney": {
+			form: url.Values{
+				"journey":                  {"attorney"},
+				"for-replacement-attorney": {"1"},
+			},
+			expectedPath: "/testing-start?completeLpa=1&forReplacementAttorney=1&redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1",
+		},
 	}
 
 	for name, tc := range testCases {

@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -30,17 +29,13 @@ func DateOfBirth(tmpl template.Template, lpaStore LpaStore) page.Handler {
 			return err
 		}
 
-		attorney, ok := lpa.AttorneyProvidedDetails.Get(appData.AttorneyID)
-		if !ok {
-			attorney = actor.Attorney{ID: appData.AttorneyID}
-			lpa.AttorneyProvidedDetails = append(lpa.AttorneyProvidedDetails, attorney)
-		}
+		attorneyProvidedDetails := getProvidedDetails(appData, lpa)
 
 		data := &dateOfBirthData{
 			App: appData,
 			Lpa: lpa,
 			Form: &dateOfBirthForm{
-				Dob: attorney.DateOfBirth,
+				Dob: attorneyProvidedDetails.DateOfBirth,
 			},
 		}
 
@@ -54,8 +49,12 @@ func DateOfBirth(tmpl template.Template, lpaStore LpaStore) page.Handler {
 			}
 
 			if data.Errors.None() && data.DobWarning == "" {
-				attorney.DateOfBirth = data.Form.Dob
-				lpa.AttorneyProvidedDetails.Put(attorney)
+				attorneyProvidedDetails.DateOfBirth = data.Form.Dob
+				if appData.IsReplacementAttorney {
+					lpa.ReplacementAttorneyProvidedDetails.Put(attorneyProvidedDetails)
+				} else {
+					lpa.AttorneyProvidedDetails.Put(attorneyProvidedDetails)
+				}
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err

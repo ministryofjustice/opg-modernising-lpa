@@ -25,20 +25,23 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 			return err
 		}
 
-		attorney, ok := lpa.Attorneys.Get(appData.AttorneyID)
+		attorneys := lpa.Attorneys
+		if appData.IsReplacementAttorney {
+			attorneys = lpa.ReplacementAttorneys
+		}
+
+		attorney, ok := attorneys.Get(appData.AttorneyID)
 		if !ok {
 			return appData.Redirect(w, r, lpa, page.Paths.Attorney.Start)
 		}
 
-		attorneyProvidedDetails, ok := lpa.AttorneyProvidedDetails.Get(appData.AttorneyID)
-		if !ok {
-			attorneyProvidedDetails = actor.Attorney{ID: appData.AttorneyID}
-			lpa.AttorneyProvidedDetails = append(lpa.AttorneyProvidedDetails, attorneyProvidedDetails)
-		}
+		attorneyProvidedDetails := getProvidedDetails(appData, lpa)
 
 		data := &checkYourNameData{
-			App:      appData,
-			Form:     &checkYourNameForm{},
+			App: appData,
+			Form: &checkYourNameForm{
+				CorrectedName: attorneyProvidedDetails.DeclaredFullName,
+			},
 			Lpa:      lpa,
 			Attorney: attorney,
 		}
@@ -50,7 +53,11 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 			if len(data.Errors) == 0 {
 				if data.Form.CorrectedName != "" {
 					attorneyProvidedDetails.DeclaredFullName = data.Form.CorrectedName
-					lpa.AttorneyProvidedDetails.Put(attorneyProvidedDetails)
+					if appData.IsReplacementAttorney {
+						lpa.ReplacementAttorneyProvidedDetails.Put(attorneyProvidedDetails)
+					} else {
+						lpa.AttorneyProvidedDetails.Put(attorneyProvidedDetails)
+					}
 
 					if err := lpaStore.Put(r.Context(), lpa); err != nil {
 						return err
