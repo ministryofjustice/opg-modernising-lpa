@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -19,7 +18,7 @@ func TestGetWitnessingYourSignature(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &page.Lpa{CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"}}
+	lpa := &page.Lpa{CertificateProviderDetails: page.CertificateProviderDetails{Mobile: "07535111111"}}
 
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
@@ -56,7 +55,7 @@ func TestGetWitnessingYourSignatureWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &page.Lpa{CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"}}
+	lpa := &page.Lpa{CertificateProviderDetails: page.CertificateProviderDetails{Mobile: "07535111111"}}
 
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
@@ -78,8 +77,8 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	lpa := &page.Lpa{
-		DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
-		CertificateProvider:   actor.CertificateProvider{Mobile: "07535111111"},
+		DonorIdentityUserData:      identity.UserData{OK: true, Provider: identity.OneLogin},
+		CertificateProviderDetails: page.CertificateProviderDetails{Mobile: "07535111111"},
 	}
 
 	lpaStore := newMockLpaStore(t)
@@ -104,7 +103,7 @@ func TestPostWitnessingYourSignatureWhenWitnessCodeSenderErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpa := &page.Lpa{CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"}}
+	lpa := &page.Lpa{CertificateProviderDetails: page.CertificateProviderDetails{Mobile: "07535111111"}}
 
 	lpaStore := newMockLpaStore(t)
 	lpaStore.

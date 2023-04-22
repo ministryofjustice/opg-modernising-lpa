@@ -31,7 +31,7 @@ func TestGuidance(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGuidanceWhenNilDataStore(t *testing.T) {
+func TestGuidanceWhenNilDataStores(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	template := newMockTemplate(t)
@@ -48,7 +48,7 @@ func TestGuidanceWhenNilDataStore(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGuidanceWhenDataStoreErrors(t *testing.T) {
+func TestGuidanceWhenLpaStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
