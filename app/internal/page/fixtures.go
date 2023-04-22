@@ -284,40 +284,42 @@ type fixtureData struct {
 }
 
 type fixturesForm struct {
-	Journey              string
-	DonorDetails         string
-	Attorneys            string
-	ReplacementAttorneys string
-	WhenCanLpaBeUsed     string
-	Restrictions         string
-	CertificateProvider  string
-	PeopleToNotify       string
-	PeopleToNotifyCount  string
-	CheckAndSend         string
-	Pay                  string
-	IdAndSign            string
-	CompleteAll          string
-	Email                string
-	CpFlowHasDonorPaid   string
+	Journey                string
+	DonorDetails           string
+	Attorneys              string
+	ReplacementAttorneys   string
+	WhenCanLpaBeUsed       string
+	Restrictions           string
+	CertificateProvider    string
+	PeopleToNotify         string
+	PeopleToNotifyCount    string
+	CheckAndSend           string
+	Pay                    string
+	IdAndSign              string
+	CompleteAll            string
+	Email                  string
+	CpFlowHasDonorPaid     string
+	ForReplacementAttorney string
 }
 
 func readFixtures(r *http.Request) *fixturesForm {
 	return &fixturesForm{
-		Journey:              PostFormString(r, "journey"),
-		DonorDetails:         PostFormString(r, "donor-details"),
-		Attorneys:            PostFormString(r, "choose-attorneys"),
-		ReplacementAttorneys: PostFormString(r, "choose-replacement-attorneys"),
-		WhenCanLpaBeUsed:     PostFormString(r, "when-can-lpa-be-used"),
-		Restrictions:         PostFormString(r, "restrictions"),
-		CertificateProvider:  PostFormString(r, "certificate-provider"),
-		PeopleToNotify:       PostFormString(r, "people-to-notify"),
-		PeopleToNotifyCount:  PostFormString(r, "ptn-count"),
-		CheckAndSend:         PostFormString(r, "check-and-send-to-cp"),
-		Pay:                  PostFormString(r, "pay-for-lpa"),
-		IdAndSign:            PostFormString(r, "confirm-id-and-sign"),
-		CompleteAll:          PostFormString(r, "complete-all-sections"),
-		Email:                PostFormString(r, "email"),
-		CpFlowHasDonorPaid:   PostFormString(r, "cp-flow-has-donor-paid"),
+		Journey:                PostFormString(r, "journey"),
+		DonorDetails:           PostFormString(r, "donor-details"),
+		Attorneys:              PostFormString(r, "choose-attorneys"),
+		ReplacementAttorneys:   PostFormString(r, "choose-replacement-attorneys"),
+		WhenCanLpaBeUsed:       PostFormString(r, "when-can-lpa-be-used"),
+		Restrictions:           PostFormString(r, "restrictions"),
+		CertificateProvider:    PostFormString(r, "certificate-provider"),
+		PeopleToNotify:         PostFormString(r, "people-to-notify"),
+		PeopleToNotifyCount:    PostFormString(r, "ptn-count"),
+		CheckAndSend:           PostFormString(r, "check-and-send-to-cp"),
+		Pay:                    PostFormString(r, "pay-for-lpa"),
+		IdAndSign:              PostFormString(r, "confirm-id-and-sign"),
+		CompleteAll:            PostFormString(r, "complete-all-sections"),
+		Email:                  PostFormString(r, "email"),
+		CpFlowHasDonorPaid:     PostFormString(r, "cp-flow-has-donor-paid"),
+		ForReplacementAttorney: PostFormString(r, "for-replacement-attorney"),
 	}
 }
 
@@ -345,6 +347,9 @@ func Fixtures(tmpl template.Template) Handler {
 					}
 					if data.Form.Email != "" {
 						values.Add("withEmail", data.Form.Email)
+					}
+					if data.Form.ForReplacementAttorney != "" {
+						values.Add("forReplacementAttorney", "1")
 					}
 
 				case "certificate-provider":

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 )
 
@@ -11,10 +12,11 @@ var useTestCode = false
 
 // TODO remove sending sessionID
 type ShareCodeData struct {
-	SessionID  string
-	LpaID      string
-	Identity   bool
-	AttorneyID string
+	SessionID             string
+	LpaID                 string
+	Identity              bool
+	AttorneyID            string
+	IsReplacementAttorney bool
 }
 
 type ShareCodeSender struct {
@@ -75,41 +77,56 @@ func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template 
 
 func (s *ShareCodeSender) SendAttorneys(ctx context.Context, template notify.TemplateId, appData AppData, lpa *Lpa) error {
 	for _, attorney := range lpa.Attorneys {
-		if attorney.Email == "" {
-			continue
+		if err := s.sendAttorney(ctx, template, appData, lpa, attorney, false); err != nil {
+			return err
 		}
+	}
 
-		var shareCode string
-
-		if useTestCode {
-			shareCode = "abcdef123456"
-			useTestCode = false
-		} else {
-			shareCode = s.randomString(12)
+	for _, attorney := range lpa.ReplacementAttorneys {
+		if err := s.sendAttorney(ctx, template, appData, lpa, attorney, true); err != nil {
+			return err
 		}
+	}
 
-		if err := s.dataStore.Put(ctx, "ATTORNEYSHARE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
-			SessionID:  appData.SessionID,
-			LpaID:      appData.LpaID,
-			AttorneyID: attorney.ID,
-		}); err != nil {
-			return fmt.Errorf("creating attorney share failed: %w", err)
-		}
+	return nil
+}
 
-		if _, err := s.notifyClient.Email(ctx, notify.Email{
-			TemplateID:   s.notifyClient.TemplateID(template),
-			EmailAddress: attorney.Email,
-			Personalisation: map[string]string{
-				"shareCode":        shareCode,
-				"attorneyFullName": attorney.FullName(),
-				"donorFirstNames":  lpa.Donor.FirstNames,
-				"donorFullName":    lpa.Donor.FullName(),
-				"lpaLegalTerm":     appData.Localizer.T(lpa.TypeLegalTermTransKey()),
-				"landingPageLink":  fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
-			},
-		}); err != nil {
-			return fmt.Errorf("email failed: %w", err)
-		}
+func (s *ShareCodeSender) sendAttorney(ctx context.Context, template notify.TemplateId, appData AppData, lpa *Lpa, attorney actor.Attorney, isReplacement bool) error {
+	if attorney.Email == "" {
+		return nil
+	}
+
+	var shareCode string
+
+	if useTestCode {
+		shareCode = "abcdef123456"
+		useTestCode = false
+	} else {
+		shareCode = s.randomString(12)
+	}
+
+	if err := s.dataStore.Put(ctx, "ATTORNEYSHARE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
+		SessionID:             appData.SessionID,
+		LpaID:                 appData.LpaID,
+		AttorneyID:            attorney.ID,
+		IsReplacementAttorney: isReplacement,
+	}); err != nil {
+		return fmt.Errorf("creating attorney share failed: %w", err)
+	}
+
+	if _, err := s.notifyClient.Email(ctx, notify.Email{
+		TemplateID:   s.notifyClient.TemplateID(template),
+		EmailAddress: attorney.Email,
+		Personalisation: map[string]string{
+			"shareCode":        shareCode,
+			"attorneyFullName": attorney.FullName(),
+			"donorFirstNames":  lpa.Donor.FirstNames,
+			"donorFullName":    lpa.Donor.FullName(),
+			"lpaLegalTerm":     appData.Localizer.T(lpa.TypeLegalTermTransKey()),
+			"landingPageLink":  fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
+		},
+	}); err != nil {
+		return fmt.Errorf("email failed: %w", err)
 	}
 
 	return nil

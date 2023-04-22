@@ -7,9 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
@@ -84,7 +83,9 @@ type Lpa struct {
 	CPWitnessCodeValidated                     bool
 	WitnessCodeLimiter                         *Limiter
 	Certificate                                Certificate
-	AttorneyProvidedDetails                    actor.Attorneys
+
+	AttorneyProvidedDetails            actor.Attorneys
+	ReplacementAttorneyProvidedDetails actor.Attorneys
 }
 
 type PaymentDetails struct {

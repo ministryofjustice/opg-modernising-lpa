@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -124,6 +125,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 				appData.SessionID = session.DonorSessionID
 				appData.LpaID = session.LpaID
 				appData.AttorneyID = session.AttorneyID
+				appData.IsReplacementAttorney = session.IsReplacementAttorney
 
 				ctx = page.ContextWithSessionData(ctx, &page.SessionData{
 					SessionID: appData.SessionID,
@@ -136,4 +138,24 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 			}
 		})
 	}
+}
+
+func getProvidedDetails(appData page.AppData, lpa *page.Lpa) actor.Attorney {
+	if appData.IsReplacementAttorney {
+		attorneyProvidedDetails, ok := lpa.ReplacementAttorneyProvidedDetails.Get(appData.AttorneyID)
+		if !ok {
+			attorneyProvidedDetails = actor.Attorney{ID: appData.AttorneyID}
+			lpa.ReplacementAttorneyProvidedDetails = append(lpa.ReplacementAttorneyProvidedDetails, attorneyProvidedDetails)
+		}
+
+		return attorneyProvidedDetails
+	}
+
+	attorneyProvidedDetails, ok := lpa.AttorneyProvidedDetails.Get(appData.AttorneyID)
+	if !ok {
+		attorneyProvidedDetails = actor.Attorney{ID: appData.AttorneyID}
+		lpa.AttorneyProvidedDetails = append(lpa.AttorneyProvidedDetails, attorneyProvidedDetails)
+	}
+
+	return attorneyProvidedDetails
 }

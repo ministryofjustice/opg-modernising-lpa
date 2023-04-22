@@ -1297,4 +1297,39 @@ func TestTestingStart(t *testing.T) {
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/attorney-start", resp.Header.Get("Location"))
 	})
+
+	t.Run("send replacement attorney share", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?sendAttorneyShare=1&forReplacementAttorney=1&redirect=/attorney-start", nil)
+		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
+
+		lpa := &Lpa{ID: "123", ReplacementAttorneys: actor.Attorneys{MakeAttorney(AttorneyNames[0])}}
+
+		sessionStore := newMockSessionStore(t)
+		sessionStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		localizer := newMockLocalizer(t)
+
+		shareCodeSender := newMockShareCodeSender(t)
+		shareCodeSender.
+			On("SendAttorneys", ctx, notify.AttorneyInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, lpa).
+			Return(nil)
+
+		lpaStore := newMockLpaStore(t)
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ctx, lpa).
+			Return(nil)
+
+		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer, nil).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/attorney-start", resp.Header.Get("Location"))
+	})
+
 }

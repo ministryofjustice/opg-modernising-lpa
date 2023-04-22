@@ -15,53 +15,100 @@ import (
 )
 
 func TestGetCheckYourName(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-	w := httptest.NewRecorder()
-
-	lpa := &page.Lpa{
-		Attorneys: actor.Attorneys{
-			{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
-			{ID: "other", FirstNames: "Dave", LastName: "Smith"},
+	testcases := map[string]struct {
+		appData page.AppData
+		lpa     *page.Lpa
+	}{
+		"attorney": {
+			appData: testAppData,
+			lpa: &page.Lpa{
+				Attorneys: actor.Attorneys{
+					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
+				},
+			},
+		},
+		"replacement attorney": {
+			appData: testReplacementAppData,
+			lpa: &page.Lpa{
+				ReplacementAttorneys: actor.Attorneys{
+					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
+				},
+			},
 		},
 	}
 
-	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &checkYourNameData{
-			App:      testAppData,
-			Form:     &checkYourNameForm{},
-			Lpa:      lpa,
-			Attorney: actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
-		}).
-		Return(nil)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
+			w := httptest.NewRecorder()
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
-		Return(lpa, nil)
+			template := newMockTemplate(t)
+			template.
+				On("Execute", w, &checkYourNameData{
+					App:      tc.appData,
+					Form:     &checkYourNameForm{},
+					Lpa:      tc.lpa,
+					Attorney: actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+				}).
+				Return(nil)
 
-	err := CheckYourName(template.Execute, lpaStore, nil)(testAppData, w, r)
-	resp := w.Result()
+			lpaStore := newMockLpaStore(t)
+			lpaStore.
+				On("Get", r.Context()).
+				Return(tc.lpa, nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := CheckYourName(template.Execute, lpaStore, nil)(tc.appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetCheckYourNameWhenAttorneyDoesNotExist(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-	w := httptest.NewRecorder()
+	testcases := map[string]struct {
+		appData page.AppData
+		lpa     *page.Lpa
+	}{
+		"attorney": {
+			appData: testAppData,
+			lpa: &page.Lpa{
+				ReplacementAttorneys: actor.Attorneys{
+					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+				},
+			},
+		},
+		"replacement attorney": {
+			appData: testReplacementAppData,
+			lpa: &page.Lpa{
+				Attorneys: actor.Attorneys{
+					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+				},
+			},
+		},
+	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
+			w := httptest.NewRecorder()
 
-	err := CheckYourName(nil, lpaStore, nil)(testAppData, w, r)
-	resp := w.Result()
+			lpaStore := newMockLpaStore(t)
+			lpaStore.
+				On("Get", r.Context()).
+				Return(tc.lpa, nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
+			err := CheckYourName(nil, lpaStore, nil)(tc.appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestGetCheckYourNameOnStoreError(t *testing.T) {
@@ -112,75 +159,126 @@ func TestGetCheckYourNameOnTemplateError(t *testing.T) {
 }
 
 func TestPostCheckYourName(t *testing.T) {
-	form := url.Values{
-		"is-name-correct": {"yes"},
+	testcases := map[string]struct {
+		appData page.AppData
+		lpa     *page.Lpa
+	}{
+		"attorney": {
+			appData: testAppData,
+			lpa: &page.Lpa{
+				Attorneys: actor.Attorneys{
+					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+				},
+			},
+		},
+		"replacement attorney": {
+			appData: testReplacementAppData,
+			lpa: &page.Lpa{
+				ReplacementAttorneys: actor.Attorneys{
+					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+				},
+			},
+		},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			form := url.Values{
+				"is-name-correct": {"yes"},
+			}
 
-	w := httptest.NewRecorder()
-	lpa := &page.Lpa{
-		Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+			w := httptest.NewRecorder()
+
+			lpaStore := newMockLpaStore(t)
+			lpaStore.
+				On("Get", r.Context()).
+				Return(tc.lpa, nil)
+
+			err := CheckYourName(nil, lpaStore, nil)(tc.appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, page.Paths.Attorney.DateOfBirth, resp.Header.Get("Location"))
+		})
 	}
-
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
-		Return(lpa, nil)
-
-	err := CheckYourName(nil, lpaStore, nil)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.DateOfBirth, resp.Header.Get("Location"))
 }
 
 func TestPostCheckYourNameWithCorrectedName(t *testing.T) {
-	form := url.Values{
-		"is-name-correct": {"no"},
-		"corrected-name":  {"Bobby Smith"},
+	testcases := map[string]struct {
+		appData    page.AppData
+		lpa        *page.Lpa
+		updatedLpa *page.Lpa
+	}{
+		"attorney": {
+			appData: testAppData,
+			lpa: &page.Lpa{
+				Donor:     actor.Donor{Email: "a@example.com"},
+				Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
+			},
+			updatedLpa: &page.Lpa{
+				Donor:                   actor.Donor{Email: "a@example.com"},
+				Attorneys:               actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
+				AttorneyProvidedDetails: actor.Attorneys{{ID: "attorney-id", DeclaredFullName: "Bobby Smith"}},
+			},
+		},
+		"replacement attorney": {
+			appData: testReplacementAppData,
+			lpa: &page.Lpa{
+				Donor:                actor.Donor{Email: "a@example.com"},
+				ReplacementAttorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
+			},
+			updatedLpa: &page.Lpa{
+				Donor:                              actor.Donor{Email: "a@example.com"},
+				ReplacementAttorneys:               actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
+				ReplacementAttorneyProvidedDetails: actor.Attorneys{{ID: "attorney-id", DeclaredFullName: "Bobby Smith"}},
+			},
+		},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			form := url.Values{
+				"is-name-correct": {"no"},
+				"corrected-name":  {"Bobby Smith"},
+			}
 
-	w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Donor:     actor.Donor{Email: "a@example.com"},
-			Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-		}, nil)
-	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			Donor:                   actor.Donor{Email: "a@example.com"},
-			Attorneys:               actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-			AttorneyProvidedDetails: actor.Attorneys{{ID: "attorney-id", DeclaredFullName: "Bobby Smith"}},
-		}).
-		Return(nil)
+			w := httptest.NewRecorder()
 
-	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("TemplateID", notify.AttorneyNameChangeEmail).
-		Return("abc-123")
-	notifyClient.
-		On("Email", r.Context(), notify.Email{
-			EmailAddress:    "a@example.com",
-			TemplateID:      "abc-123",
-			Personalisation: map[string]string{"declaredName": "Bobby Smith"},
-		}).
-		Return("", nil)
+			lpaStore := newMockLpaStore(t)
+			lpaStore.
+				On("Get", r.Context()).
+				Return(tc.lpa, nil)
+			lpaStore.
+				On("Put", r.Context(), tc.updatedLpa).
+				Return(nil)
 
-	err := CheckYourName(nil, lpaStore, notifyClient)(testAppData, w, r)
-	resp := w.Result()
+			notifyClient := newMockNotifyClient(t)
+			notifyClient.
+				On("TemplateID", notify.AttorneyNameChangeEmail).
+				Return("abc-123")
+			notifyClient.
+				On("Email", r.Context(), notify.Email{
+					EmailAddress:    "a@example.com",
+					TemplateID:      "abc-123",
+					Personalisation: map[string]string{"declaredName": "Bobby Smith"},
+				}).
+				Return("", nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.DateOfBirth, resp.Header.Get("Location"))
+			err := CheckYourName(nil, lpaStore, notifyClient)(tc.appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, page.Paths.Attorney.DateOfBirth, resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostCheckYourNameWithCorrectedNameWhenStoreError(t *testing.T) {

@@ -125,6 +125,15 @@
       <form novalidate method="post">
         {{ template "input" (input . "email" "email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
 
+        <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+          <div class="govuk-checkboxes__item">
+            <input class="govuk-checkboxes__input" id="for-replacement-attorney" name="for-replacement-attorney" type="checkbox" value="1">
+            <label class="govuk-label govuk-checkboxes__label" for="for-replacement-attorney">
+              As replacement attorney
+            </label>
+          </div>
+        </div>
+
         <div class="govuk-button-group govuk-!-padding-top-3">
           <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="attorney">Start</button>
         </div>
