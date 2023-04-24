@@ -11,7 +11,7 @@ describe('Date of birth', () => {
         cy.get('#f-date-of-birth-year').type('1990');
 
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/attorney-next-page');
+        cy.url().should('contain', '/attorney-sign');
     });
     
     it('can be over 100', () => {
@@ -30,7 +30,7 @@ describe('Date of birth', () => {
 
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/attorney-next-page');
+        cy.url().should('contain', '/attorney-sign');
     });
 
     it('errors when empty', () => {
