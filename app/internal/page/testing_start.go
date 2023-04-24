@@ -201,6 +201,17 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			})
 		}
 
+		if r.FormValue("asReplacementAttorney") != "" {
+			_ = sesh.SetAttorney(store, r, w, &sesh.AttorneySession{
+				Sub:                   randomString(12),
+				Email:                 TestEmail,
+				DonorSessionID:        sessionID,
+				AttorneyID:            lpa.ReplacementAttorneys[0].ID,
+				LpaID:                 lpa.ID,
+				IsReplacementAttorney: true,
+			})
+		}
+
 		if r.FormValue("sendAttorneyShare") != "" {
 			attorneys := actor.Attorneys{MakeAttorney(AttorneyNames[0])}
 			attorneys[0].Email = TestEmail
