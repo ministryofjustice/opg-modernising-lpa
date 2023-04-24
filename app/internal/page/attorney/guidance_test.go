@@ -1,4 +1,4 @@
-package page
+package attorney
 
 import (
 	"net/http"
@@ -14,10 +14,10 @@ func TestGuidance(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &guidanceData{App: TestAppData}).
+		On("Execute", w, &guidanceData{App: testAppData}).
 		Return(nil)
 
-	err := Guidance(template.Execute)(TestAppData, w, r)
+	err := Guidance(template.Execute)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -30,10 +30,10 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &guidanceData{App: TestAppData}).
-		Return(ExpectedError)
+		On("Execute", w, &guidanceData{App: testAppData}).
+		Return(expectedError)
 
-	err := Guidance(template.Execute)(TestAppData, w, r)
+	err := Guidance(template.Execute)(testAppData, w, r)
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 }
