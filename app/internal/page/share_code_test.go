@@ -18,7 +18,7 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 		"sign in":  false,
 	}
 	lpa := &Lpa{
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProviderDetails: CertificateProviderDetails{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
@@ -43,7 +43,7 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 
 			dataStore := newMockDataStore(t)
 			dataStore.
-				On("Put", ctx, "CERTIFICATEPROVIDERSHARE#123", "#METADATA#123", ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", Identity: identity}).
+				On("Put", ctx, "CERTIFICATEPROVIDERSHARE#123", "#METADATA#123", ShareCodeData{LpaID: "lpa-id", Identity: identity}).
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t)
@@ -90,7 +90,7 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 	}
 
 	lpa := &Lpa{
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProviderDetails: CertificateProviderDetails{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
@@ -115,10 +115,10 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 
 			dataStore := newMockDataStore(t)
 			dataStore.
-				On("Put", ctx, "CERTIFICATEPROVIDERSHARE#"+tc.expectedTestCode, "#METADATA#"+tc.expectedTestCode, ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", Identity: true}).
+				On("Put", ctx, "CERTIFICATEPROVIDERSHARE#"+tc.expectedTestCode, "#METADATA#"+tc.expectedTestCode, ShareCodeData{LpaID: "lpa-id", Identity: true}).
 				Return(nil)
 			dataStore.
-				On("Put", ctx, "CERTIFICATEPROVIDERSHARE#123", "#METADATA#123", ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", Identity: true}).
+				On("Put", ctx, "CERTIFICATEPROVIDERSHARE#123", "#METADATA#123", ShareCodeData{LpaID: "lpa-id", Identity: true}).
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t)
@@ -177,7 +177,7 @@ func TestShareCodeSenderSendCertificateProviderWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
 
 	lpa := &Lpa{
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProviderDetails: CertificateProviderDetails{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",

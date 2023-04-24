@@ -7,7 +7,6 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -17,7 +16,7 @@ import (
 type aboutPaymentData struct {
 	App                 page.AppData
 	Errors              validation.List
-	CertificateProvider actor.CertificateProvider
+	CertificateProvider page.CertificateProviderDetails
 }
 
 func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.Store, payClient PayClient, appPublicUrl string, randomString func(int) string, lpaStore LpaStore) page.Handler {
@@ -29,7 +28,7 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 
 		data := &aboutPaymentData{
 			App:                 appData,
-			CertificateProvider: lpa.CertificateProvider,
+			CertificateProvider: lpa.CertificateProviderDetails,
 		}
 
 		if r.Method == http.MethodPost {

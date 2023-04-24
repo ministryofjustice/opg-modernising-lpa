@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 
 	"github.com/gorilla/sessions"
@@ -27,9 +29,10 @@ type Logger interface {
 
 //go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
 type DataStore interface {
-	GetAll(context.Context, string, interface{}) error
-	Get(context.Context, string, string, interface{}) error
+	Get(ctx context.Context, pk, sk string, v interface{}) error
 	Put(context.Context, string, string, interface{}) error
+	GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
+	GetAllByGsi(ctx context.Context, gsi, sk string, v interface{}) error
 }
 
 //go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient
@@ -53,6 +56,13 @@ type LpaStore interface {
 	GetAll(context.Context) ([]*Lpa, error)
 	Get(context.Context) (*Lpa, error)
 	Put(context.Context, *Lpa) error
+}
+
+//go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
+type CertificateProviderStore interface {
+	Create(ctx context.Context) (*actor.CertificateProvider, error)
+	Get(ctx context.Context) (*actor.CertificateProvider, error)
+	Put(ctx context.Context, certificateProvider *actor.CertificateProvider) error
 }
 
 //go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore

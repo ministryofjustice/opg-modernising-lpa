@@ -7,6 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -21,7 +23,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://public.url", &pay.Client{}, &identity.YotiClient{}, &notify.Client{}, nil, nil, nil)
+	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://public.url", &pay.Client{}, &identity.YotiClient{}, &notify.Client{}, nil, nil, nil, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -43,7 +45,7 @@ func TestMakeHandle(t *testing.T) {
 			Page:        "/path",
 			CanGoBack:   true,
 			SessionID:   "cmFuZG9t",
-			IsDonor:     true,
+			ActorType:   actor.TypeDonor,
 		}, appData)
 		assert.Equal(t, w, hw)
 		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t"}, page.SessionDataFromContext(hr.Context()))
@@ -76,7 +78,7 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 			SessionID:   "cmFuZG9t",
 			CanGoBack:   true,
 			LpaID:       "123",
-			IsDonor:     true,
+			ActorType:   actor.TypeDonor,
 		}, appData)
 		assert.Equal(t, w, hw)
 		assert.Equal(t, &page.SessionData{LpaID: "123", SessionID: "cmFuZG9t"}, page.SessionDataFromContext(hr.Context()))
@@ -162,10 +164,10 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 		assert.Equal(t, page.AppData{
 			ServiceName: "serviceName",
 			Page:        "/path",
-			IsDonor:     true,
+			ActorType:   actor.TypeDonor,
 		}, appData)
 		assert.Equal(t, w, hw)
-		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{ServiceName: "serviceName", Page: "/path", IsDonor: true})), hr)
+		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{ServiceName: "serviceName", Page: "/path", ActorType: actor.TypeDonor})), hr)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
