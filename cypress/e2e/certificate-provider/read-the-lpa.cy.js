@@ -14,7 +14,7 @@ describe('Read the LPA', () => {
 
     describe('when the LPA is not yet signed', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?redirect=/certificate-provider-read-the-lpa&withCP=1&withDonorDetails=1&asCertificateProvider=1');
+            cy.visit('/testing-start?redirect=/certificate-provider-read-the-lpa&withCPDetails=1&withDonorDetails=1&asCertificateProvider=1');
         });
 
         it('goes to a guidance page', () => {

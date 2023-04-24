@@ -20,28 +20,28 @@ type identityWithYotiCallbackData struct {
 	CouldNotConfirm bool
 }
 
-func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, lpaStore LpaStore) page.Handler {
+func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
 		if r.Method == http.MethodPost {
-			if lpa.CertificateProviderIdentityConfirmed() {
-				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderReadTheLpa)
+			if certificateProvider.CertificateProviderIdentityConfirmed() {
+				return appData.Redirect(w, r, nil, page.Paths.CertificateProviderReadTheLpa)
 			} else {
-				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderSelectYourIdentityOptions1)
+				return appData.Redirect(w, r, nil, page.Paths.CertificateProviderSelectYourIdentityOptions1)
 			}
 		}
 
 		data := &identityWithYotiCallbackData{App: appData}
 
-		if lpa.CertificateProviderIdentityConfirmed() {
-			data.FirstNames = lpa.CertificateProviderIdentityUserData.FirstNames
-			data.LastName = lpa.CertificateProviderIdentityUserData.LastName
-			data.DateOfBirth = lpa.CertificateProviderIdentityUserData.DateOfBirth
-			data.ConfirmedAt = lpa.CertificateProviderIdentityUserData.RetrievedAt
+		if certificateProvider.CertificateProviderIdentityConfirmed() {
+			data.FirstNames = certificateProvider.IdentityUserData.FirstNames
+			data.LastName = certificateProvider.IdentityUserData.LastName
+			data.DateOfBirth = certificateProvider.IdentityUserData.DateOfBirth
+			data.ConfirmedAt = certificateProvider.IdentityUserData.RetrievedAt
 
 			return tmpl(w, data)
 		}
@@ -51,10 +51,10 @@ func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, lpa
 			return err
 		}
 
-		lpa.CertificateProviderIdentityUserData = user
+		certificateProvider.IdentityUserData = user
 
-		if lpa.CertificateProviderIdentityConfirmed() {
-			if err := lpaStore.Put(r.Context(), lpa); err != nil {
+		if certificateProvider.CertificateProviderIdentityConfirmed() {
+			if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 				return err
 			}
 

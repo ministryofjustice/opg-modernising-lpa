@@ -12,26 +12,19 @@ func TestGuidance(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &Lpa{}
-
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
-		Return(lpa, nil)
-
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &guidanceData{App: TestAppData, Lpa: lpa}).
+		On("Execute", w, &guidanceData{App: TestAppData}).
 		Return(nil)
 
-	err := Guidance(template.Execute, lpaStore)(TestAppData, w, r)
+	err := Guidance(template.Execute, nil)(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGuidanceWhenNilDataStore(t *testing.T) {
+func TestGuidanceWhenNilDataStores(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	template := newMockTemplate(t)
@@ -48,7 +41,7 @@ func TestGuidanceWhenNilDataStore(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGuidanceWhenDataStoreErrors(t *testing.T) {
+func TestGuidanceWhenLpaStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -68,17 +61,12 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
-		Return(&Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &guidanceData{App: TestAppData, Lpa: &Lpa{}}).
+		On("Execute", w, &guidanceData{App: TestAppData}).
 		Return(ExpectedError)
 
-	err := Guidance(template.Execute, lpaStore)(TestAppData, w, r)
+	err := Guidance(template.Execute, nil)(TestAppData, w, r)
 
 	assert.Equal(t, ExpectedError, err)
 }
