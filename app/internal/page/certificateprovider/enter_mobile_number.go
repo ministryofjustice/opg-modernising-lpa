@@ -20,9 +20,14 @@ type mobileNumberForm struct {
 	Mobile string
 }
 
-func EnterMobileNumber(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func EnterMobileNumber(tmpl template.Template, lpaStore LpaStore, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
+		if err != nil {
+			return err
+		}
+
+		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -31,7 +36,7 @@ func EnterMobileNumber(tmpl template.Template, lpaStore LpaStore) page.Handler {
 			App: appData,
 			Lpa: lpa,
 			Form: &mobileNumberForm{
-				Mobile: lpa.CertificateProviderProvidedDetails.Mobile,
+				Mobile: certificateProvider.Mobile,
 			},
 		}
 
@@ -40,9 +45,9 @@ func EnterMobileNumber(tmpl template.Template, lpaStore LpaStore) page.Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.CertificateProviderProvidedDetails.Mobile = data.Form.Mobile
+				certificateProvider.Mobile = data.Form.Mobile
 
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return err
 				}
 

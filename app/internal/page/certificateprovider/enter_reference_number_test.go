@@ -40,7 +40,7 @@ func TestGetEnterReferenceNumber(t *testing.T) {
 		On("Execute", w, data).
 		Return(nil)
 
-	err := EnterReferenceNumber(template.Execute, newMockLpaStore(t), newMockDataStore(t))(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, newMockDataStore(t))(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -62,7 +62,7 @@ func TestGetEnterReferenceNumberOnTemplateError(t *testing.T) {
 		On("Execute", w, data).
 		Return(expectedError)
 
-	err := EnterReferenceNumber(template.Execute, newMockLpaStore(t), newMockDataStore(t))(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, newMockDataStore(t))(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -77,11 +77,11 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	}{
 		"with identity": {
 			Identity:      true,
-			ExpectedQuery: "identity=1&lpaId=lpa-id&sessionId=session-id",
+			ExpectedQuery: "identity=1&lpaId=lpa-id",
 		},
 		"without identity": {
 			Identity:      false,
-			ExpectedQuery: "lpaId=lpa-id&sessionId=session-id",
+			ExpectedQuery: "lpaId=lpa-id",
 		},
 	}
 
@@ -100,16 +100,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 				ExpectGet(r.Context(), "CERTIFICATEPROVIDERSHARE#aRefNumber12", "#METADATA#aRefNumber12",
 					page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: tc.Identity}, nil)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
-				On("Get", mock.MatchedBy(func(ctx context.Context) bool {
-					session := page.SessionDataFromContext(ctx)
-
-					return assert.Equal(t, &page.SessionData{SessionID: "session-id", LpaID: "lpa-id"}, session)
-				})).
-				Return(&page.Lpa{}, nil)
-
-			err := EnterReferenceNumber(nil, lpaStore, dataStore)(testAppData, w, r)
+			err := EnterReferenceNumber(nil, dataStore)(testAppData, w, r)
 
 			resp := w.Result()
 
@@ -134,7 +125,7 @@ func TestPostEnterReferenceNumberOnDataStoreError(t *testing.T) {
 		ExpectGet(r.Context(), "CERTIFICATEPROVIDERSHARE#aRefNumber12", "#METADATA#aRefNumber12",
 			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, expectedError)
 
-	err := EnterReferenceNumber(nil, nil, dataStore)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, dataStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -167,42 +158,11 @@ func TestPostEnterReferenceNumberOnDataStoreNotFoundError(t *testing.T) {
 		ExpectGet(r.Context(), "CERTIFICATEPROVIDERSHARE#aRefNumber12", "#METADATA#aRefNumber12",
 			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, dynamo.NotFoundError{})
 
-	err := EnterReferenceNumber(template.Execute, nil, dataStore)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, dataStore)(testAppData, w, r)
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestPostEnterReferenceNumberOnLpaStoreError(t *testing.T) {
-	form := url.Values{
-		"reference-number": {"aRefNumber12"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	dataStore := newMockDataStore(t)
-	dataStore.
-		ExpectGet(r.Context(), "CERTIFICATEPROVIDERSHARE#aRefNumber12", "#METADATA#aRefNumber12",
-			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, nil)
-
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", mock.MatchedBy(func(ctx context.Context) bool {
-			session := page.SessionDataFromContext(ctx)
-
-			return assert.Equal(t, &page.SessionData{SessionID: "session-id", LpaID: "lpa-id"}, session)
-		})).
-		Return(&page.Lpa{}, expectedError)
-
-	err := EnterReferenceNumber(nil, lpaStore, dataStore)(testAppData, w, r)
-
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -226,7 +186,7 @@ func TestPostEnterReferenceNumberOnValidationError(t *testing.T) {
 		On("Execute", w, data).
 		Return(nil)
 
-	err := EnterReferenceNumber(template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -270,5 +230,4 @@ func TestValidateEnterReferenceNumberForm(t *testing.T) {
 			assert.Equal(t, tc.errors, tc.form.Validate())
 		})
 	}
-
 }

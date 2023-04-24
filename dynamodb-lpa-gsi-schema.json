@@ -1,0 +1,14 @@
+[
+  {
+    "IndexName": "ActorIndex",
+    "KeySchema": [{"AttributeName":"SK","KeyType":"HASH"}],
+    "Projection": {
+      "ProjectionType":"INCLUDE",
+      "NonKeyAttributes":["Data"]
+    },
+    "ProvisionedThroughput": {
+      "ReadCapacityUnits": 10,
+      "WriteCapacityUnits": 5
+    }
+  }
+]

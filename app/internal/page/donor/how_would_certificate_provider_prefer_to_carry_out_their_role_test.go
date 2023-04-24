@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -46,15 +45,15 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *tes
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"},
+			CertificateProviderDetails: page.CertificateProviderDetails{CarryOutBy: "paper"},
 		}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
-			App:                 testAppData,
-			CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"},
-			Form:                &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{CarryOutBy: "paper"},
+			App:                        testAppData,
+			CertificateProviderDetails: page.CertificateProviderDetails{CarryOutBy: "paper"},
+			Form:                       &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{CarryOutBy: "paper"},
 		}).
 		Return(nil)
 
@@ -139,7 +138,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 				Return(&page.Lpa{}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
-					CertificateProvider: actor.CertificateProvider{CarryOutBy: tc.carryOutBy, Email: tc.email},
+					CertificateProviderDetails: page.CertificateProviderDetails{CarryOutBy: tc.carryOutBy, Email: tc.email},
 				}).
 				Return(nil)
 

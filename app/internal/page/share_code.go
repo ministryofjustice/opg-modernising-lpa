@@ -10,6 +10,7 @@ import (
 
 var useTestCode = false
 
+// TODO remove sending sessionID
 type ShareCodeData struct {
 	SessionID             string
 	LpaID                 string
@@ -49,19 +50,18 @@ func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template 
 	}
 
 	if err := s.dataStore.Put(ctx, "CERTIFICATEPROVIDERSHARE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
-		SessionID: appData.SessionID,
-		LpaID:     appData.LpaID,
-		Identity:  identity,
+		LpaID:    appData.LpaID,
+		Identity: identity,
 	}); err != nil {
 		return fmt.Errorf("creating sharecode failed: %w", err)
 	}
 
 	if _, err := s.notifyClient.Email(ctx, notify.Email{
 		TemplateID:   s.notifyClient.TemplateID(template),
-		EmailAddress: lpa.CertificateProvider.Email,
+		EmailAddress: lpa.CertificateProviderDetails.Email,
 		Personalisation: map[string]string{
 			"shareCode":         shareCode,
-			"cpFullName":        lpa.CertificateProvider.FullName(),
+			"cpFullName":        lpa.CertificateProviderDetails.FullName(),
 			"donorFirstNames":   lpa.Donor.FirstNames,
 			"donorFullName":     lpa.Donor.FullName(),
 			"lpaLegalTerm":      appData.Localizer.T(lpa.TypeLegalTermTransKey()),
