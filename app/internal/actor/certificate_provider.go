@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 

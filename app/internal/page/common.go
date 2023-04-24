@@ -6,12 +6,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-
 	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 )

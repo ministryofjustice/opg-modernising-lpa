@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-
 	"github.com/stretchr/testify/assert"
 )
 

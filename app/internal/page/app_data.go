@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
