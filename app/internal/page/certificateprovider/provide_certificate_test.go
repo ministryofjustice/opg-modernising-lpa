@@ -119,20 +119,19 @@ func TestPostProvideCertificate(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Submitted: now}, nil)
-	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			Submitted: now,
-			Certificate: page.Certificate{
-				AgreeToStatement: true,
-				Agreed:           now,
-			},
-		}).
-		Return(nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
 		Return(&actor.CertificateProvider{}, nil)
+	certificateProviderStore.
+		On("Put", r.Context(), &actor.CertificateProvider{
+			Certificate: actor.Certificate{
+				AgreeToStatement: true,
+				Agreed:           now,
+			},
+		}).
+		Return(nil)
 
 	err := ProvideCertificate(nil, lpaStore, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
@@ -157,20 +156,19 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Submitted: now}, nil)
-	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			Submitted: now,
-			Certificate: page.Certificate{
-				AgreeToStatement: true,
-				Agreed:           now,
-			},
-		}).
-		Return(expectedError)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
 		Return(&actor.CertificateProvider{}, nil)
+	certificateProviderStore.
+		On("Put", r.Context(), &actor.CertificateProvider{
+			Certificate: actor.Certificate{
+				AgreeToStatement: true,
+				Agreed:           now,
+			},
+		}).
+		Return(expectedError)
 
 	err := ProvideCertificate(nil, lpaStore, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()

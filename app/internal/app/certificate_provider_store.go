@@ -17,7 +17,7 @@ type certificateProviderStore struct {
 func (s *certificateProviderStore) Create(ctx context.Context) (*actor.CertificateProvider, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
-		return nil, err
+		return &actor.CertificateProvider{}, err
 	}
 
 	cp := &actor.CertificateProvider{LpaID: data.LpaID}
@@ -29,11 +29,11 @@ func (s *certificateProviderStore) Create(ctx context.Context) (*actor.Certifica
 func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateProvider, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
-		return nil, err
+		return &actor.CertificateProvider{}, err
 	}
 
 	if data.LpaID == "" {
-		return nil, errors.New("certificateProviderStore.Get requires LpaID to retrieve")
+		return &actor.CertificateProvider{}, errors.New("certificateProviderStore.Get requires LpaID to retrieve")
 	}
 
 	var certificateProvider actor.CertificateProvider
@@ -41,7 +41,7 @@ func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateP
 	pk := "LPA#" + data.LpaID
 
 	if err := s.dataStore.GetOneByPartialSk(ctx, pk, "#CERTIFICATE_PROVIDER#", &certificateProvider); err != nil {
-		return nil, err
+		return &actor.CertificateProvider{}, err
 	}
 
 	return &certificateProvider, nil

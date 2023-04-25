@@ -190,10 +190,12 @@ func TestTaskStateString(t *testing.T) {
 func TestLpaProgress(t *testing.T) {
 	testCases := map[string]struct {
 		lpa              *Lpa
+		cp               *actor.CertificateProvider
 		expectedProgress Progress
 	}{
 		"initial state": {
 			lpa: &Lpa{},
+			cp:  &actor.CertificateProvider{},
 			expectedProgress: Progress{
 				LpaSigned:                   TaskInProgress,
 				CertificateProviderDeclared: TaskNotStarted,
@@ -205,6 +207,7 @@ func TestLpaProgress(t *testing.T) {
 		},
 		"lpa signed": {
 			lpa: &Lpa{Submitted: time.Now()},
+			cp:  &actor.CertificateProvider{},
 			expectedProgress: Progress{
 				LpaSigned:                   TaskCompleted,
 				CertificateProviderDeclared: TaskInProgress,
@@ -215,7 +218,8 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"certificate provider declared": {
-			lpa: &Lpa{Submitted: time.Now(), Certificate: Certificate{Agreed: time.Now()}},
+			lpa: &Lpa{Submitted: time.Now()},
+			cp:  &actor.CertificateProvider{Certificate: actor.Certificate{Agreed: time.Now()}},
 			expectedProgress: Progress{
 				LpaSigned:                   TaskCompleted,
 				CertificateProviderDeclared: TaskCompleted,
@@ -229,7 +233,7 @@ func TestLpaProgress(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expectedProgress, tc.lpa.Progress())
+			assert.Equal(t, tc.expectedProgress, tc.lpa.Progress(tc.cp))
 		})
 	}
 

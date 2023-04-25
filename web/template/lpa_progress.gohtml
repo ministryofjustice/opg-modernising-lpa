@@ -16,7 +16,7 @@
                 <span><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Lpa.ID }}</span>
             </div>
 
-            {{ template "progress-bar" (progressBar .App .Lpa) }}
+            {{ template "progress-bar" (progressBar .App .Lpa .CertificateProvider) }}
 
             <a class="govuk-button" href="{{ link .App .App.Paths.Dashboard }}">{{ tr .App "backToDashboard" }}</a>
 

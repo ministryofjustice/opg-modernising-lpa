@@ -82,7 +82,6 @@ type Lpa struct {
 	Submitted                                  time.Time
 	CPWitnessCodeValidated                     bool
 	WitnessCodeLimiter                         *Limiter
-	Certificate                                Certificate
 
 	AttorneyProvidedDetails            actor.Attorneys
 	ReplacementAttorneyProvidedDetails actor.Attorneys
@@ -219,7 +218,7 @@ func (l *Lpa) CanGoTo(url string) bool {
 	}
 }
 
-func (l *Lpa) Progress() Progress {
+func (l *Lpa) Progress(certificateProvider *actor.CertificateProvider) Progress {
 	p := Progress{
 		LpaSigned:                   TaskInProgress,
 		CertificateProviderDeclared: TaskNotStarted,
@@ -234,17 +233,12 @@ func (l *Lpa) Progress() Progress {
 		p.CertificateProviderDeclared = TaskInProgress
 	}
 
-	if !l.Certificate.Agreed.IsZero() {
+	if !certificateProvider.Certificate.Agreed.IsZero() {
 		p.CertificateProviderDeclared = TaskCompleted
 		p.AttorneysDeclared = TaskInProgress
 	}
 
 	return p
-}
-
-type Certificate struct {
-	AgreeToStatement bool
-	Agreed           time.Time
 }
 
 type AddressDetail struct {

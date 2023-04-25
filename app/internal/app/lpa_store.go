@@ -28,11 +28,11 @@ func (s *lpaStore) Create(ctx context.Context) (*page.Lpa, error) {
 func (s *lpaStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
-		return nil, err
+		return []*page.Lpa{}, err
 	}
 
 	if data.SessionID == "" {
-		return nil, errors.New("lpaStore.GetAll requires SessionID to retrieve")
+		return []*page.Lpa{}, errors.New("lpaStore.GetAll requires SessionID to retrieve")
 	}
 
 	var lpas []*page.Lpa
@@ -50,18 +50,18 @@ func (s *lpaStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
 func (s *lpaStore) Get(ctx context.Context) (*page.Lpa, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
-		return nil, err
+		return &page.Lpa{}, err
 	}
 
 	if data.LpaID == "" {
-		return nil, errors.New("lpaStore.Get requires LpaID to retrieve")
+		return &page.Lpa{}, errors.New("lpaStore.Get requires LpaID to retrieve")
 	}
 
 	pk := "LPA#" + data.LpaID
 
 	var lpa *page.Lpa
 	if err := s.dataStore.GetOneByPartialSk(ctx, pk, "#DONOR#", &lpa); err != nil {
-		return nil, err
+		return &page.Lpa{}, err
 	}
 
 	return lpa, nil

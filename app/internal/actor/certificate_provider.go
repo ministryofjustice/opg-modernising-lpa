@@ -21,6 +21,12 @@ type CertificateProvider struct {
 	DeclaredFullName string
 	IdentityOption   identity.Option
 	IdentityUserData identity.UserData
+	Certificate      Certificate
+}
+
+type Certificate struct {
+	AgreeToStatement bool
+	Agreed           time.Time
 }
 
 func (c CertificateProvider) FullName() string {

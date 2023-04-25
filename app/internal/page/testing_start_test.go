@@ -964,10 +964,6 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
-				Certificate: Certificate{
-					AgreeToStatement: true,
-					Agreed:           time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
-				},
 			}).
 			Return(nil)
 
@@ -1002,6 +998,10 @@ func TestTestingStart(t *testing.T) {
 					Line3:      "WEST MIDLANDS",
 					TownOrCity: "BIRMINGHAM",
 					Postcode:   "B14 7ED",
+				},
+				Certificate: actor.Certificate{
+					AgreeToStatement: true,
+					Agreed:           time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
 				},
 			}).
 			Return(nil)

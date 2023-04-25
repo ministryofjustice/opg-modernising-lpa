@@ -185,7 +185,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 					Postcode:   "B14 7ED",
 				}
 
-				lpa.Certificate = Certificate{
+				certificateProvider.Certificate = actor.Certificate{
 					AgreeToStatement: true,
 					Agreed:           time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
 				}

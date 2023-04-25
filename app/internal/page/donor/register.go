@@ -125,7 +125,7 @@ func Register(
 	handleRoot(page.Paths.LoginCallback, None,
 		LoginCallback(oneLoginClient, sessionStore))
 	handleRoot(page.Paths.Dashboard, RequireSession,
-		Dashboard(tmpls.Get("dashboard.gohtml"), lpaStore))
+		Dashboard(tmpls.Get("dashboard.gohtml"), lpaStore, certificateProviderStore))
 
 	lpaMux := http.NewServeMux()
 
@@ -272,7 +272,7 @@ func Register(
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml"), lpaStore))
 
 	handleLpa(page.Paths.Progress, CanGoBack,
-		Guidance(tmpls.Get("lpa_progress.gohtml"), lpaStore))
+		LpaProgress(tmpls.Get("lpa_progress.gohtml"), lpaStore, certificateProviderStore))
 }
 
 type handleOpt byte

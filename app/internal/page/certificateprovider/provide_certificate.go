@@ -37,7 +37,7 @@ func ProvideCertificate(tmpl template.Template, lpaStore LpaStore, now func() ti
 			App:                 appData,
 			CertificateProvider: certificateProvider,
 			Form: &provideCertificateForm{
-				AgreeToStatement: lpa.Certificate.AgreeToStatement,
+				AgreeToStatement: certificateProvider.Certificate.AgreeToStatement,
 			},
 		}
 
@@ -46,9 +46,9 @@ func ProvideCertificate(tmpl template.Template, lpaStore LpaStore, now func() ti
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.Certificate.AgreeToStatement = true
-				lpa.Certificate.Agreed = now()
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				certificateProvider.Certificate.AgreeToStatement = true
+				certificateProvider.Certificate.Agreed = now()
+				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return err
 				}
 
