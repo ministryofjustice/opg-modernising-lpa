@@ -135,7 +135,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			lpaStore := newMockLpaStore(t)
 			lpaStore.
 				On("Get", mock.MatchedBy(func(ctx context.Context) bool {
-					session := page.SessionDataFromContext(ctx)
+					session, _ := page.SessionDataFromContext(ctx)
 
 					return assert.Equal(t, &page.SessionData{SessionID: "session-id", LpaID: "lpa-id"}, session)
 				})).
@@ -286,7 +286,7 @@ func TestPostEnterReferenceNumberOnLpaStoreError(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", mock.MatchedBy(func(ctx context.Context) bool {
-			session := page.SessionDataFromContext(ctx)
+			session, _ := page.SessionDataFromContext(ctx)
 
 			return assert.Equal(t, &page.SessionData{SessionID: "session-id", LpaID: "lpa-id"}, session)
 		})).

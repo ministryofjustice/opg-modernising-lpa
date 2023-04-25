@@ -40,7 +40,6 @@ func TestCertificateProviderLogin(t *testing.T) {
 			Locale:              "cy",
 			CertificateProvider: true,
 			Identity:            false,
-			SessionID:           "session-id",
 			LpaID:               "lpa-id",
 		},
 	}
@@ -83,7 +82,6 @@ func TestCertificateProviderLoginDefaultLocale(t *testing.T) {
 			Locale:              "en",
 			CertificateProvider: true,
 			Identity:            false,
-			SessionID:           "session-id",
 			LpaID:               "lpa-id",
 		},
 	}
