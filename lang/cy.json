@@ -664,5 +664,15 @@
     "attorney18OrOverWarning": "Welsh",
     "youAttorneyAreUnder18Error": "Welsh",
     "whatIsYourDateOfBirth": "Welsh",
-    "checkAttorneyNameContent": "<p class=\"govuk-body\">Welsh, {{ .DonorFullName }}, welsh:</p> <div class=\"govuk-inset-text\">{{ .AttorneyFullName }}</div>"
+    "checkAttorneyNameContent": "<p class=\"govuk-body\">Welsh, {{ .DonorFullName }}, welsh:</p> <div class=\"govuk-inset-text\">{{ .AttorneyFullName }}</div>",
+
+    "signAsAttorney": "Welsh",
+    "signAsReplacementAttorney": "Welsh",
+    "lpaCantBeRegisteredUntilAttorneysSign": "Welsh",
+    "bySigningIUnderstandAndConfirmAllOfTheFollowing": "Welsh",
+    "signAsAttorneyBullets": "<li>Welsh</li><li>Welsh</li><li>Welsh <a href=\"#\" class=\"govuk-link\">Welsh</a>.</li><li>Welsh</li><li>Welsh</li>",
+    "signAsAttorneyWhenRegisteredBullet": "Welsh",
+    "signAsAttorneyWhenCapacityLostBullet": "Welsh",
+    "iAttorneyConfirmTheseStatements": "Welsh, {{.AttorneyFullName}}, welsh",
+    "asReplacementAttorneyAlsoConfirmThat": "<p class=\"govuk-body govuk-!-font-weight-bold\">Welsh:</p><p class=\"govuk-body\">Welsh</p>"
 }
