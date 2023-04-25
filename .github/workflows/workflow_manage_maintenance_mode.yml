@@ -43,18 +43,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: unfor19/install-aws-cli-action@v1
-      - name: Determine Role to Use
+      - name: Determine Role to Use for Maintenance Mode
         run: |
-          # if the environment is not production use the production account role, if it's preproduction use the preproduction account role, otherwise use the dev account role
+          # if the environment is production use the production account role, if it's preproduction use the preproduction account role, otherwise use the dev account role
           if [[ ${{ github.event.inputs.environment }} == "production" ]]; then
             echo "Using production account role"
-            echo "::set-output name=role::arn:aws:iam::${{ secrets.PRODUCTION_ACCOUNT_ID }}:role/maintenance_mode"
+            echo "::set-output name=${{ secrets.PRODUCTION_MAINTENANCE_MODE_ROLE }}"
           elif [[ ${{ github.event.inputs.environment }} == "preproduction" ]]; then
             echo "Using preproduction account role"
-            echo "::set-output name=role::arn:aws:iam::${{ secrets.PREPRODUCTION_ACCOUNT_ID }}:role/maintenance_mode"
+            echo "::set-output name=${{ secrets.PREPRODUCTION_MAINTENANCE_MODE_ROLE }}"
           else
             echo "Using dev account role"
-            echo "::set-output name=role::arn:aws:iam::${{ secrets.DEV_ACCOUNT_ID }}:role/maintenance_mode"
+            echo "::set-output name=${{ secrets.DEV_MAINTENANCE_MODE_ROLE }}"
           fi
       - name: Configure AWS Credentials For Maintenance Mode
         uses: aws-actions/configure-aws-credentials@v2
