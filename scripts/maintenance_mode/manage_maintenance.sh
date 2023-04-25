@@ -1,14 +1,5 @@
 #!/usr/bin/env bash
 
-# function set_service_name() {
-#   local front_end=${1:?}
-#   case $front_end in
-#     *)
-#     SERVICE="app"
-#     ;;
-#   esac
-# }
-
 function get_alb_rule_arn() {
   MM_ALB_ARN=$(aws elbv2 describe-load-balancers --names  "${ENVIRONMENT}-${SERVICE}" | jq -r .[][]."LoadBalancerArn")
   MM_LISTENER_ARN=$(aws elbv2 describe-listeners --load-balancer-arn ${MM_ALB_ARN} | jq -r '.[][]  | select(.Protocol == "HTTPS") | .ListenerArn')
@@ -54,11 +45,6 @@ function parse_args() {
           shift
           shift
           ;;
-          # -f|--front_end)
-          # FRONT_TO_SET=$(echo "$2" | tr '[:upper:]' '[:lower:]')
-          # shift
-          # shift
-          # ;;
           -m|--maintenance_mode)
           MAINTENANCE_MODE=True
           shift
@@ -72,8 +58,6 @@ function parse_args() {
 }
 
 function start() {
-  # local front_end=${1:?}
-  # set_service_name $front_end
   SERVICE="app"
   get_alb_rule_arn
   if [ $MAINTENANCE_MODE = "True" ]
