@@ -17,6 +17,7 @@ type Attorney struct {
 	DateOfBirth      date.Date
 	Address          place.Address
 	DeclaredFullName string
+	Confirmed        bool
 }
 
 func (a Attorney) FullName() string {
