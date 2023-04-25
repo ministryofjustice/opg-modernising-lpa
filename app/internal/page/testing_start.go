@@ -16,7 +16,7 @@ import (
 
 func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string, shareCodeSender shareCodeSender, localizer Localizer, certificateProviderStore CertificateProviderStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		sub := randomString(12)
+		sub := randomString(16)
 		sessionID := base64.StdEncoding.EncodeToString([]byte(sub))
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: sessionID})
 

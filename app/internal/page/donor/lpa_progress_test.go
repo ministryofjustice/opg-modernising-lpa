@@ -17,18 +17,21 @@ func TestGetLpaProgress(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{ID: "123"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
+
+	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
+
 	certificateProviderStore.
-		On("Get", r.Context()).
+		On("Get", ctx).
 		Return(&actor.CertificateProvider{}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &lpaProgressData{
 			App:                 testAppData,
-			Lpa:                 &page.Lpa{},
+			Lpa:                 &page.Lpa{ID: "123"},
 			CertificateProvider: &actor.CertificateProvider{},
 		}).
 		Return(nil)
@@ -63,11 +66,14 @@ func TestGetLpaProgressWhenCertificateProviderStoreErrors(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{ID: "123"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
+
+	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
+
 	certificateProviderStore.
-		On("Get", r.Context()).
+		On("Get", ctx).
 		Return(&actor.CertificateProvider{}, expectedError)
 
 	err := LpaProgress(nil, lpaStore, certificateProviderStore)(testAppData, w, r)
@@ -84,18 +90,21 @@ func TestGetLpaProgressOnTemplateError(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{ID: "123"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
+
+	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
+
 	certificateProviderStore.
-		On("Get", r.Context()).
+		On("Get", ctx).
 		Return(&actor.CertificateProvider{}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &lpaProgressData{
 			App:                 testAppData,
-			Lpa:                 &page.Lpa{},
+			Lpa:                 &page.Lpa{ID: "123"},
 			CertificateProvider: &actor.CertificateProvider{},
 		}).
 		Return(expectedError)

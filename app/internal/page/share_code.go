@@ -10,7 +10,6 @@ import (
 
 var useTestCode = false
 
-// TODO remove sending sessionID
 type ShareCodeData struct {
 	SessionID             string
 	LpaID                 string

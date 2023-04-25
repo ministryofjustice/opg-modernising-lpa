@@ -81,7 +81,23 @@ func TestGetDashboardWhenCertificateProviderDoesNotExist(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetDashboardWhenLpaStoreErrors(t *testing.T) {
+func TestGetDashboardWhenLPaStoreErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("GetAll", r.Context()).
+		Return([]*page.Lpa{}, expectedError)
+
+	err := Dashboard(nil, lpaStore, nil)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestGetDashboardWhenCertificateProviderStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -104,41 +120,36 @@ func TestGetDashboardWhenLpaStoreErrors(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetDashboardWhenCertificateProviderStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("GetAll", r.Context()).
-		Return([]*page.Lpa{}, nil)
-
-	err := Dashboard(nil, lpaStore, nil)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpas := []*page.Lpa{{}}
+	dashboardLpaData := []DashboardLpaDatum{
+		{Lpa: &page.Lpa{ID: "123"}, CertificateProvider: &actor.CertificateProvider{}},
+	}
 
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("GetAll", r.Context()).
-		Return(lpas, nil)
+		Return([]*page.Lpa{{ID: "123"}}, nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+
+	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
+	certificateProviderStore.
+		On("Get", ctx).
+		Return(&actor.CertificateProvider{}, nil)
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &dashboardData{App: testAppData, Lpas: nil}).
+		On("Execute", w, &dashboardData{App: testAppData, Lpas: dashboardLpaData}).
 		Return(expectedError)
 
-	err := Dashboard(template.Execute, lpaStore, nil)(testAppData, w, r)
+	err := Dashboard(template.Execute, lpaStore, certificateProviderStore)(testAppData, w, r)
+	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostDashboard(t *testing.T) {

@@ -127,5 +127,3 @@ func TestPutWhenError(t *testing.T) {
 	err := c.Put(ctx, "a-pk", "a-sk", "hello")
 	assert.Equal(t, expectedError, err)
 }
-
-//TODO write two more func tests
