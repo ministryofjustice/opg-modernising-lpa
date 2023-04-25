@@ -67,46 +67,6 @@ func TestIdentityConfirmed(t *testing.T) {
 	}
 }
 
-func TestCertificateProviderIdentityConfirmed(t *testing.T) {
-	testCases := map[string]struct {
-		lpa      *Lpa
-		expected bool
-	}{
-		"set": {
-			lpa: &Lpa{
-				CertificateProvider:                 actor.CertificateProvider{FirstNames: "a", LastName: "b"},
-				CertificateProviderIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "a", LastName: "b"},
-			},
-			expected: true,
-		},
-		"missing provider": {
-			lpa:      &Lpa{CertificateProviderIdentityUserData: identity.UserData{OK: true}},
-			expected: false,
-		},
-		"not ok": {
-			lpa:      &Lpa{CertificateProviderIdentityUserData: identity.UserData{Provider: identity.OneLogin}},
-			expected: false,
-		},
-		"no match": {
-			lpa: &Lpa{
-				CertificateProvider:                 actor.CertificateProvider{FirstNames: "a", LastName: "b"},
-				CertificateProviderIdentityUserData: identity.UserData{Provider: identity.OneLogin},
-			},
-			expected: false,
-		},
-		"none": {
-			lpa:      &Lpa{},
-			expected: false,
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, tc.lpa.CertificateProviderIdentityConfirmed())
-		})
-	}
-}
-
 func TestTypeLegalTermTransKey(t *testing.T) {
 	testCases := map[string]struct {
 		LpaType           string
@@ -230,10 +190,12 @@ func TestTaskStateString(t *testing.T) {
 func TestLpaProgress(t *testing.T) {
 	testCases := map[string]struct {
 		lpa              *Lpa
+		cp               *actor.CertificateProvider
 		expectedProgress Progress
 	}{
 		"initial state": {
 			lpa: &Lpa{},
+			cp:  &actor.CertificateProvider{},
 			expectedProgress: Progress{
 				LpaSigned:                   TaskInProgress,
 				CertificateProviderDeclared: TaskNotStarted,
@@ -245,6 +207,7 @@ func TestLpaProgress(t *testing.T) {
 		},
 		"lpa signed": {
 			lpa: &Lpa{Submitted: time.Now()},
+			cp:  &actor.CertificateProvider{},
 			expectedProgress: Progress{
 				LpaSigned:                   TaskCompleted,
 				CertificateProviderDeclared: TaskInProgress,
@@ -255,7 +218,8 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"certificate provider declared": {
-			lpa: &Lpa{Submitted: time.Now(), Certificate: Certificate{Agreed: time.Now()}},
+			lpa: &Lpa{Submitted: time.Now()},
+			cp:  &actor.CertificateProvider{Certificate: actor.Certificate{Agreed: time.Now()}},
 			expectedProgress: Progress{
 				LpaSigned:                   TaskCompleted,
 				CertificateProviderDeclared: TaskCompleted,
@@ -269,7 +233,7 @@ func TestLpaProgress(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expectedProgress, tc.lpa.Progress())
+			assert.Equal(t, tc.expectedProgress, tc.lpa.Progress(tc.cp))
 		})
 	}
 
@@ -286,7 +250,7 @@ func TestActorAddresses(t *testing.T) {
 			{FirstNames: "Replacement Attorney One", LastName: "Actor", Address: address},
 			{FirstNames: "Replacement Attorney Two", LastName: "Actor", Address: address},
 		},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor", Address: address},
+		CertificateProviderDetails: CertificateProviderDetails{FirstNames: "Certificate Provider", LastName: "Actor", Address: address},
 	}
 
 	want := []AddressDetail{
@@ -312,7 +276,7 @@ func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
 			{FirstNames: "Replacement Attorney One", LastName: "Actor"},
 			{FirstNames: "Replacement Attorney Two", LastName: "Actor", Address: address},
 		},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor"},
+		CertificateProviderDetails: CertificateProviderDetails{FirstNames: "Certificate Provider", LastName: "Actor"},
 	}
 
 	want := []AddressDetail{

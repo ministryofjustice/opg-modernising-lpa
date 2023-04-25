@@ -18,9 +18,9 @@ type yourAddressData struct {
 	Form      *form.AddressForm
 }
 
-func YourAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) page.Handler {
+func YourAddress(logger Logger, tmpl template.Template, addressClient AddressClient, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -30,9 +30,9 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			Form: &form.AddressForm{},
 		}
 
-		if lpa.CertificateProviderProvidedDetails.Address.Line1 != "" {
+		if certificateProvider.Address.Line1 != "" {
 			data.Form.Action = "manual"
-			data.Form.Address = &lpa.CertificateProviderProvidedDetails.Address
+			data.Form.Address = &certificateProvider.Address
 		}
 
 		if r.Method == http.MethodPost {
@@ -40,12 +40,12 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			data.Errors = data.Form.Validate(true)
 
 			if data.Form.Action == "manual" && data.Errors.None() {
-				lpa.CertificateProviderProvidedDetails.Address = *data.Form.Address
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				certificateProvider.Address = *data.Form.Address
+				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, appData.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity)
+				return appData.Redirect(w, r, nil, appData.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity)
 			}
 
 			if data.Form.Action == "select" && data.Errors.None() {
