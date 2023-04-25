@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Tag to deploy to ur environment'
+        description: 'Environment to target for maintenance mode'
         required: true
         type: string
       region:
