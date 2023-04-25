@@ -16,7 +16,7 @@ on:
         - eu-west-1
         - eu-west-2
       maintenance_mode_enabled:
-        description: 'Whether to enable or disable maintenance mode'
+        description: 'Enable maintenance mode'
         required: true
         type: boolean
 

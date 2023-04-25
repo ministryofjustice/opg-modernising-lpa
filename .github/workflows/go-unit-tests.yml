@@ -1,4 +1,5 @@
-name: Run Go unit tests and Push coverage reports to Codecov
+name: "[Job] Run Go unit tests and Push coverage reports to Codecov"
+
 on:
   workflow_call:
 

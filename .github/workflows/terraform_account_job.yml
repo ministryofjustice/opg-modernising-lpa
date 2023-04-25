@@ -1,3 +1,5 @@
+name: "[Job] Manage AWS Account Infrastructure"
+
 on:
   workflow_call:
     inputs:
