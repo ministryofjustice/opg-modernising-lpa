@@ -54,7 +54,7 @@ jobs:
             echo "::set-output name=${{ secrets.PREPRODUCTION_MAINTENANCE_MODE_ROLE }}"
           else
             echo "Using dev account role"
-            echo "::set-output name=${{ secrets.DEV_MAINTENANCE_MODE_ROLE }}"
+            echo "::set-output name=${{ secrets.DEVELOPMENT_MAINTENANCE_MODE_ROLE }}"
           fi
       - name: Configure AWS Credentials For Maintenance Mode
         uses: aws-actions/configure-aws-credentials@v2
