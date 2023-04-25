@@ -43,34 +43,34 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: unfor19/install-aws-cli-action@v1
-      - name: Determine Role to Use for Maintenance Mode
+      - name: Determine role to use for maintenance mode
         run: |
           # if the environment is production use the production account role, if it's preproduction use the preproduction account role, otherwise use the dev account role
           if [[ ${{ github.event.inputs.environment }} == "production" ]]; then
             echo "Using production account role"
-            echo "::set-output name=${{ secrets.PRODUCTION_MAINTENANCE_MODE_ROLE }}"
+            echo "::set-output role=${{ secrets.PRODUCTION_MAINTENANCE_MODE_ROLE }}"
           elif [[ ${{ github.event.inputs.environment }} == "preproduction" ]]; then
             echo "Using preproduction account role"
-            echo "::set-output name=${{ secrets.PREPRODUCTION_MAINTENANCE_MODE_ROLE }}"
+            echo "::set-output role=${{ secrets.PREPRODUCTION_MAINTENANCE_MODE_ROLE }}"
           else
             echo "Using dev account role"
-            echo "::set-output name=${{ secrets.DEVELOPMENT_MAINTENANCE_MODE_ROLE }}"
+            echo "::set-output role=${{ secrets.DEVELOPMENT_MAINTENANCE_MODE_ROLE }}"
           fi
-      - name: Configure AWS Credentials For Maintenance Mode
+      - name: Configure AWS credentials for maintenance mode
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: ${{ github.event.inputs.region }}
           role-duration-seconds: 3600
           role-session-name: MLPABManageMaintenanceMode
           role-to-assume: ${{ steps.determine_role.outputs.role }}
-      - name: Enable Maintenance Mode
+      - name: Enable maintenance mode
         if: ${{ github.event.inputs.maintenance_mode_enabled == 'true' }}
         run: |
           ./manage_maintenance.sh \
             --environment ${{ github.event.inputs.environment }} \
             --maintenance_mode
         working-directory: ./scripts/maintenance_mode
-      - name: disable Maintenance Mode
+      - name: Disable maintenance mode
         if: ${{ github.event.inputs.maintenance_mode_enabled == 'false' }}
         run: |
           ./manage_maintenance.sh \
