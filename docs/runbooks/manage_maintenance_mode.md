@@ -8,8 +8,15 @@ This script can be run from github actions or a local command line with the corr
 
 ### Github Actions
 
+Navigate to [Github Actions](https://github.com/ministryofjustice/opg-modernising-lpa/actions) for the MLPAB service
 
+Click on the `[WD] Manage Maintenance Mode` workflow
 
+Click on the `Run workflow` button
+
+Enter the `environment` and `region` you wish to run the manage maintenance script against, and select the `maintenance mode enabled` option `true` or `false`.
+
+Click on the `Run workflow` button
 
 ### Local Command Line
 
