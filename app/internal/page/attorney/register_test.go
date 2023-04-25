@@ -76,7 +76,10 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 			CanGoBack:   true,
 		}, appData)
 		assert.Equal(t, w, hw)
-		assert.Equal(t, &page.SessionData{LpaID: "ignored-123", SessionID: "ignored-session-id"}, page.SessionDataFromContext(hr.Context()))
+
+		sessionData, _ := page.SessionDataFromContext(hr.Context())
+
+		assert.Equal(t, &page.SessionData{LpaID: "ignored-123", SessionID: "ignored-session-id"}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -109,7 +112,10 @@ func TestMakeHandleExistingLpaData(t *testing.T) {
 			AttorneyID:  "attorney-id",
 		}, appData)
 		assert.Equal(t, w, hw)
-		assert.Equal(t, &page.SessionData{LpaID: "lpa-id", SessionID: "session-id"}, page.SessionDataFromContext(hr.Context()))
+
+		sessionData, _ := page.SessionDataFromContext(hr.Context())
+
+		assert.Equal(t, &page.SessionData{LpaID: "lpa-id", SessionID: "session-id"}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})

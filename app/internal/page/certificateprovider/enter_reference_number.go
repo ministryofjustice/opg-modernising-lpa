@@ -19,7 +19,7 @@ type enterReferenceNumberData struct {
 	Lpa    *page.Lpa
 }
 
-func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore page.DataStore) page.Handler {
+func EnterReferenceNumber(tmpl template.Template, dataStore page.DataStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := enterReferenceNumberData{
 			App:  appData,
@@ -43,23 +43,14 @@ func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore p
 					}
 				}
 
-				lpa, err := lpaStore.Get(page.ContextWithSessionData(r.Context(), &page.SessionData{
-					SessionID: v.SessionID,
-					LpaID:     v.LpaID,
-				}))
-				if err != nil {
-					return err
-				}
-
 				query := url.Values{
-					"lpaId":     {v.LpaID},
-					"sessionId": {v.SessionID},
+					"lpaId": {v.LpaID},
 				}
 				if v.Identity {
 					query.Add("identity", "1")
 				}
 
-				appData.Redirect(w, r, lpa, page.Paths.CertificateProviderLogin+"?"+query.Encode())
+				appData.Redirect(w, r, nil, page.Paths.CertificateProviderLogin+"?"+query.Encode())
 				return nil
 			}
 		}

@@ -4,7 +4,7 @@ describe('Payment', () => {
             cy.clearCookie('pay');
             cy.getCookie('pay').should('not.exist')
 
-            cy.visit('/testing-start?redirect=/task-list&withCP=1');
+            cy.visit('/testing-start?redirect=/task-list&withCPDetails=1');
             cy.visitLpa('/about-payment');
 
             cy.get('h1').should('contain', 'About payment');
@@ -19,7 +19,7 @@ describe('Payment', () => {
         })
 
         it('removes existing secure cookie on payment confirmation page', () => {
-            cy.visit('/testing-start?redirect=/task-list&withCP=1&paymentComplete=1');
+            cy.visit('/testing-start?redirect=/task-list&withCPDetails=1&paymentComplete=1');
             cy.getCookie('pay').should('exist')
 
             cy.visitLpa('/payment-confirmation');
