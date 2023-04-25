@@ -94,23 +94,6 @@ func MakePersonToNotify(firstNames string) actor.PersonToNotify {
 	}
 }
 
-func MakeCertificateProvider(firstNames string) actor.CertificateProvider {
-	return actor.CertificateProvider{
-		FirstNames:  firstNames,
-		LastName:    "Jones",
-		Email:       TestEmail,
-		Mobile:      TestMobile,
-		DateOfBirth: date.New("1997", "1", "2"),
-		Address: place.Address{
-			Line1:      "5 RICHMOND PLACE",
-			Line2:      "KINGS HEATH",
-			Line3:      "WEST MIDLANDS",
-			TownOrCity: "BIRMINGHAM",
-			Postcode:   "B14 7ED",
-		},
-	}
-}
-
 func MakeCertificateProviderDetails(firstNames string) CertificateProviderDetails {
 	return CertificateProviderDetails{
 		FirstNames:              firstNames,

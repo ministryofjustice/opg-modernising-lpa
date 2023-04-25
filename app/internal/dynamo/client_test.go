@@ -127,3 +127,163 @@ func TestPutWhenError(t *testing.T) {
 	err := c.Put(ctx, "a-pk", "a-sk", "hello")
 	assert.Equal(t, expectedError, err)
 }
+
+func TestGetOneByPartialSk(t *testing.T) {
+	result, _ := attributevalue.Marshal("some data")
+	ctx := context.Background()
+	pkey, _ := attributevalue.Marshal("a-pk")
+	skey, _ := attributevalue.Marshal("a-partial-sk")
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			ExpressionAttributeNames:  map[string]string{"#PK": "PK", "#SK": "SK"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey, ":SK": skey},
+			KeyConditionExpression:    aws.String("#PK = :PK and begins_with(#SK, :SK)"),
+		}).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{{"Data": result}}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v string
+	err := c.GetOneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	assert.Nil(t, err)
+	assert.Equal(t, "some data", v)
+}
+
+func TestGetOneByPartialSkOnQueryError(t *testing.T) {
+	result, _ := attributevalue.Marshal("some data")
+	ctx := context.Background()
+	pkey, _ := attributevalue.Marshal("a-pk")
+	skey, _ := attributevalue.Marshal("a-partial-sk")
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			ExpressionAttributeNames:  map[string]string{"#PK": "PK", "#SK": "SK"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey, ":SK": skey},
+			KeyConditionExpression:    aws.String("#PK = :PK and begins_with(#SK, :SK)"),
+		}).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{{"Data": result}}}, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v string
+	err := c.GetOneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestGetOneByPartialSkWhenNotFound(t *testing.T) {
+	ctx := context.Background()
+	pkey, _ := attributevalue.Marshal("a-pk")
+	skey, _ := attributevalue.Marshal("a-partial-sk")
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			ExpressionAttributeNames:  map[string]string{"#PK": "PK", "#SK": "SK"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey, ":SK": skey},
+			KeyConditionExpression:    aws.String("#PK = :PK and begins_with(#SK, :SK)"),
+		}).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v string
+	err := c.GetOneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	assert.Equal(t, NotFoundError{}, err)
+}
+
+func TestGetOneByPartialSkWhenMultipleResults(t *testing.T) {
+	result, _ := attributevalue.Marshal("some data")
+	ctx := context.Background()
+	pkey, _ := attributevalue.Marshal("a-pk")
+	skey, _ := attributevalue.Marshal("a-partial-sk")
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			ExpressionAttributeNames:  map[string]string{"#PK": "PK", "#SK": "SK"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey, ":SK": skey},
+			KeyConditionExpression:    aws.String("#PK = :PK and begins_with(#SK, :SK)"),
+		}).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{{"Data": result}, {"Data": result}}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v string
+	err := c.GetOneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	assert.Equal(t, MultipleResultsError{}, err)
+}
+
+func TestGetAllByGsi(t *testing.T) {
+	result, _ := attributevalue.Marshal("some data")
+	ctx := context.Background()
+	skey, _ := attributevalue.Marshal("a-partial-sk")
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			IndexName:                 aws.String("index-name"),
+			ExpressionAttributeNames:  map[string]string{"#SK": "SK"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey},
+			KeyConditionExpression:    aws.String("#SK = :SK"),
+		}).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{{"Data": result}, {"Data": result}}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v []string
+	err := c.GetAllByGsi(ctx, "index-name", "a-partial-sk", &v)
+	assert.Nil(t, err)
+	assert.Equal(t, []string{"some data", "some data"}, v)
+}
+
+func TestGetAllByGsiWhenNotFound(t *testing.T) {
+	ctx := context.Background()
+	skey, _ := attributevalue.Marshal("a-partial-sk")
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			IndexName:                 aws.String("index-name"),
+			ExpressionAttributeNames:  map[string]string{"#SK": "SK"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey},
+			KeyConditionExpression:    aws.String("#SK = :SK"),
+		}).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v []string
+	err := c.GetAllByGsi(ctx, "index-name", "a-partial-sk", &v)
+	assert.Equal(t, NotFoundError{}, err)
+}
+
+func TestGetAllByGsiOnQueryError(t *testing.T) {
+	ctx := context.Background()
+	skey, _ := attributevalue.Marshal("a-partial-sk")
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			IndexName:                 aws.String("index-name"),
+			ExpressionAttributeNames:  map[string]string{"#SK": "SK"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey},
+			KeyConditionExpression:    aws.String("#SK = :SK"),
+		}).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{}}, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v []string
+	err := c.GetAllByGsi(ctx, "index-name", "a-partial-sk", &v)
+	assert.Equal(t, expectedError, err)
+}
