@@ -1,4 +1,4 @@
-name: "Toggle public access to UR environment"
+name: "[WD] Manage Maintenance Mode"
 
 on:
   workflow_dispatch:
