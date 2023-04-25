@@ -7,6 +7,8 @@ function get_alb_rule_arn() {
   MM_RULE_ARN_WELSH=$(aws elbv2 describe-rules --listener-arn ${MM_LISTENER_ARN} | jq -r '.[][]  | select(.Priority == "100") | .RuleArn')
 }
 
+# fix path to maintenance mode ssm parameter and permission
+
 function enable_maintenance() {
   local front_end=${1:?}
   MM_DNS_PREFIX="${ENVIRONMENT}."
@@ -14,7 +16,7 @@ function enable_maintenance() {
   then
     MM_DNS_PREFIX=""
   fi
-  aws ssm put-parameter --name "${ENVIRONMENT}_${SERVICE}_enable_maintenance" --type "String" --value "true" --overwrite
+  # aws ssm put-parameter --name "${ENVIRONMENT}_${SERVICE}_enable_maintenance" --type "String" --value "true" --overwrite
 
   aws elbv2 modify-rule \
   --rule-arn $MM_RULE_ARN_WELSH \
@@ -26,7 +28,7 @@ function enable_maintenance() {
 }
 
 function disable_maintenance() {
-  aws ssm put-parameter --name "${ENVIRONMENT}_${SERVICE}_enable_maintenance" --type "String" --value "false" --overwrite
+  # aws ssm put-parameter --name "${ENVIRONMENT}_${SERVICE}_enable_maintenance" --type "String" --value "false" --overwrite
   aws elbv2 modify-rule \
   --rule-arn $MM_RULE_ARN \
   --conditions Field=path-pattern,Values='/maintenance'
