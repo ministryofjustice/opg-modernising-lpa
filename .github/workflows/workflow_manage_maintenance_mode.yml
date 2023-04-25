@@ -1,0 +1,79 @@
+name: "Toggle public access to UR environment"
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Tag to deploy to ur environment'
+        required: true
+        type: string
+      region:
+        description: 'AWS region to locate ALBs to target'
+        required: true
+        default: 'eu-west-1'
+        type: choice
+        options:
+        - eu-west-1
+        - eu-west-2
+      maintenance_mode_enabled:
+        description: 'Whether to enable or disable maintenance mode'
+        required: true
+        type: boolean
+
+permissions:
+  id-token: write
+  contents: none
+  security-events: none
+  pull-requests: none
+  actions: none
+  checks: none
+  deployments: none
+  issues: none
+  packages: none
+  repository-projects: none
+  statuses: none
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  manage_maintenance_mode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: unfor19/install-aws-cli-action@v1
+      - name: Determine Role to Use
+        run: |
+          # if the environment is not production use the production account role, if it's preproduction use the preproduction account role, otherwise use the dev account role
+          if [[ ${{ github.event.inputs.environment }} == "production" ]]; then
+            echo "Using production account role"
+            echo "::set-output name=role::arn:aws:iam::${{ secrets.PRODUCTION_ACCOUNT_ID }}:role/maintenance_mode"
+          elif [[ ${{ github.event.inputs.environment }} == "preproduction" ]]; then
+            echo "Using preproduction account role"
+            echo "::set-output name=role::arn:aws:iam::${{ secrets.PREPRODUCTION_ACCOUNT_ID }}:role/maintenance_mode"
+          else
+            echo "Using dev account role"
+            echo "::set-output name=role::arn:aws:iam::${{ secrets.DEV_ACCOUNT_ID }}:role/maintenance_mode"
+          fi
+      - name: Configure AWS Credentials For Maintenance Mode
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: ${{ github.event.inputs.region }}
+          role-duration-seconds: 3600
+          role-session-name: MLPABManageMaintenanceMode
+          role-to-assume: ${{ steps.determine_role.outputs.role }}
+      - name: Enable Maintenance Mode
+        if: ${{ github.event.inputs.maintenance_mode_enabled == 'true' }}
+        run: |
+          ./manage_maintenance.sh \
+            --environment ${{ github.event.inputs.environment }} \
+            --maintenance_mode
+        working-directory: ./scripts/maintenance_mode
+      - name: disable Maintenance Mode
+        if: ${{ github.event.inputs.maintenance_mode_enabled == 'false' }}
+        run: |
+          ./manage_maintenance.sh \
+            --environment ${{ github.event.inputs.environment }} \
+            --disable_maintenance_mode
+        working-directory: ./scripts/maintenance_mode
