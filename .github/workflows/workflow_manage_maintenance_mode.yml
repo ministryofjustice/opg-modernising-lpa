@@ -45,7 +45,6 @@ jobs:
       - uses: unfor19/install-aws-cli-action@v1
       - name: Determine role to use for maintenance mode
         run: |
-          # if the environment is production use the production account role, if it's preproduction use the preproduction account role, otherwise use the dev account role
           if [[ ${{ github.event.inputs.environment }} == "production" ]]; then
             echo "Using production account role"
             echo "::set-output role=${{ secrets.PRODUCTION_MAINTENANCE_MODE_ROLE }}"
