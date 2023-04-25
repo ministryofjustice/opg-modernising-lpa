@@ -47,13 +47,13 @@ jobs:
         run: |
           if [[ ${{ github.event.inputs.environment }} == "production" ]]; then
             echo "Using production account role"
-            echo "::set-output role=${{ secrets.PRODUCTION_MAINTENANCE_MODE_ROLE }}"
+            echo "role=${{ secrets.PRODUCTION_MAINTENANCE_MODE_ROLE }} >> $GITHUB_OUTPUT"
           elif [[ ${{ github.event.inputs.environment }} == "preproduction" ]]; then
             echo "Using preproduction account role"
-            echo "::set-output role=${{ secrets.PREPRODUCTION_MAINTENANCE_MODE_ROLE }}"
+            echo "role=${{ secrets.PREPRODUCTION_MAINTENANCE_MODE_ROLE }} >> $GITHUB_OUTPUT"
           else
             echo "Using dev account role"
-            echo "::set-output role=${{ secrets.DEVELOPMENT_MAINTENANCE_MODE_ROLE }}"
+            echo "role=${{ secrets.DEVELOPMENT_MAINTENANCE_MODE_ROLE }} >> $GITHUB_OUTPUT"
           fi
       - name: Configure AWS credentials for maintenance mode
         uses: aws-actions/configure-aws-credentials@v2
