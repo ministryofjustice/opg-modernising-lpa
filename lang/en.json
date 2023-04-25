@@ -524,7 +524,7 @@
     "enterYourReferenceNumber": "Enter your certificate provider reference number",
     "certificateProviderReferenceNumberContent": "<p class=\"govuk-body\">You can find this in the email inviting you to be a certificate provider.</p>",
     "certificateProviderReferenceNumber": "Certificate provider reference number",
-    "referenceNumberHint": "This will be made up of 12 characters. For example, ABCD 1234 5678.",
+    "referenceNumberHint": "This will be made up of 12 characters. For example, ABCD-1234-5678.",
     "incorrectReferenceNumber": "The certificate provider reference number you entered is incorrect, please check it and try again",
     "twelveCharactersReferenceNumber": "your 12 character certificate provider reference number",
     "referenceNumberMustBeTwelveCharacters": "The certificate provider reference number you enter must contain 12 characters",
@@ -624,5 +624,15 @@
     "attorney18OrOverWarning": "You must be aged 18 or over to be an attorney.",
     "youAttorneyAreUnder18Error": "Placeholder",
     "whatIsYourDateOfBirth": "What is your date of birth?",
-    "checkAttorneyNameContent": "<p class=\"govuk-body\">This is the name the donor, {{ .DonorFullName }}, provided for you:</p> <div class=\"govuk-inset-text\">{{ .AttorneyFullName }}</div>"
+    "checkAttorneyNameContent": "<p class=\"govuk-body\">This is the name the donor, {{ .DonorFullName }}, provided for you:</p> <div class=\"govuk-inset-text\">{{ .AttorneyFullName }}</div>",
+
+    "signAsAttorney": "Sign as an attorney on this LPA",
+    "signAsReplacementAttorney": "Sign as a replacement attorney on this LPA",
+    "lpaCantBeRegisteredUntilAttorneysSign": "This LPA cannot be registered until you and any other attorneys named in this LPA have signed.",
+    "bySigningIUnderstandAndConfirmAllOfTheFollowing": "By signing, I understand and confirm all of the following:",
+    "signAsAttorneyBullets": "<li>I’m aged 18 or over.</li><li>I have read this lasting power of attorney (LPA) or had it read to me. This includes my legal rights and responsibilities.</li><li>I have a duty to act based on the principlies of the Mental Capacity Act 2005 and with consideration of the <a href=\"https://www.gov.uk/government/publications/mental-capacity-act-code-of-practice\" class=\"govuk-link\">Mental Capacity Act Code of Practice</a>.</li><li>I must make decisions and act in the best interests of the donor.</li><li>I must take into account any restrictions and conditions set out in this LPA.</li>",
+    "signAsAttorneyWhenRegisteredBullet": "I can make decisions and act only when this LPA has been registered.",
+    "signAsAttorneyWhenCapacityLostBullet": "I can make decisions and and act only when this LPA has been registered and only when the donor does not have mental capacity.",
+    "iAttorneyConfirmTheseStatements": "I, {{.AttorneyFullName}}, confirm these statements are true and understand that ticking this box acts as my legal signature.",
+    "asReplacementAttorneyAlsoConfirmThat": "<p class=\"govuk-body govuk-!-font-weight-bold\">As a replacement attorney, I also confirm that I understand:</p><p class=\"govuk-body\">I only have the authority to act under this LPA after an original attorney’s appointment is terminated. I must notify the Public Guardian if this happens.</p>"
 }

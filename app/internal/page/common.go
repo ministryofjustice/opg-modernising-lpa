@@ -97,4 +97,8 @@ func PostFormString(r *http.Request, name string) string {
 	return strings.TrimSpace(r.PostFormValue(name))
 }
 
+func PostFormReferenceNumber(r *http.Request, name string) string {
+	return strings.ReplaceAll(strings.ReplaceAll(r.PostFormValue(name), " ", ""), "-", "")
+}
+
 type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
