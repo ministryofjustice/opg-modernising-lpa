@@ -3,7 +3,6 @@ package attorney
 import (
 	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -73,25 +72,25 @@ func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore D
 }
 
 type enterReferenceNumberForm struct {
-	ReferenceNumber string
+	ReferenceNumber    string
+	ReferenceNumberRaw string
+}
+
+func readEnterReferenceNumberForm(r *http.Request) *enterReferenceNumberForm {
+	return &enterReferenceNumberForm{
+		ReferenceNumber:    page.PostFormReferenceNumber(r, "reference-number"),
+		ReferenceNumberRaw: page.PostFormString(r, "reference-number"),
+	}
 }
 
 func (f *enterReferenceNumberForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("reference-number", "twelveCharactersAttorneyReferenceNumber", strings.ReplaceAll(f.ReferenceNumber, " ", ""),
-		validation.Empty(),
-	)
+	errors.String("reference-number", "twelveCharactersAttorneyReferenceNumber", f.ReferenceNumber,
+		validation.Empty())
 
-	errors.String("reference-number", "attorneyReferenceNumberMustBeTwelveCharacters", strings.ReplaceAll(f.ReferenceNumber, " ", ""),
-		validation.StringLength(12),
-	)
+	errors.String("reference-number", "attorneyReferenceNumberMustBeTwelveCharacters", f.ReferenceNumber,
+		validation.StringLength(12))
 
 	return errors
-}
-
-func readEnterReferenceNumberForm(r *http.Request) *enterReferenceNumberForm {
-	return &enterReferenceNumberForm{
-		ReferenceNumber: page.PostFormString(r, "reference-number"),
-	}
 }

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -72,22 +71,20 @@ type enterReferenceNumberForm struct {
 	ReferenceNumber string
 }
 
+func readEnterReferenceNumberForm(r *http.Request) *enterReferenceNumberForm {
+	return &enterReferenceNumberForm{
+		ReferenceNumber: page.PostFormReferenceNumber(r, "reference-number"),
+	}
+}
+
 func (f *enterReferenceNumberForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("reference-number", "twelveCharactersReferenceNumber", strings.ReplaceAll(f.ReferenceNumber, " ", ""),
-		validation.Empty(),
-	)
+	errors.String("reference-number", "twelveCharactersReferenceNumber", f.ReferenceNumber,
+		validation.Empty())
 
-	errors.String("reference-number", "referenceNumberMustBeTwelveCharacters", strings.ReplaceAll(f.ReferenceNumber, " ", ""),
-		validation.StringLength(12),
-	)
+	errors.String("reference-number", "referenceNumberMustBeTwelveCharacters", f.ReferenceNumber,
+		validation.StringLength(12))
 
 	return errors
-}
-
-func readEnterReferenceNumberForm(r *http.Request) *enterReferenceNumberForm {
-	return &enterReferenceNumberForm{
-		ReferenceNumber: page.PostFormString(r, "reference-number"),
-	}
 }
