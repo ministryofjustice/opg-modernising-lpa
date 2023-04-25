@@ -13,6 +13,7 @@ type AttorneyPaths struct {
 	EnterReferenceNumber string
 	CheckYourName        string
 	DateOfBirth          string
+	Sign                 string
 	// TODO: remove once the attorney flow is complete, this is just to simplify
 	// development
 	NextPage string
@@ -137,6 +138,7 @@ var Paths = AppPaths{
 		EnterReferenceNumber: "/attorney-enter-reference-number",
 		CheckYourName:        "/attorney-check-your-name",
 		DateOfBirth:          "/attorney-date-of-birth",
+		Sign:                 "/attorney-sign",
 		NextPage:             "/attorney-next-page",
 	},
 	AuthRedirect:                                            "/auth/redirect",
@@ -249,6 +251,7 @@ func IsLpaPath(url string) bool {
 		Paths.Attorney.Login,
 		Paths.Attorney.LoginCallback,
 		Paths.Attorney.NextPage,
+		Paths.Attorney.Sign,
 		Paths.Attorney.Start,
 		Paths.AuthRedirect,
 		Paths.CertificateProvided,

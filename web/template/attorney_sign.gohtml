@@ -1,0 +1,69 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}
+  {{ if .IsReplacement }}
+    {{ tr .App "signAsReplacementAttorney" }}
+  {{ else }}
+    {{ tr .App "signAsAttorney" }}
+  {{ end }}
+{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">
+        {{ template "pageTitle" . }}
+      </h1>
+
+      {{ template "warning" (warning .App "lpaCantBeRegisteredUntilAttorneysSign") }}
+
+      <p class="govuk-body govuk-!-font-weight-bold">
+        {{ tr .App "bySigningIUnderstandAndConfirmAllOfTheFollowing" }}
+      </p>
+
+      <ul class="govuk-list govuk-list--bullet">
+        {{ trHtml .App "signAsAttorneyBullets" }}
+        <li>
+          {{ if .LpaCanBeUsedWhenRegistered }}
+            {{ tr .App "signAsAttorneyWhenRegisteredBullet" }}
+          {{ else }}
+            {{ tr .App "signAsAttorneyWhenCapacityLostBullet" }}
+          {{ end }}
+        </li>
+      </ul>
+
+      {{ if .IsReplacement }}
+        {{ trHtml .App "asReplacementAttorneyAlsoConfirmThat" }}
+      {{ end }}
+
+      <form novalidate method="post">
+        <div class="moj-ticket-panel">
+          <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
+            <p class="govuk-body govuk-!-font-weight-bold">
+              {{ tr .App "yourSignature" }}
+            </p>
+
+            <div class="govuk-form-group {{ if .Errors.Has "confirm" }}govuk-form-group--error{{ end }}">
+              {{ template "error-message" (errorMessage . "confirm") }}
+
+              <div class="govuk-checkboxes {{ if .Errors.Has "confirm" }}govuk-checkboxes--error{{ end }}">
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="f-confirm" name="confirm" type="checkbox" value="1" {{ if .Form.Confirm }}checked{{ end }}>
+                  <label class="govuk-label govuk-checkboxes__label" for="f-confirm">
+                    {{ trFormat .App "iAttorneyConfirmTheseStatements" "AttorneyFullName" .Attorney.FullName }}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="govuk-button" data-module="govuk-button">
+          {{ tr .App "submitSignature" }}
+        </button>
+
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}
