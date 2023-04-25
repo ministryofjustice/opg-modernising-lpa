@@ -2,6 +2,7 @@ package certificateprovider
 
 import (
 	"context"
+	"encoding/base64"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -20,7 +22,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, nil, &place.Client{}, nil, &identity.YotiClient{}, &notify.Client{})
+	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, nil, &place.Client{}, nil, &identity.YotiClient{}, &notify.Client{}, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -34,11 +36,7 @@ func TestMakeHandle(t *testing.T) {
 		On("Get", r, "session").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"certificate-provider": &sesh.CertificateProviderSession{
-					Sub:            "random",
-					DonorSessionID: "session-id",
-					LpaID:          "lpa-id",
-				},
+				"certificate-provider": &sesh.CertificateProviderSession{Sub: "random", LpaID: "lpa-id"},
 			},
 		}, nil)
 
@@ -48,13 +46,16 @@ func TestMakeHandle(t *testing.T) {
 		assert.Equal(t, page.AppData{
 			ServiceName: "beACertificateProvider",
 			Page:        "/path",
-			SessionID:   "session-id",
+			SessionID:   base64.StdEncoding.EncodeToString([]byte("random")),
 			LpaID:       "lpa-id",
 			CanGoBack:   false,
+			ActorType:   actor.TypeCertificateProvider,
 		}, appData)
 		assert.Equal(t, w, hw)
 
-		assert.Equal(t, &page.SessionData{SessionID: "session-id", LpaID: "lpa-id"}, page.SessionDataFromContext(hr.Context()))
+		sessionData, _ := page.SessionDataFromContext(hr.Context())
+
+		assert.Equal(t, &page.SessionData{SessionID: base64.StdEncoding.EncodeToString([]byte("random")), LpaID: "lpa-id"}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -73,7 +74,7 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[any]any{"certificate-provider": &sesh.CertificateProviderSession{Sub: "random", LpaID: "lpa-id", DonorSessionID: "session-id"}}}, nil)
+		Return(&sessions.Session{Values: map[any]any{"certificate-provider": &sesh.CertificateProviderSession{Sub: "random", LpaID: "lpa-id"}}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, sessionStore, nil)
@@ -81,12 +82,16 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 		assert.Equal(t, page.AppData{
 			ServiceName: "beACertificateProvider",
 			Page:        "/path",
-			SessionID:   "session-id",
+			SessionID:   base64.StdEncoding.EncodeToString([]byte("random")),
 			CanGoBack:   true,
 			LpaID:       "lpa-id",
+			ActorType:   actor.TypeCertificateProvider,
 		}, appData)
 		assert.Equal(t, w, hw)
-		assert.Equal(t, &page.SessionData{LpaID: "lpa-id", SessionID: "session-id"}, page.SessionDataFromContext(hr.Context()))
+
+		sessionData, _ := page.SessionDataFromContext(hr.Context())
+
+		assert.Equal(t, &page.SessionData{LpaID: "lpa-id", SessionID: base64.StdEncoding.EncodeToString([]byte("random"))}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -164,9 +169,10 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 		assert.Equal(t, page.AppData{
 			ServiceName: "beACertificateProvider",
 			Page:        "/path",
+			ActorType:   actor.TypeCertificateProvider,
 		}, appData)
 		assert.Equal(t, w, hw)
-		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{ServiceName: "beACertificateProvider", Page: "/path"})), hr)
+		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{ServiceName: "beACertificateProvider", Page: "/path", ActorType: actor.TypeCertificateProvider})), hr)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})

@@ -4,16 +4,15 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type howLongHaveYouKnownCertificateProviderData struct {
-	App                 page.AppData
-	Errors              validation.List
-	CertificateProvider actor.CertificateProvider
-	HowLong             string
+	App                        page.AppData
+	Errors                     validation.List
+	CertificateProviderDetails page.CertificateProviderDetails
+	HowLong                    string
 }
 
 func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, lpaStore LpaStore) page.Handler {
@@ -24,9 +23,9 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, lpaStore Lpa
 		}
 
 		data := &howLongHaveYouKnownCertificateProviderData{
-			App:                 appData,
-			CertificateProvider: lpa.CertificateProvider,
-			HowLong:             lpa.CertificateProvider.RelationshipLength,
+			App:                        appData,
+			CertificateProviderDetails: lpa.CertificateProviderDetails,
+			HowLong:                    lpa.CertificateProviderDetails.RelationshipLength,
 		}
 
 		if r.Method == http.MethodPost {
@@ -35,7 +34,7 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, lpaStore Lpa
 
 			if data.Errors.None() {
 				lpa.Tasks.CertificateProvider = page.TaskCompleted
-				lpa.CertificateProvider.RelationshipLength = form.HowLong
+				lpa.CertificateProviderDetails.RelationshipLength = form.HowLong
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}

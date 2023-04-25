@@ -2,12 +2,14 @@ package certificateprovider
 
 import (
 	"context"
+	"encoding/base64"
 	"io"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -30,6 +32,13 @@ type LpaStore interface {
 	Put(context.Context, *page.Lpa) error
 }
 
+//go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
+type CertificateProviderStore interface {
+	Create(ctx context.Context) (*actor.CertificateProvider, error)
+	Get(ctx context.Context) (*actor.CertificateProvider, error)
+	Put(ctx context.Context, certificateProvider *actor.CertificateProvider) error
+}
+
 //go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
 type OneLoginClient interface {
 	AuthCodeURL(state, nonce, locale string, identity bool) string
@@ -40,9 +49,10 @@ type OneLoginClient interface {
 
 //go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
 type DataStore interface {
-	GetAll(context.Context, string, interface{}) error
-	Get(context.Context, string, string, interface{}) error
+	Get(ctx context.Context, pk, sk string, v interface{}) error
 	Put(context.Context, string, string, interface{}) error
+	GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
+	GetAllByGsi(ctx context.Context, gsi, sk string, v interface{}) error
 }
 
 //go:generate mockery --testonly --inpackage --name AddressClient --structname mockAddressClient
@@ -87,30 +97,31 @@ func Register(
 	errorHandler page.ErrorHandler,
 	yotiClient YotiClient,
 	notifyClient NotifyClient,
+	certificateProviderStore CertificateProviderStore,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
 	handleRoot(page.Paths.CertificateProviderStart, None,
-		page.Guidance(tmpls.Get("certificate_provider_start.gohtml"), nil))
+		Guidance(tmpls.Get("certificate_provider_start.gohtml"), nil, nil))
 	handleRoot(page.Paths.CertificateProviderEnterReferenceNumber, None,
-		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), lpaStore, dataStore))
+		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), dataStore))
 	handleRoot(page.Paths.CertificateProviderLogin, None,
 		Login(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.CertificateProviderLoginCallback, None,
-		LoginCallback(oneLoginClient, sessionStore))
+		LoginCallback(oneLoginClient, sessionStore, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderWhoIsEligible, RequireSession,
-		page.Guidance(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), lpaStore))
+		Guidance(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), lpaStore, nil))
 	handleRoot(page.Paths.CertificateProviderCheckYourName, RequireSession,
-		CheckYourName(tmpls.Get("certificate_provider_check_your_name.gohtml"), lpaStore, notifyClient))
+		CheckYourName(tmpls.Get("certificate_provider_check_your_name.gohtml"), lpaStore, notifyClient, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderEnterDateOfBirth, RequireSession,
-		EnterDateOfBirth(tmpls.Get("certificate_provider_enter_date_of_birth.gohtml"), lpaStore))
+		EnterDateOfBirth(tmpls.Get("certificate_provider_enter_date_of_birth.gohtml"), lpaStore, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderEnterMobileNumber, RequireSession,
-		EnterMobileNumber(tmpls.Get("certificate_provider_enter_mobile_number.gohtml"), lpaStore))
+		EnterMobileNumber(tmpls.Get("certificate_provider_enter_mobile_number.gohtml"), lpaStore, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderYourAddress, RequireSession,
-		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
+		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, certificateProviderStore))
 
 	handleRoot(page.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity, RequireSession,
-		page.Guidance(tmpls.Get("certificate_provider_what_youll_need_to_confirm_your_identity.gohtml"), lpaStore))
+		Guidance(tmpls.Get("certificate_provider_what_youll_need_to_confirm_your_identity.gohtml"), lpaStore, nil))
 
 	for path, page := range map[string]int{
 		page.Paths.CertificateProviderSelectYourIdentityOptions:  0,
@@ -118,19 +129,19 @@ func Register(
 		page.Paths.CertificateProviderSelectYourIdentityOptions2: 2,
 	} {
 		handleRoot(path, RequireSession,
-			SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), lpaStore, page))
+			SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), page, certificateProviderStore))
 	}
 
 	handleRoot(page.Paths.CertificateProviderYourChosenIdentityOptions, RequireSession,
-		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), lpaStore))
+		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderIdentityWithYoti, RequireSession,
-		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), lpaStore, sessionStore, yotiClient))
+		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), sessionStore, yotiClient, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderIdentityWithYotiCallback, RequireSession,
-		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, lpaStore))
+		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderIdentityWithOneLogin, RequireSession,
 		IdentityWithOneLogin(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.CertificateProviderIdentityWithOneLoginCallback, RequireSession,
-		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, lpaStore))
+		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, certificateProviderStore))
 
 	for path, identityOption := range map[string]identity.Option{
 		page.Paths.CertificateProviderIdentityWithPassport:                 identity.Passport,
@@ -140,17 +151,17 @@ func Register(
 		page.Paths.CertificateProviderIdentityWithOnlineBankAccount:        identity.OnlineBankAccount,
 	} {
 		handleRoot(path, RequireSession,
-			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, time.Now, identityOption))
+			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), time.Now, identityOption, certificateProviderStore))
 	}
 
 	handleRoot(page.Paths.CertificateProviderReadTheLpa, RequireSession,
-		page.Guidance(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), lpaStore))
+		Guidance(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), lpaStore, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderWhatHappensNext, RequireSession,
-		page.Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), lpaStore))
+		Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), lpaStore, nil))
 	handleRoot(page.Paths.ProvideCertificate, RequireSession,
-		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), lpaStore, time.Now))
+		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), lpaStore, time.Now, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProvided, RequireSession,
-		page.Guidance(tmpls.Get("certificate_provided.gohtml"), lpaStore))
+		Guidance(tmpls.Get("certificate_provided.gohtml"), lpaStore, nil))
 }
 
 type handleOpt byte
@@ -170,6 +181,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 			appData.ServiceName = "beACertificateProvider"
 			appData.Page = path
 			appData.CanGoBack = opt&CanGoBack != 0
+			appData.ActorType = actor.TypeCertificateProvider
 
 			if opt&RequireSession != 0 {
 				session, err := sesh.CertificateProvider(store, r)
@@ -178,10 +190,13 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 					return
 				}
 
-				appData.SessionID = session.DonorSessionID
+				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
 				appData.LpaID = session.LpaID
 
-				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+				ctx = page.ContextWithSessionData(ctx, &page.SessionData{
+					SessionID: appData.SessionID,
+					LpaID:     appData.LpaID,
+				})
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
