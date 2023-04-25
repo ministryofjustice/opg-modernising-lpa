@@ -1,4 +1,4 @@
-name: "Toggle public access to UR environment"
+name: "[WD] Toggle public access to UR environment"
 
 on:
   workflow_dispatch:

@@ -1,4 +1,4 @@
-name: "Deploy to UR Environment"
+name: "[WD] Deploy to UR Environment"
 
 on:
   workflow_dispatch:
