@@ -20,7 +20,7 @@ Click on the `Run workflow` button
 
 ### Local Command Line
 
-To turn on maintenance mode for both the use and view front ends
+To turn on maintenance mode from the command line, run the following command:
 
 ``` bash
 aws-vault exec mod-lpa-prod -- ./scripts/manage_maintenance.sh \
@@ -28,7 +28,7 @@ aws-vault exec mod-lpa-prod -- ./scripts/manage_maintenance.sh \
   --maintenance_mode
 ```
 
-To turn off maintenance mode for both the use and view front ends
+To turn off maintenance mode from the command line, run the following command:
 
 ``` bash
 aws-vault exec mod-lpa-prod -- ./scripts/manage_maintenance.sh \
