@@ -305,12 +305,13 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, 
 
 				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(donorSession.Sub))
 
-				data := page.SessionDataFromContext(ctx)
-				if data != nil {
-					data.SessionID = appData.SessionID
-					ctx = page.ContextWithSessionData(ctx, data)
+				sessionData, err := page.SessionDataFromContext(ctx)
 
-					appData.LpaID = data.LpaID
+				if err == nil {
+					sessionData.SessionID = appData.SessionID
+					ctx = page.ContextWithSessionData(ctx, sessionData)
+
+					appData.LpaID = sessionData.LpaID
 				} else {
 					ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
 				}

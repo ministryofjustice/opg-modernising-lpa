@@ -27,6 +27,15 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 	assert.Equal(t, &actor.CertificateProvider{LpaID: "123", UpdatedAt: now}, certificateProvider)
 }
 
+func TestCertificateProviderStoreCreateWhenSessionMissing(t *testing.T) {
+	ctx := context.Background()
+
+	certificateProviderStore := &certificateProviderStore{dataStore: nil, now: nil}
+
+	_, err := certificateProviderStore.Create(ctx)
+	assert.Equal(t, page.SessionMissingError{}, err)
+}
+
 func TestCertificateProviderStoreCreateWhenPutError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 	now := time.Now()
@@ -54,6 +63,15 @@ func TestCertificateProviderStoreGet(t *testing.T) {
 	certificateProvider, err := certificateProviderStore.Get(ctx)
 	assert.Nil(t, err)
 	assert.Equal(t, &actor.CertificateProvider{LpaID: "123"}, certificateProvider)
+}
+
+func TestCertificateProviderStoreGetWhenSessionMissing(t *testing.T) {
+	ctx := context.Background()
+
+	certificateProviderStore := &certificateProviderStore{dataStore: nil, now: nil}
+
+	_, err := certificateProviderStore.Get(ctx)
+	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
 func TestCertificateProviderStoreGetMissingLpaIDInSessionData(t *testing.T) {
@@ -96,6 +114,15 @@ func TestCertificateProviderStorePut(t *testing.T) {
 	err := certificateProviderStore.Put(ctx, &actor.CertificateProvider{LpaID: "123"})
 
 	assert.Nil(t, err)
+}
+
+func TestCertificateProviderStorePutWhenSessionMissing(t *testing.T) {
+	ctx := context.Background()
+
+	certificateProviderStore := &certificateProviderStore{dataStore: nil, now: nil}
+
+	err := certificateProviderStore.Put(ctx, &actor.CertificateProvider{})
+	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
 func TestCertificateProviderStorePutOnError(t *testing.T) {

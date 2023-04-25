@@ -138,10 +138,20 @@ type SessionData struct {
 	LpaID     string
 }
 
-func SessionDataFromContext(ctx context.Context) *SessionData {
-	data, _ := ctx.Value((*SessionData)(nil)).(*SessionData)
+type SessionMissingError struct{}
 
-	return data
+func (s SessionMissingError) Error() string {
+	return "Session data not set"
+}
+
+func SessionDataFromContext(ctx context.Context) (*SessionData, error) {
+	data, ok := ctx.Value((*SessionData)(nil)).(*SessionData)
+
+	if !ok {
+		return nil, SessionMissingError{}
+	}
+
+	return data, nil
 }
 
 func ContextWithSessionData(ctx context.Context, data *SessionData) context.Context {

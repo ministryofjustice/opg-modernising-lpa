@@ -53,7 +53,9 @@ func TestMakeHandle(t *testing.T) {
 		}, appData)
 		assert.Equal(t, w, hw)
 
-		assert.Equal(t, &page.SessionData{SessionID: base64.StdEncoding.EncodeToString([]byte("random")), LpaID: "lpa-id"}, page.SessionDataFromContext(hr.Context()))
+		sessionData, _ := page.SessionDataFromContext(hr.Context())
+
+		assert.Equal(t, &page.SessionData{SessionID: base64.StdEncoding.EncodeToString([]byte("random")), LpaID: "lpa-id"}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -86,7 +88,10 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 			ActorType:   actor.TypeCertificateProvider,
 		}, appData)
 		assert.Equal(t, w, hw)
-		assert.Equal(t, &page.SessionData{LpaID: "lpa-id", SessionID: base64.StdEncoding.EncodeToString([]byte("random"))}, page.SessionDataFromContext(hr.Context()))
+
+		sessionData, _ := page.SessionDataFromContext(hr.Context())
+
+		assert.Equal(t, &page.SessionData{LpaID: "lpa-id", SessionID: base64.StdEncoding.EncodeToString([]byte("random"))}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})

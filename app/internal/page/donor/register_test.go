@@ -47,7 +47,10 @@ func TestMakeHandle(t *testing.T) {
 			ActorType:   actor.TypeDonor,
 		}, appData)
 		assert.Equal(t, w, hw)
-		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t"}, page.SessionDataFromContext(hr.Context()))
+
+		sessionData, _ := page.SessionDataFromContext(hr.Context())
+
+		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t"}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -80,7 +83,10 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 			ActorType:   actor.TypeDonor,
 		}, appData)
 		assert.Equal(t, w, hw)
-		assert.Equal(t, &page.SessionData{LpaID: "123", SessionID: "cmFuZG9t"}, page.SessionDataFromContext(hr.Context()))
+
+		sessionData, _ := page.SessionDataFromContext(hr.Context())
+
+		assert.Equal(t, &page.SessionData{LpaID: "123", SessionID: "cmFuZG9t"}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})

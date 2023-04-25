@@ -48,6 +48,15 @@ func TestLpaStoreGetAll(t *testing.T) {
 	assert.Equal(t, lpas, result)
 }
 
+func TestLpaStoreGetAllWithSessionMissing(t *testing.T) {
+	ctx := context.Background()
+
+	lpaStore := &lpaStore{dataStore: nil, randomInt: func(x int) int { return x }}
+
+	_, err := lpaStore.GetAll(ctx)
+	assert.Equal(t, page.SessionMissingError{}, err)
+}
+
 func TestLpaStoreGet(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id"})
 
@@ -59,6 +68,15 @@ func TestLpaStoreGet(t *testing.T) {
 	lpa, err := lpaStore.Get(ctx)
 	assert.Nil(t, err)
 	assert.Equal(t, &page.Lpa{ID: "an-id"}, lpa)
+}
+
+func TestLpaStoreGetWithSessionMissing(t *testing.T) {
+	ctx := context.Background()
+
+	lpaStore := &lpaStore{dataStore: nil, randomInt: func(x int) int { return x }}
+
+	_, err := lpaStore.Get(ctx)
+	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
 func TestLpaStoreGetWhenDataStoreError(t *testing.T) {
@@ -84,6 +102,15 @@ func TestLpaStorePut(t *testing.T) {
 
 	err := lpaStore.Put(ctx, lpa)
 	assert.Nil(t, err)
+}
+
+func TestLpaStorePutWithSessionMissing(t *testing.T) {
+	ctx := context.Background()
+
+	lpaStore := &lpaStore{dataStore: nil, randomInt: func(x int) int { return x }}
+
+	err := lpaStore.Put(ctx, &page.Lpa{})
+	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
 func TestLpaStorePutWhenError(t *testing.T) {

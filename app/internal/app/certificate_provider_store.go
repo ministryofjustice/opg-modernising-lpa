@@ -15,16 +15,22 @@ type certificateProviderStore struct {
 }
 
 func (s *certificateProviderStore) Create(ctx context.Context) (*actor.CertificateProvider, error) {
-	data := page.SessionDataFromContext(ctx)
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	cp := &actor.CertificateProvider{LpaID: data.LpaID}
-	err := s.Put(ctx, cp)
+	err = s.Put(ctx, cp)
 
 	return cp, err
 }
 
 func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateProvider, error) {
-	data := page.SessionDataFromContext(ctx)
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	if data.LpaID == "" {
 		return nil, errors.New("certificateProviderStore.Get requires LpaID to retrieve")
@@ -42,7 +48,10 @@ func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateP
 }
 
 func (s *certificateProviderStore) Put(ctx context.Context, certificateProvider *actor.CertificateProvider) error {
-	data := page.SessionDataFromContext(ctx)
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return err
+	}
 
 	if data.LpaID == "" || data.SessionID == "" {
 		return errors.New("certificateProviderStore.Put requires LpaID and SessionID to retrieve")
