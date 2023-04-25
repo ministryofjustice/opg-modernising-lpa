@@ -10,7 +10,7 @@
       {{ trHtml .App "attorneyReferenceNumberContent" }}
 
       <form novalidate method="post">
-        {{ template "input" (input . "reference-number" "attorneyReferenceNumber" .Form.ReferenceNumber "classes" "govuk-input--width-20 govuk-!-margin-bottom-3" "hint" "referenceNumberHint")}}
+        {{ template "input" (input . "reference-number" "attorneyReferenceNumber" .Form.ReferenceNumberRaw "classes" "govuk-input--width-20 govuk-!-margin-bottom-3 govuk-input--extra-letter-spacing" "hint" "referenceNumberHint")}}
         
         {{ template "continue-button" . }}
         {{ template "csrf-field" . }}
