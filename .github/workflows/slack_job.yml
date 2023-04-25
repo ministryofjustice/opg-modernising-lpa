@@ -1,3 +1,5 @@
+name: "[Job] Post slack message"
+
 on:
   workflow_call:
     inputs:

@@ -1,4 +1,4 @@
-name: "Slack Notification of Path to Live Workflow Failure"
+name: "[Job] Slack Notification of Path to Live Workflow Failure"
 
 on:
   workflow_run:
