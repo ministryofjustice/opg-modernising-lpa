@@ -10,50 +10,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 var expectedError = errors.New("err")
-
-func TestGetAll(t *testing.T) {
-	ctx := context.Background()
-
-	pkey, _ := attributevalue.Marshal("a-pk")
-	data, _ := attributevalue.Marshal("hello")
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("Query", ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			ExpressionAttributeNames:  map[string]string{"#PK": "PK"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey},
-			KeyConditionExpression:    aws.String("#PK = :PK"),
-		}).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{{"Data": data}}}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	var v []string
-	err := c.GetAll(ctx, "a-pk", &v)
-	assert.Nil(t, err)
-	assert.Equal(t, []string{"hello"}, v)
-}
-
-func TestGetAllWhenError(t *testing.T) {
-	ctx := context.Background()
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("Query", ctx, mock.Anything).
-		Return(&dynamodb.QueryOutput{}, expectedError)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	var v []string
-	err := c.GetAll(ctx, "a-pk", &v)
-	assert.Equal(t, expectedError, err)
-	assert.Empty(t, v)
-}
 
 func TestGet(t *testing.T) {
 	ctx := context.Background()

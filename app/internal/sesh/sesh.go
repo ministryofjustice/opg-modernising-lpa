@@ -63,15 +63,15 @@ type OneLoginSession struct {
 	Locale              string
 	Identity            bool
 	CertificateProvider bool
-	Attorney            bool
 	SessionID           string
 	LpaID               string
+	Attorney            bool
 }
 
 func (s OneLoginSession) Valid() bool {
 	ok := s.State != "" && s.Nonce != ""
 	if s.CertificateProvider && !s.Identity {
-		ok = ok && s.SessionID != "" && s.LpaID != ""
+		ok = ok && s.LpaID != ""
 	}
 
 	return ok
@@ -184,10 +184,9 @@ func SetDonor(store sessions.Store, r *http.Request, w http.ResponseWriter, dono
 }
 
 type CertificateProviderSession struct {
-	Sub            string
-	Email          string
-	LpaID          string
-	DonorSessionID string
+	Sub   string
+	Email string
+	LpaID string
 }
 
 func (s CertificateProviderSession) Valid() bool {

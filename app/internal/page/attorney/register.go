@@ -49,9 +49,10 @@ type LpaStore interface {
 
 //go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
 type DataStore interface {
-	GetAll(context.Context, string, interface{}) error
-	Get(context.Context, string, string, interface{}) error
+	Get(ctx context.Context, pk, sk string, v interface{}) error
 	Put(context.Context, string, string, interface{}) error
+	GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
+	GetAllByGsi(ctx context.Context, gsi, sk string, v interface{}) error
 }
 
 //go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient
@@ -75,7 +76,7 @@ func Register(
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
 	handleRoot(page.Paths.Attorney.Start, None,
-		page.Guidance(tmpls.Get("attorney_start.gohtml"), nil))
+		Guidance(tmpls.Get("attorney_start.gohtml")))
 	handleRoot(page.Paths.Attorney.Login, None,
 		Login(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.Attorney.LoginCallback, None,
