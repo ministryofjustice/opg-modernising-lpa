@@ -1,0 +1,22 @@
+# Manage Maintenance Mode
+
+This script will enable or disable maintenance mode for a targeted environment.
+
+## Usage
+
+To turn on maintenance mode for both the use and view front ends
+
+``` bash
+
+aws-vault exec mod-lpa-prod -- ./manage_maintenance.sh \
+  --environment production \
+  --maintenance_mode
+```
+
+To turn off maintenance mode for both the use and view front ends
+
+``` bash
+aws-vault exec mod-lpa-prod -- ./manage_maintenance.sh \
+  --environment production \
+  --disable_maintenance_mode
+```
