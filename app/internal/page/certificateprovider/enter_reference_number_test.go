@@ -88,7 +88,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				"reference-number": {"aRefNumber12"},
+				"reference-number": {"a Ref-Number12"},
 			}
 
 			w := httptest.NewRecorder()
@@ -177,7 +177,7 @@ func TestPostEnterReferenceNumberOnDataStoreNotFoundError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnLpaStoreError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"aRefNumber12"},
+		"reference-number": {"a Ref-Number12"},
 	}
 
 	w := httptest.NewRecorder()
