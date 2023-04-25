@@ -8,7 +8,7 @@ To turn on maintenance mode for both the use and view front ends
 
 ``` bash
 
-aws-vault exec mod-lpa-prod -- ./manage_maintenance.sh \
+aws-vault exec mod-lpa-prod -- ./scripts/manage_maintenance.sh \
   --environment production \
   --maintenance_mode
 ```
@@ -16,7 +16,7 @@ aws-vault exec mod-lpa-prod -- ./manage_maintenance.sh \
 To turn off maintenance mode for both the use and view front ends
 
 ``` bash
-aws-vault exec mod-lpa-prod -- ./manage_maintenance.sh \
+aws-vault exec mod-lpa-prod -- ./scripts/manage_maintenance.sh \
   --environment production \
   --disable_maintenance_mode
 ```
