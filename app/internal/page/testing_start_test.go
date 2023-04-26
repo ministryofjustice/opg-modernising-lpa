@@ -1172,7 +1172,7 @@ func TestTestingStart(t *testing.T) {
 
 		shareCodeSender := newMockShareCodeSender(t)
 		shareCodeSender.
-			On("SendAttorneys", ctx, notify.AttorneyInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, lpa).
+			On("SendAttorneys", ctx, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, lpa).
 			Return(nil)
 
 		lpaStore := newMockLpaStore(t)
@@ -1207,7 +1207,7 @@ func TestTestingStart(t *testing.T) {
 
 		shareCodeSender := newMockShareCodeSender(t)
 		shareCodeSender.
-			On("SendAttorneys", ctx, notify.AttorneyInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, lpa).
+			On("SendAttorneys", ctx, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, lpa).
 			Return(nil)
 
 		lpaStore := newMockLpaStore(t)
@@ -1241,7 +1241,7 @@ func TestTestingStart(t *testing.T) {
 
 		shareCodeSender := newMockShareCodeSender(t)
 		shareCodeSender.
-			On("SendAttorneys", ctx, notify.AttorneyInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, lpa).
+			On("SendAttorneys", ctx, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, lpa).
 			Return(nil)
 
 		lpaStore := newMockLpaStore(t)
