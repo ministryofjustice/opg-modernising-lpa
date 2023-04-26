@@ -5,6 +5,8 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "beAnAttorney" }}</h1>
 
+      {{ trHtml .App "beAnAttorneyContent" }}
+
       <p class="govuk-body">
         <a href="{{ link .App .App.Paths.Attorney.Login }}" role="button" draggable="false" class="govuk-button govuk-button--start" data-module="govuk-button">
           {{ tr .App "start" }}
