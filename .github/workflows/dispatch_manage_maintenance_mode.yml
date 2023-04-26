@@ -53,11 +53,14 @@ jobs:
             echo "role=${{ secrets.PREPRODUCTION_MAINTENANCE_MODE_ROLE }} >> $GITHUB_OUTPUT"
           else
             echo "Using dev account role"
-            echo "role=${{ secrets.DEVELOPMENT_MAINTENANCE_MODE_ROLE }} >> $GITHUB_OUTPUT"
+            # echo "role=${{ secrets.DEVELOPMENT_MAINTENANCE_MODE_ROLE }} >> $GITHUB_OUTPUT"
+            echo "role=arn:aws:iam::653761790766:role/modernising-lpa-ci >> $GITHUB_OUTPUT"
           fi
       - name: Configure AWS credentials for maintenance mode
         uses: aws-actions/configure-aws-credentials@v2
         with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
           aws-region: ${{ github.event.inputs.region }}
           role-duration-seconds: 3600
           role-session-name: MLPABManageMaintenanceMode
