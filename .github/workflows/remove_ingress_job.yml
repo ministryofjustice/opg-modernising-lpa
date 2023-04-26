@@ -1,3 +1,5 @@
+name: "[Job] Remove ingress"
+
 on:
   workflow_call:
     secrets:
