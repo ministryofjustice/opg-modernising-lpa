@@ -14,7 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string, shareCodeSender shareCodeSender, localizer Localizer) http.HandlerFunc {
+func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string, shareCodeSender shareCodeSender, localizer Localizer, now func() time.Time) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sub := randomString(12)
 		sessionID := base64.StdEncoding.EncodeToString([]byte(sub))
@@ -231,6 +231,11 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				LpaID:     lpa.ID,
 				Localizer: localizer,
 			}, lpa)
+		}
+
+		if r.FormValue("signedByDonorAndCertificateProvider") != "" {
+			lpa.Submitted = now()
+			lpa.Certificate.Agreed = now()
 		}
 
 		// used to switch back to donor after CP fixtures have run

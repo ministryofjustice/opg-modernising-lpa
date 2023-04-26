@@ -87,8 +87,11 @@ type Lpa struct {
 	CertificateProviderProvidedDetails  actor.CertificateProvider
 	Certificate                         Certificate
 
-	AttorneyProvidedDetails            actor.Attorneys
-	ReplacementAttorneyProvidedDetails actor.Attorneys
+	AttorneyProvidedDetails            map[string]actor.AttorneyProvidedDetails
+	ReplacementAttorneyProvidedDetails map[string]actor.AttorneyProvidedDetails
+
+	AttorneyTasks            map[string]AttorneyTasks
+	ReplacementAttorneyTasks map[string]AttorneyTasks
 }
 
 type PaymentDetails struct {
@@ -108,6 +111,12 @@ type Tasks struct {
 	PayForLpa                  TaskState
 	ConfirmYourIdentityAndSign TaskState
 	PeopleToNotify             TaskState
+}
+
+type AttorneyTasks struct {
+	ConfirmYourDetails TaskState
+	ReadTheLpa         TaskState
+	SignTheLpa         TaskState
 }
 
 type Progress struct {
