@@ -194,7 +194,7 @@ func TestPostSign(t *testing.T) {
 			},
 			updatedLpa: &page.Lpa{
 				Attorneys:               actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				AttorneyProvidedDetails: actor.Attorneys{{ID: "attorney-id", Confirmed: true}},
+				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {Confirmed: true}},
 			},
 		},
 		"replacement attorney": {
@@ -204,7 +204,7 @@ func TestPostSign(t *testing.T) {
 			},
 			updatedLpa: &page.Lpa{
 				ReplacementAttorneys:               actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				ReplacementAttorneyProvidedDetails: actor.Attorneys{{ID: "attorney-id", Confirmed: true}},
+				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {Confirmed: true}},
 			},
 		},
 	}

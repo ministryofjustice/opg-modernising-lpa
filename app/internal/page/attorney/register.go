@@ -82,6 +82,8 @@ func Register(
 		LoginCallback(oneLoginClient, sessionStore))
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(tmpls.Get("attorney_enter_reference_number.gohtml"), lpaStore, dataStore, sessionStore))
+	handleRoot(page.Paths.Attorney.TaskList, RequireLpa,
+		TaskList(tmpls.Get("attorney_task_list.gohtml"), lpaStore))
 	handleRoot(page.Paths.Attorney.CheckYourName, RequireLpa,
 		CheckYourName(tmpls.Get("attorney_check_your_name.gohtml"), lpaStore, notifyClient))
 	handleRoot(page.Paths.Attorney.DateOfBirth, RequireLpa,
@@ -141,22 +143,62 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 	}
 }
 
-func getProvidedDetails(appData page.AppData, lpa *page.Lpa) actor.Attorney {
+func getProvidedDetails(appData page.AppData, lpa *page.Lpa) actor.AttorneyProvidedDetails {
 	if appData.IsReplacementAttorney {
-		attorneyProvidedDetails, ok := lpa.ReplacementAttorneyProvidedDetails.Get(appData.AttorneyID)
-		if !ok {
-			attorneyProvidedDetails = actor.Attorney{ID: appData.AttorneyID}
-			lpa.ReplacementAttorneyProvidedDetails = append(lpa.ReplacementAttorneyProvidedDetails, attorneyProvidedDetails)
+		if providedDetails, ok := lpa.ReplacementAttorneyProvidedDetails[appData.AttorneyID]; ok {
+			return providedDetails
 		}
-
-		return attorneyProvidedDetails
+	} else {
+		if providedDetails, ok := lpa.AttorneyProvidedDetails[appData.AttorneyID]; ok {
+			return providedDetails
+		}
 	}
 
-	attorneyProvidedDetails, ok := lpa.AttorneyProvidedDetails.Get(appData.AttorneyID)
-	if !ok {
-		attorneyProvidedDetails = actor.Attorney{ID: appData.AttorneyID}
-		lpa.AttorneyProvidedDetails = append(lpa.AttorneyProvidedDetails, attorneyProvidedDetails)
+	return actor.AttorneyProvidedDetails{}
+}
+
+func setProvidedDetails(appData page.AppData, lpa *page.Lpa, providedDetails actor.AttorneyProvidedDetails) {
+	if appData.IsReplacementAttorney {
+		if lpa.ReplacementAttorneyProvidedDetails == nil {
+			lpa.ReplacementAttorneyProvidedDetails = map[string]actor.AttorneyProvidedDetails{appData.AttorneyID: providedDetails}
+		} else {
+			lpa.ReplacementAttorneyProvidedDetails[appData.AttorneyID] = providedDetails
+		}
+	} else {
+		if lpa.AttorneyProvidedDetails == nil {
+			lpa.AttorneyProvidedDetails = map[string]actor.AttorneyProvidedDetails{appData.AttorneyID: providedDetails}
+		} else {
+			lpa.AttorneyProvidedDetails[appData.AttorneyID] = providedDetails
+		}
+	}
+}
+
+func getTasks(appData page.AppData, lpa *page.Lpa) page.AttorneyTasks {
+	if appData.IsReplacementAttorney {
+		if tasks, ok := lpa.ReplacementAttorneyTasks[appData.AttorneyID]; ok {
+			return tasks
+		}
+	} else {
+		if tasks, ok := lpa.AttorneyTasks[appData.AttorneyID]; ok {
+			return tasks
+		}
 	}
 
-	return attorneyProvidedDetails
+	return page.AttorneyTasks{}
+}
+
+func setTasks(appData page.AppData, lpa *page.Lpa, tasks page.AttorneyTasks) {
+	if appData.IsReplacementAttorney {
+		if lpa.ReplacementAttorneyTasks == nil {
+			lpa.ReplacementAttorneyTasks = map[string]page.AttorneyTasks{appData.AttorneyID: tasks}
+		} else {
+			lpa.ReplacementAttorneyTasks[appData.AttorneyID] = tasks
+		}
+	} else {
+		if lpa.AttorneyTasks == nil {
+			lpa.AttorneyTasks = map[string]page.AttorneyTasks{appData.AttorneyID: tasks}
+		} else {
+			lpa.AttorneyTasks[appData.AttorneyID] = tasks
+		}
+	}
 }
