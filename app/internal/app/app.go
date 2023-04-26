@@ -60,7 +60,7 @@ func App(
 
 	rootMux := http.NewServeMux()
 
-	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, shareCodeSender, localizer, certificateProviderStore, logger))
+	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, shareCodeSender, localizer, certificateProviderStore, logger, time.Now))
 
 	handleRoot := makeHandle(rootMux, errorHandler)
 
@@ -89,6 +89,7 @@ func App(
 		tmpls,
 		sessionStore,
 		lpaStore,
+		certificateProviderStore,
 		oneLoginClient,
 		dataStore,
 		errorHandler,
