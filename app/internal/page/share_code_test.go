@@ -286,6 +286,9 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 	localizer.
 		On("T", lpa.TypeLegalTermTransKey()).
 		Return("property and affairs")
+	localizer.
+		On("Possessive", "Jan").
+		Return("Jan's")
 
 	TestAppData.Localizer = localizer
 
@@ -304,19 +307,23 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", notify.TemplateId(99)).
+		On("TemplateID", notify.TemplateId(notify.AttorneyInviteEmail)).
 		Return("template-id")
+	notifyClient.
+		On("TemplateID", notify.TemplateId(notify.ReplacementAttorneyInviteEmail)).
+		Return("template-id2")
 	notifyClient.
 		On("Email", ctx, notify.Email{
 			TemplateID:   "template-id",
 			EmailAddress: "name@example.org",
 			Personalisation: map[string]string{
-				"shareCode":        "123",
-				"attorneyFullName": "Joanna Jones",
-				"donorFirstNames":  "Jan",
-				"donorFullName":    "Jan Smith",
-				"lpaLegalTerm":     "property and affairs",
-				"landingPageLink":  fmt.Sprintf("http://app%s", Paths.Attorney.Start),
+				"shareCode":                 "123",
+				"attorneyFullName":          "Joanna Jones",
+				"donorFirstNames":           "Jan",
+				"donorFullName":             "Jan Smith",
+				"donorFirstNamesPossessive": "Jan's",
+				"lpaLegalTerm":              "property and affairs",
+				"landingPageLink":           fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 			},
 		}).
 		Return("", nil)
@@ -325,32 +332,34 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			TemplateID:   "template-id",
 			EmailAddress: "name2@example.org",
 			Personalisation: map[string]string{
-				"shareCode":        "123",
-				"attorneyFullName": "John Jones",
-				"donorFirstNames":  "Jan",
-				"donorFullName":    "Jan Smith",
-				"lpaLegalTerm":     "property and affairs",
-				"landingPageLink":  fmt.Sprintf("http://app%s", Paths.Attorney.Start),
+				"shareCode":                 "123",
+				"attorneyFullName":          "John Jones",
+				"donorFirstNames":           "Jan",
+				"donorFullName":             "Jan Smith",
+				"donorFirstNamesPossessive": "Jan's",
+				"lpaLegalTerm":              "property and affairs",
+				"landingPageLink":           fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 			},
 		}).
 		Return("", nil)
 	notifyClient.
 		On("Email", ctx, notify.Email{
-			TemplateID:   "template-id",
+			TemplateID:   "template-id2",
 			EmailAddress: "dave@example.com",
 			Personalisation: map[string]string{
-				"shareCode":        "123",
-				"attorneyFullName": "Dave Davis",
-				"donorFirstNames":  "Jan",
-				"donorFullName":    "Jan Smith",
-				"lpaLegalTerm":     "property and affairs",
-				"landingPageLink":  fmt.Sprintf("http://app%s", Paths.Attorney.Start),
+				"shareCode":                 "123",
+				"attorneyFullName":          "Dave Davis",
+				"donorFirstNames":           "Jan",
+				"donorFullName":             "Jan Smith",
+				"donorFirstNamesPossessive": "Jan's",
+				"lpaLegalTerm":              "property and affairs",
+				"landingPageLink":           fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 			},
 		}).
 		Return("", nil)
 
 	sender := NewShareCodeSender(dataStore, notifyClient, "http://app", MockRandom)
-	err := sender.SendAttorneys(ctx, notify.TemplateId(99), TestAppData, lpa)
+	err := sender.SendAttorneys(ctx, TestAppData, lpa)
 
 	assert.Nil(t, err)
 }
@@ -389,6 +398,9 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 	localizer.
 		On("T", lpa.TypeLegalTermTransKey()).
 		Return("property and affairs")
+	localizer.
+		On("Possessive", "Jan").
+		Return("Jan's")
 
 	TestAppData.Localizer = localizer
 
@@ -406,19 +418,20 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.
-				On("TemplateID", notify.TemplateId(99)).
+				On("TemplateID", notify.TemplateId(notify.AttorneyInviteEmail)).
 				Return("template-id")
 			notifyClient.
 				On("Email", ctx, notify.Email{
 					TemplateID:   "template-id",
 					EmailAddress: "name@example.org",
 					Personalisation: map[string]string{
-						"shareCode":        tc.expectedTestCode,
-						"attorneyFullName": "Joanna Jones",
-						"donorFirstNames":  "Jan",
-						"donorFullName":    "Jan Smith",
-						"lpaLegalTerm":     "property and affairs",
-						"landingPageLink":  fmt.Sprintf("http://app%s", Paths.Attorney.Start),
+						"shareCode":                 tc.expectedTestCode,
+						"attorneyFullName":          "Joanna Jones",
+						"donorFirstNames":           "Jan",
+						"donorFullName":             "Jan Smith",
+						"donorFirstNamesPossessive": "Jan's",
+						"lpaLegalTerm":              "property and affairs",
+						"landingPageLink":           fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 					},
 				}).
 				Return("", nil)
@@ -427,12 +440,13 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 					TemplateID:   "template-id",
 					EmailAddress: "name@example.org",
 					Personalisation: map[string]string{
-						"shareCode":        "123",
-						"attorneyFullName": "Joanna Jones",
-						"donorFirstNames":  "Jan",
-						"donorFullName":    "Jan Smith",
-						"lpaLegalTerm":     "property and affairs",
-						"landingPageLink":  fmt.Sprintf("http://app%s", Paths.Attorney.Start),
+						"shareCode":                 "123",
+						"attorneyFullName":          "Joanna Jones",
+						"donorFirstNames":           "Jan",
+						"donorFullName":             "Jan Smith",
+						"donorFirstNamesPossessive": "Jan's",
+						"lpaLegalTerm":              "property and affairs",
+						"landingPageLink":           fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 					},
 				}).
 				Return("", nil)
@@ -443,10 +457,10 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 				sender.UseTestCode()
 			}
 
-			err := sender.SendAttorneys(ctx, notify.TemplateId(99), TestAppData, lpa)
+			err := sender.SendAttorneys(ctx, TestAppData, lpa)
 			assert.Nil(t, err)
 
-			err = sender.SendAttorneys(ctx, notify.TemplateId(99), TestAppData, lpa)
+			err = sender.SendAttorneys(ctx, TestAppData, lpa)
 			assert.Nil(t, err)
 		})
 	}
@@ -474,6 +488,9 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 	localizer.
 		On("T", lpa.TypeLegalTermTransKey()).
 		Return("property and affairs")
+	localizer.
+		On("Possessive", "Jan").
+		Return("Jan's")
 
 	TestAppData.Localizer = localizer
 
@@ -484,25 +501,14 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", notify.TemplateId(99)).
+		On("TemplateID", mock.Anything).
 		Return("template-id")
 	notifyClient.
-		On("Email", ctx, notify.Email{
-			TemplateID:   "template-id",
-			EmailAddress: "name@example.org",
-			Personalisation: map[string]string{
-				"shareCode":        "123",
-				"attorneyFullName": "Joanna Jones",
-				"donorFirstNames":  "Jan",
-				"donorFullName":    "Jan Smith",
-				"lpaLegalTerm":     "property and affairs",
-				"landingPageLink":  fmt.Sprintf("http://app%s", Paths.Attorney.Start),
-			},
-		}).
+		On("Email", ctx, mock.Anything).
 		Return("", ExpectedError)
 
 	sender := NewShareCodeSender(dataStore, notifyClient, "http://app", MockRandom)
-	err := sender.SendAttorneys(ctx, notify.TemplateId(99), TestAppData, lpa)
+	err := sender.SendAttorneys(ctx, TestAppData, lpa)
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
 }
@@ -516,7 +522,7 @@ func TestShareCodeSenderSendAttorneysWhenDataStoreErrors(t *testing.T) {
 		Return(ExpectedError)
 
 	sender := NewShareCodeSender(dataStore, nil, "http://app", MockRandom)
-	err := sender.SendAttorneys(ctx, notify.TemplateId(99), TestAppData, &Lpa{
+	err := sender.SendAttorneys(ctx, TestAppData, &Lpa{
 		Attorneys: actor.Attorneys{{Email: "hey@example.com"}},
 	})
 

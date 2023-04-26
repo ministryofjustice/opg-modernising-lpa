@@ -75,15 +75,15 @@ func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template 
 	return nil
 }
 
-func (s *ShareCodeSender) SendAttorneys(ctx context.Context, template notify.TemplateId, appData AppData, lpa *Lpa) error {
+func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData AppData, lpa *Lpa) error {
 	for _, attorney := range lpa.Attorneys {
-		if err := s.sendAttorney(ctx, template, appData, lpa, attorney, false); err != nil {
+		if err := s.sendAttorney(ctx, notify.AttorneyInviteEmail, appData, lpa, attorney, false); err != nil {
 			return err
 		}
 	}
 
 	for _, attorney := range lpa.ReplacementAttorneys {
-		if err := s.sendAttorney(ctx, template, appData, lpa, attorney, true); err != nil {
+		if err := s.sendAttorney(ctx, notify.ReplacementAttorneyInviteEmail, appData, lpa, attorney, true); err != nil {
 			return err
 		}
 	}
@@ -118,12 +118,13 @@ func (s *ShareCodeSender) sendAttorney(ctx context.Context, template notify.Temp
 		TemplateID:   s.notifyClient.TemplateID(template),
 		EmailAddress: attorney.Email,
 		Personalisation: map[string]string{
-			"shareCode":        shareCode,
-			"attorneyFullName": attorney.FullName(),
-			"donorFirstNames":  lpa.Donor.FirstNames,
-			"donorFullName":    lpa.Donor.FullName(),
-			"lpaLegalTerm":     appData.Localizer.T(lpa.TypeLegalTermTransKey()),
-			"landingPageLink":  fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
+			"shareCode":                 shareCode,
+			"attorneyFullName":          attorney.FullName(),
+			"donorFirstNames":           lpa.Donor.FirstNames,
+			"donorFirstNamesPossessive": appData.Localizer.Possessive(lpa.Donor.FirstNames),
+			"donorFullName":             lpa.Donor.FullName(),
+			"lpaLegalTerm":              appData.Localizer.T(lpa.TypeLegalTermTransKey()),
+			"landingPageLink":           fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
 		},
 	}); err != nil {
 		return fmt.Errorf("email failed: %w", err)
