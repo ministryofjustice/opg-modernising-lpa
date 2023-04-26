@@ -1,3 +1,5 @@
+name: "[Job] Lint markdown files"
+
 on:
   workflow_call:
 
