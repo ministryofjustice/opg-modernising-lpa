@@ -276,7 +276,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				lpa.Attorneys = attorneys
 			}
 
-			shareCodeSender.SendAttorneys(donorCtx, notify.AttorneyInviteEmail, AppData{
+			shareCodeSender.SendAttorneys(donorCtx, AppData{
 				SessionID: donorSessionID,
 				LpaID:     lpa.ID,
 				Localizer: localizer,

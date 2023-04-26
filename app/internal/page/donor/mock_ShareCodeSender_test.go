@@ -16,13 +16,13 @@ type mockShareCodeSender struct {
 	mock.Mock
 }
 
-// SendAttorneys provides a mock function with given fields: ctx, template, appData, lpa
-func (_m *mockShareCodeSender) SendAttorneys(ctx context.Context, template notify.TemplateId, appData page.AppData, lpa *page.Lpa) error {
-	ret := _m.Called(ctx, template, appData, lpa)
+// SendAttorneys provides a mock function with given fields: ctx, appData, lpa
+func (_m *mockShareCodeSender) SendAttorneys(ctx context.Context, appData page.AppData, lpa *page.Lpa) error {
+	ret := _m.Called(ctx, appData, lpa)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, notify.TemplateId, page.AppData, *page.Lpa) error); ok {
-		r0 = rf(ctx, template, appData, lpa)
+	if rf, ok := ret.Get(0).(func(context.Context, page.AppData, *page.Lpa) error); ok {
+		r0 = rf(ctx, appData, lpa)
 	} else {
 		r0 = ret.Error(0)
 	}

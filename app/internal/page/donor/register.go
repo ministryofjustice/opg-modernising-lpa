@@ -59,7 +59,7 @@ type AddressClient interface {
 //go:generate mockery --testonly --inpackage --name ShareCodeSender --structname mockShareCodeSender
 type ShareCodeSender interface {
 	SendCertificateProvider(ctx context.Context, template notify.TemplateId, appData page.AppData, identity bool, lpa *page.Lpa) error
-	SendAttorneys(ctx context.Context, template notify.TemplateId, appData page.AppData, lpa *page.Lpa) error
+	SendAttorneys(ctx context.Context, appData page.AppData, lpa *page.Lpa) error
 }
 
 //go:generate mockery --testonly --inpackage --name YotiClient --structname mockYotiClient

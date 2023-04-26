@@ -1,4 +1,4 @@
-name: "PR"
+name: "[Workflow] PR"
 
 on:
   pull_request:
