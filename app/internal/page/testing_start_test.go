@@ -27,6 +27,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{ID: "123"}).
 			Return(nil)
@@ -36,7 +39,7 @@ func TestTestingStart(t *testing.T) {
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -52,6 +55,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID:    "123",
@@ -68,7 +74,7 @@ func TestTestingStart(t *testing.T) {
 			On("Save", r, w, mock.Anything).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -89,6 +95,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
@@ -114,7 +123,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -160,6 +169,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID:                                  "123",
@@ -178,7 +190,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -230,6 +242,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID:                "123",
@@ -241,7 +256,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -273,6 +288,9 @@ func TestTestingStart(t *testing.T) {
 				lpaStore.
 					On("Create", ctx).
 					Return(&Lpa{ID: "123"}, nil)
+
+				ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 				lpaStore.
 					On("Put", ctx, &Lpa{
 						ID: "123",
@@ -283,7 +301,7 @@ func TestTestingStart(t *testing.T) {
 					}).
 					Return(nil)
 
-				TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+				TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 				resp := w.Result()
 
 				assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -307,6 +325,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
@@ -332,7 +353,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -353,6 +374,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
@@ -375,7 +399,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -396,6 +420,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID:                       "123",
@@ -438,7 +465,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -459,6 +486,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID:                  "123",
@@ -467,7 +497,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -488,6 +518,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID:           "123",
@@ -496,7 +529,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -517,6 +550,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID:                      "123",
@@ -592,7 +628,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -613,6 +649,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID:                      "123",
@@ -630,7 +669,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -651,6 +690,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID:           "123",
@@ -660,7 +702,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -681,6 +723,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
@@ -699,7 +744,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -720,6 +765,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
@@ -887,7 +935,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -908,6 +956,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
@@ -940,7 +991,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, certificateProviderStore).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, certificateProviderStore, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -961,6 +1012,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
@@ -1006,7 +1060,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, certificateProviderStore).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, certificateProviderStore, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -1037,6 +1091,8 @@ func TestTestingStart(t *testing.T) {
 			PaymentId:        "123",
 		}
 
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, lpa).
 			Return(nil)
@@ -1051,7 +1107,7 @@ func TestTestingStart(t *testing.T) {
 			On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, false, lpa).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -1076,6 +1132,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(lpa, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, lpa).
 			Return(nil)
@@ -1090,7 +1149,7 @@ func TestTestingStart(t *testing.T) {
 			On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, false, lpa).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -1117,6 +1176,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(lpa, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, lpa).
 			Return(nil)
@@ -1131,7 +1193,7 @@ func TestTestingStart(t *testing.T) {
 			On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, false, lpa).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -1153,6 +1215,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
@@ -1194,7 +1259,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, certificateProviderStore).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, certificateProviderStore, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -1215,6 +1280,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123", Attorneys: actor.Attorneys{{ID: "456"}}}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID:        "123",
@@ -1222,7 +1290,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -1243,6 +1311,9 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Create", ctx).
 			Return(&Lpa{ID: "123", ReplacementAttorneys: actor.Attorneys{{ID: "456"}}}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID:                   "123",
@@ -1250,7 +1321,7 @@ func TestTestingStart(t *testing.T) {
 			}).
 			Return(nil)
 
-		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -1271,20 +1342,23 @@ func TestTestingStart(t *testing.T) {
 
 		localizer := newMockLocalizer(t)
 
+		lpaStore := newMockLpaStore(t)
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
+		lpaStore.
+			On("Put", ctx, lpa).
+			Return(nil)
+
 		shareCodeSender := newMockShareCodeSender(t)
 		shareCodeSender.
 			On("SendAttorneys", ctx, notify.AttorneyInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, lpa).
 			Return(nil)
 
-		lpaStore := newMockLpaStore(t)
-		lpaStore.
-			On("Create", ctx).
-			Return(&Lpa{ID: "123"}, nil)
-		lpaStore.
-			On("Put", ctx, lpa).
-			Return(nil)
-
-		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -1306,20 +1380,23 @@ func TestTestingStart(t *testing.T) {
 
 		localizer := newMockLocalizer(t)
 
+		lpaStore := newMockLpaStore(t)
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
+		lpaStore.
+			On("Put", ctx, lpa).
+			Return(nil)
+
 		shareCodeSender := newMockShareCodeSender(t)
 		shareCodeSender.
 			On("SendAttorneys", ctx, notify.AttorneyInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, lpa).
 			Return(nil)
 
-		lpaStore := newMockLpaStore(t)
-		lpaStore.
-			On("Create", ctx).
-			Return(&Lpa{ID: "123"}, nil)
-		lpaStore.
-			On("Put", ctx, lpa).
-			Return(nil)
-
-		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -1340,20 +1417,23 @@ func TestTestingStart(t *testing.T) {
 
 		localizer := newMockLocalizer(t)
 
+		lpaStore := newMockLpaStore(t)
+		lpaStore.
+			On("Create", ctx).
+			Return(&Lpa{ID: "123"}, nil)
+
+		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
+		lpaStore.
+			On("Put", ctx, lpa).
+			Return(nil)
+
 		shareCodeSender := newMockShareCodeSender(t)
 		shareCodeSender.
 			On("SendAttorneys", ctx, notify.AttorneyInviteEmail, AppData{SessionID: "MTIz", LpaID: "123", Localizer: localizer}, lpa).
 			Return(nil)
 
-		lpaStore := newMockLpaStore(t)
-		lpaStore.
-			On("Create", ctx).
-			Return(&Lpa{ID: "123"}, nil)
-		lpaStore.
-			On("Put", ctx, lpa).
-			Return(nil)
-
-		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer, nil).ServeHTTP(w, r)
+		TestingStart(sessionStore, lpaStore, MockRandom, shareCodeSender, localizer, nil, nil).ServeHTTP(w, r)
 		resp := w.Result()
 
 		assert.Equal(t, http.StatusFound, resp.StatusCode)

@@ -32,6 +32,10 @@ func LpaProgress(tmpl template.Template, lpaStore LpaStore, certificateProviderS
 			return err
 		}
 
+		if certificateProvider == nil {
+			certificateProvider = &actor.CertificateProvider{}
+		}
+
 		data := &lpaProgressData{
 			App:                 appData,
 			Lpa:                 lpa,

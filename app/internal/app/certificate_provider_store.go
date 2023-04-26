@@ -17,11 +17,17 @@ type certificateProviderStore struct {
 func (s *certificateProviderStore) Create(ctx context.Context) (*actor.CertificateProvider, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
-		return &actor.CertificateProvider{}, err
+		return nil, err
 	}
 
-	cp := &actor.CertificateProvider{LpaID: data.LpaID}
-	err = s.Put(ctx, cp)
+	if data.LpaID == "" || data.SessionID == "" {
+		return nil, errors.New("certificateProviderStore.Create requires LpaID and SessionID to retrieve")
+	}
+
+	pk, sk := makeCertificateProviderKeys(data.LpaID, data.SessionID)
+
+	cp := &actor.CertificateProvider{LpaID: data.LpaID, UpdatedAt: s.now()}
+	err = s.dataStore.Create(ctx, pk, sk, cp)
 
 	return cp, err
 }
@@ -29,11 +35,11 @@ func (s *certificateProviderStore) Create(ctx context.Context) (*actor.Certifica
 func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateProvider, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
-		return &actor.CertificateProvider{}, err
+		return nil, err
 	}
 
 	if data.LpaID == "" {
-		return &actor.CertificateProvider{}, errors.New("certificateProviderStore.Get requires LpaID to retrieve")
+		return nil, errors.New("certificateProviderStore.Get requires LpaID to retrieve")
 	}
 
 	var certificateProvider actor.CertificateProvider
@@ -41,7 +47,7 @@ func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateP
 	pk := "LPA#" + data.LpaID
 
 	if err := s.dataStore.GetOneByPartialSk(ctx, pk, "#CERTIFICATE_PROVIDER#", &certificateProvider); err != nil {
-		return &actor.CertificateProvider{}, err
+		return nil, err
 	}
 
 	return &certificateProvider, nil
@@ -57,10 +63,13 @@ func (s *certificateProviderStore) Put(ctx context.Context, certificateProvider 
 		return errors.New("certificateProviderStore.Put requires LpaID and SessionID to retrieve")
 	}
 
-	pk := "LPA#" + data.LpaID
-	sk := "#CERTIFICATE_PROVIDER#" + data.SessionID
+	pk, sk := makeCertificateProviderKeys(data.LpaID, data.SessionID)
 
 	certificateProvider.UpdatedAt = s.now()
 
 	return s.dataStore.Put(ctx, pk, sk, certificateProvider)
+}
+
+func makeCertificateProviderKeys(lpaID, sessionID string) (string, string) {
+	return "LPA#" + lpaID, "#CERTIFICATE_PROVIDER#" + sessionID
 }

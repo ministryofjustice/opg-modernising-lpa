@@ -64,11 +64,16 @@ func buildDashboardLpaData(lpas []*page.Lpa, store page.CertificateProviderStore
 		ctx := page.ContextWithSessionData(ctx, &page.SessionData{LpaID: lpa.ID})
 
 		cp, err := store.Get(ctx)
-		datum.CertificateProvider = cp
 
 		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 			return dashboardLpaData, err
 		}
+
+		if cp == nil {
+			cp = &actor.CertificateProvider{}
+		}
+
+		datum.CertificateProvider = cp
 
 		dashboardLpaData = append(dashboardLpaData, datum)
 	}

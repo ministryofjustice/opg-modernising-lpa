@@ -128,6 +128,56 @@ func TestPutWhenError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
+func TestCreate(t *testing.T) {
+	ctx := context.Background()
+	pkey, _ := attributevalue.Marshal("a-pk")
+	skey, _ := attributevalue.Marshal("a-sk")
+	data, _ := attributevalue.Marshal("hello")
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("PutItem", ctx, &dynamodb.PutItemInput{
+			TableName: aws.String("this"),
+			Item: map[string]types.AttributeValue{
+				"PK":   pkey,
+				"SK":   skey,
+				"Data": data,
+			},
+			ConditionExpression: aws.String("attribute_not_exists(PK)"),
+		}).
+		Return(&dynamodb.PutItemOutput{}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	err := c.Create(ctx, "a-pk", "a-sk", "hello")
+	assert.Nil(t, err)
+}
+
+func TestCreateWhenError(t *testing.T) {
+	ctx := context.Background()
+	pkey, _ := attributevalue.Marshal("a-pk")
+	skey, _ := attributevalue.Marshal("a-sk")
+	data, _ := attributevalue.Marshal("hello")
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("PutItem", ctx, &dynamodb.PutItemInput{
+			TableName: aws.String("this"),
+			Item: map[string]types.AttributeValue{
+				"PK":   pkey,
+				"SK":   skey,
+				"Data": data,
+			},
+			ConditionExpression: aws.String("attribute_not_exists(PK)"),
+		}).
+		Return(&dynamodb.PutItemOutput{}, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	err := c.Create(ctx, "a-pk", "a-sk", "hello")
+	assert.Equal(t, expectedError, err)
+}
+
 func TestGetOneByPartialSk(t *testing.T) {
 	result, _ := attributevalue.Marshal("some data")
 	ctx := context.Background()

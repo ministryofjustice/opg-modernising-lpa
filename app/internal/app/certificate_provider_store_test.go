@@ -17,7 +17,7 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Put", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProvider{LpaID: "123", UpdatedAt: now}).
+		On("Create", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProvider{LpaID: "123", UpdatedAt: now}).
 		Return(nil)
 
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: func() time.Time { return now }}
@@ -36,13 +36,13 @@ func TestCertificateProviderStoreCreateWhenSessionMissing(t *testing.T) {
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
-func TestCertificateProviderStoreCreateWhenPutError(t *testing.T) {
+func TestCertificateProviderStoreCreateWhenCreateError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 	now := time.Now()
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Put", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProvider{LpaID: "123", UpdatedAt: now}).
+		On("Create", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProvider{LpaID: "123", UpdatedAt: now}).
 		Return(expectedError)
 
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: func() time.Time { return now }}

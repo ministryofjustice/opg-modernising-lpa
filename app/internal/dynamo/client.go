@@ -139,6 +139,27 @@ func (c *Client) Put(ctx context.Context, pk, sk string, v interface{}) error {
 	return err
 }
 
+func (c *Client) Create(ctx context.Context, pk, sk string, v interface{}) error {
+	item, err := makeKey(pk, sk)
+	if err != nil {
+		return err
+	}
+
+	data, err := attributevalue.Marshal(v)
+	if err != nil {
+		return err
+	}
+	item["Data"] = data
+
+	_, err = c.svc.PutItem(ctx, &dynamodb.PutItemInput{
+		TableName:           aws.String(c.table),
+		Item:                item,
+		ConditionExpression: aws.String("attribute_not_exists(PK)"),
+	})
+
+	return err
+}
+
 func makeKey(pk, sk string) (map[string]types.AttributeValue, error) {
 	pkey, err := attributevalue.Marshal(pk)
 	if err != nil {

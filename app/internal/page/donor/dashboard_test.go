@@ -81,7 +81,7 @@ func TestGetDashboardWhenCertificateProviderDoesNotExist(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetDashboardWhenLPaStoreErrors(t *testing.T) {
+func TestGetDashboardWhenLpaStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -167,4 +167,20 @@ func TestPostDashboard(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.YourDetails, resp.Header.Get("Location"))
+}
+
+func TestPostDashboardWhenLpaStoreError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Create", r.Context()).
+		Return(&page.Lpa{ID: "123"}, expectedError)
+
+	err := Dashboard(nil, lpaStore, nil)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }

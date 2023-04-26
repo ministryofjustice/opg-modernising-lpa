@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -123,5 +124,43 @@ func TestLpaStorePutWhenError(t *testing.T) {
 	lpaStore := &lpaStore{dataStore: dataStore}
 
 	err := lpaStore.Put(ctx, lpa)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestLpaStoreCreate(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+
+	now := time.Now()
+
+	dataStore := newMockDataStore(t)
+	dataStore.On("Create", ctx, "LPA#10100000", "#DONOR#an-id", &page.Lpa{ID: "10100000", UpdatedAt: now}).Return(nil)
+
+	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }, now: func() time.Time { return now }}
+
+	lpa, err := lpaStore.Create(ctx)
+	assert.Nil(t, err)
+	assert.Equal(t, &page.Lpa{ID: "10100000", UpdatedAt: now}, lpa)
+}
+
+func TestLpaStoreCreateWithSessionMissing(t *testing.T) {
+	ctx := context.Background()
+
+	lpaStore := &lpaStore{dataStore: nil, randomInt: func(x int) int { return x }, now: func() time.Time { return time.Now() }}
+
+	_, err := lpaStore.Create(ctx)
+	assert.Equal(t, page.SessionMissingError{}, err)
+}
+
+func TestLpaStoreCreateWhenError(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+
+	now := time.Now()
+
+	dataStore := newMockDataStore(t)
+	dataStore.On("Create", ctx, "LPA#10100000", "#DONOR#an-id", &page.Lpa{ID: "10100000", UpdatedAt: now}).Return(expectedError)
+
+	lpaStore := &lpaStore{dataStore: dataStore, randomInt: func(x int) int { return x }, now: func() time.Time { return now }}
+
+	_, err := lpaStore.Create(ctx)
 	assert.Equal(t, expectedError, err)
 }

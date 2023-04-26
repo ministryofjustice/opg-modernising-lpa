@@ -30,6 +30,7 @@ type DataStore interface {
 	Put(context.Context, string, string, interface{}) error
 	GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
 	GetAllByGsi(ctx context.Context, gsi, sk string, v interface{}) error
+	Create(ctx context.Context, pk, sk string, v interface{}) error
 }
 
 func App(
@@ -49,7 +50,7 @@ func App(
 	paths page.AppPaths,
 	oneLoginClient *onelogin.Client,
 ) http.Handler {
-	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
+	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn, now: time.Now}
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: time.Now}
 
 	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)
@@ -59,7 +60,7 @@ func App(
 
 	rootMux := http.NewServeMux()
 
-	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, shareCodeSender, localizer, certificateProviderStore))
+	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, shareCodeSender, localizer, certificateProviderStore, logger))
 
 	handleRoot := makeHandle(rootMux, errorHandler)
 

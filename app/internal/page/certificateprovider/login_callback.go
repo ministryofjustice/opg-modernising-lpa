@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
@@ -44,7 +45,10 @@ func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store, certi
 
 		_, err = certificateProviderStore.Create(ctx)
 		if err != nil {
-			return err
+			var ccf *types.ConditionalCheckFailedException
+			if !errors.As(err, &ccf) {
+				return err
+			}
 		}
 
 		return appData.Redirect(w, r, nil, page.Paths.CertificateProviderWhoIsEligible)

@@ -13,6 +13,20 @@ type mockDataStore struct {
 	mock.Mock
 }
 
+// Create provides a mock function with given fields: ctx, pk, sk, v
+func (_m *mockDataStore) Create(ctx context.Context, pk string, sk string, v interface{}) error {
+	ret := _m.Called(ctx, pk, sk, v)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, interface{}) error); ok {
+		r0 = rf(ctx, pk, sk, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Get provides a mock function with given fields: ctx, pk, sk, v
 func (_m *mockDataStore) Get(ctx context.Context, pk string, sk string, v interface{}) error {
 	ret := _m.Called(ctx, pk, sk, v)
