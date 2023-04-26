@@ -59,8 +59,8 @@ jobs:
       - name: Configure AWS credentials for maintenance mode
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
           aws-region: ${{ github.event.inputs.region }}
           role-duration-seconds: 3600
           role-session-name: MLPABManageMaintenanceMode
