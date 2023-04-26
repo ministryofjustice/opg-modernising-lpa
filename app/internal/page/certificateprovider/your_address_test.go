@@ -20,10 +20,10 @@ func TestGetYourAddress(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
+		Return(&actor.CertificateProvider{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -33,7 +33,7 @@ func TestGetYourAddress(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,12 +44,12 @@ func TestGetYourAddressWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
+		Return(&actor.CertificateProvider{}, expectedError)
 
-	err := YourAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, nil, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -61,15 +61,11 @@ func TestGetYourAddressFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	address := place.Address{Line1: "abc"}
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{
-			ID: "lpa-id",
-			CertificateProviderProvidedDetails: actor.CertificateProvider{
-				Address: address,
-			},
-		}, nil)
+		Return(&actor.CertificateProvider{Address: address}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -82,7 +78,7 @@ func TestGetYourAddressFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -93,10 +89,10 @@ func TestGetYourAddressManual(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?action=manual", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
+		Return(&actor.CertificateProvider{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -109,7 +105,7 @@ func TestGetYourAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -120,10 +116,10 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
+		Return(&actor.CertificateProvider{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -133,7 +129,7 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := YourAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -154,20 +150,15 @@ func TestPostYourAddressManual(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
-	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			ID: "lpa-id",
-			CertificateProviderProvidedDetails: actor.CertificateProvider{
-				Address: testAddress,
-			},
-		}).
+		Return(&actor.CertificateProvider{}, nil)
+	certificateProviderStore.
+		On("Put", r.Context(), &actor.CertificateProvider{Address: testAddress}).
 		Return(nil)
 
-	err := YourAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, nil, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -189,20 +180,15 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
-	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			ID: "lpa-id",
-			CertificateProviderProvidedDetails: actor.CertificateProvider{
-				Address: testAddress,
-			},
-		}).
+		Return(&actor.CertificateProvider{}, nil)
+	certificateProviderStore.
+		On("Put", r.Context(), &actor.CertificateProvider{Address: testAddress}).
 		Return(expectedError)
 
-	err := YourAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, nil, nil, certificateProviderStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -221,25 +207,15 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{
-			ID: "lpa-id",
-			CertificateProviderProvidedDetails: actor.CertificateProvider{
-				Address: place.Address{Line1: "abc"},
-			},
-		}, nil)
-	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			ID: "lpa-id",
-			CertificateProviderProvidedDetails: actor.CertificateProvider{
-				Address: testAddress,
-			},
-		}).
+		Return(&actor.CertificateProvider{Address: place.Address{Line1: "abc"}}, nil)
+	certificateProviderStore.
+		On("Put", r.Context(), &actor.CertificateProvider{Address: testAddress}).
 		Return(nil)
 
-	err := YourAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, nil, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -259,10 +235,10 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
+		Return(&actor.CertificateProvider{Address: place.Address{Line1: "abc"}}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -280,7 +256,7 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -305,10 +281,10 @@ func TestPostYourAddressSelect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
+		Return(&actor.CertificateProvider{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -322,7 +298,7 @@ func TestPostYourAddressSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -343,10 +319,10 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
+		Return(&actor.CertificateProvider{}, nil)
 
 	addressClient := newMockAddressClient(t)
 	addressClient.
@@ -366,7 +342,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, addressClient, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -383,10 +359,10 @@ func TestPostYourAddressLookup(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
+		Return(&actor.CertificateProvider{}, nil)
 
 	addresses := []place.Address{
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
@@ -409,7 +385,7 @@ func TestPostYourAddressLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, addressClient, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -430,10 +406,10 @@ func TestPostYourAddressLookupError(t *testing.T) {
 	logger.
 		On("Print", expectedError)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
+		Return(&actor.CertificateProvider{}, nil)
 
 	addressClient := newMockAddressClient(t)
 	addressClient.
@@ -453,7 +429,7 @@ func TestPostYourAddressLookupError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(logger, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := YourAddress(logger, template.Execute, addressClient, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -479,10 +455,10 @@ func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
 	logger.
 		On("Print", invalidPostcodeErr)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
+		Return(&actor.CertificateProvider{}, nil)
 
 	addressClient := newMockAddressClient(t)
 	addressClient.
@@ -502,7 +478,7 @@ func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(logger, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := YourAddress(logger, template.Execute, addressClient, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -522,10 +498,10 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 
 	logger := newMockLogger(t)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
+		Return(&actor.CertificateProvider{}, nil)
 
 	addressClient := newMockAddressClient(t)
 	addressClient.
@@ -545,7 +521,7 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(logger, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := YourAddress(logger, template.Execute, addressClient, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -561,10 +537,10 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
+		Return(&actor.CertificateProvider{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -577,7 +553,7 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

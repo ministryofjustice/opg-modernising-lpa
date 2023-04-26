@@ -43,19 +43,19 @@ func TestGetHowLongHaveYouKnownCertificateProviderFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	certificateProvider := actor.CertificateProvider{RelationshipLength: "gte-2-years"}
+	certificateProviderDetails := page.CertificateProviderDetails{RelationshipLength: "gte-2-years"}
 
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{CertificateProvider: certificateProvider}, nil)
+		Return(&page.Lpa{CertificateProviderDetails: certificateProviderDetails}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &howLongHaveYouKnownCertificateProviderData{
-			App:                 testAppData,
-			CertificateProvider: certificateProvider,
-			HowLong:             "gte-2-years",
+			App:                        testAppData,
+			CertificateProviderDetails: certificateProviderDetails,
+			HowLong:                    "gte-2-years",
 		}).
 		Return(nil)
 
@@ -124,10 +124,10 @@ func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			Attorneys:           actor.Attorneys{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}},
-			AttorneyDecisions:   actor.AttorneyDecisions{How: actor.Jointly},
-			CertificateProvider: actor.CertificateProvider{RelationshipLength: "gte-2-years"},
-			Tasks:               page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted, CertificateProvider: page.TaskCompleted},
+			Attorneys:                  actor.Attorneys{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}},
+			AttorneyDecisions:          actor.AttorneyDecisions{How: actor.Jointly},
+			CertificateProviderDetails: page.CertificateProviderDetails{RelationshipLength: "gte-2-years"},
+			Tasks:                      page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted, CertificateProvider: page.TaskCompleted},
 		}).
 		Return(nil)
 

@@ -16,10 +16,14 @@ type checkYourNameData struct {
 	Lpa    *page.Lpa
 }
 
-func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient NotifyClient) page.Handler {
+func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient NotifyClient, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
+		if err != nil {
+			return err
+		}
 
+		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -36,19 +40,26 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 
 			if len(data.Errors) == 0 {
 				if data.Form.CorrectedName != "" {
-					lpa.CertificateProvider.DeclaredFullName = data.Form.CorrectedName
+					certificateProvider.DeclaredFullName = data.Form.CorrectedName
 
-					if err := lpaStore.Put(r.Context(), lpa); err != nil {
+					if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 						return err
 					}
 
 					_, err := notifyClient.Email(r.Context(), notify.Email{
 						EmailAddress:    lpa.Donor.Email,
 						TemplateID:      notifyClient.TemplateID(notify.CertificateProviderNameChangeEmail),
-						Personalisation: map[string]string{"declaredName": lpa.CertificateProvider.DeclaredFullName},
+						Personalisation: map[string]string{"declaredName": certificateProvider.DeclaredFullName},
 					})
 
 					if err != nil {
+						return err
+					}
+				} else {
+					certificateProvider.FirstNames = lpa.CertificateProviderDetails.FirstNames
+					certificateProvider.LastName = lpa.CertificateProviderDetails.LastName
+
+					if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 						return err
 					}
 				}

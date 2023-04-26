@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -25,9 +26,10 @@ import (
 
 //go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
 type DataStore interface {
-	GetAll(context.Context, string, interface{}) error
-	Get(context.Context, string, string, interface{}) error
+	Get(ctx context.Context, pk, sk string, v interface{}) error
 	Put(context.Context, string, string, interface{}) error
+	GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
+	GetAllByGsi(ctx context.Context, gsi, sk string, v interface{}) error
 }
 
 func App(
@@ -48,6 +50,8 @@ func App(
 	oneLoginClient *onelogin.Client,
 ) http.Handler {
 	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn}
+	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: time.Now}
+
 	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)
 
 	errorHandler := page.Error(tmpls.Get("error-500.gohtml"), logger)
@@ -55,13 +59,13 @@ func App(
 
 	rootMux := http.NewServeMux()
 
-	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, shareCodeSender, localizer))
+	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, shareCodeSender, localizer, certificateProviderStore))
 
 	handleRoot := makeHandle(rootMux, errorHandler)
 
 	handleRoot(paths.Root, notFoundHandler)
 	handleRoot(paths.Fixtures, page.Fixtures(tmpls.Get("fixtures.gohtml")))
-	handleRoot(paths.YourLegalRightsAndResponsibilities, page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml"), nil))
+	handleRoot(paths.YourLegalRightsAndResponsibilities, page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities_general.gohtml")))
 
 	certificateprovider.Register(
 		rootMux,
@@ -75,6 +79,7 @@ func App(
 		errorHandler,
 		yotiClient,
 		notifyClient,
+		certificateProviderStore,
 	)
 
 	attorney.Register(
@@ -104,6 +109,7 @@ func App(
 		shareCodeSender,
 		errorHandler,
 		notFoundHandler,
+		certificateProviderStore,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash)
