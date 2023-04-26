@@ -674,5 +674,7 @@
     "signAsAttorneyWhenRegisteredBullet": "Welsh",
     "signAsAttorneyWhenCapacityLostBullet": "Welsh",
     "iAttorneyConfirmTheseStatements": "Welsh, {{.AttorneyFullName}}, welsh",
-    "asReplacementAttorneyAlsoConfirmThat": "<p class=\"govuk-body govuk-!-font-weight-bold\">Welsh:</p><p class=\"govuk-body\">Welsh</p>"
+    "asReplacementAttorneyAlsoConfirmThat": "<p class=\"govuk-body govuk-!-font-weight-bold\">Welsh:</p><p class=\"govuk-body\">Welsh</p>",
+
+    "beAnAttorneyContent": "<p class=\"govuk-body\">Welsh</p>"
 }
