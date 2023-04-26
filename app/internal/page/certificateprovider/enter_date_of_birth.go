@@ -22,9 +22,14 @@ type dateOfBirthForm struct {
 	IgnoreDobWarning string
 }
 
-func EnterDateOfBirth(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func EnterDateOfBirth(tmpl template.Template, lpaStore LpaStore, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
+		if err != nil {
+			return err
+		}
+
+		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -33,7 +38,7 @@ func EnterDateOfBirth(tmpl template.Template, lpaStore LpaStore) page.Handler {
 			App: appData,
 			Lpa: lpa,
 			Form: &dateOfBirthForm{
-				Dob: lpa.CertificateProviderProvidedDetails.DateOfBirth,
+				Dob: certificateProvider.DateOfBirth,
 			},
 		}
 
@@ -47,9 +52,9 @@ func EnterDateOfBirth(tmpl template.Template, lpaStore LpaStore) page.Handler {
 			}
 
 			if data.Errors.None() && data.DobWarning == "" {
-				lpa.CertificateProviderProvidedDetails.DateOfBirth = data.Form.Dob
+				certificateProvider.DateOfBirth = data.Form.Dob
 
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return err
 				}
 

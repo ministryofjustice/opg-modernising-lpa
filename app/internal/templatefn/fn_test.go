@@ -338,13 +338,15 @@ func TestListPeopleToNotify(t *testing.T) {
 func TestProgressbar(t *testing.T) {
 	app := page.AppData{SessionID: "abc"}
 	lpa := &page.Lpa{}
+	cp := &actor.CertificateProvider{}
 
 	want := map[string]interface{}{
-		"App": app,
-		"Lpa": lpa,
+		"App":                 app,
+		"Lpa":                 lpa,
+		"CertificateProvider": cp,
 	}
 
-	got := progressBar(app, lpa)
+	got := progressBar(app, lpa, cp)
 
 	assert.Equal(t, want, got)
 }

@@ -17,6 +17,13 @@ resource "aws_dynamodb_table" "lpas_table" {
   hash_key         = "PK"
   range_key        = "SK"
 
+  global_secondary_index {
+    name               = "ActorIndex"
+    hash_key           = "SK"
+    projection_type    = "INCLUDE"
+    non_key_attributes = ["Data"]
+  }
+
   server_side_encryption {
     enabled     = true
     kms_key_arn = data.aws_kms_alias.dynamodb_encryption_key_eu_west_1.target_key_arn

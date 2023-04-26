@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -19,10 +20,10 @@ func TestGetSelectYourIdentityOptions(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.CertificateProvider{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -33,7 +34,7 @@ func TestGetSelectYourIdentityOptions(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := SelectYourIdentityOptions(template.Execute, lpaStore, 2)(testAppData, w, r)
+	err := SelectYourIdentityOptions(template.Execute, 2, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,12 +45,12 @@ func TestGetSelectYourIdentityOptionsWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
+		Return(&actor.CertificateProvider{}, expectedError)
 
-	err := SelectYourIdentityOptions(nil, lpaStore, 0)(testAppData, w, r)
+	err := SelectYourIdentityOptions(nil, 0, certificateProviderStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -58,12 +59,10 @@ func TestGetSelectYourIdentityOptionsFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{
-			DonorIdentityOption: identity.Passport,
-		}, nil)
+		Return(&actor.CertificateProvider{IdentityOption: identity.Passport}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -73,7 +72,7 @@ func TestGetSelectYourIdentityOptionsFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := SelectYourIdentityOptions(template.Execute, lpaStore, 0)(testAppData, w, r)
+	err := SelectYourIdentityOptions(template.Execute, 0, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -84,17 +83,17 @@ func TestGetSelectYourIdentityOptionsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.CertificateProvider{}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := SelectYourIdentityOptions(template.Execute, lpaStore, 0)(testAppData, w, r)
+	err := SelectYourIdentityOptions(template.Execute, 0, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -110,17 +109,17 @@ func TestPostSelectYourIdentityOptions(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			CertificateProviderIdentityOption: identity.Passport,
+		Return(&actor.CertificateProvider{}, nil)
+	certificateProviderStore.
+		On("Put", r.Context(), &actor.CertificateProvider{
+			IdentityOption: identity.Passport,
 		}).
 		Return(nil)
 
-	err := SelectYourIdentityOptions(nil, lpaStore, 0)(testAppData, w, r)
+	err := SelectYourIdentityOptions(nil, 0, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -143,12 +142,12 @@ func TestPostSelectYourIdentityOptionsNone(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			certificateProviderStore := newMockCertificateProviderStore(t)
+			certificateProviderStore.
 				On("Get", r.Context()).
-				Return(&page.Lpa{}, nil)
+				Return(&actor.CertificateProvider{}, nil)
 
-			err := SelectYourIdentityOptions(nil, lpaStore, pageIndex)(testAppData, w, r)
+			err := SelectYourIdentityOptions(nil, pageIndex, certificateProviderStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -167,15 +166,15 @@ func TestPostSelectYourIdentityOptionsWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	lpaStore.
+		Return(&actor.CertificateProvider{}, nil)
+	certificateProviderStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := SelectYourIdentityOptions(nil, lpaStore, 0)(testAppData, w, r)
+	err := SelectYourIdentityOptions(nil, 0, certificateProviderStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -185,10 +184,10 @@ func TestPostSelectYourIdentityOptionsWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.CertificateProvider{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -199,7 +198,7 @@ func TestPostSelectYourIdentityOptionsWhenValidationErrors(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := SelectYourIdentityOptions(template.Execute, lpaStore, 0)(testAppData, w, r)
+	err := SelectYourIdentityOptions(template.Execute, 0, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

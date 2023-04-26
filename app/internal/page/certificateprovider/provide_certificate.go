@@ -13,13 +13,18 @@ import (
 type provideCertificateData struct {
 	App                 page.AppData
 	Errors              validation.List
-	CertificateProvider actor.CertificateProvider
+	CertificateProvider *actor.CertificateProvider
 	Form                *provideCertificateForm
 }
 
-func ProvideCertificate(tmpl template.Template, lpaStore LpaStore, now func() time.Time) page.Handler {
+func ProvideCertificate(tmpl template.Template, lpaStore LpaStore, now func() time.Time, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
+		if err != nil {
+			return err
+		}
+
+		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -30,9 +35,9 @@ func ProvideCertificate(tmpl template.Template, lpaStore LpaStore, now func() ti
 
 		data := &provideCertificateData{
 			App:                 appData,
-			CertificateProvider: lpa.CertificateProvider,
+			CertificateProvider: certificateProvider,
 			Form: &provideCertificateForm{
-				AgreeToStatement: lpa.Certificate.AgreeToStatement,
+				AgreeToStatement: certificateProvider.Certificate.AgreeToStatement,
 			},
 		}
 
@@ -41,9 +46,9 @@ func ProvideCertificate(tmpl template.Template, lpaStore LpaStore, now func() ti
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.Certificate.AgreeToStatement = true
-				lpa.Certificate.Agreed = now()
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				certificateProvider.Certificate.AgreeToStatement = true
+				certificateProvider.Certificate.Agreed = now()
+				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return err
 				}
 
