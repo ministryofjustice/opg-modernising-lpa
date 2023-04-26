@@ -10,14 +10,12 @@ import (
 )
 
 type Attorney struct {
-	ID               string
-	FirstNames       string
-	LastName         string
-	Email            string
-	DateOfBirth      date.Date
-	Address          place.Address
-	DeclaredFullName string
-	Confirmed        bool
+	ID          string
+	FirstNames  string
+	LastName    string
+	Email       string
+	DateOfBirth date.Date
+	Address     place.Address
 }
 
 func (a Attorney) FullName() string {
@@ -71,6 +69,13 @@ func (as Attorneys) FirstNames() string {
 	}
 
 	return concatSentence(names)
+}
+
+type AttorneyProvidedDetails struct {
+	DateOfBirth   date.Date
+	IsNameCorrect string
+	CorrectedName string
+	Confirmed     bool
 }
 
 func concatSentence(list []string) string {

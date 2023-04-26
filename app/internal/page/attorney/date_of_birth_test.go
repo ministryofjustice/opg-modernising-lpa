@@ -24,19 +24,15 @@ func TestGetDateOfBirth(t *testing.T) {
 	}{
 		"attorney": {
 			lpa: &page.Lpa{
-				ID: "lpa-id",
-				AttorneyProvidedDetails: actor.Attorneys{{
-					ID: "attorney-id",
-				}},
+				ID:                      "lpa-id",
+				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
 			},
 			appData: testAppData,
 		},
 		"replacement attorney": {
 			lpa: &page.Lpa{
-				ID: "lpa-id",
-				ReplacementAttorneyProvidedDetails: actor.Attorneys{{
-					ID: "attorney-id",
-				}},
+				ID:                                 "lpa-id",
+				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
 			},
 			appData: testReplacementAppData,
 		},
@@ -130,20 +126,22 @@ func TestGetDateOfBirthFromStore(t *testing.T) {
 			appData: testAppData,
 			lpa: &page.Lpa{
 				Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				AttorneyProvidedDetails: actor.Attorneys{{
-					ID:          "attorney-id",
-					DateOfBirth: date.New("1997", "1", "2"),
-				}},
+				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
+					"attorney-id": {
+						DateOfBirth: date.New("1997", "1", "2"),
+					},
+				},
 			},
 		},
 		"replacement attorney": {
 			appData: testReplacementAppData,
 			lpa: &page.Lpa{
 				ReplacementAttorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				ReplacementAttorneyProvidedDetails: actor.Attorneys{{
-					ID:          "attorney-id",
-					DateOfBirth: date.New("1997", "1", "2"),
-				}},
+				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
+					"attorney-id": {
+						DateOfBirth: date.New("1997", "1", "2"),
+					},
+				},
 			},
 		},
 	}
@@ -199,10 +197,8 @@ func TestGetDateOfBirthWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpa := &page.Lpa{
-		ID: "lpa-id",
-		AttorneyProvidedDetails: actor.Attorneys{{
-			ID: "attorney-id",
-		}},
+		ID:                      "lpa-id",
+		AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
 	}
 
 	lpaStore := newMockLpaStore(t)
@@ -242,13 +238,19 @@ func TestPostDateOfBirth(t *testing.T) {
 				"date-of-birth-year":  {validBirthYear},
 			},
 			lpa: &page.Lpa{
-				AttorneyProvidedDetails: actor.Attorneys{{ID: "attorney-id"}},
+				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
 			},
 			updatedLpa: &page.Lpa{
-				AttorneyProvidedDetails: actor.Attorneys{{
-					ID:          "attorney-id",
-					DateOfBirth: date.New(validBirthYear, "1", "2"),
-				}},
+				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
+					"attorney-id": {
+						DateOfBirth: date.New(validBirthYear, "1", "2"),
+					},
+				},
+				AttorneyTasks: map[string]page.AttorneyTasks{
+					"attorney-id": {
+						ConfirmYourDetails: page.TaskCompleted,
+					},
+				},
 			},
 			appData: testAppData,
 		},
@@ -260,13 +262,19 @@ func TestPostDateOfBirth(t *testing.T) {
 				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
 			lpa: &page.Lpa{
-				AttorneyProvidedDetails: actor.Attorneys{{ID: "attorney-id"}},
+				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
 			},
 			updatedLpa: &page.Lpa{
-				AttorneyProvidedDetails: actor.Attorneys{{
-					ID:          "attorney-id",
-					DateOfBirth: date.New("1900", "1", "2"),
-				}},
+				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
+					"attorney-id": {
+						DateOfBirth: date.New("1900", "1", "2"),
+					},
+				},
+				AttorneyTasks: map[string]page.AttorneyTasks{
+					"attorney-id": {
+						ConfirmYourDetails: page.TaskCompleted,
+					},
+				},
 			},
 			appData: testAppData,
 		},
@@ -277,13 +285,19 @@ func TestPostDateOfBirth(t *testing.T) {
 				"date-of-birth-year":  {validBirthYear},
 			},
 			lpa: &page.Lpa{
-				ReplacementAttorneyProvidedDetails: actor.Attorneys{{ID: "attorney-id"}},
+				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
 			},
 			updatedLpa: &page.Lpa{
-				ReplacementAttorneyProvidedDetails: actor.Attorneys{{
-					ID:          "attorney-id",
-					DateOfBirth: date.New(validBirthYear, "1", "2"),
-				}},
+				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
+					"attorney-id": {
+						DateOfBirth: date.New(validBirthYear, "1", "2"),
+					},
+				},
+				ReplacementAttorneyTasks: map[string]page.AttorneyTasks{
+					"attorney-id": {
+						ConfirmYourDetails: page.TaskCompleted,
+					},
+				},
 			},
 			appData: testReplacementAppData,
 		},
@@ -295,13 +309,19 @@ func TestPostDateOfBirth(t *testing.T) {
 				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
 			lpa: &page.Lpa{
-				ReplacementAttorneyProvidedDetails: actor.Attorneys{{ID: "attorney-id"}},
+				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
 			},
 			updatedLpa: &page.Lpa{
-				ReplacementAttorneyProvidedDetails: actor.Attorneys{{
-					ID:          "attorney-id",
-					DateOfBirth: date.New("1900", "1", "2"),
-				}},
+				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
+					"attorney-id": {
+						DateOfBirth: date.New("1900", "1", "2"),
+					},
+				},
+				ReplacementAttorneyTasks: map[string]page.AttorneyTasks{
+					"attorney-id": {
+						ConfirmYourDetails: page.TaskCompleted,
+					},
+				},
 			},
 			appData: testReplacementAppData,
 		},
@@ -336,8 +356,8 @@ func TestPostDateOfBirthWhenAttorneyDetailsDontExist(t *testing.T) {
 	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
 
 	testCases := map[string]struct {
-		form      url.Values
-		attorneys actor.Attorneys
+		form            url.Values
+		providedDetails actor.AttorneyProvidedDetails
 	}{
 		"valid": {
 			form: url.Values{
@@ -345,10 +365,9 @@ func TestPostDateOfBirthWhenAttorneyDetailsDontExist(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
 			},
-			attorneys: actor.Attorneys{{
-				ID:          "attorney-id",
+			providedDetails: actor.AttorneyProvidedDetails{
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
-			}},
+			},
 		},
 		"warning ignored": {
 			form: url.Values{
@@ -357,10 +376,9 @@ func TestPostDateOfBirthWhenAttorneyDetailsDontExist(t *testing.T) {
 				"date-of-birth-year":  {"1900"},
 				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
-			attorneys: actor.Attorneys{{
-				ID:          "attorney-id",
+			providedDetails: actor.AttorneyProvidedDetails{
 				DateOfBirth: date.New("1900", "1", "2"),
-			}},
+			},
 		},
 	}
 
@@ -378,7 +396,8 @@ func TestPostDateOfBirthWhenAttorneyDetailsDontExist(t *testing.T) {
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
 					ID:                      "lpa-id",
-					AttorneyProvidedDetails: tc.attorneys,
+					AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": tc.providedDetails},
+					AttorneyTasks:           map[string]page.AttorneyTasks{"attorney-id": {ConfirmYourDetails: page.TaskCompleted}},
 				}).
 				Return(nil)
 
@@ -432,10 +451,8 @@ func TestPostDateOfBirthWhenInputRequired(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					ID: "lpa-id",
-					AttorneyProvidedDetails: actor.Attorneys{{
-						ID: "attorney-id",
-					}},
+					ID:                      "lpa-id",
+					AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
 				}, nil)
 
 			template := newMockTemplate(t)
@@ -470,9 +487,7 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			AttorneyProvidedDetails: actor.Attorneys{{
-				ID: "attorney-id",
-			}},
+			AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
 		}, expectedError)
 
 	err := DateOfBirth(nil, lpaStore)(testAppData, w, r)
