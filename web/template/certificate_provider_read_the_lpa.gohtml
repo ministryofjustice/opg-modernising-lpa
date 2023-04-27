@@ -22,7 +22,9 @@
       {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa false) }}
 
       <p class="govuk-body">
-        {{ if .Lpa.Progress.LpaSigned.Completed }}
+        {{ $progress := .Lpa.Progress .CertificateProvider }}
+
+        {{ if $progress.LpaSigned.Completed }}
           <a class="govuk-button" href="{{ link .App .App.Paths.ProvideCertificate }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
         {{ else }}
           <a class="govuk-button" href="{{ link .App .App.Paths.CertificateProviderWhatHappensNext }}" data-module="govuk-button">{{ tr .App "continue" }}</a>

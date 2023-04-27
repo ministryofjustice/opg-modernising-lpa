@@ -5,7 +5,7 @@
         {{ tr .App "name" }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ .Lpa.CertificateProvider.FirstNames }} {{ .Lpa.CertificateProvider.LastName }}
+        {{ .Lpa.CertificateProviderDetails.FirstNames }} {{ .Lpa.CertificateProviderDetails.LastName }}
       </dd>
       {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
         <dd class="govuk-summary-list__actions">
@@ -14,11 +14,12 @@
           </a>
         </dd>
       {{ end }}
-      {{ if .Lpa.CertificateProviderIdentityConfirmed }}
-        <dd class="govuk-summary-list__value">
-          <strong class="govuk-tag app-task-list__tag govuk-tag">{{ tr .App "idVerifiedTag" }}</strong>
-        </dd>
-      {{ end }}
+{{/*      This is the only reason we need to inject cpStore in to the Guidance handler - revisit if knowing CP ID status is a must have*/}}
+{{/*      {{ if .CertificateProvider.CertificateProviderIdentityConfirmed }}*/}}
+{{/*        <dd class="govuk-summary-list__value">*/}}
+{{/*          <strong class="govuk-tag app-task-list__tag govuk-tag">{{ tr .App "idVerifiedTag" }}</strong>*/}}
+{{/*        </dd>*/}}
+{{/*      {{ end }}*/}}
     </div>
 
     <div class="govuk-summary-list__row">
@@ -26,7 +27,7 @@
         {{ tr .App "mobile" }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ .Lpa.CertificateProvider.Mobile }}
+        {{ .Lpa.CertificateProviderDetails.Mobile }}
       </dd>
       {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
         <dd class="govuk-summary-list__actions">
