@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/gorilla/sessions"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -24,7 +23,7 @@ func TestGetPaymentConfirmation(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendCertificateProvider", r.Context(), notify.CertificateProviderInviteEmail, testAppData, true, &page.Lpa{CertificateProvider: actor.CertificateProvider{Email: "certificateprovider@example.com"}}).
+		On("SendCertificateProvider", r.Context(), notify.CertificateProviderInviteEmail, testAppData, true, &page.Lpa{CertificateProviderDetails: page.CertificateProviderDetails{Email: "certificateprovider@example.com"}}).
 		Return(nil)
 
 	template := newMockTemplate(t)

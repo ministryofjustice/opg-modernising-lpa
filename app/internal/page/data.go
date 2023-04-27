@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
@@ -56,7 +57,7 @@ type Lpa struct {
 	Donor                                      actor.Donor
 	Attorneys                                  actor.Attorneys
 	AttorneyDecisions                          actor.AttorneyDecisions
-	CertificateProvider                        actor.CertificateProvider
+	CertificateProviderDetails                 CertificateProviderDetails
 	WhoFor                                     string
 	Type                                       string
 	WantReplacementAttorneys                   string
@@ -82,11 +83,6 @@ type Lpa struct {
 	CPWitnessCodeValidated                     bool
 	WitnessCodeLimiter                         *Limiter
 
-	CertificateProviderIdentityOption   identity.Option
-	CertificateProviderIdentityUserData identity.UserData
-	CertificateProviderProvidedDetails  actor.CertificateProvider
-	Certificate                         Certificate
-
 	AttorneyProvidedDetails            actor.Attorneys
 	ReplacementAttorneyProvidedDetails actor.Attorneys
 }
@@ -94,6 +90,23 @@ type Lpa struct {
 type PaymentDetails struct {
 	PaymentReference string
 	PaymentId        string
+}
+
+type CertificateProviderDetails struct {
+	FirstNames              string
+	LastName                string
+	Address                 place.Address
+	Mobile                  string
+	Email                   string
+	CarryOutBy              string
+	DateOfBirth             date.Date
+	Relationship            string
+	RelationshipDescription string
+	RelationshipLength      string
+}
+
+func (c CertificateProviderDetails) FullName() string {
+	return fmt.Sprintf("%s %s", c.FirstNames, c.LastName)
 }
 
 type Tasks struct {
@@ -124,10 +137,20 @@ type SessionData struct {
 	LpaID     string
 }
 
-func SessionDataFromContext(ctx context.Context) *SessionData {
-	data, _ := ctx.Value((*SessionData)(nil)).(*SessionData)
+type SessionMissingError struct{}
 
-	return data
+func (s SessionMissingError) Error() string {
+	return "Session data not set"
+}
+
+func SessionDataFromContext(ctx context.Context) (*SessionData, error) {
+	data, ok := ctx.Value((*SessionData)(nil)).(*SessionData)
+
+	if !ok {
+		return nil, SessionMissingError{}
+	}
+
+	return data, nil
 }
 
 func ContextWithSessionData(ctx context.Context, data *SessionData) context.Context {
@@ -144,12 +167,6 @@ func (l *Lpa) DonorIdentityConfirmed() bool {
 	return l.DonorIdentityUserData.OK && l.DonorIdentityUserData.Provider != identity.UnknownOption &&
 		l.DonorIdentityUserData.MatchName(l.Donor.FirstNames, l.Donor.LastName) &&
 		l.DonorIdentityUserData.DateOfBirth.Equals(l.Donor.DateOfBirth)
-}
-
-func (l *Lpa) CertificateProviderIdentityConfirmed() bool {
-	return l.CertificateProviderIdentityUserData.OK && l.CertificateProviderIdentityUserData.Provider != identity.UnknownOption &&
-		l.CertificateProviderIdentityUserData.MatchName(l.CertificateProvider.FirstNames, l.CertificateProvider.LastName) &&
-		l.CertificateProviderIdentityUserData.DateOfBirth.Equals(l.CertificateProvider.DateOfBirth)
 }
 
 func (l *Lpa) TypeLegalTermTransKey() string {
@@ -201,7 +218,7 @@ func (l *Lpa) CanGoTo(url string) bool {
 	}
 }
 
-func (l *Lpa) Progress() Progress {
+func (l *Lpa) Progress(certificateProvider *actor.CertificateProvider) Progress {
 	p := Progress{
 		LpaSigned:                   TaskInProgress,
 		CertificateProviderDeclared: TaskNotStarted,
@@ -216,17 +233,12 @@ func (l *Lpa) Progress() Progress {
 		p.CertificateProviderDeclared = TaskInProgress
 	}
 
-	if !l.Certificate.Agreed.IsZero() {
+	if !certificateProvider.Certificate.Agreed.IsZero() {
 		p.CertificateProviderDeclared = TaskCompleted
 		p.AttorneysDeclared = TaskInProgress
 	}
 
 	return p
-}
-
-type Certificate struct {
-	AgreeToStatement bool
-	Agreed           time.Time
 }
 
 type AddressDetail struct {
@@ -247,11 +259,11 @@ func (l *Lpa) ActorAddresses() []AddressDetail {
 		})
 	}
 
-	if l.CertificateProvider.Address.String() != "" {
+	if l.CertificateProviderDetails.Address.String() != "" {
 		ads = append(ads, AddressDetail{
-			Name:    l.CertificateProvider.FullName(),
+			Name:    l.CertificateProviderDetails.FullName(),
 			Role:    actor.TypeCertificateProvider,
-			Address: l.CertificateProvider.Address,
+			Address: l.CertificateProviderDetails.Address,
 		})
 	}
 
