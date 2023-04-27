@@ -22,11 +22,11 @@ type AppData struct {
 	StaticHash            string
 	Paths                 AppPaths
 	LpaID                 string
-	AttorneyID            string
 	CsrfToken             string
-	IsDonor               bool
-	IsReplacementAttorney bool
 	ActorTypes            actor.Types
+	ActorType             actor.Type
+	AttorneyID            string
+	IsReplacementAttorney bool
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, lpa *Lpa, url string) error {

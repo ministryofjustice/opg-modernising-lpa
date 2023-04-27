@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -14,21 +15,29 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string, shareCodeSender shareCodeSender, localizer Localizer) http.HandlerFunc {
+func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string, shareCodeSender shareCodeSender, localizer Localizer, certificateProviderStore CertificateProviderStore, logger *logging.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		sub := randomString(12)
-		sessionID := base64.StdEncoding.EncodeToString([]byte(sub))
-		donorSesh := &sesh.DonorSession{Sub: sub, Email: TestEmail}
+		donorSub := randomString(16)
+		donorSessionID := base64.StdEncoding.EncodeToString([]byte(donorSub))
 
-		_ = sesh.SetDonor(store, r, w, donorSesh)
+		cpSub := randomString(16)
+		cpSessionID := base64.StdEncoding.EncodeToString([]byte(cpSub))
 
-		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: sessionID})
+		lpa, err := lpaStore.Create(ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID}))
+		if err != nil {
+			logger.Print("creating lpa ", err)
+		}
 
-		lpa, _ := lpaStore.Create(ctx)
+		donorCtx := ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
+
+		cpCtx := ContextWithSessionData(r.Context(), &SessionData{SessionID: cpSessionID, LpaID: lpa.ID})
 
 		if r.FormValue("withDonorDetails") != "" || r.FormValue("completeLpa") != "" {
 			CompleteDonorDetails(lpa)
 		}
+
+		donorSesh := &sesh.DonorSession{Sub: donorSub, Email: TestEmail}
+		_ = sesh.SetDonor(store, r, w, donorSesh)
 
 		if r.FormValue("withAttorney") != "" {
 			AddAttorneys(lpa, 1)
@@ -86,8 +95,8 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			CompleteRestrictions(lpa)
 		}
 
-		if r.FormValue("withCP") != "" || r.FormValue("completeLpa") != "" {
-			AddCertificateProvider(lpa, "Jessie")
+		if r.FormValue("withCPDetails") != "" || r.FormValue("completeLpa") != "" {
+			AddCertificateProviderDetails(lpa, "Jessie")
 		}
 
 		if r.FormValue("withPeopleToNotify") != "" || r.FormValue("completeLpa") != "" {
@@ -143,14 +152,14 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				PayForLpa(lpa, store, r, w, randomString(12))
 			}
 
-			lpa.CertificateProvider.Email = TestEmail
+			lpa.CertificateProviderDetails.Email = TestEmail
 
 			if r.FormValue("withEmail") != "" {
-				lpa.CertificateProvider.Email = r.FormValue("withEmail")
+				lpa.CertificateProviderDetails.Email = r.FormValue("withEmail")
 			}
 
-			shareCodeSender.SendCertificateProvider(ctx, notify.CertificateProviderInviteEmail, AppData{
-				SessionID: sessionID,
+			shareCodeSender.SendCertificateProvider(donorCtx, notify.CertificateProviderInviteEmail, AppData{
+				SessionID: donorSessionID,
 				LpaID:     lpa.ID,
 				Localizer: localizer,
 			}, false, lpa)
@@ -160,24 +169,63 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 
 		if r.FormValue("asCertificateProvider") != "" || r.FormValue("provideCertificate") != "" {
 			_ = sesh.SetCertificateProvider(store, r, w, &sesh.CertificateProviderSession{
-				Sub:            randomString(12),
-				Email:          TestEmail,
-				DonorSessionID: sessionID,
-				LpaID:          lpa.ID,
+				Sub:   cpSub,
+				Email: TestEmail,
+				LpaID: lpa.ID,
 			})
 
-			lpa.CertificateProviderIdentityUserData = identity.UserData{
+			certificateProvider, err := certificateProviderStore.Create(cpCtx)
+			if err != nil {
+				logger.Print("asCertificateProvider||provideCertificate creating CP ", err)
+			}
+
+			certificateProvider.IdentityUserData = identity.UserData{
 				OK:         true,
 				Provider:   identity.OneLogin,
 				FirstNames: "Jessie",
 				LastName:   "Jones",
 			}
+
+			if r.FormValue("provideCertificate") != "" {
+				certificateProvider.Mobile = TestMobile
+				certificateProvider.Email = TestEmail
+				certificateProvider.Address = place.Address{
+					Line1:      "5 RICHMOND PLACE",
+					Line2:      "KINGS HEATH",
+					Line3:      "WEST MIDLANDS",
+					TownOrCity: "BIRMINGHAM",
+					Postcode:   "B14 7ED",
+				}
+
+				certificateProvider.Certificate = actor.Certificate{
+					AgreeToStatement: true,
+					Agreed:           time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
+				}
+			}
+
+			err = certificateProviderStore.Put(cpCtx, certificateProvider)
+			if err != nil {
+				logger.Print("provideCertificate putting CP ", err)
+			}
 		}
 
-		if r.FormValue("provideCertificate") != "" {
-			lpa.CertificateProviderProvidedDetails.Mobile = TestMobile
-			lpa.CertificateProviderProvidedDetails.Email = TestEmail
-			lpa.CertificateProviderProvidedDetails.Address = place.Address{
+		if r.FormValue("withCertificateProvider") != "" {
+			certificateProvider, err := certificateProviderStore.Create(cpCtx)
+
+			if err != nil {
+				logger.Print("withCertificateProvider creating CP ", err)
+			}
+
+			certificateProvider.IdentityUserData = identity.UserData{
+				OK:         true,
+				Provider:   identity.OneLogin,
+				FirstNames: "Jessie",
+				LastName:   "Jones",
+			}
+
+			certificateProvider.Mobile = TestMobile
+			certificateProvider.Email = TestEmail
+			certificateProvider.Address = place.Address{
 				Line1:      "5 RICHMOND PLACE",
 				Line2:      "KINGS HEATH",
 				Line3:      "WEST MIDLANDS",
@@ -185,17 +233,19 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				Postcode:   "B14 7ED",
 			}
 
-			lpa.Certificate = Certificate{
-				AgreeToStatement: true,
-				Agreed:           time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
+			err = certificateProviderStore.Put(cpCtx, certificateProvider)
+			if err != nil {
+				logger.Print("withCertificateProvider putting CP ", err)
 			}
+
+			_ = sesh.SetDonor(store, r, w, donorSesh)
 		}
 
 		if r.FormValue("asAttorney") != "" {
 			_ = sesh.SetAttorney(store, r, w, &sesh.AttorneySession{
 				Sub:            randomString(12),
 				Email:          TestEmail,
-				DonorSessionID: sessionID,
+				DonorSessionID: donorSessionID,
 				AttorneyID:     lpa.Attorneys[0].ID,
 				LpaID:          lpa.ID,
 			})
@@ -205,7 +255,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			_ = sesh.SetAttorney(store, r, w, &sesh.AttorneySession{
 				Sub:                   randomString(12),
 				Email:                 TestEmail,
-				DonorSessionID:        sessionID,
+				DonorSessionID:        donorSessionID,
 				AttorneyID:            lpa.ReplacementAttorneys[0].ID,
 				LpaID:                 lpa.ID,
 				IsReplacementAttorney: true,
@@ -226,8 +276,8 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				lpa.Attorneys = attorneys
 			}
 
-			shareCodeSender.SendAttorneys(ctx, AppData{
-				SessionID: sessionID,
+			shareCodeSender.SendAttorneys(donorCtx, AppData{
+				SessionID: donorSessionID,
 				LpaID:     lpa.ID,
 				Localizer: localizer,
 			}, lpa)
@@ -238,10 +288,17 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			_ = sesh.SetDonor(store, r, w, donorSesh)
 		}
 
-		_ = lpaStore.Put(ctx, lpa)
+		err = lpaStore.Put(donorCtx, lpa)
+		if err != nil {
+			logger.Print("putting lpa ", err)
+		}
 
 		random.UseTestCode = true
 
-		AppData{}.Redirect(w, r.WithContext(ctx), lpa, r.FormValue("redirect"))
+		if r.FormValue("asCertificateProvider") != "" || r.FormValue("provideCertificate") != "" {
+			AppData{}.Redirect(w, r.WithContext(cpCtx), lpa, r.FormValue("redirect"))
+		} else {
+			AppData{}.Redirect(w, r.WithContext(donorCtx), lpa, r.FormValue("redirect"))
+		}
 	}
 }

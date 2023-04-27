@@ -10,21 +10,12 @@ import (
 type guidanceData struct {
 	App    AppData
 	Errors validation.List
-	Lpa    *Lpa
 }
 
-func Guidance(tmpl template.Template, lpaStore LpaStore) Handler {
+func Guidance(tmpl template.Template) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &guidanceData{
 			App: appData,
-		}
-
-		if lpaStore != nil {
-			lpa, err := lpaStore.Get(r.Context())
-			if err != nil {
-				return err
-			}
-			data.Lpa = lpa
 		}
 
 		return tmpl(w, data)

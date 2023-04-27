@@ -9,13 +9,11 @@
 
       {{ trHtml .App "yourLegalRightsAndResponsibilitiesContent" }}
 
-      {{ if .Lpa }}
-        <p class="govuk-button-group govuk-!-margin-top-8">
-          <a href="{{ link .App .App.Paths.SignYourLpa }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
-            {{ tr .App "continueToSigningPage" }}
-          </a>
-        </p>
-      {{ end }}
+      <p class="govuk-button-group govuk-!-margin-top-8">
+        <a href="{{ link .App .App.Paths.SignYourLpa }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
+          {{ tr .App "continueToSigningPage" }}
+        </a>
+      </p>
     </div>
   </div>
 {{ end }}

@@ -16,9 +16,9 @@ type identityWithTodoData struct {
 	IdentityOption identity.Option
 }
 
-func IdentityWithTodo(tmpl template.Template, lpaStore LpaStore, now func() time.Time, identityOption identity.Option) page.Handler {
+func IdentityWithTodo(tmpl template.Template, now func() time.Time, identityOption identity.Option, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -27,15 +27,15 @@ func IdentityWithTodo(tmpl template.Template, lpaStore LpaStore, now func() time
 			return appData.Redirect(w, r, nil, page.Paths.CertificateProviderReadTheLpa)
 		}
 
-		lpa.CertificateProviderIdentityUserData = identity.UserData{
+		certificateProvider.IdentityUserData = identity.UserData{
 			OK:          true,
 			Provider:    identityOption,
-			FirstNames:  lpa.CertificateProvider.FirstNames,
-			LastName:    lpa.CertificateProvider.LastName,
-			DateOfBirth: lpa.CertificateProvider.DateOfBirth,
+			FirstNames:  certificateProvider.FirstNames,
+			LastName:    certificateProvider.LastName,
+			DateOfBirth: certificateProvider.DateOfBirth,
 			RetrievedAt: now(),
 		}
-		if err := lpaStore.Put(r.Context(), lpa); err != nil {
+		if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 			return err
 		}
 

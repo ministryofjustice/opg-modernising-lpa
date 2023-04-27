@@ -16,9 +16,9 @@ type selectYourIdentityOptionsData struct {
 	Page   int
 }
 
-func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, pageIndex int) page.Handler {
+func SelectYourIdentityOptions(tmpl template.Template, pageIndex int, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -27,7 +27,7 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, pageIn
 			App:  appData,
 			Page: pageIndex,
 			Form: &selectYourIdentityOptionsForm{
-				Selected: lpa.DonorIdentityOption,
+				Selected: certificateProvider.IdentityOption,
 			},
 		}
 
@@ -38,23 +38,23 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, pageIn
 			if data.Form.None {
 				switch pageIndex {
 				case 0:
-					return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderSelectYourIdentityOptions1)
+					return appData.Redirect(w, r, nil, page.Paths.CertificateProviderSelectYourIdentityOptions1)
 				case 1:
-					return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderSelectYourIdentityOptions2)
+					return appData.Redirect(w, r, nil, page.Paths.CertificateProviderSelectYourIdentityOptions2)
 				default:
 					// will go to vouching flow when that is built
-					return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderStart)
+					return appData.Redirect(w, r, nil, page.Paths.CertificateProviderStart)
 				}
 			}
 
 			if data.Errors.None() {
-				lpa.CertificateProviderIdentityOption = data.Form.Selected
+				certificateProvider.IdentityOption = data.Form.Selected
 
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderYourChosenIdentityOptions)
+				return appData.Redirect(w, r, nil, page.Paths.CertificateProviderYourChosenIdentityOptions)
 			}
 		}
 

@@ -21,7 +21,7 @@ describe('Choose attorneys address', () => {
     });
 
     it('address can be copied from another actor', () => {
-        cy.visit('/testing-start?redirect=/choose-attorneys-address?id=without-address&withIncompleteAttorneys=1&withCP=1');
+        cy.visit('/testing-start?redirect=/choose-attorneys-address?id=without-address&withIncompleteAttorneys=1&withCPDetails=1');
         cy.contains('a', 'Use existing address').click();
 
         cy.url().should('contain', '/use-existing-address');
