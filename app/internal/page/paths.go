@@ -11,6 +11,7 @@ type AttorneyPaths struct {
 	Login                string
 	LoginCallback        string
 	EnterReferenceNumber string
+	TaskList             string
 	CheckYourName        string
 	DateOfBirth          string
 	ReadTheLpa           string
@@ -136,6 +137,7 @@ var Paths = AppPaths{
 		Start:                "/attorney-start",
 		Login:                "/attorney-login",
 		LoginCallback:        "/attorney-login-callback",
+		TaskList:             "/attorney-task-list",
 		EnterReferenceNumber: "/attorney-enter-reference-number",
 		CheckYourName:        "/attorney-check-your-name",
 		DateOfBirth:          "/attorney-date-of-birth",
@@ -256,6 +258,7 @@ func IsLpaPath(url string) bool {
 		Paths.Attorney.ReadTheLpa,
 		Paths.Attorney.Sign,
 		Paths.Attorney.Start,
+		Paths.Attorney.TaskList,
 		Paths.AuthRedirect,
 		Paths.CertificateProvided,
 		Paths.CertificateProviderCheckYourName,

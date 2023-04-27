@@ -53,11 +53,7 @@ func Sign(tmpl template.Template, lpaStore LpaStore) page.Handler {
 
 			if data.Errors.None() {
 				attorneyProvidedDetails.Confirmed = true
-				if appData.IsReplacementAttorney() {
-					lpa.ReplacementAttorneyProvidedDetails.Put(attorneyProvidedDetails)
-				} else {
-					lpa.AttorneyProvidedDetails.Put(attorneyProvidedDetails)
-				}
+				setProvidedDetails(appData, lpa, attorneyProvidedDetails)
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
