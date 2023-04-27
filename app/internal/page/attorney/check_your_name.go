@@ -40,7 +40,8 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 		data := &checkYourNameData{
 			App: appData,
 			Form: &checkYourNameForm{
-				CorrectedName: attorneyProvidedDetails.DeclaredFullName,
+				IsNameCorrect: attorneyProvidedDetails.IsNameCorrect,
+				CorrectedName: attorneyProvidedDetails.CorrectedName,
 			},
 			Lpa:      lpa,
 			Attorney: attorney,
@@ -51,27 +52,31 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				if data.Form.CorrectedName != "" {
-					attorneyProvidedDetails.DeclaredFullName = data.Form.CorrectedName
-					if appData.IsReplacementAttorney {
-						lpa.ReplacementAttorneyProvidedDetails.Put(attorneyProvidedDetails)
-					} else {
-						lpa.AttorneyProvidedDetails.Put(attorneyProvidedDetails)
-					}
+				previousCorrectedName := attorneyProvidedDetails.CorrectedName
+				attorneyProvidedDetails.IsNameCorrect = data.Form.IsNameCorrect
+				attorneyProvidedDetails.CorrectedName = data.Form.CorrectedName
+				setProvidedDetails(appData, lpa, attorneyProvidedDetails)
 
-					if err := lpaStore.Put(r.Context(), lpa); err != nil {
-						return err
-					}
-
+				if data.Form.CorrectedName != "" && data.Form.CorrectedName != previousCorrectedName {
+					attorneyProvidedDetails.CorrectedName = data.Form.CorrectedName
 					_, err := notifyClient.Email(r.Context(), notify.Email{
 						EmailAddress:    lpa.Donor.Email,
 						TemplateID:      notifyClient.TemplateID(notify.AttorneyNameChangeEmail),
-						Personalisation: map[string]string{"declaredName": attorneyProvidedDetails.DeclaredFullName},
+						Personalisation: map[string]string{"declaredName": attorneyProvidedDetails.CorrectedName},
 					})
-
 					if err != nil {
 						return err
 					}
+				}
+
+				tasks := getTasks(appData, lpa)
+				if tasks.ConfirmYourDetails == page.TaskNotStarted {
+					tasks.ConfirmYourDetails = page.TaskInProgress
+					setTasks(appData, lpa, tasks)
+				}
+
+				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+					return err
 				}
 
 				appData.Redirect(w, r, lpa, page.Paths.Attorney.DateOfBirth)
