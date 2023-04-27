@@ -1,0 +1,52 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "becomeAnAttorney" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">
+        {{ tr .App "becomeAnAttorney" }}
+      </h1>
+
+      <ol class="app-task-list govuk-!-margin-top-0" style="position: relative;">
+        <li>
+          <h2 class="app-task-list__section">{{ tr $.App "readAndSignTheLpa" }}</h2>
+          <ul class="app-task-list__items govuk-!-padding-left-0">
+            {{ range .Items }}
+              <li class="app-task-list__item">
+                {{ if .State.Completed }}
+                  <span class="app-task-list__task-name">
+                    <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
+                      {{ tr $.App .Name }}
+                    </a>
+                  </span>
+                  <strong class="govuk-tag app-task-list__tag">{{ tr $.App "completed" }} {{if gt .Count 0}}({{ .Count }}){{ end }}</strong>
+                {{ else if .State.InProgress }}
+                  <span class="app-task-list__task-name">
+                    <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
+                      {{ tr $.App .Name }}
+                    </a>
+                  </span>
+                  <strong class="govuk-tag app-task-list__tag govuk-tag--blue">{{ tr $.App "inProgress" }} {{if gt .Count 0}}({{ .Count }}){{ end }}</strong>
+                {{ else if not ($.Lpa.CanGoTo .Path) }}
+                  <span class="app-task-list__task-name govuk-hint govuk-!-margin-bottom-0">
+                    {{ tr $.App .Name }}
+                  </span>
+                  <strong class="govuk-tag govuk-tag--grey app-task-list__tag">{{ tr $.App "cannotStartYet" }}</strong>
+                {{ else }}
+                  <span class="app-task-list__task-name">
+                    <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
+                      {{ tr $.App .Name }}
+                    </a>
+                  </span>
+                  <strong class="govuk-tag govuk-tag--grey app-task-list__tag">{{ tr $.App "notStarted" }}</strong>
+                {{ end }}
+              </li>
+            {{ end }}
+          </ul>
+        </li>
+      </ol>
+    </div>
+  </div>
+{{ end }}
