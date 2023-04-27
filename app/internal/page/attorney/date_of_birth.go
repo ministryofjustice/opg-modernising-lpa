@@ -50,11 +50,11 @@ func DateOfBirth(tmpl template.Template, lpaStore LpaStore) page.Handler {
 
 			if data.Errors.None() && data.DobWarning == "" {
 				attorneyProvidedDetails.DateOfBirth = data.Form.Dob
-				if appData.IsReplacementAttorney {
-					lpa.ReplacementAttorneyProvidedDetails.Put(attorneyProvidedDetails)
-				} else {
-					lpa.AttorneyProvidedDetails.Put(attorneyProvidedDetails)
-				}
+				setProvidedDetails(appData, lpa, attorneyProvidedDetails)
+
+				tasks := getTasks(appData, lpa)
+				tasks.ConfirmYourDetails = page.TaskCompleted
+				setTasks(appData, lpa, tasks)
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
