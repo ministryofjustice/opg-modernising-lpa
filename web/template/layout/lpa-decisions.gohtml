@@ -37,8 +37,10 @@
             <dt class="govuk-summary-list__key">
                 {{ if .App.IsDonor }}
                     {{ trCount .App "whoAreYourAttorneys" (len .Lpa.Attorneys) }}
-                {{ else}}
+                {{ else if .App.IsCertificateProvider }}
                     {{ trCount .App "theirAttorneys" (len .Lpa.Attorneys) }}
+                {{ else }}
+                    {{ trCount .App "attorneyNames" (len .Lpa.Attorneys) }}
                 {{ end }}
             </dt>
             <dd class="govuk-summary-list__value">
@@ -57,8 +59,8 @@
           {{ $title := "howAttorneysMustMakeDecisions" }}
           {{ if .App.IsDonor }}
             {{ $title = "howYourAttorneysMustMakeDecisions" }}
-          {{ end }}                    
-          
+          {{ end }}
+
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
               {{ tr .App $title }}
@@ -80,7 +82,7 @@
           {{ $title := "howAttorneysWillActWhenOneCannot" }}
           {{ if .App.IsDonor }}
             {{ $title = "howYourAttorneysWillActWhenOneCannot" }}
-          {{ end }}                    
+          {{ end }}
 
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
@@ -111,8 +113,10 @@
             <dt class="govuk-summary-list__key">
                 {{ if .App.IsDonor }}
                     {{ trCount .App "whoAreYourReplacementAttorneys" (len .Lpa.ReplacementAttorneys) }}
-                {{ else}}
+                {{ else if .App.IsCertificateProvider }}
                     {{ trCount .App "theirReplacementAttorneys" (len .Lpa.ReplacementAttorneys) }}
+                {{ else }}
+                    {{ trCount .App "replacementAttorneyNames" (len .Lpa.ReplacementAttorneys) }}
                 {{ end }}
             </dt>
             <dd class="govuk-summary-list__value">
@@ -135,7 +139,7 @@
           {{ $title := "howReplacementAttorneysWillActWhenOneCannot" }}
           {{ if .App.IsDonor }}
             {{ $title = "howYourReplacementAttorneysWillActWhenOneCannot" }}
-          {{ end }}                    
+          {{ end }}
 
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">

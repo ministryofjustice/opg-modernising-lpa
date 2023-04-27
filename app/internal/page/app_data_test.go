@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/stretchr/testify/assert"
 )
@@ -111,4 +112,20 @@ func TestAppDataContext(t *testing.T) {
 
 	assert.Equal(t, AppData{}, AppDataFromContext(ctx))
 	assert.Equal(t, appData, AppDataFromContext(ContextWithAppData(ctx, appData)))
+}
+
+func TestIsDonor(t *testing.T) {
+	appData := AppData{ActorType: actor.TypeDonor}
+	assert.True(t, appData.IsDonor())
+
+	appData.ActorType = actor.TypeAttorney
+	assert.False(t, appData.IsDonor())
+}
+
+func TestIsCertificateProvider(t *testing.T) {
+	appData := AppData{ActorType: actor.TypeCertificateProvider}
+	assert.True(t, appData.IsCertificateProvider())
+
+	appData.ActorType = actor.TypeAttorney
+	assert.False(t, appData.IsCertificateProvider())
 }

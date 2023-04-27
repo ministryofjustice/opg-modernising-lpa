@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
@@ -69,4 +68,12 @@ func AppDataFromContext(ctx context.Context) AppData {
 	appData, _ := ctx.Value(contextKey("appData")).(AppData)
 
 	return appData
+}
+
+func (d AppData) IsDonor() bool {
+	return d.ActorType == actor.TypeDonor
+}
+
+func (d AppData) IsCertificateProvider() bool {
+	return d.ActorType == actor.TypeCertificateProvider
 }

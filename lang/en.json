@@ -541,10 +541,18 @@
         "one": "Their attorney",
         "other": "Their attorneys"
     },
+    "attorneyNames": {
+        "one": "Attorney name",
+        "other": "Attorney names"
+    },
     "howAttorneysMustMakeDecisions": "How attorneys must make decisions",
     "theirReplacementAttorneys": {
         "one": "Their replacement attorney",
         "other": "Their replacement attorneys"
+    },
+    "replacementAttorneyNames": {
+        "one": "Replacement attorney name",
+        "other": "Replacement attorney names"
     },
     "readDonorNameLpa": "Read {{ .DonorFullName }}’s LPA",
     "youMustReadLpaCarefully": "You must read this LPA carefully.",
