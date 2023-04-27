@@ -582,8 +582,16 @@
         "one": "Welsh",
         "other": "Welsh"
     },
+    "attorneyNames": {
+        "one": "Welsh",
+        "other": "Welsh"
+    },
     "howAttorneysMustMakeDecisions": "Welsh",
     "theirReplacementAttorneys": {
+        "one": "Welsh",
+        "other": "Welsh"
+    },
+    "replacementAttorneyNames": {
         "one": "Welsh",
         "other": "Welsh"
     },

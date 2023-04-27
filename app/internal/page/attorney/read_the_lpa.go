@@ -24,7 +24,7 @@ func ReadTheLpa(tmpl template.Template, lpaStore LpaStore) page.Handler {
 		}
 
 		attorneys := lpa.Attorneys
-		if appData.IsReplacementAttorney {
+		if appData.IsReplacementAttorney() {
 			attorneys = lpa.ReplacementAttorneys
 		}
 

@@ -9,24 +9,23 @@ import (
 )
 
 type AppData struct {
-	ServiceName           string
-	Page                  string
-	Path                  string
-	Query                 string
-	Localizer             Localizer
-	Lang                  localize.Lang
-	CookieConsentSet      bool
-	CanGoBack             bool
-	SessionID             string
-	RumConfig             RumConfig
-	StaticHash            string
-	Paths                 AppPaths
-	LpaID                 string
-	CsrfToken             string
-	ActorTypes            actor.Types
-	ActorType             actor.Type
-	AttorneyID            string
-	IsReplacementAttorney bool
+	ServiceName      string
+	Page             string
+	Path             string
+	Query            string
+	Localizer        Localizer
+	Lang             localize.Lang
+	CookieConsentSet bool
+	CanGoBack        bool
+	SessionID        string
+	RumConfig        RumConfig
+	StaticHash       string
+	Paths            AppPaths
+	LpaID            string
+	CsrfToken        string
+	ActorTypes       actor.Types
+	ActorType        actor.Type
+	AttorneyID       string
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, lpa *Lpa, url string) error {
@@ -76,4 +75,8 @@ func (d AppData) IsDonor() bool {
 
 func (d AppData) IsCertificateProvider() bool {
 	return d.ActorType == actor.TypeCertificateProvider
+}
+
+func (d AppData) IsReplacementAttorney() bool {
+	return d.ActorType == actor.TypeReplacementAttorney
 }

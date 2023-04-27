@@ -50,7 +50,7 @@ func DateOfBirth(tmpl template.Template, lpaStore LpaStore) page.Handler {
 
 			if data.Errors.None() && data.DobWarning == "" {
 				attorneyProvidedDetails.DateOfBirth = data.Form.Dob
-				if appData.IsReplacementAttorney {
+				if appData.IsReplacementAttorney() {
 					lpa.ReplacementAttorneyProvidedDetails.Put(attorneyProvidedDetails)
 				} else {
 					lpa.AttorneyProvidedDetails.Put(attorneyProvidedDetails)

@@ -26,7 +26,7 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 		}
 
 		attorneys := lpa.Attorneys
-		if appData.IsReplacementAttorney {
+		if appData.IsReplacementAttorney() {
 			attorneys = lpa.ReplacementAttorneys
 		}
 
@@ -53,7 +53,7 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 			if len(data.Errors) == 0 {
 				if data.Form.CorrectedName != "" {
 					attorneyProvidedDetails.DeclaredFullName = data.Form.CorrectedName
-					if appData.IsReplacementAttorney {
+					if appData.IsReplacementAttorney() {
 						lpa.ReplacementAttorneyProvidedDetails.Put(attorneyProvidedDetails)
 					} else {
 						lpa.AttorneyProvidedDetails.Put(attorneyProvidedDetails)
