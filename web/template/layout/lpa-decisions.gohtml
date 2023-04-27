@@ -66,7 +66,17 @@
               {{ tr .App $title }}
             </dt>
             <dd class="govuk-summary-list__value">
-              {{ trHtml .App .Lpa.AttorneyDecisions.How }}
+                {{ if .App.IsDonor }}
+                    {{ trHtml .App .Lpa.AttorneyDecisions.How }}
+                {{ else }}
+                    {{ if eq "jointly" .Lpa.AttorneyDecisions.How }}
+                        {{ trHtml .App "jointlyExplanation" }}
+                    {{ else if eq "jointly-and-severally" .Lpa.AttorneyDecisions.How }}
+                        {{ trHtml .App "jointlyAndSeverallyExplanation" }}
+                    {{ else }}
+                        {{ trHtml .App "jointlyForSomeSeverallyForOthersExplanation" }}
+                    {{ end }}
+                {{ end }}
             </dd>
             {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
               <dd class="govuk-summary-list__actions">
