@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
@@ -110,6 +111,7 @@ func TestMakeHandleExistingLpaData(t *testing.T) {
 			LpaID:       "lpa-id",
 			SessionID:   "session-id",
 			AttorneyID:  "attorney-id",
+			ActorType:   actor.TypeAttorney,
 		}, appData)
 		assert.Equal(t, w, hw)
 

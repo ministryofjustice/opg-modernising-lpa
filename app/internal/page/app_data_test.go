@@ -121,3 +121,11 @@ func TestIsDonor(t *testing.T) {
 	appData.ActorType = actor.TypeAttorney
 	assert.False(t, appData.IsDonor())
 }
+
+func TestIsCertificateProvider(t *testing.T) {
+	appData := AppData{ActorType: actor.TypeCertificateProvider}
+	assert.True(t, appData.IsCertificateProvider())
+
+	appData.ActorType = actor.TypeAttorney
+	assert.False(t, appData.IsCertificateProvider())
+}

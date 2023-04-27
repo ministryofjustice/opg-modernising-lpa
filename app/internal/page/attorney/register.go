@@ -87,6 +87,8 @@ func Register(
 		CheckYourName(tmpls.Get("attorney_check_your_name.gohtml"), lpaStore, notifyClient))
 	handleRoot(page.Paths.Attorney.DateOfBirth, RequireLpa,
 		DateOfBirth(tmpls.Get("attorney_date_of_birth.gohtml"), lpaStore))
+	handleRoot(page.Paths.Attorney.ReadTheLpa, RequireLpa,
+		ReadTheLpa(tmpls.Get("attorney_read_the_lpa.gohtml"), lpaStore))
 	handleRoot(page.Paths.Attorney.Sign, RequireLpa,
 		Sign(tmpls.Get("attorney_sign.gohtml"), lpaStore))
 }
@@ -127,7 +129,12 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 				appData.SessionID = session.DonorSessionID
 				appData.LpaID = session.LpaID
 				appData.AttorneyID = session.AttorneyID
-				appData.IsReplacementAttorney = session.IsReplacementAttorney
+
+				if session.IsReplacementAttorney {
+					appData.ActorType = actor.TypeReplacementAttorney
+				} else {
+					appData.ActorType = actor.TypeAttorney
+				}
 
 				ctx = page.ContextWithSessionData(ctx, &page.SessionData{
 					SessionID: appData.SessionID,
@@ -143,7 +150,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 }
 
 func getProvidedDetails(appData page.AppData, lpa *page.Lpa) actor.Attorney {
-	if appData.IsReplacementAttorney {
+	if appData.IsReplacementAttorney() {
 		attorneyProvidedDetails, ok := lpa.ReplacementAttorneyProvidedDetails.Get(appData.AttorneyID)
 		if !ok {
 			attorneyProvidedDetails = actor.Attorney{ID: appData.AttorneyID}
