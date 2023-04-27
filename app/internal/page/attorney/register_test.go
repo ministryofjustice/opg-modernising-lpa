@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
@@ -91,39 +92,59 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 }
 
 func TestMakeHandleExistingLpaData(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "ignored-123", SessionID: "ignored-session-id"})
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
+	testCases := map[string]struct {
+		AttorneySession   *sesh.AttorneySession
+		ExpectedActorType actor.Type
+	}{
+		"attorney": {
+			AttorneySession:   &sesh.AttorneySession{Sub: "random", LpaID: "lpa-id", DonorSessionID: "session-id", AttorneyID: "attorney-id"},
+			ExpectedActorType: actor.TypeAttorney,
+		},
+		"replacement attorney": {
+			AttorneySession:   &sesh.AttorneySession{Sub: "random", LpaID: "lpa-id", DonorSessionID: "session-id", AttorneyID: "attorney-id", IsReplacementAttorney: true},
+			ExpectedActorType: actor.TypeReplacementAttorney,
+		},
+	}
 
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[any]any{"attorney": &sesh.AttorneySession{Sub: "random", LpaID: "lpa-id", DonorSessionID: "session-id", AttorneyID: "attorney-id"}}}, nil)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "ignored-123", SessionID: "ignored-session-id"})
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
 
-	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, nil)
-	handle("/path", RequireLpa|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, page.AppData{
-			ServiceName: "beAnAttorney",
-			Page:        "/path",
-			CanGoBack:   true,
-			LpaID:       "lpa-id",
-			SessionID:   "session-id",
-			AttorneyID:  "attorney-id",
-		}, appData)
-		assert.Equal(t, w, hw)
+			sessionStore := newMockSessionStore(t)
+			sessionStore.
+				On("Get", r, "session").
+				Return(&sessions.Session{Values: map[any]any{"attorney": tc.AttorneySession}}, nil)
 
-		sessionData, _ := page.SessionDataFromContext(hr.Context())
+			mux := http.NewServeMux()
+			handle := makeHandle(mux, sessionStore, nil)
+			handle("/path", RequireLpa|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+				assert.Equal(t, page.AppData{
+					ServiceName: "beAnAttorney",
+					Page:        "/path",
+					CanGoBack:   true,
+					LpaID:       "lpa-id",
+					SessionID:   "session-id",
+					AttorneyID:  "attorney-id",
+					ActorType:   tc.ExpectedActorType,
+				}, appData)
+				assert.Equal(t, w, hw)
 
-		assert.Equal(t, &page.SessionData{LpaID: "lpa-id", SessionID: "session-id"}, sessionData)
-		hw.WriteHeader(http.StatusTeapot)
-		return nil
-	})
+				sessionData, _ := page.SessionDataFromContext(hr.Context())
 
-	mux.ServeHTTP(w, r)
-	resp := w.Result()
+				assert.Equal(t, &page.SessionData{LpaID: "lpa-id", SessionID: "session-id"}, sessionData)
+				hw.WriteHeader(http.StatusTeapot)
+				return nil
+			})
 
-	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+			mux.ServeHTTP(w, r)
+			resp := w.Result()
+
+			assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+		})
+	}
+
 }
 
 func TestMakeHandleErrors(t *testing.T) {

@@ -541,10 +541,18 @@
         "one": "Their attorney",
         "other": "Their attorneys"
     },
+    "attorneyNames": {
+        "one": "Attorney name",
+        "other": "Attorney names"
+    },
     "howAttorneysMustMakeDecisions": "How attorneys must make decisions",
     "theirReplacementAttorneys": {
         "one": "Their replacement attorney",
         "other": "Their replacement attorneys"
+    },
+    "replacementAttorneyNames": {
+        "one": "Replacement attorney name",
+        "other": "Replacement attorney names"
     },
     "readDonorNameLpa": "Read {{ .DonorFullName }}’s LPA",
     "youMustReadLpaCarefully": "You must read this LPA carefully.",
@@ -641,5 +649,10 @@
     "readAndSignTheLpa": "Read and sign the LPA",
     "confirmYourDetails": "Confirm your details",
     "readTheLpa": "Read the LPA",
-    "signTheLpa": "Sign the LPA"
+    "signTheLpa": "Sign the LPA",
+
+    "jointlyAndSeverallyExplanation": "<p class=\"govuk-body\">Attorneys can make decisions together or on their own.</p><p class=\"govuk-body\">This means attorneys can share tasks and responsibilities. It also means that if one of the attorneys is unable to act, decisions can still be made without them.</p><p class=\"govuk-body\">In legal terms, this is known as acting ‘jointly and severally’.</p>",
+    "jointlyExplanation": "<p class=\"govuk-body\">All attorneys must agree on every decision, however big or small.</p><p class=\"govuk-body\">This means if one of the attorneys can no longer act, none of the other attorneys will be able to act either, unless the donor has stated otherwise in their restrictions. It also means that if the attorneys cannot agree on a decision, it cannot be made without going to court.</p><p class=\"govuk-body\">In legal terms, this is known as attorneys working ‘jointly’.</p>",
+    "jointlyForSomeSeverallyForOthersExplanation": "<p class=\"govuk-body\">All attorneys must agree on some decisions but can make other decisions on their own. The donor will state which decisions need to be agreed together.</p><p class=\"govuk-body\">In legal terms, this is known as your attorneys working ‘jointly for some decisions, and jointly and severally for other decisions’.</p>"
+
 }

@@ -582,8 +582,16 @@
         "one": "Welsh",
         "other": "Welsh"
     },
+    "attorneyNames": {
+        "one": "Welsh",
+        "other": "Welsh"
+    },
     "howAttorneysMustMakeDecisions": "Welsh",
     "theirReplacementAttorneys": {
+        "one": "Welsh",
+        "other": "Welsh"
+    },
+    "replacementAttorneyNames": {
         "one": "Welsh",
         "other": "Welsh"
     },
@@ -681,5 +689,11 @@
     "readAndSignTheLpa": "Welsh",
     "confirmYourDetails": "Welsh",
     "readTheLpa": "Welsh",
-    "signTheLpa": "Welsh"
+    "signTheLpa": "Welsh",
+
+    "jointlyAndSeverallyExplanation": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
+    "jointlyExplanation": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
+    "jointlyForSomeSeverallyForOthersExplanation": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>"
+
+
 }

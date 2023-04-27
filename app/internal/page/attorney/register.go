@@ -95,6 +95,8 @@ func Register(
 		CheckYourName(tmpls.Get("attorney_check_your_name.gohtml"), lpaStore, notifyClient))
 	handleRoot(page.Paths.Attorney.DateOfBirth, RequireLpa,
 		DateOfBirth(tmpls.Get("attorney_date_of_birth.gohtml"), lpaStore))
+	handleRoot(page.Paths.Attorney.ReadTheLpa, RequireLpa,
+		ReadTheLpa(tmpls.Get("attorney_read_the_lpa.gohtml"), lpaStore))
 	handleRoot(page.Paths.Attorney.Sign, RequireLpa,
 		Sign(tmpls.Get("attorney_sign.gohtml"), lpaStore))
 }
@@ -135,7 +137,12 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 				appData.SessionID = session.DonorSessionID
 				appData.LpaID = session.LpaID
 				appData.AttorneyID = session.AttorneyID
-				appData.IsReplacementAttorney = session.IsReplacementAttorney
+
+				if session.IsReplacementAttorney {
+					appData.ActorType = actor.TypeReplacementAttorney
+				} else {
+					appData.ActorType = actor.TypeAttorney
+				}
 
 				ctx = page.ContextWithSessionData(ctx, &page.SessionData{
 					SessionID: appData.SessionID,
@@ -151,7 +158,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 }
 
 func getProvidedDetails(appData page.AppData, lpa *page.Lpa) actor.AttorneyProvidedDetails {
-	if appData.IsReplacementAttorney {
+	if appData.IsReplacementAttorney() {
 		if providedDetails, ok := lpa.ReplacementAttorneyProvidedDetails[appData.AttorneyID]; ok {
 			return providedDetails
 		}
@@ -165,7 +172,7 @@ func getProvidedDetails(appData page.AppData, lpa *page.Lpa) actor.AttorneyProvi
 }
 
 func setProvidedDetails(appData page.AppData, lpa *page.Lpa, providedDetails actor.AttorneyProvidedDetails) {
-	if appData.IsReplacementAttorney {
+	if appData.IsReplacementAttorney() {
 		if lpa.ReplacementAttorneyProvidedDetails == nil {
 			lpa.ReplacementAttorneyProvidedDetails = map[string]actor.AttorneyProvidedDetails{appData.AttorneyID: providedDetails}
 		} else {
@@ -181,7 +188,7 @@ func setProvidedDetails(appData page.AppData, lpa *page.Lpa, providedDetails act
 }
 
 func getTasks(appData page.AppData, lpa *page.Lpa) page.AttorneyTasks {
-	if appData.IsReplacementAttorney {
+	if appData.IsReplacementAttorney() {
 		if tasks, ok := lpa.ReplacementAttorneyTasks[appData.AttorneyID]; ok {
 			return tasks
 		}
@@ -195,7 +202,7 @@ func getTasks(appData page.AppData, lpa *page.Lpa) page.AttorneyTasks {
 }
 
 func setTasks(appData page.AppData, lpa *page.Lpa, tasks page.AttorneyTasks) {
-	if appData.IsReplacementAttorney {
+	if appData.IsReplacementAttorney() {
 		if lpa.ReplacementAttorneyTasks == nil {
 			lpa.ReplacementAttorneyTasks = map[string]page.AttorneyTasks{appData.AttorneyID: tasks}
 		} else {

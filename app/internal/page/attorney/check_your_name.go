@@ -26,7 +26,7 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 		}
 
 		attorneys := lpa.Attorneys
-		if appData.IsReplacementAttorney {
+		if appData.IsReplacementAttorney() {
 			attorneys = lpa.ReplacementAttorneys
 		}
 
