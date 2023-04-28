@@ -284,6 +284,7 @@ type fixturesForm struct {
 	CpFlowHasDonorPaid     string
 	ForReplacementAttorney string
 	Signed                 string
+	Type                   string
 }
 
 func readFixtures(r *http.Request) *fixturesForm {
@@ -305,6 +306,7 @@ func readFixtures(r *http.Request) *fixturesForm {
 		CpFlowHasDonorPaid:     PostFormString(r, "cp-flow-has-donor-paid"),
 		ForReplacementAttorney: PostFormString(r, "for-replacement-attorney"),
 		Signed:                 PostFormString(r, "signed"),
+		Type:                   PostFormString(r, "type"),
 	}
 }
 
@@ -328,6 +330,7 @@ func Fixtures(tmpl template.Template) Handler {
 						"useTestShareCode":  {"1"},
 						"sendAttorneyShare": {"1"},
 						"completeLpa":       {"1"},
+						"withType":          {data.Form.Type},
 						"redirect":          {Paths.Attorney.Start},
 					}
 					if data.Form.Email != "" {

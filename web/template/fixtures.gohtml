@@ -125,19 +125,39 @@
       <form novalidate method="post">
         {{ template "input" (input . "email" "email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
 
-        <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-          <div class="govuk-checkboxes__item">
-            <input class="govuk-checkboxes__input" id="for-replacement-attorney" name="for-replacement-attorney" type="checkbox" value="1">
-            <label class="govuk-label govuk-checkboxes__label" for="for-replacement-attorney">
-              As replacement attorney
-            </label>
+        <div class="govuk-form-group">
+          <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="for-replacement-attorney" name="for-replacement-attorney" type="checkbox" value="1">
+              <label class="govuk-label govuk-checkboxes__label" for="for-replacement-attorney">
+                As replacement attorney
+              </label>
+            </div>
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="signed" name="signed" type="checkbox" value="1">
+              <label class="govuk-label govuk-checkboxes__label" for="signed">
+                Signed by donor and certificate provider
+              </label>
+            </div>
           </div>
-          <div class="govuk-checkboxes__item">
-            <input class="govuk-checkboxes__input" id="signed" name="signed" type="checkbox" value="1">
-            <label class="govuk-label govuk-checkboxes__label" for="signed">
-              Signed by donor and certificate provider
-            </label>
-          </div>
+        </div>
+
+        <div class="govuk-form-group">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend">
+              LPA type
+            </legend>
+            <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="type" name="type" type="radio" value="pfa" checked>
+                <label class="govuk-label govuk-radios__label" for="type">Property and affairs</label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="type-2" name="type" type="radio" value="hw">
+                <label class="govuk-label govuk-radios__label" for="type-2">Personal welfare</label>
+              </div>
+            </div>
+          </fieldset>
         </div>
 
         <div class="govuk-button-group govuk-!-padding-top-3">
