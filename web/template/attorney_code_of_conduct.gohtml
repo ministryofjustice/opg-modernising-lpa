@@ -1,0 +1,52 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}
+  {{ tr .App "actingAsAttorney" }}
+{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+        <div class="govuk-notification-banner__header">
+          <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+            {{ tr .App "success" }}
+          </h2>
+        </div>
+        <div class="govuk-notification-banner__content">
+          <p class="govuk-notification-banner__heading">
+            {{ if .App.IsReplacementAttorney }}
+              {{ tr .App "weHaveIdentifiedYourReplacementAttorneyReferenceNumber" }}
+            {{ else }}
+              {{ tr .App "weHaveIdentifiedYourAttorneyReferenceNumber" }}
+            {{ end }}
+          </p>
+        </div>
+      </div>
+
+      <h1 class="govuk-heading-xl">{{ tr .App "actingAsAttorney" }}</h1>
+
+      {{ $content := "" }}
+      {{ if .App.IsReplacementAttorney }}
+        {{ if eq .Lpa.Type "pfa" }}
+          {{ $content = "replacementAttorneyCodeOfConductPfa" }}
+        {{ else }}
+          {{ $content = "replacementAttorneyCodeOfConductHw" }}
+        {{ end }}
+      {{ else }}
+        {{ if eq .Lpa.Type "pfa" }}
+          {{ $content = "attorneyCodeOfConductPfa" }}
+        {{ else }}
+          {{ $content = "attorneyCodeOfConductHw" }}
+        {{ end }}
+      {{ end }}
+      
+      {{ trFormatHtml .App $content
+      "DonorFullName" .Lpa.Donor.FullName
+      "DonorFullNamePossessive" (.App.Localizer.Possessive .Lpa.Donor.FullName)
+      "DonorFirstNamesPossessive" (.App.Localizer.Possessive .Lpa.Donor.FirstNames) }}
+
+      <a class="govuk-button" href="{{.App.Paths.Attorney.TaskList}}">{{ tr .App "continue" }}</a>
+    </div>
+  </div>
+{{ end }}

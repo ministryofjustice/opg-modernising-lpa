@@ -18,6 +18,31 @@ import (
 )
 
 func TestTestingStart(t *testing.T) {
+	t.Run("with type", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?withType=hw&redirect=/start", nil)
+		now := time.Now()
+
+		sessionStore := newMockSessionStore(t)
+		sessionStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		lpaStore := newMockLpaStore(t)
+		lpaStore.
+			On("Create", ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"}), &Lpa{ID: "123", Type: "hw"}).
+			Return(nil)
+
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil, func() time.Time { return now }).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/start", resp.Header.Get("Location"))
+	})
+
 	t.Run("payment not complete", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere", nil)
