@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
@@ -82,13 +83,15 @@ func Register(
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
 	handleRoot(page.Paths.Attorney.Start, None,
-		Guidance(tmpls.Get("attorney_start.gohtml")))
+		page.Guidance(tmpls.Get("attorney_start.gohtml")))
 	handleRoot(page.Paths.Attorney.Login, None,
 		Login(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.Attorney.LoginCallback, None,
 		LoginCallback(oneLoginClient, sessionStore))
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(tmpls.Get("attorney_enter_reference_number.gohtml"), lpaStore, dataStore, sessionStore))
+	handleRoot(page.Paths.Attorney.CodeOfConduct, RequireLpa,
+		donor.Guidance(tmpls.Get("attorney_code_of_conduct.gohtml"), lpaStore))
 	handleRoot(page.Paths.Attorney.TaskList, RequireLpa,
 		TaskList(tmpls.Get("attorney_task_list.gohtml"), lpaStore, certificateProviderStore))
 	handleRoot(page.Paths.Attorney.CheckYourName, RequireLpa,

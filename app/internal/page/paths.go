@@ -11,6 +11,7 @@ type AttorneyPaths struct {
 	Login                string
 	LoginCallback        string
 	EnterReferenceNumber string
+	CodeOfConduct        string
 	TaskList             string
 	CheckYourName        string
 	DateOfBirth          string
@@ -139,6 +140,7 @@ var Paths = AppPaths{
 		LoginCallback:        "/attorney-login-callback",
 		TaskList:             "/attorney-task-list",
 		EnterReferenceNumber: "/attorney-enter-reference-number",
+		CodeOfConduct:        "/attorney-code-of-conduct",
 		CheckYourName:        "/attorney-check-your-name",
 		DateOfBirth:          "/attorney-date-of-birth",
 		ReadTheLpa:           "/attorney-read-the-lpa",
@@ -250,6 +252,7 @@ func IsLpaPath(url string) bool {
 	return !slices.Contains([]string{
 		Paths.YotiRedirect,
 		Paths.Attorney.CheckYourName,
+		Paths.Attorney.CodeOfConduct,
 		Paths.Attorney.DateOfBirth,
 		Paths.Attorney.EnterReferenceNumber,
 		Paths.Attorney.Login,

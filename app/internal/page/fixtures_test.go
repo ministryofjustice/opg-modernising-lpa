@@ -137,20 +137,27 @@ func TestPostFixturesAttorneyFlow(t *testing.T) {
 				"email":   {"a@example.org"},
 				"signed":  {"1"},
 			},
-			expectedPath: "/testing-start?completeLpa=1&provideCertificate=1&redirect=%2Fattorney-start&sendAttorneyShare=1&signedByDonor=1&useTestShareCode=1&withEmail=a%40example.org",
+			expectedPath: "/testing-start?completeLpa=1&provideCertificate=1&redirect=%2Fattorney-start&sendAttorneyShare=1&signedByDonor=1&useTestShareCode=1&withEmail=a%40example.org&withType=",
 		},
 		"without email": {
 			form: url.Values{
 				"journey": {"attorney"},
 			},
-			expectedPath: "/testing-start?completeLpa=1&redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1",
+			expectedPath: "/testing-start?completeLpa=1&redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1&withType=",
 		},
 		"for replacement attorney": {
 			form: url.Values{
 				"journey":                  {"attorney"},
 				"for-replacement-attorney": {"1"},
 			},
-			expectedPath: "/testing-start?completeLpa=1&forReplacementAttorney=1&redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1",
+			expectedPath: "/testing-start?completeLpa=1&forReplacementAttorney=1&redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1&withType=",
+		},
+		"with type": {
+			form: url.Values{
+				"journey": {"attorney"},
+				"type":    {"hw"},
+			},
+			expectedPath: "/testing-start?completeLpa=1&redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1&withType=hw",
 		},
 	}
 

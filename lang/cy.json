@@ -691,6 +691,14 @@
     "readTheLpa": "Welsh",
     "signTheLpa": "Welsh",
 
+    "attorneyCodeOfConductPfa": "Welsh",
+    "attorneyCodeOfConductHw": "Welsh",
+    "actingAsAttorney": "Welsh",
+    "weHaveIdentifiedYourReplacementAttorneyReferenceNumber": "Welsh",
+    "replacementAttorneyCodeOfConductHw": "Welsh",
+    "weHaveIdentifiedYourAttorneyReferenceNumber": "Welsh",
+    "replacementAttorneyCodeOfConductPfa": "Welsh",
+
     "jointlyAndSeverallyExplanation": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
     "jointlyExplanation": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
     "jointlyForSomeSeverallyForOthersExplanation": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>"
