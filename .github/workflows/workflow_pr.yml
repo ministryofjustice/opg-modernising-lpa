@@ -118,45 +118,45 @@ jobs:
         ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
         github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
-  # ui_tests_pr_env:
-  #   name: Run Cypress UI Tests On PR Environment
-  #   if: always() &&
-  #     needs.pr_deploy.result == 'success'
-  #   uses: ./.github/workflows/ui_test_job.yml
-  #   needs: [pr_deploy, create_tags]
-  #   with:
-  #     run_against_image: false
-  #     base_url: "https://${{ needs.pr_deploy.outputs.url }}"
-  #     tag: ${{ needs.create_tags.outputs.version_tag }}
-  #   secrets:
-  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-  #     cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
-  #     github_access_token: ${{ secrets.GITHUB_TOKEN }}
+  ui_tests_pr_env:
+    name: Run Cypress UI Tests On PR Environment
+    if: always() &&
+      needs.pr_deploy.result == 'success'
+    uses: ./.github/workflows/ui_test_job.yml
+    needs: [pr_deploy, create_tags]
+    with:
+      run_against_image: false
+      base_url: "https://${{ needs.pr_deploy.outputs.url }}"
+      tag: ${{ needs.create_tags.outputs.version_tag }}
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
+      github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
-  # always_remove_ingress:
-  #   name: Remove CI ingress from environment
-  #   if: always()
-  #   uses: ./.github/workflows/remove_ingress_job.yml
-  #   needs: [ui_tests_pr_env]
-  #   secrets:
-  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+  always_remove_ingress:
+    name: Remove CI ingress from environment
+    if: always()
+    uses: ./.github/workflows/remove_ingress_job.yml
+    needs: [ui_tests_pr_env]
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
-  # end_of_pr_workflow:
-  #   name: End of PR Workflow
-  #   if: always() &&
-  #     needs.pr_deploy.result == 'success' &&
-  #     needs.create_tags.result == 'success' &&
-  #     needs.ui_tests_pr_env.result == 'success'
-  #   runs-on: ubuntu-latest
-  #   environment:
-  #     name: "dev_${{ needs.create_tags.outputs.environment_workspace_name }}"
-  #     url: "https://${{ needs.pr_deploy.outputs.url }}"
-  #   needs: [pr_deploy, create_tags, ui_tests_pr_env]
-  #   steps:
-  #     - name: End of PR Workflow
-  #       run: |
-  #         echo "${{ needs.pr_deploy.outputs.terraform_workspace_name }} PR environment tested, built and deployed"
-  #         echo "Tag Deployed: ${{ needs.pr_deploy.outputs.terraform_container_version }}"
-  #         echo "URL: https://${{ needs.pr_deploy.outputs.url }}"
+  end_of_pr_workflow:
+    name: End of PR Workflow
+    if: always() &&
+      needs.pr_deploy.result == 'success' &&
+      needs.create_tags.result == 'success' &&
+      needs.ui_tests_pr_env.result == 'success'
+    runs-on: ubuntu-latest
+    environment:
+      name: "dev_${{ needs.create_tags.outputs.environment_workspace_name }}"
+      url: "https://${{ needs.pr_deploy.outputs.url }}"
+    needs: [pr_deploy, create_tags, ui_tests_pr_env]
+    steps:
+      - name: End of PR Workflow
+        run: |
+          echo "${{ needs.pr_deploy.outputs.terraform_workspace_name }} PR environment tested, built and deployed"
+          echo "Tag Deployed: ${{ needs.pr_deploy.outputs.terraform_container_version }}"
+          echo "URL: https://${{ needs.pr_deploy.outputs.url }}"
