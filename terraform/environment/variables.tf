@@ -12,11 +12,6 @@ variable "public_access_enabled" {
   default = false
 }
 
-variable "dns_target_region" {
-  type    = string
-  default = "eu-west-1"
-}
-
 output "container_version" {
   value = var.container_version
 }
