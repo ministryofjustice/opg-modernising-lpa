@@ -1,10 +1,12 @@
 package donor
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -66,11 +68,11 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, 
 				})
 
 				certificateProvider, err := certificateProviderStore.Get(ctx)
-				if err != nil {
+				if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 					return err
 				}
 
-				if certificateProvider.CertificateProviderIdentityConfirmed() {
+				if err == nil && certificateProvider.CertificateProviderIdentityConfirmed() {
 					if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderReturnEmail, appData, false, lpa); err != nil {
 						return err
 					}

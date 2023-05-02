@@ -63,7 +63,7 @@ func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore D
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.Attorney.TaskList)
+				return appData.Redirect(w, r, lpa, page.Paths.Attorney.CodeOfConduct)
 			}
 		}
 
