@@ -689,5 +689,9 @@
     "weHaveIdentifiedYourReplacementAttorneyReferenceNumber": "Welsh",
     "replacementAttorneyCodeOfConductHw": "Welsh",
     "weHaveIdentifiedYourAttorneyReferenceNumber": "Welsh",
-    "replacementAttorneyCodeOfConductPfa": "Welsh"
+    "replacementAttorneyCodeOfConductPfa": "Welsh",
+
+    "whatIsYourUkMobileNumber": "Welsh",
+    "enterYourUkMobileNumberOptional": "Welsh",
+    "youCanChooseToTellUsYourMobileNumber": "Welsh"
 }

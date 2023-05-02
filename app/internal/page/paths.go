@@ -15,6 +15,7 @@ type AttorneyPaths struct {
 	TaskList             string
 	CheckYourName        string
 	DateOfBirth          string
+	MobileNumber         string
 	Sign                 string
 	// TODO: remove once the attorney flow is complete, this is just to simplify
 	// development
@@ -142,6 +143,7 @@ var Paths = AppPaths{
 		CodeOfConduct:        "/attorney-code-of-conduct",
 		CheckYourName:        "/attorney-check-your-name",
 		DateOfBirth:          "/attorney-date-of-birth",
+		MobileNumber:         "/attorney-mobile-number",
 		Sign:                 "/attorney-sign",
 		NextPage:             "/attorney-next-page",
 	},
@@ -255,6 +257,7 @@ func IsLpaPath(url string) bool {
 		Paths.Attorney.EnterReferenceNumber,
 		Paths.Attorney.Login,
 		Paths.Attorney.LoginCallback,
+		Paths.Attorney.MobileNumber,
 		Paths.Attorney.NextPage,
 		Paths.Attorney.Sign,
 		Paths.Attorney.Start,

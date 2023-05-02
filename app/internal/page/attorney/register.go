@@ -98,6 +98,8 @@ func Register(
 		CheckYourName(tmpls.Get("attorney_check_your_name.gohtml"), lpaStore, notifyClient))
 	handleRoot(page.Paths.Attorney.DateOfBirth, RequireLpa,
 		DateOfBirth(tmpls.Get("attorney_date_of_birth.gohtml"), lpaStore))
+	handleRoot(page.Paths.Attorney.MobileNumber, RequireLpa,
+		MobileNumber(tmpls.Get("attorney_mobile_number.gohtml"), lpaStore))
 	handleRoot(page.Paths.Attorney.Sign, RequireLpa,
 		Sign(tmpls.Get("attorney_sign.gohtml"), lpaStore))
 }
