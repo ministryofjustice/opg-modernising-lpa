@@ -582,8 +582,16 @@
         "one": "Welsh",
         "other": "Welsh"
     },
+    "attorneyNames": {
+        "one": "Welsh",
+        "other": "Welsh"
+    },
     "howAttorneysMustMakeDecisions": "Welsh",
     "theirReplacementAttorneys": {
+        "one": "Welsh",
+        "other": "Welsh"
+    },
+    "replacementAttorneyNames": {
         "one": "Welsh",
         "other": "Welsh"
     },
@@ -689,5 +697,11 @@
     "weHaveIdentifiedYourReplacementAttorneyReferenceNumber": "Welsh",
     "replacementAttorneyCodeOfConductHw": "Welsh",
     "weHaveIdentifiedYourAttorneyReferenceNumber": "Welsh",
-    "replacementAttorneyCodeOfConductPfa": "Welsh"
+    "replacementAttorneyCodeOfConductPfa": "Welsh",
+
+    "jointlyAndSeverallyExplanation": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
+    "jointlyExplanation": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
+    "jointlyForSomeSeverallyForOthersExplanation": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>"
+
+
 }

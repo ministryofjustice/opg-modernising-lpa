@@ -26,7 +26,7 @@ func Sign(tmpl template.Template, lpaStore LpaStore) page.Handler {
 		}
 
 		attorneys := lpa.Attorneys
-		if appData.IsReplacementAttorney {
+		if appData.IsReplacementAttorney() {
 			attorneys = lpa.ReplacementAttorneys
 		}
 
@@ -40,7 +40,7 @@ func Sign(tmpl template.Template, lpaStore LpaStore) page.Handler {
 		data := &signData{
 			App:                        appData,
 			Attorney:                   attorney,
-			IsReplacement:              appData.IsReplacementAttorney,
+			IsReplacement:              appData.IsReplacementAttorney(),
 			LpaCanBeUsedWhenRegistered: lpa.WhenCanTheLpaBeUsed == page.UsedWhenRegistered,
 			Form: &signForm{
 				Confirm: attorneyProvidedDetails.Confirmed,

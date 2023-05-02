@@ -4,8 +4,12 @@ describe('Read the LPA', () => {
             cy.visit('/testing-start?redirect=/certificate-provider-read-the-lpa&completeLpa=1&asCertificateProvider=1');
         });
 
-        it('goes to the next step', () => {
+        it('displays the LPA details with actor specific content', () => {
             cy.checkA11yApp();
+
+            cy.contains('dt', "When attorneys can use the LPA")
+            cy.contains('dt', "Their attorneys")
+            cy.contains('dt', "Their replacement attorneys")
 
             cy.contains('Continue').click();
             cy.url().should('contain', '/provide-certificate');
