@@ -681,5 +681,13 @@
     "readAndSignTheLpa": "Welsh",
     "confirmYourDetails": "Welsh",
     "readTheLpa": "Welsh",
-    "signTheLpa": "Welsh"
+    "signTheLpa": "Welsh",
+
+    "attorneyCodeOfConductPfa": "Welsh",
+    "attorneyCodeOfConductHw": "Welsh",
+    "actingAsAttorney": "Welsh",
+    "weHaveIdentifiedYourReplacementAttorneyReferenceNumber": "Welsh",
+    "replacementAttorneyCodeOfConductHw": "Welsh",
+    "weHaveIdentifiedYourAttorneyReferenceNumber": "Welsh",
+    "replacementAttorneyCodeOfConductPfa": "Welsh"
 }

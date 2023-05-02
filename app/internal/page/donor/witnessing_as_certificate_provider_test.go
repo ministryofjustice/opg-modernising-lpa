@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -115,47 +116,71 @@ func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostWitnessingAsCertificateProvider(t *testing.T) {
-	form := url.Values{
-		"witness-code": {"1234"},
+	testcases := map[string]struct {
+		certificateProvider *actor.CertificateProvider
+		err                 error
+	}{
+		"not found": {
+			err: dynamo.NotFoundError{},
+		},
+		"empty": {
+			certificateProvider: &actor.CertificateProvider{},
+		},
+		"identity not confirmed": {
+			certificateProvider: &actor.CertificateProvider{
+				FirstNames: "Fred",
+				IdentityUserData: identity.UserData{
+					FirstNames: "Barry",
+				},
+			},
+		},
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-	now := time.Now()
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			form := url.Values{
+				"witness-code": {"1234"},
+			}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
-			WitnessCodes:          page.WitnessCodes{{Code: "1234", Created: now}},
-		}, nil)
-	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			DonorIdentityUserData:  identity.UserData{OK: true, Provider: identity.OneLogin},
-			WitnessCodes:           page.WitnessCodes{{Code: "1234", Created: now}},
-			CPWitnessCodeValidated: true,
-			Submitted:              now,
-		}).
-		Return(nil)
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+			now := time.Now()
 
-	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
-		SessionID: "session-id",
-		LpaID:     "lpa-id",
-	})
+			lpaStore := newMockLpaStore(t)
+			lpaStore.
+				On("Get", r.Context()).
+				Return(&page.Lpa{
+					DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
+					WitnessCodes:          page.WitnessCodes{{Code: "1234", Created: now}},
+				}, nil)
+			lpaStore.
+				On("Put", r.Context(), &page.Lpa{
+					DonorIdentityUserData:  identity.UserData{OK: true, Provider: identity.OneLogin},
+					WitnessCodes:           page.WitnessCodes{{Code: "1234", Created: now}},
+					CPWitnessCodeValidated: true,
+					Submitted:              now,
+				}).
+				Return(nil)
 
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", ctx).
-		Return(&actor.CertificateProvider{}, nil)
+			ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
+				SessionID: "session-id",
+				LpaID:     "lpa-id",
+			})
 
-	err := WitnessingAsCertificateProvider(nil, lpaStore, nil, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r)
-	resp := w.Result()
+			certificateProviderStore := newMockCertificateProviderStore(t)
+			certificateProviderStore.
+				On("Get", ctx).
+				Return(tc.certificateProvider, tc.err)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.YouHaveSubmittedYourLpa, resp.Header.Get("Location"))
+			err := WitnessingAsCertificateProvider(nil, lpaStore, nil, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, "/lpa/lpa-id"+page.Paths.YouHaveSubmittedYourLpa, resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) {

@@ -39,6 +39,10 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		donorSesh := &sesh.DonorSession{Sub: donorSub, Email: TestEmail}
 		_ = sesh.SetDonor(store, r, w, donorSesh)
 
+		if t := r.FormValue("withType"); t != "" {
+			lpa.Type = t
+		}
+
 		if r.FormValue("withAttorney") != "" {
 			AddAttorneys(lpa, 1)
 		}
