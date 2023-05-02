@@ -31,3 +31,4 @@ multi-reporter-config.json
 /web/static/*
 **tmp/*
 .idea/*
+/app/tmp/*

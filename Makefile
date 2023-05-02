@@ -42,10 +42,8 @@ endif
 build-up-app: ##@build Builds the app
 	docker compose up -d --build --remove-orphans app
 
-build-up-app-debug: ##@build Builds the app and brings up via Delve debugging tool
-	docker compose -f ./docker-compose.yml \
-	-f ./docker-compose.debug.yml \
- 	up -d --build app --remove-orphans app
+build-up-app-dev: ##@build Builds the app and brings up via Air hot reload with Delve debugging enabled
+	docker compose -f ./docker-compose.yml -f ./docker-compose.dev.yml up -d --build --force-recreate --remove-orphans app
 
 run-cypress: ##@testing Runs cypress e2e tests. To run a specific spec file pass in spec e.g. make run-cypress spec=start
 ifdef spec
