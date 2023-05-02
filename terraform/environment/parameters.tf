@@ -6,17 +6,18 @@ resource "aws_ssm_parameter" "container_version" {
 }
 
 resource "aws_ssm_parameter" "dns_target_region" {
+  provider = aws.management_global
   name     = "/modernising-lpa/dns-target-region/${local.environment_name}"
   type     = "String"
   value    = "eu-west-1"
-  provider = aws.management_global
   lifecycle {
     ignore_changes = [value]
   }
 }
 
 data "aws_ssm_parameter" "dns_target_region" {
-  name = aws_ssm_parameter.dns_target_region.name
+  provider = aws.management_global
+  name     = aws_ssm_parameter.dns_target_region.name
 }
 
 output "region_target" {
