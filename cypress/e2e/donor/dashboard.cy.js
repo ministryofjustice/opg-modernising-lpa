@@ -13,8 +13,6 @@ describe('Dashboard', () => {
         });
 
         it('can create another', () => {
-            cy.visit('/dashboard');
-
             cy.contains('button', 'Create another LPA').click();
 
             cy.get('#f-first-names').type('Jane');
