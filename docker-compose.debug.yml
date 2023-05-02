@@ -8,6 +8,8 @@ services:
     container_name: app-debug
     security_opt:
       - "seccomp:unconfined"
+    volumes:
+      - .:/app:rw,delegated
     cap_add:
       - SYS_PTRACE
     ports:

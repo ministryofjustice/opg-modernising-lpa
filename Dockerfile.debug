@@ -10,7 +10,9 @@ RUN mkdir -p web/static && yarn build
 
 FROM golang:1.20 as build-env
 
-RUN CGO_ENABLED=0 go install -ldflags "-s -w -extldflags '-static'" github.com/go-delve/delve/cmd/dlv@latest
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+ENV GOARCH=amd64
 
 WORKDIR /app
 ARG TAG=v0.0.0
@@ -27,7 +29,6 @@ WORKDIR /go/bin
 
 COPY web/robots.txt web/robots.txt
 COPY --from=asset-env /app/web/static web/static
-COPY --from=build-env /go/bin/dlv /dlv
 COPY --from=build-env /go/bin/mlpab mlpab
 # COPY /app /go/bin/app
 COPY web/template web/template
@@ -38,6 +39,8 @@ RUN addgroup -S app && \
   chown -R app:app mlpab web/template web/static web/robots.txt
 USER app
 
+RUN go install github.com/cosmtrek/air@latest && go install github.com/go-delve/delve/cmd/dlv@latest
+
 EXPOSE 2345 8080
 
-ENTRYPOINT ["/dlv", "--listen=:2345", "--headless=true", "--api-version=2", "--log", "--accept-multiclient", "exec", "./mlpab"]
+ENTRYPOINT ["air"]
