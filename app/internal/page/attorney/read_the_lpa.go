@@ -39,6 +39,18 @@ func ReadTheLpa(tmpl template.Template, lpaStore LpaStore) page.Handler {
 			Attorney: attorney,
 		}
 
+		if r.Method == http.MethodPost {
+			tasks := getTasks(appData, lpa)
+			tasks.ReadTheLpa = page.TaskCompleted
+			setTasks(appData, lpa, tasks)
+
+			if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				return err
+			}
+
+			return appData.Redirect(w, r, lpa, page.Paths.Attorney.Sign)
+		}
+
 		return tmpl(w, data)
 	}
 }

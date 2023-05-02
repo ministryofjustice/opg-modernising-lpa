@@ -62,7 +62,7 @@ func TaskList(tmpl template.Template, lpaStore LpaStore, certificateProviderStor
 				},
 				{
 					Name:  "readTheLpa",
-					Path:  page.Paths.Attorney.NextPage,
+					Path:  page.Paths.Attorney.ReadTheLpa,
 					State: tasks.ReadTheLpa,
 				},
 				{

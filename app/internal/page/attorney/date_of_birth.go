@@ -60,7 +60,7 @@ func DateOfBirth(tmpl template.Template, lpaStore LpaStore) page.Handler {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.Attorney.Sign)
+				return appData.Redirect(w, r, lpa, page.Paths.Attorney.ReadTheLpa)
 			}
 		}
 

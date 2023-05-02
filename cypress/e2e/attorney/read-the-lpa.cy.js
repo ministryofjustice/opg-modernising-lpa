@@ -8,6 +8,6 @@ describe('Read the LPA', () => {
 
         cy.contains('Continue').click();
 
-        cy.url().should('contain', '/attorney-next-page');
+        cy.url().should('contain', '/attorney-sign');
     });
 });

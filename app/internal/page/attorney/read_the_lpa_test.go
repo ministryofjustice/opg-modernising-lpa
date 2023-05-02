@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestReadTheLpaWithAttorney(t *testing.T) {
+func TestGetReadTheLpaWithAttorney(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -35,7 +35,7 @@ func TestReadTheLpaWithAttorney(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestReadTheLpaWithReplacementAttorney(t *testing.T) {
+func TestGetReadTheLpaWithReplacementAttorney(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -60,7 +60,7 @@ func TestReadTheLpaWithReplacementAttorney(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestReadTheLpaWithAttorneyWhenLpaStoreErrors(t *testing.T) {
+func TestGetReadTheLpaWithAttorneyWhenLpaStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -76,7 +76,7 @@ func TestReadTheLpaWithAttorneyWhenLpaStoreErrors(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestReadTheLpaWhenAttorneyNotFound(t *testing.T) {
+func TestGetReadTheLpaWhenAttorneyNotFound(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -93,7 +93,7 @@ func TestReadTheLpaWhenAttorneyNotFound(t *testing.T) {
 	assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
 }
 
-func TestReadTheLpaWhenTemplateError(t *testing.T) {
+func TestGetReadTheLpaWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -112,6 +112,58 @@ func TestReadTheLpaWhenTemplateError(t *testing.T) {
 		Return(expectedError)
 
 	err := ReadTheLpa(template.Execute, lpaStore)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostReadTheLpaWithAttorney(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
+	lpaStore.
+		On("Put", r.Context(), &page.Lpa{
+			Attorneys: []actor.Attorney{{ID: "attorney-id"}},
+			AttorneyTasks: map[string]page.AttorneyTasks{
+				"attorney-id": {
+					ReadTheLpa: page.TaskCompleted,
+				},
+			},
+		}).
+		Return(nil)
+
+	err := ReadTheLpa(nil, lpaStore)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+}
+
+func TestPostReadTheLpaWithAttorneyOnLpaStoreError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
+	lpaStore.
+		On("Put", r.Context(), &page.Lpa{
+			Attorneys: []actor.Attorney{{ID: "attorney-id"}},
+			AttorneyTasks: map[string]page.AttorneyTasks{
+				"attorney-id": {
+					ReadTheLpa: page.TaskCompleted,
+				},
+			},
+		}).
+		Return(expectedError)
+
+	err := ReadTheLpa(nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

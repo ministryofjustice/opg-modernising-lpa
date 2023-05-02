@@ -21,9 +21,10 @@
 
       {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa false) }}
 
-      <p class="govuk-body">
-          <a class="govuk-button" href="{{ link .App .App.Paths.Attorney.NextPage }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
-      </p>
+      <form novalidate method="post">
+        {{ template "continue-button" . }}
+        {{ template "csrf-field" . }}
+      </form>
     </div>
   </div>
 {{ end }}
