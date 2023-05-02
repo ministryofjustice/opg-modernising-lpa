@@ -246,11 +246,6 @@ func TestPostDateOfBirth(t *testing.T) {
 						DateOfBirth: date.New(validBirthYear, "1", "2"),
 					},
 				},
-				AttorneyTasks: map[string]page.AttorneyTasks{
-					"attorney-id": {
-						ConfirmYourDetails: page.TaskCompleted,
-					},
-				},
 			},
 			appData: testAppData,
 		},
@@ -268,11 +263,6 @@ func TestPostDateOfBirth(t *testing.T) {
 				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
 					"attorney-id": {
 						DateOfBirth: date.New("1900", "1", "2"),
-					},
-				},
-				AttorneyTasks: map[string]page.AttorneyTasks{
-					"attorney-id": {
-						ConfirmYourDetails: page.TaskCompleted,
 					},
 				},
 			},
@@ -293,11 +283,6 @@ func TestPostDateOfBirth(t *testing.T) {
 						DateOfBirth: date.New(validBirthYear, "1", "2"),
 					},
 				},
-				ReplacementAttorneyTasks: map[string]page.AttorneyTasks{
-					"attorney-id": {
-						ConfirmYourDetails: page.TaskCompleted,
-					},
-				},
 			},
 			appData: testReplacementAppData,
 		},
@@ -315,11 +300,6 @@ func TestPostDateOfBirth(t *testing.T) {
 				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
 					"attorney-id": {
 						DateOfBirth: date.New("1900", "1", "2"),
-					},
-				},
-				ReplacementAttorneyTasks: map[string]page.AttorneyTasks{
-					"attorney-id": {
-						ConfirmYourDetails: page.TaskCompleted,
 					},
 				},
 			},
@@ -347,7 +327,7 @@ func TestPostDateOfBirth(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.Sign, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.Attorney.MobileNumber, resp.Header.Get("Location"))
 		})
 	}
 }
@@ -397,7 +377,6 @@ func TestPostDateOfBirthWhenAttorneyDetailsDontExist(t *testing.T) {
 				On("Put", r.Context(), &page.Lpa{
 					ID:                      "lpa-id",
 					AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": tc.providedDetails},
-					AttorneyTasks:           map[string]page.AttorneyTasks{"attorney-id": {ConfirmYourDetails: page.TaskCompleted}},
 				}).
 				Return(nil)
 
@@ -406,7 +385,7 @@ func TestPostDateOfBirthWhenAttorneyDetailsDontExist(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.Sign, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.Attorney.MobileNumber, resp.Header.Get("Location"))
 		})
 	}
 }

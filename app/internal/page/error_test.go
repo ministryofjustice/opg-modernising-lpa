@@ -3,6 +3,7 @@ package page
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,7 +17,7 @@ func TestError(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.
-		On("Print", ExpectedError)
+		On("Request", r, ExpectedError)
 
 	template := newMockTemplate(t)
 	template.
@@ -35,7 +36,7 @@ func TestErrorWithErrCsrfInvalid(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.
-		On("Print", ErrCsrfInvalid)
+		On("Request", r, ErrCsrfInvalid)
 
 	template := newMockTemplate(t)
 	template.
@@ -56,9 +57,9 @@ func TestErrorWhenTemplateErrors(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.
-		On("Print", ExpectedError)
+		On("Request", r, ExpectedError)
 	logger.
-		On("Print", "Error rendering page: template error")
+		On("Request", r, fmt.Errorf("Error rendering page: %w", templateError))
 
 	template := newMockTemplate(t)
 	template.

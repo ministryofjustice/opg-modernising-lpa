@@ -52,15 +52,11 @@ func DateOfBirth(tmpl template.Template, lpaStore LpaStore) page.Handler {
 				attorneyProvidedDetails.DateOfBirth = data.Form.Dob
 				setProvidedDetails(appData, lpa, attorneyProvidedDetails)
 
-				tasks := getTasks(appData, lpa)
-				tasks.ConfirmYourDetails = page.TaskCompleted
-				setTasks(appData, lpa, tasks)
-
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.Attorney.Sign)
+				return appData.Redirect(w, r, lpa, page.Paths.Attorney.MobileNumber)
 			}
 		}
 
