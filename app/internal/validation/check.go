@@ -182,7 +182,7 @@ var MobileRegex = regexp.MustCompile(`^(?:07|\+?447)\d{9}$`)
 type MobileCheck struct{}
 
 func (c MobileCheck) CheckString(label, value string) FormattableError {
-	if !MobileRegex.MatchString(value) {
+	if value != "" && !MobileRegex.MatchString(value) {
 		return MobileError{Label: label}
 	}
 
