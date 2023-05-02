@@ -19,7 +19,3 @@ data "aws_ssm_parameter" "dns_target_region" {
   provider = aws.management_global
   name     = aws_ssm_parameter.dns_target_region.name
 }
-
-output "region_target" {
-  value = data.aws_ssm_parameter.dns_target_region.value == "eu-west-1" ? "region one" : "region two"
-}
