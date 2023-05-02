@@ -289,7 +289,7 @@ type fixturesForm struct {
 
 func readFixtures(r *http.Request) *fixturesForm {
 	return &fixturesForm{
-		Journey:                PostFormString(r, "journey"),
+		Journey:                PostFormString(r, "journey  "),
 		DonorDetails:           PostFormString(r, "donor-details"),
 		Attorneys:              PostFormString(r, "choose-attorneys"),
 		ReplacementAttorneys:   PostFormString(r, "choose-replacement-attorneys"),

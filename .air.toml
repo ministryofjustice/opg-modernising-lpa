@@ -1,0 +1,10 @@
+# Hot-reloading with Air - https://github.com/cosmtrek/air
+
+root = "."
+tmp_dir = "tmp"
+
+[build]
+exclude_dir = ["cypress", "docs", "tmp", "web/assets", "web/static", "node_modules", "scripts", "terraform"]
+cmd = "go build -ldflags='-X main.Tag=${TAG}' -gcflags='all=-N -l' -o ./tmp/mlpab ."
+full_bin = "pkill -9 'dlv|mlpab'; sleep 0.1; dlv exec --accept-multiclient --log --headless --continue --listen :2345 --api-version 2 ./tmp/mlpab"
+include_ext = ["go", "gohtml"]
