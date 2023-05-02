@@ -117,7 +117,7 @@ func TestGetTaskList(t *testing.T) {
 					Lpa: tc.lpa,
 					Items: tc.expected([]taskListItem{
 						{Name: "confirmYourDetails", Path: page.Paths.Attorney.CheckYourName},
-						{Name: "readTheLpa", Path: page.Paths.Attorney.NextPage},
+						{Name: "readTheLpa", Path: page.Paths.Attorney.ReadTheLpa},
 						{Name: "signTheLpa"},
 					}),
 				}).
