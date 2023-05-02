@@ -18,7 +18,7 @@ type errorData struct {
 
 func Error(tmpl template.Template, logger Logger) ErrorHandler {
 	return func(w http.ResponseWriter, r *http.Request, err error) {
-		logger.Print(err)
+		logger.Request(r, err)
 		if err == ErrCsrfInvalid {
 			w.WriteHeader(http.StatusForbidden)
 		} else {
@@ -26,7 +26,7 @@ func Error(tmpl template.Template, logger Logger) ErrorHandler {
 		}
 
 		if terr := tmpl(w, &errorData{App: AppDataFromContext(r.Context())}); terr != nil {
-			logger.Print(fmt.Sprintf("Error rendering page: %s", terr.Error()))
+			logger.Request(r, fmt.Errorf("Error rendering page: %w", terr))
 			http.Error(w, "Encountered an error", http.StatusInternalServerError)
 		}
 	}
