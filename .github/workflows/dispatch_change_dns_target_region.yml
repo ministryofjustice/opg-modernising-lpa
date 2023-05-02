@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Environment to to update DNS target region for'
+        description: 'Environment to update DNS target region for'
         required: true
         type: string
       region:
