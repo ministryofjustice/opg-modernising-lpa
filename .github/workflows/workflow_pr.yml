@@ -128,6 +128,7 @@ jobs:
       run_against_image: false
       base_url: "https://${{ needs.pr_deploy.outputs.url }}"
       tag: ${{ needs.create_tags.outputs.version_tag }}
+      simple: true
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
