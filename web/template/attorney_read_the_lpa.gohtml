@@ -1,0 +1,30 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ trFormat .App "readDonorNameLpa" "DonorFullName" .Lpa.Donor.FullName }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ trFormat .App "readDonorNameLpa" "DonorFullName" .Lpa.Donor.FullName }}</h1>
+
+      {{ template "warning" (warning .App "youMustReadLpaCarefully") }}
+
+      <h2 id="decisions" class="govuk-heading-l govuk-!-margin-bottom-2">
+        {{ tr .App "lpaDecisions" }}
+      </h2>
+
+      {{ template "lpa-decisions" . }}
+
+      <h2 class="govuk-heading-l govuk-!-margin-bottom-2">
+        {{ tr .App "peopleNamedOnTheLpa" }}
+      </h2>
+
+      {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa false) }}
+
+      <form novalidate method="post">
+        {{ template "continue-button" . }}
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}

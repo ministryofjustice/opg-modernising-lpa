@@ -10,6 +10,10 @@ describe('Check the LPA', () => {
 
         cy.contains('h2', "LPA decisions")
 
+        cy.contains('dt', "When your attorneys can use your LPA")
+        cy.contains('dt', "Who is your attorney")
+        cy.contains('dt', "Who are your replacement attorneys")
+
         cy.contains('h2', "People named on the LPA")
         cy.contains('h3', "Donor")
         cy.contains('h3', "Certificate provider")
