@@ -91,6 +91,7 @@ func App(
 		lpaStore,
 		certificateProviderStore,
 		oneLoginClient,
+		addressClient,
 		dataStore,
 		errorHandler,
 		notifyClient,

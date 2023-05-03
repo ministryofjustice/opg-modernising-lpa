@@ -12,13 +12,13 @@ describe('Mobile number', () => {
 
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/attorney-read-the-lpa');
+        cy.url().should('contain', '/attorney-your-address');
     });
 
     it('can be empty', () => {
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/attorney-read-the-lpa');
+        cy.url().should('contain', '/attorney-your-address');
     });
 
     it('errors when not a UK mobile', () => {
