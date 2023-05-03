@@ -16,6 +16,7 @@ type AttorneyPaths struct {
 	CheckYourName        string
 	DateOfBirth          string
 	MobileNumber         string
+	YourAddress          string
 	ReadTheLpa           string
 	Sign                 string
 	// TODO: remove once the attorney flow is complete, this is just to simplify
@@ -145,6 +146,7 @@ var Paths = AppPaths{
 		CheckYourName:        "/attorney-check-your-name",
 		DateOfBirth:          "/attorney-date-of-birth",
 		MobileNumber:         "/attorney-mobile-number",
+		YourAddress:          "/attorney-your-address",
 		ReadTheLpa:           "/attorney-read-the-lpa",
 		Sign:                 "/attorney-sign",
 		NextPage:             "/attorney-next-page",
@@ -253,6 +255,7 @@ func IsLpaPath(url string) bool {
 
 	return !slices.Contains([]string{
 		Paths.YotiRedirect,
+		Paths.Attorney.YourAddress,
 		Paths.Attorney.CheckYourName,
 		Paths.Attorney.CodeOfConduct,
 		Paths.Attorney.DateOfBirth,
