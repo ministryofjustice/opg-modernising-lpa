@@ -661,6 +661,9 @@
 
     "jointlyAndSeverallyExplanation": "<p class=\"govuk-body\">Attorneys can make decisions together or on their own.</p><p class=\"govuk-body\">This means attorneys can share tasks and responsibilities. It also means that if one of the attorneys is unable to act, decisions can still be made without them.</p><p class=\"govuk-body\">In legal terms, this is known as acting ‘jointly and severally’.</p>",
     "jointlyExplanation": "<p class=\"govuk-body\">All attorneys must agree on every decision, however big or small.</p><p class=\"govuk-body\">This means if one of the attorneys can no longer act, none of the other attorneys will be able to act either, unless the donor has stated otherwise in their restrictions. It also means that if the attorneys cannot agree on a decision, it cannot be made without going to court.</p><p class=\"govuk-body\">In legal terms, this is known as attorneys working ‘jointly’.</p>",
-    "jointlyForSomeSeverallyForOthersExplanation": "<p class=\"govuk-body\">All attorneys must agree on some decisions but can make other decisions on their own. The donor will state which decisions need to be agreed together.</p><p class=\"govuk-body\">In legal terms, this is known as your attorneys working ‘jointly for some decisions, and jointly and severally for other decisions’.</p>"
+    "jointlyForSomeSeverallyForOthersExplanation": "<p class=\"govuk-body\">All attorneys must agree on some decisions but can make other decisions on their own. The donor will state which decisions need to be agreed together.</p><p class=\"govuk-body\">In legal terms, this is known as your attorneys working ‘jointly for some decisions, and jointly and severally for other decisions’.</p>",
 
+    "whatIsYourUkMobileNumber": "What is your UK mobile number?",
+    "enterYourUkMobileNumberOptional": "Enter your UK mobile number (optional)",
+    "youCanChooseToTellUsYourMobileNumber": "You can choose to tell us your mobile number in case we ever need to contact you."
 }
