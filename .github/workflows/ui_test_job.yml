@@ -22,6 +22,10 @@ on:
         default: ${{ github.ref }}
         required: false
         type: string
+      simple:
+        description: 'Run "simple" specs only'
+        required: false
+        type: boolean
     secrets:
       aws_access_key_id:
         description: 'AWS Access Key ID'
@@ -102,7 +106,18 @@ jobs:
         run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json --add
 
       - name: Cypress run
+        if: inputs.simple != true
         uses: cypress-io/github-action@v5
+        env:
+          CYPRESS_baseUrl: ${{ inputs.base_url }}
+          CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
+          GITHUB_TOKEN: ${{ secrets.github_access_token }}
+
+      - name: Cypress run (simple)
+        if: inputs.simple
+        uses: cypress-io/github-action@v5
+        with:
+          spec: cypress/e2e/donor/start.cy.js
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
