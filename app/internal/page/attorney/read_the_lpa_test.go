@@ -142,6 +142,7 @@ func TestPostReadTheLpaWithAttorney(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.Attorney.RightsAndResponsibilities, resp.Header.Get("Location"))
 }
 
 func TestPostReadTheLpaWithAttorneyOnLpaStoreError(t *testing.T) {
