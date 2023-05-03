@@ -187,11 +187,6 @@ func TestPostMobileNumber(t *testing.T) {
 						Mobile: "07535111222",
 					},
 				},
-				AttorneyTasks: map[string]page.AttorneyTasks{
-					"attorney-id": {
-						ConfirmYourDetails: page.TaskCompleted,
-					},
-				},
 			},
 			appData: testAppData,
 		},
@@ -201,11 +196,6 @@ func TestPostMobileNumber(t *testing.T) {
 			},
 			updatedLpa: &page.Lpa{
 				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-				AttorneyTasks: map[string]page.AttorneyTasks{
-					"attorney-id": {
-						ConfirmYourDetails: page.TaskCompleted,
-					},
-				},
 			},
 			appData: testAppData,
 		},
@@ -222,11 +212,6 @@ func TestPostMobileNumber(t *testing.T) {
 						Mobile: "07535111222",
 					},
 				},
-				ReplacementAttorneyTasks: map[string]page.AttorneyTasks{
-					"attorney-id": {
-						ConfirmYourDetails: page.TaskCompleted,
-					},
-				},
 			},
 			appData: testReplacementAppData,
 		},
@@ -236,11 +221,6 @@ func TestPostMobileNumber(t *testing.T) {
 			},
 			updatedLpa: &page.Lpa{
 				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-				ReplacementAttorneyTasks: map[string]page.AttorneyTasks{
-					"attorney-id": {
-						ConfirmYourDetails: page.TaskCompleted,
-					},
-				},
 			},
 			appData: testReplacementAppData,
 		},
@@ -265,7 +245,7 @@ func TestPostMobileNumber(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.ReadTheLpa, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.Attorney.YourAddress, resp.Header.Get("Location"))
 		})
 	}
 }
