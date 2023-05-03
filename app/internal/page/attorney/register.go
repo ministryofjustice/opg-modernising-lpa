@@ -111,8 +111,7 @@ func Register(
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
 	handleRoot(page.Paths.Attorney.ReadTheLpa, RequireLpa,
 		ReadTheLpa(tmpls.Get("attorney_read_the_lpa.gohtml"), lpaStore))
-	handleRoot(page.Paths.Attorney.RightsAndResponsibilities, RequireSession,
-		page.Guidance(tmpls.Get("attorney_legal_rights_and_responsibilities.gohtml")))
+	handleRoot(page.Paths.Attorney.RightsAndResponsibilities, RequireSession, page.Guidance(tmpls.Get("attorney_legal_rights_and_responsibilities.gohtml")))
 	handleRoot(page.Paths.Attorney.Sign, RequireLpa,
 		Sign(tmpls.Get("attorney_sign.gohtml"), lpaStore))
 }
