@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/donor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
@@ -68,6 +69,11 @@ type CertificateProviderStore interface {
 	Get(ctx context.Context) (*actor.CertificateProvider, error)
 }
 
+//go:generate mockery --testonly --inpackage --name AddressClient --structname mockAddressClient
+type AddressClient interface {
+	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -76,6 +82,7 @@ func Register(
 	lpaStore LpaStore,
 	certificateProviderStore CertificateProviderStore,
 	oneLoginClient OneLoginClient,
+	addressClient AddressClient,
 	dataStore DataStore,
 	errorHandler page.ErrorHandler,
 	notifyClient NotifyClient,
@@ -100,6 +107,8 @@ func Register(
 		DateOfBirth(tmpls.Get("attorney_date_of_birth.gohtml"), lpaStore))
 	handleRoot(page.Paths.Attorney.MobileNumber, RequireLpa,
 		MobileNumber(tmpls.Get("attorney_mobile_number.gohtml"), lpaStore))
+	handleRoot(page.Paths.Attorney.YourAddress, RequireLpa,
+		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
 	handleRoot(page.Paths.Attorney.ReadTheLpa, RequireLpa,
 		ReadTheLpa(tmpls.Get("attorney_read_the_lpa.gohtml"), lpaStore))
 	handleRoot(page.Paths.Attorney.Sign, RequireLpa,

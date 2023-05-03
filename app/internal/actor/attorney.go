@@ -74,6 +74,7 @@ func (as Attorneys) FirstNames() string {
 type AttorneyProvidedDetails struct {
 	DateOfBirth   date.Date
 	Mobile        string
+	Address       place.Address
 	IsNameCorrect string
 	CorrectedName string
 	Confirmed     bool
