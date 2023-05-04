@@ -19,6 +19,7 @@ type AttorneyPaths struct {
 	YourAddress               string
 	ReadTheLpa                string
 	RightsAndResponsibilities string
+	WhatHappensWhenYouSign    string
 	Sign                      string
 	// TODO: remove once the attorney flow is complete, this is just to simplify
 	// development
@@ -150,6 +151,7 @@ var Paths = AppPaths{
 		YourAddress:               "/attorney-your-address",
 		ReadTheLpa:                "/attorney-read-the-lpa",
 		RightsAndResponsibilities: "/attorney-legal-rights-and-responsibilities",
+		WhatHappensWhenYouSign:    "/attorney-what-happens-when-you-sign-the-lpa",
 		Sign:                      "/attorney-sign",
 		NextPage:                  "/attorney-next-page",
 	},
@@ -270,6 +272,7 @@ func IsLpaPath(url string) bool {
 		Paths.Attorney.Sign,
 		Paths.Attorney.Start,
 		Paths.Attorney.TaskList,
+		Paths.Attorney.WhatHappensWhenYouSign,
 		Paths.Attorney.RightsAndResponsibilities,
 		Paths.AuthRedirect,
 		Paths.CertificateProvided,

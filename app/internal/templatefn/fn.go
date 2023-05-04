@@ -3,6 +3,7 @@ package templatefn
 import (
 	"fmt"
 	"html/template"
+	"reflect"
 	"time"
 	"unicode"
 	"unicode/utf8"
@@ -44,6 +45,7 @@ func All(tag string) map[string]any {
 		"listPeopleToNotify": listPeopleToNotify,
 		"progressBar":        progressBar,
 		"peopleNamedOnLpa":   peopleNamedOnLpa,
+		"printStruct":        printStruct,
 	}
 }
 
@@ -304,4 +306,24 @@ func peopleNamedOnLpa(app page.AppData, lpa *page.Lpa, showPeopleHeaders bool) m
 		"Lpa":               lpa,
 		"ShowPeopleHeaders": showPeopleHeaders,
 	}
+}
+
+// printStruct is a quick way to print out an easy-to-read text representation of a struct in a template:
+// {{ trHtml .App (printStruct .Lpa) }}
+func printStruct(s interface{}) string {
+	v := reflect.ValueOf(s)
+	typeOfS := v.Type()
+	var output string
+
+	if typeOfS.Kind() == reflect.Ptr {
+		for i := 0; i < v.Elem().NumField(); i++ {
+			output = output + fmt.Sprintf("<p>%s: %v</p>", typeOfS.Elem().Field(i).Name, v.Elem().Field(i).Interface())
+		}
+	} else {
+		for i := 0; i < v.NumField(); i++ {
+			output = output + fmt.Sprintf("<p>%s: %v</p>", typeOfS.Field(i).Name, v.Field(i).Interface())
+		}
+	}
+
+	return output
 }
