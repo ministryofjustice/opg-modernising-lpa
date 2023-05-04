@@ -43,8 +43,8 @@
       
       {{ trFormatHtml .App $content
       "DonorFullName" .Lpa.Donor.FullName
-      "DonorFullNamePossessive" (.App.Localizer.Possessive .Lpa.Donor.FullName)
-      "DonorFirstNamesPossessive" (.App.Localizer.Possessive .Lpa.Donor.FirstNames) }}
+      "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName)
+      "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) }}
 
       <a class="govuk-button" href="{{.App.Paths.Attorney.TaskList}}">{{ tr .App "continue" }}</a>
     </div>
