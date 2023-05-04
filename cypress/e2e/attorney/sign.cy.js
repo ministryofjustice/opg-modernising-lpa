@@ -1,7 +1,7 @@
 describe('Sign', () => {
     describe('as an attorney', () =>{
         beforeEach(() => {
-            cy.visit('/testing-start?cookiesAccepted=1&redirect=/attorney-sign&completeLpa=1&withAttorney=1&asAttorney=1');
+            cy.visit('/testing-start?cookiesAccepted=1&redirect=/attorney-sign&completeLpa=1&withAttorney=1&signedByDonor=1&provideCertificate=1&asAttorney=1');
         });
 
         it('can be signed', () => {
@@ -12,7 +12,10 @@ describe('Sign', () => {
             cy.contains('label', 'I, John Smith, confirm').click();
             cy.contains('button', 'Submit signature').click();
 
-            cy.url().should('contain', '/attorney-next-page');
+            cy.url().should('contain', '/attorney-what-happens-next');
+            cy.checkA11yApp();
+
+            cy.contains('h1', 'You’ve formally agreed to be an attorney');
         });
 
         it('shows an error when not selected', () => {
@@ -28,7 +31,7 @@ describe('Sign', () => {
 
     describe('as a replacement attorney', () =>{
         beforeEach(() => {
-            cy.visit('/testing-start?cookiesAccepted=1&redirect=/attorney-sign&completeLpa=1&withReplacementAttorney=1&asReplacementAttorney=1');
+            cy.visit('/testing-start?cookiesAccepted=1&redirect=/attorney-sign&completeLpa=1&withReplacementAttorney=&1signedByDonor=1&provideCertificate=1&asReplacementAttorney=1');
         });
 
         it('can be signed', () => {
@@ -39,7 +42,10 @@ describe('Sign', () => {
             cy.contains('label', 'I, Jane Smith, confirm').click();
             cy.contains('button', 'Submit signature').click();
 
-            cy.url().should('contain', '/attorney-next-page');
+            cy.url().should('contain', '/attorney-what-happens-next');
+            cy.checkA11yApp();
+
+            cy.contains('h1', 'You’ve formally agreed to be a replacement attorney');
         });
 
         it('shows an error when not selected', () => {
