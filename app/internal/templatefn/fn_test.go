@@ -366,3 +366,11 @@ func TestListPeopleNamedOnLpa(t *testing.T) {
 
 	assert.Equal(t, want, got)
 }
+
+func TestPossessive(t *testing.T) {
+	app := page.AppData{
+		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
+	}
+
+	assert.Equal(t, "John’s", possessive(app, "John"))
+}

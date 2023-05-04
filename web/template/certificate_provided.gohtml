@@ -9,7 +9,7 @@
         <h1 class="govuk-panel__title">{{ tr .App "youveProvidedTheCertificateForThisLpa" }}</h1>
       </div>
 
-      {{ trFormatHtml .App "certificateProvidedContent" "DonorFirstNamesPossessive" (.App.Localizer.Possessive .Lpa.Donor.FirstNames) }}
+      {{ trFormatHtml .App "certificateProvidedContent" "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) }}
 
       <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "goToYourDashboard" }}</button>
     </div>

@@ -44,6 +44,7 @@ func All(tag string) map[string]any {
 		"listPeopleToNotify": listPeopleToNotify,
 		"progressBar":        progressBar,
 		"peopleNamedOnLpa":   peopleNamedOnLpa,
+		"possessive":         possessive,
 	}
 }
 
@@ -304,4 +305,8 @@ func peopleNamedOnLpa(app page.AppData, lpa *page.Lpa, showPeopleHeaders bool) m
 		"Lpa":               lpa,
 		"ShowPeopleHeaders": showPeopleHeaders,
 	}
+}
+
+func possessive(app page.AppData, s string) string {
+	return app.Localizer.Possessive(s)
 }

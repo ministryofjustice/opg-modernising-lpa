@@ -1,13 +1,33 @@
 package attorney
 
 import (
+	"context"
+	"errors"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
+
+func canSign(ctx context.Context, certificateProviderStore CertificateProviderStore, lpa *page.Lpa) (bool, error) {
+	ctx = page.ContextWithSessionData(ctx, &page.SessionData{LpaID: lpa.ID})
+
+	certificateProvider, err := certificateProviderStore.Get(ctx)
+	if err != nil {
+		if errors.Is(err, dynamo.NotFoundError{}) {
+			certificateProvider = &actor.CertificateProvider{}
+		} else {
+			return false, err
+		}
+	}
+
+	progress := lpa.Progress(certificateProvider)
+
+	return progress.LpaSigned.Completed() && progress.CertificateProviderDeclared.Completed(), nil
+}
 
 type signData struct {
 	App                        page.AppData
@@ -18,11 +38,15 @@ type signData struct {
 	Form                       *signForm
 }
 
-func Sign(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func Sign(tmpl template.Template, lpaStore LpaStore, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
+		}
+
+		if ok, _ := canSign(r.Context(), certificateProviderStore, lpa); !ok {
+			return appData.Redirect(w, r, lpa, page.Paths.Attorney.TaskList)
 		}
 
 		attorneys := lpa.Attorneys
@@ -55,11 +79,15 @@ func Sign(tmpl template.Template, lpaStore LpaStore) page.Handler {
 				attorneyProvidedDetails.Confirmed = true
 				setProvidedDetails(appData, lpa, attorneyProvidedDetails)
 
+				tasks := getTasks(appData, lpa)
+				tasks.SignTheLpa = page.TaskCompleted
+				setTasks(appData, lpa, tasks)
+
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.Attorney.NextPage)
+				return appData.Redirect(w, r, lpa, page.Paths.Attorney.WhatHappensNext)
 			}
 		}
 
