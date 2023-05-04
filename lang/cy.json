@@ -708,5 +708,15 @@
     "youCanChooseToTellUsYourMobileNumber": "Welsh",
 
     "attorneyRightsAndResponsibilitiesTitle": "Welsh",
-    "attorneyRightsAndResponsibilitiesContent": "<p class=\"govuk-body-l\">Welsh</p> <h2 class=\"govuk-heading-m\">Welsh</h2> <p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"#\">Welsh</a>:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> </ul> <h2 class=\"govuk-heading-m\">Welsh</h2> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> </ul>"
+    "attorneyRightsAndResponsibilitiesContent": "<p class=\"govuk-body-l\">Welsh</p> <h2 class=\"govuk-heading-m\">Welsh</h2> <p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"#\">Welsh</a>:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> </ul> <h2 class=\"govuk-heading-m\">Welsh</h2> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> </ul>",
+
+    "whatHappensWhenYouSignTheLpaTitle": "Welsh",
+    "whatHappensWhenYouSignTheLpaContentAttorneyPw": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh {{ .DonorFullNamePossessive }} welsh</p> <p class=\"govuk-body\">Welsh:</p>",
+    "whatHappensWhenYouSignTheLpaContentAttorneyPa": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh {{ .DonorFullNamePossessive }} welsh</p> <p class=\"govuk-body\">Welsh:</p>",
+    "whatHappensWhenYouSignTheLpaContentReplacementAttorneyPw": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh {{ .DonorFullNamePossessive }} welsh</p> <p class=\"govuk-body\">Welsh:</p>",
+    "whatHappensWhenYouSignTheLpaContentReplacementAttorneyPa": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh {{ .DonorFullNamePossessive }} welsh</p> <p class=\"govuk-body\">Welsh:</p>",
+    "pwDecisionsBullets": "<ul class=\"govuk-list govuk-list--bullet\"> <li>welsh</li> <li>welsh</li> <li>welsh</li> <li>welsh</li> </ul>",
+    "paPowersBullets": "<ul class=\"govuk-list govuk-list--bullet\"> <li>welsh, {{ .DonorFirstNames }}, welsh</li> <li>welsh</li> </ul>",
+    "pwWhatHappensWhenYouSignWarning": "Welsh",
+    "paWhatHappensWhenYouSignWarning": "Welsh"
 }

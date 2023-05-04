@@ -366,3 +366,15 @@ func TestListPeopleNamedOnLpa(t *testing.T) {
 
 	assert.Equal(t, want, got)
 }
+
+func TestPrintStruct(t *testing.T) {
+	type str struct {
+		Prop1 string
+		Prop2 string
+	}
+
+	s := str{Prop1: "123"}
+
+	assert.Equal(t, "<p>Prop1: 123</p><p>Prop2: </p>", printStruct(s))
+	assert.Equal(t, "<p>Prop1: 123</p><p>Prop2: </p>", printStruct(&s))
+}
