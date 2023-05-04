@@ -1,0 +1,45 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "whatHappensWhenYouSignTheLpaTitle" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "whatHappensWhenYouSignTheLpaTitle" }}</h1>
+
+            {{ if not .ActorType.IsReplacementAttorney }}
+                <p class="govuk-body">Signing the LPA is an important and powerful legal step.</p>
+
+                <p class="govuk-body">When you sign, you’re officially saying that you want to be an attorney on {{ .DonorFullNamePossessive }} {{ .LpaType }} LPA.</p>
+
+                <p class="govuk-body">This means that once the LPA has been registered, you (and any other attorneys named in this LPA) have the power to:</p>
+            {{ else }}
+                <p class="govuk-body">Signing the LPA is an important and powerful legal step.</p>
+
+                <p class="govuk-body">When you sign, you’re saying that you want to be a replacement attorney on {{ .DonorFullNamePossessive }} {{ .LpaType }} LPA.</p>
+
+                <p class="govuk-body">This means that once the LPA has been registered, if you’re required to step in for an original attorney, you’ll have the power to:</p>
+            {{ end }}
+
+            {{ if .Lpa.IsPersonalWelfareLpa }}
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>help the donor, {{ .DonorFirstNamePossessive }}, make decisions about their money or property, or make decisions for them if they do not have the mental capacity to make it themselves</li>
+                    <li>deal with organisations, like their bank and utility companies, on their behalf</li>
+                </ul>
+
+                {{ template "warning" (warning .App "pwWhatHappensWhenYouSignWarning") }}
+            {{ else }}
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>their personal and medical care</li>
+                    <li>their daily routine, for example washing, dressing and eating</li>
+                    <li>their medical care</li>
+                    <li>where they live</li>
+                </ul>
+
+                {{ template "warning" (warning .App "paWhatHappensWhenYouSignWarning") }}
+            {{ end }}
+
+{{/*            {{ trHtml .App "beAnAttorneyContent" }}*/}}
+        </div>
+    </div>
+{{ end }}
