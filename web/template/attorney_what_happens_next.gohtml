@@ -23,7 +23,7 @@
         {{ trFormatHtml .App "youveFormallyAgreedToBeAttorneyContent" "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
       {{ end }}
 
-      {{ trFormatHtml .App "whatHappensNextContent" "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) }}
+      {{ trFormatHtml .App "attorneyWhatHappensNextContent" "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) }}
 
       <a class="govuk-button" href="#">{{ tr .App "goToYourDashboard" }}</a>
     </div>
