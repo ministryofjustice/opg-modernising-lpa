@@ -43,7 +43,10 @@ build-up-app: ##@build Builds the app
 	docker compose up -d --build --remove-orphans app
 
 build-up-app-dev: ##@build Builds the app and brings up via Air hot reload with Delve debugging enabled
-	docker compose -f ./docker-compose.yml -f ./docker-compose.dev.yml up -d --build --force-recreate --remove-orphans app
+	ARCH=arm64 docker compose -f ./docker-compose.yml -f ./docker-compose.dev.yml up -d --build --force-recreate --remove-orphans app
+
+build-up-app-dev-amd: ##@build Builds the app and brings up via Air hot reload with Delve debugging enabled
+	ARCH=amd64 docker compose -f ./docker-compose.yml -f ./docker-compose.dev.yml up -d --build --force-recreate --remove-orphans app
 
 run-cypress: ##@testing Runs cypress e2e tests. To run a specific spec file pass in spec e.g. make run-cypress spec=start
 ifdef spec
