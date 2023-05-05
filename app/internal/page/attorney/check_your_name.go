@@ -104,13 +104,12 @@ func readCheckYourNameForm(r *http.Request) *checkYourNameForm {
 func (f *checkYourNameForm) Validate() validation.List {
 	errors := validation.List{}
 
-	errors.String("is-name-correct", "yesIfTheNameIsCorrect", f.IsNameCorrect,
-		validation.Select("yes", "no"))
+	errors.String("is-name-correct", "confirmIfTheNameIsCorrect", f.IsNameCorrect,
+		validation.Select("yes", "no").CustomError())
 
 	if f.IsNameCorrect == "no" && f.CorrectedName == "" {
 		errors.String("corrected-name", "yourFullName", f.CorrectedName,
-			validation.Empty(),
-		)
+			validation.Empty())
 	}
 
 	return errors

@@ -34,10 +34,10 @@ describe('Check your name', () => {
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Select yes if the name is correct');
+            cy.contains('Confirm if the name the donor provided for you is correct');
         });
 
-        cy.contains('.govuk-form-group .govuk-error-message', 'Select yes if the name is correct');
+        cy.contains('.govuk-form-group .govuk-error-message', 'Confirm if the name the donor provided for you is correct');
     });
 
     it('errors when name not correct but no name provided', () => {

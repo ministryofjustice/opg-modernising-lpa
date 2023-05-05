@@ -576,6 +576,7 @@
     "enterYourFullName": "Welsh",
     "yourFullName": "welsh",
     "yesIfTheNameIsCorrect": "welsh",
+    "confirmIfTheNameIsCorrect": "Welsh",
 
     "whenAttorneysCanUseTheLpa": "Welsh",
     "theirAttorneys": {
@@ -609,6 +610,7 @@
     "confirmYourIdentityContent": "<p class=\"govuk-body\">Welsh.</p><h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh:</p><ul class=\"govuk-list govuk-list--bullet govuk-list--spaced\"><li><span class=\"govuk-body govuk-!-font-weight-bold\">Welsh</span></li></ul>",
 
     "enterYourDateOfBirth": "Welsh",
+    "yourDateOfBirth": "Welsh",
     "18OrOverWarning": "Welsh",
     "enterYourUkMobile": "Welsh",
     "enterYourUkMobileContext": "Welsh",
@@ -671,6 +673,7 @@
     "incorrectAttorneyReferenceNumber": "Welsh",
     "attorney18OrOverWarning": "Welsh",
     "youAttorneyAreUnder18Error": "Welsh",
+    "youReplacementAttorneyAreUnder18Error": "Welsh",
     "whatIsYourDateOfBirth": "Welsh",
     "checkAttorneyNameContent": "<p class=\"govuk-body\">Welsh, {{ .DonorFullName }}, welsh:</p> <div class=\"govuk-inset-text\">{{ .AttorneyFullName }}</div>",
 
@@ -725,5 +728,8 @@
     "youveFormallyAgreedToBeReplacementAttorney": "Welsh",
     "youveFormallyAgreedToBeAttorneyContent": "<p class=\"govuk-body\">Welsh {{.DonorFullNamePossessive}}</p><p class=\"govuk-body\">Welsh</p>",
     "youveFormallyAgreedToBeReplacementAttorneyContent": "<p class=\"govuk-body\">Welsh {{.DonorFullNamePossessive}}</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
-    "attorneyWhatHappensNextContent": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh {{.DonorFirstNamesPossessive}}</p><p class=\"govuk-body\">Welsh <a href=\"#\" class=\"govuk-link\">Welsh</a>.</p>"
+    "attorneyWhatHappensNextContent": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh {{.DonorFirstNamesPossessive}}</p><p class=\"govuk-body\">Welsh <a href=\"#\" class=\"govuk-link\">Welsh</a>.</p>",
+
+    "youMustSelectTheBoxToSignAttorney": "Welsh",
+    "youMustSelectTheBoxToSignReplacementAttorney": "Welsh"
 }
