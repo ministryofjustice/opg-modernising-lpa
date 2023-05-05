@@ -378,3 +378,11 @@ func TestPrintStruct(t *testing.T) {
 	assert.Equal(t, "<p>Prop1: 123</p><p>Prop2: </p>", printStruct(s))
 	assert.Equal(t, "<p>Prop1: 123</p><p>Prop2: </p>", printStruct(&s))
 }
+
+func TestPossessive(t *testing.T) {
+	app := page.AppData{
+		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
+	}
+
+	assert.Equal(t, "John’s", possessive(app, "John"))
+}

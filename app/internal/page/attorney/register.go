@@ -116,7 +116,9 @@ func Register(
 	handleRoot(page.Paths.Attorney.WhatHappensWhenYouSign, RequireLpa,
 		donor.Guidance(tmpls.Get("attorney_what_happens_when_you_sign.gohtml"), lpaStore))
 	handleRoot(page.Paths.Attorney.Sign, RequireLpa,
-		Sign(tmpls.Get("attorney_sign.gohtml"), lpaStore))
+		Sign(tmpls.Get("attorney_sign.gohtml"), lpaStore, certificateProviderStore))
+	handleRoot(page.Paths.Attorney.WhatHappensNext, RequireLpa,
+		donor.Guidance(tmpls.Get("attorney_what_happens_next.gohtml"), lpaStore))
 }
 
 type handleOpt byte

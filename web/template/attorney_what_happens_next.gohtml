@@ -1,0 +1,31 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}
+  {{ tr .App "whatHappensNext" }}
+{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <div class="govuk-panel govuk-panel--confirmation">
+        <h1 class="govuk-panel__title">
+          {{ if .App.IsReplacementAttorney }}
+            {{ tr .App "youveFormallyAgreedToBeReplacementAttorney" }}
+          {{ else }}
+            {{ tr .App "youveFormallyAgreedToBeAttorney" }}
+          {{ end }}
+        </h1>
+      </div>
+
+      {{ if .App.IsReplacementAttorney }}
+        {{ trFormatHtml .App "youveFormallyAgreedToBeReplacementAttorneyContent" "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+      {{ else }}
+        {{ trFormatHtml .App "youveFormallyAgreedToBeAttorneyContent" "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+      {{ end }}
+
+      {{ trFormatHtml .App "attorneyWhatHappensNextContent" "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) }}
+
+      <a class="govuk-button" href="#">{{ tr .App "goToYourDashboard" }}</a>
+    </div>
+  </div>
+{{ end }}
