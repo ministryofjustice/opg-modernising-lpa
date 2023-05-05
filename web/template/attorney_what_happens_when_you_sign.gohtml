@@ -1,0 +1,41 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "whatHappensWhenYouSignTheLpaTitle" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "whatHappensWhenYouSignTheLpaTitle" }}</h1>
+
+            {{ $donorFullNamePossessive := .App.Localizer.Possessive .Lpa.Donor.FullName }}
+
+            {{ if .Lpa.IsPersonalWelfareLpa }}
+
+                {{ if .App.IsReplacementAttorney }}
+                    {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentReplacementAttorneyPw" "DonorFullNamePossessive" $donorFullNamePossessive }}
+                {{ else }}
+                    {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentAttorneyPw" "DonorFullNamePossessive" $donorFullNamePossessive }}
+                {{ end }}
+
+                {{  trHtml .App "pwDecisionsBullets"}}
+
+                {{ template "warning" (warning .App "pwWhatHappensWhenYouSignWarning") }}
+
+            {{ else }}
+
+                {{ if .App.IsReplacementAttorney }}
+                    {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentReplacementAttorneyPa" "DonorFullNamePossessive" $donorFullNamePossessive }}
+                {{ else }}
+                    {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentAttorneyPa" "DonorFullNamePossessive" $donorFullNamePossessive }}
+                {{ end }}
+
+                {{  trFormatHtml .App "paPowersBullets" "DonorFirstNames" .Lpa.Donor.FirstNames }}
+
+                {{ template "warning" (warning .App "paWhatHappensWhenYouSignWarning") }}
+
+            {{ end }}
+
+            <a class="govuk-button" href="{{ link .App .App.Paths.Attorney.Sign }}" data-module="govuk-button">{{ tr .App "continueToSigningPage" }}</a>
+        </div>
+    </div>
+{{ end }}
