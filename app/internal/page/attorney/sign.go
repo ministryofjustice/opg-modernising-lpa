@@ -73,7 +73,7 @@ func Sign(tmpl template.Template, lpaStore LpaStore, certificateProviderStore Ce
 
 		if r.Method == http.MethodPost {
 			data.Form = readSignForm(r)
-			data.Errors = data.Form.Validate()
+			data.Errors = data.Form.Validate(appData.IsReplacementAttorney())
 
 			if data.Errors.None() {
 				attorneyProvidedDetails.Confirmed = true
@@ -105,11 +105,16 @@ func readSignForm(r *http.Request) *signForm {
 	}
 }
 
-func (f *signForm) Validate() validation.List {
+func (f *signForm) Validate(isReplacement bool) validation.List {
 	var errors validation.List
 
-	errors.Bool("confirm", "placeholder", f.Confirm,
-		validation.Selected())
+	if isReplacement {
+		errors.Bool("confirm", "youMustSelectTheBoxToSignReplacementAttorney", f.Confirm,
+			validation.Selected().CustomError())
+	} else {
+		errors.Bool("confirm", "youMustSelectTheBoxToSignAttorney", f.Confirm,
+			validation.Selected().CustomError())
+	}
 
 	return errors
 }
