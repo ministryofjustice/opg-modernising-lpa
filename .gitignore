@@ -32,3 +32,4 @@ multi-reporter-config.json
 **tmp/*
 .idea/*
 /app/tmp/*
+/app/.air.toml

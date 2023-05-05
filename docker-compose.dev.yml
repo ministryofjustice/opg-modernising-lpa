@@ -14,6 +14,7 @@ services:
       - ./web/template:/app/web/template:rw,delegated
       - ./lang:/app/lang:rw,delegated
       - /app/web/static
+      - ./.air.toml:/app/.air.toml
     cap_add:
       - SYS_PTRACE
     ports:
