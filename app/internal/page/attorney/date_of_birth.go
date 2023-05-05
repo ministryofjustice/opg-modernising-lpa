@@ -41,7 +41,7 @@ func DateOfBirth(tmpl template.Template, lpaStore LpaStore) page.Handler {
 
 		if r.Method == http.MethodPost {
 			data.Form = readDateOfBirthForm(r)
-			data.Errors = data.Form.Validate()
+			data.Errors = data.Form.Validate(appData.IsReplacementAttorney())
 			dobWarning := data.Form.DobWarning()
 
 			if data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning {
@@ -85,16 +85,20 @@ func (f *dateOfBirthForm) DobWarning() string {
 	return ""
 }
 
-func (f *dateOfBirthForm) Validate() validation.List {
+func (f *dateOfBirthForm) Validate(isReplacement bool) validation.List {
 	var errors validation.List
 
-	errors.Date("date-of-birth", "dateOfBirth", f.Dob,
+	errors.Date("date-of-birth", "yourDateOfBirth", f.Dob,
 		validation.DateMissing(),
 		validation.DateMustBeReal(),
 		validation.DateMustBePast())
 
 	if f.Dob.After(date.Today().AddDate(-18, 0, 0)) {
-		errors.Add("date-of-birth", validation.CustomError{Label: "youAttorneyAreUnder18Error"})
+		if isReplacement {
+			errors.Add("date-of-birth", validation.CustomError{Label: "youReplacementAttorneyAreUnder18Error"})
+		} else {
+			errors.Add("date-of-birth", validation.CustomError{Label: "youAttorneyAreUnder18Error"})
+		}
 	}
 
 	return errors
