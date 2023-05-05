@@ -35,6 +35,11 @@ func TestCheckString(t *testing.T) {
 			checks:   []StringChecker{Select("one", "other")},
 			expected: With(name, SelectError{Label: label}),
 		},
+		"select invalid custom": {
+			input:    "none",
+			checks:   []StringChecker{Select("one", "other").CustomError()},
+			expected: With(name, CustomError{Label: label}),
+		},
 		"string too long": {
 			input:  "hello ther",
 			checks: []StringChecker{Empty(), StringTooLong(10)},
@@ -160,6 +165,11 @@ func TestCheckAddress(t *testing.T) {
 			checks:   []AddressChecker{Selected()},
 			expected: With(name, SelectError{Label: label}),
 		},
+		"selected invalid custom": {
+			input:    nil,
+			checks:   []AddressChecker{Selected().CustomError()},
+			expected: With(name, CustomError{Label: label}),
+		},
 	}
 
 	for scenario, tc := range testcases {
@@ -190,6 +200,11 @@ func TestCheckBool(t *testing.T) {
 			input:    false,
 			checks:   []BoolChecker{Selected()},
 			expected: With(name, SelectError{Label: label}),
+		},
+		"selected invalid custom": {
+			input:    false,
+			checks:   []BoolChecker{Selected().CustomError()},
+			expected: With(name, CustomError{Label: label}),
 		},
 	}
 
@@ -222,6 +237,11 @@ func TestCheckOptions(t *testing.T) {
 			checks:   []OptionsChecker{Selected()},
 			expected: With(name, SelectError{Label: label}),
 		},
+		"selected invalid custom": {
+			input:    []string{},
+			checks:   []OptionsChecker{Selected().CustomError()},
+			expected: With(name, CustomError{Label: label}),
+		},
 		"select": {
 			input:  []string{"a", "b"},
 			checks: []OptionsChecker{Select("a", "b", "c")},
@@ -230,6 +250,11 @@ func TestCheckOptions(t *testing.T) {
 			input:    []string{"a", "d"},
 			checks:   []OptionsChecker{Select("a", "b", "c")},
 			expected: With(name, SelectError{Label: label}),
+		},
+		"select invalid custom": {
+			input:    []string{"a", "d"},
+			checks:   []OptionsChecker{Select("a", "b", "c").CustomError()},
+			expected: With(name, CustomError{Label: label}),
 		},
 	}
 

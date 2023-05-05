@@ -22,10 +22,10 @@ describe('Sign', () => {
             cy.contains('button', 'Submit signature').click();
 
             cy.get('.govuk-error-summary').within(() => {
-                cy.contains('Select placeholder');
+                cy.contains('You must select the box to sign as an attorney');
             });
 
-            cy.contains('.govuk-form-group .govuk-error-message', 'Select placeholder');
+            cy.contains('.govuk-form-group .govuk-error-message', 'You must select the box to sign as an attorney');
         });
     });
 
@@ -52,10 +52,10 @@ describe('Sign', () => {
             cy.contains('button', 'Submit signature').click();
 
             cy.get('.govuk-error-summary').within(() => {
-                cy.contains('Select placeholder');
+                cy.contains('You must select the box to sign as a replacement attorney');
             });
 
-            cy.contains('.govuk-form-group .govuk-error-message', 'Select placeholder');
+            cy.contains('.govuk-form-group .govuk-error-message', 'You must select the box to sign as a replacement attorney');
         });
     });
 });

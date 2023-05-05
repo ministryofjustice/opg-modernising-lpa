@@ -535,6 +535,7 @@
     "enterYourFullName": "Enter your full name, as written on your passport",
     "yourFullName": "your full name",
     "yesIfTheNameIsCorrect": "yes if the name is correct",
+    "confirmIfTheNameIsCorrect": "Confirm if the name the donor provided for you is correct",
 
     "whenAttorneysCanUseTheLpa": "When attorneys can use the LPA",
     "theirAttorneys": {
@@ -569,6 +570,7 @@
     "confirmYourIdentityContent": "<p class=\"govuk-body\">As a certificate provider, you act as a safeguard for the person making the LPA. Because of this, we need to be sure it’s you before you provide the certificate for this LPA.</p><h2 class=\"govuk-heading-m\">What you’ll need</h2><p class=\"govuk-body\">To confirm your identity you’ll need 2 things from this list:</p><ul class=\"govuk-list govuk-list--bullet govuk-list--spaced\"><li><span class=\"govuk-body govuk-!-font-weight-bold\">Your passport</span><br>This must be your current passport or one that expired less than 10 years ago. Your name on your passport must be the same as on your LPA.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">Your driving licence</span><br>This must be your current licence or one that expired less than 10 years ago. Your name and address on your licence must be the same as on your LPA.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">A GOV.UK Account</span><br>We’ll ask you to sign in to your account so we can confirm your name, address and date of birth. We will not see any other information about you.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">Post Office EasyID</span><br>Post Office EasyID is a secure digital app that lets you confirm your identity online. We’ll confirm your name, address and date of birth through Post Office EasyID. We will not see any other information Post Office EasyID holds about you.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">A Department for Work and Pensions (DWP) account and your National Insurance Number</span><br>We’ll check your details with DWP - they’ll confirm your name, address and date of birth. We will not see any other information about you.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">A utility bill</span><br>This must a gas, electric, broadband or landline phone bill issued within the last three months. Your name and address on the bill must be the same as on your LPA. You’ll need to upload a photo, scan or a PDF of the bill.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">A council tax bill</span><br>This must be for the current council tax year. Your name and address on the bill must be the same as on your LPA. You’ll need to upload a photo, scan or a PDF of the bill.</li></ul>",
 
     "enterYourDateOfBirth": "Enter your date of birth",
+    "yourDateOfBirth": "Your date of birth",
     "18OrOverWarning": "You must be aged 18 or over to be a certificate provider",
     "enterYourUkMobile": "Enter your UK mobile number",
     "enterYourUkMobileContext": "We need your mobile number so we can send you a code to use when you witness the donor signing their LPA.",
@@ -630,7 +632,8 @@
     "twelveCharactersAttorneyReferenceNumber": "your 12 character reference number",
     "incorrectAttorneyReferenceNumber": "The reference number you entered is incorrect, please check it and try again",
     "attorney18OrOverWarning": "You must be aged 18 or over to be an attorney.",
-    "youAttorneyAreUnder18Error": "Placeholder",
+    "youAttorneyAreUnder18Error": "You’ve entered a date of birth that means you are under 18, you must be 18 to be an attorney",
+    "youReplacementAttorneyAreUnder18Error": "You’ve entered a date of birth that means you are under 18, you must be 18 to be a replacement attorney",
     "whatIsYourDateOfBirth": "What is your date of birth?",
     "checkAttorneyNameContent": "<p class=\"govuk-body\">This is the name the donor, {{ .DonorFullName }}, provided for you:</p> <div class=\"govuk-inset-text\">{{ .AttorneyFullName }}</div>",
 
@@ -675,5 +678,8 @@
     "youveFormallyAgreedToBeReplacementAttorney": "You’ve formally agreed to be a replacement attorney",
     "youveFormallyAgreedToBeAttorneyContent": "<p class=\"govuk-body\">You’ve now signed and are named in {{.DonorFullNamePossessive}} LPA as an attorney.</p><p class=\"govuk-body\">The LPA will be submitted for registration when all the attorneys (and any replacement attorneys) have signed.</p>",
     "youveFormallyAgreedToBeReplacementAttorneyContent": "<p class=\"govuk-body\">You’ve now signed and are named in {{.DonorFullNamePossessive}} LPA as a replacement attorney.</p><p class=\"govuk-body\">As a replacement attorney, you do not need to edo anything else until one of the original attorneys can no longer act.</p><p class=\"govuk-body\">If this happens, you’ll need to contact the Office of the Public Guardian (OPG) to tell us you’ve stepped in.</p>",
-    "whatHappensNextContent": "<h2 class=\"govuk-heading-m\">What happens next</h2><p class=\"govuk-body\">If the OPG has any concerns about {{.DonorFirstNamesPossessive}} LPA in future, we may contact you.</p><p class=\"govuk-body\">If you ever need to report a concern, you can do this at any time using the <a href=\"#\" class=\"govuk-link\">report a concern about an LPA service</a>.</p>"
+    "whatHappensNextContent": "<h2 class=\"govuk-heading-m\">What happens next</h2><p class=\"govuk-body\">If the OPG has any concerns about {{.DonorFirstNamesPossessive}} LPA in future, we may contact you.</p><p class=\"govuk-body\">If you ever need to report a concern, you can do this at any time using the <a href=\"#\" class=\"govuk-link\">report a concern about an LPA service</a>.</p>",
+
+    "youMustSelectTheBoxToSignAttorney": "You must select the box to sign as an attorney",
+    "youMustSelectTheBoxToSignReplacementAttorney": "You must select the box to sign as a replacement attorney"
 }
