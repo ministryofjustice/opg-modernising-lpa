@@ -1,3 +1,9 @@
+FROM golang:1.20 as base
+
+ARG ARCH=arm64
+
+WORKDIR /app
+
 FROM node:18.16.0-alpine3.16 as asset-env
 
 WORKDIR /app
@@ -8,7 +14,17 @@ RUN yarn --prod
 COPY web/assets web/assets
 RUN mkdir -p web/static && yarn build
 
-FROM golang:1.20 as build-env
+FROM base AS dev
+
+WORKDIR /app
+
+COPY --from=asset-env /app/web/static web/static
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go install github.com/cosmtrek/air@latest && go install github.com/go-delve/delve/cmd/dlv@latest
+
+ENTRYPOINT ["air"]
+
+FROM base as build-env
 
 WORKDIR /app
 ARG TAG=v0.0.0
@@ -17,7 +33,7 @@ COPY app/go.mod app/go.sum ./
 RUN go mod download
 
 COPY /app .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab
+RUN go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab
 
 FROM alpine:3.17.3 as production
 
