@@ -1,0 +1,92 @@
+name: "[WD] Change DNS Target Region"
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to update DNS target region for'
+        required: true
+        type: string
+      region:
+        description: 'AWS region to target'
+        required: true
+        default: 'eu-west-1'
+        type: choice
+        options:
+        - eu-west-1
+        - eu-west-2
+
+permissions:
+  id-token: write
+  contents: write
+  security-events: none
+  pull-requests: none
+  actions: none
+  checks: none
+  deployments: none
+  issues: none
+  packages: none
+  repository-projects: none
+  statuses: none
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  change_dns_target_region:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: unfor19/install-aws-cli-action@v1
+      - name: Determine role to use for dns target region change
+        id: determine_role
+        run: |
+          if [[ ${{ github.event.inputs.environment }} == "production" ]]; then
+            echo "Using production account role"
+            echo "role=${{ secrets.PRODUCTION_MAINTENANCE_MODE_ROLE }}" >> $GITHUB_OUTPUT
+          elif [[ ${{ github.event.inputs.environment }} == "preproduction" ]]; then
+            echo "Using preproduction account role"
+            echo "role=${{ secrets.PREPRODUCTION_MAINTENANCE_MODE_ROLE }}" >> $GITHUB_OUTPUT
+          else
+            echo "Using dev account role"
+            echo "role=${{ secrets.DEVELOPMENT_MAINTENANCE_MODE_ROLE }}" >> $GITHUB_OUTPUT
+          fi
+      - name: Configure AWS credentials for dns target region parameter change
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: us-east-1
+          role-duration-seconds: 3600
+          role-session-name: MLPABChangeDNSTargetRegionParameter
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          role-to-assume: ${{ steps.determine_role.outputs.role }}
+      - name: Change DNS target region for ${{ github.event.inputs.environment }}
+        run: |
+            aws ssm put-parameter --name "/modernising-lpa/dns-target-region/${{ github.event.inputs.environment }}" --type "String" --value "${{ github.event.inputs.region }}" --overwrite
+
+
+      # - uses: hashicorp/setup-terraform@v2
+      #   with:
+      #     terraform_version: 1.2.6
+      #     terraform_wrapper: false
+      # - name: Configure AWS Credentials For Terraform
+      #   uses: aws-actions/configure-aws-credentials@v2
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      #     aws-region: eu-west-1
+      #     role-duration-seconds: 3600
+      #     role-session-name: OPGModernisingLPATerraformGithubAction
+      # - uses: webfactory/ssh-agent@v0.8.0
+      #   with:
+      #     ssh-private-key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
+      # - name: Terraform Init
+      #   run: terraform init -input=false
+      #   working-directory: ./terraform/environment
+      # - name: Terraform Apply DNS region target change for ${{ github.event.inputs.environment }}
+      #   env:
+      #     TF_WORKSPACE: ${{ github.event.inputs.environment }}
+      #   run: |
+      #     terraform apply -lock-timeout=300s  -input=false -auto-approve -target 'aws_route53_record.app'
+      #   working-directory: ./terraform/environment

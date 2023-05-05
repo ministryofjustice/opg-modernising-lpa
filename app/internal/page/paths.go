@@ -7,19 +7,20 @@ import (
 )
 
 type AttorneyPaths struct {
-	Start                string
-	Login                string
-	LoginCallback        string
-	EnterReferenceNumber string
-	CodeOfConduct        string
-	TaskList             string
-	CheckYourName        string
-	DateOfBirth          string
-	ReadTheLpa           string
-	Sign                 string
-	// TODO: remove once the attorney flow is complete, this is just to simplify
-	// development
-	NextPage string
+	Start                     string
+	Login                     string
+	LoginCallback             string
+	EnterReferenceNumber      string
+	CodeOfConduct             string
+	TaskList                  string
+	CheckYourName             string
+	DateOfBirth               string
+	MobileNumber              string
+	YourAddress               string
+	ReadTheLpa                string
+	RightsAndResponsibilities string
+	Sign                      string
+	WhatHappensNext           string
 }
 
 type AppPaths struct {
@@ -135,17 +136,20 @@ var Paths = AppPaths{
 	AreYouHappyIfRemainingAttorneysCanContinueToAct:            "/are-you-happy-if-remaining-attorneys-can-continue-to-act",
 	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct: "/are-you-happy-if-remaining-replacement-attorneys-can-continue-to-act",
 	Attorney: AttorneyPaths{
-		Start:                "/attorney-start",
-		Login:                "/attorney-login",
-		LoginCallback:        "/attorney-login-callback",
-		TaskList:             "/attorney-task-list",
-		EnterReferenceNumber: "/attorney-enter-reference-number",
-		CodeOfConduct:        "/attorney-code-of-conduct",
-		CheckYourName:        "/attorney-check-your-name",
-		DateOfBirth:          "/attorney-date-of-birth",
-		ReadTheLpa:           "/attorney-read-the-lpa",
-		Sign:                 "/attorney-sign",
-		NextPage:             "/attorney-next-page",
+		Start:                     "/attorney-start",
+		Login:                     "/attorney-login",
+		LoginCallback:             "/attorney-login-callback",
+		TaskList:                  "/attorney-task-list",
+		EnterReferenceNumber:      "/attorney-enter-reference-number",
+		CodeOfConduct:             "/attorney-code-of-conduct",
+		CheckYourName:             "/attorney-check-your-name",
+		DateOfBirth:               "/attorney-date-of-birth",
+		MobileNumber:              "/attorney-mobile-number",
+		YourAddress:               "/attorney-your-address",
+		ReadTheLpa:                "/attorney-read-the-lpa",
+		RightsAndResponsibilities: "/attorney-legal-rights-and-responsibilities",
+		Sign:                      "/attorney-sign",
+		WhatHappensNext:           "/attorney-what-happens-next",
 	},
 	AuthRedirect:                                            "/auth/redirect",
 	CertificateProvided:                                     "/certificate-provided",
@@ -251,17 +255,20 @@ func IsLpaPath(url string) bool {
 
 	return !slices.Contains([]string{
 		Paths.YotiRedirect,
+		Paths.Attorney.YourAddress,
 		Paths.Attorney.CheckYourName,
 		Paths.Attorney.CodeOfConduct,
 		Paths.Attorney.DateOfBirth,
 		Paths.Attorney.EnterReferenceNumber,
 		Paths.Attorney.Login,
 		Paths.Attorney.LoginCallback,
-		Paths.Attorney.NextPage,
+		Paths.Attorney.MobileNumber,
 		Paths.Attorney.ReadTheLpa,
+		Paths.Attorney.RightsAndResponsibilities,
 		Paths.Attorney.Sign,
 		Paths.Attorney.Start,
 		Paths.Attorney.TaskList,
+		Paths.Attorney.WhatHappensNext,
 		Paths.AuthRedirect,
 		Paths.CertificateProvided,
 		Paths.CertificateProviderCheckYourName,

@@ -75,11 +75,22 @@ func (l *List) Options(name, label string, value []string, checks ...OptionsChec
 	}
 }
 
-type SelectedCheck struct{}
+type SelectedCheck struct {
+	useCustomError bool
+}
+
+func (c SelectedCheck) CustomError() SelectedCheck {
+	c.useCustomError = true
+	return c
+}
 
 func (c SelectedCheck) CheckBool(label string, value bool) FormattableError {
 	if !value {
-		return SelectError{Label: label}
+		if c.useCustomError {
+			return CustomError{Label: label}
+		} else {
+			return SelectError{Label: label}
+		}
 	}
 
 	return nil
@@ -87,7 +98,11 @@ func (c SelectedCheck) CheckBool(label string, value bool) FormattableError {
 
 func (c SelectedCheck) CheckOptions(label string, value []string) FormattableError {
 	if len(value) == 0 {
-		return SelectError{Label: label}
+		if c.useCustomError {
+			return CustomError{Label: label}
+		} else {
+			return SelectError{Label: label}
+		}
 	}
 
 	return nil
@@ -95,7 +110,11 @@ func (c SelectedCheck) CheckOptions(label string, value []string) FormattableErr
 
 func (c SelectedCheck) CheckAddress(label string, value *place.Address) FormattableError {
 	if value == nil {
-		return SelectError{Label: label}
+		if c.useCustomError {
+			return CustomError{Label: label}
+		} else {
+			return SelectError{Label: label}
+		}
 	}
 
 	return nil
@@ -106,12 +125,22 @@ func Selected() SelectedCheck {
 }
 
 type SelectCheck struct {
-	in []string
+	in             []string
+	useCustomError bool
+}
+
+func (c SelectCheck) CustomError() SelectCheck {
+	c.useCustomError = true
+	return c
 }
 
 func (c SelectCheck) CheckString(label string, value string) FormattableError {
 	if !slices.Contains(c.in, value) {
-		return SelectError{Label: label}
+		if c.useCustomError {
+			return CustomError{Label: label}
+		} else {
+			return SelectError{Label: label}
+		}
 	}
 
 	return nil
@@ -120,7 +149,11 @@ func (c SelectCheck) CheckString(label string, value string) FormattableError {
 func (c SelectCheck) CheckOptions(label string, value []string) FormattableError {
 	for _, v := range value {
 		if !slices.Contains(c.in, v) {
-			return SelectError{Label: label}
+			if c.useCustomError {
+				return CustomError{Label: label}
+			} else {
+				return SelectError{Label: label}
+			}
 		}
 	}
 
@@ -182,7 +215,7 @@ var MobileRegex = regexp.MustCompile(`^(?:07|\+?447)\d{9}$`)
 type MobileCheck struct{}
 
 func (c MobileCheck) CheckString(label, value string) FormattableError {
-	if !MobileRegex.MatchString(value) {
+	if value != "" && !MobileRegex.MatchString(value) {
 		return MobileError{Label: label}
 	}
 

@@ -484,7 +484,7 @@ func TestValidateCheckYourNameForm(t *testing.T) {
 		},
 		"missing values": {
 			form:   checkYourNameForm{},
-			errors: validation.With("is-name-correct", validation.SelectError{Label: "yesIfTheNameIsCorrect"}),
+			errors: validation.With("is-name-correct", validation.CustomError{Label: "confirmIfTheNameIsCorrect"}),
 		},
 	}
 

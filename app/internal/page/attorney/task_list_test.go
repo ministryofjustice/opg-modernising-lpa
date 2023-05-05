@@ -14,30 +14,72 @@ import (
 )
 
 func TestGetTaskList(t *testing.T) {
+	certificateProviderAgreed := func(t *testing.T, r *http.Request) *mockCertificateProviderStore {
+		certificateProviderStore := newMockCertificateProviderStore(t)
+		certificateProviderStore.
+			On("Get", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
+			Return(&actor.CertificateProvider{
+				Certificate: actor.Certificate{Agreed: time.Now()},
+			}, nil)
+
+		return certificateProviderStore
+	}
+
 	testCases := map[string]struct {
-		lpa                 *page.Lpa
-		certificateProvider *actor.CertificateProvider
-		appData             page.AppData
-		expected            func([]taskListItem) []taskListItem
+		lpa                      *page.Lpa
+		certificateProviderStore func(t *testing.T, r *http.Request) *mockCertificateProviderStore
+		appData                  page.AppData
+		expected                 func([]taskListItem) []taskListItem
 	}{
 		"empty": {
-			lpa:                 &page.Lpa{ID: "lpa-id"},
-			certificateProvider: &actor.CertificateProvider{},
-			appData:             testAppData,
+			lpa: &page.Lpa{ID: "lpa-id"},
+			certificateProviderStore: func(t *testing.T, r *http.Request) *mockCertificateProviderStore {
+				return nil
+			},
+			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				return items
 			},
 		},
-		"donor and certificate provider signed": {
+		"tasks completed not signed": {
 			lpa: &page.Lpa{
 				ID:        "lpa-id",
 				Submitted: time.Now(),
+				AttorneyTasks: map[string]page.AttorneyTasks{
+					"attorney-id": {
+						ReadTheLpa: page.TaskCompleted,
+					},
+				},
 			},
-			certificateProvider: &actor.CertificateProvider{
-				Certificate: actor.Certificate{Agreed: time.Now()},
+			certificateProviderStore: func(t *testing.T, r *http.Request) *mockCertificateProviderStore {
+				certificateProviderStore := newMockCertificateProviderStore(t)
+				certificateProviderStore.
+					On("Get", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
+					Return(&actor.CertificateProvider{}, nil)
+
+				return certificateProviderStore
 			},
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
+				items[1].State = page.TaskCompleted
+
+				return items
+			},
+		},
+		"tasks completed and signed": {
+			lpa: &page.Lpa{
+				ID:        "lpa-id",
+				Submitted: time.Now(),
+				AttorneyTasks: map[string]page.AttorneyTasks{
+					"attorney-id": {
+						ReadTheLpa: page.TaskCompleted,
+					},
+				},
+			},
+			certificateProviderStore: certificateProviderAgreed,
+			appData:                  testAppData,
+			expected: func(items []taskListItem) []taskListItem {
+				items[1].State = page.TaskCompleted
 				items[2].Path = page.Paths.Attorney.Sign
 
 				return items
@@ -55,10 +97,8 @@ func TestGetTaskList(t *testing.T) {
 					},
 				},
 			},
-			certificateProvider: &actor.CertificateProvider{
-				Certificate: actor.Certificate{Agreed: time.Now()},
-			},
-			appData: testAppData,
+			certificateProviderStore: certificateProviderAgreed,
+			appData:                  testAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = page.TaskCompleted
 				items[1].State = page.TaskCompleted
@@ -80,10 +120,8 @@ func TestGetTaskList(t *testing.T) {
 					},
 				},
 			},
-			certificateProvider: &actor.CertificateProvider{
-				Certificate: actor.Certificate{Agreed: time.Now()},
-			},
-			appData: testReplacementAppData,
+			certificateProviderStore: certificateProviderAgreed,
+			appData:                  testReplacementAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = page.TaskCompleted
 				items[1].State = page.TaskCompleted
@@ -105,11 +143,6 @@ func TestGetTaskList(t *testing.T) {
 				On("Get", r.Context()).
 				Return(tc.lpa, nil)
 
-			certificateProviderStore := newMockCertificateProviderStore(t)
-			certificateProviderStore.
-				On("Get", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
-				Return(tc.certificateProvider, nil)
-
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &taskListData{
@@ -123,7 +156,7 @@ func TestGetTaskList(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := TaskList(template.Execute, lpaStore, certificateProviderStore)(tc.appData, w, r)
+			err := TaskList(template.Execute, lpaStore, tc.certificateProviderStore(t, r))(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -153,7 +186,14 @@ func TestGetTaskListWhenCertificateProviderStoreErrors(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
+		Return(&page.Lpa{
+			ID: "lpa-id",
+			AttorneyTasks: map[string]page.AttorneyTasks{
+				"attorney-id": {
+					ReadTheLpa: page.TaskCompleted,
+				},
+			},
+		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -172,7 +212,14 @@ func TestGetTaskListWhenCertificateProviderNotFound(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
+		Return(&page.Lpa{
+			ID: "lpa-id",
+			AttorneyTasks: map[string]page.AttorneyTasks{
+				"attorney-id": {
+					ReadTheLpa: page.TaskCompleted,
+				},
+			},
+		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -200,17 +247,12 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{ID: "lpa-id"}, nil)
 
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
-		Return(&actor.CertificateProvider{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := TaskList(template.Execute, lpaStore, certificateProviderStore)(testAppData, w, r)
+	err := TaskList(template.Execute, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
