@@ -686,6 +686,7 @@
 
     "beAnAttorneyContent": "<p class=\"govuk-body\">Welsh</p>",
     "becomeAnAttorney": "Welsh",
+    "becomeAReplacementAttorney": "Welsh",
     "readAndSignTheLpa": "Welsh",
     "confirmYourDetails": "Welsh",
     "readTheLpa": "Welsh",
@@ -708,5 +709,11 @@
     "youCanChooseToTellUsYourMobileNumber": "Welsh",
 
     "attorneyRightsAndResponsibilitiesTitle": "Welsh",
-    "attorneyRightsAndResponsibilitiesContent": "<p class=\"govuk-body-l\">Welsh</p> <h2 class=\"govuk-heading-m\">Welsh</h2> <p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"#\">Welsh</a>:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> </ul> <h2 class=\"govuk-heading-m\">Welsh</h2> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> </ul>"
+    "attorneyRightsAndResponsibilitiesContent": "<p class=\"govuk-body-l\">Welsh</p> <h2 class=\"govuk-heading-m\">Welsh</h2> <p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"#\">Welsh</a>:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> </ul> <h2 class=\"govuk-heading-m\">Welsh</h2> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> </ul>",
+    
+    "youveFormallyAgreedToBeAttorney": "Welsh",
+    "youveFormallyAgreedToBeReplacementAttorney": "Welsh",
+    "youveFormallyAgreedToBeAttorneyContent": "<p class=\"govuk-body\">Welsh {{.DonorFullNamePossessive}}</p><p class=\"govuk-body\">Welsh</p>",
+    "youveFormallyAgreedToBeReplacementAttorneyContent": "<p class=\"govuk-body\">Welsh {{.DonorFullNamePossessive}}</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
+    "whatHappensNextContent": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh {{.DonorFirstNamesPossessive}}</p><p class=\"govuk-body\">Welsh <a href=\"#\" class=\"govuk-link\">Welsh</a>.</p>"
 }
