@@ -22,9 +22,6 @@ COPY --from=asset-env /app/web/static web/static
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go install github.com/cosmtrek/air@latest && go install github.com/go-delve/delve/cmd/dlv@latest
 
-EXPOSE 8080
-EXPOSE 2345
-
 ENTRYPOINT ["air"]
 
 FROM base as build-env
