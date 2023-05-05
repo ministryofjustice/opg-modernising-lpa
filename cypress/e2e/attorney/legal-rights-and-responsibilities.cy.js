@@ -6,6 +6,6 @@ describe('Legal rights and responsibilities', () => {
 
         cy.contains('Continue').click();
 
-        cy.url().should('contain', '/attorney-sign');
+        cy.url().should('contain', '/attorney-what-happens-when-you-sign');
     });
 });
