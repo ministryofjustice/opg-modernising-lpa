@@ -403,7 +403,7 @@ func TestPostSignOnValidationError(t *testing.T) {
 			App:      testAppData,
 			Form:     &signForm{},
 			Attorney: actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
-			Errors:   validation.With("confirm", validation.SelectError{Label: "placeholder"}),
+			Errors:   validation.With("confirm", validation.CustomError{Label: "youMustSelectTheBoxToSignAttorney"}),
 		}).
 		Return(nil)
 
@@ -427,23 +427,35 @@ func TestReadSignForm(t *testing.T) {
 
 func TestValidateSignForm(t *testing.T) {
 	testCases := map[string]struct {
-		form   signForm
-		errors validation.List
+		form          signForm
+		isReplacement bool
+		errors        validation.List
 	}{
-		"true": {
+		"true for attorney": {
 			form: signForm{
 				Confirm: true,
 			},
 		},
-		"false": {
+		"true for replacement attorney": {
+			form: signForm{
+				Confirm: true,
+			},
+			isReplacement: true,
+		},
+		"false for attorney": {
 			form:   signForm{},
-			errors: validation.With("confirm", validation.SelectError{Label: "placeholder"}),
+			errors: validation.With("confirm", validation.CustomError{Label: "youMustSelectTheBoxToSignAttorney"}),
+		},
+		"false for replacement attorney": {
+			form:          signForm{},
+			errors:        validation.With("confirm", validation.CustomError{Label: "youMustSelectTheBoxToSignReplacementAttorney"}),
+			isReplacement: true,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
+			assert.Equal(t, tc.errors, tc.form.Validate(tc.isReplacement))
 		})
 	}
 }
