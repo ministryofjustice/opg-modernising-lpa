@@ -365,7 +365,6 @@ func ChooseReplacementAttorneysState(lpa *Lpa) TaskState {
 	return TaskCompleted
 }
 
-// TODO update references in code from hw to pw and pfa to pa
-func (l *Lpa) IsPersonalWelfareLpa() bool {
+func (l *Lpa) IsHealthAndWelfareLpa() bool {
 	return l.Type == LpaTypeHealthWelfare
 }

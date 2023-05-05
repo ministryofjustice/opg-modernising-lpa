@@ -718,6 +718,6 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 }
 
 func TestIsPersonalWelfare(t *testing.T) {
-	assert.True(t, (&Lpa{Type: LpaTypeHealthWelfare}).IsPersonalWelfareLpa())
-	assert.False(t, (&Lpa{Type: LpaTypePropertyFinance}).IsPersonalWelfareLpa())
+	assert.True(t, (&Lpa{Type: LpaTypeHealthWelfare}).IsHealthAndWelfareLpa())
+	assert.False(t, (&Lpa{Type: LpaTypePropertyFinance}).IsHealthAndWelfareLpa())
 }
