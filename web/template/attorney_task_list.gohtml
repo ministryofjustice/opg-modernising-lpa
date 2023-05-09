@@ -1,12 +1,22 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "becomeAnAttorney" }}{{ end }}
+{{ define "pageTitle" }}
+  {{ if .App.IsReplacementAttorney }}
+    {{ tr .App "becomeAReplacementAttorney" }}
+  {{ else }}
+    {{ tr .App "becomeAnAttorney" }}
+  {{ end }}
+{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">
-        {{ tr .App "becomeAnAttorney" }}
+        {{ if .App.IsReplacementAttorney }}
+          {{ tr .App "becomeAReplacementAttorney" }}
+        {{ else }}
+          {{ tr .App "becomeAnAttorney" }}
+        {{ end }}
       </h1>
 
       <ol class="app-task-list govuk-!-margin-top-0" style="position: relative;">
