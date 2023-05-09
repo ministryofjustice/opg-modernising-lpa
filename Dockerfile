@@ -1,6 +1,6 @@
 FROM golang:1.20 as base
 
-ARG ARCH=arm64
+ARG ARCH=amd64
 
 WORKDIR /app
 
@@ -33,7 +33,7 @@ COPY app/go.mod app/go.sum ./
 RUN go mod download
 
 COPY /app .
-RUN go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab
 
 FROM alpine:3.17.3 as production
 

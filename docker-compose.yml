@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        ARCH: ${ARCH:-arm64}
+        ARCH: ${ARCH:-amd64}
     container_name: app
     depends_on:
       - localstack
