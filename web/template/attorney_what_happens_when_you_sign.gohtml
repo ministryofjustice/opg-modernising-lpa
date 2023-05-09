@@ -7,7 +7,7 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "whatHappensWhenYouSignTheLpaTitle" }}</h1>
 
-            {{ $donorFullNamePossessive := .App.Localizer.Possessive .Lpa.Donor.FullName }}
+            {{ $donorFullNamePossessive := possessive .App .Lpa.Donor.FullName }}
 
             {{ if .Lpa.IsHealthAndWelfareLpa }}
 
