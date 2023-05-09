@@ -3,12 +3,6 @@ resource "aws_s3_bucket" "access_log" {
   bucket   = "${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-lb-access-logs-${data.aws_region.current.name}"
 }
 
-resource "aws_s3_bucket_acl" "access_log" {
-  provider = aws.region
-  bucket   = aws_s3_bucket.access_log.id
-  acl      = "private"
-}
-
 resource "aws_s3_bucket_server_side_encryption_configuration" "access_log" {
   provider = aws.region
   bucket   = aws_s3_bucket.access_log.id
@@ -79,7 +73,7 @@ data "aws_iam_policy_document" "access_log" {
     resources = [
       aws_s3_bucket.access_log.arn,
       "${aws_s3_bucket.access_log.arn}/*",
-      "${aws_s3_bucket.access_log.arn}/*/AWSLogs/your-aws-account-id/*",
+      "${aws_s3_bucket.access_log.arn}/*/AWSLogs/${data.aws_caller_identity.current.account_id}/*",
     ]
     effect  = "Allow"
     actions = ["s3:PutObject"]
