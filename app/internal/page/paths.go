@@ -19,6 +19,7 @@ type AttorneyPaths struct {
 	YourAddress               string
 	ReadTheLpa                string
 	RightsAndResponsibilities string
+	WhatHappensWhenYouSign    string
 	Sign                      string
 	WhatHappensNext           string
 }
@@ -148,6 +149,7 @@ var Paths = AppPaths{
 		YourAddress:               "/attorney-your-address",
 		ReadTheLpa:                "/attorney-read-the-lpa",
 		RightsAndResponsibilities: "/attorney-legal-rights-and-responsibilities",
+		WhatHappensWhenYouSign:    "/attorney-what-happens-when-you-sign-the-lpa",
 		Sign:                      "/attorney-sign",
 		WhatHappensNext:           "/attorney-what-happens-next",
 	},
@@ -268,6 +270,8 @@ func IsLpaPath(url string) bool {
 		Paths.Attorney.Sign,
 		Paths.Attorney.Start,
 		Paths.Attorney.TaskList,
+		Paths.Attorney.WhatHappensWhenYouSign,
+		Paths.Attorney.RightsAndResponsibilities,
 		Paths.Attorney.WhatHappensNext,
 		Paths.AuthRedirect,
 		Paths.CertificateProvided,
