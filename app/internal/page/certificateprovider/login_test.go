@@ -15,7 +15,7 @@ import (
 
 func TestCertificateProviderLogin(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?sessionId=session-id&lpaId=lpa-id", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	client := newMockOneLoginClient(t)
 	client.
@@ -24,16 +24,28 @@ func TestCertificateProviderLogin(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 
-	session := sessions.NewSession(sessionStore, "params")
+	shareCodeSession := sessions.NewSession(sessionStore, "shareCode")
+	shareCodeSession.Values = map[any]any{
+		"share-code": &sesh.ShareCodeSession{
+			Identity: true,
+			LpaID:    "lpa-id",
+		},
+	}
 
-	session.Options = &sessions.Options{
+	sessionStore.
+		On("Get", r, "shareCode").
+		Return(shareCodeSession, nil)
+
+	loginSession := sessions.NewSession(sessionStore, "params")
+
+	loginSession.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   600,
 		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 		Secure:   true,
 	}
-	session.Values = map[any]any{
+	loginSession.Values = map[any]any{
 		"one-login": &sesh.OneLoginSession{
 			State:               "i am random",
 			Nonce:               "i am random",
@@ -45,19 +57,20 @@ func TestCertificateProviderLogin(t *testing.T) {
 	}
 
 	sessionStore.
-		On("Save", r, w, session).
+		On("Save", r, w, loginSession).
 		Return(nil)
 
-	Login(nil, client, sessionStore, func(int) string { return "i am random" })(page.AppData{Lang: localize.Cy, Paths: page.Paths}, w, r)
+	err := Login(nil, client, sessionStore, func(int) string { return "i am random" })(page.AppData{Lang: localize.Cy, Paths: page.Paths}, w, r)
 	resp := w.Result()
 
+	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "http://auth", resp.Header.Get("Location"))
 }
 
 func TestCertificateProviderLoginDefaultLocale(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?sessionId=session-id&lpaId=lpa-id&identity=1", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	client := newMockOneLoginClient(t)
 	client.
@@ -66,16 +79,28 @@ func TestCertificateProviderLoginDefaultLocale(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 
-	session := sessions.NewSession(sessionStore, "params")
+	shareCodeSession := sessions.NewSession(sessionStore, "shareCode")
+	shareCodeSession.Values = map[any]any{
+		"share-code": &sesh.ShareCodeSession{
+			Identity: true,
+			LpaID:    "lpa-id",
+		},
+	}
 
-	session.Options = &sessions.Options{
+	sessionStore.
+		On("Get", r, "shareCode").
+		Return(shareCodeSession, nil)
+
+	loginSession := sessions.NewSession(sessionStore, "params")
+
+	loginSession.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   600,
 		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 		Secure:   true,
 	}
-	session.Values = map[any]any{
+	loginSession.Values = map[any]any{
 		"one-login": &sesh.OneLoginSession{
 			State:               "i am random",
 			Nonce:               "i am random",
@@ -87,14 +112,35 @@ func TestCertificateProviderLoginDefaultLocale(t *testing.T) {
 	}
 
 	sessionStore.
-		On("Save", r, w, session).
+		On("Save", r, w, loginSession).
 		Return(nil)
 
-	Login(nil, client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r)
+	err := Login(nil, client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r)
 	resp := w.Result()
 
+	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "http://auth", resp.Header.Get("Location"))
+}
+
+func TestCertificateProviderLoginWhenStoreGetError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	logger := newMockLogger(t)
+	logger.
+		On("Print", expectedError)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "shareCode").
+		Return(sessions.NewSession(sessionStore, "shareCode"), expectedError)
+
+	err := Login(logger, nil, sessionStore, func(int) string { return "i am random" })(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestCertificateProviderLoginWhenStoreSaveError(t *testing.T) {
@@ -111,12 +157,26 @@ func TestCertificateProviderLoginWhenStoreSaveError(t *testing.T) {
 		Return("http://auth?locale=en")
 
 	sessionStore := newMockSessionStore(t)
+
+	shareCodeSession := sessions.NewSession(sessionStore, "shareCode")
+	shareCodeSession.Values = map[any]any{
+		"share-code": &sesh.ShareCodeSession{
+			Identity: true,
+			LpaID:    "lpa-id",
+		},
+	}
+
+	sessionStore.
+		On("Get", r, "shareCode").
+		Return(shareCodeSession, nil)
+
 	sessionStore.
 		On("Save", r, w, mock.Anything).
 		Return(expectedError)
 
-	Login(logger, client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r)
+	err := Login(logger, client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r)
 	resp := w.Result()
 
+	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }

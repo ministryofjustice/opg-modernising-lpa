@@ -8,11 +8,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -1481,6 +1483,47 @@ func TestTestingStart(t *testing.T) {
 			Return(&Lpa{ID: "123"}, nil)
 		lpaStore.
 			On("Put", ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"}), &Lpa{ID: "123", Submitted: now}).
+			Return(nil)
+
+		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil, func() time.Time { return now }).ServeHTTP(w, r)
+		resp := w.Result()
+
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/attorney-start", resp.Header.Get("Location"))
+	})
+
+	t.Run("signed by donor", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/?withShareCodeSession=1&redirect=/attorney-start", nil)
+		now := time.Now()
+
+		sessionStore := newMockSessionStore(t)
+
+		session := sessions.NewSession(sessionStore, "shareCode")
+
+		session.Options = &sessions.Options{
+			Path:     "/",
+			MaxAge:   86400,
+			SameSite: http.SameSiteLaxMode,
+			HttpOnly: true,
+			Secure:   true,
+		}
+		session.Values = map[any]any{"share-code": &sesh.ShareCodeSession{LpaID: "123", Identity: false}}
+
+		sessionStore.
+			On("Save", r, w, mock.Anything).
+			Return(nil)
+
+		sessionStore.
+			On("Save", r, w, session).
+			Return(nil)
+
+		lpaStore := newMockLpaStore(t)
+		lpaStore.
+			On("Create", ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})).
+			Return(&Lpa{ID: "123"}, nil)
+		lpaStore.
+			On("Put", ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"}), &Lpa{ID: "123"}).
 			Return(nil)
 
 		TestingStart(sessionStore, lpaStore, MockRandom, nil, nil, nil, nil, func() time.Time { return now }).ServeHTTP(w, r)

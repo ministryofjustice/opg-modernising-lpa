@@ -18,7 +18,11 @@ func Login(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, rando
 		state := randomString(12)
 		nonce := randomString(12)
 
-		lpaID := r.FormValue("lpaId")
+		sc, err := sesh.ShareCode(store, r)
+		if err != nil {
+			logger.Print(err)
+			return nil
+		}
 
 		authCodeURL := oneLoginClient.AuthCodeURL(state, nonce, locale, false)
 
@@ -28,7 +32,7 @@ func Login(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, rando
 			Locale:              locale,
 			CertificateProvider: true,
 			Identity:            false,
-			LpaID:               lpaID,
+			LpaID:               sc.LpaID,
 		}); err != nil {
 			logger.Print(err)
 			return nil
