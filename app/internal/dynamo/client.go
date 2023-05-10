@@ -75,7 +75,7 @@ func (c *Client) GetAllByGsi(ctx context.Context, gsi, sk string, v interface{})
 	}
 
 	if len(response.Items) == 0 {
-		return NotFoundError{}
+		return nil
 	}
 
 	var items []types.AttributeValue
