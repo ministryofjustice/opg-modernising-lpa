@@ -34,6 +34,7 @@ require (
 require (
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.20.9 // indirect
 	github.com/brunoscheufler/aws-ecs-metadata-go v0.0.0-20220812150832-b6b31c6eeeaf // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"errors"
-	"strconv"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -11,14 +10,14 @@ import (
 )
 
 type lpaStore struct {
-	dataStore DataStore
-	randomInt func(int) int
-	now       func() time.Time
+	dataStore  DataStore
+	uuidString func() string
+	now        func() time.Time
 }
 
 func (s *lpaStore) Create(ctx context.Context) (*page.Lpa, error) {
 	lpa := &page.Lpa{
-		ID:        "10" + strconv.Itoa(s.randomInt(100000)),
+		ID:        s.uuidString(),
 		UpdatedAt: s.now(),
 	}
 

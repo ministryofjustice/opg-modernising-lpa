@@ -3,10 +3,10 @@ package app
 import (
 	"context"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -50,7 +50,7 @@ func App(
 	paths page.AppPaths,
 	oneLoginClient *onelogin.Client,
 ) http.Handler {
-	lpaStore := &lpaStore{dataStore: dataStore, randomInt: rand.Intn, now: time.Now}
+	lpaStore := &lpaStore{dataStore: dataStore, uuidString: uuid.NewString, now: time.Now}
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: time.Now}
 
 	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)

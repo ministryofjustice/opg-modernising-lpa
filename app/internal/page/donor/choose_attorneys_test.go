@@ -36,7 +36,7 @@ func TestGetChooseAttorneys(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneys(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChooseAttorneys(template.Execute, lpaStore, mockUuidString)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -52,7 +52,7 @@ func TestGetChooseAttorneysWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := ChooseAttorneys(nil, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChooseAttorneys(nil, lpaStore, mockUuidString)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -74,7 +74,7 @@ func TestGetChooseAttorneysFromStore(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	err := ChooseAttorneys(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChooseAttorneys(template.Execute, lpaStore, mockUuidString)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -100,7 +100,7 @@ func TestGetChooseAttorneysWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ChooseAttorneys(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChooseAttorneys(template.Execute, lpaStore, mockUuidString)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -195,7 +195,7 @@ func TestPostChooseAttorneysAttorneyDoesNotExist(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChooseAttorneys(nil, lpaStore, mockRandom)(testAppData, w, r)
+			err := ChooseAttorneys(nil, lpaStore, mockUuidString)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -297,7 +297,7 @@ func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChooseAttorneys(nil, lpaStore, mockRandom)(testAppData, w, r)
+			err := ChooseAttorneys(nil, lpaStore, mockUuidString)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -365,7 +365,7 @@ func TestPostChooseAttorneysFromAnotherPage(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChooseAttorneys(nil, lpaStore, mockRandom)(testAppData, w, r)
+			err := ChooseAttorneys(nil, lpaStore, mockUuidString)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -507,7 +507,7 @@ func TestPostChooseAttorneysWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := ChooseAttorneys(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
+			err := ChooseAttorneys(template.Execute, lpaStore, mockUuidString)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -538,7 +538,7 @@ func TestPostChooseAttorneysWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ChooseAttorneys(nil, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChooseAttorneys(nil, lpaStore, mockUuidString)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }

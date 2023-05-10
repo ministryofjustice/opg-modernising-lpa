@@ -32,7 +32,7 @@ func TestGetChoosePeopleToNotify(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotify(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChoosePeopleToNotify(template.Execute, lpaStore, mockUuidString)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -48,7 +48,7 @@ func TestGetChoosePeopleToNotifyWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChoosePeopleToNotify(nil, lpaStore, mockUuidString)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -76,7 +76,7 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	err := ChoosePeopleToNotify(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChoosePeopleToNotify(template.Execute, lpaStore, mockUuidString)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -101,7 +101,7 @@ func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotify(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChoosePeopleToNotify(template.Execute, lpaStore, mockUuidString)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -155,7 +155,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 					PeopleToNotify: tc.addedPeople,
 				}, nil)
 
-			err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(testAppData, w, r)
+			err := ChoosePeopleToNotify(nil, lpaStore, mockUuidString)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -219,7 +219,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(testAppData, w, r)
+			err := ChoosePeopleToNotify(nil, lpaStore, mockUuidString)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -267,7 +267,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChoosePeopleToNotify(nil, lpaStore, mockUuidString)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -333,7 +333,7 @@ func TestPostChoosePeopleToNotifyFromAnotherPage(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(testAppData, w, r)
+			err := ChoosePeopleToNotify(nil, lpaStore, mockUuidString)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -414,7 +414,7 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := ChoosePeopleToNotify(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
+			err := ChoosePeopleToNotify(template.Execute, lpaStore, mockUuidString)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -442,7 +442,7 @@ func TestPostChoosePeopleToNotifyWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChoosePeopleToNotify(nil, lpaStore, mockUuidString)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
