@@ -11,6 +11,7 @@ resource "aws_kms_replica_key" "cloudwatch_replica" {
   description             = "${local.default_tags.application} Cloudwatch application logs Multi-Region replica key"
   deletion_window_in_days = 7
   primary_key_arn         = aws_kms_key.cloudwatch.arn
+  policy                  = local.account.account_name == "development" ? data.aws_iam_policy_document.cloudwatch_kms_merged.json : data.aws_iam_policy_document.cloudwatch_kms.json
   provider                = aws.eu_west_2
 }
 

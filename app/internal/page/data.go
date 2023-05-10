@@ -362,3 +362,7 @@ func ChooseReplacementAttorneysState(lpa *Lpa) TaskState {
 
 	return TaskCompleted
 }
+
+func (l *Lpa) IsHealthAndWelfareLpa() bool {
+	return l.Type == LpaTypeHealthWelfare
+}

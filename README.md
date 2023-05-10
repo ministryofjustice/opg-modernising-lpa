@@ -34,7 +34,37 @@ docker compose up -d
 ### Run Cypress tests
 
 ```shell
-make run-cypress-dc
+make run-cypress
+```
+
+### Local development
+
+To run the app in dev mode on arm64/apple silicon:
+
+```shell
+make app-up-build-dev
+```
+
+or the following for amd64/intel:
+
+```shell
+make app-up-build-dev-amd
+```
+
+Dev mode adds hot reloading via [air](https://github.com/cosmtrek/air) which will watch `.go` and `.gohtml` for changes and recompile the app.
+
+It also enables debugging via [delve](https://github.com/go-delve/delve). Delve runs on `localhost:2345` - add this to your editor/IDE debug config settings and then start adding breakpoints to step through the app code when running on localhost. Example VSCode config:
+
+```json
+{
+    "name": "Go remote debug",
+    "type": "go",
+    "request": "attach",
+    "mode": "remote",
+    "port": 2345,
+    "host": "127.0.0.1",
+    "trace": "verbose",
+}
 ```
 
 ## Licence
