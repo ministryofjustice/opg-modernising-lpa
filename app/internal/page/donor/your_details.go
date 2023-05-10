@@ -73,7 +73,9 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 				lpa.Donor.OtherNames = data.Form.OtherNames
 				lpa.Donor.DateOfBirth = data.Form.Dob
 				lpa.Donor.Email = donorSession.Email
-				lpa.Tasks.YourDetails = page.TaskInProgress
+				if !lpa.Tasks.YourDetails.Completed() {
+					lpa.Tasks.YourDetails = page.TaskInProgress
+				}
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err

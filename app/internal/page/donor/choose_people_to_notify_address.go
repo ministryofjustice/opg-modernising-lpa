@@ -58,13 +58,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 					return err
 				}
 
-				from := r.FormValue("from")
-
-				if from == "" {
-					from = appData.Paths.ChoosePeopleToNotifySummary
-				}
-
-				return appData.Redirect(w, r, lpa, from)
+				return appData.Redirect(w, r, lpa, appData.Paths.ChoosePeopleToNotifySummary)
 			}
 
 			// Force the manual address view after selecting
