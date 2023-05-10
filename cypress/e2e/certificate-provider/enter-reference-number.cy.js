@@ -9,13 +9,7 @@ describe('Enter reference number', () => {
         cy.get('#f-reference-number').type('abcdef123456');
         cy.contains('Continue').click();
 
-        if (Cypress.config().baseUrl.includes('localhost')) {
-            cy.url().should('contain', '/certificate-provider-who-is-eligible')
-        } else {
-            cy.origin('https://signin.integration.account.gov.uk', () => {
-                cy.url().should('contain', '/')
-            })
-        }
+        cy.url().should('contain', '/certificate-provider-who-is-eligible')
     });
 
     it('errors when empty number', () => {

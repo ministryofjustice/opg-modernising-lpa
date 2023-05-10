@@ -3,11 +3,12 @@ package certificateprovider
 import (
 	"errors"
 	"net/http"
-	"net/url"
 
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -18,7 +19,7 @@ type enterReferenceNumberData struct {
 	Lpa    *page.Lpa
 }
 
-func EnterReferenceNumber(tmpl template.Template, dataStore page.DataStore) page.Handler {
+func EnterReferenceNumber(tmpl template.Template, dataStore page.DataStore, sessionStore sessions.Store) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := enterReferenceNumberData{
 			App:  appData,
@@ -32,8 +33,8 @@ func EnterReferenceNumber(tmpl template.Template, dataStore page.DataStore) page
 			if len(data.Errors) == 0 {
 				referenceNumber := data.Form.ReferenceNumber
 
-				var v page.ShareCodeData
-				if err := dataStore.Get(r.Context(), "CERTIFICATEPROVIDERSHARE#"+referenceNumber, "#METADATA#"+referenceNumber, &v); err != nil {
+				var scd page.ShareCodeData
+				if err := dataStore.Get(r.Context(), "CERTIFICATEPROVIDERSHARE#"+referenceNumber, "#METADATA#"+referenceNumber, &scd); err != nil {
 					if errors.Is(err, dynamo.NotFoundError{}) {
 						data.Errors.Add("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"})
 						return tmpl(w, data)
@@ -42,14 +43,11 @@ func EnterReferenceNumber(tmpl template.Template, dataStore page.DataStore) page
 					}
 				}
 
-				query := url.Values{
-					"lpaId": {v.LpaID},
-				}
-				if v.Identity {
-					query.Add("identity", "1")
+				if err := sesh.SetShareCode(sessionStore, r, w, &sesh.ShareCodeSession{LpaID: scd.LpaID, Identity: scd.Identity}); err != nil {
+					return err
 				}
 
-				appData.Redirect(w, r, nil, page.Paths.CertificateProviderLogin+"?"+query.Encode())
+				appData.Redirect(w, r, nil, page.Paths.CertificateProviderWhoIsEligible)
 				return nil
 			}
 		}
