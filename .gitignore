@@ -30,3 +30,6 @@ multi-reporter-config.json
 /runner-results
 /web/static/*
 **tmp/*
+.idea/*
+/app/tmp/*
+/app/.air.toml
