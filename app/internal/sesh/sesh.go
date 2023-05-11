@@ -313,8 +313,10 @@ func ClearPayment(store Store, r *http.Request, w http.ResponseWriter) error {
 }
 
 type ShareCodeSession struct {
-	LpaID    string
-	Identity bool
+	LpaID           string
+	Identity        bool
+	DonorFullName   string
+	DonorFirstNames string
 }
 
 func (s ShareCodeSession) Valid() bool {

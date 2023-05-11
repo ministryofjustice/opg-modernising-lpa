@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/gorilla/sessions"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
 )
@@ -19,8 +18,10 @@ func TestWhoIsEligible(t *testing.T) {
 	shareCodeSession := sessions.NewSession(sessionStore, "shareCode")
 	shareCodeSession.Values = map[any]any{
 		"share-code": &sesh.ShareCodeSession{
-			Identity: true,
-			LpaID:    "lpa-id",
+			Identity:        true,
+			LpaID:           "lpa-id",
+			DonorFullName:   "Full name",
+			DonorFirstNames: "Full",
 		},
 	}
 
@@ -28,20 +29,16 @@ func TestWhoIsEligible(t *testing.T) {
 		On("Get", r, "shareCode").
 		Return(shareCodeSession, nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, whoIsEligibleData{
-			Lpa: &page.Lpa{ID: "lpa-id"},
-			App: testAppData,
+			DonorFullName:   "Full name",
+			DonorFirstNames: "Full",
+			App:             testAppData,
 		}).
 		Return(nil)
 
-	err := WhoIsEligible(template.Execute, lpaStore, sessionStore)(testAppData, w, r)
+	err := WhoIsEligible(template.Execute, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -57,24 +54,25 @@ func TestWhoIsEligibleWhenSessionStoreError(t *testing.T) {
 		On("Get", r, "shareCode").
 		Return(&sessions.Session{}, expectedError)
 
-	err := WhoIsEligible(nil, nil, sessionStore)(testAppData, w, r)
+	err := WhoIsEligible(nil, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestWhoIsEligibleWhenLpaStoreError(t *testing.T) {
+func TestWhoIsEligibleOnTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	sessionStore := newMockSessionStore(t)
-
 	shareCodeSession := sessions.NewSession(sessionStore, "shareCode")
 	shareCodeSession.Values = map[any]any{
 		"share-code": &sesh.ShareCodeSession{
-			Identity: true,
-			LpaID:    "lpa-id",
+			Identity:        true,
+			LpaID:           "lpa-id",
+			DonorFullName:   "Full name",
+			DonorFirstNames: "Full",
 		},
 	}
 
@@ -82,12 +80,16 @@ func TestWhoIsEligibleWhenLpaStoreError(t *testing.T) {
 		On("Get", r, "shareCode").
 		Return(shareCodeSession, nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
-		Return(&page.Lpa{}, expectedError)
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, whoIsEligibleData{
+			DonorFullName:   "Full name",
+			DonorFirstNames: "Full",
+			App:             testAppData,
+		}).
+		Return(expectedError)
 
-	err := WhoIsEligible(nil, lpaStore, sessionStore)(testAppData, w, r)
+	err := WhoIsEligible(template.Execute, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

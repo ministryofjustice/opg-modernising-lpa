@@ -43,7 +43,12 @@ func EnterReferenceNumber(tmpl template.Template, dataStore page.DataStore, sess
 					}
 				}
 
-				if err := sesh.SetShareCode(sessionStore, r, w, &sesh.ShareCodeSession{LpaID: scd.LpaID, Identity: scd.Identity}); err != nil {
+				if err := sesh.SetShareCode(sessionStore, r, w, &sesh.ShareCodeSession{
+					LpaID:           scd.LpaID,
+					Identity:        scd.Identity,
+					DonorFullName:   scd.DonorFullname,
+					DonorFirstNames: scd.DonorFirstNames,
+				}); err != nil {
 					return err
 				}
 

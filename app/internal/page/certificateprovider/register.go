@@ -106,7 +106,7 @@ func Register(
 	handleRoot(page.Paths.CertificateProviderEnterReferenceNumber, None,
 		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), dataStore, sessionStore))
 	handleRoot(page.Paths.CertificateProviderWhoIsEligible, None,
-		WhoIsEligible(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), lpaStore, sessionStore))
+		WhoIsEligible(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), sessionStore))
 	handleRoot(page.Paths.CertificateProviderLogin, None,
 		Login(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.CertificateProviderLoginCallback, None,
