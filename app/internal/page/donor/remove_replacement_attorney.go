@@ -42,30 +42,23 @@ func RemoveReplacementAttorney(logger Logger, tmpl template.Template, lpaStore L
 			data.Form = readRemoveAttorneyForm(r, "yesToRemoveReplacementAttorney")
 			data.Errors = data.Form.Validate()
 
-			if data.Form.RemoveAttorney == "yes" && data.Errors.None() {
-				lpa.ReplacementAttorneys.Delete(attorney)
-				if len(lpa.ReplacementAttorneys) == 1 {
-					lpa.ReplacementAttorneyDecisions = actor.AttorneyDecisions{}
-				}
+			if data.Errors.None() {
+				if data.Form.RemoveAttorney == "yes" {
+					lpa.ReplacementAttorneys.Delete(attorney)
+					if len(lpa.ReplacementAttorneys) == 1 {
+						lpa.ReplacementAttorneyDecisions = actor.AttorneyDecisions{}
+					}
 
-				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
+					lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
-					logger.Print(fmt.Sprintf("error removing replacement Attorney from LPA: %s", err.Error()))
-					return err
-				}
-
-				if len(lpa.ReplacementAttorneys) == 0 {
-					return appData.Redirect(w, r, lpa, page.Paths.DoYouWantReplacementAttorneys)
+					if err := lpaStore.Put(r.Context(), lpa); err != nil {
+						logger.Print(fmt.Sprintf("error removing replacement Attorney from LPA: %s", err.Error()))
+						return err
+					}
 				}
 
 				return appData.Redirect(w, r, lpa, page.Paths.ChooseReplacementAttorneysSummary)
 			}
-
-			if data.Form.RemoveAttorney == "no" {
-				return appData.Redirect(w, r, lpa, page.Paths.ChooseReplacementAttorneysSummary)
-			}
-
 		}
 
 		return tmpl(w, data)
