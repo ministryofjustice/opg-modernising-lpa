@@ -167,20 +167,6 @@ func TestGetChooseAttorneysAddressWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostChooseAttorneysAddressSkip(t *testing.T) {
-	testcases := map[string]struct {
-		url      string
-		redirect string
-	}{
-		"normal flow": {
-			url:      "/?id=123",
-			redirect: page.Paths.ChooseAttorneysSummary,
-		},
-		"from": {
-			url:      "/?id=123&from=/blah",
-			redirect: "/blah",
-		},
-	}
-
 	f := url.Values{
 		"action":           {"skip"},
 		"address-line-1":   {"a"},
@@ -190,36 +176,32 @@ func TestPostChooseAttorneysAddressSkip(t *testing.T) {
 		"address-postcode": {"e"},
 	}
 
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, tc.url, strings.NewReader(f.Encode()))
-			r.Header.Add("Content-Type", page.FormUrlEncoded)
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{Attorneys: actor.Attorneys{{
-					ID:         "123",
-					FirstNames: "a",
-					Email:      "a",
-					Address:    place.Address{Line1: "abc"},
-				}}}, nil)
-			lpaStore.
-				On("Put", r.Context(), &page.Lpa{
-					Attorneys: actor.Attorneys{{ID: "123", FirstNames: "a", Email: "a"}},
-					Tasks:     page.Tasks{ChooseAttorneys: page.TaskCompleted},
-				}).
-				Return(nil)
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{Attorneys: actor.Attorneys{{
+			ID:         "123",
+			FirstNames: "a",
+			Email:      "a",
+			Address:    place.Address{Line1: "abc"},
+		}}}, nil)
+	lpaStore.
+		On("Put", r.Context(), &page.Lpa{
+			Attorneys: actor.Attorneys{{ID: "123", FirstNames: "a", Email: "a"}},
+			Tasks:     page.Tasks{ChooseAttorneys: page.TaskCompleted},
+		}).
+		Return(nil)
 
-			err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
-			resp := w.Result()
+	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+	resp := w.Result()
 
-			assert.Nil(t, err)
-			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+tc.redirect, resp.Header.Get("Location"))
-		})
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseAttorneysSummary, resp.Header.Get("Location"))
 }
 
 func TestPostChooseAttorneysAddressSkipWhenStoreErrors(t *testing.T) {

@@ -84,13 +84,7 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 					return err
 				}
 
-				from := r.FormValue("from")
-
-				if from == "" {
-					from = fmt.Sprintf("%s?id=%s", appData.Paths.ChoosePeopleToNotifyAddress, personToNotify.ID)
-				}
-
-				return appData.Redirect(w, r, lpa, from)
+				return appData.Redirect(w, r, lpa, fmt.Sprintf("%s?id=%s", appData.Paths.ChoosePeopleToNotifyAddress, personToNotify.ID))
 			}
 		}
 
