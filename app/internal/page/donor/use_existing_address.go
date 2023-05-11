@@ -38,7 +38,7 @@ func UseExistingAddress(tmpl template.Template, lpaStore LpaStore) page.Handler 
 		addresses := lpa.ActorAddresses()
 
 		if len(addresses) == 0 || (len(addresses) == 1 && addressDetailsContains(subject, addresses)) {
-			return appData.Redirect(w, r, lpa, r.FormValue("from"))
+			return appData.Redirect(w, r, lpa, r.FormValue("return"))
 		}
 
 		data := useExistingAddressData{

@@ -20,16 +20,18 @@ func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+	lpa := &page.Lpa{ReplacementAttorneys: actor.Attorneys{{}}}
+
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(lpa, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseReplacementAttorneysSummaryData{
 			App:  testAppData,
-			Lpa:  &page.Lpa{},
+			Lpa:  lpa,
 			Form: &chooseAttorneysSummaryForm{},
 		}).
 		Return(nil)
@@ -41,6 +43,23 @@ func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestGetChooseReplacementAttorneysSummaryWhenNoReplacementAttorneys(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{}, nil)
+
+	err := ChooseReplacementAttorneysSummary(nil, nil, lpaStore)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "/lpa/lpa-id"+page.Paths.DoYouWantReplacementAttorneys, resp.Header.Get("Location"))
+}
+
 func TestGetChooseReplacementAttorneySummaryWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
@@ -48,7 +67,7 @@ func TestGetChooseReplacementAttorneySummaryWhenStoreErrors(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
+		Return(&page.Lpa{ReplacementAttorneys: actor.Attorneys{{}}}, expectedError)
 
 	logger := newMockLogger(t)
 	logger.
@@ -74,7 +93,7 @@ func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ReplacementAttorneys: actor.Attorneys{}}, nil)
+		Return(&page.Lpa{ReplacementAttorneys: actor.Attorneys{{}}}, nil)
 
 	err := ChooseReplacementAttorneysSummary(nil, nil, lpaStore)(testAppData, w, r)
 	resp := w.Result()
@@ -195,7 +214,7 @@ func TestPostChooseReplacementAttorneySummaryFormValidation(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{ReplacementAttorneys: actor.Attorneys{{}}}, nil)
 
 	validationError := validation.With("add-attorney", validation.SelectError{Label: "yesToAddAnotherReplacementAttorney"})
 

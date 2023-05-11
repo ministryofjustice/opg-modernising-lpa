@@ -53,18 +53,37 @@ func TestAppDataRedirectWhenLpaRoute(t *testing.T) {
 
 func TestAppDataRedirectWhenCanGoTo(t *testing.T) {
 	testCases := map[string]struct {
+		url      string
 		lpa      *Lpa
 		expected string
 	}{
 		"nil": {
+			url:      "/",
 			lpa:      nil,
 			expected: Paths.HowToConfirmYourIdentityAndSign,
 		},
+		"nil and from": {
+			url:      "/?from=" + Paths.Restrictions,
+			lpa:      nil,
+			expected: Paths.Restrictions,
+		},
 		"allowed": {
+			url:      "/",
 			lpa:      &Lpa{Tasks: Tasks{PayForLpa: TaskCompleted}},
 			expected: Paths.HowToConfirmYourIdentityAndSign,
 		},
+		"allowed from": {
+			url:      "/?from=" + Paths.Restrictions,
+			lpa:      &Lpa{Tasks: Tasks{YourDetails: TaskCompleted, ChooseAttorneys: TaskCompleted}},
+			expected: Paths.Restrictions,
+		},
 		"not allowed": {
+			url:      "/",
+			lpa:      &Lpa{},
+			expected: Paths.TaskList,
+		},
+		"not allowed from": {
+			url:      "/?from=" + Paths.Restrictions,
 			lpa:      &Lpa{},
 			expected: Paths.TaskList,
 		},
@@ -72,7 +91,7 @@ func TestAppDataRedirectWhenCanGoTo(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			r, _ := http.NewRequest(http.MethodGet, "/", nil)
+			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 			w := httptest.NewRecorder()
 
 			AppData{Lang: localize.En, LpaID: "lpa-id"}.Redirect(w, r, tc.lpa, Paths.HowToConfirmYourIdentityAndSign)
