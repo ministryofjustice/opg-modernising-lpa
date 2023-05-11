@@ -194,6 +194,58 @@ func TestPostYourDetails(t *testing.T) {
 	}
 }
 
+func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
+	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
+
+	form := url.Values{
+		"first-names":         {"John"},
+		"last-name":           {"Doe"},
+		"date-of-birth-day":   {"2"},
+		"date-of-birth-month": {"1"},
+		"date-of-birth-year":  {validBirthYear},
+	}
+
+	w := httptest.NewRecorder()
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{
+			Donor: actor.Donor{
+				FirstNames: "John",
+				Address:    place.Address{Line1: "abc"},
+			},
+			Tasks: page.Tasks{YourDetails: page.TaskCompleted},
+		}, nil)
+	lpaStore.
+		On("Put", r.Context(), &page.Lpa{
+			Donor: actor.Donor{
+				FirstNames:  "John",
+				LastName:    "Doe",
+				DateOfBirth: date.New(validBirthYear, "1", "2"),
+				Address:     place.Address{Line1: "abc"},
+				Email:       "name@example.com",
+			},
+			Tasks: page.Tasks{YourDetails: page.TaskCompleted},
+		}).
+		Return(nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{"donor": &sesh.DonorSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
+
+	err := YourDetails(nil, lpaStore, sessionStore)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "/lpa/lpa-id"+page.Paths.YourAddress, resp.Header.Get("Location"))
+}
+
 func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 	testCases := map[string]struct {
 		form        url.Values

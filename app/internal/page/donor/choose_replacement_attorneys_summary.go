@@ -25,6 +25,10 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, lp
 			return err
 		}
 
+		if len(lpa.ReplacementAttorneys) == 0 {
+			return appData.Redirect(w, r, lpa, page.Paths.DoYouWantReplacementAttorneys)
+		}
+
 		data := &chooseReplacementAttorneysSummaryData{
 			App:  appData,
 			Lpa:  lpa,

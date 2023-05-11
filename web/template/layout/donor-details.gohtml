@@ -1,47 +1,70 @@
 {{ define "donor-details" }}
-    <dl class="govuk-summary-list">
+  {{ $canChange := and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
+
+  <dl class="govuk-summary-list">
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            {{ tr .App "name" }}
-        </dt>
+      <dt class="govuk-summary-list__key">
+        {{ tr .App "name" }}
+      </dt>
+      <dd class="govuk-summary-list__value">
+        {{ .Lpa.Donor.FirstNames }} {{ .Lpa.Donor.LastName }}
+      </dd>
+      {{ if .Lpa.DonorIdentityConfirmed }}
         <dd class="govuk-summary-list__value">
-            {{ .Lpa.Donor.FirstNames }} {{ .Lpa.Donor.LastName }}
+          <strong class="govuk-tag app-task-list__tag govuk-tag">{{ tr .App "idVerifiedTag" }}</strong>
         </dd>
-        {{ if .Lpa.DonorIdentityConfirmed }}
-            <dd class="govuk-summary-list__value">
-                <strong class="govuk-tag app-task-list__tag govuk-tag">{{ tr .App "idVerifiedTag" }}</strong>
-            </dd>
-        {{ end }}
+      {{ end }}
+      {{ if $canChange }}
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="{{ link .App .App.Paths.YourDetails }}?from={{.App.Page}}#f-first-names">
+            {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "name" }}</span>
+          </a>
+        </dd>
+      {{ end }}
     </div>
 
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            {{ tr .App "dateOfBirth" }}
-        </dt>
-        <dd class="govuk-summary-list__value">
-            {{ formatDate .Lpa.Donor.DateOfBirth }}
+      <dt class="govuk-summary-list__key">
+        {{ tr .App "dateOfBirth" }}
+      </dt>
+      <dd class="govuk-summary-list__value">
+        {{ formatDate .Lpa.Donor.DateOfBirth }}
+      </dd>
+      {{ if $canChange }}
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="{{ link .App .App.Paths.YourDetails }}?from={{.App.Page}}#f-date-of-birth">
+            {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "dateOfBirth" }}</span>
+          </a>
         </dd>
+      {{ end }}
     </div>
 
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            {{ tr .App "email" }}
-        </dt>
-        <dd class="govuk-summary-list__value">
-            {{ .Lpa.Donor.Email }}
-        </dd>
+      <dt class="govuk-summary-list__key">
+        {{ tr .App "email" }}
+      </dt>
+      <dd class="govuk-summary-list__value">
+        {{ .Lpa.Donor.Email }}
+      </dd>
     </div>
 
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            {{ tr .App "address" }}
-        </dt>
-        <dd class="govuk-summary-list__value">
-            <div>{{ .Lpa.Donor.Address.Line1 }}</div>
-            <div>{{ .Lpa.Donor.Address.Line2 }}</div>
-            <div>{{ .Lpa.Donor.Address.TownOrCity }}</div>
-            <div>{{ .Lpa.Donor.Address.Postcode }}</div>
+      <dt class="govuk-summary-list__key">
+        {{ tr .App "address" }}
+      </dt>
+      <dd class="govuk-summary-list__value">
+        <div>{{ .Lpa.Donor.Address.Line1 }}</div>
+        <div>{{ .Lpa.Donor.Address.Line2 }}</div>
+        <div>{{ .Lpa.Donor.Address.TownOrCity }}</div>
+        <div>{{ .Lpa.Donor.Address.Postcode }}</div>
+      </dd>
+      {{ if $canChange }}
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="{{ link .App .App.Paths.YourAddress }}?from={{.App.Page}}#f-address-line-1">
+            {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "address" }}</span>
+          </a>
         </dd>
+      {{ end }}
     </div>
-</dl>
+  </dl>
 {{ end }}
