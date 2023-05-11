@@ -42,31 +42,24 @@ func RemoveAttorney(logger Logger, tmpl template.Template, lpaStore LpaStore) pa
 			data.Form = readRemoveAttorneyForm(r, "yesToRemoveAttorney")
 			data.Errors = data.Form.Validate()
 
-			if data.Form.RemoveAttorney == "yes" && data.Errors.None() {
-				lpa.Attorneys.Delete(attorney)
-				if len(lpa.Attorneys) == 1 {
-					lpa.AttorneyDecisions = actor.AttorneyDecisions{}
-				}
+			if data.Errors.None() {
+				if data.Form.RemoveAttorney == "yes" {
+					lpa.Attorneys.Delete(attorney)
+					if len(lpa.Attorneys) == 1 {
+						lpa.AttorneyDecisions = actor.AttorneyDecisions{}
+					}
 
-				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
-				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
+					lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
+					lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
-					logger.Print(fmt.Sprintf("error removing Attorney from LPA: %s", err.Error()))
-					return err
-				}
-
-				if len(lpa.Attorneys) == 0 {
-					return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneys)
+					if err := lpaStore.Put(r.Context(), lpa); err != nil {
+						logger.Print(fmt.Sprintf("error removing Attorney from LPA: %s", err.Error()))
+						return err
+					}
 				}
 
 				return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneysSummary)
 			}
-
-			if data.Form.RemoveAttorney == "no" {
-				return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneysSummary)
-			}
-
 		}
 
 		return tmpl(w, data)

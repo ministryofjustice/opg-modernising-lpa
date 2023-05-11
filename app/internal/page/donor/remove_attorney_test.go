@@ -142,7 +142,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 			updatedLpa: &page.Lpa{
 				Attorneys: actor.Attorneys{},
 			},
-			redirect: page.Paths.ChooseAttorneys,
+			redirect: page.Paths.ChooseAttorneysSummary,
 		},
 	}
 

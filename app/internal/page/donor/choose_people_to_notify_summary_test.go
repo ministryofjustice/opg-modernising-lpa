@@ -19,16 +19,18 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+	lpa := &page.Lpa{PeopleToNotify: actor.PeopleToNotify{{}}}
+
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(lpa, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &choosePeopleToNotifySummaryData{
 			App:  testAppData,
-			Lpa:  &page.Lpa{},
+			Lpa:  lpa,
 			Form: &choosePeopleToNotifySummaryForm{},
 		}).
 		Return(nil)
@@ -40,6 +42,32 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestGetChoosePeopleToNotifySummaryWhenNoPeopleToNotify(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{
+			Tasks: page.Tasks{
+				YourDetails:                page.TaskCompleted,
+				ChooseAttorneys:            page.TaskCompleted,
+				ChooseReplacementAttorneys: page.TaskCompleted,
+				WhenCanTheLpaBeUsed:        page.TaskCompleted,
+				Restrictions:               page.TaskCompleted,
+				CertificateProvider:        page.TaskCompleted,
+			},
+		}, nil)
+
+	err := ChoosePeopleToNotifySummary(nil, nil, lpaStore)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "/lpa/lpa-id"+page.Paths.DoYouWantToNotifyPeople, resp.Header.Get("Location"))
+}
+
 func TestGetChoosePeopleToNotifySummaryWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
@@ -47,7 +75,7 @@ func TestGetChoosePeopleToNotifySummaryWhenStoreErrors(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
+		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{{}}}, expectedError)
 
 	logger := &mockLogger{}
 	logger.
@@ -128,7 +156,7 @@ func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{{}}}, nil)
 
 	validationError := validation.With("add-person-to-notify", validation.SelectError{Label: "yesToAddAnotherPersonToNotify"})
 

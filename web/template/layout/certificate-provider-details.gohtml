@@ -9,7 +9,7 @@
       </dd>
       {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
         <dd class="govuk-summary-list__actions">
-          <a class="govuk-link" href="{{ link .App .App.Paths.CertificateProviderDetails }}">
+          <a class="govuk-link" href="{{ link .App .App.Paths.CertificateProviderDetails }}?from={{.App.Page}}#f-first-names">
             {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "certificateProvider") }}</span>
           </a>
         </dd>
@@ -31,7 +31,7 @@
       </dd>
       {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
         <dd class="govuk-summary-list__actions">
-          <a class="govuk-link" href="{{ link .App .App.Paths.CertificateProviderDetails }}">
+          <a class="govuk-link" href="{{ link .App .App.Paths.CertificateProviderDetails }}?from={{.App.Page}}#f-mobile">
             {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "certificateProviderMobile" }}</span>
           </a>
         </dd>

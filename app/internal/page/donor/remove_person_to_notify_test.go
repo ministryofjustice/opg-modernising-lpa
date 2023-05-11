@@ -262,7 +262,7 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestRemovePersonToNotifyRemoveLastPersonRedirectsToChoosePeopleToNotify(t *testing.T) {
+func TestRemovePersonToNotifyRemoveLastPerson(t *testing.T) {
 	form := url.Values{
 		"remove-person-to-notify": {"yes"},
 	}
@@ -299,7 +299,7 @@ func TestRemovePersonToNotifyRemoveLastPersonRedirectsToChoosePeopleToNotify(t *
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.DoYouWantToNotifyPeople, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChoosePeopleToNotifySummary, resp.Header.Get("Location"))
 }
 
 func TestRemovePersonToNotifyFormValidate(t *testing.T) {
