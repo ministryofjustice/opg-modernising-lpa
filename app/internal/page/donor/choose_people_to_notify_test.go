@@ -547,3 +547,22 @@ func TestPersonToNotifyMatches(t *testing.T) {
 	assert.Equal(t, actor.TypePersonToNotify, personToNotifyMatches(lpa, "123", "m", "n"))
 	assert.Equal(t, actor.TypeNone, personToNotifyMatches(lpa, "123", "o", "p"))
 }
+
+func TestPersonToNotifyMatchesEmptyNamesIgnored(t *testing.T) {
+	lpa := &page.Lpa{
+		Donor: actor.Donor{FirstNames: "", LastName: ""},
+		Attorneys: actor.Attorneys{
+			{FirstNames: "", LastName: ""},
+		},
+		ReplacementAttorneys: actor.Attorneys{
+			{FirstNames: "", LastName: ""},
+		},
+		CertificateProviderDetails: page.CertificateProviderDetails{FirstNames: "", LastName: ""},
+		PeopleToNotify: actor.PeopleToNotify{
+			{FirstNames: "", LastName: ""},
+			{ID: "123", FirstNames: "", LastName: ""},
+		},
+	}
+
+	assert.Equal(t, actor.TypeNone, personToNotifyMatches(lpa, "123", "", ""))
+}
