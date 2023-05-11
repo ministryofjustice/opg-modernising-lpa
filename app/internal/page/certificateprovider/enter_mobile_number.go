@@ -51,7 +51,7 @@ func EnterMobileNumber(tmpl template.Template, lpaStore LpaStore, certificatePro
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderYourAddress)
+				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity)
 			}
 		}
 

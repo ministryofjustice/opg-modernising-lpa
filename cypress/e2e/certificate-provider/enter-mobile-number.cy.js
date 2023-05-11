@@ -12,7 +12,7 @@ describe('Enter mobile number', () => {
 
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/certificate-provider-your-address');
+        cy.url().should('contain', '/certificate-provider-what-youll-need-to-confirm-your-identity');
     });
 
     it('errors when empty', () => {

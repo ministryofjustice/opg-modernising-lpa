@@ -117,8 +117,6 @@ func Register(
 		EnterDateOfBirth(tmpls.Get("certificate_provider_enter_date_of_birth.gohtml"), lpaStore, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderEnterMobileNumber, RequireSession,
 		EnterMobileNumber(tmpls.Get("certificate_provider_enter_mobile_number.gohtml"), lpaStore, certificateProviderStore))
-	handleRoot(page.Paths.CertificateProviderYourAddress, RequireSession,
-		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, certificateProviderStore))
 
 	handleRoot(page.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity, RequireSession,
 		Guidance(tmpls.Get("certificate_provider_what_youll_need_to_confirm_your_identity.gohtml"), lpaStore, nil))
