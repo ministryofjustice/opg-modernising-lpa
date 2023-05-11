@@ -21,7 +21,7 @@ type chooseAttorneysData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) page.Handler {
+func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, uuidString func() string) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
@@ -73,7 +73,7 @@ func ChooseAttorneys(tmpl template.Template, lpaStore LpaStore, randomString fun
 						LastName:    data.Form.LastName,
 						Email:       data.Form.Email,
 						DateOfBirth: data.Form.Dob,
-						ID:          randomString(8),
+						ID:          uuidString(),
 					}
 
 					lpa.Attorneys = append(lpa.Attorneys, attorney)

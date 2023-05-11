@@ -147,7 +147,7 @@ func Register(
 		TaskList(tmpls.Get("task_list.gohtml"), lpaStore))
 
 	handleLpa(page.Paths.ChooseAttorneys, CanGoBack,
-		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), lpaStore, random.String))
+		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), lpaStore, random.UuidString))
 	handleLpa(page.Paths.ChooseAttorneysAddress, CanGoBack,
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_attorneys_address.gohtml"), addressClient, lpaStore))
 	handleLpa(page.Paths.UseExistingAddress, CanGoBack,
@@ -166,7 +166,7 @@ func Register(
 	handleLpa(page.Paths.DoYouWantReplacementAttorneys, CanGoBack,
 		WantReplacementAttorneys(tmpls.Get("do_you_want_replacement_attorneys.gohtml"), lpaStore))
 	handleLpa(page.Paths.ChooseReplacementAttorneys, CanGoBack,
-		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), lpaStore, random.String))
+		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), lpaStore, random.UuidString))
 	handleLpa(page.Paths.ChooseReplacementAttorneysAddress, CanGoBack,
 		ChooseReplacementAttorneysAddress(logger, tmpls.Get("choose_replacement_attorneys_address.gohtml"), addressClient, lpaStore))
 	handleLpa(page.Paths.ChooseReplacementAttorneysSummary, CanGoBack,
@@ -204,7 +204,7 @@ func Register(
 	handleLpa(page.Paths.DoYouWantToNotifyPeople, CanGoBack,
 		DoYouWantToNotifyPeople(tmpls.Get("do_you_want_to_notify_people.gohtml"), lpaStore))
 	handleLpa(page.Paths.ChoosePeopleToNotify, CanGoBack,
-		ChoosePeopleToNotify(tmpls.Get("choose_people_to_notify.gohtml"), lpaStore, random.String))
+		ChoosePeopleToNotify(tmpls.Get("choose_people_to_notify.gohtml"), lpaStore, random.UuidString))
 	handleLpa(page.Paths.ChoosePeopleToNotifyAddress, CanGoBack,
 		ChoosePeopleToNotifyAddress(logger, tmpls.Get("choose_people_to_notify_address.gohtml"), addressClient, lpaStore))
 	handleLpa(page.Paths.ChoosePeopleToNotifySummary, CanGoBack,

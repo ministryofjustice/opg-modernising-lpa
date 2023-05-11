@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var mockRandom = func(int) string { return "123" }
+var mockUuidString = func() string { return "123" }
 
 var (
 	testAddress = place.Address{

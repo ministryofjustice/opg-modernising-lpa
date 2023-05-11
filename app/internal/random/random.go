@@ -2,6 +2,8 @@ package random
 
 import (
 	"crypto/rand"
+
+	"github.com/google/uuid"
 )
 
 var UseTestCode = false
@@ -28,4 +30,8 @@ func fromCharset(length int, charset string) string {
 		bytes[i] = charset[b%byte(len(charset))]
 	}
 	return string(bytes)
+}
+
+func UuidString() string {
+	return uuid.NewString()
 }
