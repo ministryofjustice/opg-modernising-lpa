@@ -98,6 +98,10 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, uuidS
 }
 
 func replacementAttorneyMatches(lpa *page.Lpa, id, firstNames, lastName string) actor.Type {
+	if firstNames == "" && lastName == "" {
+		return actor.TypeNone
+	}
+
 	if strings.EqualFold(lpa.Donor.FirstNames, firstNames) && strings.EqualFold(lpa.Donor.LastName, lastName) {
 		return actor.TypeDonor
 	}
