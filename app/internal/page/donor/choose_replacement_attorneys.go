@@ -19,7 +19,7 @@ type chooseReplacementAttorneysData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) page.Handler {
+func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, uuidString func() string) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
@@ -70,7 +70,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 						LastName:    data.Form.LastName,
 						Email:       data.Form.Email,
 						DateOfBirth: data.Form.Dob,
-						ID:          randomString(8),
+						ID:          uuidString(),
 					}
 
 					lpa.ReplacementAttorneys = append(lpa.ReplacementAttorneys, attorney)
@@ -89,13 +89,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 					return err
 				}
 
-				from := r.FormValue("from")
-
-				if from == "" {
-					from = fmt.Sprintf("%s?id=%s", appData.Paths.ChooseReplacementAttorneysAddress, attorney.ID)
-				}
-
-				return appData.Redirect(w, r, lpa, from)
+				return appData.Redirect(w, r, lpa, fmt.Sprintf("%s?id=%s", appData.Paths.ChooseReplacementAttorneysAddress, attorney.ID))
 			}
 		}
 

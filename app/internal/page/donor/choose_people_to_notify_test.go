@@ -32,7 +32,7 @@ func TestGetChoosePeopleToNotify(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotify(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChoosePeopleToNotify(template.Execute, lpaStore, mockUuidString)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -48,7 +48,7 @@ func TestGetChoosePeopleToNotifyWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChoosePeopleToNotify(nil, lpaStore, mockUuidString)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -76,7 +76,7 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	err := ChoosePeopleToNotify(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChoosePeopleToNotify(template.Execute, lpaStore, mockUuidString)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -101,7 +101,7 @@ func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotify(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChoosePeopleToNotify(template.Execute, lpaStore, mockUuidString)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -155,7 +155,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 					PeopleToNotify: tc.addedPeople,
 				}, nil)
 
-			err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(testAppData, w, r)
+			err := ChoosePeopleToNotify(nil, lpaStore, mockUuidString)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -219,7 +219,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(testAppData, w, r)
+			err := ChoosePeopleToNotify(nil, lpaStore, mockUuidString)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -240,107 +240,35 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	existingPerson := actor.PersonToNotify{
-		FirstNames: "John",
-		LastName:   "Doe",
-		Email:      "johnny@example.com",
-		ID:         "123",
-	}
-
-	updatedPerson := actor.PersonToNotify{
-		FirstNames: "Johnny",
-		LastName:   "Dear",
-		Email:      "johnny.d@example.com",
-		ID:         "123",
-	}
-
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			PeopleToNotify: actor.PeopleToNotify{existingPerson},
+			PeopleToNotify: actor.PeopleToNotify{{
+				FirstNames: "John",
+				LastName:   "Doe",
+				Email:      "johnny@example.com",
+				ID:         "123",
+			}},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			PeopleToNotify: actor.PeopleToNotify{updatedPerson},
-			Tasks:          page.Tasks{PeopleToNotify: page.TaskInProgress},
+			PeopleToNotify: actor.PeopleToNotify{{
+				FirstNames: "Johnny",
+				LastName:   "Dear",
+				Email:      "johnny.d@example.com",
+				ID:         "123",
+			}},
+			Tasks: page.Tasks{PeopleToNotify: page.TaskInProgress},
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChoosePeopleToNotify(nil, lpaStore, mockUuidString)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChoosePeopleToNotifyAddress+"?id=123", resp.Header.Get("Location"))
-}
-
-func TestPostChoosePeopleToNotifyFromAnotherPage(t *testing.T) {
-	testcases := map[string]struct {
-		requestUrl      string
-		expectedNextUrl string
-	}{
-		"with from value": {
-			"/?from=/test&id=123",
-			"/lpa/lpa-id/test",
-		},
-		"without from value": {
-			"/?from=&id=123",
-			"/lpa/lpa-id" + page.Paths.ChoosePeopleToNotifyAddress + "?id=123",
-		},
-		"missing from key": {
-			"/?id=123",
-			"/lpa/lpa-id" + page.Paths.ChoosePeopleToNotifyAddress + "?id=123",
-		},
-	}
-
-	for testName, tc := range testcases {
-		t.Run(testName, func(t *testing.T) {
-			form := url.Values{
-				"first-names": {"John"},
-				"last-name":   {"Doe"},
-				"email":       {"johnny@example.com"},
-			}
-
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, tc.requestUrl, strings.NewReader(form.Encode()))
-			r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{
-					PeopleToNotify: actor.PeopleToNotify{
-						{
-							FirstNames: "John",
-							LastName:   "Doe",
-							Email:      "johnny@example.com",
-							ID:         "123",
-						},
-					},
-				}, nil)
-			lpaStore.
-				On("Put", r.Context(), &page.Lpa{
-					PeopleToNotify: actor.PeopleToNotify{
-						{
-							FirstNames: "John",
-							LastName:   "Doe",
-							Email:      "johnny@example.com",
-							ID:         "123",
-						},
-					},
-					Tasks: page.Tasks{PeopleToNotify: page.TaskInProgress},
-				}).
-				Return(nil)
-
-			err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(testAppData, w, r)
-			resp := w.Result()
-
-			assert.Nil(t, err)
-			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, tc.expectedNextUrl, resp.Header.Get("Location"))
-		})
-	}
 }
 
 func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
@@ -414,7 +342,7 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := ChoosePeopleToNotify(template.Execute, lpaStore, mockRandom)(testAppData, w, r)
+			err := ChoosePeopleToNotify(template.Execute, lpaStore, mockUuidString)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -442,7 +370,7 @@ func TestPostChoosePeopleToNotifyWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotify(nil, lpaStore, mockRandom)(testAppData, w, r)
+	err := ChoosePeopleToNotify(nil, lpaStore, mockUuidString)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }

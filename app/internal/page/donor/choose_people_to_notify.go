@@ -18,7 +18,7 @@ type choosePeopleToNotifyData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomString func(int) string) page.Handler {
+func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, uuidString func() string) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
@@ -66,7 +66,7 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 						FirstNames: data.Form.FirstNames,
 						LastName:   data.Form.LastName,
 						Email:      data.Form.Email,
-						ID:         randomString(8),
+						ID:         uuidString(),
 					}
 
 					lpa.PeopleToNotify = append(lpa.PeopleToNotify, personToNotify)
@@ -84,13 +84,7 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, randomStrin
 					return err
 				}
 
-				from := r.FormValue("from")
-
-				if from == "" {
-					from = fmt.Sprintf("%s?id=%s", appData.Paths.ChoosePeopleToNotifyAddress, personToNotify.ID)
-				}
-
-				return appData.Redirect(w, r, lpa, from)
+				return appData.Redirect(w, r, lpa, fmt.Sprintf("%s?id=%s", appData.Paths.ChoosePeopleToNotifyAddress, personToNotify.ID))
 			}
 		}
 

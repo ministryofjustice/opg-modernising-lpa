@@ -304,6 +304,7 @@
         "other": "Pwy yw eich atwrneiod"
     },
     "howYourAttorneysMustMakeDecisions": "Sut ydych chi am i’ch atwrneiod wneud penderfyniadau?",
+    "howYourReplacementAttorneysMustMakeDecisions": "Welsh",
     "whoAreYourReplacementAttorneys": {
         "zero": "Pwy yw eich atwrneiod wrth gefn",
         "one": "Pwy yw eich atwrnai wrth gefn",
@@ -473,7 +474,9 @@
     "jointlyHintReplacementAttorneys": "Rhaid i atwrneiod wrth gefn gytuno’n unfrydol ar bob penderfyniad, waeth pa mor fawr neu fach. Os na all un atwrnai wrth gefn weithredu mwyach, ni fydd y lleill yn gallu gweithredu chwaith, heblaw eich bod yn datgan fel arall yn eich cyfarwyddiadau.",
     "jointlyAndSeverallyMixedHintReplacementAttorneys": "Rhaid i atwrneiod wrth gefn gytuno’n unfrydol ar rai penderfyniadau, ond gallant wneud eraill yn unigol. Rhaid i chi ddatgan pa benderfyniadau y mae angen iddynt gytuno ar yn unfrydol.",
 
-    "howShouldReplacementAttorneysStepIn": "Sut dylai eich atwrneiod wrth gefn gamu i mewn?",
+    "howReplacementAttorneysShouldStepIn": "Welsh",
+    "howYourReplacementAttorneysShouldStepIn": "Welsh",
+    "howShouldYourReplacementAttorneysStepIn": "Sut dylai eich atwrneiod wrth gefn gamu i mewn?",
     "howShouldReplacementAttorneysStepInDetail": "<p class=\"govuk-body\">Gallwch ddewis pryd y bydd eich atwrneiod wrth gefn yn camu i mewn ac ym mha drefn.</p><p class=\"govuk-body\">Unwaith y byddant wedi camu i mewn, bydd yr atwrneiod wrth gefn yn gallu gwneud unrhyw benderfyniad ar y cyd ac yn unigol ynghyd â’r atwrneiod gwreiddiol sy’n weddill.</p><p class=\"govuk-body\">Mae’r rhan fwyaf o roddwyr yn dewis i’r holl atwrneiod wrth gefn gamu i mewn gyda’i gilydd cyn gynted ag y bydd 1 o’r atwrneiod gwreiddiol yn methu â gweithredu mwyach. Fodd bynnag, os byddai’n well gennych i’r atwrneiod wrth gefn gamu i mewn yn hwyrach neu mewn gorchymyn penodol, dewiswch 1 o’r 2 opsiwn arall.</p>",
     "whenOneCanNoLongerAct": "Cyn gynted ag na all <span class=\"govuk-!-font-weight-bold\">un</span> o’r atwrneiod gwreiddiol weithredu mwyach, dylai’r holl atwrneiod wrth gefn gamu i mewn â’i gilydd",
     "whenNoneCanNoLongerAct": "Pan na all <span class=\"govuk-!-font-weight-bold\">yr un</span> o’r atwrneiod gwreiddiol weithredu, dylai’r holl atwrneiod wrth gefn gamu i mewn â’i gilydd",
@@ -485,6 +488,9 @@
     "jointly-and-severally": "<p class=\"govuk-body\">Gall eich atwrneiod wneud penderfyniadau gyda’i gilydd neu’n unigol.</p> <p class=\"govuk-body\">Mewn termau cyfreithiol, gelwir hyn yn eich atwrneiod yn gweithio ‘ar y cyd ac yn unigol’.</p>",
     "jointly": "<p class=\"govuk-body\">Rhaid i’ch atwrneiod gytuno a gwneud pob penderfyniad gyda’i gilydd.</p> <p class=\"govuk-body\">Mewn termau cyfreithiol, gelwir hyn yn eich atwrneiod yn gweithio ‘ar y cyd’.</p>",
     "mixed": "<p class=\"govuk-body\">Rhaid i’ch atwrneiod wneud rhai penderfyniadau gyda’i gilydd.</p> <p class=\"govuk-body\">Mewn termau cyfreithiol, gelwir hyn yn eich atwrneiod yn gweithio ‘ar y cyd ar gyfer rhai penderfyniadau ac ar y cyd ac yn unigol i eraill’.</p>",
+    "replacement-jointly-and-severally": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
+    "replacement-jointly": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
+    "replacement-mixed": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
     "when-registered": "Cyn gynted ag y bydd wedi’i gofrestru",
     "when-capacity-lost": "Dim ond pan nad oes gennyf alluedd meddyliol",
 
@@ -588,6 +594,7 @@
         "other": "Welsh"
     },
     "howAttorneysMustMakeDecisions": "Welsh",
+    "howReplacementAttorneysMustMakeDecisions": "Welsh",
     "theirReplacementAttorneys": {
         "one": "Welsh",
         "other": "Welsh"
@@ -706,6 +713,9 @@
     "jointlyAndSeverallyExplanation": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
     "jointlyExplanation": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
     "jointlyForSomeSeverallyForOthersExplanation": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
+    "replacementJointlyAndSeverallyExplanation": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
+    "replacementJointlyExplanation": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
+    "replacementJointlyForSomeSeverallyForOthersExplanation": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
 
     "whatIsYourUkMobileNumber": "Welsh",
     "enterYourUkMobileNumberOptional": "Welsh",
@@ -713,12 +723,22 @@
 
     "attorneyRightsAndResponsibilitiesTitle": "Welsh",
     "attorneyRightsAndResponsibilitiesContent": "<p class=\"govuk-body-l\">Welsh</p> <h2 class=\"govuk-heading-m\">Welsh</h2> <p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"#\">Welsh</a>:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> </ul> <h2 class=\"govuk-heading-m\">Welsh</h2> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> </ul>",
-    
+
+    "whatHappensWhenYouSignTheLpaTitle": "Welsh",
+    "whatHappensWhenYouSignTheLpaContentAttorneyPw": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh {{ .DonorFullNamePossessive }} welsh</p> <p class=\"govuk-body\">Welsh:</p>",
+    "whatHappensWhenYouSignTheLpaContentAttorneyPa": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh {{ .DonorFullNamePossessive }} welsh</p> <p class=\"govuk-body\">Welsh:</p>",
+    "whatHappensWhenYouSignTheLpaContentReplacementAttorneyPw": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh {{ .DonorFullNamePossessive }} welsh</p> <p class=\"govuk-body\">Welsh:</p>",
+    "whatHappensWhenYouSignTheLpaContentReplacementAttorneyPa": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh {{ .DonorFullNamePossessive }} welsh</p> <p class=\"govuk-body\">Welsh:</p>",
+    "pwDecisionsBullets": "<ul class=\"govuk-list govuk-list--bullet\"> <li>welsh</li> <li>welsh</li> <li>welsh</li> <li>welsh</li> </ul>",
+    "paPowersBullets": "<ul class=\"govuk-list govuk-list--bullet\"> <li>welsh, {{ .DonorFirstNames }}, welsh</li> <li>welsh</li> </ul>",
+    "pwWhatHappensWhenYouSignWarning": "Welsh",
+    "paWhatHappensWhenYouSignWarning": "Welsh",
+
     "youveFormallyAgreedToBeAttorney": "Welsh",
     "youveFormallyAgreedToBeReplacementAttorney": "Welsh",
     "youveFormallyAgreedToBeAttorneyContent": "<p class=\"govuk-body\">Welsh {{.DonorFullNamePossessive}}</p><p class=\"govuk-body\">Welsh</p>",
     "youveFormallyAgreedToBeReplacementAttorneyContent": "<p class=\"govuk-body\">Welsh {{.DonorFullNamePossessive}}</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
-    "whatHappensNextContent": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh {{.DonorFirstNamesPossessive}}</p><p class=\"govuk-body\">Welsh <a href=\"#\" class=\"govuk-link\">Welsh</a>.</p>",
+    "attorneyWhatHappensNextContent": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh {{.DonorFirstNamesPossessive}}</p><p class=\"govuk-body\">Welsh <a href=\"#\" class=\"govuk-link\">Welsh</a>.</p>",
 
     "youMustSelectTheBoxToSignAttorney": "Welsh",
     "youMustSelectTheBoxToSignReplacementAttorney": "Welsh"

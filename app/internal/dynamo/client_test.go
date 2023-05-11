@@ -313,7 +313,7 @@ func TestGetAllByGsiWhenNotFound(t *testing.T) {
 
 	var v []string
 	err := c.GetAllByGsi(ctx, "index-name", "a-partial-sk", &v)
-	assert.Equal(t, NotFoundError{}, err)
+	assert.Nil(t, err)
 }
 
 func TestGetAllByGsiOnQueryError(t *testing.T) {
