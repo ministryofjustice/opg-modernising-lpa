@@ -26,7 +26,7 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaSto
 		}
 
 		id := r.FormValue("id")
-		attorney, found := lpa.PeopleToNotify.Get(id)
+		person, found := lpa.PeopleToNotify.Get(id)
 
 		if found == false {
 			return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotifySummary)
@@ -34,7 +34,7 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaSto
 
 		data := &removePersonToNotifyData{
 			App:            appData,
-			PersonToNotify: attorney,
+			PersonToNotify: person,
 			Form:           &removePersonToNotifyForm{},
 		}
 
@@ -44,7 +44,7 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaSto
 
 			if data.Errors.None() {
 				if data.Form.RemovePersonToNotify == "yes" {
-					lpa.PeopleToNotify.Delete(attorney)
+					lpa.PeopleToNotify.Delete(person)
 					if len(lpa.PeopleToNotify) == 0 {
 						lpa.Tasks.PeopleToNotify = page.TaskNotStarted
 					}
