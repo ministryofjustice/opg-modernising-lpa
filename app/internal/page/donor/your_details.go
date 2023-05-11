@@ -158,6 +158,10 @@ func (f *yourDetailsForm) DobWarning() string {
 }
 
 func donorMatches(lpa *page.Lpa, firstNames, lastName string) actor.Type {
+	if firstNames == "" && lastName == "" {
+		return actor.TypeNone
+	}
+
 	for _, attorney := range lpa.Attorneys {
 		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeAttorney
