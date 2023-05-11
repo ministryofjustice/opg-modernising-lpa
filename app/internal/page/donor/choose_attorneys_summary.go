@@ -24,6 +24,10 @@ func ChooseAttorneysSummary(logger Logger, tmpl template.Template, lpaStore LpaS
 			return err
 		}
 
+		if len(lpa.Attorneys) == 0 {
+			return appData.Redirect(w, r, lpa, fmt.Sprintf("%s?addAnother=1", appData.Paths.ChooseAttorneys))
+		}
+
 		data := &chooseAttorneysSummaryData{
 			App:  appData,
 			Lpa:  lpa,
@@ -47,7 +51,6 @@ func ChooseAttorneysSummary(logger Logger, tmpl template.Template, lpaStore LpaS
 
 				return appData.Redirect(w, r, lpa, redirectUrl)
 			}
-
 		}
 
 		return tmpl(w, data)

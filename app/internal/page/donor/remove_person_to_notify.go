@@ -42,32 +42,21 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaSto
 			data.Form = readRemovePersonToNotifyForm(r)
 			data.Errors = data.Form.Validate()
 
-			if data.Form.RemovePersonToNotify == "yes" && data.Errors.None() {
-				lpa.PeopleToNotify.Delete(attorney)
+			if data.Errors.None() {
+				if data.Form.RemovePersonToNotify == "yes" {
+					lpa.PeopleToNotify.Delete(attorney)
+					if len(lpa.PeopleToNotify) == 0 {
+						lpa.Tasks.PeopleToNotify = page.TaskNotStarted
+					}
 
-				var redirect string
-
-				if len(lpa.PeopleToNotify) == 0 {
-					lpa.Tasks.PeopleToNotify = page.TaskNotStarted
-					redirect = appData.Paths.DoYouWantToNotifyPeople
-				} else {
-					redirect = appData.Paths.ChoosePeopleToNotifySummary
+					if err := lpaStore.Put(r.Context(), lpa); err != nil {
+						logger.Print(fmt.Sprintf("error removing PersonToNotify from LPA: %s", err.Error()))
+						return err
+					}
 				}
 
-				err = lpaStore.Put(r.Context(), lpa)
-
-				if err != nil {
-					logger.Print(fmt.Sprintf("error removing PersonToNotify from LPA: %s", err.Error()))
-					return err
-				}
-
-				return appData.Redirect(w, r, lpa, redirect)
-			}
-
-			if data.Form.RemovePersonToNotify == "no" {
 				return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotifySummary)
 			}
-
 		}
 
 		return tmpl(w, data)

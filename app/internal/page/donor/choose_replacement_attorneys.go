@@ -89,13 +89,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, lpaStore LpaStore, rando
 					return err
 				}
 
-				from := r.FormValue("from")
-
-				if from == "" {
-					from = fmt.Sprintf("%s?id=%s", appData.Paths.ChooseReplacementAttorneysAddress, attorney.ID)
-				}
-
-				return appData.Redirect(w, r, lpa, from)
+				return appData.Redirect(w, r, lpa, fmt.Sprintf("%s?id=%s", appData.Paths.ChooseReplacementAttorneysAddress, attorney.ID))
 			}
 		}
 

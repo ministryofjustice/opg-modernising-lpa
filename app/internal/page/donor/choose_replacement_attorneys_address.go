@@ -47,11 +47,6 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 			data.Form = form.ReadAddressForm(r)
 			data.Errors = data.Form.Validate(false)
 
-			from := r.FormValue("from")
-			if from == "" {
-				from = appData.Paths.ChooseReplacementAttorneysSummary
-			}
-
 			if data.Form.Action == "skip" {
 				attorney.Address = place.Address{}
 				lpa.ReplacementAttorneys.Put(attorney)
@@ -61,7 +56,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, from)
+				return appData.Redirect(w, r, lpa, appData.Paths.ChooseReplacementAttorneysSummary)
 			}
 
 			if data.Form.Action == "manual" && data.Errors.None() {
@@ -73,7 +68,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, from)
+				return appData.Redirect(w, r, lpa, appData.Paths.ChooseReplacementAttorneysSummary)
 			}
 
 			// Force the manual address view after selecting
