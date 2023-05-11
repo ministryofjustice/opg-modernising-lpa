@@ -24,6 +24,10 @@ func ChoosePeopleToNotifySummary(logger Logger, tmpl template.Template, lpaStore
 			return err
 		}
 
+		if len(lpa.PeopleToNotify) == 0 {
+			return appData.Redirect(w, r, lpa, page.Paths.DoYouWantToNotifyPeople)
+		}
+
 		data := &choosePeopleToNotifySummaryData{
 			App:  appData,
 			Lpa:  lpa,
