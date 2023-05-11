@@ -1,5 +1,6 @@
 data "aws_kms_alias" "sns_kms_key_alias" {
-  name = var.sns_kms_key_alias
+  name     = var.sns_kms_key_alias
+  provider = aws.region
 }
 
 resource "aws_sns_topic" "ecs_autoscaling_alarms" {
@@ -20,4 +21,5 @@ resource "aws_sns_topic" "ecs_autoscaling_alarms" {
   sqs_failure_feedback_role_arn            = data.aws_iam_role.sns_failure_feedback.arn
   sqs_success_feedback_role_arn            = data.aws_iam_role.sns_success_feedback.arn
   sqs_success_feedback_sample_rate         = 100
+  provider                                 = aws.region
 }
