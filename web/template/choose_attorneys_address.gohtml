@@ -71,7 +71,7 @@
 
             {{ if gt (len .Lpa.ActorAddresses) 0 }}
               <p class="govuk-body">
-                <a href="{{ link .App .App.Paths.UseExistingAddress }}?type={{ .App.ActorTypes.Attorney }}&subjectId={{ .Attorney.ID }}&from={{ .App.Page }}" class="govuk-link govuk-link--no-visited-state">
+                <a href="{{ link .App .App.Paths.UseExistingAddress }}?type={{ .App.ActorTypes.Attorney }}&subjectId={{ .Attorney.ID }}&return={{ .App.Page }}" class="govuk-link govuk-link--no-visited-state">
                   {{ tr .App "Use existing address" }}
                 </a>
               </p>
