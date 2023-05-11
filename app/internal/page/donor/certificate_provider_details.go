@@ -115,6 +115,10 @@ func (d *certificateProviderDetailsForm) Validate() validation.List {
 }
 
 func certificateProviderMatches(lpa *page.Lpa, firstNames, lastName string) actor.Type {
+	if firstNames == "" && lastName == "" {
+		return actor.TypeNone
+	}
+
 	if strings.EqualFold(lpa.Donor.FirstNames, firstNames) && strings.EqualFold(lpa.Donor.LastName, lastName) {
 		return actor.TypeDonor
 	}
