@@ -16,7 +16,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, nil, template.Templates{}, nil, nil, nil, nil, nil, nil, nil, nil)
+	Register(mux, nil, template.Templates{}, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -31,9 +31,8 @@ func TestMakeHandle(t *testing.T) {
 		Return(&sessions.Session{
 			Values: map[any]any{
 				"attorney": &sesh.AttorneySession{
-					Sub:            "random",
-					DonorSessionID: "session-id",
-					LpaID:          "lpa-id",
+					Sub:   "random",
+					LpaID: "lpa-id",
 				},
 			},
 		}, nil)
@@ -66,7 +65,7 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[any]any{"attorney": &sesh.AttorneySession{Sub: "random", LpaID: "lpa-id", DonorSessionID: "session-id"}}}, nil)
+		Return(&sessions.Session{Values: map[any]any{"attorney": &sesh.AttorneySession{Sub: "random", LpaID: "lpa-id"}}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, sessionStore, nil)
@@ -97,11 +96,11 @@ func TestMakeHandleExistingLpaData(t *testing.T) {
 		ExpectedActorType actor.Type
 	}{
 		"attorney": {
-			AttorneySession:   &sesh.AttorneySession{Sub: "random", LpaID: "lpa-id", DonorSessionID: "session-id", AttorneyID: "attorney-id"},
+			AttorneySession:   &sesh.AttorneySession{Sub: "random", LpaID: "lpa-id", AttorneyID: "attorney-id"},
 			ExpectedActorType: actor.TypeAttorney,
 		},
 		"replacement attorney": {
-			AttorneySession:   &sesh.AttorneySession{Sub: "random", LpaID: "lpa-id", DonorSessionID: "session-id", AttorneyID: "attorney-id", IsReplacementAttorney: true},
+			AttorneySession:   &sesh.AttorneySession{Sub: "random", LpaID: "lpa-id", AttorneyID: "attorney-id", IsReplacementAttorney: true},
 			ExpectedActorType: actor.TypeReplacementAttorney,
 		},
 	}
@@ -125,7 +124,7 @@ func TestMakeHandleExistingLpaData(t *testing.T) {
 					Page:        "/path",
 					CanGoBack:   true,
 					LpaID:       "lpa-id",
-					SessionID:   "session-id",
+					SessionID:   "cmFuZG9t",
 					AttorneyID:  "attorney-id",
 					ActorType:   tc.ExpectedActorType,
 				}, appData)
@@ -133,7 +132,7 @@ func TestMakeHandleExistingLpaData(t *testing.T) {
 
 				sessionData, _ := page.SessionDataFromContext(hr.Context())
 
-				assert.Equal(t, &page.SessionData{LpaID: "lpa-id", SessionID: "session-id"}, sessionData)
+				assert.Equal(t, &page.SessionData{LpaID: "lpa-id", SessionID: "cmFuZG9t"}, sessionData)
 				hw.WriteHeader(http.StatusTeapot)
 				return nil
 			})
@@ -214,16 +213,9 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 func TestMakeHandleLpaMissing(t *testing.T) {
 	testcases := map[string]map[any]any{
 		"empty": {},
-		"missing DonorSessionID": {
-			"attorney": &sesh.AttorneySession{
-				Sub:   "random",
-				LpaID: "lpa-id",
-			},
-		},
 		"missing LpaID": {
 			"attorney": &sesh.AttorneySession{
-				Sub:            "random",
-				DonorSessionID: "session-id",
+				Sub: "random",
 			},
 		},
 	}
