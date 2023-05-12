@@ -7,19 +7,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCertificateProviderFullName(t *testing.T) {
-	p := CertificateProvider{FirstNames: "Bob Alan George", LastName: "Smith Jones-Doe"}
+func TestCertificateProviderProvidedFullName(t *testing.T) {
+	p := CertificateProviderProvidedDetails{FirstNames: "Bob Alan George", LastName: "Smith Jones-Doe"}
 
 	assert.Equal(t, "Bob Alan George Smith Jones-Doe", p.FullName())
 }
 
-func TestCertificateProviderIdentityConfirmed(t *testing.T) {
+func TestCertificateProviderProvidedIdentityConfirmed(t *testing.T) {
 	testCases := map[string]struct {
-		cp       *CertificateProvider
+		cp       *CertificateProviderProvidedDetails
 		expected bool
 	}{
 		"set": {
-			cp: &CertificateProvider{
+			cp: &CertificateProviderProvidedDetails{
 				FirstNames:       "a",
 				LastName:         "b",
 				IdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "a", LastName: "b"},
@@ -27,19 +27,19 @@ func TestCertificateProviderIdentityConfirmed(t *testing.T) {
 			expected: true,
 		},
 		"missing provider": {
-			cp: &CertificateProvider{
+			cp: &CertificateProviderProvidedDetails{
 				IdentityUserData: identity.UserData{OK: true},
 			},
 			expected: false,
 		},
 		"not ok": {
-			cp: &CertificateProvider{
+			cp: &CertificateProviderProvidedDetails{
 				IdentityUserData: identity.UserData{Provider: identity.OneLogin},
 			},
 			expected: false,
 		},
 		"no match": {
-			cp: &CertificateProvider{
+			cp: &CertificateProviderProvidedDetails{
 				FirstNames:       "a",
 				LastName:         "b",
 				IdentityUserData: identity.UserData{Provider: identity.OneLogin},
@@ -47,7 +47,7 @@ func TestCertificateProviderIdentityConfirmed(t *testing.T) {
 			expected: false,
 		},
 		"none": {
-			cp:       &CertificateProvider{},
+			cp:       &CertificateProviderProvidedDetails{},
 			expected: false,
 		},
 	}
