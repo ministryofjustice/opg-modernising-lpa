@@ -197,13 +197,6 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			if r.FormValue("provideCertificate") != "" {
 				certificateProvider.Mobile = TestMobile
 				certificateProvider.Email = TestEmail
-				certificateProvider.Address = place.Address{
-					Line1:      "5 RICHMOND PLACE",
-					Line2:      "KINGS HEATH",
-					Line3:      "WEST MIDLANDS",
-					TownOrCity: "BIRMINGHAM",
-					Postcode:   "B14 7ED",
-				}
 
 				certificateProvider.Certificate = actor.Certificate{
 					AgreeToStatement: true,
@@ -233,13 +226,6 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 
 			certificateProvider.Mobile = TestMobile
 			certificateProvider.Email = TestEmail
-			certificateProvider.Address = place.Address{
-				Line1:      "5 RICHMOND PLACE",
-				Line2:      "KINGS HEATH",
-				Line3:      "WEST MIDLANDS",
-				TownOrCity: "BIRMINGHAM",
-				Postcode:   "B14 7ED",
-			}
 
 			err = certificateProviderStore.Put(cpCtx, certificateProvider)
 			if err != nil {
