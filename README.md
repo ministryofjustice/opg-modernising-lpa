@@ -53,7 +53,7 @@ make app-up-build-dev-arm
 
 Dev mode adds hot reloading via [air](https://github.com/cosmtrek/air) which will watch `.go` and `.gohtml` for changes and recompile the app.
 
-It also enables debugging via [delve](https://github.com/go-delve/delve). Delve runs on `localhost:2345` - add this to your editor/IDE debug config settings and then start adding breakpoints to step through the app code when running on localhost. Example VSCode debug config:
+It also enables debugging via [delve](https://github.com/go-delve/delve). Delve runs on `localhost:2345` - add this to your editor/IDE debug config settings and then add breakpoints to step through the app code when running on localhost. Example VSCode debug config:
 
 ```json
 {
