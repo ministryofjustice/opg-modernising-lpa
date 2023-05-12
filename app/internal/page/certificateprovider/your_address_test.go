@@ -23,7 +23,7 @@ func TestGetYourAddress(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -47,7 +47,7 @@ func TestGetYourAddressWhenStoreErrors(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, expectedError)
+		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := YourAddress(nil, nil, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
@@ -65,7 +65,7 @@ func TestGetYourAddressFromStore(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{Address: address}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{Address: address}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -92,7 +92,7 @@ func TestGetYourAddressManual(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -119,7 +119,7 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -153,9 +153,9 @@ func TestPostYourAddressManual(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 	certificateProviderStore.
-		On("Put", r.Context(), &actor.CertificateProvider{Address: testAddress}).
+		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{Address: testAddress}).
 		Return(nil)
 
 	err := YourAddress(nil, nil, nil, certificateProviderStore)(testAppData, w, r)
@@ -183,9 +183,9 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 	certificateProviderStore.
-		On("Put", r.Context(), &actor.CertificateProvider{Address: testAddress}).
+		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{Address: testAddress}).
 		Return(expectedError)
 
 	err := YourAddress(nil, nil, nil, certificateProviderStore)(testAppData, w, r)
@@ -210,9 +210,9 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{Address: place.Address{Line1: "abc"}}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{Address: place.Address{Line1: "abc"}}, nil)
 	certificateProviderStore.
-		On("Put", r.Context(), &actor.CertificateProvider{Address: testAddress}).
+		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{Address: testAddress}).
 		Return(nil)
 
 	err := YourAddress(nil, nil, nil, certificateProviderStore)(testAppData, w, r)
@@ -238,7 +238,7 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{Address: place.Address{Line1: "abc"}}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{Address: place.Address{Line1: "abc"}}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -284,7 +284,7 @@ func TestPostYourAddressSelect(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -322,7 +322,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	addressClient := newMockAddressClient(t)
 	addressClient.
@@ -362,7 +362,7 @@ func TestPostYourAddressLookup(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	addresses := []place.Address{
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
@@ -409,7 +409,7 @@ func TestPostYourAddressLookupError(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	addressClient := newMockAddressClient(t)
 	addressClient.
@@ -458,7 +458,7 @@ func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	addressClient := newMockAddressClient(t)
 	addressClient.
@@ -501,7 +501,7 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	addressClient := newMockAddressClient(t)
 	addressClient.
@@ -540,7 +540,7 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.

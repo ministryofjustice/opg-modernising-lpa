@@ -183,7 +183,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				On("Put", r.Context(), &page.Lpa{
 					Donor:                actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					ReplacementAttorneys: actor.Attorneys{tc.attorney},
-					Tasks:                page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
+					Tasks:                page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 				}).
 				Return(nil)
 
@@ -285,7 +285,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				On("Put", r.Context(), &page.Lpa{
 					Donor:                actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					ReplacementAttorneys: actor.Attorneys{tc.attorney},
-					Tasks:                page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
+					Tasks:                page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 				}).
 				Return(nil)
 
@@ -466,7 +466,7 @@ func TestReplacementAttorneyMatches(t *testing.T) {
 			{FirstNames: "g", LastName: "h"},
 			{ID: "123", FirstNames: "i", LastName: "j"},
 		},
-		CertificateProviderDetails: page.CertificateProviderDetails{FirstNames: "k", LastName: "l"},
+		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
 		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
@@ -494,7 +494,7 @@ func TestReplacementAttorneyMatchesEmptyNamesIgnored(t *testing.T) {
 			{FirstNames: "", LastName: ""},
 			{ID: "123", FirstNames: "", LastName: ""},
 		},
-		CertificateProviderDetails: page.CertificateProviderDetails{FirstNames: "", LastName: ""},
+		CertificateProvider: actor.CertificateProvider{FirstNames: "", LastName: ""},
 		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "", LastName: ""},
 		},

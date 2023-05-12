@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -11,7 +12,7 @@ import (
 type howDoYouKnowYourCertificateProviderData struct {
 	App                        page.AppData
 	Errors                     validation.List
-	CertificateProviderDetails page.CertificateProviderDetails
+	CertificateProviderDetails actor.CertificateProvider
 	Form                       *howDoYouKnowYourCertificateProviderForm
 }
 
@@ -24,10 +25,10 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, lpaStore LpaSto
 
 		data := &howDoYouKnowYourCertificateProviderData{
 			App:                        appData,
-			CertificateProviderDetails: lpa.CertificateProviderDetails,
+			CertificateProviderDetails: lpa.CertificateProvider,
 			Form: &howDoYouKnowYourCertificateProviderForm{
-				Description: lpa.CertificateProviderDetails.RelationshipDescription,
-				How:         lpa.CertificateProviderDetails.Relationship,
+				Description: lpa.CertificateProvider.RelationshipDescription,
+				How:         lpa.CertificateProvider.Relationship,
 			},
 		}
 
@@ -36,20 +37,20 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, lpaStore LpaSto
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.CertificateProviderDetails.Relationship = data.Form.How
-				lpa.CertificateProviderDetails.RelationshipDescription = data.Form.Description
+				lpa.CertificateProvider.Relationship = data.Form.How
+				lpa.CertificateProvider.RelationshipDescription = data.Form.Description
 
 				requireLength := false
 
-				if lpa.CertificateProviderDetails.Relationship != "legal-professional" && lpa.CertificateProviderDetails.Relationship != "health-professional" {
+				if lpa.CertificateProvider.Relationship != "legal-professional" && lpa.CertificateProvider.Relationship != "health-professional" {
 					requireLength = true
 				}
 
 				if requireLength {
-					lpa.Tasks.CertificateProvider = page.TaskInProgress
+					lpa.Tasks.CertificateProvider = actor.TaskInProgress
 				} else {
-					lpa.CertificateProviderDetails.RelationshipLength = ""
-					lpa.Tasks.CertificateProvider = page.TaskCompleted
+					lpa.CertificateProvider.RelationshipLength = ""
+					lpa.Tasks.CertificateProvider = actor.TaskCompleted
 				}
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {

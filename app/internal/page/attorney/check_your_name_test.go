@@ -60,7 +60,12 @@ func TestGetCheckYourName(t *testing.T) {
 				On("Get", r.Context()).
 				Return(tc.lpa, nil)
 
-			err := CheckYourName(template.Execute, lpaStore, nil)(tc.appData, w, r)
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
+				On("Get", r.Context()).
+				Return(&actor.AttorneyProvidedDetails{}, nil)
+
+			err := CheckYourName(template.Execute, lpaStore, attorneyStore, nil)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -102,7 +107,7 @@ func TestGetCheckYourNameWhenAttorneyDoesNotExist(t *testing.T) {
 				On("Get", r.Context()).
 				Return(tc.lpa, nil)
 
-			err := CheckYourName(nil, lpaStore, nil)(tc.appData, w, r)
+			err := CheckYourName(nil, lpaStore, nil, nil)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -112,7 +117,7 @@ func TestGetCheckYourNameWhenAttorneyDoesNotExist(t *testing.T) {
 	}
 }
 
-func TestGetCheckYourNameOnStoreError(t *testing.T) {
+func TestGetCheckYourNameOnLpaStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
@@ -123,7 +128,32 @@ func TestGetCheckYourNameOnStoreError(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := CheckYourName(template.Execute, lpaStore, nil)(testAppData, w, r)
+	err := CheckYourName(template.Execute, lpaStore, nil, nil)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestGetCheckYourNameOnAttorneyStoreError(t *testing.T) {
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+
+	template := newMockTemplate(t)
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{
+			Attorneys: actor.Attorneys{{ID: "attorney-id"}},
+		}, nil)
+
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
+		On("Get", r.Context()).
+		Return(&actor.AttorneyProvidedDetails{}, expectedError)
+
+	err := CheckYourName(template.Execute, lpaStore, attorneyStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -152,7 +182,12 @@ func TestGetCheckYourNameOnTemplateError(t *testing.T) {
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
-	err := CheckYourName(template.Execute, lpaStore, nil)(testAppData, w, r)
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
+		On("Get", r.Context()).
+		Return(&actor.AttorneyProvidedDetails{}, nil)
+
+	err := CheckYourName(template.Execute, lpaStore, attorneyStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -161,20 +196,22 @@ func TestGetCheckYourNameOnTemplateError(t *testing.T) {
 
 func TestPostCheckYourName(t *testing.T) {
 	testcases := map[string]struct {
-		appData    page.AppData
-		lpa        *page.Lpa
-		updatedLpa *page.Lpa
+		appData         page.AppData
+		lpa             *page.Lpa
+		attorney        *actor.AttorneyProvidedDetails
+		updatedAttorney *actor.AttorneyProvidedDetails
 	}{
 		"attorney": {
 			appData: testAppData,
 			lpa: &page.Lpa{
-				Attorneys:     actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				AttorneyTasks: map[string]page.AttorneyTasks{"attorney-id": {ConfirmYourDetails: page.TaskCompleted}},
+				Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 			},
-			updatedLpa: &page.Lpa{
-				Attorneys:               actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {IsNameCorrect: "yes"}},
-				AttorneyTasks:           map[string]page.AttorneyTasks{"attorney-id": {ConfirmYourDetails: page.TaskCompleted}},
+			attorney: &actor.AttorneyProvidedDetails{
+				Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted},
+			},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				IsNameCorrect: "yes",
+				Tasks:         actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted},
 			},
 		},
 		"replacement attorney": {
@@ -182,10 +219,10 @@ func TestPostCheckYourName(t *testing.T) {
 			lpa: &page.Lpa{
 				ReplacementAttorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 			},
-			updatedLpa: &page.Lpa{
-				ReplacementAttorneys:               actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {IsNameCorrect: "yes"}},
-				ReplacementAttorneyTasks:           map[string]page.AttorneyTasks{"attorney-id": {ConfirmYourDetails: page.TaskInProgress}},
+			attorney: &actor.AttorneyProvidedDetails{},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				IsNameCorrect: "yes",
+				Tasks:         actor.AttorneyTasks{ConfirmYourDetails: actor.TaskInProgress},
 			},
 		},
 	}
@@ -205,11 +242,16 @@ func TestPostCheckYourName(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(tc.lpa, nil)
-			lpaStore.
-				On("Put", r.Context(), tc.updatedLpa).
+
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
+				On("Get", r.Context()).
+				Return(tc.attorney, nil)
+			attorneyStore.
+				On("Put", r.Context(), tc.updatedAttorney).
 				Return(nil)
 
-			err := CheckYourName(nil, lpaStore, nil)(tc.appData, w, r)
+			err := CheckYourName(nil, lpaStore, attorneyStore, nil)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -221,9 +263,10 @@ func TestPostCheckYourName(t *testing.T) {
 
 func TestPostCheckYourNameWithCorrectedName(t *testing.T) {
 	testcases := map[string]struct {
-		appData    page.AppData
-		lpa        *page.Lpa
-		updatedLpa *page.Lpa
+		appData         page.AppData
+		lpa             *page.Lpa
+		attorney        *actor.AttorneyProvidedDetails
+		updatedAttorney *actor.AttorneyProvidedDetails
 	}{
 		"attorney": {
 			appData: testAppData,
@@ -231,25 +274,26 @@ func TestPostCheckYourNameWithCorrectedName(t *testing.T) {
 				Donor:     actor.Donor{Email: "a@example.com"},
 				Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 			},
-			updatedLpa: &page.Lpa{
-				Donor:                   actor.Donor{Email: "a@example.com"},
-				Attorneys:               actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {IsNameCorrect: "no", CorrectedName: "Bobby Smith"}},
-				AttorneyTasks:           map[string]page.AttorneyTasks{"attorney-id": {ConfirmYourDetails: page.TaskInProgress}},
+			attorney: &actor.AttorneyProvidedDetails{},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				IsNameCorrect: "no",
+				CorrectedName: "Bobby Smith",
+				Tasks:         actor.AttorneyTasks{ConfirmYourDetails: actor.TaskInProgress},
 			},
 		},
 		"replacement attorney": {
 			appData: testReplacementAppData,
 			lpa: &page.Lpa{
-				Donor:                    actor.Donor{Email: "a@example.com"},
-				ReplacementAttorneys:     actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				ReplacementAttorneyTasks: map[string]page.AttorneyTasks{"attorney-id": {ConfirmYourDetails: page.TaskCompleted}},
+				Donor:                actor.Donor{Email: "a@example.com"},
+				ReplacementAttorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 			},
-			updatedLpa: &page.Lpa{
-				Donor:                              actor.Donor{Email: "a@example.com"},
-				ReplacementAttorneys:               actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {IsNameCorrect: "no", CorrectedName: "Bobby Smith"}},
-				ReplacementAttorneyTasks:           map[string]page.AttorneyTasks{"attorney-id": {ConfirmYourDetails: page.TaskCompleted}},
+			attorney: &actor.AttorneyProvidedDetails{
+				Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted},
+			},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				IsNameCorrect: "no",
+				CorrectedName: "Bobby Smith",
+				Tasks:         actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted},
 			},
 		},
 	}
@@ -270,8 +314,13 @@ func TestPostCheckYourNameWithCorrectedName(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(tc.lpa, nil)
-			lpaStore.
-				On("Put", r.Context(), tc.updatedLpa).
+
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
+				On("Get", r.Context()).
+				Return(tc.attorney, nil)
+			attorneyStore.
+				On("Put", r.Context(), tc.updatedAttorney).
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t)
@@ -286,7 +335,7 @@ func TestPostCheckYourNameWithCorrectedName(t *testing.T) {
 				}).
 				Return("", nil)
 
-			err := CheckYourName(nil, lpaStore, notifyClient)(tc.appData, w, r)
+			err := CheckYourName(nil, lpaStore, attorneyStore, notifyClient)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -298,36 +347,41 @@ func TestPostCheckYourNameWithCorrectedName(t *testing.T) {
 
 func TestPostCheckYourNameWithUnchangedCorrectedName(t *testing.T) {
 	testcases := map[string]struct {
-		appData    page.AppData
-		lpa        *page.Lpa
-		updatedLpa *page.Lpa
+		appData         page.AppData
+		lpa             *page.Lpa
+		attorney        *actor.AttorneyProvidedDetails
+		updatedAttorney *actor.AttorneyProvidedDetails
 	}{
 		"attorney": {
 			appData: testAppData,
 			lpa: &page.Lpa{
-				Donor:                   actor.Donor{Email: "a@example.com"},
-				Attorneys:               actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {IsNameCorrect: "no", CorrectedName: "Bobby Smith"}},
+				Donor:     actor.Donor{Email: "a@example.com"},
+				Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 			},
-			updatedLpa: &page.Lpa{
-				Donor:                   actor.Donor{Email: "a@example.com"},
-				Attorneys:               actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {IsNameCorrect: "no", CorrectedName: "Bobby Smith"}},
-				AttorneyTasks:           map[string]page.AttorneyTasks{"attorney-id": {ConfirmYourDetails: page.TaskInProgress}},
+			attorney: &actor.AttorneyProvidedDetails{
+				IsNameCorrect: "no",
+				CorrectedName: "Bobby Smith",
+			},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				IsNameCorrect: "no",
+				CorrectedName: "Bobby Smith",
+				Tasks:         actor.AttorneyTasks{ConfirmYourDetails: actor.TaskInProgress},
 			},
 		},
 		"replacement attorney": {
 			appData: testReplacementAppData,
 			lpa: &page.Lpa{
-				Donor:                              actor.Donor{Email: "a@example.com"},
-				ReplacementAttorneys:               actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {IsNameCorrect: "no", CorrectedName: "Bobby Smith"}},
+				Donor:                actor.Donor{Email: "a@example.com"},
+				ReplacementAttorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 			},
-			updatedLpa: &page.Lpa{
-				Donor:                              actor.Donor{Email: "a@example.com"},
-				ReplacementAttorneys:               actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {IsNameCorrect: "no", CorrectedName: "Bobby Smith"}},
-				ReplacementAttorneyTasks:           map[string]page.AttorneyTasks{"attorney-id": {ConfirmYourDetails: page.TaskInProgress}},
+			attorney: &actor.AttorneyProvidedDetails{
+				IsNameCorrect: "no",
+				CorrectedName: "Bobby Smith",
+			},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				IsNameCorrect: "no",
+				CorrectedName: "Bobby Smith",
+				Tasks:         actor.AttorneyTasks{ConfirmYourDetails: actor.TaskInProgress},
 			},
 		},
 	}
@@ -348,11 +402,16 @@ func TestPostCheckYourNameWithUnchangedCorrectedName(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(tc.lpa, nil)
-			lpaStore.
-				On("Put", r.Context(), tc.updatedLpa).
+
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
+				On("Get", r.Context()).
+				Return(tc.attorney, nil)
+			attorneyStore.
+				On("Put", r.Context(), tc.updatedAttorney).
 				Return(nil)
 
-			err := CheckYourName(nil, lpaStore, nil)(tc.appData, w, r)
+			err := CheckYourName(nil, lpaStore, attorneyStore, nil)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -392,11 +451,16 @@ func TestPostCheckYourNameWithCorrectedNameWhenStoreError(t *testing.T) {
 			Donor:     actor.Donor{Email: "a@example.com"},
 			Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 		}, nil)
-	lpaStore.
+
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
+		On("Get", r.Context()).
+		Return(&actor.AttorneyProvidedDetails{}, nil)
+	attorneyStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := CheckYourName(nil, lpaStore, notifyClient)(testAppData, w, r)
+	err := CheckYourName(nil, lpaStore, attorneyStore, notifyClient)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -423,6 +487,11 @@ func TestPostCheckYourNameOnValidationError(t *testing.T) {
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
+		On("Get", r.Context()).
+		Return(&actor.AttorneyProvidedDetails{}, nil)
+
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &checkYourNameData{
@@ -434,7 +503,7 @@ func TestPostCheckYourNameOnValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CheckYourName(template.Execute, lpaStore, nil)(testAppData, w, r)
+	err := CheckYourName(template.Execute, lpaStore, attorneyStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

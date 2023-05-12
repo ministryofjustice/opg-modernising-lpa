@@ -188,19 +188,19 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 		WantToNotify     string
 		ExistingAnswer   string
 		ExpectedRedirect string
-		ExpectedStatus   page.TaskState
+		ExpectedStatus   actor.TaskState
 	}{
 		{
 			WantToNotify:     "yes",
 			ExistingAnswer:   "no",
 			ExpectedRedirect: "/lpa/lpa-id" + page.Paths.ChoosePeopleToNotify,
-			ExpectedStatus:   page.TaskInProgress,
+			ExpectedStatus:   actor.TaskInProgress,
 		},
 		{
 			WantToNotify:     "no",
 			ExistingAnswer:   "yes",
 			ExpectedRedirect: "/lpa/lpa-id" + page.Paths.CheckYourLpa,
-			ExpectedStatus:   page.TaskCompleted,
+			ExpectedStatus:   actor.TaskCompleted,
 		},
 	}
 
@@ -220,24 +220,24 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 				Return(&page.Lpa{
 					DoYouWantToNotifyPeople: tc.ExistingAnswer,
 					Tasks: page.Tasks{
-						YourDetails:                page.TaskCompleted,
-						ChooseAttorneys:            page.TaskCompleted,
-						ChooseReplacementAttorneys: page.TaskCompleted,
-						WhenCanTheLpaBeUsed:        page.TaskCompleted,
-						Restrictions:               page.TaskCompleted,
-						CertificateProvider:        page.TaskCompleted,
+						YourDetails:                actor.TaskCompleted,
+						ChooseAttorneys:            actor.TaskCompleted,
+						ChooseReplacementAttorneys: actor.TaskCompleted,
+						WhenCanTheLpaBeUsed:        actor.TaskCompleted,
+						Restrictions:               actor.TaskCompleted,
+						CertificateProvider:        actor.TaskCompleted,
 					},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
 					DoYouWantToNotifyPeople: tc.WantToNotify,
 					Tasks: page.Tasks{
-						YourDetails:                page.TaskCompleted,
-						ChooseAttorneys:            page.TaskCompleted,
-						ChooseReplacementAttorneys: page.TaskCompleted,
-						WhenCanTheLpaBeUsed:        page.TaskCompleted,
-						Restrictions:               page.TaskCompleted,
-						CertificateProvider:        page.TaskCompleted,
+						YourDetails:                actor.TaskCompleted,
+						ChooseAttorneys:            actor.TaskCompleted,
+						ChooseReplacementAttorneys: actor.TaskCompleted,
+						WhenCanTheLpaBeUsed:        actor.TaskCompleted,
+						Restrictions:               actor.TaskCompleted,
+						CertificateProvider:        actor.TaskCompleted,
 						PeopleToNotify:             tc.ExpectedStatus,
 					},
 				}).
@@ -269,7 +269,7 @@ func TestPostDoYouWantToNotifyPeopleWhenStoreErrors(t *testing.T) {
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
 			DoYouWantToNotifyPeople: "yes",
-			Tasks:                   page.Tasks{PeopleToNotify: page.TaskInProgress},
+			Tasks:                   page.Tasks{PeopleToNotify: actor.TaskInProgress},
 		}).
 		Return(expectedError)
 
