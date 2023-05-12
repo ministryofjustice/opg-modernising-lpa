@@ -46,7 +46,7 @@ func mockLpaStoreWithCompletedPaymentLpaData(m *mockLpaStore, r *http.Request, p
 				PaymentReference: paymentReference,
 			},
 			Tasks: Tasks{
-				PayForLpa: TaskCompleted,
+				PayForLpa: actor.TaskCompleted,
 			},
 		}).
 		Return(nil)

@@ -34,7 +34,7 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, lpaStore Lpa
 			data.Errors = form.Validate()
 
 			if data.Errors.None() {
-				lpa.Tasks.CertificateProvider = page.TaskCompleted
+				lpa.Tasks.CertificateProvider = actor.TaskCompleted
 				lpa.CertificateProvider.RelationshipLength = form.HowLong
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err

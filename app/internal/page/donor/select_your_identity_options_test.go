@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -118,7 +119,7 @@ func TestPostSelectYourIdentityOptions(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			DonorIdentityOption: identity.Passport,
 			Tasks: page.Tasks{
-				ConfirmYourIdentityAndSign: page.TaskInProgress,
+				ConfirmYourIdentityAndSign: actor.TaskInProgress,
 			},
 		}).
 		Return(nil)

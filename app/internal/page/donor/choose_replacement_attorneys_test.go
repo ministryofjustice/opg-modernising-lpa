@@ -183,7 +183,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				On("Put", r.Context(), &page.Lpa{
 					Donor:                actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					ReplacementAttorneys: actor.Attorneys{tc.attorney},
-					Tasks:                page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
+					Tasks:                page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 				}).
 				Return(nil)
 
@@ -285,7 +285,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				On("Put", r.Context(), &page.Lpa{
 					Donor:                actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					ReplacementAttorneys: actor.Attorneys{tc.attorney},
-					Tasks:                page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
+					Tasks:                page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 				}).
 				Return(nil)
 
