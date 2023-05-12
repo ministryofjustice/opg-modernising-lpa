@@ -18,7 +18,7 @@ type checkYourNameData struct {
 	Attorney actor.Attorney
 }
 
-func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient NotifyClient) page.Handler {
+func CheckYourName(tmpl template.Template, lpaStore LpaStore, attorneyStore AttorneyStore, notifyClient NotifyClient) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
@@ -35,7 +35,10 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 			return appData.Redirect(w, r, lpa, page.Paths.Attorney.Start)
 		}
 
-		attorneyProvidedDetails := getProvidedDetails(appData, lpa)
+		attorneyProvidedDetails, err := attorneyStore.Get(r.Context())
+		if err != nil {
+			return err
+		}
 
 		data := &checkYourNameData{
 			App: appData,
@@ -55,7 +58,10 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 				previousCorrectedName := attorneyProvidedDetails.CorrectedName
 				attorneyProvidedDetails.IsNameCorrect = data.Form.IsNameCorrect
 				attorneyProvidedDetails.CorrectedName = data.Form.CorrectedName
-				setProvidedDetails(appData, lpa, attorneyProvidedDetails)
+
+				if attorneyProvidedDetails.Tasks.ConfirmYourDetails == actor.TaskNotStarted {
+					attorneyProvidedDetails.Tasks.ConfirmYourDetails = actor.TaskInProgress
+				}
 
 				if data.Form.CorrectedName != "" && data.Form.CorrectedName != previousCorrectedName {
 					attorneyProvidedDetails.CorrectedName = data.Form.CorrectedName
@@ -69,13 +75,7 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 					}
 				}
 
-				tasks := getTasks(appData, lpa)
-				if tasks.ConfirmYourDetails == page.TaskNotStarted {
-					tasks.ConfirmYourDetails = page.TaskInProgress
-					setTasks(appData, lpa, tasks)
-				}
-
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
 					return err
 				}
 

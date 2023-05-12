@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestLoginCallback(t *testing.T) {
@@ -161,6 +162,39 @@ func TestLoginCallbackWhenUserInfoError(t *testing.T) {
 				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", Attorney: true},
 			},
 		}, nil)
+
+	err := LoginCallback(client, sessionStore)(testAppData, w, r)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestLoginCallbackWhenSessionError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
+
+	client := newMockOneLoginClient(t)
+	client.
+		On("Exchange", r.Context(), "auth-code", "my-nonce").
+		Return("a JWT", nil)
+	client.
+		On("UserInfo", r.Context(), "a JWT").
+		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{
+			Values: map[any]any{
+				"one-login": &sesh.OneLoginSession{
+					State:    "my-state",
+					Nonce:    "my-nonce",
+					Locale:   "en",
+					Attorney: true,
+				},
+			},
+		}, nil)
+	sessionStore.
+		On("Save", r, w, mock.Anything).
+		Return(expectedError)
 
 	err := LoginCallback(client, sessionStore)(testAppData, w, r)
 	assert.Equal(t, expectedError, err)
