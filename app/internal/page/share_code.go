@@ -16,6 +16,8 @@ type ShareCodeData struct {
 	Identity              bool
 	AttorneyID            string
 	IsReplacementAttorney bool
+	DonorFullname         string
+	DonorFirstNames       string
 }
 
 type ShareCodeSender struct {
@@ -49,8 +51,10 @@ func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template 
 	}
 
 	if err := s.dataStore.Put(ctx, "CERTIFICATEPROVIDERSHARE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
-		LpaID:    appData.LpaID,
-		Identity: identity,
+		LpaID:           appData.LpaID,
+		Identity:        identity,
+		DonorFullname:   lpa.Donor.FullName(),
+		DonorFirstNames: lpa.Donor.FirstNames,
 	}); err != nil {
 		return fmt.Errorf("creating sharecode failed: %w", err)
 	}

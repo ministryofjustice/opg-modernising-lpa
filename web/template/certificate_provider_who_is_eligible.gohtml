@@ -24,21 +24,21 @@
             {{ tr .App "whoIsEligibleToBeCertificateProvider" }}
         </h1>
 
-        {{ $donorFullNamePossessive := possessive .App .Lpa.Donor.FullName }}
+        {{ $donorFullNamePossessive := possessive .App .DonorFullName }}
 
-        {{ trFormatHtml .App "whoIsEligibleToBeCertificateProviderContent" "DonorFullNamePossessive" $donorFullNamePossessive "DonorFirstName" .Lpa.Donor.FirstNames  }}
+        {{ trFormatHtml .App "whoIsEligibleToBeCertificateProviderContent" "DonorFullNamePossessive" $donorFullNamePossessive "DonorFirstName" .DonorFirstNames  }}
 
         {{ template "details" (details . "whoIsEligibleToBeCertificateProviderDetails" "whoIsEligibleToBeCertificateProviderDetailsContent" false) }}
 
         <h2 class="govuk-heading-m">{{ tr .App "whoCannotBeCertificateProvider" }}</h2>
 
-        {{ $donorFirstNamePossessive := possessive .App .Lpa.Donor.FirstNames }}
+        {{ $donorFirstNamePossessive := possessive .App .DonorFirstNames }}
 
-        {{ trFormatHtml .App "whoCannotBeCertificateProviderContent" "DonorFirstName" .Lpa.Donor.FirstNames "DonorFirstNamePossessive" $donorFirstNamePossessive }}
+        {{ trFormatHtml .App "whoCannotBeCertificateProviderContent" "DonorFirstName" .DonorFirstNames "DonorFirstNamePossessive" $donorFirstNamePossessive }}
 
         {{ template "warning" (warning .App "ifAnyStatementsApplyYouCannotBeACertificateProvider") }}
 
-        <a class="govuk-button" href="{{ link .App .App.Paths.CertificateProviderCheckYourName }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
+        <a class="govuk-button" href="{{ link .App .App.Paths.CertificateProviderLogin }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
     </div>
 </div>
 {{ end }}
