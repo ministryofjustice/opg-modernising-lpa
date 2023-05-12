@@ -1492,7 +1492,7 @@ func TestTestingStart(t *testing.T) {
 		assert.Equal(t, "/attorney-start", resp.Header.Get("Location"))
 	})
 
-	t.Run("signed by donor", func(t *testing.T) {
+	t.Run("with share code sessionr", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/?withShareCodeSession=1&redirect=/attorney-start", nil)
 		now := time.Now()
