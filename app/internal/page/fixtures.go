@@ -94,8 +94,8 @@ func MakePersonToNotify(firstNames string) actor.PersonToNotify {
 	}
 }
 
-func MakeCertificateProviderDetails(firstNames string) CertificateProviderDetails {
-	return CertificateProviderDetails{
+func MakeCertificateProviderDetails(firstNames string) actor.CertificateProvider {
+	return actor.CertificateProvider{
 		FirstNames:              firstNames,
 		LastName:                "Jones",
 		Email:                   TestEmail,
@@ -186,7 +186,7 @@ func CompleteRestrictions(lpa *Lpa) {
 }
 
 func AddCertificateProviderDetails(lpa *Lpa, firstNames string) {
-	lpa.CertificateProviderDetails = MakeCertificateProviderDetails(firstNames)
+	lpa.CertificateProvider = MakeCertificateProviderDetails(firstNames)
 	lpa.Tasks.CertificateProvider = TaskCompleted
 }
 

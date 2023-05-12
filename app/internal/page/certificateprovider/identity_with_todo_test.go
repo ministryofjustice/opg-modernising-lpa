@@ -21,9 +21,9 @@ func TestGetIdentityWithTodo(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{FirstNames: "a", LastName: "b"}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{FirstNames: "a", LastName: "b"}, nil)
 	certificateProviderStore.
-		On("Put", r.Context(), &actor.CertificateProvider{
+		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{
 			FirstNames: "a",
 			LastName:   "b",
 			IdentityUserData: identity.UserData{
@@ -58,7 +58,7 @@ func TestGetIdentityWithTodoWhenCertificateProviderStoreGetErrors(t *testing.T) 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, expectedError)
+		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := IdentityWithTodo(nil, nil, identity.Passport, certificateProviderStore)(testAppData, w, r)
 	assert.Equal(t, expectedError, err)
@@ -71,7 +71,7 @@ func TestGetIdentityWithTodoWhenLpaStorePutErrors(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{FirstNames: "a", LastName: "b"}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{FirstNames: "a", LastName: "b"}, nil)
 	certificateProviderStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
@@ -87,7 +87,7 @@ func TestPostIdentityWithTodo(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	err := IdentityWithTodo(nil, nil, identity.Passport, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()

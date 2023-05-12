@@ -34,10 +34,10 @@ func TestWitnessCodeSenderSend(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Put", ctx, &Lpa{
-			Donor:                      actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-			CertificateProviderDetails: CertificateProviderDetails{Mobile: "0777"},
-			WitnessCodes:               WitnessCodes{{Code: "1234", Created: now}},
-			Type:                       LpaTypePropertyFinance,
+			Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
+			CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
+			WitnessCodes:        WitnessCodes{{Code: "1234", Created: now}},
+			Type:                LpaTypePropertyFinance,
 		}).
 		Return(nil)
 
@@ -56,9 +56,9 @@ func TestWitnessCodeSenderSend(t *testing.T) {
 		now:          func() time.Time { return now },
 	}
 	err := sender.Send(ctx, &Lpa{
-		Donor:                      actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		CertificateProviderDetails: CertificateProviderDetails{Mobile: "0777"},
-		Type:                       LpaTypePropertyFinance,
+		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
+		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
+		Type:                LpaTypePropertyFinance,
 	}, localizer)
 
 	assert.Nil(t, err)
@@ -87,9 +87,9 @@ func TestWitnessCodeSenderSendWhenNotifyClientErrors(t *testing.T) {
 		now:          time.Now,
 	}
 	err := sender.Send(context.Background(), &Lpa{
-		CertificateProviderDetails: CertificateProviderDetails{Mobile: "0777"},
-		Donor:                      actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:                       LpaTypePropertyFinance,
+		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
+		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
+		Type:                LpaTypePropertyFinance,
 	}, localizer)
 
 	assert.Equal(t, ExpectedError, err)
@@ -124,9 +124,9 @@ func TestWitnessCodeSenderSendWhenLpaStoreErrors(t *testing.T) {
 		now:          time.Now,
 	}
 	err := sender.Send(context.Background(), &Lpa{
-		CertificateProviderDetails: CertificateProviderDetails{Mobile: "0777"},
-		Donor:                      actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:                       LpaTypePropertyFinance,
+		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
+		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
+		Type:                LpaTypePropertyFinance,
 	}, localizer)
 
 	assert.Equal(t, ExpectedError, err)
