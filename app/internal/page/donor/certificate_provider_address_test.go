@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -19,7 +20,7 @@ func TestGetCertificateProviderAddress(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	certificateProvider := page.CertificateProviderDetails{
+	certificateProvider := actor.CertificateProvider{
 		Address: place.Address{},
 	}
 
@@ -64,7 +65,7 @@ func TestGetCertificateProviderAddressFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	certificateProvider := page.CertificateProviderDetails{
+	certificateProvider := actor.CertificateProvider{
 		Address: testAddress,
 	}
 
@@ -98,7 +99,7 @@ func TestGetCertificateProviderAddressManual(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?action=manual", nil)
 
-	certificateProvider := page.CertificateProviderDetails{
+	certificateProvider := actor.CertificateProvider{
 		Address: testAddress,
 	}
 
@@ -171,7 +172,7 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			CertificateProviderDetails: page.CertificateProviderDetails{Address: testAddress},
+			CertificateProviderDetails: actor.CertificateProvider{Address: testAddress},
 		}).
 		Return(nil)
 
@@ -204,7 +205,7 @@ func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			CertificateProviderDetails: page.CertificateProviderDetails{Address: testAddress},
+			CertificateProviderDetails: actor.CertificateProvider{Address: testAddress},
 		}).
 		Return(expectedError)
 
@@ -231,7 +232,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProviderDetails: page.CertificateProviderDetails{
+			CertificateProviderDetails: actor.CertificateProvider{
 				FirstNames: "John",
 				Address:    place.Address{Line1: "abc"},
 			},
@@ -240,7 +241,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			CertificateProviderDetails: page.CertificateProviderDetails{
+			CertificateProviderDetails: actor.CertificateProvider{
 				FirstNames: "John",
 				Address:    testAddress,
 			},
@@ -315,7 +316,7 @@ func TestPostCertificateProviderAddressSelect(t *testing.T) {
 		Return(&page.Lpa{}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			CertificateProviderDetails: page.CertificateProviderDetails{Address: testAddress},
+			CertificateProviderDetails: actor.CertificateProvider{Address: testAddress},
 		}).
 		Return(nil)
 

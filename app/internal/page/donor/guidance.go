@@ -14,7 +14,7 @@ type guidanceData struct {
 	Lpa    *page.Lpa
 }
 
-func Guidance(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func Guidance(tmpl template.Template, lpaStore GetLpaStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &guidanceData{
 			App: appData,

@@ -29,10 +29,8 @@ func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store) page.
 		}
 
 		if err := sesh.SetAttorney(sessionStore, r, w, &sesh.AttorneySession{
-			Sub:            userInfo.Sub,
-			Email:          userInfo.Email,
-			LpaID:          oneLoginSession.LpaID,
-			DonorSessionID: oneLoginSession.SessionID,
+			Sub:   userInfo.Sub,
+			Email: userInfo.Email,
 		}); err != nil {
 			return err
 		}

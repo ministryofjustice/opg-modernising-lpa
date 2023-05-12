@@ -96,11 +96,16 @@ func TestGetSign(t *testing.T) {
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
 				On("Get", mock.Anything).
-				Return(&actor.CertificateProvider{
+				Return(&actor.CertificateProviderProvidedDetails{
 					Certificate: actor.Certificate{Agreed: time.Now()},
 				}, nil)
 
-			err := Sign(template.Execute, lpaStore, certificateProviderStore)(tc.appData, w, r)
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
+				On("Get", r.Context()).
+				Return(&actor.AttorneyProvidedDetails{}, nil)
+
+			err := Sign(template.Execute, lpaStore, certificateProviderStore, attorneyStore)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -113,7 +118,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 	testcases := map[string]struct {
 		appData             page.AppData
 		lpa                 *page.Lpa
-		certificateProvider *actor.CertificateProvider
+		certificateProvider *actor.CertificateProviderProvidedDetails
 	}{
 		"submitted but not certified": {
 			appData: testAppData,
@@ -124,7 +129,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
 				},
 			},
-			certificateProvider: &actor.CertificateProvider{},
+			certificateProvider: &actor.CertificateProviderProvidedDetails{},
 		},
 		"certified but not submitted": {
 			appData: testAppData,
@@ -135,7 +140,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
 				},
 			},
-			certificateProvider: &actor.CertificateProvider{
+			certificateProvider: &actor.CertificateProviderProvidedDetails{
 				Certificate: actor.Certificate{Agreed: time.Now()},
 			},
 		},
@@ -156,7 +161,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 				On("Get", mock.Anything).
 				Return(tc.certificateProvider, nil)
 
-			err := Sign(nil, lpaStore, certificateProviderStore)(tc.appData, w, r)
+			err := Sign(nil, lpaStore, certificateProviderStore, nil)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -204,11 +209,11 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
 				On("Get", mock.Anything).
-				Return(&actor.CertificateProvider{
+				Return(&actor.CertificateProviderProvidedDetails{
 					Certificate: actor.Certificate{Agreed: time.Now()},
 				}, nil)
 
-			err := Sign(nil, lpaStore, certificateProviderStore)(tc.appData, w, r)
+			err := Sign(nil, lpaStore, certificateProviderStore, nil)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -229,7 +234,7 @@ func TestGetSignOnStoreError(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := Sign(template.Execute, lpaStore, nil)(testAppData, w, r)
+	err := Sign(template.Execute, lpaStore, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -256,11 +261,16 @@ func TestGetSignOnTemplateError(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", mock.Anything).
-		Return(&actor.CertificateProvider{
+		Return(&actor.CertificateProviderProvidedDetails{
 			Certificate: actor.Certificate{Agreed: time.Now()},
 		}, nil)
 
-	err := Sign(template.Execute, lpaStore, certificateProviderStore)(testAppData, w, r)
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
+		On("Get", r.Context()).
+		Return(&actor.AttorneyProvidedDetails{}, nil)
+
+	err := Sign(template.Execute, lpaStore, certificateProviderStore, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -271,9 +281,9 @@ func TestPostSign(t *testing.T) {
 	now := time.Now()
 
 	testcases := map[string]struct {
-		appData    page.AppData
-		lpa        *page.Lpa
-		updatedLpa *page.Lpa
+		appData         page.AppData
+		lpa             *page.Lpa
+		updatedAttorney *actor.AttorneyProvidedDetails
 	}{
 		"attorney": {
 			appData: testAppData,
@@ -281,11 +291,9 @@ func TestPostSign(t *testing.T) {
 				Submitted: now,
 				Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 			},
-			updatedLpa: &page.Lpa{
-				Submitted:               now,
-				Attorneys:               actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {Confirmed: true}},
-				AttorneyTasks:           map[string]page.AttorneyTasks{"attorney-id": {SignTheLpa: page.TaskCompleted}},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				Confirmed: true,
+				Tasks:     actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
 			},
 		},
 		"replacement attorney": {
@@ -294,11 +302,9 @@ func TestPostSign(t *testing.T) {
 				Submitted:            now,
 				ReplacementAttorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 			},
-			updatedLpa: &page.Lpa{
-				Submitted:                          now,
-				ReplacementAttorneys:               actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {Confirmed: true}},
-				ReplacementAttorneyTasks:           map[string]page.AttorneyTasks{"attorney-id": {SignTheLpa: page.TaskCompleted}},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				Confirmed: true,
+				Tasks:     actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
 			},
 		},
 	}
@@ -318,18 +324,23 @@ func TestPostSign(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(tc.lpa, nil)
-			lpaStore.
-				On("Put", r.Context(), tc.updatedLpa).
+
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
+				On("Get", r.Context()).
+				Return(&actor.AttorneyProvidedDetails{}, nil)
+			attorneyStore.
+				On("Put", r.Context(), tc.updatedAttorney).
 				Return(nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
 				On("Get", mock.Anything).
-				Return(&actor.CertificateProvider{
+				Return(&actor.CertificateProviderProvidedDetails{
 					Certificate: actor.Certificate{Agreed: time.Now()},
 				}, nil)
 
-			err := Sign(nil, lpaStore, certificateProviderStore)(tc.appData, w, r)
+			err := Sign(nil, lpaStore, certificateProviderStore, attorneyStore)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -356,18 +367,23 @@ func TestPostSignWhenStoreError(t *testing.T) {
 			Submitted: time.Now(),
 			Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 		}, nil)
-	lpaStore.
-		On("Put", r.Context(), mock.Anything).
-		Return(expectedError)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", mock.Anything).
-		Return(&actor.CertificateProvider{
+		Return(&actor.CertificateProviderProvidedDetails{
 			Certificate: actor.Certificate{Agreed: time.Now()},
 		}, nil)
 
-	err := Sign(nil, lpaStore, certificateProviderStore)(testAppData, w, r)
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
+		On("Get", r.Context()).
+		Return(&actor.AttorneyProvidedDetails{}, nil)
+	attorneyStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(expectedError)
+
+	err := Sign(nil, lpaStore, certificateProviderStore, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -393,9 +409,14 @@ func TestPostSignOnValidationError(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", mock.Anything).
-		Return(&actor.CertificateProvider{
+		Return(&actor.CertificateProviderProvidedDetails{
 			Certificate: actor.Certificate{Agreed: time.Now()},
 		}, nil)
+
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
+		On("Get", r.Context()).
+		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -407,7 +428,7 @@ func TestPostSignOnValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := Sign(template.Execute, lpaStore, certificateProviderStore)(testAppData, w, r)
+	err := Sign(template.Execute, lpaStore, certificateProviderStore, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

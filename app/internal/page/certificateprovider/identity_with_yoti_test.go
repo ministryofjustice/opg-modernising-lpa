@@ -21,7 +21,7 @@ func TestGetIdentityWithYoti(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{LpaID: "lpa-id"}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	session := sessions.NewSession(sessionStore, "yoti")
@@ -67,7 +67,7 @@ func TestGetIdentityWithYotiWhenSessionErrors(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{LpaID: "lpa-id"}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	yotiClient := newMockYotiClient(t)
 	yotiClient.On("IsTest").Return(false)
@@ -89,7 +89,7 @@ func TestGetIdentityWithYotiWhenAlreadyProvided(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{
+		Return(&actor.CertificateProviderProvidedDetails{
 			LpaID:            "lpa-id",
 			IdentityUserData: identity.UserData{OK: true, Provider: identity.EasyID},
 		}, nil)
@@ -109,7 +109,7 @@ func TestGetIdentityWithYotiWhenTest(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	yotiClient := newMockYotiClient(t)
 	yotiClient.On("IsTest").Return(true)
@@ -129,7 +129,7 @@ func TestGetIdentityWithYotiWhenDataStoreError(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, expectedError)
+		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := IdentityWithYoti(nil, nil, nil, certificateProviderStore)(testAppData, w, r)
 
@@ -143,7 +143,7 @@ func TestGetIdentityWithYotiWhenTemplateError(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.

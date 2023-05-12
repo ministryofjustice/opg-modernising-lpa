@@ -356,7 +356,7 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
-				CertificateProviderDetails: CertificateProviderDetails{
+				CertificateProviderDetails: actor.CertificateProvider{
 					FirstNames:              "Jessie",
 					LastName:                "Jones",
 					Email:                   TestEmail,
@@ -894,7 +894,7 @@ func TestTestingStart(t *testing.T) {
 				},
 				WhoFor: "me",
 				Type:   LpaTypePropertyFinance,
-				CertificateProviderDetails: CertificateProviderDetails{
+				CertificateProviderDetails: actor.CertificateProvider{
 					FirstNames:              "Jessie",
 					LastName:                "Jones",
 					Email:                   TestEmail,
@@ -993,12 +993,14 @@ func TestTestingStart(t *testing.T) {
 		certificateProviderStore := newMockCertificateProviderStore(t)
 		certificateProviderStore.
 			On("Create", ctx).
-			Return(&actor.CertificateProvider{IdentityUserData: identity.UserData{
-				OK:         true,
-				Provider:   identity.OneLogin,
-				FirstNames: "Jessie",
-				LastName:   "Jones",
-			}}, nil)
+			Return(&actor.CertificateProviderProvidedDetails{
+				IdentityUserData: identity.UserData{
+					OK:         true,
+					Provider:   identity.OneLogin,
+					FirstNames: "Jessie",
+					LastName:   "Jones",
+				},
+			}, nil)
 
 		ctx = ContextWithSessionData(r.Context(), &SessionData{
 			SessionID: base64.StdEncoding.EncodeToString([]byte("123")),
@@ -1006,7 +1008,7 @@ func TestTestingStart(t *testing.T) {
 		})
 
 		certificateProviderStore.
-			On("Put", ctx, &actor.CertificateProvider{
+			On("Put", ctx, &actor.CertificateProviderProvidedDetails{
 				IdentityUserData: identity.UserData{
 					OK:         true,
 					Provider:   identity.OneLogin,
@@ -1049,12 +1051,14 @@ func TestTestingStart(t *testing.T) {
 		certificateProviderStore := newMockCertificateProviderStore(t)
 		certificateProviderStore.
 			On("Create", ctx).
-			Return(&actor.CertificateProvider{IdentityUserData: identity.UserData{
-				OK:         true,
-				Provider:   identity.OneLogin,
-				FirstNames: "Jessie",
-				LastName:   "Jones",
-			}}, nil)
+			Return(&actor.CertificateProviderProvidedDetails{
+				IdentityUserData: identity.UserData{
+					OK:         true,
+					Provider:   identity.OneLogin,
+					FirstNames: "Jessie",
+					LastName:   "Jones",
+				},
+			}, nil)
 
 		ctx = ContextWithSessionData(r.Context(), &SessionData{
 			SessionID: base64.StdEncoding.EncodeToString([]byte("123")),
@@ -1062,7 +1066,7 @@ func TestTestingStart(t *testing.T) {
 		})
 
 		certificateProviderStore.
-			On("Put", ctx, &actor.CertificateProvider{
+			On("Put", ctx, &actor.CertificateProviderProvidedDetails{
 				IdentityUserData: identity.UserData{
 					OK:         true,
 					Provider:   identity.OneLogin,
@@ -1104,7 +1108,7 @@ func TestTestingStart(t *testing.T) {
 
 		lpa := &Lpa{
 			ID:                         "123",
-			CertificateProviderDetails: CertificateProviderDetails{Email: TestEmail},
+			CertificateProviderDetails: actor.CertificateProvider{Email: TestEmail},
 		}
 		lpaStore := newMockLpaStore(t)
 		lpaStore.
@@ -1151,7 +1155,7 @@ func TestTestingStart(t *testing.T) {
 
 		lpa := &Lpa{
 			ID:                         "123",
-			CertificateProviderDetails: CertificateProviderDetails{Email: TestEmail},
+			CertificateProviderDetails: actor.CertificateProvider{Email: TestEmail},
 		}
 		lpaStore := newMockLpaStore(t)
 		lpaStore.
@@ -1194,7 +1198,7 @@ func TestTestingStart(t *testing.T) {
 
 		lpa := &Lpa{
 			ID:                         "123",
-			CertificateProviderDetails: CertificateProviderDetails{Email: TestEmail},
+			CertificateProviderDetails: actor.CertificateProvider{Email: TestEmail},
 		}
 
 		lpaStore := newMockLpaStore(t)
@@ -1252,12 +1256,14 @@ func TestTestingStart(t *testing.T) {
 		certificateProviderStore := newMockCertificateProviderStore(t)
 		certificateProviderStore.
 			On("Create", ctx).
-			Return(&actor.CertificateProvider{IdentityUserData: identity.UserData{
-				OK:         true,
-				Provider:   identity.OneLogin,
-				FirstNames: "Jessie",
-				LastName:   "Jones",
-			}}, nil)
+			Return(&actor.CertificateProviderProvidedDetails{
+				IdentityUserData: identity.UserData{
+					OK:         true,
+					Provider:   identity.OneLogin,
+					FirstNames: "Jessie",
+					LastName:   "Jones",
+				},
+			}, nil)
 
 		ctx = ContextWithSessionData(r.Context(), &SessionData{
 			SessionID: base64.StdEncoding.EncodeToString([]byte("123")),
@@ -1265,7 +1271,7 @@ func TestTestingStart(t *testing.T) {
 		})
 
 		certificateProviderStore.
-			On("Put", ctx, &actor.CertificateProvider{
+			On("Put", ctx, &actor.CertificateProviderProvidedDetails{
 				IdentityUserData: identity.UserData{
 					OK:         true,
 					Provider:   identity.OneLogin,
