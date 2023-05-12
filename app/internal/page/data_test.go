@@ -190,12 +190,12 @@ func TestTaskStateString(t *testing.T) {
 func TestLpaProgress(t *testing.T) {
 	testCases := map[string]struct {
 		lpa              *Lpa
-		cp               *actor.CertificateProvider
+		cp               *actor.CertificateProviderProvidedDetails
 		expectedProgress Progress
 	}{
 		"initial state": {
 			lpa: &Lpa{},
-			cp:  &actor.CertificateProvider{},
+			cp:  &actor.CertificateProviderProvidedDetails{},
 			expectedProgress: Progress{
 				LpaSigned:                   TaskInProgress,
 				CertificateProviderDeclared: TaskNotStarted,
@@ -207,7 +207,7 @@ func TestLpaProgress(t *testing.T) {
 		},
 		"lpa signed": {
 			lpa: &Lpa{Submitted: time.Now()},
-			cp:  &actor.CertificateProvider{},
+			cp:  &actor.CertificateProviderProvidedDetails{},
 			expectedProgress: Progress{
 				LpaSigned:                   TaskCompleted,
 				CertificateProviderDeclared: TaskInProgress,
@@ -219,7 +219,7 @@ func TestLpaProgress(t *testing.T) {
 		},
 		"certificate provider declared": {
 			lpa: &Lpa{Submitted: time.Now()},
-			cp:  &actor.CertificateProvider{Certificate: actor.Certificate{Agreed: time.Now()}},
+			cp:  &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: time.Now()}},
 			expectedProgress: Progress{
 				LpaSigned:                   TaskCompleted,
 				CertificateProviderDeclared: TaskCompleted,
@@ -250,7 +250,7 @@ func TestActorAddresses(t *testing.T) {
 			{FirstNames: "Replacement Attorney One", LastName: "Actor", Address: address},
 			{FirstNames: "Replacement Attorney Two", LastName: "Actor", Address: address},
 		},
-		CertificateProviderDetails: CertificateProviderDetails{FirstNames: "Certificate Provider", LastName: "Actor", Address: address},
+		CertificateProvider: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor", Address: address},
 	}
 
 	want := []AddressDetail{
@@ -276,7 +276,7 @@ func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
 			{FirstNames: "Replacement Attorney One", LastName: "Actor"},
 			{FirstNames: "Replacement Attorney Two", LastName: "Actor", Address: address},
 		},
-		CertificateProviderDetails: CertificateProviderDetails{FirstNames: "Certificate Provider", LastName: "Actor"},
+		CertificateProvider: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor"},
 	}
 
 	want := []AddressDetail{

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -55,14 +56,14 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	certificateProvider := page.CertificateProviderDetails{
+	certificateProvider := actor.CertificateProvider{
 		Relationship: "friend",
 	}
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProviderDetails: certificateProvider,
+			CertificateProvider: certificateProvider,
 		}, nil)
 
 	template := newMockTemplate(t)
@@ -105,13 +106,13 @@ func TestGetHowDoYouKnowYourCertificateProviderWhenTemplateErrors(t *testing.T) 
 func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 	testCases := map[string]struct {
 		form                       url.Values
-		certificateProviderDetails page.CertificateProviderDetails
+		certificateProviderDetails actor.CertificateProvider
 		taskState                  page.TaskState
 		redirect                   string
 	}{
 		"legal-professional": {
 			form: url.Values{"how": {"legal-professional"}},
-			certificateProviderDetails: page.CertificateProviderDetails{
+			certificateProviderDetails: actor.CertificateProvider{
 				FirstNames:   "John",
 				Relationship: "legal-professional",
 			},
@@ -120,7 +121,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		},
 		"health-professional": {
 			form: url.Values{"how": {"health-professional"}},
-			certificateProviderDetails: page.CertificateProviderDetails{
+			certificateProviderDetails: actor.CertificateProvider{
 				FirstNames:   "John",
 				Relationship: "health-professional",
 			},
@@ -129,7 +130,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		},
 		"other": {
 			form: url.Values{"how": {"other"}, "description": {"This"}},
-			certificateProviderDetails: page.CertificateProviderDetails{
+			certificateProviderDetails: actor.CertificateProvider{
 				FirstNames:              "John",
 				Relationship:            "other",
 				RelationshipDescription: "This",
@@ -140,7 +141,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		},
 		"lay - friend": {
 			form: url.Values{"how": {"friend"}},
-			certificateProviderDetails: page.CertificateProviderDetails{
+			certificateProviderDetails: actor.CertificateProvider{
 				FirstNames:         "John",
 				Relationship:       "friend",
 				RelationshipLength: "gte-2-years",
@@ -150,7 +151,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		},
 		"lay - neighbour": {
 			form: url.Values{"how": {"neighbour"}},
-			certificateProviderDetails: page.CertificateProviderDetails{
+			certificateProviderDetails: actor.CertificateProvider{
 				FirstNames:         "John",
 				Relationship:       "neighbour",
 				RelationshipLength: "gte-2-years",
@@ -160,7 +161,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		},
 		"lay - colleague": {
 			form: url.Values{"how": {"colleague"}},
-			certificateProviderDetails: page.CertificateProviderDetails{
+			certificateProviderDetails: actor.CertificateProvider{
 				FirstNames:         "John",
 				Relationship:       "colleague",
 				RelationshipLength: "gte-2-years",
@@ -180,7 +181,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 			lpaStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					CertificateProviderDetails: page.CertificateProviderDetails{FirstNames: "John", Relationship: "what", RelationshipLength: "gte-2-years"},
+					CertificateProvider: actor.CertificateProvider{FirstNames: "John", Relationship: "what", RelationshipLength: "gte-2-years"},
 					Tasks: page.Tasks{
 						YourDetails:     page.TaskCompleted,
 						ChooseAttorneys: page.TaskCompleted,
@@ -188,7 +189,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
-					CertificateProviderDetails: tc.certificateProviderDetails,
+					CertificateProvider: tc.certificateProviderDetails,
 					Tasks: page.Tasks{
 						YourDetails:         page.TaskCompleted,
 						ChooseAttorneys:     page.TaskCompleted,

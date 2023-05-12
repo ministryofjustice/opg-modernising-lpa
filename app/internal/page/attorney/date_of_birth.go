@@ -11,7 +11,6 @@ import (
 
 type dateOfBirthData struct {
 	App        page.AppData
-	Lpa        *page.Lpa
 	Form       *dateOfBirthForm
 	Errors     validation.List
 	DobWarning string
@@ -22,18 +21,15 @@ type dateOfBirthForm struct {
 	IgnoreDobWarning string
 }
 
-func DateOfBirth(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func DateOfBirth(tmpl template.Template, attorneyStore AttorneyStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		attorneyProvidedDetails, err := attorneyStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
-		attorneyProvidedDetails := getProvidedDetails(appData, lpa)
-
 		data := &dateOfBirthData{
 			App: appData,
-			Lpa: lpa,
 			Form: &dateOfBirthForm{
 				Dob: attorneyProvidedDetails.DateOfBirth,
 			},
@@ -50,13 +46,11 @@ func DateOfBirth(tmpl template.Template, lpaStore LpaStore) page.Handler {
 
 			if data.Errors.None() && data.DobWarning == "" {
 				attorneyProvidedDetails.DateOfBirth = data.Form.Dob
-				setProvidedDetails(appData, lpa, attorneyProvidedDetails)
-
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.Attorney.MobileNumber)
+				return appData.Redirect(w, r, nil, page.Paths.Attorney.MobileNumber)
 			}
 		}
 

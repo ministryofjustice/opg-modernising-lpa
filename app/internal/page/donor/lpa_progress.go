@@ -14,7 +14,7 @@ import (
 type lpaProgressData struct {
 	App                 page.AppData
 	Lpa                 *page.Lpa
-	CertificateProvider *actor.CertificateProvider
+	CertificateProvider *actor.CertificateProviderProvidedDetails
 	Errors              validation.List
 }
 
@@ -33,7 +33,7 @@ func LpaProgress(tmpl template.Template, lpaStore LpaStore, certificateProviderS
 		}
 
 		if certificateProvider == nil {
-			certificateProvider = &actor.CertificateProvider{}
+			certificateProvider = &actor.CertificateProviderProvidedDetails{}
 		}
 
 		data := &lpaProgressData{

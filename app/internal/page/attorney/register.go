@@ -2,6 +2,7 @@ package attorney
 
 import (
 	"context"
+	"encoding/base64"
 	"io"
 	"net/http"
 
@@ -43,18 +44,13 @@ type OneLoginClient interface {
 
 //go:generate mockery --testonly --inpackage --name LpaStore --structname mockLpaStore
 type LpaStore interface {
-	Create(context.Context) (*page.Lpa, error)
 	GetAll(context.Context) ([]*page.Lpa, error)
 	Get(context.Context) (*page.Lpa, error)
-	Put(context.Context, *page.Lpa) error
 }
 
 //go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
 type DataStore interface {
 	Get(ctx context.Context, pk, sk string, v interface{}) error
-	Put(context.Context, string, string, interface{}) error
-	GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
-	GetAllByGsi(ctx context.Context, gsi, sk string, v interface{}) error
 }
 
 //go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient
@@ -66,7 +62,14 @@ type NotifyClient interface {
 
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
 type CertificateProviderStore interface {
-	Get(ctx context.Context) (*actor.CertificateProvider, error)
+	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
+}
+
+//go:generate mockery --testonly --inpackage --name AttorneyStore --structname mockAttorneyStore
+type AttorneyStore interface {
+	Create(context.Context, bool) (*actor.AttorneyProvidedDetails, error)
+	Get(context.Context) (*actor.AttorneyProvidedDetails, error)
+	Put(context.Context, *actor.AttorneyProvidedDetails) error
 }
 
 //go:generate mockery --testonly --inpackage --name AddressClient --structname mockAddressClient
@@ -81,6 +84,7 @@ func Register(
 	sessionStore SessionStore,
 	lpaStore LpaStore,
 	certificateProviderStore CertificateProviderStore,
+	attorneyStore AttorneyStore,
 	oneLoginClient OneLoginClient,
 	addressClient AddressClient,
 	dataStore DataStore,
@@ -96,27 +100,27 @@ func Register(
 	handleRoot(page.Paths.Attorney.LoginCallback, None,
 		LoginCallback(oneLoginClient, sessionStore))
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,
-		EnterReferenceNumber(tmpls.Get("attorney_enter_reference_number.gohtml"), lpaStore, dataStore, sessionStore))
+		EnterReferenceNumber(tmpls.Get("attorney_enter_reference_number.gohtml"), dataStore, sessionStore, attorneyStore))
 	handleRoot(page.Paths.Attorney.CodeOfConduct, RequireLpa,
 		donor.Guidance(tmpls.Get("attorney_code_of_conduct.gohtml"), lpaStore))
 	handleRoot(page.Paths.Attorney.TaskList, RequireLpa,
-		TaskList(tmpls.Get("attorney_task_list.gohtml"), lpaStore, certificateProviderStore))
+		TaskList(tmpls.Get("attorney_task_list.gohtml"), lpaStore, certificateProviderStore, attorneyStore))
 	handleRoot(page.Paths.Attorney.CheckYourName, RequireLpa,
-		CheckYourName(tmpls.Get("attorney_check_your_name.gohtml"), lpaStore, notifyClient))
+		CheckYourName(tmpls.Get("attorney_check_your_name.gohtml"), lpaStore, attorneyStore, notifyClient))
 	handleRoot(page.Paths.Attorney.DateOfBirth, RequireLpa,
-		DateOfBirth(tmpls.Get("attorney_date_of_birth.gohtml"), lpaStore))
+		DateOfBirth(tmpls.Get("attorney_date_of_birth.gohtml"), attorneyStore))
 	handleRoot(page.Paths.Attorney.MobileNumber, RequireLpa,
-		MobileNumber(tmpls.Get("attorney_mobile_number.gohtml"), lpaStore))
+		MobileNumber(tmpls.Get("attorney_mobile_number.gohtml"), attorneyStore))
 	handleRoot(page.Paths.Attorney.YourAddress, RequireLpa,
-		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
+		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, attorneyStore))
 	handleRoot(page.Paths.Attorney.ReadTheLpa, RequireLpa,
-		ReadTheLpa(tmpls.Get("attorney_read_the_lpa.gohtml"), lpaStore))
+		ReadTheLpa(tmpls.Get("attorney_read_the_lpa.gohtml"), lpaStore, attorneyStore))
 	handleRoot(page.Paths.Attorney.RightsAndResponsibilities, RequireLpa,
 		page.Guidance(tmpls.Get("attorney_legal_rights_and_responsibilities.gohtml")))
 	handleRoot(page.Paths.Attorney.WhatHappensWhenYouSign, RequireLpa,
 		donor.Guidance(tmpls.Get("attorney_what_happens_when_you_sign.gohtml"), lpaStore))
 	handleRoot(page.Paths.Attorney.Sign, RequireLpa,
-		Sign(tmpls.Get("attorney_sign.gohtml"), lpaStore, certificateProviderStore))
+		Sign(tmpls.Get("attorney_sign.gohtml"), lpaStore, certificateProviderStore, attorneyStore))
 	handleRoot(page.Paths.Attorney.WhatHappensNext, RequireLpa,
 		donor.Guidance(tmpls.Get("attorney_what_happens_next.gohtml"), lpaStore))
 }
@@ -149,12 +153,12 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 
 			if opt&RequireLpa != 0 {
 				session, err := sesh.Attorney(store, r)
-				if err != nil || session.DonorSessionID == "" || session.LpaID == "" || session.AttorneyID == "" {
+				if err != nil || session.LpaID == "" || session.AttorneyID == "" {
 					http.Redirect(w, r, page.Paths.Attorney.Start, http.StatusFound)
 					return
 				}
 
-				appData.SessionID = session.DonorSessionID
+				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
 				appData.LpaID = session.LpaID
 				appData.AttorneyID = session.AttorneyID
 
@@ -174,65 +178,5 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 				errorHandler(w, r, err)
 			}
 		})
-	}
-}
-
-func getProvidedDetails(appData page.AppData, lpa *page.Lpa) actor.AttorneyProvidedDetails {
-	if appData.IsReplacementAttorney() {
-		if providedDetails, ok := lpa.ReplacementAttorneyProvidedDetails[appData.AttorneyID]; ok {
-			return providedDetails
-		}
-	} else {
-		if providedDetails, ok := lpa.AttorneyProvidedDetails[appData.AttorneyID]; ok {
-			return providedDetails
-		}
-	}
-
-	return actor.AttorneyProvidedDetails{}
-}
-
-func setProvidedDetails(appData page.AppData, lpa *page.Lpa, providedDetails actor.AttorneyProvidedDetails) {
-	if appData.IsReplacementAttorney() {
-		if lpa.ReplacementAttorneyProvidedDetails == nil {
-			lpa.ReplacementAttorneyProvidedDetails = map[string]actor.AttorneyProvidedDetails{appData.AttorneyID: providedDetails}
-		} else {
-			lpa.ReplacementAttorneyProvidedDetails[appData.AttorneyID] = providedDetails
-		}
-	} else {
-		if lpa.AttorneyProvidedDetails == nil {
-			lpa.AttorneyProvidedDetails = map[string]actor.AttorneyProvidedDetails{appData.AttorneyID: providedDetails}
-		} else {
-			lpa.AttorneyProvidedDetails[appData.AttorneyID] = providedDetails
-		}
-	}
-}
-
-func getTasks(appData page.AppData, lpa *page.Lpa) page.AttorneyTasks {
-	if appData.IsReplacementAttorney() {
-		if tasks, ok := lpa.ReplacementAttorneyTasks[appData.AttorneyID]; ok {
-			return tasks
-		}
-	} else {
-		if tasks, ok := lpa.AttorneyTasks[appData.AttorneyID]; ok {
-			return tasks
-		}
-	}
-
-	return page.AttorneyTasks{}
-}
-
-func setTasks(appData page.AppData, lpa *page.Lpa, tasks page.AttorneyTasks) {
-	if appData.IsReplacementAttorney() {
-		if lpa.ReplacementAttorneyTasks == nil {
-			lpa.ReplacementAttorneyTasks = map[string]page.AttorneyTasks{appData.AttorneyID: tasks}
-		} else {
-			lpa.ReplacementAttorneyTasks[appData.AttorneyID] = tasks
-		}
-	} else {
-		if lpa.AttorneyTasks == nil {
-			lpa.AttorneyTasks = map[string]page.AttorneyTasks{appData.AttorneyID: tasks}
-		} else {
-			lpa.AttorneyTasks[appData.AttorneyID] = tasks
-		}
 	}
 }
