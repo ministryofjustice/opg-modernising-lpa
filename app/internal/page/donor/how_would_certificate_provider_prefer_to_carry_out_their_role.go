@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -11,7 +12,7 @@ import (
 type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
 	App                        page.AppData
 	Errors                     validation.List
-	CertificateProviderDetails page.CertificateProviderDetails
+	CertificateProviderDetails actor.CertificateProvider
 	Form                       *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
 }
 
@@ -24,10 +25,10 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 
 		data := &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:                        appData,
-			CertificateProviderDetails: lpa.CertificateProviderDetails,
+			CertificateProviderDetails: lpa.CertificateProvider,
 			Form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: lpa.CertificateProviderDetails.CarryOutBy,
-				Email:      lpa.CertificateProviderDetails.Email,
+				CarryOutBy: lpa.CertificateProvider.CarryOutBy,
+				Email:      lpa.CertificateProvider.Email,
 			},
 		}
 
@@ -36,14 +37,14 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.CertificateProviderDetails.CarryOutBy = data.Form.CarryOutBy
-				lpa.CertificateProviderDetails.Email = data.Form.Email
+				lpa.CertificateProvider.CarryOutBy = data.Form.CarryOutBy
+				lpa.CertificateProvider.Email = data.Form.Email
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				if lpa.CertificateProviderDetails.CarryOutBy == "paper" {
+				if lpa.CertificateProvider.CarryOutBy == "paper" {
 					return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderAddress)
 				} else {
 					return appData.Redirect(w, r, lpa, page.Paths.HowDoYouKnowYourCertificateProvider)

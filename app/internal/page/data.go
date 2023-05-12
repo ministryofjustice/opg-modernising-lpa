@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
@@ -55,7 +54,7 @@ type Lpa struct {
 	Donor                                      actor.Donor
 	Attorneys                                  actor.Attorneys
 	AttorneyDecisions                          actor.AttorneyDecisions
-	CertificateProviderDetails                 CertificateProviderDetails
+	CertificateProvider                        actor.CertificateProvider
 	WhoFor                                     string
 	Type                                       string
 	WantReplacementAttorneys                   string
@@ -80,34 +79,11 @@ type Lpa struct {
 	Submitted                                  time.Time
 	CPWitnessCodeValidated                     bool
 	WitnessCodeLimiter                         *Limiter
-
-	AttorneyProvidedDetails            map[string]actor.AttorneyProvidedDetails
-	ReplacementAttorneyProvidedDetails map[string]actor.AttorneyProvidedDetails
-
-	AttorneyTasks            map[string]AttorneyTasks
-	ReplacementAttorneyTasks map[string]AttorneyTasks
 }
 
 type PaymentDetails struct {
 	PaymentReference string
 	PaymentId        string
-}
-
-type CertificateProviderDetails struct {
-	FirstNames              string
-	LastName                string
-	Address                 place.Address
-	Mobile                  string
-	Email                   string
-	CarryOutBy              string
-	DateOfBirth             date.Date
-	Relationship            string
-	RelationshipDescription string
-	RelationshipLength      string
-}
-
-func (c CertificateProviderDetails) FullName() string {
-	return fmt.Sprintf("%s %s", c.FirstNames, c.LastName)
 }
 
 type Tasks struct {
@@ -122,12 +98,6 @@ type Tasks struct {
 	PayForLpa                  TaskState
 	ConfirmYourIdentityAndSign TaskState
 	PeopleToNotify             TaskState
-}
-
-type AttorneyTasks struct {
-	ConfirmYourDetails TaskState
-	ReadTheLpa         TaskState
-	SignTheLpa         TaskState
 }
 
 type Progress struct {
@@ -225,7 +195,7 @@ func (l *Lpa) CanGoTo(url string) bool {
 	}
 }
 
-func (l *Lpa) Progress(certificateProvider *actor.CertificateProvider) Progress {
+func (l *Lpa) Progress(certificateProvider *actor.CertificateProviderProvidedDetails) Progress {
 	p := Progress{
 		LpaSigned:                   TaskInProgress,
 		CertificateProviderDeclared: TaskNotStarted,
@@ -266,11 +236,11 @@ func (l *Lpa) ActorAddresses() []AddressDetail {
 		})
 	}
 
-	if l.CertificateProviderDetails.Address.String() != "" {
+	if l.CertificateProvider.Address.String() != "" {
 		ads = append(ads, AddressDetail{
-			Name:    l.CertificateProviderDetails.FullName(),
+			Name:    l.CertificateProvider.FullName(),
 			Role:    actor.TypeCertificateProvider,
-			Address: l.CertificateProviderDetails.Address,
+			Address: l.CertificateProvider.Address,
 		})
 	}
 

@@ -18,7 +18,7 @@ func canSign(ctx context.Context, certificateProviderStore CertificateProviderSt
 	certificateProvider, err := certificateProviderStore.Get(ctx)
 	if err != nil {
 		if errors.Is(err, dynamo.NotFoundError{}) {
-			certificateProvider = &actor.CertificateProvider{}
+			certificateProvider = &actor.CertificateProviderProvidedDetails{}
 		} else {
 			return false, err
 		}
@@ -38,7 +38,7 @@ type signData struct {
 	Form                       *signForm
 }
 
-func Sign(tmpl template.Template, lpaStore LpaStore, certificateProviderStore CertificateProviderStore) page.Handler {
+func Sign(tmpl template.Template, lpaStore LpaStore, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
@@ -59,7 +59,10 @@ func Sign(tmpl template.Template, lpaStore LpaStore, certificateProviderStore Ce
 			return appData.Redirect(w, r, lpa, page.Paths.Attorney.Start)
 		}
 
-		attorneyProvidedDetails := getProvidedDetails(appData, lpa)
+		attorneyProvidedDetails, err := attorneyStore.Get(r.Context())
+		if err != nil {
+			return err
+		}
 
 		data := &signData{
 			App:                        appData,
@@ -77,13 +80,9 @@ func Sign(tmpl template.Template, lpaStore LpaStore, certificateProviderStore Ce
 
 			if data.Errors.None() {
 				attorneyProvidedDetails.Confirmed = true
-				setProvidedDetails(appData, lpa, attorneyProvidedDetails)
+				attorneyProvidedDetails.Tasks.SignTheLpa = actor.TaskCompleted
 
-				tasks := getTasks(appData, lpa)
-				tasks.SignTheLpa = page.TaskCompleted
-				setTasks(appData, lpa, tasks)
-
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
 					return err
 				}
 
