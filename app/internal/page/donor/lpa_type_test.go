@@ -7,7 +7,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -29,7 +32,7 @@ func TestGetLpaType(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, lpaStore)(testAppData, w, r)
+	err := LpaType(template.Execute, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -53,7 +56,7 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, lpaStore)(testAppData, w, r)
+	err := LpaType(template.Execute, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -69,7 +72,7 @@ func TestGetLpaTypeWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := LpaType(nil, lpaStore)(testAppData, w, r)
+	err := LpaType(nil, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -92,7 +95,7 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := LpaType(template.Execute, lpaStore)(testAppData, w, r)
+	err := LpaType(template.Execute, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -111,12 +114,33 @@ func TestPostLpaType(t *testing.T) {
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{Donor: actor.Donor{
+			FirstNames:  "Jane",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "1", "2"),
+			Address:     place.Address{Postcode: "ABC123"},
+		},
+		}, nil)
 	lpaStore.
-		On("Put", r.Context(), &page.Lpa{Type: page.LpaTypePropertyFinance, Tasks: page.Tasks{YourDetails: page.TaskCompleted}}).
+		On("Put", r.Context(), &page.Lpa{Donor: actor.Donor{
+			FirstNames:  "Jane",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "1", "2"),
+			Address:     place.Address{Postcode: "ABC123"},
+		},
+			Type:  page.LpaTypePropertyFinance,
+			Tasks: page.Tasks{YourDetails: page.TaskCompleted},
+		}).
 		Return(nil)
 
-	err := LpaType(nil, lpaStore)(testAppData, w, r)
+	body := `{"type":"pfa","source":"APPLICANT","donor":{"name":"Jane Smith","dob":"2000-1-2","postcode":"ABC123"}}`
+
+	uidClient := newMockOpgUidClient(t)
+	uidClient.
+		On("CreateCase", body).
+		Return(`{"uid": "M-789Q-P4DF-4UX3"}`, nil)
+
+	err := LpaType(nil, lpaStore, uidClient)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -141,9 +165,52 @@ func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := LpaType(nil, lpaStore)(testAppData, w, r)
+	err := LpaType(nil, lpaStore, nil)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
+}
+
+func TestPostLpaTypeWhenUidClientErrors(t *testing.T) {
+	form := url.Values{
+		"lpa-type": {page.LpaTypePropertyFinance},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	lpaStore := newMockLpaStore(t)
+	lpaStore.
+		On("Get", r.Context()).
+		Return(&page.Lpa{Donor: actor.Donor{
+			FirstNames:  "Jane",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "1", "2"),
+			Address:     place.Address{Postcode: "ABC123"},
+		},
+		}, nil)
+	lpaStore.
+		On("Put", r.Context(), &page.Lpa{Donor: actor.Donor{
+			FirstNames:  "Jane",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "1", "2"),
+			Address:     place.Address{Postcode: "ABC123"},
+		},
+			Type:  page.LpaTypePropertyFinance,
+			Tasks: page.Tasks{YourDetails: page.TaskCompleted},
+		}).
+		Return(nil)
+
+	uidClient := newMockOpgUidClient(t)
+	uidClient.
+		On("CreateCase", mock.Anything).
+		Return("", expectedError)
+
+	err := LpaType(nil, lpaStore, uidClient)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
@@ -164,7 +231,7 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, lpaStore)(testAppData, w, r)
+	err := LpaType(template.Execute, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

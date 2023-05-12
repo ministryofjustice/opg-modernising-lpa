@@ -1,6 +1,7 @@
 package donor
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -14,7 +15,7 @@ type lpaTypeData struct {
 	Type   string
 }
 
-func LpaType(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func LpaType(tmpl template.Template, lpaStore LpaStore, uidClient OpgUidClient) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
@@ -34,6 +35,19 @@ func LpaType(tmpl template.Template, lpaStore LpaStore) page.Handler {
 				lpa.Tasks.YourDetails = page.TaskCompleted
 				lpa.Type = form.LpaType
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+					return err
+				}
+
+				body := fmt.Sprintf(
+					`{"type":"%s","source":"APPLICANT","donor":{"name":"%s","dob":"%s","postcode":"%s"}}`,
+					lpa.Type,
+					lpa.Donor.FullName(),
+					lpa.Donor.DateOfBirth.String(),
+					lpa.Donor.Address.Postcode,
+				)
+
+				_, err := uidClient.CreateCase(body)
+				if err != nil {
 					return err
 				}
 

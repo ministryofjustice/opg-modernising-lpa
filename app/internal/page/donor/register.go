@@ -97,6 +97,11 @@ type WitnessCodeSender interface {
 	Send(context.Context, *page.Lpa, page.Localizer) error
 }
 
+//go:generate mockery --testonly --inpackage --name OpgUidClient --structname mockOpgUidClient
+type OpgUidClient interface {
+	CreateCase(body string) (string, error)
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -139,7 +144,7 @@ func Register(
 	handleLpa(page.Paths.YourAddress, None,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
 	handleLpa(page.Paths.LpaType, None,
-		LpaType(tmpls.Get("lpa_type.gohtml"), lpaStore))
+		LpaType(tmpls.Get("lpa_type.gohtml"), lpaStore, nil))
 	handleLpa(page.Paths.WhoIsTheLpaFor, None,
 		WhoIsTheLpaFor(tmpls.Get("who_is_the_lpa_for.gohtml"), lpaStore))
 
