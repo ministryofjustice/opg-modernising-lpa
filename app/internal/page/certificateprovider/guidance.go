@@ -13,7 +13,7 @@ type guidanceData struct {
 	App                 page.AppData
 	Errors              validation.List
 	Lpa                 *page.Lpa
-	CertificateProvider *actor.CertificateProvider
+	CertificateProvider *actor.CertificateProviderProvidedDetails
 }
 
 func Guidance(tmpl template.Template, lpaStore LpaStore, certificateProviderStore CertificateProviderStore) page.Handler {

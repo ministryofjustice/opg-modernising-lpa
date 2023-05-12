@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -111,12 +112,12 @@ func TestPostLifeSustainingTreatment(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			Tasks: page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
 			LifeSustainingTreatmentOption: page.OptionA,
-			Tasks:                         page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted, LifeSustainingTreatment: page.TaskCompleted},
+			Tasks:                         page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, LifeSustainingTreatment: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -142,7 +143,7 @@ func TestPostLifeSustainingTreatmentWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 	lpaStore.
-		On("Put", r.Context(), &page.Lpa{LifeSustainingTreatmentOption: page.OptionA, Tasks: page.Tasks{LifeSustainingTreatment: page.TaskCompleted}}).
+		On("Put", r.Context(), &page.Lpa{LifeSustainingTreatmentOption: page.OptionA, Tasks: page.Tasks{LifeSustainingTreatment: actor.TaskCompleted}}).
 		Return(expectedError)
 
 	err := LifeSustainingTreatment(nil, lpaStore)(testAppData, w, r)

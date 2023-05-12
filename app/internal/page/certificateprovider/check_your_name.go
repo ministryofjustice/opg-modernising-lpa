@@ -56,8 +56,8 @@ func CheckYourName(tmpl template.Template, lpaStore LpaStore, notifyClient Notif
 						return err
 					}
 				} else {
-					certificateProvider.FirstNames = lpa.CertificateProviderDetails.FirstNames
-					certificateProvider.LastName = lpa.CertificateProviderDetails.LastName
+					certificateProvider.FirstNames = lpa.CertificateProvider.FirstNames
+					certificateProvider.LastName = lpa.CertificateProvider.LastName
 
 					if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 						return err

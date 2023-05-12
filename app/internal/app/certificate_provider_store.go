@@ -14,7 +14,7 @@ type certificateProviderStore struct {
 	now       func() time.Time
 }
 
-func (s *certificateProviderStore) Create(ctx context.Context) (*actor.CertificateProvider, error) {
+func (s *certificateProviderStore) Create(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -26,13 +26,13 @@ func (s *certificateProviderStore) Create(ctx context.Context) (*actor.Certifica
 
 	pk, sk := makeCertificateProviderKeys(data.LpaID, data.SessionID)
 
-	cp := &actor.CertificateProvider{LpaID: data.LpaID, UpdatedAt: s.now()}
+	cp := &actor.CertificateProviderProvidedDetails{LpaID: data.LpaID, UpdatedAt: s.now()}
 	err = s.dataStore.Create(ctx, pk, sk, cp)
 
 	return cp, err
 }
 
-func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateProvider, error) {
+func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateP
 		return nil, errors.New("certificateProviderStore.Get requires LpaID to retrieve")
 	}
 
-	var certificateProvider actor.CertificateProvider
+	var certificateProvider actor.CertificateProviderProvidedDetails
 
 	pk := "LPA#" + data.LpaID
 
@@ -53,7 +53,7 @@ func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateP
 	return &certificateProvider, nil
 }
 
-func (s *certificateProviderStore) Put(ctx context.Context, certificateProvider *actor.CertificateProvider) error {
+func (s *certificateProviderStore) Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return err

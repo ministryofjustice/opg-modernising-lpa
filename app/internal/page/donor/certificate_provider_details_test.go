@@ -63,7 +63,7 @@ func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			CertificateProviderDetails: page.CertificateProviderDetails{
+			CertificateProvider: actor.CertificateProvider{
 				FirstNames: "John",
 			},
 		}, nil)
@@ -112,7 +112,7 @@ func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
 func TestPostCertificateProviderDetails(t *testing.T) {
 	testCases := map[string]struct {
 		form                       url.Values
-		certificateProviderDetails page.CertificateProviderDetails
+		certificateProviderDetails actor.CertificateProvider
 	}{
 		"valid": {
 			form: url.Values{
@@ -123,7 +123,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1990"},
 			},
-			certificateProviderDetails: page.CertificateProviderDetails{
+			certificateProviderDetails: actor.CertificateProvider{
 				FirstNames:  "John",
 				LastName:    "Rey",
 				Mobile:      "07535111111",
@@ -140,7 +140,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"date-of-birth-year":  {"1990"},
 				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeCertificateProvider, actor.TypeDonor, "Jane", "Doe").String()},
 			},
-			certificateProviderDetails: page.CertificateProviderDetails{
+			certificateProviderDetails: actor.CertificateProvider{
 				FirstNames:  "Jane",
 				LastName:    "Doe",
 				Mobile:      "07535111111",
@@ -157,7 +157,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"date-of-birth-year":          {"1990"},
 				"ignore-similar-name-warning": {"yes"},
 			},
-			certificateProviderDetails: page.CertificateProviderDetails{
+			certificateProviderDetails: actor.CertificateProvider{
 				FirstNames:  "Joyce",
 				LastName:    "Doe",
 				Mobile:      "07535111111",
@@ -187,7 +187,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 						FirstNames: "Jane",
 						LastName:   "Doe",
 					},
-					CertificateProviderDetails: tc.certificateProviderDetails,
+					CertificateProvider: tc.certificateProviderDetails,
 				}).
 				Return(nil)
 
@@ -513,7 +513,7 @@ func TestCertificateProviderMatches(t *testing.T) {
 			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
 		},
-		CertificateProviderDetails: page.CertificateProviderDetails{FirstNames: "k", LastName: "l"},
+		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
 		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
@@ -540,7 +540,7 @@ func TestCertificateProviderMatchesEmptyNamesIgnored(t *testing.T) {
 		ReplacementAttorneys: actor.Attorneys{
 			{FirstNames: "", LastName: ""},
 		},
-		CertificateProviderDetails: page.CertificateProviderDetails{FirstNames: "", LastName: ""},
+		CertificateProvider: actor.CertificateProvider{FirstNames: "", LastName: ""},
 		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "", LastName: ""},
 		},
