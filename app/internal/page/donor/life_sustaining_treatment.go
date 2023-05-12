@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -32,7 +33,7 @@ func LifeSustainingTreatment(tmpl template.Template, lpaStore LpaStore) page.Han
 
 			if data.Errors.None() {
 				lpa.LifeSustainingTreatmentOption = form.Option
-				lpa.Tasks.LifeSustainingTreatment = page.TaskCompleted
+				lpa.Tasks.LifeSustainingTreatment = actor.TaskCompleted
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}

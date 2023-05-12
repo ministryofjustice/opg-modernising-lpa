@@ -69,12 +69,12 @@ func TestAppDataRedirectWhenCanGoTo(t *testing.T) {
 		},
 		"allowed": {
 			url:      "/",
-			lpa:      &Lpa{Tasks: Tasks{PayForLpa: TaskCompleted}},
+			lpa:      &Lpa{Tasks: Tasks{PayForLpa: actor.TaskCompleted}},
 			expected: Paths.HowToConfirmYourIdentityAndSign,
 		},
 		"allowed from": {
 			url:      "/?from=" + Paths.Restrictions,
-			lpa:      &Lpa{Tasks: Tasks{YourDetails: TaskCompleted, ChooseAttorneys: TaskCompleted}},
+			lpa:      &Lpa{Tasks: Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted}},
 			expected: Paths.Restrictions,
 		},
 		"not allowed": {

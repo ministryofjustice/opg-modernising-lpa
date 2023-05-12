@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -109,7 +110,7 @@ func TestPostSignYourLpa(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
 			Tasks: page.Tasks{
-				ConfirmYourIdentityAndSign: page.TaskCompleted,
+				ConfirmYourIdentityAndSign: actor.TaskCompleted,
 			},
 			WantToSignLpa:     true,
 			WantToApplyForLpa: true,

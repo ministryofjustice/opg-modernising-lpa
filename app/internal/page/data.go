@@ -25,29 +25,6 @@ const (
 	OptionB                = "option-b"
 )
 
-type TaskState int
-
-const (
-	TaskNotStarted TaskState = iota
-	TaskInProgress
-	TaskCompleted
-)
-
-func (t TaskState) InProgress() bool { return t == TaskInProgress }
-func (t TaskState) Completed() bool  { return t == TaskCompleted }
-
-func (t TaskState) String() string {
-	switch t {
-	case TaskNotStarted:
-		return "notStarted"
-	case TaskInProgress:
-		return "inProgress"
-	case TaskCompleted:
-		return "completed"
-	}
-	return ""
-}
-
 type Lpa struct {
 	ID                                         string
 	UpdatedAt                                  time.Time
@@ -87,26 +64,26 @@ type PaymentDetails struct {
 }
 
 type Tasks struct {
-	YourDetails                TaskState
-	ChooseAttorneys            TaskState
-	ChooseReplacementAttorneys TaskState
-	WhenCanTheLpaBeUsed        TaskState // pfa only
-	LifeSustainingTreatment    TaskState // hw only
-	Restrictions               TaskState
-	CertificateProvider        TaskState
-	CheckYourLpa               TaskState
-	PayForLpa                  TaskState
-	ConfirmYourIdentityAndSign TaskState
-	PeopleToNotify             TaskState
+	YourDetails                actor.TaskState
+	ChooseAttorneys            actor.TaskState
+	ChooseReplacementAttorneys actor.TaskState
+	WhenCanTheLpaBeUsed        actor.TaskState // pfa only
+	LifeSustainingTreatment    actor.TaskState // hw only
+	Restrictions               actor.TaskState
+	CertificateProvider        actor.TaskState
+	CheckYourLpa               actor.TaskState
+	PayForLpa                  actor.TaskState
+	ConfirmYourIdentityAndSign actor.TaskState
+	PeopleToNotify             actor.TaskState
 }
 
 type Progress struct {
-	LpaSigned                   TaskState
-	CertificateProviderDeclared TaskState
-	AttorneysDeclared           TaskState
-	LpaSubmitted                TaskState
-	StatutoryWaitingPeriod      TaskState
-	LpaRegistered               TaskState
+	LpaSigned                   actor.TaskState
+	CertificateProviderDeclared actor.TaskState
+	AttorneysDeclared           actor.TaskState
+	LpaSubmitted                actor.TaskState
+	StatutoryWaitingPeriod      actor.TaskState
+	LpaRegistered               actor.TaskState
 }
 
 type SessionData struct {
@@ -197,22 +174,22 @@ func (l *Lpa) CanGoTo(url string) bool {
 
 func (l *Lpa) Progress(certificateProvider *actor.CertificateProviderProvidedDetails) Progress {
 	p := Progress{
-		LpaSigned:                   TaskInProgress,
-		CertificateProviderDeclared: TaskNotStarted,
-		AttorneysDeclared:           TaskNotStarted,
-		LpaSubmitted:                TaskNotStarted,
-		StatutoryWaitingPeriod:      TaskNotStarted,
-		LpaRegistered:               TaskNotStarted,
+		LpaSigned:                   actor.TaskInProgress,
+		CertificateProviderDeclared: actor.TaskNotStarted,
+		AttorneysDeclared:           actor.TaskNotStarted,
+		LpaSubmitted:                actor.TaskNotStarted,
+		StatutoryWaitingPeriod:      actor.TaskNotStarted,
+		LpaRegistered:               actor.TaskNotStarted,
 	}
 
 	if !l.Submitted.IsZero() {
-		p.LpaSigned = TaskCompleted
-		p.CertificateProviderDeclared = TaskInProgress
+		p.LpaSigned = actor.TaskCompleted
+		p.CertificateProviderDeclared = actor.TaskInProgress
 	}
 
 	if !certificateProvider.Certificate.Agreed.IsZero() {
-		p.CertificateProviderDeclared = TaskCompleted
-		p.AttorneysDeclared = TaskInProgress
+		p.CertificateProviderDeclared = actor.TaskCompleted
+		p.AttorneysDeclared = actor.TaskInProgress
 	}
 
 	return p
@@ -269,68 +246,68 @@ func (l *Lpa) ActorAddresses() []AddressDetail {
 	return ads
 }
 
-func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDecisions) TaskState {
+func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDecisions) actor.TaskState {
 	if len(attorneys) == 0 {
-		return TaskNotStarted
+		return actor.TaskNotStarted
 	}
 
 	for _, a := range attorneys {
 		if a.FirstNames == "" || (a.Address.Line1 == "" && a.Email == "") {
-			return TaskInProgress
+			return actor.TaskInProgress
 		}
 	}
 
 	if len(attorneys) > 1 && !decisions.IsComplete(len(attorneys)) {
-		return TaskInProgress
+		return actor.TaskInProgress
 	}
 
-	return TaskCompleted
+	return actor.TaskCompleted
 }
 
-func ChooseReplacementAttorneysState(lpa *Lpa) TaskState {
+func ChooseReplacementAttorneysState(lpa *Lpa) actor.TaskState {
 	if lpa.WantReplacementAttorneys == "no" {
-		return TaskCompleted
+		return actor.TaskCompleted
 	}
 
 	if len(lpa.ReplacementAttorneys) == 0 {
 		if lpa.WantReplacementAttorneys == "" {
-			return TaskNotStarted
+			return actor.TaskNotStarted
 		}
 
-		return TaskInProgress
+		return actor.TaskInProgress
 	}
 
 	for _, a := range lpa.ReplacementAttorneys {
 		if a.FirstNames == "" || (a.Address.Line1 == "" && a.Email == "") {
-			return TaskInProgress
+			return actor.TaskInProgress
 		}
 	}
 
 	if len(lpa.ReplacementAttorneys) > 1 &&
 		lpa.HowShouldReplacementAttorneysStepIn != OneCanNoLongerAct &&
 		!lpa.ReplacementAttorneyDecisions.IsComplete(len(lpa.ReplacementAttorneys)) {
-		return TaskInProgress
+		return actor.TaskInProgress
 	}
 
 	if lpa.AttorneyDecisions.How == actor.Jointly &&
 		len(lpa.ReplacementAttorneys) > 1 &&
 		!lpa.ReplacementAttorneyDecisions.IsComplete(len(lpa.ReplacementAttorneys)) {
-		return TaskInProgress
+		return actor.TaskInProgress
 	}
 
 	if lpa.AttorneyDecisions.How == actor.JointlyAndSeverally {
 		if lpa.HowShouldReplacementAttorneysStepIn == "" {
-			return TaskInProgress
+			return actor.TaskInProgress
 		}
 
 		if len(lpa.ReplacementAttorneys) > 1 &&
 			lpa.HowShouldReplacementAttorneysStepIn == AllCanNoLongerAct &&
 			!lpa.ReplacementAttorneyDecisions.IsComplete(len(lpa.ReplacementAttorneys)) {
-			return TaskInProgress
+			return actor.TaskInProgress
 		}
 	}
 
-	return TaskCompleted
+	return actor.TaskCompleted
 }
 
 func (l *Lpa) IsHealthAndWelfareLpa() bool {

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -113,7 +114,7 @@ func TestPostLpaType(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 	lpaStore.
-		On("Put", r.Context(), &page.Lpa{Type: page.LpaTypePropertyFinance, Tasks: page.Tasks{YourDetails: page.TaskCompleted}}).
+		On("Put", r.Context(), &page.Lpa{Type: page.LpaTypePropertyFinance, Tasks: page.Tasks{YourDetails: actor.TaskCompleted}}).
 		Return(nil)
 
 	err := LpaType(nil, lpaStore)(testAppData, w, r)

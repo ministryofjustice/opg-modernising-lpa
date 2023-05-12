@@ -175,7 +175,7 @@ func TestPostYourDetails(t *testing.T) {
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
 					Donor: tc.person,
-					Tasks: page.Tasks{YourDetails: page.TaskInProgress},
+					Tasks: page.Tasks{YourDetails: actor.TaskInProgress},
 				}).
 				Return(nil)
 
@@ -218,7 +218,7 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 				FirstNames: "John",
 				Address:    place.Address{Line1: "abc"},
 			},
-			Tasks: page.Tasks{YourDetails: page.TaskCompleted},
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
@@ -229,7 +229,7 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 				Address:     place.Address{Line1: "abc"},
 				Email:       "name@example.com",
 			},
-			Tasks: page.Tasks{YourDetails: page.TaskCompleted},
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
 		}).
 		Return(nil)
 

@@ -215,7 +215,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 				On("Put", r.Context(), &page.Lpa{
 					Donor:          actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					PeopleToNotify: actor.PeopleToNotify{tc.personToNotify},
-					Tasks:          page.Tasks{PeopleToNotify: page.TaskInProgress},
+					Tasks:          page.Tasks{PeopleToNotify: actor.TaskInProgress},
 				}).
 				Return(nil)
 
@@ -259,7 +259,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 				Email:      "johnny.d@example.com",
 				ID:         "123",
 			}},
-			Tasks: page.Tasks{PeopleToNotify: page.TaskInProgress},
+			Tasks: page.Tasks{PeopleToNotify: actor.TaskInProgress},
 		}).
 		Return(nil)
 
