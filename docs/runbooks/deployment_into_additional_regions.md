@@ -43,10 +43,13 @@ data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id_eu_west_2" {
 }
 ```
 
-ensure the secret is referenced in the eu-west-2 region module
+ensure the secret is referenced in the eu-west-2 region module in the `terraform/environment/region.tf` file
 
 ```hcl
-rum_monitor_identity_pool_id_secretsmanager_secret_id = data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_2.arn
+module "eu_west_2" {
+  source             = "./region"
+  ...
+  rum_monitor_identity_pool_id_secretsmanager_secret_id = data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_2.arn
 ```
 
 The path to live for each of these 3 pull requests will carry out the provisioning and deployments.
