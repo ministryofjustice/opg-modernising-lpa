@@ -6,7 +6,6 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 type CertificateProvider struct {
@@ -15,7 +14,6 @@ type CertificateProvider struct {
 	FirstNames       string
 	LastName         string
 	Email            string
-	Address          place.Address
 	Mobile           string
 	DateOfBirth      date.Date
 	DeclaredFullName string

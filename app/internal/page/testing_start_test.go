@@ -1073,13 +1073,6 @@ func TestTestingStart(t *testing.T) {
 				},
 				Mobile: TestMobile,
 				Email:  TestEmail,
-				Address: place.Address{
-					Line1:      "5 RICHMOND PLACE",
-					Line2:      "KINGS HEATH",
-					Line3:      "WEST MIDLANDS",
-					TownOrCity: "BIRMINGHAM",
-					Postcode:   "B14 7ED",
-				},
 				Certificate: actor.Certificate{
 					AgreeToStatement: true,
 					Agreed:           time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
@@ -1276,13 +1269,6 @@ func TestTestingStart(t *testing.T) {
 				},
 				Mobile: TestMobile,
 				Email:  TestEmail,
-				Address: place.Address{
-					Line1:      "5 RICHMOND PLACE",
-					Line2:      "KINGS HEATH",
-					Line3:      "WEST MIDLANDS",
-					TownOrCity: "BIRMINGHAM",
-					Postcode:   "B14 7ED",
-				},
 			}).
 			Return(nil)
 
