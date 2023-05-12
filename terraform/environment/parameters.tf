@@ -19,7 +19,3 @@ data "aws_ssm_parameter" "dns_target_region" {
   provider = aws.management_global
   name     = aws_ssm_parameter.dns_target_region.name
 }
-
-output "dns_target_region" {
-  value = data.aws_ssm_parameter.dns_target_region.value
-}
