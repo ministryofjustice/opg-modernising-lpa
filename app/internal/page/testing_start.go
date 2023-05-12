@@ -149,6 +149,10 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			shareCodeSender.UseTestCode()
 		}
 
+		if r.FormValue("withShareCodeSession") != "" {
+			sesh.SetShareCode(store, r, w, &sesh.ShareCodeSession{LpaID: lpa.ID, Identity: false})
+		}
+
 		if r.FormValue("startCpFlowDonorHasPaid") != "" || r.FormValue("startCpFlowDonorHasNotPaid") != "" {
 			CompleteSectionOne(lpa)
 

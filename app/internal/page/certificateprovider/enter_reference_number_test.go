@@ -9,8 +9,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -40,7 +42,7 @@ func TestGetEnterReferenceNumber(t *testing.T) {
 		On("Execute", w, data).
 		Return(nil)
 
-	err := EnterReferenceNumber(template.Execute, newMockDataStore(t))(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, newMockDataStore(t), nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -62,7 +64,7 @@ func TestGetEnterReferenceNumberOnTemplateError(t *testing.T) {
 		On("Execute", w, data).
 		Return(expectedError)
 
-	err := EnterReferenceNumber(template.Execute, newMockDataStore(t))(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, newMockDataStore(t), nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -72,16 +74,13 @@ func TestGetEnterReferenceNumberOnTemplateError(t *testing.T) {
 
 func TestPostEnterReferenceNumber(t *testing.T) {
 	testCases := map[string]struct {
-		Identity      bool
-		ExpectedQuery string
+		Identity bool
 	}{
 		"with identity": {
-			Identity:      true,
-			ExpectedQuery: "identity=1&lpaId=lpa-id",
+			Identity: true,
 		},
 		"without identity": {
-			Identity:      false,
-			ExpectedQuery: "lpaId=lpa-id",
+			Identity: false,
 		},
 	}
 
@@ -100,13 +99,29 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 				ExpectGet(r.Context(), "CERTIFICATEPROVIDERSHARE#aRefNumber12", "#METADATA#aRefNumber12",
 					page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: tc.Identity}, nil)
 
-			err := EnterReferenceNumber(nil, dataStore)(testAppData, w, r)
+			sessionStore := newMockSessionStore(t)
+
+			session := sessions.NewSession(sessionStore, "shareCode")
+
+			session.Options = &sessions.Options{
+				Path:     "/",
+				MaxAge:   86400,
+				SameSite: http.SameSiteLaxMode,
+				HttpOnly: true,
+				Secure:   true,
+			}
+			session.Values = map[any]any{"share-code": &sesh.ShareCodeSession{LpaID: "lpa-id", Identity: tc.Identity}}
+
+			sessionStore.
+				On("Save", r, w, session).
+				Return(nil)
+			err := EnterReferenceNumber(nil, dataStore, sessionStore)(testAppData, w, r)
 
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.CertificateProviderLogin+"?"+tc.ExpectedQuery, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.CertificateProviderWhoIsEligible, resp.Header.Get("Location"))
 		})
 	}
 }
@@ -125,7 +140,7 @@ func TestPostEnterReferenceNumberOnDataStoreError(t *testing.T) {
 		ExpectGet(r.Context(), "CERTIFICATEPROVIDERSHARE#aRefNumber12", "#METADATA#aRefNumber12",
 			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, expectedError)
 
-	err := EnterReferenceNumber(nil, dataStore)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, dataStore, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -158,7 +173,7 @@ func TestPostEnterReferenceNumberOnDataStoreNotFoundError(t *testing.T) {
 		ExpectGet(r.Context(), "CERTIFICATEPROVIDERSHARE#aRefNumber12", "#METADATA#aRefNumber12",
 			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, dynamo.NotFoundError{})
 
-	err := EnterReferenceNumber(template.Execute, dataStore)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, dataStore, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -186,7 +201,7 @@ func TestPostEnterReferenceNumberOnValidationError(t *testing.T) {
 		On("Execute", w, data).
 		Return(nil)
 
-	err := EnterReferenceNumber(template.Execute, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, nil, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
