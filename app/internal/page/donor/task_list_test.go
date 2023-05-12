@@ -54,30 +54,30 @@ func TestGetTaskList(t *testing.T) {
 				Attorneys:            actor.Attorneys{{}, {}},
 				ReplacementAttorneys: actor.Attorneys{{}},
 				Tasks: page.Tasks{
-					YourDetails:                page.TaskCompleted,
-					ChooseAttorneys:            page.TaskCompleted,
-					ChooseReplacementAttorneys: page.TaskInProgress,
-					WhenCanTheLpaBeUsed:        page.TaskInProgress,
-					Restrictions:               page.TaskCompleted,
-					CertificateProvider:        page.TaskInProgress,
-					CheckYourLpa:               page.TaskCompleted,
-					PayForLpa:                  page.TaskInProgress,
+					YourDetails:                actor.TaskCompleted,
+					ChooseAttorneys:            actor.TaskCompleted,
+					ChooseReplacementAttorneys: actor.TaskInProgress,
+					WhenCanTheLpaBeUsed:        actor.TaskInProgress,
+					Restrictions:               actor.TaskCompleted,
+					CertificateProvider:        actor.TaskInProgress,
+					CheckYourLpa:               actor.TaskCompleted,
+					PayForLpa:                  actor.TaskInProgress,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
-					{Name: "provideYourDetails", Path: page.Paths.YourDetails, State: page.TaskCompleted},
-					{Name: "chooseYourAttorneys", Path: page.Paths.ChooseAttorneys, State: page.TaskCompleted, Count: 2},
-					{Name: "chooseYourReplacementAttorneys", Path: page.Paths.DoYouWantReplacementAttorneys, State: page.TaskInProgress, Count: 1},
-					{Name: "chooseWhenTheLpaCanBeUsed", Path: page.Paths.WhenCanTheLpaBeUsed, State: page.TaskInProgress},
-					{Name: "addRestrictionsToTheLpa", Path: page.Paths.Restrictions, State: page.TaskCompleted},
-					{Name: "chooseYourCertificateProvider", Path: page.Paths.WhoDoYouWantToBeCertificateProviderGuidance, State: page.TaskInProgress},
+					{Name: "provideYourDetails", Path: page.Paths.YourDetails, State: actor.TaskCompleted},
+					{Name: "chooseYourAttorneys", Path: page.Paths.ChooseAttorneys, State: actor.TaskCompleted, Count: 2},
+					{Name: "chooseYourReplacementAttorneys", Path: page.Paths.DoYouWantReplacementAttorneys, State: actor.TaskInProgress, Count: 1},
+					{Name: "chooseWhenTheLpaCanBeUsed", Path: page.Paths.WhenCanTheLpaBeUsed, State: actor.TaskInProgress},
+					{Name: "addRestrictionsToTheLpa", Path: page.Paths.Restrictions, State: actor.TaskCompleted},
+					{Name: "chooseYourCertificateProvider", Path: page.Paths.WhoDoYouWantToBeCertificateProviderGuidance, State: actor.TaskInProgress},
 					{Name: "peopleToNotifyAboutYourLpa", Path: page.Paths.DoYouWantToNotifyPeople},
-					{Name: "checkAndSendToYourCertificateProvider", Path: page.Paths.CheckYourLpa, State: page.TaskCompleted},
+					{Name: "checkAndSendToYourCertificateProvider", Path: page.Paths.CheckYourLpa, State: actor.TaskCompleted},
 				}
 
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: page.Paths.AboutPayment, State: page.TaskInProgress},
+					{Name: "payForTheLpa", Path: page.Paths.AboutPayment, State: actor.TaskInProgress},
 				}
 
 				return sections

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -36,10 +37,10 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, lpaStore LpaStore) page.Handler
 
 			if data.Errors.None() || form.AnswerLater {
 				if form.AnswerLater {
-					lpa.Tasks.WhenCanTheLpaBeUsed = page.TaskInProgress
+					lpa.Tasks.WhenCanTheLpaBeUsed = actor.TaskInProgress
 				} else {
 					lpa.WhenCanTheLpaBeUsed = form.When
-					lpa.Tasks.WhenCanTheLpaBeUsed = page.TaskCompleted
+					lpa.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
 				}
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err

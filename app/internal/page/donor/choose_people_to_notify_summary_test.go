@@ -51,12 +51,12 @@ func TestGetChoosePeopleToNotifySummaryWhenNoPeopleToNotify(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			Tasks: page.Tasks{
-				YourDetails:                page.TaskCompleted,
-				ChooseAttorneys:            page.TaskCompleted,
-				ChooseReplacementAttorneys: page.TaskCompleted,
-				WhenCanTheLpaBeUsed:        page.TaskCompleted,
-				Restrictions:               page.TaskCompleted,
-				CertificateProvider:        page.TaskCompleted,
+				YourDetails:                actor.TaskCompleted,
+				ChooseAttorneys:            actor.TaskCompleted,
+				ChooseReplacementAttorneys: actor.TaskCompleted,
+				WhenCanTheLpaBeUsed:        actor.TaskCompleted,
+				Restrictions:               actor.TaskCompleted,
+				CertificateProvider:        actor.TaskCompleted,
 			},
 		}, nil)
 
@@ -126,13 +126,13 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 		Return(&page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{{ID: "123"}},
 			Tasks: page.Tasks{
-				YourDetails:                page.TaskCompleted,
-				ChooseAttorneys:            page.TaskCompleted,
-				ChooseReplacementAttorneys: page.TaskCompleted,
-				WhenCanTheLpaBeUsed:        page.TaskCompleted,
-				Restrictions:               page.TaskCompleted,
-				CertificateProvider:        page.TaskCompleted,
-				PeopleToNotify:             page.TaskCompleted,
+				YourDetails:                actor.TaskCompleted,
+				ChooseAttorneys:            actor.TaskCompleted,
+				ChooseReplacementAttorneys: actor.TaskCompleted,
+				WhenCanTheLpaBeUsed:        actor.TaskCompleted,
+				Restrictions:               actor.TaskCompleted,
+				CertificateProvider:        actor.TaskCompleted,
+				PeopleToNotify:             actor.TaskCompleted,
 			},
 		}, nil)
 

@@ -184,7 +184,7 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{personToNotify},
-			Tasks:          page.Tasks{PeopleToNotify: page.TaskInProgress},
+			Tasks:          page.Tasks{PeopleToNotify: actor.TaskInProgress},
 		}, nil)
 
 	personToNotify.Address = testAddress
@@ -192,7 +192,7 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{personToNotify},
-			Tasks:          page.Tasks{PeopleToNotify: page.TaskCompleted},
+			Tasks:          page.Tasks{PeopleToNotify: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -233,7 +233,7 @@ func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{personToNotify},
-			Tasks:          page.Tasks{PeopleToNotify: page.TaskCompleted},
+			Tasks:          page.Tasks{PeopleToNotify: actor.TaskCompleted},
 		}).
 		Return(expectedError)
 
@@ -267,7 +267,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{personToNotify},
-			Tasks:          page.Tasks{PeopleToNotify: page.TaskInProgress},
+			Tasks:          page.Tasks{PeopleToNotify: actor.TaskInProgress},
 		}, nil)
 
 	personToNotify.Address = testAddress
@@ -275,7 +275,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{personToNotify},
-			Tasks:          page.Tasks{PeopleToNotify: page.TaskCompleted},
+			Tasks:          page.Tasks{PeopleToNotify: actor.TaskCompleted},
 		}).
 		Return(nil)
 

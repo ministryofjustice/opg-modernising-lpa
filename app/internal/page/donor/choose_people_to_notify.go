@@ -78,7 +78,7 @@ func ChoosePeopleToNotify(tmpl template.Template, lpaStore LpaStore, uuidString 
 					lpa.PeopleToNotify.Put(personToNotify)
 				}
 
-				lpa.Tasks.PeopleToNotify = page.TaskInProgress
+				lpa.Tasks.PeopleToNotify = actor.TaskInProgress
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err

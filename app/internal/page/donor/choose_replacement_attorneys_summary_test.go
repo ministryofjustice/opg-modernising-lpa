@@ -187,8 +187,8 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 					},
 					Attorneys: tc.attorneys,
 					Tasks: page.Tasks{
-						YourDetails:     page.TaskCompleted,
-						ChooseAttorneys: page.TaskCompleted,
+						YourDetails:     actor.TaskCompleted,
+						ChooseAttorneys: actor.TaskCompleted,
 					},
 				}, nil)
 
