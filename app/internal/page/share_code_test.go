@@ -43,7 +43,12 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 
 			dataStore := newMockDataStore(t)
 			dataStore.
-				On("Put", ctx, "CERTIFICATEPROVIDERSHARE#123", "#METADATA#123", ShareCodeData{LpaID: "lpa-id", Identity: identity}).
+				On("Put", ctx, "CERTIFICATEPROVIDERSHARE#123", "#METADATA#123", ShareCodeData{
+					LpaID:           "lpa-id",
+					Identity:        identity,
+					DonorFullname:   "Jan Smith",
+					DonorFirstNames: "Jan",
+				}).
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t)
@@ -115,10 +120,20 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 
 			dataStore := newMockDataStore(t)
 			dataStore.
-				On("Put", ctx, "CERTIFICATEPROVIDERSHARE#"+tc.expectedTestCode, "#METADATA#"+tc.expectedTestCode, ShareCodeData{LpaID: "lpa-id", Identity: true}).
+				On("Put", ctx, "CERTIFICATEPROVIDERSHARE#"+tc.expectedTestCode, "#METADATA#"+tc.expectedTestCode, ShareCodeData{
+					LpaID:           "lpa-id",
+					Identity:        true,
+					DonorFullname:   "Jan Smith",
+					DonorFirstNames: "Jan",
+				}).
 				Return(nil)
 			dataStore.
-				On("Put", ctx, "CERTIFICATEPROVIDERSHARE#123", "#METADATA#123", ShareCodeData{LpaID: "lpa-id", Identity: true}).
+				On("Put", ctx, "CERTIFICATEPROVIDERSHARE#123", "#METADATA#123", ShareCodeData{
+					LpaID:           "lpa-id",
+					Identity:        true,
+					DonorFullname:   "Jan Smith",
+					DonorFirstNames: "Jan",
+				}).
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t)
