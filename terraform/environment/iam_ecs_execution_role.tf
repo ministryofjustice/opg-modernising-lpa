@@ -82,6 +82,7 @@ data "aws_iam_policy_document" "execution_role" {
 
     resources = [
       data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_1.arn,
+      data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_2.arn,
       aws_secretsmanager_secret.rum_monitor_application_id_eu_west_1.arn,
       aws_secretsmanager_secret.rum_monitor_application_id_eu_west_2.arn,
     ]

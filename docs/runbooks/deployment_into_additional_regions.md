@@ -34,4 +34,19 @@ To activate and provision environment resources into a second region, raise a pu
 ]
 ```
 
+add the `eu-west-2` rum monitor identity pool secret to the `terraform/environment/iam_ecs_execution_role.tf` file
+
+```hcl
+data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id_eu_west_2" {
+  name     = "rum-monitor-identity-pool-id-eu-west-2"
+  provider = aws.eu_west_2
+}
+```
+
+ensure the secret is referenced in the eu-west-2 region module
+
+```hcl
+rum_monitor_identity_pool_id_secretsmanager_secret_id = data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_2.arn
+```
+
 The path to live for each of these 3 pull requests will carry out the provisioning and deployments.
