@@ -14,7 +14,7 @@ import (
 
 type DashboardLpaDatum struct {
 	Lpa                 *page.Lpa
-	CertificateProvider *actor.CertificateProvider
+	CertificateProvider *actor.CertificateProviderProvidedDetails
 }
 
 type dashboardData struct {
@@ -70,7 +70,7 @@ func buildDashboardLpaData(lpas []*page.Lpa, store page.CertificateProviderStore
 		}
 
 		if cp == nil {
-			cp = &actor.CertificateProvider{}
+			cp = &actor.CertificateProviderProvidedDetails{}
 		}
 
 		datum.CertificateProvider = cp

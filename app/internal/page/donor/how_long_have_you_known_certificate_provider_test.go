@@ -43,7 +43,7 @@ func TestGetHowLongHaveYouKnownCertificateProviderFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	certificateProviderDetails := page.CertificateProviderDetails{RelationshipLength: "gte-2-years"}
+	certificateProviderDetails := actor.CertificateProvider{RelationshipLength: "gte-2-years"}
 
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
@@ -126,7 +126,7 @@ func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			Attorneys:                  actor.Attorneys{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}},
 			AttorneyDecisions:          actor.AttorneyDecisions{How: actor.Jointly},
-			CertificateProviderDetails: page.CertificateProviderDetails{RelationshipLength: "gte-2-years"},
+			CertificateProviderDetails: actor.CertificateProvider{RelationshipLength: "gte-2-years"},
 			Tasks:                      page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted, CertificateProvider: page.TaskCompleted},
 		}).
 		Return(nil)

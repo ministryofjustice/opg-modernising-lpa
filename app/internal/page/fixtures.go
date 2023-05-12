@@ -94,8 +94,8 @@ func MakePersonToNotify(firstNames string) actor.PersonToNotify {
 	}
 }
 
-func MakeCertificateProviderDetails(firstNames string) CertificateProviderDetails {
-	return CertificateProviderDetails{
+func MakeCertificateProviderDetails(firstNames string) actor.CertificateProvider {
+	return actor.CertificateProvider{
 		FirstNames:              firstNames,
 		LastName:                "Jones",
 		Email:                   TestEmail,

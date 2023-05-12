@@ -338,7 +338,7 @@ func TestListPeopleToNotify(t *testing.T) {
 func TestProgressbar(t *testing.T) {
 	app := page.AppData{SessionID: "abc"}
 	lpa := &page.Lpa{}
-	cp := &actor.CertificateProvider{}
+	cp := &actor.CertificateProviderProvidedDetails{}
 
 	want := map[string]interface{}{
 		"App":                 app,

@@ -71,7 +71,7 @@ func TestLoginCallback(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Create", ctx).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	err := LoginCallback(client, sessionStore, certificateProviderStore)(testAppData, w, r)
 	assert.Nil(t, err)
@@ -137,7 +137,7 @@ func TestLoginCallbackWhenCertificateProviderExists(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Create", ctx).
-		Return(&actor.CertificateProvider{}, &types.ConditionalCheckFailedException{})
+		Return(&actor.CertificateProviderProvidedDetails{}, &types.ConditionalCheckFailedException{})
 
 	err := LoginCallback(client, sessionStore, certificateProviderStore)(testAppData, w, r)
 	assert.Nil(t, err)
@@ -304,7 +304,7 @@ func TestLoginCallbackOnCertificateProviderStoreError(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Create", ctx).
-		Return(&actor.CertificateProvider{}, expectedError)
+		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := LoginCallback(client, sessionStore, certificateProviderStore)(testAppData, w, r)
 	assert.Equal(t, expectedError, err)

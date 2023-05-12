@@ -19,6 +19,11 @@ func TestGetReadTheLpaWithAttorney(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
+		On("Get", r.Context()).
+		Return(&actor.AttorneyProvidedDetails{}, nil)
+
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &readTheLpaData{
@@ -28,7 +33,7 @@ func TestGetReadTheLpaWithAttorney(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ReadTheLpa(template.Execute, lpaStore)(testAppData, w, r)
+	err := ReadTheLpa(template.Execute, lpaStore, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,6 +49,11 @@ func TestGetReadTheLpaWithReplacementAttorney(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{ReplacementAttorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
+		On("Get", r.Context()).
+		Return(&actor.AttorneyProvidedDetails{}, nil)
+
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &readTheLpaData{
@@ -53,7 +63,7 @@ func TestGetReadTheLpaWithReplacementAttorney(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ReadTheLpa(template.Execute, lpaStore)(testReplacementAppData, w, r)
+	err := ReadTheLpa(template.Execute, lpaStore, attorneyStore)(testReplacementAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -69,7 +79,7 @@ func TestGetReadTheLpaWithAttorneyWhenLpaStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, expectedError)
 
-	err := ReadTheLpa(nil, lpaStore)(testAppData, w, r)
+	err := ReadTheLpa(nil, lpaStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -85,7 +95,7 @@ func TestGetReadTheLpaWhenAttorneyNotFound(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
-	err := ReadTheLpa(nil, lpaStore)(page.AppData{AttorneyID: "the-wrong-id", ActorType: actor.TypeReplacementAttorney}, w, r)
+	err := ReadTheLpa(nil, lpaStore, nil)(page.AppData{AttorneyID: "the-wrong-id", ActorType: actor.TypeReplacementAttorney}, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -102,6 +112,11 @@ func TestGetReadTheLpaWhenTemplateError(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
+		On("Get", r.Context()).
+		Return(&actor.AttorneyProvidedDetails{}, nil)
+
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &readTheLpaData{
@@ -111,7 +126,7 @@ func TestGetReadTheLpaWhenTemplateError(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ReadTheLpa(template.Execute, lpaStore)(testAppData, w, r)
+	err := ReadTheLpa(template.Execute, lpaStore, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -126,18 +141,20 @@ func TestPostReadTheLpaWithAttorney(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
-	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			Attorneys: []actor.Attorney{{ID: "attorney-id"}},
-			AttorneyTasks: map[string]page.AttorneyTasks{
-				"attorney-id": {
-					ReadTheLpa: page.TaskCompleted,
-				},
+
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
+		On("Get", r.Context()).
+		Return(&actor.AttorneyProvidedDetails{}, nil)
+	attorneyStore.
+		On("Put", r.Context(), &actor.AttorneyProvidedDetails{
+			Tasks: actor.AttorneyTasks{
+				ReadTheLpa: actor.TaskCompleted,
 			},
 		}).
 		Return(nil)
 
-	err := ReadTheLpa(nil, lpaStore)(testAppData, w, r)
+	err := ReadTheLpa(nil, lpaStore, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -153,18 +170,20 @@ func TestPostReadTheLpaWithAttorneyOnLpaStoreError(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
-	lpaStore.
-		On("Put", r.Context(), &page.Lpa{
-			Attorneys: []actor.Attorney{{ID: "attorney-id"}},
-			AttorneyTasks: map[string]page.AttorneyTasks{
-				"attorney-id": {
-					ReadTheLpa: page.TaskCompleted,
-				},
+
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
+		On("Get", r.Context()).
+		Return(&actor.AttorneyProvidedDetails{}, nil)
+	attorneyStore.
+		On("Put", r.Context(), &actor.AttorneyProvidedDetails{
+			Tasks: actor.AttorneyTasks{
+				ReadTheLpa: actor.TaskCompleted,
 			},
 		}).
 		Return(expectedError)
 
-	err := ReadTheLpa(nil, lpaStore)(testAppData, w, r)
+	err := ReadTheLpa(nil, lpaStore, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

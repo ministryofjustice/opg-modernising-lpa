@@ -639,7 +639,7 @@ func TestAttorneyMatches(t *testing.T) {
 			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
 		},
-		CertificateProviderDetails: page.CertificateProviderDetails{FirstNames: "k", LastName: "l"},
+		CertificateProviderDetails: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
 		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},

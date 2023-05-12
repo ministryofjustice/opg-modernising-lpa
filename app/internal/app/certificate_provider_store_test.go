@@ -17,14 +17,14 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Create", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProvider{LpaID: "123", UpdatedAt: now}).
+		On("Create", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123", UpdatedAt: now}).
 		Return(nil)
 
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: func() time.Time { return now }}
 
 	certificateProvider, err := certificateProviderStore.Create(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, &actor.CertificateProvider{LpaID: "123", UpdatedAt: now}, certificateProvider)
+	assert.Equal(t, &actor.CertificateProviderProvidedDetails{LpaID: "123", UpdatedAt: now}, certificateProvider)
 }
 
 func TestCertificateProviderStoreCreateWhenSessionMissing(t *testing.T) {
@@ -42,7 +42,7 @@ func TestCertificateProviderStoreCreateWhenCreateError(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Create", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProvider{LpaID: "123", UpdatedAt: now}).
+		On("Create", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123", UpdatedAt: now}).
 		Return(expectedError)
 
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: func() time.Time { return now }}
@@ -56,13 +56,13 @@ func TestCertificateProviderStoreGet(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		ExpectGet(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProvider{LpaID: "123"}, nil)
+		ExpectGet(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
 
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: nil}
 
 	certificateProvider, err := certificateProviderStore.Get(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, &actor.CertificateProvider{LpaID: "123"}, certificateProvider)
+	assert.Equal(t, &actor.CertificateProviderProvidedDetails{LpaID: "123"}, certificateProvider)
 }
 
 func TestCertificateProviderStoreGetWhenSessionMissing(t *testing.T) {
@@ -88,7 +88,7 @@ func TestCertificateProviderStoreGetOnError(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		ExpectGet(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProvider{LpaID: "123"}, expectedError)
+		ExpectGet(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, expectedError)
 
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: nil}
 
@@ -103,7 +103,7 @@ func TestCertificateProviderStorePut(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Put", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProvider{LpaID: "123", UpdatedAt: now}).
+		On("Put", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123", UpdatedAt: now}).
 		Return(nil)
 
 	certificateProviderStore := &certificateProviderStore{
@@ -111,7 +111,7 @@ func TestCertificateProviderStorePut(t *testing.T) {
 		now:       func() time.Time { return now },
 	}
 
-	err := certificateProviderStore.Put(ctx, &actor.CertificateProvider{LpaID: "123"})
+	err := certificateProviderStore.Put(ctx, &actor.CertificateProviderProvidedDetails{LpaID: "123"})
 
 	assert.Nil(t, err)
 }
@@ -121,7 +121,7 @@ func TestCertificateProviderStorePutWhenSessionMissing(t *testing.T) {
 
 	certificateProviderStore := &certificateProviderStore{dataStore: nil, now: nil}
 
-	err := certificateProviderStore.Put(ctx, &actor.CertificateProvider{})
+	err := certificateProviderStore.Put(ctx, &actor.CertificateProviderProvidedDetails{})
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
@@ -132,7 +132,7 @@ func TestCertificateProviderStorePutOnError(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Put", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProvider{LpaID: "123", UpdatedAt: now}).
+		On("Put", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123", UpdatedAt: now}).
 		Return(expectedError)
 
 	certificateProviderStore := &certificateProviderStore{
@@ -140,7 +140,7 @@ func TestCertificateProviderStorePutOnError(t *testing.T) {
 		now:       func() time.Time { return now },
 	}
 
-	err := certificateProviderStore.Put(ctx, &actor.CertificateProvider{LpaID: "123"})
+	err := certificateProviderStore.Put(ctx, &actor.CertificateProviderProvidedDetails{LpaID: "123"})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -159,7 +159,7 @@ func TestCertificateProviderStorePutMissingRequiredSessionData(t *testing.T) {
 
 		certificateProviderStore := &certificateProviderStore{dataStore: nil}
 
-		err := certificateProviderStore.Put(ctx, &actor.CertificateProvider{})
+		err := certificateProviderStore.Put(ctx, &actor.CertificateProviderProvidedDetails{})
 		assert.Equal(t, errors.New("certificateProviderStore.Put requires LpaID and SessionID to retrieve"), err)
 	}
 }

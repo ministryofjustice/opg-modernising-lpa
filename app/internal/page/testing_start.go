@@ -247,11 +247,10 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 
 		if r.FormValue("asAttorney") != "" {
 			_ = sesh.SetAttorney(store, r, w, &sesh.AttorneySession{
-				Sub:            randomString(12),
-				Email:          TestEmail,
-				DonorSessionID: donorSessionID,
-				AttorneyID:     lpa.Attorneys[0].ID,
-				LpaID:          lpa.ID,
+				Sub:        randomString(12),
+				Email:      TestEmail,
+				AttorneyID: lpa.Attorneys[0].ID,
+				LpaID:      lpa.ID,
 			})
 		}
 
@@ -259,7 +258,6 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			_ = sesh.SetAttorney(store, r, w, &sesh.AttorneySession{
 				Sub:                   randomString(12),
 				Email:                 TestEmail,
-				DonorSessionID:        donorSessionID,
 				AttorneyID:            lpa.ReplacementAttorneys[0].ID,
 				LpaID:                 lpa.ID,
 				IsReplacementAttorney: true,
