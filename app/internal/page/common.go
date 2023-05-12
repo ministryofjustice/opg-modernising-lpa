@@ -58,9 +58,16 @@ type LpaStore interface {
 
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
 type CertificateProviderStore interface {
-	Create(ctx context.Context) (*actor.CertificateProvider, error)
-	Get(ctx context.Context) (*actor.CertificateProvider, error)
-	Put(ctx context.Context, certificateProvider *actor.CertificateProvider) error
+	Create(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
+	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
+	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
+}
+
+//go:generate mockery --testonly --inpackage --name AttorneyStore --structname mockAttorneyStore
+type AttorneyStore interface {
+	Create(context.Context) (*actor.AttorneyProvidedDetails, error)
+	Get(context.Context) (*actor.AttorneyProvidedDetails, error)
+	Put(context.Context, *actor.AttorneyProvidedDetails) error
 }
 
 //go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore

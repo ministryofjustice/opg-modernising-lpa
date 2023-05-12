@@ -19,21 +19,12 @@ import (
 
 func TestGetDateOfBirth(t *testing.T) {
 	testcases := map[string]struct {
-		lpa     *page.Lpa
 		appData page.AppData
 	}{
 		"attorney": {
-			lpa: &page.Lpa{
-				ID:                      "lpa-id",
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
 			appData: testAppData,
 		},
 		"replacement attorney": {
-			lpa: &page.Lpa{
-				ID:                                 "lpa-id",
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
 			appData: testReplacementAppData,
 		},
 	}
@@ -43,21 +34,20 @@ func TestGetDateOfBirth(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
 				On("Get", r.Context()).
-				Return(tc.lpa, nil)
+				Return(&actor.AttorneyProvidedDetails{}, nil)
 
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &dateOfBirthData{
 					App:  tc.appData,
-					Lpa:  tc.lpa,
 					Form: &dateOfBirthForm{},
 				}).
 				Return(nil)
 
-			err := DateOfBirth(template.Execute, lpaStore)(tc.appData, w, r)
+			err := DateOfBirth(template.Execute, attorneyStore)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -69,23 +59,12 @@ func TestGetDateOfBirth(t *testing.T) {
 func TestGetDateOfBirthWhenAttorneyDetailsDontExist(t *testing.T) {
 	testcases := map[string]struct {
 		appData page.AppData
-		lpa     *page.Lpa
 	}{
 		"attorney": {
 			appData: testAppData,
-			lpa: &page.Lpa{
-				ReplacementAttorneys: actor.Attorneys{
-					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
-				},
-			},
 		},
 		"replacement attorney": {
 			appData: testReplacementAppData,
-			lpa: &page.Lpa{
-				Attorneys: actor.Attorneys{
-					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
-				},
-			},
 		},
 	}
 
@@ -94,21 +73,20 @@ func TestGetDateOfBirthWhenAttorneyDetailsDontExist(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
 				On("Get", r.Context()).
-				Return(tc.lpa, nil)
+				Return(&actor.AttorneyProvidedDetails{}, nil)
 
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &dateOfBirthData{
 					App:  tc.appData,
-					Lpa:  tc.lpa,
 					Form: &dateOfBirthForm{},
 				}).
 				Return(nil)
 
-			err := DateOfBirth(template.Execute, lpaStore)(tc.appData, w, r)
+			err := DateOfBirth(template.Execute, attorneyStore)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -119,30 +97,14 @@ func TestGetDateOfBirthWhenAttorneyDetailsDontExist(t *testing.T) {
 
 func TestGetDateOfBirthFromStore(t *testing.T) {
 	testcases := map[string]struct {
-		appData page.AppData
-		lpa     *page.Lpa
+		appData  page.AppData
+		attorney *actor.AttorneyProvidedDetails
 	}{
 		"attorney": {
 			appData: testAppData,
-			lpa: &page.Lpa{
-				Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
-					"attorney-id": {
-						DateOfBirth: date.New("1997", "1", "2"),
-					},
-				},
-			},
 		},
 		"replacement attorney": {
 			appData: testReplacementAppData,
-			lpa: &page.Lpa{
-				ReplacementAttorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
-					"attorney-id": {
-						DateOfBirth: date.New("1997", "1", "2"),
-					},
-				},
-			},
 		},
 	}
 
@@ -151,23 +113,24 @@ func TestGetDateOfBirthFromStore(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
 				On("Get", r.Context()).
-				Return(tc.lpa, nil)
+				Return(&actor.AttorneyProvidedDetails{
+					DateOfBirth: date.New("1997", "1", "2"),
+				}, nil)
 
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &dateOfBirthData{
 					App: tc.appData,
-					Lpa: tc.lpa,
 					Form: &dateOfBirthForm{
 						Dob: date.New("1997", "1", "2"),
 					},
 				}).
 				Return(nil)
 
-			err := DateOfBirth(template.Execute, lpaStore)(tc.appData, w, r)
+			err := DateOfBirth(template.Execute, attorneyStore)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -176,16 +139,16 @@ func TestGetDateOfBirthFromStore(t *testing.T) {
 	}
 }
 
-func TestGetDateOfBirthWhenStoreErrors(t *testing.T) {
+func TestGetDateOfBirthWhenAttorneyStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
+		Return(&actor.AttorneyProvidedDetails{}, expectedError)
 
-	err := DateOfBirth(nil, lpaStore)(testAppData, w, r)
+	err := DateOfBirth(nil, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -196,26 +159,17 @@ func TestGetDateOfBirthWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &page.Lpa{
-		ID:                      "lpa-id",
-		AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-	}
-
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(lpa, nil)
+		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &dateOfBirthData{
-			App:  testAppData,
-			Lpa:  lpa,
-			Form: &dateOfBirthForm{},
-		}).
+		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := DateOfBirth(template.Execute, lpaStore)(testAppData, w, r)
+	err := DateOfBirth(template.Execute, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -226,10 +180,9 @@ func TestPostDateOfBirth(t *testing.T) {
 	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
 
 	testCases := map[string]struct {
-		form       url.Values
-		lpa        *page.Lpa
-		updatedLpa *page.Lpa
-		appData    page.AppData
+		form            url.Values
+		updatedAttorney *actor.AttorneyProvidedDetails
+		appData         page.AppData
 	}{
 		"valid": {
 			form: url.Values{
@@ -237,15 +190,8 @@ func TestPostDateOfBirth(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
 			},
-			lpa: &page.Lpa{
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
-			updatedLpa: &page.Lpa{
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
-					"attorney-id": {
-						DateOfBirth: date.New(validBirthYear, "1", "2"),
-					},
-				},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				DateOfBirth: date.New(validBirthYear, "1", "2"),
 			},
 			appData: testAppData,
 		},
@@ -256,15 +202,8 @@ func TestPostDateOfBirth(t *testing.T) {
 				"date-of-birth-year":  {"1900"},
 				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
-			lpa: &page.Lpa{
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
-			updatedLpa: &page.Lpa{
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
-					"attorney-id": {
-						DateOfBirth: date.New("1900", "1", "2"),
-					},
-				},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				DateOfBirth: date.New("1900", "1", "2"),
 			},
 			appData: testAppData,
 		},
@@ -274,15 +213,8 @@ func TestPostDateOfBirth(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
 			},
-			lpa: &page.Lpa{
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
-			updatedLpa: &page.Lpa{
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
-					"attorney-id": {
-						DateOfBirth: date.New(validBirthYear, "1", "2"),
-					},
-				},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				DateOfBirth: date.New(validBirthYear, "1", "2"),
 			},
 			appData: testReplacementAppData,
 		},
@@ -293,15 +225,8 @@ func TestPostDateOfBirth(t *testing.T) {
 				"date-of-birth-year":  {"1900"},
 				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
-			lpa: &page.Lpa{
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
-			updatedLpa: &page.Lpa{
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
-					"attorney-id": {
-						DateOfBirth: date.New("1900", "1", "2"),
-					},
-				},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				DateOfBirth: date.New("1900", "1", "2"),
 			},
 			appData: testReplacementAppData,
 		},
@@ -314,15 +239,15 @@ func TestPostDateOfBirth(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
 				On("Get", r.Context()).
-				Return(tc.lpa, nil)
-			lpaStore.
-				On("Put", r.Context(), tc.updatedLpa).
+				Return(&actor.AttorneyProvidedDetails{}, nil)
+			attorneyStore.
+				On("Put", r.Context(), tc.updatedAttorney).
 				Return(nil)
 
-			err := DateOfBirth(nil, lpaStore)(tc.appData, w, r)
+			err := DateOfBirth(nil, attorneyStore)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -337,7 +262,7 @@ func TestPostDateOfBirthWhenAttorneyDetailsDontExist(t *testing.T) {
 
 	testCases := map[string]struct {
 		form            url.Values
-		providedDetails actor.AttorneyProvidedDetails
+		providedDetails *actor.AttorneyProvidedDetails
 	}{
 		"valid": {
 			form: url.Values{
@@ -345,7 +270,7 @@ func TestPostDateOfBirthWhenAttorneyDetailsDontExist(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
 			},
-			providedDetails: actor.AttorneyProvidedDetails{
+			providedDetails: &actor.AttorneyProvidedDetails{
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
 			},
 		},
@@ -356,7 +281,7 @@ func TestPostDateOfBirthWhenAttorneyDetailsDontExist(t *testing.T) {
 				"date-of-birth-year":  {"1900"},
 				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
-			providedDetails: actor.AttorneyProvidedDetails{
+			providedDetails: &actor.AttorneyProvidedDetails{
 				DateOfBirth: date.New("1900", "1", "2"),
 			},
 		},
@@ -369,18 +294,15 @@ func TestPostDateOfBirthWhenAttorneyDetailsDontExist(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
 				On("Get", r.Context()).
-				Return(&page.Lpa{ID: "lpa-id"}, nil)
-			lpaStore.
-				On("Put", r.Context(), &page.Lpa{
-					ID:                      "lpa-id",
-					AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": tc.providedDetails},
-				}).
+				Return(&actor.AttorneyProvidedDetails{}, nil)
+			attorneyStore.
+				On("Put", r.Context(), tc.providedDetails).
 				Return(nil)
 
-			err := DateOfBirth(nil, lpaStore)(testAppData, w, r)
+			err := DateOfBirth(nil, attorneyStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -426,13 +348,10 @@ func TestPostDateOfBirthWhenInputRequired(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
 				On("Get", r.Context()).
-				Return(&page.Lpa{
-					ID:                      "lpa-id",
-					AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-				}, nil)
+				Return(&actor.AttorneyProvidedDetails{}, nil)
 
 			template := newMockTemplate(t)
 			template.
@@ -441,7 +360,7 @@ func TestPostDateOfBirthWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := DateOfBirth(template.Execute, lpaStore)(testAppData, w, r)
+			err := DateOfBirth(template.Execute, attorneyStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -462,18 +381,16 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{
-			AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-		}, expectedError)
+		Return(&actor.AttorneyProvidedDetails{}, nil)
+	attorneyStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(expectedError)
 
-	err := DateOfBirth(nil, lpaStore)(testAppData, w, r)
-	resp := w.Result()
-
+	err := DateOfBirth(nil, attorneyStore)(testAppData, w, r)
 	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestReadDateOfBirthForm(t *testing.T) {

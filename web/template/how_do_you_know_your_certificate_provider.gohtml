@@ -8,7 +8,7 @@
       <form novalidate method="post">
         <div class="govuk-form-group {{ if .Errors.Has "how" }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
           <fieldset class="govuk-fieldset">
-            <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ trFormat .App "howDoYouKnowYourCertificateProvider" "FirstNames" .CertificateProviderDetails.FirstNames "LastName" .CertificateProviderDetails.LastName }}</h1>
+            <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ trFormat .App "howDoYouKnowYourCertificateProvider" "FirstNames" .CertificateProvider.FirstNames "LastName" .CertificateProvider.LastName }}</h1>
 
             {{ template "error-message" (errorMessage . "how") }}
 
@@ -57,7 +57,7 @@
               <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-how">
                 <div class="govuk-form-group {{ if .Errors.Has "description" }}govuk-form-group--error{{ end }}">
                   <label class="govuk-label" for="f-description">
-                    {{ trFormat .App "pleaseDescribe" "FirstNames" .CertificateProviderDetails.FirstNames "LastName" .CertificateProviderDetails.LastName }}
+                    {{ trFormat .App "pleaseDescribe" "FirstNames" .CertificateProvider.FirstNames "LastName" .CertificateProvider.LastName }}
                   </label>
                   {{ template "error-message" (errorMessage . "description") }}
                   <textarea class="govuk-textarea {{ if .Errors.Has "description" }}govuk-textarea--error{{ end }}" id="f-description" name="description" rows="5">{{ .Form.Description }}</textarea>

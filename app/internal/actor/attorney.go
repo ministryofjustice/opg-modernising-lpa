@@ -71,15 +71,6 @@ func (as Attorneys) FirstNames() string {
 	return concatSentence(names)
 }
 
-type AttorneyProvidedDetails struct {
-	DateOfBirth   date.Date
-	Mobile        string
-	Address       place.Address
-	IsNameCorrect string
-	CorrectedName string
-	Confirmed     bool
-}
-
 func concatSentence(list []string) string {
 	switch len(list) {
 	case 0:
