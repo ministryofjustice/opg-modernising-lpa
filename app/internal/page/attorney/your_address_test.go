@@ -26,21 +26,12 @@ var testAddress = place.Address{
 
 func TestGetYourAddress(t *testing.T) {
 	testcases := map[string]struct {
-		lpa     *page.Lpa
 		appData page.AppData
 	}{
 		"attorney": {
-			lpa: &page.Lpa{
-				ID:                      "lpa-id",
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
 			appData: testAppData,
 		},
 		"replacement attorney": {
-			lpa: &page.Lpa{
-				ID:                                 "lpa-id",
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
 			appData: testReplacementAppData,
 		},
 	}
@@ -50,10 +41,10 @@ func TestGetYourAddress(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
 				On("Get", r.Context()).
-				Return(tc.lpa, nil)
+				Return(&actor.AttorneyProvidedDetails{}, nil)
 
 			template := newMockTemplate(t)
 			template.
@@ -63,7 +54,7 @@ func TestGetYourAddress(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := YourAddress(nil, template.Execute, nil, lpaStore)(tc.appData, w, r)
+			err := YourAddress(nil, template.Execute, nil, attorneyStore)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -76,12 +67,12 @@ func TestGetYourAddressWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
+		Return(&actor.AttorneyProvidedDetails{}, expectedError)
 
-	err := YourAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, nil, nil, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -90,29 +81,19 @@ func TestGetYourAddressWhenStoreErrors(t *testing.T) {
 
 func TestGetYourAddressFromStore(t *testing.T) {
 	testcases := map[string]struct {
-		appData page.AppData
-		lpa     *page.Lpa
+		appData  page.AppData
+		attorney *actor.AttorneyProvidedDetails
 	}{
 		"attorney": {
 			appData: testAppData,
-			lpa: &page.Lpa{
-				Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
-					"attorney-id": {
-						Address: testAddress,
-					},
-				},
+			attorney: &actor.AttorneyProvidedDetails{
+				Address: testAddress,
 			},
 		},
 		"replacement attorney": {
 			appData: testReplacementAppData,
-			lpa: &page.Lpa{
-				ReplacementAttorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
-					"attorney-id": {
-						Address: testAddress,
-					},
-				},
+			attorney: &actor.AttorneyProvidedDetails{
+				Address: testAddress,
 			},
 		},
 	}
@@ -122,10 +103,10 @@ func TestGetYourAddressFromStore(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
 				On("Get", r.Context()).
-				Return(tc.lpa, nil)
+				Return(tc.attorney, nil)
 
 			template := newMockTemplate(t)
 			template.
@@ -138,7 +119,7 @@ func TestGetYourAddressFromStore(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := YourAddress(nil, template.Execute, nil, lpaStore)(tc.appData, w, r)
+			err := YourAddress(nil, template.Execute, nil, attorneyStore)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -151,10 +132,10 @@ func TestGetYourAddressManual(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?action=manual", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -167,7 +148,7 @@ func TestGetYourAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -178,10 +159,10 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -191,7 +172,7 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := YourAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -200,42 +181,23 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 
 func TestPostYourAddressManual(t *testing.T) {
 	testCases := map[string]struct {
-		lpa        *page.Lpa
-		updatedLpa *page.Lpa
-		appData    page.AppData
+		updatedAttorney *actor.AttorneyProvidedDetails
+		appData         page.AppData
 	}{
 		"attorney": {
-			lpa: &page.Lpa{
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
-			updatedLpa: &page.Lpa{
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
-					"attorney-id": {
-						Address: testAddress,
-					},
-				},
-				AttorneyTasks: map[string]page.AttorneyTasks{
-					"attorney-id": {
-						ConfirmYourDetails: page.TaskCompleted,
-					},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				Address: testAddress,
+				Tasks: actor.AttorneyTasks{
+					ConfirmYourDetails: actor.TaskCompleted,
 				},
 			},
 			appData: testAppData,
 		},
 		"replacement attorney": {
-			lpa: &page.Lpa{
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
-			updatedLpa: &page.Lpa{
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
-					"attorney-id": {
-						Address: testAddress,
-					},
-				},
-				ReplacementAttorneyTasks: map[string]page.AttorneyTasks{
-					"attorney-id": {
-						ConfirmYourDetails: page.TaskCompleted,
-					},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				Address: testAddress,
+				Tasks: actor.AttorneyTasks{
+					ConfirmYourDetails: actor.TaskCompleted,
 				},
 			},
 			appData: testReplacementAppData,
@@ -257,15 +219,15 @@ func TestPostYourAddressManual(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
 				On("Get", r.Context()).
-				Return(tc.lpa, nil)
-			lpaStore.
-				On("Put", r.Context(), tc.updatedLpa).
+				Return(&actor.AttorneyProvidedDetails{}, nil)
+			attorneyStore.
+				On("Put", r.Context(), tc.updatedAttorney).
 				Return(nil)
 
-			err := YourAddress(nil, nil, nil, lpaStore)(tc.appData, w, r)
+			err := YourAddress(nil, nil, nil, attorneyStore)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -289,15 +251,15 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	lpaStore.
+		Return(&actor.AttorneyProvidedDetails{}, nil)
+	attorneyStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, nil, nil, attorneyStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -314,10 +276,10 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -335,7 +297,7 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -360,10 +322,10 @@ func TestPostYourAddressSelect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -377,7 +339,7 @@ func TestPostYourAddressSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -398,10 +360,10 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	addressClient := newMockAddressClient(t)
 	addressClient.
@@ -421,7 +383,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, addressClient, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -438,10 +400,10 @@ func TestPostYourAddressLookup(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	addresses := []place.Address{
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
@@ -464,7 +426,7 @@ func TestPostYourAddressLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, addressClient, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -485,10 +447,10 @@ func TestPostYourAddressLookupError(t *testing.T) {
 	logger.
 		On("Print", expectedError)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	addressClient := newMockAddressClient(t)
 	addressClient.
@@ -508,7 +470,7 @@ func TestPostYourAddressLookupError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(logger, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := YourAddress(logger, template.Execute, addressClient, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -534,10 +496,10 @@ func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
 	logger.
 		On("Print", invalidPostcodeErr)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	addressClient := newMockAddressClient(t)
 	addressClient.
@@ -557,7 +519,7 @@ func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(logger, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := YourAddress(logger, template.Execute, addressClient, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -577,10 +539,10 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 
 	logger := newMockLogger(t)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	addressClient := newMockAddressClient(t)
 	addressClient.
@@ -600,7 +562,7 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(logger, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := YourAddress(logger, template.Execute, addressClient, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -616,10 +578,10 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -632,7 +594,7 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

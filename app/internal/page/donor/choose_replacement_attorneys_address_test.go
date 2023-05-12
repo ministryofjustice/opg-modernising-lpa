@@ -190,7 +190,7 @@ func TestPostChooseReplacementAttorneysAddressSkip(t *testing.T) {
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
 			ReplacementAttorneys: actor.Attorneys{{ID: "123", FirstNames: "a", Email: "a"}},
-			Tasks:                page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
+			Tasks:                page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -230,7 +230,7 @@ func TestPostChooseReplacementAttorneysAddressManual(t *testing.T) {
 				FirstNames: "a",
 				Address:    testAddress,
 			}},
-			Tasks: page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
+			Tasks: page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -304,7 +304,7 @@ func TestPostChooseReplacementAttorneysAddressManualFromStore(t *testing.T) {
 				Address:    testAddress,
 			}},
 			WhoFor: "me",
-			Tasks:  page.Tasks{ChooseReplacementAttorneys: page.TaskCompleted},
+			Tasks:  page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -399,7 +399,7 @@ func TestPostChooseReplacementAttorneysAddressSelect(t *testing.T) {
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
 			ReplacementAttorneys: actor.Attorneys{updatedRa},
-			Tasks:                page.Tasks{ChooseReplacementAttorneys: page.TaskInProgress},
+			Tasks:                page.Tasks{ChooseReplacementAttorneys: actor.TaskInProgress},
 		}).
 		Return(nil)
 
@@ -415,7 +415,7 @@ func TestPostChooseReplacementAttorneysAddressSelect(t *testing.T) {
 			},
 			Lpa: &page.Lpa{
 				ReplacementAttorneys: actor.Attorneys{updatedRa},
-				Tasks:                page.Tasks{ChooseReplacementAttorneys: page.TaskInProgress},
+				Tasks:                page.Tasks{ChooseReplacementAttorneys: actor.TaskInProgress},
 			},
 		}).
 		Return(nil)

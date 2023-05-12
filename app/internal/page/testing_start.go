@@ -75,8 +75,8 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
 			lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
 
-			lpa.Tasks.ChooseAttorneys = TaskInProgress
-			lpa.Tasks.ChooseReplacementAttorneys = TaskInProgress
+			lpa.Tasks.ChooseAttorneys = actor.TaskInProgress
+			lpa.Tasks.ChooseReplacementAttorneys = actor.TaskInProgress
 		}
 
 		if r.FormValue("howAttorneysAct") != "" {
@@ -121,7 +121,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				joanna,
 			}
 
-			lpa.Tasks.PeopleToNotify = TaskInProgress
+			lpa.Tasks.PeopleToNotify = actor.TaskInProgress
 		}
 
 		if r.FormValue("lpaChecked") != "" || r.FormValue("completeLpa") != "" {
@@ -160,10 +160,10 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				PayForLpa(lpa, store, r, w, randomString(12))
 			}
 
-			lpa.CertificateProviderDetails.Email = TestEmail
+			lpa.CertificateProvider.Email = TestEmail
 
 			if r.FormValue("withEmail") != "" {
-				lpa.CertificateProviderDetails.Email = r.FormValue("withEmail")
+				lpa.CertificateProvider.Email = r.FormValue("withEmail")
 			}
 
 			shareCodeSender.SendCertificateProvider(donorCtx, notify.CertificateProviderInviteEmail, AppData{
@@ -251,11 +251,10 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 
 		if r.FormValue("asAttorney") != "" {
 			_ = sesh.SetAttorney(store, r, w, &sesh.AttorneySession{
-				Sub:            randomString(12),
-				Email:          TestEmail,
-				DonorSessionID: donorSessionID,
-				AttorneyID:     lpa.Attorneys[0].ID,
-				LpaID:          lpa.ID,
+				Sub:        randomString(12),
+				Email:      TestEmail,
+				AttorneyID: lpa.Attorneys[0].ID,
+				LpaID:      lpa.ID,
 			})
 		}
 
@@ -263,7 +262,6 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			_ = sesh.SetAttorney(store, r, w, &sesh.AttorneySession{
 				Sub:                   randomString(12),
 				Email:                 TestEmail,
-				DonorSessionID:        donorSessionID,
 				AttorneyID:            lpa.ReplacementAttorneys[0].ID,
 				LpaID:                 lpa.ID,
 				IsReplacementAttorney: true,

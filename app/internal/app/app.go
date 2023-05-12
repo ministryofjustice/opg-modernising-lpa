@@ -52,6 +52,7 @@ func App(
 ) http.Handler {
 	lpaStore := &lpaStore{dataStore: dataStore, uuidString: uuid.NewString, now: time.Now}
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: time.Now}
+	attorneyStore := &attorneyStore{dataStore: dataStore, now: time.Now}
 
 	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)
 
@@ -90,6 +91,7 @@ func App(
 		sessionStore,
 		lpaStore,
 		certificateProviderStore,
+		attorneyStore,
 		oneLoginClient,
 		addressClient,
 		dataStore,

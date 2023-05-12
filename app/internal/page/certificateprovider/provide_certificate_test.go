@@ -27,13 +27,13 @@ func TestGetProvideCertificate(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &provideCertificateData{
 			App:                 testAppData,
-			CertificateProvider: &actor.CertificateProvider{},
+			CertificateProvider: &actor.CertificateProviderProvidedDetails{},
 			Form:                &provideCertificateForm{},
 		}).
 		Return(nil)
@@ -57,7 +57,7 @@ func TestGetProvideCertificateRedirectsToStartOnLpaNotSubmitted(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	err := ProvideCertificate(nil, lpaStore, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
@@ -95,7 +95,7 @@ func TestGetProvideCertificateWhenCertificateProviderStoreErrors(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, expectedError)
+		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := ProvideCertificate(nil, lpaStore, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
@@ -123,9 +123,9 @@ func TestPostProvideCertificate(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 	certificateProviderStore.
-		On("Put", r.Context(), &actor.CertificateProvider{
+		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{
 			Certificate: actor.Certificate{
 				AgreeToStatement: true,
 				Agreed:           now,
@@ -160,9 +160,9 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 	certificateProviderStore.
-		On("Put", r.Context(), &actor.CertificateProvider{
+		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{
 			Certificate: actor.Certificate{
 				AgreeToStatement: true,
 				Agreed:           now,
@@ -196,7 +196,7 @@ func TestPostProvideCertificateWhenValidationErrors(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
