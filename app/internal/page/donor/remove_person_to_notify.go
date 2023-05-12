@@ -46,7 +46,7 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaSto
 				if data.Form.RemovePersonToNotify == "yes" {
 					lpa.PeopleToNotify.Delete(person)
 					if len(lpa.PeopleToNotify) == 0 {
-						lpa.Tasks.PeopleToNotify = page.TaskNotStarted
+						lpa.Tasks.PeopleToNotify = actor.TaskNotStarted
 					}
 
 					if err := lpaStore.Put(r.Context(), lpa); err != nil {

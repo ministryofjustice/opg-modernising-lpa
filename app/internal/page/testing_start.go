@@ -75,8 +75,8 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
 			lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
 
-			lpa.Tasks.ChooseAttorneys = TaskInProgress
-			lpa.Tasks.ChooseReplacementAttorneys = TaskInProgress
+			lpa.Tasks.ChooseAttorneys = actor.TaskInProgress
+			lpa.Tasks.ChooseReplacementAttorneys = actor.TaskInProgress
 		}
 
 		if r.FormValue("howAttorneysAct") != "" {
@@ -121,7 +121,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				joanna,
 			}
 
-			lpa.Tasks.PeopleToNotify = TaskInProgress
+			lpa.Tasks.PeopleToNotify = actor.TaskInProgress
 		}
 
 		if r.FormValue("lpaChecked") != "" || r.FormValue("completeLpa") != "" {

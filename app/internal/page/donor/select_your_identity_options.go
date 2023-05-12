@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -49,7 +50,7 @@ func SelectYourIdentityOptions(tmpl template.Template, lpaStore LpaStore, pageIn
 
 			if data.Errors.None() {
 				lpa.DonorIdentityOption = data.Form.Selected
-				lpa.Tasks.ConfirmYourIdentityAndSign = page.TaskInProgress
+				lpa.Tasks.ConfirmYourIdentityAndSign = actor.TaskInProgress
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err

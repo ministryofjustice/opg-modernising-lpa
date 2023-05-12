@@ -47,10 +47,10 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, lpaStore LpaSto
 				}
 
 				if requireLength {
-					lpa.Tasks.CertificateProvider = page.TaskInProgress
+					lpa.Tasks.CertificateProvider = actor.TaskInProgress
 				} else {
 					lpa.CertificateProvider.RelationshipLength = ""
-					lpa.Tasks.CertificateProvider = page.TaskCompleted
+					lpa.Tasks.CertificateProvider = actor.TaskCompleted
 				}
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
