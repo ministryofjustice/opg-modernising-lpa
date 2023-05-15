@@ -30,7 +30,7 @@ func TestGetEnterMobileNumber(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -64,7 +64,7 @@ func TestGetEnterMobileNumberFromStore(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{Mobile: "07535111222"}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{Mobile: "07535111222"}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -112,7 +112,7 @@ func TestGetEnterMobileNumberWhenCertificateProviderStoreErrors(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, expectedError)
+		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := EnterMobileNumber(nil, lpaStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
@@ -137,7 +137,7 @@ func TestGetEnterMobileNumberWhenTemplateErrors(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -172,9 +172,9 @@ func TestPostEnterMobileNumber(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 	certificateProviderStore.
-		On("Put", r.Context(), &actor.CertificateProvider{Mobile: "07535111222"}).
+		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{Mobile: "07535111222"}).
 		Return(nil)
 
 	err := EnterMobileNumber(nil, lpaStore, certificateProviderStore)(testAppData, w, r)
@@ -203,7 +203,7 @@ func TestPostEnterMobileNumberWhenValidationError(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	dataMatcher := func(t *testing.T, data *mobileNumberData) bool {
 		return assert.Equal(t, validation.With("mobile", validation.MobileError{Label: "mobile"}), data.Errors)
@@ -241,9 +241,9 @@ func TestPostEnterMobileNumberWhenCertificateProviderStoreErrors(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 	certificateProviderStore.
-		On("Put", r.Context(), &actor.CertificateProvider{Mobile: "07535111222"}).
+		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{Mobile: "07535111222"}).
 		Return(expectedError)
 
 	err := EnterMobileNumber(nil, lpaStore, certificateProviderStore)(testAppData, w, r)

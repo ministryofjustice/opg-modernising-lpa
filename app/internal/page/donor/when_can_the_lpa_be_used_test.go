@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -114,12 +115,12 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			Tasks: page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
 			WhenCanTheLpaBeUsed: page.UsedWhenRegistered,
-			Tasks:               page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted, WhenCanTheLpaBeUsed: page.TaskCompleted},
+			Tasks:               page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, WhenCanTheLpaBeUsed: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -145,11 +146,11 @@ func TestPostWhenCanTheLpaBeUsedWhenAnswerLater(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			Tasks: page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			Tasks: page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted, WhenCanTheLpaBeUsed: page.TaskInProgress},
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, WhenCanTheLpaBeUsed: actor.TaskInProgress},
 		}).
 		Return(nil)
 
@@ -175,7 +176,7 @@ func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 	lpaStore.
-		On("Put", r.Context(), &page.Lpa{WhenCanTheLpaBeUsed: page.UsedWhenRegistered, Tasks: page.Tasks{WhenCanTheLpaBeUsed: page.TaskCompleted}}).
+		On("Put", r.Context(), &page.Lpa{WhenCanTheLpaBeUsed: page.UsedWhenRegistered, Tasks: page.Tasks{WhenCanTheLpaBeUsed: actor.TaskCompleted}}).
 		Return(expectedError)
 
 	err := WhenCanTheLpaBeUsed(nil, lpaStore)(testAppData, w, r)

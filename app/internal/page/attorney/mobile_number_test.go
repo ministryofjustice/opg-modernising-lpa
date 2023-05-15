@@ -16,21 +16,12 @@ import (
 
 func TestGetMobileNumber(t *testing.T) {
 	testcases := map[string]struct {
-		lpa     *page.Lpa
 		appData page.AppData
 	}{
 		"attorney": {
-			lpa: &page.Lpa{
-				ID:                      "lpa-id",
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
 			appData: testAppData,
 		},
 		"replacement attorney": {
-			lpa: &page.Lpa{
-				ID:                                 "lpa-id",
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
 			appData: testReplacementAppData,
 		},
 	}
@@ -40,21 +31,20 @@ func TestGetMobileNumber(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
 				On("Get", r.Context()).
-				Return(tc.lpa, nil)
+				Return(&actor.AttorneyProvidedDetails{}, nil)
 
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &mobileNumberData{
 					App:  tc.appData,
-					Lpa:  tc.lpa,
 					Form: &mobileNumberForm{},
 				}).
 				Return(nil)
 
-			err := MobileNumber(template.Execute, lpaStore)(tc.appData, w, r)
+			err := MobileNumber(template.Execute, attorneyStore)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -65,30 +55,14 @@ func TestGetMobileNumber(t *testing.T) {
 
 func TestGetMobileNumberFromStore(t *testing.T) {
 	testcases := map[string]struct {
-		appData page.AppData
-		lpa     *page.Lpa
+		appData  page.AppData
+		attorney *actor.AttorneyProvidedDetails
 	}{
 		"attorney": {
 			appData: testAppData,
-			lpa: &page.Lpa{
-				Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
-					"attorney-id": {
-						Mobile: "07535111222",
-					},
-				},
-			},
 		},
 		"replacement attorney": {
 			appData: testReplacementAppData,
-			lpa: &page.Lpa{
-				ReplacementAttorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
-					"attorney-id": {
-						Mobile: "07535111222",
-					},
-				},
-			},
 		},
 	}
 
@@ -97,23 +71,24 @@ func TestGetMobileNumberFromStore(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
 				On("Get", r.Context()).
-				Return(tc.lpa, nil)
+				Return(&actor.AttorneyProvidedDetails{
+					Mobile: "07535111222",
+				}, nil)
 
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &mobileNumberData{
 					App: tc.appData,
-					Lpa: tc.lpa,
 					Form: &mobileNumberForm{
 						Mobile: "07535111222",
 					},
 				}).
 				Return(nil)
 
-			err := MobileNumber(template.Execute, lpaStore)(tc.appData, w, r)
+			err := MobileNumber(template.Execute, attorneyStore)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -122,16 +97,16 @@ func TestGetMobileNumberFromStore(t *testing.T) {
 	}
 }
 
-func TestGetMobileNumberWhenLpaStoreErrors(t *testing.T) {
+func TestGetMobileNumberWhenAttorneyStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
+		Return(&actor.AttorneyProvidedDetails{}, expectedError)
 
-	err := MobileNumber(nil, lpaStore)(testAppData, w, r)
+	err := MobileNumber(nil, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -142,25 +117,17 @@ func TestGetMobileNumberWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &page.Lpa{
-		ID: "lpa-id",
-	}
-
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(lpa, nil)
+		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &mobileNumberData{
-			App:  testAppData,
-			Lpa:  lpa,
-			Form: &mobileNumberForm{},
-		}).
+		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := MobileNumber(template.Execute, lpaStore)(testAppData, w, r)
+	err := MobileNumber(template.Execute, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -169,60 +136,35 @@ func TestGetMobileNumberWhenTemplateErrors(t *testing.T) {
 
 func TestPostMobileNumber(t *testing.T) {
 	testCases := map[string]struct {
-		form       url.Values
-		lpa        *page.Lpa
-		updatedLpa *page.Lpa
-		appData    page.AppData
+		form            url.Values
+		updatedAttorney *actor.AttorneyProvidedDetails
+		appData         page.AppData
 	}{
 		"attorney": {
 			form: url.Values{
 				"mobile": {"07535111222"},
 			},
-			lpa: &page.Lpa{
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
-			updatedLpa: &page.Lpa{
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
-					"attorney-id": {
-						Mobile: "07535111222",
-					},
-				},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				Mobile: "07535111222",
 			},
 			appData: testAppData,
 		},
 		"attorney empty": {
-			lpa: &page.Lpa{
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
-			updatedLpa: &page.Lpa{
-				AttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
-			appData: testAppData,
+			appData:         testAppData,
+			updatedAttorney: &actor.AttorneyProvidedDetails{},
 		},
 		"replacement attorney": {
 			form: url.Values{
 				"mobile": {"07535111222"},
 			},
-			lpa: &page.Lpa{
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
-			updatedLpa: &page.Lpa{
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{
-					"attorney-id": {
-						Mobile: "07535111222",
-					},
-				},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				Mobile: "07535111222",
 			},
 			appData: testReplacementAppData,
 		},
 		"replacement attorney empty": {
-			lpa: &page.Lpa{
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
-			updatedLpa: &page.Lpa{
-				ReplacementAttorneyProvidedDetails: map[string]actor.AttorneyProvidedDetails{"attorney-id": {}},
-			},
-			appData: testReplacementAppData,
+			appData:         testReplacementAppData,
+			updatedAttorney: &actor.AttorneyProvidedDetails{},
 		},
 	}
 
@@ -232,15 +174,15 @@ func TestPostMobileNumber(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.
 				On("Get", r.Context()).
-				Return(tc.lpa, nil)
-			lpaStore.
-				On("Put", r.Context(), tc.updatedLpa).
+				Return(&actor.AttorneyProvidedDetails{}, nil)
+			attorneyStore.
+				On("Put", r.Context(), tc.updatedAttorney).
 				Return(nil)
 
-			err := MobileNumber(nil, lpaStore)(tc.appData, w, r)
+			err := MobileNumber(nil, attorneyStore)(tc.appData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -259,10 +201,10 @@ func TestPostMobileNumberWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
+		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	dataMatcher := func(t *testing.T, data *mobileNumberData) bool {
 		return assert.Equal(t, validation.With("mobile", validation.MobileError{Label: "mobile"}), data.Errors)
@@ -275,14 +217,14 @@ func TestPostMobileNumberWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := MobileNumber(template.Execute, lpaStore)(testAppData, w, r)
+	err := MobileNumber(template.Execute, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostMobileNumberWhenLpaStoreErrors(t *testing.T) {
+func TestPostMobileNumberWhenAttorneyStoreErrors(t *testing.T) {
 	form := url.Values{
 		"mobile": {"07535111222"},
 	}
@@ -292,15 +234,15 @@ func TestPostMobileNumberWhenLpaStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
-	lpaStore.
+		Return(&actor.AttorneyProvidedDetails{}, nil)
+	attorneyStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := MobileNumber(nil, lpaStore)(testAppData, w, r)
+	err := MobileNumber(nil, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
