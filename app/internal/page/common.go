@@ -25,12 +25,10 @@ type Logger interface {
 	Request(*http.Request, error)
 }
 
-//go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
-type DataStore interface {
-	Get(ctx context.Context, pk, sk string, v interface{}) error
-	Put(context.Context, string, string, interface{}) error
-	GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
-	GetAllByGsi(ctx context.Context, gsi, sk string, v interface{}) error
+//go:generate mockery --testonly --inpackage --name ShareCodeStore --structname mockShareCodeStore
+type ShareCodeStore interface {
+	Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error
 }
 
 //go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient

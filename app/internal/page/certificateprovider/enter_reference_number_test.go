@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -18,7 +19,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func (m *mockDataStore) ExpectGet(ctx, pk, sk, data interface{}, err error) {
+func (m *mockShareCodeStore) ExpectGet(ctx, pk, sk, data interface{}, err error) {
 	m.
 		On("Get", ctx, pk, sk, mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
@@ -42,7 +43,7 @@ func TestGetEnterReferenceNumber(t *testing.T) {
 		On("Execute", w, data).
 		Return(nil)
 
-	err := EnterReferenceNumber(template.Execute, newMockDataStore(t), nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, newMockShareCodeStore(t), nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -64,7 +65,7 @@ func TestGetEnterReferenceNumberOnTemplateError(t *testing.T) {
 		On("Execute", w, data).
 		Return(expectedError)
 
-	err := EnterReferenceNumber(template.Execute, newMockDataStore(t), nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, newMockShareCodeStore(t), nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -94,10 +95,10 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			dataStore := newMockDataStore(t)
-			dataStore.
-				ExpectGet(r.Context(), "CERTIFICATEPROVIDERSHARE#aRefNumber12", "#METADATA#aRefNumber12",
-					page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: tc.Identity}, nil)
+			shareCodeStore := newMockShareCodeStore(t)
+			shareCodeStore.
+				On("Get", r.Context(), actor.TypeCertificateProvider, "aRefNumber12").
+				Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: tc.Identity}, nil)
 
 			sessionStore := newMockSessionStore(t)
 
@@ -115,7 +116,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			sessionStore.
 				On("Save", r, w, session).
 				Return(nil)
-			err := EnterReferenceNumber(nil, dataStore, sessionStore)(testAppData, w, r)
+			err := EnterReferenceNumber(nil, shareCodeStore, sessionStore)(testAppData, w, r)
 
 			resp := w.Result()
 
@@ -126,7 +127,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	}
 }
 
-func TestPostEnterReferenceNumberOnDataStoreError(t *testing.T) {
+func TestPostEnterReferenceNumberOnShareCodeStoreError(t *testing.T) {
 	form := url.Values{
 		"reference-number": {"  aRefNumber12  "},
 	}
@@ -135,12 +136,12 @@ func TestPostEnterReferenceNumberOnDataStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	dataStore := newMockDataStore(t)
-	dataStore.
-		ExpectGet(r.Context(), "CERTIFICATEPROVIDERSHARE#aRefNumber12", "#METADATA#aRefNumber12",
-			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, expectedError)
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.
+		On("Get", r.Context(), actor.TypeCertificateProvider, "aRefNumber12").
+		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, expectedError)
 
-	err := EnterReferenceNumber(nil, dataStore, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, shareCodeStore, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -148,7 +149,7 @@ func TestPostEnterReferenceNumberOnDataStoreError(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterReferenceNumberOnDataStoreNotFoundError(t *testing.T) {
+func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 	form := url.Values{
 		"reference-number": {"a Ref-Number12"},
 	}
@@ -168,12 +169,12 @@ func TestPostEnterReferenceNumberOnDataStoreNotFoundError(t *testing.T) {
 		On("Execute", w, data).
 		Return(nil)
 
-	dataStore := newMockDataStore(t)
-	dataStore.
-		ExpectGet(r.Context(), "CERTIFICATEPROVIDERSHARE#aRefNumber12", "#METADATA#aRefNumber12",
-			page.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, dynamo.NotFoundError{})
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.
+		On("Get", r.Context(), actor.TypeCertificateProvider, "aRefNumber12").
+		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, dynamo.NotFoundError{})
 
-	err := EnterReferenceNumber(template.Execute, dataStore, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil)(testAppData, w, r)
 
 	resp := w.Result()
 

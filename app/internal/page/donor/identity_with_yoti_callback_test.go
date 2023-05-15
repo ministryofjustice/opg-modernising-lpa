@@ -133,7 +133,7 @@ func TestGetIdentityWithYotiCallbackWhenIdentityNotConfirmed(t *testing.T) {
 	}
 }
 
-func TestGetIdentityWithYotiCallbackWhenGetDataStoreError(t *testing.T) {
+func TestGetIdentityWithYotiCallbackWhenGetDonorStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?token=a-token", nil)
 
@@ -145,7 +145,7 @@ func TestGetIdentityWithYotiCallbackWhenGetDataStoreError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestGetIdentityWithYotiCallbackWhenPutDataStoreError(t *testing.T) {
+func TestGetIdentityWithYotiCallbackWhenPutDonorStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?token=a-token", nil)
 	now := time.Now()

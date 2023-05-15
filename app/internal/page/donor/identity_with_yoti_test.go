@@ -110,7 +110,7 @@ func TestGetIdentityWithYotiWhenTest(t *testing.T) {
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.IdentityWithYotiCallback, resp.Header.Get("Location"))
 }
 
-func TestGetIdentityWithYotiWhenDataStoreError(t *testing.T) {
+func TestGetIdentityWithYotiWhenDonorStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 

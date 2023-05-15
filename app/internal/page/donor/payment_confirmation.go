@@ -60,7 +60,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		lpa.Tasks.PayForLpa = actor.TaskCompleted
 
 		if err := donorStore.Put(r.Context(), lpa); err != nil {
-			logger.Print(fmt.Sprintf("unable to update lpa in dataStore: %s", err.Error()))
+			logger.Print(fmt.Sprintf("unable to update lpa in donorStore: %s", err.Error()))
 			return err
 		}
 

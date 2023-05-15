@@ -27,7 +27,7 @@ func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
 	}
 
 	if data.SessionID == "" {
-		return nil, errors.New("donorStore.Create requires SessionID to persist")
+		return nil, errors.New("donorStore.Create requires SessionID")
 	}
 
 	pk, sk := makeLpaKeys(lpa.ID, data.SessionID)
@@ -43,7 +43,7 @@ func (s *donorStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
 	}
 
 	if data.SessionID == "" {
-		return nil, errors.New("donorStore.GetAll requires SessionID to retrieve")
+		return nil, errors.New("donorStore.GetAll requires SessionID")
 	}
 
 	var lpas []*page.Lpa
@@ -65,7 +65,7 @@ func (s *donorStore) Get(ctx context.Context) (*page.Lpa, error) {
 	}
 
 	if data.LpaID == "" {
-		return nil, errors.New("donorStore.Get requires LpaID to retrieve")
+		return nil, errors.New("donorStore.Get requires LpaID")
 	}
 
 	pk := "LPA#" + data.LpaID
@@ -85,7 +85,7 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 	}
 
 	if data.SessionID == "" {
-		return errors.New("donorStore.Put requires SessionID to persist")
+		return errors.New("donorStore.Put requires SessionID")
 	}
 
 	lpa.UpdatedAt = time.Now()

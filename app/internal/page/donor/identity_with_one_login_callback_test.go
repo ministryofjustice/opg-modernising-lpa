@@ -214,7 +214,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 	}
 }
 
-func TestGetIdentityWithOneLoginCallbackWhenGetDataStoreError(t *testing.T) {
+func TestGetIdentityWithOneLoginCallbackWhenGetDonorStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 
@@ -226,7 +226,7 @@ func TestGetIdentityWithOneLoginCallbackWhenGetDataStoreError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestGetIdentityWithOneLoginCallbackWhenPutDataStoreError(t *testing.T) {
+func TestGetIdentityWithOneLoginCallbackWhenPutDonorStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}

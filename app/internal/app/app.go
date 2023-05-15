@@ -53,8 +53,9 @@ func App(
 	donorStore := &donorStore{dataStore: dataStore, uuidString: uuid.NewString, now: time.Now}
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: time.Now}
 	attorneyStore := &attorneyStore{dataStore: dataStore, now: time.Now}
+	shareCodeStore := &shareCodeStore{dataStore: dataStore}
 
-	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)
+	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicUrl, random.String)
 
 	errorHandler := page.Error(tmpls.Get("error-500.gohtml"), logger)
 	notFoundHandler := page.Root(tmpls.Get("error-404.gohtml"), logger)
@@ -76,7 +77,7 @@ func App(
 		sessionStore,
 		donorStore,
 		oneLoginClient,
-		dataStore,
+		shareCodeStore,
 		addressClient,
 		errorHandler,
 		yotiClient,
@@ -94,7 +95,7 @@ func App(
 		attorneyStore,
 		oneLoginClient,
 		addressClient,
-		dataStore,
+		shareCodeStore,
 		errorHandler,
 		notifyClient,
 	)

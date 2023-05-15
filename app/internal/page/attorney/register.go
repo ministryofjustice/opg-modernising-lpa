@@ -47,9 +47,9 @@ type DonorStore interface {
 	Get(context.Context) (*page.Lpa, error)
 }
 
-//go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
-type DataStore interface {
-	Get(ctx context.Context, pk, sk string, v interface{}) error
+//go:generate mockery --testonly --inpackage --name ShareCodeStore --structname mockShareCodeStore
+type ShareCodeStore interface {
+	Get(context.Context, actor.Type, string) (actor.ShareCodeData, error)
 }
 
 //go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient
@@ -86,7 +86,7 @@ func Register(
 	attorneyStore AttorneyStore,
 	oneLoginClient OneLoginClient,
 	addressClient AddressClient,
-	dataStore DataStore,
+	shareCodeStore ShareCodeStore,
 	errorHandler page.ErrorHandler,
 	notifyClient NotifyClient,
 ) {
@@ -99,7 +99,7 @@ func Register(
 	handleRoot(page.Paths.Attorney.LoginCallback, None,
 		LoginCallback(oneLoginClient, sessionStore))
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,
-		EnterReferenceNumber(tmpls.Get("attorney_enter_reference_number.gohtml"), dataStore, sessionStore, attorneyStore))
+		EnterReferenceNumber(tmpls.Get("attorney_enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore))
 	handleRoot(page.Paths.Attorney.CodeOfConduct, RequireLpa,
 		donor.Guidance(tmpls.Get("attorney_code_of_conduct.gohtml"), donorStore))
 	handleRoot(page.Paths.Attorney.TaskList, RequireLpa,

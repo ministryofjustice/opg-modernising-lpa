@@ -44,12 +44,9 @@ type OneLoginClient interface {
 	ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error)
 }
 
-//go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
-type DataStore interface {
-	Get(ctx context.Context, pk, sk string, v interface{}) error
-	Put(context.Context, string, string, interface{}) error
-	GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
-	GetAllByGsi(ctx context.Context, gsi, sk string, v interface{}) error
+//go:generate mockery --testonly --inpackage --name ShareCodeStore --structname mockShareCodeStore
+type ShareCodeStore interface {
+	Get(context.Context, actor.Type, string) (actor.ShareCodeData, error)
 }
 
 //go:generate mockery --testonly --inpackage --name AddressClient --structname mockAddressClient
@@ -89,7 +86,7 @@ func Register(
 	sessionStore SessionStore,
 	donorStore DonorStore,
 	oneLoginClient OneLoginClient,
-	dataStore DataStore,
+	shareCodeStore ShareCodeStore,
 	addressClient AddressClient,
 	errorHandler page.ErrorHandler,
 	yotiClient YotiClient,
@@ -101,7 +98,7 @@ func Register(
 	handleRoot(page.Paths.CertificateProviderStart, None,
 		Guidance(tmpls.Get("certificate_provider_start.gohtml"), nil, nil))
 	handleRoot(page.Paths.CertificateProviderEnterReferenceNumber, None,
-		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), dataStore, sessionStore))
+		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), shareCodeStore, sessionStore))
 	handleRoot(page.Paths.CertificateProviderWhoIsEligible, None,
 		WhoIsEligible(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), sessionStore))
 	handleRoot(page.Paths.CertificateProviderLogin, None,
