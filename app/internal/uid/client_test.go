@@ -66,7 +66,7 @@ func TestCreateCaseOnNewRequestError(t *testing.T) {
 }
 
 func TestCreateCaseOnDoRequestError(t *testing.T) {
-	httpClient := newMockHttpClient(t)
+	httpClient := newMockDoer(t)
 	httpClient.
 		On("Do", mock.Anything).
 		Return(nil, expectedError)
