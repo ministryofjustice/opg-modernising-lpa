@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -114,12 +115,12 @@ func TestPostRestrictions(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			Tasks: page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
 			Restrictions: "blah",
-			Tasks:        page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted, Restrictions: page.TaskCompleted},
+			Tasks:        page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, Restrictions: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -145,11 +146,11 @@ func TestPostRestrictionsWhenAnswerLater(t *testing.T) {
 	lpaStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			Tasks: page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
-			Tasks: page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted, Restrictions: page.TaskInProgress},
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, Restrictions: actor.TaskInProgress},
 		}).
 		Return(nil)
 
@@ -175,7 +176,7 @@ func TestPostRestrictionsWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 	lpaStore.
-		On("Put", r.Context(), &page.Lpa{Restrictions: "blah", Tasks: page.Tasks{Restrictions: page.TaskCompleted}}).
+		On("Put", r.Context(), &page.Lpa{Restrictions: "blah", Tasks: page.Tasks{Restrictions: actor.TaskCompleted}}).
 		Return(expectedError)
 
 	err := Restrictions(nil, lpaStore)(testAppData, w, r)

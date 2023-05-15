@@ -13,7 +13,7 @@ import (
 type provideCertificateData struct {
 	App                 page.AppData
 	Errors              validation.List
-	CertificateProvider *actor.CertificateProvider
+	CertificateProvider *actor.CertificateProviderProvidedDetails
 	Form                *provideCertificateForm
 }
 

@@ -8,7 +8,7 @@
       <form novalidate method="post">
         <fieldset class="govuk-fieldset">
           <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-            <h1 class="govuk-fieldset__heading">{{ trFormat .App "certificateProviderAddress" "FirstNames" .CertificateProviderDetails.FirstNames }}</h1>
+            <h1 class="govuk-fieldset__heading">{{ trFormat .App "certificateProviderAddress" "FirstNames" .CertificateProvider.FirstNames }}</h1>
           </legend>
 
           {{ if eq "manual" .Form.Action }}

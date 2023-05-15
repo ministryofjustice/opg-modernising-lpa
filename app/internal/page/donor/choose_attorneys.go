@@ -188,7 +188,7 @@ func attorneyMatches(lpa *page.Lpa, id, firstNames, lastName string) actor.Type 
 		}
 	}
 
-	if strings.EqualFold(lpa.CertificateProviderDetails.FirstNames, firstNames) && strings.EqualFold(lpa.CertificateProviderDetails.LastName, lastName) {
+	if strings.EqualFold(lpa.CertificateProvider.FirstNames, firstNames) && strings.EqualFold(lpa.CertificateProvider.LastName, lastName) {
 		return actor.TypeCertificateProvider
 	}
 

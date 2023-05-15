@@ -1,9 +1,11 @@
 package attorney
 
 import (
+	"encoding/base64"
 	"errors"
 	"net/http"
 
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -18,7 +20,7 @@ type enterReferenceNumberData struct {
 	Lpa    *page.Lpa
 }
 
-func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore DataStore, sessionStore SessionStore) page.Handler {
+func EnterReferenceNumber(tmpl template.Template, dataStore DataStore, sessionStore SessionStore, attorneyStore AttorneyStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := enterReferenceNumberData{
 			App:  appData,
@@ -47,7 +49,6 @@ func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore D
 					return err
 				}
 				session.LpaID = v.LpaID
-				session.DonorSessionID = v.SessionID
 				session.AttorneyID = v.AttorneyID
 				session.IsReplacementAttorney = v.IsReplacementAttorney
 
@@ -55,15 +56,19 @@ func EnterReferenceNumber(tmpl template.Template, lpaStore LpaStore, dataStore D
 					return err
 				}
 
-				lpa, err := lpaStore.Get(page.ContextWithSessionData(r.Context(), &page.SessionData{
-					SessionID: v.SessionID,
-					LpaID:     v.LpaID,
-				}))
-				if err != nil {
-					return err
+				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
+					SessionID: base64.StdEncoding.EncodeToString([]byte(session.Sub)),
+					LpaID:     session.LpaID,
+				})
+
+				if _, err := attorneyStore.Create(ctx, session.IsReplacementAttorney); err != nil {
+					var ccf *types.ConditionalCheckFailedException
+					if !errors.As(err, &ccf) {
+						return err
+					}
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.Attorney.CodeOfConduct)
+				return appData.Redirect(w, r, nil, page.Paths.Attorney.CodeOfConduct)
 			}
 		}
 

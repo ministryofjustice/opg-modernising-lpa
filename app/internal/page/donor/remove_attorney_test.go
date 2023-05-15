@@ -122,7 +122,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 			updatedLpa: &page.Lpa{
 				Attorneys:         actor.Attorneys{attorneyWithEmail, attorneyWithAddress},
 				AttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
-				Tasks:             page.Tasks{ChooseAttorneys: page.TaskInProgress},
+				Tasks:             page.Tasks{ChooseAttorneys: actor.TaskInProgress},
 			},
 			redirect: page.Paths.ChooseAttorneysSummary,
 		},
@@ -133,7 +133,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 			},
 			updatedLpa: &page.Lpa{
 				Attorneys: actor.Attorneys{attorneyWithAddress},
-				Tasks:     page.Tasks{ChooseAttorneys: page.TaskInProgress},
+				Tasks:     page.Tasks{ChooseAttorneys: actor.TaskInProgress},
 			},
 			redirect: page.Paths.ChooseAttorneysSummary,
 		},

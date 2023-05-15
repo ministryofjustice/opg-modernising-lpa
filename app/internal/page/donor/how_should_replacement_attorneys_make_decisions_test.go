@@ -141,7 +141,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 		existing  actor.AttorneyDecisions
 		attorneys actor.Attorneys
 		updated   actor.AttorneyDecisions
-		taskState page.TaskState
+		taskState actor.TaskState
 		redirect  string
 	}{
 		"existing details not set": {
@@ -152,7 +152,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 			existing:  actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			attorneys: actor.Attorneys{{FirstNames: "a", Email: "a"}},
 			updated:   actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, Details: "some details"},
-			taskState: page.TaskCompleted,
+			taskState: actor.TaskCompleted,
 			redirect:  page.Paths.TaskList,
 		},
 		"existing details set": {
@@ -163,7 +163,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 			existing:  actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, Details: "some details"},
 			attorneys: actor.Attorneys{{FirstNames: "a", Email: "a"}},
 			updated:   actor.AttorneyDecisions{How: actor.Jointly},
-			taskState: page.TaskCompleted,
+			taskState: actor.TaskCompleted,
 			redirect:  page.Paths.TaskList,
 		},
 		"requires happiness": {
@@ -174,7 +174,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 			existing:  actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, Details: "some details"},
 			attorneys: actor.Attorneys{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}},
 			updated:   actor.AttorneyDecisions{How: actor.Jointly},
-			taskState: page.TaskInProgress,
+			taskState: actor.TaskInProgress,
 			redirect:  page.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan,
 		},
 	}

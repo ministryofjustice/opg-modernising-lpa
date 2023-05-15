@@ -29,10 +29,10 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) page.
 		data := &certificateProviderDetailsData{
 			App: appData,
 			Form: &certificateProviderDetailsForm{
-				FirstNames: lpa.CertificateProviderDetails.FirstNames,
-				LastName:   lpa.CertificateProviderDetails.LastName,
-				Mobile:     lpa.CertificateProviderDetails.Mobile,
-				Dob:        lpa.CertificateProviderDetails.DateOfBirth,
+				FirstNames: lpa.CertificateProvider.FirstNames,
+				LastName:   lpa.CertificateProvider.LastName,
+				Mobile:     lpa.CertificateProvider.Mobile,
+				Dob:        lpa.CertificateProvider.DateOfBirth,
 			},
 		}
 
@@ -56,10 +56,10 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) page.
 			}
 
 			if data.Errors.None() && data.NameWarning == nil && !data.SameLastnameAsDonor {
-				lpa.CertificateProviderDetails.FirstNames = data.Form.FirstNames
-				lpa.CertificateProviderDetails.LastName = data.Form.LastName
-				lpa.CertificateProviderDetails.DateOfBirth = data.Form.Dob
-				lpa.CertificateProviderDetails.Mobile = data.Form.Mobile
+				lpa.CertificateProvider.FirstNames = data.Form.FirstNames
+				lpa.CertificateProvider.LastName = data.Form.LastName
+				lpa.CertificateProvider.DateOfBirth = data.Form.Dob
+				lpa.CertificateProvider.Mobile = data.Form.Mobile
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
