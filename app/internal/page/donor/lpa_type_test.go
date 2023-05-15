@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -133,12 +134,19 @@ func TestPostLpaType(t *testing.T) {
 		}).
 		Return(nil)
 
-	body := `{"type":"pfa","source":"APPLICANT","donor":{"name":"Jane Smith","dob":"2000-1-2","postcode":"ABC123"}}`
+	body := uid.CreateCaseBody{
+		Type: "pfa",
+		Donor: uid.DonorDetails{
+			Name:     "Jane Smith",
+			Dob:      date.New("2000", "1", "2"),
+			Postcode: "ABC123",
+		},
+	}
 
-	uidClient := newMockOpgUidClient(t)
+	uidClient := newMockUidClient(t)
 	uidClient.
 		On("CreateCase", body).
-		Return(`{"uid": "M-789Q-P4DF-4UX3"}`, nil)
+		Return(uid.CreateCaseResponse{Uid: "M-789Q-P4DF-4UX3"}, nil)
 
 	err := LpaType(nil, lpaStore, uidClient)(testAppData, w, r)
 	resp := w.Result()
@@ -201,10 +209,10 @@ func TestPostLpaTypeWhenUidClientErrors(t *testing.T) {
 		}).
 		Return(nil)
 
-	uidClient := newMockOpgUidClient(t)
+	uidClient := newMockUidClient(t)
 	uidClient.
 		On("CreateCase", mock.Anything).
-		Return("", expectedError)
+		Return(uid.CreateCaseResponse{}, expectedError)
 
 	err := LpaType(nil, lpaStore, uidClient)(testAppData, w, r)
 	resp := w.Result()

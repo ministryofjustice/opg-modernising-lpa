@@ -20,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
 //go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
@@ -99,7 +100,7 @@ type WitnessCodeSender interface {
 
 //go:generate mockery --testonly --inpackage --name UidClient --structname mockUidClient
 type UidClient interface {
-	CreateCase(string) (string, error)
+	CreateCase(body uid.CreateCaseBody) (uid.CreateCaseResponse, error)
 }
 
 func Register(

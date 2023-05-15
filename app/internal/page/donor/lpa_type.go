@@ -1,11 +1,11 @@
 package donor
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -38,15 +38,14 @@ func LpaType(tmpl template.Template, lpaStore LpaStore, uidClient UidClient) pag
 					return err
 				}
 
-				body := fmt.Sprintf(
-					`{"type":"%s","source":"APPLICANT","donor":{"name":"%s","dob":"%s","postcode":"%s"}}`,
-					lpa.Type,
-					lpa.Donor.FullName(),
-					lpa.Donor.DateOfBirth.String(),
-					lpa.Donor.Address.Postcode,
-				)
-
-				_, err := uidClient.CreateCase(body)
+				_, err := uidClient.CreateCase(uid.CreateCaseBody{
+					Type: lpa.Type,
+					Donor: uid.DonorDetails{
+						Name:     lpa.Donor.FullName(),
+						Dob:      lpa.Donor.DateOfBirth,
+						Postcode: lpa.Donor.Address.Postcode,
+					},
+				})
 				if err != nil {
 					return err
 				}
