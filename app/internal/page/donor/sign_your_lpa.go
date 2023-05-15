@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -50,7 +51,7 @@ func SignYourLpa(tmpl template.Template, lpaStore LpaStore) page.Handler {
 			lpa.WantToSignLpa = data.Form.WantToSign
 
 			if data.Errors.None() {
-				lpa.Tasks.ConfirmYourIdentityAndSign = page.TaskCompleted
+				lpa.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
 			}
 
 			if err = lpaStore.Put(r.Context(), lpa); err != nil {

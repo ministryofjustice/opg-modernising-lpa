@@ -43,7 +43,7 @@
             <div class="govuk-checkboxes__item">
               <input class="govuk-checkboxes__input" id="f-happy" name="happy" type="checkbox" value="1" {{ if .Form.Happy }}checked{{ end }}>
               <label class="govuk-label govuk-checkboxes__label" for="f-happy">
-                {{ trFormat .App "imHappyToShare" "FirstNames" .Lpa.CertificateProviderDetails.FirstNames "LastName" .Lpa.CertificateProviderDetails.LastName }}
+                {{ trFormat .App "imHappyToShare" "FirstNames" .Lpa.CertificateProvider.FirstNames "LastName" .Lpa.CertificateProvider.LastName }}
               </label>
             </div>
           </div>

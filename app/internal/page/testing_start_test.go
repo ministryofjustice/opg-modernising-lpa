@@ -88,7 +88,7 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID:    "123",
-				Tasks: Tasks{PayForLpa: TaskCompleted},
+				Tasks: Tasks{PayForLpa: actor.TaskCompleted},
 				PaymentDetails: PaymentDetails{
 					PaymentReference: "123",
 					PaymentId:        "123",
@@ -145,7 +145,7 @@ func TestTestingStart(t *testing.T) {
 					},
 				},
 				Tasks: Tasks{
-					ChooseAttorneys: TaskCompleted,
+					ChooseAttorneys: actor.TaskCompleted,
 				},
 			}).
 			Return(nil)
@@ -211,8 +211,8 @@ func TestTestingStart(t *testing.T) {
 				ReplacementAttorneyDecisions:        actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 				HowShouldReplacementAttorneysStepIn: OneCanNoLongerAct,
 				Tasks: Tasks{
-					ChooseAttorneys:            TaskInProgress,
-					ChooseReplacementAttorneys: TaskInProgress,
+					ChooseAttorneys:            actor.TaskInProgress,
+					ChooseReplacementAttorneys: actor.TaskInProgress,
 				},
 			}).
 			Return(nil)
@@ -278,7 +278,7 @@ func TestTestingStart(t *testing.T) {
 				Attorneys:         attorneys,
 				AttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 				Tasks: Tasks{
-					ChooseAttorneys: TaskCompleted,
+					ChooseAttorneys: actor.TaskCompleted,
 				},
 			}).
 			Return(nil)
@@ -358,7 +358,7 @@ func TestTestingStart(t *testing.T) {
 		lpaStore.
 			On("Put", ctx, &Lpa{
 				ID: "123",
-				CertificateProviderDetails: CertificateProviderDetails{
+				CertificateProvider: actor.CertificateProvider{
 					FirstNames:              "Jessie",
 					LastName:                "Jones",
 					Email:                   TestEmail,
@@ -376,7 +376,7 @@ func TestTestingStart(t *testing.T) {
 						Postcode:   "B14 7ED",
 					},
 				},
-				Tasks: Tasks{CertificateProvider: TaskCompleted},
+				Tasks: Tasks{CertificateProvider: actor.TaskCompleted},
 			}).
 			Return(nil)
 
@@ -422,7 +422,7 @@ func TestTestingStart(t *testing.T) {
 				},
 				WhoFor: "me",
 				Type:   LpaTypePropertyFinance,
-				Tasks:  Tasks{YourDetails: TaskCompleted},
+				Tasks:  Tasks{YourDetails: actor.TaskCompleted},
 			}).
 			Return(nil)
 
@@ -458,7 +458,7 @@ func TestTestingStart(t *testing.T) {
 					How: actor.JointlyAndSeverally,
 				},
 				HowShouldReplacementAttorneysStepIn: OneCanNoLongerAct,
-				Tasks:                               Tasks{ChooseReplacementAttorneys: TaskCompleted},
+				Tasks:                               Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 				ReplacementAttorneys: actor.Attorneys{
 					{
 						FirstNames: "Jane",
@@ -520,7 +520,7 @@ func TestTestingStart(t *testing.T) {
 			On("Put", ctx, &Lpa{
 				ID:                  "123",
 				WhenCanTheLpaBeUsed: UsedWhenRegistered,
-				Tasks:               Tasks{WhenCanTheLpaBeUsed: TaskCompleted},
+				Tasks:               Tasks{WhenCanTheLpaBeUsed: actor.TaskCompleted},
 			}).
 			Return(nil)
 
@@ -552,7 +552,7 @@ func TestTestingStart(t *testing.T) {
 			On("Put", ctx, &Lpa{
 				ID:           "123",
 				Restrictions: "Some restrictions on how Attorneys act",
-				Tasks:        Tasks{Restrictions: TaskCompleted},
+				Tasks:        Tasks{Restrictions: actor.TaskCompleted},
 			}).
 			Return(nil)
 
@@ -584,7 +584,7 @@ func TestTestingStart(t *testing.T) {
 			On("Put", ctx, &Lpa{
 				ID:                      "123",
 				DoYouWantToNotifyPeople: "yes",
-				Tasks:                   Tasks{PeopleToNotify: TaskCompleted},
+				Tasks:                   Tasks{PeopleToNotify: actor.TaskCompleted},
 				PeopleToNotify: actor.PeopleToNotify{
 					{
 						ID:         "JoannaSmith",
@@ -692,7 +692,7 @@ func TestTestingStart(t *testing.T) {
 						Address:    place.Address{},
 					},
 				},
-				Tasks: Tasks{PeopleToNotify: TaskInProgress},
+				Tasks: Tasks{PeopleToNotify: actor.TaskInProgress},
 			}).
 			Return(nil)
 
@@ -725,7 +725,7 @@ func TestTestingStart(t *testing.T) {
 				ID:           "123",
 				Checked:      true,
 				HappyToShare: true,
-				Tasks:        Tasks{CheckYourLpa: TaskCompleted},
+				Tasks:        Tasks{CheckYourLpa: actor.TaskCompleted},
 			}).
 			Return(nil)
 
@@ -767,7 +767,7 @@ func TestTestingStart(t *testing.T) {
 				WantToSignLpa:          true,
 				CPWitnessCodeValidated: true,
 				Submitted:              time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
-				Tasks:                  Tasks{ConfirmYourIdentityAndSign: TaskCompleted},
+				Tasks:                  Tasks{ConfirmYourIdentityAndSign: actor.TaskCompleted},
 			}).
 			Return(nil)
 
@@ -896,7 +896,7 @@ func TestTestingStart(t *testing.T) {
 				},
 				WhoFor: "me",
 				Type:   LpaTypePropertyFinance,
-				CertificateProviderDetails: CertificateProviderDetails{
+				CertificateProvider: actor.CertificateProvider{
 					FirstNames:              "Jessie",
 					LastName:                "Jones",
 					Email:                   TestEmail,
@@ -948,16 +948,16 @@ func TestTestingStart(t *testing.T) {
 					How: actor.JointlyAndSeverally,
 				},
 				Tasks: Tasks{
-					ConfirmYourIdentityAndSign: TaskCompleted,
-					CheckYourLpa:               TaskCompleted,
-					PeopleToNotify:             TaskCompleted,
-					Restrictions:               TaskCompleted,
-					WhenCanTheLpaBeUsed:        TaskCompleted,
-					ChooseReplacementAttorneys: TaskCompleted,
-					YourDetails:                TaskCompleted,
-					CertificateProvider:        TaskCompleted,
-					PayForLpa:                  TaskCompleted,
-					ChooseAttorneys:            TaskCompleted,
+					ConfirmYourIdentityAndSign: actor.TaskCompleted,
+					CheckYourLpa:               actor.TaskCompleted,
+					PeopleToNotify:             actor.TaskCompleted,
+					Restrictions:               actor.TaskCompleted,
+					WhenCanTheLpaBeUsed:        actor.TaskCompleted,
+					ChooseReplacementAttorneys: actor.TaskCompleted,
+					YourDetails:                actor.TaskCompleted,
+					CertificateProvider:        actor.TaskCompleted,
+					PayForLpa:                  actor.TaskCompleted,
+					ChooseAttorneys:            actor.TaskCompleted,
 				},
 			}).
 			Return(nil)
@@ -995,12 +995,14 @@ func TestTestingStart(t *testing.T) {
 		certificateProviderStore := newMockCertificateProviderStore(t)
 		certificateProviderStore.
 			On("Create", ctx).
-			Return(&actor.CertificateProvider{IdentityUserData: identity.UserData{
-				OK:         true,
-				Provider:   identity.OneLogin,
-				FirstNames: "Jessie",
-				LastName:   "Jones",
-			}}, nil)
+			Return(&actor.CertificateProviderProvidedDetails{
+				IdentityUserData: identity.UserData{
+					OK:         true,
+					Provider:   identity.OneLogin,
+					FirstNames: "Jessie",
+					LastName:   "Jones",
+				},
+			}, nil)
 
 		ctx = ContextWithSessionData(r.Context(), &SessionData{
 			SessionID: base64.StdEncoding.EncodeToString([]byte("123")),
@@ -1008,7 +1010,7 @@ func TestTestingStart(t *testing.T) {
 		})
 
 		certificateProviderStore.
-			On("Put", ctx, &actor.CertificateProvider{
+			On("Put", ctx, &actor.CertificateProviderProvidedDetails{
 				IdentityUserData: identity.UserData{
 					OK:         true,
 					Provider:   identity.OneLogin,
@@ -1051,12 +1053,14 @@ func TestTestingStart(t *testing.T) {
 		certificateProviderStore := newMockCertificateProviderStore(t)
 		certificateProviderStore.
 			On("Create", ctx).
-			Return(&actor.CertificateProvider{IdentityUserData: identity.UserData{
-				OK:         true,
-				Provider:   identity.OneLogin,
-				FirstNames: "Jessie",
-				LastName:   "Jones",
-			}}, nil)
+			Return(&actor.CertificateProviderProvidedDetails{
+				IdentityUserData: identity.UserData{
+					OK:         true,
+					Provider:   identity.OneLogin,
+					FirstNames: "Jessie",
+					LastName:   "Jones",
+				},
+			}, nil)
 
 		ctx = ContextWithSessionData(r.Context(), &SessionData{
 			SessionID: base64.StdEncoding.EncodeToString([]byte("123")),
@@ -1064,7 +1068,7 @@ func TestTestingStart(t *testing.T) {
 		})
 
 		certificateProviderStore.
-			On("Put", ctx, &actor.CertificateProvider{
+			On("Put", ctx, &actor.CertificateProviderProvidedDetails{
 				IdentityUserData: identity.UserData{
 					OK:         true,
 					Provider:   identity.OneLogin,
@@ -1098,8 +1102,8 @@ func TestTestingStart(t *testing.T) {
 			Return(nil)
 
 		lpa := &Lpa{
-			ID:                         "123",
-			CertificateProviderDetails: CertificateProviderDetails{Email: TestEmail},
+			ID:                  "123",
+			CertificateProvider: actor.CertificateProvider{Email: TestEmail},
 		}
 		lpaStore := newMockLpaStore(t)
 		lpaStore.
@@ -1145,8 +1149,8 @@ func TestTestingStart(t *testing.T) {
 			Return(nil)
 
 		lpa := &Lpa{
-			ID:                         "123",
-			CertificateProviderDetails: CertificateProviderDetails{Email: TestEmail},
+			ID:                  "123",
+			CertificateProvider: actor.CertificateProvider{Email: TestEmail},
 		}
 		lpaStore := newMockLpaStore(t)
 		lpaStore.
@@ -1188,8 +1192,8 @@ func TestTestingStart(t *testing.T) {
 			Return(nil)
 
 		lpa := &Lpa{
-			ID:                         "123",
-			CertificateProviderDetails: CertificateProviderDetails{Email: TestEmail},
+			ID:                  "123",
+			CertificateProvider: actor.CertificateProvider{Email: TestEmail},
 		}
 
 		lpaStore := newMockLpaStore(t)
@@ -1247,12 +1251,14 @@ func TestTestingStart(t *testing.T) {
 		certificateProviderStore := newMockCertificateProviderStore(t)
 		certificateProviderStore.
 			On("Create", ctx).
-			Return(&actor.CertificateProvider{IdentityUserData: identity.UserData{
-				OK:         true,
-				Provider:   identity.OneLogin,
-				FirstNames: "Jessie",
-				LastName:   "Jones",
-			}}, nil)
+			Return(&actor.CertificateProviderProvidedDetails{
+				IdentityUserData: identity.UserData{
+					OK:         true,
+					Provider:   identity.OneLogin,
+					FirstNames: "Jessie",
+					LastName:   "Jones",
+				},
+			}, nil)
 
 		ctx = ContextWithSessionData(r.Context(), &SessionData{
 			SessionID: base64.StdEncoding.EncodeToString([]byte("123")),
@@ -1260,7 +1266,7 @@ func TestTestingStart(t *testing.T) {
 		})
 
 		certificateProviderStore.
-			On("Put", ctx, &actor.CertificateProvider{
+			On("Put", ctx, &actor.CertificateProviderProvidedDetails{
 				IdentityUserData: identity.UserData{
 					OK:         true,
 					Provider:   identity.OneLogin,

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -40,7 +41,7 @@ func CheckYourLpa(tmpl template.Template, lpaStore LpaStore) page.Handler {
 			if data.Errors.None() {
 				lpa.Checked = data.Form.Checked
 				lpa.HappyToShare = data.Form.Happy
-				lpa.Tasks.CheckYourLpa = page.TaskCompleted
+				lpa.Tasks.CheckYourLpa = actor.TaskCompleted
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
