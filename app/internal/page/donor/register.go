@@ -97,9 +97,9 @@ type WitnessCodeSender interface {
 	Send(context.Context, *page.Lpa, page.Localizer) error
 }
 
-//go:generate mockery --testonly --inpackage --name OpgUidClient --structname mockOpgUidClient
-type OpgUidClient interface {
-	CreateCase(body string) (string, error)
+//go:generate mockery --testonly --inpackage --name UidClient --structname mockUidClient
+type UidClient interface {
+	CreateCase(string) (string, error)
 }
 
 func Register(
@@ -118,6 +118,7 @@ func Register(
 	errorHandler page.ErrorHandler,
 	notFoundHandler page.Handler,
 	certificateProviderStore CertificateProviderStore,
+	uidClient UidClient,
 ) {
 	witnessCodeSender := page.NewWitnessCodeSender(lpaStore, notifyClient)
 

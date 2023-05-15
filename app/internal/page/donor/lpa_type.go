@@ -15,7 +15,7 @@ type lpaTypeData struct {
 	Type   string
 }
 
-func LpaType(tmpl template.Template, lpaStore LpaStore, uidClient OpgUidClient) page.Handler {
+func LpaType(tmpl template.Template, lpaStore LpaStore, uidClient UidClient) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
