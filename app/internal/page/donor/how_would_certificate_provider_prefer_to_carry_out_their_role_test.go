@@ -52,9 +52,9 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *tes
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
-			App:                        testAppData,
-			CertificateProviderDetails: actor.CertificateProvider{CarryOutBy: "paper"},
-			Form:                       &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{CarryOutBy: "paper"},
+			App:                 testAppData,
+			CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"},
+			Form:                &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{CarryOutBy: "paper"},
 		}).
 		Return(nil)
 

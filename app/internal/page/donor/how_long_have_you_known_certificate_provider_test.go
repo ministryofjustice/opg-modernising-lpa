@@ -43,19 +43,19 @@ func TestGetHowLongHaveYouKnownCertificateProviderFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	certificateProviderDetails := actor.CertificateProvider{RelationshipLength: "gte-2-years"}
+	certificateProvider := actor.CertificateProvider{RelationshipLength: "gte-2-years"}
 
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{CertificateProvider: certificateProviderDetails}, nil)
+		Return(&page.Lpa{CertificateProvider: certificateProvider}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &howLongHaveYouKnownCertificateProviderData{
-			App:                        testAppData,
-			CertificateProviderDetails: certificateProviderDetails,
-			HowLong:                    "gte-2-years",
+			App:                 testAppData,
+			CertificateProvider: certificateProvider,
+			HowLong:             "gte-2-years",
 		}).
 		Return(nil)
 

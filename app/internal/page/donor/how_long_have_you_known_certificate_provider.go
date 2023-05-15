@@ -10,10 +10,10 @@ import (
 )
 
 type howLongHaveYouKnownCertificateProviderData struct {
-	App                        page.AppData
-	Errors                     validation.List
-	CertificateProviderDetails actor.CertificateProvider
-	HowLong                    string
+	App                 page.AppData
+	Errors              validation.List
+	CertificateProvider actor.CertificateProvider
+	HowLong             string
 }
 
 func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, lpaStore LpaStore) page.Handler {
@@ -24,9 +24,9 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, lpaStore Lpa
 		}
 
 		data := &howLongHaveYouKnownCertificateProviderData{
-			App:                        appData,
-			CertificateProviderDetails: lpa.CertificateProvider,
-			HowLong:                    lpa.CertificateProvider.RelationshipLength,
+			App:                 appData,
+			CertificateProvider: lpa.CertificateProvider,
+			HowLong:             lpa.CertificateProvider.RelationshipLength,
 		}
 
 		if r.Method == http.MethodPost {
