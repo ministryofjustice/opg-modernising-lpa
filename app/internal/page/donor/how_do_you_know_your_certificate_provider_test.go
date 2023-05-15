@@ -69,9 +69,9 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &howDoYouKnowYourCertificateProviderData{
-			App:                        testAppData,
-			CertificateProviderDetails: certificateProvider,
-			Form:                       &howDoYouKnowYourCertificateProviderForm{How: "friend"},
+			App:                 testAppData,
+			CertificateProvider: certificateProvider,
+			Form:                &howDoYouKnowYourCertificateProviderForm{How: "friend"},
 		}).
 		Return(nil)
 
