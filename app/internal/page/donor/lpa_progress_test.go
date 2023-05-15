@@ -14,8 +14,8 @@ func TestGetLpaProgress(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{ID: "123"}, nil)
 
@@ -36,23 +36,23 @@ func TestGetLpaProgress(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaProgress(template.Execute, lpaStore, certificateProviderStore)(testAppData, w, r)
+	err := LpaProgress(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetLpaProgressWhenLpaStoreErrors(t *testing.T) {
+func TestGetLpaProgressWhenDonorStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := LpaProgress(nil, lpaStore, nil)(testAppData, w, r)
+	err := LpaProgress(nil, donorStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -63,8 +63,8 @@ func TestGetLpaProgressWhenCertificateProviderStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{ID: "123"}, nil)
 
@@ -76,7 +76,7 @@ func TestGetLpaProgressWhenCertificateProviderStoreErrors(t *testing.T) {
 		On("Get", ctx).
 		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
-	err := LpaProgress(nil, lpaStore, certificateProviderStore)(testAppData, w, r)
+	err := LpaProgress(nil, donorStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -87,8 +87,8 @@ func TestGetLpaProgressOnTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{ID: "123"}, nil)
 
@@ -109,7 +109,7 @@ func TestGetLpaProgressOnTemplateError(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := LpaProgress(template.Execute, lpaStore, certificateProviderStore)(testAppData, w, r)
+	err := LpaProgress(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

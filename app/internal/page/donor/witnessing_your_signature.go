@@ -14,9 +14,9 @@ type witnessingYourSignatureData struct {
 	Lpa    *page.Lpa
 }
 
-func WitnessingYourSignature(tmpl template.Template, lpaStore LpaStore, witnessCodeSender WitnessCodeSender) page.Handler {
+func WitnessingYourSignature(tmpl template.Template, donorStore DonorStore, witnessCodeSender WitnessCodeSender) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
 		}

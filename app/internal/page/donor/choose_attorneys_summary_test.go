@@ -20,8 +20,8 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 
 	lpa := &page.Lpa{Attorneys: actor.Attorneys{{}}}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
@@ -34,7 +34,7 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysSummary(nil, template.Execute, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysSummary(nil, template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -45,12 +45,12 @@ func TestGetChooseAttorneysSummaryWhenNoAttorneys(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	err := ChooseAttorneysSummary(nil, nil, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysSummary(nil, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -62,8 +62,8 @@ func TestGetChooseAttorneysSummaryWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{}}, expectedError)
 
@@ -72,7 +72,7 @@ func TestGetChooseAttorneysSummaryWhenStoreErrors(t *testing.T) {
 		On("Print", "error getting lpa from store: err").
 		Return(nil)
 
-	err := ChooseAttorneysSummary(logger, nil, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysSummary(logger, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -112,12 +112,12 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			donorStore := newMockDonorStore(t)
+			donorStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{Attorneys: tc.Attorneys}, nil)
 
-			err := ChooseAttorneysSummary(nil, nil, lpaStore)(testAppData, w, r)
+			err := ChooseAttorneysSummary(nil, nil, donorStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -136,8 +136,8 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{{}}}, nil)
 
@@ -150,7 +150,7 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChooseAttorneysSummary(nil, template.Execute, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysSummary(nil, template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

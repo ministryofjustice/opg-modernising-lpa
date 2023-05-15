@@ -38,12 +38,12 @@ func TestGetRemovePersonToNotify(t *testing.T) {
 		}).
 		Return(nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
-	err := RemovePersonToNotify(logger, template.Execute, lpaStore)(testAppData, w, r)
+	err := RemovePersonToNotify(logger, template.Execute, donorStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -62,12 +62,12 @@ func TestGetRemovePersonToNotifyErrorOnStore(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := RemovePersonToNotify(logger, template.Execute, lpaStore)(testAppData, w, r)
+	err := RemovePersonToNotify(logger, template.Execute, donorStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -90,12 +90,12 @@ func TestGetRemovePersonToNotifyAttorneyDoesNotExist(t *testing.T) {
 		},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
-	err := RemovePersonToNotify(logger, template.Execute, lpaStore)(testAppData, w, r)
+	err := RemovePersonToNotify(logger, template.Execute, donorStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -128,15 +128,15 @@ func TestPostRemovePersonToNotify(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}}, nil)
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), &page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithAddress}}).
 		Return(nil)
 
-	err := RemovePersonToNotify(logger, template.Execute, lpaStore)(testAppData, w, r)
+	err := RemovePersonToNotify(logger, template.Execute, donorStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -169,12 +169,12 @@ func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}}, nil)
 
-	err := RemovePersonToNotify(logger, template.Execute, lpaStore)(testAppData, w, r)
+	err := RemovePersonToNotify(logger, template.Execute, donorStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -211,15 +211,15 @@ func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}}, nil)
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), &page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithAddress}}).
 		Return(expectedError)
 
-	err := RemovePersonToNotify(logger, template.Execute, lpaStore)(testAppData, w, r)
+	err := RemovePersonToNotify(logger, template.Execute, donorStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -241,8 +241,8 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress}}, nil)
 
@@ -255,7 +255,7 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := RemovePersonToNotify(nil, template.Execute, lpaStore)(testAppData, w, r)
+	err := RemovePersonToNotify(nil, template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -279,21 +279,21 @@ func TestRemovePersonToNotifyRemoveLastPerson(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress},
 			Tasks:          page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, PeopleToNotify: actor.TaskCompleted},
 		}, nil)
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{},
 			Tasks:          page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, PeopleToNotify: actor.TaskNotStarted},
 		}).
 		Return(nil)
 
-	err := RemovePersonToNotify(logger, template.Execute, lpaStore)(testAppData, w, r)
+	err := RemovePersonToNotify(logger, template.Execute, donorStore)(testAppData, w, r)
 
 	resp := w.Result()
 

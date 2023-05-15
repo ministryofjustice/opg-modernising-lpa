@@ -20,13 +20,13 @@ func TestGetIdentityWithYotiCallback(t *testing.T) {
 	now := time.Now()
 	userData := identity.UserData{OK: true, Provider: identity.EasyID, FirstNames: "first-name", LastName: "last-name", RetrievedAt: now}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			Donor: actor.Donor{FirstNames: "first-name", LastName: "last-name"},
 		}, nil)
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			Donor:                 actor.Donor{FirstNames: "first-name", LastName: "last-name"},
 			DonorIdentityUserData: userData,
@@ -46,7 +46,7 @@ func TestGetIdentityWithYotiCallback(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := IdentityWithYotiCallback(template.Execute, yotiClient, lpaStore)(testAppData, w, r)
+	err := IdentityWithYotiCallback(template.Execute, yotiClient, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -116,15 +116,15 @@ func TestGetIdentityWithYotiCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			donorStore := newMockDonorStore(t)
+			donorStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{}, nil)
 
 			yotiClient := tc.yotiClient(t)
 			template := tc.template(t, w)
 
-			err := IdentityWithYotiCallback(template.Execute, yotiClient, lpaStore)(testAppData, w, r)
+			err := IdentityWithYotiCallback(template.Execute, yotiClient, donorStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, tc.error, err)
@@ -137,10 +137,10 @@ func TestGetIdentityWithYotiCallbackWhenGetDataStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?token=a-token", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.On("Get", r.Context()).Return(&page.Lpa{}, expectedError)
+	donorStore := newMockDonorStore(t)
+	donorStore.On("Get", r.Context()).Return(&page.Lpa{}, expectedError)
 
-	err := IdentityWithYotiCallback(nil, nil, lpaStore)(testAppData, w, r)
+	err := IdentityWithYotiCallback(nil, nil, donorStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -151,18 +151,18 @@ func TestGetIdentityWithYotiCallbackWhenPutDataStoreError(t *testing.T) {
 	now := time.Now()
 	userData := identity.UserData{OK: true, Provider: identity.EasyID, FirstNames: "first-name", LastName: "last-name", RetrievedAt: now}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			Donor: actor.Donor{FirstNames: "first-name", LastName: "last-name"},
 		}, nil)
-	lpaStore.On("Put", r.Context(), mock.Anything).Return(expectedError)
+	donorStore.On("Put", r.Context(), mock.Anything).Return(expectedError)
 
 	yotiClient := newMockYotiClient(t)
 	yotiClient.On("User", "a-token").Return(userData, nil)
 
-	err := IdentityWithYotiCallback(nil, yotiClient, lpaStore)(testAppData, w, r)
+	err := IdentityWithYotiCallback(nil, yotiClient, donorStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -173,8 +173,8 @@ func TestGetIdentityWithYotiCallbackWhenReturning(t *testing.T) {
 	now := time.Date(2012, time.January, 1, 2, 3, 4, 5, time.UTC)
 	userData := identity.UserData{OK: true, Provider: identity.EasyID, FirstNames: "first-name", LastName: "last-name", RetrievedAt: now}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			Donor:                 actor.Donor{FirstNames: "first-name", LastName: "last-name"},
@@ -191,7 +191,7 @@ func TestGetIdentityWithYotiCallbackWhenReturning(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := IdentityWithYotiCallback(template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := IdentityWithYotiCallback(template.Execute, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -202,13 +202,13 @@ func TestPostIdentityWithYotiCallback(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.On("Get", r.Context()).Return(&page.Lpa{
+	donorStore := newMockDonorStore(t)
+	donorStore.On("Get", r.Context()).Return(&page.Lpa{
 		DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.EasyID},
 		DonorIdentityOption:   identity.EasyID,
 	}, nil)
 
-	err := IdentityWithYotiCallback(nil, nil, lpaStore)(testAppData, w, r)
+	err := IdentityWithYotiCallback(nil, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -220,10 +220,10 @@ func TestPostIdentityWithYotiCallbackNotConfirmed(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.On("Get", r.Context()).Return(&page.Lpa{}, nil)
+	donorStore := newMockDonorStore(t)
+	donorStore.On("Get", r.Context()).Return(&page.Lpa{}, nil)
 
-	err := IdentityWithYotiCallback(nil, nil, lpaStore)(testAppData, w, r)
+	err := IdentityWithYotiCallback(nil, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

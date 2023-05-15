@@ -24,12 +24,9 @@ type Logger interface {
 	Print(v ...interface{})
 }
 
-//go:generate mockery --testonly --inpackage --name LpaStore --structname mockLpaStore
-type LpaStore interface {
-	Create(context.Context) (*page.Lpa, error)
-	GetAll(context.Context) ([]*page.Lpa, error)
+//go:generate mockery --testonly --inpackage --name DonorStore --structname mockDonorStore
+type DonorStore interface {
 	Get(context.Context) (*page.Lpa, error)
-	Put(context.Context, *page.Lpa) error
 }
 
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
@@ -90,7 +87,7 @@ func Register(
 	logger Logger,
 	tmpls template.Templates,
 	sessionStore SessionStore,
-	lpaStore LpaStore,
+	donorStore DonorStore,
 	oneLoginClient OneLoginClient,
 	dataStore DataStore,
 	addressClient AddressClient,
@@ -112,14 +109,14 @@ func Register(
 	handleRoot(page.Paths.CertificateProviderLoginCallback, None,
 		LoginCallback(oneLoginClient, sessionStore, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderCheckYourName, RequireSession,
-		CheckYourName(tmpls.Get("certificate_provider_check_your_name.gohtml"), lpaStore, notifyClient, certificateProviderStore))
+		CheckYourName(tmpls.Get("certificate_provider_check_your_name.gohtml"), donorStore, notifyClient, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderEnterDateOfBirth, RequireSession,
-		EnterDateOfBirth(tmpls.Get("certificate_provider_enter_date_of_birth.gohtml"), lpaStore, certificateProviderStore))
+		EnterDateOfBirth(tmpls.Get("certificate_provider_enter_date_of_birth.gohtml"), donorStore, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderEnterMobileNumber, RequireSession,
-		EnterMobileNumber(tmpls.Get("certificate_provider_enter_mobile_number.gohtml"), lpaStore, certificateProviderStore))
+		EnterMobileNumber(tmpls.Get("certificate_provider_enter_mobile_number.gohtml"), donorStore, certificateProviderStore))
 
 	handleRoot(page.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity, RequireSession,
-		Guidance(tmpls.Get("certificate_provider_what_youll_need_to_confirm_your_identity.gohtml"), lpaStore, nil))
+		Guidance(tmpls.Get("certificate_provider_what_youll_need_to_confirm_your_identity.gohtml"), donorStore, nil))
 
 	for path, page := range map[string]int{
 		page.Paths.CertificateProviderSelectYourIdentityOptions:  0,
@@ -153,13 +150,13 @@ func Register(
 	}
 
 	handleRoot(page.Paths.CertificateProviderReadTheLpa, RequireSession,
-		Guidance(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), lpaStore, certificateProviderStore))
+		Guidance(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), donorStore, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderWhatHappensNext, RequireSession,
-		Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), lpaStore, nil))
+		Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), donorStore, nil))
 	handleRoot(page.Paths.ProvideCertificate, RequireSession,
-		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), lpaStore, time.Now, certificateProviderStore))
+		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), donorStore, time.Now, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProvided, RequireSession,
-		Guidance(tmpls.Get("certificate_provided.gohtml"), lpaStore, nil))
+		Guidance(tmpls.Get("certificate_provided.gohtml"), donorStore, nil))
 }
 
 type handleOpt byte

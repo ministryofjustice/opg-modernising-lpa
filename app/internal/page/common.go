@@ -48,26 +48,21 @@ type OneLoginClient interface {
 	ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error)
 }
 
-//go:generate mockery --testonly --inpackage --name LpaStore --structname mockLpaStore
-type LpaStore interface {
+//go:generate mockery --testonly --inpackage --name DonorStore --structname mockDonorStore
+type DonorStore interface {
 	Create(context.Context) (*Lpa, error)
-	GetAll(context.Context) ([]*Lpa, error)
-	Get(context.Context) (*Lpa, error)
 	Put(context.Context, *Lpa) error
 }
 
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
 type CertificateProviderStore interface {
-	Create(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
-	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
-	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
+	Create(context.Context) (*actor.CertificateProviderProvidedDetails, error)
+	Put(context.Context, *actor.CertificateProviderProvidedDetails) error
 }
 
 //go:generate mockery --testonly --inpackage --name AttorneyStore --structname mockAttorneyStore
 type AttorneyStore interface {
 	Create(context.Context, bool) (*actor.AttorneyProvidedDetails, error)
-	Get(context.Context) (*actor.AttorneyProvidedDetails, error)
-	Put(context.Context, *actor.AttorneyProvidedDetails) error
 }
 
 //go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore

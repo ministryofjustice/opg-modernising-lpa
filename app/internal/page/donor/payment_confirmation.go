@@ -19,9 +19,9 @@ type paymentConfirmationData struct {
 	PaymentReference string
 }
 
-func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, lpaStore LpaStore, sessionStore sessions.Store, shareCodeSender ShareCodeSender) page.Handler {
+func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore sessions.Store, shareCodeSender ShareCodeSender) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -59,7 +59,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 
 		lpa.Tasks.PayForLpa = actor.TaskCompleted
 
-		if err := lpaStore.Put(r.Context(), lpa); err != nil {
+		if err := donorStore.Put(r.Context(), lpa); err != nil {
 			logger.Print(fmt.Sprintf("unable to update lpa in dataStore: %s", err.Error()))
 			return err
 		}

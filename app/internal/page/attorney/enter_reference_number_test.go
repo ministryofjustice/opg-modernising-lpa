@@ -272,7 +272,7 @@ func TestPostEnterReferenceNumberOnSessionSetError(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterReferenceNumberOnLpaStoreError(t *testing.T) {
+func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 	form := url.Values{
 		"reference-number": {"a Ref-Number12"},
 	}

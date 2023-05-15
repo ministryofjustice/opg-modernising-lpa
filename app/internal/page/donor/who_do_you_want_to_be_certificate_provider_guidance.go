@@ -16,9 +16,9 @@ type whoDoYouWantToBeCertificateProviderGuidanceData struct {
 	Lpa        *page.Lpa
 }
 
-func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -37,7 +37,7 @@ func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, lpaStor
 			if data.NotStarted {
 				lpa.Tasks.CertificateProvider = actor.TaskInProgress
 			}
-			if err := lpaStore.Put(r.Context(), lpa); err != nil {
+			if err := donorStore.Put(r.Context(), lpa); err != nil {
 				return err
 			}
 

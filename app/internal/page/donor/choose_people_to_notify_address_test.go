@@ -25,8 +25,8 @@ func TestGetChoosePeopleToNotifyAddress(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
@@ -39,7 +39,7 @@ func TestGetChoosePeopleToNotifyAddress(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -50,12 +50,12 @@ func TestGetChoosePeopleToNotifyAddressWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := ChoosePeopleToNotifyAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -71,8 +71,8 @@ func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
 		Address: testAddress,
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{personToNotify},
@@ -90,7 +90,7 @@ func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -106,8 +106,8 @@ func TestGetChoosePeopleToNotifyAddressManual(t *testing.T) {
 		Address: testAddress,
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
@@ -123,7 +123,7 @@ func TestGetChoosePeopleToNotifyAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -139,8 +139,8 @@ func TestGetChoosePeopleToNotifyAddressWhenTemplateErrors(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
@@ -153,7 +153,7 @@ func TestGetChoosePeopleToNotifyAddressWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -179,8 +179,8 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{personToNotify},
@@ -189,14 +189,14 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 
 	personToNotify.Address = testAddress
 
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{personToNotify},
 			Tasks:          page.Tasks{PeopleToNotify: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -223,21 +223,21 @@ func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
 	personToNotify.Address = testAddress
 
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{personToNotify},
 			Tasks:          page.Tasks{PeopleToNotify: actor.TaskCompleted},
 		}).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotifyAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -262,8 +262,8 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 		Address:    place.Address{Line1: "line1"},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{personToNotify},
@@ -272,14 +272,14 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 
 	personToNotify.Address = testAddress
 
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{personToNotify},
 			Tasks:          page.Tasks{PeopleToNotify: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -304,8 +304,8 @@ func TestPostChoosePeopleToNotifyAddressSelect(t *testing.T) {
 		Address:    place.Address{Line1: "abc"},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
@@ -321,7 +321,7 @@ func TestPostChoosePeopleToNotifyAddressSelect(t *testing.T) {
 		FirstNames: "John",
 	}
 
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), &page.Lpa{PeopleToNotify: actor.PeopleToNotify{updatedPersonToNotify}}).
 		Return(nil)
 
@@ -338,7 +338,7 @@ func TestPostChoosePeopleToNotifyAddressSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -364,8 +364,8 @@ func TestPostChoosePeopleToNotifyAddressSelectWhenValidationError(t *testing.T) 
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
@@ -388,7 +388,7 @@ func TestPostChoosePeopleToNotifyAddressSelectWhenValidationError(t *testing.T) 
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, addressClient, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -420,8 +420,8 @@ func TestPostChoosePeopleToNotifyAddressLookup(t *testing.T) {
 		FirstNames: "John",
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
@@ -438,7 +438,7 @@ func TestPostChoosePeopleToNotifyAddressLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, addressClient, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -464,8 +464,8 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
@@ -488,7 +488,7 @@ func TestPostChoosePeopleToNotifyAddressLookupError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -519,8 +519,8 @@ func TestPostChoosePeopleToNotifyAddressInvalidPostcodeError(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
@@ -543,7 +543,7 @@ func TestPostChoosePeopleToNotifyAddressInvalidPostcodeError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -568,8 +568,8 @@ func TestPostChoosePeopleToNotifyAddressPostcodeNoAddresses(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
@@ -592,7 +592,7 @@ func TestPostChoosePeopleToNotifyAddressPostcodeNoAddresses(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -613,8 +613,8 @@ func TestPostChoosePeopleToNotifyAddressLookupWhenValidationError(t *testing.T) 
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}}, nil)
 
@@ -630,7 +630,7 @@ func TestPostChoosePeopleToNotifyAddressLookupWhenValidationError(t *testing.T) 
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

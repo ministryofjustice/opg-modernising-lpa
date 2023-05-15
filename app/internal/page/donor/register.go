@@ -30,23 +30,21 @@ type Logger interface {
 	Print(v ...interface{})
 }
 
-//go:generate mockery --testonly --inpackage --name LpaStore --structname mockLpaStore
-type LpaStore interface {
+//go:generate mockery --testonly --inpackage --name DonorStore --structname mockDonorStore
+type DonorStore interface {
 	Create(context.Context) (*page.Lpa, error)
 	GetAll(context.Context) ([]*page.Lpa, error)
 	Get(context.Context) (*page.Lpa, error)
 	Put(context.Context, *page.Lpa) error
 }
 
-type GetLpaStore interface {
+type GetDonorStore interface {
 	Get(context.Context) (*page.Lpa, error)
 }
 
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
 type CertificateProviderStore interface {
-	Create(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
-	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
 }
 
 //go:generate mockery --testonly --inpackage --name PayClient --structname mockPayClient
@@ -106,7 +104,7 @@ func Register(
 	logger Logger,
 	tmpls template.Templates,
 	sessionStore SessionStore,
-	lpaStore LpaStore,
+	donorStore DonorStore,
 	oneLoginClient OneLoginClient,
 	addressClient AddressClient,
 	appPublicUrl string,
@@ -118,7 +116,7 @@ func Register(
 	notFoundHandler page.Handler,
 	certificateProviderStore CertificateProviderStore,
 ) {
-	witnessCodeSender := page.NewWitnessCodeSender(lpaStore, notifyClient)
+	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
 
 	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler)
 
@@ -129,7 +127,7 @@ func Register(
 	handleRoot(page.Paths.LoginCallback, None,
 		LoginCallback(oneLoginClient, sessionStore))
 	handleRoot(page.Paths.Dashboard, RequireSession,
-		Dashboard(tmpls.Get("dashboard.gohtml"), lpaStore, certificateProviderStore))
+		Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, certificateProviderStore))
 
 	lpaMux := http.NewServeMux()
 
@@ -139,95 +137,95 @@ func Register(
 
 	handleLpa(page.Paths.Root, None, notFoundHandler)
 	handleLpa(page.Paths.YourDetails, None,
-		YourDetails(tmpls.Get("your_details.gohtml"), lpaStore, sessionStore))
+		YourDetails(tmpls.Get("your_details.gohtml"), donorStore, sessionStore))
 	handleLpa(page.Paths.YourAddress, None,
-		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, lpaStore))
+		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
 	handleLpa(page.Paths.LpaType, None,
-		LpaType(tmpls.Get("lpa_type.gohtml"), lpaStore))
+		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore))
 	handleLpa(page.Paths.WhoIsTheLpaFor, None,
-		WhoIsTheLpaFor(tmpls.Get("who_is_the_lpa_for.gohtml"), lpaStore))
+		WhoIsTheLpaFor(tmpls.Get("who_is_the_lpa_for.gohtml"), donorStore))
 
 	handleLpa(page.Paths.TaskList, None,
-		TaskList(tmpls.Get("task_list.gohtml"), lpaStore))
+		TaskList(tmpls.Get("task_list.gohtml"), donorStore))
 
 	handleLpa(page.Paths.ChooseAttorneys, CanGoBack,
-		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), lpaStore, random.UuidString))
+		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), donorStore, random.UuidString))
 	handleLpa(page.Paths.ChooseAttorneysAddress, CanGoBack,
-		ChooseAttorneysAddress(logger, tmpls.Get("choose_attorneys_address.gohtml"), addressClient, lpaStore))
+		ChooseAttorneysAddress(logger, tmpls.Get("choose_attorneys_address.gohtml"), addressClient, donorStore))
 	handleLpa(page.Paths.UseExistingAddress, CanGoBack,
-		UseExistingAddress(tmpls.Get("use_existing_address.gohtml"), lpaStore))
+		UseExistingAddress(tmpls.Get("use_existing_address.gohtml"), donorStore))
 	handleLpa(page.Paths.ChooseAttorneysSummary, CanGoBack,
-		ChooseAttorneysSummary(logger, tmpls.Get("choose_attorneys_summary.gohtml"), lpaStore))
+		ChooseAttorneysSummary(logger, tmpls.Get("choose_attorneys_summary.gohtml"), donorStore))
 	handleLpa(page.Paths.RemoveAttorney, CanGoBack,
-		RemoveAttorney(logger, tmpls.Get("remove_attorney.gohtml"), lpaStore))
+		RemoveAttorney(logger, tmpls.Get("remove_attorney.gohtml"), donorStore))
 	handleLpa(page.Paths.HowShouldAttorneysMakeDecisions, CanGoBack,
-		HowShouldAttorneysMakeDecisions(tmpls.Get("how_should_attorneys_make_decisions.gohtml"), lpaStore))
+		HowShouldAttorneysMakeDecisions(tmpls.Get("how_should_attorneys_make_decisions.gohtml"), donorStore))
 	handleLpa(page.Paths.AreYouHappyIfOneAttorneyCantActNoneCan, CanGoBack,
-		AreYouHappyIfOneAttorneyCantActNoneCan(tmpls.Get("are_you_happy_if_one_attorney_cant_act_none_can.gohtml"), lpaStore))
+		AreYouHappyIfOneAttorneyCantActNoneCan(tmpls.Get("are_you_happy_if_one_attorney_cant_act_none_can.gohtml"), donorStore))
 	handleLpa(page.Paths.AreYouHappyIfRemainingAttorneysCanContinueToAct, CanGoBack,
-		AreYouHappyIfRemainingAttorneysCanContinueToAct(tmpls.Get("are_you_happy_if_remaining_attorneys_can_continue_to_act.gohtml"), lpaStore))
+		AreYouHappyIfRemainingAttorneysCanContinueToAct(tmpls.Get("are_you_happy_if_remaining_attorneys_can_continue_to_act.gohtml"), donorStore))
 
 	handleLpa(page.Paths.DoYouWantReplacementAttorneys, CanGoBack,
-		WantReplacementAttorneys(tmpls.Get("do_you_want_replacement_attorneys.gohtml"), lpaStore))
+		WantReplacementAttorneys(tmpls.Get("do_you_want_replacement_attorneys.gohtml"), donorStore))
 	handleLpa(page.Paths.ChooseReplacementAttorneys, CanGoBack,
-		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), lpaStore, random.UuidString))
+		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), donorStore, random.UuidString))
 	handleLpa(page.Paths.ChooseReplacementAttorneysAddress, CanGoBack,
-		ChooseReplacementAttorneysAddress(logger, tmpls.Get("choose_replacement_attorneys_address.gohtml"), addressClient, lpaStore))
+		ChooseReplacementAttorneysAddress(logger, tmpls.Get("choose_replacement_attorneys_address.gohtml"), addressClient, donorStore))
 	handleLpa(page.Paths.ChooseReplacementAttorneysSummary, CanGoBack,
-		ChooseReplacementAttorneysSummary(logger, tmpls.Get("choose_replacement_attorneys_summary.gohtml"), lpaStore))
+		ChooseReplacementAttorneysSummary(logger, tmpls.Get("choose_replacement_attorneys_summary.gohtml"), donorStore))
 	handleLpa(page.Paths.RemoveReplacementAttorney, CanGoBack,
-		RemoveReplacementAttorney(logger, tmpls.Get("remove_replacement_attorney.gohtml"), lpaStore))
+		RemoveReplacementAttorney(logger, tmpls.Get("remove_replacement_attorney.gohtml"), donorStore))
 	handleLpa(page.Paths.HowShouldReplacementAttorneysStepIn, CanGoBack,
-		HowShouldReplacementAttorneysStepIn(tmpls.Get("how_should_replacement_attorneys_step_in.gohtml"), lpaStore))
+		HowShouldReplacementAttorneysStepIn(tmpls.Get("how_should_replacement_attorneys_step_in.gohtml"), donorStore))
 	handleLpa(page.Paths.HowShouldReplacementAttorneysMakeDecisions, CanGoBack,
-		HowShouldReplacementAttorneysMakeDecisions(tmpls.Get("how_should_replacement_attorneys_make_decisions.gohtml"), lpaStore))
+		HowShouldReplacementAttorneysMakeDecisions(tmpls.Get("how_should_replacement_attorneys_make_decisions.gohtml"), donorStore))
 	handleLpa(page.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan, CanGoBack,
-		AreYouHappyIfOneReplacementAttorneyCantActNoneCan(tmpls.Get("are_you_happy_if_one_replacement_attorney_cant_act_none_can.gohtml"), lpaStore))
+		AreYouHappyIfOneReplacementAttorneyCantActNoneCan(tmpls.Get("are_you_happy_if_one_replacement_attorney_cant_act_none_can.gohtml"), donorStore))
 	handleLpa(page.Paths.AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct, CanGoBack,
-		AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(tmpls.Get("are_you_happy_if_remaining_replacement_attorneys_can_continue_to_act.gohtml"), lpaStore))
+		AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(tmpls.Get("are_you_happy_if_remaining_replacement_attorneys_can_continue_to_act.gohtml"), donorStore))
 
 	handleLpa(page.Paths.WhenCanTheLpaBeUsed, CanGoBack,
-		WhenCanTheLpaBeUsed(tmpls.Get("when_can_the_lpa_be_used.gohtml"), lpaStore))
+		WhenCanTheLpaBeUsed(tmpls.Get("when_can_the_lpa_be_used.gohtml"), donorStore))
 	handleLpa(page.Paths.LifeSustainingTreatment, CanGoBack,
-		LifeSustainingTreatment(tmpls.Get("life_sustaining_treatment.gohtml"), lpaStore))
+		LifeSustainingTreatment(tmpls.Get("life_sustaining_treatment.gohtml"), donorStore))
 	handleLpa(page.Paths.Restrictions, CanGoBack,
-		Restrictions(tmpls.Get("restrictions.gohtml"), lpaStore))
+		Restrictions(tmpls.Get("restrictions.gohtml"), donorStore))
 	handleLpa(page.Paths.WhoDoYouWantToBeCertificateProviderGuidance, CanGoBack,
-		WhoDoYouWantToBeCertificateProviderGuidance(tmpls.Get("who_do_you_want_to_be_certificate_provider_guidance.gohtml"), lpaStore))
+		WhoDoYouWantToBeCertificateProviderGuidance(tmpls.Get("who_do_you_want_to_be_certificate_provider_guidance.gohtml"), donorStore))
 	handleLpa(page.Paths.CertificateProviderDetails, CanGoBack,
-		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), lpaStore))
+		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), donorStore))
 	handleLpa(page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, CanGoBack,
-		HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpls.Get("how_would_certificate_provider_prefer_to_carry_out_their_role.gohtml"), lpaStore))
+		HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpls.Get("how_would_certificate_provider_prefer_to_carry_out_their_role.gohtml"), donorStore))
 	handleLpa(page.Paths.CertificateProviderAddress, CanGoBack,
-		CertificateProviderAddress(logger, tmpls.Get("certificate_provider_address.gohtml"), addressClient, lpaStore))
+		CertificateProviderAddress(logger, tmpls.Get("certificate_provider_address.gohtml"), addressClient, donorStore))
 	handleLpa(page.Paths.HowDoYouKnowYourCertificateProvider, CanGoBack,
-		HowDoYouKnowYourCertificateProvider(tmpls.Get("how_do_you_know_your_certificate_provider.gohtml"), lpaStore))
+		HowDoYouKnowYourCertificateProvider(tmpls.Get("how_do_you_know_your_certificate_provider.gohtml"), donorStore))
 	handleLpa(page.Paths.HowLongHaveYouKnownCertificateProvider, CanGoBack,
-		HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), lpaStore))
+		HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), donorStore))
 
 	handleLpa(page.Paths.DoYouWantToNotifyPeople, CanGoBack,
-		DoYouWantToNotifyPeople(tmpls.Get("do_you_want_to_notify_people.gohtml"), lpaStore))
+		DoYouWantToNotifyPeople(tmpls.Get("do_you_want_to_notify_people.gohtml"), donorStore))
 	handleLpa(page.Paths.ChoosePeopleToNotify, CanGoBack,
-		ChoosePeopleToNotify(tmpls.Get("choose_people_to_notify.gohtml"), lpaStore, random.UuidString))
+		ChoosePeopleToNotify(tmpls.Get("choose_people_to_notify.gohtml"), donorStore, random.UuidString))
 	handleLpa(page.Paths.ChoosePeopleToNotifyAddress, CanGoBack,
-		ChoosePeopleToNotifyAddress(logger, tmpls.Get("choose_people_to_notify_address.gohtml"), addressClient, lpaStore))
+		ChoosePeopleToNotifyAddress(logger, tmpls.Get("choose_people_to_notify_address.gohtml"), addressClient, donorStore))
 	handleLpa(page.Paths.ChoosePeopleToNotifySummary, CanGoBack,
-		ChoosePeopleToNotifySummary(logger, tmpls.Get("choose_people_to_notify_summary.gohtml"), lpaStore))
+		ChoosePeopleToNotifySummary(logger, tmpls.Get("choose_people_to_notify_summary.gohtml"), donorStore))
 	handleLpa(page.Paths.RemovePersonToNotify, CanGoBack,
-		RemovePersonToNotify(logger, tmpls.Get("remove_person_to_notify.gohtml"), lpaStore))
+		RemovePersonToNotify(logger, tmpls.Get("remove_person_to_notify.gohtml"), donorStore))
 
 	handleLpa(page.Paths.CheckYourLpa, CanGoBack,
-		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), lpaStore))
+		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore))
 
 	handleLpa(page.Paths.AboutPayment, CanGoBack,
-		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String, lpaStore))
+		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String, donorStore))
 	handleLpa(page.Paths.PaymentConfirmation, CanGoBack,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, lpaStore, sessionStore, shareCodeSender))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender))
 
 	handleLpa(page.Paths.HowToConfirmYourIdentityAndSign, CanGoBack,
-		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml"), lpaStore))
+		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml"), donorStore))
 	handleLpa(page.Paths.WhatYoullNeedToConfirmYourIdentity, CanGoBack,
-		Guidance(tmpls.Get("what_youll_need_to_confirm_your_identity.gohtml"), lpaStore))
+		Guidance(tmpls.Get("what_youll_need_to_confirm_your_identity.gohtml"), donorStore))
 
 	for path, page := range map[string]int{
 		page.Paths.SelectYourIdentityOptions:  0,
@@ -235,19 +233,19 @@ func Register(
 		page.Paths.SelectYourIdentityOptions2: 2,
 	} {
 		handleLpa(path, CanGoBack,
-			SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), lpaStore, page))
+			SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), donorStore, page))
 	}
 
 	handleLpa(page.Paths.YourChosenIdentityOptions, CanGoBack,
-		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), lpaStore))
+		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), donorStore))
 	handleLpa(page.Paths.IdentityWithYoti, CanGoBack,
-		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), lpaStore, sessionStore, yotiClient))
+		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), donorStore, sessionStore, yotiClient))
 	handleLpa(page.Paths.IdentityWithYotiCallback, CanGoBack,
-		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, lpaStore))
+		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, donorStore))
 	handleLpa(page.Paths.IdentityWithOneLogin, CanGoBack,
 		IdentityWithOneLogin(logger, oneLoginClient, sessionStore, random.String))
 	handleLpa(page.Paths.IdentityWithOneLoginCallback, CanGoBack,
-		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, lpaStore))
+		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, donorStore))
 
 	for path, identityOption := range map[string]identity.Option{
 		page.Paths.IdentityWithPassport:                 identity.Passport,
@@ -257,26 +255,26 @@ func Register(
 		page.Paths.IdentityWithOnlineBankAccount:        identity.OnlineBankAccount,
 	} {
 		handleLpa(path, CanGoBack,
-			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), lpaStore, time.Now, identityOption))
+			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), donorStore, time.Now, identityOption))
 	}
 
 	handleLpa(page.Paths.ReadYourLpa, CanGoBack,
-		Guidance(tmpls.Get("read_your_lpa.gohtml"), lpaStore))
+		Guidance(tmpls.Get("read_your_lpa.gohtml"), donorStore))
 	handleLpa(page.Paths.YourLegalRightsAndResponsibilities, CanGoBack,
-		Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml"), lpaStore))
+		Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml"), donorStore))
 	handleLpa(page.Paths.SignYourLpa, CanGoBack,
-		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), lpaStore))
+		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), donorStore))
 	handleLpa(page.Paths.WitnessingYourSignature, CanGoBack,
-		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), lpaStore, witnessCodeSender))
+		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), donorStore, witnessCodeSender))
 	handleLpa(page.Paths.WitnessingAsCertificateProvider, CanGoBack,
-		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), lpaStore, shareCodeSender, time.Now, certificateProviderStore))
+		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), donorStore, shareCodeSender, time.Now, certificateProviderStore))
 	handleLpa(page.Paths.ResendWitnessCode, CanGoBack,
-		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), lpaStore, witnessCodeSender, time.Now))
+		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), donorStore, witnessCodeSender, time.Now))
 	handleLpa(page.Paths.YouHaveSubmittedYourLpa, CanGoBack,
-		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml"), lpaStore))
+		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml"), donorStore))
 
 	handleLpa(page.Paths.Progress, CanGoBack,
-		LpaProgress(tmpls.Get("lpa_progress.gohtml"), lpaStore, certificateProviderStore))
+		LpaProgress(tmpls.Get("lpa_progress.gohtml"), donorStore, certificateProviderStore))
 }
 
 type handleOpt byte

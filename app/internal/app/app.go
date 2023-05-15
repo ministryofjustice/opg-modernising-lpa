@@ -50,7 +50,7 @@ func App(
 	paths page.AppPaths,
 	oneLoginClient *onelogin.Client,
 ) http.Handler {
-	lpaStore := &lpaStore{dataStore: dataStore, uuidString: uuid.NewString, now: time.Now}
+	donorStore := &donorStore{dataStore: dataStore, uuidString: uuid.NewString, now: time.Now}
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: time.Now}
 	attorneyStore := &attorneyStore{dataStore: dataStore, now: time.Now}
 
@@ -61,7 +61,7 @@ func App(
 
 	rootMux := http.NewServeMux()
 
-	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, shareCodeSender, localizer, certificateProviderStore, attorneyStore, logger, time.Now))
+	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, donorStore, random.String, shareCodeSender, localizer, certificateProviderStore, attorneyStore, logger, time.Now))
 
 	handleRoot := makeHandle(rootMux, errorHandler)
 
@@ -74,7 +74,7 @@ func App(
 		logger,
 		tmpls,
 		sessionStore,
-		lpaStore,
+		donorStore,
 		oneLoginClient,
 		dataStore,
 		addressClient,
@@ -89,7 +89,7 @@ func App(
 		logger,
 		tmpls,
 		sessionStore,
-		lpaStore,
+		donorStore,
 		certificateProviderStore,
 		attorneyStore,
 		oneLoginClient,
@@ -104,7 +104,7 @@ func App(
 		logger,
 		tmpls,
 		sessionStore,
-		lpaStore,
+		donorStore,
 		oneLoginClient,
 		addressClient,
 		appPublicUrl,

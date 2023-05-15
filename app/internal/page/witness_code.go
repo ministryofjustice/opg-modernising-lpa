@@ -15,15 +15,15 @@ const (
 )
 
 type WitnessCodeSender struct {
-	lpaStore     LpaStore
+	donorStore   DonorStore
 	notifyClient NotifyClient
 	randomCode   func(int) string
 	now          func() time.Time
 }
 
-func NewWitnessCodeSender(lpaStore LpaStore, notifyClient NotifyClient) *WitnessCodeSender {
+func NewWitnessCodeSender(donorStore DonorStore, notifyClient NotifyClient) *WitnessCodeSender {
 	return &WitnessCodeSender{
-		lpaStore:     lpaStore,
+		donorStore:   donorStore,
 		notifyClient: notifyClient,
 		randomCode:   random.Code,
 		now:          time.Now,
@@ -47,7 +47,7 @@ func (s *WitnessCodeSender) Send(ctx context.Context, lpa *Lpa, localizer Locali
 		return err
 	}
 
-	return s.lpaStore.Put(ctx, lpa)
+	return s.donorStore.Put(ctx, lpa)
 }
 
 type WitnessCode struct {

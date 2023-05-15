@@ -9,13 +9,13 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-type lpaStore struct {
+type donorStore struct {
 	dataStore  DataStore
 	uuidString func() string
 	now        func() time.Time
 }
 
-func (s *lpaStore) Create(ctx context.Context) (*page.Lpa, error) {
+func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
 	lpa := &page.Lpa{
 		ID:        s.uuidString(),
 		UpdatedAt: s.now(),
@@ -27,7 +27,7 @@ func (s *lpaStore) Create(ctx context.Context) (*page.Lpa, error) {
 	}
 
 	if data.SessionID == "" {
-		return nil, errors.New("lpaStore.Create requires SessionID to persist")
+		return nil, errors.New("donorStore.Create requires SessionID to persist")
 	}
 
 	pk, sk := makeLpaKeys(lpa.ID, data.SessionID)
@@ -36,14 +36,14 @@ func (s *lpaStore) Create(ctx context.Context) (*page.Lpa, error) {
 	return lpa, err
 }
 
-func (s *lpaStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
+func (s *donorStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	if data.SessionID == "" {
-		return nil, errors.New("lpaStore.GetAll requires SessionID to retrieve")
+		return nil, errors.New("donorStore.GetAll requires SessionID to retrieve")
 	}
 
 	var lpas []*page.Lpa
@@ -58,14 +58,14 @@ func (s *lpaStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
 	return lpas, err
 }
 
-func (s *lpaStore) Get(ctx context.Context) (*page.Lpa, error) {
+func (s *donorStore) Get(ctx context.Context) (*page.Lpa, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	if data.LpaID == "" {
-		return nil, errors.New("lpaStore.Get requires LpaID to retrieve")
+		return nil, errors.New("donorStore.Get requires LpaID to retrieve")
 	}
 
 	pk := "LPA#" + data.LpaID
@@ -78,14 +78,14 @@ func (s *lpaStore) Get(ctx context.Context) (*page.Lpa, error) {
 	return lpa, nil
 }
 
-func (s *lpaStore) Put(ctx context.Context, lpa *page.Lpa) error {
+func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return err
 	}
 
 	if data.SessionID == "" {
-		return errors.New("lpaStore.Put requires SessionID to persist")
+		return errors.New("donorStore.Put requires SessionID to persist")
 	}
 
 	lpa.UpdatedAt = time.Now()
