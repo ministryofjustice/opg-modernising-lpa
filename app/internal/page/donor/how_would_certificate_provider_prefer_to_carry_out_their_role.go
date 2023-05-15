@@ -10,10 +10,10 @@ import (
 )
 
 type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
-	App                        page.AppData
-	Errors                     validation.List
-	CertificateProviderDetails actor.CertificateProvider
-	Form                       *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
+	App                 page.AppData
+	Errors              validation.List
+	CertificateProvider actor.CertificateProvider
+	Form                *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
 }
 
 func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, lpaStore LpaStore) page.Handler {
@@ -24,8 +24,8 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 		}
 
 		data := &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
-			App:                        appData,
-			CertificateProviderDetails: lpa.CertificateProvider,
+			App:                 appData,
+			CertificateProvider: lpa.CertificateProvider,
 			Form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
 				CarryOutBy: lpa.CertificateProvider.CarryOutBy,
 				Email:      lpa.CertificateProvider.Email,

@@ -32,9 +32,9 @@ func TestGetCertificateProviderAddress(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &certificateProviderAddressData{
-			App:                        testAppData,
-			Form:                       &form.AddressForm{},
-			CertificateProviderDetails: certificateProvider,
+			App:                 testAppData,
+			Form:                &form.AddressForm{},
+			CertificateProvider: certificateProvider,
 		}).
 		Return(nil)
 
@@ -79,8 +79,8 @@ func TestGetCertificateProviderAddressFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &certificateProviderAddressData{
-			App:                        testAppData,
-			CertificateProviderDetails: certificateProvider,
+			App:                 testAppData,
+			CertificateProvider: certificateProvider,
 			Form: &form.AddressForm{
 				Action:  "manual",
 				Address: &testAddress,
@@ -116,7 +116,7 @@ func TestGetCertificateProviderAddressManual(t *testing.T) {
 				Action:  "manual",
 				Address: &place.Address{},
 			},
-			CertificateProviderDetails: certificateProvider,
+			CertificateProvider: certificateProvider,
 		}).
 		Return(nil)
 

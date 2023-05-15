@@ -13,11 +13,11 @@ import (
 )
 
 type certificateProviderAddressData struct {
-	App                        page.AppData
-	Errors                     validation.List
-	CertificateProviderDetails actor.CertificateProvider
-	Addresses                  []place.Address
-	Form                       *form.AddressForm
+	App                 page.AppData
+	Errors              validation.List
+	CertificateProvider actor.CertificateProvider
+	Addresses           []place.Address
+	Form                *form.AddressForm
 }
 
 func CertificateProviderAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) page.Handler {
@@ -28,9 +28,9 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 		}
 
 		data := &certificateProviderAddressData{
-			App:                        appData,
-			CertificateProviderDetails: lpa.CertificateProvider,
-			Form:                       &form.AddressForm{},
+			App:                 appData,
+			CertificateProvider: lpa.CertificateProvider,
+			Form:                &form.AddressForm{},
 		}
 
 		if lpa.CertificateProvider.Address.Line1 != "" {

@@ -94,7 +94,7 @@ func MakePersonToNotify(firstNames string) actor.PersonToNotify {
 	}
 }
 
-func MakeCertificateProviderDetails(firstNames string) actor.CertificateProvider {
+func MakeCertificateProvider(firstNames string) actor.CertificateProvider {
 	return actor.CertificateProvider{
 		FirstNames:              firstNames,
 		LastName:                "Jones",
@@ -185,8 +185,8 @@ func CompleteRestrictions(lpa *Lpa) {
 	lpa.Tasks.Restrictions = actor.TaskCompleted
 }
 
-func AddCertificateProviderDetails(lpa *Lpa, firstNames string) {
-	lpa.CertificateProvider = MakeCertificateProviderDetails(firstNames)
+func AddCertificateProvider(lpa *Lpa, firstNames string) {
+	lpa.CertificateProvider = MakeCertificateProvider(firstNames)
 	lpa.Tasks.CertificateProvider = actor.TaskCompleted
 }
 
@@ -246,7 +246,7 @@ func CompleteSectionOne(lpa *Lpa) {
 	AddReplacementAttorneys(lpa, 2)
 	CompleteWhenCanLpaBeUsed(lpa)
 	CompleteRestrictions(lpa)
-	AddCertificateProviderDetails(lpa, "Jessie")
+	AddCertificateProvider(lpa, "Jessie")
 	AddPeopleToNotify(lpa, 2)
 	CompleteCheckYourLpa(lpa)
 }

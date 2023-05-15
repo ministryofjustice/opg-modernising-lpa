@@ -10,10 +10,10 @@ import (
 )
 
 type howDoYouKnowYourCertificateProviderData struct {
-	App                        page.AppData
-	Errors                     validation.List
-	CertificateProviderDetails actor.CertificateProvider
-	Form                       *howDoYouKnowYourCertificateProviderForm
+	App                 page.AppData
+	Errors              validation.List
+	CertificateProvider actor.CertificateProvider
+	Form                *howDoYouKnowYourCertificateProviderForm
 }
 
 func HowDoYouKnowYourCertificateProvider(tmpl template.Template, lpaStore LpaStore) page.Handler {
@@ -24,8 +24,8 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, lpaStore LpaSto
 		}
 
 		data := &howDoYouKnowYourCertificateProviderData{
-			App:                        appData,
-			CertificateProviderDetails: lpa.CertificateProvider,
+			App:                 appData,
+			CertificateProvider: lpa.CertificateProvider,
 			Form: &howDoYouKnowYourCertificateProviderForm{
 				Description: lpa.CertificateProvider.RelationshipDescription,
 				How:         lpa.CertificateProvider.Relationship,
