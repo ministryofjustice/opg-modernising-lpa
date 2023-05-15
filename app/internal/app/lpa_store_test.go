@@ -16,6 +16,16 @@ var expectedError = errors.New("err")
 
 func (m *mockDataStore) ExpectGet(ctx, pk, partialSk, data interface{}, err error) {
 	m.
+		On("Get", ctx, pk, partialSk, mock.Anything).
+		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		})
+}
+
+func (m *mockDataStore) ExpectGetOneByPartialSk(ctx, pk, partialSk, data interface{}, err error) {
+	m.
 		On("GetOneByPartialSk", ctx, pk, partialSk, mock.Anything).
 		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
 			b, _ := json.Marshal(data)
@@ -24,7 +34,7 @@ func (m *mockDataStore) ExpectGet(ctx, pk, partialSk, data interface{}, err erro
 		})
 }
 
-func (m *mockDataStore) ExpectGetAll(ctx, gsi, sk, data interface{}, err error) {
+func (m *mockDataStore) ExpectGetAllByGsi(ctx, gsi, sk, data interface{}, err error) {
 	m.
 		On("GetAllByGsi", ctx, gsi, sk, mock.Anything).
 		Return(func(ctx context.Context, gsi, pk string, v interface{}) error {
@@ -40,7 +50,7 @@ func TestLpaStoreGetAll(t *testing.T) {
 	lpas := []*page.Lpa{{ID: "10100000"}}
 
 	dataStore := newMockDataStore(t)
-	dataStore.ExpectGetAll(ctx, "ActorIndex", "#DONOR#an-id", lpas, nil)
+	dataStore.ExpectGetAllByGsi(ctx, "ActorIndex", "#DONOR#an-id", lpas, nil)
 
 	lpaStore := &lpaStore{dataStore: dataStore, uuidString: func() string { return "10100000" }}
 
@@ -62,7 +72,7 @@ func TestLpaStoreGet(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id"})
 
 	dataStore := newMockDataStore(t)
-	dataStore.ExpectGet(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, nil)
+	dataStore.ExpectGetOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, nil)
 
 	lpaStore := &lpaStore{dataStore: dataStore, uuidString: func() string { return "10100000" }}
 
@@ -84,7 +94,7 @@ func TestLpaStoreGetWhenDataStoreError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id"})
 
 	dataStore := newMockDataStore(t)
-	dataStore.ExpectGet(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, expectedError)
+	dataStore.ExpectGetOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, expectedError)
 
 	lpaStore := &lpaStore{dataStore: dataStore, uuidString: func() string { return "10100000" }}
 

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -18,14 +19,12 @@ type yourAddressData struct {
 	Form      *form.AddressForm
 }
 
-func YourAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) page.Handler {
+func YourAddress(logger Logger, tmpl template.Template, addressClient AddressClient, attorneyStore AttorneyStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		attorneyProvidedDetails, err := attorneyStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
-
-		attorneyProvidedDetails := getProvidedDetails(appData, lpa)
 
 		data := &yourAddressData{
 			App:  appData,
@@ -43,13 +42,9 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 
 			if data.Form.Action == "manual" && data.Errors.None() {
 				attorneyProvidedDetails.Address = *data.Form.Address
-				setProvidedDetails(appData, lpa, attorneyProvidedDetails)
+				attorneyProvidedDetails.Tasks.ConfirmYourDetails = actor.TaskCompleted
 
-				tasks := getTasks(appData, lpa)
-				tasks.ConfirmYourDetails = page.TaskCompleted
-				setTasks(appData, lpa, tasks)
-
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
 					return err
 				}
 

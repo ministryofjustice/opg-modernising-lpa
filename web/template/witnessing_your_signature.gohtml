@@ -7,9 +7,9 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "witnessYourSignature" }}</h1>
 
-      {{ trFormatHtml .App "witnessYourSignatureContent" "CpFullName" .Lpa.CertificateProviderDetails.FullName "CpFirstNames" .Lpa.CertificateProviderDetails.FirstNames }}
+      {{ trFormatHtml .App "witnessYourSignatureContent" "CpFullName" .Lpa.CertificateProvider.FullName "CpFirstNames" .Lpa.CertificateProvider.FirstNames }}
 
-      {{ $warningContent := trFormat .App "witnessCodeTimeWarning" "CpFirstNames" .Lpa.CertificateProviderDetails.FirstNames }}
+      {{ $warningContent := trFormat .App "witnessCodeTimeWarning" "CpFirstNames" .Lpa.CertificateProvider.FirstNames }}
       {{ template "warning" (warning .App $warningContent)  }}
 
       <form novalidate method="post">

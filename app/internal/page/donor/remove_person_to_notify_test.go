@@ -284,12 +284,12 @@ func TestRemovePersonToNotifyRemoveLastPerson(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress},
-			Tasks:          page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted, PeopleToNotify: page.TaskCompleted},
+			Tasks:          page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, PeopleToNotify: actor.TaskCompleted},
 		}, nil)
 	lpaStore.
 		On("Put", r.Context(), &page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{},
-			Tasks:          page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted, PeopleToNotify: page.TaskNotStarted},
+			Tasks:          page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, PeopleToNotify: actor.TaskNotStarted},
 		}).
 		Return(nil)
 

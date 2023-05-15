@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -56,7 +57,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			logger.Print(fmt.Sprintf("unable to expire cookie in session: %s", err.Error()))
 		}
 
-		lpa.Tasks.PayForLpa = page.TaskCompleted
+		lpa.Tasks.PayForLpa = actor.TaskCompleted
 
 		if err := lpaStore.Put(r.Context(), lpa); err != nil {
 			logger.Print(fmt.Sprintf("unable to update lpa in dataStore: %s", err.Error()))

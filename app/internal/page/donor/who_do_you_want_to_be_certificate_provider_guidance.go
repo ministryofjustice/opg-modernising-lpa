@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -24,7 +25,7 @@ func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, lpaStor
 
 		data := &whoDoYouWantToBeCertificateProviderGuidanceData{
 			App:        appData,
-			NotStarted: lpa.Tasks.CertificateProvider == page.TaskNotStarted,
+			NotStarted: lpa.Tasks.CertificateProvider == actor.TaskNotStarted,
 			Lpa:        lpa,
 		}
 
@@ -34,7 +35,7 @@ func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, lpaStor
 			}
 
 			if data.NotStarted {
-				lpa.Tasks.CertificateProvider = page.TaskInProgress
+				lpa.Tasks.CertificateProvider = actor.TaskInProgress
 			}
 			if err := lpaStore.Put(r.Context(), lpa); err != nil {
 				return err

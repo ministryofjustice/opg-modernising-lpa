@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -22,11 +23,11 @@ func TestGetWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 			notStarted: true,
 		},
 		"in-progress": {
-			data:       &page.Lpa{Tasks: page.Tasks{CertificateProvider: page.TaskInProgress}},
+			data:       &page.Lpa{Tasks: page.Tasks{CertificateProvider: actor.TaskInProgress}},
 			notStarted: false,
 		},
 		"completed": {
-			data:       &page.Lpa{Tasks: page.Tasks{CertificateProvider: page.TaskCompleted}},
+			data:       &page.Lpa{Tasks: page.Tasks{CertificateProvider: actor.TaskCompleted}},
 			notStarted: false,
 		},
 	}
@@ -107,7 +108,7 @@ func TestPostWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 	lpaStore.
-		On("Put", r.Context(), &page.Lpa{Tasks: page.Tasks{CertificateProvider: page.TaskInProgress}}).
+		On("Put", r.Context(), &page.Lpa{Tasks: page.Tasks{CertificateProvider: actor.TaskInProgress}}).
 		Return(nil)
 
 	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, lpaStore)(testAppData, w, r)
