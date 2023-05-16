@@ -4,7 +4,7 @@ data "aws_iam_role" "ecs_autoscaling_service_role" {
 }
 
 data "aws_sns_topic" "custom_cloudwatch_alarms" {
-  name     = "custom_cloudwatch_alarms"
+  name     = "ecs_autoscaling_alarms"
   provider = aws.region
 }
 

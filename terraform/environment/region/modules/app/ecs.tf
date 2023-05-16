@@ -86,7 +86,7 @@ resource "aws_ecs_task_definition" "app" {
 }
 
 resource "aws_iam_role_policy" "app_task_role" {
-  name     = "${data.aws_default_tags.current.tags.environment-name}-app-task-role"
+  name     = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}-app-task-role"
   policy   = data.aws_iam_policy_document.task_role_access_policy.json
   role     = var.ecs_task_role.name
   provider = aws.region
@@ -142,10 +142,14 @@ data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id" {
   provider = aws.region
 }
 
+locals {
+  policy_region_prefix = lower(replace(data.aws_region.current.name, "-", ""))
+}
 
 data "aws_iam_policy_document" "task_role_access_policy" {
+  policy_id = "${local.policy_region_prefix}task_role_access_policy"
   statement {
-    sid    = "XrayAccess"
+    sid    = "${local.policy_region_prefix}XrayAccess"
     effect = "Allow"
 
     actions = [
@@ -160,7 +164,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
   }
 
   statement {
-    sid    = "EcsDecryptAccess"
+    sid    = "${local.policy_region_prefix}EcsDecryptAccess"
     effect = "Allow"
 
     actions = [
@@ -174,7 +178,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
   }
 
   statement {
-    sid    = "DynamoDBEncryptionAccess"
+    sid    = "${local.policy_region_prefix}DynamoDBEncryptionAccess"
     effect = "Allow"
 
     actions = [
@@ -189,7 +193,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
   }
 
   statement {
-    sid    = "EcsSecretAccess"
+    sid    = "${local.policy_region_prefix}EcsSecretAccess"
     effect = "Allow"
 
     actions = [
@@ -209,7 +213,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
   }
 
   statement {
-    sid = "Allow"
+    sid = "${local.policy_region_prefix}Allow"
 
     actions = ["dynamodb:*"]
 

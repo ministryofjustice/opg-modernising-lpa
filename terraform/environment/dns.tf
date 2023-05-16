@@ -16,8 +16,8 @@ resource "aws_route53_record" "app" {
 
   alias {
     evaluate_target_health = false
-    name                   = aws_ssm_parameter.dns_target_region.value == "eu-west-1" ? module.eu_west_1[0].app_load_balancer.dns_name : module.eu_west_2[0].app_load_balancer.dns_name
-    zone_id                = aws_ssm_parameter.dns_target_region.value == "eu-west-1" ? module.eu_west_1[0].app_load_balancer.zone_id : module.eu_west_2[0].app_load_balancer.zone_id
+    name                   = data.aws_ssm_parameter.dns_target_region.value == "eu-west-1" ? module.eu_west_1[0].app_load_balancer.dns_name : module.eu_west_2[0].app_load_balancer.dns_name
+    zone_id                = data.aws_ssm_parameter.dns_target_region.value == "eu-west-1" ? module.eu_west_1[0].app_load_balancer.zone_id : module.eu_west_2[0].app_load_balancer.zone_id
   }
 
   lifecycle {
