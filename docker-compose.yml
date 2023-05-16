@@ -14,7 +14,7 @@ services:
       - pay-mock
       - ordnance-survey-mock
       - notify-mock
-      - opg-uid-mock
+      - uid-mock
     restart: on-failure
     ports:
       - "5050:8080"
@@ -80,9 +80,9 @@ services:
     ports:
       - "8081:8080"
 
-  opg-uid-mock:
+  uid-mock:
     build:
       context: mocks/OPGUID
-    container_name: opg-uid-mock
+    container_name: uid-mock
     ports:
       - "8082:8080"

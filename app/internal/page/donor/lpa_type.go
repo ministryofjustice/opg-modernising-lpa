@@ -5,7 +5,6 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -38,14 +37,7 @@ func LpaType(tmpl template.Template, lpaStore LpaStore, uidClient UidClient) pag
 					return err
 				}
 
-				_, err := uidClient.CreateCase(uid.CreateCaseBody{
-					Type: lpa.Type,
-					Donor: uid.DonorDetails{
-						Name:     lpa.Donor.FullName(),
-						Dob:      lpa.Donor.DateOfBirth,
-						Postcode: lpa.Donor.Address.Postcode,
-					},
-				})
+				_, err := uidClient.CreateCase(lpa)
 				if err != nil {
 					return err
 				}

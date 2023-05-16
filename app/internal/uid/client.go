@@ -3,9 +3,11 @@ package uid
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
+	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 //go:generate mockery --testonly --inpackage --name Doer --structname mockDoer
@@ -26,9 +28,9 @@ func New(baseUrl string, httpClient Doer) *Client {
 }
 
 type DonorDetails struct {
-	Name     string    `json:"name"`
-	Dob      date.Date `json:"dob"`
-	Postcode string    `json:"postcode"`
+	Name     string  `json:"name"`
+	Dob      ISODate `json:"dob"`
+	Postcode string  `json:"postcode"`
 }
 
 type CreateCaseBody struct {
@@ -41,11 +43,22 @@ type CreateCaseResponse struct {
 	Uid string
 }
 
-func (c *Client) CreateCase(body CreateCaseBody) (CreateCaseResponse, error) {
-	body.Source = "APPLICANT"
-	data, _ := json.Marshal(body)
+func (c *Client) CreateCase(lpa *page.Lpa) (CreateCaseResponse, error) {
+	if !Valid(lpa) {
+		return CreateCaseResponse{}, errors.New("LPA missing details. Requires Type, Donor name, dob and postcode")
+	}
 
-	r, err := http.NewRequest(http.MethodGet, c.baseUrl+"/cases", bytes.NewReader(data))
+	data, _ := json.Marshal(CreateCaseBody{
+		Source: "APPLICANT",
+		Type:   lpa.Type,
+		Donor: DonorDetails{
+			Name:     lpa.Donor.FullName(),
+			Dob:      ISODate{lpa.Donor.DateOfBirth.Time()},
+			Postcode: lpa.Donor.Address.Postcode,
+		},
+	})
+
+	r, err := http.NewRequest(http.MethodPost, c.baseUrl+"/cases", bytes.NewReader(data))
 	if err != nil {
 		return CreateCaseResponse{}, err
 	}
@@ -66,4 +79,19 @@ func (c *Client) CreateCase(body CreateCaseBody) (CreateCaseResponse, error) {
 	}
 
 	return createCaseResponse, nil
+}
+
+type ISODate struct {
+	time.Time
+}
+
+func (d ISODate) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.Time.Format("2000-01-02"))
+}
+
+func Valid(lpa *page.Lpa) bool {
+	return lpa.Type != "" &&
+		lpa.Donor.FullName() != " " &&
+		!lpa.Donor.DateOfBirth.IsZero() &&
+		lpa.Donor.Address.Postcode != ""
 }

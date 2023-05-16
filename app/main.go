@@ -66,7 +66,7 @@ func main() {
 			IdentityPoolID:    env.Get("AWS_RUM_IDENTITY_POOL_ID", ""),
 			ApplicationID:     env.Get("AWS_RUM_APPLICATION_ID", ""),
 		}
-		uidBaseURL = env.Get("UID_BASE_URL", "")
+		uidBaseURL = env.Get("UID_BASE_URL", "http://uid-mock:8080")
 	)
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
