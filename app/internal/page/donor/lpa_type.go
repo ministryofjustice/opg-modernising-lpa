@@ -15,7 +15,7 @@ type lpaTypeData struct {
 	Type   string
 }
 
-func LpaType(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func LpaType(tmpl template.Template, lpaStore LpaStore, uidClient UidClient) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
@@ -35,6 +35,11 @@ func LpaType(tmpl template.Template, lpaStore LpaStore) page.Handler {
 				lpa.Tasks.YourDetails = actor.TaskCompleted
 				lpa.Type = form.LpaType
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+					return err
+				}
+
+				_, err := uidClient.CreateCase(lpa)
+				if err != nil {
 					return err
 				}
 
