@@ -57,7 +57,7 @@ func TestCreateCase(t *testing.T) {
 	client := New(server.URL, server.Client())
 	resp, err := client.CreateCase(validLpa)
 
-	expectedBody := `{"type":"pfa","source":"APPLICANT","donor":{"name":"Jane Smith","dob":"2000-1-2","postcode":"ABC123"}}`
+	expectedBody := `{"type":"pfa","source":"APPLICANT","donor":{"name":"Jane Smith","dob":"2000-01-02","postcode":"ABC123"}}`
 
 	assert.Equal(t, http.MethodPost, requestMethod)
 	assert.Equal(t, "/cases", endpointCalled)
