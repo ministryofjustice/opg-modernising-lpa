@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -31,7 +32,7 @@ func LpaType(tmpl template.Template, lpaStore LpaStore, uidClient UidClient) pag
 			data.Errors = form.Validate()
 
 			if data.Errors.None() {
-				lpa.Tasks.YourDetails = page.TaskCompleted
+				lpa.Tasks.YourDetails = actor.TaskCompleted
 				lpa.Type = form.LpaType
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err

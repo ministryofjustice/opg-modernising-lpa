@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -34,9 +35,9 @@ func Restrictions(tmpl template.Template, lpaStore LpaStore) page.Handler {
 
 			if data.Errors.None() || form.AnswerLater {
 				if form.AnswerLater {
-					lpa.Tasks.Restrictions = page.TaskInProgress
+					lpa.Tasks.Restrictions = actor.TaskInProgress
 				} else {
-					lpa.Tasks.Restrictions = page.TaskCompleted
+					lpa.Tasks.Restrictions = actor.TaskCompleted
 					lpa.Restrictions = form.Restrictions
 				}
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {

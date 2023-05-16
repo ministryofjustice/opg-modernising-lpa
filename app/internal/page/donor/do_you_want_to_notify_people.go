@@ -50,13 +50,13 @@ func DoYouWantToNotifyPeople(tmpl template.Template, lpaStore LpaStore) page.Han
 
 			if data.Errors.None() {
 				lpa.DoYouWantToNotifyPeople = data.Form.WantToNotify
-				lpa.Tasks.PeopleToNotify = page.TaskInProgress
+				lpa.Tasks.PeopleToNotify = actor.TaskInProgress
 
 				redirectPath := appData.Paths.ChoosePeopleToNotify
 
 				if data.Form.WantToNotify == "no" {
 					redirectPath = appData.Paths.CheckYourLpa
-					lpa.Tasks.PeopleToNotify = page.TaskCompleted
+					lpa.Tasks.PeopleToNotify = actor.TaskCompleted
 				}
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {

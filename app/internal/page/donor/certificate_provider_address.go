@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -12,11 +13,11 @@ import (
 )
 
 type certificateProviderAddressData struct {
-	App                        page.AppData
-	Errors                     validation.List
-	CertificateProviderDetails page.CertificateProviderDetails
-	Addresses                  []place.Address
-	Form                       *form.AddressForm
+	App                 page.AppData
+	Errors              validation.List
+	CertificateProvider actor.CertificateProvider
+	Addresses           []place.Address
+	Form                *form.AddressForm
 }
 
 func CertificateProviderAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) page.Handler {
@@ -27,14 +28,14 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 		}
 
 		data := &certificateProviderAddressData{
-			App:                        appData,
-			CertificateProviderDetails: lpa.CertificateProviderDetails,
-			Form:                       &form.AddressForm{},
+			App:                 appData,
+			CertificateProvider: lpa.CertificateProvider,
+			Form:                &form.AddressForm{},
 		}
 
-		if lpa.CertificateProviderDetails.Address.Line1 != "" {
+		if lpa.CertificateProvider.Address.Line1 != "" {
 			data.Form.Action = "manual"
-			data.Form.Address = &lpa.CertificateProviderDetails.Address
+			data.Form.Address = &lpa.CertificateProvider.Address
 		}
 
 		if r.Method == http.MethodPost {
@@ -42,7 +43,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 			data.Errors = data.Form.Validate(false)
 
 			if data.Form.Action == "manual" && data.Errors.None() {
-				lpa.CertificateProviderDetails.Address = *data.Form.Address
+				lpa.CertificateProvider.Address = *data.Form.Address
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err
@@ -55,7 +56,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 			if data.Form.Action == "select" && data.Errors.None() {
 				data.Form.Action = "manual"
 
-				lpa.CertificateProviderDetails.Address = *data.Form.Address
+				lpa.CertificateProvider.Address = *data.Form.Address
 
 				if err := lpaStore.Put(r.Context(), lpa); err != nil {
 					return err

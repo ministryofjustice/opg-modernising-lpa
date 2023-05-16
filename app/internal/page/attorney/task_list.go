@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -18,18 +19,23 @@ type taskListData struct {
 type taskListItem struct {
 	Name  string
 	Path  string
-	State page.TaskState
+	State actor.TaskState
 	Count int
 }
 
-func TaskList(tmpl template.Template, lpaStore LpaStore, certificateProviderStore CertificateProviderStore) page.Handler {
+func TaskList(tmpl template.Template, lpaStore LpaStore, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
-		tasks := getTasks(appData, lpa)
+		attorney, err := attorneyStore.Get(r.Context())
+		if err != nil {
+			return err
+		}
+
+		tasks := attorney.Tasks
 
 		var signPath string
 		if tasks.ReadTheLpa.Completed() {

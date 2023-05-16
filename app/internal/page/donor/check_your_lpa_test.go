@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -100,7 +101,7 @@ func TestPostCheckYourLpa(t *testing.T) {
 	lpa := &page.Lpa{
 		Checked:      false,
 		HappyToShare: false,
-		Tasks:        page.Tasks{CheckYourLpa: page.TaskInProgress},
+		Tasks:        page.Tasks{CheckYourLpa: actor.TaskInProgress},
 	}
 
 	lpaStore := newMockLpaStore(t)
@@ -111,7 +112,7 @@ func TestPostCheckYourLpa(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			Checked:      true,
 			HappyToShare: true,
-			Tasks:        page.Tasks{CheckYourLpa: page.TaskCompleted},
+			Tasks:        page.Tasks{CheckYourLpa: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -141,7 +142,7 @@ func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			Checked:      true,
 			HappyToShare: true,
-			Tasks:        page.Tasks{CheckYourLpa: page.TaskCompleted},
+			Tasks:        page.Tasks{CheckYourLpa: actor.TaskCompleted},
 		}).
 		Return(expectedError)
 

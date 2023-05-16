@@ -227,7 +227,6 @@ type AttorneySession struct {
 	Sub                   string
 	Email                 string
 	LpaID                 string
-	DonorSessionID        string
 	AttorneyID            string
 	IsReplacementAttorney bool
 }

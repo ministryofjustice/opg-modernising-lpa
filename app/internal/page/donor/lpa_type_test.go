@@ -130,7 +130,7 @@ func TestPostLpaType(t *testing.T) {
 		Address:     place.Address{Postcode: "ABC123"},
 	},
 		Type:  page.LpaTypePropertyFinance,
-		Tasks: page.Tasks{YourDetails: page.TaskCompleted},
+		Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
 	}
 
 	lpaStore.
@@ -199,7 +199,7 @@ func TestPostLpaTypeWhenUidClientErrors(t *testing.T) {
 			Address:     place.Address{Postcode: "ABC123"},
 		},
 			Type:  page.LpaTypePropertyFinance,
-			Tasks: page.Tasks{YourDetails: page.TaskCompleted},
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
 		}).
 		Return(nil)
 

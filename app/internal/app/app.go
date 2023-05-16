@@ -54,6 +54,7 @@ func App(
 ) http.Handler {
 	lpaStore := &lpaStore{dataStore: dataStore, uuidString: uuid.NewString, now: time.Now}
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: time.Now}
+	attorneyStore := &attorneyStore{dataStore: dataStore, now: time.Now}
 
 	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)
 
@@ -62,7 +63,7 @@ func App(
 
 	rootMux := http.NewServeMux()
 
-	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, shareCodeSender, localizer, certificateProviderStore, logger, time.Now))
+	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, shareCodeSender, localizer, certificateProviderStore, attorneyStore, logger, time.Now))
 
 	handleRoot := makeHandle(rootMux, errorHandler)
 
@@ -92,6 +93,7 @@ func App(
 		sessionStore,
 		lpaStore,
 		certificateProviderStore,
+		attorneyStore,
 		oneLoginClient,
 		addressClient,
 		dataStore,

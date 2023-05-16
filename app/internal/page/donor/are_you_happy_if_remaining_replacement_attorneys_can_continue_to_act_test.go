@@ -119,13 +119,13 @@ func TestPostAreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(t *testi
 				On("Get", r.Context()).
 				Return(&page.Lpa{
 					Type:  tc.lpaType,
-					Tasks: page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
+					Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
 					Type:                         tc.lpaType,
 					ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfRemainingCanContinueToAct: tc.happy},
-					Tasks:                        page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
+					Tasks:                        page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 				}).
 				Return(nil)
 

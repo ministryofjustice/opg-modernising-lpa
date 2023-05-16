@@ -128,7 +128,7 @@
     "chooseYourContactPreferences": "Choose your contact preferences",
     "chooseYourAttorneys": "Choose your attorneys",
     "chooseYourReplacementAttorneys": "Choose your replacement attorneys (optional)",
-    "chooseWhenTheLpaCanBeUsed": "Choose when the LPA can be used",
+    "chooseWhenTheLpaCanBeUsed": "Choose when your LPA can be used",
     "lifeSustainingTreatment": "Life sustaining treatment",
     "addRestrictionsToTheLpa": "Add restrictions to the LPA (optional)",
     "chooseYourCertificateProvider": "Choose your certificate provider",
@@ -136,7 +136,7 @@
     "payForTheLpa": "Pay for the LPA",
     "confirmYourIdentityAndSign": "Confirm your identity and sign the LPA",
     "attorneysAdded": {
-        "one": "You have added {{.PluralCount}} attorney",
+        "one": "You have added {{.PluralCount}} original attorney",
         "other": "You have added {{.PluralCount}} attorneys"
     },
     "changeNameLinkText": "Change<span class=\"govuk-visually-hidden\"> name for {{ .FirstNames }} {{ .LastName }}</span>",
@@ -144,7 +144,7 @@
     "changeEmailLinkText": "Change<span class=\"govuk-visually-hidden\"> email for {{ .FirstNames }} {{ .LastName }}</span>",
     "changeAddressLink": "Change<span class=\"govuk-visually-hidden\"> address for {{ .FirstNames }} {{ .LastName }}</span>",
     "removeAttorneyButtonLink": "Remove {{ .FirstNames }} {{ .LastName }}",
-    "doYouWantToAddAnotherAttorney": "Do you want to add another attorney?",
+    "doYouWantToAddAnotherAttorney": "Do you want to add another original attorney?",
     "yesToAddAnotherAttorney": "yes to add another attorney",
     "yesToAddAnotherReplacementAttorney": "yes to add another replacement attorney",
     "removeAnAttorney": "Remove an attorney",

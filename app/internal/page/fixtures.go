@@ -94,8 +94,8 @@ func MakePersonToNotify(firstNames string) actor.PersonToNotify {
 	}
 }
 
-func MakeCertificateProviderDetails(firstNames string) CertificateProviderDetails {
-	return CertificateProviderDetails{
+func MakeCertificateProvider(firstNames string) actor.CertificateProvider {
+	return actor.CertificateProvider{
 		FirstNames:              firstNames,
 		LastName:                "Jones",
 		Email:                   TestEmail,
@@ -119,7 +119,7 @@ func CompleteDonorDetails(lpa *Lpa) {
 	lpa.Donor = MakePerson()
 	lpa.WhoFor = "me"
 	lpa.Type = "pfa"
-	lpa.Tasks.YourDetails = TaskCompleted
+	lpa.Tasks.YourDetails = actor.TaskCompleted
 }
 
 func AddAttorneys(lpa *Lpa, count int) []string {
@@ -137,7 +137,7 @@ func AddAttorneys(lpa *Lpa, count int) []string {
 		lpa.AttorneyDecisions.How = actor.JointlyAndSeverally
 	}
 
-	lpa.Tasks.ChooseAttorneys = TaskCompleted
+	lpa.Tasks.ChooseAttorneys = actor.TaskCompleted
 	return firstNames
 }
 
@@ -159,7 +159,7 @@ func AddReplacementAttorneys(lpa *Lpa, count int) []string {
 		lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
 	}
 
-	lpa.Tasks.ChooseReplacementAttorneys = TaskCompleted
+	lpa.Tasks.ChooseReplacementAttorneys = actor.TaskCompleted
 	return firstNames
 }
 
@@ -177,17 +177,17 @@ func CompleteHowAttorneysAct(lpa *Lpa, howTheyAct string) {
 
 func CompleteWhenCanLpaBeUsed(lpa *Lpa) {
 	lpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
-	lpa.Tasks.WhenCanTheLpaBeUsed = TaskCompleted
+	lpa.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
 }
 
 func CompleteRestrictions(lpa *Lpa) {
 	lpa.Restrictions = "Some restrictions on how Attorneys act"
-	lpa.Tasks.Restrictions = TaskCompleted
+	lpa.Tasks.Restrictions = actor.TaskCompleted
 }
 
-func AddCertificateProviderDetails(lpa *Lpa, firstNames string) {
-	lpa.CertificateProviderDetails = MakeCertificateProviderDetails(firstNames)
-	lpa.Tasks.CertificateProvider = TaskCompleted
+func AddCertificateProvider(lpa *Lpa, firstNames string) {
+	lpa.CertificateProvider = MakeCertificateProvider(firstNames)
+	lpa.Tasks.CertificateProvider = actor.TaskCompleted
 }
 
 func AddPeopleToNotify(lpa *Lpa, count int) []string {
@@ -203,7 +203,7 @@ func AddPeopleToNotify(lpa *Lpa, count int) []string {
 	}
 
 	lpa.DoYouWantToNotifyPeople = "yes"
-	lpa.Tasks.PeopleToNotify = TaskCompleted
+	lpa.Tasks.PeopleToNotify = actor.TaskCompleted
 
 	return firstNames
 }
@@ -211,7 +211,7 @@ func AddPeopleToNotify(lpa *Lpa, count int) []string {
 func CompleteCheckYourLpa(lpa *Lpa) {
 	lpa.Checked = true
 	lpa.HappyToShare = true
-	lpa.Tasks.CheckYourLpa = TaskCompleted
+	lpa.Tasks.CheckYourLpa = actor.TaskCompleted
 }
 
 func PayForLpa(lpa *Lpa, store sesh.Store, r *http.Request, w http.ResponseWriter, ref string) {
@@ -221,7 +221,7 @@ func PayForLpa(lpa *Lpa, store sesh.Store, r *http.Request, w http.ResponseWrite
 		PaymentReference: ref,
 		PaymentId:        ref,
 	}
-	lpa.Tasks.PayForLpa = TaskCompleted
+	lpa.Tasks.PayForLpa = actor.TaskCompleted
 }
 
 func ConfirmIdAndSign(lpa *Lpa) {
@@ -237,7 +237,7 @@ func ConfirmIdAndSign(lpa *Lpa) {
 	lpa.WantToSignLpa = true
 	lpa.Submitted = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 	lpa.CPWitnessCodeValidated = true
-	lpa.Tasks.ConfirmYourIdentityAndSign = TaskCompleted
+	lpa.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
 }
 
 func CompleteSectionOne(lpa *Lpa) {
@@ -246,7 +246,7 @@ func CompleteSectionOne(lpa *Lpa) {
 	AddReplacementAttorneys(lpa, 2)
 	CompleteWhenCanLpaBeUsed(lpa)
 	CompleteRestrictions(lpa)
-	AddCertificateProviderDetails(lpa, "Jessie")
+	AddCertificateProvider(lpa, "Jessie")
 	AddPeopleToNotify(lpa, 2)
 	CompleteCheckYourLpa(lpa)
 }

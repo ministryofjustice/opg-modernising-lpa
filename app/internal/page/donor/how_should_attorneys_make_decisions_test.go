@@ -131,7 +131,7 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			Attorneys:         actor.Attorneys{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}},
 			AttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			Tasks:             page.Tasks{ChooseAttorneys: page.TaskCompleted},
+			Tasks:             page.Tasks{ChooseAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -194,7 +194,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 				On("Put", r.Context(), &page.Lpa{
 					Attorneys:         actor.Attorneys{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}},
 					AttorneyDecisions: actor.AttorneyDecisions{Details: tc.updatedDetails, How: tc.updatedType},
-					Tasks:             page.Tasks{ChooseAttorneys: page.TaskInProgress},
+					Tasks:             page.Tasks{ChooseAttorneys: actor.TaskInProgress},
 				}).
 				Return(nil)
 
