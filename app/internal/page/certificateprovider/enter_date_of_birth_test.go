@@ -33,7 +33,7 @@ func TestGetEnterDateOfBirth(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -63,7 +63,7 @@ func TestGetEnterDateOfBirthFromStore(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{DateOfBirth: date.New("1997", "1", "2")}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{DateOfBirth: date.New("1997", "1", "2")}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -111,7 +111,7 @@ func TestGetEnterDateOfBirthWhenCertificateProviderStoreErrors(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, expectedError)
+		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := EnterDateOfBirth(nil, lpaStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
@@ -136,7 +136,7 @@ func TestGetEnterDateOfBirthWhenTemplateErrors(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -159,7 +159,7 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 
 	testCases := map[string]struct {
 		form url.Values
-		cp   *actor.CertificateProvider
+		cp   *actor.CertificateProviderProvidedDetails
 	}{
 		"valid": {
 			form: url.Values{
@@ -167,7 +167,7 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
 			},
-			cp: &actor.CertificateProvider{
+			cp: &actor.CertificateProviderProvidedDetails{
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
 			},
 		},
@@ -178,7 +178,7 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 				"date-of-birth-year":  {"1900"},
 				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
-			cp: &actor.CertificateProvider{
+			cp: &actor.CertificateProviderProvidedDetails{
 				DateOfBirth: date.New("1900", "1", "2"),
 			},
 		},
@@ -199,7 +199,7 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
 				On("Get", r.Context()).
-				Return(&actor.CertificateProvider{}, nil)
+				Return(&actor.CertificateProviderProvidedDetails{}, nil)
 			certificateProviderStore.
 				On("Put", r.Context(), tc.cp).
 				Return(nil)
@@ -236,9 +236,9 @@ func TestPostEnterDateOfBirthWhenCPHasAlreadyWitnessed(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 	certificateProviderStore.
-		On("Put", r.Context(), &actor.CertificateProvider{
+		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{
 			DateOfBirth: date.New("1983", "1", "2"),
 		}).
 		Return(nil)
@@ -248,7 +248,7 @@ func TestPostEnterDateOfBirthWhenCPHasAlreadyWitnessed(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderYourAddress, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity, resp.Header.Get("Location"))
 }
 
 func TestPostEnterDateOfBirthWhenInputRequired(t *testing.T) {
@@ -302,7 +302,7 @@ func TestPostEnterDateOfBirthWhenInputRequired(t *testing.T) {
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
 				On("Get", r.Context()).
-				Return(&actor.CertificateProvider{}, nil)
+				Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 			err := EnterDateOfBirth(template.Execute, lpaStore, certificateProviderStore)(testAppData, w, r)
 			resp := w.Result()

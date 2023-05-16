@@ -16,6 +16,8 @@ type ShareCodeData struct {
 	Identity              bool
 	AttorneyID            string
 	IsReplacementAttorney bool
+	DonorFullname         string
+	DonorFirstNames       string
 }
 
 type ShareCodeSender struct {
@@ -49,18 +51,20 @@ func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template 
 	}
 
 	if err := s.dataStore.Put(ctx, "CERTIFICATEPROVIDERSHARE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
-		LpaID:    appData.LpaID,
-		Identity: identity,
+		LpaID:           appData.LpaID,
+		Identity:        identity,
+		DonorFullname:   lpa.Donor.FullName(),
+		DonorFirstNames: lpa.Donor.FirstNames,
 	}); err != nil {
 		return fmt.Errorf("creating sharecode failed: %w", err)
 	}
 
 	if _, err := s.notifyClient.Email(ctx, notify.Email{
 		TemplateID:   s.notifyClient.TemplateID(template),
-		EmailAddress: lpa.CertificateProviderDetails.Email,
+		EmailAddress: lpa.CertificateProvider.Email,
 		Personalisation: map[string]string{
 			"shareCode":         shareCode,
-			"cpFullName":        lpa.CertificateProviderDetails.FullName(),
+			"cpFullName":        lpa.CertificateProvider.FullName(),
 			"donorFirstNames":   lpa.Donor.FirstNames,
 			"donorFullName":     lpa.Donor.FullName(),
 			"lpaLegalTerm":      appData.Localizer.T(lpa.TypeLegalTermTransKey()),

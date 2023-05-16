@@ -34,9 +34,9 @@ type LpaStore interface {
 
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
 type CertificateProviderStore interface {
-	Create(ctx context.Context) (*actor.CertificateProvider, error)
-	Get(ctx context.Context) (*actor.CertificateProvider, error)
-	Put(ctx context.Context, certificateProvider *actor.CertificateProvider) error
+	Create(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
+	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
+	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
 }
 
 //go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
@@ -104,21 +104,19 @@ func Register(
 	handleRoot(page.Paths.CertificateProviderStart, None,
 		Guidance(tmpls.Get("certificate_provider_start.gohtml"), nil, nil))
 	handleRoot(page.Paths.CertificateProviderEnterReferenceNumber, None,
-		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), dataStore))
+		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), dataStore, sessionStore))
+	handleRoot(page.Paths.CertificateProviderWhoIsEligible, None,
+		WhoIsEligible(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), sessionStore))
 	handleRoot(page.Paths.CertificateProviderLogin, None,
 		Login(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.CertificateProviderLoginCallback, None,
 		LoginCallback(oneLoginClient, sessionStore, certificateProviderStore))
-	handleRoot(page.Paths.CertificateProviderWhoIsEligible, RequireSession,
-		Guidance(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), lpaStore, nil))
 	handleRoot(page.Paths.CertificateProviderCheckYourName, RequireSession,
 		CheckYourName(tmpls.Get("certificate_provider_check_your_name.gohtml"), lpaStore, notifyClient, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderEnterDateOfBirth, RequireSession,
 		EnterDateOfBirth(tmpls.Get("certificate_provider_enter_date_of_birth.gohtml"), lpaStore, certificateProviderStore))
 	handleRoot(page.Paths.CertificateProviderEnterMobileNumber, RequireSession,
 		EnterMobileNumber(tmpls.Get("certificate_provider_enter_mobile_number.gohtml"), lpaStore, certificateProviderStore))
-	handleRoot(page.Paths.CertificateProviderYourAddress, RequireSession,
-		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, certificateProviderStore))
 
 	handleRoot(page.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity, RequireSession,
 		Guidance(tmpls.Get("certificate_provider_what_youll_need_to_confirm_your_identity.gohtml"), lpaStore, nil))

@@ -293,7 +293,7 @@ func warning(app page.AppData, content string) map[string]interface{} {
 	}
 }
 
-func progressBar(app page.AppData, lpa *page.Lpa, certificateProvider *actor.CertificateProvider) map[string]interface{} {
+func progressBar(app page.AppData, lpa *page.Lpa, certificateProvider *actor.CertificateProviderProvidedDetails) map[string]interface{} {
 	return map[string]interface{}{
 		"App":                 app,
 		"Lpa":                 lpa,

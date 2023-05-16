@@ -15,22 +15,28 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string, shareCodeSender shareCodeSender, localizer Localizer, certificateProviderStore CertificateProviderStore, logger *logging.Logger, now func() time.Time) http.HandlerFunc {
+func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string, shareCodeSender shareCodeSender, localizer Localizer, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, logger *logging.Logger, now func() time.Time) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		donorSub := randomString(16)
-		donorSessionID := base64.StdEncoding.EncodeToString([]byte(donorSub))
+		var (
+			donorSub    = randomString(16)
+			cpSub       = randomString(16)
+			attorneySub = randomString(16)
 
-		cpSub := randomString(16)
-		cpSessionID := base64.StdEncoding.EncodeToString([]byte(cpSub))
+			donorSessionID    = base64.StdEncoding.EncodeToString([]byte(donorSub))
+			cpSessionID       = base64.StdEncoding.EncodeToString([]byte(cpSub))
+			attorneySessionID = base64.StdEncoding.EncodeToString([]byte(attorneySub))
+		)
 
 		lpa, err := lpaStore.Create(ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID}))
 		if err != nil {
 			logger.Print("creating lpa ", err)
 		}
 
-		donorCtx := ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
-
-		cpCtx := ContextWithSessionData(r.Context(), &SessionData{SessionID: cpSessionID, LpaID: lpa.ID})
+		var (
+			donorCtx    = ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
+			cpCtx       = ContextWithSessionData(r.Context(), &SessionData{SessionID: cpSessionID, LpaID: lpa.ID})
+			attorneyCtx = ContextWithSessionData(r.Context(), &SessionData{SessionID: attorneySessionID, LpaID: lpa.ID})
+		)
 
 		if r.FormValue("withDonorDetails") != "" || r.FormValue("completeLpa") != "" {
 			CompleteDonorDetails(lpa)
@@ -75,8 +81,8 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
 			lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
 
-			lpa.Tasks.ChooseAttorneys = TaskInProgress
-			lpa.Tasks.ChooseReplacementAttorneys = TaskInProgress
+			lpa.Tasks.ChooseAttorneys = actor.TaskInProgress
+			lpa.Tasks.ChooseReplacementAttorneys = actor.TaskInProgress
 		}
 
 		if r.FormValue("howAttorneysAct") != "" {
@@ -100,7 +106,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 		}
 
 		if r.FormValue("withCPDetails") != "" || r.FormValue("completeLpa") != "" {
-			AddCertificateProviderDetails(lpa, "Jessie")
+			AddCertificateProvider(lpa, "Jessie")
 		}
 
 		if r.FormValue("withPeopleToNotify") != "" || r.FormValue("completeLpa") != "" {
@@ -121,7 +127,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				joanna,
 			}
 
-			lpa.Tasks.PeopleToNotify = TaskInProgress
+			lpa.Tasks.PeopleToNotify = actor.TaskInProgress
 		}
 
 		if r.FormValue("lpaChecked") != "" || r.FormValue("completeLpa") != "" {
@@ -149,6 +155,10 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			shareCodeSender.UseTestCode()
 		}
 
+		if r.FormValue("withShareCodeSession") != "" {
+			sesh.SetShareCode(store, r, w, &sesh.ShareCodeSession{LpaID: lpa.ID, Identity: false})
+		}
+
 		if r.FormValue("startCpFlowDonorHasPaid") != "" || r.FormValue("startCpFlowDonorHasNotPaid") != "" {
 			CompleteSectionOne(lpa)
 
@@ -156,10 +166,10 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 				PayForLpa(lpa, store, r, w, randomString(12))
 			}
 
-			lpa.CertificateProviderDetails.Email = TestEmail
+			lpa.CertificateProvider.Email = TestEmail
 
 			if r.FormValue("withEmail") != "" {
-				lpa.CertificateProviderDetails.Email = r.FormValue("withEmail")
+				lpa.CertificateProvider.Email = r.FormValue("withEmail")
 			}
 
 			shareCodeSender.SendCertificateProvider(donorCtx, notify.CertificateProviderInviteEmail, AppData{
@@ -193,13 +203,6 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			if r.FormValue("provideCertificate") != "" {
 				certificateProvider.Mobile = TestMobile
 				certificateProvider.Email = TestEmail
-				certificateProvider.Address = place.Address{
-					Line1:      "5 RICHMOND PLACE",
-					Line2:      "KINGS HEATH",
-					Line3:      "WEST MIDLANDS",
-					TownOrCity: "BIRMINGHAM",
-					Postcode:   "B14 7ED",
-				}
 
 				certificateProvider.Certificate = actor.Certificate{
 					AgreeToStatement: true,
@@ -229,13 +232,6 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 
 			certificateProvider.Mobile = TestMobile
 			certificateProvider.Email = TestEmail
-			certificateProvider.Address = place.Address{
-				Line1:      "5 RICHMOND PLACE",
-				Line2:      "KINGS HEATH",
-				Line3:      "WEST MIDLANDS",
-				TownOrCity: "BIRMINGHAM",
-				Postcode:   "B14 7ED",
-			}
 
 			err = certificateProviderStore.Put(cpCtx, certificateProvider)
 			if err != nil {
@@ -247,23 +243,31 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 
 		if r.FormValue("asAttorney") != "" {
 			_ = sesh.SetAttorney(store, r, w, &sesh.AttorneySession{
-				Sub:            randomString(12),
-				Email:          TestEmail,
-				DonorSessionID: donorSessionID,
-				AttorneyID:     lpa.Attorneys[0].ID,
-				LpaID:          lpa.ID,
+				Sub:        attorneySub,
+				Email:      TestEmail,
+				AttorneyID: lpa.Attorneys[0].ID,
+				LpaID:      lpa.ID,
 			})
+
+			_, err := attorneyStore.Create(attorneyCtx, false)
+			if err != nil {
+				logger.Print("asAttorney:", err)
+			}
 		}
 
 		if r.FormValue("asReplacementAttorney") != "" {
 			_ = sesh.SetAttorney(store, r, w, &sesh.AttorneySession{
-				Sub:                   randomString(12),
+				Sub:                   attorneySub,
 				Email:                 TestEmail,
-				DonorSessionID:        donorSessionID,
 				AttorneyID:            lpa.ReplacementAttorneys[0].ID,
 				LpaID:                 lpa.ID,
 				IsReplacementAttorney: true,
 			})
+
+			_, err := attorneyStore.Create(attorneyCtx, true)
+			if err != nil {
+				logger.Print("asReplacementAttorney:", err)
+			}
 		}
 
 		if r.FormValue("sendAttorneyShare") != "" {

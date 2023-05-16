@@ -15,7 +15,7 @@ func TestGuidance(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpa := &page.Lpa{}
-	certificateProvider := &actor.CertificateProvider{}
+	certificateProvider := &actor.CertificateProviderProvidedDetails{}
 
 	lpaStore := newMockLpaStore(t)
 	lpaStore.
@@ -79,7 +79,7 @@ func TestGuidanceWhenCertificateProviderStoreErrors(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, expectedError)
+		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := Guidance(nil, nil, certificateProviderStore)(testAppData, w, r)
 

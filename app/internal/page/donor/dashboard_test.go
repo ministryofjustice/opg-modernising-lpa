@@ -16,8 +16,8 @@ func TestGetDashboard(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	dashboardLpaData := []DashboardLpaDatum{
-		{Lpa: &page.Lpa{ID: "123"}, CertificateProvider: &actor.CertificateProvider{}},
-		{Lpa: &page.Lpa{ID: "456"}, CertificateProvider: &actor.CertificateProvider{}},
+		{Lpa: &page.Lpa{ID: "123"}, CertificateProvider: &actor.CertificateProviderProvidedDetails{}},
+		{Lpa: &page.Lpa{ID: "456"}, CertificateProvider: &actor.CertificateProviderProvidedDetails{}},
 	}
 
 	lpaStore := newMockLpaStore(t)
@@ -30,12 +30,12 @@ func TestGetDashboard(t *testing.T) {
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
 	certificateProviderStore.
 		On("Get", ctx).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	ctx = page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "456"})
 	certificateProviderStore.
 		On("Get", ctx).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -54,7 +54,7 @@ func TestGetDashboardWhenCertificateProviderDoesNotExist(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	dashboardLpaData := []DashboardLpaDatum{
-		{Lpa: &page.Lpa{ID: "123"}, CertificateProvider: &actor.CertificateProvider{}},
+		{Lpa: &page.Lpa{ID: "123"}, CertificateProvider: &actor.CertificateProviderProvidedDetails{}},
 	}
 
 	lpaStore := newMockLpaStore(t)
@@ -67,7 +67,7 @@ func TestGetDashboardWhenCertificateProviderDoesNotExist(t *testing.T) {
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
 	certificateProviderStore.
 		On("Get", ctx).
-		Return(&actor.CertificateProvider{}, dynamo.NotFoundError{})
+		Return(&actor.CertificateProviderProvidedDetails{}, dynamo.NotFoundError{})
 
 	template := newMockTemplate(t)
 	template.
@@ -111,7 +111,7 @@ func TestGetDashboardWhenCertificateProviderStoreErrors(t *testing.T) {
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
 	certificateProviderStore.
 		On("Get", ctx).
-		Return(&actor.CertificateProvider{}, expectedError)
+		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := Dashboard(nil, lpaStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
@@ -125,7 +125,7 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	dashboardLpaData := []DashboardLpaDatum{
-		{Lpa: &page.Lpa{ID: "123"}, CertificateProvider: &actor.CertificateProvider{}},
+		{Lpa: &page.Lpa{ID: "123"}, CertificateProvider: &actor.CertificateProviderProvidedDetails{}},
 	}
 
 	lpaStore := newMockLpaStore(t)
@@ -138,7 +138,7 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
 	certificateProviderStore.
 		On("Get", ctx).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.

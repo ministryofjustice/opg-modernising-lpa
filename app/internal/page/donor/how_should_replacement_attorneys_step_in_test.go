@@ -147,7 +147,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 		HowReplacementAttorneysMakeDecisions string
 		HowShouldReplacementAttorneysStepIn  string
 		ExpectedRedirectUrl                  string
-		TaskState                            page.TaskState
+		TaskState                            actor.TaskState
 	}{
 		"multiple attorneys acting jointly and severally replacements step in when none left": {
 			Attorneys: actor.Attorneys{
@@ -161,7 +161,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: page.AllCanNoLongerAct,
 			ExpectedRedirectUrl:                 "/lpa/lpa-id" + page.Paths.HowShouldReplacementAttorneysMakeDecisions,
-			TaskState:                           page.TaskInProgress,
+			TaskState:                           actor.TaskInProgress,
 		},
 		"multiple attorneys acting jointly": {
 			ReplacementAttorneys: actor.Attorneys{
@@ -172,7 +172,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			HowShouldReplacementAttorneysStepIn:  page.OneCanNoLongerAct,
 			HowReplacementAttorneysMakeDecisions: actor.Jointly,
 			ExpectedRedirectUrl:                  "/lpa/lpa-id" + page.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan,
-			TaskState:                            page.TaskInProgress,
+			TaskState:                            actor.TaskInProgress,
 		},
 		"multiple attorneys acting jointly and severally replacements step in when one loses capacity": {
 			Attorneys: actor.Attorneys{
@@ -182,7 +182,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: page.OneCanNoLongerAct,
 			ExpectedRedirectUrl:                 "/lpa/lpa-id" + page.Paths.TaskList,
-			TaskState:                           page.TaskNotStarted,
+			TaskState:                           actor.TaskNotStarted,
 		},
 		"multiple attorneys acting jointly and severally": {
 			Attorneys: actor.Attorneys{
@@ -196,7 +196,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: page.OneCanNoLongerAct,
 			ExpectedRedirectUrl:                 "/lpa/lpa-id" + page.Paths.TaskList,
-			TaskState:                           page.TaskInProgress,
+			TaskState:                           actor.TaskInProgress,
 		},
 	}
 

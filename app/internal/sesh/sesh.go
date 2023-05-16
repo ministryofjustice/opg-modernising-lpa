@@ -55,6 +55,7 @@ func init() {
 	gob.Register(&CertificateProviderSession{})
 	gob.Register(&AttorneySession{})
 	gob.Register(&PaymentSession{})
+	gob.Register(&ShareCodeSession{})
 }
 
 type OneLoginSession struct {
@@ -226,7 +227,6 @@ type AttorneySession struct {
 	Sub                   string
 	Email                 string
 	LpaID                 string
-	DonorSessionID        string
 	AttorneyID            string
 	IsReplacementAttorney bool
 }
@@ -309,4 +309,44 @@ func ClearPayment(store Store, r *http.Request, w http.ResponseWriter) error {
 	session.Values = map[any]any{}
 	session.Options.MaxAge = -1
 	return store.Save(r, w, session)
+}
+
+type ShareCodeSession struct {
+	LpaID           string
+	Identity        bool
+	DonorFullName   string
+	DonorFirstNames string
+}
+
+func (s ShareCodeSession) Valid() bool {
+	return s.LpaID != ""
+}
+
+func SetShareCode(store sessions.Store, r *http.Request, w http.ResponseWriter, shareCodeSession *ShareCodeSession) error {
+	session := sessions.NewSession(store, "shareCode")
+	session.Values = map[any]any{"share-code": shareCodeSession}
+	session.Options = sessionCookieOptions
+	return store.Save(r, w, session)
+}
+
+func ShareCode(store sessions.Store, r *http.Request) (*ShareCodeSession, error) {
+	params, err := store.Get(r, "shareCode")
+	if err != nil {
+		return nil, err
+	}
+
+	session, ok := params.Values["share-code"]
+	if !ok {
+		return nil, MissingSessionError("share-code")
+	}
+
+	shareCodeSession, ok := session.(*ShareCodeSession)
+	if !ok {
+		return nil, MissingSessionError("share-code")
+	}
+	if !shareCodeSession.Valid() {
+		return nil, InvalidSessionError("share-code")
+	}
+
+	return shareCodeSession, nil
 }

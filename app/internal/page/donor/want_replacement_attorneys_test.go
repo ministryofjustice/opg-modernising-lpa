@@ -133,14 +133,14 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 		lpaType                      string
 		existingReplacementAttorneys actor.Attorneys
 		expectedReplacementAttorneys actor.Attorneys
-		taskState                    page.TaskState
+		taskState                    actor.TaskState
 		redirectURL                  string
 	}{
 		"yes": {
 			want:                         "yes",
 			existingReplacementAttorneys: actor.Attorneys{{ID: "123"}},
 			expectedReplacementAttorneys: actor.Attorneys{{ID: "123"}},
-			taskState:                    page.TaskInProgress,
+			taskState:                    actor.TaskInProgress,
 			redirectURL:                  page.Paths.ChooseReplacementAttorneys,
 		},
 		"no pfa": {
@@ -151,7 +151,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 				{ID: "345"},
 			},
 			expectedReplacementAttorneys: actor.Attorneys{},
-			taskState:                    page.TaskCompleted,
+			taskState:                    actor.TaskCompleted,
 			redirectURL:                  page.Paths.WhenCanTheLpaBeUsed,
 		},
 		"no hw": {
@@ -162,7 +162,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 				{ID: "345"},
 			},
 			expectedReplacementAttorneys: actor.Attorneys{},
-			taskState:                    page.TaskCompleted,
+			taskState:                    actor.TaskCompleted,
 			redirectURL:                  page.Paths.LifeSustainingTreatment,
 		},
 	}
@@ -183,14 +183,14 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 				Return(&page.Lpa{
 					Type:                 tc.lpaType,
 					ReplacementAttorneys: tc.existingReplacementAttorneys,
-					Tasks:                page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
+					Tasks:                page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), &page.Lpa{
 					Type:                     tc.lpaType,
 					WantReplacementAttorneys: tc.want,
 					ReplacementAttorneys:     tc.expectedReplacementAttorneys,
-					Tasks:                    page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted, ChooseReplacementAttorneys: tc.taskState},
+					Tasks:                    page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, ChooseReplacementAttorneys: tc.taskState},
 				}).
 				Return(nil)
 

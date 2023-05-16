@@ -71,14 +71,14 @@ func TestLoginCallback(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Create", ctx).
-		Return(&actor.CertificateProvider{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	err := LoginCallback(client, sessionStore, certificateProviderStore)(testAppData, w, r)
 	assert.Nil(t, err)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderWhoIsEligible, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProviderEnterDateOfBirth, resp.Header.Get("Location"))
 }
 
 func TestLoginCallbackWhenCertificateProviderExists(t *testing.T) {
@@ -137,14 +137,14 @@ func TestLoginCallbackWhenCertificateProviderExists(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Create", ctx).
-		Return(&actor.CertificateProvider{}, &types.ConditionalCheckFailedException{})
+		Return(&actor.CertificateProviderProvidedDetails{}, &types.ConditionalCheckFailedException{})
 
 	err := LoginCallback(client, sessionStore, certificateProviderStore)(testAppData, w, r)
 	assert.Nil(t, err)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderWhoIsEligible, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProviderEnterDateOfBirth, resp.Header.Get("Location"))
 }
 
 func TestLoginCallbackSessionMissing(t *testing.T) {
@@ -304,7 +304,7 @@ func TestLoginCallbackOnCertificateProviderStoreError(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Create", ctx).
-		Return(&actor.CertificateProvider{}, expectedError)
+		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := LoginCallback(client, sessionStore, certificateProviderStore)(testAppData, w, r)
 	assert.Equal(t, expectedError, err)

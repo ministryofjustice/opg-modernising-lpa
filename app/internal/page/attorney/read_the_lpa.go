@@ -16,7 +16,7 @@ type readTheLpaData struct {
 	Attorney actor.Attorney
 }
 
-func ReadTheLpa(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func ReadTheLpa(tmpl template.Template, lpaStore LpaStore, attorneyStore AttorneyStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStore.Get(r.Context())
 		if err != nil {
@@ -33,6 +33,11 @@ func ReadTheLpa(tmpl template.Template, lpaStore LpaStore) page.Handler {
 			return appData.Redirect(w, r, lpa, page.Paths.Attorney.Start)
 		}
 
+		attorneyProvidedDetails, err := attorneyStore.Get(r.Context())
+		if err != nil {
+			return err
+		}
+
 		data := &readTheLpaData{
 			App:      appData,
 			Lpa:      lpa,
@@ -40,11 +45,9 @@ func ReadTheLpa(tmpl template.Template, lpaStore LpaStore) page.Handler {
 		}
 
 		if r.Method == http.MethodPost {
-			tasks := getTasks(appData, lpa)
-			tasks.ReadTheLpa = page.TaskCompleted
-			setTasks(appData, lpa, tasks)
+			attorneyProvidedDetails.Tasks.ReadTheLpa = actor.TaskCompleted
 
-			if err := lpaStore.Put(r.Context(), lpa); err != nil {
+			if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
 				return err
 			}
 

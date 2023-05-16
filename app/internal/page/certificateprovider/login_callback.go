@@ -51,6 +51,6 @@ func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store, certi
 			}
 		}
 
-		return appData.Redirect(w, r, nil, page.Paths.CertificateProviderWhoIsEligible)
+		return appData.Redirect(w, r, nil, page.Paths.CertificateProviderEnterDateOfBirth)
 	}
 }

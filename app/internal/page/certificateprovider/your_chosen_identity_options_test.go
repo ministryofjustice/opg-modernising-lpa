@@ -19,7 +19,7 @@ func TestGetYourChosenIdentityOptions(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{IdentityOption: identity.Passport}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{IdentityOption: identity.Passport}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -43,7 +43,7 @@ func TestGetYourChosenIdentityOptionsWhenStoreErrors(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{}, expectedError)
+		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := YourChosenIdentityOptions(nil, certificateProviderStore)(testAppData, w, r)
 
@@ -57,7 +57,7 @@ func TestGetYourChosenIdentityOptionsWhenTemplateErrors(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{IdentityOption: identity.Passport}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{IdentityOption: identity.Passport}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -78,7 +78,7 @@ func TestPostYourChosenIdentityOptions(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProvider{IdentityOption: identity.Passport}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{IdentityOption: identity.Passport}, nil)
 
 	err := YourChosenIdentityOptions(nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()

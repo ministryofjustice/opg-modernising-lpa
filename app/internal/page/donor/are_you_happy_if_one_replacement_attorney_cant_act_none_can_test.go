@@ -89,7 +89,7 @@ func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCan(t *testing.T) {
 			lpa: &page.Lpa{
 				Type:                         page.LpaTypeHealthWelfare,
 				ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfOneCannotActNoneCan: "yes"},
-				Tasks:                        page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
+				Tasks:                        page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 			},
 			redirect: page.Paths.LifeSustainingTreatment,
 		},
@@ -99,7 +99,7 @@ func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCan(t *testing.T) {
 			lpa: &page.Lpa{
 				Type:                         page.LpaTypePropertyFinance,
 				ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfOneCannotActNoneCan: "yes"},
-				Tasks:                        page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
+				Tasks:                        page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 			},
 			redirect: page.Paths.WhenCanTheLpaBeUsed,
 		},
@@ -107,7 +107,7 @@ func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCan(t *testing.T) {
 			happy: "no",
 			lpa: &page.Lpa{
 				ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfOneCannotActNoneCan: "no"},
-				Tasks:                        page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
+				Tasks:                        page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 			},
 			redirect: page.Paths.AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct,
 		},
@@ -128,7 +128,7 @@ func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCan(t *testing.T) {
 				On("Get", r.Context()).
 				Return(&page.Lpa{
 					Type:  tc.lpaType,
-					Tasks: page.Tasks{YourDetails: page.TaskCompleted, ChooseAttorneys: page.TaskCompleted},
+					Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 				}, nil)
 			lpaStore.
 				On("Put", r.Context(), tc.lpa).
