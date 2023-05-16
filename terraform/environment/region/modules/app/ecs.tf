@@ -328,6 +328,10 @@ locals {
           name  = "AWS_RUM_APPLICATION_REGION",
           value = data.aws_region.current.name
         },
+        {
+          name  = "UID_BASE_URL",
+          value = var.app_env_vars.uid_base_url
+        },
       ]
     }
   )
