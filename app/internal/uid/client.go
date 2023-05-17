@@ -85,7 +85,7 @@ func (c *Client) CreateCase(lpa *page.Lpa) (CreateCaseResponse, error) {
 		return CreateCaseResponse{}, err
 	}
 
-	if createCaseResponse.Errors != nil {
+	if len(createCaseResponse.Errors) > 0 {
 		return CreateCaseResponse{}, createCaseResponse.Error()
 	}
 
