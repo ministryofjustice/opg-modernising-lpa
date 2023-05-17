@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -40,7 +41,13 @@ type CreateCaseBody struct {
 }
 
 type CreateCaseResponse struct {
-	Uid string
+	Uid    string
+	Errors []CreateCaseResponseError
+}
+
+type CreateCaseResponseError struct {
+	Source string
+	Detail string
 }
 
 func (c *Client) CreateCase(lpa *page.Lpa) (CreateCaseResponse, error) {
@@ -78,6 +85,10 @@ func (c *Client) CreateCase(lpa *page.Lpa) (CreateCaseResponse, error) {
 		return CreateCaseResponse{}, err
 	}
 
+	if createCaseResponse.Errors != nil {
+		return CreateCaseResponse{}, createCaseResponse.Error()
+	}
+
 	return createCaseResponse, nil
 }
 
@@ -94,4 +105,21 @@ func Valid(lpa *page.Lpa) bool {
 		lpa.Donor.FullName() != " " &&
 		!lpa.Donor.DateOfBirth.IsZero() &&
 		lpa.Donor.Address.Postcode != ""
+}
+
+func (c *CreateCaseResponse) Error() error {
+	if len(c.Errors) > 0 {
+		detail := c.Errors[0].Detail
+
+		c.Errors = append(c.Errors[:0], c.Errors[0+1:]...)
+
+		for _, err := range c.Errors {
+			detail = fmt.Sprintf("%s, %s", detail, err.Detail)
+		}
+
+		return errors.New(detail)
+	} else {
+		return nil
+	}
+
 }

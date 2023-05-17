@@ -65,6 +65,7 @@ func TestCreateCase(t *testing.T) {
 	assert.JSONEq(t, expectedBody, requestBody)
 
 	assert.Nil(t, err)
+	assert.Nil(t, resp.Errors)
 	assert.Equal(t, "M-789Q-P4DF-4UX3", resp.Uid)
 }
 
@@ -157,4 +158,55 @@ func TestValid(t *testing.T) {
 	}
 
 	assert.True(t, Valid(validLpa))
+}
+
+func TestCreateCaseOnBadRequestResponse(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+
+		w.Write([]byte(`{"code":"INVALID_REQUEST","detail":"string","errors":[{"source":"/donor/dob","detail":"must match format YYYY-MM-DD"}]}`))
+	}))
+
+	defer server.Close()
+
+	client := New(server.URL, server.Client())
+	resp, err := client.CreateCase(validLpa)
+
+	assert.Equal(t, errors.New("must match format YYYY-MM-DD"), err)
+	assert.Equal(t, "", resp.Uid)
+}
+
+func TestCreateCaseResponseError(t *testing.T) {
+	testCases := map[string]struct {
+		response      []byte
+		expectedError error
+	}{
+		"single error": {
+			response:      []byte(`{"code":"INVALID_REQUEST","detail":"string","errors":[{"source":"/donor/dob","detail":"must match format YYYY-MM-DD"}]}`),
+			expectedError: errors.New("must match format YYYY-MM-DD"),
+		},
+		"multiple errors": {
+			response:      []byte(`{"code":"INVALID_REQUEST","detail":"string","errors":[{"source":"/donor/dob","detail":"must match format YYYY-MM-DD"},{"source":"/donor/dob","detail":"some other error"}]}`),
+			expectedError: errors.New("must match format YYYY-MM-DD, some other error"),
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				defer r.Body.Close()
+
+				w.Write(tc.response)
+			}))
+
+			defer server.Close()
+
+			client := New(server.URL, server.Client())
+			resp, err := client.CreateCase(validLpa)
+
+			assert.Equal(t, tc.expectedError, err)
+			assert.Equal(t, "", resp.Uid)
+		})
+
+	}
 }
