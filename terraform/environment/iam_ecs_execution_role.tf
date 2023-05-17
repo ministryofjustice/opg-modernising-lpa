@@ -29,10 +29,10 @@ data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id_eu_west_1" {
   provider = aws.eu_west_1
 }
 
-data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id_eu_west_2" {
-  name     = "rum-monitor-identity-pool-id-eu-west-2"
-  provider = aws.eu_west_2
-}
+# data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id_eu_west_2" {
+#   name     = "rum-monitor-identity-pool-id-eu-west-2"
+#   provider = aws.eu_west_2
+# }
 
 data "aws_kms_alias" "secrets_manager_secret_encryption_key_eu_west_1" {
   name     = "alias/${local.default_tags.application}_secrets_manager_secret_encryption_key"
@@ -82,7 +82,7 @@ data "aws_iam_policy_document" "execution_role" {
 
     resources = [
       data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_1.arn,
-      data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_2.arn,
+      # data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_2.arn,
       aws_secretsmanager_secret.rum_monitor_application_id_eu_west_1.arn,
       aws_secretsmanager_secret.rum_monitor_application_id_eu_west_2.arn,
     ]

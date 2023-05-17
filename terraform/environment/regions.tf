@@ -55,7 +55,7 @@ module "eu_west_2" {
   }
   app_env_vars                                          = local.environment.app.env
   public_access_enabled                                 = var.public_access_enabled
-  rum_monitor_identity_pool_id_secretsmanager_secret_id = data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_2.arn # would be updated to eu_west_2 when that region exists
+  rum_monitor_identity_pool_id_secretsmanager_secret_id = data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_1.arn # would be updated to eu_west_2 when that region exists
   rum_monitor_application_id_secretsmanager_secret_id   = aws_secretsmanager_secret.rum_monitor_application_id_eu_west_2.id
   providers = {
     aws.region = aws.eu_west_2
