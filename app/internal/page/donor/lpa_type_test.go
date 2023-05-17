@@ -33,7 +33,7 @@ func TestGetLpaType(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, lpaStore, nil)(testAppData, w, r)
+	err := LpaType(template.Execute, lpaStore, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -57,7 +57,7 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, lpaStore, nil)(testAppData, w, r)
+	err := LpaType(template.Execute, lpaStore, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -73,7 +73,7 @@ func TestGetLpaTypeWhenStoreErrors(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := LpaType(nil, lpaStore, nil)(testAppData, w, r)
+	err := LpaType(nil, lpaStore, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -96,7 +96,7 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := LpaType(template.Execute, lpaStore, nil)(testAppData, w, r)
+	err := LpaType(template.Execute, lpaStore, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -142,7 +142,12 @@ func TestPostLpaType(t *testing.T) {
 		On("CreateCase", updatedLpa).
 		Return(uid.CreateCaseResponse{Uid: "M-789Q-P4DF-4UX3"}, nil)
 
-	err := LpaType(nil, lpaStore, uidClient)(testAppData, w, r)
+	logger := newMockLogger(t)
+	logger.
+		On("Print", "case created with UID: M-789Q-P4DF-4UX3").
+		Return(nil)
+
+	err := LpaType(nil, lpaStore, uidClient, logger)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -167,7 +172,7 @@ func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := LpaType(nil, lpaStore, nil)(testAppData, w, r)
+	err := LpaType(nil, lpaStore, nil, nil)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -208,7 +213,7 @@ func TestPostLpaTypeWhenUidClientErrors(t *testing.T) {
 		On("CreateCase", mock.Anything).
 		Return(uid.CreateCaseResponse{}, expectedError)
 
-	err := LpaType(nil, lpaStore, uidClient)(testAppData, w, r)
+	err := LpaType(nil, lpaStore, uidClient, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -233,7 +238,7 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, lpaStore, nil)(testAppData, w, r)
+	err := LpaType(template.Execute, lpaStore, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
