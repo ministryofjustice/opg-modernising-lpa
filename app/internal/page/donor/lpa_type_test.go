@@ -186,7 +186,7 @@ func TestPostLpaTypeWhenUidClientErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockLpaStore(t)
+	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Donor: actor.Donor{
