@@ -15,7 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) string, shareCodeSender shareCodeSender, localizer Localizer, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, logger *logging.Logger, now func() time.Time) http.HandlerFunc {
+func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int) string, shareCodeSender shareCodeSender, localizer Localizer, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, logger *logging.Logger, now func() time.Time) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var (
 			donorSub    = randomString(16)
@@ -27,7 +27,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			attorneySessionID = base64.StdEncoding.EncodeToString([]byte(attorneySub))
 		)
 
-		lpa, err := lpaStore.Create(ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID}))
+		lpa, err := donorStore.Create(ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID}))
 		if err != nil {
 			logger.Print("creating lpa ", err)
 		}
@@ -300,7 +300,7 @@ func TestingStart(store sesh.Store, lpaStore LpaStore, randomString func(int) st
 			_ = sesh.SetDonor(store, r, w, donorSesh)
 		}
 
-		err = lpaStore.Put(donorCtx, lpa)
+		err = donorStore.Put(donorCtx, lpa)
 		if err != nil {
 			logger.Print("putting lpa ", err)
 		}

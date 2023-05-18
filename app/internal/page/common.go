@@ -25,12 +25,10 @@ type Logger interface {
 	Request(*http.Request, error)
 }
 
-//go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
-type DataStore interface {
-	Get(ctx context.Context, pk, sk string, v interface{}) error
-	Put(context.Context, string, string, interface{}) error
-	GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
-	GetAllByGsi(ctx context.Context, gsi, sk string, v interface{}) error
+//go:generate mockery --testonly --inpackage --name ShareCodeStore --structname mockShareCodeStore
+type ShareCodeStore interface {
+	Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error
 }
 
 //go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient
@@ -48,26 +46,21 @@ type OneLoginClient interface {
 	ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error)
 }
 
-//go:generate mockery --testonly --inpackage --name LpaStore --structname mockLpaStore
-type LpaStore interface {
+//go:generate mockery --testonly --inpackage --name DonorStore --structname mockDonorStore
+type DonorStore interface {
 	Create(context.Context) (*Lpa, error)
-	GetAll(context.Context) ([]*Lpa, error)
-	Get(context.Context) (*Lpa, error)
 	Put(context.Context, *Lpa) error
 }
 
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
 type CertificateProviderStore interface {
-	Create(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
-	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
-	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
+	Create(context.Context) (*actor.CertificateProviderProvidedDetails, error)
+	Put(context.Context, *actor.CertificateProviderProvidedDetails) error
 }
 
 //go:generate mockery --testonly --inpackage --name AttorneyStore --structname mockAttorneyStore
 type AttorneyStore interface {
 	Create(context.Context, bool) (*actor.AttorneyProvidedDetails, error)
-	Get(context.Context) (*actor.AttorneyProvidedDetails, error)
-	Put(context.Context, *actor.AttorneyProvidedDetails) error
 }
 
 //go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore

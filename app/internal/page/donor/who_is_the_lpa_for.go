@@ -14,9 +14,9 @@ type whoIsTheLpaForData struct {
 	WhoFor string
 }
 
-func WhoIsTheLpaFor(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func WhoIsTheLpaFor(tmpl template.Template, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -32,7 +32,7 @@ func WhoIsTheLpaFor(tmpl template.Template, lpaStore LpaStore) page.Handler {
 
 			if data.Errors.None() {
 				lpa.WhoFor = form.WhoFor
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 

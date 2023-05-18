@@ -80,7 +80,7 @@ func TestCertificateProviderStoreGetMissingLpaIDInSessionData(t *testing.T) {
 	certificateProviderStore := &certificateProviderStore{}
 
 	_, err := certificateProviderStore.Get(ctx)
-	assert.Equal(t, errors.New("certificateProviderStore.Get requires LpaID to retrieve"), err)
+	assert.Equal(t, errors.New("certificateProviderStore.Get requires LpaID"), err)
 }
 
 func TestCertificateProviderStoreGetOnError(t *testing.T) {
@@ -160,6 +160,6 @@ func TestCertificateProviderStorePutMissingRequiredSessionData(t *testing.T) {
 		certificateProviderStore := &certificateProviderStore{dataStore: nil}
 
 		err := certificateProviderStore.Put(ctx, &actor.CertificateProviderProvidedDetails{})
-		assert.Equal(t, errors.New("certificateProviderStore.Put requires LpaID and SessionID to retrieve"), err)
+		assert.Equal(t, errors.New("certificateProviderStore.Put requires LpaID and SessionID"), err)
 	}
 }

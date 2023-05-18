@@ -21,7 +21,7 @@ func (s *certificateProviderStore) Create(ctx context.Context) (*actor.Certifica
 	}
 
 	if data.LpaID == "" || data.SessionID == "" {
-		return nil, errors.New("certificateProviderStore.Create requires LpaID and SessionID to retrieve")
+		return nil, errors.New("certificateProviderStore.Create requires LpaID and SessionID")
 	}
 
 	pk, sk := makeCertificateProviderKeys(data.LpaID, data.SessionID)
@@ -39,7 +39,7 @@ func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateP
 	}
 
 	if data.LpaID == "" {
-		return nil, errors.New("certificateProviderStore.Get requires LpaID to retrieve")
+		return nil, errors.New("certificateProviderStore.Get requires LpaID")
 	}
 
 	var certificateProvider actor.CertificateProviderProvidedDetails
@@ -60,7 +60,7 @@ func (s *certificateProviderStore) Put(ctx context.Context, certificateProvider 
 	}
 
 	if data.LpaID == "" || data.SessionID == "" {
-		return errors.New("certificateProviderStore.Put requires LpaID and SessionID to retrieve")
+		return errors.New("certificateProviderStore.Put requires LpaID and SessionID")
 	}
 
 	pk, sk := makeCertificateProviderKeys(data.LpaID, data.SessionID)

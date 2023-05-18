@@ -17,9 +17,9 @@ type removePersonToNotifyData struct {
 	Form           *removePersonToNotifyForm
 }
 
-func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaStore) page.Handler {
+func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
 			logger.Print(fmt.Sprintf("error getting lpa from store: %s", err.Error()))
 			return err
@@ -49,7 +49,7 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, lpaStore LpaSto
 						lpa.Tasks.PeopleToNotify = actor.TaskNotStarted
 					}
 
-					if err := lpaStore.Put(r.Context(), lpa); err != nil {
+					if err := donorStore.Put(r.Context(), lpa); err != nil {
 						logger.Print(fmt.Sprintf("error removing PersonToNotify from LPA: %s", err.Error()))
 						return err
 					}

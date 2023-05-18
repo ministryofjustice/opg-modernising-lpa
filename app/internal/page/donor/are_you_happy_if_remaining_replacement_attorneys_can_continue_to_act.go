@@ -15,9 +15,9 @@ type areYouHappyIfRemainingReplacementAttorneysCanContinueToActData struct {
 	Happy  string
 }
 
-func AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(tmpl template.Template, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -35,7 +35,7 @@ func AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(tmpl template.Te
 				lpa.ReplacementAttorneyDecisions.HappyIfRemainingCanContinueToAct = form.Happy
 				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 

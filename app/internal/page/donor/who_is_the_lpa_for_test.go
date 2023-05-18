@@ -16,8 +16,8 @@ func TestGetWhoIsTheLpaFor(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
@@ -28,7 +28,7 @@ func TestGetWhoIsTheLpaFor(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhoIsTheLpaFor(template.Execute, lpaStore)(testAppData, w, r)
+	err := WhoIsTheLpaFor(template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -39,12 +39,12 @@ func TestGetWhoIsTheLpaForWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := WhoIsTheLpaFor(nil, lpaStore)(testAppData, w, r)
+	err := WhoIsTheLpaFor(nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -55,8 +55,8 @@ func TestGetWhoIsTheLpaForFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{WhoFor: "me"}, nil)
 
@@ -68,7 +68,7 @@ func TestGetWhoIsTheLpaForFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhoIsTheLpaFor(template.Execute, lpaStore)(testAppData, w, r)
+	err := WhoIsTheLpaFor(template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -79,8 +79,8 @@ func TestGetWhoIsTheLpaForWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
@@ -91,7 +91,7 @@ func TestGetWhoIsTheLpaForWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := WhoIsTheLpaFor(template.Execute, lpaStore)(testAppData, w, r)
+	err := WhoIsTheLpaFor(template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -107,15 +107,15 @@ func TestPostWhoIsTheLpaFor(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), &page.Lpa{WhoFor: "me"}).
 		Return(nil)
 
-	err := WhoIsTheLpaFor(nil, lpaStore)(testAppData, w, r)
+	err := WhoIsTheLpaFor(nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -132,15 +132,15 @@ func TestPostWhoIsTheLpaForWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), &page.Lpa{WhoFor: "me"}).
 		Return(expectedError)
 
-	err := WhoIsTheLpaFor(nil, lpaStore)(testAppData, w, r)
+	err := WhoIsTheLpaFor(nil, donorStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -150,8 +150,8 @@ func TestPostWhoIsTheLpaForWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
@@ -163,7 +163,7 @@ func TestPostWhoIsTheLpaForWhenValidationErrors(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhoIsTheLpaFor(template.Execute, lpaStore)(testAppData, w, r)
+	err := WhoIsTheLpaFor(template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

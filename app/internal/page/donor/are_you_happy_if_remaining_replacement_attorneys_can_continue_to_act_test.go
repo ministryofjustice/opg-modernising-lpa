@@ -18,8 +18,8 @@ func TestGetAreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(t *testin
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
@@ -30,7 +30,7 @@ func TestGetAreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(t *testin
 		}).
 		Return(nil)
 
-	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(template.Execute, lpaStore)(testAppData, w, r)
+	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -41,12 +41,12 @@ func TestGetAreYouHappyIfRemainingReplacementAttorneysCanContinueToActWhenStoreE
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(nil, lpaStore)(testAppData, w, r)
+	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -57,8 +57,8 @@ func TestGetAreYouHappyIfRemainingReplacementAttorneysCanContinueToActWhenTempla
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
@@ -69,7 +69,7 @@ func TestGetAreYouHappyIfRemainingReplacementAttorneysCanContinueToActWhenTempla
 		}).
 		Return(expectedError)
 
-	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(template.Execute, lpaStore)(testAppData, w, r)
+	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -114,14 +114,14 @@ func TestPostAreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(t *testi
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			donorStore := newMockDonorStore(t)
+			donorStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
 					Type:  tc.lpaType,
 					Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 				}, nil)
-			lpaStore.
+			donorStore.
 				On("Put", r.Context(), &page.Lpa{
 					Type:                         tc.lpaType,
 					ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfRemainingCanContinueToAct: tc.happy},
@@ -129,7 +129,7 @@ func TestPostAreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(t *testi
 				}).
 				Return(nil)
 
-			err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(nil, lpaStore)(testAppData, w, r)
+			err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(nil, donorStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -148,15 +148,15 @@ func TestPostAreYouHappyIfRemainingReplacementAttorneysCanContinueToActWhenStore
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(nil, lpaStore)(testAppData, w, r)
+	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(nil, donorStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -166,8 +166,8 @@ func TestPostAreYouHappyIfRemainingReplacementAttorneysCanContinueToActWhenValid
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
@@ -179,7 +179,7 @@ func TestPostAreYouHappyIfRemainingReplacementAttorneysCanContinueToActWhenValid
 		}).
 		Return(nil)
 
-	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(template.Execute, lpaStore)(testAppData, w, r)
+	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
