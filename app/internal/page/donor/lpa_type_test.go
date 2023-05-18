@@ -213,7 +213,12 @@ func TestPostLpaTypeWhenUidClientErrors(t *testing.T) {
 		On("CreateCase", mock.Anything).
 		Return(uid.CreateCaseResponse{}, expectedError)
 
-	err := LpaType(nil, donorStore, uidClient, nil)(testAppData, w, r)
+	logger := newMockLogger(t)
+	logger.
+		On("Print", expectedError).
+		Return(nil)
+
+	err := LpaType(nil, donorStore, uidClient, logger)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

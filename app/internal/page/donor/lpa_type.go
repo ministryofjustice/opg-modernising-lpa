@@ -40,6 +40,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore, uidClient UidClient,
 
 				resp, err := uidClient.CreateCase(lpa)
 				if err != nil {
+					logger.Print(err)
 					return err
 				}
 

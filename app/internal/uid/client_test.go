@@ -65,7 +65,7 @@ func TestCreateCase(t *testing.T) {
 	assert.JSONEq(t, expectedBody, requestBody)
 
 	assert.Nil(t, err)
-	assert.Nil(t, resp.Errors)
+	assert.Nil(t, resp.BadRequestErrors)
 	assert.Equal(t, "M-789Q-P4DF-4UX3", resp.Uid)
 }
 
@@ -176,18 +176,26 @@ func TestCreateCaseOnBadRequestResponse(t *testing.T) {
 	assert.Equal(t, "", resp.Uid)
 }
 
-func TestCreateCaseResponseError(t *testing.T) {
+func TestCreateCaseNonSuccessResponses(t *testing.T) {
 	testCases := map[string]struct {
-		response      []byte
-		expectedError error
+		response       []byte
+		responseHeader int
+		expectedError  error
 	}{
-		"single error": {
-			response:      []byte(`{"code":"INVALID_REQUEST","detail":"string","errors":[{"source":"/donor/dob","detail":"must match format YYYY-MM-DD"}]}`),
-			expectedError: errors.New("must match format YYYY-MM-DD"),
+		"400 single error": {
+			response:       []byte(`{"code":"INVALID_REQUEST","detail":"string","errors":[{"source":"/donor/dob","detail":"must match format YYYY-MM-DD"}]}`),
+			responseHeader: http.StatusBadRequest,
+			expectedError:  errors.New("must match format YYYY-MM-DD"),
 		},
-		"multiple errors": {
-			response:      []byte(`{"code":"INVALID_REQUEST","detail":"string","errors":[{"source":"/donor/dob","detail":"must match format YYYY-MM-DD"},{"source":"/donor/dob","detail":"some other error"}]}`),
-			expectedError: errors.New("must match format YYYY-MM-DD, some other error"),
+		"400 multiple errors": {
+			response:       []byte(`{"code":"INVALID_REQUEST","detail":"string","errors":[{"source":"/donor/dob","detail":"must match format YYYY-MM-DD"},{"source":"/donor/dob","detail":"some other error"}]}`),
+			responseHeader: http.StatusBadRequest,
+			expectedError:  errors.New("must match format YYYY-MM-DD, some other error"),
+		},
+		"any other > 400 response": {
+			response:       []byte(`some body content`),
+			responseHeader: http.StatusTeapot,
+			expectedError:  errors.New("error POSTing to UID service: (418) some body content"),
 		},
 	}
 
@@ -196,6 +204,7 @@ func TestCreateCaseResponseError(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				defer r.Body.Close()
 
+				w.WriteHeader(tc.responseHeader)
 				w.Write(tc.response)
 			}))
 
@@ -207,6 +216,5 @@ func TestCreateCaseResponseError(t *testing.T) {
 			assert.Equal(t, tc.expectedError, err)
 			assert.Equal(t, "", resp.Uid)
 		})
-
 	}
 }

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"time"
 
@@ -43,13 +42,13 @@ type CreateCaseBody struct {
 }
 
 type CreateCaseResponse struct {
-	Uid    string
-	Errors []CreateCaseResponseError
+	Uid              string                              `json:"uid"`
+	BadRequestErrors []CreateCaseResponseBadRequestError `json:"errors"`
 }
 
-type CreateCaseResponseError struct {
-	Source string
-	Detail string
+type CreateCaseResponseBadRequestError struct {
+	Source string `json:"source"`
+	Detail string `json:"detail"`
 }
 
 func (c *Client) CreateCase(lpa *page.Lpa) (CreateCaseResponse, error) {
@@ -81,11 +80,10 @@ func (c *Client) CreateCase(lpa *page.Lpa) (CreateCaseResponse, error) {
 
 	defer resp.Body.Close()
 
-	b := resp.Body
-	body, err := io.ReadAll(b)
-	log.Println(string(body))
-
-	resp.Body = io.NopCloser(bytes.NewReader(body))
+	if resp.StatusCode > http.StatusBadRequest {
+		body, _ := io.ReadAll(resp.Body)
+		return CreateCaseResponse{}, errors.New(fmt.Sprintf("error POSTing to UID service: (%d) %s", resp.StatusCode, string(body)))
+	}
 
 	var createCaseResponse CreateCaseResponse
 
@@ -93,7 +91,7 @@ func (c *Client) CreateCase(lpa *page.Lpa) (CreateCaseResponse, error) {
 		return CreateCaseResponse{}, err
 	}
 
-	if len(createCaseResponse.Errors) > 0 {
+	if len(createCaseResponse.BadRequestErrors) > 0 {
 		return CreateCaseResponse{}, createCaseResponse.Error()
 	}
 
@@ -116,12 +114,12 @@ func Valid(lpa *page.Lpa) bool {
 }
 
 func (c *CreateCaseResponse) Error() error {
-	if len(c.Errors) > 0 {
-		detail := c.Errors[0].Detail
+	if len(c.BadRequestErrors) > 0 {
+		detail := c.BadRequestErrors[0].Detail
 
-		c.Errors = append(c.Errors[:0], c.Errors[0+1:]...)
+		c.BadRequestErrors = append(c.BadRequestErrors[:0], c.BadRequestErrors[0+1:]...)
 
-		for _, err := range c.Errors {
+		for _, err := range c.BadRequestErrors {
 			detail = fmt.Sprintf("%s, %s", detail, err.Detail)
 		}
 
