@@ -90,12 +90,12 @@ func TestGetSign(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
+				On("GetAny", r.Context()).
 				Return(tc.lpa, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
-				On("Get", mock.Anything).
+				On("GetAny", mock.Anything).
 				Return(&actor.CertificateProviderProvidedDetails{
 					Certificate: actor.Certificate{Agreed: time.Now()},
 				}, nil)
@@ -153,12 +153,12 @@ func TestGetSignCantSignYet(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
+				On("GetAny", r.Context()).
 				Return(tc.lpa, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
-				On("Get", mock.Anything).
+				On("GetAny", mock.Anything).
 				Return(tc.certificateProvider, nil)
 
 			err := Sign(nil, donorStore, certificateProviderStore, nil)(tc.appData, w, r)
@@ -203,12 +203,12 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
+				On("GetAny", r.Context()).
 				Return(tc.lpa, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
-				On("Get", mock.Anything).
+				On("GetAny", mock.Anything).
 				Return(&actor.CertificateProviderProvidedDetails{
 					Certificate: actor.Certificate{Agreed: time.Now()},
 				}, nil)
@@ -231,7 +231,7 @@ func TestGetSignOnDonorStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
 	err := Sign(template.Execute, donorStore, nil, nil)(testAppData, w, r)
@@ -247,7 +247,7 @@ func TestGetSignOnAttorneyStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{
 			Submitted: time.Now(),
 			Attorneys: actor.Attorneys{{ID: "attorney-id"}},
@@ -255,7 +255,7 @@ func TestGetSignOnAttorneyStoreError(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
-		On("Get", mock.Anything).
+		On("GetAny", mock.Anything).
 		Return(&actor.CertificateProviderProvidedDetails{
 			Certificate: actor.Certificate{Agreed: time.Now()},
 		}, nil)
@@ -280,7 +280,7 @@ func TestGetSignOnTemplateError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{
 			Submitted: time.Now(),
 			Attorneys: actor.Attorneys{{ID: "attorney-id"}},
@@ -288,7 +288,7 @@ func TestGetSignOnTemplateError(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
-		On("Get", mock.Anything).
+		On("GetAny", mock.Anything).
 		Return(&actor.CertificateProviderProvidedDetails{
 			Certificate: actor.Certificate{Agreed: time.Now()},
 		}, nil)
@@ -350,7 +350,7 @@ func TestPostSign(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
+				On("GetAny", r.Context()).
 				Return(tc.lpa, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
@@ -363,7 +363,7 @@ func TestPostSign(t *testing.T) {
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
-				On("Get", mock.Anything).
+				On("GetAny", mock.Anything).
 				Return(&actor.CertificateProviderProvidedDetails{
 					Certificate: actor.Certificate{Agreed: time.Now()},
 				}, nil)
@@ -390,7 +390,7 @@ func TestPostSignWhenStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{
 			Submitted: time.Now(),
 			Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
@@ -398,7 +398,7 @@ func TestPostSignWhenStoreError(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
-		On("Get", mock.Anything).
+		On("GetAny", mock.Anything).
 		Return(&actor.CertificateProviderProvidedDetails{
 			Certificate: actor.Certificate{Agreed: time.Now()},
 		}, nil)
@@ -428,7 +428,7 @@ func TestPostSignOnValidationError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{
 			Submitted: time.Now(),
 			Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
@@ -436,7 +436,7 @@ func TestPostSignOnValidationError(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
-		On("Get", mock.Anything).
+		On("GetAny", mock.Anything).
 		Return(&actor.CertificateProviderProvidedDetails{
 			Certificate: actor.Certificate{Agreed: time.Now()},
 		}, nil)

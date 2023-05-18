@@ -27,7 +27,7 @@ func TestGetEnterDateOfBirth(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -57,7 +57,7 @@ func TestGetEnterDateOfBirthFromStore(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -89,7 +89,7 @@ func TestGetEnterDateOfBirthWhenDonorStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
 	err := EnterDateOfBirth(nil, donorStore, nil)(testAppData, w, r)
@@ -105,7 +105,7 @@ func TestGetEnterDateOfBirthWhenCertificateProviderStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -130,7 +130,7 @@ func TestGetEnterDateOfBirthWhenTemplateErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -193,7 +193,7 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
+				On("GetAny", r.Context()).
 				Return(&page.Lpa{ID: "lpa-id"}, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
@@ -227,7 +227,7 @@ func TestPostEnterDateOfBirthWhenCPHasAlreadyWitnessed(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{
 			ID:                     "lpa-id",
 			CPWitnessCodeValidated: true,
@@ -289,7 +289,7 @@ func TestPostEnterDateOfBirthWhenInputRequired(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
+				On("GetAny", r.Context()).
 				Return(&page.Lpa{ID: "lpa-id"}, nil)
 
 			template := newMockTemplate(t)
@@ -327,7 +327,7 @@ func TestPostYourDetailsWhenDonorStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
 	err := EnterDateOfBirth(nil, donorStore, nil)(testAppData, w, r)

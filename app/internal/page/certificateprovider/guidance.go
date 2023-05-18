@@ -23,7 +23,7 @@ func Guidance(tmpl template.Template, donorStore DonorStore, certificateProvider
 		}
 
 		if donorStore != nil {
-			lpa, err := donorStore.Get(r.Context())
+			lpa, err := donorStore.GetAny(r.Context())
 			if err != nil {
 				return err
 			}

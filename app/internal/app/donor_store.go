@@ -30,7 +30,7 @@ func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
 		return nil, errors.New("donorStore.Create requires SessionID")
 	}
 
-	pk, sk := makeLpaKeys(lpa.ID, data.SessionID)
+	pk, sk := makeDonorKeys(lpa.ID, data.SessionID)
 	err = s.dataStore.Create(ctx, pk, sk, lpa)
 
 	return lpa, err
@@ -58,7 +58,7 @@ func (s *donorStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
 	return lpas, err
 }
 
-func (s *donorStore) Get(ctx context.Context) (*page.Lpa, error) {
+func (s *donorStore) GetAny(ctx context.Context) (*page.Lpa, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -78,6 +78,23 @@ func (s *donorStore) Get(ctx context.Context) (*page.Lpa, error) {
 	return lpa, nil
 }
 
+func (s *donorStore) Get(ctx context.Context) (*page.Lpa, error) {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.LpaID == "" || data.SessionID == "" {
+		return nil, errors.New("donorStore.Get requires LpaID and SessionID")
+	}
+
+	pk, sk := makeDonorKeys(data.LpaID, data.SessionID)
+
+	var lpa *page.Lpa
+	err = s.dataStore.Get(ctx, pk, sk, &lpa)
+	return lpa, err
+}
+
 func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
@@ -90,10 +107,10 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 
 	lpa.UpdatedAt = time.Now()
 
-	pk, sk := makeLpaKeys(lpa.ID, data.SessionID)
+	pk, sk := makeDonorKeys(lpa.ID, data.SessionID)
 	return s.dataStore.Put(ctx, pk, sk, lpa)
 }
 
-func makeLpaKeys(lpaID, sessionID string) (string, string) {
+func makeDonorKeys(lpaID, sessionID string) (string, string) {
 	return "LPA#" + lpaID, "#DONOR#" + sessionID
 }

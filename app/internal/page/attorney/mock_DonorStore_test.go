@@ -14,8 +14,8 @@ type mockDonorStore struct {
 	mock.Mock
 }
 
-// Get provides a mock function with given fields: _a0
-func (_m *mockDonorStore) Get(_a0 context.Context) (*page.Lpa, error) {
+// GetAny provides a mock function with given fields: _a0
+func (_m *mockDonorStore) GetAny(_a0 context.Context) (*page.Lpa, error) {
 	ret := _m.Called(_a0)
 
 	var r0 *page.Lpa

@@ -13,7 +13,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -44,7 +43,7 @@ type OneLoginClient interface {
 
 //go:generate mockery --testonly --inpackage --name DonorStore --structname mockDonorStore
 type DonorStore interface {
-	Get(context.Context) (*page.Lpa, error)
+	GetAny(context.Context) (*page.Lpa, error)
 }
 
 //go:generate mockery --testonly --inpackage --name ShareCodeStore --structname mockShareCodeStore
@@ -61,7 +60,7 @@ type NotifyClient interface {
 
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
 type CertificateProviderStore interface {
-	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
+	GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 }
 
 //go:generate mockery --testonly --inpackage --name AttorneyStore --structname mockAttorneyStore
@@ -101,7 +100,7 @@ func Register(
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(tmpls.Get("attorney_enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore))
 	handleRoot(page.Paths.Attorney.CodeOfConduct, RequireLpa,
-		donor.Guidance(tmpls.Get("attorney_code_of_conduct.gohtml"), donorStore))
+		Guidance(tmpls.Get("attorney_code_of_conduct.gohtml"), donorStore))
 	handleRoot(page.Paths.Attorney.TaskList, RequireLpa,
 		TaskList(tmpls.Get("attorney_task_list.gohtml"), donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(page.Paths.Attorney.CheckYourName, RequireLpa,
@@ -117,11 +116,11 @@ func Register(
 	handleRoot(page.Paths.Attorney.RightsAndResponsibilities, RequireLpa,
 		page.Guidance(tmpls.Get("attorney_legal_rights_and_responsibilities.gohtml")))
 	handleRoot(page.Paths.Attorney.WhatHappensWhenYouSign, RequireLpa,
-		donor.Guidance(tmpls.Get("attorney_what_happens_when_you_sign.gohtml"), donorStore))
+		Guidance(tmpls.Get("attorney_what_happens_when_you_sign.gohtml"), donorStore))
 	handleRoot(page.Paths.Attorney.Sign, RequireLpa,
 		Sign(tmpls.Get("attorney_sign.gohtml"), donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(page.Paths.Attorney.WhatHappensNext, RequireLpa,
-		donor.Guidance(tmpls.Get("attorney_what_happens_next.gohtml"), donorStore))
+		Guidance(tmpls.Get("attorney_what_happens_next.gohtml"), donorStore))
 }
 
 type handleOpt byte

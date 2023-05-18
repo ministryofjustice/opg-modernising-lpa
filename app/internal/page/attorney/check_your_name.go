@@ -20,7 +20,7 @@ type checkYourNameData struct {
 
 func CheckYourName(tmpl template.Template, donorStore DonorStore, attorneyStore AttorneyStore, notifyClient NotifyClient) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
+		lpa, err := donorStore.GetAny(r.Context())
 		if err != nil {
 			return err
 		}

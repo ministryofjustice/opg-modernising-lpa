@@ -24,7 +24,7 @@ func TestGetEnterMobileNumber(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -58,7 +58,7 @@ func TestGetEnterMobileNumberFromStore(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -90,7 +90,7 @@ func TestGetEnterMobileNumberWhenDonorStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
 	err := EnterMobileNumber(nil, donorStore, nil)(testAppData, w, r)
@@ -106,7 +106,7 @@ func TestGetEnterMobileNumberWhenCertificateProviderStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -131,7 +131,7 @@ func TestGetEnterMobileNumberWhenTemplateErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -166,7 +166,7 @@ func TestPostEnterMobileNumber(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{ID: "lpa-id"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -197,7 +197,7 @@ func TestPostEnterMobileNumberWhenValidationError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{ID: "lpa-id"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -235,7 +235,7 @@ func TestPostEnterMobileNumberWhenCertificateProviderStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{ID: "lpa-id"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)

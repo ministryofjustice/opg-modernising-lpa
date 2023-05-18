@@ -24,7 +24,7 @@ func TestGetLpaProgress(t *testing.T) {
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
 
 	certificateProviderStore.
-		On("Get", ctx).
+		On("GetAny", ctx).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
@@ -73,7 +73,7 @@ func TestGetLpaProgressWhenCertificateProviderStoreErrors(t *testing.T) {
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
 
 	certificateProviderStore.
-		On("Get", ctx).
+		On("GetAny", ctx).
 		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := LpaProgress(nil, donorStore, certificateProviderStore)(testAppData, w, r)
@@ -97,7 +97,7 @@ func TestGetLpaProgressOnTemplateError(t *testing.T) {
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
 
 	certificateProviderStore.
-		On("Get", ctx).
+		On("GetAny", ctx).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)

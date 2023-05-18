@@ -34,7 +34,7 @@ func TestGetEnterYourName(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -57,7 +57,7 @@ func TestGetEnterYourNameOnDonorStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
 	err := CheckYourName(template.Execute, donorStore, nil, nil)(testAppData, w, r)
@@ -75,7 +75,7 @@ func TestGetEnterYourNameOnCertificateProviderStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -110,7 +110,7 @@ func TestGetEnterYourNameOnTemplateError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -140,7 +140,7 @@ func TestPostEnterYourName(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -175,7 +175,7 @@ func TestPostEnterYourNameIsCorrectOnStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -211,7 +211,7 @@ func TestPostEnterYourNameWithCorrectedName(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -259,7 +259,7 @@ func TestPostEnterYourNameWithCorrectedNameWhenStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -301,7 +301,7 @@ func TestPostEnterYourNameOnValidationError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)

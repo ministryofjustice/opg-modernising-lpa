@@ -63,7 +63,7 @@ func buildDashboardLpaData(lpas []*page.Lpa, store CertificateProviderStore, ctx
 
 		ctx := page.ContextWithSessionData(ctx, &page.SessionData{LpaID: lpa.ID})
 
-		cp, err := store.Get(ctx)
+		cp, err := store.GetAny(ctx)
 
 		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 			return dashboardLpaData, err

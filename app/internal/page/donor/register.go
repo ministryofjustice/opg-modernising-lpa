@@ -44,7 +44,7 @@ type GetDonorStore interface {
 
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
 type CertificateProviderStore interface {
-	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
+	GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 }
 
 //go:generate mockery --testonly --inpackage --name PayClient --structname mockPayClient

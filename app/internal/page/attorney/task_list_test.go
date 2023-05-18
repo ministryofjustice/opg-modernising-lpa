@@ -17,7 +17,7 @@ func TestGetTaskList(t *testing.T) {
 	certificateProviderAgreed := func(t *testing.T, r *http.Request) *mockCertificateProviderStore {
 		certificateProviderStore := newMockCertificateProviderStore(t)
 		certificateProviderStore.
-			On("Get", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
+			On("GetAny", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
 			Return(&actor.CertificateProviderProvidedDetails{
 				Certificate: actor.Certificate{Agreed: time.Now()},
 			}, nil)
@@ -56,7 +56,7 @@ func TestGetTaskList(t *testing.T) {
 			certificateProviderStore: func(t *testing.T, r *http.Request) *mockCertificateProviderStore {
 				certificateProviderStore := newMockCertificateProviderStore(t)
 				certificateProviderStore.
-					On("Get", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
+					On("GetAny", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
 					Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 				return certificateProviderStore
@@ -142,7 +142,7 @@ func TestGetTaskList(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
+				On("GetAny", r.Context()).
 				Return(tc.lpa, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
@@ -178,7 +178,7 @@ func TestGetTaskListWhenDonorStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
 	err := TaskList(nil, donorStore, nil, nil)(testAppData, w, r)
@@ -192,7 +192,7 @@ func TestGetTaskListWhenAttorneyStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{ID: "lpa-id"}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -215,7 +215,7 @@ func TestGetTaskListWhenCertificateProviderStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{ID: "lpa-id"}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -229,7 +229,7 @@ func TestGetTaskListWhenCertificateProviderStoreErrors(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
-		On("Get", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
+		On("GetAny", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
 		Return(nil, expectedError)
 
 	err := TaskList(nil, donorStore, certificateProviderStore, attorneyStore)(testAppData, w, r)
@@ -243,7 +243,7 @@ func TestGetTaskListWhenCertificateProviderNotFound(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{ID: "lpa-id"}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -257,7 +257,7 @@ func TestGetTaskListWhenCertificateProviderNotFound(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
-		On("Get", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
+		On("GetAny", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
 		Return(nil, dynamo.NotFoundError{})
 
 	template := newMockTemplate(t)
@@ -278,7 +278,7 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{ID: "lpa-id"}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)

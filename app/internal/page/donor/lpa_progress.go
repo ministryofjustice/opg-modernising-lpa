@@ -27,7 +27,7 @@ func LpaProgress(tmpl template.Template, donorStore DonorStore, certificateProvi
 
 		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: lpa.ID})
 
-		certificateProvider, err := certificateProviderStore.Get(ctx)
+		certificateProvider, err := certificateProviderStore.GetAny(ctx)
 		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 			return err
 		}

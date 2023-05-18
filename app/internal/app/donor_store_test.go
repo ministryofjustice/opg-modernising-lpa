@@ -68,11 +68,45 @@ func TestDonorStoreGetAllWithSessionMissing(t *testing.T) {
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
-func TestDonorStoreGet(t *testing.T) {
+func TestDonorStoreGetAny(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id"})
 
 	dataStore := newMockDataStore(t)
 	dataStore.ExpectGetOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, nil)
+
+	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }}
+
+	lpa, err := donorStore.GetAny(ctx)
+	assert.Nil(t, err)
+	assert.Equal(t, &page.Lpa{ID: "an-id"}, lpa)
+}
+
+func TestDonorStoreGetAnyWithSessionMissing(t *testing.T) {
+	ctx := context.Background()
+
+	donorStore := &donorStore{dataStore: nil, uuidString: func() string { return "10100000" }}
+
+	_, err := donorStore.GetAny(ctx)
+	assert.Equal(t, page.SessionMissingError{}, err)
+}
+
+func TestDonorStoreGetAnyWhenDataStoreError(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id"})
+
+	dataStore := newMockDataStore(t)
+	dataStore.ExpectGetOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, expectedError)
+
+	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }}
+
+	_, err := donorStore.GetAny(ctx)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestDonorStoreGet(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
+
+	dataStore := newMockDataStore(t)
+	dataStore.ExpectGet(ctx, "LPA#an-id", "#DONOR#456", &page.Lpa{ID: "an-id"}, nil)
 
 	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }}
 
@@ -91,10 +125,10 @@ func TestDonorStoreGetWithSessionMissing(t *testing.T) {
 }
 
 func TestDonorStoreGetWhenDataStoreError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id"})
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
 
 	dataStore := newMockDataStore(t)
-	dataStore.ExpectGetOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, expectedError)
+	dataStore.ExpectGet(ctx, "LPA#an-id", "#DONOR#456", &page.Lpa{ID: "an-id"}, expectedError)
 
 	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }}
 

@@ -67,7 +67,7 @@ func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorSto
 					LpaID:     appData.LpaID,
 				})
 
-				certificateProvider, err := certificateProviderStore.Get(ctx)
+				certificateProvider, err := certificateProviderStore.GetAny(ctx)
 				if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 					return err
 				}

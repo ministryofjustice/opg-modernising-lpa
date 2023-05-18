@@ -15,8 +15,8 @@ type mockCertificateProviderStore struct {
 	mock.Mock
 }
 
-// Get provides a mock function with given fields: ctx
-func (_m *mockCertificateProviderStore) Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {
+// GetAny provides a mock function with given fields: ctx
+func (_m *mockCertificateProviderStore) GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {
 	ret := _m.Called(ctx)
 
 	var r0 *actor.CertificateProviderProvidedDetails

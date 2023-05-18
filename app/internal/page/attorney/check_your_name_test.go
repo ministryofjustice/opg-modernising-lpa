@@ -57,7 +57,7 @@ func TestGetCheckYourName(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
+				On("GetAny", r.Context()).
 				Return(tc.lpa, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
@@ -104,7 +104,7 @@ func TestGetCheckYourNameWhenAttorneyDoesNotExist(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
+				On("GetAny", r.Context()).
 				Return(tc.lpa, nil)
 
 			err := CheckYourName(nil, donorStore, nil, nil)(tc.appData, w, r)
@@ -125,7 +125,7 @@ func TestGetCheckYourNameOnDonorStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
 	err := CheckYourName(template.Execute, donorStore, nil, nil)(testAppData, w, r)
@@ -143,7 +143,7 @@ func TestGetCheckYourNameOnAttorneyStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{
 			Attorneys: actor.Attorneys{{ID: "attorney-id"}},
 		}, nil)
@@ -179,7 +179,7 @@ func TestGetCheckYourNameOnTemplateError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -240,7 +240,7 @@ func TestPostCheckYourName(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
+				On("GetAny", r.Context()).
 				Return(tc.lpa, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
@@ -312,7 +312,7 @@ func TestPostCheckYourNameWithCorrectedName(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
+				On("GetAny", r.Context()).
 				Return(tc.lpa, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
@@ -400,7 +400,7 @@ func TestPostCheckYourNameWithUnchangedCorrectedName(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
+				On("GetAny", r.Context()).
 				Return(tc.lpa, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
@@ -446,7 +446,7 @@ func TestPostCheckYourNameWithCorrectedNameWhenStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{
 			Donor:     actor.Donor{Email: "a@example.com"},
 			Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
@@ -484,7 +484,7 @@ func TestPostCheckYourNameOnValidationError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	attorneyStore := newMockAttorneyStore(t)

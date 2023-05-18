@@ -16,7 +16,7 @@ func TestGetReadTheLpaWithAttorney(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -46,7 +46,7 @@ func TestGetReadTheLpaWithReplacementAttorney(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{ReplacementAttorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -76,7 +76,7 @@ func TestGetReadTheLpaWithAttorneyWhenDonorStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, expectedError)
 
 	err := ReadTheLpa(nil, donorStore, nil)(testAppData, w, r)
@@ -92,7 +92,7 @@ func TestGetReadTheLpaWhenAttorneyStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -110,7 +110,7 @@ func TestGetReadTheLpaWhenAttorneyNotFound(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
 	err := ReadTheLpa(nil, donorStore, nil)(page.AppData{AttorneyID: "the-wrong-id", ActorType: actor.TypeReplacementAttorney}, w, r)
@@ -127,7 +127,7 @@ func TestGetReadTheLpaWhenTemplateError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -157,7 +157,7 @@ func TestPostReadTheLpaWithAttorney(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -186,7 +186,7 @@ func TestPostReadTheLpaWithAttorneyOnDonorStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)

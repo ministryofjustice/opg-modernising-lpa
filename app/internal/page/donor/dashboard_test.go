@@ -29,12 +29,12 @@ func TestGetDashboard(t *testing.T) {
 
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
 	certificateProviderStore.
-		On("Get", ctx).
+		On("GetAny", ctx).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	ctx = page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "456"})
 	certificateProviderStore.
-		On("Get", ctx).
+		On("GetAny", ctx).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
@@ -66,7 +66,7 @@ func TestGetDashboardWhenCertificateProviderDoesNotExist(t *testing.T) {
 
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
 	certificateProviderStore.
-		On("Get", ctx).
+		On("GetAny", ctx).
 		Return(&actor.CertificateProviderProvidedDetails{}, dynamo.NotFoundError{})
 
 	template := newMockTemplate(t)
@@ -110,7 +110,7 @@ func TestGetDashboardWhenCertificateProviderStoreErrors(t *testing.T) {
 
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
 	certificateProviderStore.
-		On("Get", ctx).
+		On("GetAny", ctx).
 		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := Dashboard(nil, donorStore, certificateProviderStore)(testAppData, w, r)
@@ -137,7 +137,7 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
 	certificateProviderStore.
-		On("Get", ctx).
+		On("GetAny", ctx).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)

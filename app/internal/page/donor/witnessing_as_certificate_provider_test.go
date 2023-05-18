@@ -170,7 +170,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
-				On("Get", ctx).
+				On("GetAny", ctx).
 				Return(tc.certificateProvider, tc.err)
 
 			err := WitnessingAsCertificateProvider(nil, donorStore, nil, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r)
@@ -219,7 +219,7 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
-		On("Get", ctx).
+		On("GetAny", ctx).
 		Return(&actor.CertificateProviderProvidedDetails{IdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin}}, nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
@@ -272,7 +272,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendErrors(t *testing.T
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
-		On("Get", ctx).
+		On("GetAny", ctx).
 		Return(&actor.CertificateProviderProvidedDetails{IdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin}}, nil)
 
 	shareCodeSender := newMockShareCodeSender(t)

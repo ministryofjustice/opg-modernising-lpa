@@ -21,7 +21,7 @@ func TestGetProvideCertificate(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Submitted: time.Now()}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -51,7 +51,7 @@ func TestGetProvideCertificateRedirectsToStartOnLpaNotSubmitted(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -73,7 +73,7 @@ func TestGetProvideCertificateWhenDonorStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
 	err := ProvideCertificate(nil, donorStore, nil, nil)(testAppData, w, r)
@@ -89,7 +89,7 @@ func TestGetProvideCertificateWhenCertificateProviderStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -117,7 +117,7 @@ func TestPostProvideCertificate(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Submitted: now}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -154,7 +154,7 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Submitted: now}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -190,7 +190,7 @@ func TestPostProvideCertificateWhenValidationErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Submitted: now}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
