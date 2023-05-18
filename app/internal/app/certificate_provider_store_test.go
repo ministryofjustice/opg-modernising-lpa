@@ -51,12 +51,57 @@ func TestCertificateProviderStoreCreateWhenCreateError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestCertificateProviderStoreGet(t *testing.T) {
+func TestCertificateProviderStoreGetAny(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
 
 	dataStore := newMockDataStore(t)
 	dataStore.
 		ExpectGetOneByPartialSk(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
+
+	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: nil}
+
+	certificateProvider, err := certificateProviderStore.GetAny(ctx)
+	assert.Nil(t, err)
+	assert.Equal(t, &actor.CertificateProviderProvidedDetails{LpaID: "123"}, certificateProvider)
+}
+
+func TestCertificateProviderStoreGetAnyWhenSessionMissing(t *testing.T) {
+	ctx := context.Background()
+
+	certificateProviderStore := &certificateProviderStore{dataStore: nil, now: nil}
+
+	_, err := certificateProviderStore.GetAny(ctx)
+	assert.Equal(t, page.SessionMissingError{}, err)
+}
+
+func TestCertificateProviderStoreGetAnyMissingLpaIDInSessionData(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
+
+	certificateProviderStore := &certificateProviderStore{}
+
+	_, err := certificateProviderStore.GetAny(ctx)
+	assert.Equal(t, errors.New("certificateProviderStore.GetAny requires LpaID"), err)
+}
+
+func TestCertificateProviderStoreGetAnyOnError(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+
+	dataStore := newMockDataStore(t)
+	dataStore.
+		ExpectGetOneByPartialSk(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, expectedError)
+
+	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: nil}
+
+	_, err := certificateProviderStore.GetAny(ctx)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestCertificateProviderStoreGet(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
+
+	dataStore := newMockDataStore(t)
+	dataStore.
+		ExpectGet(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
 
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: nil}
 
@@ -75,20 +120,29 @@ func TestCertificateProviderStoreGetWhenSessionMissing(t *testing.T) {
 }
 
 func TestCertificateProviderStoreGetMissingLpaIDInSessionData(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "456"})
 
 	certificateProviderStore := &certificateProviderStore{}
 
 	_, err := certificateProviderStore.Get(ctx)
-	assert.Equal(t, errors.New("certificateProviderStore.Get requires LpaID to retrieve"), err)
+	assert.Equal(t, errors.New("certificateProviderStore.Get requires LpaID and SessionID"), err)
+}
+
+func TestCertificateProviderStoreGetMissingSessionIDInSessionData(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+
+	certificateProviderStore := &certificateProviderStore{}
+
+	_, err := certificateProviderStore.Get(ctx)
+	assert.Equal(t, errors.New("certificateProviderStore.Get requires LpaID and SessionID"), err)
 }
 
 func TestCertificateProviderStoreGetOnError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		ExpectGetOneByPartialSk(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, expectedError)
+		ExpectGet(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, expectedError)
 
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: nil}
 
@@ -160,6 +214,6 @@ func TestCertificateProviderStorePutMissingRequiredSessionData(t *testing.T) {
 		certificateProviderStore := &certificateProviderStore{dataStore: nil}
 
 		err := certificateProviderStore.Put(ctx, &actor.CertificateProviderProvidedDetails{})
-		assert.Equal(t, errors.New("certificateProviderStore.Put requires LpaID and SessionID to retrieve"), err)
+		assert.Equal(t, errors.New("certificateProviderStore.Put requires LpaID and SessionID"), err)
 	}
 }

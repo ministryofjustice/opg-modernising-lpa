@@ -20,9 +20,9 @@ type mobileNumberForm struct {
 	Mobile string
 }
 
-func EnterMobileNumber(tmpl template.Template, lpaStore LpaStore, certificateProviderStore CertificateProviderStore) page.Handler {
+func EnterMobileNumber(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.GetAny(r.Context())
 		if err != nil {
 			return err
 		}

@@ -19,9 +19,9 @@ type certificateProviderDetailsData struct {
 	SameLastnameAsDonor bool
 }
 
-func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -61,7 +61,7 @@ func CertificateProviderDetails(tmpl template.Template, lpaStore LpaStore) page.
 				lpa.CertificateProvider.DateOfBirth = data.Form.Dob
 				lpa.CertificateProvider.Mobile = data.Form.Mobile
 
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 

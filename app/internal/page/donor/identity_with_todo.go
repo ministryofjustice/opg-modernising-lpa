@@ -16,9 +16,9 @@ type identityWithTodoData struct {
 	IdentityOption identity.Option
 }
 
-func IdentityWithTodo(tmpl template.Template, lpaStore LpaStore, now func() time.Time, identityOption identity.Option) page.Handler {
+func IdentityWithTodo(tmpl template.Template, donorStore DonorStore, now func() time.Time, identityOption identity.Option) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -35,7 +35,7 @@ func IdentityWithTodo(tmpl template.Template, lpaStore LpaStore, now func() time
 			DateOfBirth: lpa.Donor.DateOfBirth,
 			RetrievedAt: now(),
 		}
-		if err := lpaStore.Put(r.Context(), lpa); err != nil {
+		if err := donorStore.Put(r.Context(), lpa); err != nil {
 			return err
 		}
 

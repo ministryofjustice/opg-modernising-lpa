@@ -86,7 +86,7 @@ func TestAttorneyStoreGetMissingLpaIDInSessionData(t *testing.T) {
 	attorneyStore := &attorneyStore{}
 
 	_, err := attorneyStore.Get(ctx)
-	assert.Equal(t, errors.New("attorneyStore.Get requires LpaID and SessionID to retrieve"), err)
+	assert.Equal(t, errors.New("attorneyStore.Get requires LpaID and SessionID"), err)
 }
 
 func TestAttorneyStoreGetMissingSessionIDInSessionData(t *testing.T) {
@@ -95,7 +95,7 @@ func TestAttorneyStoreGetMissingSessionIDInSessionData(t *testing.T) {
 	attorneyStore := &attorneyStore{}
 
 	_, err := attorneyStore.Get(ctx)
-	assert.Equal(t, errors.New("attorneyStore.Get requires LpaID and SessionID to retrieve"), err)
+	assert.Equal(t, errors.New("attorneyStore.Get requires LpaID and SessionID"), err)
 }
 
 func TestAttorneyStoreGetOnError(t *testing.T) {
@@ -176,6 +176,6 @@ func TestAttorneyStorePutMissingRequiredSessionData(t *testing.T) {
 		attorneyStore := &attorneyStore{dataStore: nil}
 
 		err := attorneyStore.Put(ctx, &actor.AttorneyProvidedDetails{})
-		assert.Equal(t, errors.New("attorneyStore.Put requires LpaID and SessionID to retrieve"), err)
+		assert.Equal(t, errors.New("attorneyStore.Put requires LpaID and SessionID"), err)
 	}
 }

@@ -64,7 +64,7 @@ func TestGetIdentityWithTodoWhenCertificateProviderStoreGetErrors(t *testing.T) 
 	assert.Equal(t, expectedError, err)
 }
 
-func TestGetIdentityWithTodoWhenLpaStorePutErrors(t *testing.T) {
+func TestGetIdentityWithTodoWhenDonorStorePutErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 

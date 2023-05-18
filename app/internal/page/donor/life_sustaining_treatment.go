@@ -15,9 +15,9 @@ type lifeSustainingTreatmentData struct {
 	Option string
 }
 
-func LifeSustainingTreatment(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -34,7 +34,7 @@ func LifeSustainingTreatment(tmpl template.Template, lpaStore LpaStore) page.Han
 			if data.Errors.None() {
 				lpa.LifeSustainingTreatmentOption = form.Option
 				lpa.Tasks.LifeSustainingTreatment = actor.TaskCompleted
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 

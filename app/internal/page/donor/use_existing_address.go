@@ -19,9 +19,9 @@ type useExistingAddressData struct {
 	Form      *UseExistingAddressForm
 }
 
-func UseExistingAddress(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func UseExistingAddress(tmpl template.Template, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -73,7 +73,7 @@ func UseExistingAddress(tmpl template.Template, lpaStore LpaStore) page.Handler 
 					redirect = appData.Paths.ChooseReplacementAttorneysSummary
 				}
 
-				err = lpaStore.Put(r.Context(), lpa)
+				err = donorStore.Put(r.Context(), lpa)
 				if err != nil {
 					return err
 				}

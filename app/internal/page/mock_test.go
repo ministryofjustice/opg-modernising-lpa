@@ -23,7 +23,7 @@ var (
 	}
 )
 
-func mockLpaStoreWillReturnEmptyLpa(m *mockLpaStore, r *http.Request) *mockLpaStore {
+func mockDonorStoreWillReturnEmptyLpa(m *mockDonorStore, r *http.Request) *mockDonorStore {
 	m.
 		On("Get", r.Context()).
 		Return(&Lpa{
@@ -35,7 +35,7 @@ func mockLpaStoreWillReturnEmptyLpa(m *mockLpaStore, r *http.Request) *mockLpaSt
 	return m
 }
 
-func mockLpaStoreWithCompletedPaymentLpaData(m *mockLpaStore, r *http.Request, paymentId, paymentReference string) *mockLpaStore {
+func mockDonorStoreWithCompletedPaymentLpaData(m *mockDonorStore, r *http.Request, paymentId, paymentReference string) *mockDonorStore {
 	m.
 		On("Put", r.Context(), &Lpa{
 			CertificateProvider: actor.CertificateProvider{

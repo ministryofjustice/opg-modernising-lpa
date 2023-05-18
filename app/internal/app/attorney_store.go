@@ -21,7 +21,7 @@ func (s *attorneyStore) Create(ctx context.Context, isReplacement bool) (*actor.
 	}
 
 	if data.LpaID == "" || data.SessionID == "" {
-		return nil, errors.New("attorneyStore.Create requires LpaID and SessionID to retrieve")
+		return nil, errors.New("attorneyStore.Create requires LpaID and SessionID")
 	}
 
 	pk, sk := makeAttorneyKeys(data.LpaID, data.SessionID)
@@ -39,7 +39,7 @@ func (s *attorneyStore) Get(ctx context.Context) (*actor.AttorneyProvidedDetails
 	}
 
 	if data.LpaID == "" || data.SessionID == "" {
-		return nil, errors.New("attorneyStore.Get requires LpaID and SessionID to retrieve")
+		return nil, errors.New("attorneyStore.Get requires LpaID and SessionID")
 	}
 
 	pk, sk := makeAttorneyKeys(data.LpaID, data.SessionID)
@@ -57,7 +57,7 @@ func (s *attorneyStore) Put(ctx context.Context, attorney *actor.AttorneyProvide
 	}
 
 	if data.LpaID == "" || data.SessionID == "" {
-		return errors.New("attorneyStore.Put requires LpaID and SessionID to retrieve")
+		return errors.New("attorneyStore.Put requires LpaID and SessionID")
 	}
 
 	pk, sk := makeAttorneyKeys(data.LpaID, data.SessionID)

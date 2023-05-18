@@ -41,9 +41,9 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
 
-			dataStore := newMockDataStore(t)
-			dataStore.
-				On("Put", ctx, "CERTIFICATEPROVIDERSHARE#123", "#METADATA#123", ShareCodeData{
+			shareCodeStore := newMockShareCodeStore(t)
+			shareCodeStore.
+				On("Put", ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
 					LpaID:           "lpa-id",
 					Identity:        identity,
 					DonorFullname:   "Jan Smith",
@@ -71,7 +71,7 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 				}).
 				Return("", nil)
 
-			sender := NewShareCodeSender(dataStore, notifyClient, "http://app", MockRandom)
+			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
 			err := sender.SendCertificateProvider(ctx, notify.TemplateId(99), TestAppData, identity, lpa)
 
 			assert.Nil(t, err)
@@ -118,17 +118,17 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
 
-			dataStore := newMockDataStore(t)
-			dataStore.
-				On("Put", ctx, "CERTIFICATEPROVIDERSHARE#"+tc.expectedTestCode, "#METADATA#"+tc.expectedTestCode, ShareCodeData{
+			shareCodeStore := newMockShareCodeStore(t)
+			shareCodeStore.
+				On("Put", ctx, actor.TypeCertificateProvider, tc.expectedTestCode, actor.ShareCodeData{
 					LpaID:           "lpa-id",
 					Identity:        true,
 					DonorFullname:   "Jan Smith",
 					DonorFirstNames: "Jan",
 				}).
 				Return(nil)
-			dataStore.
-				On("Put", ctx, "CERTIFICATEPROVIDERSHARE#123", "#METADATA#123", ShareCodeData{
+			shareCodeStore.
+				On("Put", ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
 					LpaID:           "lpa-id",
 					Identity:        true,
 					DonorFullname:   "Jan Smith",
@@ -171,7 +171,7 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 				}).
 				Return("", nil)
 
-			sender := NewShareCodeSender(dataStore, notifyClient, "http://app", MockRandom)
+			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
 
 			if tc.useTestCode {
 				sender.UseTestCode()
@@ -211,8 +211,8 @@ func TestShareCodeSenderSendCertificateProviderWhenEmailErrors(t *testing.T) {
 
 	TestAppData.Localizer = localizer
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.
 		On("Put", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
@@ -236,21 +236,21 @@ func TestShareCodeSenderSendCertificateProviderWhenEmailErrors(t *testing.T) {
 		}).
 		Return("", ExpectedError)
 
-	sender := NewShareCodeSender(dataStore, notifyClient, "http://app", MockRandom)
+	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
 	err := sender.SendCertificateProvider(ctx, notify.TemplateId(99), TestAppData, true, lpa)
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
 }
 
-func TestShareCodeSenderSendCertificateProviderWhenDataStoreErrors(t *testing.T) {
+func TestShareCodeSenderSendCertificateProviderWhenShareCodeStoreErrors(t *testing.T) {
 	ctx := context.Background()
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.
 		On("Put", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(ExpectedError)
 
-	sender := NewShareCodeSender(dataStore, nil, "http://app", MockRandom)
+	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", MockRandom)
 	err := sender.SendCertificateProvider(ctx, notify.TemplateId(99), TestAppData, true, &Lpa{})
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
@@ -309,15 +309,15 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 
 	ctx := context.Background()
 
-	dataStore := newMockDataStore(t)
-	dataStore.
-		On("Put", ctx, "ATTORNEYSHARE#123", "#METADATA#123", ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "1"}).
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.
+		On("Put", ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "1"}).
 		Return(nil)
-	dataStore.
-		On("Put", ctx, "ATTORNEYSHARE#123", "#METADATA#123", ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "2"}).
+	shareCodeStore.
+		On("Put", ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "2"}).
 		Return(nil)
-	dataStore.
-		On("Put", ctx, "ATTORNEYSHARE#123", "#METADATA#123", ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "4", IsReplacementAttorney: true}).
+	shareCodeStore.
+		On("Put", ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "4", IsReplacementAttorney: true}).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -373,7 +373,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 		}).
 		Return("", nil)
 
-	sender := NewShareCodeSender(dataStore, notifyClient, "http://app", MockRandom)
+	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
 	err := sender.SendAttorneys(ctx, TestAppData, lpa)
 
 	assert.Nil(t, err)
@@ -423,12 +423,12 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
 
-			dataStore := newMockDataStore(t)
-			dataStore.
-				On("Put", ctx, "ATTORNEYSHARE#"+tc.expectedTestCode, "#METADATA#"+tc.expectedTestCode, ShareCodeData{SessionID: "session-id", LpaID: "lpa-id"}).
+			shareCodeStore := newMockShareCodeStore(t)
+			shareCodeStore.
+				On("Put", ctx, actor.TypeAttorney, tc.expectedTestCode, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id"}).
 				Return(nil)
-			dataStore.
-				On("Put", ctx, "ATTORNEYSHARE#123", "#METADATA#123", ShareCodeData{SessionID: "session-id", LpaID: "lpa-id"}).
+			shareCodeStore.
+				On("Put", ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id"}).
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t)
@@ -466,7 +466,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 				}).
 				Return("", nil)
 
-			sender := NewShareCodeSender(dataStore, notifyClient, "http://app", MockRandom)
+			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
 
 			if tc.useTestCode {
 				sender.UseTestCode()
@@ -509,8 +509,8 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 
 	TestAppData.Localizer = localizer
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.
 		On("Put", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
@@ -522,21 +522,21 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 		On("Email", ctx, mock.Anything).
 		Return("", ExpectedError)
 
-	sender := NewShareCodeSender(dataStore, notifyClient, "http://app", MockRandom)
+	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
 	err := sender.SendAttorneys(ctx, TestAppData, lpa)
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
 }
 
-func TestShareCodeSenderSendAttorneysWhenDataStoreErrors(t *testing.T) {
+func TestShareCodeSenderSendAttorneysWhenShareCodeStoreErrors(t *testing.T) {
 	ctx := context.Background()
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.
 		On("Put", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(ExpectedError)
 
-	sender := NewShareCodeSender(dataStore, nil, "http://app", MockRandom)
+	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", MockRandom)
 	err := sender.SendAttorneys(ctx, TestAppData, &Lpa{
 		Attorneys: actor.Attorneys{{Email: "hey@example.com"}},
 	})

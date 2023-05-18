@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -20,7 +21,7 @@ type enterReferenceNumberData struct {
 	Lpa    *page.Lpa
 }
 
-func EnterReferenceNumber(tmpl template.Template, dataStore DataStore, sessionStore SessionStore, attorneyStore AttorneyStore) page.Handler {
+func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore SessionStore, attorneyStore AttorneyStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := enterReferenceNumberData{
 			App:  appData,
@@ -34,8 +35,8 @@ func EnterReferenceNumber(tmpl template.Template, dataStore DataStore, sessionSt
 			if len(data.Errors) == 0 {
 				referenceNumber := data.Form.ReferenceNumber
 
-				var v page.ShareCodeData
-				if err := dataStore.Get(r.Context(), "ATTORNEYSHARE#"+referenceNumber, "#METADATA#"+referenceNumber, &v); err != nil {
+				shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeAttorney, referenceNumber)
+				if err != nil {
 					if errors.Is(err, dynamo.NotFoundError{}) {
 						data.Errors.Add("reference-number", validation.CustomError{Label: "incorrectAttorneyReferenceNumber"})
 						return tmpl(w, data)
@@ -48,9 +49,9 @@ func EnterReferenceNumber(tmpl template.Template, dataStore DataStore, sessionSt
 				if err != nil {
 					return err
 				}
-				session.LpaID = v.LpaID
-				session.AttorneyID = v.AttorneyID
-				session.IsReplacementAttorney = v.IsReplacementAttorney
+				session.LpaID = shareCode.LpaID
+				session.AttorneyID = shareCode.AttorneyID
+				session.IsReplacementAttorney = shareCode.IsReplacementAttorney
 
 				if err := sesh.SetAttorney(sessionStore, r, w, session); err != nil {
 					return err

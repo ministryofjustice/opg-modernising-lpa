@@ -52,18 +52,19 @@ func App(
 	oneLoginClient *onelogin.Client,
 	uidClient *uid.Client,
 ) http.Handler {
-	lpaStore := &lpaStore{dataStore: dataStore, uuidString: uuid.NewString, now: time.Now}
+	donorStore := &donorStore{dataStore: dataStore, uuidString: uuid.NewString, now: time.Now}
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: time.Now}
 	attorneyStore := &attorneyStore{dataStore: dataStore, now: time.Now}
+	shareCodeStore := &shareCodeStore{dataStore: dataStore}
 
-	shareCodeSender := page.NewShareCodeSender(dataStore, notifyClient, appPublicUrl, random.String)
+	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicUrl, random.String)
 
 	errorHandler := page.Error(tmpls.Get("error-500.gohtml"), logger)
 	notFoundHandler := page.Root(tmpls.Get("error-404.gohtml"), logger)
 
 	rootMux := http.NewServeMux()
 
-	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, lpaStore, random.String, shareCodeSender, localizer, certificateProviderStore, attorneyStore, logger, time.Now))
+	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, donorStore, random.String, shareCodeSender, localizer, certificateProviderStore, attorneyStore, logger, time.Now))
 
 	handleRoot := makeHandle(rootMux, errorHandler)
 
@@ -76,9 +77,9 @@ func App(
 		logger,
 		tmpls,
 		sessionStore,
-		lpaStore,
+		donorStore,
 		oneLoginClient,
-		dataStore,
+		shareCodeStore,
 		addressClient,
 		errorHandler,
 		yotiClient,
@@ -91,12 +92,12 @@ func App(
 		logger,
 		tmpls,
 		sessionStore,
-		lpaStore,
+		donorStore,
 		certificateProviderStore,
 		attorneyStore,
 		oneLoginClient,
 		addressClient,
-		dataStore,
+		shareCodeStore,
 		errorHandler,
 		notifyClient,
 	)
@@ -106,7 +107,7 @@ func App(
 		logger,
 		tmpls,
 		sessionStore,
-		lpaStore,
+		donorStore,
 		oneLoginClient,
 		addressClient,
 		appPublicUrl,

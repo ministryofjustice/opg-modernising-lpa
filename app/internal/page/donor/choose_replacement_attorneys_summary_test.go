@@ -22,8 +22,8 @@ func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 
 	lpa := &page.Lpa{ReplacementAttorneys: actor.Attorneys{{}}}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
@@ -36,7 +36,7 @@ func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysSummary(nil, template.Execute, lpaStore)(testAppData, w, r)
+	err := ChooseReplacementAttorneysSummary(nil, template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -47,12 +47,12 @@ func TestGetChooseReplacementAttorneysSummaryWhenNoReplacementAttorneys(t *testi
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
-	err := ChooseReplacementAttorneysSummary(nil, nil, lpaStore)(testAppData, w, r)
+	err := ChooseReplacementAttorneysSummary(nil, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -64,8 +64,8 @@ func TestGetChooseReplacementAttorneySummaryWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{ReplacementAttorneys: actor.Attorneys{{}}}, expectedError)
 
@@ -74,7 +74,7 @@ func TestGetChooseReplacementAttorneySummaryWhenStoreErrors(t *testing.T) {
 		On("Print", "error getting lpa from store: err").
 		Return(nil)
 
-	err := ChooseReplacementAttorneysSummary(logger, nil, lpaStore)(testAppData, w, r)
+	err := ChooseReplacementAttorneysSummary(logger, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -90,12 +90,12 @@ func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{ReplacementAttorneys: actor.Attorneys{{}}}, nil)
 
-	err := ChooseReplacementAttorneysSummary(nil, nil, lpaStore)(testAppData, w, r)
+	err := ChooseReplacementAttorneysSummary(nil, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -175,8 +175,8 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			donorStore := newMockDonorStore(t)
+			donorStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
 					Type:                 tc.lpaType,
@@ -192,7 +192,7 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 					},
 				}, nil)
 
-			err := ChooseReplacementAttorneysSummary(nil, nil, lpaStore)(testAppData, w, r)
+			err := ChooseReplacementAttorneysSummary(nil, nil, donorStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -211,8 +211,8 @@ func TestPostChooseReplacementAttorneySummaryFormValidation(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{ReplacementAttorneys: actor.Attorneys{{}}}, nil)
 
@@ -225,7 +225,7 @@ func TestPostChooseReplacementAttorneySummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysSummary(nil, template.Execute, lpaStore)(testAppData, w, r)
+	err := ChooseReplacementAttorneysSummary(nil, template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

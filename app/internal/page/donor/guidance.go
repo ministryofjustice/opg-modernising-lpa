@@ -14,14 +14,14 @@ type guidanceData struct {
 	Lpa    *page.Lpa
 }
 
-func Guidance(tmpl template.Template, lpaStore GetLpaStore) page.Handler {
+func Guidance(tmpl template.Template, donorStore GetDonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &guidanceData{
 			App: appData,
 		}
 
-		if lpaStore != nil {
-			lpa, err := lpaStore.Get(r.Context())
+		if donorStore != nil {
+			lpa, err := donorStore.Get(r.Context())
 			if err != nil {
 				return err
 			}

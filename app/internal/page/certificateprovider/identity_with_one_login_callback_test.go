@@ -245,7 +245,7 @@ func TestGetIdentityWithOneLoginCallbackWhenGetDataCertificateProviderStoreError
 	assert.Equal(t, expectedError, err)
 }
 
-func TestGetIdentityWithOneLoginCallbackWhenPutDataStoreError(t *testing.T) {
+func TestGetIdentityWithOneLoginCallbackWhenPutCertificateProviderStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}

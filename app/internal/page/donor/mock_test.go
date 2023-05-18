@@ -1,8 +1,6 @@
 package donor
 
 import (
-	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -13,7 +11,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/stretchr/testify/mock"
 )
 
 var mockUuidString = func() string { return "123" }
@@ -35,7 +32,7 @@ var (
 	}
 )
 
-func (m *mockLpaStore) willReturnEmptyLpa(r *http.Request) *mockLpaStore {
+func (m *mockDonorStore) willReturnEmptyLpa(r *http.Request) *mockDonorStore {
 	m.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
@@ -47,7 +44,7 @@ func (m *mockLpaStore) willReturnEmptyLpa(r *http.Request) *mockLpaStore {
 	return m
 }
 
-func (m *mockLpaStore) withCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string) *mockLpaStore {
+func (m *mockDonorStore) withCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string) *mockDonorStore {
 	m.
 		On("Put", r.Context(), &page.Lpa{
 			CertificateProvider: actor.CertificateProvider{
@@ -98,25 +95,4 @@ func (m *mockSessionStore) withExpiredPaySession(r *http.Request, w *httptest.Re
 	m.On("Save", r, w, storeSession).Return(nil)
 
 	return m
-}
-
-type mockDataStore struct {
-	data interface{}
-	mock.Mock
-}
-
-func (m *mockDataStore) GetAll(ctx context.Context, pk string, v interface{}) error {
-	data, _ := json.Marshal(m.data)
-	json.Unmarshal(data, v)
-	return m.Called(ctx, pk).Error(0)
-}
-
-func (m *mockDataStore) Get(ctx context.Context, pk, sk string, v interface{}) error {
-	data, _ := json.Marshal(m.data)
-	json.Unmarshal(data, v)
-	return m.Called(ctx, pk, sk).Error(0)
-}
-
-func (m *mockDataStore) Put(ctx context.Context, pk, sk string, v interface{}) error {
-	return m.Called(ctx, pk, sk, v).Error(0)
 }

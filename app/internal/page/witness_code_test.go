@@ -31,8 +31,8 @@ func TestWitnessCodeSenderSend(t *testing.T) {
 		}).
 		Return("sms-id", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Put", ctx, &Lpa{
 			Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 			CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
@@ -50,7 +50,7 @@ func TestWitnessCodeSenderSend(t *testing.T) {
 		Return("Joe Jones’")
 
 	sender := &WitnessCodeSender{
-		lpaStore:     lpaStore,
+		donorStore:   donorStore,
 		notifyClient: notifyClient,
 		randomCode:   func(int) string { return "1234" },
 		now:          func() time.Time { return now },
@@ -95,7 +95,7 @@ func TestWitnessCodeSenderSendWhenNotifyClientErrors(t *testing.T) {
 	assert.Equal(t, ExpectedError, err)
 }
 
-func TestWitnessCodeSenderSendWhenLpaStoreErrors(t *testing.T) {
+func TestWitnessCodeSenderSendWhenDonorStoreErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
 		On("TemplateID", mock.Anything).
@@ -104,8 +104,8 @@ func TestWitnessCodeSenderSendWhenLpaStoreErrors(t *testing.T) {
 		On("Sms", mock.Anything, mock.Anything).
 		Return("sms-id", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Put", mock.Anything, mock.Anything).
 		Return(ExpectedError)
 
@@ -118,7 +118,7 @@ func TestWitnessCodeSenderSendWhenLpaStoreErrors(t *testing.T) {
 		Return("Joe Jones’")
 
 	sender := &WitnessCodeSender{
-		lpaStore:     lpaStore,
+		donorStore:   donorStore,
 		notifyClient: notifyClient,
 		randomCode:   func(int) string { return "1234" },
 		now:          time.Now,
