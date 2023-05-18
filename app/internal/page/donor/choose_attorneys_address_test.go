@@ -25,8 +25,8 @@ func TestGetChooseAttorneysAddress(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
@@ -40,7 +40,7 @@ func TestGetChooseAttorneysAddress(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -51,12 +51,12 @@ func TestGetChooseAttorneysAddressWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -72,8 +72,8 @@ func TestGetChooseAttorneysAddressFromStore(t *testing.T) {
 		Address: testAddress,
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			Attorneys: actor.Attorneys{attorney},
@@ -94,7 +94,7 @@ func TestGetChooseAttorneysAddressFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -110,8 +110,8 @@ func TestGetChooseAttorneysAddressManual(t *testing.T) {
 		Address: testAddress,
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
@@ -128,7 +128,7 @@ func TestGetChooseAttorneysAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -144,8 +144,8 @@ func TestGetChooseAttorneysAddressWhenTemplateErrors(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
@@ -159,7 +159,7 @@ func TestGetChooseAttorneysAddressWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ChooseAttorneysAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -180,8 +180,8 @@ func TestPostChooseAttorneysAddressSkip(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{{
 			ID:         "123",
@@ -189,14 +189,14 @@ func TestPostChooseAttorneysAddressSkip(t *testing.T) {
 			Email:      "a",
 			Address:    place.Address{Line1: "abc"},
 		}}}, nil)
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			Attorneys: actor.Attorneys{{ID: "123", FirstNames: "a", Email: "a"}},
 			Tasks:     page.Tasks{ChooseAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -218,18 +218,18 @@ func TestPostChooseAttorneysAddressSkipWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{{
 			ID:      "123",
 			Address: place.Address{Line1: "abc"},
 		}}}, nil)
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -248,15 +248,15 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{{
 			ID:         "123",
 			FirstNames: "a",
 			Address:    place.Address{},
 		}}}, nil)
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			Tasks: page.Tasks{ChooseAttorneys: actor.TaskCompleted},
 			Attorneys: actor.Attorneys{{
@@ -267,7 +267,7 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -289,8 +289,8 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			Attorneys: actor.Attorneys{{
@@ -299,11 +299,11 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 			}},
 		}, nil)
 
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -322,8 +322,8 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			Attorneys: actor.Attorneys{{
@@ -334,7 +334,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 			WhoFor: "me",
 		}, nil)
 
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			Tasks: page.Tasks{ChooseAttorneys: actor.TaskCompleted},
 			Attorneys: actor.Attorneys{{
@@ -346,7 +346,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -371,8 +371,8 @@ func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
@@ -396,7 +396,7 @@ func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -430,11 +430,11 @@ func TestPostChooseAttorneysAddressSelect(t *testing.T) {
 		},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			Attorneys: actor.Attorneys{updatedAttorney},
 			Tasks:     page.Tasks{ChooseAttorneys: actor.TaskInProgress},
@@ -458,7 +458,7 @@ func TestPostChooseAttorneysAddressSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -484,8 +484,8 @@ func TestPostChooseAttorneysAddressSelectWhenValidationError(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
@@ -509,7 +509,7 @@ func TestPostChooseAttorneysAddressSelectWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Execute, addressClient, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -540,8 +540,8 @@ func TestPostChooseAttorneysAddressLookup(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
@@ -559,7 +559,7 @@ func TestPostChooseAttorneysAddressLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Execute, addressClient, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -585,8 +585,8 @@ func TestPostChooseAttorneysAddressLookupError(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
@@ -610,7 +610,7 @@ func TestPostChooseAttorneysAddressLookupError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(logger, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(logger, template.Execute, addressClient, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -641,8 +641,8 @@ func TestPostChooseAttorneysInvalidPostcodeError(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
@@ -666,7 +666,7 @@ func TestPostChooseAttorneysInvalidPostcodeError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(logger, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(logger, template.Execute, addressClient, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -691,8 +691,8 @@ func TestPostChooseAttorneysValidPostcodeNoAddresses(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
@@ -716,7 +716,7 @@ func TestPostChooseAttorneysValidPostcodeNoAddresses(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(logger, template.Execute, addressClient, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(logger, template.Execute, addressClient, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -737,8 +737,8 @@ func TestPostChooseAttorneysAddressLookupWhenValidationError(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{Attorneys: actor.Attorneys{attorney}}, nil)
 
@@ -755,7 +755,7 @@ func TestPostChooseAttorneysAddressLookupWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysAddress(nil, template.Execute, nil, lpaStore)(testAppData, w, r)
+	err := ChooseAttorneysAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -807,15 +807,15 @@ func TestPostChooseAttorneysManuallyFromAnotherPage(t *testing.T) {
 				},
 			}
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			donorStore := newMockDonorStore(t)
+			donorStore.
 				On("Get", r.Context()).
 				Return(lpa, nil)
-			lpaStore.
+			donorStore.
 				On("Put", r.Context(), lpa).
 				Return(nil)
 
-			err := ChooseAttorneysAddress(nil, nil, nil, lpaStore)(testAppData, w, r)
+			err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)

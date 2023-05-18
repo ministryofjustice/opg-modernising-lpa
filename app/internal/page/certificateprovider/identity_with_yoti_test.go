@@ -122,7 +122,7 @@ func TestGetIdentityWithYotiWhenTest(t *testing.T) {
 	assert.Equal(t, page.Paths.CertificateProviderIdentityWithYotiCallback, resp.Header.Get("Location"))
 }
 
-func TestGetIdentityWithYotiWhenDataStoreError(t *testing.T) {
+func TestGetIdentityWithYotiWhenCertificateProviderStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 

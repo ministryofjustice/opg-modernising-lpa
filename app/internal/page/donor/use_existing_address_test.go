@@ -26,8 +26,8 @@ func TestGetUseExistingAddress(t *testing.T) {
 		subject,
 	}}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
@@ -43,7 +43,7 @@ func TestGetUseExistingAddress(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UseExistingAddress(template.Execute, lpaStore)(testAppData, w, r)
+	err := UseExistingAddress(template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -54,12 +54,12 @@ func TestGetUseExistingAddressStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?subjectId=2&type=attorney", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := UseExistingAddress(nil, lpaStore)(testAppData, w, r)
+	err := UseExistingAddress(nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -80,12 +80,12 @@ func TestGetUseExistingAddressSubjectNotFound(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/?subjectId=2&type="+tc.Type, nil)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			donorStore := newMockDonorStore(t)
+			donorStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{}, nil)
 
-			err := UseExistingAddress(nil, lpaStore)(testAppData, w, r)
+			err := UseExistingAddress(nil, donorStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, tc.ExpectedError, err)
@@ -114,12 +114,12 @@ func TestGetUseExistingAddressNoAddresses(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/?subjectId=1&type=attorney&from=/somewhere", nil)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			donorStore := newMockDonorStore(t)
+			donorStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{Attorneys: actor.Attorneys{tc.Subject}, ID: "lpa-id"}, nil)
 
-			err := UseExistingAddress(nil, lpaStore)(testAppData, w, r)
+			err := UseExistingAddress(nil, donorStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -140,8 +140,8 @@ func TestGetUseExistingAddressTemplateError(t *testing.T) {
 		subject,
 	}}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
@@ -157,7 +157,7 @@ func TestGetUseExistingAddressTemplateError(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := UseExistingAddress(template.Execute, lpaStore)(testAppData, w, r)
+	err := UseExistingAddress(template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -219,16 +219,16 @@ func TestPostUseExistingAddress(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/?subjectId=2&type="+tc.Type, strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			donorStore := newMockDonorStore(t)
+			donorStore.
 				On("Get", r.Context()).
 				Return(tc.Lpa, nil)
 
-			lpaStore.
+			donorStore.
 				On("Put", r.Context(), tc.UpdatedLpa).
 				Return(nil)
 
-			err := UseExistingAddress(nil, lpaStore)(testAppData, w, r)
+			err := UseExistingAddress(nil, donorStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -249,8 +249,8 @@ func TestPostUseExistingAddressWithMultipleAddresses(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?subjectId=2&type=replacementAttorney", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			Attorneys: []actor.Attorney{
@@ -263,7 +263,7 @@ func TestPostUseExistingAddressWithMultipleAddresses(t *testing.T) {
 			},
 			CertificateProvider: actor.CertificateProvider{FirstNames: "Jorge", LastName: "Smith", Address: newAddress},
 		}, nil)
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			Attorneys: []actor.Attorney{
 				{ID: "1", FirstNames: "Joe", LastName: "Smith", Address: testAddress},
@@ -278,7 +278,7 @@ func TestPostUseExistingAddressWithMultipleAddresses(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UseExistingAddress(nil, lpaStore)(testAppData, w, r)
+	err := UseExistingAddress(nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -341,16 +341,16 @@ func TestPostUseExistingAddressStoreError(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/?subjectId=2&type="+tc.Type, strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			donorStore := newMockDonorStore(t)
+			donorStore.
 				On("Get", r.Context()).
 				Return(tc.Lpa, nil)
 
-			lpaStore.
+			donorStore.
 				On("Put", r.Context(), tc.UpdatedLpa).
 				Return(expectedError)
 
-			err := UseExistingAddress(nil, lpaStore)(testAppData, w, r)
+			err := UseExistingAddress(nil, donorStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -368,8 +368,8 @@ func TestPostUseExistingAddressValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?subjectId=2&type=attorney", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			Attorneys: []actor.Attorney{
@@ -392,7 +392,7 @@ func TestPostUseExistingAddressValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UseExistingAddress(template.Execute, lpaStore)(testAppData, w, r)
+	err := UseExistingAddress(template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

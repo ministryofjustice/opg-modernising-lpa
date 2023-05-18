@@ -14,9 +14,9 @@ func TestGetReadTheLpaWithAttorney(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -33,7 +33,7 @@ func TestGetReadTheLpaWithAttorney(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ReadTheLpa(template.Execute, lpaStore, attorneyStore)(testAppData, w, r)
+	err := ReadTheLpa(template.Execute, donorStore, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,9 +44,9 @@ func TestGetReadTheLpaWithReplacementAttorney(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{ReplacementAttorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -63,23 +63,23 @@ func TestGetReadTheLpaWithReplacementAttorney(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ReadTheLpa(template.Execute, lpaStore, attorneyStore)(testReplacementAppData, w, r)
+	err := ReadTheLpa(template.Execute, donorStore, attorneyStore)(testReplacementAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetReadTheLpaWithAttorneyWhenLpaStoreErrors(t *testing.T) {
+func TestGetReadTheLpaWithAttorneyWhenDonorStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, expectedError)
 
-	err := ReadTheLpa(nil, lpaStore, nil)(testAppData, w, r)
+	err := ReadTheLpa(nil, donorStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -90,9 +90,9 @@ func TestGetReadTheLpaWhenAttorneyStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -100,7 +100,7 @@ func TestGetReadTheLpaWhenAttorneyStoreError(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&actor.AttorneyProvidedDetails{}, expectedError)
 
-	err := ReadTheLpa(nil, lpaStore, attorneyStore)(testAppData, w, r)
+	err := ReadTheLpa(nil, donorStore, attorneyStore)(testAppData, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -108,12 +108,12 @@ func TestGetReadTheLpaWhenAttorneyNotFound(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
-	err := ReadTheLpa(nil, lpaStore, nil)(page.AppData{AttorneyID: "the-wrong-id", ActorType: actor.TypeReplacementAttorney}, w, r)
+	err := ReadTheLpa(nil, donorStore, nil)(page.AppData{AttorneyID: "the-wrong-id", ActorType: actor.TypeReplacementAttorney}, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -125,9 +125,9 @@ func TestGetReadTheLpaWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -144,7 +144,7 @@ func TestGetReadTheLpaWhenTemplateError(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ReadTheLpa(template.Execute, lpaStore, attorneyStore)(testAppData, w, r)
+	err := ReadTheLpa(template.Execute, donorStore, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -155,9 +155,9 @@ func TestPostReadTheLpaWithAttorney(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -172,7 +172,7 @@ func TestPostReadTheLpaWithAttorney(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ReadTheLpa(nil, lpaStore, attorneyStore)(testAppData, w, r)
+	err := ReadTheLpa(nil, donorStore, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -180,13 +180,13 @@ func TestPostReadTheLpaWithAttorney(t *testing.T) {
 	assert.Equal(t, page.Paths.Attorney.RightsAndResponsibilities, resp.Header.Get("Location"))
 }
 
-func TestPostReadTheLpaWithAttorneyOnLpaStoreError(t *testing.T) {
+func TestPostReadTheLpaWithAttorneyOnDonorStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -201,7 +201,7 @@ func TestPostReadTheLpaWithAttorneyOnLpaStoreError(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ReadTheLpa(nil, lpaStore, attorneyStore)(testAppData, w, r)
+	err := ReadTheLpa(nil, donorStore, attorneyStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

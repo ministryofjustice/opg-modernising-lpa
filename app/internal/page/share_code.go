@@ -10,29 +10,19 @@ import (
 
 var useTestCode = false
 
-type ShareCodeData struct {
-	SessionID             string
-	LpaID                 string
-	Identity              bool
-	AttorneyID            string
-	IsReplacementAttorney bool
-	DonorFullname         string
-	DonorFirstNames       string
-}
-
 type ShareCodeSender struct {
-	dataStore    DataStore
-	notifyClient NotifyClient
-	appPublicURL string
-	randomString func(int) string
+	shareCodeStore ShareCodeStore
+	notifyClient   NotifyClient
+	appPublicURL   string
+	randomString   func(int) string
 }
 
-func NewShareCodeSender(dataStore DataStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string) *ShareCodeSender {
+func NewShareCodeSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string) *ShareCodeSender {
 	return &ShareCodeSender{
-		dataStore:    dataStore,
-		notifyClient: notifyClient,
-		appPublicURL: appPublicURL,
-		randomString: randomString,
+		shareCodeStore: shareCodeStore,
+		notifyClient:   notifyClient,
+		appPublicURL:   appPublicURL,
+		randomString:   randomString,
 	}
 }
 
@@ -50,7 +40,7 @@ func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template 
 		shareCode = s.randomString(12)
 	}
 
-	if err := s.dataStore.Put(ctx, "CERTIFICATEPROVIDERSHARE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
+	if err := s.shareCodeStore.Put(ctx, actor.TypeCertificateProvider, shareCode, actor.ShareCodeData{
 		LpaID:           appData.LpaID,
 		Identity:        identity,
 		DonorFullname:   lpa.Donor.FullName(),
@@ -108,7 +98,7 @@ func (s *ShareCodeSender) sendAttorney(ctx context.Context, template notify.Temp
 		shareCode = s.randomString(12)
 	}
 
-	if err := s.dataStore.Put(ctx, "ATTORNEYSHARE#"+shareCode, "#METADATA#"+shareCode, ShareCodeData{
+	if err := s.shareCodeStore.Put(ctx, actor.TypeAttorney, shareCode, actor.ShareCodeData{
 		SessionID:             appData.SessionID,
 		LpaID:                 appData.LpaID,
 		AttorneyID:            attorney.ID,

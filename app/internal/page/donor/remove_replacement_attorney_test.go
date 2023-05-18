@@ -37,12 +37,12 @@ func TestGetRemoveReplacementAttorney(t *testing.T) {
 		}).
 		Return(nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{ReplacementAttorneys: actor.Attorneys{attorney}}, nil)
 
-	err := RemoveReplacementAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
+	err := RemoveReplacementAttorney(logger, template.Execute, donorStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -61,12 +61,12 @@ func TestGetRemoveReplacementAttorneyErrorOnStore(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := RemoveReplacementAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
+	err := RemoveReplacementAttorney(logger, template.Execute, donorStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -88,12 +88,12 @@ func TestGetRemoveReplacementAttorneyAttorneyDoesNotExist(t *testing.T) {
 		},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{ReplacementAttorneys: actor.Attorneys{attorney}}, nil)
 
-	err := RemoveReplacementAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
+	err := RemoveReplacementAttorney(logger, template.Execute, donorStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -158,15 +158,15 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 			logger := newMockLogger(t)
 			template := newMockTemplate(t)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			donorStore := newMockDonorStore(t)
+			donorStore.
 				On("Get", r.Context()).
 				Return(tc.lpa, nil)
-			lpaStore.
+			donorStore.
 				On("Put", r.Context(), tc.updatedLpa).
 				Return(nil)
 
-			err := RemoveReplacementAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
+			err := RemoveReplacementAttorney(logger, template.Execute, donorStore)(testAppData, w, r)
 
 			resp := w.Result()
 
@@ -201,12 +201,12 @@ func TestPostRemoveReplacementAttorneyWithFormValueNo(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{ReplacementAttorneys: actor.Attorneys{attorneyWithoutAddress, attorneyWithAddress}}, nil)
 
-	err := RemoveReplacementAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
+	err := RemoveReplacementAttorney(logger, template.Execute, donorStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -243,18 +243,18 @@ func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			WantReplacementAttorneys: "yes",
 			ReplacementAttorneys:     actor.Attorneys{attorneyWithoutAddress, attorneyWithAddress},
 		}, nil)
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := RemoveReplacementAttorney(logger, template.Execute, lpaStore)(testAppData, w, r)
+	err := RemoveReplacementAttorney(logger, template.Execute, donorStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -276,8 +276,8 @@ func TestRemoveReplacementAttorneyFormValidation(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{ReplacementAttorneys: actor.Attorneys{attorneyWithoutAddress}}, nil)
 
@@ -290,7 +290,7 @@ func TestRemoveReplacementAttorneyFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := RemoveReplacementAttorney(nil, template.Execute, lpaStore)(testAppData, w, r)
+	err := RemoveReplacementAttorney(nil, template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

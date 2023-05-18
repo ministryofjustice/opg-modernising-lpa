@@ -20,8 +20,8 @@ func TestGetDashboard(t *testing.T) {
 		{Lpa: &page.Lpa{ID: "456"}, CertificateProvider: &actor.CertificateProviderProvidedDetails{}},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("GetAll", r.Context()).
 		Return([]*page.Lpa{{ID: "123"}, {ID: "456"}}, nil)
 
@@ -29,12 +29,12 @@ func TestGetDashboard(t *testing.T) {
 
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
 	certificateProviderStore.
-		On("Get", ctx).
+		On("GetAny", ctx).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	ctx = page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "456"})
 	certificateProviderStore.
-		On("Get", ctx).
+		On("GetAny", ctx).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
@@ -42,7 +42,7 @@ func TestGetDashboard(t *testing.T) {
 		On("Execute", w, &dashboardData{App: testAppData, Lpas: dashboardLpaData}).
 		Return(nil)
 
-	err := Dashboard(template.Execute, lpaStore, certificateProviderStore)(testAppData, w, r)
+	err := Dashboard(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -57,8 +57,8 @@ func TestGetDashboardWhenCertificateProviderDoesNotExist(t *testing.T) {
 		{Lpa: &page.Lpa{ID: "123"}, CertificateProvider: &actor.CertificateProviderProvidedDetails{}},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("GetAll", r.Context()).
 		Return([]*page.Lpa{{ID: "123"}}, nil)
 
@@ -66,7 +66,7 @@ func TestGetDashboardWhenCertificateProviderDoesNotExist(t *testing.T) {
 
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
 	certificateProviderStore.
-		On("Get", ctx).
+		On("GetAny", ctx).
 		Return(&actor.CertificateProviderProvidedDetails{}, dynamo.NotFoundError{})
 
 	template := newMockTemplate(t)
@@ -74,23 +74,23 @@ func TestGetDashboardWhenCertificateProviderDoesNotExist(t *testing.T) {
 		On("Execute", w, &dashboardData{App: testAppData, Lpas: dashboardLpaData}).
 		Return(nil)
 
-	err := Dashboard(template.Execute, lpaStore, certificateProviderStore)(testAppData, w, r)
+	err := Dashboard(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetDashboardWhenLpaStoreErrors(t *testing.T) {
+func TestGetDashboardWhenDonorStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("GetAll", r.Context()).
 		Return([]*page.Lpa{}, expectedError)
 
-	err := Dashboard(nil, lpaStore, nil)(testAppData, w, r)
+	err := Dashboard(nil, donorStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -101,8 +101,8 @@ func TestGetDashboardWhenCertificateProviderStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("GetAll", r.Context()).
 		Return([]*page.Lpa{{ID: "123"}}, nil)
 
@@ -110,10 +110,10 @@ func TestGetDashboardWhenCertificateProviderStoreErrors(t *testing.T) {
 
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
 	certificateProviderStore.
-		On("Get", ctx).
+		On("GetAny", ctx).
 		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
-	err := Dashboard(nil, lpaStore, certificateProviderStore)(testAppData, w, r)
+	err := Dashboard(nil, donorStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -128,8 +128,8 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 		{Lpa: &page.Lpa{ID: "123"}, CertificateProvider: &actor.CertificateProviderProvidedDetails{}},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("GetAll", r.Context()).
 		Return([]*page.Lpa{{ID: "123"}}, nil)
 
@@ -137,7 +137,7 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "123"})
 	certificateProviderStore.
-		On("Get", ctx).
+		On("GetAny", ctx).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
@@ -145,7 +145,7 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, &dashboardData{App: testAppData, Lpas: dashboardLpaData}).
 		Return(expectedError)
 
-	err := Dashboard(template.Execute, lpaStore, certificateProviderStore)(testAppData, w, r)
+	err := Dashboard(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -156,12 +156,12 @@ func TestPostDashboard(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Create", r.Context()).
 		Return(&page.Lpa{ID: "123"}, nil)
 
-	err := Dashboard(nil, lpaStore, nil)(testAppData, w, r)
+	err := Dashboard(nil, donorStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -169,16 +169,16 @@ func TestPostDashboard(t *testing.T) {
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.YourDetails, resp.Header.Get("Location"))
 }
 
-func TestPostDashboardWhenLpaStoreError(t *testing.T) {
+func TestPostDashboardWhenDonorStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Create", r.Context()).
 		Return(&page.Lpa{ID: "123"}, expectedError)
 
-	err := Dashboard(nil, lpaStore, nil)(testAppData, w, r)
+	err := Dashboard(nil, donorStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

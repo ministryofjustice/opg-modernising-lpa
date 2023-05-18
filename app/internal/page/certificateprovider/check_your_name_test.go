@@ -32,9 +32,9 @@ func TestGetEnterYourName(t *testing.T) {
 		On("Execute", w, data).
 		Return(nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -42,25 +42,25 @@ func TestGetEnterYourName(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
-	err := CheckYourName(template.Execute, lpaStore, nil, certificateProviderStore)(testAppData, w, r)
+	err := CheckYourName(template.Execute, donorStore, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetEnterYourNameOnLpaStoreError(t *testing.T) {
+func TestGetEnterYourNameOnDonorStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
 	template := newMockTemplate(t)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := CheckYourName(template.Execute, lpaStore, nil, nil)(testAppData, w, r)
+	err := CheckYourName(template.Execute, donorStore, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -73,9 +73,9 @@ func TestGetEnterYourNameOnCertificateProviderStoreError(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -83,7 +83,7 @@ func TestGetEnterYourNameOnCertificateProviderStoreError(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
-	err := CheckYourName(template.Execute, lpaStore, nil, certificateProviderStore)(testAppData, w, r)
+	err := CheckYourName(template.Execute, donorStore, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -108,9 +108,9 @@ func TestGetEnterYourNameOnTemplateError(t *testing.T) {
 		On("Execute", w, data).
 		Return(expectedError)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -118,7 +118,7 @@ func TestGetEnterYourNameOnTemplateError(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
-	err := CheckYourName(template.Execute, lpaStore, nil, certificateProviderStore)(testAppData, w, r)
+	err := CheckYourName(template.Execute, donorStore, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -138,9 +138,9 @@ func TestPostEnterYourName(t *testing.T) {
 		CertificateProvider: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -152,7 +152,7 @@ func TestPostEnterYourName(t *testing.T) {
 		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{FirstNames: "Bob", LastName: "Smith"}).
 		Return(nil)
 
-	err := CheckYourName(nil, lpaStore, nil, certificateProviderStore)(testAppData, w, r)
+	err := CheckYourName(nil, donorStore, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -173,9 +173,9 @@ func TestPostEnterYourNameIsCorrectOnStoreError(t *testing.T) {
 		CertificateProvider: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -187,7 +187,7 @@ func TestPostEnterYourNameIsCorrectOnStoreError(t *testing.T) {
 		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{FirstNames: "Bob", LastName: "Smith"}).
 		Return(expectedError)
 
-	err := CheckYourName(nil, lpaStore, nil, certificateProviderStore)(testAppData, w, r)
+	err := CheckYourName(nil, donorStore, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -209,9 +209,9 @@ func TestPostEnterYourNameWithCorrectedName(t *testing.T) {
 		CertificateProvider: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -234,7 +234,7 @@ func TestPostEnterYourNameWithCorrectedName(t *testing.T) {
 		}).
 		Return("", nil)
 
-	err := CheckYourName(nil, lpaStore, notifyClient, certificateProviderStore)(testAppData, w, r)
+	err := CheckYourName(nil, donorStore, notifyClient, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -257,9 +257,9 @@ func TestPostEnterYourNameWithCorrectedNameWhenStoreError(t *testing.T) {
 		CertificateProvider: actor.CertificateProvider{FirstNames: "Bob", LastName: "Smith"},
 	}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -270,7 +270,7 @@ func TestPostEnterYourNameWithCorrectedNameWhenStoreError(t *testing.T) {
 		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{DeclaredFullName: "Bobby Smith"}).
 		Return(expectedError)
 
-	err := CheckYourName(nil, lpaStore, nil, certificateProviderStore)(testAppData, w, r)
+	err := CheckYourName(nil, donorStore, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -299,9 +299,9 @@ func TestPostEnterYourNameOnValidationError(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -314,7 +314,7 @@ func TestPostEnterYourNameOnValidationError(t *testing.T) {
 		On("Execute", w, data).
 		Return(nil)
 
-	err := CheckYourName(template.Execute, lpaStore, nil, certificateProviderStore)(testAppData, w, r)
+	err := CheckYourName(template.Execute, donorStore, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

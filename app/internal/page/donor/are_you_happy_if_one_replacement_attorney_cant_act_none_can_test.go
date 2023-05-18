@@ -18,8 +18,8 @@ func TestGetAreYouHappyIfOneReplacementAttorneyCantActNoneCan(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
@@ -30,7 +30,7 @@ func TestGetAreYouHappyIfOneReplacementAttorneyCantActNoneCan(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := AreYouHappyIfOneReplacementAttorneyCantActNoneCan(template.Execute, lpaStore)(testAppData, w, r)
+	err := AreYouHappyIfOneReplacementAttorneyCantActNoneCan(template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -41,12 +41,12 @@ func TestGetAreYouHappyIfOneReplacementAttorneyCantActNoneCanWhenStoreErrors(t *
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := AreYouHappyIfOneReplacementAttorneyCantActNoneCan(nil, lpaStore)(testAppData, w, r)
+	err := AreYouHappyIfOneReplacementAttorneyCantActNoneCan(nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -57,8 +57,8 @@ func TestGetAreYouHappyIfOneReplacementAttorneyCantActNoneCanWhenTemplateErrors(
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
@@ -69,7 +69,7 @@ func TestGetAreYouHappyIfOneReplacementAttorneyCantActNoneCanWhenTemplateErrors(
 		}).
 		Return(expectedError)
 
-	err := AreYouHappyIfOneReplacementAttorneyCantActNoneCan(template.Execute, lpaStore)(testAppData, w, r)
+	err := AreYouHappyIfOneReplacementAttorneyCantActNoneCan(template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -123,18 +123,18 @@ func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCan(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStore := newMockLpaStore(t)
-			lpaStore.
+			donorStore := newMockDonorStore(t)
+			donorStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
 					Type:  tc.lpaType,
 					Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 				}, nil)
-			lpaStore.
+			donorStore.
 				On("Put", r.Context(), tc.lpa).
 				Return(nil)
 
-			err := AreYouHappyIfOneReplacementAttorneyCantActNoneCan(nil, lpaStore)(testAppData, w, r)
+			err := AreYouHappyIfOneReplacementAttorneyCantActNoneCan(nil, donorStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -153,15 +153,15 @@ func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCanWhenStoreErrors(t 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
-	lpaStore.
+	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := AreYouHappyIfOneReplacementAttorneyCantActNoneCan(nil, lpaStore)(testAppData, w, r)
+	err := AreYouHappyIfOneReplacementAttorneyCantActNoneCan(nil, donorStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -171,8 +171,8 @@ func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCanWhenValidationErro
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{}, nil)
 
@@ -184,7 +184,7 @@ func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCanWhenValidationErro
 		}).
 		Return(nil)
 
-	err := AreYouHappyIfOneReplacementAttorneyCantActNoneCan(template.Execute, lpaStore)(testAppData, w, r)
+	err := AreYouHappyIfOneReplacementAttorneyCantActNoneCan(template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
