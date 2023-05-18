@@ -134,3 +134,7 @@ func (d Date) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
 
 	return attributevalue.Marshal(string(text))
 }
+
+func (d Date) Time() time.Time {
+	return d.t
+}

@@ -212,3 +212,8 @@ func TestUnmarshal(t *testing.T) {
 		})
 	}
 }
+
+func TestTime(t *testing.T) {
+	date := New("2000", "1", "2")
+	assert.Equal(t, time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC), date.Time())
+}
