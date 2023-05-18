@@ -22,9 +22,9 @@ type yourDetailsData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore sessions.Store) page.Handler {
+func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore sessions.Store) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -77,7 +77,7 @@ func YourDetails(tmpl template.Template, lpaStore LpaStore, sessionStore session
 					lpa.Tasks.YourDetails = actor.TaskInProgress
 				}
 
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 

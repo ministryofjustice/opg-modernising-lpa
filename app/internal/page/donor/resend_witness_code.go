@@ -14,9 +14,9 @@ type resendWitnessCodeData struct {
 	Errors validation.List
 }
 
-func ResendWitnessCode(tmpl template.Template, lpaStore LpaStore, witnessCodeSender WitnessCodeSender, now func() time.Time) page.Handler {
+func ResendWitnessCode(tmpl template.Template, donorStore DonorStore, witnessCodeSender WitnessCodeSender, now func() time.Time) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
 		}

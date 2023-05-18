@@ -16,14 +16,14 @@ type guidanceData struct {
 	CertificateProvider *actor.CertificateProviderProvidedDetails
 }
 
-func Guidance(tmpl template.Template, lpaStore LpaStore, certificateProviderStore CertificateProviderStore) page.Handler {
+func Guidance(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &guidanceData{
 			App: appData,
 		}
 
-		if lpaStore != nil {
-			lpa, err := lpaStore.Get(r.Context())
+		if donorStore != nil {
+			lpa, err := donorStore.GetAny(r.Context())
 			if err != nil {
 				return err
 			}

@@ -21,9 +21,9 @@ type chooseReplacementAttorneysAddressData struct {
 	Lpa       *page.Lpa
 }
 
-func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, lpaStore LpaStore) page.Handler {
+func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -52,7 +52,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 				lpa.ReplacementAttorneys.Put(attorney)
 				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
@@ -64,7 +64,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 				lpa.ReplacementAttorneys.Put(attorney)
 				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
@@ -79,7 +79,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 				lpa.ReplacementAttorneys.Put(attorney)
 				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 			}

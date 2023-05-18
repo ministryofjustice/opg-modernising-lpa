@@ -19,9 +19,9 @@ type witnessingAsCertificateProviderData struct {
 	Lpa    *page.Lpa
 }
 
-func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, shareCodeSender ShareCodeSender, now func() time.Time, certificateProviderStore CertificateProviderStore) page.Handler {
+func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender, now func() time.Time, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -57,7 +57,7 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, 
 				lpa.Submitted = now()
 			}
 
-			if err := lpaStore.Put(r.Context(), lpa); err != nil {
+			if err := donorStore.Put(r.Context(), lpa); err != nil {
 				return err
 			}
 
@@ -67,7 +67,7 @@ func WitnessingAsCertificateProvider(tmpl template.Template, lpaStore LpaStore, 
 					LpaID:     appData.LpaID,
 				})
 
-				certificateProvider, err := certificateProviderStore.Get(ctx)
+				certificateProvider, err := certificateProviderStore.GetAny(ctx)
 				if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 					return err
 				}

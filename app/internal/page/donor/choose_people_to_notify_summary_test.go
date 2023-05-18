@@ -21,8 +21,8 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 
 	lpa := &page.Lpa{PeopleToNotify: actor.PeopleToNotify{{}}}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(lpa, nil)
 
@@ -35,7 +35,7 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifySummary(nil, template.Execute, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifySummary(nil, template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -46,8 +46,8 @@ func TestGetChoosePeopleToNotifySummaryWhenNoPeopleToNotify(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			Tasks: page.Tasks{
@@ -60,7 +60,7 @@ func TestGetChoosePeopleToNotifySummaryWhenNoPeopleToNotify(t *testing.T) {
 			},
 		}, nil)
 
-	err := ChoosePeopleToNotifySummary(nil, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifySummary(nil, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -72,8 +72,8 @@ func TestGetChoosePeopleToNotifySummaryWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{{}}}, expectedError)
 
@@ -82,7 +82,7 @@ func TestGetChoosePeopleToNotifySummaryWhenStoreErrors(t *testing.T) {
 		On("Print", "error getting lpa from store: err").
 		Return(nil)
 
-	err := ChoosePeopleToNotifySummary(logger, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifySummary(logger, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -98,12 +98,12 @@ func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}}, nil)
 
-	err := ChoosePeopleToNotifySummary(nil, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifySummary(nil, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -120,8 +120,8 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{{ID: "123"}},
@@ -136,7 +136,7 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 			},
 		}, nil)
 
-	err := ChoosePeopleToNotifySummary(nil, nil, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifySummary(nil, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -153,8 +153,8 @@ func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
+	donorStore := newMockDonorStore(t)
+	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{{}}}, nil)
 
@@ -167,7 +167,7 @@ func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChoosePeopleToNotifySummary(nil, template.Execute, lpaStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifySummary(nil, template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -18,9 +18,9 @@ type doYouWantToNotifyPeopleData struct {
 	HowWorkTogether string
 }
 
-func DoYouWantToNotifyPeople(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -59,7 +59,7 @@ func DoYouWantToNotifyPeople(tmpl template.Template, lpaStore LpaStore) page.Han
 					lpa.Tasks.PeopleToNotify = actor.TaskCompleted
 				}
 
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 

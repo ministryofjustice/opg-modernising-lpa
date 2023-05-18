@@ -16,9 +16,9 @@ type howLongHaveYouKnownCertificateProviderData struct {
 	HowLong             string
 }
 
-func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -36,7 +36,7 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, lpaStore Lpa
 			if data.Errors.None() {
 				lpa.Tasks.CertificateProvider = actor.TaskCompleted
 				lpa.CertificateProvider.RelationshipLength = form.HowLong
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 

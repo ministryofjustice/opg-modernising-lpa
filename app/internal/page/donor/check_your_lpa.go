@@ -17,9 +17,9 @@ type checkYourLpaData struct {
 	Completed bool
 }
 
-func CheckYourLpa(tmpl template.Template, lpaStore LpaStore) page.Handler {
+func CheckYourLpa(tmpl template.Template, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -43,7 +43,7 @@ func CheckYourLpa(tmpl template.Template, lpaStore LpaStore) page.Handler {
 				lpa.HappyToShare = data.Form.Happy
 				lpa.Tasks.CheckYourLpa = actor.TaskCompleted
 
-				if err := lpaStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 

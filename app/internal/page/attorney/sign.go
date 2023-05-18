@@ -15,7 +15,7 @@ import (
 func canSign(ctx context.Context, certificateProviderStore CertificateProviderStore, lpa *page.Lpa) (bool, error) {
 	ctx = page.ContextWithSessionData(ctx, &page.SessionData{LpaID: lpa.ID})
 
-	certificateProvider, err := certificateProviderStore.Get(ctx)
+	certificateProvider, err := certificateProviderStore.GetAny(ctx)
 	if err != nil {
 		if errors.Is(err, dynamo.NotFoundError{}) {
 			certificateProvider = &actor.CertificateProviderProvidedDetails{}
@@ -38,9 +38,9 @@ type signData struct {
 	Form                       *signForm
 }
 
-func Sign(tmpl template.Template, lpaStore LpaStore, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore) page.Handler {
+func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStore.Get(r.Context())
+		lpa, err := donorStore.GetAny(r.Context())
 		if err != nil {
 			return err
 		}

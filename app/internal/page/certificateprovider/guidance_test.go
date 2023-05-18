@@ -17,9 +17,9 @@ func TestGuidance(t *testing.T) {
 	lpa := &page.Lpa{}
 	certificateProvider := &actor.CertificateProviderProvidedDetails{}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -32,7 +32,7 @@ func TestGuidance(t *testing.T) {
 		On("Execute", w, &guidanceData{App: testAppData, Lpa: lpa, CertificateProvider: certificateProvider}).
 		Return(nil)
 
-	err := Guidance(template.Execute, lpaStore, certificateProviderStore)(testAppData, w, r)
+	err := Guidance(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -56,18 +56,18 @@ func TestGuidanceWhenNilDataStores(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGuidanceWhenLpaStoreErrors(t *testing.T) {
+func TestGuidanceWhenDonorStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpa := &page.Lpa{}
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(lpa, expectedError)
 
-	err := Guidance(nil, lpaStore, nil)(testAppData, w, r)
+	err := Guidance(nil, donorStore, nil)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -90,9 +90,9 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStore := newMockLpaStore(t)
-	lpaStore.
-		On("Get", r.Context()).
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, nil)
 
 	template := newMockTemplate(t)
@@ -100,7 +100,7 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, &guidanceData{App: testAppData, Lpa: &page.Lpa{}}).
 		Return(expectedError)
 
-	err := Guidance(template.Execute, lpaStore, nil)(testAppData, w, r)
+	err := Guidance(template.Execute, donorStore, nil)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }

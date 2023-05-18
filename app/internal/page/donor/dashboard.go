@@ -23,10 +23,10 @@ type dashboardData struct {
 	Lpas   []DashboardLpaDatum
 }
 
-func Dashboard(tmpl template.Template, lpaStore LpaStore, certificateProviderStore CertificateProviderStore) page.Handler {
+func Dashboard(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		if r.Method == http.MethodPost {
-			lpa, err := lpaStore.Create(r.Context())
+			lpa, err := donorStore.Create(r.Context())
 			if err != nil {
 				return err
 			}
@@ -34,7 +34,7 @@ func Dashboard(tmpl template.Template, lpaStore LpaStore, certificateProviderSto
 			return appData.Redirect(w, r, lpa, page.Paths.YourDetails)
 		}
 
-		lpas, err := lpaStore.GetAll(r.Context())
+		lpas, err := donorStore.GetAll(r.Context())
 		if err != nil {
 			return err
 		}
@@ -53,7 +53,7 @@ func Dashboard(tmpl template.Template, lpaStore LpaStore, certificateProviderSto
 	}
 }
 
-func buildDashboardLpaData(lpas []*page.Lpa, store page.CertificateProviderStore, ctx context.Context) ([]DashboardLpaDatum, error) {
+func buildDashboardLpaData(lpas []*page.Lpa, store CertificateProviderStore, ctx context.Context) ([]DashboardLpaDatum, error) {
 	var dashboardLpaData []DashboardLpaDatum
 
 	for _, lpa := range lpas {
@@ -63,7 +63,7 @@ func buildDashboardLpaData(lpas []*page.Lpa, store page.CertificateProviderStore
 
 		ctx := page.ContextWithSessionData(ctx, &page.SessionData{LpaID: lpa.ID})
 
-		cp, err := store.Get(ctx)
+		cp, err := store.GetAny(ctx)
 
 		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 			return dashboardLpaData, err
