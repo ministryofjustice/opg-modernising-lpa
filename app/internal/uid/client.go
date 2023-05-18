@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"time"
 
@@ -78,6 +80,12 @@ func (c *Client) CreateCase(lpa *page.Lpa) (CreateCaseResponse, error) {
 	}
 
 	defer resp.Body.Close()
+
+	b := resp.Body
+	body, err := io.ReadAll(b)
+	log.Println(string(body))
+
+	resp.Body = io.NopCloser(bytes.NewReader(body))
 
 	var createCaseResponse CreateCaseResponse
 
