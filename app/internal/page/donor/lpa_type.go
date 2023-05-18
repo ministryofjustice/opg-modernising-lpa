@@ -15,7 +15,7 @@ type lpaTypeData struct {
 	Type   string
 }
 
-func LpaType(tmpl template.Template, donorStore DonorStore) page.Handler {
+func LpaType(tmpl template.Template, donorStore DonorStore, uidClient UidClient, logger Logger) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
@@ -37,6 +37,14 @@ func LpaType(tmpl template.Template, donorStore DonorStore) page.Handler {
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
+
+				resp, err := uidClient.CreateCase(lpa)
+				if err != nil {
+					logger.Print(err)
+					return err
+				}
+
+				logger.Print("case created with UID: " + resp.Uid)
 
 				return appData.Redirect(w, r, lpa, page.Paths.TaskList)
 			}
