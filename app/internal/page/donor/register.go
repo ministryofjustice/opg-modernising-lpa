@@ -20,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
 //go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
@@ -99,6 +100,11 @@ type WitnessCodeSender interface {
 	Send(context.Context, *page.Lpa, page.Localizer) error
 }
 
+//go:generate mockery --testonly --inpackage --name UidClient --structname mockUidClient
+type UidClient interface {
+	CreateCase(body *uid.CreateCaseRequestBody) (uid.CreateCaseResponse, error)
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -115,6 +121,7 @@ func Register(
 	errorHandler page.ErrorHandler,
 	notFoundHandler page.Handler,
 	certificateProviderStore CertificateProviderStore,
+	uidClient UidClient,
 ) {
 	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
 
@@ -141,7 +148,7 @@ func Register(
 	handleLpa(page.Paths.YourAddress, None,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
 	handleLpa(page.Paths.LpaType, None,
-		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore))
+		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore, uidClient, logger))
 	handleLpa(page.Paths.WhoIsTheLpaFor, None,
 		WhoIsTheLpaFor(tmpls.Get("who_is_the_lpa_for.gohtml"), donorStore))
 

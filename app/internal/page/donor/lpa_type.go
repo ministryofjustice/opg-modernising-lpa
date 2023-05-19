@@ -6,6 +6,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -15,7 +16,7 @@ type lpaTypeData struct {
 	Type   string
 }
 
-func LpaType(tmpl template.Template, donorStore DonorStore) page.Handler {
+func LpaType(tmpl template.Template, donorStore DonorStore, uidClient UidClient, logger Logger) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
@@ -37,6 +38,23 @@ func LpaType(tmpl template.Template, donorStore DonorStore) page.Handler {
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
+
+				body := &uid.CreateCaseRequestBody{
+					Type: lpa.Type,
+					Donor: uid.DonorDetails{
+						Name:     lpa.Donor.FullName(),
+						Dob:      uid.ISODate{Time: lpa.Donor.DateOfBirth.Time()},
+						Postcode: lpa.Donor.Address.Postcode,
+					},
+				}
+
+				resp, err := uidClient.CreateCase(body)
+				if err != nil {
+					logger.Print(err)
+					return err
+				}
+
+				logger.Print("case created with UID: " + resp.Uid)
 
 				return appData.Redirect(w, r, lpa, page.Paths.TaskList)
 			}

@@ -1,0 +1,5 @@
+plugin: openapi
+specFile: https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-uid/main/docs/openapi/openapi.yaml
+
+validation:
+  request: true
