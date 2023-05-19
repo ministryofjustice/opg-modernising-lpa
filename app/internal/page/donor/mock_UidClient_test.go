@@ -3,6 +3,8 @@
 package donor
 
 import (
+	context "context"
+
 	uid "github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -12,23 +14,23 @@ type mockUidClient struct {
 	mock.Mock
 }
 
-// CreateCase provides a mock function with given fields: body
-func (_m *mockUidClient) CreateCase(body *uid.CreateCaseRequestBody) (uid.CreateCaseResponse, error) {
-	ret := _m.Called(body)
+// CreateCase provides a mock function with given fields: _a0, _a1
+func (_m *mockUidClient) CreateCase(_a0 context.Context, _a1 *uid.CreateCaseRequestBody) (uid.CreateCaseResponse, error) {
+	ret := _m.Called(_a0, _a1)
 
 	var r0 uid.CreateCaseResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*uid.CreateCaseRequestBody) (uid.CreateCaseResponse, error)); ok {
-		return rf(body)
+	if rf, ok := ret.Get(0).(func(context.Context, *uid.CreateCaseRequestBody) (uid.CreateCaseResponse, error)); ok {
+		return rf(_a0, _a1)
 	}
-	if rf, ok := ret.Get(0).(func(*uid.CreateCaseRequestBody) uid.CreateCaseResponse); ok {
-		r0 = rf(body)
+	if rf, ok := ret.Get(0).(func(context.Context, *uid.CreateCaseRequestBody) uid.CreateCaseResponse); ok {
+		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Get(0).(uid.CreateCaseResponse)
 	}
 
-	if rf, ok := ret.Get(1).(func(*uid.CreateCaseRequestBody) error); ok {
-		r1 = rf(body)
+	if rf, ok := ret.Get(1).(func(context.Context, *uid.CreateCaseRequestBody) error); ok {
+		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}

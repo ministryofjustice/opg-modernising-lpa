@@ -48,7 +48,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore, uidClient UidClient,
 					},
 				}
 
-				resp, err := uidClient.CreateCase(body)
+				resp, err := uidClient.CreateCase(r.Context(), body)
 				if err != nil {
 					logger.Print(err)
 					return err

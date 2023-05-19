@@ -2,6 +2,7 @@ package uid
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,20 +11,29 @@ import (
 	"time"
 )
 
+const uidServiceName = "execute-api"
+
 //go:generate mockery --testonly --inpackage --name Doer --structname mockDoer
 type Doer interface {
 	Do(*http.Request) (*http.Response, error)
 }
 
+//go:generate mockery --testonly --inpackage --name RequestSigner --structname mockRequestSigner
+type RequestSigner interface {
+	Sign(context.Context, *http.Request, string) error
+}
+
 type Client struct {
 	baseUrl    string
 	httpClient Doer
+	signer     RequestSigner
 }
 
-func New(baseUrl string, httpClient Doer) *Client {
+func New(baseUrl string, httpClient Doer, signer RequestSigner) *Client {
 	return &Client{
 		baseUrl:    baseUrl,
 		httpClient: httpClient,
+		signer:     signer,
 	}
 }
 
@@ -49,7 +59,7 @@ type CreateCaseResponseBadRequestError struct {
 	Detail string `json:"detail"`
 }
 
-func (c *Client) CreateCase(body *CreateCaseRequestBody) (CreateCaseResponse, error) {
+func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (CreateCaseResponse, error) {
 	if !body.Valid() {
 		return CreateCaseResponse{}, errors.New("CreateCaseRequestBody missing details. Requires Type, Donor name, dob and postcode")
 	}
@@ -63,6 +73,11 @@ func (c *Client) CreateCase(body *CreateCaseRequestBody) (CreateCaseResponse, er
 	}
 
 	r.Header.Add("Content-Type", "application/json")
+
+	err = c.signer.Sign(ctx, r, uidServiceName)
+	if err != nil {
+		return CreateCaseResponse{}, err
+	}
 
 	resp, err := c.httpClient.Do(r)
 	if err != nil {

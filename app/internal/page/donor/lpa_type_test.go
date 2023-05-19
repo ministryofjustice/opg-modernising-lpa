@@ -137,7 +137,7 @@ func TestPostLpaType(t *testing.T) {
 
 	uidClient := newMockUidClient(t)
 	uidClient.
-		On("CreateCase", &uid.CreateCaseRequestBody{
+		On("CreateCase", r.Context(), &uid.CreateCaseRequestBody{
 			Type: page.LpaTypePropertyFinance,
 			Donor: uid.DonorDetails{
 				Name:     "Jane Smith",
@@ -215,7 +215,7 @@ func TestPostLpaTypeWhenUidClientErrors(t *testing.T) {
 
 	uidClient := newMockUidClient(t)
 	uidClient.
-		On("CreateCase", mock.Anything).
+		On("CreateCase", mock.Anything, mock.Anything).
 		Return(uid.CreateCaseResponse{}, expectedError)
 
 	logger := newMockLogger(t)

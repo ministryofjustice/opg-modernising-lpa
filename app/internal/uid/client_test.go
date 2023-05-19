@@ -1,6 +1,8 @@
 package uid
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -9,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sign"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -23,10 +26,11 @@ var validBody = &CreateCaseRequestBody{
 }
 
 func TestNew(t *testing.T) {
-	client := New("http://base-url.com", &http.Client{})
+	client := New("http://base-url.com", &http.Client{}, &sign.RequestSigner{})
 
 	assert.Equal(t, "http://base-url.com", client.baseUrl)
 	assert.Equal(t, &http.Client{}, client.httpClient)
+	assert.Equal(t, &sign.RequestSigner{}, client.signer)
 }
 
 func TestCreateCase(t *testing.T) {
@@ -39,6 +43,7 @@ func TestCreateCase(t *testing.T) {
 		defer r.Body.Close()
 
 		rBody, _ := io.ReadAll(r.Body)
+		r.Body = io.NopCloser(bytes.NewBuffer(rBody))
 
 		endpointCalled = r.URL.String()
 		contentTypeSet = r.Header.Get("Content-Type")
@@ -50,8 +55,13 @@ func TestCreateCase(t *testing.T) {
 
 	defer server.Close()
 
-	client := New(server.URL, server.Client())
-	resp, err := client.CreateCase(validBody)
+	requestSigner := newMockRequestSigner(t)
+	requestSigner.
+		On("Sign", context.Background(), mock.Anything, "execute-api").
+		Return(nil)
+
+	client := New(server.URL, server.Client(), requestSigner)
+	resp, err := client.CreateCase(context.Background(), validBody)
 
 	expectedBody := `{"type":"pfa","source":"APPLICANT","donor":{"name":"Jane Smith","dob":"2000-01-02","postcode":"ABC123"}}`
 
@@ -66,8 +76,8 @@ func TestCreateCase(t *testing.T) {
 }
 
 func TestCreateCaseOnInvalidLpaError(t *testing.T) {
-	client := New("/", nil)
-	_, err := client.CreateCase(&CreateCaseRequestBody{})
+	client := New("/", nil, nil)
+	_, err := client.CreateCase(context.Background(), &CreateCaseRequestBody{})
 
 	assert.Equal(t, errors.New("CreateCaseRequestBody missing details. Requires Type, Donor name, dob and postcode"), err)
 }
@@ -77,22 +87,41 @@ func TestCreateCaseOnNewRequestError(t *testing.T) {
 
 	defer server.Close()
 
-	client := New(server.URL+"`invalid-url-format", server.Client())
-	_, err := client.CreateCase(validBody)
+	client := New(server.URL+"`invalid-url-format", server.Client(), nil)
+	_, err := client.CreateCase(context.Background(), validBody)
 
 	assert.NotNil(t, err)
 }
 
+func TestCreateCaseOnSignError(t *testing.T) {
+	expectedError := errors.New("an error")
+
+	requestSigner := newMockRequestSigner(t)
+	requestSigner.
+		On("Sign", context.Background(), mock.Anything, "execute-api").
+		Return(expectedError)
+
+	client := New("/", nil, requestSigner)
+	_, err := client.CreateCase(context.Background(), validBody)
+
+	assert.Equal(t, expectedError, err)
+}
+
 func TestCreateCaseOnDoRequestError(t *testing.T) {
 	expectedError := errors.New("an error")
+
+	requestSigner := newMockRequestSigner(t)
+	requestSigner.
+		On("Sign", context.Background(), mock.Anything, "execute-api").
+		Return(nil)
 
 	httpClient := newMockDoer(t)
 	httpClient.
 		On("Do", mock.Anything).
 		Return(nil, expectedError)
 
-	client := New("/", httpClient)
-	_, err := client.CreateCase(validBody)
+	client := New("/", httpClient, requestSigner)
+	_, err := client.CreateCase(context.Background(), validBody)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -105,8 +134,13 @@ func TestCreateCaseOnJsonNewDecoderError(t *testing.T) {
 
 	defer server.Close()
 
-	client := New(server.URL, server.Client())
-	_, err := client.CreateCase(validBody)
+	requestSigner := newMockRequestSigner(t)
+	requestSigner.
+		On("Sign", context.Background(), mock.Anything, "execute-api").
+		Return(nil)
+
+	client := New(server.URL, server.Client(), requestSigner)
+	_, err := client.CreateCase(context.Background(), validBody)
 
 	assert.IsType(t, &json.SyntaxError{}, err)
 }
@@ -166,8 +200,13 @@ func TestCreateCaseOnBadRequestResponse(t *testing.T) {
 
 	defer server.Close()
 
-	client := New(server.URL, server.Client())
-	resp, err := client.CreateCase(validBody)
+	requestSigner := newMockRequestSigner(t)
+	requestSigner.
+		On("Sign", context.Background(), mock.Anything, "execute-api").
+		Return(nil)
+
+	client := New(server.URL, server.Client(), requestSigner)
+	resp, err := client.CreateCase(context.Background(), validBody)
 
 	assert.Equal(t, errors.New("must match format YYYY-MM-DD"), err)
 	assert.Equal(t, "", resp.Uid)
@@ -207,8 +246,13 @@ func TestCreateCaseNonSuccessResponses(t *testing.T) {
 
 			defer server.Close()
 
-			client := New(server.URL, server.Client())
-			resp, err := client.CreateCase(validBody)
+			requestSigner := newMockRequestSigner(t)
+			requestSigner.
+				On("Sign", context.Background(), mock.Anything, "execute-api").
+				Return(nil)
+
+			client := New(server.URL, server.Client(), requestSigner)
+			resp, err := client.CreateCase(context.Background(), validBody)
 
 			assert.Equal(t, tc.expectedError, err)
 			assert.Equal(t, "", resp.Uid)
