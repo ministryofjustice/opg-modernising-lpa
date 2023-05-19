@@ -151,9 +151,7 @@ func Register(
 	handleLpa(page.Paths.ChooseAttorneys, CanGoBack,
 		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), donorStore, random.UuidString))
 	handleLpa(page.Paths.ChooseAttorneysAddress, CanGoBack,
-		ChooseAttorneysAddress(logger, tmpls.Get("choose_attorneys_address.gohtml"), addressClient, donorStore))
-	handleLpa(page.Paths.UseExistingAddress, CanGoBack,
-		UseExistingAddress(tmpls.Get("use_existing_address.gohtml"), donorStore))
+		ChooseAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleLpa(page.Paths.ChooseAttorneysSummary, CanGoBack,
 		ChooseAttorneysSummary(logger, tmpls.Get("choose_attorneys_summary.gohtml"), donorStore))
 	handleLpa(page.Paths.RemoveAttorney, CanGoBack,
@@ -170,7 +168,7 @@ func Register(
 	handleLpa(page.Paths.ChooseReplacementAttorneys, CanGoBack,
 		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), donorStore, random.UuidString))
 	handleLpa(page.Paths.ChooseReplacementAttorneysAddress, CanGoBack,
-		ChooseReplacementAttorneysAddress(logger, tmpls.Get("choose_replacement_attorneys_address.gohtml"), addressClient, donorStore))
+		ChooseReplacementAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleLpa(page.Paths.ChooseReplacementAttorneysSummary, CanGoBack,
 		ChooseReplacementAttorneysSummary(logger, tmpls.Get("choose_replacement_attorneys_summary.gohtml"), donorStore))
 	handleLpa(page.Paths.RemoveReplacementAttorney, CanGoBack,
@@ -197,7 +195,7 @@ func Register(
 	handleLpa(page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, CanGoBack,
 		HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpls.Get("how_would_certificate_provider_prefer_to_carry_out_their_role.gohtml"), donorStore))
 	handleLpa(page.Paths.CertificateProviderAddress, CanGoBack,
-		CertificateProviderAddress(logger, tmpls.Get("certificate_provider_address.gohtml"), addressClient, donorStore))
+		CertificateProviderAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleLpa(page.Paths.HowDoYouKnowYourCertificateProvider, CanGoBack,
 		HowDoYouKnowYourCertificateProvider(tmpls.Get("how_do_you_know_your_certificate_provider.gohtml"), donorStore))
 	handleLpa(page.Paths.HowLongHaveYouKnownCertificateProvider, CanGoBack,
@@ -208,7 +206,7 @@ func Register(
 	handleLpa(page.Paths.ChoosePeopleToNotify, CanGoBack,
 		ChoosePeopleToNotify(tmpls.Get("choose_people_to_notify.gohtml"), donorStore, random.UuidString))
 	handleLpa(page.Paths.ChoosePeopleToNotifyAddress, CanGoBack,
-		ChoosePeopleToNotifyAddress(logger, tmpls.Get("choose_people_to_notify_address.gohtml"), addressClient, donorStore))
+		ChoosePeopleToNotifyAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleLpa(page.Paths.ChoosePeopleToNotifySummary, CanGoBack,
 		ChoosePeopleToNotifySummary(logger, tmpls.Get("choose_people_to_notify_summary.gohtml"), donorStore))
 	handleLpa(page.Paths.RemovePersonToNotify, CanGoBack,
