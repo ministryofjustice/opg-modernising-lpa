@@ -1,6 +1,6 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "certificateProviderAddressTitle" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "addCertificateProvidersAddress" }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
@@ -8,10 +8,10 @@
       <form novalidate method="post">
         <fieldset class="govuk-fieldset">
           <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-            <h1 class="govuk-fieldset__heading">{{ trFormat .App "certificateProviderAddress" "FirstNames" .CertificateProvider.FirstNames }}</h1>
+            <h1 class="govuk-fieldset__heading">{{ trFormat .App "addPersonAddress" "FullNamePossessive" (possessive .App .CertificateProvider.FullName) }}</h1>
           </legend>
 
-          {{ if eq "manual" .Form.Action }}
+          {{ if eq .Form.Action "manual" }}
             {{ template "input" (input . "address-line-1" "addressLine1" .Form.Address.Line1 "autocomplete" "address-line1") }}
             {{ template "input" (input . "address-line-2" "addressLine2" .Form.Address.Line2 "autocomplete" "address-line2") }}
             {{ template "input" (input . "address-line-3" "addressLine3" .Form.Address.Line3 "autocomplete" "address-line3") }}
@@ -22,7 +22,7 @@
               {{ tr .App "continue" }}
             </button>
 
-          {{ else if .Addresses }}
+          {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
             <input type="hidden" name="lookup-postcode" value="{{ .Form.LookupPostcode }}" />
 
             <div id="select" class="govuk-form-group govuk-!-margin-bottom-6 {{ if .Errors.Has "select-address" }}govuk-form-group--error{{ end }}">
@@ -44,11 +44,11 @@
               </a>
             </p>
 
-            <button name="action" value="select" class="govuk-button" data-module="govuk-button">
+            <button name="action" value="postcode-select" class="govuk-button" data-module="govuk-button">
               {{ tr .App "continue" }}
             </button>
 
-          {{ else }}
+          {{ else if eq .Form.Action "postcode" }}
             <div id="find" class="govuk-form-group govuk-!-margin-bottom-6 {{ if .Errors.Has "lookup-postcode" }}govuk-form-group--error{{ end }}">
               <label class="govuk-label" for="f-lookup-postcode">
                 {{ tr .App "postcode" }}
@@ -66,6 +66,38 @@
             <button name="action" value="lookup" class="govuk-button" data-module="govuk-button">
               {{ tr .App "findAddress" }}
             </button>
+
+          {{ else if eq .Form.Action "reuse" "reuse-select" }}
+            <div class="govuk-form-group {{ if .Errors.Has "select-address" }}govuk-form-group--error{{ end }}">
+              <div class="govuk-radios govuk-radios--small {{ if .Errors.Has "select-address" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
+                {{ range $i, $a := .Addresses }}
+                  <div class="govuk-radios__item">
+                    <input class="govuk-radios__input" id="f-{{ fieldID "select-address" $i }}" name="select-address" type="radio" value="{{ $a.Encode }}">
+                    <label class="govuk-label govuk-radios__label" for="f-{{ fieldID "select-address" $i }}">
+                      {{ range $a.Lines }}{{ . }}<br/>{{ end }}
+                    </label>
+                  </div>
+                {{end}}
+              </div>
+            </div>
+            
+            <div class="govuk-button-group govuk-!-margin-top-6">
+              <button name="action" value="reuse-select" class="govuk-button" data-module="govuk-button">
+                {{ tr .App "continue" }}
+              </button>
+            </div>
+
+          {{ else }}
+            <div class="govuk-form-group {{ if .Errors.Has "action" }}govuk-form-group--error{{ end }}">
+              {{ template "radios" (items . "action" .Form.Action
+                (item "reuse" "useAnAddressYouAlreadyEntered")
+                (item "postcode" "enterNewAddress")
+              ) }}
+            </div>
+              
+            <div class="govuk-button-group">
+              {{ template "continue-button" . }}
+            </div>
           {{ end }}
         </fieldset>
 

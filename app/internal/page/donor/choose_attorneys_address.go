@@ -1,25 +1,13 @@
 package donor
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
-
-type chooseAttorneysAddressData struct {
-	App       page.AppData
-	Errors    validation.List
-	Attorney  actor.Attorney
-	Addresses []place.Address
-	Form      *form.AddressForm
-	Lpa       *page.Lpa
-}
 
 func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
@@ -35,11 +23,13 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneys)
 		}
 
-		data := &chooseAttorneysAddressData{
-			App:      appData,
-			Attorney: attorney,
-			Form:     &form.AddressForm{},
-			Lpa:      lpa,
+		data := &chooseAddressData{
+			App:        appData,
+			ActorLabel: "attorney",
+			FullName:   attorney.FullName(),
+			ID:         attorney.ID,
+			CanSkip:    true,
+			Form:       &form.AddressForm{},
 		}
 
 		if attorney.Address.Line1 != "" {
@@ -51,62 +41,63 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			data.Form = form.ReadAddressForm(r)
 			data.Errors = data.Form.Validate(false)
 
-			if data.Form.Action == "skip" {
-				attorney.Address = place.Address{}
+			setAddress := func(address place.Address) error {
+				attorney.Address = address
 				lpa.Attorneys.Put(attorney)
 				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
 				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				return donorStore.Put(r.Context(), lpa)
+			}
+
+			switch data.Form.Action {
+			case "skip":
+				if err := setAddress(place.Address{}); err != nil {
 					return err
 				}
 
 				return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneysSummary)
-			}
 
-			if data.Form.Action == "manual" && data.Errors.None() {
-				attorney.Address = *data.Form.Address
-				lpa.Attorneys.Put(attorney)
-				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
-				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
-
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
-					return err
-				}
-
-				return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneysSummary)
-			}
-
-			// Force the manual address view after selecting
-			if data.Form.Action == "select" && data.Errors.None() {
-				data.Form.Action = "manual"
-
-				attorney.Address = *data.Form.Address
-				lpa.Attorneys.Put(attorney)
-				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
-				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
-
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
-					return err
-				}
-			}
-
-			if data.Form.Action == "lookup" && data.Errors.None() ||
-				data.Form.Action == "select" && data.Errors.Any() {
-				addresses, err := addressClient.LookupPostcode(r.Context(), data.Form.LookupPostcode)
-				if err != nil {
-					logger.Print(err)
-
-					if errors.As(err, &place.BadRequestError{}) {
-						data.Errors.Add("lookup-postcode", validation.EnterError{Label: "invalidPostcode"})
-					} else {
-						data.Errors.Add("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"})
+			case "manual":
+				if data.Errors.None() {
+					if err := setAddress(*data.Form.Address); err != nil {
+						return err
 					}
-				} else if len(addresses) == 0 {
-					data.Errors.Add("lookup-postcode", validation.CustomError{Label: "noAddressesFound"})
+
+					return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneysSummary)
 				}
 
-				data.Addresses = addresses
+			case "postcode-select":
+				if data.Errors.None() {
+					if err := setAddress(*data.Form.Address); err != nil {
+						return err
+					}
+
+					data.Form.Action = "manual"
+				} else {
+					lookupAddress(r.Context(), logger, addressClient, data, false)
+				}
+
+			case "postcode-lookup":
+				if data.Errors.None() {
+					lookupAddress(r.Context(), logger, addressClient, data, false)
+				} else {
+					data.Form.Action = "postcode"
+				}
+
+			case "reuse":
+				data.Addresses = lpa.ReuseAddresses()
+
+			case "reuse-select":
+				if data.Errors.None() {
+					if err := setAddress(*data.Form.Address); err != nil {
+						return err
+					}
+
+					return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneysSummary)
+				} else {
+					data.Addresses = lpa.ReuseAddresses()
+				}
 			}
 		}
 

@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"golang.org/x/exp/slices"
 )
 
 const (
@@ -244,6 +245,32 @@ func (l *Lpa) ActorAddresses() []AddressDetail {
 	}
 
 	return ads
+}
+
+func (l *Lpa) ReuseAddresses() []place.Address {
+	var addresses []place.Address
+
+	if l.Donor.Address.String() != "" {
+		addresses = append(addresses, l.Donor.Address)
+	}
+
+	if l.CertificateProvider.Address.String() != "" && !slices.Contains(addresses, l.CertificateProvider.Address) {
+		addresses = append(addresses, l.CertificateProvider.Address)
+	}
+
+	for _, attorney := range l.Attorneys {
+		if attorney.Address.String() != "" && !slices.Contains(addresses, attorney.Address) {
+			addresses = append(addresses, attorney.Address)
+		}
+	}
+
+	for _, replacementAttorney := range l.ReplacementAttorneys {
+		if replacementAttorney.Address.String() != "" && !slices.Contains(addresses, replacementAttorney.Address) {
+			addresses = append(addresses, replacementAttorney.Address)
+		}
+	}
+
+	return addresses
 }
 
 func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDecisions) actor.TaskState {
