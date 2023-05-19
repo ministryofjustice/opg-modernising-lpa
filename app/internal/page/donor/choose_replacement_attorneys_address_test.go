@@ -21,8 +21,10 @@ func TestGetChooseReplacementAttorneysAddress(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
 
 	ra := actor.Attorney{
-		ID:      "123",
-		Address: place.Address{},
+		ID:         "123",
+		FirstNames: "John",
+		LastName:   "Smith",
+		Address:    place.Address{},
 	}
 
 	donorStore := newMockDonorStore(t)
@@ -32,11 +34,13 @@ func TestGetChooseReplacementAttorneysAddress(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseReplacementAttorneysAddressData{
-			App:      testAppData,
-			Form:     &form.AddressForm{},
-			Attorney: ra,
-			Lpa:      &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
+		On("Execute", w, &chooseAddressData{
+			App:        testAppData,
+			Form:       &form.AddressForm{},
+			ID:         "123",
+			FullName:   "John Smith",
+			CanSkip:    true,
+			ActorLabel: "replacementAttorney",
 		}).
 		Return(nil)
 
@@ -79,14 +83,16 @@ func TestGetChooseReplacementAttorneysAddressFromStore(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseReplacementAttorneysAddressData{
-			App:      testAppData,
-			Attorney: ra,
+		On("Execute", w, &chooseAddressData{
+			App: testAppData,
 			Form: &form.AddressForm{
 				Action:  "manual",
 				Address: &testAddress,
 			},
-			Lpa: &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
+			ID:         "123",
+			FullName:   " ",
+			CanSkip:    true,
+			ActorLabel: "replacementAttorney",
 		}).
 		Return(nil)
 
@@ -113,14 +119,16 @@ func TestGetChooseReplacementAttorneysAddressManual(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseReplacementAttorneysAddressData{
+		On("Execute", w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:  "manual",
 				Address: &place.Address{},
 			},
-			Attorney: ra,
-			Lpa:      &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
+			ID:         "123",
+			FullName:   " ",
+			CanSkip:    true,
+			ActorLabel: "replacementAttorney",
 		}).
 		Return(nil)
 
@@ -147,11 +155,13 @@ func TestGetChooseReplacementAttorneysAddressWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseReplacementAttorneysAddressData{
-			App:      testAppData,
-			Form:     &form.AddressForm{},
-			Attorney: ra,
-			Lpa:      &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
+		On("Execute", w, &chooseAddressData{
+			App:        testAppData,
+			Form:       &form.AddressForm{},
+			ID:         "123",
+			FullName:   " ",
+			CanSkip:    true,
+			ActorLabel: "replacementAttorney",
 		}).
 		Return(expectedError)
 
@@ -346,15 +356,17 @@ func TestPostChooseReplacementAttorneysAddressManualWhenValidationError(t *testi
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseReplacementAttorneysAddressData{
-			App:      testAppData,
-			Attorney: ra,
+		On("Execute", w, &chooseAddressData{
+			App: testAppData,
 			Form: &form.AddressForm{
 				Action:  "manual",
 				Address: invalidAddress,
 			},
-			Errors: validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
-			Lpa:    &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
+			Errors:     validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
+			ID:         "123",
+			FullName:   " ",
+			CanSkip:    true,
+			ActorLabel: "replacementAttorney",
 		}).
 		Return(nil)
 
@@ -367,7 +379,7 @@ func TestPostChooseReplacementAttorneysAddressManualWhenValidationError(t *testi
 
 func TestPostChooseReplacementAttorneysAddressSelect(t *testing.T) {
 	f := url.Values{
-		"action":          {"select"},
+		"action":          {"postcode-select"},
 		"lookup-postcode": {"NG1"},
 		"select-address":  {testAddress.Encode()},
 	}
@@ -405,18 +417,17 @@ func TestPostChooseReplacementAttorneysAddressSelect(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseReplacementAttorneysAddressData{
-			App:      testAppData,
-			Attorney: ra,
+		On("Execute", w, &chooseAddressData{
+			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "manual",
 				LookupPostcode: "NG1",
 				Address:        &testAddress,
 			},
-			Lpa: &page.Lpa{
-				ReplacementAttorneys: actor.Attorneys{updatedRa},
-				Tasks:                page.Tasks{ChooseReplacementAttorneys: actor.TaskInProgress},
-			},
+			ID:         "123",
+			FullName:   " ",
+			CanSkip:    true,
+			ActorLabel: "replacementAttorney",
 		}).
 		Return(nil)
 
@@ -429,7 +440,7 @@ func TestPostChooseReplacementAttorneysAddressSelect(t *testing.T) {
 
 func TestPostChooseReplacementAttorneysAddressSelectWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":          {"select"},
+		"action":          {"postcode-select"},
 		"lookup-postcode": {"NG1"},
 	}
 
@@ -458,16 +469,18 @@ func TestPostChooseReplacementAttorneysAddressSelectWhenValidationError(t *testi
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseReplacementAttorneysAddressData{
-			App:      testAppData,
-			Attorney: ra,
+		On("Execute", w, &chooseAddressData{
+			App: testAppData,
 			Form: &form.AddressForm{
-				Action:         "select",
+				Action:         "postcode-select",
 				LookupPostcode: "NG1",
 			},
-			Addresses: addresses,
-			Errors:    validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
-			Lpa:       &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
+			Addresses:  addresses,
+			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
+			ID:         "123",
+			FullName:   " ",
+			CanSkip:    true,
+			ActorLabel: "replacementAttorney",
 		}).
 		Return(nil)
 
@@ -480,7 +493,7 @@ func TestPostChooseReplacementAttorneysAddressSelectWhenValidationError(t *testi
 
 func TestPostChooseReplacementAttorneysAddressLookup(t *testing.T) {
 	f := url.Values{
-		"action":          {"lookup"},
+		"action":          {"postcode-lookup"},
 		"lookup-postcode": {"NG1"},
 	}
 
@@ -509,15 +522,17 @@ func TestPostChooseReplacementAttorneysAddressLookup(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseReplacementAttorneysAddressData{
-			App:      testAppData,
-			Attorney: ra,
+		On("Execute", w, &chooseAddressData{
+			App: testAppData,
 			Form: &form.AddressForm{
-				Action:         "lookup",
+				Action:         "postcode-lookup",
 				LookupPostcode: "NG1",
 			},
-			Addresses: addresses,
-			Lpa:       &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
+			Addresses:  addresses,
+			ID:         "123",
+			FullName:   " ",
+			CanSkip:    true,
+			ActorLabel: "replacementAttorney",
 		}).
 		Return(nil)
 
@@ -530,7 +545,7 @@ func TestPostChooseReplacementAttorneysAddressLookup(t *testing.T) {
 
 func TestPostChooseReplacementAttorneysAddressLookupError(t *testing.T) {
 	f := url.Values{
-		"action":          {"lookup"},
+		"action":          {"postcode-lookup"},
 		"lookup-postcode": {"NG1"},
 	}
 
@@ -559,16 +574,18 @@ func TestPostChooseReplacementAttorneysAddressLookupError(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseReplacementAttorneysAddressData{
-			App:      testAppData,
-			Attorney: ra,
+		On("Execute", w, &chooseAddressData{
+			App: testAppData,
 			Form: &form.AddressForm{
-				Action:         "lookup",
+				Action:         "postcode",
 				LookupPostcode: "NG1",
 			},
-			Addresses: []place.Address{},
-			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
-			Lpa:       &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
+			Addresses:  []place.Address{},
+			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
+			ID:         "123",
+			FullName:   " ",
+			CanSkip:    true,
+			ActorLabel: "replacementAttorney",
 		}).
 		Return(nil)
 
@@ -587,7 +604,7 @@ func TestPostChooseReplacementAttorneysInvalidPostcodeError(t *testing.T) {
 	}
 
 	f := url.Values{
-		"action":          {"lookup"},
+		"action":          {"postcode-lookup"},
 		"lookup-postcode": {"XYZ"},
 	}
 
@@ -615,16 +632,18 @@ func TestPostChooseReplacementAttorneysInvalidPostcodeError(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseReplacementAttorneysAddressData{
-			App:      testAppData,
-			Attorney: ra,
+		On("Execute", w, &chooseAddressData{
+			App: testAppData,
 			Form: &form.AddressForm{
-				Action:         "lookup",
+				Action:         "postcode",
 				LookupPostcode: "XYZ",
 			},
-			Addresses: []place.Address{},
-			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
-			Lpa:       &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
+			Addresses:  []place.Address{},
+			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
+			ID:         "123",
+			FullName:   " ",
+			CanSkip:    true,
+			ActorLabel: "replacementAttorney",
 		}).
 		Return(nil)
 
@@ -639,7 +658,7 @@ func TestPostChooseReplacementAttorneysValidPostcodeNoAddresses(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	f := url.Values{
-		"action":          {"lookup"},
+		"action":          {"postcode-lookup"},
 		"lookup-postcode": {"XYZ"},
 	}
 
@@ -665,16 +684,18 @@ func TestPostChooseReplacementAttorneysValidPostcodeNoAddresses(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseReplacementAttorneysAddressData{
-			App:      testAppData,
-			Attorney: ra,
+		On("Execute", w, &chooseAddressData{
+			App: testAppData,
 			Form: &form.AddressForm{
-				Action:         "lookup",
+				Action:         "postcode",
 				LookupPostcode: "XYZ",
 			},
-			Addresses: []place.Address{},
-			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "noAddressesFound"}),
-			Lpa:       &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
+			Addresses:  []place.Address{},
+			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "noAddressesFound"}),
+			ID:         "123",
+			FullName:   " ",
+			CanSkip:    true,
+			ActorLabel: "replacementAttorney",
 		}).
 		Return(nil)
 
@@ -687,7 +708,7 @@ func TestPostChooseReplacementAttorneysValidPostcodeNoAddresses(t *testing.T) {
 
 func TestPostChooseReplacementAttorneysAddressLookupWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action": {"lookup"},
+		"action": {"postcode-lookup"},
 	}
 
 	w := httptest.NewRecorder()
@@ -706,14 +727,16 @@ func TestPostChooseReplacementAttorneysAddressLookupWhenValidationError(t *testi
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseReplacementAttorneysAddressData{
-			App:      testAppData,
-			Attorney: ra,
+		On("Execute", w, &chooseAddressData{
+			App: testAppData,
 			Form: &form.AddressForm{
-				Action: "lookup",
+				Action: "postcode",
 			},
-			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
-			Lpa:    &page.Lpa{ReplacementAttorneys: actor.Attorneys{ra}},
+			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
+			ID:         "123",
+			FullName:   " ",
+			CanSkip:    true,
+			ActorLabel: "replacementAttorney",
 		}).
 		Return(nil)
 

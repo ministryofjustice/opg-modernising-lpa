@@ -40,23 +40,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			data.Form = form.ReadAddressForm(r)
 			data.Errors = data.Form.Validate(true)
 
-			if data.Form.Action == "manual" && data.Errors.None() {
-				attorneyProvidedDetails.Address = *data.Form.Address
-				attorneyProvidedDetails.Tasks.ConfirmYourDetails = actor.TaskCompleted
-
-				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
-					return err
-				}
-
-				return appData.Redirect(w, r, nil, appData.Paths.Attorney.ReadTheLpa)
-			}
-
-			if data.Form.Action == "select" && data.Errors.None() {
-				data.Form.Action = "manual"
-			}
-
-			if data.Form.Action == "lookup" && data.Errors.None() ||
-				data.Form.Action == "select" && data.Errors.Any() {
+			lookupAddress := func() {
 				addresses, err := addressClient.LookupPostcode(r.Context(), data.Form.LookupPostcode)
 				if err != nil {
 					logger.Print(err)
@@ -66,11 +50,43 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 					} else {
 						data.Errors.Add("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"})
 					}
+
+					data.Form.Action = "postcode"
 				} else if len(addresses) == 0 {
 					data.Errors.Add("lookup-postcode", validation.CustomError{Label: "noYourAddressesFound"})
+
+					data.Form.Action = "postcode"
 				}
 
 				data.Addresses = addresses
+			}
+
+			switch data.Form.Action {
+			case "manual":
+				if data.Errors.None() {
+					attorneyProvidedDetails.Address = *data.Form.Address
+					attorneyProvidedDetails.Tasks.ConfirmYourDetails = actor.TaskCompleted
+
+					if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
+						return err
+					}
+
+					return appData.Redirect(w, r, nil, appData.Paths.Attorney.ReadTheLpa)
+				}
+
+			case "postcode-select":
+				if data.Errors.None() {
+					data.Form.Action = "manual"
+				} else {
+					lookupAddress()
+				}
+
+			case "postcode-lookup":
+				if data.Errors.None() {
+					lookupAddress()
+				} else {
+					data.Form.Action = "postcode"
+				}
 			}
 		}
 
