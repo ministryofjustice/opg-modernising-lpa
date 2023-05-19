@@ -49,6 +49,9 @@ describe('Choose attorneys summary', () => {
         cy.url().should('contain', 'from=/choose-attorneys-summary');
         cy.url().should('match', /id=\w*/);
 
+        cy.contains('label', 'Enter a new address').click();
+        cy.contains('button', 'Continue').click();
+
         cy.get('#f-lookup-postcode').type('B14 7ED');
         cy.contains('button', 'Find address').click();
 
@@ -82,6 +85,9 @@ describe('Choose attorneys summary', () => {
         cy.get('input[name="date-of-birth-day"]').clear().type('31');
         cy.get('input[name="date-of-birth-month"]').clear().type('12');
         cy.get('input[name="date-of-birth-year"]').clear().type('1995');
+        cy.contains('button', 'Continue').click();
+
+        cy.contains('label', 'Enter a new address').click();
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/choose-attorneys-address');

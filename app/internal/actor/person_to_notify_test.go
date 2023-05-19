@@ -6,6 +6,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestPersonToNotifyFullName(t *testing.T) {
+	assert.Equal(t, "First Last", PersonToNotify{FirstNames: "First", LastName: "Last"}.FullName())
+}
+
 func TestPeopleToNotifyGet(t *testing.T) {
 	testCases := map[string]struct {
 		peopleToNotify         PeopleToNotify
