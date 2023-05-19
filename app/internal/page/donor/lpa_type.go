@@ -6,6 +6,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -38,7 +39,16 @@ func LpaType(tmpl template.Template, donorStore DonorStore, uidClient UidClient,
 					return err
 				}
 
-				resp, err := uidClient.CreateCase(lpa)
+				body := &uid.CreateCaseRequestBody{
+					Type: lpa.Type,
+					Donor: uid.DonorDetails{
+						Name:     lpa.Donor.FullName(),
+						Dob:      uid.ISODate{Time: lpa.Donor.DateOfBirth.Time()},
+						Postcode: lpa.Donor.Address.Postcode,
+					},
+				}
+
+				resp, err := uidClient.CreateCase(body)
 				if err != nil {
 					logger.Print(err)
 					return err

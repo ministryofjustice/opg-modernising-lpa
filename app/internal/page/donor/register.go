@@ -102,7 +102,7 @@ type WitnessCodeSender interface {
 
 //go:generate mockery --testonly --inpackage --name UidClient --structname mockUidClient
 type UidClient interface {
-	CreateCase(lpa *page.Lpa) (uid.CreateCaseResponse, error)
+	CreateCase(body *uid.CreateCaseRequestBody) (uid.CreateCaseResponse, error)
 }
 
 func Register(

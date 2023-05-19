@@ -123,23 +123,28 @@ func TestPostLpaType(t *testing.T) {
 		},
 		}, nil)
 
-	updatedLpa := &page.Lpa{Donor: actor.Donor{
-		FirstNames:  "Jane",
-		LastName:    "Smith",
-		DateOfBirth: date.New("2000", "1", "2"),
-		Address:     place.Address{Postcode: "ABC123"},
-	},
-		Type:  page.LpaTypePropertyFinance,
-		Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
-	}
-
 	donorStore.
-		On("Put", r.Context(), updatedLpa).
+		On("Put", r.Context(), &page.Lpa{Donor: actor.Donor{
+			FirstNames:  "Jane",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "1", "2"),
+			Address:     place.Address{Postcode: "ABC123"},
+		},
+			Type:  page.LpaTypePropertyFinance,
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
+		}).
 		Return(nil)
 
 	uidClient := newMockUidClient(t)
 	uidClient.
-		On("CreateCase", updatedLpa).
+		On("CreateCase", &uid.CreateCaseRequestBody{
+			Type: page.LpaTypePropertyFinance,
+			Donor: uid.DonorDetails{
+				Name:     "Jane Smith",
+				Dob:      uid.ISODate{Time: date.New("2000", "1", "2").Time()},
+				Postcode: "ABC123",
+			},
+		}).
 		Return(uid.CreateCaseResponse{Uid: "M-789Q-P4DF-4UX3"}, nil)
 
 	logger := newMockLogger(t)

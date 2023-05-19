@@ -7,22 +7,18 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-var validLpa = &page.Lpa{
+var validBody = &CreateCaseRequestBody{
 	Type: "pfa",
-	Donor: actor.Donor{
-		FirstNames:  "Jane",
-		LastName:    "Smith",
-		DateOfBirth: date.New("2000", "1", "2"),
-		Address:     place.Address{Postcode: "ABC123"},
+	Donor: DonorDetails{
+		Name:     "Jane Smith",
+		Dob:      ISODate{Time: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
+		Postcode: "ABC123",
 	},
 }
 
@@ -55,7 +51,7 @@ func TestCreateCase(t *testing.T) {
 	defer server.Close()
 
 	client := New(server.URL, server.Client())
-	resp, err := client.CreateCase(validLpa)
+	resp, err := client.CreateCase(validBody)
 
 	expectedBody := `{"type":"pfa","source":"APPLICANT","donor":{"name":"Jane Smith","dob":"2000-01-02","postcode":"ABC123"}}`
 
@@ -71,9 +67,9 @@ func TestCreateCase(t *testing.T) {
 
 func TestCreateCaseOnInvalidLpaError(t *testing.T) {
 	client := New("/", nil)
-	_, err := client.CreateCase(&page.Lpa{})
+	_, err := client.CreateCase(&CreateCaseRequestBody{})
 
-	assert.Equal(t, errors.New("LPA missing details. Requires Type, Donor name, dob and postcode"), err)
+	assert.Equal(t, errors.New("CreateCaseRequestBody missing details. Requires Type, Donor name, dob and postcode"), err)
 }
 
 func TestCreateCaseOnNewRequestError(t *testing.T) {
@@ -82,7 +78,7 @@ func TestCreateCaseOnNewRequestError(t *testing.T) {
 	defer server.Close()
 
 	client := New(server.URL+"`invalid-url-format", server.Client())
-	_, err := client.CreateCase(&page.Lpa{})
+	_, err := client.CreateCase(validBody)
 
 	assert.NotNil(t, err)
 }
@@ -96,7 +92,7 @@ func TestCreateCaseOnDoRequestError(t *testing.T) {
 		Return(nil, expectedError)
 
 	client := New("/", httpClient)
-	_, err := client.CreateCase(validLpa)
+	_, err := client.CreateCase(validBody)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -110,54 +106,55 @@ func TestCreateCaseOnJsonNewDecoderError(t *testing.T) {
 	defer server.Close()
 
 	client := New(server.URL, server.Client())
-	_, err := client.CreateCase(validLpa)
+	_, err := client.CreateCase(validBody)
 
 	assert.IsType(t, &json.SyntaxError{}, err)
 }
 
 func TestValid(t *testing.T) {
-	testCases := map[string]*page.Lpa{
+	testCases := map[string]*CreateCaseRequestBody{
 		"missing all": {},
 		"missing type": {
-			Donor: actor.Donor{
-				FirstNames:  "Jane",
-				LastName:    "Smith",
-				DateOfBirth: date.New("2000", "1", "2"),
-				Address:     place.Address{Postcode: "ABC123"},
+			Source: "APPLICANT",
+			Donor: DonorDetails{
+				Name:     "Jane Smith",
+				Dob:      ISODate{Time: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
+				Postcode: "ABC123",
 			},
 		},
-		"missing donor fullname": {
-			Type: "pfa",
-			Donor: actor.Donor{
-				DateOfBirth: date.New("2000", "1", "2"),
-				Address:     place.Address{Postcode: "ABC123"},
+		"missing donor name": {
+			Type:   "pfa",
+			Source: "APPLICANT",
+			Donor: DonorDetails{
+				Dob:      ISODate{Time: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
+				Postcode: "ABC123",
 			},
 		},
 		"missing donor date of birth": {
-			Type: "pfa",
-			Donor: actor.Donor{
-				FirstNames: "Jane",
-				LastName:   "Smith",
-				Address:    place.Address{Postcode: "ABC123"},
+			Type:   "pfa",
+			Source: "APPLICANT",
+			Donor: DonorDetails{
+				Name:     "Jane Smith",
+				Postcode: "ABC123",
 			},
 		},
 		"missing donor postcode": {
-			Type: "pfa",
-			Donor: actor.Donor{
-				FirstNames:  "Jane",
-				LastName:    "Smith",
-				DateOfBirth: date.New("2000", "1", "2"),
+			Type:   "pfa",
+			Source: "APPLICANT",
+			Donor: DonorDetails{
+				Name: "Jane Smith",
+				Dob:  ISODate{Time: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
 			},
 		},
 	}
 
-	for name, lpa := range testCases {
+	for name, body := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.False(t, Valid(lpa))
+			assert.False(t, body.Valid())
 		})
 	}
 
-	assert.True(t, Valid(validLpa))
+	assert.True(t, validBody.Valid())
 }
 
 func TestCreateCaseOnBadRequestResponse(t *testing.T) {
@@ -170,7 +167,7 @@ func TestCreateCaseOnBadRequestResponse(t *testing.T) {
 	defer server.Close()
 
 	client := New(server.URL, server.Client())
-	resp, err := client.CreateCase(validLpa)
+	resp, err := client.CreateCase(validBody)
 
 	assert.Equal(t, errors.New("must match format YYYY-MM-DD"), err)
 	assert.Equal(t, "", resp.Uid)
@@ -211,7 +208,7 @@ func TestCreateCaseNonSuccessResponses(t *testing.T) {
 			defer server.Close()
 
 			client := New(server.URL, server.Client())
-			resp, err := client.CreateCase(validLpa)
+			resp, err := client.CreateCase(validBody)
 
 			assert.Equal(t, tc.expectedError, err)
 			assert.Equal(t, "", resp.Uid)
