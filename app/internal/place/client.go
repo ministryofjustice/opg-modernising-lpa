@@ -115,7 +115,7 @@ func (a Address) Encode() string {
 	return string(x)
 }
 
-func (a Address) String() string {
+func (a Address) Lines() []string {
 	var parts []string
 
 	if a.Line1 != "" {
@@ -134,7 +134,11 @@ func (a Address) String() string {
 		parts = append(parts, a.Postcode)
 	}
 
-	return strings.Join(parts, ", ")
+	return parts
+}
+
+func (a Address) String() string {
+	return strings.Join(a.Lines(), ", ")
 }
 
 func (ad *addressDetails) transformToAddress() Address {

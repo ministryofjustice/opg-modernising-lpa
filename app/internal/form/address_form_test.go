@@ -25,33 +25,53 @@ func TestReadAddressForm(t *testing.T) {
 		form   url.Values
 		result *AddressForm
 	}{
-		"lookup": {
+		"postcode-lookup": {
 			form: url.Values{
-				"action":          {"lookup"},
+				"action":          {"postcode-lookup"},
 				"lookup-postcode": {"NG1"},
 			},
 			result: &AddressForm{
-				Action:         "lookup",
+				Action:         "postcode-lookup",
 				LookupPostcode: "NG1",
 			},
 		},
-		"select": {
+		"postcode-select": {
 			form: url.Values{
-				"action":         {"select"},
+				"action":         {"postcode-select"},
 				"select-address": {expectedAddress.Encode()},
 			},
 			result: &AddressForm{
-				Action:  "select",
+				Action:  "postcode-select",
 				Address: expectedAddress,
 			},
 		},
-		"select-not-selected": {
+		"postcode-select not selected": {
 			form: url.Values{
-				"action":         {"select"},
+				"action":         {"postcode-select"},
 				"select-address": {""},
 			},
 			result: &AddressForm{
-				Action:  "select",
+				Action:  "postcode-select",
+				Address: nil,
+			},
+		},
+		"reuse-select": {
+			form: url.Values{
+				"action":         {"reuse-select"},
+				"select-address": {expectedAddress.Encode()},
+			},
+			result: &AddressForm{
+				Action:  "reuse-select",
+				Address: expectedAddress,
+			},
+		},
+		"reuse-select not selected": {
+			form: url.Values{
+				"action":         {"reuse-select"},
+				"select-address": {""},
+			},
+			result: &AddressForm{
+				Action:  "reuse-select",
 				Address: nil,
 			},
 		},
@@ -88,41 +108,66 @@ func TestAddressFormValidate(t *testing.T) {
 		errors  validation.List
 		useYour bool
 	}{
-		"lookup valid": {
+		"action missing": {
+			form:   &AddressForm{},
+			errors: validation.With("action", validation.SelectError{Label: "placeholder"}),
+		},
+		"postcode-lookup valid": {
 			form: &AddressForm{
-				Action:         "lookup",
+				Action:         "postcode-lookup",
 				LookupPostcode: "NG1",
 			},
 		},
-		"lookup missing postcode": {
+		"postcode-lookup missing postcode": {
 			form: &AddressForm{
-				Action: "lookup",
+				Action: "postcode-lookup",
 			},
 			errors: validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
 		},
-		"lookup your missing postcode": {
+		"postcode-lookup your missing postcode": {
 			form: &AddressForm{
-				Action: "lookup",
+				Action: "postcode-lookup",
 			},
 			errors:  validation.With("lookup-postcode", validation.EnterError{Label: "yourPostcode"}),
 			useYour: true,
 		},
-		"select valid": {
+		"postcode-select valid": {
 			form: &AddressForm{
-				Action:  "select",
+				Action:  "postcode-select",
 				Address: &place.Address{},
 			},
 		},
-		"select not selected": {
+		"postcode-select not selected": {
 			form: &AddressForm{
-				Action:  "select",
+				Action:  "postcode-select",
 				Address: nil,
 			},
 			errors: validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 		},
-		"select your address not selected": {
+		"postcode-select your address not selected": {
 			form: &AddressForm{
-				Action:  "select",
+				Action:  "postcode-select",
+				Address: nil,
+			},
+			errors:  validation.With("select-address", validation.SelectError{Label: "yourAddressFromTheList"}),
+			useYour: true,
+		},
+		"reuse-select valid": {
+			form: &AddressForm{
+				Action:  "reuse-select",
+				Address: &place.Address{},
+			},
+		},
+		"reuse-select not selected": {
+			form: &AddressForm{
+				Action:  "reuse-select",
+				Address: nil,
+			},
+			errors: validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
+		},
+		"reuse-select your address not selected": {
+			form: &AddressForm{
+				Action:  "reuse-select",
 				Address: nil,
 			},
 			errors:  validation.With("select-address", validation.SelectError{Label: "yourAddressFromTheList"}),
