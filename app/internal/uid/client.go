@@ -7,12 +7,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"time"
 )
 
-const uidServiceName = "execute-api"
+const apiGatewayServiceName = "execute-api"
 
 //go:generate mockery --testonly --inpackage --name Doer --structname mockDoer
 type Doer interface {
@@ -75,15 +74,9 @@ func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (C
 
 	r.Header.Add("Content-Type", "application/json")
 
-	err = c.signer.Sign(ctx, r, uidServiceName)
+	err = c.signer.Sign(ctx, r, apiGatewayServiceName)
 	if err != nil {
 		return CreateCaseResponse{}, err
-	}
-
-	for name, values := range r.Header {
-		for _, value := range values {
-			log.Println(name, value)
-		}
 	}
 
 	resp, err := c.httpClient.Do(r)
