@@ -11,7 +11,7 @@
             <h1 class="govuk-fieldset__heading">{{ tr .App "whatIsYourAddress" }}</h1>
           </legend>
 
-          {{ if eq "manual" .Form.Action }}
+          {{ if eq .Form.Action "manual" }}
             {{ template "input" (input . "address-line-1" "addressLine1" .Form.Address.Line1 "autocomplete" "address-line1") }}
             {{ template "input" (input . "address-line-2" "addressLine2" .Form.Address.Line2 "autocomplete" "address-line2") }}
             {{ template "input" (input . "address-line-3" "addressLine3" .Form.Address.Line3 "autocomplete" "address-line3") }}
@@ -22,7 +22,7 @@
               {{ tr .App "continue" }}
             </button>
 
-          {{ else if .Addresses }}
+          {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
             <input type="hidden" name="lookup-postcode" value="{{ .Form.LookupPostcode }}" />
 
             <div id="select" class="govuk-form-group govuk-!-margin-bottom-6 {{ if .Errors.Has "select-address" }}govuk-form-group--error{{ end }}">
@@ -44,7 +44,7 @@
               </a>
             </p>
 
-            <button name="action" value="select" class="govuk-button" data-module="govuk-button">
+            <button name="action" value="postcode-select" class="govuk-button" data-module="govuk-button">
               {{ tr .App "continue" }}
             </button>
 
@@ -63,7 +63,7 @@
               </a>
             </p>
 
-            <button name="action" value="lookup" class="govuk-button" data-module="govuk-button">
+            <button name="action" value="postcode-lookup" class="govuk-button" data-module="govuk-button">
               {{ tr .App "findAddress" }}
             </button>
           {{ end }}
