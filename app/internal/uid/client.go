@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 )
@@ -77,6 +78,12 @@ func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (C
 	err = c.signer.Sign(ctx, r, uidServiceName)
 	if err != nil {
 		return CreateCaseResponse{}, err
+	}
+
+	for name, values := range r.Header {
+		for _, value := range values {
+			log.Println(name, value)
+		}
 	}
 
 	resp, err := c.httpClient.Do(r)
