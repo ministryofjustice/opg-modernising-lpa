@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 )
@@ -87,6 +88,12 @@ func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (C
 	defer resp.Body.Close()
 
 	if resp.StatusCode > http.StatusBadRequest {
+		for name, values := range r.Header {
+			for _, value := range values {
+				log.Println(name, value)
+			}
+		}
+
 		body, _ := io.ReadAll(resp.Body)
 		return CreateCaseResponse{}, errors.New(fmt.Sprintf("error POSTing to UID service: (%d) %s", resp.StatusCode, string(body)))
 	}
