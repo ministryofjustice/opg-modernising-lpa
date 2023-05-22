@@ -88,7 +88,7 @@ func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (C
 	defer resp.Body.Close()
 
 	if resp.StatusCode > http.StatusBadRequest {
-		for name, values := range r.Header {
+		for name, values := range resp.Header {
 			for _, value := range values {
 				log.Println(name, value)
 			}
