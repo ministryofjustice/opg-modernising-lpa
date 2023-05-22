@@ -223,6 +223,17 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     ]
   }
 
+  statement {
+    sid    = "uidApiAccess"
+    effect = "Allow"
+    actions = [
+      "execute-api:Invoke",
+    ]
+    resources = [
+      "arn:aws:execute-api:eu-west-1:288342028542:*/*/*",
+    ]
+  }
+
   provider = aws.region
 }
 
