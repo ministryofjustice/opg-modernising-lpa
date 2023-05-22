@@ -49,6 +49,9 @@ describe('Choose replacement attorneys summary', () => {
         cy.url().should('contain', 'from=/choose-replacement-attorneys-summary');
         cy.url().should('match', /id=\w*/);
 
+        cy.contains('label', 'Enter a new address').click();
+        cy.contains('button', 'Continue').click();
+
         cy.get('#f-lookup-postcode').type('B14 7ED');
         cy.contains('button', 'Find address').click();
 
@@ -84,6 +87,9 @@ describe('Choose replacement attorneys summary', () => {
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys-address');
+
+        cy.contains('label', 'Enter a new address').click();
+        cy.contains('button', 'Continue').click();
 
         cy.get('#f-lookup-postcode').type('B14 7ED');
         cy.contains('button', 'Find address').click();
