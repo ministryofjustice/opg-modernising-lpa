@@ -227,6 +227,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     sid    = "uidApiAccess"
     effect = "Allow"
     actions = [
+      "execute-api:ManageConnections",
       "execute-api:Invoke",
     ]
     resources = [
