@@ -215,25 +215,25 @@ func TestLpaProgress(t *testing.T) {
 
 func TestActorAddresses(t *testing.T) {
 	lpa := &Lpa{
-		Donor: actor.Donor{FirstNames: "Donor", LastName: "Actor", Address: address},
+		Donor: actor.Donor{Address: place.Address{Line1: "1"}},
 		Attorneys: []actor.Attorney{
-			{FirstNames: "Attorney One", LastName: "Actor", Address: address},
-			{FirstNames: "Attorney Two", LastName: "Actor", Address: address},
+			{Address: place.Address{Line1: "2"}},
+			{Address: place.Address{Line1: "3"}},
 		},
 		ReplacementAttorneys: []actor.Attorney{
-			{FirstNames: "Replacement Attorney One", LastName: "Actor", Address: address},
-			{FirstNames: "Replacement Attorney Two", LastName: "Actor", Address: address},
+			{Address: place.Address{Line1: "4"}},
+			{Address: place.Address{Line1: "5"}},
 		},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor", Address: address},
+		CertificateProvider: actor.CertificateProvider{Address: place.Address{Line1: "6"}},
 	}
 
-	want := []AddressDetail{
-		{Name: "Donor Actor", Role: actor.TypeDonor, Address: address},
-		{Name: "Certificate Provider Actor", Role: actor.TypeCertificateProvider, Address: address},
-		{Name: "Attorney One Actor", Role: actor.TypeAttorney, Address: address},
-		{Name: "Attorney Two Actor", Role: actor.TypeAttorney, Address: address},
-		{Name: "Replacement Attorney One Actor", Role: actor.TypeReplacementAttorney, Address: address},
-		{Name: "Replacement Attorney Two Actor", Role: actor.TypeReplacementAttorney, Address: address},
+	want := []place.Address{
+		{Line1: "1"},
+		{Line1: "6"},
+		{Line1: "2"},
+		{Line1: "3"},
+		{Line1: "4"},
+		{Line1: "5"},
 	}
 
 	assert.Equal(t, want, lpa.ActorAddresses())
@@ -253,11 +253,7 @@ func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
 		CertificateProvider: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor"},
 	}
 
-	want := []AddressDetail{
-		{Name: "Donor Actor", Role: actor.TypeDonor, Address: address},
-		{Name: "Attorney One Actor", Role: actor.TypeAttorney, Address: address},
-		{Name: "Replacement Attorney Two Actor", Role: actor.TypeReplacementAttorney, Address: address},
-	}
+	want := []place.Address{address}
 
 	assert.Equal(t, want, lpa.ActorAddresses())
 }

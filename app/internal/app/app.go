@@ -78,7 +78,6 @@ func App(
 		donorStore,
 		oneLoginClient,
 		shareCodeStore,
-		addressClient,
 		errorHandler,
 		yotiClient,
 		notifyClient,
