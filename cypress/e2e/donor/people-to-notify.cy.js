@@ -207,6 +207,9 @@ function addPersonToNotify(p, manualAddress) {
 
     cy.contains('button', 'Continue').click();
 
+    cy.contains('label', 'Enter a new address').click();
+    cy.contains('button', 'Continue').click();
+
     cy.url().should('contain', '/choose-people-to-notify-address');
     cy.checkA11yApp();
 

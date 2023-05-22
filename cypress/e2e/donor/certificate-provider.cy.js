@@ -111,6 +111,8 @@ describe('Certificate provider task', () => {
 
         cy.url().should('contain', '/certificate-provider-address');
 
+        cy.contains('label', 'Enter a new address').click();
+        cy.contains('button', 'Continue').click();
         AddressFormAssertions.assertCanAddAddressFromSelect()
 
         cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
@@ -204,21 +206,29 @@ describe('Certificate provider task', () => {
 
     it('errors when empty postcode', () => {
         cy.visitLpa('/certificate-provider-address');
+        cy.contains('label', 'Enter a new address').click();
+        cy.contains('button', 'Continue').click();
         AddressFormAssertions.assertErrorsWhenPostcodeEmpty()
     });
 
     it('errors when unselected', () => {
         cy.visitLpa('/certificate-provider-address');
+        cy.contains('label', 'Enter a new address').click();
+        cy.contains('button', 'Continue').click();
         AddressFormAssertions.assertErrorsWhenUnselected()
     });
 
     it('errors when manual incorrect', () => {
         cy.visitLpa('/certificate-provider-address');
+        cy.contains('label', 'Enter a new address').click();
+        cy.contains('button', 'Continue').click();
         AddressFormAssertions.assertErrorsWhenManualIncorrect('I can’t find their address in the list')
     });
 
     it('errors when invalid postcode', () => {
         cy.visitLpa('/certificate-provider-address');
+        cy.contains('label', 'Enter a new address').click();
+        cy.contains('button', 'Continue').click();
         AddressFormAssertions.assertErrorsWhenInvalidPostcode()
     });
 

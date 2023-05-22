@@ -14,7 +14,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
@@ -47,11 +46,6 @@ type OneLoginClient interface {
 //go:generate mockery --testonly --inpackage --name ShareCodeStore --structname mockShareCodeStore
 type ShareCodeStore interface {
 	Get(context.Context, actor.Type, string) (actor.ShareCodeData, error)
-}
-
-//go:generate mockery --testonly --inpackage --name AddressClient --structname mockAddressClient
-type AddressClient interface {
-	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
 }
 
 //go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
@@ -87,7 +81,6 @@ func Register(
 	donorStore DonorStore,
 	oneLoginClient OneLoginClient,
 	shareCodeStore ShareCodeStore,
-	addressClient AddressClient,
 	errorHandler page.ErrorHandler,
 	yotiClient YotiClient,
 	notifyClient NotifyClient,
