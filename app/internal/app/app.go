@@ -22,6 +22,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
 //go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
@@ -49,6 +50,7 @@ func App(
 	staticHash string,
 	paths page.AppPaths,
 	oneLoginClient *onelogin.Client,
+	uidClient *uid.Client,
 ) http.Handler {
 	donorStore := &donorStore{dataStore: dataStore, uuidString: uuid.NewString, now: time.Now}
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: time.Now}
@@ -115,6 +117,7 @@ func App(
 		errorHandler,
 		notFoundHandler,
 		certificateProviderStore,
+		uidClient,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash)
