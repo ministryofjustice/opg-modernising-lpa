@@ -313,7 +313,7 @@ func TestPostYourAddressSelect(t *testing.T) {
 	}
 
 	f := url.Values{
-		"action":          {"select"},
+		"action":          {"postcode-select"},
 		"lookup-postcode": {"NG1"},
 		"select-address":  {expectedAddress.Encode()},
 	}
@@ -348,7 +348,7 @@ func TestPostYourAddressSelect(t *testing.T) {
 
 func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":          {"select"},
+		"action":          {"postcode-select"},
 		"lookup-postcode": {"NG1"},
 	}
 
@@ -375,7 +375,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 		On("Execute", w, &yourAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action:         "select",
+				Action:         "postcode-select",
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
@@ -392,7 +392,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 
 func TestPostYourAddressLookup(t *testing.T) {
 	f := url.Values{
-		"action":          {"lookup"},
+		"action":          {"postcode-lookup"},
 		"lookup-postcode": {"NG1"},
 	}
 
@@ -419,7 +419,7 @@ func TestPostYourAddressLookup(t *testing.T) {
 		On("Execute", w, &yourAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action:         "lookup",
+				Action:         "postcode-lookup",
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
@@ -435,7 +435,7 @@ func TestPostYourAddressLookup(t *testing.T) {
 
 func TestPostYourAddressLookupError(t *testing.T) {
 	f := url.Values{
-		"action":          {"lookup"},
+		"action":          {"postcode-lookup"},
 		"lookup-postcode": {"NG1"},
 	}
 
@@ -462,7 +462,7 @@ func TestPostYourAddressLookupError(t *testing.T) {
 		On("Execute", w, &yourAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action:         "lookup",
+				Action:         "postcode",
 				LookupPostcode: "NG1",
 			},
 			Addresses: []place.Address{},
@@ -485,7 +485,7 @@ func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
 	}
 
 	f := url.Values{
-		"action":          {"lookup"},
+		"action":          {"postcode-lookup"},
 		"lookup-postcode": {"XYZ"},
 	}
 
@@ -511,7 +511,7 @@ func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
 		On("Execute", w, &yourAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action:         "lookup",
+				Action:         "postcode",
 				LookupPostcode: "XYZ",
 			},
 			Addresses: []place.Address{},
@@ -530,7 +530,7 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	f := url.Values{
-		"action":          {"lookup"},
+		"action":          {"postcode-lookup"},
 		"lookup-postcode": {"XYZ"},
 	}
 
@@ -554,7 +554,7 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 		On("Execute", w, &yourAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action:         "lookup",
+				Action:         "postcode",
 				LookupPostcode: "XYZ",
 			},
 			Addresses: []place.Address{},
@@ -571,7 +571,7 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 
 func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action": {"lookup"},
+		"action": {"postcode-lookup"},
 	}
 
 	w := httptest.NewRecorder()
@@ -588,7 +588,7 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 		On("Execute", w, &yourAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action: "lookup",
+				Action: "postcode",
 			},
 			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "yourPostcode"}),
 		}).

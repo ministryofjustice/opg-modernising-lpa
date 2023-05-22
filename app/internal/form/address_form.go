@@ -19,11 +19,17 @@ func ReadAddressForm(r *http.Request) *AddressForm {
 	f.Action = r.PostFormValue("action")
 
 	switch f.Action {
-	case "lookup":
+	case "postcode-lookup":
 		f.LookupPostcode = page.PostFormString(r, "lookup-postcode")
 
-	case "select":
+	case "postcode-select":
 		f.LookupPostcode = page.PostFormString(r, "lookup-postcode")
+		selectAddress := r.PostFormValue("select-address")
+		if selectAddress != "" {
+			f.Address = page.DecodeAddress(selectAddress)
+		}
+
+	case "reuse-select":
 		selectAddress := r.PostFormValue("select-address")
 		if selectAddress != "" {
 			f.Address = page.DecodeAddress(selectAddress)
@@ -45,8 +51,11 @@ func ReadAddressForm(r *http.Request) *AddressForm {
 func (f *AddressForm) Validate(useYour bool) validation.List {
 	var errors validation.List
 
+	errors.String("action", "placeholder", f.Action,
+		validation.Select("reuse", "reuse-select", "postcode", "postcode-lookup", "postcode-select", "manual", "skip"))
+
 	switch f.Action {
-	case "lookup":
+	case "postcode-lookup":
 		if useYour {
 			errors.String("lookup-postcode", "yourPostcode", f.LookupPostcode,
 				validation.Empty())
@@ -55,7 +64,7 @@ func (f *AddressForm) Validate(useYour bool) validation.List {
 				validation.Empty())
 		}
 
-	case "select":
+	case "postcode-select", "reuse-select":
 		if useYour {
 			errors.Address("select-address", "yourAddressFromTheList", f.Address,
 				validation.Selected())
