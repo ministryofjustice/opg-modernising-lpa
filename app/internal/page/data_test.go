@@ -5,19 +5,10 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 )
-
-var validAttorney = actor.Attorney{
-	ID:          "123",
-	Address:     address,
-	FirstNames:  "Joan",
-	LastName:    "Jones",
-	DateOfBirth: date.New("2000", "1", "2"),
-}
 
 var address = place.Address{
 	Line1:      "a",
