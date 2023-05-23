@@ -245,6 +245,28 @@
       </div>
     {{ end }}
 
+    {{ if eq .Lpa.Type "hw" }}
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+          {{ tr .App "lifeSustainingTreatment" }}
+        </dt>
+        <dd class="govuk-summary-list__value">
+          {{ if eq .Lpa.LifeSustainingTreatmentOption "option-a" }}
+            <p class="govuk-body">{{ trHtml .App "optionA" }}</p>
+          {{ else }}
+            <p class="govuk-body">{{ trHtml .App "optionB" }}</p>
+          {{ end }}
+        </dd>
+        {{ if $canChange }}
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App .App.Paths.LifeSustainingTreatment }}">
+              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "lifeSustainingTreatment" }}</span>
+            </a>
+          </dd>
+        {{ end }}
+      </div>
+    {{ end }}
+
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
         {{ tr .App "restrictions" }}

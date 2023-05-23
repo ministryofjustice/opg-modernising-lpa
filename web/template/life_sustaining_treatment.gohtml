@@ -5,20 +5,28 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "lifeSustainingTreatment" }}</h1>
+
+      {{ template "warning" (warning .App "thisIsAnImportantDecision") }}
+
+      {{ trHtml .App "lifeSustainingTreatmentContent" }}
+
+      {{ template "details" (details . "examplesOfLifeSustainingTreatment" "examplesOfLifeSustainingTreatmentDetailsContent" false) }}
+
+      <p class="govuk-body">{{ tr .App "ifYouDoGiveAttorneysAuthority" }}</p>
+
       <form novalidate method="post">
         <div class="govuk-form-group {{ if .Errors.Has "option" }}govuk-form-group--error{{ end }}">
           <fieldset class="govuk-fieldset">
-            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-              <h1 class="govuk-fieldset__heading">
-                {{ tr .App "lifeSustainingTreatment" }}
-              </h1>
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+              {{ tr .App "doYouWantYourAttorneysToMakeDecisionsAboutLifeSustainingTreatment" }}
             </legend>
 
             {{ template "error-message" (errorMessage . "option") }}
 
             {{ template "radios" (items . "option" .Option
-              (item "option-a" "optionA")
-              (item "option-b" "optionB")
+              (item "option-a" "optionA" "hint" "optionAHint")
+              (item "option-b" "optionB" "hint" "optionBHint")
             ) }}
           </fieldset>
         </div>
