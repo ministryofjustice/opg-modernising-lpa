@@ -232,6 +232,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     ]
     resources = [
       "arn:aws:execute-api:eu-west-1:288342028542:*/*/*/*",
+      "arn:aws:execute-api:eu-west-2:288342028542:*/*/*/*",
     ]
   }
 
