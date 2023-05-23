@@ -25,6 +25,8 @@ type RequestSigner struct {
 func main() {
 	baseUrl := flag.String("baseUrl", "https://development.lpa-uid.api.opg.service.justice.gov.uk", "Base URL of UID service (defaults to 'https://development.lpa-uid.api.opg.service.justice.gov.uk'")
 
+	flag.Parse()
+
 	log.Println("POSTing to: " + *baseUrl)
 
 	cfg, err := config.LoadDefaultConfig(context.TODO())
