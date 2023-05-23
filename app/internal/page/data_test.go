@@ -129,16 +129,19 @@ func TestCanGoTo(t *testing.T) {
 			expected: false,
 		},
 		"about payment with tasks": {
-			lpa: &Lpa{Tasks: Tasks{
-				YourDetails:                actor.TaskCompleted,
-				ChooseAttorneys:            actor.TaskCompleted,
-				ChooseReplacementAttorneys: actor.TaskCompleted,
-				WhenCanTheLpaBeUsed:        actor.TaskCompleted,
-				Restrictions:               actor.TaskCompleted,
-				CertificateProvider:        actor.TaskCompleted,
-				PeopleToNotify:             actor.TaskCompleted,
-				CheckYourLpa:               actor.TaskCompleted,
-			}},
+			lpa: &Lpa{
+				Type: LpaTypePropertyFinance,
+				Tasks: Tasks{
+					YourDetails:                actor.TaskCompleted,
+					ChooseAttorneys:            actor.TaskCompleted,
+					ChooseReplacementAttorneys: actor.TaskCompleted,
+					WhenCanTheLpaBeUsed:        actor.TaskCompleted,
+					Restrictions:               actor.TaskCompleted,
+					CertificateProvider:        actor.TaskCompleted,
+					PeopleToNotify:             actor.TaskCompleted,
+					CheckYourLpa:               actor.TaskCompleted,
+				},
+			},
 			url:      Paths.AboutPayment,
 			expected: true,
 		},
@@ -147,8 +150,21 @@ func TestCanGoTo(t *testing.T) {
 			url:      Paths.SelectYourIdentityOptions,
 			expected: false,
 		},
-		"select your identity options with task": {
-			lpa:      &Lpa{Tasks: Tasks{PayForLpa: actor.TaskCompleted}},
+		"select your identity options with tasks": {
+			lpa: &Lpa{
+				Type: LpaTypeHealthWelfare,
+				Tasks: Tasks{
+					YourDetails:                actor.TaskCompleted,
+					ChooseAttorneys:            actor.TaskCompleted,
+					ChooseReplacementAttorneys: actor.TaskCompleted,
+					LifeSustainingTreatment:    actor.TaskCompleted,
+					Restrictions:               actor.TaskCompleted,
+					CertificateProvider:        actor.TaskCompleted,
+					PeopleToNotify:             actor.TaskCompleted,
+					CheckYourLpa:               actor.TaskCompleted,
+					PayForLpa:                  actor.TaskCompleted,
+				},
+			},
 			url:      Paths.SelectYourIdentityOptions,
 			expected: true,
 		},
