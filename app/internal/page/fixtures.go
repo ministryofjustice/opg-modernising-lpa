@@ -175,13 +175,28 @@ func CompleteHowAttorneysAct(lpa *Lpa, howTheyAct string) {
 	}
 }
 
+func CompleteHowReplacementAttorneysAct(lpa *Lpa, howTheyAct string) {
+	switch howTheyAct {
+	case actor.Jointly:
+		lpa.ReplacementAttorneyDecisions.How = actor.Jointly
+		lpa.ReplacementAttorneyDecisions.HappyIfOneCannotActNoneCan = "yes"
+	case actor.JointlyAndSeverally:
+		lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
+		lpa.ReplacementAttorneyDecisions.HappyIfOneCannotActNoneCan = "yes"
+	default:
+		lpa.ReplacementAttorneyDecisions.How = actor.JointlyForSomeSeverallyForOthers
+		lpa.ReplacementAttorneyDecisions.HappyIfOneCannotActNoneCan = "yes"
+		lpa.ReplacementAttorneyDecisions.Details = "some details"
+	}
+}
+
 func CompleteWhenCanLpaBeUsed(lpa *Lpa) {
 	lpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
 	lpa.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
 }
 
 func CompleteRestrictions(lpa *Lpa) {
-	lpa.Restrictions = "Some restrictions on how Attorneys act"
+	lpa.Restrictions = "My attorneys must not sell my home unless, in my doctor’s opinion, I can no longer live independently"
 	lpa.Tasks.Restrictions = actor.TaskCompleted
 }
 
@@ -327,11 +342,16 @@ func Fixtures(tmpl template.Template) Handler {
 				switch data.Form.Journey {
 				case "attorney":
 					values = url.Values{
-						"useTestShareCode":  {"1"},
-						"sendAttorneyShare": {"1"},
-						"completeLpa":       {"1"},
-						"withType":          {data.Form.Type},
-						"redirect":          {Paths.Attorney.Start},
+						"useTestShareCode":           {"1"},
+						"sendAttorneyShare":          {"1"},
+						"completeLpa":                {"1"},
+						"withAttorneys":              {"1"},
+						"howAttorneysAct":            {"jointly-and-severally"},
+						"withReplacementAttorneys":   {"1"},
+						"howReplacementAttorneysAct": {"jointly"},
+						"withType":                   {data.Form.Type},
+						"withRestrictions":           {"1"},
+						"redirect":                   {Paths.Attorney.Start},
 					}
 					if data.Form.Email != "" {
 						values.Add("withEmail", data.Form.Email)

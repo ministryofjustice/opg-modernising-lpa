@@ -336,6 +336,55 @@ func TestTestingStart(t *testing.T) {
 		}
 	})
 
+	t.Run("how replacement attorneys act", func(t *testing.T) {
+		testCases := []struct {
+			DecisionsType    string
+			DecisionsDetails string
+		}{
+			{DecisionsType: "jointly", DecisionsDetails: ""},
+			{DecisionsType: "jointly-and-severally", DecisionsDetails: ""},
+			{DecisionsType: "mixed", DecisionsDetails: "some details"},
+		}
+
+		for _, tc := range testCases {
+			t.Run(tc.DecisionsType, func(t *testing.T) {
+				w := httptest.NewRecorder()
+				r, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/?redirect=/somewhere&howReplacementAttorneysAct=%s", tc.DecisionsType), nil)
+				ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
+
+				sessionStore := newMockSessionStore(t)
+				sessionStore.
+					On("Save", r, w, mock.Anything).
+					Return(nil)
+
+				donorStore := newMockDonorStore(t)
+				donorStore.
+					On("Create", ctx).
+					Return(&Lpa{ID: "123"}, nil)
+
+				ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
+
+				donorStore.
+					On("Put", ctx, &Lpa{
+						ID: "123",
+						ReplacementAttorneyDecisions: actor.AttorneyDecisions{
+							How:                        tc.DecisionsType,
+							Details:                    tc.DecisionsDetails,
+							HappyIfOneCannotActNoneCan: "yes",
+						},
+					}).
+					Return(nil)
+
+				TestingStart(sessionStore, donorStore, MockRandom, nil, nil, nil, nil, nil, nil).ServeHTTP(w, r)
+				resp := w.Result()
+
+				assert.Equal(t, http.StatusFound, resp.StatusCode)
+				assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
+
+			})
+		}
+	})
+
 	t.Run("with Certificate Provider", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withCPDetails=1", nil)
@@ -549,7 +598,7 @@ func TestTestingStart(t *testing.T) {
 		donorStore.
 			On("Put", ctx, &Lpa{
 				ID:           "123",
-				Restrictions: "Some restrictions on how Attorneys act",
+				Restrictions: "My attorneys must not sell my home unless, in my doctor’s opinion, I can no longer live independently",
 				Tasks:        Tasks{Restrictions: actor.TaskCompleted},
 			}).
 			Return(nil)
@@ -842,7 +891,7 @@ func TestTestingStart(t *testing.T) {
 						},
 					},
 				},
-				Restrictions:             "Some restrictions on how Attorneys act",
+				Restrictions:             "My attorneys must not sell my home unless, in my doctor’s opinion, I can no longer live independently",
 				WhenCanTheLpaBeUsed:      UsedWhenRegistered,
 				WantReplacementAttorneys: "yes",
 				ReplacementAttorneyDecisions: actor.AttorneyDecisions{
@@ -1360,7 +1409,7 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?sendAttorneyShare=1&redirect=/attorney-start", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		lpa := &Lpa{ID: "123", Attorneys: actor.Attorneys{MakeAttorney(AttorneyNames[0])}}
+		lpa := &Lpa{ID: "123"}
 
 		sessionStore := newMockSessionStore(t)
 		sessionStore.
@@ -1372,12 +1421,11 @@ func TestTestingStart(t *testing.T) {
 		donorStore := newMockDonorStore(t)
 		donorStore.
 			On("Create", ctx).
-			Return(&Lpa{ID: "123"}, nil)
+			Return(lpa, nil)
 
 		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
-
 		donorStore.
-			On("Put", ctx, lpa).
+			On("Put", ctx, mock.Anything).
 			Return(nil)
 
 		shareCodeSender := newMockShareCodeSender(t)
@@ -1398,7 +1446,6 @@ func TestTestingStart(t *testing.T) {
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
 		lpa := &Lpa{ID: "123", Attorneys: actor.Attorneys{MakeAttorney(AttorneyNames[0])}}
-		lpa.Attorneys[0].Email = "a@b.c"
 
 		sessionStore := newMockSessionStore(t)
 		sessionStore.
@@ -1410,12 +1457,13 @@ func TestTestingStart(t *testing.T) {
 		donorStore := newMockDonorStore(t)
 		donorStore.
 			On("Create", ctx).
-			Return(&Lpa{ID: "123"}, nil)
+			Return(lpa, nil)
 
+		lpa.Attorneys[0].Email = "a@b.c"
 		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
 
 		donorStore.
-			On("Put", ctx, lpa).
+			On("Put", ctx, mock.Anything).
 			Return(nil)
 
 		shareCodeSender := newMockShareCodeSender(t)
@@ -1435,7 +1483,7 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?sendAttorneyShare=1&forReplacementAttorney=1&redirect=/attorney-start", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		lpa := &Lpa{ID: "123", ReplacementAttorneys: actor.Attorneys{MakeAttorney(AttorneyNames[0])}}
+		lpa := &Lpa{ID: "123"}
 
 		sessionStore := newMockSessionStore(t)
 		sessionStore.

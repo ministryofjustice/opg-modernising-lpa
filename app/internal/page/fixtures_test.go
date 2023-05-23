@@ -137,27 +137,27 @@ func TestPostFixturesAttorneyFlow(t *testing.T) {
 				"email":   {"a@example.org"},
 				"signed":  {"1"},
 			},
-			expectedPath: "/testing-start?completeLpa=1&provideCertificate=1&redirect=%2Fattorney-start&sendAttorneyShare=1&signedByDonor=1&useTestShareCode=1&withEmail=a%40example.org&withType=",
+			expectedPath: "/testing-start?completeLpa=1&howAttorneysAct=jointly-and-severally&howReplacementAttorneysAct=jointly&provideCertificate=1&redirect=%2Fattorney-start&sendAttorneyShare=1&signedByDonor=1&useTestShareCode=1&withAttorneys=1&withEmail=a%40example.org&withReplacementAttorneys=1&withRestrictions=1&withType=",
 		},
 		"without email": {
 			form: url.Values{
 				"journey": {"attorney"},
 			},
-			expectedPath: "/testing-start?completeLpa=1&redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1&withType=",
+			expectedPath: "/testing-start?completeLpa=1&howAttorneysAct=jointly-and-severally&howReplacementAttorneysAct=jointly&redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1&withAttorneys=1&withReplacementAttorneys=1&withRestrictions=1&withType=",
 		},
 		"for replacement attorney": {
 			form: url.Values{
 				"journey":                  {"attorney"},
 				"for-replacement-attorney": {"1"},
 			},
-			expectedPath: "/testing-start?completeLpa=1&forReplacementAttorney=1&redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1&withType=",
+			expectedPath: "/testing-start?completeLpa=1&forReplacementAttorney=1&howAttorneysAct=jointly-and-severally&howReplacementAttorneysAct=jointly&redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1&withAttorneys=1&withReplacementAttorneys=1&withRestrictions=1&withType=",
 		},
 		"with type": {
 			form: url.Values{
 				"journey": {"attorney"},
 				"type":    {"hw"},
 			},
-			expectedPath: "/testing-start?completeLpa=1&redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1&withType=hw",
+			expectedPath: "/testing-start?completeLpa=1&howAttorneysAct=jointly-and-severally&howReplacementAttorneysAct=jointly&redirect=%2Fattorney-start&sendAttorneyShare=1&useTestShareCode=1&withAttorneys=1&withReplacementAttorneys=1&withRestrictions=1&withType=hw",
 		},
 	}
 
