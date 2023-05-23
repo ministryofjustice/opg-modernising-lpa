@@ -135,6 +135,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		}
 
 		if r.FormValue("paymentComplete") != "" || r.FormValue("completeLpa") != "" {
+			CompleteSectionOne(lpa)
 			PayForLpa(lpa, store, r, w, randomString(12))
 		}
 
