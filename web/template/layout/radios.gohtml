@@ -11,7 +11,7 @@
                {{ if $e.hint }}aria-describedby="{{ fieldID $.name $i }}-item-hint"{{ end }}
         >
         <label class="govuk-label govuk-radios__label" for="f-{{ $.name }}{{ if ne $i 0 }}-{{ inc $i }}{{ end }}">
-          {{ tr $.top.App $e.label }}
+          {{ trHtml $.top.App $e.label }}
         </label>
         {{ if $e.hint }}
           <div id="{{ fieldID $.name $i }}-item-hint" class="govuk-hint govuk-radios__hint">
