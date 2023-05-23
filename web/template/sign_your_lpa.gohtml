@@ -20,6 +20,13 @@
       <ul class="govuk-list govuk-list--bullet">
         <li>{{ tr .App "iHaveReadLpa" }}</li>
         <li>{{ trFormat .App "iGiveAttorneysAuthority" "LpaType" $lpaTypeLegalTerm }}</li>
+        {{ if eq .Lpa.Type "hw" }}
+          {{ if eq .Lpa.LifeSustainingTreatmentOption "option-a" }}
+            <li>{{ tr .App "iGiveMyAttorneysAuthorityLifeSustainingTreatment" }}</li>
+          {{ else }}
+            <li>{{ trHtml .App "iDoNotGiveMyAttorneysAuthorityLifeSustainingTreatment" }}</li>
+          {{ end }}
+        {{ end }}
         {{ if gt (len .Lpa.PeopleToNotify) 0 }}
           <li>{{ trFormatCount .App "iHaveChosenNPeopleToNotify" (len .Lpa.PeopleToNotify) }}</li>
         {{ else }}

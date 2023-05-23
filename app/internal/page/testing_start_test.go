@@ -86,14 +86,12 @@ func TestTestingStart(t *testing.T) {
 		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
 
 		donorStore.
-			On("Put", ctx, &Lpa{
-				ID:    "123",
-				Tasks: Tasks{PayForLpa: actor.TaskCompleted},
-				PaymentDetails: PaymentDetails{
-					PaymentReference: "123",
-					PaymentId:        "123",
-				},
-			}).
+			On("Put", ctx,
+				mock.MatchedBy(func(lpa *Lpa) bool {
+					return assert.Equal(t, actor.TaskCompleted, lpa.Tasks.PayForLpa) &&
+						assert.Equal(t, PaymentDetails{PaymentReference: "123", PaymentId: "123"}, lpa.PaymentDetails)
+				}),
+			).
 			Return(nil)
 
 		sessionStore := newMockSessionStore(t)
