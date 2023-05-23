@@ -97,6 +97,10 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			AddReplacementAttorneys(lpa, 2)
 		}
 
+		if r.FormValue("howReplacementAttorneysAct") != "" {
+			CompleteHowReplacementAttorneysAct(lpa, r.FormValue("howReplacementAttorneysAct"))
+		}
+
 		if r.FormValue("whenCanBeUsedComplete") != "" || r.FormValue("completeLpa") != "" {
 			CompleteWhenCanLpaBeUsed(lpa)
 		}
@@ -274,17 +278,13 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		}
 
 		if r.FormValue("sendAttorneyShare") != "" {
-			attorneys := actor.Attorneys{MakeAttorney(AttorneyNames[0])}
-			attorneys[0].Email = TestEmail
+			attorneys := lpa.Attorneys
+			if r.FormValue("forReplacementAttorney") != "" {
+				attorneys = lpa.ReplacementAttorneys
+			}
 
 			if r.FormValue("withEmail") != "" {
 				attorneys[0].Email = r.FormValue("withEmail")
-			}
-
-			if r.FormValue("forReplacementAttorney") != "" {
-				lpa.ReplacementAttorneys = attorneys
-			} else {
-				lpa.Attorneys = attorneys
 			}
 
 			shareCodeSender.SendAttorneys(donorCtx, AppData{
