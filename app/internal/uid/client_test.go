@@ -66,7 +66,7 @@ func TestCreateCase(t *testing.T) {
 	expectedBody := `{"type":"pfa","source":"APPLICANT","donor":{"name":"Jane Smith","dob":"2000-01-02","postcode":"ABC123"}}`
 
 	assert.Equal(t, http.MethodPost, requestMethod)
-	assert.Equal(t, "/current/cases", endpointCalled)
+	assert.Equal(t, "/cases", endpointCalled)
 	assert.Equal(t, "application/json", contentTypeSet)
 	assert.JSONEq(t, expectedBody, requestBody)
 

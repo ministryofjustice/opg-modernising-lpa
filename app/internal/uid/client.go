@@ -68,7 +68,7 @@ func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (C
 	body.Source = "APPLICANT"
 	data, _ := json.Marshal(body)
 
-	r, err := http.NewRequest(http.MethodPost, c.baseUrl+"/current/cases", bytes.NewReader(data))
+	r, err := http.NewRequest(http.MethodPost, c.baseUrl+"/cases", bytes.NewReader(data))
 	if err != nil {
 		return CreateCaseResponse{}, err
 	}
