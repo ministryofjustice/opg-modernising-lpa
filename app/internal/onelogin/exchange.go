@@ -24,18 +24,18 @@ type tokenRequestBody struct {
 type tokenResponseBody struct {
 	AccessToken string `json:"access_token"`
 	TokenType   string `json:"token_type"`
-	IdToken     string `json:"id_token"`
+	IDToken     string `json:"id_token"`
 }
 
-func (c *Client) Exchange(ctx context.Context, code, nonce string) (string, error) {
+func (c *Client) Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error) {
 	privateKeyBytes, err := c.secretsClient.SecretBytes(ctx, secrets.GovUkOneLoginPrivateKey)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKeyBytes)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, &jwt.RegisteredClaims{
@@ -49,7 +49,7 @@ func (c *Client) Exchange(ctx context.Context, code, nonce string) (string, erro
 
 	signedAssertion, err := token.SignedString(privateKey)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	form := url.Values{
@@ -63,30 +63,30 @@ func (c *Client) Exchange(ctx context.Context, code, nonce string) (string, erro
 
 	req, err := http.NewRequest("POST", c.openidConfiguration.TokenEndpoint, strings.NewReader(form.Encode()))
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	res, err := c.httpClient.Do(req)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("token response was not-OK: %d", res.StatusCode)
+		return "", "", fmt.Errorf("token response was not-OK: %d", res.StatusCode)
 	}
 
 	var tokenResponse tokenResponseBody
 	if err := json.NewDecoder(res.Body).Decode(&tokenResponse); err != nil {
-		return "", fmt.Errorf("could not read token body: %w", err)
+		return "", "", fmt.Errorf("could not read token body: %w", err)
 	}
 
-	if err := c.validateToken(tokenResponse.IdToken, nonce); err != nil {
-		return "", fmt.Errorf("id token not valid: %w", err)
+	if err := c.validateToken(tokenResponse.IDToken, nonce); err != nil {
+		return "", "", fmt.Errorf("id token not valid: %w", err)
 	}
 
-	return tokenResponse.AccessToken, err
+	return tokenResponse.IDToken, tokenResponse.AccessToken, err
 }
 
 func (c *Client) validateToken(idToken, nonce string) error {

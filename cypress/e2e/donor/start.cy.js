@@ -8,7 +8,7 @@ describe('Start', () => {
     });
 
     it('has a title', () => {
-        cy.get('h1').should('contain', 'Make a lasting power of attorney');
+        cy.get('h1').should('contain', 'Make and register a lasting power of attorney (LPA)');
     });
 
     it('has a start button', () => {
