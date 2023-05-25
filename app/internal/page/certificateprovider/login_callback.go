@@ -20,7 +20,7 @@ func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store, certi
 			return errors.New("certificate-provider callback with incorrect session")
 		}
 
-		accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), oneLoginSession.Nonce)
+		idToken, accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), oneLoginSession.Nonce)
 		if err != nil {
 			return err
 		}
@@ -31,9 +31,10 @@ func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store, certi
 		}
 
 		if err := sesh.SetCertificateProvider(sessionStore, r, w, &sesh.CertificateProviderSession{
-			Sub:   userInfo.Sub,
-			Email: userInfo.Email,
-			LpaID: oneLoginSession.LpaID,
+			IDToken: idToken,
+			Sub:     userInfo.Sub,
+			Email:   userInfo.Email,
+			LpaID:   oneLoginSession.LpaID,
 		}); err != nil {
 			return err
 		}
