@@ -31,12 +31,13 @@ func (_m *mockOneLoginClient) AuthCodeURL(state string, nonce string, locale str
 }
 
 // Exchange provides a mock function with given fields: ctx, code, nonce
-func (_m *mockOneLoginClient) Exchange(ctx context.Context, code string, nonce string) (string, error) {
+func (_m *mockOneLoginClient) Exchange(ctx context.Context, code string, nonce string) (string, string, error) {
 	ret := _m.Called(ctx, code, nonce)
 
 	var r0 string
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) (string, error)); ok {
+	var r1 string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (string, string, error)); ok {
 		return rf(ctx, code, nonce)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, string, string) string); ok {
@@ -45,13 +46,19 @@ func (_m *mockOneLoginClient) Exchange(ctx context.Context, code string, nonce s
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) string); ok {
 		r1 = rf(ctx, code, nonce)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(string)
 	}
 
-	return r0, r1
+	if rf, ok := ret.Get(2).(func(context.Context, string, string) error); ok {
+		r2 = rf(ctx, code, nonce)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // ParseIdentityClaim provides a mock function with given fields: ctx, userInfo

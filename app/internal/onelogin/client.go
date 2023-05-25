@@ -22,6 +22,7 @@ type openidConfiguration struct {
 	Issuer                string `json:"issuer"`
 	UserinfoEndpoint      string `json:"userinfo_endpoint"`
 	JwksURI               string `json:"jwks_uri"`
+	EndSessionEndpoint    string `json:"end_session_endpoint"`
 }
 
 //go:generate mockery --testonly --inpackage --name Doer --structname mockHttpClient
@@ -109,4 +110,11 @@ func (c *Client) AuthCodeURL(state, nonce, locale string, identity bool) string 
 	}
 
 	return c.openidConfiguration.AuthorizationEndpoint + "?" + q.Encode()
+}
+
+func (c *Client) EndSessionURL(idToken, postLogoutURL string) string {
+	return c.openidConfiguration.EndSessionEndpoint + "?" + url.Values{
+		"id_token_hint":            {idToken},
+		"post_logout_redirect_uri": {postLogoutURL},
+	}.Encode()
 }

@@ -110,6 +110,7 @@ type AppPaths struct {
 	SelectYourIdentityOptions                                  string
 	SelectYourIdentityOptions1                                 string
 	SelectYourIdentityOptions2                                 string
+	SignOut                                                    string
 	SignYourLpa                                                string
 	Start                                                      string
 	TaskList                                                   string
@@ -231,6 +232,7 @@ var Paths = AppPaths{
 	SelectYourIdentityOptions1:                           "/select-identity-document",
 	SelectYourIdentityOptions2:                           "/select-identity-document-2",
 	SelectYourIdentityOptions:                            "/select-your-identity-options",
+	SignOut:                                              "/sign-out",
 	SignYourLpa:                                          "/sign-your-lpa",
 	Start:                                                "/start",
 	TaskList:                                             "/task-list",
@@ -302,5 +304,6 @@ func IsLpaPath(url string) bool {
 		Paths.LoginCallback,
 		Paths.ProvideCertificate,
 		Paths.Start,
+		Paths.SignOut,
 	}, path)
 }

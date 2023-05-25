@@ -14,7 +14,7 @@ func LoginCallback(oneLoginClient OneLoginClient, store sesh.Store) page.Handler
 			return err
 		}
 
-		accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), oneLoginSession.Nonce)
+		idToken, accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), oneLoginSession.Nonce)
 		if err != nil {
 			return err
 		}
@@ -25,8 +25,9 @@ func LoginCallback(oneLoginClient OneLoginClient, store sesh.Store) page.Handler
 		}
 
 		if err := sesh.SetDonor(store, r, w, &sesh.DonorSession{
-			Sub:   userInfo.Sub,
-			Email: userInfo.Email,
+			IDToken: idToken,
+			Sub:     userInfo.Sub,
+			Email:   userInfo.Email,
 		}); err != nil {
 			return err
 		}
