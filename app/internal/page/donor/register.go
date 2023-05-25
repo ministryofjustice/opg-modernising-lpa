@@ -75,7 +75,7 @@ type YotiClient interface {
 //go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
 type OneLoginClient interface {
 	AuthCodeURL(state, nonce, locale string, identity bool) string
-	Exchange(ctx context.Context, code, nonce string) (string, error)
+	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
 	ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error)
 }
