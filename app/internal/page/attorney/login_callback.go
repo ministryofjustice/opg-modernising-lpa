@@ -18,7 +18,7 @@ func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store) page.
 			return errors.New("attorney callback with incorrect session")
 		}
 
-		accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), oneLoginSession.Nonce)
+		idToken, accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), oneLoginSession.Nonce)
 		if err != nil {
 			return err
 		}
@@ -29,8 +29,9 @@ func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store) page.
 		}
 
 		if err := sesh.SetAttorney(sessionStore, r, w, &sesh.AttorneySession{
-			Sub:   userInfo.Sub,
-			Email: userInfo.Email,
+			IDToken: idToken,
+			Sub:     userInfo.Sub,
+			Email:   userInfo.Email,
 		}); err != nil {
 			return err
 		}

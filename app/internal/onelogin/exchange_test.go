@@ -46,7 +46,7 @@ func TestExchange(t *testing.T) {
 	response := tokenResponseBody{
 		AccessToken: "a",
 		TokenType:   "Bearer",
-		IdToken:     token,
+		IDToken:     token,
 	}
 
 	data, _ := json.Marshal(response)
@@ -101,9 +101,10 @@ func TestExchange(t *testing.T) {
 		jwks:         jwks,
 	}
 
-	result, err := client.Exchange(ctx, "my-code", "my-nonce")
+	idToken, accessToken, err := client.Exchange(ctx, "my-code", "my-nonce")
 	assert.Nil(t, err)
-	assert.Equal(t, "a", result)
+	assert.Equal(t, "a", accessToken)
+	assert.Equal(t, token, idToken)
 }
 
 func TestExchangeWhenPrivateKeyError(t *testing.T) {
@@ -116,7 +117,7 @@ func TestExchangeWhenPrivateKeyError(t *testing.T) {
 		secretsClient: secretsClient,
 	}
 
-	_, err := client.Exchange(ctx, "my-code", "my-nonce")
+	_, _, err := client.Exchange(ctx, "my-code", "my-nonce")
 	assert.Equal(t, expectedError, err)
 }
 
@@ -147,7 +148,7 @@ func TestExchangeWhenTokenRequestError(t *testing.T) {
 		randomString: func(i int) string { return "this-is-random" },
 	}
 
-	_, err := client.Exchange(ctx, "my-code", "my-nonce")
+	_, _, err := client.Exchange(ctx, "my-code", "my-nonce")
 	assert.Equal(t, expectedError, err)
 }
 
@@ -249,7 +250,7 @@ func TestExchangeWhenInvalidToken(t *testing.T) {
 			response := tokenResponseBody{
 				AccessToken: "a",
 				TokenType:   "Bearer",
-				IdToken:     token,
+				IDToken:     token,
 			}
 
 			data, _ := json.Marshal(response)
@@ -304,7 +305,7 @@ func TestExchangeWhenInvalidToken(t *testing.T) {
 				jwks:         jwks,
 			}
 
-			_, err = client.Exchange(ctx, "my-code", "my-nonce")
+			_, _, err = client.Exchange(ctx, "my-code", "my-nonce")
 			assert.NotNil(t, err)
 		})
 	}
