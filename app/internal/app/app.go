@@ -24,6 +24,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
+//go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
+type Logger interface {
+	Print(v ...interface{})
+}
+
 //go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
 type DataStore interface {
 	Get(ctx context.Context, pk, sk string, v interface{}) error
@@ -40,7 +45,7 @@ func App(
 	tmpls template.Templates,
 	sessionStore sesh.Store,
 	dataStore DataStore,
-	appPublicUrl string,
+	appPublicURL string,
 	payClient *pay.Client,
 	yotiClient *identity.YotiClient,
 	notifyClient *notify.Client,
@@ -55,7 +60,7 @@ func App(
 	attorneyStore := &attorneyStore{dataStore: dataStore, now: time.Now}
 	shareCodeStore := &shareCodeStore{dataStore: dataStore}
 
-	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicUrl, random.String)
+	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String)
 
 	errorHandler := page.Error(tmpls.Get("error-500.gohtml"), logger)
 	notFoundHandler := page.Root(tmpls.Get("error-404.gohtml"), logger)
@@ -67,6 +72,7 @@ func App(
 	handleRoot := makeHandle(rootMux, errorHandler)
 
 	handleRoot(paths.Root, notFoundHandler)
+	handleRoot(paths.SignOut, page.SignOut(logger, sessionStore, oneLoginClient, appPublicURL))
 	handleRoot(paths.Fixtures, page.Fixtures(tmpls.Get("fixtures.gohtml")))
 	handleRoot(paths.YourLegalRightsAndResponsibilities, page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities_general.gohtml")))
 
@@ -107,7 +113,7 @@ func App(
 		donorStore,
 		oneLoginClient,
 		addressClient,
-		appPublicUrl,
+		appPublicURL,
 		payClient,
 		yotiClient,
 		notifyClient,

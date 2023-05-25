@@ -16,6 +16,7 @@ func TestDiscover(t *testing.T) {
 		TokenEndpoint:         "http://example.org/token",
 		Issuer:                "http://example.org",
 		UserinfoEndpoint:      "http://example.org/userinfo",
+		EndSessionEndpoint:    "http://example.org/sign-out",
 	}
 
 	oidcServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +70,20 @@ func TestAuthCodeURLForIdentity(t *testing.T) {
 		},
 	}
 	actual := c.AuthCodeURL("state", "nonce", "cy", true)
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestEndSessionURL(t *testing.T) {
+	expected := "http://end?id_token_hint=id-token&post_logout_redirect_uri=http%3A%2F%2Fafter"
+
+	c := &Client{
+		openidConfiguration: openidConfiguration{
+			EndSessionEndpoint: "http://end",
+		},
+	}
+
+	actual := c.EndSessionURL("id-token", "http://after")
 
 	assert.Equal(t, expected, actual)
 }
