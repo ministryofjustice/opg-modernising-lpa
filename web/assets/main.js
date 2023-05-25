@@ -2,11 +2,13 @@ import * as GOVUKFrontend from "govuk-frontend";
 import $ from 'jquery'
 import { initAll } from '@ministryofjustice/frontend'
 import { AwsRum, AwsRumConfig } from 'aws-rum-web';
+import { CrossServiceHeader } from './service-header';
 
 window.$ = $
 initAll()
 
 GOVUKFrontend.initAll();
+new CrossServiceHeader(document.querySelector("[data-module='one-login-header']")).init();
 
 function metaContent(name) {
     return document.querySelector(`meta[name=${name}]`).content;
