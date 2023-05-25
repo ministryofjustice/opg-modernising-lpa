@@ -62,7 +62,7 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 			return errors.New("certificate-provider callback with incorrect session")
 		}
 
-		accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), oneLoginSession.Nonce)
+		_, accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), oneLoginSession.Nonce)
 		if err != nil {
 			return err
 		}

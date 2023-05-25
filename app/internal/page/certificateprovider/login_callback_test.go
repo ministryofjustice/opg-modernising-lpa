@@ -22,7 +22,7 @@ func TestLoginCallback(t *testing.T) {
 	client := newMockOneLoginClient(t)
 	client.
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
-		Return("a JWT", nil)
+		Return("id-token", "a JWT", nil)
 	client.
 		On("UserInfo", r.Context(), "a JWT").
 		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
@@ -39,9 +39,10 @@ func TestLoginCallback(t *testing.T) {
 	}
 	session.Values = map[any]any{
 		"certificate-provider": &sesh.CertificateProviderSession{
-			Sub:   "random",
-			Email: "name@example.com",
-			LpaID: "lpa-id",
+			IDToken: "id-token",
+			Sub:     "random",
+			Email:   "name@example.com",
+			LpaID:   "lpa-id",
 		},
 	}
 
@@ -88,7 +89,7 @@ func TestLoginCallbackWhenCertificateProviderExists(t *testing.T) {
 	client := newMockOneLoginClient(t)
 	client.
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
-		Return("a JWT", nil)
+		Return("id-token", "a JWT", nil)
 	client.
 		On("UserInfo", r.Context(), "a JWT").
 		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
@@ -105,9 +106,10 @@ func TestLoginCallbackWhenCertificateProviderExists(t *testing.T) {
 	}
 	session.Values = map[any]any{
 		"certificate-provider": &sesh.CertificateProviderSession{
-			Sub:   "random",
-			Email: "name@example.com",
-			LpaID: "lpa-id",
+			IDToken: "id-token",
+			Sub:     "random",
+			Email:   "name@example.com",
+			LpaID:   "lpa-id",
 		},
 	}
 
@@ -208,7 +210,7 @@ func TestLoginCallbackWhenExchangeErrors(t *testing.T) {
 	client := newMockOneLoginClient(t)
 	client.
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
-		Return("", expectedError)
+		Return("", "", expectedError)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
@@ -230,7 +232,7 @@ func TestLoginCallbackWhenUserInfoError(t *testing.T) {
 	client := newMockOneLoginClient(t)
 	client.
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
-		Return("a JWT", nil)
+		Return("id-token", "a JWT", nil)
 	client.
 		On("UserInfo", r.Context(), "a JWT").
 		Return(onelogin.UserInfo{}, expectedError)
@@ -255,7 +257,7 @@ func TestLoginCallbackOnCertificateProviderStoreError(t *testing.T) {
 	client := newMockOneLoginClient(t)
 	client.
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
-		Return("a JWT", nil)
+		Return("id-token", "a JWT", nil)
 	client.
 		On("UserInfo", r.Context(), "a JWT").
 		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
@@ -272,9 +274,10 @@ func TestLoginCallbackOnCertificateProviderStoreError(t *testing.T) {
 	}
 	session.Values = map[any]any{
 		"certificate-provider": &sesh.CertificateProviderSession{
-			Sub:   "random",
-			Email: "name@example.com",
-			LpaID: "lpa-id",
+			IDToken: "id-token",
+			Sub:     "random",
+			Email:   "name@example.com",
+			LpaID:   "lpa-id",
 		},
 	}
 
