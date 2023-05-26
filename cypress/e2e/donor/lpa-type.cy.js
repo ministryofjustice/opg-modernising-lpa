@@ -1,9 +1,7 @@
 describe('LPA type', () => {
-    beforeEach(() => {
-        cy.visit('/testing-start?redirect=/lpa-type');
-    });
-
     it('can be submitted', () => {
+        cy.visit('/testing-start?redirect=/lpa-type&withDonorDetails=1');
+
         cy.get('#f-lpa-type').check('pfa');
 
         cy.checkA11yApp();
@@ -13,6 +11,8 @@ describe('LPA type', () => {
     });
 
     it('errors when unselected', () => {
+        cy.visit('/testing-start?redirect=/lpa-type');
+
         cy.contains('button', 'Continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
