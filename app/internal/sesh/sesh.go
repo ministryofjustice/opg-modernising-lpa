@@ -23,6 +23,17 @@ func (e InvalidSessionError) Error() string {
 	return fmt.Sprintf("%s session invalid", string(e))
 }
 
+// These are the cookie names in use. We need some to be able to overlap
+// (e.g. session+pay, so you can be signed in and pay for something), but others
+// shouldn't (i.e. the reuse of session as you can't be signed in twice).
+const (
+	cookieSignIn    = "params"
+	cookieSession   = "session"
+	cookieYoti      = "yoti"
+	cookiePay       = "pay"
+	cookieShareCode = "shareCode"
+)
+
 var (
 	sessionCookieOptions = &sessions.Options{
 		Path:     "/",
@@ -79,7 +90,7 @@ func (s OneLoginSession) Valid() bool {
 }
 
 func OneLogin(store sessions.Store, r *http.Request) (*OneLoginSession, error) {
-	params, err := store.Get(r, "params")
+	params, err := store.Get(r, cookieSignIn)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +112,7 @@ func OneLogin(store sessions.Store, r *http.Request) (*OneLoginSession, error) {
 }
 
 func SetOneLogin(store sessions.Store, r *http.Request, w http.ResponseWriter, oneLoginSession *OneLoginSession) error {
-	params := sessions.NewSession(store, "params")
+	params := sessions.NewSession(store, cookieSignIn)
 	params.Values = map[any]any{"one-login": oneLoginSession}
 	params.Options = oneLoginCookieOptions
 	return store.Save(r, w, params)
@@ -118,7 +129,7 @@ func (s YotiSession) Valid() bool {
 }
 
 func Yoti(store sessions.Store, r *http.Request) (*YotiSession, error) {
-	params, err := store.Get(r, "yoti")
+	params, err := store.Get(r, cookieYoti)
 	if err != nil {
 		return nil, err
 	}
@@ -140,15 +151,16 @@ func Yoti(store sessions.Store, r *http.Request) (*YotiSession, error) {
 }
 
 func SetYoti(store sessions.Store, r *http.Request, w http.ResponseWriter, yotiSession *YotiSession) error {
-	params := sessions.NewSession(store, "yoti")
+	params := sessions.NewSession(store, cookieYoti)
 	params.Values = map[any]any{"yoti": yotiSession}
 	params.Options = oneLoginCookieOptions
 	return store.Save(r, w, params)
 }
 
 type DonorSession struct {
-	Sub   string
-	Email string
+	IDToken string
+	Sub     string
+	Email   string
 }
 
 func (s DonorSession) Valid() bool {
@@ -156,7 +168,7 @@ func (s DonorSession) Valid() bool {
 }
 
 func Donor(store sessions.Store, r *http.Request) (*DonorSession, error) {
-	params, err := store.Get(r, "session")
+	params, err := store.Get(r, cookieSession)
 	if err != nil {
 		return nil, err
 	}
@@ -178,16 +190,17 @@ func Donor(store sessions.Store, r *http.Request) (*DonorSession, error) {
 }
 
 func SetDonor(store sessions.Store, r *http.Request, w http.ResponseWriter, donorSession *DonorSession) error {
-	session := sessions.NewSession(store, "session")
+	session := sessions.NewSession(store, cookieSession)
 	session.Values = map[any]any{"donor": donorSession}
 	session.Options = sessionCookieOptions
 	return store.Save(r, w, session)
 }
 
 type CertificateProviderSession struct {
-	Sub   string
-	Email string
-	LpaID string
+	IDToken string
+	Sub     string
+	Email   string
+	LpaID   string
 }
 
 func (s CertificateProviderSession) Valid() bool {
@@ -195,7 +208,7 @@ func (s CertificateProviderSession) Valid() bool {
 }
 
 func CertificateProvider(store sessions.Store, r *http.Request) (*CertificateProviderSession, error) {
-	params, err := store.Get(r, "session")
+	params, err := store.Get(r, cookieSession)
 	if err != nil {
 		return nil, err
 	}
@@ -217,13 +230,14 @@ func CertificateProvider(store sessions.Store, r *http.Request) (*CertificatePro
 }
 
 func SetCertificateProvider(store sessions.Store, r *http.Request, w http.ResponseWriter, certificateProviderSession *CertificateProviderSession) error {
-	session := sessions.NewSession(store, "session")
+	session := sessions.NewSession(store, cookieSession)
 	session.Values = map[any]any{"certificate-provider": certificateProviderSession}
 	session.Options = sessionCookieOptions
 	return store.Save(r, w, session)
 }
 
 type AttorneySession struct {
+	IDToken               string
 	Sub                   string
 	Email                 string
 	LpaID                 string
@@ -236,7 +250,7 @@ func (s AttorneySession) Valid() bool {
 }
 
 func Attorney(store sessions.Store, r *http.Request) (*AttorneySession, error) {
-	params, err := store.Get(r, "session")
+	params, err := store.Get(r, cookieSession)
 	if err != nil {
 		return nil, err
 	}
@@ -258,9 +272,19 @@ func Attorney(store sessions.Store, r *http.Request) (*AttorneySession, error) {
 }
 
 func SetAttorney(store sessions.Store, r *http.Request, w http.ResponseWriter, attorneySession *AttorneySession) error {
-	session := sessions.NewSession(store, "session")
+	session := sessions.NewSession(store, cookieSession)
 	session.Values = map[any]any{"attorney": attorneySession}
 	session.Options = sessionCookieOptions
+	return store.Save(r, w, session)
+}
+
+func ClearSession(store Store, r *http.Request, w http.ResponseWriter) error {
+	session, err := store.Get(r, cookieSession)
+	if err != nil {
+		return err
+	}
+	session.Values = map[any]any{}
+	session.Options.MaxAge = -1
 	return store.Save(r, w, session)
 }
 
@@ -273,7 +297,7 @@ func (s PaymentSession) Valid() bool {
 }
 
 func Payment(store sessions.Store, r *http.Request) (*PaymentSession, error) {
-	params, err := store.Get(r, "pay")
+	params, err := store.Get(r, cookiePay)
 	if err != nil {
 		return nil, err
 	}
@@ -295,14 +319,14 @@ func Payment(store sessions.Store, r *http.Request) (*PaymentSession, error) {
 }
 
 func SetPayment(store sessions.Store, r *http.Request, w http.ResponseWriter, paymentSession *PaymentSession) error {
-	session := sessions.NewSession(store, "pay")
+	session := sessions.NewSession(store, cookiePay)
 	session.Values = map[any]any{"payment": paymentSession}
 	session.Options = paymentCookieOptions
 	return store.Save(r, w, session)
 }
 
 func ClearPayment(store Store, r *http.Request, w http.ResponseWriter) error {
-	session, err := store.Get(r, "pay")
+	session, err := store.Get(r, cookiePay)
 	if err != nil {
 		return err
 	}
@@ -322,15 +346,8 @@ func (s ShareCodeSession) Valid() bool {
 	return s.LpaID != ""
 }
 
-func SetShareCode(store sessions.Store, r *http.Request, w http.ResponseWriter, shareCodeSession *ShareCodeSession) error {
-	session := sessions.NewSession(store, "shareCode")
-	session.Values = map[any]any{"share-code": shareCodeSession}
-	session.Options = sessionCookieOptions
-	return store.Save(r, w, session)
-}
-
 func ShareCode(store sessions.Store, r *http.Request) (*ShareCodeSession, error) {
-	params, err := store.Get(r, "shareCode")
+	params, err := store.Get(r, cookieShareCode)
 	if err != nil {
 		return nil, err
 	}
@@ -349,4 +366,11 @@ func ShareCode(store sessions.Store, r *http.Request) (*ShareCodeSession, error)
 	}
 
 	return shareCodeSession, nil
+}
+
+func SetShareCode(store sessions.Store, r *http.Request, w http.ResponseWriter, shareCodeSession *ShareCodeSession) error {
+	session := sessions.NewSession(store, cookieShareCode)
+	session.Values = map[any]any{"share-code": shareCodeSession}
+	session.Options = sessionCookieOptions
+	return store.Save(r, w, session)
 }

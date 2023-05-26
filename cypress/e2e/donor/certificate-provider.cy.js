@@ -64,7 +64,7 @@ describe('Certificate provider task', () => {
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.contains('label', 'Online and by email').click();
-        cy.get('#f-email').type(TestEmail);
+        cy.get('#f-email').type(TestEmail, { force: true });
         cy.contains('button', 'Continue').click()
 
         cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
