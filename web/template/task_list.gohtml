@@ -1,13 +1,12 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "taskListHeading" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "yourTaskList" }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">
-        {{ tr .App "taskListHeading" }}
-      </h1>
+      <span class="govuk-caption-xl">{{ trFormat .App "makeYourTypeLpa" "Type" (tr .App .Lpa.TypeLegalTermTransKey) }}</span>
+      <h1 class="govuk-heading-xl">{{ tr .App "yourTaskList" }}</h1>
 
       {{ template "details" (details . "taskListHelp" "taskListHelpContent" false) }}
 

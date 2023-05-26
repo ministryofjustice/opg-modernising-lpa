@@ -13,6 +13,10 @@ type PersonToNotify struct {
 	ID         string
 }
 
+func (p PersonToNotify) FullName() string {
+	return p.FirstNames + " " + p.LastName
+}
+
 type PeopleToNotify []PersonToNotify
 
 func (ps PeopleToNotify) Get(id string) (PersonToNotify, bool) {

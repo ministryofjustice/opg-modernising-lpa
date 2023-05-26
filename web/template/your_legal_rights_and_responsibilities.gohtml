@@ -7,7 +7,11 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "yourLegalRightsAndResponsibilities" }}</h1>
 
-      {{ trHtml .App "yourLegalRightsAndResponsibilitiesContent" }}
+      {{ if eq "hw" .Lpa.Type }}
+        {{ trHtml .App "yourLegalRightsAndResponsibilitiesContentHw" }}
+      {{ else }}
+        {{ trHtml .App "yourLegalRightsAndResponsibilitiesContentPfa" }}
+      {{ end }}
 
       <p class="govuk-button-group govuk-!-margin-top-8">
         <a href="{{ link .App .App.Paths.SignYourLpa }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">

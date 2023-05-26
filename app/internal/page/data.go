@@ -3,13 +3,13 @@ package page
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"golang.org/x/exp/slices"
 )
 
 const (
@@ -140,6 +140,15 @@ func (l *Lpa) AttorneysAndCpSigningDeadline() time.Time {
 func (l *Lpa) CanGoTo(url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 
+	section1Completed := l.Tasks.YourDetails.Completed() &&
+		l.Tasks.ChooseAttorneys.Completed() &&
+		l.Tasks.ChooseReplacementAttorneys.Completed() &&
+		(l.Type == LpaTypeHealthWelfare && l.Tasks.LifeSustainingTreatment.Completed() || l.Type == LpaTypePropertyFinance && l.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
+		l.Tasks.Restrictions.Completed() &&
+		l.Tasks.CertificateProvider.Completed() &&
+		l.Tasks.PeopleToNotify.Completed() &&
+		l.Tasks.CheckYourLpa.Completed()
+
 	switch path {
 	case Paths.ReadYourLpa, Paths.SignYourLpa, Paths.WitnessingYourSignature, Paths.WitnessingAsCertificateProvider, Paths.YouHaveSubmittedYourLpa:
 		return l.DonorIdentityConfirmed()
@@ -155,16 +164,9 @@ func (l *Lpa) CanGoTo(url string) bool {
 			l.Tasks.CertificateProvider.Completed() &&
 			l.Tasks.PeopleToNotify.Completed()
 	case Paths.AboutPayment:
-		return l.Tasks.YourDetails.Completed() &&
-			l.Tasks.ChooseAttorneys.Completed() &&
-			l.Tasks.ChooseReplacementAttorneys.Completed() &&
-			(l.Type == LpaTypeHealthWelfare && l.Tasks.LifeSustainingTreatment.Completed() || l.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
-			l.Tasks.Restrictions.Completed() &&
-			l.Tasks.CertificateProvider.Completed() &&
-			l.Tasks.PeopleToNotify.Completed() &&
-			l.Tasks.CheckYourLpa.Completed()
+		return section1Completed
 	case Paths.SelectYourIdentityOptions, Paths.HowToConfirmYourIdentityAndSign:
-		return l.Tasks.PayForLpa.Completed()
+		return section1Completed && l.Tasks.PayForLpa.Completed()
 	case "":
 		return false
 	default:
@@ -202,48 +204,30 @@ type AddressDetail struct {
 	ID      string
 }
 
-func (l *Lpa) ActorAddresses() []AddressDetail {
-	var ads []AddressDetail
+func (l *Lpa) ActorAddresses() []place.Address {
+	var addresses []place.Address
 
 	if l.Donor.Address.String() != "" {
-		ads = append(ads, AddressDetail{
-			Name:    l.Donor.FullName(),
-			Role:    actor.TypeDonor,
-			Address: l.Donor.Address,
-		})
+		addresses = append(addresses, l.Donor.Address)
 	}
 
-	if l.CertificateProvider.Address.String() != "" {
-		ads = append(ads, AddressDetail{
-			Name:    l.CertificateProvider.FullName(),
-			Role:    actor.TypeCertificateProvider,
-			Address: l.CertificateProvider.Address,
-		})
+	if l.CertificateProvider.Address.String() != "" && !slices.Contains(addresses, l.CertificateProvider.Address) {
+		addresses = append(addresses, l.CertificateProvider.Address)
 	}
 
 	for _, attorney := range l.Attorneys {
-		if attorney.Address.String() != "" {
-			ads = append(ads, AddressDetail{
-				Name:    fmt.Sprintf("%s %s", attorney.FirstNames, attorney.LastName),
-				Role:    actor.TypeAttorney,
-				Address: attorney.Address,
-				ID:      attorney.ID,
-			})
+		if attorney.Address.String() != "" && !slices.Contains(addresses, attorney.Address) {
+			addresses = append(addresses, attorney.Address)
 		}
 	}
 
 	for _, replacementAttorney := range l.ReplacementAttorneys {
-		if replacementAttorney.Address.String() != "" {
-			ads = append(ads, AddressDetail{
-				Name:    fmt.Sprintf("%s %s", replacementAttorney.FirstNames, replacementAttorney.LastName),
-				Role:    actor.TypeReplacementAttorney,
-				Address: replacementAttorney.Address,
-				ID:      replacementAttorney.ID,
-			})
+		if replacementAttorney.Address.String() != "" && !slices.Contains(addresses, replacementAttorney.Address) {
+			addresses = append(addresses, replacementAttorney.Address)
 		}
 	}
 
-	return ads
+	return addresses
 }
 
 func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDecisions) actor.TaskState {
