@@ -20,7 +20,7 @@ func TestLoginCallback(t *testing.T) {
 	client := newMockOneLoginClient(t)
 	client.
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
-		Return("a JWT", nil)
+		Return("id-token", "a JWT", nil)
 	client.
 		On("UserInfo", r.Context(), "a JWT").
 		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
@@ -37,8 +37,9 @@ func TestLoginCallback(t *testing.T) {
 	}
 	session.Values = map[any]any{
 		"attorney": &sesh.AttorneySession{
-			Sub:   "random",
-			Email: "name@example.com",
+			IDToken: "id-token",
+			Sub:     "random",
+			Email:   "name@example.com",
 		},
 	}
 
@@ -127,7 +128,7 @@ func TestLoginCallbackWhenExchangeErrors(t *testing.T) {
 	client := newMockOneLoginClient(t)
 	client.
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
-		Return("", expectedError)
+		Return("", "", expectedError)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
@@ -149,7 +150,7 @@ func TestLoginCallbackWhenUserInfoError(t *testing.T) {
 	client := newMockOneLoginClient(t)
 	client.
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
-		Return("a JWT", nil)
+		Return("id-token", "a JWT", nil)
 	client.
 		On("UserInfo", r.Context(), "a JWT").
 		Return(onelogin.UserInfo{}, expectedError)
@@ -174,7 +175,7 @@ func TestLoginCallbackWhenSessionError(t *testing.T) {
 	client := newMockOneLoginClient(t)
 	client.
 		On("Exchange", r.Context(), "auth-code", "my-nonce").
-		Return("a JWT", nil)
+		Return("id-token", "a JWT", nil)
 	client.
 		On("UserInfo", r.Context(), "a JWT").
 		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)

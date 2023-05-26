@@ -678,5 +678,13 @@
     "examplesOfLifeSustainingTreatmentDetailsContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p><ul class=\"govuk-list govuk-list--bullet\"><li>Welsh</li><li>Welsh</li><li>Welsh</li>",
     "doYouWantYourAttorneysToMakeDecisionsAboutLifeSustainingTreatment": "Welsh",
     "iGiveMyAttorneysAuthorityLifeSustainingTreatment": "Welsh",
-    "iDoNotGiveMyAttorneysAuthorityLifeSustainingTreatment": "Welsh"
+    "iDoNotGiveMyAttorneysAuthorityLifeSustainingTreatment": "Welsh",
+    "manageYourLpas": "Welsh",
+    "helpAndSupport": "Welsh",
+    "signOut": "Welsh",
+    "serviceNameNavigationMenu": "{{.ServiceName}} Welsh",
+    "showServiceNameNavigationMenu": "Welsh {{.ServiceName}}",
+    "hideServiceNameNavigationMenu": "Welsh {{.ServiceName}}",
+    "menu": "Welsh",
+    "close": "Welsh"
 }

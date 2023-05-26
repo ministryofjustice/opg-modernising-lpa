@@ -49,7 +49,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	oneLoginClient := newMockOneLoginClient(t)
 	oneLoginClient.
 		On("Exchange", r.Context(), "a-code", "a-nonce").
-		Return("a-jwt", nil)
+		Return("id-token", "a-jwt", nil)
 	oneLoginClient.
 		On("UserInfo", r.Context(), "a-jwt").
 		Return(userInfo, nil)
@@ -121,7 +121,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 				oneLoginClient := newMockOneLoginClient(t)
 				oneLoginClient.
 					On("Exchange", mock.Anything, mock.Anything, mock.Anything).
-					Return("a-jwt", nil)
+					Return("id-token", "a-jwt", nil)
 				oneLoginClient.
 					On("UserInfo", mock.Anything, mock.Anything).
 					Return(userInfo, nil)
@@ -139,7 +139,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 				oneLoginClient := newMockOneLoginClient(t)
 				oneLoginClient.
 					On("Exchange", mock.Anything, mock.Anything, mock.Anything).
-					Return("a-jwt", nil)
+					Return("id-token", "a-jwt", nil)
 				oneLoginClient.
 					On("UserInfo", mock.Anything, mock.Anything).
 					Return(userInfo, nil)
@@ -158,7 +158,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 				oneLoginClient := newMockOneLoginClient(t)
 				oneLoginClient.
 					On("Exchange", mock.Anything, mock.Anything, mock.Anything).
-					Return("a-jwt", nil)
+					Return("id-token", "a-jwt", nil)
 				oneLoginClient.
 					On("UserInfo", mock.Anything, mock.Anything).
 					Return(onelogin.UserInfo{}, expectedError)
@@ -174,7 +174,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 				oneLoginClient := newMockOneLoginClient(t)
 				oneLoginClient.
 					On("Exchange", mock.Anything, mock.Anything, mock.Anything).
-					Return("", expectedError)
+					Return("", "", expectedError)
 				return oneLoginClient
 			},
 			sessionStore: sessionRetrieved,
@@ -251,7 +251,7 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDonorStoreError(t *testing.T) {
 	oneLoginClient := newMockOneLoginClient(t)
 	oneLoginClient.
 		On("Exchange", mock.Anything, mock.Anything, mock.Anything).
-		Return("a-jwt", nil)
+		Return("id-token", "a-jwt", nil)
 	oneLoginClient.
 		On("UserInfo", mock.Anything, mock.Anything).
 		Return(userInfo, nil)
