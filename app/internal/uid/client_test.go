@@ -75,7 +75,7 @@ func TestCreateCase(t *testing.T) {
 	assert.Equal(t, "M-789Q-P4DF-4UX3", resp.Uid)
 }
 
-func TestCreateCaseOnInvalidLpaError(t *testing.T) {
+func TestCreateCaseOnInvalidBody(t *testing.T) {
 	client := New("/", nil, nil)
 	_, err := client.CreateCase(context.Background(), &CreateCaseRequestBody{})
 

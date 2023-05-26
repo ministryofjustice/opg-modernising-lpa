@@ -227,12 +227,11 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     sid    = "uidApiAccess"
     effect = "Allow"
     actions = [
-      "execute-api:ManageConnections",
       "execute-api:Invoke",
     ]
     resources = [
-      "arn:aws:execute-api:eu-west-1:288342028542:*/*/*/*",
-      "arn:aws:execute-api:eu-west-2:288342028542:*/*/*/*",
+      "arn:aws:execute-api:eu-west-1:288342028542:*/*/POST/cases",
+      "arn:aws:execute-api:eu-west-2:288342028542:*/*/POST/cases",
     ]
   }
 
