@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -116,18 +115,14 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 	}{
 		"valid": {
 			form: url.Values{
-				"first-names":         {"John"},
-				"last-name":           {"Rey"},
-				"mobile":              {"07535111111"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1990"},
+				"first-names": {"John"},
+				"last-name":   {"Rey"},
+				"mobile":      {"07535111111"},
 			},
 			certificateProviderDetails: actor.CertificateProvider{
-				FirstNames:  "John",
-				LastName:    "Rey",
-				Mobile:      "07535111111",
-				DateOfBirth: date.New("1990", "1", "2"),
+				FirstNames: "John",
+				LastName:   "Rey",
+				Mobile:     "07535111111",
 			},
 		},
 		"name warning ignored": {
@@ -135,16 +130,12 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"first-names":         {"Jane"},
 				"last-name":           {"Doe"},
 				"mobile":              {"07535111111"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1990"},
 				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeCertificateProvider, actor.TypeDonor, "Jane", "Doe").String()},
 			},
 			certificateProviderDetails: actor.CertificateProvider{
-				FirstNames:  "Jane",
-				LastName:    "Doe",
-				Mobile:      "07535111111",
-				DateOfBirth: date.New("1990", "1", "2"),
+				FirstNames: "Jane",
+				LastName:   "Doe",
+				Mobile:     "07535111111",
 			},
 		},
 		"similar name warning ignored": {
@@ -152,16 +143,12 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"first-names":                 {"Joyce"},
 				"last-name":                   {"Doe"},
 				"mobile":                      {"07535111111"},
-				"date-of-birth-day":           {"2"},
-				"date-of-birth-month":         {"1"},
-				"date-of-birth-year":          {"1990"},
 				"ignore-similar-name-warning": {"yes"},
 			},
 			certificateProviderDetails: actor.CertificateProvider{
-				FirstNames:  "Joyce",
-				LastName:    "Doe",
-				Mobile:      "07535111111",
-				DateOfBirth: date.New("1990", "1", "2"),
+				FirstNames: "Joyce",
+				LastName:   "Doe",
+				Mobile:     "07535111111",
 			},
 		},
 	}
@@ -209,11 +196,8 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 	}{
 		"validation error": {
 			form: url.Values{
-				"last-name":           {"Doe"},
-				"mobile":              {"07535111111"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1990"},
+				"last-name": {"Doe"},
+				"mobile":    {"07535111111"},
 			},
 			existingLpa: &page.Lpa{},
 			dataMatcher: func(t *testing.T, data *certificateProviderDetailsData) bool {
@@ -222,12 +206,9 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 		},
 		"name warning": {
 			form: url.Values{
-				"first-names":         {"John"},
-				"last-name":           {"Doe"},
-				"mobile":              {"07535111111"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1990"},
+				"first-names": {"John"},
+				"last-name":   {"Doe"},
+				"mobile":      {"07535111111"},
 			},
 			existingLpa: &page.Lpa{
 				Donor: actor.Donor{
@@ -243,9 +224,6 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 			form: url.Values{
 				"first-names":         {"John"},
 				"last-name":           {"Doe"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1990"},
 				"ignore-name-warning": {"errorDonorMatchesActor|theCertificateProvider|John|Doe"},
 			},
 			existingLpa: &page.Lpa{
@@ -263,9 +241,6 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				"first-names":         {"John"},
 				"last-name":           {"Doe"},
 				"mobile":              {"07535111111"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1990"},
 				"ignore-name-warning": {"errorAttorneyMatchesActor|theCertificateProvider|John|Doe"},
 			},
 			existingLpa: &page.Lpa{
@@ -280,12 +255,9 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 		},
 		"same last name as donor warning": {
 			form: url.Values{
-				"first-names":         {"Joyce"},
-				"last-name":           {"Doe"},
-				"mobile":              {"07535111111"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1990"},
+				"first-names": {"Joyce"},
+				"last-name":   {"Doe"},
+				"mobile":      {"07535111111"},
 			},
 			existingLpa: &page.Lpa{
 				Donor: actor.Donor{
@@ -329,12 +301,9 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 
 func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"first-names":         {"John"},
-		"last-name":           {"Doe"},
-		"mobile":              {"07535111111"},
-		"date-of-birth-day":   {"2"},
-		"date-of-birth-month": {"1"},
-		"date-of-birth-year":  {"1990"},
+		"first-names": {"John"},
+		"last-name":   {"Doe"},
+		"mobile":      {"07535111111"},
 	}
 
 	w := httptest.NewRecorder()
@@ -361,9 +330,6 @@ func TestReadCertificateProviderDetailsForm(t *testing.T) {
 		"first-names":                 {"  John "},
 		"last-name":                   {"Doe"},
 		"mobile":                      {"07535111111"},
-		"date-of-birth-day":           {"2"},
-		"date-of-birth-month":         {"1"},
-		"date-of-birth-year":          {"1990"},
 		"ignore-name-warning":         {"a warning"},
 		"ignore-similar-name-warning": {"yes"},
 	}
@@ -376,15 +342,11 @@ func TestReadCertificateProviderDetailsForm(t *testing.T) {
 	assert.Equal("John", result.FirstNames)
 	assert.Equal("Doe", result.LastName)
 	assert.Equal("07535111111", result.Mobile)
-	assert.Equal(date.New("1990", "1", "2"), result.Dob)
 	assert.Equal("a warning", result.IgnoreNameWarning)
 	assert.Equal(true, result.IgnoreSimilarNameWarning)
 }
 
 func TestCertificateProviderDetailsFormValidate(t *testing.T) {
-	now := date.Today()
-	validDob := now.AddDate(-18, 0, -1)
-
 	testCases := map[string]struct {
 		form   *certificateProviderDetailsForm
 		errors validation.List
@@ -394,7 +356,6 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 				FirstNames: "A",
 				LastName:   "B",
 				Mobile:     "07535111111",
-				Dob:        validDob,
 			},
 		},
 		"missing-all": {
@@ -402,33 +363,13 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 			errors: validation.
 				With("first-names", validation.EnterError{Label: "firstNames"}).
 				With("last-name", validation.EnterError{Label: "lastName"}).
-				With("date-of-birth", validation.EnterError{Label: "dateOfBirth"}).
 				With("mobile", validation.EnterError{Label: "mobile"}),
-		},
-		"invalid-dob": {
-			form: &certificateProviderDetailsForm{
-				FirstNames: "A",
-				LastName:   "B",
-				Mobile:     "07535111111",
-				Dob:        date.New("2000", "22", "2"),
-			},
-			errors: validation.With("date-of-birth", validation.DateMustBeRealError{Label: "dateOfBirth"}),
-		},
-		"invalid-missing-dob": {
-			form: &certificateProviderDetailsForm{
-				FirstNames: "A",
-				LastName:   "B",
-				Mobile:     "07535111111",
-				Dob:        date.New("2000", "", "1"),
-			},
-			errors: validation.With("date-of-birth", validation.DateMissingError{Label: "dateOfBirth", MissingMonth: true}),
 		},
 		"invalid-incorrect-mobile-format": {
 			form: &certificateProviderDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
 				Mobile:     "0753511111",
-				Dob:        validDob,
 			},
 			errors: validation.With("mobile", validation.MobileError{Label: "mobile"}),
 		},
@@ -445,7 +386,6 @@ func TestUkMobileFormatValidation(t *testing.T) {
 	form := &certificateProviderDetailsForm{
 		FirstNames: "A",
 		LastName:   "B",
-		Dob:        date.Today().AddDate(-18, 0, -1),
 	}
 
 	testCases := map[string]struct {

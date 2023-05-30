@@ -3,7 +3,6 @@ package actor
 import (
 	"fmt"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
@@ -14,7 +13,6 @@ type CertificateProvider struct {
 	Mobile                  string
 	Email                   string
 	CarryOutBy              string
-	DateOfBirth             date.Date
 	Relationship            string
 	RelationshipDescription string
 	RelationshipLength      string
