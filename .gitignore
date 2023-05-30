@@ -16,7 +16,6 @@ docs/architecture/dsl/**/workspace.json
 .coverage
 .phpunit.result.cache
 scripts/analysis_scripts/*.csv
-scripts/uid_tester/uid-tester
 
 query/s3_objects/**
 

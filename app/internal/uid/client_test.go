@@ -221,12 +221,12 @@ func TestCreateCaseNonSuccessResponses(t *testing.T) {
 		"400 single error": {
 			response:       []byte(`{"code":"INVALID_REQUEST","detail":"string","errors":[{"source":"/donor/dob","detail":"must match format YYYY-MM-DD"}]}`),
 			responseHeader: http.StatusBadRequest,
-			expectedError:  errors.New("must match format YYYY-MM-DD"),
+			expectedError:  errors.New("error POSTing to UID service: (400) /donor/dob must match format YYYY-MM-DD"),
 		},
 		"400 multiple errors": {
 			response:       []byte(`{"code":"INVALID_REQUEST","detail":"string","errors":[{"source":"/donor/dob","detail":"must match format YYYY-MM-DD"},{"source":"/donor/dob","detail":"some other error"}]}`),
 			responseHeader: http.StatusBadRequest,
-			expectedError:  errors.New("must match format YYYY-MM-DD, some other error"),
+			expectedError:  errors.New("error POSTing to UID service: (400) /donor/dob must match format YYYY-MM-DD, /donor/dob some other error"),
 		},
 		"any other > 400 response": {
 			response:       []byte(`some body content`),
@@ -258,4 +258,19 @@ func TestCreateCaseNonSuccessResponses(t *testing.T) {
 			assert.Equal(t, "", resp.Uid)
 		})
 	}
+}
+
+func TestPopError(t *testing.T) {
+	errors := []CreateCaseResponseBadRequestError{
+		{Source: "a/source", Detail: "Some details"},
+		{Source: "another/source", Detail: "More details"},
+	}
+
+	errors = popError(errors)
+
+	assert.Equal(t, []CreateCaseResponseBadRequestError{{Source: "another/source", Detail: "More details"}}, errors)
+
+	errors = popError(errors)
+
+	assert.Equal(t, []CreateCaseResponseBadRequestError{}, errors)
 }

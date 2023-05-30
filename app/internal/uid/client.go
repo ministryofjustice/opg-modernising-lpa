@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"time"
 )
@@ -88,12 +87,6 @@ func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (C
 	defer resp.Body.Close()
 
 	if resp.StatusCode > http.StatusBadRequest {
-		for name, values := range resp.Header {
-			for _, value := range values {
-				log.Println(name, value)
-			}
-		}
-
 		body, _ := io.ReadAll(resp.Body)
 		return CreateCaseResponse{}, errors.New(fmt.Sprintf("error POSTing to UID service: (%d) %s", resp.StatusCode, string(body)))
 	}
@@ -128,17 +121,20 @@ func (b CreateCaseRequestBody) Valid() bool {
 
 func (c *CreateCaseResponse) Error() error {
 	if len(c.BadRequestErrors) > 0 {
-		detail := c.BadRequestErrors[0].Detail
+		detail := fmt.Sprintf("error POSTing to UID service: (400) %s %s", c.BadRequestErrors[0].Source, c.BadRequestErrors[0].Detail)
 
-		c.BadRequestErrors = append(c.BadRequestErrors[:0], c.BadRequestErrors[0+1:]...)
+		c.BadRequestErrors = popError(c.BadRequestErrors)
 
 		for _, err := range c.BadRequestErrors {
-			detail = fmt.Sprintf("%s, %s", detail, err.Detail)
+			detail = fmt.Sprintf("%s, %s %s", detail, err.Source, err.Detail)
 		}
 
 		return errors.New(detail)
 	} else {
 		return nil
 	}
+}
 
+func popError(errors []CreateCaseResponseBadRequestError) []CreateCaseResponseBadRequestError {
+	return append(errors[:0], errors[0+1:]...)
 }
