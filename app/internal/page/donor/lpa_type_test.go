@@ -147,12 +147,7 @@ func TestPostLpaType(t *testing.T) {
 		}).
 		Return(uid.CreateCaseResponse{Uid: "M-789Q-P4DF-4UX3"}, nil)
 
-	logger := newMockLogger(t)
-	logger.
-		On("Print", "case created with UID: M-789Q-P4DF-4UX3").
-		Return(nil)
-
-	err := LpaType(nil, donorStore, uidClient, logger)(testAppData, w, r)
+	err := LpaType(nil, donorStore, uidClient, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -48,13 +48,11 @@ func LpaType(tmpl template.Template, donorStore DonorStore, uidClient UidClient,
 					},
 				}
 
-				resp, err := uidClient.CreateCase(r.Context(), body)
+				_, err := uidClient.CreateCase(r.Context(), body)
 				if err != nil {
 					logger.Print(err)
 					return err
 				}
-
-				logger.Print("case created with UID: " + resp.Uid)
 
 				return appData.Redirect(w, r, lpa, page.Paths.TaskList)
 			}
