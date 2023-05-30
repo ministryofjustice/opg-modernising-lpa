@@ -208,7 +208,7 @@ func TestCreateCaseOnBadRequestResponse(t *testing.T) {
 	client := New(server.URL, server.Client(), requestSigner)
 	resp, err := client.CreateCase(context.Background(), validBody)
 
-	assert.Equal(t, errors.New("must match format YYYY-MM-DD"), err)
+	assert.Equal(t, errors.New("error POSTing to UID service: (400) /donor/dob must match format YYYY-MM-DD"), err)
 	assert.Equal(t, "", resp.Uid)
 }
 
