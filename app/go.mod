@@ -12,6 +12,7 @@ require (
 	github.com/felixge/httpsnoop v1.0.3
 	github.com/getyoti/yoti-go-sdk/v3 v3.9.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
+	github.com/google/uuid v1.3.0
 	github.com/gorilla/sessions v1.2.1
 	github.com/ministryofjustice/opg-go-common v0.0.0-20220816144329-763497f29f90
 	github.com/nicksnyder/go-i18n/v2 v2.2.1
@@ -25,7 +26,7 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.15.1
 	go.opentelemetry.io/otel/sdk v1.15.1
 	go.opentelemetry.io/otel/trace v1.15.1
-	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
+	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	golang.org/x/mod v0.10.0
 	golang.org/x/text v0.9.0
 	google.golang.org/grpc v1.55.0
@@ -34,7 +35,6 @@ require (
 require (
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.20.9 // indirect
 	github.com/brunoscheufler/aws-ecs-metadata-go v0.0.0-20220812150832-b6b31c6eeeaf // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
