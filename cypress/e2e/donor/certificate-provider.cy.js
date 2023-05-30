@@ -55,9 +55,6 @@ describe('Certificate provider task', () => {
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
         cy.get('#f-mobile').type(TestMobile);
-        cy.get('#f-date-of-birth').type('1');
-        cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').type('1990');
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
@@ -104,9 +101,6 @@ describe('Certificate provider task', () => {
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
         cy.get('#f-mobile').type(TestMobile);
-        cy.get('#f-date-of-birth').type('1');
-        cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').type('1990');
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
@@ -150,13 +144,11 @@ describe('Certificate provider task', () => {
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter first names');
             cy.contains('Enter last name');
-            cy.contains('Enter date of birth');
             cy.contains('Enter mobile number');
         });
 
         cy.contains('[for=f-first-names] + .govuk-error-message', 'Enter first names');
         cy.contains('[for=f-last-name] + .govuk-error-message', 'Enter last name');
-        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Enter date of birth');
         cy.contains('[for=f-mobile] + p + .govuk-error-message', 'Enter mobile number');
     });
 
@@ -166,24 +158,6 @@ describe('Certificate provider task', () => {
         cy.contains('button', 'Continue').click();
 
         cy.contains('[for=f-mobile] + p + .govuk-error-message', 'Mobile number must be a UK mobile number, like 07700 900 982 or +44 7700 900 982');
-    });
-
-    it('errors when invalid dates of birth', () => {
-        cy.visitLpa('/certificate-provider-details');
-
-        cy.get('#f-date-of-birth').type('1');
-        cy.contains('button', 'Continue').click();
-        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must include a month and year');
-
-        cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').type('2222');
-        cy.contains('button', 'Continue').click();
-        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be in the past');
-
-        cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').clear().type('1990');
-        cy.contains('button', 'Continue').click();
-        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be a real date');
     });
 
     it('errors when how they prefer to carry out their role unselected', () => {
@@ -294,9 +268,6 @@ describe('Certificate provider task', () => {
 
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Smith');
-        cy.get('#f-date-of-birth').type('1');
-        cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').type('1990');
         cy.get('#f-mobile').type(TestMobile);
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/certificate-provider-details');
@@ -313,9 +284,6 @@ describe('Certificate provider task', () => {
 
         cy.get('#f-first-names').type('Jill');
         cy.get('#f-last-name').type('Smith');
-        cy.get('#f-date-of-birth').type('1');
-        cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').type('1990');
         cy.get('#f-mobile').type(TestMobile);
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/certificate-provider-details');

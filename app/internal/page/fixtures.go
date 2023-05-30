@@ -100,7 +100,6 @@ func MakeCertificateProvider(firstNames string) actor.CertificateProvider {
 		LastName:                "Jones",
 		Email:                   TestEmail,
 		Mobile:                  TestMobile,
-		DateOfBirth:             date.New("1997", "1", "2"),
 		Relationship:            "friend",
 		RelationshipDescription: "",
 		RelationshipLength:      "gte-2-years",
