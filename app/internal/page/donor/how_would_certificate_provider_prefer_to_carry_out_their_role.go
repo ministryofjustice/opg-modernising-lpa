@@ -44,11 +44,7 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 					return err
 				}
 
-				if lpa.CertificateProvider.CarryOutBy == "paper" {
-					return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderAddress)
-				} else {
-					return appData.Redirect(w, r, lpa, page.Paths.HowDoYouKnowYourCertificateProvider)
-				}
+				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderAddress)
 			}
 		}
 

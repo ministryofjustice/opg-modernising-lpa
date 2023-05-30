@@ -107,18 +107,15 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 
 func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 	testCases := []struct {
-		carryOutBy       string
-		email            string
-		expectedRedirect string
+		carryOutBy string
+		email      string
 	}{
 		{
-			carryOutBy:       "paper",
-			expectedRedirect: "/lpa/lpa-id" + page.Paths.CertificateProviderAddress,
+			carryOutBy: "paper",
 		},
 		{
-			carryOutBy:       "email",
-			email:            "someone@example.com",
-			expectedRedirect: "/lpa/lpa-id" + page.Paths.HowDoYouKnowYourCertificateProvider,
+			carryOutBy: "email",
+			email:      "someone@example.com",
 		},
 	}
 
@@ -148,7 +145,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, tc.expectedRedirect, resp.Header.Get("Location"))
+			assert.Equal(t, "/lpa/lpa-id"+page.Paths.CertificateProviderAddress, resp.Header.Get("Location"))
 		})
 	}
 }

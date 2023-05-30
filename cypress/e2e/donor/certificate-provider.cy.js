@@ -67,6 +67,12 @@ describe('Certificate provider task', () => {
         cy.get('#f-email').type(TestEmail, { force: true });
         cy.contains('button', 'Continue').click()
 
+        cy.url().should('contain', '/certificate-provider-address');
+
+        cy.contains('label', 'Enter a new address').click();
+        cy.contains('button', 'Continue').click();
+        AddressFormAssertions.assertCanAddAddressFromSelect()
+
         cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
