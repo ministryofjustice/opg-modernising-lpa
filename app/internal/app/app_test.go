@@ -31,7 +31,7 @@ func TestQueryString(t *testing.T) {
 	}{
 		"with query": {
 			url:           "http://example.org/?a=query&b=string",
-			expectedQuery: "?a=query&b=string&c=nope",
+			expectedQuery: "?a=query&b=string",
 		},
 		"with empty query": {
 			url:           "http://example.org/?",
