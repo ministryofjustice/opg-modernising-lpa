@@ -19,10 +19,10 @@ jobs:
         id: detect_changes
         if: github.ref != 'refs/heads/main'
         run: |
-          LAST_BUILD_STATUS=$(gh run list -w '[Workflow] PR' -b "$GITHUB_HEAD_REF" --limit 2 | tail -n1 | awk '{print $2}')
-          echo "Last build status on $GITHUB_HEAD_REF: $LAST_BUILD_STATUS"
-          if [[ "$LAST_BUILD_STATUS" == "success" ]]; then
-            echo "Checking against last push"
+          BEFORE_STATUS=$(gh api repos/ministryofjustice/opg-modernising-lpa/commits/${{github.event.before}}/check-runs --jq '.check_runs[].conclusion' | grep -v -E '(success|skipped)' > /dev/null && echo 'failure' || echo 'success')
+          echo "Build status of ${{github.event.before}}: $BEFORE_STATUS"
+          if [[ "$BEFORE_STATUS" == "success" ]]; then
+            echo "Checking against ${{github.event.before}}"
             git diff --quiet ${{github.event.before}} ${{github.event.after}} -- app lang web Dockerfile package.json yarn.lock && \
             echo "changes=${{ false }}" || \
             echo "changes=${{ true }}"
