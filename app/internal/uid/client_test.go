@@ -325,17 +325,17 @@ func TestCreateCaseNonSuccessResponses(t *testing.T) {
 
 func TestClientSign(t *testing.T) {
 	testCases := map[string]struct {
-		Body          io.Reader
+		Reader        io.Reader
 		SignedHeaders string
 		Signature     string
 	}{
 		"empty body": {
-			Body:          nil,
+			Reader:        nil,
 			SignedHeaders: "a-header;host;x-amz-date",
 			Signature:     "99f815531e473759852fb13154796d31f4cfaccc3036f91193df440adeba0588",
 		},
 		"with body": {
-			Body:          strings.NewReader(`{"some": "body data"}`),
+			Reader:        strings.NewReader(`{"some": "body data"}`),
 			SignedHeaders: "a-header;content-length;host;x-amz-date",
 			Signature:     "c9f9b78004a45e947d0fd7ea4eba56a86d3234bed2a7b69240231a1beb8150e9",
 		},
@@ -343,7 +343,7 @@ func TestClientSign(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			req, _ := http.NewRequest(http.MethodPost, "/an-url", tc.Body)
+			req, _ := http.NewRequest(http.MethodPost, "/an-url", tc.Reader)
 			req.Header.Set("a-header", "with-a-value")
 
 			now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }

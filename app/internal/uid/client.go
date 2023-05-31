@@ -131,47 +131,33 @@ func (b CreateCaseRequestBody) Valid() bool {
 }
 
 func (c *CreateCaseResponse) Error() error {
-	if len(c.BadRequestErrors) > 0 {
-		detail := fmt.Sprintf("error POSTing to UID service: (400) %s %s", c.BadRequestErrors[0].Source, c.BadRequestErrors[0].Detail)
-
-		c.BadRequestErrors = popError(c.BadRequestErrors)
-
-		for _, err := range c.BadRequestErrors {
-			detail = fmt.Sprintf("%s, %s %s", detail, err.Source, err.Detail)
-		}
-
-		return errors.New(detail)
-	} else {
+	if len(c.BadRequestErrors) == 0 {
 		return nil
 	}
-}
 
-func popError(errors []CreateCaseResponseBadRequestError) []CreateCaseResponseBadRequestError {
-	return append(errors[:0], errors[0+1:]...)
+	detail := fmt.Sprintf("error POSTing to UID service: (400) %s %s", c.BadRequestErrors[0].Source, c.BadRequestErrors[0].Detail)
+
+	for _, err := range c.BadRequestErrors[1:] {
+		detail = fmt.Sprintf("%s, %s %s", detail, err.Source, err.Detail)
+	}
+
+	return errors.New(detail)
 }
 
 func (c *Client) sign(ctx context.Context, req *http.Request, serviceName string) error {
-	reqBody := []byte("")
+	hash := sha256.New()
 
 	if req.Body != nil {
-		body, err := io.ReadAll(req.Body)
-		if err != nil {
+		var reqBody bytes.Buffer
+
+		if _, err := io.Copy(hash, io.TeeReader(req.Body, &reqBody)); err != nil {
 			return err
 		}
 
-		reqBody = body
+		req.Body = io.NopCloser(&reqBody)
 	}
 
-	hash := sha256.New()
-	hash.Write(reqBody)
 	encodedBody := hex.EncodeToString(hash.Sum(nil))
 
-	req.Body = io.NopCloser(bytes.NewBuffer(reqBody))
-
-	err := c.signer.SignHTTP(ctx, c.credentials, req, encodedBody, serviceName, c.region, c.now())
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return c.signer.SignHTTP(ctx, c.credentials, req, encodedBody, serviceName, c.region, c.now())
 }
