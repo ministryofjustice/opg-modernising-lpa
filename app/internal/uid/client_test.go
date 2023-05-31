@@ -5,13 +5,16 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sign"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -25,12 +28,19 @@ var validBody = &CreateCaseRequestBody{
 	},
 }
 
-func TestNew(t *testing.T) {
-	client := New("http://base-url.com", &http.Client{}, &sign.RequestSigner{})
+var expectedError = errors.New("an error")
 
-	assert.Equal(t, "http://base-url.com", client.baseUrl)
-	assert.Equal(t, &http.Client{}, client.httpClient)
-	assert.Equal(t, &sign.RequestSigner{}, client.signer)
+func TestNew(t *testing.T) {
+	signer := v4.NewSigner()
+	now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
+	client := New("http://base-url.com", "the-region", http.DefaultClient, aws.Credentials{AccessKeyID: "abc"}, signer, now)
+
+	assert.Equal(t, "http://base-url.com", client.baseURL)
+	assert.Equal(t, "the-region", client.region)
+	assert.Equal(t, http.DefaultClient, client.httpClient)
+	assert.Equal(t, aws.Credentials{AccessKeyID: "abc"}, client.credentials)
+	assert.Equal(t, signer, client.signer)
+	assert.Equal(t, now(), client.now())
 }
 
 func TestCreateCase(t *testing.T) {
@@ -55,12 +65,22 @@ func TestCreateCase(t *testing.T) {
 
 	defer server.Close()
 
-	requestSigner := newMockRequestSigner(t)
-	requestSigner.
-		On("Sign", context.Background(), mock.Anything, "execute-api").
+	now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
+
+	v4Signer := newMockV4Signer(t)
+	v4Signer.
+		On("SignHTTP", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	client := New(server.URL, server.Client(), requestSigner)
+	client := &Client{
+		baseURL:     server.URL,
+		httpClient:  server.Client(),
+		credentials: aws.Credentials{AccessKeyID: "abc"},
+		region:      "eu-west-1",
+		signer:      v4Signer,
+		now:         now,
+	}
+
 	resp, err := client.CreateCase(context.Background(), validBody)
 
 	expectedBody := `{"type":"pfa","source":"APPLICANT","donor":{"name":"Jane Smith","dob":"2000-01-02","postcode":"ABC123"}}`
@@ -76,7 +96,7 @@ func TestCreateCase(t *testing.T) {
 }
 
 func TestCreateCaseOnInvalidBody(t *testing.T) {
-	client := New("/", nil, nil)
+	client := &Client{baseURL: "/"}
 	_, err := client.CreateCase(context.Background(), &CreateCaseRequestBody{})
 
 	assert.Equal(t, errors.New("CreateCaseRequestBody missing details. Requires Type, Donor name, dob and postcode"), err)
@@ -87,32 +107,41 @@ func TestCreateCaseOnNewRequestError(t *testing.T) {
 
 	defer server.Close()
 
-	client := New(server.URL+"`invalid-url-format", server.Client(), nil)
+	client := &Client{
+		baseURL:    server.URL + "`invalid-url-format",
+		httpClient: server.Client(),
+	}
 	_, err := client.CreateCase(context.Background(), validBody)
 
 	assert.NotNil(t, err)
 }
 
 func TestCreateCaseOnSignError(t *testing.T) {
-	expectedError := errors.New("an error")
+	now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
 
-	requestSigner := newMockRequestSigner(t)
-	requestSigner.
-		On("Sign", context.Background(), mock.Anything, "execute-api").
+	v4Signer := newMockV4Signer(t)
+	v4Signer.
+		On("SignHTTP", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	client := New("/", nil, requestSigner)
+	client := &Client{
+		baseURL:     "/",
+		httpClient:  nil,
+		credentials: aws.Credentials{AccessKeyID: "abc"},
+		region:      "eu-west-1",
+		signer:      v4Signer,
+		now:         now,
+	}
+
 	_, err := client.CreateCase(context.Background(), validBody)
 
 	assert.Equal(t, expectedError, err)
 }
 
 func TestCreateCaseOnDoRequestError(t *testing.T) {
-	expectedError := errors.New("an error")
-
-	requestSigner := newMockRequestSigner(t)
-	requestSigner.
-		On("Sign", context.Background(), mock.Anything, "execute-api").
+	v4Signer := newMockV4Signer(t)
+	v4Signer.
+		On("SignHTTP", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	httpClient := newMockDoer(t)
@@ -120,7 +149,14 @@ func TestCreateCaseOnDoRequestError(t *testing.T) {
 		On("Do", mock.Anything).
 		Return(nil, expectedError)
 
-	client := New("/", httpClient, requestSigner)
+	client := &Client{
+		baseURL:     "/",
+		httpClient:  httpClient,
+		credentials: aws.Credentials{AccessKeyID: "abc"},
+		region:      "eu-west-1",
+		signer:      v4Signer,
+		now:         time.Now,
+	}
 	_, err := client.CreateCase(context.Background(), validBody)
 
 	assert.Equal(t, expectedError, err)
@@ -134,12 +170,19 @@ func TestCreateCaseOnJsonNewDecoderError(t *testing.T) {
 
 	defer server.Close()
 
-	requestSigner := newMockRequestSigner(t)
-	requestSigner.
-		On("Sign", context.Background(), mock.Anything, "execute-api").
+	v4Signer := newMockV4Signer(t)
+	v4Signer.
+		On("SignHTTP", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	client := New(server.URL, server.Client(), requestSigner)
+	client := &Client{
+		baseURL:     server.URL,
+		httpClient:  server.Client(),
+		credentials: aws.Credentials{AccessKeyID: "abc"},
+		region:      "eu-west-1",
+		signer:      v4Signer,
+		now:         time.Now,
+	}
 	_, err := client.CreateCase(context.Background(), validBody)
 
 	assert.IsType(t, &json.SyntaxError{}, err)
@@ -200,12 +243,22 @@ func TestCreateCaseOnBadRequestResponse(t *testing.T) {
 
 	defer server.Close()
 
-	requestSigner := newMockRequestSigner(t)
-	requestSigner.
-		On("Sign", context.Background(), mock.Anything, "execute-api").
+	now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
+
+	v4Signer := newMockV4Signer(t)
+	v4Signer.
+		On("SignHTTP", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	client := New(server.URL, server.Client(), requestSigner)
+	client := &Client{
+		baseURL:     server.URL,
+		httpClient:  server.Client(),
+		credentials: aws.Credentials{AccessKeyID: "abc"},
+		region:      "eu-west-1",
+		signer:      v4Signer,
+		now:         now,
+	}
+
 	resp, err := client.CreateCase(context.Background(), validBody)
 
 	assert.Equal(t, errors.New("error POSTing to UID service: (400) /donor/dob must match format YYYY-MM-DD"), err)
@@ -246,12 +299,22 @@ func TestCreateCaseNonSuccessResponses(t *testing.T) {
 
 			defer server.Close()
 
-			requestSigner := newMockRequestSigner(t)
-			requestSigner.
-				On("Sign", context.Background(), mock.Anything, "execute-api").
+			now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
+
+			v4Signer := newMockV4Signer(t)
+			v4Signer.
+				On("SignHTTP", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 				Return(nil)
 
-			client := New(server.URL, server.Client(), requestSigner)
+			client := &Client{
+				baseURL:     server.URL,
+				httpClient:  server.Client(),
+				credentials: aws.Credentials{AccessKeyID: "abc"},
+				region:      "eu-west-1",
+				signer:      v4Signer,
+				now:         now,
+			}
+
 			resp, err := client.CreateCase(context.Background(), validBody)
 
 			assert.Equal(t, tc.expectedError, err)
@@ -260,17 +323,96 @@ func TestCreateCaseNonSuccessResponses(t *testing.T) {
 	}
 }
 
-func TestPopError(t *testing.T) {
-	errors := []CreateCaseResponseBadRequestError{
-		{Source: "a/source", Detail: "Some details"},
-		{Source: "another/source", Detail: "More details"},
+func TestClientSign(t *testing.T) {
+	testCases := map[string]struct {
+		Body          io.Reader
+		SignedHeaders string
+		Signature     string
+	}{
+		"empty body": {
+			Body:          nil,
+			SignedHeaders: "a-header;host;x-amz-date",
+			Signature:     "99f815531e473759852fb13154796d31f4cfaccc3036f91193df440adeba0588",
+		},
+		"with body": {
+			Body:          strings.NewReader(`{"some": "body data"}`),
+			SignedHeaders: "a-header;content-length;host;x-amz-date",
+			Signature:     "c9f9b78004a45e947d0fd7ea4eba56a86d3234bed2a7b69240231a1beb8150e9",
+		},
 	}
 
-	errors = popError(errors)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			req, _ := http.NewRequest(http.MethodPost, "/an-url", tc.Body)
+			req.Header.Set("a-header", "with-a-value")
 
-	assert.Equal(t, []CreateCaseResponseBadRequestError{{Source: "another/source", Detail: "More details"}}, errors)
+			now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
+			client := &Client{
+				baseURL:     "https://base.url",
+				httpClient:  http.DefaultClient,
+				credentials: aws.Credentials{AccessKeyID: "abc"},
+				region:      "eu-west-1",
+				signer:      v4.NewSigner(),
+				now:         now,
+			}
 
-	errors = popError(errors)
+			err := client.sign(req.Context(), req, "service-name")
 
-	assert.Equal(t, []CreateCaseResponseBadRequestError{}, errors)
+			assert.Nil(t, err)
+
+			assert.Equal(t, "20000102T000000Z", req.Header.Get("X-Amz-Date"))
+			assert.Equal(t, fmt.Sprintf("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/service-name/aws4_request, SignedHeaders=%s, Signature=%s", tc.SignedHeaders, tc.Signature), req.Header.Get("Authorization"))
+			assert.Equal(t, "with-a-value", req.Header.Get("a-header"))
+		})
+
+	}
+}
+
+type errReader struct{}
+
+func (errReader) Read(p []byte) (int, error) {
+	return 1, expectedError
+}
+
+func TestClientSignOnReadAllError(t *testing.T) {
+	req, _ := http.NewRequest(http.MethodPost, "/an-url", errReader{})
+	req.Header.Set("Content-Length", "100")
+
+	now := func() time.Time { return time.Now() }
+	client := &Client{
+		baseURL:     "https://base.url",
+		httpClient:  http.DefaultClient,
+		credentials: aws.Credentials{AccessKeyID: "abc"},
+		region:      "eu-west-1",
+		signer:      v4.NewSigner(),
+		now:         now,
+	}
+
+	err := client.sign(req.Context(), req, "")
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestClientSignOnSignHttpError(t *testing.T) {
+	req, _ := http.NewRequest(http.MethodPost, "/an-url", nil)
+	req.Header.Set("a-header", "with-a-value")
+
+	now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
+	v4Signer := newMockV4Signer(t)
+	v4Signer.
+		On("SignHTTP", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	client := &Client{
+		baseURL:     "https://base.url",
+		httpClient:  http.DefaultClient,
+		credentials: aws.Credentials{AccessKeyID: "abc"},
+		region:      "eu-west-1",
+		signer:      v4Signer,
+		now:         now,
+	}
+
+	err := client.sign(req.Context(), req, "")
+
+	assert.Equal(t, expectedError, err)
 }

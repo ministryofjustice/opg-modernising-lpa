@@ -3,12 +3,17 @@ package uid
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 )
 
 const apiGatewayServiceName = "execute-api"
@@ -18,22 +23,28 @@ type Doer interface {
 	Do(*http.Request) (*http.Response, error)
 }
 
-//go:generate mockery --testonly --inpackage --name RequestSigner --structname mockRequestSigner
-type RequestSigner interface {
-	Sign(context.Context, *http.Request, string) error
+//go:generate mockery --testonly --inpackage --name v4Signer --structname mockV4Signer
+type v4Signer interface {
+	SignHTTP(context.Context, aws.Credentials, *http.Request, string, string, string, time.Time, ...func(options *v4.SignerOptions)) error
 }
 
 type Client struct {
-	baseUrl    string
-	httpClient Doer
-	signer     RequestSigner
+	baseURL     string
+	httpClient  Doer
+	credentials aws.Credentials
+	region      string
+	signer      v4Signer
+	now         func() time.Time
 }
 
-func New(baseUrl string, httpClient Doer, signer RequestSigner) *Client {
+func New(baseURL, region string, httpClient Doer, credentials aws.Credentials, signer v4Signer, now func() time.Time) *Client {
 	return &Client{
-		baseUrl:    baseUrl,
-		httpClient: httpClient,
-		signer:     signer,
+		baseURL:     baseURL,
+		httpClient:  httpClient,
+		credentials: credentials,
+		region:      region,
+		signer:      signer,
+		now:         now,
 	}
 }
 
@@ -67,14 +78,14 @@ func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (C
 	body.Source = "APPLICANT"
 	data, _ := json.Marshal(body)
 
-	r, err := http.NewRequest(http.MethodPost, c.baseUrl+"/cases", bytes.NewReader(data))
+	r, err := http.NewRequest(http.MethodPost, c.baseURL+"/cases", bytes.NewReader(data))
 	if err != nil {
 		return CreateCaseResponse{}, err
 	}
 
 	r.Header.Add("Content-Type", "application/json")
 
-	err = c.signer.Sign(ctx, r, apiGatewayServiceName)
+	err = c.sign(ctx, r, apiGatewayServiceName)
 	if err != nil {
 		return CreateCaseResponse{}, err
 	}
@@ -137,4 +148,30 @@ func (c *CreateCaseResponse) Error() error {
 
 func popError(errors []CreateCaseResponseBadRequestError) []CreateCaseResponseBadRequestError {
 	return append(errors[:0], errors[0+1:]...)
+}
+
+func (c *Client) sign(ctx context.Context, req *http.Request, serviceName string) error {
+	reqBody := []byte("")
+
+	if req.Body != nil {
+		body, err := io.ReadAll(req.Body)
+		if err != nil {
+			return err
+		}
+
+		reqBody = body
+	}
+
+	hash := sha256.New()
+	hash.Write(reqBody)
+	encodedBody := hex.EncodeToString(hash.Sum(nil))
+
+	req.Body = io.NopCloser(bytes.NewBuffer(reqBody))
+
+	err := c.signer.SignHTTP(ctx, c.credentials, req, encodedBody, serviceName, c.region, c.now())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

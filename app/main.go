@@ -28,7 +28,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sign"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
@@ -190,8 +189,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	signer := sign.NewRequestSigner(v4.NewSigner(), credentials, time.Now, cfg.Region)
-	uidClient := uid.New(uidBaseURL, httpClient, signer)
+	uidClient := uid.New(uidBaseURL, cfg.Region, httpClient, credentials, v4.NewSigner(), time.Now)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc(page.Paths.HealthCheck, func(w http.ResponseWriter, r *http.Request) {})
