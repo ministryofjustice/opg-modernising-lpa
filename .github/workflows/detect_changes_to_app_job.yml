@@ -31,7 +31,7 @@ jobs:
             echo "changes=${{ false }}" >> $GITHUB_OUTPUT || \
             echo "changes=${{ true }}" >> $GITHUB_OUTPUT
           else
-            echo "No last push, checking against origin/main"
+            echo "Checking against origin/main"
             git diff --quiet HEAD origin/main -- app lang web Dockerfile package.json yarn.lock && \
             echo "changes=${{ false }}" || \
             echo "changes=${{ true }}"
