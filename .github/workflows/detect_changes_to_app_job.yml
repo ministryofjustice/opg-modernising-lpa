@@ -19,7 +19,7 @@ jobs:
         id: detect_changes
         if: github.ref != 'refs/heads/main'
         run: |
-          LAST_BUILD_STATUS=$(gh run list -w '[Workflow] PR' -b "$GITHUB_HEAD_REF" --limit 1 | awk '{print $2}')
+          LAST_BUILD_STATUS=$(gh run list -w '[Workflow] PR' -b "$GITHUB_HEAD_REF" --limit 2 | tail -n1 | awk '{print $2}')
           echo "Last build status on $GITHUB_HEAD_REF: $LAST_BUILD_STATUS"
           if [[ "$LAST_BUILD_STATUS" == "success" ]]; then
             echo "Checking against last push"
