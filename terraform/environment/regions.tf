@@ -4,7 +4,7 @@ data "aws_ecr_repository" "app" {
 }
 
 module "allow_list" {
-  source = "git@github.com:ministryofjustice/opg-terraform-aws-moj-ip-allow-list.git?ref=v1.7.1"
+  source = "git@github.com:ministryofjustice/opg-terraform-aws-moj-ip-allow-list.git?ref=v2.3.0"
 }
 
 module "eu_west_1" {
