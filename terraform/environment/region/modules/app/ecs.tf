@@ -223,6 +223,22 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     ]
   }
 
+  statement {
+    sid    = "uidApiAccess"
+    effect = "Allow"
+    actions = [
+      "execute-api:Invoke",
+    ]
+    resources = [
+      "arn:aws:execute-api:eu-west-1:288342028542:*/*/POST/cases",
+      "arn:aws:execute-api:eu-west-2:288342028542:*/*/POST/cases",
+      "arn:aws:execute-api:eu-west-1:492687888235:*/*/POST/cases",
+      "arn:aws:execute-api:eu-west-2:492687888235:*/*/POST/cases",
+      "arn:aws:execute-api:eu-west-1:649098267436:*/*/POST/cases",
+      "arn:aws:execute-api:eu-west-2:649098267436:*/*/POST/cases",
+    ]
+  }
+
   provider = aws.region
 }
 
@@ -331,6 +347,10 @@ locals {
         {
           name  = "AWS_RUM_APPLICATION_REGION",
           value = data.aws_region.current.name
+        },
+        {
+          name  = "UID_BASE_URL",
+          value = var.app_env_vars.uid_base_url
         },
       ]
     }

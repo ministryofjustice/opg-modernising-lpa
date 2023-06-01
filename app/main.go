@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/sessions"
@@ -29,6 +30,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -51,8 +53,8 @@ func main() {
 		dynamoTableLpas       = env.Get("DYNAMODB_TABLE_LPAS", "")
 		notifyBaseURL         = env.Get("GOVUK_NOTIFY_BASE_URL", "")
 		notifyIsProduction    = env.Get("GOVUK_NOTIFY_IS_PRODUCTION", "") == "1"
-		ordnanceSurveyBaseUrl = env.Get("ORDNANCE_SURVEY_BASE_URL", "http://ordnance-survey-mock:4011")
-		payBaseUrl            = env.Get("GOVUK_PAY_BASE_URL", "http://pay-mock:4010")
+		ordnanceSurveyBaseURL = env.Get("ORDNANCE_SURVEY_BASE_URL", "http://ordnance-survey-mock:4011")
+		payBaseURL            = env.Get("GOVUK_PAY_BASE_URL", "http://pay-mock:4010")
 		port                  = env.Get("APP_PORT", "8080")
 		yotiClientSdkID       = env.Get("YOTI_CLIENT_SDK_ID", "")
 		yotiScenarioID        = env.Get("YOTI_SCENARIO_ID", "")
@@ -65,6 +67,7 @@ func main() {
 			IdentityPoolID:    env.Get("AWS_RUM_IDENTITY_POOL_ID", ""),
 			ApplicationID:     env.Get("AWS_RUM_APPLICATION_ID", ""),
 		}
+		uidBaseURL = env.Get("UID_BASE_URL", "http://uid-mock:8080")
 	)
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
@@ -144,7 +147,7 @@ func main() {
 	}
 
 	payClient := &pay.Client{
-		BaseURL:    payBaseUrl,
+		BaseURL:    payBaseURL,
 		ApiKey:     payApiKey,
 		HttpClient: httpClient,
 	}
@@ -169,7 +172,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	addressClient := place.NewClient(ordnanceSurveyBaseUrl, osApiKey, httpClient)
+	addressClient := place.NewClient(ordnanceSurveyBaseURL, osApiKey, httpClient)
 
 	notifyApiKey, err := secretsClient.Secret(ctx, secrets.GovUkNotify)
 	if err != nil {
@@ -181,6 +184,13 @@ func main() {
 		logger.Fatal(err)
 	}
 
+	credentials, err := cfg.Credentials.Retrieve(ctx)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	uidClient := uid.New(uidBaseURL, cfg.Region, httpClient, credentials, v4.NewSigner(), time.Now)
+
 	mux := http.NewServeMux()
 	mux.HandleFunc(page.Paths.HealthCheck, func(w http.ResponseWriter, r *http.Request) {})
 	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
@@ -190,8 +200,8 @@ func main() {
 	mux.Handle(page.Paths.AuthRedirect, page.AuthRedirect(logger, sessionStore))
 	mux.Handle(page.Paths.YotiRedirect, page.YotiRedirect(logger, sessionStore))
 	mux.Handle(page.Paths.CookiesConsent, page.CookieConsent(page.Paths))
-	mux.Handle("/cy/", http.StripPrefix("/cy", app.App(logger, bundle.For(localize.Cy), localize.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient)))
-	mux.Handle("/", app.App(logger, bundle.For(localize.En), localize.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient))
+	mux.Handle("/cy/", http.StripPrefix("/cy", app.App(logger, bundle.For(localize.Cy), localize.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient, uidClient)))
+	mux.Handle("/", app.App(logger, bundle.For(localize.En), localize.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient, uidClient))
 
 	var handler http.Handler = mux
 	if xrayEnabled {
