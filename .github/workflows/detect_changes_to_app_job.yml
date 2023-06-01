@@ -19,25 +19,21 @@ jobs:
         id: detect_changes
         if: github.ref != 'refs/heads/main'
         run: |
-          # if [[ "${{github.event.action}}" != "opened" ]]; then
-          #   echo "Checking against last push"
-          #   git diff --quiet ${{github.event.before}} ${{github.event.after}} -- app lang web Dockerfile package.json yarn.lock && \
-          #   echo "changes=${{ false }}" || \
-          #   echo "changes=${{ true }}"
-
-          #   git diff --quiet ${{github.event.before}} ${{github.event.after}} -- app lang web Dockerfile package.json yarn.lock && \
-          #   echo "changes=${{ false }}" >> $GITHUB_OUTPUT || \
-          #   echo "changes=${{ true }}" >> $GITHUB_OUTPUT
-          # else
-            echo "No last push, checking against origin/main"
-            git diff --quiet HEAD origin/main -- app lang web Dockerfile package.json yarn.lock && \
+          BEFORE_STATUS=$(gh api repos/ministryofjustice/opg-modernising-lpa/commits/${{github.event.before}}/check-runs --jq '.check_runs[].conclusion' | grep -v -E '(success|skipped)' > /dev/null && echo 'failure' || echo 'success')
+          echo "Build status of ${{github.event.before}}: $BEFORE_STATUS"
+          if [[ "$BEFORE_STATUS" == "success" ]]; then
+            echo "Checking against ${{github.event.before}}"
+            (git diff --quiet ${{github.event.before}} ${{github.event.after}} -- app lang web Dockerfile package.json yarn.lock && \
             echo "changes=${{ false }}" || \
-            echo "changes=${{ true }}"
-
-            git diff --quiet HEAD origin/main -- app lang web Dockerfile package.json yarn.lock && \
-            echo "changes=${{ false }}" >> $GITHUB_OUTPUT || \
-            echo "changes=${{ true }}" >> $GITHUB_OUTPUT
-          # fi
+            echo "changes=${{ true }}") | tee -a "${GITHUB_OUTPUT}"
+          else
+            echo "Checking against origin/main"
+            (git diff --quiet HEAD origin/main -- app lang web Dockerfile package.json yarn.lock && \
+            echo "changes=${{ false }}" || \
+            echo "changes=${{ true }}") | tee -a "${GITHUB_OUTPUT}"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
     outputs:
       changes_detected: ${{ steps.detect_changes.outputs.changes }}
 
