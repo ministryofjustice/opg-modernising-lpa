@@ -10,10 +10,9 @@ import (
 )
 
 type whoDoYouWantToBeCertificateProviderGuidanceData struct {
-	App        page.AppData
-	Errors     validation.List
-	NotStarted bool
-	Lpa        *page.Lpa
+	App    page.AppData
+	Errors validation.List
+	Lpa    *page.Lpa
 }
 
 func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, donorStore DonorStore) page.Handler {
@@ -24,21 +23,17 @@ func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, donorSt
 		}
 
 		data := &whoDoYouWantToBeCertificateProviderGuidanceData{
-			App:        appData,
-			NotStarted: lpa.Tasks.CertificateProvider == actor.TaskNotStarted,
-			Lpa:        lpa,
+			App: appData,
+			Lpa: lpa,
 		}
 
 		if r.Method == http.MethodPost {
-			if page.PostFormString(r, "will-do-this-later") == "1" {
-				return appData.Redirect(w, r, lpa, page.Paths.TaskList)
-			}
-
-			if data.NotStarted {
+			if lpa.Tasks.CertificateProvider == actor.TaskNotStarted {
 				lpa.Tasks.CertificateProvider = actor.TaskInProgress
-			}
-			if err := donorStore.Put(r.Context(), lpa); err != nil {
-				return err
+
+				if err := donorStore.Put(r.Context(), lpa); err != nil {
+					return err
+				}
 			}
 
 			return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderDetails)

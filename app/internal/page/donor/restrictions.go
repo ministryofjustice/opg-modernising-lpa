@@ -10,10 +10,9 @@ import (
 )
 
 type restrictionsData struct {
-	App       page.AppData
-	Errors    validation.List
-	Completed bool
-	Lpa       *page.Lpa
+	App    page.AppData
+	Errors validation.List
+	Lpa    *page.Lpa
 }
 
 func Restrictions(tmpl template.Template, donorStore DonorStore) page.Handler {
@@ -24,27 +23,23 @@ func Restrictions(tmpl template.Template, donorStore DonorStore) page.Handler {
 		}
 
 		data := &restrictionsData{
-			App:       appData,
-			Completed: lpa.Tasks.Restrictions.Completed(),
-			Lpa:       lpa,
+			App: appData,
+			Lpa: lpa,
 		}
 
 		if r.Method == http.MethodPost {
 			form := readRestrictionsForm(r)
 			data.Errors = form.Validate()
 
-			if data.Errors.None() || form.AnswerLater {
-				if form.AnswerLater {
-					lpa.Tasks.Restrictions = actor.TaskInProgress
-				} else {
-					lpa.Tasks.Restrictions = actor.TaskCompleted
-					lpa.Restrictions = form.Restrictions
-				}
+			if data.Errors.None() {
+				lpa.Tasks.Restrictions = actor.TaskCompleted
+				lpa.Restrictions = form.Restrictions
+
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.WhoDoYouWantToBeCertificateProviderGuidance)
+				return appData.Redirect(w, r, lpa, page.Paths.TaskList)
 			}
 		}
 
@@ -53,13 +48,11 @@ func Restrictions(tmpl template.Template, donorStore DonorStore) page.Handler {
 }
 
 type restrictionsForm struct {
-	AnswerLater  bool
 	Restrictions string
 }
 
 func readRestrictionsForm(r *http.Request) *restrictionsForm {
 	return &restrictionsForm{
-		AnswerLater:  page.PostFormString(r, "answer-later") == "1",
 		Restrictions: page.PostFormString(r, "restrictions"),
 	}
 }

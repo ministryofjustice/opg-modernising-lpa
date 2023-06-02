@@ -1,0 +1,6 @@
+{{ define "continue-and-return-buttons" }}
+  <div class="govuk-button-group">
+    <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "continue" }}</button>
+    <a href="{{ link .App .App.Paths.TaskList }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+  </div>
+{{ end }}

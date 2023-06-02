@@ -50,7 +50,7 @@ func TestGetChooseReplacementAttorneysSummaryWhenNoReplacementAttorneys(t *testi
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted}}, nil)
 
 	err := ChooseReplacementAttorneysSummary(nil, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
@@ -113,7 +113,6 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 		replacementAttorneys actor.Attorneys
 		howAttorneysAct      string
 		decisionDetails      string
-		lpaType              string
 	}{
 		"with multiple attorneys acting jointly and severally and single replacement attorney": {
 			redirectUrl:          page.Paths.HowShouldReplacementAttorneysStepIn,
@@ -134,12 +133,11 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			howAttorneysAct:      actor.Jointly,
 		},
 		"with multiple attorneys acting jointly for some decisions and jointly and severally for other decisions and single replacement attorney": {
-			redirectUrl:          page.Paths.WhenCanTheLpaBeUsed,
+			redirectUrl:          page.Paths.TaskList,
 			attorneys:            actor.Attorneys{attorney1, attorney2},
 			replacementAttorneys: actor.Attorneys{attorney1},
 			howAttorneysAct:      actor.JointlyForSomeSeverallyForOthers,
 			decisionDetails:      "some words",
-			lpaType:              page.LpaTypePropertyFinance,
 		},
 		"with multiple attorneys acting jointly for some decisions, and jointly and severally for other decisions and multiple replacement attorneys": {
 			redirectUrl:          page.Paths.HowShouldReplacementAttorneysMakeDecisions,
@@ -147,21 +145,12 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			replacementAttorneys: actor.Attorneys{attorney1, attorney2},
 			howAttorneysAct:      actor.JointlyForSomeSeverallyForOthers,
 			decisionDetails:      "some words",
-			lpaType:              page.LpaTypePropertyFinance,
 		},
-		"pfa with multiple attorneys acting jointly and single replacement attorneys": {
-			redirectUrl:          page.Paths.WhenCanTheLpaBeUsed,
+		"with multiple attorneys acting jointly and single replacement attorneys": {
+			redirectUrl:          page.Paths.TaskList,
 			attorneys:            actor.Attorneys{attorney1, attorney2},
 			replacementAttorneys: actor.Attorneys{attorney1},
 			howAttorneysAct:      actor.Jointly,
-			lpaType:              page.LpaTypePropertyFinance,
-		},
-		"hw with multiple attorneys acting jointly and single replacement attorneys": {
-			redirectUrl:          page.Paths.LifeSustainingTreatment,
-			attorneys:            actor.Attorneys{attorney1, attorney2},
-			replacementAttorneys: actor.Attorneys{attorney1},
-			howAttorneysAct:      actor.Jointly,
-			lpaType:              page.LpaTypeHealthWelfare,
 		},
 	}
 
@@ -179,7 +168,6 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			donorStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					Type:                 tc.lpaType,
 					ReplacementAttorneys: tc.replacementAttorneys,
 					AttorneyDecisions: actor.AttorneyDecisions{
 						How:     tc.howAttorneysAct,
