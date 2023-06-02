@@ -10,11 +10,10 @@ import (
 )
 
 type whenCanTheLpaBeUsedData struct {
-	App       page.AppData
-	Errors    validation.List
-	When      string
-	Completed bool
-	Lpa       *page.Lpa
+	App    page.AppData
+	Errors validation.List
+	When   string
+	Lpa    *page.Lpa
 }
 
 func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) page.Handler {
@@ -25,28 +24,23 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) page.Han
 		}
 
 		data := &whenCanTheLpaBeUsedData{
-			App:       appData,
-			When:      lpa.WhenCanTheLpaBeUsed,
-			Completed: lpa.Tasks.WhenCanTheLpaBeUsed.Completed(),
-			Lpa:       lpa,
+			App:  appData,
+			When: lpa.WhenCanTheLpaBeUsed,
+			Lpa:  lpa,
 		}
 
 		if r.Method == http.MethodPost {
 			form := readWhenCanTheLpaBeUsedForm(r)
 			data.Errors = form.Validate()
 
-			if data.Errors.None() || form.AnswerLater {
-				if form.AnswerLater {
-					lpa.Tasks.WhenCanTheLpaBeUsed = actor.TaskInProgress
-				} else {
-					lpa.WhenCanTheLpaBeUsed = form.When
-					lpa.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
-				}
+			if data.Errors.None() {
+				lpa.WhenCanTheLpaBeUsed = form.When
+				lpa.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.Restrictions)
+				return appData.Redirect(w, r, lpa, page.Paths.TaskList)
 			}
 		}
 
@@ -55,14 +49,12 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) page.Han
 }
 
 type whenCanTheLpaBeUsedForm struct {
-	AnswerLater bool
-	When        string
+	When string
 }
 
 func readWhenCanTheLpaBeUsedForm(r *http.Request) *whenCanTheLpaBeUsedForm {
 	return &whenCanTheLpaBeUsedForm{
-		AnswerLater: page.PostFormString(r, "answer-later") == "1",
-		When:        page.PostFormString(r, "when"),
+		When: page.PostFormString(r, "when"),
 	}
 }
 
