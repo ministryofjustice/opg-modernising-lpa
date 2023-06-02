@@ -38,7 +38,7 @@ func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) page
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.Restrictions)
+				return appData.Redirect(w, r, lpa, page.Paths.TaskList)
 			}
 		}
 

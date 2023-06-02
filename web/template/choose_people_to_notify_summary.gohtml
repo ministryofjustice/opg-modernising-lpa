@@ -17,9 +17,7 @@
         <form novalidate method="post">
           <input type="hidden" name="add-person-to-notify" value="no">
 
-          <div class="govuk-button-group">
-            {{ template "continue-button" . }}
-          </div>
+          {{ template "continue-and-return-buttons" . }}
           {{ template "csrf-field" . }}
         </form>
       {{ else }}
@@ -39,9 +37,7 @@
             </fieldset>
           </div>
 
-          <div class="govuk-button-group">
-            {{ template "continue-button" . }}
-          </div>
+          {{ template "save-and-return-buttons" . }}
           {{ template "csrf-field" . }}
         </form>
       {{ end }}

@@ -686,5 +686,7 @@
     "showServiceNameNavigationMenu": "Welsh {{.ServiceName}}",
     "hideServiceNameNavigationMenu": "Welsh {{.ServiceName}}",
     "menu": "Welsh",
-    "close": "Welsh"
+    "close": "Welsh",
+    "saveAndContinue": "Welsh",
+    "returnToTaskList": "Welsh"
 }
