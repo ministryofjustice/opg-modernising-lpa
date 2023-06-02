@@ -26,9 +26,7 @@
           </fieldset>
         </div>
 
-        <div class="govuk-button-group">
-          {{ template "continue-button" . }}
-        </div>
+        {{ template "continue-and-return-buttons" . }}
         {{ template "csrf-field" . }}
       </form>
     </div>

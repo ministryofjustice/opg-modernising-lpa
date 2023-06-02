@@ -1,4 +1,4 @@
-import {AddressFormAssertions} from "../../support/e2e";
+import { AddressFormAssertions } from "../../support/e2e";
 
 describe('People to notify address', () => {
     describe('Entering a new address', () => {
@@ -28,14 +28,14 @@ describe('People to notify address', () => {
             AddressFormAssertions.assertErrorsWhenManualIncorrect('I can’t find their address in the list')
         });
     });
-    
+
     it('address can be copied from another actor', () => {
         cy.visit('/testing-start?redirect=/choose-people-to-notify-address?id=JoannaSmith&withIncompletePeopleToNotify=1&withCPDetails=1');
         cy.contains('label', 'Use an address you’ve already entered').click();
         cy.contains('button', 'Continue').click();
 
         cy.contains('label', '5 RICHMOND PLACE').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/choose-people-to-notify-summary');
 

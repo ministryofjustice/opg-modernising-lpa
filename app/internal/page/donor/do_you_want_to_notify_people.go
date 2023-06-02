@@ -55,7 +55,7 @@ func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) page
 				redirectPath := appData.Paths.ChoosePeopleToNotify
 
 				if data.Form.WantToNotify == "no" {
-					redirectPath = appData.Paths.CheckYourLpa
+					redirectPath = appData.Paths.TaskList
 					lpa.Tasks.PeopleToNotify = actor.TaskCompleted
 				}
 

@@ -34,12 +34,10 @@
               (item "yes" "yesReplacementAttorneys")
               (item "no" "noReplacementAttorneys")
             ) }}
-
-            <div class="govuk-button-group govuk-!-margin-top-6">
-              {{ template "continue-button" . }}
-            </div>
           </fieldset>
         </div>
+
+        {{ template "save-and-return-buttons" . }}
         {{ template "csrf-field" . }}
       </form>
     </div>
