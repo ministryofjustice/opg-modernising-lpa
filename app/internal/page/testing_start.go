@@ -85,6 +85,18 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			lpa.Tasks.ChooseReplacementAttorneys = actor.TaskInProgress
 		}
 
+		if r.FormValue("withIncompleteReplacementAttorneys") != "" {
+			AddReplacementAttorneys(lpa, 2)
+			lpa.ReplacementAttorneys[0].ID = "with-address"
+			lpa.ReplacementAttorneys[1].ID = "without-address"
+			lpa.ReplacementAttorneys[1].Address = place.Address{}
+
+			lpa.ReplacementAttorneys = lpa.Attorneys
+			lpa.WantReplacementAttorneys = "yes"
+			lpa.Tasks.ChooseAttorneys = actor.TaskCompleted
+			lpa.Tasks.ChooseReplacementAttorneys = actor.TaskInProgress
+		}
+
 		if r.FormValue("howAttorneysAct") != "" {
 			CompleteHowAttorneysAct(lpa, r.FormValue("howAttorneysAct"))
 		}

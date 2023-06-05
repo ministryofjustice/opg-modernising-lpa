@@ -199,7 +199,7 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 		{
 			WantToNotify:     "no",
 			ExistingAnswer:   "yes",
-			ExpectedRedirect: "/lpa/lpa-id" + page.Paths.CheckYourLpa,
+			ExpectedRedirect: "/lpa/lpa-id" + page.Paths.TaskList,
 			ExpectedStatus:   actor.TaskCompleted,
 		},
 	}
