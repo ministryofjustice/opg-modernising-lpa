@@ -160,7 +160,7 @@ func Register(
 	handleLpa(page.Paths.TaskList, None,
 		TaskList(tmpls.Get("task_list.gohtml"), donorStore))
 
-	handleLpa(page.Paths.ChooseAttorneys, CanGoBack,
+	handleLpa(page.Paths.ChooseAttorneys, None,
 		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), donorStore, random.UuidString))
 	handleLpa(page.Paths.ChooseAttorneysAddress, CanGoBack,
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
@@ -175,7 +175,7 @@ func Register(
 	handleLpa(page.Paths.AreYouHappyIfRemainingAttorneysCanContinueToAct, CanGoBack,
 		AreYouHappyIfRemainingAttorneysCanContinueToAct(tmpls.Get("are_you_happy_if_remaining_attorneys_can_continue_to_act.gohtml"), donorStore))
 
-	handleLpa(page.Paths.DoYouWantReplacementAttorneys, CanGoBack,
+	handleLpa(page.Paths.DoYouWantReplacementAttorneys, None,
 		WantReplacementAttorneys(tmpls.Get("do_you_want_replacement_attorneys.gohtml"), donorStore))
 	handleLpa(page.Paths.ChooseReplacementAttorneys, CanGoBack,
 		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), donorStore, random.UuidString))
@@ -194,13 +194,14 @@ func Register(
 	handleLpa(page.Paths.AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct, CanGoBack,
 		AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(tmpls.Get("are_you_happy_if_remaining_replacement_attorneys_can_continue_to_act.gohtml"), donorStore))
 
-	handleLpa(page.Paths.WhenCanTheLpaBeUsed, CanGoBack,
+	handleLpa(page.Paths.WhenCanTheLpaBeUsed, None,
 		WhenCanTheLpaBeUsed(tmpls.Get("when_can_the_lpa_be_used.gohtml"), donorStore))
-	handleLpa(page.Paths.LifeSustainingTreatment, CanGoBack,
+	handleLpa(page.Paths.LifeSustainingTreatment, None,
 		LifeSustainingTreatment(tmpls.Get("life_sustaining_treatment.gohtml"), donorStore))
-	handleLpa(page.Paths.Restrictions, CanGoBack,
+	handleLpa(page.Paths.Restrictions, None,
 		Restrictions(tmpls.Get("restrictions.gohtml"), donorStore))
-	handleLpa(page.Paths.WhoDoYouWantToBeCertificateProviderGuidance, CanGoBack,
+
+	handleLpa(page.Paths.WhoDoYouWantToBeCertificateProviderGuidance, None,
 		WhoDoYouWantToBeCertificateProviderGuidance(tmpls.Get("who_do_you_want_to_be_certificate_provider_guidance.gohtml"), donorStore))
 	handleLpa(page.Paths.CertificateProviderDetails, CanGoBack,
 		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), donorStore))
@@ -229,12 +230,12 @@ func Register(
 
 	handleLpa(page.Paths.AboutPayment, CanGoBack,
 		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String, donorStore))
-	handleLpa(page.Paths.PaymentConfirmation, CanGoBack,
+	handleLpa(page.Paths.PaymentConfirmation, None,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender))
 
-	handleLpa(page.Paths.HowToConfirmYourIdentityAndSign, CanGoBack,
+	handleLpa(page.Paths.HowToConfirmYourIdentityAndSign, None,
 		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml"), donorStore))
-	handleLpa(page.Paths.WhatYoullNeedToConfirmYourIdentity, CanGoBack,
+	handleLpa(page.Paths.WhatYoullNeedToConfirmYourIdentity, None,
 		Guidance(tmpls.Get("what_youll_need_to_confirm_your_identity.gohtml"), donorStore))
 
 	for path, page := range map[string]int{
@@ -242,7 +243,7 @@ func Register(
 		page.Paths.SelectYourIdentityOptions1: 1,
 		page.Paths.SelectYourIdentityOptions2: 2,
 	} {
-		handleLpa(path, CanGoBack,
+		handleLpa(path, None,
 			SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), donorStore, page))
 	}
 
@@ -268,19 +269,19 @@ func Register(
 			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), donorStore, time.Now, identityOption))
 	}
 
-	handleLpa(page.Paths.ReadYourLpa, CanGoBack,
+	handleLpa(page.Paths.ReadYourLpa, None,
 		Guidance(tmpls.Get("read_your_lpa.gohtml"), donorStore))
 	handleLpa(page.Paths.YourLegalRightsAndResponsibilities, CanGoBack,
 		Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml"), donorStore))
 	handleLpa(page.Paths.SignYourLpa, CanGoBack,
 		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), donorStore))
-	handleLpa(page.Paths.WitnessingYourSignature, CanGoBack,
+	handleLpa(page.Paths.WitnessingYourSignature, None,
 		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), donorStore, witnessCodeSender))
-	handleLpa(page.Paths.WitnessingAsCertificateProvider, CanGoBack,
+	handleLpa(page.Paths.WitnessingAsCertificateProvider, None,
 		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), donorStore, shareCodeSender, time.Now, certificateProviderStore))
 	handleLpa(page.Paths.ResendWitnessCode, CanGoBack,
 		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), donorStore, witnessCodeSender, time.Now))
-	handleLpa(page.Paths.YouHaveSubmittedYourLpa, CanGoBack,
+	handleLpa(page.Paths.YouHaveSubmittedYourLpa, None,
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml"), donorStore))
 
 	handleLpa(page.Paths.Progress, CanGoBack,
