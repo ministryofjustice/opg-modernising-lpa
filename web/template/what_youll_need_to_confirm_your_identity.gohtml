@@ -10,9 +10,12 @@
       {{ trHtml .App "whatYoullNeedToConfirmYourIdentityContent" }}
 
       {{ if eq .App.Page .App.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity }}
-        <a class="govuk-button govuk-!-margin-top-4" href="{{ link .App .App.Paths.CertificateProviderSelectYourIdentityOptions }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+        <a class="govuk-button govuk-!-margin-top-4" href="{{ link .App .App.Paths.CertificateProviderSelectYourIdentityOptions }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
       {{ else }}
-        <a class="govuk-button govuk-!-margin-top-4" href="{{ link .App .App.Paths.SelectYourIdentityOptions }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+        <div class="govuk-button-group govuk-!-margin-top-4">
+          <a class="govuk-button" href="{{ link .App .App.Paths.SelectYourIdentityOptions }}" data-module="govuk-button">{{ tr .App "saveAndContinue" }}</a>
+          <a href="{{ link .App .App.Paths.TaskList }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+        </div>
       {{ end }}
     </div>
   </div>

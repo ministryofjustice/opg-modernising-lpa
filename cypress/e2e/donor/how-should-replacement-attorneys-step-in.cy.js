@@ -11,7 +11,7 @@ describe('How should replacement attorneys step in', () => {
 
         cy.get('input[name="when-to-step-in"]').check('one');
 
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/task-list');
 
@@ -22,13 +22,13 @@ describe('How should replacement attorneys step in', () => {
         cy.get('input[name="when-to-step-in"]').check('other');
         cy.get('#f-other-details').type('some details on when to step in');
 
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/task-list');
     });
 
     it('errors when unselected', () => {
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Select when your replacement attorneys should step in');
@@ -39,7 +39,7 @@ describe('How should replacement attorneys step in', () => {
 
     it('errors when other and details empty', () => {
         cy.get('input[name="when-to-step-in"]').check('other');
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter details of when your replacement attorneys should step in');

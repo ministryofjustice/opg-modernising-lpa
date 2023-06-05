@@ -141,7 +141,7 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.CheckYourLpa, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+page.Paths.TaskList, resp.Header.Get("Location"))
 }
 
 func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {

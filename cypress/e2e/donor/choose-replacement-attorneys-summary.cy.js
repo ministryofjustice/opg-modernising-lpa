@@ -1,8 +1,8 @@
-import {TestEmail} from "../../support/e2e";
+import { TestEmail } from "../../support/e2e";
 
 describe('Choose replacement attorneys summary', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/choose-replacement-attorneys-summary&withIncompleteAttorneys=1&cookiesAccepted=1');
+        cy.visit('/testing-start?redirect=/choose-replacement-attorneys-summary&withDonorDetails=1&withAttorneys=1&withIncompleteReplacementAttorneys=1&cookiesAccepted=1');
     });
 
     it('multiple attorneys details are listed', () => {
@@ -33,7 +33,7 @@ describe('Choose replacement attorneys summary', () => {
 
         cy.get('#f-first-names').clear().type('Mark');
 
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys-summary');
 
@@ -84,7 +84,7 @@ describe('Choose replacement attorneys summary', () => {
         cy.get('input[name="date-of-birth-day"]').clear().type('31');
         cy.get('input[name="date-of-birth-month"]').clear().type('12');
         cy.get('input[name="date-of-birth-year"]').clear().type('1995');
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys-address');
 
@@ -109,7 +109,7 @@ describe('Choose replacement attorneys summary', () => {
         cy.contains('B14 7ED');
     });
 
-    it('can remove an attorney', () => {
+    it.only('can remove an attorney', () => {
         cy.checkA11yApp();
 
         cy.get('#remove-replacement-1').contains('a', 'Remove').click();

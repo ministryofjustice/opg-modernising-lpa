@@ -79,29 +79,16 @@ func TestGetAreYouHappyIfOneReplacementAttorneyCantActNoneCanWhenTemplateErrors(
 func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCan(t *testing.T) {
 	testcases := map[string]struct {
 		happy    string
-		lpaType  string
 		lpa      *page.Lpa
 		redirect string
 	}{
-		"yes hw": {
-			happy:   "yes",
-			lpaType: page.LpaTypeHealthWelfare,
+		"yes": {
+			happy: "yes",
 			lpa: &page.Lpa{
-				Type:                         page.LpaTypeHealthWelfare,
 				ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfOneCannotActNoneCan: "yes"},
 				Tasks:                        page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 			},
-			redirect: page.Paths.LifeSustainingTreatment,
-		},
-		"yes pfa": {
-			happy:   "yes",
-			lpaType: page.LpaTypePropertyFinance,
-			lpa: &page.Lpa{
-				Type:                         page.LpaTypePropertyFinance,
-				ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfOneCannotActNoneCan: "yes"},
-				Tasks:                        page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
-			},
-			redirect: page.Paths.WhenCanTheLpaBeUsed,
+			redirect: page.Paths.TaskList,
 		},
 		"no": {
 			happy: "no",
@@ -127,7 +114,6 @@ func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCan(t *testing.T) {
 			donorStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					Type:  tc.lpaType,
 					Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 				}, nil)
 			donorStore.
