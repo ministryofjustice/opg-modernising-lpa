@@ -13,12 +13,7 @@
       {{ trHtml .App "detailsYoullNeedAboutYourCertificateProvider" }}
 
       <form novalidate method="post">
-        <div class="govuk-button-group">
-          {{ template "continue-button" . }}
-          {{ if .NotStarted }}
-            <button type="submit" name="will-do-this-later" value="1" class="govuk-button govuk-button--secondary">{{ tr .App "willDoThisLater" }}</button>
-          {{ end }}
-        </div>
+        {{ template "save-and-return-buttons" . }}
         {{ template "csrf-field" . }}
       </form>
     </div>

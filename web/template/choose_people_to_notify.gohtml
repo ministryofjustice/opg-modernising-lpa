@@ -15,10 +15,7 @@
 
         {{ template "input" (input . "email" "email" .Form.Email "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
 
-        <div class="govuk-button-group">
-          {{ template "continue-button" . }}
-        </div>
-
+        {{ template "save-and-return-buttons" . }}
         {{ template "csrf-field" . }}
       </form>
     </div>
