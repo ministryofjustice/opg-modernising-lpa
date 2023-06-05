@@ -6,7 +6,7 @@ describe('Replacement attorneys happy with choice', () => {
         cy.contains('button', 'Continue').click();
 
         cy.get('input[value=jointly]').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/are-you-happy-if-one-replacement-attorney-cant-act-none-can');
         cy.checkA11yApp();
@@ -14,28 +14,28 @@ describe('Replacement attorneys happy with choice', () => {
 
     it('can be answered yes', () => {
         cy.contains('label', 'Yes').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/task-list');
     });
 
     it('can be answered no', () => {
         cy.contains('label', 'No').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/are-you-happy-if-remaining-replacement-attorneys-can-continue-to-act');
         cy.checkA11yApp();
 
         cy.contains('label', 'Yes').click();
-        cy.contains('button', 'Continue').click();
-        
+        cy.contains('button', 'Save and continue').click();
+
         cy.url().should('contain', '/task-list');
 
         cy.go('back');
 
         cy.contains('label', 'No').click();
-        cy.contains('button', 'Continue').click();
-        
+        cy.contains('button', 'Save and continue').click();
+
         cy.url().should('contain', '/task-list');
     });
 });

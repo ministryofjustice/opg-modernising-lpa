@@ -3,7 +3,6 @@ package donor
 import (
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"strings"
 	"testing"
 
@@ -45,9 +44,8 @@ func TestGetWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &whoDoYouWantToBeCertificateProviderGuidanceData{
-					App:        testAppData,
-					NotStarted: tc.notStarted,
-					Lpa:        tc.data,
+					App: testAppData,
+					Lpa: tc.data,
 				}).
 				Return(nil)
 
@@ -117,26 +115,6 @@ func TestPostWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.CertificateProviderDetails, resp.Header.Get("Location"))
-}
-
-func TestPostWhoDoYouWantToBeCertificateProviderGuidanceWhenWillDoLater(t *testing.T) {
-	form := url.Values{"will-do-this-later": {"1"}}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
-	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.TaskList, resp.Header.Get("Location"))
 }
 
 func TestPostWhoDoYouWantToBeCertificateProviderGuidanceWhenStoreErrors(t *testing.T) {

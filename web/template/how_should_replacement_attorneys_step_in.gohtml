@@ -52,11 +52,9 @@
               {{ end }}
             </div>
           </fieldset>
-
-          <div class="govuk-button-group govuk-!-margin-top-6">
-            {{ template "continue-button" . }}
-          </div>
         </div>
+        
+        {{ template "save-and-return-buttons" . }}
         {{ template "csrf-field" . }}
       </form>
     </div>

@@ -129,37 +129,7 @@ func TestPostRestrictions(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.WhoDoYouWantToBeCertificateProviderGuidance, resp.Header.Get("Location"))
-}
-
-func TestPostRestrictionsWhenAnswerLater(t *testing.T) {
-	form := url.Values{
-		"restrictions": {"what"},
-		"answer-later": {"1"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
-		}, nil)
-	donorStore.
-		On("Put", r.Context(), &page.Lpa{
-			Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, Restrictions: actor.TaskInProgress},
-		}).
-		Return(nil)
-
-	err := Restrictions(nil, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.WhoDoYouWantToBeCertificateProviderGuidance, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+page.Paths.TaskList, resp.Header.Get("Location"))
 }
 
 func TestPostRestrictionsWhenStoreErrors(t *testing.T) {
@@ -217,7 +187,6 @@ func TestPostRestrictionsWhenValidationErrors(t *testing.T) {
 func TestReadRestrictionsForm(t *testing.T) {
 	form := url.Values{
 		"restrictions": {"blah"},
-		"answer-later": {"1"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -226,7 +195,6 @@ func TestReadRestrictionsForm(t *testing.T) {
 	result := readRestrictionsForm(r)
 
 	assert.Equal(t, "blah", result.Restrictions)
-	assert.True(t, result.AnswerLater)
 }
 
 func TestRestrictionsFormValidate(t *testing.T) {
