@@ -129,37 +129,7 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.Restrictions, resp.Header.Get("Location"))
-}
-
-func TestPostWhenCanTheLpaBeUsedWhenAnswerLater(t *testing.T) {
-	form := url.Values{
-		"when":         {"what"},
-		"answer-later": {"1"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
-		}, nil)
-	donorStore.
-		On("Put", r.Context(), &page.Lpa{
-			Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, WhenCanTheLpaBeUsed: actor.TaskInProgress},
-		}).
-		Return(nil)
-
-	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.Restrictions, resp.Header.Get("Location"))
+	assert.Equal(t, "/lpa/lpa-id"+page.Paths.TaskList, resp.Header.Get("Location"))
 }
 
 func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
@@ -212,8 +182,7 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 
 func TestReadWhenCanTheLpaBeUsedForm(t *testing.T) {
 	form := url.Values{
-		"when":         {page.UsedWhenRegistered},
-		"answer-later": {"1"},
+		"when": {page.UsedWhenRegistered},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -222,7 +191,6 @@ func TestReadWhenCanTheLpaBeUsedForm(t *testing.T) {
 	result := readWhenCanTheLpaBeUsedForm(r)
 
 	assert.Equal(t, page.UsedWhenRegistered, result.When)
-	assert.True(t, result.AnswerLater)
 }
 
 func TestWhenCanTheLpaBeUsedFormValidate(t *testing.T) {

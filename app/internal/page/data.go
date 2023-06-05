@@ -152,7 +152,7 @@ func (l *Lpa) CanGoTo(url string) bool {
 	switch path {
 	case Paths.ReadYourLpa, Paths.SignYourLpa, Paths.WitnessingYourSignature, Paths.WitnessingAsCertificateProvider, Paths.YouHaveSubmittedYourLpa:
 		return l.DonorIdentityConfirmed()
-	case Paths.WhenCanTheLpaBeUsed, Paths.LifeSustainingTreatment, Paths.Restrictions, Paths.WhoDoYouWantToBeCertificateProviderGuidance, Paths.DoYouWantToNotifyPeople:
+	case Paths.WhenCanTheLpaBeUsed, Paths.LifeSustainingTreatment, Paths.Restrictions, Paths.WhoDoYouWantToBeCertificateProviderGuidance, Paths.DoYouWantToNotifyPeople, Paths.DoYouWantReplacementAttorneys:
 		return l.Tasks.YourDetails.Completed() &&
 			l.Tasks.ChooseAttorneys.Completed()
 	case Paths.CheckYourLpa:

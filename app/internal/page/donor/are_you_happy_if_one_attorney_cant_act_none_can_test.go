@@ -78,7 +78,7 @@ func TestGetAreYouHappyIfOneAttorneyCantActNoneCanWhenTemplateErrors(t *testing.
 
 func TestPostAreYouHappyIfOneAttorneyCantActNoneCan(t *testing.T) {
 	testcases := map[string]string{
-		"yes": page.Paths.DoYouWantReplacementAttorneys,
+		"yes": page.Paths.TaskList,
 		"no":  page.Paths.AreYouHappyIfRemainingAttorneysCanContinueToAct,
 	}
 
