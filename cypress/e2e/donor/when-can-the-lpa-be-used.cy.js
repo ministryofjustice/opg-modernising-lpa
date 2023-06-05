@@ -8,12 +8,12 @@ describe('When can the LPA be used', () => {
 
         cy.checkA11yApp();
 
-        cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/restrictions');
+        cy.contains('button', 'Save and continue').click();
+        cy.url().should('contain', '/task-list');
     });
 
     it('errors when unselected', () => {
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Select when your attorneys can use your LPA');

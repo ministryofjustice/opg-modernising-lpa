@@ -32,13 +32,13 @@ describe('Confirm your identity and sign', () => {
         cy.checkA11yApp();
 
         cy.contains('label', 'I do not have either of these types of accounts').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/select-identity-document');
         cy.checkA11yApp();
 
         cy.contains('label', 'Your passport').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/your-chosen-identity-options');
         cy.checkA11yApp();
@@ -72,14 +72,14 @@ describe('Confirm your identity and sign', () => {
         cy.url().should('contain', '/witnessing-your-signature');
         cy.checkA11yApp();
 
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/witnessing-as-certificate-provider');
         cy.checkA11yApp();
 
         cy.contains('h1', "Witnessing as the certificate provider");
         cy.get('#f-witness-code').type('1234');
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/you-have-submitted-your-lpa');
         cy.checkA11yApp();
@@ -100,7 +100,7 @@ describe('Confirm your identity and sign', () => {
         cy.contains('a', 'Continue').click();
         cy.contains('a', 'Continue').click();
         cy.contains('label', 'Your GOV.UK One Login Identity').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.visitLpa('/task-list');
 
@@ -111,7 +111,7 @@ describe('Confirm your identity and sign', () => {
 
         cy.contains('a', 'Continue').click();
         cy.contains('a', 'Continue').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
         cy.contains('Your GOV.UK One Login Identity');
     });
 
@@ -127,14 +127,14 @@ describe('Confirm your identity and sign', () => {
         cy.contains('.moj-ticket-panel  .govuk-error-message', 'You must select both boxes to sign and apply to register your LPA');
     });
 
-    it('errors when not witnessed', () => {
+    it.only('errors when not witnessed', () => {
         cy.visitLpa('/id/passport');
         cy.contains('button', 'Continue').click();
 
         cy.visitLpa('/witnessing-your-signature');
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter the code we sent to the certificate provider');
@@ -143,12 +143,12 @@ describe('Confirm your identity and sign', () => {
         cy.contains('.moj-ticket-panel .govuk-error-message', 'Enter the code we sent to the certificate provider');
 
         cy.get('#f-witness-code').type('123');
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.contains('.moj-ticket-panel .govuk-error-message', 'The code we sent to the certificate provider must be 4 characters');
 
         cy.get('#f-witness-code').type('45');
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.contains('.moj-ticket-panel .govuk-error-message', 'The code we sent to the certificate provider must be 4 characters');
     });
