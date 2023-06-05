@@ -146,12 +146,9 @@
               </div>
             </fieldset>
           </div>
-          
-          <div class="govuk-button-group">
-            <button name="action" value="reuse-select" class="govuk-button" data-module="govuk-button">
-              {{ tr .App "continue" }}
-            </button>
-          </div>
+
+          {{ template "save-and-return-buttons" . }}
+          <input type="hidden" name="action" value="reuse-select" />
           
         {{ else }}
           <div class="govuk-form-group {{ if .Errors.Has "action" }}govuk-form-group--error{{ end }}">
@@ -170,9 +167,7 @@
             </fieldset>
           </div>
 
-          <div class="govuk-button-group">
-            {{ template "continue-button" . }}
-          </div>
+          {{ template "continue-and-return-buttons" . }}
         {{ end }}
 
         {{ template "csrf-field" . }}

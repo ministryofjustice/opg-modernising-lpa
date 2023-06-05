@@ -7,7 +7,7 @@ describe('Select your identity options', () => {
         cy.checkA11yApp();
 
         cy.contains('label', 'Your GOV.UK One Login Identity').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/certificate-provider-your-chosen-identity-options');
         cy.checkA11yApp();
@@ -20,13 +20,13 @@ describe('Select your identity options', () => {
         cy.checkA11yApp();
 
         cy.contains('label', 'I do not have either of these types of accounts').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/certificate-provider-select-identity-document');
         cy.checkA11yApp();
 
         cy.contains('label', 'Your passport').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/certificate-provider-your-chosen-identity-options');
         cy.checkA11yApp();
@@ -39,19 +39,19 @@ describe('Select your identity options', () => {
         cy.checkA11yApp();
 
         cy.contains('label', 'I do not have either of these types of accounts').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/certificate-provider-select-identity-document');
         cy.checkA11yApp();
 
         cy.contains('label', 'I do not have any of these identity documents').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/certificate-provider-select-identity-document-2');
         cy.checkA11yApp();
 
         cy.contains('label', 'A bank account').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/certificate-provider-your-chosen-identity-options');
         cy.checkA11yApp();
@@ -61,7 +61,7 @@ describe('Select your identity options', () => {
     });
 
     it('errors when unselected', () => {
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Select from the listed options');
