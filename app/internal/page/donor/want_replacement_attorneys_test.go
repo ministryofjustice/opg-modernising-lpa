@@ -130,7 +130,6 @@ func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 func TestPostWantReplacementAttorneys(t *testing.T) {
 	testCases := map[string]struct {
 		want                         string
-		lpaType                      string
 		existingReplacementAttorneys actor.Attorneys
 		expectedReplacementAttorneys actor.Attorneys
 		taskState                    actor.TaskState
@@ -143,27 +142,15 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 			taskState:                    actor.TaskInProgress,
 			redirectURL:                  page.Paths.ChooseReplacementAttorneys,
 		},
-		"no pfa": {
-			want:    "no",
-			lpaType: page.LpaTypePropertyFinance,
+		"no": {
+			want: "no",
 			existingReplacementAttorneys: actor.Attorneys{
 				{ID: "123"},
 				{ID: "345"},
 			},
 			expectedReplacementAttorneys: actor.Attorneys{},
 			taskState:                    actor.TaskCompleted,
-			redirectURL:                  page.Paths.WhenCanTheLpaBeUsed,
-		},
-		"no hw": {
-			want:    "no",
-			lpaType: page.LpaTypeHealthWelfare,
-			existingReplacementAttorneys: actor.Attorneys{
-				{ID: "123"},
-				{ID: "345"},
-			},
-			expectedReplacementAttorneys: actor.Attorneys{},
-			taskState:                    actor.TaskCompleted,
-			redirectURL:                  page.Paths.LifeSustainingTreatment,
+			redirectURL:                  page.Paths.TaskList,
 		},
 	}
 
@@ -181,13 +168,11 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 			donorStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					Type:                 tc.lpaType,
 					ReplacementAttorneys: tc.existingReplacementAttorneys,
 					Tasks:                page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 				}, nil)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
-					Type:                     tc.lpaType,
 					WantReplacementAttorneys: tc.want,
 					ReplacementAttorneys:     tc.expectedReplacementAttorneys,
 					Tasks:                    page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, ChooseReplacementAttorneys: tc.taskState},

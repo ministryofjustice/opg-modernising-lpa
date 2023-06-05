@@ -7,8 +7,8 @@ describe('Life sustaining treatment', () => {
         cy.checkA11yApp();
 
         cy.contains('label', 'Yes').click();
-        cy.contains('button', 'Continue').click();
-        
+        cy.contains('button', 'Save and continue').click();
+
         cy.url().should('contain', '/restrictions');
         cy.contains('life-sustaining treatment');
     });
@@ -17,14 +17,14 @@ describe('Life sustaining treatment', () => {
         cy.checkA11yApp();
 
         cy.contains('label', 'No').click();
-        cy.contains('button', 'Continue').click();
-        
+        cy.contains('button', 'Save and continue').click();
+
         cy.url().should('contain', '/restrictions');
         cy.contains('life-sustaining treatment').should('not.exist');
     });
 
     it('errors when unselected', () => {
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Select if you do or do not give your attorneys authority to give or refuse consent to life-sustaining treatment on your behalf');

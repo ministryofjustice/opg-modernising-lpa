@@ -39,7 +39,7 @@ func ChooseAttorneysSummary(logger Logger, tmpl template.Template, donorStore Do
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				redirectUrl := appData.Paths.DoYouWantReplacementAttorneys
+				redirectUrl := appData.Paths.TaskList
 
 				if len(lpa.Attorneys) > 1 {
 					redirectUrl = appData.Paths.HowShouldAttorneysMakeDecisions

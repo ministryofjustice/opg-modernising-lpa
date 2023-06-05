@@ -20,7 +20,7 @@
       {{ template "warning" (warning .App $signIn4WeeksWarning) }}
 
       <a class="govuk-button" href="{{ link .App .App.Paths.Dashboard }}" data-module="govuk-button">
-        {{ tr $.App "continue" }}
+        {{ tr .App "saveAndContinue" }}
       </a>
     </div>
   </div>
