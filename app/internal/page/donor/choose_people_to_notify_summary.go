@@ -42,7 +42,7 @@ func ChoosePeopleToNotifySummary(logger Logger, tmpl template.Template, donorSto
 				redirectUrl := fmt.Sprintf("%s?addAnother=1", appData.Paths.ChoosePeopleToNotify)
 
 				if data.Form.AddPersonToNotify == "no" {
-					redirectUrl = appData.Paths.CheckYourLpa
+					redirectUrl = appData.Paths.TaskList
 				}
 
 				return appData.Redirect(w, r, lpa, redirectUrl)
