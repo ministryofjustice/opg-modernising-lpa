@@ -55,7 +55,15 @@ resource "aws_dynamodb_table" "lpas_table" {
 
   lifecycle {
     prevent_destroy = false
+    # ignore_changes = [replica]
   }
-
   provider = aws.eu_west_1
+}
+
+resource "aws_dynamodb_table_replica" "lpas_table" {
+  count                  = local.environment.dynamodb.region_replica_enabled ? 1 : 0
+  global_table_arn       = aws_dynamodb_table.lpas_table.arn
+  kms_key_arn            = data.aws_kms_alias.dynamodb_encryption_key_eu_west_2.target_key_arn
+  point_in_time_recovery = true
+  provider               = aws.eu_west_2
 }
