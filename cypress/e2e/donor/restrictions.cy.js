@@ -8,7 +8,7 @@ describe('Restrictions', () => {
 
         cy.checkA11yApp();
 
-        cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/who-do-you-want-to-be-certificate-provider-guidance');
+        cy.contains('button', 'Save and continue').click();
+        cy.url().should('contain', '/task-list');
     });
 });
