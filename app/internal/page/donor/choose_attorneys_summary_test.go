@@ -92,7 +92,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 		},
 		"do not add attorney - with single attorney": {
 			addMoreFormValue: "no",
-			expectedUrl:      "/lpa/lpa-id" + page.Paths.DoYouWantReplacementAttorneys,
+			expectedUrl:      "/lpa/lpa-id" + page.Paths.TaskList,
 			Attorneys:        actor.Attorneys{{ID: "123"}},
 		},
 		"do not add attorney - with multiple attorneys": {

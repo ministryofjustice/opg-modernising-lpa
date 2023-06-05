@@ -648,5 +648,7 @@
     "showServiceNameNavigationMenu": "Show {{.ServiceName}} navigation menu",
     "hideServiceNameNavigationMenu": "Hide {{.ServiceName}} navigation menu",
     "menu": "Menu",
-    "close": "Close"
+    "close": "Close",
+    "saveAndContinue": "Save and continue",
+    "returnToTaskList": "Return to task list"
 }

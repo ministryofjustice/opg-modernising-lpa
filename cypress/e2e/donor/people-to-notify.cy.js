@@ -1,4 +1,4 @@
-import {AddressFormAssertions, TestEmail, TestEmail2} from "../../support/e2e";
+import { AddressFormAssertions, TestEmail, TestEmail2 } from "../../support/e2e";
 
 describe('People to notify', () => {
     let person1
@@ -15,7 +15,7 @@ describe('People to notify', () => {
         cy.checkA11yApp();
 
         cy.get('input[name="want-to-notify"]').check('yes')
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         addPersonToNotify(person1, true)
 
@@ -29,7 +29,7 @@ describe('People to notify', () => {
         cy.get('#address-1').contains(person1.address.postcode);
 
         cy.get('input[name="add-person-to-notify"]').check('yes')
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.visitLpa('/task-list')
 
@@ -51,7 +51,7 @@ describe('People to notify', () => {
         cy.get('#f-last-name').clear().type('Altered')
         cy.get('#f-email').clear().type(TestEmail2)
 
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/choose-people-to-notify-summary');
 
@@ -124,12 +124,12 @@ describe('People to notify', () => {
 
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/check-your-lpa');
-    })
+        cy.url().should('contain', '/task-list');
+    });
 
     it('errors when unselected', () => {
         cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&withDonorDetails=1&withAttorney=1');
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Select yes to notify someone about your LPA');
@@ -140,7 +140,7 @@ describe('People to notify', () => {
 
     it('errors when people to notify details empty', () => {
         cy.visit('/testing-start?redirect=/choose-people-to-notify');
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter first names');
@@ -159,7 +159,7 @@ describe('People to notify', () => {
         cy.get('#f-first-names').invoke('val', 'a'.repeat(54));
         cy.get('#f-last-name').invoke('val', 'b'.repeat(62));
         cy.get('#f-email').type('not-an-email');
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.contains('[for=f-first-names] + .govuk-error-message', 'First names must be 53 characters or less');
         cy.contains('[for=f-last-name] + .govuk-error-message', 'Last name must be 61 characters or less');
@@ -171,7 +171,7 @@ describe('People to notify', () => {
 
         cy.checkA11yApp();
 
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Select yes to add another person to notify');
@@ -186,12 +186,12 @@ describe('People to notify', () => {
         cy.get('#f-first-names').type('Jamie');
         cy.get('#f-last-name').type('Smith');
         cy.get('#f-email').type(TestEmail);
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-people-to-notify');
 
         cy.contains('The donor’s name is also Jamie Smith.');
 
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-people-to-notify-address');
     });
 });
@@ -205,7 +205,7 @@ function addPersonToNotify(p, manualAddress) {
     cy.get('#f-last-name').type(p.lastName)
     cy.get('#f-email').type(p.email)
 
-    cy.contains('button', 'Continue').click();
+    cy.contains('button', 'Save and continue').click();
 
     cy.contains('label', 'Enter a new address').click();
     cy.contains('button', 'Continue').click();

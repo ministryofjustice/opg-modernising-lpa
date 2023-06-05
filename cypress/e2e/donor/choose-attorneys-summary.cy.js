@@ -1,4 +1,4 @@
-import {TestEmail} from "../../support/e2e";
+import { TestEmail } from "../../support/e2e";
 
 describe('Choose attorneys summary', () => {
     beforeEach(() => {
@@ -33,7 +33,7 @@ describe('Choose attorneys summary', () => {
 
         cy.get('#f-first-names').clear().type('Mark');
 
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/choose-attorneys-summary');
 
@@ -85,7 +85,7 @@ describe('Choose attorneys summary', () => {
         cy.get('input[name="date-of-birth-day"]').clear().type('31');
         cy.get('input[name="date-of-birth-month"]').clear().type('12');
         cy.get('input[name="date-of-birth-year"]').clear().type('1995');
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.contains('label', 'Enter a new address').click();
         cy.contains('button', 'Continue').click();
