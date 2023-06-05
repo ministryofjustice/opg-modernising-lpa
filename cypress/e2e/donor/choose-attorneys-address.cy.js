@@ -1,4 +1,4 @@
-import {AddressFormAssertions} from "../../support/e2e";
+import { AddressFormAssertions } from "../../support/e2e";
 
 describe('Choose attorneys address', () => {
     describe('Entering a new address', () => {
@@ -41,16 +41,16 @@ describe('Choose attorneys address', () => {
 
         it('errors when manual incorrect', () => {
             AddressFormAssertions.assertErrorsWhenManualIncorrect('I can’t find their address in the list')
-        });        
+        });
     });
-            
+
     it('address can be copied from another actor', () => {
         cy.visit('/testing-start?redirect=/choose-attorneys-address?id=without-address&withIncompleteAttorneys=1&withCPDetails=1');
         cy.contains('label', 'Use an address you’ve already entered').click();
         cy.contains('button', 'Continue').click();
 
         cy.contains('label', '5 RICHMOND PLACE').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/choose-attorneys-summary');
 

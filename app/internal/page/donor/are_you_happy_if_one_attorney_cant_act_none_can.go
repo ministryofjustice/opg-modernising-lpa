@@ -41,7 +41,7 @@ func AreYouHappyIfOneAttorneyCantActNoneCan(tmpl template.Template, donorStore D
 				}
 
 				if form.Happy == "yes" {
-					return appData.Redirect(w, r, lpa, page.Paths.DoYouWantReplacementAttorneys)
+					return appData.Redirect(w, r, lpa, page.Paths.TaskList)
 				} else {
 					return appData.Redirect(w, r, lpa, page.Paths.AreYouHappyIfRemainingAttorneysCanContinueToAct)
 				}

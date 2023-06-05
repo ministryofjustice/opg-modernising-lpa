@@ -11,9 +11,9 @@ describe('How should attorneys make decisions', () => {
 
         cy.get('input[name="decision-type"]').check('jointly');
 
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contain', '/do-you-want-replacement-attorneys');
+        cy.url().should('contain', '/task-list');
     });
 
     it('can choose how attorneys act - Jointly for some decisions, and jointly and severally for other decisions', () => {
@@ -22,13 +22,13 @@ describe('How should attorneys make decisions', () => {
         cy.get('input[name="decision-type"]').check('mixed');
         cy.get('#f-mixed-details').type('some details on attorneys');
 
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contain', '/do-you-want-replacement-attorneys');
+        cy.url().should('contain', '/task-list');
     });
 
     it('errors when unselected', () => {
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Select how the attorneys should make decisions');
@@ -39,7 +39,7 @@ describe('How should attorneys make decisions', () => {
 
     it('errors when details empty', () => {
         cy.get('input[name="decision-type"]').check('mixed');
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter details');
