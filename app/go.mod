@@ -16,7 +16,7 @@ require (
 	github.com/gorilla/sessions v1.2.1
 	github.com/ministryofjustice/opg-go-common v0.0.0-20220816144329-763497f29f90
 	github.com/nicksnyder/go-i18n/v2 v2.2.1
-	github.com/stretchr/testify v1.8.3
+	github.com/stretchr/testify v1.8.4
 	github.com/vektra/mockery v1.1.2
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.17.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws v0.42.0
