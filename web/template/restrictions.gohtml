@@ -31,13 +31,7 @@
           <textarea class="govuk-textarea {{ if .Errors.Has "restrictions" }}govuk-textarea--error{{ end }}" id="f-restrictions" name="restrictions" rows="5">{{ .Lpa.Restrictions }}</textarea>
         </div>
 
-        <div class="govuk-button-group">
-          {{ template "continue-button" . }}
-          {{ if not .Completed }}
-            <button type="submit" name="answer-later" value="1" class="govuk-button govuk-button--secondary">{{ tr .App "answerLater" }}</button>
-          {{ end }}
-        </div>
-
+        {{ template "save-and-return-buttons" . }}
         {{ template "csrf-field" . }}
       </form>
     </div>

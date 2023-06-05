@@ -24,7 +24,7 @@ describe('Check the LPA', () => {
 
         cy.contains('button', 'Confirm').click();
 
-        cy.url().should('contain', '/task-list');
+        cy.url().should('contain', '/about-payment');
     });
 
     it("errors when not selected", () => {
