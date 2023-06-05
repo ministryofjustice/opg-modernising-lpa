@@ -50,7 +50,7 @@ module "eu_west_2" {
   ingress_allow_list_cidr         = module.allow_list.moj_sites
   alb_deletion_protection_enabled = local.environment.application_load_balancer.deletion_protection_enabled
   lpas_table = {
-    arn  = [for o in aws_dynamodb_table.lpas_table.replica : o][0].arn,
+    arn  = local.environment.dynamodb.region_replica_enabled ? aws_dynamodb_table_replica.lpas_table[0].arn : aws_dynamodb_table.lpas_table.arn,
     name = aws_dynamodb_table.lpas_table.name
   }
   app_env_vars                                          = local.environment.app.env
