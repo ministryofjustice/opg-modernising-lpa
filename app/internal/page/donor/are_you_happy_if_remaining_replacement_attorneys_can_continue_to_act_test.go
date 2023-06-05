@@ -77,37 +77,10 @@ func TestGetAreYouHappyIfRemainingReplacementAttorneysCanContinueToActWhenTempla
 }
 
 func TestPostAreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(t *testing.T) {
-	testcases := map[string]struct {
-		happy    string
-		lpaType  string
-		redirect string
-	}{
-		"yes pfa": {
-			happy:    "yes",
-			lpaType:  page.LpaTypePropertyFinance,
-			redirect: page.Paths.WhenCanTheLpaBeUsed,
-		},
-		"yes hw": {
-			happy:    "yes",
-			lpaType:  page.LpaTypeHealthWelfare,
-			redirect: page.Paths.LifeSustainingTreatment,
-		},
-		"no pfa": {
-			happy:    "no",
-			lpaType:  page.LpaTypePropertyFinance,
-			redirect: page.Paths.WhenCanTheLpaBeUsed,
-		},
-		"no hw": {
-			happy:    "no",
-			lpaType:  page.LpaTypeHealthWelfare,
-			redirect: page.Paths.LifeSustainingTreatment,
-		},
-	}
-
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
+	for _, happy := range []string{"yes", "no"} {
+		t.Run(happy, func(t *testing.T) {
 			form := url.Values{
-				"happy": {tc.happy},
+				"happy": {happy},
 			}
 
 			w := httptest.NewRecorder()
@@ -118,13 +91,11 @@ func TestPostAreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(t *testi
 			donorStore.
 				On("Get", r.Context()).
 				Return(&page.Lpa{
-					Type:  tc.lpaType,
 					Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 				}, nil)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
-					Type:                         tc.lpaType,
-					ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfRemainingCanContinueToAct: tc.happy},
+					ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfRemainingCanContinueToAct: happy},
 					Tasks:                        page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 				}).
 				Return(nil)
@@ -134,7 +105,7 @@ func TestPostAreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(t *testi
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+tc.redirect, resp.Header.Get("Location"))
+			assert.Equal(t, "/lpa/lpa-id"+page.Paths.TaskList, resp.Header.Get("Location"))
 		})
 	}
 }

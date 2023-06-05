@@ -48,10 +48,8 @@ func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, do
 					redirectUrl = appData.Paths.HowShouldReplacementAttorneysMakeDecisions
 				} else if lpa.AttorneyDecisions.How == actor.JointlyAndSeverally {
 					redirectUrl = appData.Paths.HowShouldReplacementAttorneysStepIn
-				} else if lpa.Type == page.LpaTypeHealthWelfare {
-					redirectUrl = page.Paths.LifeSustainingTreatment
 				} else {
-					redirectUrl = page.Paths.WhenCanTheLpaBeUsed
+					redirectUrl = page.Paths.TaskList
 				}
 
 				return appData.Redirect(w, r, lpa, redirectUrl)
