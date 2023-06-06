@@ -99,7 +99,7 @@ func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (C
 
 	if resp.StatusCode > http.StatusBadRequest {
 		body, _ := io.ReadAll(resp.Body)
-		return CreateCaseResponse{}, errors.New(fmt.Sprintf("error POSTing to UID service: (%d) %s", resp.StatusCode, string(body)))
+		return CreateCaseResponse{}, fmt.Errorf("error POSTing to UID service: (%d) %s", resp.StatusCode, string(body))
 	}
 
 	var createCaseResponse CreateCaseResponse
