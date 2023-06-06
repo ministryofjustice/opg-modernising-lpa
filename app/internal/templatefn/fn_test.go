@@ -12,6 +12,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestAll(t *testing.T) {
+	fns := All("a-tag", "a-region")
+
+	assert.Equal(t, "a-tag", fns["buildTag"].(func() string)())
+	assert.Equal(t, "a-region", fns["awsRegion"].(func() string)())
+}
+
 func TestIsEnglish(t *testing.T) {
 	assert.True(t, isEnglish(localize.En))
 	assert.False(t, isEnglish(localize.Cy))
