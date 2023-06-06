@@ -15,6 +15,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
+	"github.com/pact-foundation/pact-go/dsl"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -415,4 +416,129 @@ func TestClientSignOnSignHttpError(t *testing.T) {
 	err := client.sign(req.Context(), req, "")
 
 	assert.Equal(t, expectedError, err)
+}
+
+func TestPactContract(t *testing.T) {
+	validCreateCaseBody := &CreateCaseRequestBody{
+		Type: "pfa",
+		Donor: DonorDetails{
+			Name:     "Jane Smith",
+			Dob:      ISODate{Time: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
+			Postcode: "ABC123",
+		},
+	}
+
+	invalidCreateCaseBody := &CreateCaseRequestBody{
+		Type: "pfa",
+		Donor: DonorDetails{
+			Name:     "Jane Smith",
+			Dob:      ISODate{Time: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
+			Postcode: "ABCD12345",
+		},
+	}
+
+	testCases := map[string]struct {
+		UponReceiving       string
+		ExpectedRequestBody map[string]interface{}
+		ActualRequestBody   *CreateCaseRequestBody
+		ResponseBody        map[string]interface{}
+		ResponseStatus      int
+	}{
+		"UID created (%d)": {
+			UponReceiving: "A POST request with valid LPA details",
+			ExpectedRequestBody: map[string]interface{}{
+				"type":   "pfa",
+				"source": "APPLICANT",
+				"donor": map[string]interface{}{
+					"name":     "Jane Smith",
+					"dob":      "2000-01-02",
+					"postcode": "ABC123",
+				},
+			},
+			ActualRequestBody: validCreateCaseBody,
+			ResponseBody:      map[string]interface{}{"uid": "M-789Q-P4DF-4UX3"},
+			ResponseStatus:    http.StatusCreated,
+		},
+		"UID not created (%d)": {
+			UponReceiving: "A POST request with invalid LPA details",
+			ExpectedRequestBody: map[string]interface{}{
+				"type":   "pfa",
+				"source": "APPLICANT",
+				"donor": map[string]interface{}{
+					"name":     "Jane Smith",
+					"dob":      "2000-01-02",
+					"postcode": "ABCD12345",
+				},
+			},
+			ActualRequestBody: invalidCreateCaseBody,
+			ResponseBody: map[string]interface{}{
+				"code": "INVALID_REQUEST",
+				"errors": []map[string]interface{}{
+					{"source": "/donor/postcode", "detail": "must be a valid postcode"},
+				},
+			},
+			ResponseStatus: http.StatusBadRequest,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(fmt.Sprintf(name, tc.ResponseStatus), func(t *testing.T) {
+			pact := &dsl.Pact{
+				Consumer: "mlpa",
+				Provider: "uid-service",
+				Host:     "localhost",
+			}
+
+			defer pact.Teardown()
+
+			pact.
+				AddInteraction().
+				Given("The UID service is available").
+				UponReceiving(tc.UponReceiving).
+				WithRequest(dsl.Request{
+					Method: http.MethodPost,
+					Path:   dsl.String("/cases"),
+					Headers: dsl.MapMatcher{
+						"Content-Type":  dsl.String("application/json"),
+						"Authorization": dsl.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date, Signature=98fe2cb1c34c6de900d291351991ba8aa948ca05b7bff969d781edce9b75ee20", "AWS4-HMAC-SHA256 Credential=.*\\/.*\\/.*\\/execute-api\\/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date, Signature=.*"),
+						"X-Amz-Date":    dsl.String("20000102T000000Z"),
+					},
+					Body: tc.ExpectedRequestBody,
+				}).
+				WillRespondWith(dsl.Response{
+					Status:  tc.ResponseStatus,
+					Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
+					Body:    dsl.Like(tc.ResponseBody),
+				})
+
+			var test = func() (err error) {
+				baseURL := fmt.Sprintf("http://localhost:%d", pact.Server.Port)
+
+				now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
+
+				client := &Client{
+					baseURL:     baseURL,
+					httpClient:  http.DefaultClient,
+					credentials: aws.Credentials{AccessKeyID: "abc"},
+					region:      "eu-west-1",
+					signer:      v4.NewSigner(),
+					now:         now,
+				}
+
+				resp, err := client.CreateCase(context.Background(), tc.ActualRequestBody)
+
+				if tc.ResponseStatus == http.StatusCreated {
+					assert.NotEmpty(t, resp.Uid)
+					assert.NoError(t, err)
+				} else {
+					assert.Empty(t, resp.Uid)
+					assert.Error(t, err)
+				}
+
+				return err
+			}
+
+			pact.Verify(test)
+		})
+	}
 }
