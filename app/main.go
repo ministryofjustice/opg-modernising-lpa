@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -67,7 +69,8 @@ func main() {
 			IdentityPoolID:    env.Get("AWS_RUM_IDENTITY_POOL_ID", ""),
 			ApplicationID:     env.Get("AWS_RUM_APPLICATION_ID", ""),
 		}
-		uidBaseURL = env.Get("UID_BASE_URL", "http://uid-mock:8080")
+		uidBaseURL  = env.Get("UID_BASE_URL", "http://uid-mock:8080")
+		metadataURL = env.Get("ECS_CONTAINER_METADATA_URI_V4", "")
 	)
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
@@ -93,7 +96,15 @@ func main() {
 		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
 	}
 
-	tmpls, err := template.Parse(webDir+"/template", templatefn.All(Tag))
+	var region string
+	if metadataURL != "" {
+		region, err = getRegion(metadataURL)
+		if err != nil {
+			logger.Print("error getting region:", err)
+		}
+	}
+
+	tmpls, err := template.Parse(webDir+"/template", templatefn.All(Tag, region))
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -234,4 +245,26 @@ func main() {
 	if err := server.Shutdown(tc); err != nil {
 		logger.Print(err)
 	}
+}
+
+func getRegion(metadataURL string) (string, error) {
+	resp, err := http.Get(metadataURL + "/task")
+	if err != nil {
+		return "", err
+	}
+
+	defer resp.Body.Close()
+	var metadata struct {
+		TaskARN string
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&metadata); err != nil {
+		return "", err
+	}
+
+	parts := strings.Split(metadata.TaskARN, ":")
+	if len(parts) < 4 {
+		return "", fmt.Errorf("TaskARN contained only %d parts", len(parts))
+	}
+
+	return parts[3], nil
 }
