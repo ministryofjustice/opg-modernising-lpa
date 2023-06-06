@@ -111,7 +111,7 @@ resource "aws_lb_listener_rule" "app_maintenance_welsh" {
 
     redirect {
       host        = "maintenance.opg.service.justice.gov.uk"
-      path        = "cy/moderneiddio-gwneud-atwrneiaeth-arhosol" # temporarily the welsh use a lasting power of attorney maintenance page
+      path        = "/cy/moderneiddio-gwneud-atwrneiaeth-arhosol" # temporarily the welsh use a lasting power of attorney maintenance page
       query       = ""
       port        = "443"
       protocol    = "HTTPS"
