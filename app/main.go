@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -67,8 +68,20 @@ func main() {
 			IdentityPoolID:    env.Get("AWS_RUM_IDENTITY_POOL_ID", ""),
 			ApplicationID:     env.Get("AWS_RUM_APPLICATION_ID", ""),
 		}
-		uidBaseURL = env.Get("UID_BASE_URL", "http://uid-mock:8080")
+		uidBaseURL  = env.Get("UID_BASE_URL", "http://uid-mock:8080")
+		metadataURL = env.Get("ECS_CONTAINER_METADATA_URI_V4", "")
 	)
+
+	if metadataURL != "" {
+		resp, err := http.Get(metadataURL + "/task")
+		if err != nil {
+			logger.Print("getting metadata:", err)
+		} else {
+			defer resp.Body.Close()
+			data, _ := io.ReadAll(resp.Body)
+			logger.Print(string(data))
+		}
+	}
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
 	if err != nil {
