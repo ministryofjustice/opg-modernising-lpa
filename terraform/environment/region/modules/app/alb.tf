@@ -81,7 +81,7 @@ resource "aws_lb_listener_rule" "app_maintenance" {
 
     redirect {
       host        = "maintenance.opg.service.justice.gov.uk"
-      path        = "/en-gb/make-a-lasting-power-of-attorney" # temporarily the english make a lasting power of attorney maintenance page
+      path        = "/en-gb/modernised-make-a-lasting-power-of-attorney" # temporarily the english make a lasting power of attorney maintenance page
       query       = ""
       port        = "443"
       protocol    = "HTTPS"
@@ -111,7 +111,7 @@ resource "aws_lb_listener_rule" "app_maintenance_welsh" {
 
     redirect {
       host        = "maintenance.opg.service.justice.gov.uk"
-      path        = "/cy/defnyddio-atwrneiaeth-arhosol" # temporarily the welsh use a lasting power of attorney maintenance page
+      path        = "/cy/moderneiddio-gwneud-atwrneiaeth-arhosol" # temporarily the welsh use a lasting power of attorney maintenance page
       query       = ""
       port        = "443"
       protocol    = "HTTPS"
