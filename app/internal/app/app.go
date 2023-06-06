@@ -77,6 +77,9 @@ func App(
 	handleRoot(paths.SignOut, page.SignOut(logger, sessionStore, oneLoginClient, appPublicURL))
 	handleRoot(paths.Fixtures, page.Fixtures(tmpls.Get("fixtures.gohtml")))
 	handleRoot(paths.YourLegalRightsAndResponsibilities, page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities_general.gohtml")))
+	handleRoot(page.Paths.Start, page.Guidance(tmpls.Get("start.gohtml")))
+	handleRoot(page.Paths.CertificateProviderStart, page.Guidance(tmpls.Get("certificate_provider_start.gohtml")))
+	handleRoot(page.Paths.Attorney.Start, page.Guidance(tmpls.Get("attorney_start.gohtml")))
 
 	certificateprovider.Register(
 		rootMux,

@@ -88,8 +88,6 @@ func Register(
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
-	handleRoot(page.Paths.CertificateProviderStart, None,
-		Guidance(tmpls.Get("certificate_provider_start.gohtml"), nil, nil))
 	handleRoot(page.Paths.CertificateProviderEnterReferenceNumber, None,
 		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), shareCodeStore, sessionStore))
 	handleRoot(page.Paths.CertificateProviderWhoIsEligible, None,

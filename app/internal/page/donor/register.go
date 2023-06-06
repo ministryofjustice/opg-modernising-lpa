@@ -132,8 +132,6 @@ func Register(
 
 	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler)
 
-	handleRoot(page.Paths.Start, None,
-		Guidance(tmpls.Get("start.gohtml"), nil))
 	handleRoot(page.Paths.Login, None,
 		Login(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.LoginCallback, None,
