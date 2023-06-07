@@ -43,7 +43,7 @@ func TestAuthRedirect(t *testing.T) {
 				SessionID:           "456",
 				LpaID:               "123",
 			},
-			redirect: Paths.CertificateProviderLoginCallback,
+			redirect: Paths.CertificateProvider.LoginCallback,
 		},
 		"certificate provider identity": {
 			session: &sesh.OneLoginSession{
@@ -52,8 +52,9 @@ func TestAuthRedirect(t *testing.T) {
 				Locale:              "en",
 				Identity:            true,
 				CertificateProvider: true,
+				LpaID:               "123",
 			},
-			redirect: Paths.CertificateProviderIdentityWithOneLoginCallback,
+			redirect: "/certificate-provider/123" + Paths.CertificateProvider.IdentityWithOneLoginCallback,
 		},
 		"attorney login": {
 			session: &sesh.OneLoginSession{

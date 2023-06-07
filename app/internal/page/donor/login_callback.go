@@ -24,7 +24,7 @@ func LoginCallback(oneLoginClient OneLoginClient, store sesh.Store) page.Handler
 			return err
 		}
 
-		if err := sesh.SetDonor(store, r, w, &sesh.DonorSession{
+		if err := sesh.SetLoginSession(store, r, w, &sesh.LoginSession{
 			IDToken: idToken,
 			Sub:     userInfo.Sub,
 			Email:   userInfo.Email,

@@ -40,12 +40,12 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 		}
 
 		if r.Method == http.MethodPost {
-			donorSession, err := sesh.Donor(sessionStore, r)
+			loginSession, err := sesh.Login(sessionStore, r)
 			if err != nil {
 				return err
 			}
-			if donorSession.Email == "" {
-				return fmt.Errorf("no email in session session")
+			if loginSession.Email == "" {
+				return fmt.Errorf("no email in login session")
 			}
 
 			data.Form = readYourDetailsForm(r)
@@ -72,7 +72,7 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 				lpa.Donor.LastName = data.Form.LastName
 				lpa.Donor.OtherNames = data.Form.OtherNames
 				lpa.Donor.DateOfBirth = data.Form.Dob
-				lpa.Donor.Email = donorSession.Email
+				lpa.Donor.Email = loginSession.Email
 				if !lpa.Tasks.YourDetails.Completed() {
 					lpa.Tasks.YourDetails = actor.TaskInProgress
 				}
