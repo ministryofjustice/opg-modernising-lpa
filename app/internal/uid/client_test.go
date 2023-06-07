@@ -481,16 +481,16 @@ func TestPactContract(t *testing.T) {
 		},
 	}
 
+	pact := &dsl.Pact{
+		Consumer: "modernising-lpa",
+		Provider: "data-lpa-uid",
+		Host:     "localhost",
+	}
+
+	defer pact.Teardown()
+
 	for name, tc := range testCases {
 		t.Run(fmt.Sprintf(name, tc.ResponseStatus), func(t *testing.T) {
-			pact := &dsl.Pact{
-				Consumer: "mlpa",
-				Provider: "uid-service",
-				Host:     "localhost",
-			}
-
-			defer pact.Teardown()
-
 			pact.
 				AddInteraction().
 				Given("The UID service is available").

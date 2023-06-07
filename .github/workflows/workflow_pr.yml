@@ -39,6 +39,12 @@ jobs:
     if: needs.detect_changes.outputs.changes_detected == 'true'
     needs: create_tags
     uses: ./.github/workflows/go-unit-tests.yml
+    with:
+      tag: ${{ needs.create_tags.outputs.version_tag }}
+      commit_sha: ${{ needs.create_tags.outputs.commit_sha }}
+      branch_name: ${{ needs.create_tags.outputs.branch_name }}
+    secrets:
+      pact_broker_password: ${{ secrets.PACT_BROKER_PASSWORD }}
 
   docker_build_scan_push:
     name: Docker Build, Scan and Push
