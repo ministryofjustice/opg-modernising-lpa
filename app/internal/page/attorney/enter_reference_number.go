@@ -62,7 +62,8 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 					}
 				}
 
-				return appData.RedirectCtx(ctx, w, r, page.Paths.Attorney.CodeOfConduct)
+				appData.LpaID = shareCode.LpaID
+				return appData.Redirect(w, r, nil, page.Paths.Attorney.CodeOfConduct)
 			}
 		}
 

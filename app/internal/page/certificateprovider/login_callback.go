@@ -51,6 +51,7 @@ func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store, certi
 			}
 		}
 
-		return appData.RedirectCtx(ctx, w, r, page.Paths.CertificateProvider.EnterDateOfBirth)
+		appData.LpaID = oneLoginSession.LpaID
+		return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.EnterDateOfBirth)
 	}
 }
