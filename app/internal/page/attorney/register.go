@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -65,7 +66,7 @@ type CertificateProviderStore interface {
 
 //go:generate mockery --testonly --inpackage --name AttorneyStore --structname mockAttorneyStore
 type AttorneyStore interface {
-	Create(context.Context, bool) (*actor.AttorneyProvidedDetails, error)
+	Create(context.Context, string, bool) (*actor.AttorneyProvidedDetails, error)
 	Get(context.Context) (*actor.AttorneyProvidedDetails, error)
 	Put(context.Context, *actor.AttorneyProvidedDetails) error
 }
@@ -88,38 +89,42 @@ func Register(
 	shareCodeStore ShareCodeStore,
 	errorHandler page.ErrorHandler,
 	notifyClient NotifyClient,
+	notFoundHandler page.Handler,
 ) {
-	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
+	handleRoot := makeHandle(rootMux, sessionStore, errorHandler, attorneyStore)
 
-	handleRoot(page.Paths.Attorney.Start, None,
-		page.Guidance(tmpls.Get("attorney_start.gohtml")))
 	handleRoot(page.Paths.Attorney.Login, None,
 		Login(logger, oneLoginClient, sessionStore, random.String))
 	handleRoot(page.Paths.Attorney.LoginCallback, None,
 		LoginCallback(oneLoginClient, sessionStore))
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(tmpls.Get("attorney_enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore))
-	handleRoot(page.Paths.Attorney.CodeOfConduct, RequireLpa,
+
+	attorneyMux := http.NewServeMux()
+	rootMux.Handle("/attorney/", page.RouteToPrefix("/attorney/", attorneyMux, notFoundHandler))
+	handleAttorney := makeHandle(attorneyMux, sessionStore, errorHandler, attorneyStore)
+
+	handleAttorney(page.Paths.Attorney.CodeOfConduct, RequireAttorney,
 		Guidance(tmpls.Get("attorney_code_of_conduct.gohtml"), donorStore))
-	handleRoot(page.Paths.Attorney.TaskList, RequireLpa,
+	handleAttorney(page.Paths.Attorney.TaskList, RequireAttorney,
 		TaskList(tmpls.Get("attorney_task_list.gohtml"), donorStore, certificateProviderStore, attorneyStore))
-	handleRoot(page.Paths.Attorney.CheckYourName, RequireLpa,
+	handleAttorney(page.Paths.Attorney.CheckYourName, RequireAttorney,
 		CheckYourName(tmpls.Get("attorney_check_your_name.gohtml"), donorStore, attorneyStore, notifyClient))
-	handleRoot(page.Paths.Attorney.DateOfBirth, RequireLpa,
+	handleAttorney(page.Paths.Attorney.DateOfBirth, RequireAttorney,
 		DateOfBirth(tmpls.Get("attorney_date_of_birth.gohtml"), attorneyStore))
-	handleRoot(page.Paths.Attorney.MobileNumber, RequireLpa,
+	handleAttorney(page.Paths.Attorney.MobileNumber, RequireAttorney,
 		MobileNumber(tmpls.Get("attorney_mobile_number.gohtml"), attorneyStore))
-	handleRoot(page.Paths.Attorney.YourAddress, RequireLpa,
+	handleAttorney(page.Paths.Attorney.YourAddress, RequireAttorney,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, attorneyStore))
-	handleRoot(page.Paths.Attorney.ReadTheLpa, RequireLpa,
+	handleAttorney(page.Paths.Attorney.ReadTheLpa, RequireAttorney,
 		ReadTheLpa(tmpls.Get("attorney_read_the_lpa.gohtml"), donorStore, attorneyStore))
-	handleRoot(page.Paths.Attorney.RightsAndResponsibilities, RequireLpa,
+	handleAttorney(page.Paths.Attorney.RightsAndResponsibilities, RequireAttorney,
 		page.Guidance(tmpls.Get("attorney_legal_rights_and_responsibilities.gohtml")))
-	handleRoot(page.Paths.Attorney.WhatHappensWhenYouSign, RequireLpa,
+	handleAttorney(page.Paths.Attorney.WhatHappensWhenYouSign, RequireAttorney,
 		Guidance(tmpls.Get("attorney_what_happens_when_you_sign.gohtml"), donorStore))
-	handleRoot(page.Paths.Attorney.Sign, RequireLpa,
+	handleAttorney(page.Paths.Attorney.Sign, RequireAttorney,
 		Sign(tmpls.Get("attorney_sign.gohtml"), donorStore, certificateProviderStore, attorneyStore))
-	handleRoot(page.Paths.Attorney.WhatHappensNext, RequireLpa,
+	handleAttorney(page.Paths.Attorney.WhatHappensNext, RequireAttorney,
 		Guidance(tmpls.Get("attorney_what_happens_next.gohtml"), donorStore))
 }
 
@@ -128,48 +133,61 @@ type handleOpt byte
 const (
 	None handleOpt = 1 << iota
 	RequireSession
-	RequireLpa
+	RequireAttorney
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(string, handleOpt, page.Handler) {
+func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, attorneyStore AttorneyStore) func(string, handleOpt, page.Handler) {
 	return func(path string, opt handleOpt, h page.Handler) {
 		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
-			appData.ServiceName = "beAnAttorney"
 			appData.Page = path
 			appData.CanGoBack = opt&CanGoBack != 0
 
 			if opt&RequireSession != 0 {
-				if _, err := sesh.Attorney(store, r); err != nil {
-					http.Redirect(w, r, page.Paths.Attorney.Start, http.StatusFound)
-					return
-				}
-			}
-
-			if opt&RequireLpa != 0 {
-				session, err := sesh.Attorney(store, r)
-				if err != nil || session.LpaID == "" || session.AttorneyID == "" {
+				session, err := sesh.Login(store, r)
+				if err != nil {
 					http.Redirect(w, r, page.Paths.Attorney.Start, http.StatusFound)
 					return
 				}
 
 				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
-				appData.LpaID = session.LpaID
-				appData.AttorneyID = session.AttorneyID
+				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+			}
 
-				if session.IsReplacementAttorney {
+			if opt&RequireAttorney != 0 {
+				session, err := sesh.Login(store, r)
+				if err != nil {
+					http.Redirect(w, r, page.Paths.Attorney.Start, http.StatusFound)
+					return
+				}
+
+				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
+
+				sessionData, err := page.SessionDataFromContext(ctx)
+				if err == nil {
+					sessionData.SessionID = appData.SessionID
+					ctx = page.ContextWithSessionData(ctx, sessionData)
+
+					appData.LpaID = sessionData.LpaID
+				} else {
+					ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+				}
+
+				attorney, err := attorneyStore.Get(ctx)
+				if err != nil {
+					log.Println("error getting attorney:", err)
+					http.Redirect(w, r, page.Paths.Attorney.Start, http.StatusFound)
+				}
+
+				appData.AttorneyID = attorney.ID
+				if attorney.IsReplacement {
 					appData.ActorType = actor.TypeReplacementAttorney
 				} else {
 					appData.ActorType = actor.TypeAttorney
 				}
-
-				ctx = page.ContextWithSessionData(ctx, &page.SessionData{
-					SessionID: appData.SessionID,
-					LpaID:     appData.LpaID,
-				})
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {

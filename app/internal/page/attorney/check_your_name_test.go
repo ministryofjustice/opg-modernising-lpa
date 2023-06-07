@@ -256,7 +256,7 @@ func TestPostCheckYourName(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.DateOfBirth, resp.Header.Get("Location"))
+			assert.Equal(t, "/attorney/lpa-id"+page.Paths.Attorney.DateOfBirth, resp.Header.Get("Location"))
 		})
 	}
 }
@@ -340,7 +340,7 @@ func TestPostCheckYourNameWithCorrectedName(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.DateOfBirth, resp.Header.Get("Location"))
+			assert.Equal(t, "/attorney/lpa-id"+page.Paths.Attorney.DateOfBirth, resp.Header.Get("Location"))
 		})
 	}
 }
@@ -416,7 +416,7 @@ func TestPostCheckYourNameWithUnchangedCorrectedName(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.DateOfBirth, resp.Header.Get("Location"))
+			assert.Equal(t, "/attorney/lpa-id"+page.Paths.Attorney.DateOfBirth, resp.Header.Get("Location"))
 		})
 	}
 }

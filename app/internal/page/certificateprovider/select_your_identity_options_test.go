@@ -124,13 +124,13 @@ func TestPostSelectYourIdentityOptions(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderYourChosenIdentityOptions, resp.Header.Get("Location"))
+	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.YourChosenIdentityOptions, resp.Header.Get("Location"))
 }
 
 func TestPostSelectYourIdentityOptionsNone(t *testing.T) {
 	for pageIndex, nextPath := range map[int]string{
-		0: page.Paths.CertificateProviderSelectYourIdentityOptions1,
-		1: page.Paths.CertificateProviderSelectYourIdentityOptions2,
+		0: "/certificate-provider/lpa-id" + page.Paths.CertificateProvider.SelectYourIdentityOptions1,
+		1: "/certificate-provider/lpa-id" + page.Paths.CertificateProvider.SelectYourIdentityOptions2,
 		2: page.Paths.CertificateProviderStart,
 	} {
 		t.Run(fmt.Sprintf("Page%d", pageIndex), func(t *testing.T) {
