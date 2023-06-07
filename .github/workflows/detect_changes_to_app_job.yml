@@ -35,7 +35,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
     outputs:
-      changes_detected: true
+      changes_detected: 'true'
 
   notify_previous_build_will_be_deployed:
     needs: compare_changes
