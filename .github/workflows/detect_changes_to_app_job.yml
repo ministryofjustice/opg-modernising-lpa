@@ -5,7 +5,7 @@ on:
     outputs:
       changes_detected:
         description: "Boolean value for changes detected in /app, /web and /lang"
-        value: true
+        value: ${{ jobs.compare_changes.outputs.changes_detected }}
 
 jobs:
   compare_changes:
@@ -35,7 +35,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
     outputs:
-      changes_detected: ${{ steps.detect_changes.outputs.changes }}
+      changes_detected: true
 
   notify_previous_build_will_be_deployed:
     needs: compare_changes
