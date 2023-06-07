@@ -2,6 +2,15 @@ name: "[Job] Run Go unit tests and Push coverage reports to Codecov"
 
 on:
   workflow_call:
+    inputs:
+      tag:
+        description: 'Tag for docker image'
+        required: true
+        type: string
+    secrets:
+      pact_broker_password:
+        description: 'Password for central OPG pact broker'
+        required: true
 
 jobs:
   run:
@@ -14,10 +23,47 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: '^1.18'
+          go-version: '^1.20'
+
+      - name: Set Pact Standalone version
+        run: |
+          echo "pact_version=1.88.82" >> $GITHUB_ENV
+
+      - name: Cache Pact
+        id: cache-pact
+        uses: actions/cache@v3
+        with:
+          path: ./pact/
+          key: ${{ runner.os }}-pact-${{ env.pact_version }}
+
+      - name: Add Pact to Path
+        if: steps.cache-pact.outputs.cache-hit == 'true'
+        run: |
+          echo "$PWD/pact/bin" >> $GITHUB_PATH
+
+      - name: Download pact tools
+        if: steps.cache-pact.outputs.cache-hit != 'true'
+        run: |
+          curl -LO https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v${{ env.pact_version }}/pact-${{ env.pact_version }}-linux-x86_64.tar.gz
+          tar xzf pact-${{ env.pact_version }}-linux-x86_64.tar.gz
+          echo "$PWD/pact/bin" >> $GITHUB_PATH
+
       - name: Run tests and generate coverage report
         run: |
           go test ./... -race -covermode=atomic -coverprofile=coverage.out
+
+      - name: Publish pacts
+        run: |
+          ls ./internal
+          ls ./internal/uid/pacts
+          pact-broker publish ./pacts/modernising-lpa-data-lpa-uid.json \
+            --consumer-app-version ${{ github.sha }} \
+            --branch ${{ github.ref_name }} \
+            --tag ${{ inputs.tag }} \
+            --broker-base-url https://pact-broker.api.opg.service.justice.gov.uk \
+            --broker-username admin \
+            --broker-password ${{ secrets.pact_broker_password }}
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
