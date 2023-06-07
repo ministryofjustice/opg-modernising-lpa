@@ -14,9 +14,6 @@ on:
       environment_workspace_name:
         description: "Terraform Environment Workspace Name"
         value: ${{ jobs.generate_environment_workspace_name.outputs.environment_workspace_name }}
-      commit_sha:
-        description: 'Latest commit SHA that triggered the workflow'
-        value: ${{ jobs.create_tags.outputs.commit_sha }}
 
 jobs:
   create_tags:

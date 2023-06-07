@@ -7,14 +7,6 @@ on:
         description: 'Tag for docker image'
         required: true
         type: string
-      commit_sha:
-        description: 'Latest commit SHA that triggered the workflow'
-        required: true
-        type: string
-      branch_name:
-        description: 'The Git branch name associated with the workflow'
-        required: true
-        type: string
     secrets:
       pact_broker_password:
         description: 'Password for central OPG pact broker'
@@ -63,9 +55,9 @@ jobs:
       - name: Publish pacts
         run: |
           pact-broker publish ./pacts/modernising-lpa-data-lpa-uid.json \
-            --consumer-app-version ${{ inputs.commit_sha }} \
-            --branch ${{ inputs.branch_name }} \
-            --tag ${{ inputs.docker_tag }} \
+            --consumer-app-version ${{ github.sha }} \
+            --branch ${{ github.ref_name }} \
+            --tag ${{ inputs.tag }} \
             --broker-base-url https://pact-broker.api.opg.service.justice.gov.uk \
             --broker-username admin \
             --broker-password ${{ secrets.pact_broker_password }}
