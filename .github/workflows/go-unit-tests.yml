@@ -33,10 +33,6 @@ jobs:
         with:
           go-version: '^1.20'
 
-      - name: Run tests and generate coverage report
-        run: |
-          go test ./... -race -covermode=atomic -coverprofile=coverage.out
-
       - name: Set Pact Standalone version
         run: |
           echo "pact_version=1.88.82" >> $GITHUB_ENV
@@ -59,6 +55,10 @@ jobs:
           curl -LO https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v${{ env.pact_version }}/pact-${{ env.pact_version }}-linux-x86_64.tar.gz
           tar xzf pact-${{ env.pact_version }}-linux-x86_64.tar.gz
           echo "$PWD/pact/bin" >> $GITHUB_PATH
+
+      - name: Run tests and generate coverage report
+        run: |
+          go test ./... -race -covermode=atomic -coverprofile=coverage.out
 
       - name: Publish pacts
         run: |
