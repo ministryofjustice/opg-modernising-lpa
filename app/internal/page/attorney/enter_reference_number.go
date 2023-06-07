@@ -69,7 +69,7 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 					}
 				}
 
-				return appData.Redirect(w, r, nil, page.Paths.Attorney.CodeOfConduct)
+				return appData.RedirectCtx(ctx, w, r, page.Paths.Attorney.CodeOfConduct)
 			}
 		}
 

@@ -52,7 +52,7 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.CertificateProvided)
+				return appData.Redirect(w, r, lpa, page.Paths.CertificateProvider.CertificateProvided)
 			}
 		}
 

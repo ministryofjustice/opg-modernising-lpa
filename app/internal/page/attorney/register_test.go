@@ -16,7 +16,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, nil, template.Templates{}, nil, nil, nil, nil, nil, nil, nil, nil, nil)
+	Register(mux, nil, template.Templates{}, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -44,6 +44,9 @@ func TestMakeHandle(t *testing.T) {
 			ServiceName: "beAnAttorney",
 			Page:        "/path",
 			CanGoBack:   false,
+			SessionID:   "cmFuZG9t",
+			LpaID:       "lpa-id",
+			ActorType:   actor.TypeAttorney,
 		}, appData)
 		assert.Equal(t, w, hw)
 
@@ -74,12 +77,15 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 			ServiceName: "beAnAttorney",
 			Page:        "/path",
 			CanGoBack:   true,
+			SessionID:   "cmFuZG9t",
+			LpaID:       "lpa-id",
+			ActorType:   actor.TypeAttorney,
 		}, appData)
 		assert.Equal(t, w, hw)
 
 		sessionData, _ := page.SessionDataFromContext(hr.Context())
 
-		assert.Equal(t, &page.SessionData{LpaID: "ignored-123", SessionID: "ignored-session-id"}, sessionData)
+		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t", LpaID: "lpa-id"}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -118,7 +124,7 @@ func TestMakeHandleExistingLpaData(t *testing.T) {
 
 			mux := http.NewServeMux()
 			handle := makeHandle(mux, sessionStore, nil)
-			handle("/path", RequireLpa|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+			handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 				assert.Equal(t, page.AppData{
 					ServiceName: "beAnAttorney",
 					Page:        "/path",
@@ -164,30 +170,23 @@ func TestMakeHandleErrors(t *testing.T) {
 }
 
 func TestMakeHandleSessionError(t *testing.T) {
-	for name, opt := range map[string]handleOpt{
-		"require session": RequireSession,
-		"require lpa":     RequireLpa,
-	} {
-		t.Run(name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
-			sessionStore := newMockSessionStore(t)
-			sessionStore.
-				On("Get", r, "session").
-				Return(&sessions.Session{}, expectedError)
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{}, expectedError)
 
-			mux := http.NewServeMux()
-			handle := makeHandle(mux, sessionStore, nil)
-			handle("/path", opt, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+	mux := http.NewServeMux()
+	handle := makeHandle(mux, sessionStore, nil)
+	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
-			mux.ServeHTTP(w, r)
-			resp := w.Result()
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
 
-			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
-		})
-	}
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
 }
 
 func TestMakeHandleSessionMissing(t *testing.T) {
@@ -213,11 +212,6 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 func TestMakeHandleLpaMissing(t *testing.T) {
 	testcases := map[string]map[any]any{
 		"empty": {},
-		"missing LpaID": {
-			"attorney": &sesh.AttorneySession{
-				Sub: "random",
-			},
-		},
 	}
 
 	for name, values := range testcases {
@@ -232,7 +226,7 @@ func TestMakeHandleLpaMissing(t *testing.T) {
 
 			mux := http.NewServeMux()
 			handle := makeHandle(mux, sessionStore, nil)
-			handle("/path", RequireLpa, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+			handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 			mux.ServeHTTP(w, r)
 			resp := w.Result()

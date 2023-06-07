@@ -220,7 +220,7 @@ func TestPostIdentityWithYotiCallback(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderReadTheLpa, resp.Header.Get("Location"))
+	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.ReadTheLpa, resp.Header.Get("Location"))
 }
 
 func TestPostIdentityWithYotiCallbackNotConfirmed(t *testing.T) {
@@ -237,5 +237,5 @@ func TestPostIdentityWithYotiCallbackNotConfirmed(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderSelectYourIdentityOptions1, resp.Header.Get("Location"))
+	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.SelectYourIdentityOptions1, resp.Header.Get("Location"))
 }

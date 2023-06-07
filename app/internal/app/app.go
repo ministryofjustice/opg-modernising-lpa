@@ -93,6 +93,7 @@ func App(
 		yotiClient,
 		notifyClient,
 		certificateProviderStore,
+		notFoundHandler,
 	)
 
 	attorney.Register(
@@ -108,6 +109,7 @@ func App(
 		shareCodeStore,
 		errorHandler,
 		notifyClient,
+		notFoundHandler,
 	)
 
 	donor.Register(

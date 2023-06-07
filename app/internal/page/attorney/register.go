@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"io"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -88,6 +90,7 @@ func Register(
 	shareCodeStore ShareCodeStore,
 	errorHandler page.ErrorHandler,
 	notifyClient NotifyClient,
+	notFoundHandler page.Handler,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -97,27 +100,32 @@ func Register(
 		LoginCallback(oneLoginClient, sessionStore))
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(tmpls.Get("attorney_enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore))
-	handleRoot(page.Paths.Attorney.CodeOfConduct, RequireLpa,
+
+	attorneyMux := http.NewServeMux()
+	rootMux.Handle("/attorney/", routeToPrefix("/attorney/", attorneyMux, notFoundHandler))
+	handleAttorney := makeHandle(attorneyMux, sessionStore, errorHandler)
+
+	handleAttorney(page.Paths.Attorney.CodeOfConduct, RequireSession,
 		Guidance(tmpls.Get("attorney_code_of_conduct.gohtml"), donorStore))
-	handleRoot(page.Paths.Attorney.TaskList, RequireLpa,
+	handleAttorney(page.Paths.Attorney.TaskList, RequireSession,
 		TaskList(tmpls.Get("attorney_task_list.gohtml"), donorStore, certificateProviderStore, attorneyStore))
-	handleRoot(page.Paths.Attorney.CheckYourName, RequireLpa,
+	handleAttorney(page.Paths.Attorney.CheckYourName, RequireSession,
 		CheckYourName(tmpls.Get("attorney_check_your_name.gohtml"), donorStore, attorneyStore, notifyClient))
-	handleRoot(page.Paths.Attorney.DateOfBirth, RequireLpa,
+	handleAttorney(page.Paths.Attorney.DateOfBirth, RequireSession,
 		DateOfBirth(tmpls.Get("attorney_date_of_birth.gohtml"), attorneyStore))
-	handleRoot(page.Paths.Attorney.MobileNumber, RequireLpa,
+	handleAttorney(page.Paths.Attorney.MobileNumber, RequireSession,
 		MobileNumber(tmpls.Get("attorney_mobile_number.gohtml"), attorneyStore))
-	handleRoot(page.Paths.Attorney.YourAddress, RequireLpa,
+	handleAttorney(page.Paths.Attorney.YourAddress, RequireSession,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, attorneyStore))
-	handleRoot(page.Paths.Attorney.ReadTheLpa, RequireLpa,
+	handleAttorney(page.Paths.Attorney.ReadTheLpa, RequireSession,
 		ReadTheLpa(tmpls.Get("attorney_read_the_lpa.gohtml"), donorStore, attorneyStore))
-	handleRoot(page.Paths.Attorney.RightsAndResponsibilities, RequireLpa,
+	handleAttorney(page.Paths.Attorney.RightsAndResponsibilities, RequireSession,
 		page.Guidance(tmpls.Get("attorney_legal_rights_and_responsibilities.gohtml")))
-	handleRoot(page.Paths.Attorney.WhatHappensWhenYouSign, RequireLpa,
+	handleAttorney(page.Paths.Attorney.WhatHappensWhenYouSign, RequireSession,
 		Guidance(tmpls.Get("attorney_what_happens_when_you_sign.gohtml"), donorStore))
-	handleRoot(page.Paths.Attorney.Sign, RequireLpa,
+	handleAttorney(page.Paths.Attorney.Sign, RequireSession,
 		Sign(tmpls.Get("attorney_sign.gohtml"), donorStore, certificateProviderStore, attorneyStore))
-	handleRoot(page.Paths.Attorney.WhatHappensNext, RequireLpa,
+	handleAttorney(page.Paths.Attorney.WhatHappensNext, RequireSession,
 		Guidance(tmpls.Get("attorney_what_happens_next.gohtml"), donorStore))
 }
 
@@ -126,7 +134,6 @@ type handleOpt byte
 const (
 	None handleOpt = 1 << iota
 	RequireSession
-	RequireLpa
 	CanGoBack
 )
 
@@ -141,22 +148,15 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 			appData.CanGoBack = opt&CanGoBack != 0
 
 			if opt&RequireSession != 0 {
-				if _, err := sesh.Attorney(store, r); err != nil {
-					http.Redirect(w, r, page.Paths.Attorney.Start, http.StatusFound)
-					return
-				}
-			}
-
-			if opt&RequireLpa != 0 {
 				session, err := sesh.Attorney(store, r)
-				if err != nil || session.LpaID == "" || session.AttorneyID == "" {
+				if err != nil {
 					http.Redirect(w, r, page.Paths.Attorney.Start, http.StatusFound)
 					return
 				}
 
 				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
-				appData.LpaID = session.LpaID
 				appData.AttorneyID = session.AttorneyID
+				appData.LpaID = session.LpaID
 
 				if session.IsReplacementAttorney {
 					appData.ActorType = actor.TypeReplacementAttorney
@@ -174,5 +174,28 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 				errorHandler(w, r, err)
 			}
 		})
+	}
+}
+
+func routeToPrefix(prefix string, mux http.Handler, notFoundHandler page.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		parts := strings.SplitN(r.URL.Path, "/", 4)
+		if len(parts) != 4 {
+			notFoundHandler(page.AppDataFromContext(r.Context()), w, r)
+			return
+		}
+
+		id, path := parts[2], "/"+parts[3]
+
+		r2 := new(http.Request)
+		*r2 = *r
+		r2.URL = new(url.URL)
+		*r2.URL = *r.URL
+		r2.URL.Path = path
+		if len(r.URL.RawPath) > len(prefix)+len(id) {
+			r2.URL.RawPath = r.URL.RawPath[len(prefix)+len(id):]
+		}
+
+		mux.ServeHTTP(w, r2.WithContext(page.ContextWithSessionData(r2.Context(), &page.SessionData{LpaID: id})))
 	}
 }

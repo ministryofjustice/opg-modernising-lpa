@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"io"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/gorilla/sessions"
@@ -85,65 +87,71 @@ func Register(
 	yotiClient YotiClient,
 	notifyClient NotifyClient,
 	certificateProviderStore CertificateProviderStore,
+	notFoundHandler page.Handler,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
-	handleRoot(page.Paths.CertificateProviderEnterReferenceNumber, None,
+	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumber, None,
 		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), shareCodeStore, sessionStore))
-	handleRoot(page.Paths.CertificateProviderWhoIsEligible, None,
+	handleRoot(page.Paths.CertificateProvider.WhoIsEligible, None,
 		WhoIsEligible(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), sessionStore))
-	handleRoot(page.Paths.CertificateProviderLogin, None,
+	handleRoot(page.Paths.CertificateProvider.Login, None,
 		Login(logger, oneLoginClient, sessionStore, random.String))
-	handleRoot(page.Paths.CertificateProviderLoginCallback, None,
+	handleRoot(page.Paths.CertificateProvider.LoginCallback, None,
 		LoginCallback(oneLoginClient, sessionStore, certificateProviderStore))
-	handleRoot(page.Paths.CertificateProviderCheckYourName, RequireSession,
+
+	certificateProviderMux := http.NewServeMux()
+	rootMux.Handle("/certificate-provider/", routeToPrefix("/certificate-provider/", certificateProviderMux, notFoundHandler))
+	handleCertificateProvider := makeHandle(certificateProviderMux, sessionStore, errorHandler)
+
+	handleCertificateProvider(page.Paths.CertificateProvider.CheckYourName, RequireSession,
 		CheckYourName(tmpls.Get("certificate_provider_check_your_name.gohtml"), donorStore, notifyClient, certificateProviderStore))
-	handleRoot(page.Paths.CertificateProviderEnterDateOfBirth, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.EnterDateOfBirth, RequireSession,
 		EnterDateOfBirth(tmpls.Get("certificate_provider_enter_date_of_birth.gohtml"), donorStore, certificateProviderStore))
-	handleRoot(page.Paths.CertificateProviderEnterMobileNumber, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.EnterMobileNumber, RequireSession,
 		EnterMobileNumber(tmpls.Get("certificate_provider_enter_mobile_number.gohtml"), donorStore, certificateProviderStore))
 
-	handleRoot(page.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity, RequireSession,
 		Guidance(tmpls.Get("certificate_provider_what_youll_need_to_confirm_your_identity.gohtml"), donorStore, nil))
 
 	for path, page := range map[string]int{
-		page.Paths.CertificateProviderSelectYourIdentityOptions:  0,
-		page.Paths.CertificateProviderSelectYourIdentityOptions1: 1,
-		page.Paths.CertificateProviderSelectYourIdentityOptions2: 2,
+		page.Paths.CertificateProvider.SelectYourIdentityOptions:  0,
+		page.Paths.CertificateProvider.SelectYourIdentityOptions1: 1,
+		page.Paths.CertificateProvider.SelectYourIdentityOptions2: 2,
 	} {
-		handleRoot(path, RequireSession,
+		handleCertificateProvider(path, RequireSession,
 			SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), page, certificateProviderStore))
 	}
 
-	handleRoot(page.Paths.CertificateProviderYourChosenIdentityOptions, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.YourChosenIdentityOptions, RequireSession,
 		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), certificateProviderStore))
-	handleRoot(page.Paths.CertificateProviderIdentityWithYoti, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithYoti, RequireSession,
 		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), sessionStore, yotiClient, certificateProviderStore))
-	handleRoot(page.Paths.CertificateProviderIdentityWithYotiCallback, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithYotiCallback, RequireSession,
 		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, certificateProviderStore))
-	handleRoot(page.Paths.CertificateProviderIdentityWithOneLogin, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLogin, RequireSession,
 		IdentityWithOneLogin(logger, oneLoginClient, sessionStore, random.String))
-	handleRoot(page.Paths.CertificateProviderIdentityWithOneLoginCallback, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLoginCallback, RequireSession,
 		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, certificateProviderStore))
 
 	for path, identityOption := range map[string]identity.Option{
-		page.Paths.CertificateProviderIdentityWithPassport:                 identity.Passport,
-		page.Paths.CertificateProviderIdentityWithBiometricResidencePermit: identity.BiometricResidencePermit,
-		page.Paths.CertificateProviderIdentityWithDrivingLicencePaper:      identity.DrivingLicencePaper,
-		page.Paths.CertificateProviderIdentityWithDrivingLicencePhotocard:  identity.DrivingLicencePhotocard,
-		page.Paths.CertificateProviderIdentityWithOnlineBankAccount:        identity.OnlineBankAccount,
+		page.Paths.CertificateProvider.IdentityWithPassport:                 identity.Passport,
+		page.Paths.CertificateProvider.IdentityWithBiometricResidencePermit: identity.BiometricResidencePermit,
+		page.Paths.CertificateProvider.IdentityWithDrivingLicencePaper:      identity.DrivingLicencePaper,
+		page.Paths.CertificateProvider.IdentityWithDrivingLicencePhotocard:  identity.DrivingLicencePhotocard,
+		page.Paths.CertificateProvider.IdentityWithOnlineBankAccount:        identity.OnlineBankAccount,
 	} {
-		handleRoot(path, RequireSession,
+		handleCertificateProvider(path, RequireSession,
 			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), time.Now, identityOption, certificateProviderStore))
 	}
 
-	handleRoot(page.Paths.CertificateProviderReadTheLpa, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.ReadTheLpa, RequireSession,
 		Guidance(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), donorStore, certificateProviderStore))
-	handleRoot(page.Paths.CertificateProviderWhatHappensNext, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.WhatHappensNext, RequireSession,
 		Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), donorStore, nil))
-	handleRoot(page.Paths.ProvideCertificate, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.ProvideCertificate, RequireSession,
 		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), donorStore, time.Now, certificateProviderStore))
-	handleRoot(page.Paths.CertificateProvided, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.CertificateProvided, RequireSession,
 		Guidance(tmpls.Get("certificate_provided.gohtml"), donorStore, nil))
 }
 
@@ -186,5 +194,28 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 				errorHandler(w, r, err)
 			}
 		})
+	}
+}
+
+func routeToPrefix(prefix string, mux http.Handler, notFoundHandler page.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		parts := strings.SplitN(r.URL.Path, "/", 4)
+		if len(parts) != 4 {
+			notFoundHandler(page.AppDataFromContext(r.Context()), w, r)
+			return
+		}
+
+		id, path := parts[2], "/"+parts[3]
+
+		r2 := new(http.Request)
+		*r2 = *r
+		r2.URL = new(url.URL)
+		*r2.URL = *r.URL
+		r2.URL.Path = path
+		if len(r.URL.RawPath) > len(prefix)+len(id) {
+			r2.URL.RawPath = r.URL.RawPath[len(prefix)+len(id):]
+		}
+
+		mux.ServeHTTP(w, r2.WithContext(page.ContextWithSessionData(r2.Context(), &page.SessionData{LpaID: id})))
 	}
 }
