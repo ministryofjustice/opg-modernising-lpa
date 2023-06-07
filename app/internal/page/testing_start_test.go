@@ -1356,7 +1356,7 @@ func TestTestingStart(t *testing.T) {
 
 		attorneyStore := newMockAttorneyStore(t)
 		attorneyStore.
-			On("Create", ctx, false).
+			On("Create", ctx, "456", false).
 			Return(nil, nil)
 
 		TestingStart(sessionStore, donorStore, MockRandom, nil, nil, nil, attorneyStore, nil, nil).ServeHTTP(w, r)
@@ -1392,7 +1392,7 @@ func TestTestingStart(t *testing.T) {
 
 		attorneyStore := newMockAttorneyStore(t)
 		attorneyStore.
-			On("Create", ctx, true).
+			On("Create", ctx, "456", true).
 			Return(nil, nil)
 
 		TestingStart(sessionStore, donorStore, MockRandom, nil, nil, nil, attorneyStore, nil, nil).ServeHTTP(w, r)

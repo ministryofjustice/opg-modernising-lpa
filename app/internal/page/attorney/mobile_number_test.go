@@ -31,11 +31,6 @@ func TestGetMobileNumber(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			attorneyStore := newMockAttorneyStore(t)
-			attorneyStore.
-				On("Get", r.Context()).
-				Return(&actor.AttorneyProvidedDetails{}, nil)
-
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &mobileNumberData{
@@ -44,7 +39,7 @@ func TestGetMobileNumber(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := MobileNumber(template.Execute, attorneyStore)(tc.appData, w, r)
+			err := MobileNumber(template.Execute, nil)(tc.appData, w, r, &actor.AttorneyProvidedDetails{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -71,13 +66,6 @@ func TestGetMobileNumberFromStore(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			attorneyStore := newMockAttorneyStore(t)
-			attorneyStore.
-				On("Get", r.Context()).
-				Return(&actor.AttorneyProvidedDetails{
-					Mobile: "07535111222",
-				}, nil)
-
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &mobileNumberData{
@@ -88,7 +76,7 @@ func TestGetMobileNumberFromStore(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := MobileNumber(template.Execute, attorneyStore)(tc.appData, w, r)
+			err := MobileNumber(template.Execute, nil)(tc.appData, w, r, &actor.AttorneyProvidedDetails{Mobile: "07535111222"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -97,37 +85,16 @@ func TestGetMobileNumberFromStore(t *testing.T) {
 	}
 }
 
-func TestGetMobileNumberWhenAttorneyStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{}, expectedError)
-
-	err := MobileNumber(nil, attorneyStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetMobileNumberWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := MobileNumber(template.Execute, attorneyStore)(testAppData, w, r)
+	err := MobileNumber(template.Execute, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -176,18 +143,15 @@ func TestPostMobileNumber(t *testing.T) {
 
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.
-				On("Get", r.Context()).
-				Return(&actor.AttorneyProvidedDetails{}, nil)
-			attorneyStore.
 				On("Put", r.Context(), tc.updatedAttorney).
 				Return(nil)
 
-			err := MobileNumber(nil, attorneyStore)(tc.appData, w, r)
+			err := MobileNumber(nil, attorneyStore)(tc.appData, w, r, &actor.AttorneyProvidedDetails{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.YourAddress, resp.Header.Get("Location"))
+			assert.Equal(t, "/attorney/lpa-id"+page.Paths.Attorney.YourAddress, resp.Header.Get("Location"))
 		})
 	}
 }
@@ -201,11 +165,6 @@ func TestPostMobileNumberWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{}, nil)
-
 	dataMatcher := func(t *testing.T, data *mobileNumberData) bool {
 		return assert.Equal(t, validation.With("mobile", validation.MobileError{Label: "mobile"}), data.Errors)
 	}
@@ -217,7 +176,7 @@ func TestPostMobileNumberWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := MobileNumber(template.Execute, attorneyStore)(testAppData, w, r)
+	err := MobileNumber(template.Execute, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -236,13 +195,10 @@ func TestPostMobileNumberWhenAttorneyStoreErrors(t *testing.T) {
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{}, nil)
-	attorneyStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := MobileNumber(nil, attorneyStore)(testAppData, w, r)
+	err := MobileNumber(nil, attorneyStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

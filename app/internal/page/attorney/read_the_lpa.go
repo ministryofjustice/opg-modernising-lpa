@@ -16,8 +16,8 @@ type readTheLpaData struct {
 	Attorney actor.Attorney
 }
 
-func ReadTheLpa(tmpl template.Template, donorStore DonorStore, attorneyStore AttorneyStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+func ReadTheLpa(tmpl template.Template, donorStore DonorStore, attorneyStore AttorneyStore) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *actor.AttorneyProvidedDetails) error {
 		lpa, err := donorStore.GetAny(r.Context())
 		if err != nil {
 			return err
@@ -31,11 +31,6 @@ func ReadTheLpa(tmpl template.Template, donorStore DonorStore, attorneyStore Att
 		attorney, ok := attorneys.Get(appData.AttorneyID)
 		if !ok {
 			return appData.Redirect(w, r, lpa, page.Paths.Attorney.Start)
-		}
-
-		attorneyProvidedDetails, err := attorneyStore.Get(r.Context())
-		if err != nil {
-			return err
 		}
 
 		data := &readTheLpaData{
