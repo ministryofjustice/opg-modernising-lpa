@@ -38,7 +38,7 @@ func TestMakeHandle(t *testing.T) {
 		}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, nil, nil)
+	handle := makeHandle(mux, sessionStore, nil)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/path",
@@ -68,7 +68,7 @@ func TestMakeHandleRequireSessionExistingSessionData(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, nil, nil)
+	handle := makeHandle(mux, sessionStore, nil)
 	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/path",
@@ -90,10 +90,110 @@ func TestMakeHandleRequireSessionExistingSessionData(t *testing.T) {
 	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
 }
 
-func TestMakeHandleRequireAttorneyExistingSessionData(t *testing.T) {
+func TestMakeHandleErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+
+	errorHandler := newMockErrorHandler(t)
+	errorHandler.
+		On("Execute", w, r, expectedError)
+
+	mux := http.NewServeMux()
+	handle := makeHandle(mux, nil, errorHandler.Execute)
+	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+		return expectedError
+	})
+
+	mux.ServeHTTP(w, r)
+}
+
+func TestMakeHandleSessionError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{}, expectedError)
+
+	mux := http.NewServeMux()
+	handle := makeHandle(mux, sessionStore, nil)
+	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
+}
+
+func TestMakeHandleSessionMissing(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{}}, nil)
+
+	mux := http.NewServeMux()
+	handle := makeHandle(mux, sessionStore, nil)
+	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
+}
+
+func TestMakeHandleLpaMissing(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{}, nil)
+
+	mux := http.NewServeMux()
+	handle := makeHandle(mux, sessionStore, nil)
+	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
+}
+
+func TestMakeHandleNoSessionRequired(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+
+	mux := http.NewServeMux()
+	handle := makeHandle(mux, nil, nil)
+	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+		assert.Equal(t, page.AppData{
+			Page: "/path",
+		}, appData)
+		assert.Equal(t, w, hw)
+		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{Page: "/path"})), hr)
+		hw.WriteHeader(http.StatusTeapot)
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+}
+
+func TestMakeAttorneyHandleExistingSessionData(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "lpa-id", SessionID: "ignored-session-id"})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
+	expectedDetails := &actor.AttorneyProvidedDetails{ID: "123"}
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
@@ -103,17 +203,20 @@ func TestMakeHandleRequireAttorneyExistingSessionData(t *testing.T) {
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.
 		On("Get", mock.Anything).
-		Return(&actor.AttorneyProvidedDetails{}, nil)
+		Return(expectedDetails, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, nil, attorneyStore)
-	handle("/path", RequireAttorney|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle := makeAttorneyHandle(mux, sessionStore, nil, attorneyStore)
+	handle("/path", CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, details *actor.AttorneyProvidedDetails) error {
+		assert.Equal(t, expectedDetails, details)
+
 		assert.Equal(t, page.AppData{
-			Page:      "/path",
-			CanGoBack: true,
-			SessionID: "cmFuZG9t",
-			LpaID:     "lpa-id",
-			ActorType: actor.TypeAttorney,
+			Page:       "/path",
+			CanGoBack:  true,
+			SessionID:  "cmFuZG9t",
+			LpaID:      "lpa-id",
+			ActorType:  actor.TypeAttorney,
+			AttorneyID: "123",
 		}, appData)
 		assert.Equal(t, w, hw)
 
@@ -130,7 +233,7 @@ func TestMakeHandleRequireAttorneyExistingSessionData(t *testing.T) {
 	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
 }
 
-func TestMakeHandleRequireAttorneyExistingLpaData(t *testing.T) {
+func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 	testCases := map[string]struct {
 		details   *actor.AttorneyProvidedDetails
 		actorType actor.Type
@@ -162,8 +265,9 @@ func TestMakeHandleRequireAttorneyExistingLpaData(t *testing.T) {
 				Return(tc.details, nil)
 
 			mux := http.NewServeMux()
-			handle := makeHandle(mux, sessionStore, nil, attorneyStore)
-			handle("/path", RequireAttorney|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+			handle := makeAttorneyHandle(mux, sessionStore, nil, attorneyStore)
+			handle("/path", CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, details *actor.AttorneyProvidedDetails) error {
+				assert.Equal(t, tc.details, details)
 				assert.Equal(t, page.AppData{
 					Page:       "/path",
 					CanGoBack:  true,
@@ -187,27 +291,63 @@ func TestMakeHandleRequireAttorneyExistingLpaData(t *testing.T) {
 			assert.Equal(t, http.StatusTeapot, resp.StatusCode)
 		})
 	}
-
 }
 
-func TestMakeHandleErrors(t *testing.T) {
+func TestMakeAttorneyHandleErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
+		On("Get", mock.Anything).
+		Return(&actor.AttorneyProvidedDetails{}, nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	errorHandler := newMockErrorHandler(t)
 	errorHandler.
 		On("Execute", w, r, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, errorHandler.Execute, nil)
-	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle := makeAttorneyHandle(mux, sessionStore, errorHandler.Execute, attorneyStore)
+	handle("/path", None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.AttorneyProvidedDetails) error {
 		return expectedError
 	})
 
 	mux.ServeHTTP(w, r)
 }
 
-func TestMakeHandleSessionError(t *testing.T) {
+func TestMakeAttorneyHandleAttorneyStoreErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.
+		On("Get", mock.Anything).
+		Return(nil, expectedError)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+
+	errorHandler := newMockErrorHandler(t)
+	errorHandler.
+		On("Execute", w, r, expectedError)
+
+	mux := http.NewServeMux()
+	handle := makeAttorneyHandle(mux, sessionStore, errorHandler.Execute, attorneyStore)
+	handle("/path", None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.AttorneyProvidedDetails) error {
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+}
+
+func TestMakeAttorneyHandleSessionError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
@@ -217,8 +357,10 @@ func TestMakeHandleSessionError(t *testing.T) {
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, nil, nil)
-	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+	handle := makeAttorneyHandle(mux, sessionStore, nil, nil)
+	handle("/path", RequireSession, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.AttorneyProvidedDetails) error {
+		return nil
+	})
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
@@ -227,7 +369,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 	assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
 }
 
-func TestMakeHandleSessionMissing(t *testing.T) {
+func TestMakeAttorneyHandleSessionMissing(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
@@ -237,8 +379,10 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, nil, nil)
-	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+	handle := makeAttorneyHandle(mux, sessionStore, nil, nil)
+	handle("/path", RequireSession, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.AttorneyProvidedDetails) error {
+		return nil
+	})
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
@@ -247,52 +391,24 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 	assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
 }
 
-func TestMakeHandleLpaMissing(t *testing.T) {
-	testcases := map[string]map[any]any{
-		"empty": {},
-	}
-
-	for name, values := range testcases {
-		t.Run(name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodGet, "/path", nil)
-
-			sessionStore := newMockSessionStore(t)
-			sessionStore.
-				On("Get", r, "session").
-				Return(&sessions.Session{Values: values}, nil)
-
-			mux := http.NewServeMux()
-			handle := makeHandle(mux, sessionStore, nil, nil)
-			handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
-
-			mux.ServeHTTP(w, r)
-			resp := w.Result()
-
-			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
-		})
-	}
-}
-
-func TestMakeHandleNoSessionRequired(t *testing.T) {
+func TestMakeAttorneyHandleLpaMissing(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{}, nil)
+
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, nil, nil)
-	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, page.AppData{
-			Page: "/path",
-		}, appData)
-		assert.Equal(t, w, hw)
-		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{Page: "/path"})), hr)
-		hw.WriteHeader(http.StatusTeapot)
+	handle := makeAttorneyHandle(mux, sessionStore, nil, nil)
+	handle("/path", RequireSession, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.AttorneyProvidedDetails) error {
 		return nil
 	})
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
 
-	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
 }

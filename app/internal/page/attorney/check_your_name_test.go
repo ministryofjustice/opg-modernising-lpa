@@ -60,12 +60,7 @@ func TestGetCheckYourName(t *testing.T) {
 				On("GetAny", r.Context()).
 				Return(tc.lpa, nil)
 
-			attorneyStore := newMockAttorneyStore(t)
-			attorneyStore.
-				On("Get", r.Context()).
-				Return(&actor.AttorneyProvidedDetails{}, nil)
-
-			err := CheckYourName(template.Execute, donorStore, attorneyStore, nil)(tc.appData, w, r)
+			err := CheckYourName(template.Execute, donorStore, nil, nil)(tc.appData, w, r, &actor.AttorneyProvidedDetails{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -107,7 +102,7 @@ func TestGetCheckYourNameWhenAttorneyDoesNotExist(t *testing.T) {
 				On("GetAny", r.Context()).
 				Return(tc.lpa, nil)
 
-			err := CheckYourName(nil, donorStore, nil, nil)(tc.appData, w, r)
+			err := CheckYourName(nil, donorStore, nil, nil)(tc.appData, w, r, nil)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -128,32 +123,7 @@ func TestGetCheckYourNameOnDonorStoreError(t *testing.T) {
 		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := CheckYourName(template.Execute, donorStore, nil, nil)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestGetCheckYourNameOnAttorneyStoreError(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-	w := httptest.NewRecorder()
-
-	template := newMockTemplate(t)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
-		Return(&page.Lpa{
-			Attorneys: actor.Attorneys{{ID: "attorney-id"}},
-		}, nil)
-
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{}, expectedError)
-
-	err := CheckYourName(template.Execute, donorStore, attorneyStore, nil)(testAppData, w, r)
+	err := CheckYourName(template.Execute, donorStore, nil, nil)(testAppData, w, r, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -182,12 +152,7 @@ func TestGetCheckYourNameOnTemplateError(t *testing.T) {
 		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{}, nil)
-
-	err := CheckYourName(template.Execute, donorStore, attorneyStore, nil)(testAppData, w, r)
+	err := CheckYourName(template.Execute, donorStore, nil, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -245,13 +210,10 @@ func TestPostCheckYourName(t *testing.T) {
 
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.
-				On("Get", r.Context()).
-				Return(tc.attorney, nil)
-			attorneyStore.
 				On("Put", r.Context(), tc.updatedAttorney).
 				Return(nil)
 
-			err := CheckYourName(nil, donorStore, attorneyStore, nil)(tc.appData, w, r)
+			err := CheckYourName(nil, donorStore, attorneyStore, nil)(tc.appData, w, r, tc.attorney)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -317,9 +279,6 @@ func TestPostCheckYourNameWithCorrectedName(t *testing.T) {
 
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.
-				On("Get", r.Context()).
-				Return(tc.attorney, nil)
-			attorneyStore.
 				On("Put", r.Context(), tc.updatedAttorney).
 				Return(nil)
 
@@ -335,7 +294,7 @@ func TestPostCheckYourNameWithCorrectedName(t *testing.T) {
 				}).
 				Return("", nil)
 
-			err := CheckYourName(nil, donorStore, attorneyStore, notifyClient)(tc.appData, w, r)
+			err := CheckYourName(nil, donorStore, attorneyStore, notifyClient)(tc.appData, w, r, tc.attorney)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -405,13 +364,10 @@ func TestPostCheckYourNameWithUnchangedCorrectedName(t *testing.T) {
 
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.
-				On("Get", r.Context()).
-				Return(tc.attorney, nil)
-			attorneyStore.
 				On("Put", r.Context(), tc.updatedAttorney).
 				Return(nil)
 
-			err := CheckYourName(nil, donorStore, attorneyStore, nil)(tc.appData, w, r)
+			err := CheckYourName(nil, donorStore, attorneyStore, nil)(tc.appData, w, r, tc.attorney)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -454,13 +410,10 @@ func TestPostCheckYourNameWithCorrectedNameWhenStoreError(t *testing.T) {
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{}, nil)
-	attorneyStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := CheckYourName(nil, donorStore, attorneyStore, notifyClient)(testAppData, w, r)
+	err := CheckYourName(nil, donorStore, attorneyStore, notifyClient)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -487,11 +440,6 @@ func TestPostCheckYourNameOnValidationError(t *testing.T) {
 		On("GetAny", r.Context()).
 		Return(lpa, nil)
 
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &checkYourNameData{
@@ -503,7 +451,7 @@ func TestPostCheckYourNameOnValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CheckYourName(template.Execute, donorStore, attorneyStore, nil)(testAppData, w, r)
+	err := CheckYourName(template.Execute, donorStore, nil, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

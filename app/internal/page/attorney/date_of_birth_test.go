@@ -34,11 +34,6 @@ func TestGetDateOfBirth(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			attorneyStore := newMockAttorneyStore(t)
-			attorneyStore.
-				On("Get", r.Context()).
-				Return(&actor.AttorneyProvidedDetails{}, nil)
-
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &dateOfBirthData{
@@ -47,7 +42,7 @@ func TestGetDateOfBirth(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := DateOfBirth(template.Execute, attorneyStore)(tc.appData, w, r)
+			err := DateOfBirth(template.Execute, nil)(tc.appData, w, r, &actor.AttorneyProvidedDetails{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -73,11 +68,6 @@ func TestGetDateOfBirthWhenAttorneyDetailsDontExist(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			attorneyStore := newMockAttorneyStore(t)
-			attorneyStore.
-				On("Get", r.Context()).
-				Return(&actor.AttorneyProvidedDetails{}, nil)
-
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &dateOfBirthData{
@@ -86,7 +76,7 @@ func TestGetDateOfBirthWhenAttorneyDetailsDontExist(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := DateOfBirth(template.Execute, attorneyStore)(tc.appData, w, r)
+			err := DateOfBirth(template.Execute, nil)(tc.appData, w, r, &actor.AttorneyProvidedDetails{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -113,13 +103,6 @@ func TestGetDateOfBirthFromStore(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			attorneyStore := newMockAttorneyStore(t)
-			attorneyStore.
-				On("Get", r.Context()).
-				Return(&actor.AttorneyProvidedDetails{
-					DateOfBirth: date.New("1997", "1", "2"),
-				}, nil)
-
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &dateOfBirthData{
@@ -130,7 +113,7 @@ func TestGetDateOfBirthFromStore(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := DateOfBirth(template.Execute, attorneyStore)(tc.appData, w, r)
+			err := DateOfBirth(template.Execute, nil)(tc.appData, w, r, &actor.AttorneyProvidedDetails{DateOfBirth: date.New("1997", "1", "2")})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -139,37 +122,16 @@ func TestGetDateOfBirthFromStore(t *testing.T) {
 	}
 }
 
-func TestGetDateOfBirthWhenAttorneyStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{}, expectedError)
-
-	err := DateOfBirth(nil, attorneyStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetDateOfBirthWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := DateOfBirth(template.Execute, attorneyStore)(testAppData, w, r)
+	err := DateOfBirth(template.Execute, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -241,13 +203,10 @@ func TestPostDateOfBirth(t *testing.T) {
 
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.
-				On("Get", r.Context()).
-				Return(&actor.AttorneyProvidedDetails{}, nil)
-			attorneyStore.
 				On("Put", r.Context(), tc.updatedAttorney).
 				Return(nil)
 
-			err := DateOfBirth(nil, attorneyStore)(tc.appData, w, r)
+			err := DateOfBirth(nil, attorneyStore)(tc.appData, w, r, &actor.AttorneyProvidedDetails{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -296,13 +255,10 @@ func TestPostDateOfBirthWhenAttorneyDetailsDontExist(t *testing.T) {
 
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.
-				On("Get", r.Context()).
-				Return(&actor.AttorneyProvidedDetails{}, nil)
-			attorneyStore.
 				On("Put", r.Context(), tc.providedDetails).
 				Return(nil)
 
-			err := DateOfBirth(nil, attorneyStore)(testAppData, w, r)
+			err := DateOfBirth(nil, attorneyStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -348,11 +304,6 @@ func TestPostDateOfBirthWhenInputRequired(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			attorneyStore := newMockAttorneyStore(t)
-			attorneyStore.
-				On("Get", r.Context()).
-				Return(&actor.AttorneyProvidedDetails{}, nil)
-
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, mock.MatchedBy(func(data *dateOfBirthData) bool {
@@ -360,7 +311,7 @@ func TestPostDateOfBirthWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := DateOfBirth(template.Execute, attorneyStore)(testAppData, w, r)
+			err := DateOfBirth(template.Execute, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -383,13 +334,10 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{}, nil)
-	attorneyStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := DateOfBirth(nil, attorneyStore)(testAppData, w, r)
+	err := DateOfBirth(nil, attorneyStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	assert.Equal(t, expectedError, err)
 }
 

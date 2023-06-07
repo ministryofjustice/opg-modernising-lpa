@@ -117,21 +117,20 @@ func TestAppDataRedirectWhenCanGoTo(t *testing.T) {
 }
 
 func TestAppDataBuildUrl(t *testing.T) {
-	type test struct {
-		language string
-		lang     localize.Lang
-		url      string
-		want     string
+	testCases := map[string]struct {
+		lang localize.Lang
+		url  string
+		want string
+	}{
+		"english":              {lang: localize.En, url: "/example.org", want: "/lpa/123/example.org"},
+		"welsh":                {lang: localize.Cy, url: "/example.org", want: "/cy/lpa/123/example.org"},
+		"other language":       {lang: localize.Lang(3), url: "/example.org", want: "/lpa/123/example.org"},
+		"certificate provider": {lang: localize.Cy, url: Paths.CertificateProvider.CertificateProvided, want: "/cy/certificate-provider/123/certificate-provided"},
+		"attorney":             {lang: localize.Cy, url: Paths.Attorney.CheckYourName, want: "/cy/attorney/123/attorney-check-your-name"},
 	}
 
-	testCases := []test{
-		{language: "English", lang: localize.En, url: "/example.org", want: "/lpa/123/example.org"},
-		{language: "Welsh", lang: localize.Cy, url: "/example.org", want: "/cy/lpa/123/example.org"},
-		{language: "Other", lang: localize.Lang(3), url: "/example.org", want: "/lpa/123/example.org"},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.language, func(t *testing.T) {
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
 			builtUrl := AppData{Lang: tc.lang, LpaID: "123"}.BuildUrl(tc.url)
 			assert.Equal(t, tc.want, builtUrl)
 		})

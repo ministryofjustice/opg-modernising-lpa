@@ -38,8 +38,8 @@ type signData struct {
 	Form                       *signForm
 }
 
-func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *actor.AttorneyProvidedDetails) error {
 		lpa, err := donorStore.GetAny(r.Context())
 		if err != nil {
 			return err
@@ -57,11 +57,6 @@ func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStor
 		attorney, ok := attorneys.Get(appData.AttorneyID)
 		if !ok {
 			return appData.Redirect(w, r, lpa, page.Paths.Attorney.Start)
-		}
-
-		attorneyProvidedDetails, err := attorneyStore.Get(r.Context())
-		if err != nil {
-			return err
 		}
 
 		data := &signData{

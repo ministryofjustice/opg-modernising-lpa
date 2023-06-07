@@ -100,12 +100,7 @@ func TestGetSign(t *testing.T) {
 					Certificate: actor.Certificate{Agreed: time.Now()},
 				}, nil)
 
-			attorneyStore := newMockAttorneyStore(t)
-			attorneyStore.
-				On("Get", r.Context()).
-				Return(&actor.AttorneyProvidedDetails{}, nil)
-
-			err := Sign(template.Execute, donorStore, certificateProviderStore, attorneyStore)(tc.appData, w, r)
+			err := Sign(template.Execute, donorStore, certificateProviderStore, nil)(tc.appData, w, r, &actor.AttorneyProvidedDetails{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -161,7 +156,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 				On("GetAny", mock.Anything).
 				Return(tc.certificateProvider, nil)
 
-			err := Sign(nil, donorStore, certificateProviderStore, nil)(tc.appData, w, r)
+			err := Sign(nil, donorStore, certificateProviderStore, nil)(tc.appData, w, r, nil)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -213,7 +208,7 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 					Certificate: actor.Certificate{Agreed: time.Now()},
 				}, nil)
 
-			err := Sign(nil, donorStore, certificateProviderStore, nil)(tc.appData, w, r)
+			err := Sign(nil, donorStore, certificateProviderStore, nil)(tc.appData, w, r, nil)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -234,39 +229,11 @@ func TestGetSignOnDonorStoreError(t *testing.T) {
 		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := Sign(template.Execute, donorStore, nil, nil)(testAppData, w, r)
+	err := Sign(template.Execute, donorStore, nil, nil)(testAppData, w, r, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestGetSignOnAttorneyStoreError(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-	w := httptest.NewRecorder()
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
-		Return(&page.Lpa{
-			Submitted: time.Now(),
-			Attorneys: actor.Attorneys{{ID: "attorney-id"}},
-		}, nil)
-
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("GetAny", mock.Anything).
-		Return(&actor.CertificateProviderProvidedDetails{
-			Certificate: actor.Certificate{Agreed: time.Now()},
-		}, nil)
-
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{}, expectedError)
-
-	err := Sign(nil, donorStore, certificateProviderStore, attorneyStore)(testAppData, w, r)
-	assert.Equal(t, expectedError, err)
 }
 
 func TestGetSignOnTemplateError(t *testing.T) {
@@ -293,12 +260,7 @@ func TestGetSignOnTemplateError(t *testing.T) {
 			Certificate: actor.Certificate{Agreed: time.Now()},
 		}, nil)
 
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{}, nil)
-
-	err := Sign(template.Execute, donorStore, certificateProviderStore, attorneyStore)(testAppData, w, r)
+	err := Sign(template.Execute, donorStore, certificateProviderStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -355,9 +317,6 @@ func TestPostSign(t *testing.T) {
 
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.
-				On("Get", r.Context()).
-				Return(&actor.AttorneyProvidedDetails{}, nil)
-			attorneyStore.
 				On("Put", r.Context(), tc.updatedAttorney).
 				Return(nil)
 
@@ -368,7 +327,7 @@ func TestPostSign(t *testing.T) {
 					Certificate: actor.Certificate{Agreed: time.Now()},
 				}, nil)
 
-			err := Sign(nil, donorStore, certificateProviderStore, attorneyStore)(tc.appData, w, r)
+			err := Sign(nil, donorStore, certificateProviderStore, attorneyStore)(tc.appData, w, r, &actor.AttorneyProvidedDetails{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -405,13 +364,10 @@ func TestPostSignWhenStoreError(t *testing.T) {
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{}, nil)
-	attorneyStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := Sign(nil, donorStore, certificateProviderStore, attorneyStore)(testAppData, w, r)
+	err := Sign(nil, donorStore, certificateProviderStore, attorneyStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -441,11 +397,6 @@ func TestPostSignOnValidationError(t *testing.T) {
 			Certificate: actor.Certificate{Agreed: time.Now()},
 		}, nil)
 
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &signData{
@@ -456,7 +407,7 @@ func TestPostSignOnValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := Sign(template.Execute, donorStore, certificateProviderStore, attorneyStore)(testAppData, w, r)
+	err := Sign(template.Execute, donorStore, certificateProviderStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

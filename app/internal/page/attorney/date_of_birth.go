@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -21,13 +22,8 @@ type dateOfBirthForm struct {
 	IgnoreDobWarning string
 }
 
-func DateOfBirth(tmpl template.Template, attorneyStore AttorneyStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		attorneyProvidedDetails, err := attorneyStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func DateOfBirth(tmpl template.Template, attorneyStore AttorneyStore) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *actor.AttorneyProvidedDetails) error {
 		data := &dateOfBirthData{
 			App: appData,
 			Form: &dateOfBirthForm{
