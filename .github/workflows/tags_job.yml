@@ -14,15 +14,25 @@ on:
       environment_workspace_name:
         description: "Terraform Environment Workspace Name"
         value: ${{ jobs.generate_environment_workspace_name.outputs.environment_workspace_name }}
+      commit_sha:
+        description: 'Latest commit SHA that triggered the workflow'
+        value: ${{ jobs.create_tags.outputs.commit_sha }}
 
 jobs:
   create_tags:
-    if : ${{ inputs.changes_detected == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: '0'
+      - name: Extract commit SHA
+        id: extract_commit_sha
+        run: |
+          if [ "$GITHUB_EVENT_NAME" == "push" ]; then
+            echo "commit_sha=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+          else
+            echo "commit_sha=${{ github.event.pull_request.head.sha }}" >> $GITHUB_OUTPUT
+          fi
       - name: Extract branch name
         id: extract_branch
         run: |
@@ -48,6 +58,7 @@ jobs:
           WITH_V: true
     outputs:
       docker_tag: ${{ steps.bump_version.outputs.tag }}
+
 
   generate_environment_workspace_name:
     if: github.ref != 'refs/heads/main'
