@@ -177,7 +177,7 @@ func TestPostReadTheLpaWithAttorney(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.RightsAndResponsibilities, resp.Header.Get("Location"))
+	assert.Equal(t, "/attorney/lpa-id"+page.Paths.Attorney.RightsAndResponsibilities, resp.Header.Get("Location"))
 }
 
 func TestPostReadTheLpaWithAttorneyOnDonorStoreError(t *testing.T) {

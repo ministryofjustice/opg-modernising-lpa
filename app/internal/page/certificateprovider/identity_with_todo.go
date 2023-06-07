@@ -24,7 +24,7 @@ func IdentityWithTodo(tmpl template.Template, now func() time.Time, identityOpti
 		}
 
 		if r.Method == http.MethodPost {
-			return appData.Redirect(w, r, nil, page.Paths.CertificateProviderReadTheLpa)
+			return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.ReadTheLpa)
 		}
 
 		certificateProvider.IdentityUserData = identity.UserData{

@@ -252,7 +252,7 @@ func TestPostDateOfBirth(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.MobileNumber, resp.Header.Get("Location"))
+			assert.Equal(t, "/attorney/lpa-id"+page.Paths.Attorney.MobileNumber, resp.Header.Get("Location"))
 		})
 	}
 }
@@ -307,7 +307,7 @@ func TestPostDateOfBirthWhenAttorneyDetailsDontExist(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.MobileNumber, resp.Header.Get("Location"))
+			assert.Equal(t, "/attorney/lpa-id"+page.Paths.Attorney.MobileNumber, resp.Header.Get("Location"))
 		})
 	}
 }

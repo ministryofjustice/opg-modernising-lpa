@@ -79,7 +79,7 @@ func TestLoginCallback(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderEnterDateOfBirth, resp.Header.Get("Location"))
+	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.EnterDateOfBirth, resp.Header.Get("Location"))
 }
 
 func TestLoginCallbackWhenCertificateProviderExists(t *testing.T) {
@@ -146,7 +146,7 @@ func TestLoginCallbackWhenCertificateProviderExists(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderEnterDateOfBirth, resp.Header.Get("Location"))
+	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.EnterDateOfBirth, resp.Header.Get("Location"))
 }
 
 func TestLoginCallbackSessionMissing(t *testing.T) {

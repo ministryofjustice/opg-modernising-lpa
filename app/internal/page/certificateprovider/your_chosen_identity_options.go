@@ -38,19 +38,19 @@ func YourChosenIdentityOptions(tmpl template.Template, certificateProviderStore 
 func identityOptionPath(paths page.AppPaths, identityOption identity.Option) string {
 	switch identityOption {
 	case identity.OneLogin:
-		return paths.CertificateProviderIdentityWithOneLogin
+		return paths.CertificateProvider.IdentityWithOneLogin
 	case identity.EasyID:
-		return paths.CertificateProviderIdentityWithYoti
+		return paths.CertificateProvider.IdentityWithYoti
 	case identity.Passport:
-		return paths.CertificateProviderIdentityWithPassport
+		return paths.CertificateProvider.IdentityWithPassport
 	case identity.BiometricResidencePermit:
-		return paths.CertificateProviderIdentityWithBiometricResidencePermit
+		return paths.CertificateProvider.IdentityWithBiometricResidencePermit
 	case identity.DrivingLicencePaper:
-		return paths.CertificateProviderIdentityWithDrivingLicencePaper
+		return paths.CertificateProvider.IdentityWithDrivingLicencePaper
 	case identity.DrivingLicencePhotocard:
-		return paths.CertificateProviderIdentityWithDrivingLicencePhotocard
+		return paths.CertificateProvider.IdentityWithDrivingLicencePhotocard
 	case identity.OnlineBankAccount:
-		return paths.CertificateProviderIdentityWithOnlineBankAccount
+		return paths.CertificateProvider.IdentityWithOnlineBankAccount
 	default:
 		panic("missing case in identityOptionPath")
 	}

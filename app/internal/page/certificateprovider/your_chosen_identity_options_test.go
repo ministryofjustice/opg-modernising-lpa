@@ -85,5 +85,5 @@ func TestPostYourChosenIdentityOptions(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderIdentityWithPassport, resp.Header.Get("Location"))
+	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.IdentityWithPassport, resp.Header.Get("Location"))
 }
