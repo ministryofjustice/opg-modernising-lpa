@@ -9,7 +9,6 @@ import (
 )
 
 type AppData struct {
-	ServiceName      string
 	Page             string
 	Path             string
 	Query            string
@@ -47,6 +46,18 @@ func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, lpa *Lpa, url 
 	return nil
 }
 
+func (d AppData) RedirectCtx(ctx context.Context, w http.ResponseWriter, r *http.Request, url string) error {
+	if fromURL := r.FormValue("from"); fromURL != "" {
+		url = fromURL
+	}
+
+	data, _ := SessionDataFromContext(ctx)
+	d.LpaID = data.LpaID
+
+	http.Redirect(w, r, d.BuildUrl(url), http.StatusFound)
+	return nil
+}
+
 func (d AppData) BuildUrl(url string) string {
 	if d.Lang == localize.Cy {
 		return "/" + localize.Cy.String() + d.BuildUrlWithoutLang(url)
@@ -56,6 +67,14 @@ func (d AppData) BuildUrl(url string) string {
 }
 
 func (d AppData) BuildUrlWithoutLang(url string) string {
+	if IsAttorneyPath(url) {
+		return "/attorney/" + d.LpaID + url
+	}
+
+	if IsCertificateProviderPath(url) {
+		return "/certificate-provider/" + d.LpaID + url
+	}
+
 	if IsLpaPath(url) {
 		return "/lpa/" + d.LpaID + url
 	}

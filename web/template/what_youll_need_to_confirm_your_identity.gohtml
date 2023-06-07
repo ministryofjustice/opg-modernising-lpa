@@ -9,7 +9,7 @@
 
       {{ trHtml .App "whatYoullNeedToConfirmYourIdentityContent" }}
 
-      {{ if eq .App.Page .App.Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity }}
+      {{ if eq .App.Page .App.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity }}
         <a class="govuk-button govuk-!-margin-top-4" href="{{ link .App .App.Paths.CertificateProviderSelectYourIdentityOptions }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
       {{ else }}
         <div class="govuk-button-group govuk-!-margin-top-4">

@@ -24,7 +24,7 @@ func YotiRedirect(logger Logger, store sesh.Store) http.HandlerFunc {
 
 		redirect := Paths.IdentityWithYotiCallback
 		if yotiSession.CertificateProvider {
-			redirect = Paths.CertificateProviderIdentityWithYotiCallback
+			redirect = Paths.CertificateProvider.IdentityWithYotiCallback
 		}
 		appData.Redirect(w, r, nil, redirect+"?"+r.URL.RawQuery)
 	}
