@@ -5,7 +5,7 @@ on:
     outputs:
       changes_detected:
         description: "Boolean value for changes detected in /app, /web and /lang"
-        value: ${{ jobs.compare_changes.outputs.changes_detected }}
+        value: true
 
 jobs:
   compare_changes:
