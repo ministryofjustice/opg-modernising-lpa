@@ -32,13 +32,16 @@ jobs:
     needs: detect_changes
     uses: ./.github/workflows/tags_job.yml
     with:
-      changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
+      changes_detected: 'true'
 
   go_unit_tests:
     name: Run Go unit tests
-    if: needs.detect_changes.outputs.changes_detected == 'true'
     needs: create_tags
     uses: ./.github/workflows/go-unit-tests.yml
+    with:
+      tag: ${{ needs.create_tags.outputs.version_tag }}
+    secrets:
+      pact_broker_password: ${{ secrets.PACT_BROKER_PASSWORD }}
 
   docker_build_scan_push:
     name: Docker Build, Scan and Push
