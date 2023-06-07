@@ -45,30 +45,24 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 					}
 				}
 
-				session, err := sesh.Attorney(sessionStore, r)
+				session, err := sesh.Login(sessionStore, r)
 				if err != nil {
-					return err
-				}
-				session.LpaID = shareCode.LpaID
-				session.AttorneyID = shareCode.AttorneyID
-				session.IsReplacementAttorney = shareCode.IsReplacementAttorney
-
-				if err := sesh.SetAttorney(sessionStore, r, w, session); err != nil {
 					return err
 				}
 
 				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
 					SessionID: base64.StdEncoding.EncodeToString([]byte(session.Sub)),
-					LpaID:     session.LpaID,
+					LpaID:     shareCode.LpaID,
 				})
 
-				if _, err := attorneyStore.Create(ctx, session.IsReplacementAttorney); err != nil {
+				if _, err := attorneyStore.Create(ctx, shareCode.AttorneyID, shareCode.IsReplacementAttorney); err != nil {
 					var ccf *types.ConditionalCheckFailedException
 					if !errors.As(err, &ccf) {
 						return err
 					}
 				}
 
+				appData.LpaID = shareCode.LpaID
 				return appData.Redirect(w, r, nil, page.Paths.Attorney.CodeOfConduct)
 			}
 		}

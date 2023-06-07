@@ -9,7 +9,6 @@ import (
 )
 
 type AppData struct {
-	ServiceName      string
 	Page             string
 	Path             string
 	Query            string
@@ -56,6 +55,14 @@ func (d AppData) BuildUrl(url string) string {
 }
 
 func (d AppData) BuildUrlWithoutLang(url string) string {
+	if IsAttorneyPath(url) {
+		return "/attorney/" + d.LpaID + url
+	}
+
+	if IsCertificateProviderPath(url) {
+		return "/certificate-provider/" + d.LpaID + url
+	}
+
 	if IsLpaPath(url) {
 		return "/lpa/" + d.LpaID + url
 	}

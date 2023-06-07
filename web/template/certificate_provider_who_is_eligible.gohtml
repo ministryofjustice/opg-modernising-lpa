@@ -38,7 +38,7 @@
 
         {{ template "warning" (warning .App "ifAnyStatementsApplyYouCannotBeACertificateProvider") }}
 
-        <a class="govuk-button" href="{{ link .App .App.Paths.CertificateProviderLogin }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
+        <a class="govuk-button" href="{{ link .App .App.Paths.CertificateProvider.Login }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
     </div>
 </div>
 {{ end }}
