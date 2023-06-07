@@ -14,9 +14,10 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func All(tag string) map[string]any {
+func All(tag, region string) map[string]any {
 	return map[string]any{
 		"buildTag":           func() string { return tag },
+		"awsRegion":          func() string { return region },
 		"isEnglish":          isEnglish,
 		"isWelsh":            isWelsh,
 		"input":              input,
