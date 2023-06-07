@@ -116,6 +116,30 @@ func TestAppDataRedirectWhenCanGoTo(t *testing.T) {
 	}
 }
 
+func TestRedirectCtx(t *testing.T) {
+	ctx := ContextWithSessionData(context.Background(), &SessionData{LpaID: "lpa-id"})
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+
+	AppData{Lang: localize.En}.RedirectCtx(ctx, w, r, Paths.Attorney.CheckYourName)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "/attorney/lpa-id"+Paths.Attorney.CheckYourName, resp.Header.Get("Location"))
+}
+
+func TestRedirectCtxFrom(t *testing.T) {
+	ctx := ContextWithSessionData(context.Background(), &SessionData{LpaID: "lpa-id"})
+	r, _ := http.NewRequest(http.MethodGet, "/?from="+Paths.CertificateProvider.CheckYourName, nil)
+	w := httptest.NewRecorder()
+
+	AppData{Lang: localize.En}.RedirectCtx(ctx, w, r, Paths.Attorney.CheckYourName)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "/certificate-provider/lpa-id"+Paths.CertificateProvider.CheckYourName, resp.Header.Get("Location"))
+}
+
 func TestAppDataBuildUrl(t *testing.T) {
 	type test struct {
 		language string

@@ -33,21 +33,6 @@ func (m *mockSessionStore) ExpectGet(r *http.Request, values map[any]any, err er
 		Return(session, err)
 }
 
-func (m *mockSessionStore) ExpectSet(r *http.Request, w http.ResponseWriter, values map[any]any, err error) {
-	savedSession := sessions.NewSession(m, "session")
-	savedSession.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	savedSession.Values = values
-	m.
-		On("Save", r, w, savedSession).
-		Return(err)
-}
-
 func TestGetEnterReferenceNumber(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
@@ -95,16 +80,16 @@ func TestGetEnterReferenceNumberOnTemplateError(t *testing.T) {
 func TestPostEnterReferenceNumber(t *testing.T) {
 	testcases := map[string]struct {
 		shareCode     actor.ShareCodeData
-		session       *sesh.AttorneySession
+		session       *sesh.LoginSession
 		isReplacement bool
 	}{
 		"attorney": {
 			shareCode: actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyID: "attorney-id"},
-			session:   &sesh.AttorneySession{Sub: "hey", LpaID: "lpa-id", AttorneyID: "attorney-id"},
+			session:   &sesh.LoginSession{Sub: "hey"},
 		},
 		"replacement attorney": {
 			shareCode:     actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyID: "attorney-id", IsReplacementAttorney: true},
-			session:       &sesh.AttorneySession{Sub: "hey", LpaID: "lpa-id", AttorneyID: "attorney-id", IsReplacementAttorney: true},
+			session:       &sesh.LoginSession{Sub: "hey"},
 			isReplacement: true,
 		},
 	}
@@ -130,16 +115,13 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 					session, _ := page.SessionDataFromContext(ctx)
 
 					return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-				}), tc.isReplacement).
+				}), "attorney-id", tc.isReplacement).
 				Return(&actor.AttorneyProvidedDetails{}, nil)
 
 			sessionStore := newMockSessionStore(t)
 			sessionStore.
 				ExpectGet(r,
-					map[any]any{"attorney": &sesh.AttorneySession{Sub: "hey"}}, nil)
-			sessionStore.
-				ExpectSet(r, w, map[any]any{"attorney": tc.session},
-					nil)
+					map[any]any{"session": &sesh.LoginSession{Sub: "hey"}}, nil)
 
 			err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, attorneyStore)(testAppData, w, r)
 
@@ -224,41 +206,11 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		ExpectGet(r,
-			map[any]any{"attorney": &sesh.AttorneySession{Sub: "hey"}}, expectedError)
+			map[any]any{"session": &sesh.LoginSession{Sub: "hey"}}, expectedError)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, nil)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
-}
-
-func TestPostEnterReferenceNumberOnSessionSetError(t *testing.T) {
-	form := url.Values{
-		"reference-number": {"aRefNumber12"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.
-		On("Get", r.Context(), actor.TypeAttorney, "aRefNumber12").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", Identity: true}, nil)
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		ExpectGet(r,
-			map[any]any{"attorney": &sesh.AttorneySession{Sub: "hey"}}, nil)
-	sessionStore.
-		ExpectSet(r, w, map[any]any{"attorney": &sesh.AttorneySession{Sub: "hey", LpaID: "lpa-id"}},
-			expectedError)
-
-	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, nil)(testAppData, w, r)
-
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
@@ -277,16 +229,13 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.
-		On("Create", mock.Anything, false).
+		On("Create", mock.Anything, mock.Anything, false).
 		Return(&actor.AttorneyProvidedDetails{}, expectedError)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		ExpectGet(r,
-			map[any]any{"attorney": &sesh.AttorneySession{Sub: "hey"}}, nil)
-	sessionStore.
-		ExpectSet(r, w, map[any]any{"attorney": &sesh.AttorneySession{Sub: "hey", LpaID: "lpa-id"}},
-			nil)
+			map[any]any{"session": &sesh.LoginSession{Sub: "hey"}}, nil)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, attorneyStore)(testAppData, w, r)
 

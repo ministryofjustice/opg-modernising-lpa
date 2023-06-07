@@ -35,7 +35,7 @@ func TestLoginCallback(t *testing.T) {
 		Secure:   true,
 	}
 	session.Values = map[any]any{
-		"donor": &sesh.DonorSession{IDToken: "id-token", Sub: "random", Email: "name@example.com"},
+		"session": &sesh.LoginSession{IDToken: "id-token", Sub: "random", Email: "name@example.com"},
 	}
 
 	sessionStore.

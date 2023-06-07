@@ -35,17 +35,16 @@ func TestMakeHandle(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &sesh.DonorSession{Sub: "random"}}}, nil)
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, sessionStore, None, nil)
 	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
-			ServiceName: "serviceName",
-			Page:        "/path",
-			CanGoBack:   true,
-			SessionID:   "cmFuZG9t",
-			ActorType:   actor.TypeDonor,
+			Page:      "/path",
+			CanGoBack: true,
+			SessionID: "cmFuZG9t",
+			ActorType: actor.TypeDonor,
 		}, appData)
 		assert.Equal(t, w, hw)
 
@@ -70,18 +69,17 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &sesh.DonorSession{Sub: "random"}}}, nil)
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, sessionStore, None, nil)
 	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
-			ServiceName: "serviceName",
-			Page:        "/path",
-			SessionID:   "cmFuZG9t",
-			CanGoBack:   true,
-			LpaID:       "123",
-			ActorType:   actor.TypeDonor,
+			Page:      "/path",
+			SessionID: "cmFuZG9t",
+			CanGoBack: true,
+			LpaID:     "123",
+			ActorType: actor.TypeDonor,
 		}, appData)
 		assert.Equal(t, w, hw)
 
@@ -109,7 +107,7 @@ func TestMakeHandleErrors(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"donor": &sesh.DonorSession{Sub: "random"}}}, nil)
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, sessionStore, None, errorHandler.Execute)
@@ -147,7 +145,7 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{}}, nil)
+		Return(&sessions.Session{Values: map[any]any{}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, sessionStore, None, nil)
@@ -168,12 +166,11 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	handle := makeHandle(mux, nil, None, nil)
 	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
-			ServiceName: "serviceName",
-			Page:        "/path",
-			ActorType:   actor.TypeDonor,
+			Page:      "/path",
+			ActorType: actor.TypeDonor,
 		}, appData)
 		assert.Equal(t, w, hw)
-		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{ServiceName: "serviceName", Page: "/path", ActorType: actor.TypeDonor})), hr)
+		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{Page: "/path", ActorType: actor.TypeDonor})), hr)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -182,37 +179,4 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
-}
-
-func TestRouteToLpa(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/lpa/123/somewhere%2Fwhat", nil)
-
-	routeToLpa(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		assert.Equal(t, "/somewhere/what", r.URL.Path)
-		assert.Equal(t, "/somewhere%2Fwhat", r.URL.RawPath)
-
-		w.WriteHeader(http.StatusTeapot)
-	}), nil).ServeHTTP(w, r)
-
-	res := w.Result()
-
-	assert.Equal(t, http.StatusTeapot, res.StatusCode)
-}
-
-func TestRouteToLpaWithoutID(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/lpa/", nil)
-
-	notFoundHandler := newMockHandler(t)
-	notFoundHandler.
-		On("Execute", page.AppData{}, w, r).
-		Return(nil)
-
-	routeToLpa(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusTeapot)
-	}), notFoundHandler.Execute).ServeHTTP(w, r)
-
-	res := w.Result()
-	assert.Equal(t, http.StatusOK, res.StatusCode)
 }

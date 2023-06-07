@@ -182,7 +182,7 @@ func TestPostYourDetails(t *testing.T) {
 			sessionStore := newMockSessionStore(t)
 			sessionStore.
 				On("Get", r, "session").
-				Return(&sessions.Session{Values: map[any]any{"donor": &sesh.DonorSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
+				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 			err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r)
 			resp := w.Result()
@@ -236,7 +236,7 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[any]any{"donor": &sesh.DonorSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
@@ -322,7 +322,7 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 			sessionStore := newMockSessionStore(t)
 			sessionStore.
 				On("Get", mock.Anything, "session").
-				Return(&sessions.Session{Values: map[any]any{"donor": &sesh.DonorSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
+				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 			err := YourDetails(template.Execute, donorStore, sessionStore)(testAppData, w, r)
 			resp := w.Result()
@@ -362,7 +362,7 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", mock.Anything, "session").
-		Return(&sessions.Session{Values: map[any]any{"donor": &sesh.DonorSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r)
 
@@ -375,7 +375,7 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 		error   error
 	}{
 		"store error": {
-			session: &sessions.Session{Values: map[any]any{"donor": &sesh.DonorSession{Sub: "xyz", Email: "name@example.com"}}},
+			session: &sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}},
 			error:   expectedError,
 		},
 		"missing donor session": {
@@ -383,7 +383,7 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 			error:   nil,
 		},
 		"missing email": {
-			session: &sessions.Session{Values: map[any]any{"donor": &sesh.DonorSession{Sub: "xyz"}}},
+			session: &sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz"}}},
 			error:   nil,
 		},
 	}

@@ -8,6 +8,7 @@ import (
 )
 
 type AttorneyProvidedDetails struct {
+	ID            string
 	LpaID         string
 	UpdatedAt     time.Time
 	IsReplacement bool

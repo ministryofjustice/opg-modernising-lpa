@@ -5,8 +5,6 @@ import (
 	"encoding/base64"
 	"io"
 	"net/http"
-	"net/url"
-	"strings"
 	"time"
 
 	"github.com/gorilla/sessions"
@@ -140,9 +138,7 @@ func Register(
 		Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, certificateProviderStore))
 
 	lpaMux := http.NewServeMux()
-
-	rootMux.Handle("/lpa/", routeToLpa(lpaMux, notFoundHandler))
-
+	rootMux.Handle("/lpa/", page.RouteToPrefix("/lpa/", lpaMux, notFoundHandler))
 	handleLpa := makeHandle(lpaMux, sessionStore, RequireSession, errorHandler)
 
 	handleLpa(page.Paths.Root, None, notFoundHandler)
@@ -302,13 +298,12 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, 
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
-			appData.ServiceName = "serviceName"
 			appData.Page = path
 			appData.CanGoBack = opt&CanGoBack != 0
 			appData.ActorType = actor.TypeDonor
 
 			if opt&RequireSession != 0 {
-				donorSession, err := sesh.Donor(store, r)
+				donorSession, err := sesh.Login(store, r)
 				if err != nil {
 					http.Redirect(w, r, page.Paths.Start, http.StatusFound)
 					return
@@ -332,30 +327,5 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, 
 				errorHandler(w, r, err)
 			}
 		})
-	}
-}
-
-func routeToLpa(mux http.Handler, notFoundHandler page.Handler) http.HandlerFunc {
-	const prefixLength = len("/lpa/")
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		parts := strings.SplitN(r.URL.Path, "/", 4)
-		if len(parts) != 4 {
-			notFoundHandler(page.AppDataFromContext(r.Context()), w, r)
-			return
-		}
-
-		id, path := parts[2], "/"+parts[3]
-
-		r2 := new(http.Request)
-		*r2 = *r
-		r2.URL = new(url.URL)
-		*r2.URL = *r.URL
-		r2.URL.Path = path
-		if len(r.URL.RawPath) > prefixLength+len(id) {
-			r2.URL.RawPath = r.URL.RawPath[prefixLength+len(id):]
-		}
-
-		mux.ServeHTTP(w, r2.WithContext(page.ContextWithSessionData(r2.Context(), &page.SessionData{LpaID: id})))
 	}
 }
