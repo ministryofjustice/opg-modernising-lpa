@@ -9,7 +9,6 @@ import (
 )
 
 type AppData struct {
-	ServiceName      string
 	Page             string
 	Path             string
 	Query            string

@@ -38,11 +38,10 @@ func TestLoginCallback(t *testing.T) {
 		Secure:   true,
 	}
 	session.Values = map[any]any{
-		"certificate-provider": &sesh.CertificateProviderSession{
+		"session": &sesh.LoginSession{
 			IDToken: "id-token",
 			Sub:     "random",
 			Email:   "name@example.com",
-			LpaID:   "lpa-id",
 		},
 	}
 
@@ -105,11 +104,10 @@ func TestLoginCallbackWhenCertificateProviderExists(t *testing.T) {
 		Secure:   true,
 	}
 	session.Values = map[any]any{
-		"certificate-provider": &sesh.CertificateProviderSession{
+		"session": &sesh.LoginSession{
 			IDToken: "id-token",
 			Sub:     "random",
 			Email:   "name@example.com",
-			LpaID:   "lpa-id",
 		},
 	}
 
@@ -273,11 +271,10 @@ func TestLoginCallbackOnCertificateProviderStoreError(t *testing.T) {
 		Secure:   true,
 	}
 	session.Values = map[any]any{
-		"certificate-provider": &sesh.CertificateProviderSession{
+		"session": &sesh.LoginSession{
 			IDToken: "id-token",
 			Sub:     "random",
 			Email:   "name@example.com",
-			LpaID:   "lpa-id",
 		},
 	}
 

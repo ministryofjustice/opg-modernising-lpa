@@ -5,8 +5,6 @@ import (
 	"encoding/base64"
 	"io"
 	"net/http"
-	"net/url"
-	"strings"
 	"time"
 
 	"github.com/gorilla/sessions"
@@ -101,7 +99,7 @@ func Register(
 		LoginCallback(oneLoginClient, sessionStore, certificateProviderStore))
 
 	certificateProviderMux := http.NewServeMux()
-	rootMux.Handle("/certificate-provider/", routeToPrefix("/certificate-provider/", certificateProviderMux, notFoundHandler))
+	rootMux.Handle("/certificate-provider/", page.RouteToPrefix("/certificate-provider/", certificateProviderMux, notFoundHandler))
 	handleCertificateProvider := makeHandle(certificateProviderMux, sessionStore, errorHandler)
 
 	handleCertificateProvider(page.Paths.CertificateProvider.CheckYourName, RequireSession,
@@ -169,53 +167,33 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
-			appData.ServiceName = "beACertificateProvider"
 			appData.Page = path
 			appData.CanGoBack = opt&CanGoBack != 0
 			appData.ActorType = actor.TypeCertificateProvider
 
 			if opt&RequireSession != 0 {
-				session, err := sesh.CertificateProvider(store, r)
+				session, err := sesh.Login(store, r)
 				if err != nil {
 					http.Redirect(w, r, page.Paths.CertificateProviderStart, http.StatusFound)
 					return
 				}
 
 				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
-				appData.LpaID = session.LpaID
 
-				ctx = page.ContextWithSessionData(ctx, &page.SessionData{
-					SessionID: appData.SessionID,
-					LpaID:     appData.LpaID,
-				})
+				sessionData, err := page.SessionDataFromContext(ctx)
+				if err == nil {
+					sessionData.SessionID = appData.SessionID
+					ctx = page.ContextWithSessionData(ctx, sessionData)
+
+					appData.LpaID = sessionData.LpaID
+				} else {
+					ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+				}
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)
 			}
 		})
-	}
-}
-
-func routeToPrefix(prefix string, mux http.Handler, notFoundHandler page.Handler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		parts := strings.SplitN(r.URL.Path, "/", 4)
-		if len(parts) != 4 {
-			notFoundHandler(page.AppDataFromContext(r.Context()), w, r)
-			return
-		}
-
-		id, path := parts[2], "/"+parts[3]
-
-		r2 := new(http.Request)
-		*r2 = *r
-		r2.URL = new(url.URL)
-		*r2.URL = *r.URL
-		r2.URL.Path = path
-		if len(r.URL.RawPath) > len(prefix)+len(id) {
-			r2.URL.RawPath = r.URL.RawPath[len(prefix)+len(id):]
-		}
-
-		mux.ServeHTTP(w, r2.WithContext(page.ContextWithSessionData(r2.Context(), &page.SessionData{LpaID: id})))
 	}
 }

@@ -35,7 +35,7 @@ func TestMakeHandle(t *testing.T) {
 		On("Get", r, "session").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"certificate-provider": &sesh.CertificateProviderSession{Sub: "random", LpaID: "lpa-id"},
+				"session": &sesh.LoginSession{Sub: "random"},
 			},
 		}, nil)
 
@@ -43,18 +43,16 @@ func TestMakeHandle(t *testing.T) {
 	handle := makeHandle(mux, sessionStore, nil)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
-			ServiceName: "beACertificateProvider",
-			Page:        "/path",
-			SessionID:   base64.StdEncoding.EncodeToString([]byte("random")),
-			LpaID:       "lpa-id",
-			CanGoBack:   false,
-			ActorType:   actor.TypeCertificateProvider,
+			Page:      "/path",
+			SessionID: base64.StdEncoding.EncodeToString([]byte("random")),
+			CanGoBack: false,
+			ActorType: actor.TypeCertificateProvider,
 		}, appData)
 		assert.Equal(t, w, hw)
 
 		sessionData, _ := page.SessionDataFromContext(hr.Context())
 
-		assert.Equal(t, &page.SessionData{SessionID: base64.StdEncoding.EncodeToString([]byte("random")), LpaID: "lpa-id"}, sessionData)
+		assert.Equal(t, &page.SessionData{SessionID: base64.StdEncoding.EncodeToString([]byte("random"))}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -73,24 +71,23 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[any]any{"certificate-provider": &sesh.CertificateProviderSession{Sub: "random", LpaID: "lpa-id"}}}, nil)
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, sessionStore, nil)
 	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
-			ServiceName: "beACertificateProvider",
-			Page:        "/path",
-			SessionID:   base64.StdEncoding.EncodeToString([]byte("random")),
-			CanGoBack:   true,
-			LpaID:       "lpa-id",
-			ActorType:   actor.TypeCertificateProvider,
+			Page:      "/path",
+			SessionID: base64.StdEncoding.EncodeToString([]byte("random")),
+			CanGoBack: true,
+			LpaID:     "ignored-123",
+			ActorType: actor.TypeCertificateProvider,
 		}, appData)
 		assert.Equal(t, w, hw)
 
 		sessionData, _ := page.SessionDataFromContext(hr.Context())
 
-		assert.Equal(t, &page.SessionData{LpaID: "lpa-id", SessionID: base64.StdEncoding.EncodeToString([]byte("random"))}, sessionData)
+		assert.Equal(t, &page.SessionData{LpaID: "ignored-123", SessionID: base64.StdEncoding.EncodeToString([]byte("random"))}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -166,12 +163,11 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	handle := makeHandle(mux, nil, nil)
 	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
-			ServiceName: "beACertificateProvider",
-			Page:        "/path",
-			ActorType:   actor.TypeCertificateProvider,
+			Page:      "/path",
+			ActorType: actor.TypeCertificateProvider,
 		}, appData)
 		assert.Equal(t, w, hw)
-		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{ServiceName: "beACertificateProvider", Page: "/path", ActorType: actor.TypeCertificateProvider})), hr)
+		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{Page: "/path", ActorType: actor.TypeCertificateProvider})), hr)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})

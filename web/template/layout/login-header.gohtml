@@ -90,25 +90,25 @@
     <div class="govuk-width-container">
       <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-          <h2 class="service-header__heading">{{ tr .App .App.ServiceName }}</h2>
+          <h2 class="service-header__heading">{{ tr .App "serviceName" }}</h2>
         </div>
         <div class="govuk-grid-column-one-third">
           <button type="button"
                   aria-controls="service-header__nav"
                   data-open-class="cross-service-header__button--open"
-                  aria-label="{{ trFormat .App "showServiceNameNavigationMenu" "ServiceName" (tr .App .App.ServiceName) }}"
-                  data-label-for-show="{{ trFormat .App "showServiceNameNavigationMenu" "ServiceName" (tr .App .App.ServiceName) }}"
-                  data-label-for-hide="{{ trFormat .App "hideServiceNameNavigationMenu" "ServiceName" (tr .App .App.ServiceName) }}"
+                  aria-label="{{ trFormat .App "showServiceNameNavigationMenu" "ServiceName" (tr .App "serviceName") }}"
+                  data-label-for-show="{{ trFormat .App "showServiceNameNavigationMenu" "ServiceName" (tr .App "serviceName") }}"
+                  data-label-for-hide="{{ trFormat .App "hideServiceNameNavigationMenu" "ServiceName" (tr .App "serviceName") }}"
                   data-text-for-show="{{ tr .App "menu" }}"
                   data-text-for-hide="{{ tr .App "close" }}"
                   aria-expanded="false"
                   class="cross-service-header__button cross-service-header__button--service-header js-x-header-toggle">
             <span class="service-header__button-content">{{ tr .App "menu" }}</span>
           </button>
-          <nav aria-label="{{ trFormat .App "serviceNameNavigationMenu" "ServiceName" (tr .App .App.ServiceName) }}">
+          <nav aria-label="{{ trFormat .App "serviceNameNavigationMenu" "ServiceName" (tr .App "serviceName") }}">
             <ul class="service-header__nav-list service-header__nav" id="service-header__nav" data-open-class="service-header__nav--open">
               <li class="service-header__nav-list-item service-header__nav-list-item--active">
-                <a class="service-header__nav-list-item-link" aria-current="page" href="#">{{ tr .App "manageYourLpas" }}</a>
+                <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App .App.Paths.Dashboard }}">{{ tr .App "manageYourLpas" }}</a>
               </li>
               <li class="service-header__nav-list-item"><a class="service-header__nav-list-item-link" href="#">{{ tr .App "helpAndSupport" }}</a></li>
             </ul>
