@@ -20,7 +20,6 @@ on:
 
 jobs:
   create_tags:
-    if : ${{ inputs.changes_detected == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
