@@ -14,7 +14,6 @@ on:
       aws_secret_access_key:
         description: 'AWS Secret Access Key'
         required: true
-
 jobs:
   terraform_account_workflow:
     runs-on: ubuntu-latest
