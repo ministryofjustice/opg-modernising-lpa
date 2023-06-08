@@ -85,10 +85,6 @@ provider "aws" {
   }
 }
 
-provider "pagerduty" {
-  token = var.pagerduty_api_key
-}
-
 data "aws_region" "eu_west_1" {
   provider = aws.eu_west_1
 }
