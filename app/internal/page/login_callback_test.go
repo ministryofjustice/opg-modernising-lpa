@@ -1,4 +1,4 @@
-package donor
+package page
 
 import (
 	"net/http"
@@ -7,9 +7,9 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestLoginCallback(t *testing.T) {
@@ -35,7 +35,11 @@ func TestLoginCallback(t *testing.T) {
 		Secure:   true,
 	}
 	session.Values = map[any]any{
-		"donor": &sesh.DonorSession{IDToken: "id-token", Sub: "random", Email: "name@example.com"},
+		"session": &sesh.LoginSession{
+			IDToken: "id-token",
+			Sub:     "random",
+			Email:   "name@example.com",
+		},
 	}
 
 	sessionStore.
@@ -43,9 +47,10 @@ func TestLoginCallback(t *testing.T) {
 		Return(&sessions.Session{
 			Values: map[any]any{
 				"one-login": &sesh.OneLoginSession{
-					State:  "my-state",
-					Nonce:  "my-nonce",
-					Locale: "en",
+					State:    "my-state",
+					Nonce:    "my-nonce",
+					Locale:   "en",
+					Redirect: "/redirect",
 				},
 			},
 		}, nil)
@@ -53,12 +58,12 @@ func TestLoginCallback(t *testing.T) {
 		On("Save", r, w, session).
 		Return(nil)
 
-	err := LoginCallback(client, sessionStore)(testAppData, w, r)
+	err := LoginCallback(client, sessionStore, Paths.Attorney.EnterReferenceNumber)(AppData{}, w, r)
 	assert.Nil(t, err)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Dashboard, resp.Header.Get("Location"))
+	assert.Equal(t, Paths.Attorney.EnterReferenceNumber, resp.Header.Get("Location"))
 }
 
 func TestLoginCallbackSessionMissing(t *testing.T) {
@@ -109,7 +114,7 @@ func TestLoginCallbackSessionMissing(t *testing.T) {
 				On("Get", r, "params").
 				Return(tc.session, tc.getErr)
 
-			err := LoginCallback(nil, sessionStore)(testAppData, w, r)
+			err := LoginCallback(nil, sessionStore, Paths.Attorney.LoginCallback)(AppData{}, w, r)
 			assert.Equal(t, tc.expectedErr, err)
 		})
 	}
@@ -129,11 +134,11 @@ func TestLoginCallbackWhenExchangeErrors(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en"},
+				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", Redirect: Paths.LoginCallback},
 			},
 		}, nil)
 
-	err := LoginCallback(client, sessionStore)(testAppData, w, r)
+	err := LoginCallback(client, sessionStore, Paths.LoginCallback)(AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -154,10 +159,43 @@ func TestLoginCallbackWhenUserInfoError(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en"},
+				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", Redirect: Paths.LoginCallback},
 			},
 		}, nil)
 
-	err := LoginCallback(client, sessionStore)(testAppData, w, r)
+	err := LoginCallback(client, sessionStore, Paths.LoginCallback)(AppData{}, w, r)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestLoginCallbackWhenSessionError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
+
+	client := newMockOneLoginClient(t)
+	client.
+		On("Exchange", r.Context(), "auth-code", "my-nonce").
+		Return("id-token", "a JWT", nil)
+	client.
+		On("UserInfo", r.Context(), "a JWT").
+		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{
+			Values: map[any]any{
+				"one-login": &sesh.OneLoginSession{
+					State:    "my-state",
+					Nonce:    "my-nonce",
+					Locale:   "en",
+					Redirect: Paths.LoginCallback,
+				},
+			},
+		}, nil)
+	sessionStore.
+		On("Save", r, w, mock.Anything).
+		Return(expectedError)
+
+	err := LoginCallback(client, sessionStore, Paths.LoginCallback)(AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }

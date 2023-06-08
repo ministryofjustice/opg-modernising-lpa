@@ -34,7 +34,7 @@ func TestIdentityWithOneLogin(t *testing.T) {
 		Secure:   true,
 	}
 	session.Values = map[any]any{
-		"one-login": &sesh.OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "cy", CertificateProvider: true, Identity: true},
+		"one-login": &sesh.OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "cy", Redirect: page.Paths.CertificateProvider.IdentityWithOneLoginCallback},
 	}
 
 	sessionStore.

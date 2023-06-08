@@ -21,11 +21,10 @@ func IdentityWithOneLogin(logger Logger, oneLoginClient OneLoginClient, store se
 		authCodeURL := oneLoginClient.AuthCodeURL(state, nonce, locale, true)
 
 		if err := sesh.SetOneLogin(store, r, w, &sesh.OneLoginSession{
-			State:               state,
-			Nonce:               nonce,
-			Locale:              locale,
-			CertificateProvider: true,
-			Identity:            true,
+			State:    state,
+			Nonce:    nonce,
+			Locale:   locale,
+			Redirect: page.Paths.CertificateProvider.IdentityWithOneLoginCallback,
 		}); err != nil {
 			logger.Print(err)
 			return nil

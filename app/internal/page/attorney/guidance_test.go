@@ -25,7 +25,7 @@ func TestGuidance(t *testing.T) {
 		On("Execute", w, &guidanceData{App: testAppData, Lpa: lpa}).
 		Return(nil)
 
-	err := Guidance(template.Execute, donorStore)(testAppData, w, r)
+	err := Guidance(template.Execute, donorStore)(testAppData, w, r, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -42,7 +42,7 @@ func TestGuidanceWhenNilDataStores(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := Guidance(template.Execute, nil)(testAppData, w, r)
+	err := Guidance(template.Execute, nil)(testAppData, w, r, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -60,7 +60,7 @@ func TestGuidanceWhenDonorStoreErrors(t *testing.T) {
 		On("GetAny", r.Context()).
 		Return(lpa, expectedError)
 
-	err := Guidance(nil, donorStore)(testAppData, w, r)
+	err := Guidance(nil, donorStore)(testAppData, w, r, nil)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -79,7 +79,7 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, &guidanceData{App: testAppData, Lpa: &page.Lpa{}}).
 		Return(expectedError)
 
-	err := Guidance(template.Execute, donorStore)(testAppData, w, r)
+	err := Guidance(template.Execute, donorStore)(testAppData, w, r, nil)
 
 	assert.Equal(t, expectedError, err)
 }

@@ -42,7 +42,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 		On("Get", mock.Anything, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce"},
+				"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"},
 			},
 		}, nil)
 
@@ -98,7 +98,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			On("Get", mock.Anything, "params").
 			Return(&sessions.Session{
 				Values: map[any]any{
-					"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce"},
+					"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"},
 				},
 			}, nil)
 		return sessionStore
@@ -244,7 +244,7 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDonorStoreError(t *testing.T) {
 		On("Get", mock.Anything, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce"},
+				"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"},
 			},
 		}, nil)
 

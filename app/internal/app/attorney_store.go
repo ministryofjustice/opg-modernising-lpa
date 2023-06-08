@@ -14,7 +14,7 @@ type attorneyStore struct {
 	now       func() time.Time
 }
 
-func (s *attorneyStore) Create(ctx context.Context, isReplacement bool) (*actor.AttorneyProvidedDetails, error) {
+func (s *attorneyStore) Create(ctx context.Context, attorneyID string, isReplacement bool) (*actor.AttorneyProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -26,7 +26,7 @@ func (s *attorneyStore) Create(ctx context.Context, isReplacement bool) (*actor.
 
 	pk, sk := makeAttorneyKeys(data.LpaID, data.SessionID)
 
-	attorney := &actor.AttorneyProvidedDetails{LpaID: data.LpaID, UpdatedAt: s.now(), IsReplacement: isReplacement}
+	attorney := &actor.AttorneyProvidedDetails{ID: attorneyID, LpaID: data.LpaID, UpdatedAt: s.now(), IsReplacement: isReplacement}
 	err = s.dataStore.Create(ctx, pk, sk, attorney)
 
 	return attorney, err

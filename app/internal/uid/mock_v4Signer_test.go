@@ -21,20 +21,20 @@ type mockV4Signer struct {
 	mock.Mock
 }
 
-// SignHTTP provides a mock function with given fields: ctx, credentials, r, payloadHash, service, region, signingTime, optFns
-func (_m *mockV4Signer) SignHTTP(ctx context.Context, credentials aws.Credentials, r *http.Request, payloadHash string, service string, region string, signingTime time.Time, optFns ...func(*v4.SignerOptions)) error {
-	_va := make([]interface{}, len(optFns))
-	for _i := range optFns {
-		_va[_i] = optFns[_i]
+// SignHTTP provides a mock function with given fields: _a0, _a1, _a2, _a3, _a4, _a5, _a6, _a7
+func (_m *mockV4Signer) SignHTTP(_a0 context.Context, _a1 aws.Credentials, _a2 *http.Request, _a3 string, _a4 string, _a5 string, _a6 time.Time, _a7 ...func(*v4.SignerOptions)) error {
+	_va := make([]interface{}, len(_a7))
+	for _i := range _a7 {
+		_va[_i] = _a7[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, ctx, credentials, r, payloadHash, service, region, signingTime)
+	_ca = append(_ca, _a0, _a1, _a2, _a3, _a4, _a5, _a6)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, aws.Credentials, *http.Request, string, string, string, time.Time, ...func(*v4.SignerOptions)) error); ok {
-		r0 = rf(ctx, credentials, r, payloadHash, service, region, signingTime, optFns...)
+		r0 = rf(_a0, _a1, _a2, _a3, _a4, _a5, _a6, _a7...)
 	} else {
 		r0 = ret.Error(0)
 	}

@@ -25,9 +25,9 @@
         {{ $progress := .Lpa.Progress .CertificateProvider }}
 
         {{ if $progress.LpaSigned.Completed }}
-          <a class="govuk-button" href="{{ link .App .App.Paths.ProvideCertificate }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
+          <a class="govuk-button" href="{{ link .App .App.Paths.CertificateProvider.ProvideCertificate }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
         {{ else }}
-          <a class="govuk-button" href="{{ link .App .App.Paths.CertificateProviderWhatHappensNext }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
+          <a class="govuk-button" href="{{ link .App .App.Paths.CertificateProvider.WhatHappensNext }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
         {{ end }}
       </p>
     </div>
