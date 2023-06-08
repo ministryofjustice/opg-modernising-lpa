@@ -61,8 +61,6 @@ jobs:
           go test ./... -race -covermode=atomic -coverprofile=coverage.out
 
       - name: Publish pacts
-        env:
-          GITHUB_CONTEXT: ${{ toJSON(github) }}
         run: |
           pact-broker publish ./internal/uid/pacts/modernising-lpa-data-lpa-uid.json \
             --consumer-app-version ${{ inputs.commit_sha }} \
