@@ -389,6 +389,12 @@ func Fixtures(tmpl template.Template) Handler {
 					if data.Form.PeopleToNotify != "" {
 						values.Add("withPeopleToNotify", data.Form.PeopleToNotifyCount)
 					}
+				case "everything":
+					values = url.Values{
+						"completeLpa":             {"1"},
+						"withCertificateProvider": {"1"},
+						"asAttorney":              {"1"},
+					}
 				}
 
 				http.Redirect(w, r, fmt.Sprintf("%s?%s", Paths.TestingStart, values.Encode()), http.StatusFound)

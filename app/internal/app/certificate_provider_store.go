@@ -32,6 +32,24 @@ func (s *certificateProviderStore) Create(ctx context.Context) (*actor.Certifica
 	return cp, err
 }
 
+func (s *certificateProviderStore) GetAll(ctx context.Context) ([]*actor.CertificateProviderProvidedDetails, error) {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.SessionID == "" {
+		return nil, errors.New("certificateProviderStore.GetAll requires SessionID")
+	}
+
+	var details []*actor.CertificateProviderProvidedDetails
+
+	sk := "#CERTIFICATE_PROVIDER#" + data.SessionID
+	err = s.dataStore.GetAllByGsi(ctx, "ActorIndex", sk, &details)
+
+	return details, err
+}
+
 func (s *certificateProviderStore) GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
