@@ -2,11 +2,6 @@ output "workspace_name" {
   value = terraform.workspace
 }
 
-variable "pagerduty_api_key" {
-  type      = string
-  sensitive = true
-}
-
 variable "accounts" {
   type = map(
     object({
