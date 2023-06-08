@@ -14,9 +14,7 @@ on:
       aws_secret_access_key:
         description: 'AWS Secret Access Key'
         required: true
-      pagerduty_api_key:
-        description: 'Pagerduty API Key'
-        required: true
+
 jobs:
   terraform_account_workflow:
     runs-on: ubuntu-latest
@@ -52,7 +50,6 @@ jobs:
       - name: Terraform Plan
         env:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
-          TF_VAR_pagerduty_api_key: ${{ secrets.pagerduty_api_key }}
         run: |
           terraform workspace show
           terraform plan -input=false -parallelism=30
@@ -61,7 +58,6 @@ jobs:
       - name: Terraform Apply
         env:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
-          TF_VAR_pagerduty_api_key: ${{ secrets.pagerduty_api_key }}
         if: github.ref == 'refs/heads/main'
         run: |
           terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30
