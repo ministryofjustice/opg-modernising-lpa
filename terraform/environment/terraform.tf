@@ -99,5 +99,5 @@ provider "aws" {
 }
 
 provider "pagerduty" {
-  token = var.pagerduty_token
+  token = var.pagerduty_api_key
 }

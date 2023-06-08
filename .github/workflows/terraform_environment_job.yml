@@ -44,6 +44,9 @@ on:
       github_access_token:
         description: 'Github Token'
         required: true
+      pagerduty_api_key:
+        description: 'Pagerduty API Key'
+        required: true
 
 permissions:
   pull-requests: write
@@ -92,6 +95,7 @@ jobs:
         id: terraform_plan
         env:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
+          TF_VAR_pagerduty_api_key: ${{ secrets.pagerduty_api_key }}
           TF_VAR_container_version: ${{ inputs.version_tag }}
         run: |
           terraform workspace show
@@ -152,6 +156,7 @@ jobs:
       - name: Terraform Apply
         env:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
+          TF_VAR_pagerduty_api_key: ${{ secrets.pagerduty_api_key }}
           TF_VAR_container_version: ${{ inputs.version_tag }}
         run: |
           terraform apply -var public_access_enabled=${{ inputs.public_access_enabled }} -lock-timeout=300s -input=false -auto-approve -parallelism=30
@@ -167,6 +172,7 @@ jobs:
         id: terraform_outputs
         env:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
+          TF_VAR_pagerduty_api_key: ${{ secrets.pagerduty_api_key }}
           TF_VAR_container_version: ${{ inputs.version_tag }}
         run: |
           echo "workspace_name=$(terraform output -raw workspace_name)" >> $GITHUB_OUTPUT
