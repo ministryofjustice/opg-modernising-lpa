@@ -47,12 +47,11 @@ func TestCertificateProviderLogin(t *testing.T) {
 	}
 	loginSession.Values = map[any]any{
 		"one-login": &sesh.OneLoginSession{
-			State:               "i am random",
-			Nonce:               "i am random",
-			Locale:              "cy",
-			CertificateProvider: true,
-			Identity:            false,
-			LpaID:               "lpa-id",
+			State:    "i am random",
+			Nonce:    "i am random",
+			Locale:   "cy",
+			LpaID:    "lpa-id",
+			Redirect: page.Paths.CertificateProvider.LoginCallback,
 		},
 	}
 
@@ -102,12 +101,11 @@ func TestCertificateProviderLoginDefaultLocale(t *testing.T) {
 	}
 	loginSession.Values = map[any]any{
 		"one-login": &sesh.OneLoginSession{
-			State:               "i am random",
-			Nonce:               "i am random",
-			Locale:              "en",
-			CertificateProvider: true,
-			Identity:            false,
-			LpaID:               "lpa-id",
+			State:    "i am random",
+			Nonce:    "i am random",
+			Locale:   "en",
+			LpaID:    "lpa-id",
+			Redirect: page.Paths.CertificateProvider.LoginCallback,
 		},
 	}
 

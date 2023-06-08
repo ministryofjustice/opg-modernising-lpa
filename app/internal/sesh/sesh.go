@@ -62,31 +62,21 @@ var (
 func init() {
 	gob.Register(&OneLoginSession{})
 	gob.Register(&YotiSession{})
-	gob.Register(&DonorSession{})
-	gob.Register(&CertificateProviderSession{})
-	gob.Register(&AttorneySession{})
+	gob.Register(&LoginSession{})
 	gob.Register(&PaymentSession{})
 	gob.Register(&ShareCodeSession{})
 }
 
 type OneLoginSession struct {
-	State               string
-	Nonce               string
-	Locale              string
-	Identity            bool
-	CertificateProvider bool
-	SessionID           string
-	LpaID               string
-	Attorney            bool
+	State    string
+	Nonce    string
+	Locale   string
+	Redirect string
+	LpaID    string
 }
 
 func (s OneLoginSession) Valid() bool {
-	ok := s.State != "" && s.Nonce != ""
-	if s.CertificateProvider && !s.Identity {
-		ok = ok && s.LpaID != ""
-	}
-
-	return ok
+	return s.State != "" && s.Nonce != "" && s.Redirect != ""
 }
 
 func OneLogin(store sessions.Store, r *http.Request) (*OneLoginSession, error) {
@@ -157,128 +147,46 @@ func SetYoti(store sessions.Store, r *http.Request, w http.ResponseWriter, yotiS
 	return store.Save(r, w, params)
 }
 
-type DonorSession struct {
+type LoginSession struct {
 	IDToken string
 	Sub     string
 	Email   string
 }
 
-func (s DonorSession) Valid() bool {
+func (s LoginSession) Valid() bool {
 	return s.Sub != ""
 }
 
-func Donor(store sessions.Store, r *http.Request) (*DonorSession, error) {
+func Login(store sessions.Store, r *http.Request) (*LoginSession, error) {
 	params, err := store.Get(r, cookieSession)
 	if err != nil {
 		return nil, err
 	}
 
-	session, ok := params.Values["donor"]
+	session, ok := params.Values["session"]
 	if !ok {
-		return nil, MissingSessionError("donor")
+		return nil, MissingSessionError("session")
 	}
 
-	donorSession, ok := session.(*DonorSession)
+	loginSession, ok := session.(*LoginSession)
 	if !ok {
-		return nil, MissingSessionError("donor")
+		return nil, MissingSessionError("session")
 	}
-	if !donorSession.Valid() {
-		return nil, InvalidSessionError("donor")
+	if !loginSession.Valid() {
+		return nil, InvalidSessionError("session")
 	}
 
-	return donorSession, nil
+	return loginSession, nil
 }
 
-func SetDonor(store sessions.Store, r *http.Request, w http.ResponseWriter, donorSession *DonorSession) error {
+func SetLoginSession(store sessions.Store, r *http.Request, w http.ResponseWriter, donorSession *LoginSession) error {
 	session := sessions.NewSession(store, cookieSession)
-	session.Values = map[any]any{"donor": donorSession}
+	session.Values = map[any]any{"session": donorSession}
 	session.Options = sessionCookieOptions
 	return store.Save(r, w, session)
 }
 
-type CertificateProviderSession struct {
-	IDToken string
-	Sub     string
-	Email   string
-	LpaID   string
-}
-
-func (s CertificateProviderSession) Valid() bool {
-	return s.Sub != ""
-}
-
-func CertificateProvider(store sessions.Store, r *http.Request) (*CertificateProviderSession, error) {
-	params, err := store.Get(r, cookieSession)
-	if err != nil {
-		return nil, err
-	}
-
-	session, ok := params.Values["certificate-provider"]
-	if !ok {
-		return nil, MissingSessionError("certificate-provider")
-	}
-
-	certificateProviderSession, ok := session.(*CertificateProviderSession)
-	if !ok {
-		return nil, MissingSessionError("certificate-provider")
-	}
-	if !certificateProviderSession.Valid() {
-		return nil, InvalidSessionError("certificate-provider")
-	}
-
-	return certificateProviderSession, nil
-}
-
-func SetCertificateProvider(store sessions.Store, r *http.Request, w http.ResponseWriter, certificateProviderSession *CertificateProviderSession) error {
-	session := sessions.NewSession(store, cookieSession)
-	session.Values = map[any]any{"certificate-provider": certificateProviderSession}
-	session.Options = sessionCookieOptions
-	return store.Save(r, w, session)
-}
-
-type AttorneySession struct {
-	IDToken               string
-	Sub                   string
-	Email                 string
-	LpaID                 string
-	AttorneyID            string
-	IsReplacementAttorney bool
-}
-
-func (s AttorneySession) Valid() bool {
-	return s.Sub != ""
-}
-
-func Attorney(store sessions.Store, r *http.Request) (*AttorneySession, error) {
-	params, err := store.Get(r, cookieSession)
-	if err != nil {
-		return nil, err
-	}
-
-	session, ok := params.Values["attorney"]
-	if !ok {
-		return nil, MissingSessionError("attorney")
-	}
-
-	attorneySession, ok := session.(*AttorneySession)
-	if !ok {
-		return nil, MissingSessionError("attorney")
-	}
-	if !attorneySession.Valid() {
-		return nil, InvalidSessionError("attorney")
-	}
-
-	return attorneySession, nil
-}
-
-func SetAttorney(store sessions.Store, r *http.Request, w http.ResponseWriter, attorneySession *AttorneySession) error {
-	session := sessions.NewSession(store, cookieSession)
-	session.Values = map[any]any{"attorney": attorneySession}
-	session.Options = sessionCookieOptions
-	return store.Save(r, w, session)
-}
-
-func ClearSession(store Store, r *http.Request, w http.ResponseWriter) error {
+func ClearLoginSession(store Store, r *http.Request, w http.ResponseWriter) error {
 	session, err := store.Get(r, cookieSession)
 	if err != nil {
 		return err

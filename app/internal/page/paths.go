@@ -7,59 +7,64 @@ import (
 )
 
 type AttorneyPaths struct {
-	Start                     string
+	CheckYourName             string
+	CodeOfConduct             string
+	DateOfBirth               string
+	EnterReferenceNumber      string
 	Login                     string
 	LoginCallback             string
-	EnterReferenceNumber      string
-	CodeOfConduct             string
-	TaskList                  string
-	CheckYourName             string
-	DateOfBirth               string
 	MobileNumber              string
-	YourAddress               string
 	ReadTheLpa                string
 	RightsAndResponsibilities string
-	WhatHappensWhenYouSign    string
 	Sign                      string
+	Start                     string
+	TaskList                  string
 	WhatHappensNext           string
+	WhatHappensWhenYouSign    string
+	YourAddress               string
+}
+
+type CertificateProviderPaths struct {
+	CertificateProvided                  string
+	CheckYourName                        string
+	EnterDateOfBirth                     string
+	EnterMobileNumber                    string
+	EnterReferenceNumber                 string
+	IdentityWithBiometricResidencePermit string
+	IdentityWithDrivingLicencePaper      string
+	IdentityWithDrivingLicencePhotocard  string
+	IdentityWithOneLogin                 string
+	IdentityWithOneLoginCallback         string
+	IdentityWithOnlineBankAccount        string
+	IdentityWithPassport                 string
+	IdentityWithYoti                     string
+	IdentityWithYotiCallback             string
+	Login                                string
+	LoginCallback                        string
+	ProvideCertificate                   string
+	ReadTheLpa                           string
+	SelectYourIdentityOptions            string
+	SelectYourIdentityOptions1           string
+	SelectYourIdentityOptions2           string
+	WhatHappensNext                      string
+	WhatYoullNeedToConfirmYourIdentity   string
+	WhoIsEligible                        string
+	YourChosenIdentityOptions            string
 }
 
 type AppPaths struct {
+	Attorney                                                   AttorneyPaths
+	CertificateProvider                                        CertificateProviderPaths
 	AboutPayment                                               string
 	AreYouHappyIfOneAttorneyCantActNoneCan                     string
 	AreYouHappyIfOneReplacementAttorneyCantActNoneCan          string
 	AreYouHappyIfRemainingAttorneysCanContinueToAct            string
 	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct string
-	Attorney                                                   AttorneyPaths
 	AuthRedirect                                               string
-	CertificateProvided                                        string
 	CertificateProviderAddress                                 string
-	CertificateProviderCheckYourName                           string
 	CertificateProviderDetails                                 string
-	CertificateProviderEnterDateOfBirth                        string
-	CertificateProviderEnterMobileNumber                       string
-	CertificateProviderEnterReferenceNumber                    string
-	CertificateProviderIdentityWithBiometricResidencePermit    string
-	CertificateProviderIdentityWithDrivingLicencePaper         string
-	CertificateProviderIdentityWithDrivingLicencePhotocard     string
-	CertificateProviderIdentityWithOneLogin                    string
-	CertificateProviderIdentityWithOneLoginCallback            string
-	CertificateProviderIdentityWithOnlineBankAccount           string
-	CertificateProviderIdentityWithPassport                    string
-	CertificateProviderIdentityWithYoti                        string
-	CertificateProviderIdentityWithYotiCallback                string
-	CertificateProviderLogin                                   string
-	CertificateProviderLoginCallback                           string
 	CertificateProviderOptOut                                  string
-	CertificateProviderReadTheLpa                              string
-	CertificateProviderSelectYourIdentityOptions               string
-	CertificateProviderSelectYourIdentityOptions1              string
-	CertificateProviderSelectYourIdentityOptions2              string
 	CertificateProviderStart                                   string
-	CertificateProviderWhatHappensNext                         string
-	CertificateProviderWhatYoullNeedToConfirmYourIdentity      string
-	CertificateProviderWhoIsEligible                           string
-	CertificateProviderYourChosenIdentityOptions               string
 	CheckYourLpa                                               string
 	ChooseAttorneys                                            string
 	ChooseAttorneysAddress                                     string
@@ -99,7 +104,6 @@ type AppPaths struct {
 	LpaType                                                    string
 	PaymentConfirmation                                        string
 	Progress                                                   string
-	ProvideCertificate                                         string
 	ReadYourLpa                                                string
 	RemoveAttorney                                             string
 	RemovePersonToNotify                                       string
@@ -137,51 +141,54 @@ var Paths = AppPaths{
 	AreYouHappyIfRemainingAttorneysCanContinueToAct:            "/are-you-happy-if-remaining-attorneys-can-continue-to-act",
 	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct: "/are-you-happy-if-remaining-replacement-attorneys-can-continue-to-act",
 	Attorney: AttorneyPaths{
-		Start:                     "/attorney-start",
+		CheckYourName:             "/attorney-check-your-name",
+		CodeOfConduct:             "/attorney-code-of-conduct",
+		DateOfBirth:               "/attorney-date-of-birth",
+		EnterReferenceNumber:      "/attorney-enter-reference-number",
 		Login:                     "/attorney-login",
 		LoginCallback:             "/attorney-login-callback",
-		TaskList:                  "/attorney-task-list",
-		EnterReferenceNumber:      "/attorney-enter-reference-number",
-		CodeOfConduct:             "/attorney-code-of-conduct",
-		CheckYourName:             "/attorney-check-your-name",
-		DateOfBirth:               "/attorney-date-of-birth",
 		MobileNumber:              "/attorney-mobile-number",
-		YourAddress:               "/attorney-your-address",
 		ReadTheLpa:                "/attorney-read-the-lpa",
 		RightsAndResponsibilities: "/attorney-legal-rights-and-responsibilities",
-		WhatHappensWhenYouSign:    "/attorney-what-happens-when-you-sign-the-lpa",
 		Sign:                      "/attorney-sign",
+		Start:                     "/attorney-start",
+		TaskList:                  "/attorney-task-list",
 		WhatHappensNext:           "/attorney-what-happens-next",
+		WhatHappensWhenYouSign:    "/attorney-what-happens-when-you-sign-the-lpa",
+		YourAddress:               "/attorney-your-address",
 	},
-	AuthRedirect:                                            "/auth/redirect",
-	CertificateProvided:                                     "/certificate-provided",
-	CertificateProviderAddress:                              "/certificate-provider-address",
-	CertificateProviderCheckYourName:                        "/certificate-provider-check-your-name",
-	CertificateProviderDetails:                              "/certificate-provider-details",
-	CertificateProviderEnterDateOfBirth:                     "/certificate-provider-enter-date-of-birth",
-	CertificateProviderEnterMobileNumber:                    "/certificate-provider-enter-mobile-number",
-	CertificateProviderEnterReferenceNumber:                 "/certificate-provider-enter-reference-number",
-	CertificateProviderIdentityWithBiometricResidencePermit: "/certificate-provider/id/brp",
-	CertificateProviderIdentityWithDrivingLicencePaper:      "/certificate-provider/id/dlpaper",
-	CertificateProviderIdentityWithDrivingLicencePhotocard:  "/certificate-provider/id/dlphoto",
-	CertificateProviderIdentityWithOneLogin:                 "/certificate-provider-identity-with-one-login",
-	CertificateProviderIdentityWithOneLoginCallback:         "/certificate-provider-identity-with-one-login-callback",
-	CertificateProviderIdentityWithOnlineBankAccount:        "/certificate-provider/id/bank",
-	CertificateProviderIdentityWithPassport:                 "/certificate-provider/id/passport",
-	CertificateProviderIdentityWithYoti:                     "/certificate-provider-identity-with-yoti",
-	CertificateProviderIdentityWithYotiCallback:             "/certificate-provider-identity-with-yoti-callback",
-	CertificateProviderLogin:                                "/certificate-provider-login",
-	CertificateProviderLoginCallback:                        "/certificate-provider-login-callback",
-	CertificateProviderOptOut:                               "/certificate-provider-opt-out",
-	CertificateProviderReadTheLpa:                           "/certificate-provider-read-the-lpa",
-	CertificateProviderSelectYourIdentityOptions1:           "/certificate-provider-select-identity-document",
-	CertificateProviderSelectYourIdentityOptions2:           "/certificate-provider-select-identity-document-2",
-	CertificateProviderSelectYourIdentityOptions:            "/certificate-provider-select-your-identity-options",
-	CertificateProviderStart:                                "/certificate-provider-start",
-	CertificateProviderWhatHappensNext:                      "/certificate-provider-what-happens-next",
-	CertificateProviderWhatYoullNeedToConfirmYourIdentity:   "/certificate-provider-what-youll-need-to-confirm-your-identity",
-	CertificateProviderWhoIsEligible:                        "/certificate-provider-who-is-eligible",
-	CertificateProviderYourChosenIdentityOptions:            "/certificate-provider-your-chosen-identity-options",
+	AuthRedirect:               "/auth/redirect",
+	CertificateProviderDetails: "/certificate-provider-details",
+	CertificateProvider: CertificateProviderPaths{
+		CertificateProvided:                  "/certificate-provided",
+		CheckYourName:                        "/certificate-provider-check-your-name",
+		EnterDateOfBirth:                     "/certificate-provider-enter-date-of-birth",
+		EnterMobileNumber:                    "/certificate-provider-enter-mobile-number",
+		EnterReferenceNumber:                 "/certificate-provider-enter-reference-number",
+		IdentityWithBiometricResidencePermit: "/certificate-provider/id/brp",
+		IdentityWithDrivingLicencePaper:      "/certificate-provider/id/dlpaper",
+		IdentityWithDrivingLicencePhotocard:  "/certificate-provider/id/dlphoto",
+		IdentityWithOneLogin:                 "/certificate-provider-identity-with-one-login",
+		IdentityWithOneLoginCallback:         "/certificate-provider-identity-with-one-login-callback",
+		IdentityWithOnlineBankAccount:        "/certificate-provider/id/bank",
+		IdentityWithPassport:                 "/certificate-provider/id/passport",
+		IdentityWithYoti:                     "/certificate-provider-identity-with-yoti",
+		IdentityWithYotiCallback:             "/certificate-provider-identity-with-yoti-callback",
+		Login:                                "/certificate-provider-login",
+		LoginCallback:                        "/certificate-provider-login-callback",
+		ProvideCertificate:                   "/provide-certificate",
+		ReadTheLpa:                           "/certificate-provider-read-the-lpa",
+		SelectYourIdentityOptions1:           "/certificate-provider-select-identity-document",
+		SelectYourIdentityOptions2:           "/certificate-provider-select-identity-document-2",
+		SelectYourIdentityOptions:            "/certificate-provider-select-your-identity-options",
+		WhatHappensNext:                      "/certificate-provider-what-happens-next",
+		WhatYoullNeedToConfirmYourIdentity:   "/certificate-provider-what-youll-need-to-confirm-your-identity",
+		WhoIsEligible:                        "/certificate-provider-who-is-eligible",
+		YourChosenIdentityOptions:            "/certificate-provider-your-chosen-identity-options",
+	},
+	CertificateProviderOptOut:                            "/certificate-provider-opt-out",
+	CertificateProviderAddress:                           "/certificate-provider-address",
+	CertificateProviderStart:                             "/certificate-provider-start",
 	CheckYourLpa:                                         "/check-your-lpa",
 	ChooseAttorneys:                                      "/choose-attorneys",
 	ChooseAttorneysAddress:                               "/choose-attorneys-address",
@@ -221,7 +228,6 @@ var Paths = AppPaths{
 	LpaType:                                              "/lpa-type",
 	PaymentConfirmation:                                  "/payment-confirmation",
 	Progress:                                             "/progress",
-	ProvideCertificate:                                   "/provide-certificate",
 	ReadYourLpa:                                          "/read-your-lpa",
 	RemoveAttorney:                                       "/remove-attorney",
 	RemovePersonToNotify:                                 "/remove-person-to-notify",
@@ -252,58 +258,76 @@ var Paths = AppPaths{
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
 }
 
-func IsLpaPath(url string) bool {
+// IsAttorneyPath checks whether the url should be prefixed with /attorney/.
+func IsAttorneyPath(url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 
-	return !slices.Contains([]string{
-		Paths.YotiRedirect,
-		Paths.Attorney.YourAddress,
+	return slices.Contains([]string{
 		Paths.Attorney.CheckYourName,
 		Paths.Attorney.CodeOfConduct,
 		Paths.Attorney.DateOfBirth,
-		Paths.Attorney.EnterReferenceNumber,
-		Paths.Attorney.Login,
-		Paths.Attorney.LoginCallback,
 		Paths.Attorney.MobileNumber,
 		Paths.Attorney.ReadTheLpa,
 		Paths.Attorney.RightsAndResponsibilities,
 		Paths.Attorney.Sign,
-		Paths.Attorney.Start,
 		Paths.Attorney.TaskList,
-		Paths.Attorney.WhatHappensWhenYouSign,
-		Paths.Attorney.RightsAndResponsibilities,
 		Paths.Attorney.WhatHappensNext,
-		Paths.AuthRedirect,
-		Paths.CertificateProvided,
-		Paths.CertificateProviderCheckYourName,
-		Paths.CertificateProviderEnterReferenceNumber,
-		Paths.CertificateProviderIdentityWithBiometricResidencePermit,
-		Paths.CertificateProviderIdentityWithDrivingLicencePaper,
-		Paths.CertificateProviderIdentityWithDrivingLicencePhotocard,
-		Paths.CertificateProviderIdentityWithOneLogin,
-		Paths.CertificateProviderIdentityWithOneLoginCallback,
-		Paths.CertificateProviderIdentityWithOnlineBankAccount,
-		Paths.CertificateProviderIdentityWithPassport,
-		Paths.CertificateProviderIdentityWithYoti,
-		Paths.CertificateProviderIdentityWithYotiCallback,
-		Paths.CertificateProviderLogin,
-		Paths.CertificateProviderLoginCallback,
-		Paths.CertificateProviderReadTheLpa,
-		Paths.CertificateProviderSelectYourIdentityOptions,
-		Paths.CertificateProviderSelectYourIdentityOptions1,
-		Paths.CertificateProviderSelectYourIdentityOptions2,
-		Paths.CertificateProviderStart,
-		Paths.CertificateProviderWhatHappensNext,
-		Paths.CertificateProviderWhatYoullNeedToConfirmYourIdentity,
-		Paths.CertificateProviderYourChosenIdentityOptions,
-		Paths.CertificateProviderEnterDateOfBirth,
-		Paths.CertificateProviderEnterMobileNumber,
-		Paths.CertificateProviderWhoIsEligible,
-		Paths.Dashboard,
-		Paths.Login,
-		Paths.LoginCallback,
-		Paths.ProvideCertificate,
-		Paths.Start,
-		Paths.SignOut,
+		Paths.Attorney.WhatHappensWhenYouSign,
+		Paths.Attorney.YourAddress,
 	}, path)
+}
+
+// IsCertificateProviderPath checks whether the url should be prefixed with /certificate-provider/.
+func IsCertificateProviderPath(url string) bool {
+	path, _, _ := strings.Cut(url, "?")
+
+	return slices.Contains([]string{
+		Paths.CertificateProvider.CertificateProvided,
+		Paths.CertificateProvider.CheckYourName,
+		Paths.CertificateProvider.EnterDateOfBirth,
+		Paths.CertificateProvider.EnterMobileNumber,
+		Paths.CertificateProvider.IdentityWithBiometricResidencePermit,
+		Paths.CertificateProvider.IdentityWithDrivingLicencePaper,
+		Paths.CertificateProvider.IdentityWithDrivingLicencePhotocard,
+		Paths.CertificateProvider.IdentityWithOneLogin,
+		Paths.CertificateProvider.IdentityWithOneLoginCallback,
+		Paths.CertificateProvider.IdentityWithOnlineBankAccount,
+		Paths.CertificateProvider.IdentityWithPassport,
+		Paths.CertificateProvider.IdentityWithYoti,
+		Paths.CertificateProvider.IdentityWithYotiCallback,
+		Paths.CertificateProvider.ProvideCertificate,
+		Paths.CertificateProvider.ReadTheLpa,
+		Paths.CertificateProvider.SelectYourIdentityOptions,
+		Paths.CertificateProvider.SelectYourIdentityOptions1,
+		Paths.CertificateProvider.SelectYourIdentityOptions2,
+		Paths.CertificateProvider.WhatHappensNext,
+		Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity,
+		Paths.CertificateProvider.YourChosenIdentityOptions,
+	}, path)
+}
+
+// IsLpaPath checks whether the url should be prefixed with /lpa/.
+func IsLpaPath(url string) bool {
+	path, _, _ := strings.Cut(url, "?")
+
+	return !IsAttorneyPath(url) &&
+		!IsCertificateProviderPath(url) &&
+		!slices.Contains([]string{
+			Paths.Attorney.EnterReferenceNumber,
+			Paths.Attorney.Login,
+			Paths.Attorney.LoginCallback,
+			Paths.Attorney.Start,
+			Paths.AuthRedirect,
+			Paths.CertificateProvider.EnterReferenceNumber,
+			Paths.CertificateProvider.Login,
+			Paths.CertificateProvider.LoginCallback,
+			Paths.CertificateProvider.WhoIsEligible,
+			Paths.CertificateProviderStart,
+			Paths.Dashboard,
+			Paths.Login,
+			Paths.LoginCallback,
+			Paths.SignOut,
+			Paths.Start,
+			Paths.YotiRedirect,
+		}, path)
 }

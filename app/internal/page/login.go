@@ -1,15 +1,22 @@
-package attorney
+package page
 
 import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func Login(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, randomString func(int) string) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+type LoginLogger interface {
+	Print(v ...interface{})
+}
+
+type LoginOneLoginClient interface {
+	AuthCodeURL(state, nonce, locale string, identity bool) string
+}
+
+func Login(logger LoginLogger, oneLoginClient LoginOneLoginClient, store sesh.Store, randomString func(int) string, redirect string) Handler {
+	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		locale := "en"
 		if appData.Lang == localize.Cy {
 			locale = "cy"
@@ -24,7 +31,7 @@ func Login(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, rando
 			State:    state,
 			Nonce:    nonce,
 			Locale:   locale,
-			Attorney: true,
+			Redirect: redirect,
 		}); err != nil {
 			logger.Print(err)
 			return nil

@@ -19,13 +19,8 @@ type yourAddressData struct {
 	Form      *form.AddressForm
 }
 
-func YourAddress(logger Logger, tmpl template.Template, addressClient AddressClient, attorneyStore AttorneyStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		attorneyProvidedDetails, err := attorneyStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func YourAddress(logger Logger, tmpl template.Template, addressClient AddressClient, attorneyStore AttorneyStore) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *actor.AttorneyProvidedDetails) error {
 		data := &yourAddressData{
 			App:  appData,
 			Form: &form.AddressForm{},

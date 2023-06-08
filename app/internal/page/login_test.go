@@ -1,17 +1,19 @@
-package attorney
+package page
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
+var expectedError = errors.New("err")
 
 func TestLogin(t *testing.T) {
 	w := httptest.NewRecorder()
@@ -38,7 +40,7 @@ func TestLogin(t *testing.T) {
 			State:    "i am random",
 			Nonce:    "i am random",
 			Locale:   "cy",
-			Attorney: true,
+			Redirect: "/redirect",
 		},
 	}
 
@@ -46,7 +48,7 @@ func TestLogin(t *testing.T) {
 		On("Save", r, w, session).
 		Return(nil)
 
-	Login(nil, client, sessionStore, func(int) string { return "i am random" })(page.AppData{Lang: localize.Cy, Paths: page.Paths}, w, r)
+	Login(nil, client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{Lang: localize.Cy, Paths: Paths}, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -78,7 +80,7 @@ func TestLoginDefaultLocale(t *testing.T) {
 			State:    "i am random",
 			Nonce:    "i am random",
 			Locale:   "en",
-			Attorney: true,
+			Redirect: "/redirect",
 		},
 	}
 
@@ -86,7 +88,7 @@ func TestLoginDefaultLocale(t *testing.T) {
 		On("Save", r, w, session).
 		Return(nil)
 
-	Login(nil, client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r)
+	Login(nil, client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{}, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -111,7 +113,7 @@ func TestLoginWhenStoreSaveError(t *testing.T) {
 		On("Save", r, w, mock.Anything).
 		Return(expectedError)
 
-	Login(logger, client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r)
+	Login(logger, client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{}, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)

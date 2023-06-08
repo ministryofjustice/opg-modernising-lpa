@@ -34,7 +34,7 @@ func TestYotiRedirect(t *testing.T) {
 				LpaID:               "123",
 				CertificateProvider: true,
 			},
-			redirect: Paths.CertificateProviderIdentityWithYotiCallback,
+			redirect: "/certificate-provider/123" + Paths.CertificateProvider.IdentityWithYotiCallback,
 		},
 	}
 
