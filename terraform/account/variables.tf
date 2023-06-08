@@ -5,11 +5,10 @@ output "workspace_name" {
 variable "accounts" {
   type = map(
     object({
-      account_id             = string
-      account_name           = string
-      is_production          = bool
-      regions                = list(string)
-      pagerduty_service_name = string
+      account_id    = string
+      account_name  = string
+      is_production = bool
+      regions       = list(string)
     })
   )
 }
