@@ -32,6 +32,24 @@ func (s *attorneyStore) Create(ctx context.Context, attorneyID string, isReplace
 	return attorney, err
 }
 
+func (s *attorneyStore) GetAll(ctx context.Context) ([]*actor.AttorneyProvidedDetails, error) {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.SessionID == "" {
+		return nil, errors.New("attorneyStore.GetAll requires SessionID")
+	}
+
+	var details []*actor.AttorneyProvidedDetails
+
+	sk := "#ATTORNEY#" + data.SessionID
+	err = s.dataStore.GetAllByGsi(ctx, "ActorIndex", sk, &details)
+
+	return details, err
+}
+
 func (s *attorneyStore) Get(ctx context.Context) (*actor.AttorneyProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
