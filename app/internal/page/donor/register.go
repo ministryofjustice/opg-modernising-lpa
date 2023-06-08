@@ -121,21 +121,18 @@ func Register(
 	yotiClient YotiClient,
 	notifyClient NotifyClient,
 	shareCodeSender ShareCodeSender,
+	witnessCodeSender WitnessCodeSender,
 	errorHandler page.ErrorHandler,
 	notFoundHandler page.Handler,
 	certificateProviderStore CertificateProviderStore,
 	uidClient UidClient,
 ) {
-	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
-
 	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler)
 
 	handleRoot(page.Paths.Login, None,
 		page.Login(logger, oneLoginClient, sessionStore, random.String, page.Paths.LoginCallback))
 	handleRoot(page.Paths.LoginCallback, None,
 		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Dashboard))
-	handleRoot(page.Paths.Dashboard, RequireSession,
-		Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, certificateProviderStore))
 
 	lpaMux := http.NewServeMux()
 	rootMux.Handle("/lpa/", page.RouteToPrefix("/lpa/", lpaMux, notFoundHandler))
