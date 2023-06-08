@@ -165,6 +165,15 @@
         </div>
         {{ template "csrf-field" . }}
       </form>
+
+      <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible" />
+
+      <form novalidate method="post">
+        <div class="govuk-button-group govuk-!-padding-top-3">
+          <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="everything">Give me everything</button>
+        </div>
+        {{ template "csrf-field" . }}
+      </form>
     </div>
   </div>
 {{ end }}
