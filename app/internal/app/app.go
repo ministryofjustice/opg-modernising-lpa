@@ -2,11 +2,13 @@ package app
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -39,12 +41,19 @@ type DataStore interface {
 	Create(ctx context.Context, pk, sk string, v interface{}) error
 }
 
+//go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
+type SessionStore interface {
+	Get(r *http.Request, name string) (*sessions.Session, error)
+	New(r *http.Request, name string) (*sessions.Session, error)
+	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
+}
+
 func App(
 	logger *logging.Logger,
 	localizer page.Localizer,
 	lang localize.Lang,
 	tmpls template.Templates,
-	sessionStore sesh.Store,
+	sessionStore SessionStore,
 	dataStore DataStore,
 	appPublicURL string,
 	payClient *pay.Client,
@@ -63,6 +72,7 @@ func App(
 	shareCodeStore := &shareCodeStore{dataStore: dataStore}
 
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String)
+	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
 
 	errorHandler := page.Error(tmpls.Get("error-500.gohtml"), logger)
 	notFoundHandler := page.Root(tmpls.Get("error-404.gohtml"), logger)
@@ -71,15 +81,24 @@ func App(
 
 	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, donorStore, random.String, shareCodeSender, localizer, certificateProviderStore, attorneyStore, logger, time.Now))
 
-	handleRoot := makeHandle(rootMux, errorHandler)
+	handleRoot := makeHandle(rootMux, errorHandler, sessionStore)
 
-	handleRoot(paths.Root, notFoundHandler)
-	handleRoot(paths.SignOut, page.SignOut(logger, sessionStore, oneLoginClient, appPublicURL))
-	handleRoot(paths.Fixtures, page.Fixtures(tmpls.Get("fixtures.gohtml")))
-	handleRoot(paths.YourLegalRightsAndResponsibilities, page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities_general.gohtml")))
-	handleRoot(page.Paths.Start, page.Guidance(tmpls.Get("start.gohtml")))
-	handleRoot(page.Paths.CertificateProviderStart, page.Guidance(tmpls.Get("certificate_provider_start.gohtml")))
-	handleRoot(page.Paths.Attorney.Start, page.Guidance(tmpls.Get("attorney_start.gohtml")))
+	handleRoot(paths.Root, None,
+		notFoundHandler)
+	handleRoot(paths.SignOut, None,
+		page.SignOut(logger, sessionStore, oneLoginClient, appPublicURL))
+	handleRoot(paths.Fixtures, None,
+		page.Fixtures(tmpls.Get("fixtures.gohtml")))
+	handleRoot(paths.YourLegalRightsAndResponsibilities, None,
+		page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities_general.gohtml")))
+	handleRoot(page.Paths.Start, None,
+		page.Guidance(tmpls.Get("start.gohtml")))
+	handleRoot(page.Paths.CertificateProviderStart, None,
+		page.Guidance(tmpls.Get("certificate_provider_start.gohtml")))
+	handleRoot(page.Paths.Attorney.Start, None,
+		page.Guidance(tmpls.Get("attorney_start.gohtml")))
+	handleRoot(page.Paths.Dashboard, RequireSession,
+		page.Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, certificateProviderStore, attorneyStore))
 
 	certificateprovider.Register(
 		rootMux,
@@ -125,6 +144,7 @@ func App(
 		yotiClient,
 		notifyClient,
 		shareCodeSender,
+		witnessCodeSender,
 		errorHandler,
 		notFoundHandler,
 		certificateProviderStore,
@@ -156,13 +176,31 @@ func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang
 	}
 }
 
-func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(string, page.Handler) {
-	return func(path string, h page.Handler) {
+type handleOpt byte
+
+const (
+	None handleOpt = 1 << iota
+	RequireSession
+)
+
+func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, store sesh.Store) func(string, handleOpt, page.Handler) {
+	return func(path string, opt handleOpt, h page.Handler) {
 		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
 			appData.Page = path
+
+			if opt&RequireSession != 0 {
+				loginSession, err := sesh.Login(store, r)
+				if err != nil {
+					http.Redirect(w, r, page.Paths.Start, http.StatusFound)
+					return
+				}
+
+				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(loginSession.Sub))
+				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID})
+			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)
