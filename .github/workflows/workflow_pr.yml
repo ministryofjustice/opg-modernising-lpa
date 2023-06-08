@@ -123,6 +123,7 @@ jobs:
         aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
         ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
         github_access_token: ${{ secrets.GITHUB_TOKEN }}
+        pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
   ui_tests_pr_env:
     name: Run Cypress UI Tests On PR Environment

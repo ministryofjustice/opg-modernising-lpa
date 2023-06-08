@@ -12,6 +12,11 @@ variable "public_access_enabled" {
   default = false
 }
 
+variable "pagerduty_api_key" {
+  type      = string
+  sensitive = true
+}
+
 output "container_version" {
   value = var.container_version
 }
@@ -61,6 +66,7 @@ variable "environments" {
         deletion_protection_enabled = bool
       })
       cloudwatch_application_insights_enabled = bool
+      pagerduty_service_name                  = string
     })
   )
 }

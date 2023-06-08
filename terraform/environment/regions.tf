@@ -29,6 +29,7 @@ module "eu_west_1" {
   public_access_enabled                                 = var.public_access_enabled
   rum_monitor_identity_pool_id_secretsmanager_secret_id = data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_1.arn
   rum_monitor_application_id_secretsmanager_secret_id   = aws_secretsmanager_secret.rum_monitor_application_id_eu_west_1.id
+  pagerduty_service_name                                = local.environment.pagerduty_service_name
   providers = {
     aws.region = aws.eu_west_1
     aws.global = aws.global
@@ -57,6 +58,7 @@ module "eu_west_2" {
   public_access_enabled                                 = var.public_access_enabled
   rum_monitor_identity_pool_id_secretsmanager_secret_id = data.aws_secretsmanager_secret.rum_monitor_identity_pool_id_eu_west_1.arn # would be updated to eu_west_2 when that region exists
   rum_monitor_application_id_secretsmanager_secret_id   = aws_secretsmanager_secret.rum_monitor_application_id_eu_west_2.id
+  pagerduty_service_name                                = local.environment.pagerduty_service_name
   providers = {
     aws.region = aws.eu_west_2
     aws.global = aws.global

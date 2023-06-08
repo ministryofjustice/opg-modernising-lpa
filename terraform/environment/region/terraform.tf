@@ -9,6 +9,10 @@ terraform {
         aws.global,
       ]
     }
+    pagerduty = {
+      source  = "PagerDuty/pagerduty"
+      version = "~> 2.14.0"
+    }
   }
 }
 
