@@ -66,7 +66,6 @@ jobs:
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-      pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
   terraform_account_workflow_preproduction:
     name: TF Plan Preprod Account
@@ -77,7 +76,6 @@ jobs:
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-      pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
   terraform_account_workflow_production:
     name: TF Plan Prod Account
@@ -88,7 +86,6 @@ jobs:
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-      pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
   ui_tests_image:
     name: Run Cypress UI Tests On Images
@@ -126,6 +123,7 @@ jobs:
         aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
         ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
         github_access_token: ${{ secrets.GITHUB_TOKEN }}
+        pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
   ui_tests_pr_env:
     name: Run Cypress UI Tests On PR Environment
