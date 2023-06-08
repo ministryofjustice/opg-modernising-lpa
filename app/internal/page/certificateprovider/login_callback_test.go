@@ -38,11 +38,10 @@ func TestLoginCallback(t *testing.T) {
 		Secure:   true,
 	}
 	session.Values = map[any]any{
-		"certificate-provider": &sesh.CertificateProviderSession{
+		"session": &sesh.LoginSession{
 			IDToken: "id-token",
 			Sub:     "random",
 			Email:   "name@example.com",
-			LpaID:   "lpa-id",
 		},
 	}
 
@@ -51,12 +50,11 @@ func TestLoginCallback(t *testing.T) {
 		Return(&sessions.Session{
 			Values: map[any]any{
 				"one-login": &sesh.OneLoginSession{
-					State:               "my-state",
-					Nonce:               "my-nonce",
-					Locale:              "en",
-					CertificateProvider: true,
-					LpaID:               "lpa-id",
-					SessionID:           "session-id",
+					State:    "my-state",
+					Nonce:    "my-nonce",
+					Locale:   "en",
+					LpaID:    "lpa-id",
+					Redirect: "/redirect",
 				},
 			},
 		}, nil)
@@ -79,7 +77,7 @@ func TestLoginCallback(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderEnterDateOfBirth, resp.Header.Get("Location"))
+	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.EnterDateOfBirth, resp.Header.Get("Location"))
 }
 
 func TestLoginCallbackWhenCertificateProviderExists(t *testing.T) {
@@ -105,11 +103,10 @@ func TestLoginCallbackWhenCertificateProviderExists(t *testing.T) {
 		Secure:   true,
 	}
 	session.Values = map[any]any{
-		"certificate-provider": &sesh.CertificateProviderSession{
+		"session": &sesh.LoginSession{
 			IDToken: "id-token",
 			Sub:     "random",
 			Email:   "name@example.com",
-			LpaID:   "lpa-id",
 		},
 	}
 
@@ -118,12 +115,11 @@ func TestLoginCallbackWhenCertificateProviderExists(t *testing.T) {
 		Return(&sessions.Session{
 			Values: map[any]any{
 				"one-login": &sesh.OneLoginSession{
-					State:               "my-state",
-					Nonce:               "my-nonce",
-					Locale:              "en",
-					CertificateProvider: true,
-					LpaID:               "lpa-id",
-					SessionID:           "session-id",
+					State:    "my-state",
+					Nonce:    "my-nonce",
+					Locale:   "en",
+					LpaID:    "lpa-id",
+					Redirect: "/redirect",
 				},
 			},
 		}, nil)
@@ -146,7 +142,7 @@ func TestLoginCallbackWhenCertificateProviderExists(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderEnterDateOfBirth, resp.Header.Get("Location"))
+	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.EnterDateOfBirth, resp.Header.Get("Location"))
 }
 
 func TestLoginCallbackSessionMissing(t *testing.T) {
@@ -217,7 +213,7 @@ func TestLoginCallbackWhenExchangeErrors(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", CertificateProvider: true, LpaID: "lpa-id", SessionID: "session-id"},
+				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", LpaID: "lpa-id", Redirect: "/redirect"},
 			},
 		}, nil)
 
@@ -242,7 +238,7 @@ func TestLoginCallbackWhenUserInfoError(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", CertificateProvider: true, LpaID: "lpa-id", SessionID: "session-id"},
+				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", LpaID: "lpa-id", Redirect: "/redirect"},
 			},
 		}, nil)
 
@@ -273,11 +269,10 @@ func TestLoginCallbackOnCertificateProviderStoreError(t *testing.T) {
 		Secure:   true,
 	}
 	session.Values = map[any]any{
-		"certificate-provider": &sesh.CertificateProviderSession{
+		"session": &sesh.LoginSession{
 			IDToken: "id-token",
 			Sub:     "random",
 			Email:   "name@example.com",
-			LpaID:   "lpa-id",
 		},
 	}
 
@@ -286,12 +281,11 @@ func TestLoginCallbackOnCertificateProviderStoreError(t *testing.T) {
 		Return(&sessions.Session{
 			Values: map[any]any{
 				"one-login": &sesh.OneLoginSession{
-					State:               "my-state",
-					Nonce:               "my-nonce",
-					Locale:              "en",
-					CertificateProvider: true,
-					LpaID:               "lpa-id",
-					SessionID:           "session-id",
+					State:    "my-state",
+					Nonce:    "my-nonce",
+					Locale:   "en",
+					LpaID:    "lpa-id",
+					Redirect: "/redirect",
 				},
 			},
 		}, nil)

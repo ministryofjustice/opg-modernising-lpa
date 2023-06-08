@@ -145,11 +145,6 @@ func TestGetTaskList(t *testing.T) {
 				On("GetAny", r.Context()).
 				Return(tc.lpa, nil)
 
-			attorneyStore := newMockAttorneyStore(t)
-			attorneyStore.
-				On("Get", r.Context()).
-				Return(tc.attorney, nil)
-
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &taskListData{
@@ -163,7 +158,7 @@ func TestGetTaskList(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := TaskList(template.Execute, donorStore, tc.certificateProviderStore(t, r), attorneyStore)(tc.appData, w, r)
+			err := TaskList(template.Execute, donorStore, tc.certificateProviderStore(t, r))(tc.appData, w, r, tc.attorney)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -181,30 +176,7 @@ func TestGetTaskListWhenDonorStoreErrors(t *testing.T) {
 		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := TaskList(nil, donorStore, nil, nil)(testAppData, w, r)
-
-	assert.Equal(t, expectedError, err)
-}
-
-func TestGetTaskListWhenAttorneyStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
-
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{
-			Tasks: actor.AttorneyTasks{
-				ReadTheLpa: actor.TaskCompleted,
-			},
-		}, expectedError)
-
-	err := TaskList(nil, donorStore, nil, attorneyStore)(testAppData, w, r)
+	err := TaskList(nil, donorStore, nil)(testAppData, w, r, nil)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -218,21 +190,12 @@ func TestGetTaskListWhenCertificateProviderStoreErrors(t *testing.T) {
 		On("GetAny", r.Context()).
 		Return(&page.Lpa{ID: "lpa-id"}, nil)
 
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{
-			Tasks: actor.AttorneyTasks{
-				ReadTheLpa: actor.TaskCompleted,
-			},
-		}, nil)
-
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("GetAny", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
 		Return(nil, expectedError)
 
-	err := TaskList(nil, donorStore, certificateProviderStore, attorneyStore)(testAppData, w, r)
+	err := TaskList(nil, donorStore, certificateProviderStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{Tasks: actor.AttorneyTasks{ReadTheLpa: actor.TaskCompleted}})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -246,15 +209,6 @@ func TestGetTaskListWhenCertificateProviderNotFound(t *testing.T) {
 		On("GetAny", r.Context()).
 		Return(&page.Lpa{ID: "lpa-id"}, nil)
 
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{
-			Tasks: actor.AttorneyTasks{
-				ReadTheLpa: actor.TaskCompleted,
-			},
-		}, nil)
-
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("GetAny", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
@@ -265,7 +219,7 @@ func TestGetTaskListWhenCertificateProviderNotFound(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(nil)
 
-	err := TaskList(template.Execute, donorStore, certificateProviderStore, attorneyStore)(testAppData, w, r)
+	err := TaskList(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{Tasks: actor.AttorneyTasks{ReadTheLpa: actor.TaskCompleted}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -281,17 +235,12 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 		On("GetAny", r.Context()).
 		Return(&page.Lpa{ID: "lpa-id"}, nil)
 
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", r.Context()).
-		Return(&actor.AttorneyProvidedDetails{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := TaskList(template.Execute, donorStore, nil, attorneyStore)(testAppData, w, r)
+	err := TaskList(template.Execute, donorStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

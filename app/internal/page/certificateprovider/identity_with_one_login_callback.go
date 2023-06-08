@@ -1,7 +1,6 @@
 package certificateprovider
 
 import (
-	"errors"
 	"net/http"
 	"time"
 
@@ -31,9 +30,9 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 
 		if r.Method == http.MethodPost {
 			if certificateProvider.CertificateProviderIdentityConfirmed() {
-				return appData.Redirect(w, r, nil, page.Paths.CertificateProviderReadTheLpa)
+				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.ReadTheLpa)
 			} else {
-				return appData.Redirect(w, r, nil, page.Paths.CertificateProviderSelectYourIdentityOptions1)
+				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.SelectYourIdentityOptions1)
 			}
 		}
 
@@ -57,9 +56,6 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 		oneLoginSession, err := sesh.OneLogin(sessionStore, r)
 		if err != nil {
 			return err
-		}
-		if !oneLoginSession.CertificateProvider || !oneLoginSession.Identity {
-			return errors.New("certificate-provider callback with incorrect session")
 		}
 
 		_, accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), oneLoginSession.Nonce)

@@ -24,8 +24,8 @@ func IdentityWithOneLogin(logger Logger, oneLoginClient OneLoginClient, store se
 			State:    state,
 			Nonce:    nonce,
 			Locale:   locale,
-			Identity: true,
 			LpaID:    appData.LpaID,
+			Redirect: page.Paths.IdentityWithOneLoginCallback,
 		}); err != nil {
 			logger.Print(err)
 			return nil

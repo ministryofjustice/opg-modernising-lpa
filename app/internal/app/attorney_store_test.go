@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
+	mock "github.com/stretchr/testify/mock"
 )
 
 func TestAttorneyStoreCreate(t *testing.T) {
@@ -16,7 +17,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 			now := time.Now()
-			details := &actor.AttorneyProvidedDetails{LpaID: "123", UpdatedAt: now, IsReplacement: is}
+			details := &actor.AttorneyProvidedDetails{ID: "attorney-id", LpaID: "123", UpdatedAt: now, IsReplacement: is}
 
 			dataStore := newMockDataStore(t)
 			dataStore.
@@ -25,7 +26,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 
 			attorneyStore := &attorneyStore{dataStore: dataStore, now: func() time.Time { return now }}
 
-			attorney, err := attorneyStore.Create(ctx, is)
+			attorney, err := attorneyStore.Create(ctx, "attorney-id", is)
 			assert.Nil(t, err)
 			assert.Equal(t, details, attorney)
 		})
@@ -37,7 +38,7 @@ func TestAttorneyStoreCreateWhenSessionMissing(t *testing.T) {
 
 	attorneyStore := &attorneyStore{dataStore: nil, now: nil}
 
-	_, err := attorneyStore.Create(ctx, false)
+	_, err := attorneyStore.Create(ctx, "attorney-id", false)
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
@@ -47,12 +48,12 @@ func TestAttorneyStoreCreateWhenCreateError(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Create", ctx, "LPA#123", "#ATTORNEY#456", &actor.AttorneyProvidedDetails{LpaID: "123", UpdatedAt: now}).
+		On("Create", ctx, "LPA#123", "#ATTORNEY#456", mock.Anything).
 		Return(expectedError)
 
 	attorneyStore := &attorneyStore{dataStore: dataStore, now: func() time.Time { return now }}
 
-	_, err := attorneyStore.Create(ctx, false)
+	_, err := attorneyStore.Create(ctx, "attorney-id", false)
 	assert.Equal(t, expectedError, err)
 }
 
