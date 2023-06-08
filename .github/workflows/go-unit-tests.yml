@@ -7,6 +7,14 @@ on:
         description: 'Tag for docker image'
         required: true
         type: string
+      branch:
+        description: 'The branch the workflow relates to'
+        required: true
+        type: string
+      commit_sha:
+        description: 'The commit SHA the workflow relates to'
+        required: true
+        type: string
     secrets:
       pact_broker_password:
         description: 'Password for central OPG pact broker'
@@ -56,10 +64,9 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJSON(github) }}
         run: |
-          echo "$GITHUB_CONTEXT"
           pact-broker publish ./internal/uid/pacts/modernising-lpa-data-lpa-uid.json \
-            --consumer-app-version ${{ github.sha }} \
-            --branch ${{ github.ref_name }} \
+            --consumer-app-version ${{ inputs.commit_sha }} \
+            --branch ${{ inputs.branch }} \
             --tag ${{ inputs.tag }} \
             --broker-base-url https://pact-broker.api.opg.service.justice.gov.uk \
             --broker-username admin \

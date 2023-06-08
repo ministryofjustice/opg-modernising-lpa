@@ -34,6 +34,8 @@ jobs:
     uses: ./.github/workflows/go-unit-tests.yml
     with:
       tag: ${{ needs.create_tags.outputs.version_tag }}
+      commit_sha: ${{ github.sha }}
+      branch: 'main'
     secrets:
       pact_broker_password: ${{ secrets.PACT_BROKER_PASSWORD }}
 
