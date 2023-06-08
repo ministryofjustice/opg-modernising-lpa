@@ -7,7 +7,7 @@ data "pagerduty_service" "main" {
 }
 
 resource "pagerduty_service_integration" "ecs_autoscaling_alarms" {
-  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} ECS AutoScaling Alarm"
+  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} ECS AutoScaling Alarm - Maximum Reached"
   service = data.pagerduty_service.main.id
   vendor  = data.pagerduty_vendor.cloudwatch.id
 }
