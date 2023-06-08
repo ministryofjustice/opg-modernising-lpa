@@ -16,9 +16,6 @@ func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store, certi
 		if err != nil {
 			return err
 		}
-		if !oneLoginSession.CertificateProvider || oneLoginSession.Identity {
-			return errors.New("certificate-provider callback with incorrect session")
-		}
 
 		idToken, accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), oneLoginSession.Nonce)
 		if err != nil {

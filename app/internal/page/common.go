@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 )
 
 const FormUrlEncoded = "application/x-www-form-urlencoded"
@@ -38,7 +39,10 @@ type NotifyClient interface {
 
 //go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
 type OneLoginClient interface {
+	AuthCodeURL(state, nonce, locale string, identity bool) string
 	EndSessionURL(idToken, postLogoutURL string) string
+	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
+	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
 }
 
 //go:generate mockery --testonly --inpackage --name DonorStore --structname mockDonorStore

@@ -68,23 +68,15 @@ func init() {
 }
 
 type OneLoginSession struct {
-	State               string
-	Nonce               string
-	Locale              string
-	Identity            bool
-	CertificateProvider bool
-	SessionID           string
-	LpaID               string
-	Attorney            bool
+	State    string
+	Nonce    string
+	Locale   string
+	Redirect string
+	LpaID    string
 }
 
 func (s OneLoginSession) Valid() bool {
-	ok := s.State != "" && s.Nonce != ""
-	if s.CertificateProvider && !s.Identity {
-		ok = ok && s.LpaID != ""
-	}
-
-	return ok
+	return s.State != "" && s.Nonce != "" && s.Redirect != ""
 }
 
 func OneLogin(store sessions.Store, r *http.Request) (*OneLoginSession, error) {

@@ -1,21 +1,23 @@
-package attorney
+package page
 
 import (
-	"errors"
+	"context"
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+type LoginCallbackOneLoginClient interface {
+	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
+	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
+}
+
+func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh.Store, redirect string) Handler {
+	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		oneLoginSession, err := sesh.OneLogin(sessionStore, r)
 		if err != nil {
 			return err
-		}
-		if !oneLoginSession.Attorney || oneLoginSession.Identity {
-			return errors.New("attorney callback with incorrect session")
 		}
 
 		idToken, accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), oneLoginSession.Nonce)
@@ -36,6 +38,6 @@ func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store) page.
 			return err
 		}
 
-		return appData.Redirect(w, r, nil, page.Paths.Attorney.EnterReferenceNumber)
+		return appData.Redirect(w, r, nil, redirect)
 	}
 }

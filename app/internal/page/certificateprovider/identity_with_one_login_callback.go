@@ -1,7 +1,6 @@
 package certificateprovider
 
 import (
-	"errors"
 	"net/http"
 	"time"
 
@@ -57,9 +56,6 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 		oneLoginSession, err := sesh.OneLogin(sessionStore, r)
 		if err != nil {
 			return err
-		}
-		if !oneLoginSession.CertificateProvider || !oneLoginSession.Identity {
-			return errors.New("certificate-provider callback with incorrect session")
 		}
 
 		_, accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), oneLoginSession.Nonce)

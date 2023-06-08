@@ -1,7 +1,6 @@
 package page
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,54 +15,34 @@ func TestAuthRedirect(t *testing.T) {
 		session  *sesh.OneLoginSession
 		redirect string
 	}{
-		"donor login": {
-			session: &sesh.OneLoginSession{
-				State:  "my-state",
-				Nonce:  "my-nonce",
-				Locale: "en",
-			},
-			redirect: Paths.LoginCallback,
-		},
-		"donor identity": {
+		"login": {
 			session: &sesh.OneLoginSession{
 				State:    "my-state",
 				Nonce:    "my-nonce",
 				Locale:   "en",
-				Identity: true,
+				Redirect: Paths.LoginCallback,
+			},
+			redirect: Paths.LoginCallback,
+		},
+		"login with nested route": {
+			session: &sesh.OneLoginSession{
+				State:    "my-state",
+				Nonce:    "my-nonce",
+				Locale:   "en",
+				Redirect: Paths.IdentityWithOneLoginCallback,
 				LpaID:    "123",
 			},
 			redirect: "/lpa/123" + Paths.IdentityWithOneLoginCallback,
 		},
-		"certificate provider login": {
-			session: &sesh.OneLoginSession{
-				State:               "my-state",
-				Nonce:               "my-nonce",
-				Locale:              "en",
-				CertificateProvider: true,
-				SessionID:           "456",
-				LpaID:               "123",
-			},
-			redirect: Paths.CertificateProvider.LoginCallback,
-		},
-		"certificate provider identity": {
-			session: &sesh.OneLoginSession{
-				State:               "my-state",
-				Nonce:               "my-nonce",
-				Locale:              "en",
-				Identity:            true,
-				CertificateProvider: true,
-				LpaID:               "123",
-			},
-			redirect: "/certificate-provider/123" + Paths.CertificateProvider.IdentityWithOneLoginCallback,
-		},
-		"attorney login": {
+		"welsh": {
 			session: &sesh.OneLoginSession{
 				State:    "my-state",
 				Nonce:    "my-nonce",
-				Locale:   "en",
-				Attorney: true,
+				Locale:   "cy",
+				Redirect: Paths.IdentityWithOneLoginCallback,
+				LpaID:    "123",
 			},
-			redirect: Paths.Attorney.LoginCallback,
+			redirect: "/cy/lpa/123" + Paths.IdentityWithOneLoginCallback,
 		},
 	}
 
@@ -88,32 +67,6 @@ func TestAuthRedirect(t *testing.T) {
 			assert.Equal(t, tc.redirect+"?code=auth-code&state=my-state", resp.Header.Get("Location"))
 		})
 	}
-}
-
-func TestAuthRedirectWithCyLocale(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "params").
-		Return(&sessions.Session{
-			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{
-					State:  "my-state",
-					Nonce:  "my-nonce",
-					Locale: "cy",
-				},
-			},
-		}, nil)
-
-	AuthRedirect(nil, sessionStore)(w, r)
-	resp := w.Result()
-
-	redirect := fmt.Sprintf("/cy%s?code=auth-code&state=my-state", Paths.LoginCallback)
-
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, redirect, resp.Header.Get("Location"))
 }
 
 func TestAuthRedirectSessionMissing(t *testing.T) {
@@ -189,7 +142,7 @@ func TestAuthRedirectStateIncorrect(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce"},
+				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Redirect: Paths.LoginCallback},
 			},
 		}, nil)
 

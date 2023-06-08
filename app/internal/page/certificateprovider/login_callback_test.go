@@ -50,12 +50,11 @@ func TestLoginCallback(t *testing.T) {
 		Return(&sessions.Session{
 			Values: map[any]any{
 				"one-login": &sesh.OneLoginSession{
-					State:               "my-state",
-					Nonce:               "my-nonce",
-					Locale:              "en",
-					CertificateProvider: true,
-					LpaID:               "lpa-id",
-					SessionID:           "session-id",
+					State:    "my-state",
+					Nonce:    "my-nonce",
+					Locale:   "en",
+					LpaID:    "lpa-id",
+					Redirect: "/redirect",
 				},
 			},
 		}, nil)
@@ -116,12 +115,11 @@ func TestLoginCallbackWhenCertificateProviderExists(t *testing.T) {
 		Return(&sessions.Session{
 			Values: map[any]any{
 				"one-login": &sesh.OneLoginSession{
-					State:               "my-state",
-					Nonce:               "my-nonce",
-					Locale:              "en",
-					CertificateProvider: true,
-					LpaID:               "lpa-id",
-					SessionID:           "session-id",
+					State:    "my-state",
+					Nonce:    "my-nonce",
+					Locale:   "en",
+					LpaID:    "lpa-id",
+					Redirect: "/redirect",
 				},
 			},
 		}, nil)
@@ -215,7 +213,7 @@ func TestLoginCallbackWhenExchangeErrors(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", CertificateProvider: true, LpaID: "lpa-id", SessionID: "session-id"},
+				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", LpaID: "lpa-id", Redirect: "/redirect"},
 			},
 		}, nil)
 
@@ -240,7 +238,7 @@ func TestLoginCallbackWhenUserInfoError(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", CertificateProvider: true, LpaID: "lpa-id", SessionID: "session-id"},
+				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", LpaID: "lpa-id", Redirect: "/redirect"},
 			},
 		}, nil)
 
@@ -283,12 +281,11 @@ func TestLoginCallbackOnCertificateProviderStoreError(t *testing.T) {
 		Return(&sessions.Session{
 			Values: map[any]any{
 				"one-login": &sesh.OneLoginSession{
-					State:               "my-state",
-					Nonce:               "my-nonce",
-					Locale:              "en",
-					CertificateProvider: true,
-					LpaID:               "lpa-id",
-					SessionID:           "session-id",
+					State:    "my-state",
+					Nonce:    "my-nonce",
+					Locale:   "en",
+					LpaID:    "lpa-id",
+					Redirect: "/redirect",
 				},
 			},
 		}, nil)

@@ -131,9 +131,9 @@ func Register(
 	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler)
 
 	handleRoot(page.Paths.Login, None,
-		Login(logger, oneLoginClient, sessionStore, random.String))
+		page.Login(logger, oneLoginClient, sessionStore, random.String, page.Paths.LoginCallback))
 	handleRoot(page.Paths.LoginCallback, None,
-		LoginCallback(oneLoginClient, sessionStore))
+		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Dashboard))
 	handleRoot(page.Paths.Dashboard, RequireSession,
 		Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, certificateProviderStore))
 

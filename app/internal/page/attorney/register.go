@@ -95,9 +95,9 @@ func Register(
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
 	handleRoot(page.Paths.Attorney.Login, None,
-		Login(logger, oneLoginClient, sessionStore, random.String))
+		page.Login(logger, oneLoginClient, sessionStore, random.String, page.Paths.Attorney.LoginCallback))
 	handleRoot(page.Paths.Attorney.LoginCallback, None,
-		LoginCallback(oneLoginClient, sessionStore))
+		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Attorney.EnterReferenceNumber))
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(tmpls.Get("attorney_enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore))
 
