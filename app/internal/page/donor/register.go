@@ -128,7 +128,7 @@ func Register(
 ) {
 	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
 
-	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler)
+	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler, nil, nil, nil)
 
 	handleRoot(page.Paths.Login, None,
 		page.Login(logger, oneLoginClient, sessionStore, random.String, page.Paths.LoginCallback))
@@ -139,7 +139,7 @@ func Register(
 
 	lpaMux := http.NewServeMux()
 	rootMux.Handle("/lpa/", page.RouteToPrefix("/lpa/", lpaMux, notFoundHandler))
-	handleLpa := makeHandle(lpaMux, sessionStore, RequireSession, errorHandler)
+	handleLpa := makeHandle(lpaMux, sessionStore, RequireSession, errorHandler, donorStore, uidClient, logger)
 
 	handleLpa(page.Paths.Root, None, notFoundHandler)
 	handleLpa(page.Paths.YourDetails, None,
@@ -147,7 +147,7 @@ func Register(
 	handleLpa(page.Paths.YourAddress, None,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
 	handleLpa(page.Paths.LpaType, None,
-		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore, uidClient, logger))
+		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore))
 	handleLpa(page.Paths.WhoIsTheLpaFor, None,
 		WhoIsTheLpaFor(tmpls.Get("who_is_the_lpa_for.gohtml"), donorStore))
 
@@ -290,7 +290,7 @@ const (
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, errorHandler page.ErrorHandler) func(string, handleOpt, page.Handler) {
+func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, errorHandler page.ErrorHandler, donorStore DonorStore, uidClient UidClient, logger Logger) func(string, handleOpt, page.Handler) {
 	return func(path string, opt handleOpt, h page.Handler) {
 		opt = opt | defaultOptions
 
@@ -321,6 +321,38 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, 
 				} else {
 					ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
 				}
+
+				if donorStore != nil {
+					lpa, err := donorStore.Get(ctx)
+					if err != nil {
+						errorHandler(w, r, err)
+						return
+					}
+
+					if lpa.Tasks.YourDetails == actor.TaskCompleted && lpa.UID == "" {
+						body := &uid.CreateCaseRequestBody{
+							Type: lpa.Type,
+							Donor: uid.DonorDetails{
+								Name:     lpa.Donor.FullName(),
+								Dob:      uid.ISODate{Time: lpa.Donor.DateOfBirth.Time()},
+								Postcode: lpa.Donor.Address.Postcode,
+							},
+						}
+
+						resp, err := uidClient.CreateCase(r.Context(), body)
+						if err != nil {
+							logger.Print(err)
+						}
+
+						lpa.UID = resp.Uid
+
+						if err := donorStore.Put(ctx, lpa); err != nil {
+							errorHandler(w, r, err)
+							return
+						}
+					}
+				}
+
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {

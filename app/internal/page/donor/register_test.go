@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -19,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestRegister(t *testing.T) {
@@ -38,7 +40,7 @@ func TestMakeHandle(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, None, nil)
+	handle := makeHandle(mux, sessionStore, None, nil, nil, nil, nil)
 	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/path",
@@ -72,7 +74,7 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, None, nil)
+	handle := makeHandle(mux, sessionStore, None, nil, nil, nil, nil)
 	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/path",
@@ -110,7 +112,7 @@ func TestMakeHandleErrors(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, None, errorHandler.Execute)
+	handle := makeHandle(mux, sessionStore, None, errorHandler.Execute, nil, nil, nil)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
@@ -128,7 +130,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, None, nil)
+	handle := makeHandle(mux, sessionStore, None, nil, nil, nil, nil)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -148,7 +150,7 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, None, nil)
+	handle := makeHandle(mux, sessionStore, None, nil, nil, nil, nil)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -163,7 +165,7 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, None, nil)
+	handle := makeHandle(mux, nil, None, nil, nil, nil, nil)
 	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/path",
@@ -179,4 +181,77 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+}
+
+func TestMakeHandleWhenDetailsProvidedAndUIDDoesNotExist(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+
+	mux := http.NewServeMux()
+
+	uidClient := newMockUidClient(t)
+	uidClient.
+		On("CreateCase", mock.Anything, &uid.CreateCaseRequestBody{
+			Type: page.LpaTypePropertyFinance,
+			Donor: uid.DonorDetails{
+				Name:     "Jane Smith",
+				Dob:      uid.ISODate{Time: date.New("2000", "1", "2").Time()},
+				Postcode: "ABC123",
+			},
+		}).
+		Return(uid.CreateCaseResponse{Uid: "M-789Q-P4DF-4UX3"}, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Get", mock.Anything).
+		Return(&page.Lpa{Donor: actor.Donor{
+			FirstNames:  "Jane",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "1", "2"),
+			Address:     place.Address{Postcode: "ABC123"},
+		},
+			Type:  page.LpaTypePropertyFinance,
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
+		}, nil)
+
+	donorStore.
+		On("Put", mock.Anything, &page.Lpa{Donor: actor.Donor{
+			FirstNames:  "Jane",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "1", "2"),
+			Address:     place.Address{Postcode: "ABC123"},
+		},
+			Type:  page.LpaTypePropertyFinance,
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
+			UID:   "M-789Q-P4DF-4UX3",
+		}).
+		Return(nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+
+	handle := makeHandle(mux, sessionStore, RequireSession, nil, donorStore, uidClient, nil)
+	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+		assert.Equal(t, page.AppData{
+			Page:      "/path",
+			ActorType: actor.TypeDonor,
+			SessionID: "cmFuZG9t",
+		}, appData)
+
+		assert.Equal(t, w, hw)
+
+		sessionData, _ := page.SessionDataFromContext(hr.Context())
+		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t"}, sessionData)
+
+		hw.WriteHeader(http.StatusTeapot)
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+
 }
