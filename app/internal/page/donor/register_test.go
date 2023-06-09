@@ -287,7 +287,7 @@ func TestMakeLpaHandleWhenLpaStoreError(t *testing.T) {
 
 func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExist(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+	r, _ := http.NewRequest(http.MethodPost, "/path", nil)
 
 	mux := http.NewServeMux()
 
@@ -359,7 +359,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExist(t *testing.T) {
 
 func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExistOnUidClientError(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+	r, _ := http.NewRequest(http.MethodPost, "/path", nil)
 
 	mux := http.NewServeMux()
 
@@ -435,7 +435,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExistOnUidClientError(t *t
 
 func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExistOnLpaStorePutError(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+	r, _ := http.NewRequest(http.MethodPost, "/path", nil)
 
 	mux := http.NewServeMux()
 

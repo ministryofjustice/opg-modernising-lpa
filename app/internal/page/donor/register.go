@@ -372,7 +372,7 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOp
 				return
 			}
 
-			if lpa.Tasks.YourDetails == actor.TaskCompleted && lpa.UID == "" {
+			if r.Method == http.MethodPost && lpa.Tasks.YourDetails == actor.TaskCompleted && lpa.UID == "" {
 				body := &uid.CreateCaseRequestBody{
 					Type: lpa.Type,
 					Donor: uid.DonorDetails{
