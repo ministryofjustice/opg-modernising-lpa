@@ -75,3 +75,8 @@ variable "rum_monitor_application_id_secretsmanager_secret_id" {
   description = "ARN of the AWS Secrets Manager secret containing the RUM monitor identity pool ID"
   nullable    = true
 }
+
+variable "pagerduty_service_name" {
+  type        = string
+  description = "Name of the PagerDuty service to use for alerts"
+}
