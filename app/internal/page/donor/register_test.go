@@ -332,7 +332,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExist(t *testing.T) {
 				Postcode: "ABC123",
 			},
 		}).
-		Return(uid.CreateCaseResponse{Uid: "M-789Q-P4DF-4UX3"}, nil)
+		Return(uid.CreateCaseResponse{UID: "M-789Q-P4DF-4UX3"}, nil)
 
 	handle := makeLpaHandle(mux, sessionStore, RequireSession, nil, donorStore, uidClient, nil)
 	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *page.Lpa) error {

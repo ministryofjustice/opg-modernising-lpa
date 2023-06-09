@@ -386,7 +386,7 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOp
 				if err != nil {
 					logger.Print(err)
 				} else {
-					lpa.UID = resp.Uid
+					lpa.UID = resp.UID
 				}
 
 				if err := donorStore.Put(ctx, lpa); err != nil {
