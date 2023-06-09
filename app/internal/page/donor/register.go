@@ -153,7 +153,7 @@ func Register(
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
 	handleWithLpa(page.Paths.WhoIsTheLpaFor, None,
 		WhoIsTheLpaFor(tmpls.Get("who_is_the_lpa_for.gohtml"), donorStore))
-	handleLpa(page.Paths.LpaType, None,
+	handleWithLpa(page.Paths.LpaType, None,
 		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore))
 
 	handleLpa(page.Paths.TaskList, None,
