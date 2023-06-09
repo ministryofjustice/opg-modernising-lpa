@@ -40,7 +40,7 @@ func TestMakeHandle(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, None, nil, nil, nil, nil)
+	handle := makeHandle(mux, sessionStore, None, nil)
 	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/path",
@@ -74,7 +74,7 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, None, nil, nil, nil, nil)
+	handle := makeHandle(mux, sessionStore, None, nil)
 	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/path",
@@ -112,7 +112,7 @@ func TestMakeHandleErrors(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, None, errorHandler.Execute, nil, nil, nil)
+	handle := makeHandle(mux, sessionStore, None, errorHandler.Execute)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
@@ -130,7 +130,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, None, nil, nil, nil, nil)
+	handle := makeHandle(mux, sessionStore, None, nil)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -150,7 +150,7 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, None, nil, nil, nil, nil)
+	handle := makeHandle(mux, sessionStore, None, nil)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -165,7 +165,7 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, None, nil, nil, nil, nil)
+	handle := makeHandle(mux, nil, None, nil)
 	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/path",
@@ -183,23 +183,118 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
 }
 
-func TestMakeHandleWhenDetailsProvidedAndUIDDoesNotExist(t *testing.T) {
+func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	mux := http.NewServeMux()
 
-	uidClient := newMockUidClient(t)
-	uidClient.
-		On("CreateCase", mock.Anything, &uid.CreateCaseRequestBody{
-			Type: page.LpaTypePropertyFinance,
-			Donor: uid.DonorDetails{
-				Name:     "Jane Smith",
-				Dob:      uid.ISODate{Time: date.New("2000", "1", "2").Time()},
-				Postcode: "ABC123",
-			},
-		}).
-		Return(uid.CreateCaseResponse{Uid: "M-789Q-P4DF-4UX3"}, nil)
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Get", mock.Anything).
+		Return(&page.Lpa{Donor: actor.Donor{
+			FirstNames:  "Jane",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "1", "2"),
+			Address:     place.Address{Postcode: "ABC123"},
+		},
+			Type:  page.LpaTypePropertyFinance,
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
+			UID:   "a-uid",
+		}, nil)
+
+	handle := makeLpaHandle(mux, sessionStore, RequireSession, nil, donorStore, nil, nil)
+	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *page.Lpa) error {
+		assert.Equal(t, page.AppData{
+			Page:      "/path",
+			ActorType: actor.TypeDonor,
+			SessionID: "cmFuZG9t",
+		}, appData)
+
+		assert.Equal(t, w, hw)
+
+		sessionData, _ := page.SessionDataFromContext(hr.Context())
+		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t"}, sessionData)
+
+		hw.WriteHeader(http.StatusTeapot)
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+}
+
+func TestMakeLpaHandleWhenSessionStoreError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+
+	mux := http.NewServeMux()
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{}, expectedError)
+
+	handle := makeLpaHandle(mux, sessionStore, RequireSession, nil, nil, nil, nil)
+	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *page.Lpa) error {
+		return expectedError
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.Start, resp.Header.Get("Location"))
+}
+
+func TestMakeLpaHandleWhenLpaStoreError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+
+	mux := http.NewServeMux()
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Get", mock.Anything).
+		Return(&page.Lpa{}, expectedError)
+
+	errorHandler := newMockErrorHandler(t)
+	errorHandler.
+		On("Execute", w, r, expectedError)
+
+	handle := makeLpaHandle(mux, sessionStore, RequireSession, errorHandler.Execute, donorStore, nil, nil)
+	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *page.Lpa) error {
+		return expectedError
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExist(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+
+	mux := http.NewServeMux()
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
@@ -227,13 +322,20 @@ func TestMakeHandleWhenDetailsProvidedAndUIDDoesNotExist(t *testing.T) {
 		}).
 		Return(nil)
 
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+	uidClient := newMockUidClient(t)
+	uidClient.
+		On("CreateCase", mock.Anything, &uid.CreateCaseRequestBody{
+			Type: page.LpaTypePropertyFinance,
+			Donor: uid.DonorDetails{
+				Name:     "Jane Smith",
+				Dob:      uid.ISODate{Time: date.New("2000", "1", "2").Time()},
+				Postcode: "ABC123",
+			},
+		}).
+		Return(uid.CreateCaseResponse{Uid: "M-789Q-P4DF-4UX3"}, nil)
 
-	handle := makeHandle(mux, sessionStore, RequireSession, nil, donorStore, uidClient, nil)
-	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle := makeLpaHandle(mux, sessionStore, RequireSession, nil, donorStore, uidClient, nil)
+	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *page.Lpa) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/path",
 			ActorType: actor.TypeDonor,
@@ -253,5 +355,143 @@ func TestMakeHandleWhenDetailsProvidedAndUIDDoesNotExist(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+}
 
+func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExistOnUidClientError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+
+	mux := http.NewServeMux()
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Get", mock.Anything).
+		Return(&page.Lpa{Donor: actor.Donor{
+			FirstNames:  "Jane",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "1", "2"),
+			Address:     place.Address{Postcode: "ABC123"},
+		},
+			Type:  page.LpaTypePropertyFinance,
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
+		}, nil)
+
+	donorStore.
+		On("Put", mock.Anything, &page.Lpa{Donor: actor.Donor{
+			FirstNames:  "Jane",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "1", "2"),
+			Address:     place.Address{Postcode: "ABC123"},
+		},
+			Type:  page.LpaTypePropertyFinance,
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
+		}).
+		Return(nil)
+
+	uidClient := newMockUidClient(t)
+	uidClient.
+		On("CreateCase", mock.Anything, &uid.CreateCaseRequestBody{
+			Type: page.LpaTypePropertyFinance,
+			Donor: uid.DonorDetails{
+				Name:     "Jane Smith",
+				Dob:      uid.ISODate{Time: date.New("2000", "1", "2").Time()},
+				Postcode: "ABC123",
+			},
+		}).
+		Return(uid.CreateCaseResponse{}, expectedError)
+
+	logger := newMockLogger(t)
+	logger.
+		On("Print", expectedError).
+		Return(nil)
+
+	handle := makeLpaHandle(mux, sessionStore, RequireSession, nil, donorStore, uidClient, logger)
+	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *page.Lpa) error {
+		assert.Equal(t, page.AppData{
+			Page:      "/path",
+			ActorType: actor.TypeDonor,
+			SessionID: "cmFuZG9t",
+		}, appData)
+
+		assert.Equal(t, w, hw)
+
+		sessionData, _ := page.SessionDataFromContext(hr.Context())
+		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t"}, sessionData)
+
+		hw.WriteHeader(http.StatusTeapot)
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+}
+
+func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExistOnLpaStorePutError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+
+	mux := http.NewServeMux()
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Get", mock.Anything).
+		Return(&page.Lpa{Donor: actor.Donor{
+			FirstNames:  "Jane",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "1", "2"),
+			Address:     place.Address{Postcode: "ABC123"},
+		},
+			Type:  page.LpaTypePropertyFinance,
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
+		}, nil)
+
+	donorStore.
+		On("Put", mock.Anything, &page.Lpa{Donor: actor.Donor{
+			FirstNames:  "Jane",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "1", "2"),
+			Address:     place.Address{Postcode: "ABC123"},
+		},
+			Type:  page.LpaTypePropertyFinance,
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
+		}).
+		Return(expectedError)
+
+	uidClient := newMockUidClient(t)
+	uidClient.
+		On("CreateCase", mock.Anything, &uid.CreateCaseRequestBody{
+			Type: page.LpaTypePropertyFinance,
+			Donor: uid.DonorDetails{
+				Name:     "Jane Smith",
+				Dob:      uid.ISODate{Time: date.New("2000", "1", "2").Time()},
+				Postcode: "ABC123",
+			},
+		}).
+		Return(uid.CreateCaseResponse{}, nil)
+
+	errorHandler := newMockErrorHandler(t)
+	errorHandler.
+		On("Execute", w, r, expectedError)
+
+	handle := makeLpaHandle(mux, sessionStore, RequireSession, errorHandler.Execute, donorStore, uidClient, nil)
+	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *page.Lpa) error {
+		return expectedError
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
