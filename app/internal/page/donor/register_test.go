@@ -495,3 +495,70 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExistOnLpaStorePutError(t 
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
+
+func TestMakeLpaHandleSessionExistingSessionData(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Get", mock.Anything).
+		Return(&page.Lpa{}, nil)
+
+	mux := http.NewServeMux()
+	handle := makeLpaHandle(mux, sessionStore, None, nil, donorStore, nil, nil)
+	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *page.Lpa) error {
+		assert.Equal(t, page.AppData{
+			Page:      "/path",
+			SessionID: "cmFuZG9t",
+			CanGoBack: true,
+			LpaID:     "123",
+			ActorType: actor.TypeDonor,
+		}, appData)
+		assert.Equal(t, w, hw)
+
+		sessionData, _ := page.SessionDataFromContext(hr.Context())
+
+		assert.Equal(t, &page.SessionData{LpaID: "123", SessionID: "cmFuZG9t"}, sessionData)
+		hw.WriteHeader(http.StatusTeapot)
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+}
+
+func TestMakeLpaHandleErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+
+	errorHandler := newMockErrorHandler(t)
+	errorHandler.
+		On("Execute", w, r, expectedError)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Get", mock.Anything).
+		Return(&page.Lpa{}, nil)
+
+	mux := http.NewServeMux()
+	handle := makeLpaHandle(mux, sessionStore, None, errorHandler.Execute, donorStore, nil, nil)
+	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *page.Lpa) error {
+		return expectedError
+	})
+
+	mux.ServeHTTP(w, r)
+}
