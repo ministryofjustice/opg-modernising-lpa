@@ -156,8 +156,8 @@ func Register(
 	handleWithLpa(page.Paths.LpaType, None,
 		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore))
 
-	handleLpa(page.Paths.TaskList, None,
-		TaskList(tmpls.Get("task_list.gohtml"), donorStore))
+	handleWithLpa(page.Paths.TaskList, None,
+		TaskList(tmpls.Get("task_list.gohtml")))
 
 	handleWithLpa(page.Paths.ChooseAttorneys, None,
 		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), donorStore, random.UuidString))
