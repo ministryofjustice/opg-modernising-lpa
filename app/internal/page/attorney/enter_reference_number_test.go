@@ -115,7 +115,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 					session, _ := page.SessionDataFromContext(ctx)
 
 					return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-				}), "attorney-id", tc.isReplacement).
+				}), "aGV5", "attorney-id", tc.isReplacement).
 				Return(&actor.AttorneyProvidedDetails{}, nil)
 
 			sessionStore := newMockSessionStore(t)
@@ -229,7 +229,7 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.
-		On("Create", mock.Anything, mock.Anything, false).
+		On("Create", mock.Anything, mock.Anything, mock.Anything, false).
 		Return(&actor.AttorneyProvidedDetails{}, expectedError)
 
 	sessionStore := newMockSessionStore(t)

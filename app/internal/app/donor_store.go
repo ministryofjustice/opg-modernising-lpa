@@ -30,8 +30,13 @@ func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
 		return nil, errors.New("donorStore.Create requires SessionID")
 	}
 
-	pk, sk := makeDonorKeys(lpa.ID, data.SessionID)
-	err = s.dataStore.Create(ctx, pk, sk, lpa)
+	pk, sk, subk := makeDonorKeys(lpa.ID, data.SessionID)
+	if err := s.dataStore.Create(ctx, pk, sk, lpa); err != nil {
+		return nil, err
+	}
+	if err := s.dataStore.Create(ctx, pk, subk, sk+"|DONOR"); err != nil {
+		return nil, err
+	}
 
 	return lpa, err
 }
@@ -46,10 +51,17 @@ func (s *donorStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
 		return nil, errors.New("donorStore.GetAll requires SessionID")
 	}
 
-	var lpas []*page.Lpa
+	var items []struct {
+		Data *page.Lpa
+	}
 
 	sk := "#DONOR#" + data.SessionID
-	err = s.dataStore.GetAllByGsi(ctx, "ActorIndex", sk, &lpas)
+	err = s.dataStore.GetAllByGsi(ctx, "ActorIndex", sk, &items)
+
+	lpas := make([]*page.Lpa, len(items))
+	for i, item := range items {
+		lpas[i] = item.Data
+	}
 
 	slices.SortFunc(lpas, func(a, b *page.Lpa) bool {
 		return a.UpdatedAt.After(b.UpdatedAt)
@@ -88,7 +100,7 @@ func (s *donorStore) Get(ctx context.Context) (*page.Lpa, error) {
 		return nil, errors.New("donorStore.Get requires LpaID and SessionID")
 	}
 
-	pk, sk := makeDonorKeys(data.LpaID, data.SessionID)
+	pk, sk, _ := makeDonorKeys(data.LpaID, data.SessionID)
 
 	var lpa *page.Lpa
 	err = s.dataStore.Get(ctx, pk, sk, &lpa)
@@ -107,10 +119,10 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 
 	lpa.UpdatedAt = time.Now()
 
-	pk, sk := makeDonorKeys(lpa.ID, data.SessionID)
+	pk, sk, _ := makeDonorKeys(lpa.ID, data.SessionID)
 	return s.dataStore.Put(ctx, pk, sk, lpa)
 }
 
-func makeDonorKeys(lpaID, sessionID string) (string, string) {
-	return "LPA#" + lpaID, "#DONOR#" + sessionID
+func makeDonorKeys(lpaID, sessionID string) (string, string, string) {
+	return "LPA#" + lpaID, "#DONOR#" + sessionID, "#SUB#" + sessionID
 }
