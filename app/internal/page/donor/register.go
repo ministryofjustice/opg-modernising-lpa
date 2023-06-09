@@ -21,6 +21,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
+type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *page.Lpa) error
+
 //go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
 type Template func(io.Writer, interface{}) error
 
@@ -139,22 +141,25 @@ func Register(
 
 	lpaMux := http.NewServeMux()
 	rootMux.Handle("/lpa/", page.RouteToPrefix("/lpa/", lpaMux, notFoundHandler))
+
 	handleLpa := makeHandle(lpaMux, sessionStore, RequireSession, errorHandler)
+	// Temp - will update all the routes that need an LPA in a future PR to save on diff
+	handleWithLpa := makeLpaHandle(lpaMux, sessionStore, RequireSession, errorHandler, donorStore, uidClient, logger)
 
 	handleLpa(page.Paths.Root, None, notFoundHandler)
 	handleLpa(page.Paths.YourDetails, None,
 		YourDetails(tmpls.Get("your_details.gohtml"), donorStore, sessionStore))
 	handleLpa(page.Paths.YourAddress, None,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
-	handleLpa(page.Paths.LpaType, None,
-		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore, uidClient, logger))
 	handleLpa(page.Paths.WhoIsTheLpaFor, None,
 		WhoIsTheLpaFor(tmpls.Get("who_is_the_lpa_for.gohtml"), donorStore))
+	handleLpa(page.Paths.LpaType, None,
+		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore))
 
 	handleLpa(page.Paths.TaskList, None,
 		TaskList(tmpls.Get("task_list.gohtml"), donorStore))
 
-	handleLpa(page.Paths.ChooseAttorneys, None,
+	handleWithLpa(page.Paths.ChooseAttorneys, None,
 		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), donorStore, random.UuidString))
 	handleLpa(page.Paths.ChooseAttorneysAddress, CanGoBack,
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
@@ -324,6 +329,73 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, 
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
+				errorHandler(w, r, err)
+			}
+		})
+	}
+}
+
+func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, errorHandler page.ErrorHandler, donorStore DonorStore, uidClient UidClient, logger Logger) func(string, handleOpt, Handler) {
+	return func(path string, opt handleOpt, h Handler) {
+		opt = opt | defaultOptions
+
+		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+
+			appData := page.AppDataFromContext(ctx)
+			appData.Page = path
+			appData.CanGoBack = opt&CanGoBack != 0
+			appData.ActorType = actor.TypeDonor
+
+			donorSession, err := sesh.Login(store, r)
+			if err != nil {
+				http.Redirect(w, r, page.Paths.Start, http.StatusFound)
+				return
+			}
+
+			appData.SessionID = base64.StdEncoding.EncodeToString([]byte(donorSession.Sub))
+
+			sessionData, err := page.SessionDataFromContext(ctx)
+
+			if err == nil {
+				sessionData.SessionID = appData.SessionID
+				ctx = page.ContextWithSessionData(ctx, sessionData)
+
+				appData.LpaID = sessionData.LpaID
+			} else {
+				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+			}
+
+			lpa, err := donorStore.Get(ctx)
+			if err != nil {
+				errorHandler(w, r, err)
+				return
+			}
+
+			if lpa.Tasks.YourDetails == actor.TaskCompleted && lpa.UID == "" {
+				body := &uid.CreateCaseRequestBody{
+					Type: lpa.Type,
+					Donor: uid.DonorDetails{
+						Name:     lpa.Donor.FullName(),
+						Dob:      uid.ISODate{Time: lpa.Donor.DateOfBirth.Time()},
+						Postcode: lpa.Donor.Address.Postcode,
+					},
+				}
+
+				resp, err := uidClient.CreateCase(r.Context(), body)
+				if err != nil {
+					logger.Print(err)
+				} else {
+					lpa.UID = resp.UID
+				}
+
+				if err := donorStore.Put(ctx, lpa); err != nil {
+					errorHandler(w, r, err)
+					return
+				}
+			}
+
+			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData)), lpa); err != nil {
 				errorHandler(w, r, err)
 			}
 		})

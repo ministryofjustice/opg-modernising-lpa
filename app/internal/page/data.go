@@ -27,6 +27,7 @@ const (
 
 type Lpa struct {
 	ID                                         string
+	UID                                        string
 	UpdatedAt                                  time.Time
 	Donor                                      actor.Donor
 	Attorneys                                  actor.Attorneys
