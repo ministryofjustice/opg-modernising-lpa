@@ -49,17 +49,21 @@ type OneLoginClient interface {
 type DonorStore interface {
 	Create(context.Context) (*Lpa, error)
 	Put(context.Context, *Lpa) error
+	GetAll(context.Context) ([]*Lpa, error)
+	GetAny(context.Context) (*Lpa, error)
 }
 
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
 type CertificateProviderStore interface {
-	Create(context.Context) (*actor.CertificateProviderProvidedDetails, error)
+	GetAll(context.Context) ([]*actor.CertificateProviderProvidedDetails, error)
+	Create(context.Context, string) (*actor.CertificateProviderProvidedDetails, error)
 	Put(context.Context, *actor.CertificateProviderProvidedDetails) error
 }
 
 //go:generate mockery --testonly --inpackage --name AttorneyStore --structname mockAttorneyStore
 type AttorneyStore interface {
-	Create(context.Context, string, bool) (*actor.AttorneyProvidedDetails, error)
+	Create(context.Context, string, string, bool) (*actor.AttorneyProvidedDetails, error)
+	GetAll(context.Context) ([]*actor.AttorneyProvidedDetails, error)
 }
 
 //go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore

@@ -46,17 +46,17 @@ func (m *mockDataStore) ExpectGetAllByGsi(ctx, gsi, sk, data interface{}, err er
 
 func TestDonorStoreGetAll(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
-
-	lpas := []*page.Lpa{{ID: "10100000"}}
+	lpa := &page.Lpa{ID: "10100000"}
 
 	dataStore := newMockDataStore(t)
-	dataStore.ExpectGetAllByGsi(ctx, "ActorIndex", "#DONOR#an-id", lpas, nil)
+	dataStore.ExpectGetAllByGsi(ctx, "ActorIndex", "#DONOR#an-id",
+		[]map[string]any{{"Data": lpa}}, nil)
 
 	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }}
 
 	result, err := donorStore.GetAll(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, lpas, result)
+	assert.Equal(t, []*page.Lpa{lpa}, result)
 }
 
 func TestDonorStoreGetAllWithSessionMissing(t *testing.T) {
@@ -178,6 +178,7 @@ func TestDonorStoreCreate(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.On("Create", ctx, "LPA#10100000", "#DONOR#an-id", &page.Lpa{ID: "10100000", UpdatedAt: now}).Return(nil)
+	dataStore.On("Create", ctx, "LPA#10100000", "#SUB#an-id", "#DONOR#an-id|DONOR").Return(nil)
 
 	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }, now: func() time.Time { return now }}
 
