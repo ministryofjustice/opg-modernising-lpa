@@ -61,7 +61,7 @@ type CreateCaseRequestBody struct {
 }
 
 type CreateCaseResponse struct {
-	Uid              string                              `json:"uid"`
+	UID              string                              `json:"uid"`
 	BadRequestErrors []CreateCaseResponseBadRequestError `json:"errors"`
 }
 
