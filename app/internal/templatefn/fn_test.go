@@ -146,6 +146,11 @@ func TestLink(t *testing.T) {
 	assert.Equal(t, "/cy/lpa/123/somewhere", link(page.AppData{Lang: localize.Cy, LpaID: "123"}, "/somewhere"))
 }
 
+func TestLinkWithID(t *testing.T) {
+	assert.Equal(t, "/lpa/123/task-list", linkWithID(page.AppData{}, "/task-list", "123"))
+	assert.Equal(t, "/cy/lpa/123/task-list", linkWithID(page.AppData{Lang: localize.Cy}, "/task-list", "123"))
+}
+
 func TestLinkLang(t *testing.T) {
 	assert.Equal(t, "/dashboard", linkLang(page.AppData{}, "/dashboard"))
 	assert.Equal(t, "/cy/dashboard", linkLang(page.AppData{Lang: localize.Cy}, "/dashboard"))
@@ -370,6 +375,19 @@ func TestListPeopleNamedOnLpa(t *testing.T) {
 	}
 
 	got := peopleNamedOnLpa(app, lpa, withHeaders)
+
+	assert.Equal(t, want, got)
+}
+
+func TestCard(t *testing.T) {
+	app := page.AppData{SessionID: "abc"}
+
+	want := map[string]interface{}{
+		"App":  app,
+		"Item": "hey",
+	}
+
+	got := card(app, "hey")
 
 	assert.Equal(t, want, got)
 }

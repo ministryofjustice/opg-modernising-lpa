@@ -23,10 +23,13 @@ func TestAttorneyStoreCreate(t *testing.T) {
 			dataStore.
 				On("Create", ctx, "LPA#123", "#ATTORNEY#456", details).
 				Return(nil)
+			dataStore.
+				On("Create", ctx, "LPA#123", "#SUB#456", "#DONOR#session-id|ATTORNEY").
+				Return(nil)
 
 			attorneyStore := &attorneyStore{dataStore: dataStore, now: func() time.Time { return now }}
 
-			attorney, err := attorneyStore.Create(ctx, "attorney-id", is)
+			attorney, err := attorneyStore.Create(ctx, "session-id", "attorney-id", is)
 			assert.Nil(t, err)
 			assert.Equal(t, details, attorney)
 		})
@@ -38,7 +41,7 @@ func TestAttorneyStoreCreateWhenSessionMissing(t *testing.T) {
 
 	attorneyStore := &attorneyStore{dataStore: nil, now: nil}
 
-	_, err := attorneyStore.Create(ctx, "attorney-id", false)
+	_, err := attorneyStore.Create(ctx, "session-id", "attorney-id", false)
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
@@ -53,7 +56,7 @@ func TestAttorneyStoreCreateWhenCreateError(t *testing.T) {
 
 	attorneyStore := &attorneyStore{dataStore: dataStore, now: func() time.Time { return now }}
 
-	_, err := attorneyStore.Create(ctx, "attorney-id", false)
+	_, err := attorneyStore.Create(ctx, "session-id", "attorney-id", false)
 	assert.Equal(t, expectedError, err)
 }
 

@@ -14,7 +14,7 @@ type attorneyStore struct {
 	now       func() time.Time
 }
 
-func (s *attorneyStore) Create(ctx context.Context, attorneyID string, isReplacement bool) (*actor.AttorneyProvidedDetails, error) {
+func (s *attorneyStore) Create(ctx context.Context, sessionID, attorneyID string, isReplacement bool) (*actor.AttorneyProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -24,10 +24,15 @@ func (s *attorneyStore) Create(ctx context.Context, attorneyID string, isReplace
 		return nil, errors.New("attorneyStore.Create requires LpaID and SessionID")
 	}
 
-	pk, sk := makeAttorneyKeys(data.LpaID, data.SessionID)
-
 	attorney := &actor.AttorneyProvidedDetails{ID: attorneyID, LpaID: data.LpaID, UpdatedAt: s.now(), IsReplacement: isReplacement}
-	err = s.dataStore.Create(ctx, pk, sk, attorney)
+
+	pk, sk, subk := makeAttorneyKeys(data.LpaID, data.SessionID)
+	if err := s.dataStore.Create(ctx, pk, sk, attorney); err != nil {
+		return nil, err
+	}
+	if err := s.dataStore.Create(ctx, pk, subk, "#DONOR#"+sessionID+"|ATTORNEY"); err != nil {
+		return nil, err
+	}
 
 	return attorney, err
 }
@@ -42,10 +47,17 @@ func (s *attorneyStore) GetAll(ctx context.Context) ([]*actor.AttorneyProvidedDe
 		return nil, errors.New("attorneyStore.GetAll requires SessionID")
 	}
 
-	var details []*actor.AttorneyProvidedDetails
+	var items []struct {
+		Data *actor.AttorneyProvidedDetails
+	}
 
 	sk := "#ATTORNEY#" + data.SessionID
-	err = s.dataStore.GetAllByGsi(ctx, "ActorIndex", sk, &details)
+	err = s.dataStore.GetAllByGsi(ctx, "ActorIndex", sk, &items)
+
+	details := make([]*actor.AttorneyProvidedDetails, len(items))
+	for i, item := range items {
+		details[i] = item.Data
+	}
 
 	return details, err
 }
@@ -60,7 +72,7 @@ func (s *attorneyStore) Get(ctx context.Context) (*actor.AttorneyProvidedDetails
 		return nil, errors.New("attorneyStore.Get requires LpaID and SessionID")
 	}
 
-	pk, sk := makeAttorneyKeys(data.LpaID, data.SessionID)
+	pk, sk, _ := makeAttorneyKeys(data.LpaID, data.SessionID)
 
 	var attorney actor.AttorneyProvidedDetails
 	err = s.dataStore.Get(ctx, pk, sk, &attorney)
@@ -78,12 +90,12 @@ func (s *attorneyStore) Put(ctx context.Context, attorney *actor.AttorneyProvide
 		return errors.New("attorneyStore.Put requires LpaID and SessionID")
 	}
 
-	pk, sk := makeAttorneyKeys(data.LpaID, data.SessionID)
+	pk, sk, _ := makeAttorneyKeys(data.LpaID, data.SessionID)
 
 	attorney.UpdatedAt = s.now()
 	return s.dataStore.Put(ctx, pk, sk, attorney)
 }
 
-func makeAttorneyKeys(lpaID, sessionID string) (string, string) {
-	return "LPA#" + lpaID, "#ATTORNEY#" + sessionID
+func makeAttorneyKeys(lpaID, sessionID string) (string, string, string) {
+	return "LPA#" + lpaID, "#ATTORNEY#" + sessionID, "#SUB#" + sessionID
 }
