@@ -391,6 +391,7 @@ func Fixtures(tmpl template.Template) Handler {
 					}
 				case "everything":
 					values = url.Values{
+						"fresh":                   {"1"},
 						"completeLpa":             {"1"},
 						"withCertificateProvider": {"1"},
 						"asAttorney":              {"1"},

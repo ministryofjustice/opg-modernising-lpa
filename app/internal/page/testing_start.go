@@ -192,7 +192,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		}
 
 		if r.FormValue("asCertificateProvider") != "" || r.FormValue("provideCertificate") != "" {
-			certificateProvider, err := certificateProviderStore.Create(ctx)
+			certificateProvider, err := certificateProviderStore.Create(ctx, sessionID)
 			if err != nil {
 				logger.Print("asCertificateProvider||provideCertificate creating CP ", err)
 			}
@@ -221,8 +221,18 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		}
 
 		if r.FormValue("withCertificateProvider") != "" {
-			certificateProvider, err := certificateProviderStore.Create(ctx)
+			certificateProviderCtx := ctx
+			certificateProviderSessionID := base64.StdEncoding.EncodeToString([]byte(randomString(16)))
 
+			if r.FormValue("fresh") != "" {
+				lpa, err := donorStore.Create(ContextWithSessionData(r.Context(), &SessionData{SessionID: certificateProviderSessionID}))
+				if err != nil {
+					logger.Print("creating lpa ", err)
+				}
+				certificateProviderCtx = ContextWithSessionData(r.Context(), &SessionData{SessionID: sessionID, LpaID: lpa.ID})
+			}
+
+			certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, certificateProviderSessionID)
 			if err != nil {
 				logger.Print("withCertificateProvider creating CP ", err)
 			}
@@ -237,21 +247,32 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			certificateProvider.Mobile = TestMobile
 			certificateProvider.Email = TestEmail
 
-			err = certificateProviderStore.Put(ctx, certificateProvider)
+			err = certificateProviderStore.Put(certificateProviderCtx, certificateProvider)
 			if err != nil {
 				logger.Print("withCertificateProvider putting CP ", err)
 			}
 		}
 
 		if r.FormValue("asAttorney") != "" {
-			_, err := attorneyStore.Create(ctx, lpa.Attorneys[0].ID, false)
+			attorneyCtx := ctx
+			attorneySessionID := base64.StdEncoding.EncodeToString([]byte(randomString(16)))
+
+			if r.FormValue("fresh") != "" {
+				lpa, err := donorStore.Create(ContextWithSessionData(r.Context(), &SessionData{SessionID: attorneySessionID}))
+				if err != nil {
+					logger.Print("creating lpa ", err)
+				}
+				attorneyCtx = ContextWithSessionData(r.Context(), &SessionData{SessionID: sessionID, LpaID: lpa.ID})
+			}
+
+			_, err := attorneyStore.Create(attorneyCtx, attorneySessionID, lpa.Attorneys[0].ID, false)
 			if err != nil {
 				logger.Print("asAttorney:", err)
 			}
 		}
 
 		if r.FormValue("asReplacementAttorney") != "" {
-			_, err := attorneyStore.Create(ctx, lpa.ReplacementAttorneys[0].ID, true)
+			_, err := attorneyStore.Create(ctx, sessionID, lpa.ReplacementAttorneys[0].ID, true)
 			if err != nil {
 				logger.Print("asReplacementAttorney:", err)
 			}

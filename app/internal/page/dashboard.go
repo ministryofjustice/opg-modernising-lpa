@@ -8,6 +8,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
+//go:generate mockery --testonly --inpackage --name DashboardStore --structname mockDashboardStore
+type DashboardStore interface {
+	GetAll(ctx context.Context) (donor, attorney, certificateProvider []*Lpa, err error)
+}
+
 type dashboardData struct {
 	App                     AppData
 	Errors                  validation.List
@@ -17,7 +22,7 @@ type dashboardData struct {
 	AttorneyLpas            []*Lpa
 }
 
-func Dashboard(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore) Handler {
+func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore DashboardStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		if r.Method == http.MethodPost {
 			lpa, err := donorStore.Create(r.Context())
@@ -28,39 +33,9 @@ func Dashboard(tmpl template.Template, donorStore DonorStore, certificateProvide
 			return appData.Redirect(w, r, lpa, Paths.YourDetails)
 		}
 
-		donorLpas, err := donorStore.GetAll(r.Context())
+		donorLpas, attorneyLpas, certificateProviderLpas, err := dashboardStore.GetAll(r.Context())
 		if err != nil {
 			return err
-		}
-
-		certificateProviderDetails, err := certificateProviderStore.GetAll(r.Context())
-		if err != nil {
-			return err
-		}
-
-		certificateProviderLpas := make([]*Lpa, len(certificateProviderDetails))
-		for i, detail := range certificateProviderDetails {
-			lpa, err := donorStore.GetAny(ContextWithSessionData(context.Background(), &SessionData{LpaID: detail.LpaID}))
-			if err != nil {
-				return err
-			}
-
-			certificateProviderLpas[i] = lpa
-		}
-
-		attorneyDetails, err := attorneyStore.GetAll(r.Context())
-		if err != nil {
-			return err
-		}
-
-		attorneyLpas := make([]*Lpa, len(attorneyDetails))
-		for i, detail := range attorneyDetails {
-			lpa, err := donorStore.GetAny(ContextWithSessionData(context.Background(), &SessionData{LpaID: detail.LpaID}))
-			if err != nil {
-				return err
-			}
-
-			attorneyLpas[i] = lpa
 		}
 
 		tabCount := 0

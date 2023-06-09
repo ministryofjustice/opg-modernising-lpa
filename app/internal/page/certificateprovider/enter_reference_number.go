@@ -46,6 +46,7 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 
 				if err := sesh.SetShareCode(sessionStore, r, w, &sesh.ShareCodeSession{
 					LpaID:           shareCode.LpaID,
+					SessionID:       shareCode.SessionID,
 					Identity:        shareCode.Identity,
 					DonorFullName:   shareCode.DonorFullname,
 					DonorFirstNames: shareCode.DonorFirstNames,
