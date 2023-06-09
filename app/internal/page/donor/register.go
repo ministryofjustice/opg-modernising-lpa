@@ -147,7 +147,7 @@ func Register(
 	handleWithLpa := makeLpaHandle(lpaMux, sessionStore, RequireSession, errorHandler, donorStore, uidClient, logger)
 
 	handleLpa(page.Paths.Root, None, notFoundHandler)
-	handleLpa(page.Paths.YourDetails, None,
+	handleWithLpa(page.Paths.YourDetails, None,
 		YourDetails(tmpls.Get("your_details.gohtml"), donorStore, sessionStore))
 	handleLpa(page.Paths.YourAddress, None,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
