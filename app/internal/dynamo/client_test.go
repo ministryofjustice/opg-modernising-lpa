@@ -143,7 +143,7 @@ func TestCreate(t *testing.T) {
 				"SK":   skey,
 				"Data": data,
 			},
-			ConditionExpression: aws.String("attribute_not_exists(PK)"),
+			ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
 		}).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
@@ -168,7 +168,7 @@ func TestCreateWhenError(t *testing.T) {
 				"SK":   skey,
 				"Data": data,
 			},
-			ConditionExpression: aws.String("attribute_not_exists(PK)"),
+			ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
 		}).
 		Return(&dynamodb.PutItemOutput{}, expectedError)
 
@@ -288,10 +288,14 @@ func TestGetAllByGsi(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v []string
+	var v []struct {
+		Data string
+	}
 	err := c.GetAllByGsi(ctx, "index-name", "a-partial-sk", &v)
 	assert.Nil(t, err)
-	assert.Equal(t, []string{"some data", "some data"}, v)
+	assert.Len(t, v, 2)
+	assert.Equal(t, "some data", v[0].Data)
+	assert.Equal(t, "some data", v[1].Data)
 }
 
 func TestGetAllByGsiWhenNotFound(t *testing.T) {
@@ -335,5 +339,65 @@ func TestGetAllByGsiOnQueryError(t *testing.T) {
 
 	var v []string
 	err := c.GetAllByGsi(ctx, "index-name", "a-partial-sk", &v)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestGetAllByKeys(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("BatchGetItem", ctx, &dynamodb.BatchGetItemInput{
+			RequestItems: map[string]types.KeysAndAttributes{
+				"this": {
+					Keys: []map[string]types.AttributeValue{{
+						"PK": &types.AttributeValueMemberS{Value: "pk"},
+						"SK": &types.AttributeValueMemberS{Value: "sk"},
+					}},
+				},
+			},
+		}).
+		Return(&dynamodb.BatchGetItemOutput{
+			Responses: map[string][]map[string]types.AttributeValue{
+				"this": {
+					{"Data": &types.AttributeValueMemberS{Value: "hey"}},
+				},
+			},
+		}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v []struct {
+		Data string
+	}
+	err := c.GetAllByKeys(ctx, []Key{{PK: "pk", SK: "sk"}}, &v)
+	assert.Nil(t, err)
+	assert.Len(t, v, 1)
+	assert.Equal(t, "hey", v[0].Data)
+}
+
+func TestGetAllByKeysWhenQueryErrors(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("BatchGetItem", ctx, &dynamodb.BatchGetItemInput{
+			RequestItems: map[string]types.KeysAndAttributes{
+				"this": {
+					Keys: []map[string]types.AttributeValue{{
+						"PK": &types.AttributeValueMemberS{Value: "pk"},
+						"SK": &types.AttributeValueMemberS{Value: "sk"},
+					}},
+				},
+			},
+		}).
+		Return(nil, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v []struct {
+		Data string
+	}
+	err := c.GetAllByKeys(ctx, []Key{{PK: "pk", SK: "sk"}}, &v)
 	assert.Equal(t, expectedError, err)
 }

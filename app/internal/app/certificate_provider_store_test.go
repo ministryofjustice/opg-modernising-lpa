@@ -19,10 +19,13 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 	dataStore.
 		On("Create", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123", UpdatedAt: now}).
 		Return(nil)
+	dataStore.
+		On("Create", ctx, "LPA#123", "#SUB#456", "#DONOR#session-id|CERTIFICATE_PROVIDER").
+		Return(nil)
 
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: func() time.Time { return now }}
 
-	certificateProvider, err := certificateProviderStore.Create(ctx)
+	certificateProvider, err := certificateProviderStore.Create(ctx, "session-id")
 	assert.Nil(t, err)
 	assert.Equal(t, &actor.CertificateProviderProvidedDetails{LpaID: "123", UpdatedAt: now}, certificateProvider)
 }
@@ -32,7 +35,7 @@ func TestCertificateProviderStoreCreateWhenSessionMissing(t *testing.T) {
 
 	certificateProviderStore := &certificateProviderStore{dataStore: nil, now: nil}
 
-	_, err := certificateProviderStore.Create(ctx)
+	_, err := certificateProviderStore.Create(ctx, "session-id")
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
@@ -47,7 +50,7 @@ func TestCertificateProviderStoreCreateWhenCreateError(t *testing.T) {
 
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: func() time.Time { return now }}
 
-	_, err := certificateProviderStore.Create(ctx)
+	_, err := certificateProviderStore.Create(ctx, "session-id")
 	assert.Equal(t, expectedError, err)
 }
 
