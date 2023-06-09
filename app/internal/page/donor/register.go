@@ -151,15 +151,15 @@ func Register(
 		YourDetails(tmpls.Get("your_details.gohtml"), donorStore, sessionStore))
 	handleLpa(page.Paths.YourAddress, None,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
+	handleLpa(page.Paths.WhoIsTheLpaFor, None,
+		WhoIsTheLpaFor(tmpls.Get("who_is_the_lpa_for.gohtml"), donorStore))
 	handleLpa(page.Paths.LpaType, None,
 		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore))
-	handleWithLpa(page.Paths.WhoIsTheLpaFor, None,
-		WhoIsTheLpaFor(tmpls.Get("who_is_the_lpa_for.gohtml"), donorStore))
 
 	handleLpa(page.Paths.TaskList, None,
 		TaskList(tmpls.Get("task_list.gohtml"), donorStore))
 
-	handleLpa(page.Paths.ChooseAttorneys, None,
+	handleWithLpa(page.Paths.ChooseAttorneys, None,
 		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), donorStore, random.UuidString))
 	handleLpa(page.Paths.ChooseAttorneysAddress, CanGoBack,
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
