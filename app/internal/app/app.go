@@ -7,11 +7,13 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -38,6 +40,7 @@ type DataStore interface {
 	Put(context.Context, string, string, interface{}) error
 	GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
 	GetAllByGsi(ctx context.Context, gsi, sk string, v interface{}) error
+	GetAllByKeys(ctx context.Context, pks []dynamo.Key) ([]map[string]types.AttributeValue, error)
 	Create(ctx context.Context, pk, sk string, v interface{}) error
 }
 
@@ -70,6 +73,7 @@ func App(
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: time.Now}
 	attorneyStore := &attorneyStore{dataStore: dataStore, now: time.Now}
 	shareCodeStore := &shareCodeStore{dataStore: dataStore}
+	dashboardStore := &dashboardStore{dataStore: dataStore}
 
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String)
 	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
@@ -98,7 +102,7 @@ func App(
 	handleRoot(page.Paths.Attorney.Start, None,
 		page.Guidance(tmpls.Get("attorney_start.gohtml")))
 	handleRoot(page.Paths.Dashboard, RequireSession,
-		page.Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, certificateProviderStore, attorneyStore))
+		page.Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, dashboardStore))
 
 	certificateprovider.Register(
 		rootMux,

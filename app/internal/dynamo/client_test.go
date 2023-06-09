@@ -143,7 +143,7 @@ func TestCreate(t *testing.T) {
 				"SK":   skey,
 				"Data": data,
 			},
-			ConditionExpression: aws.String("attribute_not_exists(PK)"),
+			ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
 		}).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
@@ -168,7 +168,7 @@ func TestCreateWhenError(t *testing.T) {
 				"SK":   skey,
 				"Data": data,
 			},
-			ConditionExpression: aws.String("attribute_not_exists(PK)"),
+			ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
 		}).
 		Return(&dynamodb.PutItemOutput{}, expectedError)
 
@@ -288,10 +288,14 @@ func TestGetAllByGsi(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v []string
+	var v []struct {
+		Data string
+	}
 	err := c.GetAllByGsi(ctx, "index-name", "a-partial-sk", &v)
 	assert.Nil(t, err)
-	assert.Equal(t, []string{"some data", "some data"}, v)
+	assert.Len(t, v, 2)
+	assert.Equal(t, "some data", v[0].Data)
+	assert.Equal(t, "some data", v[1].Data)
 }
 
 func TestGetAllByGsiWhenNotFound(t *testing.T) {
