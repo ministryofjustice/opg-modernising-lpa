@@ -161,7 +161,7 @@ func Register(
 
 	handleWithLpa(page.Paths.ChooseAttorneys, None,
 		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), donorStore, random.UuidString))
-	handleLpa(page.Paths.ChooseAttorneysAddress, CanGoBack,
+	handleWithLpa(page.Paths.ChooseAttorneysAddress, CanGoBack,
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleLpa(page.Paths.ChooseAttorneysSummary, CanGoBack,
 		ChooseAttorneysSummary(logger, tmpls.Get("choose_attorneys_summary.gohtml"), donorStore))
