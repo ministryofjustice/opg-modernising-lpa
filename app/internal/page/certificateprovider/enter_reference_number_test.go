@@ -98,7 +98,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 				HttpOnly: true,
 				Secure:   true,
 			}
-			session.Values = map[any]any{"share-code": &sesh.ShareCodeSession{LpaID: "lpa-id", Identity: tc.Identity}}
+			session.Values = map[any]any{"share-code": &sesh.ShareCodeSession{LpaID: "lpa-id", SessionID: "session-id", Identity: tc.Identity}}
 
 			sessionStore.
 				On("Save", r, w, session).

@@ -57,13 +57,13 @@ type DonorStore interface {
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
 type CertificateProviderStore interface {
 	GetAll(context.Context) ([]*actor.CertificateProviderProvidedDetails, error)
-	Create(context.Context) (*actor.CertificateProviderProvidedDetails, error)
+	Create(context.Context, string) (*actor.CertificateProviderProvidedDetails, error)
 	Put(context.Context, *actor.CertificateProviderProvidedDetails) error
 }
 
 //go:generate mockery --testonly --inpackage --name AttorneyStore --structname mockAttorneyStore
 type AttorneyStore interface {
-	Create(context.Context, string, bool) (*actor.AttorneyProvidedDetails, error)
+	Create(context.Context, string, string, bool) (*actor.AttorneyProvidedDetails, error)
 	GetAll(context.Context) ([]*actor.AttorneyProvidedDetails, error)
 }
 

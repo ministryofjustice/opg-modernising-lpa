@@ -13,6 +13,7 @@ import (
 type dynamoDB interface {
 	Query(context.Context, *dynamodb.QueryInput, ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)
 	GetItem(context.Context, *dynamodb.GetItemInput, ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
+	BatchGetItem(context.Context, *dynamodb.BatchGetItemInput, ...func(*dynamodb.Options)) (*dynamodb.BatchGetItemOutput, error)
 	PutItem(context.Context, *dynamodb.PutItemInput, ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
 	TransactWriteItems(ctx context.Context, params *dynamodb.TransactWriteItemsInput, optFns ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)
 }
@@ -69,21 +70,39 @@ func (c *Client) GetAllByGsi(ctx context.Context, gsi, sk string, v interface{})
 		ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey},
 		KeyConditionExpression:    aws.String("#SK = :SK"),
 	})
-
 	if err != nil {
 		return err
 	}
 
-	if len(response.Items) == 0 {
-		return nil
+	return attributevalue.UnmarshalListOfMaps(response.Items, v)
+}
+
+type Key struct {
+	PK string
+	SK string
+}
+
+func (c *Client) GetAllByKeys(ctx context.Context, keys []Key, v interface{}) error {
+	var keyAttrs []map[string]types.AttributeValue
+	for _, key := range keys {
+		keyAttrs = append(keyAttrs, map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: key.PK},
+			"SK": &types.AttributeValueMemberS{Value: key.SK},
+		})
 	}
 
-	var items []types.AttributeValue
-	for _, item := range response.Items {
-		items = append(items, item["Data"])
+	result, err := c.svc.BatchGetItem(ctx, &dynamodb.BatchGetItemInput{
+		RequestItems: map[string]types.KeysAndAttributes{
+			c.table: {
+				Keys: keyAttrs,
+			},
+		},
+	})
+	if err != nil {
+		return err
 	}
 
-	return attributevalue.UnmarshalList(items, v)
+	return attributevalue.UnmarshalListOfMaps(result.Responses[c.table], &v)
 }
 
 func (c *Client) GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error {
@@ -154,7 +173,7 @@ func (c *Client) Create(ctx context.Context, pk, sk string, v interface{}) error
 	_, err = c.svc.PutItem(ctx, &dynamodb.PutItemInput{
 		TableName:           aws.String(c.table),
 		Item:                item,
-		ConditionExpression: aws.String("attribute_not_exists(PK)"),
+		ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
 	})
 
 	return err

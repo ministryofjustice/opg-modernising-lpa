@@ -40,7 +40,7 @@ func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store, certi
 			LpaID:     oneLoginSession.LpaID,
 		})
 
-		_, err = certificateProviderStore.Create(ctx)
+		_, err = certificateProviderStore.Create(ctx, oneLoginSession.SessionID)
 		if err != nil {
 			var ccf *types.ConditionalCheckFailedException
 			if !errors.As(err, &ccf) {
