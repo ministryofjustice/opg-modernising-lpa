@@ -6,7 +6,6 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -16,7 +15,7 @@ type lpaTypeData struct {
 	Type   string
 }
 
-func LpaType(tmpl template.Template, donorStore DonorStore, uidClient UidClient, logger Logger) page.Handler {
+func LpaType(tmpl template.Template, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := donorStore.Get(r.Context())
 		if err != nil {
@@ -35,22 +34,8 @@ func LpaType(tmpl template.Template, donorStore DonorStore, uidClient UidClient,
 			if data.Errors.None() {
 				lpa.Tasks.YourDetails = actor.TaskCompleted
 				lpa.Type = form.LpaType
+
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
-					return err
-				}
-
-				body := &uid.CreateCaseRequestBody{
-					Type: lpa.Type,
-					Donor: uid.DonorDetails{
-						Name:     lpa.Donor.FullName(),
-						Dob:      uid.ISODate{Time: lpa.Donor.DateOfBirth.Time()},
-						Postcode: lpa.Donor.Address.Postcode,
-					},
-				}
-
-				_, err := uidClient.CreateCase(r.Context(), body)
-				if err != nil {
-					logger.Print(err)
 					return err
 				}
 
