@@ -73,7 +73,7 @@ jobs:
         working-directory: ./terraform/environment
         run: |
           terraform workspace select ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
-          terraform destroy -auto-approve -var "pagerduty_api_token=${{ secrets.PAGERDUTY_API_TOKEN }}"
+          terraform destroy -auto-approve -var "pagerduty_api_key=${{ secrets.PAGERDUTY_API_KEY }}"
           terraform workspace select default
           terraform workspace delete ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
       - name: Remove protection for environment workspace
