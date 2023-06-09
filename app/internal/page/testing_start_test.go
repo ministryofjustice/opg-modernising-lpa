@@ -1039,7 +1039,7 @@ func TestTestingStart(t *testing.T) {
 
 		certificateProviderStore := newMockCertificateProviderStore(t)
 		certificateProviderStore.
-			On("Create", ctx).
+			On("Create", ctx, "MTIz").
 			Return(&actor.CertificateProviderProvidedDetails{
 				IdentityUserData: identity.UserData{
 					OK:         true,
@@ -1097,7 +1097,7 @@ func TestTestingStart(t *testing.T) {
 
 		certificateProviderStore := newMockCertificateProviderStore(t)
 		certificateProviderStore.
-			On("Create", ctx).
+			On("Create", ctx, "MTIz").
 			Return(&actor.CertificateProviderProvidedDetails{
 				IdentityUserData: identity.UserData{
 					OK:         true,
@@ -1295,7 +1295,7 @@ func TestTestingStart(t *testing.T) {
 
 		certificateProviderStore := newMockCertificateProviderStore(t)
 		certificateProviderStore.
-			On("Create", ctx).
+			On("Create", ctx, "MTIz").
 			Return(&actor.CertificateProviderProvidedDetails{
 				IdentityUserData: identity.UserData{
 					OK:         true,
@@ -1356,7 +1356,7 @@ func TestTestingStart(t *testing.T) {
 
 		attorneyStore := newMockAttorneyStore(t)
 		attorneyStore.
-			On("Create", ctx, "456", false).
+			On("Create", ctx, "MTIz", "456", false).
 			Return(nil, nil)
 
 		TestingStart(sessionStore, donorStore, MockRandom, nil, nil, nil, attorneyStore, nil, nil).ServeHTTP(w, r)
@@ -1392,7 +1392,7 @@ func TestTestingStart(t *testing.T) {
 
 		attorneyStore := newMockAttorneyStore(t)
 		attorneyStore.
-			On("Create", ctx, "456", true).
+			On("Create", ctx, "MTIz", "456", true).
 			Return(nil, nil)
 
 		TestingStart(sessionStore, donorStore, MockRandom, nil, nil, nil, attorneyStore, nil, nil).ServeHTTP(w, r)
