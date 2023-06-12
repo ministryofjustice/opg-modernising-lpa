@@ -275,8 +275,8 @@ func Register(
 	handleWithLpa(page.Paths.SignYourLpa, CanGoBack,
 		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), donorStore))
 	handleWithLpa(page.Paths.WitnessingYourSignature, None,
-		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), donorStore, witnessCodeSender))
-	handleLpa(page.Paths.WitnessingAsCertificateProvider, None,
+		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), witnessCodeSender))
+	handleWithLpa(page.Paths.WitnessingAsCertificateProvider, None,
 		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), donorStore, shareCodeSender, time.Now, certificateProviderStore))
 	handleLpa(page.Paths.ResendWitnessCode, CanGoBack,
 		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), donorStore, witnessCodeSender, time.Now))
