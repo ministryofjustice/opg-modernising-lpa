@@ -16,13 +16,8 @@ type howLongHaveYouKnownCertificateProviderData struct {
 	HowLong             string
 }
 
-func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore DonorStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &howLongHaveYouKnownCertificateProviderData{
 			App:                 appData,
 			CertificateProvider: lpa.CertificateProvider,
