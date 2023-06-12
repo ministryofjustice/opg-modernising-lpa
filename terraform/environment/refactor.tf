@@ -4,7 +4,7 @@ moved {
 }
 
 moved {
-  from = aws_resourcegroups_group.environment-eu-west-1
+  from = aws_resourcegroups_group.environment_eu_west_1
   to   = module.eu_west_1[0].aws_resourcegroups_group.environment
 }
 
