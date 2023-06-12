@@ -143,7 +143,6 @@ func Register(
 	rootMux.Handle("/lpa/", page.RouteToPrefix("/lpa/", lpaMux, notFoundHandler))
 
 	handleLpa := makeHandle(lpaMux, sessionStore, RequireSession, errorHandler)
-	// Temp - will update all the routes that need an LPA in a future PR to save on diff
 	handleWithLpa := makeLpaHandle(lpaMux, sessionStore, RequireSession, errorHandler, donorStore, uidClient, logger)
 
 	handleLpa(page.Paths.Root, None, notFoundHandler)
