@@ -20,11 +20,6 @@ func TestGetLpaType(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &lpaTypeData{
@@ -32,7 +27,7 @@ func TestGetLpaType(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, donorStore)(testAppData, w, r)
+	err := LpaType(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -43,11 +38,6 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{Type: page.LpaTypePropertyFinance}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &lpaTypeData{
@@ -56,37 +46,16 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, donorStore)(testAppData, w, r)
+	err := LpaType(template.Execute, nil)(testAppData, w, r, &page.Lpa{Type: page.LpaTypePropertyFinance})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetLpaTypeWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := LpaType(nil, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -95,7 +64,7 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := LpaType(template.Execute, donorStore)(testAppData, w, r)
+	err := LpaType(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -113,16 +82,6 @@ func TestPostLpaType(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{Donor: actor.Donor{
-			FirstNames:  "Jane",
-			LastName:    "Smith",
-			DateOfBirth: date.New("2000", "1", "2"),
-			Address:     place.Address{Postcode: "ABC123"},
-		},
-		}, nil)
-
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{Donor: actor.Donor{
 			FirstNames:  "Jane",
 			LastName:    "Smith",
@@ -134,7 +93,14 @@ func TestPostLpaType(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaType(nil, donorStore)(testAppData, w, r)
+	err := LpaType(nil, donorStore)(testAppData, w, r, &page.Lpa{
+		Donor: actor.Donor{
+			FirstNames:  "Jane",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "1", "2"),
+			Address:     place.Address{Postcode: "ABC123"},
+		},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -153,13 +119,10 @@ func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := LpaType(nil, donorStore)(testAppData, w, r)
+	err := LpaType(nil, donorStore)(testAppData, w, r, &page.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -169,11 +132,6 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &lpaTypeData{
@@ -182,7 +140,7 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, donorStore)(testAppData, w, r)
+	err := LpaType(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -16,13 +16,8 @@ type howShouldAttorneysMakeDecisionsData struct {
 	Lpa    *page.Lpa
 }
 
-func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorStore) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &howShouldAttorneysMakeDecisionsData{
 			App: appData,
 			Form: &howShouldAttorneysMakeDecisionsForm{

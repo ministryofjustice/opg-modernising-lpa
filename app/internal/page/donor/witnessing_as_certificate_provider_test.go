@@ -22,11 +22,6 @@ func TestGetWitnessingAsCertificateProvider(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &witnessingAsCertificateProviderData{
@@ -36,41 +31,16 @@ func TestGetWitnessingAsCertificateProvider(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, time.Now, nil)(testAppData, w, r)
+	err := WitnessingAsCertificateProvider(template.Execute, nil, nil, time.Now, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetWitnessingAsCertificateProviderWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	template := newMockTemplate(t)
-
-	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, time.Now, nil)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			CertificateProvider: actor.CertificateProvider{FirstNames: "Joan"},
-		}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -83,7 +53,9 @@ func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, time.Now, nil)(testAppData, w, r)
+	err := WitnessingAsCertificateProvider(template.Execute, nil, nil, time.Now, nil)(testAppData, w, r, &page.Lpa{
+		CertificateProvider: actor.CertificateProvider{FirstNames: "Joan"},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -94,11 +66,6 @@ func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &witnessingAsCertificateProviderData{
@@ -108,7 +75,7 @@ func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, time.Now, nil)(testAppData, w, r)
+	err := WitnessingAsCertificateProvider(template.Execute, nil, nil, time.Now, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -149,12 +116,6 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{
-					DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
-					WitnessCodes:          page.WitnessCodes{{Code: "1234", Created: now}},
-				}, nil)
-			donorStore.
 				On("Put", r.Context(), &page.Lpa{
 					DonorIdentityUserData:  identity.UserData{OK: true, Provider: identity.OneLogin},
 					WitnessCodes:           page.WitnessCodes{{Code: "1234", Created: now}},
@@ -173,7 +134,10 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 				On("GetAny", ctx).
 				Return(tc.certificateProvider, tc.err)
 
-			err := WitnessingAsCertificateProvider(nil, donorStore, nil, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r)
+			err := WitnessingAsCertificateProvider(nil, donorStore, nil, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r, &page.Lpa{
+				DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
+				WitnessCodes:          page.WitnessCodes{{Code: "1234", Created: now}},
+			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -202,13 +166,6 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 	}
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
-			CertificateProvider:   actor.CertificateProvider{Email: "name@example.com"},
-			WitnessCodes:          page.WitnessCodes{{Code: "1234", Created: now}},
-		}, nil)
-	donorStore.
 		On("Put", r.Context(), lpa).
 		Return(nil)
 
@@ -227,7 +184,11 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 		On("SendCertificateProvider", r.Context(), notify.CertificateProviderReturnEmail, testAppData, false, lpa).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r)
+	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r, &page.Lpa{
+		DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
+		CertificateProvider:   actor.CertificateProvider{Email: "name@example.com"},
+		WitnessCodes:          page.WitnessCodes{{Code: "1234", Created: now}},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -253,12 +214,6 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendErrors(t *testing.T
 	}
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			CertificateProvider: actor.CertificateProvider{Email: "name@example.com"},
-			WitnessCodes:        page.WitnessCodes{{Code: "1234", Created: now}},
-		}, nil)
-	donorStore.
 		On("Put", r.Context(), lpa).
 		Return(nil)
 
@@ -280,7 +235,10 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendErrors(t *testing.T
 		On("SendCertificateProvider", r.Context(), notify.CertificateProviderReturnEmail, testAppData, false, lpa).
 		Return(expectedError)
 
-	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r)
+	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r, &page.Lpa{
+		CertificateProvider: actor.CertificateProvider{Email: "name@example.com"},
+		WitnessCodes:        page.WitnessCodes{{Code: "1234", Created: now}},
+	})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -298,11 +256,6 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 	invalidCreated := now.Add(-45 * time.Minute)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			WitnessCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
-		}, nil)
 	donorStore.
 		On("Put", r.Context(), mock.MatchedBy(func(lpa *page.Lpa) bool {
 			lpa.WitnessCodeLimiter = nil
@@ -324,7 +277,9 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, time.Now, nil)(testAppData, w, r)
+	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, time.Now, nil)(testAppData, w, r, &page.Lpa{
+		WitnessCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -343,11 +298,6 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 	now := time.Now()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			WitnessCodes: page.WitnessCodes{{Code: "1234", Created: now}},
-		}, nil)
 	donorStore.
 		On("Put", r.Context(), mock.MatchedBy(func(lpa *page.Lpa) bool {
 			lpa.WitnessCodeLimiter = nil
@@ -369,7 +319,9 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, time.Now, nil)(testAppData, w, r)
+	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, time.Now, nil)(testAppData, w, r, &page.Lpa{
+		WitnessCodes: page.WitnessCodes{{Code: "1234", Created: now}},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -389,11 +341,6 @@ func TestPostWitnessingAsCertificateProviderWhenCodeExpired(t *testing.T) {
 	invalidCreated := now.Add(-45 * time.Minute)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			WitnessCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
-		}, nil)
 	donorStore.
 		On("Put", r.Context(), mock.MatchedBy(func(lpa *page.Lpa) bool {
 			lpa.WitnessCodeLimiter = nil
@@ -415,7 +362,9 @@ func TestPostWitnessingAsCertificateProviderWhenCodeExpired(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, time.Now, nil)(testAppData, w, r)
+	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, time.Now, nil)(testAppData, w, r, &page.Lpa{
+		WitnessCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -434,12 +383,6 @@ func TestPostWitnessingAsCertificateProviderCodeLimitBreached(t *testing.T) {
 	now := time.Now()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			WitnessCodeLimiter: page.NewLimiter(time.Minute, 0, 10),
-			WitnessCodes:       page.WitnessCodes{{Code: "1234", Created: now}},
-		}, nil)
 	donorStore.
 		On("Put", r.Context(), mock.MatchedBy(func(lpa *page.Lpa) bool {
 			lpa.WitnessCodeLimiter = nil
@@ -461,7 +404,10 @@ func TestPostWitnessingAsCertificateProviderCodeLimitBreached(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, time.Now, nil)(testAppData, w, r)
+	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, time.Now, nil)(testAppData, w, r, &page.Lpa{
+		WitnessCodeLimiter: page.NewLimiter(time.Minute, 0, 10),
+		WitnessCodes:       page.WitnessCodes{{Code: "1234", Created: now}},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -26,11 +26,6 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Donor: actor.Donor{FirstNames: "John", LastName: "Doe"},
-		}, nil)
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			Donor:                 actor.Donor{FirstNames: "John", LastName: "Doe"},
 			DonorIdentityUserData: userData,
@@ -67,7 +62,9 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := IdentityWithOneLoginCallback(template.Execute, oneLoginClient, sessionStore, donorStore)(testAppData, w, r)
+	err := IdentityWithOneLoginCallback(template.Execute, oneLoginClient, sessionStore, donorStore)(testAppData, w, r, &page.Lpa{
+		Donor: actor.Donor{FirstNames: "John", LastName: "Doe"},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -196,16 +193,11 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{}, nil)
-
 			sessionStore := tc.sessionStore(t)
 			oneLoginClient := tc.oneLoginClient(t)
 			template := tc.template(t, w)
 
-			err := IdentityWithOneLoginCallback(template.Execute, oneLoginClient, sessionStore, donorStore)(testAppData, w, r)
+			err := IdentityWithOneLoginCallback(template.Execute, oneLoginClient, sessionStore, nil)(testAppData, w, r, &page.Lpa{})
 			resp := w.Result()
 
 			assert.Equal(t, tc.error, err)
@@ -214,27 +206,12 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 	}
 }
 
-func TestGetIdentityWithOneLoginCallbackWhenGetDonorStoreError(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.On("Get", r.Context()).Return(&page.Lpa{}, expectedError)
-
-	err := IdentityWithOneLoginCallback(nil, nil, nil, donorStore)(testAppData, w, r)
-
-	assert.Equal(t, expectedError, err)
-}
-
 func TestGetIdentityWithOneLoginCallbackWhenPutDonorStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
@@ -259,7 +236,7 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDonorStoreError(t *testing.T) {
 		On("ParseIdentityClaim", mock.Anything, mock.Anything).
 		Return(identity.UserData{OK: true, Provider: identity.OneLogin}, nil)
 
-	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, donorStore)(testAppData, w, r)
+	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, donorStore)(testAppData, w, r, &page.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -269,14 +246,6 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	now := time.Date(2012, time.January, 1, 2, 3, 4, 5, time.UTC)
 	userData := identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "first-name", LastName: "last-name", RetrievedAt: now}
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Donor:                 actor.Donor{FirstNames: "first-name", LastName: "last-name"},
-			DonorIdentityUserData: userData,
-		}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -288,7 +257,10 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := IdentityWithOneLoginCallback(template.Execute, nil, nil, donorStore)(testAppData, w, r)
+	err := IdentityWithOneLoginCallback(template.Execute, nil, nil, nil)(testAppData, w, r, &page.Lpa{
+		Donor:                 actor.Donor{FirstNames: "first-name", LastName: "last-name"},
+		DonorIdentityUserData: userData,
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -299,12 +271,9 @@ func TestPostIdentityWithOneLoginCallback(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.On("Get", r.Context()).Return(&page.Lpa{
+	err := IdentityWithOneLoginCallback(nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{
 		DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
-	}, nil)
-
-	err := IdentityWithOneLoginCallback(nil, nil, nil, donorStore)(testAppData, w, r)
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -316,10 +285,7 @@ func TestPostIdentityWithOneLoginCallbackNotConfirmed(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.On("Get", r.Context()).Return(&page.Lpa{}, nil)
-
-	err := IdentityWithOneLoginCallback(nil, nil, nil, donorStore)(testAppData, w, r)
+	err := IdentityWithOneLoginCallback(nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -18,11 +18,6 @@ func TestGetAreYouHappyIfRemainingAttorneysCanContinueToAct(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &areYouHappyIfRemainingAttorneysCanContinueToActData{
@@ -30,37 +25,16 @@ func TestGetAreYouHappyIfRemainingAttorneysCanContinueToAct(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := AreYouHappyIfRemainingAttorneysCanContinueToAct(template.Execute, donorStore)(testAppData, w, r)
+	err := AreYouHappyIfRemainingAttorneysCanContinueToAct(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetAreYouHappyIfRemainingAttorneysCanContinueToActWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := AreYouHappyIfRemainingAttorneysCanContinueToAct(nil, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetAreYouHappyIfRemainingAttorneysCanContinueToActWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -69,7 +43,7 @@ func TestGetAreYouHappyIfRemainingAttorneysCanContinueToActWhenTemplateErrors(t 
 		}).
 		Return(expectedError)
 
-	err := AreYouHappyIfRemainingAttorneysCanContinueToAct(template.Execute, donorStore)(testAppData, w, r)
+	err := AreYouHappyIfRemainingAttorneysCanContinueToAct(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -89,15 +63,12 @@ func TestPostAreYouHappyIfRemainingAttorneysCanContinueToAct(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{}, nil)
-			donorStore.
 				On("Put", r.Context(), &page.Lpa{
 					AttorneyDecisions: actor.AttorneyDecisions{HappyIfRemainingCanContinueToAct: happy},
 				}).
 				Return(nil)
 
-			err := AreYouHappyIfRemainingAttorneysCanContinueToAct(nil, donorStore)(testAppData, w, r)
+			err := AreYouHappyIfRemainingAttorneysCanContinueToAct(nil, donorStore)(testAppData, w, r, &page.Lpa{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -118,13 +89,10 @@ func TestPostAreYouHappyIfRemainingAttorneysCanContinueToActWhenStoreErrors(t *t
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := AreYouHappyIfRemainingAttorneysCanContinueToAct(nil, donorStore)(testAppData, w, r)
+	err := AreYouHappyIfRemainingAttorneysCanContinueToAct(nil, donorStore)(testAppData, w, r, &page.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -134,11 +102,6 @@ func TestPostAreYouHappyIfRemainingAttorneysCanContinueToActWhenValidationErrors
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &areYouHappyIfRemainingAttorneysCanContinueToActData{
@@ -147,7 +110,7 @@ func TestPostAreYouHappyIfRemainingAttorneysCanContinueToActWhenValidationErrors
 		}).
 		Return(nil)
 
-	err := AreYouHappyIfRemainingAttorneysCanContinueToAct(template.Execute, donorStore)(testAppData, w, r)
+	err := AreYouHappyIfRemainingAttorneysCanContinueToAct(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

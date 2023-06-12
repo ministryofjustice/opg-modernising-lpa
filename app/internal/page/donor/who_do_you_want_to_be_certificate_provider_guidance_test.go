@@ -36,11 +36,6 @@ func TestGetWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Get", r.Context()).
-				Return(tc.data, nil)
-
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &whoDoYouWantToBeCertificateProviderGuidanceData{
@@ -49,47 +44,25 @@ func TestGetWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := WhoDoYouWantToBeCertificateProviderGuidance(template.Execute, donorStore)(testAppData, w, r)
+			err := WhoDoYouWantToBeCertificateProviderGuidance(template.Execute, nil)(testAppData, w, r, tc.data)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-
 		})
 	}
-}
-
-func TestGetWhoDoYouWantToBeCertificateProviderGuidanceWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestGetWhoDoYouWantToBeCertificateProviderGuidanceWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := WhoDoYouWantToBeCertificateProviderGuidance(template.Execute, donorStore)(testAppData, w, r)
+	err := WhoDoYouWantToBeCertificateProviderGuidance(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -103,13 +76,10 @@ func TestPostWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{Tasks: page.Tasks{CertificateProvider: actor.TaskInProgress}}).
 		Return(nil)
 
-	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, donorStore)(testAppData, w, r)
+	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, donorStore)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -124,13 +94,10 @@ func TestPostWhoDoYouWantToBeCertificateProviderGuidanceWhenStoreErrors(t *testi
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, donorStore)(testAppData, w, r)
+	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, donorStore)(testAppData, w, r, &page.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }

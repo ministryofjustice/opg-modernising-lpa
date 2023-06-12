@@ -21,11 +21,6 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 
 	lpa := &page.Lpa{PeopleToNotify: actor.PeopleToNotify{{}}}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(lpa, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &choosePeopleToNotifySummaryData{
@@ -35,7 +30,7 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifySummary(nil, template.Execute, donorStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifySummary(template.Execute)(testAppData, w, r, lpa)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -46,47 +41,22 @@ func TestGetChoosePeopleToNotifySummaryWhenNoPeopleToNotify(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Tasks: page.Tasks{
-				YourDetails:                actor.TaskCompleted,
-				ChooseAttorneys:            actor.TaskCompleted,
-				ChooseReplacementAttorneys: actor.TaskCompleted,
-				WhenCanTheLpaBeUsed:        actor.TaskCompleted,
-				Restrictions:               actor.TaskCompleted,
-				CertificateProvider:        actor.TaskCompleted,
-			},
-		}, nil)
+	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &page.Lpa{
+		Tasks: page.Tasks{
+			YourDetails:                actor.TaskCompleted,
+			ChooseAttorneys:            actor.TaskCompleted,
+			ChooseReplacementAttorneys: actor.TaskCompleted,
+			WhenCanTheLpaBeUsed:        actor.TaskCompleted,
+			Restrictions:               actor.TaskCompleted,
+			CertificateProvider:        actor.TaskCompleted,
+		},
+	})
 
-	err := ChoosePeopleToNotifySummary(nil, nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.DoYouWantToNotifyPeople, resp.Header.Get("Location"))
-}
-
-func TestGetChoosePeopleToNotifySummaryWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{{}}}, expectedError)
-
-	logger := &mockLogger{}
-	logger.
-		On("Print", "error getting lpa from store: err").
-		Return(nil)
-
-	err := ChoosePeopleToNotifySummary(logger, nil, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
@@ -98,12 +68,7 @@ func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}}, nil)
-
-	err := ChoosePeopleToNotifySummary(nil, nil, donorStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &page.Lpa{PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -120,23 +85,18 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			PeopleToNotify: actor.PeopleToNotify{{ID: "123"}},
-			Tasks: page.Tasks{
-				YourDetails:                actor.TaskCompleted,
-				ChooseAttorneys:            actor.TaskCompleted,
-				ChooseReplacementAttorneys: actor.TaskCompleted,
-				WhenCanTheLpaBeUsed:        actor.TaskCompleted,
-				Restrictions:               actor.TaskCompleted,
-				CertificateProvider:        actor.TaskCompleted,
-				PeopleToNotify:             actor.TaskCompleted,
-			},
-		}, nil)
-
-	err := ChoosePeopleToNotifySummary(nil, nil, donorStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &page.Lpa{
+		PeopleToNotify: actor.PeopleToNotify{{ID: "123"}},
+		Tasks: page.Tasks{
+			YourDetails:                actor.TaskCompleted,
+			ChooseAttorneys:            actor.TaskCompleted,
+			ChooseReplacementAttorneys: actor.TaskCompleted,
+			WhenCanTheLpaBeUsed:        actor.TaskCompleted,
+			Restrictions:               actor.TaskCompleted,
+			CertificateProvider:        actor.TaskCompleted,
+			PeopleToNotify:             actor.TaskCompleted,
+		},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -153,11 +113,6 @@ func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{PeopleToNotify: actor.PeopleToNotify{{}}}, nil)
-
 	validationError := validation.With("add-person-to-notify", validation.SelectError{Label: "yesToAddAnotherPersonToNotify"})
 
 	template := newMockTemplate(t)
@@ -167,7 +122,7 @@ func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChoosePeopleToNotifySummary(nil, template.Execute, donorStore)(testAppData, w, r)
+	err := ChoosePeopleToNotifySummary(template.Execute)(testAppData, w, r, &page.Lpa{PeopleToNotify: actor.PeopleToNotify{{}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

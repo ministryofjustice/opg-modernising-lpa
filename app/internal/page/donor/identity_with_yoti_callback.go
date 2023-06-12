@@ -20,13 +20,8 @@ type identityWithYotiCallbackData struct {
 	CouldNotConfirm bool
 }
 
-func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, donorStore DonorStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, donorStore DonorStore) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if r.Method == http.MethodPost {
 			if lpa.DonorIdentityConfirmed() {
 				return appData.Redirect(w, r, lpa, page.Paths.ReadYourLpa)
