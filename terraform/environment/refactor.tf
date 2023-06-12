@@ -22,3 +22,18 @@ moved {
   from = aws_resourcegroups_group.environment_global
   to   = module.global.aws_resourcegroups_group.environment_global
 }
+
+moved {
+  from = aws_iam_role.execution_role
+  to   = module.global.aws_iam_role.execution_role
+}
+
+moved {
+  from = aws_iam_role.app_task_role
+  to   = module.global.aws_iam_role.app_task_role
+}
+
+moved {
+  from = aws_iam_role_policy.execution_role
+  to   = module.global.aws_iam_role_policy.execution_role
+}
