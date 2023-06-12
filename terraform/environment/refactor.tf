@@ -9,6 +9,6 @@ moved {
 }
 
 moved {
-  from = aws_resourcegroups_group.environment_global
-  to   = module.global.aws_resourcegroups_group.environment
+  from = module.global.aws_resourcegroups_group.environment
+  to   = module.global.aws_resourcegroups_group.environment_global
 }
