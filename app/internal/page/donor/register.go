@@ -195,7 +195,7 @@ func Register(
 
 	handleWithLpa(page.Paths.WhenCanTheLpaBeUsed, None,
 		WhenCanTheLpaBeUsed(tmpls.Get("when_can_the_lpa_be_used.gohtml"), donorStore))
-	handleLpa(page.Paths.LifeSustainingTreatment, None,
+	handleWithLpa(page.Paths.LifeSustainingTreatment, None,
 		LifeSustainingTreatment(tmpls.Get("life_sustaining_treatment.gohtml"), donorStore))
 	handleLpa(page.Paths.Restrictions, None,
 		Restrictions(tmpls.Get("restrictions.gohtml"), donorStore))
