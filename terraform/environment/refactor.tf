@@ -1,4 +1,9 @@
 moved {
+  from = aws_secretsmanager_secret.rum_monitor_application_id_eu_west_1
+  to   = module.eu_west_1[0].aws_secretsmanager_secret.rum_monitor_application_id
+}
+
+moved {
   from = aws_applicationinsights_application.environment_eu_west_1[0]
   to   = module.eu_west_1[0].aws_applicationinsights_application.environment
 }
