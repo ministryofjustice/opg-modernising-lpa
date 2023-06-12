@@ -234,8 +234,8 @@ func Register(
 
 	handleWithLpa(page.Paths.HowToConfirmYourIdentityAndSign, None,
 		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml")))
-	handleLpa(page.Paths.WhatYoullNeedToConfirmYourIdentity, None,
-		Guidance(tmpls.Get("what_youll_need_to_confirm_your_identity.gohtml"), donorStore))
+	handleWithLpa(page.Paths.WhatYoullNeedToConfirmYourIdentity, None,
+		Guidance(tmpls.Get("what_youll_need_to_confirm_your_identity.gohtml")))
 
 	for path, page := range map[string]int{
 		page.Paths.SelectYourIdentityOptions:  0,
@@ -268,10 +268,10 @@ func Register(
 			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), donorStore, time.Now, identityOption))
 	}
 
-	handleLpa(page.Paths.ReadYourLpa, None,
-		Guidance(tmpls.Get("read_your_lpa.gohtml"), donorStore))
-	handleLpa(page.Paths.YourLegalRightsAndResponsibilities, CanGoBack,
-		Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml"), donorStore))
+	handleWithLpa(page.Paths.ReadYourLpa, None,
+		Guidance(tmpls.Get("read_your_lpa.gohtml")))
+	handleWithLpa(page.Paths.YourLegalRightsAndResponsibilities, CanGoBack,
+		Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml")))
 	handleLpa(page.Paths.SignYourLpa, CanGoBack,
 		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), donorStore))
 	handleLpa(page.Paths.WitnessingYourSignature, None,
@@ -280,8 +280,8 @@ func Register(
 		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), donorStore, shareCodeSender, time.Now, certificateProviderStore))
 	handleLpa(page.Paths.ResendWitnessCode, CanGoBack,
 		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), donorStore, witnessCodeSender, time.Now))
-	handleLpa(page.Paths.YouHaveSubmittedYourLpa, None,
-		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml"), donorStore))
+	handleWithLpa(page.Paths.YouHaveSubmittedYourLpa, None,
+		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml")))
 
 	handleLpa(page.Paths.Progress, CanGoBack,
 		LpaProgress(tmpls.Get("lpa_progress.gohtml"), donorStore, certificateProviderStore))
