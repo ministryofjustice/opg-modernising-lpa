@@ -242,7 +242,7 @@ func Register(
 		page.Paths.SelectYourIdentityOptions1: 1,
 		page.Paths.SelectYourIdentityOptions2: 2,
 	} {
-		handleLpa(path, None,
+		handleWithLpa(path, None,
 			SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), donorStore, page))
 	}
 
