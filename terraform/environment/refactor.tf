@@ -1,6 +1,11 @@
 moved {
-  from = aws_secretsmanager_secret.rum_monitor_application_id_eu_west_1
-  to   = module.eu_west_1[0].aws_secretsmanager_secret.rum_monitor_application_id
+  from = aws_applicationinsights_application.environment_eu_west_1[0]
+  to   = module.eu_west_1[0].aws_applicationinsights_application.environment
+}
+
+moved {
+  from = aws_applicationinsights_application.environment_global[0]
+  to   = module.global.aws_applicationinsights_application.environment_global
 }
 
 moved {
@@ -9,6 +14,6 @@ moved {
 }
 
 moved {
-  from = module.global.aws_resourcegroups_group.environment
+  from = aws_resourcegroups_group.environment_global
   to   = module.global.aws_resourcegroups_group.environment_global
 }
