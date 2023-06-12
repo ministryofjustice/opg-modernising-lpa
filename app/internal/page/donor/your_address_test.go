@@ -20,11 +20,6 @@ func TestGetYourAddress(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseAddressData{
@@ -33,26 +28,10 @@ func TestGetYourAddress(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestGetYourAddressWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -61,14 +40,6 @@ func TestGetYourAddressFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	address := place.Address{Line1: "abc"}
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Donor: actor.Donor{
-				Address: address,
-			},
-		}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -81,7 +52,11 @@ func TestGetYourAddressFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{
+		Donor: actor.Donor{
+			Address: address,
+		},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -91,11 +66,6 @@ func TestGetYourAddressFromStore(t *testing.T) {
 func TestGetYourAddressManual(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?action=manual", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -108,7 +78,7 @@ func TestGetYourAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -119,11 +89,6 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseAddressData{
@@ -132,7 +97,7 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := YourAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -155,9 +120,6 @@ func TestPostYourAddressManual(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			Donor: actor.Donor{
 				Address: testAddress,
@@ -165,7 +127,7 @@ func TestPostYourAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r)
+	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -189,9 +151,6 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			Donor: actor.Donor{
 				Address: testAddress,
@@ -199,7 +158,7 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r)
+	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -220,15 +179,6 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Donor: actor.Donor{
-				FirstNames: "John",
-				Address:    place.Address{Line1: "abc"},
-			},
-			WhoFor: "me",
-		}, nil)
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			Donor: actor.Donor{
 				FirstNames: "John",
@@ -238,7 +188,13 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r)
+	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
+		Donor: actor.Donor{
+			FirstNames: "John",
+			Address:    place.Address{Line1: "abc"},
+		},
+		WhoFor: "me",
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -258,11 +214,6 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseAddressData{
@@ -279,7 +230,7 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -316,12 +267,7 @@ func TestPostYourAddressSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
-	err := YourAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -342,11 +288,6 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	addressClient := newMockAddressClient(t)
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
@@ -365,7 +306,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, addressClient, donorStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -391,11 +332,6 @@ func TestPostYourAddressLookup(t *testing.T) {
 		On("LookupPostcode", mock.Anything, "NG1").
 		Return(addresses, nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseAddressData{
@@ -408,7 +344,7 @@ func TestPostYourAddressLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, addressClient, donorStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -429,11 +365,6 @@ func TestPostYourAddressLookupError(t *testing.T) {
 	logger.
 		On("Print", expectedError)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	addressClient := newMockAddressClient(t)
 	addressClient.
 		On("LookupPostcode", mock.Anything, "NG1").
@@ -452,7 +383,7 @@ func TestPostYourAddressLookupError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(logger, template.Execute, addressClient, donorStore)(testAppData, w, r)
+	err := YourAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -478,11 +409,6 @@ func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
 	logger.
 		On("Print", invalidPostcodeErr)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	addressClient := newMockAddressClient(t)
 	addressClient.
 		On("LookupPostcode", mock.Anything, "XYZ").
@@ -501,7 +427,7 @@ func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(logger, template.Execute, addressClient, donorStore)(testAppData, w, r)
+	err := YourAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -521,11 +447,6 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 
 	logger := newMockLogger(t)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	addressClient := newMockAddressClient(t)
 	addressClient.
 		On("LookupPostcode", mock.Anything, "XYZ").
@@ -544,7 +465,7 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(logger, template.Execute, addressClient, donorStore)(testAppData, w, r)
+	err := YourAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -560,11 +481,6 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseAddressData{
@@ -576,7 +492,7 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
+	err := YourAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

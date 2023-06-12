@@ -18,11 +18,6 @@ func TestGetWantReplacementAttorneys(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &wantReplacementAttorneysData{
@@ -31,7 +26,7 @@ func TestGetWantReplacementAttorneys(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Execute, donorStore)(testAppData, w, r)
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -42,18 +37,9 @@ func TestGetWantReplacementAttorneysWithExistingReplacementAttorneys(t *testing.
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			ReplacementAttorneys: actor.Attorneys{
-				{FirstNames: "this"},
-			},
-		}, nil)
-
 	template := newMockTemplate(t)
 
-	err := WantReplacementAttorneys(template.Execute, donorStore)(testAppData, w, r)
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &page.Lpa{ReplacementAttorneys: actor.Attorneys{{FirstNames: "this"}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -66,11 +52,6 @@ func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{WantReplacementAttorneys: "yes"}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &wantReplacementAttorneysData{
@@ -80,37 +61,16 @@ func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Execute, donorStore)(testAppData, w, r)
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &page.Lpa{WantReplacementAttorneys: "yes"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -120,7 +80,7 @@ func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := WantReplacementAttorneys(template.Execute, donorStore)(testAppData, w, r)
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -166,12 +126,6 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{
-					ReplacementAttorneys: tc.existingReplacementAttorneys,
-					Tasks:                page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
-				}, nil)
-			donorStore.
 				On("Put", r.Context(), &page.Lpa{
 					WantReplacementAttorneys: tc.want,
 					ReplacementAttorneys:     tc.expectedReplacementAttorneys,
@@ -179,7 +133,10 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r)
+			err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r, &page.Lpa{
+				ReplacementAttorneys: tc.existingReplacementAttorneys,
+				Tasks:                page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
+			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -200,13 +157,10 @@ func TestPostWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r)
+	err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r, &page.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -215,11 +169,6 @@ func TestPostWantReplacementAttorneysWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -230,7 +179,7 @@ func TestPostWantReplacementAttorneysWhenValidationErrors(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Execute, donorStore)(testAppData, w, r)
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

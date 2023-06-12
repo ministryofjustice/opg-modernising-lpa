@@ -15,13 +15,8 @@ type areYouHappyIfOneReplacementAttorneyCantActNoneCanData struct {
 	Happy  string
 }
 
-func AreYouHappyIfOneReplacementAttorneyCantActNoneCan(tmpl template.Template, donorStore DonorStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func AreYouHappyIfOneReplacementAttorneyCantActNoneCan(tmpl template.Template, donorStore DonorStore) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &areYouHappyIfOneReplacementAttorneyCantActNoneCanData{
 			App:   appData,
 			Happy: lpa.ReplacementAttorneyDecisions.HappyIfOneCannotActNoneCan,

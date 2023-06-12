@@ -9,13 +9,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
-func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		attorneyId := r.FormValue("id")
 		attorney, _ := lpa.ReplacementAttorneys.Get(attorneyId)
 

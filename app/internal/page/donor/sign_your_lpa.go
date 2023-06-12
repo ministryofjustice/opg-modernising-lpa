@@ -23,13 +23,8 @@ const (
 	WantToApplyForLpa = "want-to-apply"
 )
 
-func SignYourLpa(tmpl template.Template, donorStore DonorStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func SignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &signYourLpaData{
 			App: appData,
 			Lpa: lpa,
@@ -54,7 +49,7 @@ func SignYourLpa(tmpl template.Template, donorStore DonorStore) page.Handler {
 				lpa.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
 			}
 
-			if err = donorStore.Put(r.Context(), lpa); err != nil {
+			if err := donorStore.Put(r.Context(), lpa); err != nil {
 				return err
 			}
 

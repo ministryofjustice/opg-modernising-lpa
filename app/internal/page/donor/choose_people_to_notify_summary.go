@@ -16,14 +16,8 @@ type choosePeopleToNotifySummaryData struct {
 	Lpa    *page.Lpa
 }
 
-func ChoosePeopleToNotifySummary(logger Logger, tmpl template.Template, donorStore DonorStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			logger.Print(fmt.Sprintf("error getting lpa from store: %s", err.Error()))
-			return err
-		}
-
+func ChoosePeopleToNotifySummary(tmpl template.Template) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if len(lpa.PeopleToNotify) == 0 {
 			return appData.Redirect(w, r, lpa, page.Paths.DoYouWantToNotifyPeople)
 		}
@@ -47,7 +41,6 @@ func ChoosePeopleToNotifySummary(logger Logger, tmpl template.Template, donorSto
 
 				return appData.Redirect(w, r, lpa, redirectUrl)
 			}
-
 		}
 
 		return tmpl(w, data)

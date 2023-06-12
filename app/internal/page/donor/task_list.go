@@ -28,13 +28,8 @@ type taskListSection struct {
 	Items   []taskListItem
 }
 
-func TaskList(tmpl template.Template, donorStore DonorStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func TaskList(tmpl template.Template) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		signTaskPage := page.Paths.HowToConfirmYourIdentityAndSign
 		if lpa.DonorIdentityConfirmed() {
 			signTaskPage = page.Paths.ReadYourLpa
