@@ -254,7 +254,7 @@ func Register(
 		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, donorStore))
 	handleLpa(page.Paths.IdentityWithOneLogin, CanGoBack,
 		IdentityWithOneLogin(logger, oneLoginClient, sessionStore, random.String))
-	handleLpa(page.Paths.IdentityWithOneLoginCallback, CanGoBack,
+	handleWithLpa(page.Paths.IdentityWithOneLoginCallback, CanGoBack,
 		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, donorStore))
 
 	for path, identityOption := range map[string]identity.Option{
