@@ -204,7 +204,7 @@ func Register(
 		WhoDoYouWantToBeCertificateProviderGuidance(tmpls.Get("who_do_you_want_to_be_certificate_provider_guidance.gohtml"), donorStore))
 	handleWithLpa(page.Paths.CertificateProviderDetails, CanGoBack,
 		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), donorStore))
-	handleLpa(page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, CanGoBack,
+	handleWithLpa(page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, CanGoBack,
 		HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpls.Get("how_would_certificate_provider_prefer_to_carry_out_their_role.gohtml"), donorStore))
 	handleLpa(page.Paths.CertificateProviderAddress, CanGoBack,
 		CertificateProviderAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
