@@ -232,8 +232,8 @@ func Register(
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender))
 
-	handleLpa(page.Paths.HowToConfirmYourIdentityAndSign, None,
-		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml"), donorStore))
+	handleWithLpa(page.Paths.HowToConfirmYourIdentityAndSign, None,
+		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml")))
 	handleLpa(page.Paths.WhatYoullNeedToConfirmYourIdentity, None,
 		Guidance(tmpls.Get("what_youll_need_to_confirm_your_identity.gohtml"), donorStore))
 
