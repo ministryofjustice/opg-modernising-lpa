@@ -197,10 +197,10 @@ func Register(
 		WhenCanTheLpaBeUsed(tmpls.Get("when_can_the_lpa_be_used.gohtml"), donorStore))
 	handleWithLpa(page.Paths.LifeSustainingTreatment, None,
 		LifeSustainingTreatment(tmpls.Get("life_sustaining_treatment.gohtml"), donorStore))
-	handleLpa(page.Paths.Restrictions, None,
+	handleWithLpa(page.Paths.Restrictions, None,
 		Restrictions(tmpls.Get("restrictions.gohtml"), donorStore))
 
-	handleLpa(page.Paths.WhoDoYouWantToBeCertificateProviderGuidance, None,
+	handleWithLpa(page.Paths.WhoDoYouWantToBeCertificateProviderGuidance, None,
 		WhoDoYouWantToBeCertificateProviderGuidance(tmpls.Get("who_do_you_want_to_be_certificate_provider_guidance.gohtml"), donorStore))
 	handleLpa(page.Paths.CertificateProviderDetails, CanGoBack,
 		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), donorStore))
