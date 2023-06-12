@@ -221,7 +221,7 @@ func Register(
 		ChoosePeopleToNotifyAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleWithLpa(page.Paths.ChoosePeopleToNotifySummary, CanGoBack,
 		ChoosePeopleToNotifySummary(tmpls.Get("choose_people_to_notify_summary.gohtml")))
-	handleLpa(page.Paths.RemovePersonToNotify, CanGoBack,
+	handleWithLpa(page.Paths.RemovePersonToNotify, CanGoBack,
 		RemovePersonToNotify(logger, tmpls.Get("remove_person_to_notify.gohtml"), donorStore))
 
 	handleLpa(page.Paths.CheckYourLpa, CanGoBack,
