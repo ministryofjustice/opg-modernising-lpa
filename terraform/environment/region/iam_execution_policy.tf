@@ -6,7 +6,7 @@ resource "aws_iam_role_policy" "execution_role_region" {
 }
 
 data "aws_kms_alias" "secrets_manager_secret_encryption_key" {
-  name     = "alias${data.aws_default_tags.current.tags.application}_secrets_manager_secret_encryption_key"
+  name     = "alias/${data.aws_default_tags.current.tags.application}_secrets_manager_secret_encryption_key"
   provider = aws.region
 }
 
