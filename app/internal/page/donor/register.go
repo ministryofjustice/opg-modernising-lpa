@@ -248,8 +248,8 @@ func Register(
 
 	handleWithLpa(page.Paths.YourChosenIdentityOptions, CanGoBack,
 		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml")))
-	handleLpa(page.Paths.IdentityWithYoti, CanGoBack,
-		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), donorStore, sessionStore, yotiClient))
+	handleWithLpa(page.Paths.IdentityWithYoti, CanGoBack,
+		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), sessionStore, yotiClient))
 	handleLpa(page.Paths.IdentityWithYotiCallback, CanGoBack,
 		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, donorStore))
 	handleLpa(page.Paths.IdentityWithOneLogin, CanGoBack,
