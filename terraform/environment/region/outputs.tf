@@ -6,8 +6,6 @@ output "app_load_balancer_security_group" {
   value = module.app.load_balancer_security_group
 }
 
-output "resource_group_arns" {
-  value = [
-    aws_resourcegroups_group.environment.arn,
-  ]
+output "resource_group_arn" {
+  value = aws_resourcegroups_group.environment.arn
 }
