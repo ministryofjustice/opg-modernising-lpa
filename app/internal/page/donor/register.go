@@ -224,7 +224,7 @@ func Register(
 	handleWithLpa(page.Paths.RemovePersonToNotify, CanGoBack,
 		RemovePersonToNotify(logger, tmpls.Get("remove_person_to_notify.gohtml"), donorStore))
 
-	handleLpa(page.Paths.CheckYourLpa, CanGoBack,
+	handleWithLpa(page.Paths.CheckYourLpa, CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore))
 
 	handleLpa(page.Paths.AboutPayment, CanGoBack,
