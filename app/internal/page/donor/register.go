@@ -186,7 +186,7 @@ func Register(
 		RemoveReplacementAttorney(logger, tmpls.Get("remove_replacement_attorney.gohtml"), donorStore))
 	handleWithLpa(page.Paths.HowShouldReplacementAttorneysStepIn, CanGoBack,
 		HowShouldReplacementAttorneysStepIn(tmpls.Get("how_should_replacement_attorneys_step_in.gohtml"), donorStore))
-	handleLpa(page.Paths.HowShouldReplacementAttorneysMakeDecisions, CanGoBack,
+	handleWithLpa(page.Paths.HowShouldReplacementAttorneysMakeDecisions, CanGoBack,
 		HowShouldReplacementAttorneysMakeDecisions(tmpls.Get("how_should_replacement_attorneys_make_decisions.gohtml"), donorStore))
 	handleLpa(page.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan, CanGoBack,
 		AreYouHappyIfOneReplacementAttorneyCantActNoneCan(tmpls.Get("are_you_happy_if_one_replacement_attorney_cant_act_none_can.gohtml"), donorStore))
