@@ -174,7 +174,7 @@ func Register(
 	handleWithLpa(page.Paths.AreYouHappyIfRemainingAttorneysCanContinueToAct, CanGoBack,
 		AreYouHappyIfRemainingAttorneysCanContinueToAct(tmpls.Get("are_you_happy_if_remaining_attorneys_can_continue_to_act.gohtml"), donorStore))
 
-	handleLpa(page.Paths.DoYouWantReplacementAttorneys, None,
+	handleWithLpa(page.Paths.DoYouWantReplacementAttorneys, None,
 		WantReplacementAttorneys(tmpls.Get("do_you_want_replacement_attorneys.gohtml"), donorStore))
 	handleLpa(page.Paths.ChooseReplacementAttorneys, CanGoBack,
 		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), donorStore, random.UuidString))
