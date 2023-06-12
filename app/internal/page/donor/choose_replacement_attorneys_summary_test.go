@@ -22,11 +22,6 @@ func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 
 	lpa := &page.Lpa{ReplacementAttorneys: actor.Attorneys{{}}}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(lpa, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseReplacementAttorneysSummaryData{
@@ -36,7 +31,7 @@ func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysSummary(nil, template.Execute, donorStore)(testAppData, w, r)
+	err := ChooseReplacementAttorneysSummary(template.Execute)(testAppData, w, r, lpa)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -47,38 +42,14 @@ func TestGetChooseReplacementAttorneysSummaryWhenNoReplacementAttorneys(t *testi
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted}}, nil)
-
-	err := ChooseReplacementAttorneysSummary(nil, nil, donorStore)(testAppData, w, r)
+	err := ChooseReplacementAttorneysSummary(nil)(testAppData, w, r, &page.Lpa{
+		Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.DoYouWantReplacementAttorneys, resp.Header.Get("Location"))
-}
-
-func TestGetChooseReplacementAttorneySummaryWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{ReplacementAttorneys: actor.Attorneys{{}}}, expectedError)
-
-	logger := newMockLogger(t)
-	logger.
-		On("Print", "error getting lpa from store: err").
-		Return(nil)
-
-	err := ChooseReplacementAttorneysSummary(logger, nil, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
@@ -90,12 +61,7 @@ func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{ReplacementAttorneys: actor.Attorneys{{}}}, nil)
-
-	err := ChooseReplacementAttorneysSummary(nil, nil, donorStore)(testAppData, w, r)
+	err := ChooseReplacementAttorneysSummary(nil)(testAppData, w, r, &page.Lpa{ReplacementAttorneys: actor.Attorneys{{}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -164,23 +130,18 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{
-					ReplacementAttorneys: tc.replacementAttorneys,
-					AttorneyDecisions: actor.AttorneyDecisions{
-						How:     tc.howAttorneysAct,
-						Details: tc.decisionDetails,
-					},
-					Attorneys: tc.attorneys,
-					Tasks: page.Tasks{
-						YourDetails:     actor.TaskCompleted,
-						ChooseAttorneys: actor.TaskCompleted,
-					},
-				}, nil)
-
-			err := ChooseReplacementAttorneysSummary(nil, nil, donorStore)(testAppData, w, r)
+			err := ChooseReplacementAttorneysSummary(nil)(testAppData, w, r, &page.Lpa{
+				ReplacementAttorneys: tc.replacementAttorneys,
+				AttorneyDecisions: actor.AttorneyDecisions{
+					How:     tc.howAttorneysAct,
+					Details: tc.decisionDetails,
+				},
+				Attorneys: tc.attorneys,
+				Tasks: page.Tasks{
+					YourDetails:     actor.TaskCompleted,
+					ChooseAttorneys: actor.TaskCompleted,
+				},
+			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -199,11 +160,6 @@ func TestPostChooseReplacementAttorneySummaryFormValidation(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{ReplacementAttorneys: actor.Attorneys{{}}}, nil)
-
 	validationError := validation.With("add-attorney", validation.SelectError{Label: "yesToAddAnotherReplacementAttorney"})
 
 	template := newMockTemplate(t)
@@ -213,7 +169,7 @@ func TestPostChooseReplacementAttorneySummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysSummary(nil, template.Execute, donorStore)(testAppData, w, r)
+	err := ChooseReplacementAttorneysSummary(template.Execute)(testAppData, w, r, &page.Lpa{ReplacementAttorneys: actor.Attorneys{{}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
