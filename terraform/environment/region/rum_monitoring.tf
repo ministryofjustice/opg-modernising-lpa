@@ -24,8 +24,15 @@ data "aws_iam_policy_document" "rum_monitor_unauthenticated" {
   provider = aws.global
 }
 
+resource "aws_secretsmanager_secret" "rum_monitor_application_id" {
+  name                    = "${data.aws_default_tags.current.tags.environment-name}_rum_monitor_application_id"
+  kms_key_id              = data.aws_kms_alias.secrets_manager_secret_encryption_key.target_key_id
+  recovery_window_in_days = 0
+  provider                = aws.region
+}
+
 data "aws_secretsmanager_secret_version" "rum_monitor_identity_pool_id" {
-  secret_id = var.rum_monitor_identity_pool_id_secretsmanager_secret_id
+  secret_id = "rum-monitor-identity-pool-id-${data.aws_region.current.name}"
   provider  = aws.region
 }
 
@@ -52,7 +59,7 @@ resource "aws_rum_app_monitor" "main" {
 }
 
 resource "aws_secretsmanager_secret_version" "rum_monitor_application_id" {
-  secret_id     = var.rum_monitor_application_id_secretsmanager_secret_id
+  secret_id     = aws_secretsmanager_secret.rum_monitor_application_id.id
   secret_string = aws_rum_app_monitor.main.app_monitor_id
   provider      = aws.region
 }
