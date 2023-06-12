@@ -19,11 +19,6 @@ func TestGetChoosePeopleToNotify(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &choosePeopleToNotifyData{
@@ -32,26 +27,10 @@ func TestGetChoosePeopleToNotify(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotify(template.Execute, donorStore, mockUuidString)(testAppData, w, r)
+	err := ChoosePeopleToNotify(template.Execute, nil, mockUuidString)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestGetChoosePeopleToNotifyWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := ChoosePeopleToNotify(nil, donorStore, mockUuidString)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -59,24 +38,19 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			PeopleToNotify: actor.PeopleToNotify{
-				{
-					ID:         "123",
-					Address:    testAddress,
-					FirstNames: "Johnny",
-					LastName:   "Jones",
-					Email:      "user@example.org",
-				},
-			},
-		}, nil)
-
 	template := newMockTemplate(t)
 
-	err := ChoosePeopleToNotify(template.Execute, donorStore, mockUuidString)(testAppData, w, r)
+	err := ChoosePeopleToNotify(template.Execute, nil, mockUuidString)(testAppData, w, r, &page.Lpa{
+		PeopleToNotify: actor.PeopleToNotify{
+			{
+				ID:         "123",
+				Address:    testAddress,
+				FirstNames: "Johnny",
+				LastName:   "Jones",
+				Email:      "user@example.org",
+			},
+		},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -88,11 +62,6 @@ func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &choosePeopleToNotifyData{
@@ -101,7 +70,7 @@ func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotify(template.Execute, donorStore, mockUuidString)(testAppData, w, r)
+	err := ChoosePeopleToNotify(template.Execute, nil, mockUuidString)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -148,14 +117,9 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{
-					PeopleToNotify: tc.addedPeople,
-				}, nil)
-
-			err := ChoosePeopleToNotify(nil, donorStore, mockUuidString)(testAppData, w, r)
+			err := ChoosePeopleToNotify(nil, nil, mockUuidString)(testAppData, w, r, &page.Lpa{
+				PeopleToNotify: tc.addedPeople,
+			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -207,11 +171,6 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{
-					Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
-				}, nil)
-			donorStore.
 				On("Put", r.Context(), &page.Lpa{
 					Donor:          actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					PeopleToNotify: actor.PeopleToNotify{tc.personToNotify},
@@ -219,7 +178,9 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChoosePeopleToNotify(nil, donorStore, mockUuidString)(testAppData, w, r)
+			err := ChoosePeopleToNotify(nil, donorStore, mockUuidString)(testAppData, w, r, &page.Lpa{
+				Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -242,16 +203,6 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			PeopleToNotify: actor.PeopleToNotify{{
-				FirstNames: "John",
-				LastName:   "Doe",
-				Email:      "johnny@example.com",
-				ID:         "123",
-			}},
-		}, nil)
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{{
 				FirstNames: "Johnny",
@@ -263,7 +214,14 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotify(nil, donorStore, mockUuidString)(testAppData, w, r)
+	err := ChoosePeopleToNotify(nil, donorStore, mockUuidString)(testAppData, w, r, &page.Lpa{
+		PeopleToNotify: actor.PeopleToNotify{{
+			FirstNames: "John",
+			LastName:   "Doe",
+			Email:      "johnny@example.com",
+			ID:         "123",
+		}},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -328,13 +286,6 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{
-					Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
-				}, nil)
-
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, mock.MatchedBy(func(data *choosePeopleToNotifyData) bool {
@@ -342,7 +293,9 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := ChoosePeopleToNotify(template.Execute, donorStore, mockUuidString)(testAppData, w, r)
+			err := ChoosePeopleToNotify(template.Execute, nil, mockUuidString)(testAppData, w, r, &page.Lpa{
+				Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -364,13 +317,10 @@ func TestPostChoosePeopleToNotifyWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotify(nil, donorStore, mockUuidString)(testAppData, w, r)
+	err := ChoosePeopleToNotify(nil, donorStore, mockUuidString)(testAppData, w, r, &page.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
