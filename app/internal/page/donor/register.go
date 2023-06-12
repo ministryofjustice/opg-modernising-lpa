@@ -202,7 +202,7 @@ func Register(
 
 	handleWithLpa(page.Paths.WhoDoYouWantToBeCertificateProviderGuidance, None,
 		WhoDoYouWantToBeCertificateProviderGuidance(tmpls.Get("who_do_you_want_to_be_certificate_provider_guidance.gohtml"), donorStore))
-	handleLpa(page.Paths.CertificateProviderDetails, CanGoBack,
+	handleWithLpa(page.Paths.CertificateProviderDetails, CanGoBack,
 		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), donorStore))
 	handleLpa(page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, CanGoBack,
 		HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpls.Get("how_would_certificate_provider_prefer_to_carry_out_their_role.gohtml"), donorStore))
