@@ -37,7 +37,7 @@ module "app" {
     public_subnets      = data.aws_subnet.public.*.id
   }
   aws_rum_guest_role_arn                               = data.aws_iam_role.rum_monitor_unauthenticated.arn
-  rum_monitor_application_id_secretsmanager_secret_arn = var.rum_monitor_application_id_secretsmanager_secret_id
+  rum_monitor_application_id_secretsmanager_secret_arn = aws_secretsmanager_secret.rum_monitor_application_id.id
   providers = {
     aws.region = aws.region
   }
