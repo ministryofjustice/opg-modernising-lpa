@@ -171,7 +171,7 @@ func Register(
 		HowShouldAttorneysMakeDecisions(tmpls.Get("how_should_attorneys_make_decisions.gohtml"), donorStore))
 	handleWithLpa(page.Paths.AreYouHappyIfOneAttorneyCantActNoneCan, CanGoBack,
 		AreYouHappyIfOneAttorneyCantActNoneCan(tmpls.Get("are_you_happy_if_one_attorney_cant_act_none_can.gohtml"), donorStore))
-	handleLpa(page.Paths.AreYouHappyIfRemainingAttorneysCanContinueToAct, CanGoBack,
+	handleWithLpa(page.Paths.AreYouHappyIfRemainingAttorneysCanContinueToAct, CanGoBack,
 		AreYouHappyIfRemainingAttorneysCanContinueToAct(tmpls.Get("are_you_happy_if_remaining_attorneys_can_continue_to_act.gohtml"), donorStore))
 
 	handleLpa(page.Paths.DoYouWantReplacementAttorneys, None,
