@@ -193,7 +193,7 @@ func Register(
 	handleWithLpa(page.Paths.AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct, CanGoBack,
 		AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(tmpls.Get("are_you_happy_if_remaining_replacement_attorneys_can_continue_to_act.gohtml"), donorStore))
 
-	handleLpa(page.Paths.WhenCanTheLpaBeUsed, None,
+	handleWithLpa(page.Paths.WhenCanTheLpaBeUsed, None,
 		WhenCanTheLpaBeUsed(tmpls.Get("when_can_the_lpa_be_used.gohtml"), donorStore))
 	handleLpa(page.Paths.LifeSustainingTreatment, None,
 		LifeSustainingTreatment(tmpls.Get("life_sustaining_treatment.gohtml"), donorStore))
