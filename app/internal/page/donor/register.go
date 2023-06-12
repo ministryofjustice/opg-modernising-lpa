@@ -227,8 +227,8 @@ func Register(
 	handleWithLpa(page.Paths.CheckYourLpa, CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore))
 
-	handleLpa(page.Paths.AboutPayment, CanGoBack,
-		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String, donorStore))
+	handleWithLpa(page.Paths.AboutPayment, CanGoBack,
+		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String))
 	handleLpa(page.Paths.PaymentConfirmation, None,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender))
 
