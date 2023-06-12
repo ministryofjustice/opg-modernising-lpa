@@ -19,13 +19,8 @@ type chooseReplacementAttorneysData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, uuidString func() string) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, uuidString func() string) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		addAnother := r.FormValue("addAnother") == "1"
 		attorney, attorneyFound := lpa.ReplacementAttorneys.Get(r.URL.Query().Get("id"))
 
