@@ -17,11 +17,6 @@ func TestGetDoYouWantToNotifyPeople(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &doYouWantToNotifyPeopleData{
@@ -30,7 +25,7 @@ func TestGetDoYouWantToNotifyPeople(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := DoYouWantToNotifyPeople(template.Execute, donorStore)(testAppData, w, r)
+	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -40,13 +35,6 @@ func TestGetDoYouWantToNotifyPeople(t *testing.T) {
 func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			DoYouWantToNotifyPeople: "yes",
-		}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -59,7 +47,9 @@ func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := DoYouWantToNotifyPeople(template.Execute, donorStore)(testAppData, w, r)
+	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &page.Lpa{
+		DoYouWantToNotifyPeople: "yes",
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -90,14 +80,6 @@ func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{
-					DoYouWantToNotifyPeople: "yes",
-					AttorneyDecisions:       actor.AttorneyDecisions{How: tc.howWorkTogether},
-				}, nil)
-
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &doYouWantToNotifyPeopleData{
@@ -111,7 +93,10 @@ func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := DoYouWantToNotifyPeople(template.Execute, donorStore)(testAppData, w, r)
+			err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &page.Lpa{
+				DoYouWantToNotifyPeople: "yes",
+				AttorneyDecisions:       actor.AttorneyDecisions{How: tc.howWorkTogether},
+			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -124,18 +109,13 @@ func TestGetDoYouWantToNotifyPeopleFromStoreWithPeople(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			PeopleToNotify: actor.PeopleToNotify{
-				{ID: "123"},
-			},
-		}, nil)
-
 	template := newMockTemplate(t)
 
-	err := DoYouWantToNotifyPeople(template.Execute, donorStore)(testAppData, w, r)
+	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &page.Lpa{
+		PeopleToNotify: actor.PeopleToNotify{
+			{ID: "123"},
+		},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -143,30 +123,9 @@ func TestGetDoYouWantToNotifyPeopleFromStoreWithPeople(t *testing.T) {
 	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChoosePeopleToNotifySummary, resp.Header.Get("Location"))
 }
 
-func TestGetDoYouWantToNotifyPeopleWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := DoYouWantToNotifyPeople(nil, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetDoYouWantToNotifyPeopleWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -176,7 +135,7 @@ func TestGetDoYouWantToNotifyPeopleWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := DoYouWantToNotifyPeople(template.Execute, donorStore)(testAppData, w, r)
+	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -216,19 +175,6 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{
-					DoYouWantToNotifyPeople: tc.ExistingAnswer,
-					Tasks: page.Tasks{
-						YourDetails:                actor.TaskCompleted,
-						ChooseAttorneys:            actor.TaskCompleted,
-						ChooseReplacementAttorneys: actor.TaskCompleted,
-						WhenCanTheLpaBeUsed:        actor.TaskCompleted,
-						Restrictions:               actor.TaskCompleted,
-						CertificateProvider:        actor.TaskCompleted,
-					},
-				}, nil)
-			donorStore.
 				On("Put", r.Context(), &page.Lpa{
 					DoYouWantToNotifyPeople: tc.WantToNotify,
 					Tasks: page.Tasks{
@@ -243,7 +189,17 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := DoYouWantToNotifyPeople(nil, donorStore)(testAppData, w, r)
+			err := DoYouWantToNotifyPeople(nil, donorStore)(testAppData, w, r, &page.Lpa{
+				DoYouWantToNotifyPeople: tc.ExistingAnswer,
+				Tasks: page.Tasks{
+					YourDetails:                actor.TaskCompleted,
+					ChooseAttorneys:            actor.TaskCompleted,
+					ChooseReplacementAttorneys: actor.TaskCompleted,
+					WhenCanTheLpaBeUsed:        actor.TaskCompleted,
+					Restrictions:               actor.TaskCompleted,
+					CertificateProvider:        actor.TaskCompleted,
+				},
+			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -264,16 +220,13 @@ func TestPostDoYouWantToNotifyPeopleWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			DoYouWantToNotifyPeople: "yes",
 			Tasks:                   page.Tasks{PeopleToNotify: actor.TaskInProgress},
 		}).
 		Return(expectedError)
 
-	err := DoYouWantToNotifyPeople(nil, donorStore)(testAppData, w, r)
+	err := DoYouWantToNotifyPeople(nil, donorStore)(testAppData, w, r, &page.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -282,11 +235,6 @@ func TestPostDoYouWantToNotifyPeopleWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader("nope"))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -298,7 +246,7 @@ func TestPostDoYouWantToNotifyPeopleWhenValidationErrors(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := DoYouWantToNotifyPeople(template.Execute, donorStore)(testAppData, w, r)
+	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

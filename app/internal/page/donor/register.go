@@ -213,7 +213,7 @@ func Register(
 	handleWithLpa(page.Paths.HowLongHaveYouKnownCertificateProvider, CanGoBack,
 		HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), donorStore))
 
-	handleLpa(page.Paths.DoYouWantToNotifyPeople, CanGoBack,
+	handleWithLpa(page.Paths.DoYouWantToNotifyPeople, CanGoBack,
 		DoYouWantToNotifyPeople(tmpls.Get("do_you_want_to_notify_people.gohtml"), donorStore))
 	handleLpa(page.Paths.ChoosePeopleToNotify, CanGoBack,
 		ChoosePeopleToNotify(tmpls.Get("choose_people_to_notify.gohtml"), donorStore, random.UuidString))
