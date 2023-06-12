@@ -246,8 +246,8 @@ func Register(
 			SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), donorStore, page))
 	}
 
-	handleLpa(page.Paths.YourChosenIdentityOptions, CanGoBack,
-		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), donorStore))
+	handleWithLpa(page.Paths.YourChosenIdentityOptions, CanGoBack,
+		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml")))
 	handleLpa(page.Paths.IdentityWithYoti, CanGoBack,
 		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), donorStore, sessionStore, yotiClient))
 	handleLpa(page.Paths.IdentityWithYotiCallback, CanGoBack,
