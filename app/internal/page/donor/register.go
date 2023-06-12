@@ -264,7 +264,7 @@ func Register(
 		page.Paths.IdentityWithDrivingLicencePhotocard:  identity.DrivingLicencePhotocard,
 		page.Paths.IdentityWithOnlineBankAccount:        identity.OnlineBankAccount,
 	} {
-		handleLpa(path, CanGoBack,
+		handleWithLpa(path, CanGoBack,
 			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), donorStore, time.Now, identityOption))
 	}
 
