@@ -283,8 +283,8 @@ func Register(
 	handleWithLpa(page.Paths.YouHaveSubmittedYourLpa, None,
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml")))
 
-	handleLpa(page.Paths.Progress, CanGoBack,
-		LpaProgress(tmpls.Get("lpa_progress.gohtml"), donorStore, certificateProviderStore))
+	handleWithLpa(page.Paths.Progress, CanGoBack,
+		LpaProgress(tmpls.Get("lpa_progress.gohtml"), certificateProviderStore))
 }
 
 type handleOpt byte

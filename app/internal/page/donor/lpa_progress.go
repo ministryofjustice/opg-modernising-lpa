@@ -18,13 +18,8 @@ type lpaProgressData struct {
 	Errors              validation.List
 }
 
-func LpaProgress(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func LpaProgress(tmpl template.Template, certificateProviderStore CertificateProviderStore) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: lpa.ID})
 
 		certificateProvider, err := certificateProviderStore.GetAny(ctx)
