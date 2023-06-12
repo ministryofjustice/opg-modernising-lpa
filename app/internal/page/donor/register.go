@@ -184,7 +184,7 @@ func Register(
 		ChooseReplacementAttorneysSummary(tmpls.Get("choose_replacement_attorneys_summary.gohtml")))
 	handleWithLpa(page.Paths.RemoveReplacementAttorney, CanGoBack,
 		RemoveReplacementAttorney(logger, tmpls.Get("remove_replacement_attorney.gohtml"), donorStore))
-	handleLpa(page.Paths.HowShouldReplacementAttorneysStepIn, CanGoBack,
+	handleWithLpa(page.Paths.HowShouldReplacementAttorneysStepIn, CanGoBack,
 		HowShouldReplacementAttorneysStepIn(tmpls.Get("how_should_replacement_attorneys_step_in.gohtml"), donorStore))
 	handleLpa(page.Paths.HowShouldReplacementAttorneysMakeDecisions, CanGoBack,
 		HowShouldReplacementAttorneysMakeDecisions(tmpls.Get("how_should_replacement_attorneys_make_decisions.gohtml"), donorStore))
