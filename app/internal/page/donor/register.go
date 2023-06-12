@@ -217,7 +217,7 @@ func Register(
 		DoYouWantToNotifyPeople(tmpls.Get("do_you_want_to_notify_people.gohtml"), donorStore))
 	handleWithLpa(page.Paths.ChoosePeopleToNotify, CanGoBack,
 		ChoosePeopleToNotify(tmpls.Get("choose_people_to_notify.gohtml"), donorStore, random.UuidString))
-	handleLpa(page.Paths.ChoosePeopleToNotifyAddress, CanGoBack,
+	handleWithLpa(page.Paths.ChoosePeopleToNotifyAddress, CanGoBack,
 		ChoosePeopleToNotifyAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleLpa(page.Paths.ChoosePeopleToNotifySummary, CanGoBack,
 		ChoosePeopleToNotifySummary(logger, tmpls.Get("choose_people_to_notify_summary.gohtml"), donorStore))
