@@ -175,7 +175,7 @@ jobs:
           echo "workspace_name=$(terraform output -raw workspace_name)" >> $GITHUB_OUTPUT
           echo "container_version=$(terraform output -raw container_version)" >> $GITHUB_OUTPUT
           echo "url=$(terraform output -raw app_fqdn)" >> $GITHUB_OUTPUT
-          environment_config_json=$(terraform output environment_config_json)
+          environment_config_json=$((terraform output environment_config_json))
           echo "::add-mask::$environment_config_json"
           echo "environment_config_json=$environment_config_json" >> $GITHUB_OUTPUT
         working-directory: ./terraform/environment
