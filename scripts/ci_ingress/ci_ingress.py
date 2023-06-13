@@ -15,8 +15,13 @@ class IngressManager:
     aws_ec2_client = ''
     security_groups = []
 
-    def __init__(self, config_file):
-        self.read_parameters_from_file(config_file)
+    def __init__(self, region, account_id, security_group_id):
+        # self.read_parameters_from_file(config_file)
+        self.aws_region = region
+        self.aws_account_id = account_id
+        self.security_groups = [
+            security_group_id
+        ]
         self.set_iam_role_session()
         self.aws_ec2_client = boto3.client(
             'ec2',
@@ -137,15 +142,19 @@ def main():
     parser = argparse.ArgumentParser(
         description="Add or remove your host's IP address to the app loadbalancer ingress rules.")
 
-    parser.add_argument("config_file_path", type=str,
-                        help="Path to config file produced by terraform")
+    parser.add_argument("--region", type=str,
+                        help="Region to target")
+    parser.add_argument("--account_id", type=str,
+                        help="Account ID to target")
+    parser.add_argument("--security_group_id", type=str,
+                        help="Security group to target")
     parser.add_argument('--add', dest='action_flag', action='store_const',
                         const=True, default=False,
                         help='add host IP address to security group ci ingress rule (default: remove all ci ingress rules)')
 
     args = parser.parse_args()
 
-    work = IngressManager(args.config_file_path)
+    work = IngressManager(args.region, args.account_id, args.security_group_id)
     ingress_cidr = work.get_ip_addresses()
     if args.action_flag:
         work.add_ci_ingress_rule_to_sg(ingress_cidr)
