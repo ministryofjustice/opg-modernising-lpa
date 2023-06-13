@@ -33,15 +33,6 @@ class IngressManager:
             parameters['app_load_balancer_security_group_id']
         ]
 
-    def read_parameters_from_file(self, config_file):
-        with open(config_file) as json_file:
-            parameters = json.load(json_file)
-            self.aws_region = parameters['region']
-            self.aws_account_id = parameters['account_id']
-            self.security_groups = [
-                parameters['app_load_balancer_security_group_id']
-            ]
-
     def set_iam_role_session(self):
         if os.getenv('CI'):
             role_arn = 'arn:aws:iam::{}:role/modernising-lpa-ci'.format(
@@ -147,12 +138,6 @@ def main():
 
     parser.add_argument("config_json", type=str,
                         help="Environment config for script")
-    # parser.add_argument("--region", type=str,
-    #                     help="Region to target")
-    # parser.add_argument("--account_id", type=str,
-    #                     help="Account ID to target")
-    # parser.add_argument("--security_group_id", type=str,
-    #                     help="Security group to target")
     parser.add_argument('--add', dest='action_flag', action='store_const',
                         const=True, default=False,
                         help='add host IP address to security group ci ingress rule (default: remove all ci ingress rules)')
@@ -160,7 +145,6 @@ def main():
     args = parser.parse_args()
 
     work = IngressManager(args.config_json)
-    # work = IngressManager(args.region, args.account_id, args.security_group_id)
     ingress_cidr = work.get_ip_addresses()
     if args.action_flag:
         work.add_ci_ingress_rule_to_sg(ingress_cidr)
