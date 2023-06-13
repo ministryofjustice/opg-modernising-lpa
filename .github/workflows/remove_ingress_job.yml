@@ -2,6 +2,11 @@ name: "[Job] Remove ingress"
 
 on:
   workflow_call:
+    inputs:
+      environment_config_json:
+        description: 'Environment config JSON'
+        required: true
+        type: string
     secrets:
       aws_access_key_id:
         description: 'AWS Access Key ID'
@@ -41,4 +46,4 @@ jobs:
       - name: remove_ingress
         run: |
           pip install -r ./scripts/ci_ingress/requirements.txt
-          python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json
+          python ./scripts/ci_ingress/ci_ingress.py ${{ inputs.environment_config_json }}
