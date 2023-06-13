@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 
@@ -90,6 +91,14 @@ func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (C
 		return CreateCaseResponse{}, err
 	}
 
+	log.Println("Request headers:")
+
+	for name, values := range r.Header {
+		for _, value := range values {
+			log.Println(name, value+"\n")
+		}
+	}
+
 	resp, err := c.httpClient.Do(r)
 	if err != nil {
 		return CreateCaseResponse{}, err
@@ -159,5 +168,5 @@ func (c *Client) sign(ctx context.Context, req *http.Request, serviceName string
 
 	encodedBody := hex.EncodeToString(hash.Sum(nil))
 
-	return c.signer.SignHTTP(ctx, c.credentials, req, encodedBody, serviceName, c.region, c.now())
+	return c.signer.SignHTTP(ctx, c.credentials, req, encodedBody, serviceName, c.region, c.now().UTC())
 }
