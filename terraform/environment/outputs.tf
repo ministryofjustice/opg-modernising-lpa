@@ -9,3 +9,7 @@ output "resource_group_arns" {
 output "app_fqdn" {
   value = contains(local.environment.regions, "eu-west-1") ? module.eu_west_1[0].app_fqdn : module.eu_west_2[0].app_fqdn
 }
+
+output "environment_config_json" {
+  value = jsonencode(local.environment_config)
+}
