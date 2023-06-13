@@ -62,6 +62,7 @@ jobs:
       terraform_workspace_name: ${{ steps.terraform_outputs.outputs.workspace_name }}
       terraform_container_version: ${{ steps.terraform_outputs.outputs.container_version }}
       url: ${{ steps.terraform_outputs.outputs.url }}
+      environment_config_json: ${{ steps.terraform_outputs.outputs.environment_config_json }}
     steps:
       - uses: actions/checkout@v3
         with:
