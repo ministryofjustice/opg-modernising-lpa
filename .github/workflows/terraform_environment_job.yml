@@ -31,6 +31,9 @@ on:
       url:
         description: "URL for environment"
         value: ${{ jobs.terraform_environment_workflow.outputs.url }}
+      environment_config_json:
+        description: "Environment config JSON"
+        value: ${{ jobs.terraform_environment_workflow.outputs.environment_config_json }}
     secrets:
       aws_access_key_id:
         description: 'AWS Access Key ID'
@@ -177,4 +180,5 @@ jobs:
           echo "workspace_name=$(terraform output -raw workspace_name)" >> $GITHUB_OUTPUT
           echo "container_version=$(terraform output -raw container_version)" >> $GITHUB_OUTPUT
           echo "url=$(terraform output -raw app_fqdn)" >> $GITHUB_OUTPUT
+          echo "environment_config_json=$(terraform output -raw environment_config_json)" >> $GITHUB_OUTPUT
         working-directory: ./terraform/environment
