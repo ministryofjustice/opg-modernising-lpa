@@ -16,13 +16,8 @@ type identityWithYotiData struct {
 	ScenarioID  string
 }
 
-func IdentityWithYoti(tmpl template.Template, donorStore DonorStore, sessionStore SessionStore, yotiClient YotiClient) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func IdentityWithYoti(tmpl template.Template, sessionStore SessionStore, yotiClient YotiClient) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if lpa.DonorIdentityConfirmed() || yotiClient.IsTest() {
 			return appData.Redirect(w, r, lpa, page.Paths.IdentityWithYotiCallback)
 		}

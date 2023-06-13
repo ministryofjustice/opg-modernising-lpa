@@ -15,13 +15,6 @@ func TestGetYourChosenIdentityOptions(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			DonorIdentityOption: identity.Passport,
-		}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &yourChosenIdentityOptionsData{
@@ -30,44 +23,27 @@ func TestGetYourChosenIdentityOptions(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourChosenIdentityOptions(template.Execute, donorStore)(testAppData, w, r)
+	err := YourChosenIdentityOptions(template.Execute)(testAppData, w, r, &page.Lpa{
+		DonorIdentityOption: identity.Passport,
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetYourChosenIdentityOptionsWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := YourChosenIdentityOptions(nil, donorStore)(testAppData, w, r)
-
-	assert.Equal(t, expectedError, err)
-}
-
 func TestGetYourChosenIdentityOptionsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			DonorIdentityOption: identity.Passport,
-		}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := YourChosenIdentityOptions(template.Execute, donorStore)(testAppData, w, r)
+	err := YourChosenIdentityOptions(template.Execute)(testAppData, w, r, &page.Lpa{
+		DonorIdentityOption: identity.Passport,
+	})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -78,14 +54,9 @@ func TestPostYourChosenIdentityOptions(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			DonorIdentityOption: identity.Passport,
-		}, nil)
-
-	err := YourChosenIdentityOptions(nil, donorStore)(testAppData, w, r)
+	err := YourChosenIdentityOptions(nil)(testAppData, w, r, &page.Lpa{
+		DonorIdentityOption: identity.Passport,
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)

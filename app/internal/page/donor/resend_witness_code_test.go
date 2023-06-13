@@ -19,11 +19,6 @@ func TestGetResendWitnessCode(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &resendWitnessCodeData{
@@ -31,26 +26,10 @@ func TestGetResendWitnessCode(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ResendWitnessCode(template.Execute, donorStore, nil, time.Now)(testAppData, w, r)
+	err := ResendWitnessCode(template.Execute, nil, time.Now)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestGetResendWitnessCodeWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := ResendWitnessCode(nil, donorStore, nil, time.Now)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -58,17 +37,12 @@ func TestGetResendWitnessCodeWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := ResendWitnessCode(template.Execute, donorStore, nil, time.Now)(testAppData, w, r)
+	err := ResendWitnessCode(template.Execute, nil, time.Now)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -85,17 +59,12 @@ func TestPostResendWitnessCode(t *testing.T) {
 		DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "john"},
 	}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(lpa, nil)
-
 	witnessCodeSender := newMockWitnessCodeSender(t)
 	witnessCodeSender.
 		On("Send", r.Context(), lpa, mock.Anything).
 		Return(nil)
 
-	err := ResendWitnessCode(nil, donorStore, witnessCodeSender, time.Now)(testAppData, w, r)
+	err := ResendWitnessCode(nil, witnessCodeSender, time.Now)(testAppData, w, r, lpa)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -110,17 +79,12 @@ func TestPostResendWitnessCodeWhenSendErrors(t *testing.T) {
 
 	lpa := &page.Lpa{Donor: actor.Donor{FirstNames: "john"}}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(lpa, nil)
-
 	witnessCodeSender := newMockWitnessCodeSender(t)
 	witnessCodeSender.
 		On("Send", r.Context(), lpa, mock.Anything).
 		Return(expectedError)
 
-	err := ResendWitnessCode(nil, donorStore, witnessCodeSender, time.Now)(testAppData, w, r)
+	err := ResendWitnessCode(nil, witnessCodeSender, time.Now)(testAppData, w, r, lpa)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -135,11 +99,6 @@ func TestPostResendWitnessCodeWhenTooRecentlySent(t *testing.T) {
 		WitnessCodes: page.WitnessCodes{{Created: time.Now()}},
 	}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(lpa, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &resendWitnessCodeData{
@@ -148,7 +107,7 @@ func TestPostResendWitnessCodeWhenTooRecentlySent(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ResendWitnessCode(template.Execute, donorStore, nil, time.Now)(testAppData, w, r)
+	err := ResendWitnessCode(template.Execute, nil, time.Now)(testAppData, w, r, lpa)
 	resp := w.Result()
 
 	assert.Nil(t, err)

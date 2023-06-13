@@ -18,11 +18,6 @@ func TestGetAreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(t *testin
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &areYouHappyIfRemainingReplacementAttorneysCanContinueToActData{
@@ -30,37 +25,16 @@ func TestGetAreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(t *testin
 		}).
 		Return(nil)
 
-	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(template.Execute, donorStore)(testAppData, w, r)
+	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetAreYouHappyIfRemainingReplacementAttorneysCanContinueToActWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(nil, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetAreYouHappyIfRemainingReplacementAttorneysCanContinueToActWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -69,7 +43,7 @@ func TestGetAreYouHappyIfRemainingReplacementAttorneysCanContinueToActWhenTempla
 		}).
 		Return(expectedError)
 
-	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(template.Execute, donorStore)(testAppData, w, r)
+	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -89,18 +63,15 @@ func TestPostAreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(t *testi
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{
-					Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
-				}, nil)
-			donorStore.
 				On("Put", r.Context(), &page.Lpa{
 					ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfRemainingCanContinueToAct: happy},
 					Tasks:                        page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 				}).
 				Return(nil)
 
-			err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(nil, donorStore)(testAppData, w, r)
+			err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(nil, donorStore)(testAppData, w, r, &page.Lpa{
+				Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
+			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -121,13 +92,10 @@ func TestPostAreYouHappyIfRemainingReplacementAttorneysCanContinueToActWhenStore
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(nil, donorStore)(testAppData, w, r)
+	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(nil, donorStore)(testAppData, w, r, &page.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -137,11 +105,6 @@ func TestPostAreYouHappyIfRemainingReplacementAttorneysCanContinueToActWhenValid
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &areYouHappyIfRemainingReplacementAttorneysCanContinueToActData{
@@ -150,7 +113,7 @@ func TestPostAreYouHappyIfRemainingReplacementAttorneysCanContinueToActWhenValid
 		}).
 		Return(nil)
 
-	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(template.Execute, donorStore)(testAppData, w, r)
+	err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

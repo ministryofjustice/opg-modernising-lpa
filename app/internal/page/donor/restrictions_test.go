@@ -18,11 +18,6 @@ func TestGetRestrictions(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &restrictionsData{
@@ -31,7 +26,7 @@ func TestGetRestrictions(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := Restrictions(template.Execute, donorStore)(testAppData, w, r)
+	err := Restrictions(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -42,11 +37,6 @@ func TestGetRestrictionsFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{Restrictions: "blah"}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &restrictionsData{
@@ -55,37 +45,16 @@ func TestGetRestrictionsFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := Restrictions(template.Execute, donorStore)(testAppData, w, r)
+	err := Restrictions(template.Execute, nil)(testAppData, w, r, &page.Lpa{Restrictions: "blah"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetRestrictionsWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := Restrictions(nil, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetRestrictionsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -95,7 +64,7 @@ func TestGetRestrictionsWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := Restrictions(template.Execute, donorStore)(testAppData, w, r)
+	err := Restrictions(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -113,18 +82,15 @@ func TestPostRestrictions(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
-		}, nil)
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			Restrictions: "blah",
 			Tasks:        page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, Restrictions: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := Restrictions(nil, donorStore)(testAppData, w, r)
+	err := Restrictions(nil, donorStore)(testAppData, w, r, &page.Lpa{
+		Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -143,13 +109,10 @@ func TestPostRestrictionsWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{Restrictions: "blah", Tasks: page.Tasks{Restrictions: actor.TaskCompleted}}).
 		Return(expectedError)
 
-	err := Restrictions(nil, donorStore)(testAppData, w, r)
+	err := Restrictions(nil, donorStore)(testAppData, w, r, &page.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -163,11 +126,6 @@ func TestPostRestrictionsWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &restrictionsData{
@@ -177,7 +135,7 @@ func TestPostRestrictionsWhenValidationErrors(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := Restrictions(template.Execute, donorStore)(testAppData, w, r)
+	err := Restrictions(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

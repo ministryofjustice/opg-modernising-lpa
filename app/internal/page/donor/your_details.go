@@ -22,13 +22,8 @@ type yourDetailsData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore sessions.Store) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore sessions.Store) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &yourDetailsData{
 			App: appData,
 			Form: &yourDetailsForm{
