@@ -31,17 +31,46 @@ var validBody = &CreateCaseRequestBody{
 
 var expectedError = errors.New("an error")
 
+type MockCredentialsProvider struct {
+	AccessKeyID     string
+	SecretAccessKey string
+}
+
+func (m *MockCredentialsProvider) Retrieve(ctx context.Context) (aws.Credentials, error) {
+	creds := aws.Credentials{
+		AccessKeyID:     m.AccessKeyID,
+		SecretAccessKey: m.SecretAccessKey,
+	}
+
+	return creds, nil
+}
+
+func (m *MockCredentialsProvider) IsExpired() bool {
+	return false
+}
+
+func createTestConfig() aws.Config {
+	return aws.Config{
+		Region: "eu-west-1",
+		Credentials: &MockCredentialsProvider{
+			AccessKeyID: "abc",
+		},
+	}
+}
+
 func TestNew(t *testing.T) {
 	signer := v4.NewSigner()
 	now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
-	client := New("http://base-url.com", "the-region", http.DefaultClient, aws.Credentials{AccessKeyID: "abc"}, signer, now)
+	client := New("http://base-url.com", http.DefaultClient, createTestConfig(), signer, now)
 
 	assert.Equal(t, "http://base-url.com", client.baseURL)
-	assert.Equal(t, "the-region", client.region)
+	assert.Equal(t, "eu-west-1", client.cfg.Region)
 	assert.Equal(t, http.DefaultClient, client.httpClient)
-	assert.Equal(t, aws.Credentials{AccessKeyID: "abc"}, client.credentials)
 	assert.Equal(t, signer, client.signer)
 	assert.Equal(t, now(), client.now())
+
+	creds, _ := client.cfg.Credentials.Retrieve(context.TODO())
+	assert.Equal(t, aws.Credentials{AccessKeyID: "abc"}, creds)
 }
 
 func TestCreateCase(t *testing.T) {
@@ -74,12 +103,11 @@ func TestCreateCase(t *testing.T) {
 		Return(nil)
 
 	client := &Client{
-		baseURL:     server.URL,
-		httpClient:  server.Client(),
-		credentials: aws.Credentials{AccessKeyID: "abc"},
-		region:      "eu-west-1",
-		signer:      v4Signer,
-		now:         now,
+		baseURL:    server.URL,
+		httpClient: server.Client(),
+		cfg:        createTestConfig(),
+		signer:     v4Signer,
+		now:        now,
 	}
 
 	resp, err := client.CreateCase(context.Background(), validBody)
@@ -126,12 +154,11 @@ func TestCreateCaseOnSignError(t *testing.T) {
 		Return(expectedError)
 
 	client := &Client{
-		baseURL:     "/",
-		httpClient:  nil,
-		credentials: aws.Credentials{AccessKeyID: "abc"},
-		region:      "eu-west-1",
-		signer:      v4Signer,
-		now:         now,
+		baseURL:    "/",
+		httpClient: nil,
+		cfg:        createTestConfig(),
+		signer:     v4Signer,
+		now:        now,
 	}
 
 	_, err := client.CreateCase(context.Background(), validBody)
@@ -151,12 +178,11 @@ func TestCreateCaseOnDoRequestError(t *testing.T) {
 		Return(nil, expectedError)
 
 	client := &Client{
-		baseURL:     "/",
-		httpClient:  httpClient,
-		credentials: aws.Credentials{AccessKeyID: "abc"},
-		region:      "eu-west-1",
-		signer:      v4Signer,
-		now:         time.Now,
+		baseURL:    "/",
+		httpClient: httpClient,
+		cfg:        createTestConfig(),
+		signer:     v4Signer,
+		now:        time.Now,
 	}
 	_, err := client.CreateCase(context.Background(), validBody)
 
@@ -177,12 +203,11 @@ func TestCreateCaseOnJsonNewDecoderError(t *testing.T) {
 		Return(nil)
 
 	client := &Client{
-		baseURL:     server.URL,
-		httpClient:  server.Client(),
-		credentials: aws.Credentials{AccessKeyID: "abc"},
-		region:      "eu-west-1",
-		signer:      v4Signer,
-		now:         time.Now,
+		baseURL:    server.URL,
+		httpClient: server.Client(),
+		cfg:        createTestConfig(),
+		signer:     v4Signer,
+		now:        time.Now,
 	}
 	_, err := client.CreateCase(context.Background(), validBody)
 
@@ -252,12 +277,11 @@ func TestCreateCaseOnBadRequestResponse(t *testing.T) {
 		Return(nil)
 
 	client := &Client{
-		baseURL:     server.URL,
-		httpClient:  server.Client(),
-		credentials: aws.Credentials{AccessKeyID: "abc"},
-		region:      "eu-west-1",
-		signer:      v4Signer,
-		now:         now,
+		baseURL:    server.URL,
+		httpClient: server.Client(),
+		cfg:        createTestConfig(),
+		signer:     v4Signer,
+		now:        now,
 	}
 
 	resp, err := client.CreateCase(context.Background(), validBody)
@@ -308,12 +332,11 @@ func TestCreateCaseNonSuccessResponses(t *testing.T) {
 				Return(nil)
 
 			client := &Client{
-				baseURL:     server.URL,
-				httpClient:  server.Client(),
-				credentials: aws.Credentials{AccessKeyID: "abc"},
-				region:      "eu-west-1",
-				signer:      v4Signer,
-				now:         now,
+				baseURL:    server.URL,
+				httpClient: server.Client(),
+				cfg:        createTestConfig(),
+				signer:     v4Signer,
+				now:        now,
 			}
 
 			resp, err := client.CreateCase(context.Background(), validBody)
@@ -349,12 +372,11 @@ func TestClientSign(t *testing.T) {
 
 			now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
 			client := &Client{
-				baseURL:     "https://base.url",
-				httpClient:  http.DefaultClient,
-				credentials: aws.Credentials{AccessKeyID: "abc"},
-				region:      "eu-west-1",
-				signer:      v4.NewSigner(),
-				now:         now,
+				baseURL:    "https://base.url",
+				httpClient: http.DefaultClient,
+				cfg:        createTestConfig(),
+				signer:     v4.NewSigner(),
+				now:        now,
 			}
 
 			err := client.sign(req.Context(), req, "service-name")
@@ -381,12 +403,11 @@ func TestClientSignOnReadAllError(t *testing.T) {
 
 	now := func() time.Time { return time.Now() }
 	client := &Client{
-		baseURL:     "https://base.url",
-		httpClient:  http.DefaultClient,
-		credentials: aws.Credentials{AccessKeyID: "abc"},
-		region:      "eu-west-1",
-		signer:      v4.NewSigner(),
-		now:         now,
+		baseURL:    "https://base.url",
+		httpClient: http.DefaultClient,
+		cfg:        createTestConfig(),
+		signer:     v4.NewSigner(),
+		now:        now,
 	}
 
 	err := client.sign(req.Context(), req, "")
@@ -405,12 +426,11 @@ func TestClientSignOnSignHttpError(t *testing.T) {
 		Return(expectedError)
 
 	client := &Client{
-		baseURL:     "https://base.url",
-		httpClient:  http.DefaultClient,
-		credentials: aws.Credentials{AccessKeyID: "abc"},
-		region:      "eu-west-1",
-		signer:      v4Signer,
-		now:         now,
+		baseURL:    "https://base.url",
+		httpClient: http.DefaultClient,
+		cfg:        createTestConfig(),
+		signer:     v4Signer,
+		now:        now,
 	}
 
 	err := client.sign(req.Context(), req, "")
@@ -517,12 +537,11 @@ func TestPactContract(t *testing.T) {
 				now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
 
 				client := &Client{
-					baseURL:     baseURL,
-					httpClient:  http.DefaultClient,
-					credentials: aws.Credentials{AccessKeyID: "abc"},
-					region:      "eu-west-1",
-					signer:      v4.NewSigner(),
-					now:         now,
+					baseURL:    baseURL,
+					httpClient: http.DefaultClient,
+					cfg:        createTestConfig(),
+					signer:     v4.NewSigner(),
+					now:        now,
 				}
 
 				resp, err := client.CreateCase(context.Background(), tc.ActualRequestBody)

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -196,22 +195,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	credentials, err := cfg.Credentials.Retrieve(ctx)
-	if err != nil {
-		logger.Fatal(err)
-	}
-
-	log.Println("Creds expire:")
-	log.Println(credentials.Expires)
-	log.Println("Creds timezone/offset:")
-	log.Println(credentials.Expires.Zone())
-
-	log.Println("time.Now:")
-	log.Println(time.Now())
-	log.Println("time.Now timezone:")
-	log.Println(time.Now().Zone())
-
-	uidClient := uid.New(uidBaseURL, cfg.Region, httpClient, credentials, v4.NewSigner(), time.Now)
+	uidClient := uid.New(uidBaseURL, httpClient, cfg, v4.NewSigner(), time.Now)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc(page.Paths.HealthCheck, func(w http.ResponseWriter, r *http.Request) {})
