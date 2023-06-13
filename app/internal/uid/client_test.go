@@ -34,26 +34,34 @@ var expectedError = errors.New("an error")
 type MockCredentialsProvider struct {
 	AccessKeyID     string
 	SecretAccessKey string
+	WillFail        bool
 }
 
 func (m *MockCredentialsProvider) Retrieve(ctx context.Context) (aws.Credentials, error) {
+	var err error
+
+	if m.WillFail {
+		err = expectedError
+	}
+
 	creds := aws.Credentials{
 		AccessKeyID:     m.AccessKeyID,
 		SecretAccessKey: m.SecretAccessKey,
 	}
 
-	return creds, nil
+	return creds, err
 }
 
 func (m *MockCredentialsProvider) IsExpired() bool {
 	return false
 }
 
-func createTestConfig() aws.Config {
+func createTestConfig(willFailRetrieveCreds bool) aws.Config {
 	return aws.Config{
 		Region: "eu-west-1",
 		Credentials: &MockCredentialsProvider{
 			AccessKeyID: "abc",
+			WillFail:    willFailRetrieveCreds,
 		},
 	}
 }
@@ -61,7 +69,7 @@ func createTestConfig() aws.Config {
 func TestNew(t *testing.T) {
 	signer := v4.NewSigner()
 	now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
-	client := New("http://base-url.com", http.DefaultClient, createTestConfig(), signer, now)
+	client := New("http://base-url.com", http.DefaultClient, createTestConfig(false), signer, now)
 
 	assert.Equal(t, "http://base-url.com", client.baseURL)
 	assert.Equal(t, "eu-west-1", client.cfg.Region)
@@ -105,7 +113,7 @@ func TestCreateCase(t *testing.T) {
 	client := &Client{
 		baseURL:    server.URL,
 		httpClient: server.Client(),
-		cfg:        createTestConfig(),
+		cfg:        createTestConfig(false),
 		signer:     v4Signer,
 		now:        now,
 	}
@@ -156,7 +164,7 @@ func TestCreateCaseOnSignError(t *testing.T) {
 	client := &Client{
 		baseURL:    "/",
 		httpClient: nil,
-		cfg:        createTestConfig(),
+		cfg:        createTestConfig(false),
 		signer:     v4Signer,
 		now:        now,
 	}
@@ -180,7 +188,7 @@ func TestCreateCaseOnDoRequestError(t *testing.T) {
 	client := &Client{
 		baseURL:    "/",
 		httpClient: httpClient,
-		cfg:        createTestConfig(),
+		cfg:        createTestConfig(false),
 		signer:     v4Signer,
 		now:        time.Now,
 	}
@@ -205,7 +213,7 @@ func TestCreateCaseOnJsonNewDecoderError(t *testing.T) {
 	client := &Client{
 		baseURL:    server.URL,
 		httpClient: server.Client(),
-		cfg:        createTestConfig(),
+		cfg:        createTestConfig(false),
 		signer:     v4Signer,
 		now:        time.Now,
 	}
@@ -279,7 +287,7 @@ func TestCreateCaseOnBadRequestResponse(t *testing.T) {
 	client := &Client{
 		baseURL:    server.URL,
 		httpClient: server.Client(),
-		cfg:        createTestConfig(),
+		cfg:        createTestConfig(false),
 		signer:     v4Signer,
 		now:        now,
 	}
@@ -334,7 +342,7 @@ func TestCreateCaseNonSuccessResponses(t *testing.T) {
 			client := &Client{
 				baseURL:    server.URL,
 				httpClient: server.Client(),
-				cfg:        createTestConfig(),
+				cfg:        createTestConfig(false),
 				signer:     v4Signer,
 				now:        now,
 			}
@@ -374,7 +382,7 @@ func TestClientSign(t *testing.T) {
 			client := &Client{
 				baseURL:    "https://base.url",
 				httpClient: http.DefaultClient,
-				cfg:        createTestConfig(),
+				cfg:        createTestConfig(false),
 				signer:     v4.NewSigner(),
 				now:        now,
 			}
@@ -405,8 +413,27 @@ func TestClientSignOnReadAllError(t *testing.T) {
 	client := &Client{
 		baseURL:    "https://base.url",
 		httpClient: http.DefaultClient,
-		cfg:        createTestConfig(),
+		cfg:        createTestConfig(false),
 		signer:     v4.NewSigner(),
+		now:        now,
+	}
+
+	err := client.sign(req.Context(), req, "")
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestClientSignOnRetrieveCredentials(t *testing.T) {
+	req, _ := http.NewRequest(http.MethodPost, "/an-url", nil)
+	req.Header.Set("a-header", "with-a-value")
+
+	now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
+
+	client := &Client{
+		baseURL:    "https://base.url",
+		httpClient: http.DefaultClient,
+		cfg:        createTestConfig(true),
+		signer:     nil,
 		now:        now,
 	}
 
@@ -428,7 +455,7 @@ func TestClientSignOnSignHttpError(t *testing.T) {
 	client := &Client{
 		baseURL:    "https://base.url",
 		httpClient: http.DefaultClient,
-		cfg:        createTestConfig(),
+		cfg:        createTestConfig(false),
 		signer:     v4Signer,
 		now:        now,
 	}
@@ -539,7 +566,7 @@ func TestPactContract(t *testing.T) {
 				client := &Client{
 					baseURL:    baseURL,
 					httpClient: http.DefaultClient,
-					cfg:        createTestConfig(),
+					cfg:        createTestConfig(false),
 					signer:     v4.NewSigner(),
 					now:        now,
 				}
