@@ -28,6 +28,7 @@ module "eu_west_1" {
   app_env_vars           = local.environment.app.env
   public_access_enabled  = var.public_access_enabled
   pagerduty_service_name = local.environment.pagerduty_service_name
+  dns_weighting          = 100
   providers = {
     aws.region            = aws.eu_west_1
     aws.global            = aws.global
@@ -56,6 +57,7 @@ module "eu_west_2" {
   app_env_vars           = local.environment.app.env
   public_access_enabled  = var.public_access_enabled
   pagerduty_service_name = local.environment.pagerduty_service_name
+  dns_weighting          = 0
   providers = {
     aws.region            = aws.eu_west_2
     aws.global            = aws.global

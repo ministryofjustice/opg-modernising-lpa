@@ -5,3 +5,7 @@ output "resource_group_arns" {
     module.global.resource_group_arn,
   ]
 }
+
+output "app_fqdn_eu_west_1" {
+  value = module.eu_west_1[0].app_fqdn
+}
