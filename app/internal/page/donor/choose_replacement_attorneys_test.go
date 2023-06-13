@@ -22,11 +22,6 @@ func TestGetChooseReplacementAttorneys(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseReplacementAttorneysData{
@@ -35,26 +30,10 @@ func TestGetChooseReplacementAttorneys(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneys(template.Execute, donorStore, mockUuidString)(testAppData, w, r)
+	err := ChooseReplacementAttorneys(template.Execute, nil, mockUuidString)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestGetChooseReplacementAttorneysWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -62,18 +41,9 @@ func TestGetChooseReplacementAttorneysFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			ReplacementAttorneys: actor.Attorneys{
-				{FirstNames: "John", ID: "1"},
-			},
-		}, nil)
-
 	template := newMockTemplate(t)
 
-	err := ChooseReplacementAttorneys(template.Execute, donorStore, mockUuidString)(testAppData, w, r)
+	err := ChooseReplacementAttorneys(template.Execute, nil, mockUuidString)(testAppData, w, r, &page.Lpa{ReplacementAttorneys: actor.Attorneys{{FirstNames: "John", ID: "1"}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -85,11 +55,6 @@ func TestGetChooseReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseReplacementAttorneysData{
@@ -98,7 +63,7 @@ func TestGetChooseReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ChooseReplacementAttorneys(template.Execute, donorStore, mockUuidString)(testAppData, w, r)
+	err := ChooseReplacementAttorneys(template.Execute, nil, mockUuidString)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -175,11 +140,6 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{
-					Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
-				}, nil)
-			donorStore.
 				On("Put", r.Context(), &page.Lpa{
 					Donor:                actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					ReplacementAttorneys: actor.Attorneys{tc.attorney},
@@ -187,7 +147,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r)
+			err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &page.Lpa{Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"}})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -270,18 +230,6 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{
-					Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
-					ReplacementAttorneys: actor.Attorneys{
-						{
-							FirstNames: "John",
-							ID:         "123",
-							Address:    place.Address{Line1: "abc"},
-						},
-					},
-				}, nil)
-			donorStore.
 				On("Put", r.Context(), &page.Lpa{
 					Donor:                actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					ReplacementAttorneys: actor.Attorneys{tc.attorney},
@@ -289,7 +237,16 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r)
+			err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &page.Lpa{
+				Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+				ReplacementAttorneys: actor.Attorneys{
+					{
+						FirstNames: "John",
+						ID:         "123",
+						Address:    place.Address{Line1: "abc"},
+					},
+				},
+			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -405,13 +362,6 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{
-					Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
-				}, nil)
-
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, mock.MatchedBy(func(data *chooseReplacementAttorneysData) bool {
@@ -419,7 +369,7 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := ChooseReplacementAttorneys(template.Execute, donorStore, mockUuidString)(testAppData, w, r)
+			err := ChooseReplacementAttorneys(template.Execute, nil, mockUuidString)(testAppData, w, r, &page.Lpa{Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"}})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -444,13 +394,10 @@ func TestPostChooseReplacementAttorneysWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r)
+	err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &page.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }

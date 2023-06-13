@@ -19,13 +19,8 @@ type paymentConfirmationData struct {
 	PaymentReference string
 }
 
-func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore sessions.Store, shareCodeSender ShareCodeSender) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore sessions.Store, shareCodeSender ShareCodeSender) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		paymentSession, err := sesh.Payment(sessionStore, r)
 		if err != nil {
 			return err

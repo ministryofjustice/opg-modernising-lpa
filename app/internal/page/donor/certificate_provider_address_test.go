@@ -26,11 +26,6 @@ func TestGetCertificateProviderAddress(t *testing.T) {
 		Address:    place.Address{},
 	}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{CertificateProvider: certificateProvider}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseAddressData{
@@ -41,26 +36,10 @@ func TestGetCertificateProviderAddress(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{CertificateProvider: certificateProvider})
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestGetCertificateProviderAddressWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -71,13 +50,6 @@ func TestGetCertificateProviderAddressFromStore(t *testing.T) {
 	certificateProvider := actor.CertificateProvider{
 		Address: testAddress,
 	}
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			CertificateProvider: certificateProvider,
-		}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -92,7 +64,7 @@ func TestGetCertificateProviderAddressFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{CertificateProvider: certificateProvider})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -107,11 +79,6 @@ func TestGetCertificateProviderAddressManual(t *testing.T) {
 		Address: testAddress,
 	}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{CertificateProvider: certificateProvider}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseAddressData{
@@ -125,7 +92,7 @@ func TestGetCertificateProviderAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{CertificateProvider: certificateProvider})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -135,11 +102,6 @@ func TestGetCertificateProviderAddressManual(t *testing.T) {
 func TestGetCertificateProviderAddressWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -151,7 +113,7 @@ func TestGetCertificateProviderAddressWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := CertificateProviderAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -174,16 +136,12 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			CertificateProvider: actor.CertificateProvider{Address: testAddress},
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -207,16 +165,12 @@ func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			CertificateProvider: actor.CertificateProvider{Address: testAddress},
 		}).
 		Return(expectedError)
 
-	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -237,16 +191,6 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			CertificateProvider: actor.CertificateProvider{
-				FirstNames: "John",
-				Address:    place.Address{Line1: "abc"},
-			},
-			WhoFor: "me",
-		}, nil)
-
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			CertificateProvider: actor.CertificateProvider{
 				FirstNames: "John",
@@ -256,7 +200,13 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
+		CertificateProvider: actor.CertificateProvider{
+			FirstNames: "John",
+			Address:    place.Address{Line1: "abc"},
+		},
+		WhoFor: "me",
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -275,11 +225,6 @@ func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	invalidAddress := &place.Address{
 		Line2:      "b",
@@ -301,7 +246,7 @@ func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -319,11 +264,6 @@ func TestPostCertificateProviderPostcodeSelect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseAddressData{
@@ -338,7 +278,7 @@ func TestPostCertificateProviderPostcodeSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -358,11 +298,6 @@ func TestPostCertificateProviderPostcodeSelectWhenValidationError(t *testing.T) 
 	addresses := []place.Address{
 		{Line1: "1 Road Way", TownOrCity: "Townville"},
 	}
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	addressClient := newMockAddressClient(t)
 	addressClient.
@@ -384,7 +319,7 @@ func TestPostCertificateProviderPostcodeSelectWhenValidationError(t *testing.T) 
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(nil, template.Execute, addressClient, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -410,11 +345,6 @@ func TestPostCertificateProviderPostcodeLookup(t *testing.T) {
 		On("LookupPostcode", mock.Anything, "NG1").
 		Return(addresses, nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseAddressData{
@@ -429,7 +359,7 @@ func TestPostCertificateProviderPostcodeLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(nil, template.Execute, addressClient, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -449,11 +379,6 @@ func TestPostCertificateProviderPostcodeLookupError(t *testing.T) {
 	logger := newMockLogger(t)
 	logger.
 		On("Print", expectedError)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	addressClient := newMockAddressClient(t)
 	addressClient.
@@ -475,7 +400,7 @@ func TestPostCertificateProviderPostcodeLookupError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(logger, template.Execute, addressClient, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -501,11 +426,6 @@ func TestPostCertificateProviderPostcodeLookupInvalidPostcodeError(t *testing.T)
 	logger.
 		On("Print", invalidPostcodeErr)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	addressClient := newMockAddressClient(t)
 	addressClient.
 		On("LookupPostcode", mock.Anything, "XYZ").
@@ -526,7 +446,7 @@ func TestPostCertificateProviderPostcodeLookupInvalidPostcodeError(t *testing.T)
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(logger, template.Execute, addressClient, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -545,11 +465,6 @@ func TestPostCertificateProviderPostcodeLookupValidPostcodeNoAddresses(t *testin
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	addressClient := newMockAddressClient(t)
 	addressClient.
@@ -571,7 +486,7 @@ func TestPostCertificateProviderPostcodeLookupValidPostcodeNoAddresses(t *testin
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(logger, template.Execute, addressClient, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -587,11 +502,6 @@ func TestPostCertificateProviderPostcodeLookupWhenValidationError(t *testing.T) 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseAddressData{
@@ -605,7 +515,7 @@ func TestPostCertificateProviderPostcodeLookupWhenValidationError(t *testing.T) 
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -620,13 +530,6 @@ func TestPostCertificateProviderAddressReuse(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Donor: actor.Donor{Address: place.Address{Line1: "donor lane"}},
-		}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseAddressData{
@@ -640,7 +543,9 @@ func TestPostCertificateProviderAddressReuse(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{
+		Donor: actor.Donor{Address: place.Address{Line1: "donor lane"}},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -659,9 +564,6 @@ func TestPostCertificateProviderAddressReuseSelect(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			CertificateProvider: actor.CertificateProvider{
 				Address: place.Address{
@@ -675,7 +577,7 @@ func TestPostCertificateProviderAddressReuseSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -692,13 +594,6 @@ func TestPostCertificateProviderAddressReuseSelectWhenValidationError(t *testing
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Donor: actor.Donor{Address: place.Address{Line1: "donor lane"}},
-		}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseAddressData{
@@ -713,7 +608,9 @@ func TestPostCertificateProviderAddressReuseSelectWhenValidationError(t *testing
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(nil, template.Execute, nil, donorStore)(testAppData, w, r)
+	err := CertificateProviderAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{
+		Donor: actor.Donor{Address: place.Address{Line1: "donor lane"}},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)

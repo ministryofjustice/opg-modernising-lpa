@@ -14,13 +14,8 @@ type witnessingYourSignatureData struct {
 	Lpa    *page.Lpa
 }
 
-func WitnessingYourSignature(tmpl template.Template, donorStore DonorStore, witnessCodeSender WitnessCodeSender) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func WitnessingYourSignature(tmpl template.Template, witnessCodeSender WitnessCodeSender) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if r.Method == http.MethodPost {
 			if err := witnessCodeSender.Send(r.Context(), lpa, appData.Localizer); err != nil {
 				return err

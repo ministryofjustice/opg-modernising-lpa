@@ -19,11 +19,6 @@ func TestGetSignYourLpa(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &signYourLpaData{
@@ -35,26 +30,10 @@ func TestGetSignYourLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := SignYourLpa(template.Execute, donorStore)(testAppData, w, r)
+	err := SignYourLpa(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestGetSignYourLpaWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := SignYourLpa(nil, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -66,11 +45,6 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 		WantToSignLpa:     true,
 		WantToApplyForLpa: false,
 	}
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(lpa, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -86,7 +60,7 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := SignYourLpa(template.Execute, donorStore)(testAppData, w, r)
+	err := SignYourLpa(template.Execute, nil)(testAppData, w, r, lpa)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -104,9 +78,6 @@ func TestPostSignYourLpa(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin}}, nil)
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
 			Tasks: page.Tasks{
@@ -117,7 +88,7 @@ func TestPostSignYourLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := SignYourLpa(nil, donorStore)(testAppData, w, r)
+	err := SignYourLpa(nil, donorStore)(testAppData, w, r, &page.Lpa{DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -136,13 +107,10 @@ func TestPostSignYourLpaWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := SignYourLpa(nil, donorStore)(testAppData, w, r)
+	err := SignYourLpa(nil, donorStore)(testAppData, w, r, &page.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -158,9 +126,6 @@ func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			WantToSignLpa:     false,
 			WantToApplyForLpa: false,
@@ -174,7 +139,7 @@ func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := SignYourLpa(template.Execute, donorStore)(testAppData, w, r)
+	err := SignYourLpa(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

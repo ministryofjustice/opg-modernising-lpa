@@ -90,11 +90,6 @@ func TestGetTaskList(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Get", r.Context()).
-				Return(tc.lpa, nil)
-
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &taskListData{
@@ -130,7 +125,7 @@ func TestGetTaskList(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := TaskList(template.Execute, donorStore)(testAppData, w, r)
+			err := TaskList(template.Execute)(testAppData, w, r, tc.lpa)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -139,35 +134,16 @@ func TestGetTaskList(t *testing.T) {
 	}
 }
 
-func TestGetTaskListWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := TaskList(nil, donorStore)(testAppData, w, r)
-
-	assert.Equal(t, expectedError, err)
-}
-
 func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := TaskList(template.Execute, donorStore)(testAppData, w, r)
+	err := TaskList(template.Execute)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
