@@ -34,11 +34,6 @@ jobs:
           aws-region: eu-west-1
           role-duration-seconds: 900
           role-session-name: OPGModernisingLPATerraformGithubAction
-
-      - name: Download environment config file
-        uses: actions/download-artifact@v3
-        with:
-          name: environment_config_file
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
