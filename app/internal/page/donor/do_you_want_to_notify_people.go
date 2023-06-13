@@ -18,13 +18,8 @@ type doYouWantToNotifyPeopleData struct {
 	HowWorkTogether string
 }
 
-func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if len(lpa.PeopleToNotify) > 0 {
 			return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotifySummary)
 		}

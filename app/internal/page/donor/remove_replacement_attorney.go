@@ -17,14 +17,8 @@ type removeReplacementAttorneyData struct {
 	Form     *removeAttorneyForm
 }
 
-func RemoveReplacementAttorney(logger Logger, tmpl template.Template, donorStore DonorStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			logger.Print(fmt.Sprintf("error getting lpa from store: %s", err.Error()))
-			return err
-		}
-
+func RemoveReplacementAttorney(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		id := r.FormValue("id")
 		attorney, found := lpa.ReplacementAttorneys.Get(id)
 

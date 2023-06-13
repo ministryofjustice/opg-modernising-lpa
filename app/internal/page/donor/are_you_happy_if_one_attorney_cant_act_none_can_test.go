@@ -18,11 +18,6 @@ func TestGetAreYouHappyIfOneAttorneyCantActNoneCan(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &areYouHappyIfOneAttorneyCantActNoneCanData{
@@ -30,37 +25,16 @@ func TestGetAreYouHappyIfOneAttorneyCantActNoneCan(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := AreYouHappyIfOneAttorneyCantActNoneCan(template.Execute, donorStore)(testAppData, w, r)
+	err := AreYouHappyIfOneAttorneyCantActNoneCan(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetAreYouHappyIfOneAttorneyCantActNoneCanWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := AreYouHappyIfOneAttorneyCantActNoneCan(nil, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetAreYouHappyIfOneAttorneyCantActNoneCanWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -69,7 +43,7 @@ func TestGetAreYouHappyIfOneAttorneyCantActNoneCanWhenTemplateErrors(t *testing.
 		}).
 		Return(expectedError)
 
-	err := AreYouHappyIfOneAttorneyCantActNoneCan(template.Execute, donorStore)(testAppData, w, r)
+	err := AreYouHappyIfOneAttorneyCantActNoneCan(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -94,15 +68,12 @@ func TestPostAreYouHappyIfOneAttorneyCantActNoneCan(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{}, nil)
-			donorStore.
 				On("Put", r.Context(), &page.Lpa{
 					AttorneyDecisions: actor.AttorneyDecisions{HappyIfOneCannotActNoneCan: happy},
 				}).
 				Return(nil)
 
-			err := AreYouHappyIfOneAttorneyCantActNoneCan(nil, donorStore)(testAppData, w, r)
+			err := AreYouHappyIfOneAttorneyCantActNoneCan(nil, donorStore)(testAppData, w, r, &page.Lpa{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -123,13 +94,10 @@ func TestPostAreYouHappyIfOneAttorneyCantActNoneCanWhenStoreErrors(t *testing.T)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := AreYouHappyIfOneAttorneyCantActNoneCan(nil, donorStore)(testAppData, w, r)
+	err := AreYouHappyIfOneAttorneyCantActNoneCan(nil, donorStore)(testAppData, w, r, &page.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -139,11 +107,6 @@ func TestPostAreYouHappyIfOneAttorneyCantActNoneCanWhenValidationErrors(t *testi
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &areYouHappyIfOneAttorneyCantActNoneCanData{
@@ -152,7 +115,7 @@ func TestPostAreYouHappyIfOneAttorneyCantActNoneCanWhenValidationErrors(t *testi
 		}).
 		Return(nil)
 
-	err := AreYouHappyIfOneAttorneyCantActNoneCan(template.Execute, donorStore)(testAppData, w, r)
+	err := AreYouHappyIfOneAttorneyCantActNoneCan(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

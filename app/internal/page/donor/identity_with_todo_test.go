@@ -20,11 +20,6 @@ func TestGetIdentityWithTodo(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Donor: actor.Donor{FirstNames: "a", LastName: "b"},
-		}, nil)
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			Donor: actor.Donor{FirstNames: "a", LastName: "b"},
 			DonorIdentityUserData: identity.UserData{
@@ -45,26 +40,13 @@ func TestGetIdentityWithTodo(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := IdentityWithTodo(template.Execute, donorStore, func() time.Time { return now }, identity.Passport)(testAppData, w, r)
+	err := IdentityWithTodo(template.Execute, donorStore, func() time.Time { return now }, identity.Passport)(testAppData, w, r, &page.Lpa{
+		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestGetIdentityWithTodoWhenDonorStoreGetErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Donor: actor.Donor{FirstNames: "a", LastName: "b"},
-		}, expectedError)
-
-	err := IdentityWithTodo(nil, donorStore, nil, identity.Passport)(testAppData, w, r)
-	assert.Equal(t, expectedError, err)
 }
 
 func TestGetIdentityWithTodoWhenDonorStorePutErrors(t *testing.T) {
@@ -73,15 +55,12 @@ func TestGetIdentityWithTodoWhenDonorStorePutErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Donor: actor.Donor{FirstNames: "a", LastName: "b"},
-		}, nil)
-	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := IdentityWithTodo(nil, donorStore, time.Now, identity.Passport)(testAppData, w, r)
+	err := IdentityWithTodo(nil, donorStore, time.Now, identity.Passport)(testAppData, w, r, &page.Lpa{
+		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
+	})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -89,21 +68,16 @@ func TestPostIdentityWithTodo(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Donor: actor.Donor{FirstNames: "a", LastName: "b"},
-			DonorIdentityUserData: identity.UserData{
-				OK:          true,
-				Provider:    identity.Passport,
-				FirstNames:  "a",
-				LastName:    "b",
-				RetrievedAt: now,
-			},
-		}, nil)
-
-	err := IdentityWithTodo(nil, donorStore, nil, identity.Passport)(testAppData, w, r)
+	err := IdentityWithTodo(nil, nil, nil, identity.Passport)(testAppData, w, r, &page.Lpa{
+		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
+		DonorIdentityUserData: identity.UserData{
+			OK:          true,
+			Provider:    identity.Passport,
+			FirstNames:  "a",
+			LastName:    "b",
+			RetrievedAt: now,
+		},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)

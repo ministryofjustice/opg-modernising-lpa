@@ -17,13 +17,8 @@ type selectYourIdentityOptionsData struct {
 	Page   int
 }
 
-func SelectYourIdentityOptions(tmpl template.Template, donorStore DonorStore, pageIndex int) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func SelectYourIdentityOptions(tmpl template.Template, donorStore DonorStore, pageIndex int) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &selectYourIdentityOptionsData{
 			App:  appData,
 			Page: pageIndex,

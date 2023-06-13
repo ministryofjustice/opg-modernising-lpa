@@ -16,13 +16,8 @@ type wantReplacementAttorneysData struct {
 	Lpa    *page.Lpa
 }
 
-func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &wantReplacementAttorneysData{
 			App:  appData,
 			Want: lpa.WantReplacementAttorneys,

@@ -17,14 +17,8 @@ type chooseReplacementAttorneysSummaryData struct {
 	Lpa    *page.Lpa
 }
 
-func ChooseReplacementAttorneysSummary(logger Logger, tmpl template.Template, donorStore DonorStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.Get(r.Context())
-		if err != nil {
-			logger.Print(fmt.Sprintf("error getting lpa from store: %s", err.Error()))
-			return err
-		}
-
+func ChooseReplacementAttorneysSummary(tmpl template.Template) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if len(lpa.ReplacementAttorneys) == 0 {
 			return appData.Redirect(w, r, lpa, page.Paths.DoYouWantReplacementAttorneys)
 		}

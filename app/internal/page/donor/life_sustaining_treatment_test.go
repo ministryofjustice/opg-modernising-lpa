@@ -17,11 +17,6 @@ func TestGetLifeSustainingTreatment(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &lifeSustainingTreatmentData{
@@ -29,7 +24,7 @@ func TestGetLifeSustainingTreatment(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LifeSustainingTreatment(template.Execute, donorStore)(testAppData, w, r)
+	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -40,11 +35,6 @@ func TestGetLifeSustainingTreatmentFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{LifeSustainingTreatmentOption: page.OptionA}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &lifeSustainingTreatmentData{
@@ -53,37 +43,16 @@ func TestGetLifeSustainingTreatmentFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LifeSustainingTreatment(template.Execute, donorStore)(testAppData, w, r)
+	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &page.Lpa{LifeSustainingTreatmentOption: page.OptionA})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetLifeSustainingTreatmentWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := LifeSustainingTreatment(nil, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetLifeSustainingTreatmentWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -92,7 +61,7 @@ func TestGetLifeSustainingTreatmentWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := LifeSustainingTreatment(template.Execute, donorStore)(testAppData, w, r)
+	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -110,18 +79,15 @@ func TestPostLifeSustainingTreatment(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
-		}, nil)
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			LifeSustainingTreatmentOption: page.OptionA,
 			Tasks:                         page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, LifeSustainingTreatment: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := LifeSustainingTreatment(nil, donorStore)(testAppData, w, r)
+	err := LifeSustainingTreatment(nil, donorStore)(testAppData, w, r, &page.Lpa{
+		Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -140,13 +106,10 @@ func TestPostLifeSustainingTreatmentWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{LifeSustainingTreatmentOption: page.OptionA, Tasks: page.Tasks{LifeSustainingTreatment: actor.TaskCompleted}}).
 		Return(expectedError)
 
-	err := LifeSustainingTreatment(nil, donorStore)(testAppData, w, r)
+	err := LifeSustainingTreatment(nil, donorStore)(testAppData, w, r, &page.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -156,11 +119,6 @@ func TestPostLifeSustainingTreatmentWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &lifeSustainingTreatmentData{
@@ -169,7 +127,7 @@ func TestPostLifeSustainingTreatmentWhenValidationErrors(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LifeSustainingTreatment(template.Execute, donorStore)(testAppData, w, r)
+	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

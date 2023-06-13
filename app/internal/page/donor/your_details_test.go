@@ -24,11 +24,6 @@ func TestGetYourDetails(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &yourDetailsData{
@@ -37,41 +32,16 @@ func TestGetYourDetails(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourDetails(template.Execute, donorStore, nil)(testAppData, w, r)
+	err := YourDetails(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetYourDetailsWhenStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := YourDetails(nil, donorStore, nil)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetYourDetailsFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Donor: actor.Donor{
-				FirstNames: "John",
-			},
-		}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -83,7 +53,11 @@ func TestGetYourDetailsFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourDetails(template.Execute, donorStore, nil)(testAppData, w, r)
+	err := YourDetails(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{
+		Donor: actor.Donor{
+			FirstNames: "John",
+		},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -94,11 +68,6 @@ func TestGetYourDetailsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &yourDetailsData{
@@ -107,7 +76,7 @@ func TestGetYourDetailsWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := YourDetails(template.Execute, donorStore, nil)(testAppData, w, r)
+	err := YourDetails(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -165,14 +134,6 @@ func TestPostYourDetails(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{
-					Donor: actor.Donor{
-						FirstNames: "John",
-						Address:    place.Address{Line1: "abc"},
-					},
-				}, nil)
-			donorStore.
 				On("Put", r.Context(), &page.Lpa{
 					Donor: tc.person,
 					Tasks: page.Tasks{YourDetails: actor.TaskInProgress},
@@ -184,7 +145,12 @@ func TestPostYourDetails(t *testing.T) {
 				On("Get", r, "session").
 				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
-			err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r)
+			err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &page.Lpa{
+				Donor: actor.Donor{
+					FirstNames: "John",
+					Address:    place.Address{Line1: "abc"},
+				},
+			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -212,15 +178,6 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Donor: actor.Donor{
-				FirstNames: "John",
-				Address:    place.Address{Line1: "abc"},
-			},
-			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
-		}, nil)
-	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			Donor: actor.Donor{
 				FirstNames:  "John",
@@ -238,7 +195,13 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 		On("Get", r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
-	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r)
+	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &page.Lpa{
+		Donor: actor.Donor{
+			FirstNames: "John",
+			Address:    place.Address{Line1: "abc"},
+		},
+		Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -314,17 +277,12 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{}, nil)
-
 			sessionStore := newMockSessionStore(t)
 			sessionStore.
 				On("Get", mock.Anything, "session").
 				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
-			err := YourDetails(template.Execute, donorStore, sessionStore)(testAppData, w, r)
+			err := YourDetails(template.Execute, nil, sessionStore)(testAppData, w, r, &page.Lpa{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -348,14 +306,6 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Get", r.Context()).
-		Return(&page.Lpa{
-			Donor: actor.Donor{
-				FirstNames: "John",
-				Address:    place.Address{Line1: "abc"},
-			},
-		}, nil)
-	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
@@ -364,7 +314,12 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 		On("Get", mock.Anything, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
-	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r)
+	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &page.Lpa{
+		Donor: actor.Donor{
+			FirstNames: "John",
+			Address:    place.Address{Line1: "abc"},
+		},
+	})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -402,17 +357,12 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Get", r.Context()).
-				Return(&page.Lpa{}, nil)
-
 			sessionStore := newMockSessionStore(t)
 			sessionStore.
 				On("Get", mock.Anything, "session").
 				Return(tc.session, tc.error)
 
-			err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r)
+			err := YourDetails(nil, nil, sessionStore)(testAppData, w, r, &page.Lpa{})
 
 			assert.NotNil(t, err)
 		})
