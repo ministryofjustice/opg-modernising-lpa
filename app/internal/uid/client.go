@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 
@@ -88,6 +89,14 @@ func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (C
 	err = c.sign(ctx, r, apiGatewayServiceName)
 	if err != nil {
 		return CreateCaseResponse{}, err
+	}
+
+	log.Println("Request headers:\n")
+
+	for name, values := range r.Header {
+		for _, value := range values {
+			log.Println(name, value+"\n")
+		}
 	}
 
 	resp, err := c.httpClient.Do(r)
