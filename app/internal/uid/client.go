@@ -91,7 +91,7 @@ func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (C
 		return CreateCaseResponse{}, err
 	}
 
-	log.Println("Request headers:\n")
+	log.Println("Request headers:")
 
 	for name, values := range r.Header {
 		for _, value := range values {
