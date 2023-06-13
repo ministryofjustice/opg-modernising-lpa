@@ -195,12 +195,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	credentials, err := cfg.Credentials.Retrieve(ctx)
-	if err != nil {
-		logger.Fatal(err)
-	}
-
-	uidClient := uid.New(uidBaseURL, cfg.Region, httpClient, credentials, v4.NewSigner(), time.Now)
+	uidClient := uid.New(uidBaseURL, httpClient, cfg, v4.NewSigner(), time.Now)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc(page.Paths.HealthCheck, func(w http.ResponseWriter, r *http.Request) {})

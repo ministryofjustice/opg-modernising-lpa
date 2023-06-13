@@ -29,22 +29,20 @@ type v4Signer interface {
 }
 
 type Client struct {
-	baseURL     string
-	httpClient  Doer
-	credentials aws.Credentials
-	region      string
-	signer      v4Signer
-	now         func() time.Time
+	baseURL    string
+	httpClient Doer
+	cfg        aws.Config
+	signer     v4Signer
+	now        func() time.Time
 }
 
-func New(baseURL, region string, httpClient Doer, credentials aws.Credentials, signer v4Signer, now func() time.Time) *Client {
+func New(baseURL string, httpClient Doer, cfg aws.Config, signer v4Signer, now func() time.Time) *Client {
 	return &Client{
-		baseURL:     baseURL,
-		httpClient:  httpClient,
-		credentials: credentials,
-		region:      region,
-		signer:      signer,
-		now:         now,
+		baseURL:    baseURL,
+		httpClient: httpClient,
+		cfg:        cfg,
+		signer:     signer,
+		now:        now,
 	}
 }
 
@@ -159,5 +157,10 @@ func (c *Client) sign(ctx context.Context, req *http.Request, serviceName string
 
 	encodedBody := hex.EncodeToString(hash.Sum(nil))
 
-	return c.signer.SignHTTP(ctx, c.credentials, req, encodedBody, serviceName, c.region, c.now())
+	credentials, err := c.cfg.Credentials.Retrieve(ctx)
+	if err != nil {
+		return err
+	}
+
+	return c.signer.SignHTTP(ctx, credentials, req, encodedBody, serviceName, c.cfg.Region, c.now().UTC())
 }
