@@ -6,6 +6,6 @@ output "resource_group_arns" {
   ]
 }
 
-output "app_fqdn_eu_west_1" {
+output "app_fqdn" {
   value = module.eu_west_1[0].app_fqdn
 }
