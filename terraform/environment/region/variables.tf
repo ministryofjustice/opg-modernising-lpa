@@ -68,3 +68,8 @@ variable "pagerduty_service_name" {
   type        = string
   description = "Name of the PagerDuty service to use for alerts"
 }
+
+variable "dns_weighting" {
+  type        = number
+  description = "Weighting for DNS records"
+}
