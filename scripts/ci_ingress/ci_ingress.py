@@ -15,13 +15,8 @@ class IngressManager:
     aws_ec2_client = ''
     security_groups = []
 
-    def __init__(self, region, account_id, security_group_id):
-        # self.read_parameters_from_file(config_file)
-        self.aws_region = region
-        self.aws_account_id = account_id
-        self.security_groups = [
-            security_group_id
-        ]
+    def __init__(self, config_json):
+        self.read_parameters_from_json(config_json)
         self.set_iam_role_session()
         self.aws_ec2_client = boto3.client(
             'ec2',
@@ -29,6 +24,14 @@ class IngressManager:
             aws_access_key_id=self.aws_iam_session['Credentials']['AccessKeyId'],
             aws_secret_access_key=self.aws_iam_session['Credentials']['SecretAccessKey'],
             aws_session_token=self.aws_iam_session['Credentials']['SessionToken'])
+
+    def read_parameters_from_json(self, config_json):
+        parameters = json.loads(config_json)
+        self.aws_region = parameters['region']
+        self.aws_account_id = parameters['account_id']
+        self.security_groups = [
+            parameters['app_load_balancer_security_group_id']
+        ]
 
     def read_parameters_from_file(self, config_file):
         with open(config_file) as json_file:
@@ -142,19 +145,22 @@ def main():
     parser = argparse.ArgumentParser(
         description="Add or remove your host's IP address to the app loadbalancer ingress rules.")
 
-    parser.add_argument("--region", type=str,
-                        help="Region to target")
-    parser.add_argument("--account_id", type=str,
-                        help="Account ID to target")
-    parser.add_argument("--security_group_id", type=str,
-                        help="Security group to target")
+    parser.add_argument("config_json", type=str,
+                        help="Environment config for script")
+    # parser.add_argument("--region", type=str,
+    #                     help="Region to target")
+    # parser.add_argument("--account_id", type=str,
+    #                     help="Account ID to target")
+    # parser.add_argument("--security_group_id", type=str,
+    #                     help="Security group to target")
     parser.add_argument('--add', dest='action_flag', action='store_const',
                         const=True, default=False,
                         help='add host IP address to security group ci ingress rule (default: remove all ci ingress rules)')
 
     args = parser.parse_args()
 
-    work = IngressManager(args.region, args.account_id, args.security_group_id)
+    work = IngressManager(args.config_json)
+    # work = IngressManager(args.region, args.account_id, args.security_group_id)
     ingress_cidr = work.get_ip_addresses()
     if args.action_flag:
         work.add_ci_ingress_rule_to_sg(ingress_cidr)
