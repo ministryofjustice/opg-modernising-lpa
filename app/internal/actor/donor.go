@@ -8,14 +8,21 @@ import (
 )
 
 type Donor struct {
-	FirstNames  string
-	LastName    string
-	Email       string
-	OtherNames  string
+	// First names of the donor
+	FirstNames string
+	// Last name of the donor
+	LastName string
+	// Email of the donor
+	Email string
+	// Other names the donor is known by
+	OtherNames string
+	// Date of birth of the donor
 	DateOfBirth date.Date
-	Address     place.Address
+	// Address of the donor
+	Address place.Address
 }
 
+// FullName returns FirstNames and LastName separated with a space
 func (d Donor) FullName() string {
 	return fmt.Sprintf("%s %s", d.FirstNames, d.LastName)
 }

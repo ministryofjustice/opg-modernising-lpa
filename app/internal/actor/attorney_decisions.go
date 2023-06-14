@@ -7,9 +7,13 @@ const (
 )
 
 type AttorneyDecisions struct {
-	How                              string
-	Details                          string
-	HappyIfOneCannotActNoneCan       string
+	// How attorneys should make decisions
+	How string
+	// Details on how attorneys should make decisions if acting jointly for some decisions, and jointly and severally for other decisions
+	Details string
+	// Confirmation the applicant is happy with all attorneys being unable to act if one cannot act
+	HappyIfOneCannotActNoneCan string
+	// Confirmation the applicant is happy with any remaining attorneys being able to act if one cannot act
 	HappyIfRemainingCanContinueToAct string
 }
 
