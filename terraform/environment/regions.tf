@@ -10,9 +10,9 @@ module "allow_list" {
 module "eu_west_1" {
   source             = "./region"
   count              = contains(local.environment.regions, "eu-west-1") ? 1 : 0
-  ecs_execution_role = aws_iam_role.execution_role
+  ecs_execution_role = module.global.iam_roles.ecs_execution_role
   ecs_task_roles = {
-    app = aws_iam_role.app_task_role
+    app = module.global.iam_roles.app_ecs_task_role
   }
   application_log_retention_days  = local.environment.cloudwatch_log_groups.application_log_retention_days
   ecs_capacity_provider           = local.ecs_capacity_provider
@@ -28,18 +28,20 @@ module "eu_west_1" {
   app_env_vars           = local.environment.app.env
   public_access_enabled  = var.public_access_enabled
   pagerduty_service_name = local.environment.pagerduty_service_name
+  dns_weighting          = 100
   providers = {
-    aws.region = aws.eu_west_1
-    aws.global = aws.global
+    aws.region            = aws.eu_west_1
+    aws.global            = aws.global
+    aws.management_global = aws.management_global
   }
 }
 
 module "eu_west_2" {
   source             = "./region"
   count              = contains(local.environment.regions, "eu-west-2") ? 1 : 0
-  ecs_execution_role = aws_iam_role.execution_role
+  ecs_execution_role = module.global.iam_roles.ecs_execution_role
   ecs_task_roles = {
-    app = aws_iam_role.app_task_role
+    app = module.global.iam_roles.app_ecs_task_role
   }
   application_log_retention_days  = local.environment.cloudwatch_log_groups.application_log_retention_days
   ecs_capacity_provider           = local.ecs_capacity_provider
@@ -55,9 +57,11 @@ module "eu_west_2" {
   app_env_vars           = local.environment.app.env
   public_access_enabled  = var.public_access_enabled
   pagerduty_service_name = local.environment.pagerduty_service_name
+  dns_weighting          = 0
   providers = {
-    aws.region = aws.eu_west_2
-    aws.global = aws.global
+    aws.region            = aws.eu_west_2
+    aws.global            = aws.global
+    aws.management_global = aws.management_global
   }
 }
 

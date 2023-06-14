@@ -36,13 +36,9 @@ data "aws_secretsmanager_secret_version" "rum_monitor_identity_pool_id" {
   provider  = aws.region
 }
 
-locals {
-  dns_namespace_for_environment = data.aws_default_tags.current.tags.environment-name == "production" ? "" : "${data.aws_default_tags.current.tags.environment-name}."
-}
-
 resource "aws_rum_app_monitor" "main" {
   name           = data.aws_default_tags.current.tags.environment-name
-  domain         = "${local.dns_namespace_for_environment}app.modernising.opg.service.justice.gov.uk"
+  domain         = aws_route53_record.app.name
   cw_log_enabled = true
   app_monitor_configuration {
     allow_cookies       = true
