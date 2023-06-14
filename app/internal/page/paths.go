@@ -51,6 +51,10 @@ type CertificateProviderPaths struct {
 	WhoIsEligible                        string
 	YourChosenIdentityOptions            string
 }
+type HealthCheckPaths struct {
+	Service    string
+	Dependency string
+}
 
 type AppPaths struct {
 	Attorney                                                   AttorneyPaths
@@ -80,7 +84,7 @@ type AppPaths struct {
 	DoYouWantReplacementAttorneys                              string
 	DoYouWantToNotifyPeople                                    string
 	Fixtures                                                   string
-	HealthCheck                                                string
+	HealthCheck                                                HealthCheckPaths
 	HowDoYouKnowYourCertificateProvider                        string
 	HowLongHaveYouKnownCertificateProvider                     string
 	HowShouldAttorneysMakeDecisions                            string
@@ -186,25 +190,28 @@ var Paths = AppPaths{
 		WhoIsEligible:                        "/certificate-provider-who-is-eligible",
 		YourChosenIdentityOptions:            "/certificate-provider-your-chosen-identity-options",
 	},
-	CertificateProviderOptOut:                            "/certificate-provider-opt-out",
-	CertificateProviderAddress:                           "/certificate-provider-address",
-	CertificateProviderStart:                             "/certificate-provider-start",
-	CheckYourLpa:                                         "/check-your-lpa",
-	ChooseAttorneys:                                      "/choose-attorneys",
-	ChooseAttorneysAddress:                               "/choose-attorneys-address",
-	ChooseAttorneysSummary:                               "/choose-attorneys-summary",
-	ChoosePeopleToNotify:                                 "/choose-people-to-notify",
-	ChoosePeopleToNotifyAddress:                          "/choose-people-to-notify-address",
-	ChoosePeopleToNotifySummary:                          "/choose-people-to-notify-summary",
-	ChooseReplacementAttorneys:                           "/choose-replacement-attorneys",
-	ChooseReplacementAttorneysAddress:                    "/choose-replacement-attorneys-address",
-	ChooseReplacementAttorneysSummary:                    "/choose-replacement-attorneys-summary",
-	CookiesConsent:                                       "/cookies-consent",
-	Dashboard:                                            "/dashboard",
-	DoYouWantReplacementAttorneys:                        "/do-you-want-replacement-attorneys",
-	DoYouWantToNotifyPeople:                              "/do-you-want-to-notify-people",
-	Fixtures:                                             "/fixtures",
-	HealthCheck:                                          "/health-check",
+	CertificateProviderOptOut:         "/certificate-provider-opt-out",
+	CertificateProviderAddress:        "/certificate-provider-address",
+	CertificateProviderStart:          "/certificate-provider-start",
+	CheckYourLpa:                      "/check-your-lpa",
+	ChooseAttorneys:                   "/choose-attorneys",
+	ChooseAttorneysAddress:            "/choose-attorneys-address",
+	ChooseAttorneysSummary:            "/choose-attorneys-summary",
+	ChoosePeopleToNotify:              "/choose-people-to-notify",
+	ChoosePeopleToNotifyAddress:       "/choose-people-to-notify-address",
+	ChoosePeopleToNotifySummary:       "/choose-people-to-notify-summary",
+	ChooseReplacementAttorneys:        "/choose-replacement-attorneys",
+	ChooseReplacementAttorneysAddress: "/choose-replacement-attorneys-address",
+	ChooseReplacementAttorneysSummary: "/choose-replacement-attorneys-summary",
+	CookiesConsent:                    "/cookies-consent",
+	Dashboard:                         "/dashboard",
+	DoYouWantReplacementAttorneys:     "/do-you-want-replacement-attorneys",
+	DoYouWantToNotifyPeople:           "/do-you-want-to-notify-people",
+	Fixtures:                          "/fixtures",
+	HealthCheck: HealthCheckPaths{
+		Service:    "/health-check/service",
+		Dependency: "/health-check/dependency",
+	},
 	HowDoYouKnowYourCertificateProvider:                  "/how-do-you-know-your-certificate-provider",
 	HowLongHaveYouKnownCertificateProvider:               "/how-long-have-you-known-certificate-provider",
 	HowShouldAttorneysMakeDecisions:                      "/how-should-attorneys-make-decisions",
