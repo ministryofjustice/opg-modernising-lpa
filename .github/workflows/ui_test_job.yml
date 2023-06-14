@@ -26,6 +26,10 @@ on:
         description: 'Run "simple" specs only'
         required: false
         type: boolean
+      environment_config_json:
+        description: 'Environment config JSON'
+        required: false
+        type: string
     secrets:
       aws_access_key_id:
         description: 'AWS Access Key ID'
@@ -89,11 +93,6 @@ jobs:
           aws-region: eu-west-1
           role-duration-seconds: 900
           role-session-name: OPGModernisingLPATerraformGithubAction
-      - name: Download environment config file
-        if: inputs.run_against_image != true
-        uses: actions/download-artifact@v3
-        with:
-          name: environment_config_file
       - uses: actions/setup-python@v4
         if: inputs.run_against_image != true
         with:
@@ -103,7 +102,7 @@ jobs:
         if: inputs.run_against_image != true
       - name: add_ingress
         if: inputs.run_against_image != true
-        run: python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json --add
+        run: python ./scripts/ci_ingress/ci_ingress.py ${{ inputs.environment_config_json}} --add
 
       - name: Cypress run
         if: inputs.simple != true

@@ -2,6 +2,11 @@ name: "[Job] Remove ingress"
 
 on:
   workflow_call:
+    inputs:
+      environment_config_json:
+        description: 'Environment config JSON'
+        required: true
+        type: string
     secrets:
       aws_access_key_id:
         description: 'AWS Access Key ID'
@@ -29,11 +34,6 @@ jobs:
           aws-region: eu-west-1
           role-duration-seconds: 900
           role-session-name: OPGModernisingLPATerraformGithubAction
-
-      - name: Download environment config file
-        uses: actions/download-artifact@v3
-        with:
-          name: environment_config_file
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
@@ -41,4 +41,4 @@ jobs:
       - name: remove_ingress
         run: |
           pip install -r ./scripts/ci_ingress/requirements.txt
-          python ./scripts/ci_ingress/ci_ingress.py ./environment_config.json
+          python ./scripts/ci_ingress/ci_ingress.py ${{ inputs.environment_config_json }}

@@ -31,6 +31,9 @@ on:
       url:
         description: "URL for environment"
         value: ${{ jobs.terraform_environment_workflow.outputs.url }}
+      environment_config_json:
+        description: "Environment config JSON"
+        value: ${{ jobs.terraform_environment_workflow.outputs.environment_config_json }}
     secrets:
       aws_access_key_id:
         description: 'AWS Access Key ID'
@@ -59,6 +62,7 @@ jobs:
       terraform_workspace_name: ${{ steps.terraform_outputs.outputs.workspace_name }}
       terraform_container_version: ${{ steps.terraform_outputs.outputs.container_version }}
       url: ${{ steps.terraform_outputs.outputs.url }}
+      environment_config_json: ${{ steps.terraform_outputs.outputs.environment_config_json }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -161,12 +165,6 @@ jobs:
           terraform apply -var public_access_enabled=${{ inputs.public_access_enabled }} -lock-timeout=300s -input=false -auto-approve -parallelism=30
         working-directory: ./terraform/environment
 
-      - name: upload environment config file
-        uses: actions/upload-artifact@v3
-        with:
-          name: environment_config_file
-          path: ./terraform/environment/environment_config.json
-
       - name: Terraform Outputs
         id: terraform_outputs
         env:
@@ -177,4 +175,5 @@ jobs:
           echo "workspace_name=$(terraform output -raw workspace_name)" >> $GITHUB_OUTPUT
           echo "container_version=$(terraform output -raw container_version)" >> $GITHUB_OUTPUT
           echo "url=$(terraform output -raw app_fqdn)" >> $GITHUB_OUTPUT
+          echo "environment_config_json=$(terraform output environment_config_json)" >> $GITHUB_OUTPUT
         working-directory: ./terraform/environment

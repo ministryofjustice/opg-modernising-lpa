@@ -16,6 +16,9 @@ terraform {
       source  = "PagerDuty/pagerduty"
       version = "~> 2.14.0"
     }
+    local = {
+      source = "hashicorp/local"
+    }
   }
   required_version = ">= 1.2.2"
 }
