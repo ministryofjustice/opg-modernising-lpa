@@ -1,3 +1,14 @@
+// Package page contains the core code and business logic of Make and Register a Lasting Power of Attorney (MRLPA)
+//
+// Useful links:
+//   - [page.Lpa] - a struct containing details about the LPA being drafted
+//   - [actor.Donor] - a struct containing details about the donor, provied by the applicant
+//   - [actor.CertificateProvider] - a struct containing details about the certificate provider, provided by the applicant
+//   - [actor.CertificateProviderProvidedDetails] - a struct containing details about the certificate provider, provided by the certificate provider
+//   - [actor.Attorney] - a struct containing details about an attorney or replacement attorney, provided by the applicant
+//   - [actor.AttorneyDecisions] - a struct containing details about an attorney or replacement attorney, provided by the applicant
+//   - [actor.AttorneyProvidedDetails] - a struct containing details about an attorney or replacement attorney, provided by the attorney or replacement attorney
+//   - [actor.PersonToNotify] - a struct containing details about a person to notify, provided by the applicant
 package page
 
 import (
@@ -25,43 +36,77 @@ const (
 	OptionB                = "option-b"
 )
 
+// Lpa is all the data related to the LPA application
 type Lpa struct {
-	ID                                         string
-	UID                                        string
-	UpdatedAt                                  time.Time
-	Donor                                      actor.Donor
-	Attorneys                                  actor.Attorneys
-	AttorneyDecisions                          actor.AttorneyDecisions
-	CertificateProvider                        actor.CertificateProvider
-	WhoFor                                     string
-	Type                                       string
-	WantReplacementAttorneys                   string
-	WhenCanTheLpaBeUsed                        string
-	LifeSustainingTreatmentOption              string
-	Restrictions                               string
-	Tasks                                      Tasks
-	Checked                                    bool
-	HappyToShare                               bool
-	PaymentDetails                             PaymentDetails
-	DonorIdentityOption                        identity.Option
-	DonorIdentityUserData                      identity.UserData
-	ReplacementAttorneys                       actor.Attorneys
-	ReplacementAttorneyDecisions               actor.AttorneyDecisions
-	HowShouldReplacementAttorneysStepIn        string
+	// Identifies the LPA being drafted
+	ID string
+	// A unique identifier created after sending basic LPA details to the UID service
+	UID string
+	// Tracking when the LPA is updated
+	UpdatedAt time.Time
+	// The donor making the LPA application
+	Donor actor.Donor
+	// Attorney/s named in the LPA (data provided by the donor)
+	Attorneys actor.Attorneys
+	// Information on how the donor wishes their attorneys to act
+	AttorneyDecisions actor.AttorneyDecisions
+	// The certificate provider named in the LPA
+	CertificateProvider actor.CertificateProvider
+	// Who the LPA is being drafted for (set, but not used)
+	WhoFor string
+	// Type of LPA being drafted
+	Type string
+	// Whether the applicant wants to add replacement attorneys
+	WantReplacementAttorneys string
+	// When the LPA can be used
+	WhenCanTheLpaBeUsed string
+	// Preferences on life sustaining treatment (applicable to personal welfare LPAs only)
+	LifeSustainingTreatmentOption string
+	// Restrictions on attorneys actions
+	Restrictions string
+	// Used to show the task list
+	Tasks Tasks
+	// Whether the applicant has checked the LPA
+	Checked bool
+	// Whether the applicant is happy to share the LPA with the certificate provider
+	HappyToShare bool
+	// Used as part of GOV.UK Pay
+	PaymentDetails PaymentDetails
+	// Which option has been used to complete identity checks
+	DonorIdentityOption identity.Option
+	// Information returned by the identity service related to the donor
+	DonorIdentityUserData identity.UserData
+	// Replacement attorneys named in the LPA
+	ReplacementAttorneys actor.Attorneys
+	// Information on how the donor wishes their replacement attorneys to act
+	ReplacementAttorneyDecisions actor.AttorneyDecisions
+	// How to bring in replacement attorneys, if set
+	HowShouldReplacementAttorneysStepIn string
+	// Details on how replacement attorneys must step in if HowShouldReplacementAttorneysStepIn is set to "other"
 	HowShouldReplacementAttorneysStepInDetails string
-	DoYouWantToNotifyPeople                    string
-	PeopleToNotify                             actor.PeopleToNotify
-	WitnessCodes                               WitnessCodes
-	WantToApplyForLpa                          bool
-	WantToSignLpa                              bool
-	Submitted                                  time.Time
-	CPWitnessCodeValidated                     bool
-	WitnessCodeLimiter                         *Limiter
+	// Whether the applicant wants to notify people about the application
+	DoYouWantToNotifyPeople string
+	// People to notify about the application
+	PeopleToNotify actor.PeopleToNotify
+	// Codes used for the certificate provider to witness signing
+	WitnessCodes WitnessCodes
+	// Confirmation that the applicant wants to apply to register the LPA
+	WantToApplyForLpa bool
+	// Confirmation that the applicant wants to sign the LPA
+	WantToSignLpa bool
+	// When the Lpa was signed
+	Submitted time.Time
+	// Whether the signing was witnessed by the certificate provider
+	CPWitnessCodeValidated bool
+	// Used to rate limit witnessing requests
+	WitnessCodeLimiter *Limiter
 }
 
 type PaymentDetails struct {
+	// Reference generated for the payment
 	PaymentReference string
-	PaymentId        string
+	// ID returned from GOV.UK Pay
+	PaymentId string
 }
 
 type Tasks struct {
