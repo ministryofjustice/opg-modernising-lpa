@@ -198,7 +198,8 @@ func main() {
 	uidClient := uid.New(uidBaseURL, httpClient, cfg, v4.NewSigner(), time.Now)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc(page.Paths.HealthCheck, func(w http.ResponseWriter, r *http.Request) {})
+	mux.HandleFunc(page.Paths.HealthCheck.Service, func(w http.ResponseWriter, r *http.Request) {})
+	mux.Handle(page.Paths.HealthCheck.Dependency, page.DependencyHealthCheck(logger, uidClient))
 	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, webDir+"/robots.txt")
 	})

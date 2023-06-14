@@ -9,7 +9,7 @@ resource "aws_lb_target_group" "app" {
 
   health_check {
     enabled = true
-    path    = "/health-check"
+    path    = "/health-check/service"
   }
 
   provider = aws.region
