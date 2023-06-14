@@ -1,11 +1,15 @@
 package actor
 
 const (
-	Jointly                          = "jointly"
-	JointlyAndSeverally              = "jointly-and-severally"
+	// Jointly indicates attorneys or replacement attorneys should act jointly
+	Jointly = "jointly"
+	// JointlyAndSeverally attorneys or replacement attorneys should act jointly and severally
+	JointlyAndSeverally = "jointly-and-severally"
+	// JointlyForSomeSeverallyForOthers attorneys or replacement attorneys should act jointly for some decisions, and jointly and severally for other decisions
 	JointlyForSomeSeverallyForOthers = "mixed"
 )
 
+// AttorneyDecisions collects how a donor wants their attorneys or replacement attorneys to act
 type AttorneyDecisions struct {
 	// How attorneys should make decisions
 	How string
