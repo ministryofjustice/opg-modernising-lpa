@@ -27,11 +27,12 @@ func Login(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, rando
 		authCodeURL := oneLoginClient.AuthCodeURL(state, nonce, locale, false)
 
 		if err := sesh.SetOneLogin(store, r, w, &sesh.OneLoginSession{
-			State:    state,
-			Nonce:    nonce,
-			Locale:   locale,
-			Redirect: page.Paths.CertificateProvider.LoginCallback,
-			LpaID:    sc.LpaID,
+			State:     state,
+			Nonce:     nonce,
+			Locale:    locale,
+			Redirect:  page.Paths.CertificateProvider.LoginCallback,
+			LpaID:     sc.LpaID,
+			SessionID: sc.SessionID,
 		}); err != nil {
 			logger.Print(err)
 			return nil

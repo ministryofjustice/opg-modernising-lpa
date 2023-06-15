@@ -28,6 +28,7 @@ func All(tag, region string) map[string]any {
 		"details":            details,
 		"inc":                inc,
 		"link":               link,
+		"linkWithID":         linkWithID,
 		"linkLang":           linkLang,
 		"contains":           contains,
 		"tr":                 tr,
@@ -47,6 +48,7 @@ func All(tag, region string) map[string]any {
 		"progressBar":        progressBar,
 		"peopleNamedOnLpa":   peopleNamedOnLpa,
 		"possessive":         possessive,
+		"card":               card,
 		"printStruct":        printStruct,
 	}
 }
@@ -134,6 +136,10 @@ func inc(i int) int {
 
 func link(app page.AppData, path string) string {
 	return app.BuildUrl(path)
+}
+
+func linkWithID(app page.AppData, path, lpaID string) string {
+	return page.AppData{Lang: app.Lang, LpaID: lpaID}.BuildUrl(path)
 }
 
 func linkLang(app page.AppData, path string) string {
@@ -307,6 +313,13 @@ func peopleNamedOnLpa(app page.AppData, lpa *page.Lpa, showPeopleHeaders bool) m
 		"App":               app,
 		"Lpa":               lpa,
 		"ShowPeopleHeaders": showPeopleHeaders,
+	}
+}
+
+func card(app page.AppData, item any) map[string]any {
+	return map[string]interface{}{
+		"App":  app,
+		"Item": item,
 	}
 }
 
