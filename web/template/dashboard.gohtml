@@ -69,37 +69,49 @@
         <div class="govuk-tabs" data-module="govuk-tabs">
           <h2 class="govuk-tabs__title">{{ tr .App "yourLpas" }}</h2>
           <ul class="govuk-tabs__list">
-            <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
-              <a class="govuk-tabs__tab" href="#donor">{{ tr .App "myLpas" }}</a>
-            </li>
-            <li class="govuk-tabs__list-item">
-              <a class="govuk-tabs__tab" href="#attorney">{{ tr .App "imAnAttorney" }}</a>
-            </li>
-            <li class="govuk-tabs__list-item">
-              <a class="govuk-tabs__tab" href="#certificate-provider">{{ tr .App "imACertificateProvider" }}</a>
-            </li>
+            {{ if .DonorLpas }}
+              <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+                <a class="govuk-tabs__tab" href="#donor">{{ tr .App "myLpas" }}</a>
+              </li>
+            {{ end }}
+            {{ if .AttorneyLpas }}
+              <li class="govuk-tabs__list-item">
+                <a class="govuk-tabs__tab" href="#attorney">{{ tr .App "imAnAttorney" }}</a>
+              </li>
+            {{ end }}
+            {{ if .CertificateProviderLpas }}
+              <li class="govuk-tabs__list-item">
+                <a class="govuk-tabs__tab" href="#certificate-provider">{{ tr .App "imACertificateProvider" }}</a>
+              </li>
+            {{ end }}
           </ul>
 
-          <div class="govuk-tabs__panel" id="donor">
-            <h2 class="govuk-heading-l">{{ tr .App "myLpas" }}</h2>
-            {{ range .DonorLpas }}
-              {{ template "donorCard" (card $.App .) }}
-            {{ end }}
-          </div>
+          {{ if .DonorLpas }}
+            <div class="govuk-tabs__panel" id="donor">
+              <h2 class="govuk-heading-l">{{ tr .App "myLpas" }}</h2>
+              {{ range .DonorLpas }}
+                {{ template "donorCard" (card $.App .) }}
+              {{ end }}
+            </div>
+          {{ end }}
 
-          <div class="govuk-tabs__panel" id="attorney">
-            <h2 class="govuk-heading-l">{{ tr .App "imAnAttorney" }}</h2>
-            {{ range .AttorneyLpas }}
-              {{ template "attorneyCard" (card $.App .) }}
-            {{ end }}
-          </div>
+          {{ if .AttorneyLpas }}
+            <div class="govuk-tabs__panel" id="attorney">
+              <h2 class="govuk-heading-l">{{ tr .App "imAnAttorney" }}</h2>
+              {{ range .AttorneyLpas }}
+                {{ template "attorneyCard" (card $.App .) }}
+              {{ end }}
+            </div>
+          {{ end }}
 
-          <div class="govuk-tabs__panel" id="certificate-provider">
-            <h2 class="govuk-heading-l">{{ tr .App "imACertificateProvider" }}</h2>
-            {{ range .CertificateProviderLpas }}
-              {{ template "certificateProviderCard" (card $.App .) }}
-            {{ end }}
-          </div>
+          {{ if .CertificateProviderLpas }}
+            <div class="govuk-tabs__panel" id="certificate-provider">
+              <h2 class="govuk-heading-l">{{ tr .App "imACertificateProvider" }}</h2>
+              {{ range .CertificateProviderLpas }}
+                {{ template "certificateProviderCard" (card $.App .) }}
+              {{ end }}
+            </div>
+          {{ end }}
         </div>
       {{ else }}
         {{ range .DonorLpas }}
