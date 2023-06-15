@@ -5,7 +5,6 @@
     "rejectCookies": "Gwrthod cwcis dadansoddol",
     "viewCookies": "Gweld cwcis",
     "skipToMainContent": "Neidio i’r prif gynnwys",
-    "menu": "Dewislen",
     "newServiceContent": "Gwasanaeth newydd yw hwn- bydd eich <a class=\"govuk-link\" href=\"#\">adborth</a> yn ein helpu i’w wella.",
     "urModeContent": "Prototeip yw hwn - nid gwasanaeth go iawn.",
     "supportLinks": "Dolenni cymorth",
@@ -685,7 +684,7 @@
     "serviceNameNavigationMenu": "{{.ServiceName}} Welsh",
     "showServiceNameNavigationMenu": "Welsh {{.ServiceName}}",
     "hideServiceNameNavigationMenu": "Welsh {{.ServiceName}}",
-    "menu": "Welsh",
+    "menu": "Dewislen",
     "close": "Welsh",
     "saveAndContinue": "Welsh",
     "returnToTaskList": "Welsh"
