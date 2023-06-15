@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
+// AttorneyProvidedDetails contains details about an attorney or replacement attorney, provided by the attorney or replacement attorney
 type AttorneyProvidedDetails struct {
 	// The identifier of the attorney or replacement attorney being edited
 	ID string

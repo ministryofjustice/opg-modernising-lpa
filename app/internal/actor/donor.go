@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
+// Donor contains details about the donor, provided by the applicant
 type Donor struct {
 	// First names of the donor
 	FirstNames string

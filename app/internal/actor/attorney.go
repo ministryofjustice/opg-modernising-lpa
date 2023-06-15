@@ -9,6 +9,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+// Attorney contains details about an attorney or replacement attorney, provided by the applicant
 type Attorney struct {
 	// Identifies the attorney being edited
 	ID string

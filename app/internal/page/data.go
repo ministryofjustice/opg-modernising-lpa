@@ -1,14 +1,14 @@
 // Package page contains the core code and business logic of Make and Register a Lasting Power of Attorney (MRLPA)
 //
 // Useful links:
-//   - [page.Lpa] - a struct containing details about the LPA being drafted
-//   - [actor.Donor] - a struct containing details about the donor, provied by the applicant
-//   - [actor.CertificateProvider] - a struct containing details about the certificate provider, provided by the applicant
-//   - [actor.CertificateProviderProvidedDetails] - a struct containing details about the certificate provider, provided by the certificate provider
-//   - [actor.Attorney] - a struct containing details about an attorney or replacement attorney, provided by the applicant
-//   - [actor.AttorneyDecisions] - a struct containing details about an attorney or replacement attorney, provided by the applicant
-//   - [actor.AttorneyProvidedDetails] - a struct containing details about an attorney or replacement attorney, provided by the attorney or replacement attorney
-//   - [actor.PersonToNotify] - a struct containing details about a person to notify, provided by the applicant
+//   - [page.Lpa] - details about the LPA being drafted
+//   - [actor.Donor] - details about the donor, provided by the applicant
+//   - [actor.CertificateProvider] - details about the certificate provider, provided by the applicant
+//   - [actor.CertificateProviderProvidedDetails] - details about the certificate provider, provided by the certificate provider
+//   - [actor.Attorney] - details about an attorney or replacement attorney, provided by the applicant
+//   - [actor.AttorneyDecisions] - details about how an attorney or replacement attorney should act, provided by the applicant
+//   - [actor.AttorneyProvidedDetails] - details about an attorney or replacement attorney, provided by the attorney or replacement attorney
+//   - [actor.PersonToNotify] - details about a person to notify, provided by the applicant
 package page
 
 import (
@@ -36,7 +36,7 @@ const (
 	OptionB                = "option-b"
 )
 
-// Lpa is all the data related to the LPA application
+// Lpa contains all the data related to the LPA application
 type Lpa struct {
 	// Identifies the LPA being drafted
 	ID string

@@ -9,7 +9,7 @@ const (
 	JointlyForSomeSeverallyForOthers = "mixed"
 )
 
-// AttorneyDecisions collects how a donor wants their attorneys or replacement attorneys to act
+// AttorneyDecisions contains details about how an attorney or replacement attorney should act, provided by the applicant
 type AttorneyDecisions struct {
 	// How attorneys should make decisions
 	How string

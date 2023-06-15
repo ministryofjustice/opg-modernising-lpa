@@ -9,7 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
-// CertificateProviderProvidedDetails are details provided by the certificate provider
+// CertificateProviderProvidedDetails contains details about the certificate provider, provided by the certificate provider
 type CertificateProviderProvidedDetails struct {
 	// The identifier of the LPA the certificate provider is providing a certificate for
 	LpaID string

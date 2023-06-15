@@ -6,6 +6,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
+// CertificateProvider contains details about the certificate provider, provided by the applicant
 type CertificateProvider struct {
 	// First names of the certificate provider
 	FirstNames string

@@ -5,6 +5,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+// PersonToNotify contains details about a person to notify, provided by the applicant
 type PersonToNotify struct {
 	// First names of the person to notify
 	FirstNames string
