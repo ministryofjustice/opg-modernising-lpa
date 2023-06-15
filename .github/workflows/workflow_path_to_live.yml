@@ -111,7 +111,7 @@ jobs:
     name: Remove CI ingress from environment
     if: ${{ always() }}
     uses: ./.github/workflows/remove_ingress_job.yml
-    needs: [ui_tests_preproduction_env]
+    needs: [ui_tests_preproduction_env, preproduction_deploy]
     with:
       environment_config_json: ${{ needs.preproduction_deploy.outputs.environment_config_json }}
     secrets:
