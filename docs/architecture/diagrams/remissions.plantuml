@@ -1,4 +1,4 @@
-@startuml
+@startuml reduced_fees
 actor Bob #red
 participant MLPAB #lightgreen
 Database DynamoDB #lightgreen
