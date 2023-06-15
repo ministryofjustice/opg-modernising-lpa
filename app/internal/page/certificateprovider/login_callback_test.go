@@ -50,11 +50,12 @@ func TestLoginCallback(t *testing.T) {
 		Return(&sessions.Session{
 			Values: map[any]any{
 				"one-login": &sesh.OneLoginSession{
-					State:    "my-state",
-					Nonce:    "my-nonce",
-					Locale:   "en",
-					LpaID:    "lpa-id",
-					Redirect: "/redirect",
+					State:     "my-state",
+					Nonce:     "my-nonce",
+					Locale:    "en",
+					LpaID:     "lpa-id",
+					SessionID: "session-id",
+					Redirect:  "/redirect",
 				},
 			},
 		}, nil)
@@ -69,7 +70,7 @@ func TestLoginCallback(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
-		On("Create", ctx).
+		On("Create", ctx, "session-id").
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	err := LoginCallback(client, sessionStore, certificateProviderStore)(testAppData, w, r)
@@ -115,11 +116,12 @@ func TestLoginCallbackWhenCertificateProviderExists(t *testing.T) {
 		Return(&sessions.Session{
 			Values: map[any]any{
 				"one-login": &sesh.OneLoginSession{
-					State:    "my-state",
-					Nonce:    "my-nonce",
-					Locale:   "en",
-					LpaID:    "lpa-id",
-					Redirect: "/redirect",
+					State:     "my-state",
+					Nonce:     "my-nonce",
+					Locale:    "en",
+					LpaID:     "lpa-id",
+					SessionID: "session-id",
+					Redirect:  "/redirect",
 				},
 			},
 		}, nil)
@@ -134,7 +136,7 @@ func TestLoginCallbackWhenCertificateProviderExists(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
-		On("Create", ctx).
+		On("Create", ctx, "session-id").
 		Return(&actor.CertificateProviderProvidedDetails{}, &types.ConditionalCheckFailedException{})
 
 	err := LoginCallback(client, sessionStore, certificateProviderStore)(testAppData, w, r)
@@ -281,11 +283,12 @@ func TestLoginCallbackOnCertificateProviderStoreError(t *testing.T) {
 		Return(&sessions.Session{
 			Values: map[any]any{
 				"one-login": &sesh.OneLoginSession{
-					State:    "my-state",
-					Nonce:    "my-nonce",
-					Locale:   "en",
-					LpaID:    "lpa-id",
-					Redirect: "/redirect",
+					State:     "my-state",
+					Nonce:     "my-nonce",
+					Locale:    "en",
+					LpaID:     "lpa-id",
+					SessionID: "session-id",
+					Redirect:  "/redirect",
 				},
 			},
 		}, nil)
@@ -300,7 +303,7 @@ func TestLoginCallbackOnCertificateProviderStoreError(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
-		On("Create", ctx).
+		On("Create", ctx, "session-id").
 		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := LoginCallback(client, sessionStore, certificateProviderStore)(testAppData, w, r)
