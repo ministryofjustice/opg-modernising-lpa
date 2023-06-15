@@ -5,7 +5,7 @@ resource "aws_route53_health_check" "health_check" {
   type              = "HTTPS"
   failure_threshold = 1
   request_interval  = 30
-  resource_path     = "/health-check"
+  resource_path     = "/health-check/service"
   measure_latency   = true
   regions           = ["us-east-1", "eu-west-1", "ap-southeast-1"]
   provider          = aws.global
