@@ -55,7 +55,7 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 					LpaID:     shareCode.LpaID,
 				})
 
-				if _, err := attorneyStore.Create(ctx, shareCode.AttorneyID, shareCode.IsReplacementAttorney); err != nil {
+				if _, err := attorneyStore.Create(ctx, shareCode.SessionID, shareCode.AttorneyID, shareCode.IsReplacementAttorney); err != nil {
 					var ccf *types.ConditionalCheckFailedException
 					if !errors.As(err, &ccf) {
 						return err

@@ -178,3 +178,18 @@ func TestPostFixturesAttorneyFlow(t *testing.T) {
 		})
 	}
 }
+
+func TestPostFixturesEverything(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader("journey=everything"))
+	r.Header.Add("Content-Type", FormUrlEncoded)
+
+	template := newMockTemplate(t)
+
+	err := Fixtures(template.Execute)(TestAppData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "/testing-start?asAttorney=1&completeLpa=1&fresh=1&withCertificateProvider=1", resp.Header.Get("Location"))
+}
