@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -44,19 +45,29 @@ func (m *mockDataStore) ExpectGetAllByGsi(ctx, gsi, sk, data interface{}, err er
 		})
 }
 
+func (m *mockDataStore) ExpectGetAllByKeys(ctx context.Context, keys []dynamo.Key, data interface{}, err error) {
+	m.
+		On("GetAllByKeys", ctx, keys, mock.Anything).
+		Return(func(ctx context.Context, keys []dynamo.Key, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		})
+}
+
 func TestDonorStoreGetAll(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
-
-	lpas := []*page.Lpa{{ID: "10100000"}}
+	lpa := &page.Lpa{ID: "10100000"}
 
 	dataStore := newMockDataStore(t)
-	dataStore.ExpectGetAllByGsi(ctx, "ActorIndex", "#DONOR#an-id", lpas, nil)
+	dataStore.ExpectGetAllByGsi(ctx, "ActorIndex", "#DONOR#an-id",
+		[]map[string]any{{"Data": lpa}}, nil)
 
 	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }}
 
 	result, err := donorStore.GetAll(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, lpas, result)
+	assert.Equal(t, []*page.Lpa{lpa}, result)
 }
 
 func TestDonorStoreGetAllWithSessionMissing(t *testing.T) {
@@ -66,6 +77,15 @@ func TestDonorStoreGetAllWithSessionMissing(t *testing.T) {
 
 	_, err := donorStore.GetAll(ctx)
 	assert.Equal(t, page.SessionMissingError{}, err)
+}
+
+func TestDonorStoreGetAllWhenMissingSessionID(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
+
+	donorStore := &donorStore{dataStore: nil, uuidString: func() string { return "10100000" }}
+
+	_, err := donorStore.GetAll(ctx)
+	assert.NotNil(t, err)
 }
 
 func TestDonorStoreGetAny(t *testing.T) {
@@ -178,6 +198,7 @@ func TestDonorStoreCreate(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.On("Create", ctx, "LPA#10100000", "#DONOR#an-id", &page.Lpa{ID: "10100000", UpdatedAt: now}).Return(nil)
+	dataStore.On("Create", ctx, "LPA#10100000", "#SUB#an-id", "#DONOR#an-id|DONOR").Return(nil)
 
 	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }, now: func() time.Time { return now }}
 
@@ -197,14 +218,42 @@ func TestDonorStoreCreateWithSessionMissing(t *testing.T) {
 
 func TestDonorStoreCreateWhenError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
-
 	now := time.Now()
 
-	dataStore := newMockDataStore(t)
-	dataStore.On("Create", ctx, "LPA#10100000", "#DONOR#an-id", &page.Lpa{ID: "10100000", UpdatedAt: now}).Return(expectedError)
+	testcases := map[string]func(*testing.T) *mockDataStore{
+		"certificate provider record": func(t *testing.T) *mockDataStore {
+			dataStore := newMockDataStore(t)
+			dataStore.
+				On("Create", ctx, "LPA#10100000", "#DONOR#an-id", &page.Lpa{ID: "10100000", UpdatedAt: now}).
+				Return(expectedError)
 
-	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }, now: func() time.Time { return now }}
+			return dataStore
+		},
+		"link record": func(t *testing.T) *mockDataStore {
+			dataStore := newMockDataStore(t)
+			dataStore.
+				On("Create", ctx, "LPA#10100000", "#DONOR#an-id", &page.Lpa{ID: "10100000", UpdatedAt: now}).
+				Return(nil)
+			dataStore.
+				On("Create", ctx, "LPA#10100000", "#SUB#an-id", "#DONOR#an-id|DONOR").
+				Return(expectedError)
 
-	_, err := donorStore.Create(ctx)
-	assert.Equal(t, expectedError, err)
+			return dataStore
+		},
+	}
+
+	for name, makeMockDataStore := range testcases {
+		t.Run(name, func(t *testing.T) {
+			dataStore := makeMockDataStore(t)
+
+			donorStore := &donorStore{
+				dataStore:  dataStore,
+				uuidString: func() string { return "10100000" },
+				now:        func() time.Time { return now },
+			}
+
+			_, err := donorStore.Create(ctx)
+			assert.Equal(t, expectedError, err)
+		})
+	}
 }
