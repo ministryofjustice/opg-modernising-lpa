@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/localize"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -41,7 +41,7 @@ func TestRecover(t *testing.T) {
 				On("Request", r, mock.MatchedBy(func(e recoverError) bool {
 					return assert.Equal(t, "recover error", e.Error()) &&
 						assert.Equal(t, "runtime error: invalid memory address or nil pointer dereference", e.Title()) &&
-						assert.Contains(t, e.Data(), "github.com/ministryofjustice/opg-modernising-lpa/internal/page.TestRecover") &&
+						assert.Contains(t, e.Data(), "github.com/ministryofjustice/opg-modernising-lpa/app/internal/page.TestRecover") &&
 						assert.Contains(t, e.Data(), "app/internal/page/recover_test.go:")
 				}))
 

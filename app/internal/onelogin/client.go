@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/MicahParks/keyfunc"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/random"
 )
 
 var expectedError = errors.New("err")

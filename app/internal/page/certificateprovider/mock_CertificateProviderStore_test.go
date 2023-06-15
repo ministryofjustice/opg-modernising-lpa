@@ -5,7 +5,7 @@ package certificateprovider
 import (
 	context "context"
 
-	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	actor "github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 
 	mock "github.com/stretchr/testify/mock"
 )

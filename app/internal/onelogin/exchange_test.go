@@ -15,7 +15,7 @@ import (
 
 	"github.com/MicahParks/keyfunc"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/secrets"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

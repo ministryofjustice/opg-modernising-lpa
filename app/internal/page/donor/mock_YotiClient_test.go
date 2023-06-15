@@ -3,7 +3,7 @@
 package donor
 
 import (
-	identity "github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	identity "github.com/ministryofjustice/opg-modernising-lpa/app/internal/identity"
 	mock "github.com/stretchr/testify/mock"
 )
 

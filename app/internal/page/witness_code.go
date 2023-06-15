@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/random"
 )
 
 const (
