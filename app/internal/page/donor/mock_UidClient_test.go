@@ -5,7 +5,7 @@ package donor
 import (
 	context "context"
 
-	uid "github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
+	uid "github.com/ministryofjustice/opg-modernising-lpa/app/internal/uid"
 	mock "github.com/stretchr/testify/mock"
 )
 

@@ -1,4 +1,4 @@
-module github.com/ministryofjustice/opg-modernising-lpa
+module github.com/ministryofjustice/opg-modernising-lpa/app
 
 go 1.19
 
@@ -16,6 +16,7 @@ require (
 	github.com/gorilla/sessions v1.2.1
 	github.com/ministryofjustice/opg-go-common v0.0.0-20220816144329-763497f29f90
 	github.com/nicksnyder/go-i18n/v2 v2.2.1
+	github.com/pact-foundation/pact-go v1.7.0
 	github.com/stretchr/testify v1.8.4
 	github.com/vektra/mockery v1.1.2
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.17.0
@@ -37,12 +38,7 @@ require (
 	github.com/brunoscheufler/aws-ecs-metadata-go v0.0.0-20220812150832-b6b31c6eeeaf // indirect
 	github.com/hashicorp/go-version v1.5.0 // indirect
 	github.com/hashicorp/logutils v1.0.0 // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/pact-foundation/pact-go v1.7.0 // indirect
-	github.com/spf13/cobra v1.1.3 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
 require (

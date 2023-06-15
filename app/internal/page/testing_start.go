@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/logging"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
 )
 
 func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int) string, shareCodeSender shareCodeSender, localizer Localizer, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, logger *logging.Logger, now func() time.Time) http.HandlerFunc {

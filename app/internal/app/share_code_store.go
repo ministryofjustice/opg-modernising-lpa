@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 )
 
 type shareCodeStore struct {

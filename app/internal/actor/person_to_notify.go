@@ -1,16 +1,22 @@
 package actor
 
 import (
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 	"golang.org/x/exp/slices"
 )
 
+// PersonToNotify contains details about a person to notify, provided by the applicant
 type PersonToNotify struct {
+	// First names of the person to notify
 	FirstNames string
-	LastName   string
-	Email      string
-	Address    place.Address
-	ID         string
+	// Last name of the person to notify
+	LastName string
+	// Email of the person to notify
+	Email string
+	// Address of the person to notify
+	Address place.Address
+	// Identifies the person to notify being edited
+	ID string
 }
 
 func (p PersonToNotify) FullName() string {
