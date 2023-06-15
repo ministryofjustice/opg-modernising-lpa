@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/localize"
 )
 
 type recoverError struct {

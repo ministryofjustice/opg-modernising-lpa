@@ -5,7 +5,7 @@ package attorney
 import (
 	context "context"
 
-	place "github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	place "github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 	mock "github.com/stretchr/testify/mock"
 )
 

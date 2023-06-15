@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/sessions"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
 	"github.com/stretchr/testify/assert"
 )
 
