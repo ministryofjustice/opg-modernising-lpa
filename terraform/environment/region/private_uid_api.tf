@@ -9,12 +9,14 @@ resource "aws_vpc_endpoint" "execute_api" {
   ]
 
   private_dns_enabled = true
+  provider            = aws.region
 }
 
 resource "aws_security_group" "execute_api" {
   name        = "execute-api"
   description = "For execute-api vpc endpoint"
   vpc_id      = data.aws_vpc.main.id
+  provider    = aws.region
 }
 
 # resource "aws_security_group_rule" "execute_api" {
