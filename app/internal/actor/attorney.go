@@ -10,12 +10,18 @@ import (
 )
 
 type Attorney struct {
-	ID          string
-	FirstNames  string
-	LastName    string
-	Email       string
+	// Identifies the attorney being edited
+	ID string
+	// First names of the attorney
+	FirstNames string
+	// Last name of the attorney
+	LastName string
+	// Email of the attorney
+	Email string
+	// Date of birth of the attorney
 	DateOfBirth date.Date
-	Address     place.Address
+	// Address of the attorney
+	Address place.Address
 }
 
 func (a Attorney) FullName() string {

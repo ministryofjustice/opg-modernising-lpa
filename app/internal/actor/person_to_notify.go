@@ -6,11 +6,16 @@ import (
 )
 
 type PersonToNotify struct {
+	// First names of the person to notify
 	FirstNames string
-	LastName   string
-	Email      string
-	Address    place.Address
-	ID         string
+	// Last name of the person to notify
+	LastName string
+	// Email of the person to notify
+	Email string
+	// Address of the person to notify
+	Address place.Address
+	// Identifies the person to notify being edited
+	ID string
 }
 
 func (p PersonToNotify) FullName() string {
