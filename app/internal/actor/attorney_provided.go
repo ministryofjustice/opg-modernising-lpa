@@ -2,9 +2,6 @@ package actor
 
 import (
 	"time"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 )
 
 // AttorneyProvidedDetails contains details about an attorney or replacement attorney, provided by the attorney or replacement attorney
@@ -17,12 +14,8 @@ type AttorneyProvidedDetails struct {
 	UpdatedAt time.Time
 	// Determines if the details relate to an attorney or replacement attorney
 	IsReplacement bool
-	// Date of birth of the attorney or replacement attorney
-	DateOfBirth date.Date
 	// Mobile number of the attorney or replacement attorney
 	Mobile string
-	// Address of birth of the attorney or replacement attorney
-	Address place.Address
 	// Whether the name of the attorney or replacement attorney provided by the applicant is correct
 	IsNameCorrect string
 	// The corrected name of the attorney or replacement attorney. Only applies if IsNameCorrect = "no"
