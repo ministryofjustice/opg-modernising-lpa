@@ -1,6 +1,6 @@
 describe('Read the LPA', () => {
     it('displays the LPA details with actor specific content', () => {
-        cy.visit('/testing-start?redirect=/attorney-read-the-lpa&completeLpa=1&withAttorney=1&asAttorney=1');
+        cy.visit('/testing-start?redirect=/attorney-read-the-lpa&completeLpa=1&withAttorney=1&asAttorney=1&loginAs=attorney');
 
         cy.contains('dt', "When attorneys can use the LPA")
         cy.contains('dt', "Attorney names")
