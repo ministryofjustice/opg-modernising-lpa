@@ -2,12 +2,13 @@
 participant EventBridge_MLPAB #lightgreen
 boundary CrossingAccounts
 participant EventBridge_Sirius #lightblue
+note left of EventBridge_MLPAB #lightgreen: Events are used to let System B \nknow that something has occured on System A. \nActions such as executing code can be triggered \nusing events
 
 EventBridge_MLPAB->EventBridge_Sirius: Send ReducedFee Event to Sirius
+note left: New reduced fee is \nput on dynamodb table
 
 group successful case
 
-  note left: New reduced fee is \nput on dynamodb table
   EventBridge_Sirius->EventBridge_MLPAB: Send ReducedFeeApproved event
   note right: Caseworker approveds request in Sirius
   end
@@ -25,5 +26,6 @@ group more information is required
 
 group more information is provided
   EventBridge_MLPAB->EventBridge_Sirius: Send UpdatedReducedFee Event to Sirius
+  note left: User returns to update \nrequest and new info is added \nto dynamodb table
   end
 @enduml
