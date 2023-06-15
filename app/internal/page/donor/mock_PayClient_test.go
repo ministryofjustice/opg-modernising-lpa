@@ -3,7 +3,7 @@
 package donor
 
 import (
-	pay "github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	pay "github.com/ministryofjustice/opg-modernising-lpa/app/internal/pay"
 	mock "github.com/stretchr/testify/mock"
 )
 

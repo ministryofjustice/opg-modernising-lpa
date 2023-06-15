@@ -3,7 +3,7 @@ package actor
 import (
 	"fmt"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/localize"
 )
 
 type SameNameWarning struct {

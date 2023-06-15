@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/uid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

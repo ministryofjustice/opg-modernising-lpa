@@ -3,7 +3,7 @@ package identity
 import (
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
 	"github.com/stretchr/testify/assert"
 )
 

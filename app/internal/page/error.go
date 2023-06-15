@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
 //go:generate mockery --testonly --inpackage --name ErrorHandler --structname mockErrorHandler

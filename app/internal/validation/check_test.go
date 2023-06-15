@@ -3,8 +3,8 @@ package validation
 import (
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 	"github.com/stretchr/testify/assert"
 )
 

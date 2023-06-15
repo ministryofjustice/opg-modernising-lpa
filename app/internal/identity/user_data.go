@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
 	"golang.org/x/exp/slices"
 )
 

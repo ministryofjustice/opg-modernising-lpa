@@ -5,7 +5,7 @@ package certificateprovider
 import (
 	context "context"
 
-	page "github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	page "github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	mock "github.com/stretchr/testify/mock"
 )
 

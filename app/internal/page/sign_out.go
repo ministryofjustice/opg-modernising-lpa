@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
 )
 
 func SignOut(logger Logger, sessionStore sesh.Store, oneLoginClient OneLoginClient, appPublicURL string) Handler {
