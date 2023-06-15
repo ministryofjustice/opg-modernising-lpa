@@ -3,8 +3,8 @@ package actor
 import (
 	"fmt"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 )
 
 // Donor contains details about the donor, provided by the applicant

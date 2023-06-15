@@ -5,7 +5,7 @@ package attorney
 import (
 	context "context"
 
-	notify "github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	notify "github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
 	mock "github.com/stretchr/testify/mock"
 )
 

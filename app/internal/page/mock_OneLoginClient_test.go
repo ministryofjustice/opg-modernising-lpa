@@ -5,7 +5,7 @@ package page
 import (
 	context "context"
 
-	onelogin "github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
+	onelogin "github.com/ministryofjustice/opg-modernising-lpa/app/internal/onelogin"
 	mock "github.com/stretchr/testify/mock"
 )
 

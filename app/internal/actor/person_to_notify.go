@@ -1,7 +1,7 @@
 package actor
 
 import (
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 	"golang.org/x/exp/slices"
 )
 

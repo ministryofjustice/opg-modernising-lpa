@@ -3,7 +3,7 @@ package actor
 import (
 	"fmt"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 )
 
 // CertificateProvider contains details about the certificate provider, provided by the applicant

@@ -3,8 +3,8 @@ package actor
 import (
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 )
 
 // AttorneyProvidedDetails contains details about an attorney or replacement attorney, provided by the attorney or replacement attorney
