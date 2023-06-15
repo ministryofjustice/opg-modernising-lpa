@@ -1,8 +1,8 @@
-import {AddressFormAssertions} from "../../support/e2e";
+import { AddressFormAssertions } from "../../support/e2e";
 
 describe('Attorney providing their address', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/attorney-your-address&completeLpa=1&asAttorney=1');
+        cy.visit('/testing-start?redirect=/attorney-your-address&completeLpa=1&asAttorney=1&loginAs=attorney');
     });
 
     it('address can be looked up', () => {
