@@ -44,11 +44,11 @@ type Lpa struct {
 	UID string
 	// Tracking when the LPA is updated
 	UpdatedAt time.Time
-	// The donor making the LPA application
+	// The donor the LPA relates to
 	Donor actor.Donor
-	// Attorney/s named in the LPA (data provided by the donor)
+	// Attorney/s named in the LPA
 	Attorneys actor.Attorneys
-	// Information on how the donor wishes their attorneys to act
+	// Information on how the applicant wishes their attorneys to act
 	AttorneyDecisions actor.AttorneyDecisions
 	// The certificate provider named in the LPA
 	CertificateProvider actor.CertificateProvider
@@ -72,13 +72,13 @@ type Lpa struct {
 	HappyToShare bool
 	// Used as part of GOV.UK Pay
 	PaymentDetails PaymentDetails
-	// Which option has been used to complete identity checks
+	// Which option has been used to complete applicant identity checks
 	DonorIdentityOption identity.Option
-	// Information returned by the identity service related to the donor
+	// Information returned by the identity service related to the applicant
 	DonorIdentityUserData identity.UserData
 	// Replacement attorneys named in the LPA
 	ReplacementAttorneys actor.Attorneys
-	// Information on how the donor wishes their replacement attorneys to act
+	// Information on how the applicant wishes their replacement attorneys to act
 	ReplacementAttorneyDecisions actor.AttorneyDecisions
 	// How to bring in replacement attorneys, if set
 	HowShouldReplacementAttorneysStepIn string

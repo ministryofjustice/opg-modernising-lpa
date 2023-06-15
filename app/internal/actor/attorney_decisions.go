@@ -3,9 +3,9 @@ package actor
 const (
 	// Jointly indicates attorneys or replacement attorneys should act jointly
 	Jointly = "jointly"
-	// JointlyAndSeverally attorneys or replacement attorneys should act jointly and severally
+	// JointlyAndSeverally indicates attorneys or replacement attorneys should act jointly and severally
 	JointlyAndSeverally = "jointly-and-severally"
-	// JointlyForSomeSeverallyForOthers attorneys or replacement attorneys should act jointly for some decisions, and jointly and severally for other decisions
+	// JointlyForSomeSeverallyForOthers indicates attorneys or replacement attorneys should act jointly for some decisions, and jointly and severally for other decisions
 	JointlyForSomeSeverallyForOthers = "mixed"
 )
 

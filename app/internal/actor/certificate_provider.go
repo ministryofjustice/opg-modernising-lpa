@@ -20,7 +20,7 @@ type CertificateProvider struct {
 	Email string
 	// How the certificate provider wants to perform their role (paper or online)
 	CarryOutBy string
-	// The certificate provider's relationship to the donor
+	// The certificate provider's relationship to the applicant
 	Relationship string
 	// If CertificateProvider.Relationship="other", what that means
 	RelationshipDescription string

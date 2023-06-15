@@ -23,7 +23,6 @@ type Donor struct {
 	Address place.Address
 }
 
-// FullName returns FirstNames and LastName separated with a space
 func (d Donor) FullName() string {
 	return fmt.Sprintf("%s %s", d.FirstNames, d.LastName)
 }
