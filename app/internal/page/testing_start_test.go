@@ -1072,70 +1072,6 @@ func TestTestingStart(t *testing.T) {
 		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
 	})
 
-	t.Run("provide certificate", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&provideCertificate=1", nil)
-		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
-
-		sessionStore := newMockSessionStore(t)
-		sessionStore.
-			On("Save", r, w, mock.Anything).
-			Return(nil)
-
-		donorStore := newMockDonorStore(t)
-		donorStore.
-			On("Create", ctx).
-			Return(&Lpa{ID: "123"}, nil)
-
-		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
-
-		donorStore.
-			On("Put", ctx, &Lpa{
-				ID: "123",
-			}).
-			Return(nil)
-
-		certificateProviderStore := newMockCertificateProviderStore(t)
-		certificateProviderStore.
-			On("Create", ctx, "MTIz").
-			Return(&actor.CertificateProviderProvidedDetails{
-				IdentityUserData: identity.UserData{
-					OK:         true,
-					Provider:   identity.OneLogin,
-					FirstNames: "Jessie",
-					LastName:   "Jones",
-				},
-			}, nil)
-
-		ctx = ContextWithSessionData(r.Context(), &SessionData{
-			SessionID: base64.StdEncoding.EncodeToString([]byte("123")),
-			LpaID:     "123",
-		})
-
-		certificateProviderStore.
-			On("Put", ctx, &actor.CertificateProviderProvidedDetails{
-				IdentityUserData: identity.UserData{
-					OK:         true,
-					Provider:   identity.OneLogin,
-					FirstNames: "Jessie",
-					LastName:   "Jones",
-				},
-				Mobile: TestMobile,
-				Email:  TestEmail,
-				Certificate: actor.Certificate{
-					AgreeToStatement: true,
-					Agreed:           time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
-				},
-			}).
-			Return(nil)
-
-		TestingStart(sessionStore, donorStore, MockRandom, nil, nil, certificateProviderStore, nil, nil, nil).ServeHTTP(w, r)
-		resp := w.Result()
-
-		assert.Equal(t, http.StatusFound, resp.StatusCode)
-		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
-	})
-
 	t.Run("start certificate provider flow - donor has paid", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&startCpFlowDonorHasPaid=1&useTestShareCode=1", nil)
@@ -1268,66 +1204,6 @@ func TestTestingStart(t *testing.T) {
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, "/certificate-provider-start", resp.Header.Get("Location"))
 		mock.AssertExpectationsForObjects(t, sessionStore, donorStore, shareCodeSender)
-	})
-
-	t.Run("with certificate provider", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/?redirect=/somewhere&withCertificateProvider=1", nil)
-		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
-
-		sessionStore := newMockSessionStore(t)
-		sessionStore.
-			On("Save", r, w, mock.Anything).
-			Return(nil)
-
-		donorStore := newMockDonorStore(t)
-		donorStore.
-			On("Create", ctx).
-			Return(&Lpa{ID: "123"}, nil)
-
-		ctx = ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz", LpaID: "123"})
-
-		donorStore.
-			On("Put", ctx, &Lpa{
-				ID: "123",
-			}).
-			Return(nil)
-
-		certificateProviderStore := newMockCertificateProviderStore(t)
-		certificateProviderStore.
-			On("Create", ctx, "MTIz").
-			Return(&actor.CertificateProviderProvidedDetails{
-				IdentityUserData: identity.UserData{
-					OK:         true,
-					Provider:   identity.OneLogin,
-					FirstNames: "Jessie",
-					LastName:   "Jones",
-				},
-			}, nil)
-
-		ctx = ContextWithSessionData(r.Context(), &SessionData{
-			SessionID: base64.StdEncoding.EncodeToString([]byte("123")),
-			LpaID:     "123",
-		})
-
-		certificateProviderStore.
-			On("Put", ctx, &actor.CertificateProviderProvidedDetails{
-				IdentityUserData: identity.UserData{
-					OK:         true,
-					Provider:   identity.OneLogin,
-					FirstNames: "Jessie",
-					LastName:   "Jones",
-				},
-				Mobile: TestMobile,
-				Email:  TestEmail,
-			}).
-			Return(nil)
-
-		TestingStart(sessionStore, donorStore, MockRandom, nil, nil, certificateProviderStore, nil, nil, nil).ServeHTTP(w, r)
-		resp := w.Result()
-
-		assert.Equal(t, http.StatusFound, resp.StatusCode)
-		assert.Equal(t, "/lpa/123/somewhere", resp.Header.Get("Location"))
 	})
 
 	t.Run("as attorney", func(t *testing.T) {
