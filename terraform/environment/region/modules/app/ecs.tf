@@ -45,10 +45,6 @@ resource "aws_security_group" "app_ecs_service" {
   provider = aws.region
 }
 
-output "app_ecs_service_security_group" {
-  value = aws_security_group.app_ecs_service
-}
-
 resource "aws_security_group_rule" "app_ecs_service_ingress" {
   description              = "Allow Port 80 ingress from the application load balancer"
   type                     = "ingress"
