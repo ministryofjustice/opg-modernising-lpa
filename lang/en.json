@@ -650,5 +650,8 @@
     "menu": "Menu",
     "close": "Close",
     "saveAndContinue": "Save and continue",
-    "returnToTaskList": "Return to task list"
+    "returnToTaskList": "Return to task list",
+    "myLpas": "My LPAs",
+    "imAnAttorney": "I’m an attorney",
+    "imACertificateProvider": "I’m a certificate provider"
 }
