@@ -41,6 +41,13 @@ resource "aws_security_group" "execute_api" {
   provider    = aws.region
 }
 
+resource "aws_ssm_parameter" "execute_api_id" {
+  name     = "/modernising-lpa/execute-api-id${data.aws_default_tags.current.tags.environment-name}"
+  type     = "String"
+  value    = aws_vpc_endpoint.execute_api.id
+  provider = aws.management_global
+}
+
 # --------
 
 data "aws_security_group" "execute_api" {
@@ -56,11 +63,4 @@ resource "aws_vpc_security_group_ingress_rule" "example" {
   ip_protocol                  = "tcp"
   referenced_security_group_id = module.app.app_ecs_service_security_group.id
   provider                     = aws.region
-}
-
-resource "aws_ssm_parameter" "execute_api_id" {
-  name     = "/modernising-lpa/execute-api-id${data.aws_default_tags.current.tags.environment-name}"
-  type     = "String"
-  value    = aws_vpc_endpoint.execute_api.id
-  provider = aws.management_global
 }
