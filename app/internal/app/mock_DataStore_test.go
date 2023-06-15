@@ -5,6 +5,7 @@ package app
 import (
 	context "context"
 
+	dynamo "github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -48,6 +49,20 @@ func (_m *mockDataStore) GetAllByGsi(ctx context.Context, gsi string, sk string,
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, string, interface{}) error); ok {
 		r0 = rf(ctx, gsi, sk, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// GetAllByKeys provides a mock function with given fields: ctx, pks, v
+func (_m *mockDataStore) GetAllByKeys(ctx context.Context, pks []dynamo.Key, v interface{}) error {
+	ret := _m.Called(ctx, pks, v)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Key, interface{}) error); ok {
+		r0 = rf(ctx, pks, v)
 	} else {
 		r0 = ret.Error(0)
 	}
