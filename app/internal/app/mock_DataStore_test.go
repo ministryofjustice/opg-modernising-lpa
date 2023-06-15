@@ -5,7 +5,7 @@ package app
 import (
 	context "context"
 
-	dynamo "github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	dynamo "github.com/ministryofjustice/opg-modernising-lpa/app/internal/dynamo"
 	mock "github.com/stretchr/testify/mock"
 )
 
