@@ -1,0 +1,28 @@
+@startuml
+actor Bob #red
+participant MLPAB #lightgreen
+Database DynamoDB #lightgreen
+participant UpdateDynamoDBLambda #lightgreen
+participant DynamoDBStream #lightgreen
+participant EventBridge_MLPAB #lightgreen
+boundary CrossingAccounts
+participant EventBridge_Sirius #lightblue
+participant Lambda_Sirius #lightblue
+participant Sirius #lightblue
+actor Caseworker #red
+
+
+Bob->MLPAB: Request reduced fee
+MLPAB-> DynamoDB: Write to database
+DynamoDB->DynamoDBStream: Emit Event
+DynamoDBStream->EventBridge_MLPAB: Filter New ReducedFee Event
+EventBridge_MLPAB->EventBridge_Sirius: Send ReducedFee Event to Sirius
+EventBridge_Sirius->Lambda_Sirius: Queue Event for Lambda
+Lambda_Sirius->Sirius: Sirius Creates ReeducedFee Task (etc.)
+Sirius->Caseworker: CAseworker Picks upTask
+Caseworker->Sirius: Approves/Denies ReducedFee
+Sirius->EventBridge_Sirius: Trigger ReducedFeeApproved/Denied event
+EventBridge_Sirius->EventBridge_MLPAB: Send ReducedFeeApproved/Denied event
+EventBridge_MLPAB->UpdateDynamoDBLambda: Trigger Update Database
+UpdateDynamoDBLambda->DynamoDB: Database updated
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+participant EventBridge_MLPAB #lightgreen
+boundary CrossingAccounts
+participant EventBridge_Sirius #lightblue
+
+EventBridge_MLPAB->EventBridge_Sirius: Send ReducedFee Event to Sirius
+
+group successful case
+
+  note left: New reduced fee is \nput on dynamodb table
+  EventBridge_Sirius->EventBridge_MLPAB: Send ReducedFeeApproved event
+  note right: Caseworker approveds request in Sirius
+  end
+
+group unsuccessful case
+
+  EventBridge_Sirius->EventBridge_MLPAB: Send ReducedFeeDenied event
+  note right: Caseworker denies request in Sirius
+  end
+
+group more information is required
+  EventBridge_Sirius->EventBridge_MLPAB: Send ReducedFeeMoreInfoRequesested event
+  note right: Caseworker requests more information \nvia Sirius (email)
+  end
+
+group more information is provided
+  EventBridge_MLPAB->EventBridge_Sirius: Send UpdatedReducedFee Event to Sirius
+  end
+@enduml
