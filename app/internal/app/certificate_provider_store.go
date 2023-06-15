@@ -14,7 +14,7 @@ type certificateProviderStore struct {
 	now       func() time.Time
 }
 
-func (s *certificateProviderStore) Create(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {
+func (s *certificateProviderStore) Create(ctx context.Context, sessionID string) (*actor.CertificateProviderProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -24,12 +24,42 @@ func (s *certificateProviderStore) Create(ctx context.Context) (*actor.Certifica
 		return nil, errors.New("certificateProviderStore.Create requires LpaID and SessionID")
 	}
 
-	pk, sk := makeCertificateProviderKeys(data.LpaID, data.SessionID)
-
 	cp := &actor.CertificateProviderProvidedDetails{LpaID: data.LpaID, UpdatedAt: s.now()}
-	err = s.dataStore.Create(ctx, pk, sk, cp)
+
+	pk, sk, subk := makeCertificateProviderKeys(data.LpaID, data.SessionID)
+	if err := s.dataStore.Create(ctx, pk, sk, cp); err != nil {
+		return nil, err
+	}
+	if err := s.dataStore.Create(ctx, pk, subk, "#DONOR#"+sessionID+"|CERTIFICATE_PROVIDER"); err != nil {
+		return nil, err
+	}
 
 	return cp, err
+}
+
+func (s *certificateProviderStore) GetAll(ctx context.Context) ([]*actor.CertificateProviderProvidedDetails, error) {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.SessionID == "" {
+		return nil, errors.New("certificateProviderStore.GetAll requires SessionID")
+	}
+
+	var items []struct {
+		Data *actor.CertificateProviderProvidedDetails
+	}
+
+	sk := "#CERTIFICATE_PROVIDER#" + data.SessionID
+	err = s.dataStore.GetAllByGsi(ctx, "ActorIndex", sk, &items)
+
+	details := make([]*actor.CertificateProviderProvidedDetails, len(items))
+	for i, item := range items {
+		details[i] = item.Data
+	}
+
+	return details, err
 }
 
 func (s *certificateProviderStore) GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {
@@ -63,7 +93,7 @@ func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateP
 		return nil, errors.New("certificateProviderStore.Get requires LpaID and SessionID")
 	}
 
-	pk, sk := makeCertificateProviderKeys(data.LpaID, data.SessionID)
+	pk, sk, _ := makeCertificateProviderKeys(data.LpaID, data.SessionID)
 
 	var certificateProvider actor.CertificateProviderProvidedDetails
 	err = s.dataStore.Get(ctx, pk, sk, &certificateProvider)
@@ -81,13 +111,13 @@ func (s *certificateProviderStore) Put(ctx context.Context, certificateProvider 
 		return errors.New("certificateProviderStore.Put requires LpaID and SessionID")
 	}
 
-	pk, sk := makeCertificateProviderKeys(data.LpaID, data.SessionID)
+	pk, sk, _ := makeCertificateProviderKeys(data.LpaID, data.SessionID)
 
 	certificateProvider.UpdatedAt = s.now()
 
 	return s.dataStore.Put(ctx, pk, sk, certificateProvider)
 }
 
-func makeCertificateProviderKeys(lpaID, sessionID string) (string, string) {
-	return "LPA#" + lpaID, "#CERTIFICATE_PROVIDER#" + sessionID
+func makeCertificateProviderKeys(lpaID, sessionID string) (string, string, string) {
+	return "LPA#" + lpaID, "#CERTIFICATE_PROVIDER#" + sessionID, "#SUB#" + sessionID
 }

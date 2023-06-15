@@ -2,62 +2,128 @@
 
 {{ define "pageTitle" }}{{ tr .App "myLastingPowersOfAttorney" }}{{ end }}
 
+{{ define "donorCard" }}
+  <div class="moj-ticket-panel moj-ticket-panel--inline">
+    <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
+      <strong class="moj-badge app-float-right govuk-!-margin-left-2">{{ tr .App "statusTag" }}</strong>
+      <p class="govuk-body app-float-right"><strong>{{ tr .App "lastSaved" }}:</strong> {{ formatDateTime .Item.UpdatedAt }}</p>
+      <h2 class="govuk-heading-m govuk-!-padding-top-0 govuk-!-margin-bottom-1">{{ if eq "pfa" .Item.Type }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}: <span class="govuk-!-font-weight-regular">{{ .Item.Donor.FirstNames }} {{ .Item.Donor.LastName }}</span></h2>
+      <span class="govuk-hint"><strong>{{ tr $.App "applicationNumber" }}:</strong> {{ .Item.ID }}</span>
+      <div class="govuk-button-group govuk-!-margin-top-4">
+        {{ if .Item.Submitted.IsZero }}
+          <a class="govuk-button" href="{{ linkWithID .App .App.Paths.TaskList .Item.ID }}">{{ tr .App "continue" }}</a>
+        {{ else }}
+          <a class="govuk-button" href="{{ linkWithID .App .App.Paths.Progress .Item.ID }}">{{ tr .App "trackLpaProgress" }}</a>
+        {{ end }}
+        <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "options" }}</a>
+      </div>
+    </div>
+  </div>
+{{ end }}
+
+{{ define "attorneyCard" }}
+  <div class="moj-ticket-panel moj-ticket-panel--inline">
+    <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
+      <strong class="moj-badge app-float-right govuk-!-margin-left-2">{{ tr .App "statusTag" }}</strong>
+      <p class="govuk-body app-float-right"><strong>{{ tr .App "lastSaved" }}:</strong> {{ formatDateTime .Item.UpdatedAt }}</p>
+      <h2 class="govuk-heading-m govuk-!-padding-top-0 govuk-!-margin-bottom-1">{{ if eq "pfa" .Item.Type }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}: <span class="govuk-!-font-weight-regular">{{ .Item.Donor.FirstNames }} {{ .Item.Donor.LastName }}</span></h2>
+      <span class="govuk-hint"><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Item.ID }}</span>
+      <div class="govuk-button-group govuk-!-margin-top-4">
+        <a class="govuk-button" href="{{ linkWithID .App .App.Paths.Attorney.TaskList .Item.ID }}">{{ tr .App "continue" }}</a>
+        <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "options" }}</a>
+      </div>
+    </div>
+  </div>
+{{ end }}
+
+{{ define "certificateProviderCard" }}
+  <div class="moj-ticket-panel moj-ticket-panel--inline">
+    <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
+      <strong class="moj-badge app-float-right govuk-!-margin-left-2">{{ tr .App "statusTag" }}</strong>
+      <p class="govuk-body app-float-right"><strong>{{ tr .App "lastSaved" }}:</strong> {{ formatDateTime .Item.UpdatedAt }}</p>
+      <h2 class="govuk-heading-m govuk-!-padding-top-0 govuk-!-margin-bottom-1">{{ if eq "pfa" .Item.Type }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}: <span class="govuk-!-font-weight-regular">{{ .Item.Donor.FirstNames }} {{ .Item.Donor.LastName }}</span></h2>
+      <span class="govuk-hint"><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Item.ID }}</span>
+      <div class="govuk-button-group govuk-!-margin-top-4">
+        <a class="govuk-button" href="{{ linkWithID .App .App.Paths.CertificateProvider.CheckYourName .Item.ID }}">{{ tr .App "continue" }}</a>
+        <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "options" }}</a>
+      </div>
+    </div>
+  </div>
+{{ end }}
+
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-l">{{ tr .App "myLastingPowersOfAttorney" }}</h1>
+      <h1 class="govuk-heading-l">{{ tr .App "manageYourLpas" }}</h1>
 
-      <p class="govuk-body">{{ tr .App "myLastingPowersOfAttorneyHint" }}</p>
+      <form novalidate method="post">
+        <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "createAnotherLpa" }}</button>
+        {{ template "csrf-field" . }}
+      </form>
     </div>
   </div>
 
-  {{ if eq (len .Lpas) 0 }}
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
-        <p class="govuk-body">{{ tr .App "createYourFirstLpa" }}</p>
+  <div class="govuk-grid-row govuk-!-margin-top-4">
+    <div class="govuk-grid-column-full">
+      {{ if .UseTabs }}
+        <div class="govuk-tabs" data-module="govuk-tabs">
+          <h2 class="govuk-tabs__title">{{ tr .App "yourLpas" }}</h2>
+          <ul class="govuk-tabs__list">
+            {{ if .DonorLpas }}
+              <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+                <a class="govuk-tabs__tab" href="#donor">{{ tr .App "myLpas" }}</a>
+              </li>
+            {{ end }}
+            {{ if .AttorneyLpas }}
+              <li class="govuk-tabs__list-item">
+                <a class="govuk-tabs__tab" href="#attorney">{{ tr .App "imAnAttorney" }}</a>
+              </li>
+            {{ end }}
+            {{ if .CertificateProviderLpas }}
+              <li class="govuk-tabs__list-item">
+                <a class="govuk-tabs__tab" href="#certificate-provider">{{ tr .App "imACertificateProvider" }}</a>
+              </li>
+            {{ end }}
+          </ul>
 
-        <form novalidate method="post">
-          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "createAnLpa" }}</button>
-          {{ template "csrf-field" . }}
-        </form>
-      </div>
-    </div>
-  {{ else }}
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
-        <p class="govuk-body">{{ tr .App "youCanCreateANewLpa" }}</p>
-
-        <form novalidate method="post">
-          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "createAnotherLpa" }}</button>
-          {{ template "csrf-field" . }}
-        </form>
-      </div>
-    </div>
-
-    <div class="govuk-grid-row govuk-!-margin-top-4">
-      <div class="govuk-grid-column-full">
-        <h2 class="govuk-heading-m">{{ tr .App "lpasInProgress" }}</h2>
-
-        {{ range .Lpas }}
-          <div class="moj-ticket-panel moj-ticket-panel--inline">
-            <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
-              <strong class="moj-badge app-float-right govuk-!-margin-left-2">{{ tr $.App "statusTag" }}</strong>
-              <p class="govuk-body app-float-right"><strong>{{ tr $.App "lastSaved" }}:</strong> {{ formatDateTime .Lpa.UpdatedAt }}</p>
-              <h2 class="govuk-heading-m govuk-!-padding-top-0 govuk-!-margin-bottom-1">{{ if eq "pfa" .Lpa.Type }}{{ tr $.App "lpaTypePfa" }}{{ else }}{{ tr $.App "lpaTypeHw" }}{{ end }}: <span class="govuk-!-font-weight-regular">{{ .Lpa.Donor.FirstNames }} {{ .Lpa.Donor.LastName }}</span></h2>
-              <span class="govuk-hint"><strong>{{ tr $.App "applicationNumber" }}:</strong> {{ .Lpa.ID }}</span>
-              <div class="govuk-button-group govuk-!-margin-top-4">
-                {{ $progress := .Lpa.Progress .CertificateProvider }}
-                {{ if $progress.LpaSigned.Completed }}
-                  <a class="govuk-button" href="{{ link $.App (printf "%s%s" .Lpa.ID $.App.Paths.Progress) }}">{{ tr $.App "trackLpaProgress" }}</a>
-                {{ else }}
-                  <a class="govuk-button" href="{{ link $.App (printf "%s%s" .Lpa.ID $.App.Paths.TaskList) }}">{{ tr $.App "continue" }}</a>
-                {{ end }}
-                <a class="govuk-button govuk-button--secondary" href="#">{{ tr $.App "options" }}</a>
-              </div>
+          {{ if .DonorLpas }}
+            <div class="govuk-tabs__panel" id="donor">
+              <h2 class="govuk-heading-l">{{ tr .App "myLpas" }}</h2>
+              {{ range .DonorLpas }}
+                {{ template "donorCard" (card $.App .) }}
+              {{ end }}
             </div>
-          </div>
+          {{ end }}
+
+          {{ if .AttorneyLpas }}
+            <div class="govuk-tabs__panel" id="attorney">
+              <h2 class="govuk-heading-l">{{ tr .App "imAnAttorney" }}</h2>
+              {{ range .AttorneyLpas }}
+                {{ template "attorneyCard" (card $.App .) }}
+              {{ end }}
+            </div>
+          {{ end }}
+
+          {{ if .CertificateProviderLpas }}
+            <div class="govuk-tabs__panel" id="certificate-provider">
+              <h2 class="govuk-heading-l">{{ tr .App "imACertificateProvider" }}</h2>
+              {{ range .CertificateProviderLpas }}
+                {{ template "certificateProviderCard" (card $.App .) }}
+              {{ end }}
+            </div>
+          {{ end }}
+        </div>
+      {{ else }}
+        {{ range .DonorLpas }}
+          {{ template "donorCard" (card $.App .) }}
         {{ end }}
-      </div>
+        {{ range .AttorneyLpas }}
+          {{ template "attorneyCard" (card $.App .) }}
+        {{ end }}
+        {{ range .CertificateProviderLpas }}
+          {{ template "certificateProviderCard" (card $.App .) }}
+        {{ end }}
+      {{ end }}
     </div>
-  {{ end }}
+  </div>
 {{ end }}

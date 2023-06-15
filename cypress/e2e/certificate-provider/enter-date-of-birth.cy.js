@@ -1,6 +1,6 @@
 describe('Enter date of birth', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/certificate-provider-enter-date-of-birth&asCertificateProvider=1');
+        cy.visit('/testing-start?redirect=/certificate-provider-enter-date-of-birth&asCertificateProvider=1&loginAs=certificate-provider');
     });
 
     it('can be completed', () => {
