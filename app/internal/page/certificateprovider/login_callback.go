@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
 )
 
 func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store, certificateProviderStore CertificateProviderStore) page.Handler {

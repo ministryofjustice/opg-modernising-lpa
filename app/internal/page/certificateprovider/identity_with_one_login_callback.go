@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
 type identityWithOneLoginCallbackData struct {

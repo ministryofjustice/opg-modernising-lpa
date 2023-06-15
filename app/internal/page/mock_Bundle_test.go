@@ -3,7 +3,7 @@
 package page
 
 import (
-	localize "github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	localize "github.com/ministryofjustice/opg-modernising-lpa/app/internal/localize"
 	mock "github.com/stretchr/testify/mock"
 )
 

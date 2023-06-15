@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
 type dateOfBirthData struct {

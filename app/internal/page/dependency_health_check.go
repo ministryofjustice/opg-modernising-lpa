@@ -3,8 +3,8 @@ package page
 import (
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/uid"
 )
 
 func DependencyHealthCheck(logger Logger, uidClient UidClient) http.HandlerFunc {

@@ -3,8 +3,8 @@ package page
 import (
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
 )
 
 func AuthRedirect(logger Logger, store sesh.Store) http.HandlerFunc {

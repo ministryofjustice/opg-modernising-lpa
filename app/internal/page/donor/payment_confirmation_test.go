@@ -7,10 +7,10 @@ import (
 	"testing"
 
 	"github.com/gorilla/sessions"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/pay"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

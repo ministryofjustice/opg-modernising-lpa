@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
 type chooseAddressData struct {

@@ -6,7 +6,7 @@ import (
 	"github.com/getyoti/yoti-go-sdk/v3"
 	"github.com/getyoti/yoti-go-sdk/v3/profile"
 	"github.com/getyoti/yoti-go-sdk/v3/profile/sandbox"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
 )
 
 const yotiSandboxBaseURL = "https://api.yoti.com/sandbox/v1"

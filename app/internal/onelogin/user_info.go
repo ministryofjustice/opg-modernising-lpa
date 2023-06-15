@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/secrets"
 )
 
 type UserInfo struct {

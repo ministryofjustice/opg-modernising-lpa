@@ -9,12 +9,12 @@ import (
 	"time"
 
 	"github.com/gorilla/sessions"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
