@@ -1,6 +1,6 @@
 describe('Replacement attorneys happy with choice', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/choose-replacement-attorneys-summary&withAttorneys=2&howAttorneysAct=jointly&withReplacementAttorneys=2&cookiesAccepted=1');
+        cy.visit('/testing-start?redirect=/choose-replacement-attorneys-summary&lpa.attorneys=2&lpa.attorneysAct=jointly&lpa.replacementAttorneys=2&cookiesAccepted=1');
 
         cy.contains('label', 'No').click();
         cy.contains('button', 'Continue').click();

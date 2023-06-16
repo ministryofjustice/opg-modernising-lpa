@@ -4,324 +4,15 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
-	"golang.org/x/exp/slices"
 )
-
-const TestEmail = "simulate-delivered@notifications.service.gov.uk"
-const TestMobile = "07700900000"
-
-var AttorneyNames = []string{
-	"John",
-	"Joan",
-	"Johan",
-	"Jilly",
-	"James",
-}
-
-var ReplacementAttorneyNames = []string{
-	"Jane",
-	"Jorge",
-	"Jackson",
-	"Jacob",
-	"Joshua",
-}
-
-var PeopleToNotifyNames = []string{
-	"Joanna",
-	"Jonathan",
-	"Julian",
-	"Jayden",
-	"Juniper",
-}
-
-func MakePerson() actor.Donor {
-	donor := actor.Donor{
-		FirstNames: "Jamie",
-		LastName:   "Smith",
-		Address: place.Address{
-			Line1:      "1 RICHMOND PLACE",
-			Line2:      "KINGS HEATH",
-			Line3:      "WEST MIDLANDS",
-			TownOrCity: "BIRMINGHAM",
-			Postcode:   "B14 7ED",
-		},
-		Email:       TestEmail,
-		DateOfBirth: date.New("2000", "1", "2"),
-	}
-
-	return donor
-}
-
-func MakeAttorney(firstNames string) actor.Attorney {
-	return actor.Attorney{
-		ID:          firstNames + "Smith",
-		FirstNames:  firstNames,
-		LastName:    "Smith",
-		Email:       TestEmail,
-		DateOfBirth: date.New("2000", "1", "2"),
-		Address: place.Address{
-			Line1:      "2 RICHMOND PLACE",
-			Line2:      "KINGS HEATH",
-			Line3:      "WEST MIDLANDS",
-			TownOrCity: "BIRMINGHAM",
-			Postcode:   "B14 7ED",
-		},
-	}
-}
-
-func MakePersonToNotify(firstNames string) actor.PersonToNotify {
-	return actor.PersonToNotify{
-		ID:         firstNames + "Smith",
-		FirstNames: firstNames,
-		LastName:   "Smith",
-		Email:      TestEmail,
-		Address: place.Address{
-			Line1:      "4 RICHMOND PLACE",
-			Line2:      "KINGS HEATH",
-			Line3:      "WEST MIDLANDS",
-			TownOrCity: "BIRMINGHAM",
-			Postcode:   "B14 7ED",
-		},
-	}
-}
-
-func MakeCertificateProvider(firstNames string) actor.CertificateProvider {
-	return actor.CertificateProvider{
-		FirstNames:              firstNames,
-		LastName:                "Jones",
-		Email:                   TestEmail,
-		Mobile:                  TestMobile,
-		Relationship:            "friend",
-		RelationshipDescription: "",
-		RelationshipLength:      "gte-2-years",
-		CarryOutBy:              "paper",
-		Address: place.Address{
-			Line1:      "5 RICHMOND PLACE",
-			Line2:      "KINGS HEATH",
-			Line3:      "WEST MIDLANDS",
-			TownOrCity: "BIRMINGHAM",
-			Postcode:   "B14 7ED",
-		},
-	}
-}
-
-func CompleteDonorDetails(lpa *Lpa) {
-	lpa.Donor = MakePerson()
-	lpa.WhoFor = "me"
-	lpa.Type = "pfa"
-	lpa.Tasks.YourDetails = actor.TaskCompleted
-}
-
-func AddAttorneys(lpa *Lpa, count int) []string {
-	if count > len(AttorneyNames) {
-		count = len(AttorneyNames)
-	}
-
-	var firstNames []string
-	for _, name := range AttorneyNames[:count] {
-		lpa.Attorneys = append(lpa.Attorneys, MakeAttorney(name))
-		firstNames = append(firstNames, name)
-	}
-
-	if count > 1 {
-		lpa.AttorneyDecisions.How = actor.JointlyAndSeverally
-	}
-
-	lpa.Tasks.ChooseAttorneys = actor.TaskCompleted
-	return firstNames
-}
-
-func AddReplacementAttorneys(lpa *Lpa, count int) []string {
-	if count > len(ReplacementAttorneyNames) {
-		count = len(ReplacementAttorneyNames)
-	}
-
-	var firstNames []string
-	for _, name := range ReplacementAttorneyNames[:count] {
-		lpa.ReplacementAttorneys = append(lpa.ReplacementAttorneys, MakeAttorney(name))
-		firstNames = append(firstNames, name)
-	}
-
-	lpa.WantReplacementAttorneys = "yes"
-
-	if count > 1 {
-		lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
-		lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
-	}
-
-	lpa.Tasks.ChooseReplacementAttorneys = actor.TaskCompleted
-	return firstNames
-}
-
-func CompleteHowAttorneysAct(lpa *Lpa, howTheyAct string) {
-	switch howTheyAct {
-	case actor.Jointly:
-		lpa.AttorneyDecisions.How = actor.Jointly
-	case actor.JointlyAndSeverally:
-		lpa.AttorneyDecisions.How = actor.JointlyAndSeverally
-	default:
-		lpa.AttorneyDecisions.How = actor.JointlyForSomeSeverallyForOthers
-		lpa.AttorneyDecisions.Details = "some details"
-	}
-}
-
-func CompleteHowReplacementAttorneysAct(lpa *Lpa, howTheyAct string) {
-	switch howTheyAct {
-	case actor.Jointly:
-		lpa.ReplacementAttorneyDecisions.How = actor.Jointly
-		lpa.ReplacementAttorneyDecisions.HappyIfOneCannotActNoneCan = "yes"
-	case actor.JointlyAndSeverally:
-		lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
-		lpa.ReplacementAttorneyDecisions.HappyIfOneCannotActNoneCan = "yes"
-	default:
-		lpa.ReplacementAttorneyDecisions.How = actor.JointlyForSomeSeverallyForOthers
-		lpa.ReplacementAttorneyDecisions.HappyIfOneCannotActNoneCan = "yes"
-		lpa.ReplacementAttorneyDecisions.Details = "some details"
-	}
-}
-
-func CompleteWhenCanLpaBeUsed(lpa *Lpa) {
-	lpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
-	lpa.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
-}
-
-func CompleteRestrictions(lpa *Lpa) {
-	lpa.Restrictions = "My attorneys must not sell my home unless, in my doctor’s opinion, I can no longer live independently"
-	lpa.Tasks.Restrictions = actor.TaskCompleted
-}
-
-func AddCertificateProvider(lpa *Lpa, firstNames string) {
-	lpa.CertificateProvider = MakeCertificateProvider(firstNames)
-	lpa.Tasks.CertificateProvider = actor.TaskCompleted
-}
-
-func AddPeopleToNotify(lpa *Lpa, count int) []string {
-	if count > len(PeopleToNotifyNames) {
-		count = len(PeopleToNotifyNames)
-	}
-
-	var firstNames []string
-
-	for _, name := range PeopleToNotifyNames[:count] {
-		lpa.PeopleToNotify = append(lpa.PeopleToNotify, MakePersonToNotify(name))
-		firstNames = append(firstNames, name)
-	}
-
-	lpa.DoYouWantToNotifyPeople = "yes"
-	lpa.Tasks.PeopleToNotify = actor.TaskCompleted
-
-	return firstNames
-}
-
-func CompleteCheckYourLpa(lpa *Lpa) {
-	lpa.Checked = true
-	lpa.HappyToShare = true
-	lpa.Tasks.CheckYourLpa = actor.TaskCompleted
-}
-
-func PayForLpa(lpa *Lpa, store sesh.Store, r *http.Request, w http.ResponseWriter, ref string) {
-	sesh.SetPayment(store, r, w, &sesh.PaymentSession{PaymentID: ref})
-
-	lpa.PaymentDetails = PaymentDetails{
-		PaymentReference: ref,
-		PaymentId:        ref,
-	}
-	lpa.Tasks.PayForLpa = actor.TaskCompleted
-}
-
-func ConfirmIdAndSign(lpa *Lpa) {
-	lpa.DonorIdentityUserData = identity.UserData{
-		OK:          true,
-		Provider:    identity.OneLogin,
-		RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
-		FirstNames:  "Jamie",
-		LastName:    "Smith",
-	}
-
-	lpa.WantToApplyForLpa = true
-	lpa.WantToSignLpa = true
-	lpa.Submitted = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
-	lpa.CPWitnessCodeValidated = true
-	lpa.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
-}
-
-func CompleteSectionOne(lpa *Lpa) {
-	CompleteDonorDetails(lpa)
-	AddAttorneys(lpa, 2)
-	AddReplacementAttorneys(lpa, 2)
-	CompleteWhenCanLpaBeUsed(lpa)
-	CompleteRestrictions(lpa)
-	AddCertificateProvider(lpa, "Jessie")
-	AddPeopleToNotify(lpa, 2)
-	CompleteCheckYourLpa(lpa)
-}
-
-func GetAttorneyByFirstNames(lpa *Lpa, firstNames string) (actor.Attorney, bool) {
-	idx := slices.IndexFunc(lpa.Attorneys, func(a actor.Attorney) bool { return a.FirstNames == firstNames })
-	if idx == -1 {
-		return actor.Attorney{}, false
-	}
-
-	return lpa.Attorneys[idx], true
-}
 
 type fixtureData struct {
 	App    AppData
 	Errors validation.List
 	Form   *fixturesForm
-}
-
-type fixturesForm struct {
-	Journey                string
-	DonorDetails           string
-	Attorneys              string
-	ReplacementAttorneys   string
-	WhenCanLpaBeUsed       string
-	Restrictions           string
-	CertificateProvider    string
-	PeopleToNotify         string
-	PeopleToNotifyCount    string
-	CheckAndSend           string
-	Pay                    string
-	IdAndSign              string
-	CompleteAll            string
-	Email                  string
-	CpFlowHasDonorPaid     string
-	ForReplacementAttorney string
-	Signed                 string
-	Type                   string
-}
-
-func readFixtures(r *http.Request) *fixturesForm {
-	return &fixturesForm{
-		Journey:                PostFormString(r, "journey"),
-		DonorDetails:           PostFormString(r, "donor-details"),
-		Attorneys:              PostFormString(r, "choose-attorneys"),
-		ReplacementAttorneys:   PostFormString(r, "choose-replacement-attorneys"),
-		WhenCanLpaBeUsed:       PostFormString(r, "when-can-lpa-be-used"),
-		Restrictions:           PostFormString(r, "restrictions"),
-		CertificateProvider:    PostFormString(r, "certificate-provider"),
-		PeopleToNotify:         PostFormString(r, "people-to-notify"),
-		PeopleToNotifyCount:    PostFormString(r, "ptn-count"),
-		CheckAndSend:           PostFormString(r, "check-and-send-to-cp"),
-		Pay:                    PostFormString(r, "pay-for-lpa"),
-		IdAndSign:              PostFormString(r, "confirm-id-and-sign"),
-		CompleteAll:            PostFormString(r, "complete-all-sections"),
-		Email:                  PostFormString(r, "email"),
-		CpFlowHasDonorPaid:     PostFormString(r, "cp-flow-has-donor-paid"),
-		ForReplacementAttorney: PostFormString(r, "for-replacement-attorney"),
-		Signed:                 PostFormString(r, "signed"),
-		Type:                   PostFormString(r, "type"),
-	}
 }
 
 func Fixtures(tmpl template.Template) Handler {
@@ -341,60 +32,77 @@ func Fixtures(tmpl template.Template) Handler {
 				switch data.Form.Journey {
 				case "attorney":
 					values = url.Values{
-						"useTestShareCode":           {"1"},
-						"sendAttorneyShare":          {"1"},
-						"completeLpa":                {"1"},
-						"withAttorneys":              {"1"},
-						"howAttorneysAct":            {"jointly-and-severally"},
-						"withReplacementAttorneys":   {"1"},
-						"howReplacementAttorneysAct": {"jointly"},
-						"withType":                   {data.Form.Type},
-						"withRestrictions":           {"1"},
-						"redirect":                   {Paths.Attorney.Start},
+						"useTestShareCode":            {"1"},
+						"sendAttorneyShare":           {"1"},
+						"lpa.complete":                {"1"},
+						"lpa.attorneys":               {"2"},
+						"lpa.attorneysAct":            {"jointly-and-severally"},
+						"lpa.replacementAttorneys":    {"2"},
+						"lpa.replacementAttorneysAct": {"jointly"},
+						"lpa.type":                    {data.Form.Type},
+						"lpa.restrictions":            {"1"},
+						"redirect":                    {Paths.Attorney.Start},
 					}
 					if data.Form.Email != "" {
-						values.Add("withEmail", data.Form.Email)
-					}
-					if data.Form.ForReplacementAttorney != "" {
-						values.Add("forReplacementAttorney", "1")
+						if data.Form.ForReplacementAttorney != "" {
+							values.Add("lpa.replacementAttorneyEmail", data.Form.Email)
+						} else {
+							values.Add("lpa.attorneyEmail", data.Form.Email)
+						}
 					}
 					if data.Form.Signed != "" {
-						values.Add("signedByDonor", "1")
-						values.Add("provideCertificate", "1")
+						values.Add("lpa.signedByDonor", "1")
+						values.Add("certificateProviderProvided", "certified")
 					}
 
 				case "certificate-provider":
 					values = url.Values{
-						"useTestShareCode":           {"1"},
-						data.Form.CpFlowHasDonorPaid: {"1"},
+						"useTestShareCode":  {"1"},
+						data.Form.DonorPaid: {"1"},
 					}
 
 					if data.Form.Email != "" {
-						values.Add("withEmail", data.Form.Email)
+						values.Add("lpa.certificateProviderEmail", data.Form.Email)
 					}
+
+					if data.Form.DonorPaid != "" {
+						values.Add("startCpFlowDonorHasPaid", "1")
+					} else {
+						values.Add("startCpFlowDonorHasNotPaid", "1")
+					}
+
 				case "donor":
 					values = url.Values{
-						data.Form.DonorDetails:         {"1"},
-						data.Form.Attorneys:            {"1"},
-						data.Form.ReplacementAttorneys: {"1"},
-						data.Form.WhenCanLpaBeUsed:     {"1"},
-						data.Form.Restrictions:         {"1"},
-						data.Form.CertificateProvider:  {"1"},
-						data.Form.CheckAndSend:         {"1"},
-						data.Form.Pay:                  {"1"},
-						data.Form.IdAndSign:            {"1"},
-						data.Form.CompleteAll:          {"1"},
+						data.Form.DonorDetails:        {"1"},
+						data.Form.WhenCanLpaBeUsed:    {"1"},
+						data.Form.Restrictions:        {"1"},
+						data.Form.CertificateProvider: {"1"},
+						data.Form.CheckAndSend:        {"1"},
+						data.Form.Pay:                 {"1"},
+						data.Form.IdAndSign:           {"1"},
+						data.Form.CompleteAll:         {"1"},
+					}
+
+					if data.Form.Attorneys != "" {
+						values.Add("lpa.attorneys", data.Form.AttorneyCount)
+					}
+
+					if data.Form.ReplacementAttorneys != "" {
+						values.Add("lpa.replacementAttorneys", data.Form.ReplacementAttorneyCount)
 					}
 
 					if data.Form.PeopleToNotify != "" {
-						values.Add("withPeopleToNotify", data.Form.PeopleToNotifyCount)
+						values.Add("lpa.peopleToNotify", data.Form.PersonToNotifyCount)
 					}
 				case "everything":
-					values = url.Values{
-						"fresh":                 {"1"},
-						"completeLpa":           {"1"},
-						"asCertificateProvider": {"1"},
-						"asAttorney":            {"1"},
+					values = url.Values{"fresh": {"1"}, "lpa.complete": {"1"}, "redirect": {Paths.Dashboard}}
+
+					if r.FormValue("as-attorney") != "" {
+						values.Add("attorneyProvided", "1")
+					}
+
+					if r.FormValue("as-certificate-provider") != "" {
+						values.Add("certificateProviderProvided", "1")
 					}
 				}
 
@@ -407,11 +115,59 @@ func Fixtures(tmpl template.Template) Handler {
 	}
 }
 
+type fixturesForm struct {
+	Journey                  string
+	DonorDetails             string
+	Attorneys                string
+	AttorneyCount            string
+	ReplacementAttorneys     string
+	ReplacementAttorneyCount string
+	WhenCanLpaBeUsed         string
+	Restrictions             string
+	CertificateProvider      string
+	PeopleToNotify           string
+	PersonToNotifyCount      string
+	CheckAndSend             string
+	Pay                      string
+	IdAndSign                string
+	CompleteAll              string
+	Email                    string
+	DonorPaid                string
+	ForReplacementAttorney   string
+	Signed                   string
+	Type                     string
+}
+
+func readFixtures(r *http.Request) *fixturesForm {
+	return &fixturesForm{
+		Journey:                  PostFormString(r, "journey"),
+		DonorDetails:             PostFormString(r, "donor-details"),
+		Attorneys:                PostFormString(r, "attorneys"),
+		AttorneyCount:            PostFormString(r, "attorney-count"),
+		ReplacementAttorneys:     PostFormString(r, "replacement-attorneys"),
+		ReplacementAttorneyCount: PostFormString(r, "replacement-attorney-count"),
+		WhenCanLpaBeUsed:         PostFormString(r, "when-can-lpa-be-used"),
+		Restrictions:             PostFormString(r, "restrictions"),
+		CertificateProvider:      PostFormString(r, "certificate-provider"),
+		PeopleToNotify:           PostFormString(r, "people-to-notify"),
+		PersonToNotifyCount:      PostFormString(r, "person-to-notify-count"),
+		CheckAndSend:             PostFormString(r, "check-and-send-to-cp"),
+		Pay:                      PostFormString(r, "pay-for-lpa"),
+		IdAndSign:                PostFormString(r, "confirm-id-and-sign"),
+		CompleteAll:              PostFormString(r, "complete-all-sections"),
+		Email:                    PostFormString(r, "email"),
+		DonorPaid:                PostFormString(r, "donor-paid"),
+		ForReplacementAttorney:   PostFormString(r, "for-replacement-attorney"),
+		Signed:                   PostFormString(r, "signed"),
+		Type:                     PostFormString(r, "type"),
+	}
+}
+
 func (f *fixturesForm) Validate() validation.List {
 	var errors validation.List
 
-	if f.Journey == "certificate-provider" && f.Email != "" && f.CpFlowHasDonorPaid == "" {
-		errors.String("cp-flow-has-donor-paid", "how to start the CP flow", f.CpFlowHasDonorPaid,
+	if f.Journey == "certificate-provider" && f.Email != "" && f.DonorPaid == "" {
+		errors.String("cp-flow-has-donor-paid", "how to start the CP flow", f.DonorPaid,
 			validation.Select("startCpFlowWithId", "startCpFlowWithoutId"))
 	}
 
