@@ -14,7 +14,7 @@ type attorneyStore struct {
 	now       func() time.Time
 }
 
-func (s *attorneyStore) Create(ctx context.Context, sessionID, attorneyID string, isReplacement bool) (*actor.AttorneyProvidedDetails, error) {
+func (s *attorneyStore) Create(ctx context.Context, donorSessionID, attorneyID string, isReplacement bool) (*actor.AttorneyProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -30,7 +30,7 @@ func (s *attorneyStore) Create(ctx context.Context, sessionID, attorneyID string
 	if err := s.dataStore.Create(ctx, pk, sk, attorney); err != nil {
 		return nil, err
 	}
-	if err := s.dataStore.Create(ctx, pk, subk, "#DONOR#"+sessionID+"|ATTORNEY"); err != nil {
+	if err := s.dataStore.Create(ctx, pk, subk, "#DONOR#"+donorSessionID+"|ATTORNEY"); err != nil {
 		return nil, err
 	}
 

@@ -14,7 +14,7 @@ type certificateProviderStore struct {
 	now       func() time.Time
 }
 
-func (s *certificateProviderStore) Create(ctx context.Context, sessionID string) (*actor.CertificateProviderProvidedDetails, error) {
+func (s *certificateProviderStore) Create(ctx context.Context, donorSessionID string) (*actor.CertificateProviderProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -30,7 +30,7 @@ func (s *certificateProviderStore) Create(ctx context.Context, sessionID string)
 	if err := s.dataStore.Create(ctx, pk, sk, cp); err != nil {
 		return nil, err
 	}
-	if err := s.dataStore.Create(ctx, pk, subk, "#DONOR#"+sessionID+"|CERTIFICATE_PROVIDER"); err != nil {
+	if err := s.dataStore.Create(ctx, pk, subk, "#DONOR#"+donorSessionID+"|CERTIFICATE_PROVIDER"); err != nil {
 		return nil, err
 	}
 
