@@ -7,10 +7,17 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">Fixtures</h1>
 
+      <ul class="govuk-list">
+        <li><a class="govuk-link govuk-link--no-visited-state" href="#donor">Donor flow</a></li>
+        <li><a class="govuk-link govuk-link--no-visited-state" href="#certificate-provider">Certificate provider flow</a></li>
+        <li><a class="govuk-link govuk-link--no-visited-state" href="#attorney">Attorney flow</a></li>
+        <li><a class="govuk-link govuk-link--no-visited-state" href="#dashboard">Dashboard</a></li>
+      </ul>
+      
       <form novalidate method="post">
         <fieldset class="govuk-fieldset" aria-describedby="waste-hint">
           <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-            <h2 class="govuk-fieldset__heading">
+            <h2 class="govuk-fieldset__heading" id="donor">
               Donor flow
             </h2>
           </legend>
@@ -22,16 +29,32 @@
               </label>
             </div>
             <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-choose-attorneys" name="choose-attorneys" type="checkbox" value="withAttorneys">
-              <label class="govuk-label govuk-checkboxes__label" for="f-choose-attorneys">
-                Choose your attorneys (adds 2)
+              <input class="govuk-checkboxes__input" id="f-attorneys" name="attorneys" type="checkbox" value="withAttorneys" data-aria-controls="conditional-attorney-count">
+              <label class="govuk-label govuk-checkboxes__label" for="f-attorneys">
+                Choose your attorneys
               </label>
             </div>
+            <div class="govuk-checkboxes__conditional" id="conditional-attorney-count">
+              <div class="govuk-form-group">
+                <label class="govuk-label" for="f-attorney-count">
+                  How many? (Max 5)
+                </label>
+                <input class="govuk-input govuk-!-width-one-third" id="f-attorney-count" name="attorney-count" value="2">
+              </div>
+            </div>
             <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-choose-replacement-attorneys" name="choose-replacement-attorneys" type="checkbox" value="withReplacementAttorneys">
-              <label class="govuk-label govuk-checkboxes__label" for="f-choose-replacement-attorneys">
-                Choose your replacement attorneys (adds 2)
+              <input class="govuk-checkboxes__input" id="f-replacement-attorneys" name="replacement-attorneys" type="checkbox" value="withReplacementAttorneys" data-aria-controls="conditional-replacement-attorney-count">
+              <label class="govuk-label govuk-checkboxes__label" for="f-replacement-attorneys">
+                Choose your replacement attorneys
               </label>
+            </div>
+            <div class="govuk-checkboxes__conditional" id="conditional-replacement-attorney-count">
+              <div class="govuk-form-group">
+                <label class="govuk-label" for="f-replacement-attorney-count">
+                  How many? (Max 5)
+                </label>
+                <input class="govuk-input govuk-!-width-one-third" id="f-replacement-attorney-count" name="replacement-attorney-count" value="2">
+              </div>
             </div>
             <div class="govuk-checkboxes__item">
               <input class="govuk-checkboxes__input" id="f-when-can-lpa-be-used" name="when-can-lpa-be-used" type="checkbox" value="whenCanBeUsedComplete">
@@ -52,21 +75,21 @@
               </label>
             </div>
             <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-people-to-notify" name="people-to-notify" type="checkbox" value="withPeopleToNotify" data-aria-controls="conditional-ptn-count">
+              <input class="govuk-checkboxes__input" id="f-people-to-notify" name="people-to-notify" type="checkbox" value="withPeopleToNotify" data-aria-controls="conditional-person-to-notify-count">
               <label class="govuk-label govuk-checkboxes__label" for="f-people-to-notify">
                 People to notify about your LPA
               </label>
             </div>
-            <div class="govuk-checkboxes__conditional" id="conditional-ptn-count">
+            <div class="govuk-checkboxes__conditional" id="conditional-person-to-notify-count">
               <div class="govuk-form-group">
-                <label class="govuk-label" for="f-ptn-count">
+                <label class="govuk-label" for="f-person-to-notify-count">
                   How many? (Max 5)
                 </label>
-                <input class="govuk-input govuk-!-width-one-third" id="f-ptn-count" name="ptn-count" value="2">
+                <input class="govuk-input govuk-!-width-one-third" id="f-person-to-notify-count" name="person-to-notify-count" value="2">
               </div>
             </div>
             <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-check-and-send-to-cp" name="check-and-send-to-cp" type="checkbox" value="lpaChecked">
+              <input class="govuk-checkboxes__input" id="f-check-and-send-to-cp" name="check-and-send-to-cp" type="checkbox" value="lpa.checkAndSend">
               <label class="govuk-label govuk-checkboxes__label" for="f-check-and-send-to-cp">
                 Check and send to your certificate provider
               </label>
@@ -78,7 +101,7 @@
               </label>
             </div>
             <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-confirm-id-and-sign" name="confirm-id-and-sign" type="checkbox" value="idConfirmedAndSigned">
+              <input class="govuk-checkboxes__input" id="f-confirm-id-and-sign" name="confirm-id-and-sign" type="checkbox" value="lpa.confirmIdentityAndSign">
               <label class="govuk-label govuk-checkboxes__label" for="f-confirm-id-and-sign">
                 Confirm your identity and sign the LPA
               </label>
@@ -99,7 +122,7 @@
       </form>
 
       <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible" />
-      <h2 class="govuk-heading-m">Certificate provider journey</h2>
+      <h2 id="certificate-provider" class="govuk-heading-m">Certificate provider journey</h2>
       <p class="govuk-body">Starting this flow will send an email with reference code to the email entered below. If you don't care about seeing the email then leave the field blank.</p>
 
       <form novalidate method="post">
@@ -107,11 +130,17 @@
 
         {{ template "error-message" (errorMessage . "cp-flow-has-donor-paid") }}
 
-        {{ template "radios" (items . "cp-flow-has-donor-paid" ""
-          (item "startCpFlowDonorHasPaid" "Donor has paid")
-          (item "startCpFlowDonorHasNotPaid" "Donor has not paid")
-        ) }}
-
+        <div class="govuk-form-group">
+          <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="f-donor-paid" name="donor-paid" type="checkbox" value="1">
+              <label class="govuk-label govuk-checkboxes__label" for="f-donor-paid">
+                Donor has paid
+              </label>
+            </div>
+          </div>
+        </div>
+        
         <div class="govuk-button-group govuk-!-padding-top-3">
           <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="certificate-provider">Start</button>
         </div>
@@ -119,7 +148,7 @@
       </form>
 
       <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible" />
-      <h2 class="govuk-heading-m">Attorney journey</h2>
+      <h2 id="attorney" class="govuk-heading-m">Attorney journey</h2>
       <p class="govuk-body">Starting this flow will send an email with reference code to the email entered below. If you don't care about seeing the email then leave the field blank.</p>
 
       <form novalidate method="post">
@@ -127,12 +156,6 @@
 
         <div class="govuk-form-group">
           <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="for-replacement-attorney" name="for-replacement-attorney" type="checkbox" value="1">
-              <label class="govuk-label govuk-checkboxes__label" for="for-replacement-attorney">
-                As replacement attorney
-              </label>
-            </div>
             <div class="govuk-checkboxes__item">
               <input class="govuk-checkboxes__input" id="signed" name="signed" type="checkbox" value="1">
               <label class="govuk-label govuk-checkboxes__label" for="signed">
@@ -168,9 +191,28 @@
 
       <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible" />
 
+      <h2 id="dashboard" class="govuk-heading-m">Dashboard</h2>
+
       <form novalidate method="post">
+        <div class="govuk-form-group">
+          <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="f-as-attorney" name="as-attorney" type="checkbox" value="1">
+              <label class="govuk-label govuk-checkboxes__label" for="f-as-attorney">
+                As attorney
+              </label>
+            </div>
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="f-as-certificate-provider" name="as-certificate-provider" type="checkbox" value="1">
+              <label class="govuk-label govuk-checkboxes__label" for="f-as-certificate-provider">
+                As certificate provider
+              </label>
+            </div>
+          </div>
+        </div>
+
         <div class="govuk-button-group govuk-!-padding-top-3">
-          <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="everything">Give me everything</button>
+          <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="everything">Start</button>
         </div>
         {{ template "csrf-field" . }}
       </form>

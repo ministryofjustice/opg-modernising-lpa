@@ -13,7 +13,7 @@ describe('LPA progress', () => {
     })
 
     it('when LPA submitted', () => {
-        cy.visit('/testing-start?redirect=/progress&completeLpa=1');
+        cy.visit('/testing-start?redirect=/progress&lpa.complete=1');
 
         cy.checkA11yApp();
 
@@ -26,7 +26,7 @@ describe('LPA progress', () => {
     })
 
     it('when certificate provided', () => {
-        cy.visit('/testing-start?redirect=/progress&completeLpa=1&asCertificateProvider=certified&asDonor=1');
+        cy.visit('/testing-start?redirect=/progress&lpa.complete=1&certificateProviderProvided=certified&asDonor=1');
 
         cy.checkA11yApp();
 

@@ -85,7 +85,7 @@ describe('Choose attorneys', () => {
     });
 
     it('warns when name shared with other actor', () => {
-        cy.visit('/testing-start?redirect=/choose-attorneys&withDonorDetails=1');
+        cy.visit('/testing-start?redirect=/choose-attorneys&lpa.yourDetails=1');
 
         cy.get('#f-first-names').type('Jamie');
         cy.get('#f-last-name').type('Smith');

@@ -1,6 +1,6 @@
 describe('Legal rights and responsibilities', () => {
     it('can continue to next page', () => {
-        cy.visit('/testing-start?redirect=/attorney-legal-rights-and-responsibilities&completeLpa=1&withAttorney=1&signedByDonor=1&asAttorney=1&loginAs=attorney');
+        cy.visit('/testing-start?redirect=/attorney-legal-rights-and-responsibilities&lpa.complete=1&lpa.attorneys=1&lpa.signedByDonor=1&attorneyProvided=1&loginAs=attorney');
 
         cy.contains('h1', "Your legal rights and responsibilities")
 
