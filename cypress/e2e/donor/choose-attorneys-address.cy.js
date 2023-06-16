@@ -3,7 +3,7 @@ import { AddressFormAssertions } from "../../support/e2e";
 describe('Choose attorneys address', () => {
     describe('Entering a new address', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?redirect=/choose-attorneys-address?id=without-address&withIncompleteAttorneys=1');
+            cy.visit('/testing-start?redirect=/choose-attorneys-address?id=without-address&withAttorneys=-1');
             cy.contains('label', 'Enter a new address').click();
             cy.contains('button', 'Continue').click();
         });
@@ -45,7 +45,7 @@ describe('Choose attorneys address', () => {
     });
 
     it('address can be copied from another actor', () => {
-        cy.visit('/testing-start?redirect=/choose-attorneys-address?id=without-address&withIncompleteAttorneys=1&withCPDetails=1');
+        cy.visit('/testing-start?redirect=/choose-attorneys-address?id=without-address&withAttorneys=-1&withCPDetails=1');
         cy.contains('label', 'Use an address you’ve already entered').click();
         cy.contains('button', 'Continue').click();
 

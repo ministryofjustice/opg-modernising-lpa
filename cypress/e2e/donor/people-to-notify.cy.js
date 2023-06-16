@@ -10,7 +10,7 @@ describe('People to notify', () => {
     })
 
     it('can add people to notify', () => {
-        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&withDonorDetails=1&withAttorney=1');
+        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&withDonorDetails=1&withAttorneys=1');
 
         cy.checkA11yApp();
 
@@ -37,7 +37,7 @@ describe('People to notify', () => {
     });
 
     it('can modify a person to notifys details', () => {
-        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&withDonorDetails=1&withAttorney=1&withPeopleToNotify=1');
+        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&withDonorDetails=1&withAttorneys=1&withPeopleToNotify=1');
 
         cy.checkA11yApp();
 
@@ -82,7 +82,7 @@ describe('People to notify', () => {
     });
 
     it('can remove a person to notify', () => {
-        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&withDonorDetails=1&withAttorney=1&withPeopleToNotify=2');
+        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&withDonorDetails=1&withAttorneys=1&withPeopleToNotify=2');
 
         cy.checkA11yApp();
 
@@ -128,7 +128,7 @@ describe('People to notify', () => {
     });
 
     it('errors when unselected', () => {
-        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&withDonorDetails=1&withAttorney=1');
+        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&withDonorDetails=1&withAttorneys=1');
         cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
@@ -167,7 +167,7 @@ describe('People to notify', () => {
     });
 
     it('errors when another not selected', () => {
-        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&withDonorDetails=1&withAttorney=1&withPeopleToNotify=1');
+        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&withDonorDetails=1&withAttorneys=1&withPeopleToNotify=1');
 
         cy.checkA11yApp();
 

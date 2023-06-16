@@ -2,7 +2,7 @@ import { TestEmail } from "../../support/e2e";
 
 describe('Choose replacement attorneys summary', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/choose-replacement-attorneys-summary&withDonorDetails=1&withAttorneys=1&withIncompleteReplacementAttorneys=1&cookiesAccepted=1');
+        cy.visit('/testing-start?redirect=/choose-replacement-attorneys-summary&withDonorDetails=1&withAttorneys=2&withReplacementAttorneys=-1&cookiesAccepted=1');
     });
 
     it('multiple attorneys details are listed', () => {

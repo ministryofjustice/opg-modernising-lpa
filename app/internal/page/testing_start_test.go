@@ -131,7 +131,7 @@ func TestTestingStart(t *testing.T) {
 						ID:          "JohnSmith",
 						FirstNames:  "John",
 						LastName:    "Smith",
-						Email:       TestEmail,
+						Email:       testEmail,
 						DateOfBirth: date.New("2000", "1", "2"),
 						Address: place.Address{
 							Line1:      "2 RICHMOND PLACE",
@@ -165,7 +165,7 @@ func TestTestingStart(t *testing.T) {
 				ID:          "with-address",
 				FirstNames:  "John",
 				LastName:    "Smith",
-				Email:       TestEmail,
+				Email:       testEmail,
 				DateOfBirth: date.New("2000", "1", "2"),
 				Address: place.Address{
 					Line1:      "2 RICHMOND PLACE",
@@ -179,7 +179,7 @@ func TestTestingStart(t *testing.T) {
 				ID:          "without-address",
 				FirstNames:  "Joan",
 				LastName:    "Smith",
-				Email:       TestEmail,
+				Email:       testEmail,
 				DateOfBirth: date.New("2000", "1", "2"),
 				Address:     place.Address{},
 			},
@@ -232,7 +232,7 @@ func TestTestingStart(t *testing.T) {
 				ID:          "JohnSmith",
 				FirstNames:  "John",
 				LastName:    "Smith",
-				Email:       TestEmail,
+				Email:       testEmail,
 				DateOfBirth: date.New("2000", "1", "2"),
 				Address: place.Address{
 					Line1:      "2 RICHMOND PLACE",
@@ -246,7 +246,7 @@ func TestTestingStart(t *testing.T) {
 				ID:          "JoanSmith",
 				FirstNames:  "Joan",
 				LastName:    "Smith",
-				Email:       TestEmail,
+				Email:       testEmail,
 				DateOfBirth: date.New("2000", "1", "2"),
 				Address: place.Address{
 					Line1:      "2 RICHMOND PLACE",
@@ -408,8 +408,8 @@ func TestTestingStart(t *testing.T) {
 				CertificateProvider: actor.CertificateProvider{
 					FirstNames:              "Jessie",
 					LastName:                "Jones",
-					Email:                   TestEmail,
-					Mobile:                  TestMobile,
+					Email:                   testEmail,
+					Mobile:                  testMobile,
 					Relationship:            "friend",
 					RelationshipDescription: "",
 					RelationshipLength:      "gte-2-years",
@@ -463,7 +463,7 @@ func TestTestingStart(t *testing.T) {
 						TownOrCity: "BIRMINGHAM",
 						Postcode:   "B14 7ED",
 					},
-					Email:       TestEmail,
+					Email:       testEmail,
 					DateOfBirth: date.New("2000", "1", "2"),
 				},
 				WhoFor: "me",
@@ -516,7 +516,7 @@ func TestTestingStart(t *testing.T) {
 							TownOrCity: "BIRMINGHAM",
 							Postcode:   "B14 7ED",
 						},
-						Email:       TestEmail,
+						Email:       testEmail,
 						DateOfBirth: date.New("2000", "1", "2"),
 						ID:          "JaneSmith",
 					},
@@ -530,7 +530,7 @@ func TestTestingStart(t *testing.T) {
 							TownOrCity: "BIRMINGHAM",
 							Postcode:   "B14 7ED",
 						},
-						Email:       TestEmail,
+						Email:       testEmail,
 						DateOfBirth: date.New("2000", "1", "2"),
 						ID:          "JorgeSmith",
 					},
@@ -636,7 +636,7 @@ func TestTestingStart(t *testing.T) {
 						ID:         "JoannaSmith",
 						FirstNames: "Joanna",
 						LastName:   "Smith",
-						Email:      TestEmail,
+						Email:      testEmail,
 						Address: place.Address{
 							Line1:      "4 RICHMOND PLACE",
 							Line2:      "KINGS HEATH",
@@ -649,7 +649,7 @@ func TestTestingStart(t *testing.T) {
 						ID:         "JonathanSmith",
 						FirstNames: "Jonathan",
 						LastName:   "Smith",
-						Email:      TestEmail,
+						Email:      testEmail,
 						Address: place.Address{
 							Line1:      "4 RICHMOND PLACE",
 							Line2:      "KINGS HEATH",
@@ -662,7 +662,7 @@ func TestTestingStart(t *testing.T) {
 						ID:         "JulianSmith",
 						FirstNames: "Julian",
 						LastName:   "Smith",
-						Email:      TestEmail,
+						Email:      testEmail,
 						Address: place.Address{
 							Line1:      "4 RICHMOND PLACE",
 							Line2:      "KINGS HEATH",
@@ -675,7 +675,7 @@ func TestTestingStart(t *testing.T) {
 						ID:         "JaydenSmith",
 						FirstNames: "Jayden",
 						LastName:   "Smith",
-						Email:      TestEmail,
+						Email:      testEmail,
 						Address: place.Address{
 							Line1:      "4 RICHMOND PLACE",
 							Line2:      "KINGS HEATH",
@@ -688,7 +688,7 @@ func TestTestingStart(t *testing.T) {
 						ID:         "JuniperSmith",
 						FirstNames: "Juniper",
 						LastName:   "Smith",
-						Email:      TestEmail,
+						Email:      testEmail,
 						Address: place.Address{
 							Line1:      "4 RICHMOND PLACE",
 							Line2:      "KINGS HEATH",
@@ -734,7 +734,7 @@ func TestTestingStart(t *testing.T) {
 						ID:         "JoannaSmith",
 						FirstNames: "Joanna",
 						LastName:   "Smith",
-						Email:      TestEmail,
+						Email:      testEmail,
 						Address:    place.Address{},
 					},
 				},
@@ -867,7 +867,7 @@ func TestTestingStart(t *testing.T) {
 						ID:         "JoannaSmith",
 						FirstNames: "Joanna",
 						LastName:   "Smith",
-						Email:      TestEmail,
+						Email:      testEmail,
 						Address: place.Address{
 							Line1:      "4 RICHMOND PLACE",
 							Line2:      "KINGS HEATH",
@@ -880,7 +880,7 @@ func TestTestingStart(t *testing.T) {
 						ID:         "JonathanSmith",
 						FirstNames: "Jonathan",
 						LastName:   "Smith",
-						Email:      TestEmail,
+						Email:      testEmail,
 						Address: place.Address{
 							Line1:      "4 RICHMOND PLACE",
 							Line2:      "KINGS HEATH",
@@ -908,7 +908,7 @@ func TestTestingStart(t *testing.T) {
 							TownOrCity: "BIRMINGHAM",
 							Postcode:   "B14 7ED",
 						},
-						Email:       TestEmail,
+						Email:       testEmail,
 						DateOfBirth: date.New("2000", "1", "2"),
 						ID:          "JaneSmith",
 					},
@@ -922,7 +922,7 @@ func TestTestingStart(t *testing.T) {
 							TownOrCity: "BIRMINGHAM",
 							Postcode:   "B14 7ED",
 						},
-						Email:       TestEmail,
+						Email:       testEmail,
 						DateOfBirth: date.New("2000", "1", "2"),
 						ID:          "JorgeSmith",
 					},
@@ -937,7 +937,7 @@ func TestTestingStart(t *testing.T) {
 						TownOrCity: "BIRMINGHAM",
 						Postcode:   "B14 7ED",
 					},
-					Email:       TestEmail,
+					Email:       testEmail,
 					DateOfBirth: date.New("2000", "1", "2"),
 				},
 				WhoFor: "me",
@@ -945,8 +945,8 @@ func TestTestingStart(t *testing.T) {
 				CertificateProvider: actor.CertificateProvider{
 					FirstNames:              "Jessie",
 					LastName:                "Jones",
-					Email:                   TestEmail,
-					Mobile:                  TestMobile,
+					Email:                   testEmail,
+					Mobile:                  testMobile,
 					Relationship:            "friend",
 					RelationshipDescription: "",
 					RelationshipLength:      "gte-2-years",
@@ -964,7 +964,7 @@ func TestTestingStart(t *testing.T) {
 						ID:          "JohnSmith",
 						FirstNames:  "John",
 						LastName:    "Smith",
-						Email:       TestEmail,
+						Email:       testEmail,
 						DateOfBirth: date.New("2000", "1", "2"),
 						Address: place.Address{
 							Line1:      "2 RICHMOND PLACE",
@@ -978,7 +978,7 @@ func TestTestingStart(t *testing.T) {
 						ID:          "JoanSmith",
 						FirstNames:  "Joan",
 						LastName:    "Smith",
-						Email:       TestEmail,
+						Email:       testEmail,
 						DateOfBirth: date.New("2000", "1", "2"),
 						Address: place.Address{
 							Line1:      "2 RICHMOND PLACE",
@@ -1084,7 +1084,7 @@ func TestTestingStart(t *testing.T) {
 
 		lpa := &Lpa{
 			ID:                  "123",
-			CertificateProvider: actor.CertificateProvider{Email: TestEmail},
+			CertificateProvider: actor.CertificateProvider{Email: testEmail},
 		}
 		donorStore := newMockDonorStore(t)
 		donorStore.
@@ -1131,7 +1131,7 @@ func TestTestingStart(t *testing.T) {
 
 		lpa := &Lpa{
 			ID:                  "123",
-			CertificateProvider: actor.CertificateProvider{Email: TestEmail},
+			CertificateProvider: actor.CertificateProvider{Email: testEmail},
 		}
 		donorStore := newMockDonorStore(t)
 		donorStore.
@@ -1174,7 +1174,7 @@ func TestTestingStart(t *testing.T) {
 
 		lpa := &Lpa{
 			ID:                  "123",
-			CertificateProvider: actor.CertificateProvider{Email: TestEmail},
+			CertificateProvider: actor.CertificateProvider{Email: testEmail},
 		}
 
 		donorStore := newMockDonorStore(t)
@@ -1319,7 +1319,7 @@ func TestTestingStart(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/?sendAttorneyShare=1&withEmail=a@b.c&redirect=/attorney-start", nil)
 		ctx := ContextWithSessionData(r.Context(), &SessionData{SessionID: "MTIz"})
 
-		lpa := &Lpa{ID: "123", Attorneys: actor.Attorneys{MakeAttorney(AttorneyNames[0])}}
+		lpa := &Lpa{ID: "123", Attorneys: actor.Attorneys{makeAttorney(attorneyNames[0])}}
 
 		sessionStore := newMockSessionStore(t)
 		sessionStore.

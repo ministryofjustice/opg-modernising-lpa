@@ -59,7 +59,7 @@ describe('Donor details', () => {
     });
 
     it('warns when name shared with other actor', () => {
-        cy.visit('/testing-start?redirect=/your-details&withAttorney=1');
+        cy.visit('/testing-start?redirect=/your-details&withAttorneys=1');
 
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Smith');

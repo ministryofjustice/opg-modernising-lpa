@@ -1,6 +1,6 @@
 describe('What happens when you sign the LPA', () => {
     it('as a property and affairs attorney', () => {
-        cy.visit('/testing-start?redirect=/attorney-what-happens-when-you-sign-the-lpa&completeLpa=1&withAttorney=1&asAttorney=1&signedByDonor=1&asCertificateProvider=certified&loginAs=attorney');
+        cy.visit('/testing-start?redirect=/attorney-what-happens-when-you-sign-the-lpa&completeLpa=1&asAttorney=1&signedByDonor=1&asCertificateProvider=certified&loginAs=attorney');
 
         cy.contains('h1', "What happens when you sign the LPA")
         cy.contains('p', "you’re officially saying that you want to be an attorney on")
@@ -13,7 +13,7 @@ describe('What happens when you sign the LPA', () => {
     });
 
     it('as a personal welfare attorney', () => {
-        cy.visit('/testing-start?redirect=/attorney-what-happens-when-you-sign-the-lpa&completeLpa=1&withAttorney=1&asAttorney=1&withType=hw&loginAs=attorney');
+        cy.visit('/testing-start?redirect=/attorney-what-happens-when-you-sign-the-lpa&completeLpa=1&asAttorney=1&withType=hw&loginAs=attorney');
 
         cy.contains('p', "you’re officially saying that you want to be an attorney on")
         cy.contains('li', "their personal and medical care")
@@ -21,7 +21,7 @@ describe('What happens when you sign the LPA', () => {
     });
 
     it('as a property and affairs replacement attorney', () => {
-        cy.visit('/testing-start?redirect=/attorney-what-happens-when-you-sign-the-lpa&completeLpa=1&withAttorney=1&asReplacementAttorney=1');
+        cy.visit('/testing-start?redirect=/attorney-what-happens-when-you-sign-the-lpa&completeLpa=1&asReplacementAttorney=1');
 
         cy.contains('p', "you’re saying that you want to be a replacement attorney")
         cy.contains('li', "make decisions about their money or property")
@@ -29,7 +29,7 @@ describe('What happens when you sign the LPA', () => {
     });
 
     it('as a personal welfare replacement attorney', () => {
-        cy.visit('/testing-start?redirect=/attorney-what-happens-when-you-sign-the-lpa&completeLpa=1&withAttorney=1&asReplacementAttorney=1&withType=hw');
+        cy.visit('/testing-start?redirect=/attorney-what-happens-when-you-sign-the-lpa&completeLpa=1&asReplacementAttorney=1&withType=hw');
 
         cy.contains('p', "you’re saying that you want to be a replacement attorney ")
         cy.contains('li', "their personal and medical care")

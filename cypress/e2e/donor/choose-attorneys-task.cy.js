@@ -2,13 +2,13 @@ import { TestEmail } from "../../support/e2e";
 
 describe.skip('Choose attorneys task', () => {
     it('is not started when no attorneys are set', () => {
-        cy.visit('/testing-start?redirect=/task-list&donorDetails=1&cookiesAccepted=1');
+        cy.visit('/testing-start?redirect=/task-list&cookiesAccepted=1');
 
         cy.contains('a', 'Choose your attorneys').parent().parent().contains('Not started');
     });
 
     it('is in progress if I start adding an attorney', () => {
-        cy.visit('/testing-start?redirect=/task-list&donorDetails=1&cookiesAccepted=1');
+        cy.visit('/testing-start?redirect=/task-list&cookiesAccepted=1');
         cy.contains('a', 'Choose your attorneys').click();
 
         cy.get('#f-first-names').type('John');
@@ -23,7 +23,7 @@ describe.skip('Choose attorneys task', () => {
     });
 
     it('is completed if enter an attorneys details', () => {
-        cy.visit('/testing-start?redirect=/task-list&donorDetails=1&cookiesAccepted=1');
+        cy.visit('/testing-start?redirect=/task-list&cookiesAccepted=1');
         cy.contains('a', 'Choose your attorneys').click();
 
         cy.get('#f-first-names').type('John');
@@ -39,7 +39,7 @@ describe.skip('Choose attorneys task', () => {
     });
 
     it('is completed if enter an attorneys details using address', () => {
-        cy.visit('/testing-start?redirect=/task-list&donorDetails=1&cookiesAccepted=1');
+        cy.visit('/testing-start?redirect=/task-list&cookiesAccepted=1');
         cy.contains('a', 'Choose your attorneys').click();
 
         cy.get('#f-first-names').type('John');
@@ -66,7 +66,7 @@ describe.skip('Choose attorneys task', () => {
     });
 
     it('is in progress if I enter multiple attorneys details', () => {
-        cy.visit('/testing-start?redirect=/task-list&donorDetails=1&withAttorney=1&cookiesAccepted=1');
+        cy.visit('/testing-start?redirect=/task-list&withAttorneys=1&cookiesAccepted=1');
         cy.contains('a', 'Choose your attorneys').click();
 
         cy.contains('label', 'Yes').click();
@@ -85,7 +85,7 @@ describe.skip('Choose attorneys task', () => {
     });
 
     it('is completed if I enter multiple attorneys details with how they act', () => {
-        cy.visit('/testing-start?redirect=/task-list&donorDetails=1&withAttorney=1&cookiesAccepted=1');
+        cy.visit('/testing-start?redirect=/task-list&withAttorneys=1&cookiesAccepted=1');
         cy.contains('a', 'Choose your attorneys').click();
 
         cy.contains('label', 'Yes').click();
@@ -114,7 +114,7 @@ describe.skip('Choose attorneys task', () => {
     });
 
     it('is in progress if I enter multiple attorneys details when jointly but not answer happy questions', () => {
-        cy.visit('/testing-start?redirect=/task-list&donorDetails=1&withAttorney=1&cookiesAccepted=1');
+        cy.visit('/testing-start?redirect=/task-list&withAttorneys=1&cookiesAccepted=1');
         cy.contains('a', 'Choose your attorneys').click();
 
         cy.contains('label', 'Yes').click();
@@ -143,7 +143,7 @@ describe.skip('Choose attorneys task', () => {
     });
 
     it('is completed if I enter multiple attorneys details when jointly and answered happy questions', () => {
-        cy.visit('/testing-start?redirect=/task-list&donorDetails=1&withAttorney=1&cookiesAccepted=1');
+        cy.visit('/testing-start?redirect=/task-list&withAttorneys=1&cookiesAccepted=1');
         cy.contains('a', 'Choose your attorneys').click();
 
         cy.contains('label', 'Yes').click();
