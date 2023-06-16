@@ -1,7 +1,7 @@
 describe('Read the LPA', () => {
     describe('when the LPA is signed', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?redirect=/certificate-provider-read-the-lpa&completeLpa=1&asCertificateProvider=1&loginAs=certificate-provider');
+            cy.visit('/testing-start?redirect=/certificate-provider-read-the-lpa&lpa.complete=1&certificateProviderProvided=1&loginAs=certificate-provider');
         });
 
         it('displays the LPA details with actor specific content', () => {
@@ -18,7 +18,7 @@ describe('Read the LPA', () => {
 
     describe('when the LPA is not yet signed', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?redirect=/certificate-provider-read-the-lpa&withCPDetails=1&withDonorDetails=1&asCertificateProvider=1&loginAs=certificate-provider');
+            cy.visit('/testing-start?redirect=/certificate-provider-read-the-lpa&lpa.certificateProvider=1&lpa.yourDetails=1&certificateProviderProvided=1&loginAs=certificate-provider');
         });
 
         it('goes to a guidance page', () => {
