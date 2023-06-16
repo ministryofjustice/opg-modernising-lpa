@@ -1,6 +1,6 @@
 describe('Task list', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/task-list&withDonorDetails=1');
+        cy.visit('/testing-start?redirect=/task-list&lpa.yourDetails=1');
     });
 
     it('shows tasks', () => {

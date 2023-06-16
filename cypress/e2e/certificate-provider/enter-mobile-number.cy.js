@@ -2,7 +2,7 @@ import { TestMobile } from "../../support/e2e";
 
 describe('Enter mobile number', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/certificate-provider-enter-mobile-number&asCertificateProvider=1&loginAs=certificate-provider');
+        cy.visit('/testing-start?redirect=/certificate-provider-enter-mobile-number&certificateProviderProvided=1&loginAs=certificate-provider');
     });
 
     it('can be completed', () => {

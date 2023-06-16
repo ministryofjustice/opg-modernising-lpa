@@ -1,6 +1,6 @@
 describe('LPA type', () => {
     it('can be submitted', () => {
-        cy.visit('/testing-start?redirect=/lpa-type&withDonorDetails=1');
+        cy.visit('/testing-start?redirect=/lpa-type&lpa.yourDetails=1');
 
         cy.get('#f-lpa-type').check('pfa');
 
