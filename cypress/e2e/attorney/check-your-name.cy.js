@@ -8,7 +8,7 @@ describe('Check your name', () => {
         cy.get('input[name="is-name-correct"]').check('yes');
         cy.contains('Continue').click();
 
-        cy.url().should('contain', '/attorney-date-of-birth');
+        cy.url().should('contain', '/attorney-read-the-lpa');
     });
 
     it('can provide an updated name', () => {
@@ -21,7 +21,7 @@ describe('Check your name', () => {
 
         cy.contains('Continue').click();
 
-        cy.url().should('contain', '/attorney-date-of-birth');
+        cy.url().should('contain', '/attorney-read-the-lpa');
     });
 
     it('errors when not selected', () => {

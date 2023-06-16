@@ -9,7 +9,6 @@ import (
 type AttorneyPaths struct {
 	CheckYourName             string
 	CodeOfConduct             string
-	DateOfBirth               string
 	EnterReferenceNumber      string
 	Login                     string
 	LoginCallback             string
@@ -21,7 +20,6 @@ type AttorneyPaths struct {
 	TaskList                  string
 	WhatHappensNext           string
 	WhatHappensWhenYouSign    string
-	YourAddress               string
 }
 
 type CertificateProviderPaths struct {
@@ -147,7 +145,6 @@ var Paths = AppPaths{
 	Attorney: AttorneyPaths{
 		CheckYourName:             "/attorney-check-your-name",
 		CodeOfConduct:             "/attorney-code-of-conduct",
-		DateOfBirth:               "/attorney-date-of-birth",
 		EnterReferenceNumber:      "/attorney-enter-reference-number",
 		Login:                     "/attorney-login",
 		LoginCallback:             "/attorney-login-callback",
@@ -159,7 +156,6 @@ var Paths = AppPaths{
 		TaskList:                  "/attorney-task-list",
 		WhatHappensNext:           "/attorney-what-happens-next",
 		WhatHappensWhenYouSign:    "/attorney-what-happens-when-you-sign-the-lpa",
-		YourAddress:               "/attorney-your-address",
 	},
 	AuthRedirect:               "/auth/redirect",
 	CertificateProviderDetails: "/certificate-provider-details",
@@ -272,7 +268,6 @@ func IsAttorneyPath(url string) bool {
 	return slices.Contains([]string{
 		Paths.Attorney.CheckYourName,
 		Paths.Attorney.CodeOfConduct,
-		Paths.Attorney.DateOfBirth,
 		Paths.Attorney.MobileNumber,
 		Paths.Attorney.ReadTheLpa,
 		Paths.Attorney.RightsAndResponsibilities,
@@ -280,7 +275,6 @@ func IsAttorneyPath(url string) bool {
 		Paths.Attorney.TaskList,
 		Paths.Attorney.WhatHappensNext,
 		Paths.Attorney.WhatHappensWhenYouSign,
-		Paths.Attorney.YourAddress,
 	}, path)
 }
 
