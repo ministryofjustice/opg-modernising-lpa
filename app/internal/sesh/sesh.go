@@ -68,11 +68,12 @@ func init() {
 }
 
 type OneLoginSession struct {
-	State    string
-	Nonce    string
-	Locale   string
-	Redirect string
-	LpaID    string
+	State     string
+	Nonce     string
+	Locale    string
+	Redirect  string
+	SessionID string
+	LpaID     string
 }
 
 func (s OneLoginSession) Valid() bool {
@@ -245,6 +246,7 @@ func ClearPayment(store Store, r *http.Request, w http.ResponseWriter) error {
 
 type ShareCodeSession struct {
 	LpaID           string
+	SessionID       string
 	Identity        bool
 	DonorFullName   string
 	DonorFirstNames string

@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/dynamo"
@@ -15,6 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/uid"
 	"github.com/stretchr/testify/assert"
 )
@@ -57,8 +59,8 @@ func TestMakeHandle(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil)
-	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle := makeHandle(mux, nil, nil)
+	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page: "/path",
 		}, appData)
@@ -74,6 +76,77 @@ func TestMakeHandle(t *testing.T) {
 	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
 }
 
+func TestMakeHandleRequireSession(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+
+	mux := http.NewServeMux()
+	handle := makeHandle(mux, nil, sessionStore)
+	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+		assert.Equal(t, page.AppData{
+			Page:      "/path",
+			SessionID: "cmFuZG9t",
+		}, appData)
+		assert.Equal(t, w, hw)
+
+		sessionData, _ := page.SessionDataFromContext(hr.Context())
+		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t"}, sessionData)
+
+		hw.WriteHeader(http.StatusTeapot)
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+}
+
+func TestMakeHandleRequireSessionMissing(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{}, nil)
+
+	mux := http.NewServeMux()
+	handle := makeHandle(mux, nil, sessionStore)
+	handle("/path", RequireSession, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request) error { return nil })
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.Start, resp.Header.Get("Location"))
+}
+
+func TestMakeHandleRequireSessionError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{}, expectedError)
+
+	mux := http.NewServeMux()
+	handle := makeHandle(mux, nil, sessionStore)
+	handle("/path", RequireSession, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request) error { return nil })
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.Start, resp.Header.Get("Location"))
+}
+
 func TestMakeHandleWhenError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
@@ -83,8 +156,8 @@ func TestMakeHandleWhenError(t *testing.T) {
 		On("Execute", w, r, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, errorHandler.Execute)
-	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle := makeHandle(mux, errorHandler.Execute, nil)
+	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
 
