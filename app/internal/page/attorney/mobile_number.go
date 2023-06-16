@@ -40,7 +40,7 @@ func MobileNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
 					return err
 				}
 
-				return appData.Redirect(w, r, nil, page.Paths.Attorney.YourAddress)
+				return appData.Redirect(w, r, nil, page.Paths.Attorney.CheckYourName)
 			}
 		}
 

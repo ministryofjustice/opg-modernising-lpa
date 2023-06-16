@@ -49,7 +49,7 @@ func TaskList(tmpl template.Template, donorStore DonorStore, certificateProvider
 			Items: []taskListItem{
 				{
 					Name:  "confirmYourDetails",
-					Path:  page.Paths.Attorney.CheckYourName,
+					Path:  page.Paths.Attorney.MobileNumber,
 					State: tasks.ConfirmYourDetails,
 				},
 				{
