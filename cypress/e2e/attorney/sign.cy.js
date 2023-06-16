@@ -1,7 +1,7 @@
 describe('Sign', () => {
-    describe('as an attorney', () =>{
+    describe('as an attorney', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?cookiesAccepted=1&redirect=/attorney-sign&completeLpa=1&withAttorney=1&signedByDonor=1&provideCertificate=1&asAttorney=1');
+            cy.visit('/testing-start?cookiesAccepted=1&redirect=/attorney-sign&completeLpa=1&asAttorney=1&asCertificateProvider=certified&loginAs=attorney');
         });
 
         it('can be signed', () => {
@@ -29,9 +29,9 @@ describe('Sign', () => {
         });
     });
 
-    describe('as a replacement attorney', () =>{
+    describe('as a replacement attorney', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?cookiesAccepted=1&redirect=/attorney-sign&completeLpa=1&withReplacementAttorney=1&signedByDonor=1&provideCertificate=1&asReplacementAttorney=1');
+            cy.visit('/testing-start?cookiesAccepted=1&redirect=/attorney-sign&completeLpa=1&withReplacementAttorney=1&signedByDonor=1&asCertificateProvider=certified&asReplacementAttorney=1');
         });
 
         it('can be signed', () => {

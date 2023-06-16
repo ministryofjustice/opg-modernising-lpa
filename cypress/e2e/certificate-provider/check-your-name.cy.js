@@ -1,6 +1,6 @@
 describe('Check your name', () => {
     it('can confirm name matches', () => {
-        cy.visit('/testing-start?redirect=/certificate-provider-check-your-name&completeLpa=1&asCertificateProvider=1');
+        cy.visit('/testing-start?redirect=/certificate-provider-check-your-name&completeLpa=1&asCertificateProvider=1&loginAs=certificate-provider');
 
         // see https://github.com/alphagov/govuk-frontend/issues/979
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
@@ -12,7 +12,7 @@ describe('Check your name', () => {
     });
 
     it('can provide an updated name', () => {
-        cy.visit('/testing-start?redirect=/certificate-provider-check-your-name&completeLpa=1&asCertificateProvider=1');
+        cy.visit('/testing-start?redirect=/certificate-provider-check-your-name&completeLpa=1&asCertificateProvider=1&loginAs=certificate-provider');
 
         cy.get('input[name="is-name-correct"]').check('no');
         cy.get('#f-corrected-name').type('New Name');
@@ -25,7 +25,7 @@ describe('Check your name', () => {
     });
 
     it('errors when not selected', () => {
-        cy.visit('/testing-start?redirect=/certificate-provider-check-your-name&completeLpa=1&asCertificateProvider=1');
+        cy.visit('/testing-start?redirect=/certificate-provider-check-your-name&completeLpa=1&asCertificateProvider=1&loginAs=certificate-provider');
 
         cy.contains('Continue').click();
 
@@ -41,7 +41,7 @@ describe('Check your name', () => {
     });
 
     it('errors when name not correct but no name provided', () => {
-        cy.visit('/testing-start?redirect=/certificate-provider-check-your-name&completeLpa=1&asCertificateProvider=1');
+        cy.visit('/testing-start?redirect=/certificate-provider-check-your-name&completeLpa=1&asCertificateProvider=1&loginAs=certificate-provider');
 
         cy.get('input[name="is-name-correct"]').check('no');
         cy.contains('Continue').click();
