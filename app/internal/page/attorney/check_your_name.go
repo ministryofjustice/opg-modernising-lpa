@@ -74,7 +74,7 @@ func CheckYourName(tmpl template.Template, donorStore DonorStore, attorneyStore 
 					return err
 				}
 
-				appData.Redirect(w, r, lpa, page.Paths.Attorney.DateOfBirth)
+				appData.Redirect(w, r, lpa, page.Paths.Attorney.ReadTheLpa)
 				return nil
 			}
 		}

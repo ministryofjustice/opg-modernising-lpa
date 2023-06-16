@@ -111,12 +111,8 @@ func Register(
 		TaskList(tmpls.Get("attorney_task_list.gohtml"), donorStore, certificateProviderStore))
 	handleAttorney(page.Paths.Attorney.CheckYourName, RequireAttorney,
 		CheckYourName(tmpls.Get("attorney_check_your_name.gohtml"), donorStore, attorneyStore, notifyClient))
-	handleAttorney(page.Paths.Attorney.DateOfBirth, RequireAttorney,
-		DateOfBirth(tmpls.Get("attorney_date_of_birth.gohtml"), attorneyStore))
 	handleAttorney(page.Paths.Attorney.MobileNumber, RequireAttorney,
 		MobileNumber(tmpls.Get("attorney_mobile_number.gohtml"), attorneyStore))
-	handleAttorney(page.Paths.Attorney.YourAddress, RequireAttorney,
-		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, attorneyStore))
 	handleAttorney(page.Paths.Attorney.ReadTheLpa, RequireAttorney,
 		ReadTheLpa(tmpls.Get("attorney_read_the_lpa.gohtml"), donorStore, attorneyStore))
 	handleAttorney(page.Paths.Attorney.RightsAndResponsibilities, RequireAttorney,
