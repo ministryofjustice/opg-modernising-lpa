@@ -67,7 +67,7 @@ type CertificateProviderStore interface {
 
 //go:generate mockery --testonly --inpackage --name AttorneyStore --structname mockAttorneyStore
 type AttorneyStore interface {
-	Create(context.Context, string, bool) (*actor.AttorneyProvidedDetails, error)
+	Create(context.Context, string, string, bool) (*actor.AttorneyProvidedDetails, error)
 	Get(context.Context) (*actor.AttorneyProvidedDetails, error)
 	Put(context.Context, *actor.AttorneyProvidedDetails) error
 }

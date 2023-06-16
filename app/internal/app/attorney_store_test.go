@@ -23,10 +23,13 @@ func TestAttorneyStoreCreate(t *testing.T) {
 			dataStore.
 				On("Create", ctx, "LPA#123", "#ATTORNEY#456", details).
 				Return(nil)
+			dataStore.
+				On("Create", ctx, "LPA#123", "#SUB#456", "#DONOR#session-id|ATTORNEY").
+				Return(nil)
 
 			attorneyStore := &attorneyStore{dataStore: dataStore, now: func() time.Time { return now }}
 
-			attorney, err := attorneyStore.Create(ctx, "attorney-id", is)
+			attorney, err := attorneyStore.Create(ctx, "session-id", "attorney-id", is)
 			assert.Nil(t, err)
 			assert.Equal(t, details, attorney)
 		})
@@ -38,23 +41,98 @@ func TestAttorneyStoreCreateWhenSessionMissing(t *testing.T) {
 
 	attorneyStore := &attorneyStore{dataStore: nil, now: nil}
 
-	_, err := attorneyStore.Create(ctx, "attorney-id", false)
+	_, err := attorneyStore.Create(ctx, "session-id", "attorney-id", false)
 	assert.Equal(t, page.SessionMissingError{}, err)
+}
+
+func TestAttorneyStoreCreateWhenSessionDataMissing(t *testing.T) {
+	testcases := map[string]*page.SessionData{
+		"LpaID":     {SessionID: "456"},
+		"SessionID": {LpaID: "123"},
+	}
+
+	for name, sessionData := range testcases {
+		t.Run(name, func(t *testing.T) {
+			ctx := page.ContextWithSessionData(context.Background(), sessionData)
+
+			attorneyStore := &attorneyStore{}
+
+			_, err := attorneyStore.Create(ctx, "session-id", "attorney-id", false)
+			assert.NotNil(t, err)
+		})
+	}
 }
 
 func TestAttorneyStoreCreateWhenCreateError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 	now := time.Now()
 
+	testcases := map[string]func(*testing.T) *mockDataStore{
+		"certificate provider record": func(t *testing.T) *mockDataStore {
+			dataStore := newMockDataStore(t)
+			dataStore.
+				On("Create", ctx, "LPA#123", "#ATTORNEY#456", mock.Anything).
+				Return(expectedError)
+
+			return dataStore
+		},
+		"link record": func(t *testing.T) *mockDataStore {
+			dataStore := newMockDataStore(t)
+			dataStore.
+				On("Create", ctx, "LPA#123", "#ATTORNEY#456", mock.Anything).
+				Return(nil)
+			dataStore.
+				On("Create", ctx, "LPA#123", "#SUB#456", "#DONOR#session-id|ATTORNEY").
+				Return(expectedError)
+
+			return dataStore
+		},
+	}
+
+	for name, makeMockDataStore := range testcases {
+		t.Run(name, func(t *testing.T) {
+			dataStore := makeMockDataStore(t)
+
+			attorneyStore := &attorneyStore{dataStore: dataStore, now: func() time.Time { return now }}
+
+			_, err := attorneyStore.Create(ctx, "session-id", "attorney-id", false)
+			assert.Equal(t, expectedError, err)
+		})
+	}
+}
+
+func TestAttorneyStoreGetAll(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "session-id"})
+	attorney := &actor.AttorneyProvidedDetails{LpaID: "123"}
+
 	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Create", ctx, "LPA#123", "#ATTORNEY#456", mock.Anything).
-		Return(expectedError)
+		ExpectGetAllByGsi(ctx, "ActorIndex", "#ATTORNEY#session-id",
+			[]map[string]any{{"Data": attorney}}, nil)
 
-	attorneyStore := &attorneyStore{dataStore: dataStore, now: func() time.Time { return now }}
+	attorneyStore := &attorneyStore{dataStore: dataStore, now: nil}
 
-	_, err := attorneyStore.Create(ctx, "attorney-id", false)
-	assert.Equal(t, expectedError, err)
+	attorneys, err := attorneyStore.GetAll(ctx)
+	assert.Nil(t, err)
+	assert.Equal(t, []*actor.AttorneyProvidedDetails{attorney}, attorneys)
+}
+
+func TestAttorneyStoreGetAllWhenSessionMissing(t *testing.T) {
+	ctx := context.Background()
+
+	attorneyStore := &attorneyStore{}
+
+	_, err := attorneyStore.GetAll(ctx)
+	assert.Equal(t, page.SessionMissingError{}, err)
+}
+
+func TestAttorneyStoreGetAllWhenMissingSessionID(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
+
+	attorneyStore := &attorneyStore{}
+
+	_, err := attorneyStore.GetAll(ctx)
+	assert.NotNil(t, err)
 }
 
 func TestAttorneyStoreGet(t *testing.T) {

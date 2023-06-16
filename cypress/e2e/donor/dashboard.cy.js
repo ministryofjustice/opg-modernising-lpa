@@ -46,5 +46,15 @@ describe('Dashboard', () => {
 
             cy.url().should('contain', '/progress');
         });
+    });
+
+    context('with various roles', () => {
+        it.only('shows all of my LPAs', () => {
+            cy.visit('/testing-start?redirect=/dashboard&completeLpa=1&asAttorney=1&asCertificateProvider=1&fresh=1')
+
+            cy.contains('My LPAs');
+            cy.contains('I’m an attorney');
+            cy.contains('I’m a certificate provider');
+        });
     })
 });
