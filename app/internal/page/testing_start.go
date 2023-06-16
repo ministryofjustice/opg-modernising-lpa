@@ -1,6 +1,7 @@
 package page
 
 import (
+	"context"
 	"encoding/base64"
 	"net/http"
 	"strconv"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
@@ -16,6 +18,170 @@ import (
 )
 
 func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int) string, shareCodeSender shareCodeSender, localizer Localizer, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, logger *logging.Logger, now func() time.Time) http.HandlerFunc {
+	const (
+		testEmail  = "simulate-delivered@notifications.service.gov.uk"
+		testMobile = "07700900000"
+	)
+
+	var (
+		attorneyNames            = []string{"John", "Joan", "Johan", "Jilly", "James"}
+		replacementAttorneyNames = []string{"Jane", "Jorge", "Jackson", "Jacob", "Joshua"}
+		peopleToNotifyNames      = []string{"Joanna", "Jonathan", "Julian", "Jayden", "Juniper"}
+	)
+
+	type lpaOptions struct {
+		hasDonorDetails            bool
+		lpaType                    string
+		attorneys                  int
+		howAttorneysAct            string
+		replacementAttorneys       int
+		howReplacementAttorneysAct string
+		hasWhenCanBeUsed           bool
+		hasRestrictions            bool
+		hasCertificateProvider     bool
+		peopleToNotify             int
+		checked                    bool
+		paid                       bool
+		idConfirmedAndSigned       bool
+		submitted                  bool
+		email                      string
+	}
+
+	makeDonor := func() actor.Donor {
+		return actor.Donor{
+			FirstNames: "Jamie",
+			LastName:   "Smith",
+			Address: place.Address{
+				Line1:      "1 RICHMOND PLACE",
+				Line2:      "KINGS HEATH",
+				Line3:      "WEST MIDLANDS",
+				TownOrCity: "BIRMINGHAM",
+				Postcode:   "B14 7ED",
+			},
+			Email:       testEmail,
+			DateOfBirth: date.New("2000", "1", "2"),
+		}
+	}
+
+	makeAttorney := func(firstNames string) actor.Attorney {
+		return actor.Attorney{
+			ID:          firstNames + "Smith",
+			FirstNames:  firstNames,
+			LastName:    "Smith",
+			Email:       testEmail,
+			DateOfBirth: date.New("2000", "1", "2"),
+			Address: place.Address{
+				Line1:      "2 RICHMOND PLACE",
+				Line2:      "KINGS HEATH",
+				Line3:      "WEST MIDLANDS",
+				TownOrCity: "BIRMINGHAM",
+				Postcode:   "B14 7ED",
+			},
+		}
+	}
+
+	makePersonToNotify := func(firstNames string) actor.PersonToNotify {
+		return actor.PersonToNotify{
+			ID:         firstNames + "Smith",
+			FirstNames: firstNames,
+			LastName:   "Smith",
+			Email:      testEmail,
+			Address: place.Address{
+				Line1:      "4 RICHMOND PLACE",
+				Line2:      "KINGS HEATH",
+				Line3:      "WEST MIDLANDS",
+				TownOrCity: "BIRMINGHAM",
+				Postcode:   "B14 7ED",
+			},
+		}
+	}
+
+	makeCertificateProvider := func(firstNames string) actor.CertificateProvider {
+		return actor.CertificateProvider{
+			FirstNames:              firstNames,
+			LastName:                "Jones",
+			Email:                   testEmail,
+			Mobile:                  testMobile,
+			Relationship:            "friend",
+			RelationshipDescription: "",
+			RelationshipLength:      "gte-2-years",
+			CarryOutBy:              "paper",
+			Address: place.Address{
+				Line1:      "5 RICHMOND PLACE",
+				Line2:      "KINGS HEATH",
+				Line3:      "WEST MIDLANDS",
+				TownOrCity: "BIRMINGHAM",
+				Postcode:   "B14 7ED",
+			},
+		}
+	}
+
+	addAttorneys := func(lpa *Lpa, count int) {
+		if count > len(attorneyNames) {
+			count = len(attorneyNames)
+		}
+
+		for _, name := range attorneyNames[:count] {
+			lpa.Attorneys = append(lpa.Attorneys, makeAttorney(name))
+		}
+
+		if count > 1 {
+			lpa.AttorneyDecisions.How = actor.JointlyAndSeverally
+		}
+
+		lpa.Tasks.ChooseAttorneys = actor.TaskCompleted
+	}
+
+	addReplacementAttorneys := func(lpa *Lpa, count int) {
+		if count > len(replacementAttorneyNames) {
+			count = len(replacementAttorneyNames)
+		}
+
+		for _, name := range replacementAttorneyNames[:count] {
+			lpa.ReplacementAttorneys = append(lpa.ReplacementAttorneys, makeAttorney(name))
+		}
+
+		if count > 1 {
+			lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
+			lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
+		}
+
+		lpa.WantReplacementAttorneys = "yes"
+		lpa.Tasks.ChooseReplacementAttorneys = actor.TaskCompleted
+	}
+
+	addPeopleToNotify := func(lpa *Lpa, count int) {
+		if count > len(peopleToNotifyNames) {
+			count = len(peopleToNotifyNames)
+		}
+
+		for _, name := range peopleToNotifyNames[:count] {
+			lpa.PeopleToNotify = append(lpa.PeopleToNotify, makePersonToNotify(name))
+		}
+
+		lpa.DoYouWantToNotifyPeople = "yes"
+		lpa.Tasks.PeopleToNotify = actor.TaskCompleted
+	}
+
+	parseCount := func(s string, complete bool) int {
+		switch s {
+		case "":
+			if complete {
+				return 2
+			}
+
+			return 0
+		case "incomplete":
+			return -1
+		default:
+			if count, err := strconv.Atoi(s); err == nil {
+				return count
+			}
+
+			return 2
+		}
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		var (
 			donorSub                     = randomString(16)
@@ -26,10 +192,197 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			attorneySessionID            = base64.StdEncoding.EncodeToString([]byte(attorneySub))
 		)
 
-		lpa, err := donorStore.Create(ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID}))
-		if err != nil {
-			logger.Print("creating lpa ", err)
+		buildLpa := func(ctx context.Context, opts lpaOptions) *Lpa {
+			lpa, err := donorStore.Create(ctx)
+			if err != nil {
+				logger.Print("creating lpa ", err)
+			}
+
+			if opts.hasDonorDetails {
+				lpa.Donor = makeDonor()
+				lpa.WhoFor = "me"
+				lpa.Type = "pfa"
+				lpa.Tasks.YourDetails = actor.TaskCompleted
+			}
+
+			if opts.lpaType != "" {
+				lpa.Type = opts.lpaType
+			}
+
+			if opts.attorneys > 0 {
+				addAttorneys(lpa, opts.attorneys)
+			}
+
+			if opts.attorneys == -1 {
+				addAttorneys(lpa, 2)
+				lpa.Attorneys[0].ID = "with-address"
+				lpa.Attorneys[1].ID = "without-address"
+				lpa.Attorneys[1].Address = place.Address{}
+
+				lpa.ReplacementAttorneys = lpa.Attorneys
+				lpa.Type = LpaTypePropertyFinance
+				lpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
+
+				lpa.AttorneyDecisions.How = actor.JointlyAndSeverally
+
+				lpa.WantReplacementAttorneys = "yes"
+				lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
+				lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
+
+				lpa.Tasks.ChooseAttorneys = actor.TaskInProgress
+				lpa.Tasks.ChooseReplacementAttorneys = actor.TaskInProgress
+			}
+
+			if opts.howAttorneysAct != "" {
+				switch opts.howAttorneysAct {
+				case actor.Jointly:
+					lpa.AttorneyDecisions.How = actor.Jointly
+				case actor.JointlyAndSeverally:
+					lpa.AttorneyDecisions.How = actor.JointlyAndSeverally
+				default:
+					lpa.AttorneyDecisions.How = actor.JointlyForSomeSeverallyForOthers
+					lpa.AttorneyDecisions.Details = "some details"
+				}
+			}
+
+			if opts.replacementAttorneys > 0 {
+				addReplacementAttorneys(lpa, opts.replacementAttorneys)
+			}
+
+			if opts.replacementAttorneys == -1 {
+				addReplacementAttorneys(lpa, 2)
+				lpa.ReplacementAttorneys[0].ID = "with-address"
+				lpa.ReplacementAttorneys[1].ID = "without-address"
+				lpa.ReplacementAttorneys[1].Address = place.Address{}
+
+				lpa.ReplacementAttorneys = lpa.Attorneys
+				lpa.WantReplacementAttorneys = "yes"
+				lpa.Tasks.ChooseAttorneys = actor.TaskCompleted
+				lpa.Tasks.ChooseReplacementAttorneys = actor.TaskInProgress
+			}
+
+			if opts.hasWhenCanBeUsed {
+				lpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
+				lpa.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
+			}
+
+			if opts.hasRestrictions {
+				lpa.Restrictions = "My attorneys must not sell my home unless, in my doctor’s opinion, I can no longer live independently"
+				lpa.Tasks.Restrictions = actor.TaskCompleted
+			}
+
+			if opts.hasCertificateProvider {
+				lpa.CertificateProvider = makeCertificateProvider("Jessie")
+				lpa.Tasks.CertificateProvider = actor.TaskCompleted
+			}
+
+			if opts.peopleToNotify > 0 {
+				addPeopleToNotify(lpa, opts.peopleToNotify)
+			}
+
+			if opts.peopleToNotify == -1 {
+				addPeopleToNotify(lpa, 1)
+
+				joanna := lpa.PeopleToNotify[0]
+				joanna.Address = place.Address{}
+				lpa.PeopleToNotify = actor.PeopleToNotify{
+					joanna,
+				}
+
+				lpa.Tasks.PeopleToNotify = actor.TaskInProgress
+			}
+
+			if opts.checked {
+				lpa.Checked = true
+				lpa.HappyToShare = true
+				lpa.Tasks.CheckYourLpa = actor.TaskCompleted
+			}
+
+			if opts.paid {
+				ref := randomString(12)
+				sesh.SetPayment(store, r, w, &sesh.PaymentSession{PaymentID: ref})
+
+				lpa.PaymentDetails = PaymentDetails{
+					PaymentReference: ref,
+					PaymentId:        ref,
+				}
+				lpa.Tasks.PayForLpa = actor.TaskCompleted
+			}
+
+			if opts.idConfirmedAndSigned {
+				lpa.DonorIdentityUserData = identity.UserData{
+					OK:          true,
+					Provider:    identity.OneLogin,
+					RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
+					FirstNames:  "Jamie",
+					LastName:    "Smith",
+				}
+
+				lpa.WantToApplyForLpa = true
+				lpa.WantToSignLpa = true
+				lpa.Submitted = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
+				lpa.CPWitnessCodeValidated = true
+				lpa.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
+			}
+
+			if opts.submitted {
+				lpa.Submitted = now()
+			}
+
+			if opts.email != "" {
+				lpa.CertificateProvider.Email = opts.email
+
+				for i := range lpa.Attorneys {
+					lpa.Attorneys[i].Email = opts.email
+				}
+
+				for i := range lpa.ReplacementAttorneys {
+					lpa.ReplacementAttorneys[i].Email = opts.email
+				}
+			}
+
+			if err := donorStore.Put(ctx, lpa); err != nil {
+				logger.Print("putting lpa ", err)
+			}
+
+			return lpa
 		}
+
+		var (
+			completeLpa                = r.FormValue("completeLpa") != ""
+			cookiesAccepted            = r.FormValue("cookiesAccepted") != ""
+			useTestShareCode           = r.FormValue("useTestShareCode") != ""
+			withShareCodeSession       = r.FormValue("withShareCodeSession") != ""
+			startCpFlowDonorHasPaid    = r.FormValue("startCpFlowDonorHasPaid") != ""
+			startCpFlowDonorHasNotPaid = r.FormValue("startCpFlowDonorHasNotPaid") != ""
+			asCertificateProvider      = r.FormValue("asCertificateProvider")
+			fresh                      = r.FormValue("fresh") != ""
+			asAttorney                 = r.FormValue("asAttorney") != ""
+			asReplacementAttorney      = r.FormValue("asReplacementAttorney") != ""
+			sendAttorneyShare          = r.FormValue("sendAttorneyShare") != ""
+			redirect                   = r.FormValue("redirect")
+			paymentComplete            = r.FormValue("paymentComplete") != ""
+		)
+
+		completeSectionOne := completeLpa || startCpFlowDonorHasNotPaid || startCpFlowDonorHasPaid || paymentComplete
+
+		lpa := buildLpa(ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID}), lpaOptions{
+			hasDonorDetails:            r.FormValue("withDonorDetails") != "" || completeSectionOne,
+			lpaType:                    r.FormValue("withType"),
+			attorneys:                  parseCount(r.FormValue("withAttorneys"), completeSectionOne),
+			howAttorneysAct:            r.FormValue("howAttorneysAct"),
+			replacementAttorneys:       parseCount(r.FormValue("withReplacementAttorneys"), completeSectionOne),
+			howReplacementAttorneysAct: r.FormValue("howReplacementAttorneysAct"),
+			hasWhenCanBeUsed:           r.FormValue("whenCanBeUsedComplete") != "" || completeSectionOne,
+			hasRestrictions:            r.FormValue("withRestrictions") != "" || completeSectionOne,
+			hasCertificateProvider:     r.FormValue("withCPDetails") != "" || completeSectionOne,
+			peopleToNotify:             parseCount(r.FormValue("withPeopleToNotify"), completeSectionOne),
+			checked:                    r.FormValue("lpaChecked") != "" || completeSectionOne,
+			paid:                       paymentComplete || startCpFlowDonorHasPaid || completeLpa,
+			idConfirmedAndSigned:       r.FormValue("idConfirmedAndSigned") != "" || completeLpa,
+			submitted:                  r.FormValue("signedByDonor") != "",
+			email:                      r.FormValue("withEmail"),
+		})
 
 		// These contexts act on the same LPA for different actors
 		var (
@@ -38,137 +391,17 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			attorneyCtx            = ContextWithSessionData(r.Context(), &SessionData{SessionID: attorneySessionID, LpaID: lpa.ID})
 		)
 
-		if r.FormValue("withDonorDetails") != "" || r.FormValue("completeLpa") != "" {
-			CompleteDonorDetails(lpa)
-		}
-
 		// loginAs controls which actor we will be pretending to be for the LPA
 		switch r.FormValue("loginAs") {
 		case "attorney":
-			_ = sesh.SetLoginSession(store, r, w, &sesh.LoginSession{Sub: attorneySub, Email: TestEmail})
+			_ = sesh.SetLoginSession(store, r, w, &sesh.LoginSession{Sub: attorneySub, Email: testEmail})
 		case "certificate-provider":
-			_ = sesh.SetLoginSession(store, r, w, &sesh.LoginSession{Sub: certificateProviderSub, Email: TestEmail})
+			_ = sesh.SetLoginSession(store, r, w, &sesh.LoginSession{Sub: certificateProviderSub, Email: testEmail})
 		default:
-			_ = sesh.SetLoginSession(store, r, w, &sesh.LoginSession{Sub: donorSub, Email: TestEmail})
+			_ = sesh.SetLoginSession(store, r, w, &sesh.LoginSession{Sub: donorSub, Email: testEmail})
 		}
 
-		if t := r.FormValue("withType"); t != "" {
-			lpa.Type = t
-		}
-
-		if r.FormValue("withAttorney") != "" {
-			AddAttorneys(lpa, 1)
-		}
-
-		if r.FormValue("withAttorneys") != "" || r.FormValue("completeLpa") != "" {
-			AddAttorneys(lpa, 2)
-		}
-
-		if r.FormValue("withIncompleteAttorneys") != "" {
-			firstNames := AddAttorneys(lpa, 2)
-
-			withAddress, _ := GetAttorneyByFirstNames(lpa, firstNames[0])
-			withAddress.ID = "with-address"
-			withoutAddress, _ := GetAttorneyByFirstNames(lpa, firstNames[1])
-			withoutAddress.ID = "without-address"
-			withoutAddress.Address = place.Address{}
-
-			lpa.Attorneys = actor.Attorneys{
-				withAddress,
-				withoutAddress,
-			}
-
-			lpa.ReplacementAttorneys = lpa.Attorneys
-			lpa.Type = LpaTypePropertyFinance
-			lpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
-
-			lpa.AttorneyDecisions.How = actor.JointlyAndSeverally
-
-			lpa.WantReplacementAttorneys = "yes"
-			lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
-			lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
-
-			lpa.Tasks.ChooseAttorneys = actor.TaskInProgress
-			lpa.Tasks.ChooseReplacementAttorneys = actor.TaskInProgress
-		}
-
-		if r.FormValue("withIncompleteReplacementAttorneys") != "" {
-			AddReplacementAttorneys(lpa, 2)
-			lpa.ReplacementAttorneys[0].ID = "with-address"
-			lpa.ReplacementAttorneys[1].ID = "without-address"
-			lpa.ReplacementAttorneys[1].Address = place.Address{}
-
-			lpa.ReplacementAttorneys = lpa.Attorneys
-			lpa.WantReplacementAttorneys = "yes"
-			lpa.Tasks.ChooseAttorneys = actor.TaskCompleted
-			lpa.Tasks.ChooseReplacementAttorneys = actor.TaskInProgress
-		}
-
-		if r.FormValue("howAttorneysAct") != "" {
-			CompleteHowAttorneysAct(lpa, r.FormValue("howAttorneysAct"))
-		}
-
-		if r.FormValue("withReplacementAttorney") != "" {
-			AddReplacementAttorneys(lpa, 1)
-		}
-
-		if r.FormValue("withReplacementAttorneys") != "" || r.FormValue("completeLpa") != "" {
-			AddReplacementAttorneys(lpa, 2)
-		}
-
-		if r.FormValue("howReplacementAttorneysAct") != "" {
-			CompleteHowReplacementAttorneysAct(lpa, r.FormValue("howReplacementAttorneysAct"))
-		}
-
-		if r.FormValue("whenCanBeUsedComplete") != "" || r.FormValue("completeLpa") != "" {
-			CompleteWhenCanLpaBeUsed(lpa)
-		}
-
-		if r.FormValue("withRestrictions") != "" || r.FormValue("completeLpa") != "" {
-			CompleteRestrictions(lpa)
-		}
-
-		if r.FormValue("withCPDetails") != "" || r.FormValue("completeLpa") != "" {
-			AddCertificateProvider(lpa, "Jessie")
-		}
-
-		if r.FormValue("withPeopleToNotify") != "" || r.FormValue("completeLpa") != "" {
-			count, err := strconv.Atoi(r.FormValue("withPeopleToNotify"))
-			if err != nil {
-				count = 2
-			}
-
-			AddPeopleToNotify(lpa, count)
-		}
-
-		if r.FormValue("withIncompletePeopleToNotify") != "" {
-			AddPeopleToNotify(lpa, 1)
-
-			joanna := lpa.PeopleToNotify[0]
-			joanna.Address = place.Address{}
-			lpa.PeopleToNotify = actor.PeopleToNotify{
-				joanna,
-			}
-
-			lpa.Tasks.PeopleToNotify = actor.TaskInProgress
-		}
-
-		if r.FormValue("lpaChecked") != "" || r.FormValue("completeLpa") != "" {
-			CompleteCheckYourLpa(lpa)
-		}
-
-		if r.FormValue("paymentComplete") != "" || r.FormValue("completeLpa") != "" {
-			if r.FormValue("paymentComplete") != "" {
-				CompleteSectionOne(lpa)
-			}
-			PayForLpa(lpa, store, r, w, randomString(12))
-		}
-
-		if r.FormValue("idConfirmedAndSigned") != "" || r.FormValue("completeLpa") != "" {
-			ConfirmIdAndSign(lpa)
-		}
-
-		if r.FormValue("cookiesAccepted") != "" {
+		if cookiesAccepted {
 			http.SetCookie(w, &http.Cookie{
 				Name:   "cookies-consent",
 				Value:  "accept",
@@ -177,47 +410,44 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			})
 		}
 
-		if r.FormValue("useTestShareCode") != "" {
+		if useTestShareCode {
 			shareCodeSender.UseTestCode()
 		}
 
-		if r.FormValue("withShareCodeSession") != "" {
+		if withShareCodeSession {
 			sesh.SetShareCode(store, r, w, &sesh.ShareCodeSession{LpaID: lpa.ID, Identity: false})
 		}
 
-		if r.FormValue("startCpFlowDonorHasPaid") != "" || r.FormValue("startCpFlowDonorHasNotPaid") != "" {
-			CompleteSectionOne(lpa)
-
-			if r.FormValue("startCpFlowDonorHasPaid") != "" {
-				PayForLpa(lpa, store, r, w, randomString(12))
-			}
-
-			lpa.CertificateProvider.Email = TestEmail
-
-			if r.FormValue("withEmail") != "" {
-				lpa.CertificateProvider.Email = r.FormValue("withEmail")
-			}
-
+		if startCpFlowDonorHasPaid || startCpFlowDonorHasNotPaid {
 			shareCodeSender.SendCertificateProvider(donorCtx, notify.CertificateProviderInviteEmail, AppData{
 				SessionID: donorSessionID,
 				LpaID:     lpa.ID,
 				Localizer: localizer,
 			}, false, lpa)
 
-			r.Form.Set("redirect", Paths.CertificateProviderStart)
+			redirect = Paths.CertificateProviderStart
 		}
 
-		if val := r.FormValue("asCertificateProvider"); val != "" {
+		if asCertificateProvider != "" {
 			currentCtx := certificateProviderCtx
 
 			// "fresh=1" causes an LPA to be created for the certificate provider (as
 			// the donor), we then link this to the donor so they are both each
 			// other's certificate provider.
-			if r.FormValue("fresh") != "" {
-				lpa, err := donorStore.Create(certificateProviderCtx)
-				if err != nil {
-					logger.Print("creating lpa ", err)
-				}
+			if fresh {
+				lpa := buildLpa(certificateProviderCtx, lpaOptions{
+					hasDonorDetails:        true,
+					attorneys:              2,
+					replacementAttorneys:   2,
+					hasWhenCanBeUsed:       true,
+					hasRestrictions:        true,
+					hasCertificateProvider: true,
+					peopleToNotify:         2,
+					checked:                true,
+					paid:                   true,
+					idConfirmedAndSigned:   true,
+				})
+
 				currentCtx = ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
 			}
 
@@ -233,9 +463,9 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				LastName:   "Jones",
 			}
 
-			if val == "certified" {
-				certificateProvider.Mobile = TestMobile
-				certificateProvider.Email = TestEmail
+			if asCertificateProvider == "certified" {
+				certificateProvider.Mobile = testMobile
+				certificateProvider.Email = testEmail
 				certificateProvider.Certificate = actor.Certificate{
 					AgreeToStatement: true,
 					Agreed:           time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
@@ -247,15 +477,23 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			}
 		}
 
-		if r.FormValue("asAttorney") != "" {
+		if asAttorney {
 			currentCtx := attorneyCtx
-			attorneySessionID := base64.StdEncoding.EncodeToString([]byte(randomString(16)))
 
-			if r.FormValue("fresh") != "" {
-				lpa, err := donorStore.Create(ContextWithSessionData(r.Context(), &SessionData{SessionID: attorneySessionID}))
-				if err != nil {
-					logger.Print("creating lpa ", err)
-				}
+			if fresh {
+				lpa := buildLpa(attorneyCtx, lpaOptions{
+					hasDonorDetails:        true,
+					attorneys:              2,
+					replacementAttorneys:   2,
+					hasWhenCanBeUsed:       true,
+					hasRestrictions:        true,
+					hasCertificateProvider: true,
+					peopleToNotify:         2,
+					checked:                true,
+					paid:                   true,
+					idConfirmedAndSigned:   true,
+				})
+
 				currentCtx = ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
 			}
 
@@ -265,23 +503,14 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			}
 		}
 
-		if r.FormValue("asReplacementAttorney") != "" {
+		if asReplacementAttorney {
 			_, err := attorneyStore.Create(donorCtx, donorSessionID, lpa.ReplacementAttorneys[0].ID, true)
 			if err != nil {
 				logger.Print("asReplacementAttorney:", err)
 			}
 		}
 
-		if r.FormValue("sendAttorneyShare") != "" {
-			attorneys := lpa.Attorneys
-			if r.FormValue("forReplacementAttorney") != "" {
-				attorneys = lpa.ReplacementAttorneys
-			}
-
-			if r.FormValue("withEmail") != "" {
-				attorneys[0].Email = r.FormValue("withEmail")
-			}
-
+		if sendAttorneyShare {
 			shareCodeSender.SendAttorneys(donorCtx, AppData{
 				SessionID: donorSessionID,
 				LpaID:     lpa.ID,
@@ -289,17 +518,8 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			}, lpa)
 		}
 
-		if r.FormValue("signedByDonor") != "" {
-			lpa.Submitted = now()
-		}
-
-		err = donorStore.Put(donorCtx, lpa)
-		if err != nil {
-			logger.Print("putting lpa ", err)
-		}
-
 		random.UseTestCode = true
 
-		AppData{}.Redirect(w, r.WithContext(donorCtx), lpa, r.FormValue("redirect"))
+		AppData{}.Redirect(w, r.WithContext(donorCtx), lpa, redirect)
 	}
 }

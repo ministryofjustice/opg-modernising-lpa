@@ -3,7 +3,7 @@ import { AddressFormAssertions } from "../../support/e2e";
 describe('People to notify address', () => {
     describe('Entering a new address', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?withIncompletePeopleToNotify=1&redirect=/choose-people-to-notify-address?id=JoannaSmith');
+            cy.visit('/testing-start?withPeopleToNotify=-1&redirect=/choose-people-to-notify-address?id=JoannaSmith');
             cy.contains('label', 'Enter a new address').click();
             cy.contains('button', 'Continue').click();
         });
@@ -30,7 +30,7 @@ describe('People to notify address', () => {
     });
 
     it('address can be copied from another actor', () => {
-        cy.visit('/testing-start?redirect=/choose-people-to-notify-address?id=JoannaSmith&withIncompletePeopleToNotify=1&withCPDetails=1');
+        cy.visit('/testing-start?redirect=/choose-people-to-notify-address?id=JoannaSmith&withPeopleToNotify=-1&withCPDetails=1');
         cy.contains('label', 'Use an address you’ve already entered').click();
         cy.contains('button', 'Continue').click();
 

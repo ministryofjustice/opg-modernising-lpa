@@ -4,7 +4,7 @@ import {
 
 describe('Certificate provider task', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/task-list&withDonorDetails=1&withAttorney=1');
+        cy.visit('/testing-start?redirect=/task-list&withDonorDetails=1&withAttorneys=1');
     });
 
     it('can be left unfinished', () => {
