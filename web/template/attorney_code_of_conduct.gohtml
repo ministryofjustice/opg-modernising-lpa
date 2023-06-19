@@ -46,7 +46,7 @@
       "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName)
       "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) }}
 
-      <a class="govuk-button" href="{{ link .App .App.Paths.Attorney.TaskList }}">{{ tr .App "continue" }}</a>
+      <a class="govuk-button" href="{{ link .App (.App.Paths.Attorney.TaskList.Format .App.LpaID) }}">{{ tr .App "continue" }}</a>
     </div>
   </div>
 {{ end }}

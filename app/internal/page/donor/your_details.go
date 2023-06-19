@@ -76,7 +76,7 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.YourAddress)
+				return appData.Redirect(w, r, lpa, page.Paths.YourAddress.Format(lpa.ID))
 			}
 		}
 

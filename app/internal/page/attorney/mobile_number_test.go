@@ -112,8 +112,9 @@ func TestPostMobileNumber(t *testing.T) {
 			form: url.Values{
 				"mobile": {"07535111222"},
 			},
-			attorney: &actor.AttorneyProvidedDetails{},
+			attorney: &actor.AttorneyProvidedDetails{LpaID: "lpa-id"},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
+				LpaID:  "lpa-id",
 				Mobile: "07535111222",
 				Tasks: actor.AttorneyTasks{
 					ConfirmYourDetails: actor.TaskInProgress,
@@ -124,11 +125,13 @@ func TestPostMobileNumber(t *testing.T) {
 		"attorney empty": {
 			appData: testAppData,
 			attorney: &actor.AttorneyProvidedDetails{
+				LpaID: "lpa-id",
 				Tasks: actor.AttorneyTasks{
 					ConfirmYourDetails: actor.TaskCompleted,
 				},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
+				LpaID: "lpa-id",
 				Tasks: actor.AttorneyTasks{
 					ConfirmYourDetails: actor.TaskCompleted,
 				},
@@ -138,8 +141,9 @@ func TestPostMobileNumber(t *testing.T) {
 			form: url.Values{
 				"mobile": {"07535111222"},
 			},
-			attorney: &actor.AttorneyProvidedDetails{},
+			attorney: &actor.AttorneyProvidedDetails{LpaID: "lpa-id"},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
+				LpaID:  "lpa-id",
 				Mobile: "07535111222",
 				Tasks: actor.AttorneyTasks{
 					ConfirmYourDetails: actor.TaskInProgress,
@@ -149,8 +153,9 @@ func TestPostMobileNumber(t *testing.T) {
 		},
 		"replacement attorney empty": {
 			appData:  testReplacementAppData,
-			attorney: &actor.AttorneyProvidedDetails{},
+			attorney: &actor.AttorneyProvidedDetails{LpaID: "lpa-id"},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
+				LpaID: "lpa-id",
 				Tasks: actor.AttorneyTasks{
 					ConfirmYourDetails: actor.TaskInProgress,
 				},
@@ -174,7 +179,7 @@ func TestPostMobileNumber(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/attorney/lpa-id"+page.Paths.Attorney.CheckYourName, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.Attorney.CheckYourName.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

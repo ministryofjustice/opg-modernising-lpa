@@ -115,8 +115,8 @@ func TestCanGoTo(t *testing.T) {
 			expected: true,
 		},
 		"about payment without task": {
-			lpa:      &Lpa{},
-			url:      Paths.AboutPayment,
+			lpa:      &Lpa{ID: "123"},
+			url:      Paths.AboutPayment.Format("123"),
 			expected: false,
 		},
 		"about payment with tasks": {
@@ -133,12 +133,12 @@ func TestCanGoTo(t *testing.T) {
 					CheckYourLpa:               actor.TaskCompleted,
 				},
 			},
-			url:      Paths.AboutPayment,
+			url:      Paths.AboutPayment.Format("123"),
 			expected: true,
 		},
 		"select your identity options without task": {
 			lpa:      &Lpa{},
-			url:      Paths.SelectYourIdentityOptions,
+			url:      Paths.SelectYourIdentityOptions.Format("123"),
 			expected: false,
 		},
 		"select your identity options with tasks": {
@@ -156,7 +156,7 @@ func TestCanGoTo(t *testing.T) {
 					PayForLpa:                  actor.TaskCompleted,
 				},
 			},
-			url:      Paths.SelectYourIdentityOptions,
+			url:      Paths.SelectYourIdentityOptions.Format("123"),
 			expected: true,
 		},
 	}

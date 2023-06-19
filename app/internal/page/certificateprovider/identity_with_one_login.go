@@ -24,7 +24,7 @@ func IdentityWithOneLogin(logger Logger, oneLoginClient OneLoginClient, store se
 			State:    state,
 			Nonce:    nonce,
 			Locale:   locale,
-			Redirect: page.Paths.CertificateProvider.IdentityWithOneLoginCallback,
+			Redirect: page.Paths.CertificateProvider.IdentityWithOneLoginCallback.Format(appData.LpaID),
 		}); err != nil {
 			logger.Print(err)
 			return nil
