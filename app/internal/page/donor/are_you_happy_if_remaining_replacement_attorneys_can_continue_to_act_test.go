@@ -64,19 +64,21 @@ func TestPostAreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(t *testi
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
+					ID:                           "lpa-id",
 					ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfRemainingCanContinueToAct: happy},
 					Tasks:                        page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 				}).
 				Return(nil)
 
 			err := AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(nil, donorStore)(testAppData, w, r, &page.Lpa{
+				ID:    "lpa-id",
 				Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+page.Paths.TaskList, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

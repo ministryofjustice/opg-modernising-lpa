@@ -34,12 +34,12 @@ func SelectYourIdentityOptions(tmpl template.Template, donorStore DonorStore, pa
 			if data.Form.None {
 				switch pageIndex {
 				case 0:
-					return appData.Redirect(w, r, lpa, page.Paths.SelectYourIdentityOptions1)
+					return appData.Redirect(w, r, lpa, page.Paths.SelectYourIdentityOptions1.Format(lpa.ID))
 				case 1:
-					return appData.Redirect(w, r, lpa, page.Paths.SelectYourIdentityOptions2)
+					return appData.Redirect(w, r, lpa, page.Paths.SelectYourIdentityOptions2.Format(lpa.ID))
 				default:
 					// will go to vouching flow when that is built
-					return appData.Redirect(w, r, lpa, page.Paths.TaskList)
+					return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
 				}
 			}
 
@@ -51,7 +51,7 @@ func SelectYourIdentityOptions(tmpl template.Template, donorStore DonorStore, pa
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.YourChosenIdentityOptions)
+				return appData.Redirect(w, r, lpa, page.Paths.YourChosenIdentityOptions.Format(lpa.ID))
 			}
 		}
 

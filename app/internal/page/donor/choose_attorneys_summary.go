@@ -19,7 +19,7 @@ type chooseAttorneysSummaryData struct {
 func ChooseAttorneysSummary(tmpl template.Template) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if len(lpa.Attorneys) == 0 {
-			return appData.Redirect(w, r, lpa, fmt.Sprintf("%s?addAnother=1", appData.Paths.ChooseAttorneys))
+			return appData.Redirect(w, r, lpa, fmt.Sprintf("%s?addAnother=1", appData.Paths.ChooseAttorneys.Format(lpa.ID)))
 		}
 
 		data := &chooseAttorneysSummaryData{
@@ -33,14 +33,14 @@ func ChooseAttorneysSummary(tmpl template.Template) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				redirectUrl := appData.Paths.TaskList
+				redirectUrl := appData.Paths.TaskList.Format(lpa.ID)
 
 				if len(lpa.Attorneys) > 1 {
-					redirectUrl = appData.Paths.HowShouldAttorneysMakeDecisions
+					redirectUrl = appData.Paths.HowShouldAttorneysMakeDecisions.Format(lpa.ID)
 				}
 
 				if data.Form.AddAttorney == "yes" {
-					redirectUrl = fmt.Sprintf("%s?addAnother=1", appData.Paths.ChooseAttorneys)
+					redirectUrl = fmt.Sprintf("%s?addAnother=1", appData.Paths.ChooseAttorneys.Format(lpa.ID))
 				}
 
 				return appData.Redirect(w, r, lpa, redirectUrl)

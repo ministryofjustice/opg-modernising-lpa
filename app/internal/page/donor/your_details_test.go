@@ -135,6 +135,7 @@ func TestPostYourDetails(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
+					ID:    "lpa-id",
 					Donor: tc.person,
 					Tasks: page.Tasks{YourDetails: actor.TaskInProgress},
 				}).
@@ -146,6 +147,7 @@ func TestPostYourDetails(t *testing.T) {
 				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 			err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &page.Lpa{
+				ID: "lpa-id",
 				Donor: actor.Donor{
 					FirstNames: "John",
 					Address:    place.Address{Line1: "abc"},
@@ -155,7 +157,7 @@ func TestPostYourDetails(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+page.Paths.YourAddress, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.YourAddress.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -179,6 +181,7 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID: "lpa-id",
 			Donor: actor.Donor{
 				FirstNames:  "John",
 				LastName:    "Doe",
@@ -196,6 +199,7 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
 		Donor: actor.Donor{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
@@ -206,7 +210,7 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.YourAddress, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.YourAddress.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostYourDetailsWhenInputRequired(t *testing.T) {

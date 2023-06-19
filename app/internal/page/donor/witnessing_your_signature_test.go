@@ -54,6 +54,7 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	lpa := &page.Lpa{
+		ID:                    "lpa-id",
 		DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
 		CertificateProvider:   actor.CertificateProvider{Mobile: "07535111111"},
 	}
@@ -68,7 +69,7 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.WitnessingAsCertificateProvider, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.WitnessingAsCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostWitnessingYourSignatureWhenWitnessCodeSenderErrors(t *testing.T) {

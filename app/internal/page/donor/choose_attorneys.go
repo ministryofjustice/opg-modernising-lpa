@@ -1,7 +1,6 @@
 package donor
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -27,7 +26,7 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, uuidString f
 		attorney, attorneyFound := lpa.Attorneys.Get(r.URL.Query().Get("id"))
 
 		if r.Method == http.MethodGet && len(lpa.Attorneys) > 0 && attorneyFound == false && addAnother == false {
-			return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneysSummary)
+			return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneysSummary.Format(lpa.ID))
 		}
 
 		data := &chooseAttorneysData{
@@ -88,7 +87,7 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, uuidString f
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, fmt.Sprintf("%s?id=%s", appData.Paths.ChooseAttorneysAddress, attorney.ID))
+				return appData.Redirect(w, r, lpa, appData.Paths.ChooseAttorneysAddress.Format(lpa.ID)+"?id="+attorney.ID)
 			}
 		}
 
