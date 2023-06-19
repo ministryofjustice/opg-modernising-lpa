@@ -28,7 +28,7 @@ func TestLogin(t *testing.T) {
 
 	session.Options = &sessions.Options{
 		Path:     "/",
-		MaxAge:   600,
+		MaxAge:   3600,
 		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 		Secure:   true,
@@ -68,7 +68,7 @@ func TestLoginDefaultLocale(t *testing.T) {
 
 	session.Options = &sessions.Options{
 		Path:     "/",
-		MaxAge:   600,
+		MaxAge:   3600,
 		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 		Secure:   true,

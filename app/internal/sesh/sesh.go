@@ -44,7 +44,7 @@ var (
 	}
 	oneLoginCookieOptions = &sessions.Options{
 		Path:     "/",
-		MaxAge:   10 * 60,
+		MaxAge:   60 * 60,
 		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 		Secure:   true,
