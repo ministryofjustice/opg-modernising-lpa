@@ -23,7 +23,7 @@ func YourChosenIdentityOptions(tmpl template.Template, certificateProviderStore 
 		}
 
 		if r.Method == http.MethodPost {
-			return appData.Redirect(w, r, nil, identityOptionPath(appData.Paths, certificateProvider.IdentityOption))
+			return appData.Redirect(w, r, nil, identityOptionPath(appData.Paths, certificateProvider.IdentityOption).Format(certificateProvider.LpaID))
 		}
 
 		data := &yourChosenIdentityOptionsData{
@@ -35,7 +35,7 @@ func YourChosenIdentityOptions(tmpl template.Template, certificateProviderStore 
 	}
 }
 
-func identityOptionPath(paths page.AppPaths, identityOption identity.Option) string {
+func identityOptionPath(paths page.AppPaths, identityOption identity.Option) interface{ Format(string) string } {
 	switch identityOption {
 	case identity.OneLogin:
 		return paths.CertificateProvider.IdentityWithOneLogin

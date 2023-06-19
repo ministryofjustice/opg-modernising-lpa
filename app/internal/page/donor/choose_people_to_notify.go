@@ -1,7 +1,6 @@
 package donor
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -21,14 +20,14 @@ type choosePeopleToNotifyData struct {
 func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, uuidString func() string) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if len(lpa.PeopleToNotify) > 4 {
-			return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotifySummary)
+			return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotifySummary.Format(lpa.ID))
 		}
 
 		addAnother := r.FormValue("addAnother") == "1"
 		personToNotify, personFound := lpa.PeopleToNotify.Get(r.URL.Query().Get("id"))
 
 		if r.Method == http.MethodGet && len(lpa.PeopleToNotify) > 0 && personFound == false && addAnother == false {
-			return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotifySummary)
+			return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotifySummary.Format(lpa.ID))
 		}
 
 		data := &choosePeopleToNotifyData{
@@ -73,13 +72,15 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, uuidStr
 					lpa.PeopleToNotify.Put(personToNotify)
 				}
 
-				lpa.Tasks.PeopleToNotify = actor.TaskInProgress
+				if !lpa.Tasks.PeopleToNotify.Completed() {
+					lpa.Tasks.PeopleToNotify = actor.TaskInProgress
+				}
 
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, fmt.Sprintf("%s?id=%s", appData.Paths.ChoosePeopleToNotifyAddress, personToNotify.ID))
+				return appData.Redirect(w, r, lpa, appData.Paths.ChoosePeopleToNotifyAddress.Format(lpa.ID)+"?id="+personToNotify.ID)
 			}
 		}
 

@@ -37,13 +37,13 @@ func TaskList(tmpl template.Template) Handler {
 
 		typeSpecificStep := taskListItem{
 			Name:  "chooseWhenTheLpaCanBeUsed",
-			Path:  page.Paths.WhenCanTheLpaBeUsed,
+			Path:  page.Paths.WhenCanTheLpaBeUsed.Format(lpa.ID),
 			State: lpa.Tasks.WhenCanTheLpaBeUsed,
 		}
 		if lpa.Type == page.LpaTypeHealthWelfare {
 			typeSpecificStep = taskListItem{
 				Name:  "lifeSustainingTreatment",
-				Path:  page.Paths.LifeSustainingTreatment,
+				Path:  page.Paths.LifeSustainingTreatment.Format(lpa.ID),
 				State: lpa.Tasks.LifeSustainingTreatment,
 			}
 		}
@@ -57,41 +57,41 @@ func TaskList(tmpl template.Template) Handler {
 					Items: []taskListItem{
 						{
 							Name:  "provideYourDetails",
-							Path:  page.Paths.YourDetails,
+							Path:  page.Paths.YourDetails.Format(lpa.ID),
 							State: lpa.Tasks.YourDetails,
 						},
 						{
 							Name:  "chooseYourAttorneys",
-							Path:  page.Paths.ChooseAttorneys,
+							Path:  page.Paths.ChooseAttorneys.Format(lpa.ID),
 							State: lpa.Tasks.ChooseAttorneys,
 							Count: len(lpa.Attorneys),
 						},
 						{
 							Name:  "chooseYourReplacementAttorneys",
-							Path:  page.Paths.DoYouWantReplacementAttorneys,
+							Path:  page.Paths.DoYouWantReplacementAttorneys.Format(lpa.ID),
 							State: lpa.Tasks.ChooseReplacementAttorneys,
 							Count: len(lpa.ReplacementAttorneys),
 						},
 						typeSpecificStep,
 						{
 							Name:  "addRestrictionsToTheLpa",
-							Path:  page.Paths.Restrictions,
+							Path:  page.Paths.Restrictions.Format(lpa.ID),
 							State: lpa.Tasks.Restrictions,
 						},
 						{
 							Name:  "chooseYourCertificateProvider",
-							Path:  page.Paths.WhoDoYouWantToBeCertificateProviderGuidance,
+							Path:  page.Paths.WhoDoYouWantToBeCertificateProviderGuidance.Format(lpa.ID),
 							State: lpa.Tasks.CertificateProvider,
 						},
 						{
 							Name:  "peopleToNotifyAboutYourLpa",
-							Path:  page.Paths.DoYouWantToNotifyPeople,
+							Path:  page.Paths.DoYouWantToNotifyPeople.Format(lpa.ID),
 							State: lpa.Tasks.PeopleToNotify,
 							Count: len(lpa.PeopleToNotify),
 						},
 						{
 							Name:  "checkAndSendToYourCertificateProvider",
-							Path:  page.Paths.CheckYourLpa,
+							Path:  page.Paths.CheckYourLpa.Format(lpa.ID),
 							State: lpa.Tasks.CheckYourLpa,
 						},
 					},
@@ -101,7 +101,7 @@ func TaskList(tmpl template.Template) Handler {
 					Items: []taskListItem{
 						{
 							Name:  "payForTheLpa",
-							Path:  page.Paths.AboutPayment,
+							Path:  page.Paths.AboutPayment.Format(lpa.ID),
 							State: lpa.Tasks.PayForLpa,
 						},
 					},
@@ -111,7 +111,7 @@ func TaskList(tmpl template.Template) Handler {
 					Items: []taskListItem{
 						{
 							Name:  "confirmYourIdentityAndSign",
-							Path:  signTaskPage,
+							Path:  signTaskPage.Format(lpa.ID),
 							State: lpa.Tasks.ConfirmYourIdentityAndSign,
 						},
 					},

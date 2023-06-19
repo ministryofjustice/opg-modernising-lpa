@@ -19,14 +19,14 @@ func TestYotiRedirect(t *testing.T) {
 			session: &sesh.YotiSession{
 				LpaID: "123",
 			},
-			redirect: "/lpa/123" + Paths.IdentityWithYotiCallback,
+			redirect: Paths.IdentityWithYotiCallback.Format("123"),
 		},
 		"donor identity welsh": {
 			session: &sesh.YotiSession{
 				Locale: "cy",
 				LpaID:  "123",
 			},
-			redirect: "/cy/lpa/123" + Paths.IdentityWithYotiCallback,
+			redirect: "/cy" + Paths.IdentityWithYotiCallback.Format("123"),
 		},
 		"certificate provider identity": {
 			session: &sesh.YotiSession{
@@ -34,7 +34,7 @@ func TestYotiRedirect(t *testing.T) {
 				LpaID:               "123",
 				CertificateProvider: true,
 			},
-			redirect: "/certificate-provider/123" + Paths.CertificateProvider.IdentityWithYotiCallback,
+			redirect: Paths.CertificateProvider.IdentityWithYotiCallback.Format("123"),
 		},
 	}
 

@@ -400,6 +400,10 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			replacementAttorneyEmail:   r.FormValue("lpa.replacementAttorneyEmail"),
 		})
 
+		if redirect != "" {
+			redirect = "/lpa/" + lpa.ID + redirect
+		}
+
 		// These contexts act on the same LPA for different actors
 		var (
 			donorCtx               = ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
@@ -441,7 +445,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				Localizer: localizer,
 			}, false, lpa)
 
-			redirect = Paths.CertificateProviderStart
+			redirect = Paths.CertificateProviderStart.Format()
 		}
 
 		if asCertificateProvider != "" {
