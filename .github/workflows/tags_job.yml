@@ -37,7 +37,7 @@ jobs:
           fi
       - name: Bump version
         id: bump_version
-        uses: anothrNick/github-tag-action@1.66.0
+        uses: anothrNick/github-tag-action@1.67.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           INITIAL_VERSION: 0.0.0
@@ -78,7 +78,7 @@ jobs:
     ]
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2.1.0
+        uses: aws-actions/configure-aws-credentials@v2.2.0
         with:
           aws-region: us-east-1
           role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ssm-get-parameter
