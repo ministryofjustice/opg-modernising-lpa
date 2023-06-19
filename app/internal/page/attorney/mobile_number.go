@@ -36,6 +36,10 @@ func MobileNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
 
 			if data.Errors.None() {
 				attorneyProvidedDetails.Mobile = data.Form.Mobile
+				if attorneyProvidedDetails.Tasks.ConfirmYourDetails == actor.TaskNotStarted {
+					attorneyProvidedDetails.Tasks.ConfirmYourDetails = actor.TaskInProgress
+				}
+
 				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
 					return err
 				}
