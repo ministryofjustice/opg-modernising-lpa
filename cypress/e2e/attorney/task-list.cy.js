@@ -1,6 +1,6 @@
 describe('Task list', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/attorney-task-list&completeLpa=1&withAttorney=1&asAttorney=1&loginAs=attorney');
+        cy.visit('/testing-start?redirect=/attorney-task-list&lpa.complete=1&attorneyProvided=1&loginAs=attorney');
     });
 
     it('shows tasks', () => {

@@ -1,6 +1,6 @@
 describe('Select your identity options', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/certificate-provider-select-your-identity-options&completeLpa=1&asCertificateProvider=1&loginAs=certificate-provider');
+        cy.visit('/testing-start?redirect=/certificate-provider-select-your-identity-options&lpa.complete=1&certificateProviderProvided=1&loginAs=certificate-provider');
     });
 
     it('can select on first page', () => {

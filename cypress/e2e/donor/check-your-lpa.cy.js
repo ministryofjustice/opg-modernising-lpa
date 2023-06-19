@@ -1,6 +1,6 @@
 describe('Check the LPA', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/check-your-lpa&withDonorDetails=1&withCPDetails=1&withAttorney=1&withReplacementAttorneys=1&whenCanBeUsedComplete=1&withRestrictions=1&withPeopleToNotify=1');
+        cy.visit('/testing-start?redirect=/check-your-lpa&lpa.yourDetails=1&lpa.certificateProvider=1&lpa.attorneys=1&lpa.replacementAttorneys=2&lpa.chooseWhenCanBeUsed=1&lpa.restrictions=1&lpa.peopleToNotify=1');
     });
 
     it("can submit the completed LPA", () => {

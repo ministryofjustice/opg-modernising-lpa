@@ -104,6 +104,7 @@ func TestGetMobileNumberWhenTemplateErrors(t *testing.T) {
 func TestPostMobileNumber(t *testing.T) {
 	testCases := map[string]struct {
 		form            url.Values
+		attorney        *actor.AttorneyProvidedDetails
 		updatedAttorney *actor.AttorneyProvidedDetails
 		appData         page.AppData
 	}{
@@ -111,27 +112,49 @@ func TestPostMobileNumber(t *testing.T) {
 			form: url.Values{
 				"mobile": {"07535111222"},
 			},
+			attorney: &actor.AttorneyProvidedDetails{},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
 				Mobile: "07535111222",
+				Tasks: actor.AttorneyTasks{
+					ConfirmYourDetails: actor.TaskInProgress,
+				},
 			},
 			appData: testAppData,
 		},
 		"attorney empty": {
-			appData:         testAppData,
-			updatedAttorney: &actor.AttorneyProvidedDetails{},
+			appData: testAppData,
+			attorney: &actor.AttorneyProvidedDetails{
+				Tasks: actor.AttorneyTasks{
+					ConfirmYourDetails: actor.TaskCompleted,
+				},
+			},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				Tasks: actor.AttorneyTasks{
+					ConfirmYourDetails: actor.TaskCompleted,
+				},
+			},
 		},
 		"replacement attorney": {
 			form: url.Values{
 				"mobile": {"07535111222"},
 			},
+			attorney: &actor.AttorneyProvidedDetails{},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
 				Mobile: "07535111222",
+				Tasks: actor.AttorneyTasks{
+					ConfirmYourDetails: actor.TaskInProgress,
+				},
 			},
 			appData: testReplacementAppData,
 		},
 		"replacement attorney empty": {
-			appData:         testReplacementAppData,
-			updatedAttorney: &actor.AttorneyProvidedDetails{},
+			appData:  testReplacementAppData,
+			attorney: &actor.AttorneyProvidedDetails{},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				Tasks: actor.AttorneyTasks{
+					ConfirmYourDetails: actor.TaskInProgress,
+				},
+			},
 		},
 	}
 
@@ -146,7 +169,7 @@ func TestPostMobileNumber(t *testing.T) {
 				On("Put", r.Context(), tc.updatedAttorney).
 				Return(nil)
 
-			err := MobileNumber(nil, attorneyStore)(tc.appData, w, r, &actor.AttorneyProvidedDetails{})
+			err := MobileNumber(nil, attorneyStore)(tc.appData, w, r, tc.attorney)
 			resp := w.Result()
 
 			assert.Nil(t, err)

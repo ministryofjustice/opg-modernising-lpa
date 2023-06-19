@@ -53,19 +53,16 @@ func CheckYourName(tmpl template.Template, donorStore DonorStore, attorneyStore 
 				previousCorrectedName := attorneyProvidedDetails.CorrectedName
 				attorneyProvidedDetails.IsNameCorrect = data.Form.IsNameCorrect
 				attorneyProvidedDetails.CorrectedName = data.Form.CorrectedName
-
-				if attorneyProvidedDetails.Tasks.ConfirmYourDetails == actor.TaskNotStarted {
-					attorneyProvidedDetails.Tasks.ConfirmYourDetails = actor.TaskInProgress
-				}
+				attorneyProvidedDetails.Tasks.ConfirmYourDetails = actor.TaskCompleted
 
 				if data.Form.CorrectedName != "" && data.Form.CorrectedName != previousCorrectedName {
 					attorneyProvidedDetails.CorrectedName = data.Form.CorrectedName
-					_, err := notifyClient.Email(r.Context(), notify.Email{
+
+					if _, err := notifyClient.Email(r.Context(), notify.Email{
 						EmailAddress:    lpa.Donor.Email,
 						TemplateID:      notifyClient.TemplateID(notify.AttorneyNameChangeEmail),
 						Personalisation: map[string]string{"declaredName": attorneyProvidedDetails.CorrectedName},
-					})
-					if err != nil {
+					}); err != nil {
 						return err
 					}
 				}
