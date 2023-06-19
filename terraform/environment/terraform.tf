@@ -14,7 +14,7 @@ terraform {
     }
     pagerduty = {
       source  = "PagerDuty/pagerduty"
-      version = "~> 2.14.0"
+      version = "~> 2.15.0"
     }
     local = {
       source = "hashicorp/local"
