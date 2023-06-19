@@ -39,7 +39,7 @@ jobs:
     needs: [docker_build_scan_push]
     with:
       run_against_image: true
-      tag: ${{ inputs.tag_to_deploy}}
+      tag: ur-${{ inputs.tag_to_deploy}}
       checkout_tag: ${{ inputs.tag_to_deploy}}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
