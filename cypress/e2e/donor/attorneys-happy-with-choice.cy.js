@@ -1,6 +1,6 @@
 describe('Attorneys happy with choice', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/choose-attorneys-summary&withAttorneys=2&cookiesAccepted=1');
+        cy.visit('/testing-start?redirect=/choose-attorneys-summary&lpa.attorneys=2&cookiesAccepted=1');
 
         cy.contains('label', 'No').click();
         cy.contains('button', 'Continue').click();
