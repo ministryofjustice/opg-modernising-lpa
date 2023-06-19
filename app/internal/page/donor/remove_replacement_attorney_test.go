@@ -59,13 +59,13 @@ func TestGetRemoveReplacementAttorneyAttorneyDoesNotExist(t *testing.T) {
 		},
 	}
 
-	err := RemoveReplacementAttorney(logger, template.Execute, nil)(testAppData, w, r, &page.Lpa{ReplacementAttorneys: actor.Attorneys{attorney}})
+	err := RemoveReplacementAttorney(logger, template.Execute, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{attorney}})
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseReplacementAttorneysSummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostRemoveReplacementAttorney(t *testing.T) {
@@ -76,14 +76,16 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 	testcases := map[string]struct {
 		lpa        *page.Lpa
 		updatedLpa *page.Lpa
-		redirect   string
+		redirect   page.LpaPath
 	}{
 		"many left": {
 			lpa: &page.Lpa{
+				ID:                           "lpa-id",
 				ReplacementAttorneys:         actor.Attorneys{attorneyWithEmail, attorneyWithAddress, attorneyWithoutAddress},
 				ReplacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
 			},
 			updatedLpa: &page.Lpa{
+				ID:                           "lpa-id",
 				ReplacementAttorneys:         actor.Attorneys{attorneyWithEmail, attorneyWithAddress},
 				ReplacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
 				Tasks:                        page.Tasks{ChooseReplacementAttorneys: actor.TaskInProgress},
@@ -92,18 +94,21 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 		},
 		"one left": {
 			lpa: &page.Lpa{
+				ID:                           "lpa-id",
 				ReplacementAttorneys:         actor.Attorneys{attorneyWithAddress, attorneyWithoutAddress},
 				ReplacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
 			},
 			updatedLpa: &page.Lpa{
+				ID:                   "lpa-id",
 				ReplacementAttorneys: actor.Attorneys{attorneyWithAddress},
 				Tasks:                page.Tasks{ChooseReplacementAttorneys: actor.TaskInProgress},
 			},
 			redirect: page.Paths.ChooseReplacementAttorneysSummary,
 		},
 		"none left": {
-			lpa: &page.Lpa{ReplacementAttorneys: actor.Attorneys{attorneyWithoutAddress}},
+			lpa: &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{attorneyWithoutAddress}},
 			updatedLpa: &page.Lpa{
+				ID:                   "lpa-id",
 				ReplacementAttorneys: actor.Attorneys{},
 			},
 			redirect: page.Paths.ChooseReplacementAttorneysSummary,
@@ -135,7 +140,7 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+tc.redirect, resp.Header.Get("Location"))
+			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -164,13 +169,13 @@ func TestPostRemoveReplacementAttorneyWithFormValueNo(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	err := RemoveReplacementAttorney(logger, template.Execute, nil)(testAppData, w, r, &page.Lpa{ReplacementAttorneys: actor.Attorneys{attorneyWithoutAddress, attorneyWithAddress}})
+	err := RemoveReplacementAttorney(logger, template.Execute, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{attorneyWithoutAddress, attorneyWithAddress}})
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseReplacementAttorneysSummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {

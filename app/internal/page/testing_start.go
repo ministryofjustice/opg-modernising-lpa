@@ -411,10 +411,19 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		switch r.FormValue("loginAs") {
 		case "attorney":
 			_ = sesh.SetLoginSession(store, r, w, &sesh.LoginSession{Sub: attorneySub, Email: testEmail})
+			if redirect != "" {
+				redirect = "/attorney/" + lpa.ID + redirect
+			}
 		case "certificate-provider":
 			_ = sesh.SetLoginSession(store, r, w, &sesh.LoginSession{Sub: certificateProviderSub, Email: testEmail})
+			if redirect != "" {
+				redirect = "/certificate-provider/" + lpa.ID + redirect
+			}
 		default:
 			_ = sesh.SetLoginSession(store, r, w, &sesh.LoginSession{Sub: donorSub, Email: testEmail})
+			if redirect != "" {
+				redirect = "/lpa/" + lpa.ID + redirect
+			}
 		}
 
 		if cookiesAccepted {
@@ -441,7 +450,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				Localizer: localizer,
 			}, false, lpa)
 
-			redirect = Paths.CertificateProviderStart
+			redirect = Paths.CertificateProviderStart.Format()
 		}
 
 		if asCertificateProvider != "" {
@@ -520,7 +529,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		}
 
 		if asReplacementAttorney {
-			_, err := attorneyStore.Create(donorCtx, donorSessionID, lpa.ReplacementAttorneys[0].ID, true)
+			_, err := attorneyStore.Create(attorneyCtx, attorneySessionID, lpa.ReplacementAttorneys[0].ID, true)
 			if err != nil {
 				logger.Print("asReplacementAttorney:", err)
 			}

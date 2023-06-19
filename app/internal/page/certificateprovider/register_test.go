@@ -29,60 +29,18 @@ func TestMakeHandle(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
-
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, nil)
-	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle := makeHandle(mux, nil, nil)
+	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/path",
-			SessionID: "cmFuZG9t",
-			CanGoBack: false,
 			ActorType: actor.TypeCertificateProvider,
 		}, appData)
 		assert.Equal(t, w, hw)
 
 		sessionData, _ := page.SessionDataFromContext(hr.Context())
 
-		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t"}, sessionData)
-		hw.WriteHeader(http.StatusTeapot)
-		return nil
-	})
-
-	mux.ServeHTTP(w, r)
-	resp := w.Result()
-
-	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
-}
-
-func TestMakeHandleExistingSessionData(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "ignored-session-id"})
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
-
-	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, nil)
-	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, page.AppData{
-			Page:      "/path",
-			SessionID: "cmFuZG9t",
-			CanGoBack: true,
-			LpaID:     "123",
-			ActorType: actor.TypeCertificateProvider,
-		}, appData)
-		assert.Equal(t, w, hw)
-
-		sessionData, _ := page.SessionDataFromContext(hr.Context())
-
-		assert.Equal(t, &page.SessionData{LpaID: "123", SessionID: "cmFuZG9t"}, sessionData)
+		assert.Nil(t, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -103,14 +61,48 @@ func TestMakeHandleErrors(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, errorHandler.Execute)
-	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
 
 	mux.ServeHTTP(w, r)
 }
 
-func TestMakeHandleSessionError(t *testing.T) {
+func TestMakeCertificateProviderHandle(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "ignored-session-id"})
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+
+	mux := http.NewServeMux()
+	handle := makeCertificateProviderHandle(mux, sessionStore, nil)
+	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+		assert.Equal(t, page.AppData{
+			Page:      "/certificate-provider/123/path",
+			SessionID: "cmFuZG9t",
+			LpaID:     "123",
+			ActorType: actor.TypeCertificateProvider,
+		}, appData)
+		assert.Equal(t, w, hw)
+
+		sessionData, _ := page.SessionDataFromContext(hr.Context())
+
+		assert.Equal(t, &page.SessionData{LpaID: "123", SessionID: "cmFuZG9t"}, sessionData)
+		hw.WriteHeader(http.StatusTeapot)
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+}
+
+func TestMakeCertificateProviderHandleSessionError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
@@ -120,17 +112,17 @@ func TestMakeHandleSessionError(t *testing.T) {
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, nil)
-	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+	handle := makeCertificateProviderHandle(mux, sessionStore, nil)
+	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderStart, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProviderStart.Format(), resp.Header.Get("Location"))
 }
 
-func TestMakeHandleSessionMissing(t *testing.T) {
+func TestMakeCertificateProviderHandleSessionMissing(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
@@ -140,35 +132,12 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, nil)
-	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+	handle := makeCertificateProviderHandle(mux, sessionStore, nil)
+	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderStart, resp.Header.Get("Location"))
-}
-
-func TestMakeHandleNoSessionRequired(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
-
-	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, nil)
-	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, page.AppData{
-			Page:      "/path",
-			ActorType: actor.TypeCertificateProvider,
-		}, appData)
-		assert.Equal(t, w, hw)
-		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{Page: "/path", ActorType: actor.TypeCertificateProvider})), hr)
-		hw.WriteHeader(http.StatusTeapot)
-		return nil
-	})
-
-	mux.ServeHTTP(w, r)
-	resp := w.Result()
-
-	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+	assert.Equal(t, page.Paths.CertificateProviderStart.Format(), resp.Header.Get("Location"))
 }

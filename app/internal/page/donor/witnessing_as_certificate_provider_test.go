@@ -117,6 +117,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
+					ID:                     "lpa-id",
 					DonorIdentityUserData:  identity.UserData{OK: true, Provider: identity.OneLogin},
 					WitnessCodes:           page.WitnessCodes{{Code: "1234", Created: now}},
 					CPWitnessCodeValidated: true,
@@ -135,6 +136,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 				Return(tc.certificateProvider, tc.err)
 
 			err := WitnessingAsCertificateProvider(nil, donorStore, nil, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r, &page.Lpa{
+				ID:                    "lpa-id",
 				DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
 				WitnessCodes:          page.WitnessCodes{{Code: "1234", Created: now}},
 			})
@@ -142,7 +144,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+page.Paths.YouHaveSubmittedYourLpa, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.YouHaveSubmittedYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -158,6 +160,7 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 	now := time.Now()
 
 	lpa := &page.Lpa{
+		ID:                     "lpa-id",
 		DonorIdentityUserData:  identity.UserData{OK: true, Provider: identity.OneLogin},
 		CertificateProvider:    actor.CertificateProvider{Email: "name@example.com"},
 		WitnessCodes:           page.WitnessCodes{{Code: "1234", Created: now}},
@@ -185,6 +188,7 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 		Return(nil)
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r, &page.Lpa{
+		ID:                    "lpa-id",
 		DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
 		CertificateProvider:   actor.CertificateProvider{Email: "name@example.com"},
 		WitnessCodes:          page.WitnessCodes{{Code: "1234", Created: now}},
@@ -193,7 +197,7 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.YouHaveSubmittedYourLpa, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.YouHaveSubmittedYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostWitnessingAsCertificateProviderWhenShareCodeSendErrors(t *testing.T) {

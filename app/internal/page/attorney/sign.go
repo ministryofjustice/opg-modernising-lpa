@@ -46,7 +46,7 @@ func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStor
 		}
 
 		if ok, _ := canSign(r.Context(), certificateProviderStore, lpa); !ok {
-			return appData.Redirect(w, r, lpa, page.Paths.Attorney.TaskList)
+			return appData.Redirect(w, r, lpa, page.Paths.Attorney.TaskList.Format(attorneyProvidedDetails.LpaID))
 		}
 
 		attorneys := lpa.Attorneys
@@ -56,7 +56,7 @@ func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStor
 
 		attorney, ok := attorneys.Get(appData.AttorneyID)
 		if !ok {
-			return appData.Redirect(w, r, lpa, page.Paths.Attorney.Start)
+			return appData.Redirect(w, r, lpa, page.Paths.Attorney.Start.Format())
 		}
 
 		data := &signData{
@@ -81,7 +81,7 @@ func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStor
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.Attorney.WhatHappensNext)
+				return appData.Redirect(w, r, lpa, page.Paths.Attorney.WhatHappensNext.Format(attorneyProvidedDetails.LpaID))
 			}
 		}
 

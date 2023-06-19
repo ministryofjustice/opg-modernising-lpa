@@ -1,7 +1,8 @@
 describe('Dashboard', () => {
     context('with incomplete LPA', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?redirect=/dashboard&lpa.yourDetails=1');
+            cy.visit('/testing-start?lpa.yourDetails=1');
+            cy.visit('/dashboard');
         });
 
         it('shows my lasting power of attorney', () => {
@@ -36,7 +37,8 @@ describe('Dashboard', () => {
 
     context('with completed LPA', () => {
         it('completed LPAs have a track progress button', () => {
-            cy.visit('/testing-start?redirect=/dashboard&lpa.complete=1')
+            cy.visit('/testing-start?lpa.complete=1')
+            cy.visit('/dashboard');
 
             cy.get('button').should('not.contain', 'Continue');
 
@@ -49,8 +51,9 @@ describe('Dashboard', () => {
     });
 
     context('with various roles', () => {
-        it.only('shows all of my LPAs', () => {
-            cy.visit('/testing-start?redirect=/dashboard&lpa.complete=1&attorneyProvided=1&certificateProviderProvided=1&fresh=1')
+        it('shows all of my LPAs', () => {
+            cy.visit('/testing-start?lpa.complete=1&attorneyProvided=1&certificateProviderProvided=1&fresh=1')
+            cy.visit('/dashboard');
 
             cy.contains('My LPAs');
             cy.contains('I’m an attorney');

@@ -54,7 +54,7 @@ func SignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
 			}
 
 			if data.Errors.None() {
-				return appData.Redirect(w, r, lpa, page.Paths.WitnessingYourSignature)
+				return appData.Redirect(w, r, lpa, page.Paths.WitnessingYourSignature.Format(lpa.ID))
 			}
 		}
 
