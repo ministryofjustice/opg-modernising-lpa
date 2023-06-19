@@ -21,7 +21,7 @@ func TestGetIdentityWithYoti(t *testing.T) {
 	session := sessions.NewSession(sessionStore, "yoti")
 	session.Options = &sessions.Options{
 		Path:     "/",
-		MaxAge:   600,
+		MaxAge:   3600,
 		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 		Secure:   true,
