@@ -69,7 +69,7 @@ jobs:
     with:
       run_against_image: false
       base_url: "https://${{ needs.ur_deploy.outputs.url }}"
-      tag: ${{ inputs.tag_to_deploy}}
+      tag: ur-${{ inputs.tag_to_deploy}}
       checkout_tag: ${{ inputs.tag_to_deploy}}
       environment_config_json: ${{ needs.ur_deploy.outputs.environment_config_json }}
     secrets:
