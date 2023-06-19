@@ -34,14 +34,14 @@ func TestIdentityWithOneLogin(t *testing.T) {
 		Secure:   true,
 	}
 	session.Values = map[any]any{
-		"one-login": &sesh.OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "cy", Redirect: page.Paths.CertificateProvider.IdentityWithOneLoginCallback},
+		"one-login": &sesh.OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "cy", Redirect: page.Paths.CertificateProvider.IdentityWithOneLoginCallback.Format("lpa-id")},
 	}
 
 	sessionStore.
 		On("Save", r, w, session).
 		Return(nil)
 
-	err := IdentityWithOneLogin(nil, client, sessionStore, func(int) string { return "i am random" })(page.AppData{Lang: localize.Cy}, w, r)
+	err := IdentityWithOneLogin(nil, client, sessionStore, func(int) string { return "i am random" })(page.AppData{LpaID: "lpa-id", Lang: localize.Cy}, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

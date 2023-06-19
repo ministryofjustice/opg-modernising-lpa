@@ -233,7 +233,7 @@ func Register(
 	handleWithLpa(page.Paths.WhatYoullNeedToConfirmYourIdentity, None,
 		Guidance(tmpls.Get("what_youll_need_to_confirm_your_identity.gohtml")))
 
-	for path, page := range map[string]int{
+	for path, page := range map[page.LpaPath]int{
 		page.Paths.SelectYourIdentityOptions:  0,
 		page.Paths.SelectYourIdentityOptions1: 1,
 		page.Paths.SelectYourIdentityOptions2: 2,
@@ -253,7 +253,7 @@ func Register(
 	handleWithLpa(page.Paths.IdentityWithOneLoginCallback, CanGoBack,
 		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, donorStore))
 
-	for path, identityOption := range map[string]identity.Option{
+	for path, identityOption := range map[page.LpaPath]identity.Option{
 		page.Paths.IdentityWithPassport:                 identity.Passport,
 		page.Paths.IdentityWithBiometricResidencePermit: identity.BiometricResidencePermit,
 		page.Paths.IdentityWithDrivingLicencePaper:      identity.DrivingLicencePaper,
@@ -266,7 +266,7 @@ func Register(
 
 	handleWithLpa(page.Paths.ReadYourLpa, None,
 		Guidance(tmpls.Get("read_your_lpa.gohtml")))
-	handleWithLpa(page.Paths.YourLegalRightsAndResponsibilities, CanGoBack,
+	handleWithLpa(page.Paths.LpaYourLegalRightsAndResponsibilities, CanGoBack,
 		Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml")))
 	handleWithLpa(page.Paths.SignYourLpa, CanGoBack,
 		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), donorStore))
@@ -291,22 +291,22 @@ const (
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, errorHandler page.ErrorHandler) func(string, handleOpt, page.Handler) {
-	return func(path string, opt handleOpt, h page.Handler) {
+func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, errorHandler page.ErrorHandler) func(page.Path, handleOpt, page.Handler) {
+	return func(path page.Path, opt handleOpt, h page.Handler) {
 		opt = opt | defaultOptions
 
-		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
-			appData.Page = path
+			appData.Page = path.String()
 			appData.CanGoBack = opt&CanGoBack != 0
 			appData.ActorType = actor.TypeDonor
 
 			if opt&RequireSession != 0 {
 				donorSession, err := sesh.Login(store, r)
 				if err != nil {
-					http.Redirect(w, r, page.Paths.Start, http.StatusFound)
+					http.Redirect(w, r, page.Paths.Start.Format(), http.StatusFound)
 					return
 				}
 
@@ -331,21 +331,21 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, 
 	}
 }
 
-func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, errorHandler page.ErrorHandler, donorStore DonorStore, uidClient UidClient, logger Logger) func(string, handleOpt, Handler) {
-	return func(path string, opt handleOpt, h Handler) {
+func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, errorHandler page.ErrorHandler, donorStore DonorStore, uidClient UidClient, logger Logger) func(page.LpaPath, handleOpt, Handler) {
+	return func(path page.LpaPath, opt handleOpt, h Handler) {
 		opt = opt | defaultOptions
 
-		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
-			appData.Page = path
+			appData.Page = path.String()
 			appData.CanGoBack = opt&CanGoBack != 0
 			appData.ActorType = actor.TypeDonor
 
 			donorSession, err := sesh.Login(store, r)
 			if err != nil {
-				http.Redirect(w, r, page.Paths.Start, http.StatusFound)
+				http.Redirect(w, r, page.Paths.Start.Format(), http.StatusFound)
 				return
 			}
 

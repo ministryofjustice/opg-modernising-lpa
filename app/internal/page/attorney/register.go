@@ -134,19 +134,19 @@ const (
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(string, handleOpt, page.Handler) {
-	return func(path string, opt handleOpt, h page.Handler) {
-		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(page.Path, handleOpt, page.Handler) {
+	return func(path page.Path, opt handleOpt, h page.Handler) {
+		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
-			appData.Page = path
+			appData.Page = path.String()
 			appData.CanGoBack = opt&CanGoBack != 0
 
 			if opt&RequireSession != 0 {
 				session, err := sesh.Login(store, r)
 				if err != nil {
-					http.Redirect(w, r, page.Paths.Attorney.Start, http.StatusFound)
+					http.Redirect(w, r, page.Paths.Attorney.Start.Format(), http.StatusFound)
 					return
 				}
 
@@ -161,18 +161,18 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 	}
 }
 
-func makeAttorneyHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, attorneyStore AttorneyStore) func(string, handleOpt, Handler) {
-	return func(path string, opt handleOpt, h Handler) {
-		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+func makeAttorneyHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, attorneyStore AttorneyStore) func(page.AttorneyPath, handleOpt, Handler) {
+	return func(path page.AttorneyPath, opt handleOpt, h Handler) {
+		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
-			appData.Page = path
+			appData.Page = path.String()
 			appData.CanGoBack = opt&CanGoBack != 0
 
 			session, err := sesh.Login(store, r)
 			if err != nil {
-				http.Redirect(w, r, page.Paths.Attorney.Start, http.StatusFound)
+				http.Redirect(w, r, page.Paths.Attorney.Start.Format(), http.StatusFound)
 				return
 			}
 

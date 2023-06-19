@@ -137,7 +137,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Start, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Start.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeHandleSessionMissing(t *testing.T) {
@@ -157,7 +157,7 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Start, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Start.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeHandleNoSessionRequired(t *testing.T) {
@@ -251,7 +251,7 @@ func TestMakeLpaHandleWhenSessionStoreError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Start, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Start.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeLpaHandleWhenLpaStoreError(t *testing.T) {

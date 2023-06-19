@@ -3,6 +3,7 @@ package certificateprovider
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -112,7 +113,7 @@ func Register(
 	handleCertificateProvider(page.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity, RequireSession,
 		Guidance(tmpls.Get("certificate_provider_what_youll_need_to_confirm_your_identity.gohtml"), donorStore, nil))
 
-	for path, page := range map[string]int{
+	for path, page := range map[page.CertificateProviderPath]int{
 		page.Paths.CertificateProvider.SelectYourIdentityOptions:  0,
 		page.Paths.CertificateProvider.SelectYourIdentityOptions1: 1,
 		page.Paths.CertificateProvider.SelectYourIdentityOptions2: 2,
@@ -132,7 +133,7 @@ func Register(
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLoginCallback, RequireSession,
 		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, certificateProviderStore))
 
-	for path, identityOption := range map[string]identity.Option{
+	for path, identityOption := range map[page.CertificateProviderPath]identity.Option{
 		page.Paths.CertificateProvider.IdentityWithPassport:                 identity.Passport,
 		page.Paths.CertificateProvider.IdentityWithBiometricResidencePermit: identity.BiometricResidencePermit,
 		page.Paths.CertificateProvider.IdentityWithDrivingLicencePaper:      identity.DrivingLicencePaper,
@@ -161,20 +162,20 @@ const (
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(string, handleOpt, page.Handler) {
-	return func(path string, opt handleOpt, h page.Handler) {
-		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(fmt.Stringer, handleOpt, page.Handler) {
+	return func(path fmt.Stringer, opt handleOpt, h page.Handler) {
+		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
-			appData.Page = path
+			appData.Page = path.String()
 			appData.CanGoBack = opt&CanGoBack != 0
 			appData.ActorType = actor.TypeCertificateProvider
 
 			if opt&RequireSession != 0 {
 				session, err := sesh.Login(store, r)
 				if err != nil {
-					http.Redirect(w, r, page.Paths.CertificateProviderStart, http.StatusFound)
+					http.Redirect(w, r, page.Paths.CertificateProviderStart.Format(), http.StatusFound)
 					return
 				}
 

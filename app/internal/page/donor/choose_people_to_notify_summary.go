@@ -1,7 +1,6 @@
 package donor
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -19,7 +18,7 @@ type choosePeopleToNotifySummaryData struct {
 func ChoosePeopleToNotifySummary(tmpl template.Template) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if len(lpa.PeopleToNotify) == 0 {
-			return appData.Redirect(w, r, lpa, page.Paths.DoYouWantToNotifyPeople)
+			return appData.Redirect(w, r, lpa, page.Paths.DoYouWantToNotifyPeople.Format(lpa.ID))
 		}
 
 		data := &choosePeopleToNotifySummaryData{
@@ -33,10 +32,10 @@ func ChoosePeopleToNotifySummary(tmpl template.Template) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				redirectUrl := fmt.Sprintf("%s?addAnother=1", appData.Paths.ChoosePeopleToNotify)
+				redirectUrl := appData.Paths.ChoosePeopleToNotify.Format(lpa.ID) + "?addAnother=1"
 
 				if data.Form.AddPersonToNotify == "no" {
-					redirectUrl = appData.Paths.TaskList
+					redirectUrl = appData.Paths.TaskList.Format(lpa.ID)
 				}
 
 				return appData.Redirect(w, r, lpa, redirectUrl)

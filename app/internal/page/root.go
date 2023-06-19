@@ -16,7 +16,7 @@ type rootData struct {
 func Root(tmpl template.Template, logger Logger) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		if r.URL.Path == "/" {
-			http.Redirect(w, r, Paths.Start, http.StatusFound)
+			http.Redirect(w, r, Paths.Start.Format(), http.StatusFound)
 			return nil
 		}
 
