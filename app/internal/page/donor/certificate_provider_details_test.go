@@ -131,6 +131,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
+					ID: "lpa-id",
 					Donor: actor.Donor{
 						FirstNames: "Jane",
 						LastName:   "Doe",
@@ -140,6 +141,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				Return(nil)
 
 			err := CertificateProviderDetails(nil, donorStore)(testAppData, w, r, &page.Lpa{
+				ID: "lpa-id",
 				Donor: actor.Donor{
 					FirstNames: "Jane",
 					LastName:   "Doe",
@@ -149,7 +151,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

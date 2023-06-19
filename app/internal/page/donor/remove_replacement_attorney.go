@@ -23,7 +23,7 @@ func RemoveReplacementAttorney(logger Logger, tmpl template.Template, donorStore
 		attorney, found := lpa.ReplacementAttorneys.Get(id)
 
 		if found == false {
-			return appData.Redirect(w, r, lpa, page.Paths.ChooseReplacementAttorneysSummary)
+			return appData.Redirect(w, r, lpa, page.Paths.ChooseReplacementAttorneysSummary.Format(lpa.ID))
 		}
 
 		data := &removeReplacementAttorneyData{
@@ -51,7 +51,7 @@ func RemoveReplacementAttorney(logger Logger, tmpl template.Template, donorStore
 					}
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.ChooseReplacementAttorneysSummary)
+				return appData.Redirect(w, r, lpa, page.Paths.ChooseReplacementAttorneysSummary.Format(lpa.ID))
 			}
 		}
 

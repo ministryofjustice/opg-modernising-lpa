@@ -54,8 +54,7 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 					return err
 				}
 
-				appData.Redirect(w, r, nil, page.Paths.CertificateProvider.WhoIsEligible)
-				return nil
+				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.WhoIsEligible.Format())
 			}
 		}
 

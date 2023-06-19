@@ -34,14 +34,14 @@ func TestIdentityWithOneLogin(t *testing.T) {
 		Secure:   true,
 	}
 	session.Values = map[any]any{
-		"one-login": &sesh.OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "cy", Redirect: page.Paths.IdentityWithOneLoginCallback, LpaID: "123"},
+		"one-login": &sesh.OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "cy", Redirect: page.Paths.IdentityWithOneLoginCallback.Format("lpa-id"), LpaID: "lpa-id"},
 	}
 
 	sessionStore.
 		On("Save", r, w, session).
 		Return(nil)
 
-	err := IdentityWithOneLogin(nil, client, sessionStore, func(int) string { return "i am random" })(page.AppData{Lang: localize.Cy, LpaID: "123"}, w, r)
+	err := IdentityWithOneLogin(nil, client, sessionStore, func(int) string { return "i am random" })(page.AppData{Lang: localize.Cy}, w, r, &page.Lpa{ID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -67,7 +67,7 @@ func TestIdentityWithOneLoginWhenStoreSaveError(t *testing.T) {
 		On("Save", r, w, mock.Anything).
 		Return(expectedError)
 
-	err := IdentityWithOneLogin(logger, client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r)
+	err := IdentityWithOneLogin(logger, client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -78,15 +78,15 @@ func TestPostWhoIsTheLpaFor(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{WhoFor: "me"}).
+		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", WhoFor: "me"}).
 		Return(nil)
 
-	err := WhoIsTheLpaFor(nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := WhoIsTheLpaFor(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.LpaType, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.LpaType.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostWhoIsTheLpaForWhenStoreErrors(t *testing.T) {

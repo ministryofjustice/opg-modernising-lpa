@@ -212,6 +212,7 @@ func TestPostIdentityWithYotiCallback(t *testing.T) {
 	certificateProviderStore.
 		On("Get", r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{
+			LpaID:            "lpa-id",
 			IdentityUserData: identity.UserData{OK: true, Provider: identity.EasyID},
 		}, nil)
 
@@ -220,7 +221,7 @@ func TestPostIdentityWithYotiCallback(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.ReadTheLpa, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProvider.ReadTheLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostIdentityWithYotiCallbackNotConfirmed(t *testing.T) {
@@ -230,12 +231,12 @@ func TestPostIdentityWithYotiCallbackNotConfirmed(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	err := IdentityWithYotiCallback(nil, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.SelectYourIdentityOptions1, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProvider.SelectYourIdentityOptions1.Format("lpa-id"), resp.Header.Get("Location"))
 }

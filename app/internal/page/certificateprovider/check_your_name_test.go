@@ -146,10 +146,10 @@ func TestPostEnterYourName(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	certificateProviderStore.
-		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{FirstNames: "Bob", LastName: "Smith"}).
+		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", FirstNames: "Bob", LastName: "Smith"}).
 		Return(nil)
 
 	err := CheckYourName(nil, donorStore, nil, certificateProviderStore)(testAppData, w, r)
@@ -157,7 +157,7 @@ func TestPostEnterYourName(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.EnterDateOfBirth, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProvider.EnterDateOfBirth.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostEnterYourNameIsCorrectOnStoreError(t *testing.T) {
@@ -217,9 +217,9 @@ func TestPostEnterYourNameWithCorrectedName(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 	certificateProviderStore.
-		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{DeclaredFullName: "Bobby Smith"}).
+		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", DeclaredFullName: "Bobby Smith"}).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -239,7 +239,7 @@ func TestPostEnterYourNameWithCorrectedName(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.EnterDateOfBirth, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProvider.EnterDateOfBirth.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostEnterYourNameWithCorrectedNameWhenStoreError(t *testing.T) {

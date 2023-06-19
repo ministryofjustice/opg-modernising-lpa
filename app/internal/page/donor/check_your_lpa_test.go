@@ -73,6 +73,7 @@ func TestPostCheckYourLpa(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpa := &page.Lpa{
+		ID:           "lpa-id",
 		Checked:      false,
 		HappyToShare: false,
 		Tasks:        page.Tasks{CheckYourLpa: actor.TaskInProgress},
@@ -81,6 +82,7 @@ func TestPostCheckYourLpa(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID:           "lpa-id",
 			Checked:      true,
 			HappyToShare: true,
 			Tasks:        page.Tasks{CheckYourLpa: actor.TaskCompleted},
@@ -92,7 +94,7 @@ func TestPostCheckYourLpa(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.TaskList, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {

@@ -35,7 +35,7 @@ func AreYouHappyIfRemainingAttorneysCanContinueToAct(tmpl template.Template, don
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.TaskList)
+				return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
 			}
 		}
 

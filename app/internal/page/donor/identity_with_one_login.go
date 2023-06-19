@@ -8,8 +8,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
 )
 
-func IdentityWithOneLogin(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, randomString func(int) string) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+func IdentityWithOneLogin(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, randomString func(int) string) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		locale := ""
 		if appData.Lang == localize.Cy {
 			locale = "cy"
@@ -24,8 +24,8 @@ func IdentityWithOneLogin(logger Logger, oneLoginClient OneLoginClient, store se
 			State:    state,
 			Nonce:    nonce,
 			Locale:   locale,
-			LpaID:    appData.LpaID,
-			Redirect: page.Paths.IdentityWithOneLoginCallback,
+			LpaID:    lpa.ID,
+			Redirect: page.Paths.IdentityWithOneLoginCallback.Format(lpa.ID),
 		}); err != nil {
 			logger.Print(err)
 			return nil
