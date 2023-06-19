@@ -78,12 +78,12 @@ func TestPostYourChosenIdentityOptions(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{IdentityOption: identity.Passport}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", IdentityOption: identity.Passport}, nil)
 
 	err := YourChosenIdentityOptions(nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.IdentityWithPassport, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProvider.IdentityWithPassport.Format("lpa-id"), resp.Header.Get("Location"))
 }

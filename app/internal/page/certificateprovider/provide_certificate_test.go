@@ -57,14 +57,14 @@ func TestGetProvideCertificateRedirectsToStartOnLpaNotSubmitted(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	err := ProvideCertificate(nil, donorStore, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderStart, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProviderStart.Format(), resp.Header.Get("Location"))
 }
 
 func TestGetProvideCertificateWhenDonorStoreErrors(t *testing.T) {
@@ -123,9 +123,10 @@ func TestPostProvideCertificate(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 	certificateProviderStore.
 		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{
+			LpaID: "lpa-id",
 			Certificate: actor.Certificate{
 				AgreeToStatement: true,
 				Agreed:           now,
@@ -138,7 +139,7 @@ func TestPostProvideCertificate(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.CertificateProvided, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProvider.CertificateProvided.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostProvideCertificateOnStoreError(t *testing.T) {

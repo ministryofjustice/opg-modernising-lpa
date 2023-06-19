@@ -30,7 +30,7 @@ func Login(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, rando
 			State:     state,
 			Nonce:     nonce,
 			Locale:    locale,
-			Redirect:  page.Paths.CertificateProvider.LoginCallback,
+			Redirect:  page.Paths.CertificateProvider.LoginCallback.Format(),
 			LpaID:     sc.LpaID,
 			SessionID: sc.SessionID,
 		}); err != nil {

@@ -41,9 +41,9 @@ func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, donorSto
 				}
 
 				if lpa.ReplacementAttorneyDecisions.RequiresHappiness(len(lpa.ReplacementAttorneys)) {
-					return appData.Redirect(w, r, lpa, page.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan)
+					return appData.Redirect(w, r, lpa, page.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan.Format(lpa.ID))
 				} else {
-					return appData.Redirect(w, r, lpa, page.Paths.TaskList)
+					return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
 				}
 			}
 		}

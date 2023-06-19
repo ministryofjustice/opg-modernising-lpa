@@ -2,9 +2,9 @@
     {{range $i, $p := .Lpa.PeopleToNotify}}
         {{ $personNumber := inc $i }}
 
-        {{ $detailsLink := printf "%s?from=%s&id=%s" $.App.Paths.ChoosePeopleToNotify $.App.Page .ID }}
-        {{ $addressLink := printf "%s?from=%s&id=%s" $.App.Paths.ChoosePeopleToNotifyAddress $.App.Page .ID }}
-        {{ $removeLink := printf "%s?from=%s&id=%s" $.App.Paths.RemovePersonToNotify $.App.Page .ID }}
+        {{ $detailsLink := printf "%s?from=%s&id=%s" ($.App.Paths.ChoosePeopleToNotify.Format $.App.LpaID) $.App.Page .ID }}
+        {{ $addressLink := printf "%s?from=%s&id=%s" ($.App.Paths.ChoosePeopleToNotifyAddress.Format $.App.LpaID) $.App.Page .ID }}
+        {{ $removeLink := printf "%s?from=%s&id=%s" ($.App.Paths.RemovePersonToNotify.Format $.App.LpaID) $.App.Page .ID }}
 
         {{ if $.WithHeaders}}
             <h2 class="govuk-heading-m">Person {{ $personNumber }}</h2>

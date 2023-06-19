@@ -142,20 +142,6 @@ func TestInc(t *testing.T) {
 func TestLink(t *testing.T) {
 	assert.Equal(t, "/dashboard", link(page.AppData{}, "/dashboard"))
 	assert.Equal(t, "/cy/dashboard", link(page.AppData{Lang: localize.Cy}, "/dashboard"))
-	assert.Equal(t, "/lpa/123/somewhere", link(page.AppData{LpaID: "123"}, "/somewhere"))
-	assert.Equal(t, "/cy/lpa/123/somewhere", link(page.AppData{Lang: localize.Cy, LpaID: "123"}, "/somewhere"))
-}
-
-func TestLinkWithID(t *testing.T) {
-	assert.Equal(t, "/lpa/123/task-list", linkWithID(page.AppData{}, "/task-list", "123"))
-	assert.Equal(t, "/cy/lpa/123/task-list", linkWithID(page.AppData{Lang: localize.Cy}, "/task-list", "123"))
-}
-
-func TestLinkLang(t *testing.T) {
-	assert.Equal(t, "/dashboard", linkLang(page.AppData{}, "/dashboard"))
-	assert.Equal(t, "/cy/dashboard", linkLang(page.AppData{Lang: localize.Cy}, "/dashboard"))
-	assert.Equal(t, "/somewhere", linkLang(page.AppData{LpaID: "123"}, "/somewhere"))
-	assert.Equal(t, "/cy/somewhere", linkLang(page.AppData{Lang: localize.Cy, LpaID: "123"}, "/somewhere"))
 }
 
 func TestContains(t *testing.T) {
@@ -275,7 +261,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 
 	app := page.AppData{SessionID: "abc", Page: "/here"}
 	withHeaders := true
-	lpa := &page.Lpa{}
+	lpa := &page.Lpa{ID: "lpa-id"}
 	attorneyType := "attorney"
 
 	want := map[string]interface{}{
@@ -284,9 +270,9 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 		"WithHeaders":  withHeaders,
 		"Lpa":          lpa,
 		"AttorneyType": attorneyType,
-		"DetailsPath":  app.Paths.ChooseAttorneys + "?from=/here",
-		"AddressPath":  app.Paths.ChooseAttorneysAddress + "?from=/here",
-		"RemovePath":   app.Paths.RemoveAttorney + "?from=/here",
+		"DetailsPath":  app.Paths.ChooseAttorneys.Format("lpa-id") + "?from=/here",
+		"AddressPath":  app.Paths.ChooseAttorneysAddress.Format("lpa-id") + "?from=/here",
+		"RemovePath":   app.Paths.RemoveAttorney.Format("lpa-id") + "?from=/here",
 	}
 
 	got := listAttorneys(attorneys, app, attorneyType, withHeaders, lpa)
@@ -302,7 +288,7 @@ func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 
 	app := page.AppData{SessionID: "abc", Page: "/here"}
 	withHeaders := true
-	lpa := &page.Lpa{}
+	lpa := &page.Lpa{ID: "lpa-id"}
 	attorneyType := "replacement"
 
 	want := map[string]interface{}{
@@ -311,9 +297,9 @@ func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 		"WithHeaders":  withHeaders,
 		"Lpa":          lpa,
 		"AttorneyType": attorneyType,
-		"DetailsPath":  app.Paths.ChooseReplacementAttorneys + "?from=/here",
-		"AddressPath":  app.Paths.ChooseReplacementAttorneysAddress + "?from=/here",
-		"RemovePath":   app.Paths.RemoveReplacementAttorney + "?from=/here",
+		"DetailsPath":  app.Paths.ChooseReplacementAttorneys.Format("lpa-id") + "?from=/here",
+		"AddressPath":  app.Paths.ChooseReplacementAttorneysAddress.Format("lpa-id") + "?from=/here",
+		"RemovePath":   app.Paths.RemoveReplacementAttorney.Format("lpa-id") + "?from=/here",
 	}
 
 	got := listAttorneys(attorneys, app, attorneyType, withHeaders, lpa)
