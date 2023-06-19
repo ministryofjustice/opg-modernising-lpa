@@ -23,7 +23,7 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore Dono
 		person, found := lpa.PeopleToNotify.Get(id)
 
 		if found == false {
-			return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotifySummary)
+			return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotifySummary.Format(lpa.ID))
 		}
 
 		data := &removePersonToNotifyData{
@@ -49,7 +49,7 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore Dono
 					}
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotifySummary)
+				return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotifySummary.Format(lpa.ID))
 			}
 		}
 

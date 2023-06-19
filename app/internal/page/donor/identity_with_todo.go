@@ -19,7 +19,7 @@ type identityWithTodoData struct {
 func IdentityWithTodo(tmpl template.Template, donorStore DonorStore, now func() time.Time, identityOption identity.Option) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if r.Method == http.MethodPost {
-			return appData.Redirect(w, r, lpa, page.Paths.ReadYourLpa)
+			return appData.Redirect(w, r, lpa, page.Paths.ReadYourLpa.Format(lpa.ID))
 		}
 
 		lpa.DonorIdentityUserData = identity.UserData{

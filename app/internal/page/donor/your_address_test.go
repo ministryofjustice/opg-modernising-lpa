@@ -121,18 +121,21 @@ func TestPostYourAddressManual(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID: "lpa-id",
 			Donor: actor.Donor{
 				Address: testAddress,
 			},
 		}).
 		Return(nil)
 
-	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.WhoIsTheLpaFor, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.WhoIsTheLpaFor.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
@@ -180,6 +183,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID: "lpa-id",
 			Donor: actor.Donor{
 				FirstNames: "John",
 				Address:    testAddress,
@@ -189,6 +193,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 		Return(nil)
 
 	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
 		Donor: actor.Donor{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
@@ -199,7 +204,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.WhoIsTheLpaFor, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.WhoIsTheLpaFor.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostYourAddressManualWhenValidationError(t *testing.T) {

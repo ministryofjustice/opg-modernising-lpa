@@ -30,7 +30,7 @@ func ResendWitnessCode(tmpl template.Template, witnessCodeSender WitnessCodeSend
 				return err
 			}
 
-			return appData.Redirect(w, r, lpa, page.Paths.WitnessingAsCertificateProvider)
+			return appData.Redirect(w, r, lpa, page.Paths.WitnessingAsCertificateProvider.Format(lpa.ID))
 		}
 
 		return tmpl(w, data)

@@ -21,7 +21,7 @@ func WitnessingYourSignature(tmpl template.Template, witnessCodeSender WitnessCo
 				return err
 			}
 
-			return appData.Redirect(w, r, lpa, page.Paths.WitnessingAsCertificateProvider)
+			return appData.Redirect(w, r, lpa, page.Paths.WitnessingAsCertificateProvider.Format(lpa.ID))
 		}
 
 		data := &witnessingYourSignatureData{

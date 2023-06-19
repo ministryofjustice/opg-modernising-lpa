@@ -112,9 +112,10 @@ func TestPostSelectYourIdentityOptions(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 	certificateProviderStore.
 		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{
+			LpaID:          "lpa-id",
 			IdentityOption: identity.Passport,
 		}).
 		Return(nil)
@@ -124,14 +125,14 @@ func TestPostSelectYourIdentityOptions(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.YourChosenIdentityOptions, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProvider.YourChosenIdentityOptions.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostSelectYourIdentityOptionsNone(t *testing.T) {
 	for pageIndex, nextPath := range map[int]string{
-		0: "/certificate-provider/lpa-id" + page.Paths.CertificateProvider.SelectYourIdentityOptions1,
-		1: "/certificate-provider/lpa-id" + page.Paths.CertificateProvider.SelectYourIdentityOptions2,
-		2: page.Paths.CertificateProviderStart,
+		0: page.Paths.CertificateProvider.SelectYourIdentityOptions1.Format("lpa-id"),
+		1: page.Paths.CertificateProvider.SelectYourIdentityOptions2.Format("lpa-id"),
+		2: page.Paths.CertificateProviderStart.Format(),
 	} {
 		t.Run(fmt.Sprintf("Page%d", pageIndex), func(t *testing.T) {
 			form := url.Values{
@@ -145,7 +146,7 @@ func TestPostSelectYourIdentityOptionsNone(t *testing.T) {
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
 				On("Get", r.Context()).
-				Return(&actor.CertificateProviderProvidedDetails{}, nil)
+				Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 
 			err := SelectYourIdentityOptions(nil, pageIndex, certificateProviderStore)(testAppData, w, r)
 			resp := w.Result()
