@@ -40,7 +40,7 @@ func TestCertificateProviderLogin(t *testing.T) {
 
 	loginSession.Options = &sessions.Options{
 		Path:     "/",
-		MaxAge:   600,
+		MaxAge:   3600,
 		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 		Secure:   true,
@@ -94,7 +94,7 @@ func TestCertificateProviderLoginDefaultLocale(t *testing.T) {
 
 	loginSession.Options = &sessions.Options{
 		Path:     "/",
-		MaxAge:   600,
+		MaxAge:   3600,
 		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 		Secure:   true,
