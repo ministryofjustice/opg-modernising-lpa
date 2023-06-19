@@ -20,29 +20,29 @@ func TestAuthRedirect(t *testing.T) {
 				State:    "my-state",
 				Nonce:    "my-nonce",
 				Locale:   "en",
-				Redirect: Paths.LoginCallback,
+				Redirect: Paths.LoginCallback.Format(),
 			},
-			redirect: Paths.LoginCallback,
+			redirect: Paths.LoginCallback.Format(),
 		},
 		"login with nested route": {
 			session: &sesh.OneLoginSession{
 				State:    "my-state",
 				Nonce:    "my-nonce",
 				Locale:   "en",
-				Redirect: Paths.IdentityWithOneLoginCallback,
+				Redirect: Paths.IdentityWithOneLoginCallback.Format("123"),
 				LpaID:    "123",
 			},
-			redirect: "/lpa/123" + Paths.IdentityWithOneLoginCallback,
+			redirect: Paths.IdentityWithOneLoginCallback.Format("123"),
 		},
 		"welsh": {
 			session: &sesh.OneLoginSession{
 				State:    "my-state",
 				Nonce:    "my-nonce",
 				Locale:   "cy",
-				Redirect: Paths.IdentityWithOneLoginCallback,
+				Redirect: Paths.IdentityWithOneLoginCallback.Format("123"),
 				LpaID:    "123",
 			},
-			redirect: "/cy/lpa/123" + Paths.IdentityWithOneLoginCallback,
+			redirect: "/cy" + Paths.IdentityWithOneLoginCallback.Format("123"),
 		},
 	}
 
@@ -142,7 +142,7 @@ func TestAuthRedirectStateIncorrect(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Redirect: Paths.LoginCallback},
+				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Redirect: Paths.LoginCallback.Format()},
 			},
 		}, nil)
 

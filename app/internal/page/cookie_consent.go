@@ -20,7 +20,7 @@ func CookieConsent(paths AppPaths) http.HandlerFunc {
 
 		redirectURL := r.PostFormValue("cookies-redirect")
 		if len(redirectURL) <= 1 || redirectURL[0] != '/' || redirectURL[1] == '/' || redirectURL[1] == '\\' {
-			redirectURL = paths.Start
+			redirectURL = paths.Start.String()
 		}
 
 		http.Redirect(w, r, redirectURL, http.StatusFound)

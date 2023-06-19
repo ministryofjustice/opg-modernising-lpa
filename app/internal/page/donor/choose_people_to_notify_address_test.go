@@ -141,12 +141,14 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID:             "lpa-id",
 			PeopleToNotify: actor.PeopleToNotify{{ID: "123", Address: testAddress}},
 			Tasks:          page.Tasks{PeopleToNotify: actor.TaskCompleted},
 		}).
 		Return(nil)
 
 	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
+		ID:             "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{{ID: "123"}},
 		Tasks:          page.Tasks{PeopleToNotify: actor.TaskInProgress},
 	})
@@ -154,7 +156,7 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChoosePeopleToNotifySummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
@@ -202,6 +204,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID: "lpa-id",
 			PeopleToNotify: actor.PeopleToNotify{actor.PersonToNotify{
 				ID:         "123",
 				FirstNames: "John",
@@ -212,6 +215,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 		Return(nil)
 
 	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{actor.PersonToNotify{
 			ID:         "123",
 			FirstNames: "John",
@@ -224,7 +228,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChoosePeopleToNotifySummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChoosePeopleToNotifyPostcodeSelect(t *testing.T) {
@@ -560,6 +564,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelect(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID: "lpa-id",
 			PeopleToNotify: actor.PeopleToNotify{{
 				ID: "123",
 				Address: place.Address{
@@ -574,12 +579,12 @@ func TestPostChoosePeopleToNotifyAddressReuseSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}})
+	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChoosePeopleToNotifySummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChoosePeopleToNotifyAddressReuseSelectWhenValidationError(t *testing.T) {

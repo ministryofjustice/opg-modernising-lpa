@@ -69,6 +69,7 @@ func TestPostIdentityWithTodo(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	err := IdentityWithTodo(nil, nil, nil, identity.Passport)(testAppData, w, r, &page.Lpa{
+		ID:    "lpa-id",
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
 		DonorIdentityUserData: identity.UserData{
 			OK:          true,
@@ -82,5 +83,5 @@ func TestPostIdentityWithTodo(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ReadYourLpa, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ReadYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }

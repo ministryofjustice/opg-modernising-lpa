@@ -18,7 +18,7 @@ func SignOut(logger Logger, sessionStore sesh.Store, oneLoginClient OneLoginClie
 			logger.Print(fmt.Sprintf("unable to expire session: %s", err.Error()))
 		}
 
-		http.Redirect(w, r, oneLoginClient.EndSessionURL(idToken, appPublicURL+Paths.Start), http.StatusFound)
+		http.Redirect(w, r, oneLoginClient.EndSessionURL(idToken, appPublicURL+Paths.Start.Format()), http.StatusFound)
 		return nil
 	}
 }

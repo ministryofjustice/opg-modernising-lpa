@@ -22,9 +22,9 @@ func YotiRedirect(logger Logger, store sesh.Store) http.HandlerFunc {
 
 		appData := AppData{Lang: lang, LpaID: yotiSession.LpaID}
 
-		redirect := Paths.IdentityWithYotiCallback
+		redirect := Paths.IdentityWithYotiCallback.Format(yotiSession.LpaID)
 		if yotiSession.CertificateProvider {
-			redirect = Paths.CertificateProvider.IdentityWithYotiCallback
+			redirect = Paths.CertificateProvider.IdentityWithYotiCallback.Format(yotiSession.LpaID)
 		}
 		appData.Redirect(w, r, nil, redirect+"?"+r.URL.RawQuery)
 	}
