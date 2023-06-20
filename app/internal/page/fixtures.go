@@ -73,6 +73,7 @@ func Fixtures(tmpl template.Template) Handler {
 
 				case "donor":
 					values = url.Values{
+						"lpa.type":                    {data.Form.Type},
 						data.Form.DonorDetails:        {"1"},
 						data.Form.WhenCanLpaBeUsed:    {"1"},
 						data.Form.Restrictions:        {"1"},
