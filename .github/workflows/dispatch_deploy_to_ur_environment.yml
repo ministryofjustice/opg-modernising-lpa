@@ -25,7 +25,7 @@ defaults:
   run:
     shell: bash
 env:
-  environment_name: ur
+  environment_name: testenv
 
 jobs:
   docker_build_scan_push:
