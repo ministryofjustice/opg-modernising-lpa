@@ -32,7 +32,7 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 				Amount:      page.CostOfLpaPence,
 				Reference:   randomString(12),
 				Description: "Property and Finance LPA",
-				ReturnUrl:   appPublicUrl + appData.BuildUrl(page.Paths.PaymentConfirmation),
+				ReturnUrl:   appPublicUrl + appData.BuildUrl(page.Paths.PaymentConfirmation.Format(lpa.ID)),
 				Email:       lpa.Donor.Email,
 				Language:    appData.Lang.String(),
 			}
@@ -53,7 +53,7 @@ func AboutPayment(logger Logger, tmpl template.Template, sessionStore sessions.S
 			if strings.HasPrefix(nextUrl, pay.PaymentPublicServiceUrl) {
 				http.Redirect(w, r, nextUrl, http.StatusFound)
 			} else {
-				appData.Redirect(w, r, lpa, page.Paths.PaymentConfirmation)
+				appData.Redirect(w, r, lpa, page.Paths.PaymentConfirmation.Format(lpa.ID))
 			}
 
 		}

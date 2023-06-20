@@ -85,6 +85,7 @@ func TestPostSelectYourIdentityOptions(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID:                  "lpa-id",
 			DonorIdentityOption: identity.Passport,
 			Tasks: page.Tasks{
 				ConfirmYourIdentityAndSign: actor.TaskInProgress,
@@ -92,19 +93,19 @@ func TestPostSelectYourIdentityOptions(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := SelectYourIdentityOptions(nil, donorStore, 0)(testAppData, w, r, &page.Lpa{})
+	err := SelectYourIdentityOptions(nil, donorStore, 0)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.YourChosenIdentityOptions, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.YourChosenIdentityOptions.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostSelectYourIdentityOptionsNone(t *testing.T) {
-	for pageIndex, nextPath := range map[int]string{
-		0: "/lpa/lpa-id" + page.Paths.SelectYourIdentityOptions1,
-		1: "/lpa/lpa-id" + page.Paths.SelectYourIdentityOptions2,
-		2: "/lpa/lpa-id" + page.Paths.TaskList,
+	for pageIndex, nextPath := range map[int]page.LpaPath{
+		0: page.Paths.SelectYourIdentityOptions1,
+		1: page.Paths.SelectYourIdentityOptions2,
+		2: page.Paths.TaskList,
 	} {
 		t.Run(fmt.Sprintf("Page%d", pageIndex), func(t *testing.T) {
 			form := url.Values{
@@ -115,12 +116,12 @@ func TestPostSelectYourIdentityOptionsNone(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := SelectYourIdentityOptions(nil, nil, pageIndex)(testAppData, w, r, &page.Lpa{})
+			err := SelectYourIdentityOptions(nil, nil, pageIndex)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, nextPath, resp.Header.Get("Location"))
+			assert.Equal(t, nextPath.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

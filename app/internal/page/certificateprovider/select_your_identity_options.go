@@ -38,12 +38,12 @@ func SelectYourIdentityOptions(tmpl template.Template, pageIndex int, certificat
 			if data.Form.None {
 				switch pageIndex {
 				case 0:
-					return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.SelectYourIdentityOptions1)
+					return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.SelectYourIdentityOptions1.Format(certificateProvider.LpaID))
 				case 1:
-					return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.SelectYourIdentityOptions2)
+					return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.SelectYourIdentityOptions2.Format(certificateProvider.LpaID))
 				default:
 					// will go to vouching flow when that is built
-					return appData.Redirect(w, r, nil, page.Paths.CertificateProviderStart)
+					return appData.Redirect(w, r, nil, page.Paths.CertificateProviderStart.Format())
 				}
 			}
 
@@ -54,7 +54,7 @@ func SelectYourIdentityOptions(tmpl template.Template, pageIndex int, certificat
 					return err
 				}
 
-				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.YourChosenIdentityOptions)
+				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.YourChosenIdentityOptions.Format(certificateProvider.LpaID))
 			}
 		}
 

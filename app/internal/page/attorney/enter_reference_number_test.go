@@ -129,7 +129,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/attorney/lpa-id"+page.Paths.Attorney.CodeOfConduct, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.Attorney.CodeOfConduct.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

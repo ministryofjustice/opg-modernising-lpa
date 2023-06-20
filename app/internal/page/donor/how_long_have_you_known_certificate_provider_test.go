@@ -86,6 +86,7 @@ func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID:                  "lpa-id",
 			Attorneys:           actor.Attorneys{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}},
 			AttorneyDecisions:   actor.AttorneyDecisions{How: actor.Jointly},
 			CertificateProvider: actor.CertificateProvider{RelationshipLength: "gte-2-years"},
@@ -94,6 +95,7 @@ func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 		Return(nil)
 
 	err := HowLongHaveYouKnownCertificateProvider(nil, donorStore)(testAppData, w, r, &page.Lpa{
+		ID:                "lpa-id",
 		Attorneys:         actor.Attorneys{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}},
 		AttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
 		Tasks:             page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
@@ -102,7 +104,7 @@ func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.DoYouWantToNotifyPeople, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.DoYouWantToNotifyPeople.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T) {

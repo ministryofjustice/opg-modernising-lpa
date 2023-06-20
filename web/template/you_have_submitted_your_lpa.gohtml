@@ -19,7 +19,7 @@
       {{ $signIn4WeeksWarning := trFormat .App "signIn4WeeksWarning" "CpFirstNames" .Lpa.CertificateProvider.FirstNames "AttorneysAndCpSigningDeadline" $formattedDeadline}}
       {{ template "warning" (warning .App $signIn4WeeksWarning) }}
 
-      <a class="govuk-button" href="{{ link .App .App.Paths.Dashboard }}" data-module="govuk-button">
+      <a class="govuk-button" href="{{ link .App .App.Paths.Dashboard.Format }}" data-module="govuk-button">
         {{ tr .App "saveAndContinue" }}
       </a>
     </div>

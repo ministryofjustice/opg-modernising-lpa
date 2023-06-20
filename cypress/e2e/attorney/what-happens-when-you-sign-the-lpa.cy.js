@@ -21,7 +21,7 @@ describe('What happens when you sign the LPA', () => {
     });
 
     it('as a property and affairs replacement attorney', () => {
-        cy.visit('/testing-start?redirect=/attorney-what-happens-when-you-sign-the-lpa&lpa.complete=1&replacementAttorneyProvided=1');
+        cy.visit('/testing-start?redirect=/attorney-what-happens-when-you-sign-the-lpa&lpa.complete=1&replacementAttorneyProvided=1&loginAs=attorney');
 
         cy.contains('p', "you’re saying that you want to be a replacement attorney")
         cy.contains('li', "make decisions about their money or property")
@@ -29,7 +29,7 @@ describe('What happens when you sign the LPA', () => {
     });
 
     it('as a personal welfare replacement attorney', () => {
-        cy.visit('/testing-start?redirect=/attorney-what-happens-when-you-sign-the-lpa&lpa.complete=1&replacementAttorneyProvided=1&lpa.type=hw');
+        cy.visit('/testing-start?redirect=/attorney-what-happens-when-you-sign-the-lpa&lpa.complete=1&replacementAttorneyProvided=1&lpa.type=hw&loginAs=attorney');
 
         cy.contains('p', "you’re saying that you want to be a replacement attorney ")
         cy.contains('li', "their personal and medical care")

@@ -41,6 +41,10 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		keyMap[key.PK] = actorType
 	}
 
+	if len(searchKeys) == 0 {
+		return nil, nil, nil, nil
+	}
+
 	var result []struct {
 		PK   string
 		Data *page.Lpa
