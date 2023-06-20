@@ -1,0 +1,19 @@
+{{ define "pop-up" }}
+    <div id="dialog-overlay" class="hide jsHideTimeout" tabindex="-1"></div>
+    <div id="dialog"
+         class="hide govuk-!-padding-left-4 govuk-!-padding-top-2"
+         role="dialog"
+         aria-labelledby="dialog-title"
+         aria-describedby="dialog-description"
+         aria-modal="true"
+         style="border: 10px solid black;">
+        <div tabindex="0" class="dialog-focus"></div>
+        <h2 id="dialog-title" class="govuk-heading-l">You have unsaved changes</h2>
+        <p id="dialog-description" class="govuk-body">To save, go back to the page and select <span class="govuk-body govuk-!-font-weight-bold">Save and continue</span>.</p>
+
+        <div class="govuk-button-group">
+            <button class="govuk-button govuk-button--secondary jsHideTimeout" data-module="govuk-button" aria-label="Close Navigation">Back to page</button>
+            <button class="govuk-button govuk-button--warning jsHideTimeout" data-module="govuk-button" aria-label="Close Navigation">Continue without saving</button>
+        </div>
+    </div>
+{{ end }}
