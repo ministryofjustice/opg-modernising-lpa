@@ -89,6 +89,7 @@
           {{ if .DonorLpas }}
             <div class="govuk-tabs__panel" id="donor">
               <h2 class="govuk-heading-l">{{ tr .App "myLpas" }}</h2>
+              <p class="govuk-body">{{ tr .App "viewAndManageDonor" }}</p>
               {{ range .DonorLpas }}
                 {{ template "donorCard" (card $.App .) }}
               {{ end }}
@@ -98,6 +99,7 @@
           {{ if .AttorneyLpas }}
             <div class="govuk-tabs__panel" id="attorney">
               <h2 class="govuk-heading-l">{{ tr .App "imAnAttorney" }}</h2>
+              <p class="govuk-body">{{ tr .App "viewAndManageAttorney" }}</p>
               {{ range .AttorneyLpas }}
                 {{ template "attorneyCard" (card $.App .) }}
               {{ end }}
@@ -107,6 +109,7 @@
           {{ if .CertificateProviderLpas }}
             <div class="govuk-tabs__panel" id="certificate-provider">
               <h2 class="govuk-heading-l">{{ tr .App "imACertificateProvider" }}</h2>
+              <p class="govuk-body">{{ tr .App "viewAndManageCertificateProvider" }}</p>
               {{ range .CertificateProviderLpas }}
                 {{ template "certificateProviderCard" (card $.App .) }}
               {{ end }}
