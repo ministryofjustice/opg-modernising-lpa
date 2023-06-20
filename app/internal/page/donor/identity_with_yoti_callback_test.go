@@ -175,6 +175,7 @@ func TestPostIdentityWithYotiCallback(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	err := IdentityWithYotiCallback(nil, nil, nil)(testAppData, w, r, &page.Lpa{
+		ID:                    "lpa-id",
 		DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.EasyID},
 		DonorIdentityOption:   identity.EasyID,
 	})
@@ -182,17 +183,17 @@ func TestPostIdentityWithYotiCallback(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ReadYourLpa, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ReadYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostIdentityWithYotiCallbackNotConfirmed(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := IdentityWithYotiCallback(nil, nil, nil)(testAppData, w, r, &page.Lpa{})
+	err := IdentityWithYotiCallback(nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.SelectYourIdentityOptions1, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.SelectYourIdentityOptions1.Format("lpa-id"), resp.Header.Get("Location"))
 }

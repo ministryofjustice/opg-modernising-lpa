@@ -99,7 +99,7 @@ func TestGetIdentityWithYotiWhenAlreadyProvided(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.IdentityWithYotiCallback, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProvider.IdentityWithYotiCallback.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithYotiWhenTest(t *testing.T) {
@@ -109,7 +109,7 @@ func TestGetIdentityWithYotiWhenTest(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	yotiClient := newMockYotiClient(t)
 	yotiClient.On("IsTest").Return(true)
@@ -119,7 +119,7 @@ func TestGetIdentityWithYotiWhenTest(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.IdentityWithYotiCallback, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProvider.IdentityWithYotiCallback.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithYotiWhenCertificateProviderStoreError(t *testing.T) {

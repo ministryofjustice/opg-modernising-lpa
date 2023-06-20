@@ -156,12 +156,12 @@ func TestGetSignCantSignYet(t *testing.T) {
 				On("GetAny", mock.Anything).
 				Return(tc.certificateProvider, nil)
 
-			err := Sign(nil, donorStore, certificateProviderStore, nil)(tc.appData, w, r, nil)
+			err := Sign(nil, donorStore, certificateProviderStore, nil)(tc.appData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/attorney/lpa-id"+page.Paths.Attorney.TaskList, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.Attorney.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -213,7 +213,7 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.Attorney.Start.Format(), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -282,6 +282,7 @@ func TestPostSign(t *testing.T) {
 				Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
+				LpaID:     "lpa-id",
 				Confirmed: true,
 				Tasks:     actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
 			},
@@ -293,6 +294,7 @@ func TestPostSign(t *testing.T) {
 				ReplacementAttorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
+				LpaID:     "lpa-id",
 				Confirmed: true,
 				Tasks:     actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
 			},
@@ -327,12 +329,12 @@ func TestPostSign(t *testing.T) {
 					Certificate: actor.Certificate{Agreed: time.Now()},
 				}, nil)
 
-			err := Sign(nil, donorStore, certificateProviderStore, attorneyStore)(tc.appData, w, r, &actor.AttorneyProvidedDetails{})
+			err := Sign(nil, donorStore, certificateProviderStore, attorneyStore)(tc.appData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/attorney/lpa-id"+page.Paths.Attorney.WhatHappensNext, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.Attorney.WhatHappensNext.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

@@ -1,7 +1,6 @@
 package donor
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -42,6 +41,7 @@ func TestGetChoosePeopleToNotifySummaryWhenNoPeopleToNotify(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
 		Tasks: page.Tasks{
 			YourDetails:                actor.TaskCompleted,
 			ChooseAttorneys:            actor.TaskCompleted,
@@ -56,7 +56,7 @@ func TestGetChoosePeopleToNotifySummaryWhenNoPeopleToNotify(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.DoYouWantToNotifyPeople, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.DoYouWantToNotifyPeople.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
@@ -68,12 +68,12 @@ func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &page.Lpa{PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}})
+	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, fmt.Sprintf("/lpa/lpa-id%s?addAnother=1", page.Paths.ChoosePeopleToNotify), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChoosePeopleToNotify.Format("lpa-id")+"?addAnother=1", resp.Header.Get("Location"))
 }
 
 func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
@@ -86,6 +86,7 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &page.Lpa{
+		ID:             "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{{ID: "123"}},
 		Tasks: page.Tasks{
 			YourDetails:                actor.TaskCompleted,
@@ -101,7 +102,7 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.TaskList, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {

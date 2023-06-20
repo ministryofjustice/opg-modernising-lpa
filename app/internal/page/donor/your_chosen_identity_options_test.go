@@ -55,11 +55,12 @@ func TestPostYourChosenIdentityOptions(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	err := YourChosenIdentityOptions(nil)(testAppData, w, r, &page.Lpa{
+		ID:                  "lpa-id",
 		DonorIdentityOption: identity.Passport,
 	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.IdentityWithPassport, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.IdentityWithPassport.Format("lpa-id"), resp.Header.Get("Location"))
 }

@@ -153,12 +153,14 @@ func TestPostChooseReplacementAttorneysAddressSkip(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID:                   "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{{ID: "123", FirstNames: "a", Email: "a"}},
 			Tasks:                page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
 	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
 		ReplacementAttorneys: actor.Attorneys{{
 			ID:         "123",
 			FirstNames: "a",
@@ -170,7 +172,7 @@ func TestPostChooseReplacementAttorneysAddressSkip(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseReplacementAttorneysSummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChooseReplacementAttorneysAddressManual(t *testing.T) {
@@ -190,6 +192,7 @@ func TestPostChooseReplacementAttorneysAddressManual(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID: "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{{
 				ID:         "123",
 				FirstNames: "a",
@@ -200,13 +203,14 @@ func TestPostChooseReplacementAttorneysAddressManual(t *testing.T) {
 		Return(nil)
 
 	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
+		ID:                   "lpa-id",
 		ReplacementAttorneys: actor.Attorneys{{ID: "123", FirstNames: "a"}},
 	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseReplacementAttorneysSummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChooseReplacementAttorneysAddressManualWhenStoreErrors(t *testing.T) {
@@ -250,6 +254,7 @@ func TestPostChooseReplacementAttorneysAddressManualFromStore(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID: "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{{
 				ID:         "123",
 				FirstNames: "John",
@@ -261,6 +266,7 @@ func TestPostChooseReplacementAttorneysAddressManualFromStore(t *testing.T) {
 		Return(nil)
 
 	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
 		ReplacementAttorneys: actor.Attorneys{{
 			ID:         "123",
 			FirstNames: "John",
@@ -272,7 +278,7 @@ func TestPostChooseReplacementAttorneysAddressManualFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseReplacementAttorneysSummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChooseReplacementAttorneysAddressManualWhenValidationError(t *testing.T) {
@@ -661,19 +667,21 @@ func TestPostChooseReplacementAttorneysAddressReuseSelect(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID:                   "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{updatedAttorney},
 			Tasks:                page.Tasks{ChooseReplacementAttorneys: actor.TaskInProgress},
 		}).
 		Return(nil)
 
 	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
+		ID:                   "lpa-id",
 		ReplacementAttorneys: actor.Attorneys{{ID: "123"}},
 	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseReplacementAttorneysSummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChooseReplacementAttorneysAddressReuseSelectWhenValidationError(t *testing.T) {

@@ -38,12 +38,12 @@ func TestGetChooseAttorneysSummaryWhenNoAttorneys(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneysSummary(nil)(testAppData, w, r, &page.Lpa{})
+	err := ChooseAttorneysSummary(nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseAttorneys+"?addAnother=1", resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChooseAttorneys.Format("lpa-id")+"?addAnother=1", resp.Header.Get("Location"))
 }
 
 func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
@@ -54,17 +54,17 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	}{
 		"add attorney": {
 			addMoreFormValue: "yes",
-			expectedUrl:      "/lpa/lpa-id" + page.Paths.ChooseAttorneys + "?addAnother=1",
+			expectedUrl:      page.Paths.ChooseAttorneys.Format("lpa-id") + "?addAnother=1",
 			Attorneys:        actor.Attorneys{},
 		},
 		"do not add attorney - with single attorney": {
 			addMoreFormValue: "no",
-			expectedUrl:      "/lpa/lpa-id" + page.Paths.TaskList,
+			expectedUrl:      page.Paths.TaskList.Format("lpa-id"),
 			Attorneys:        actor.Attorneys{{ID: "123"}},
 		},
 		"do not add attorney - with multiple attorneys": {
 			addMoreFormValue: "no",
-			expectedUrl:      "/lpa/lpa-id" + page.Paths.HowShouldAttorneysMakeDecisions,
+			expectedUrl:      page.Paths.HowShouldAttorneysMakeDecisions.Format("lpa-id"),
 			Attorneys:        actor.Attorneys{{ID: "123"}, {ID: "456"}},
 		},
 	}
@@ -79,7 +79,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := ChooseAttorneysSummary(nil)(testAppData, w, r, &page.Lpa{Attorneys: tc.Attorneys})
+			err := ChooseAttorneysSummary(nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Attorneys: tc.Attorneys})
 			resp := w.Result()
 
 			assert.Nil(t, err)
