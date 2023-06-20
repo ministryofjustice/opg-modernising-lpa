@@ -31,7 +31,7 @@ func WhoDoYouWantToBeCertificateProviderGuidance(tmpl template.Template, donorSt
 				}
 			}
 
-			return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderDetails)
+			return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderDetails.Format(lpa.ID))
 		}
 
 		return tmpl(w, data)

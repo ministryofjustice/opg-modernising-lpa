@@ -90,7 +90,7 @@ func TestGetReadTheLpaWhenAttorneyNotFound(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Attorney.Start.Format(), resp.Header.Get("Location"))
 }
 
 func TestGetReadTheLpaWhenTemplateError(t *testing.T) {
@@ -130,18 +130,19 @@ func TestPostReadTheLpaWithAttorney(t *testing.T) {
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.
 		On("Put", r.Context(), &actor.AttorneyProvidedDetails{
+			LpaID: "lpa-id",
 			Tasks: actor.AttorneyTasks{
 				ReadTheLpa: actor.TaskCompleted,
 			},
 		}).
 		Return(nil)
 
-	err := ReadTheLpa(nil, donorStore, attorneyStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
+	err := ReadTheLpa(nil, donorStore, attorneyStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/attorney/lpa-id"+page.Paths.Attorney.RightsAndResponsibilities, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Attorney.RightsAndResponsibilities.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostReadTheLpaWithAttorneyOnDonorStoreError(t *testing.T) {

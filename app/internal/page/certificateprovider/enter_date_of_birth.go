@@ -64,7 +64,7 @@ func EnterDateOfBirth(tmpl template.Template, donorStore DonorStore, certificate
 					redirect = page.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity
 				}
 
-				return appData.Redirect(w, r, lpa, redirect)
+				return appData.Redirect(w, r, lpa, redirect.Format(certificateProvider.LpaID))
 			}
 		}
 

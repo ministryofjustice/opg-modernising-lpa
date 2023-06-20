@@ -89,107 +89,113 @@ func Register(
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
-	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumber, None,
+	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumber,
 		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), shareCodeStore, sessionStore))
-	handleRoot(page.Paths.CertificateProvider.WhoIsEligible, None,
+	handleRoot(page.Paths.CertificateProvider.WhoIsEligible,
 		WhoIsEligible(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), sessionStore))
-	handleRoot(page.Paths.CertificateProvider.Login, None,
+	handleRoot(page.Paths.CertificateProvider.Login,
 		Login(logger, oneLoginClient, sessionStore, random.String))
-	handleRoot(page.Paths.CertificateProvider.LoginCallback, None,
+	handleRoot(page.Paths.CertificateProvider.LoginCallback,
 		LoginCallback(oneLoginClient, sessionStore, certificateProviderStore))
 
 	certificateProviderMux := http.NewServeMux()
 	rootMux.Handle("/certificate-provider/", page.RouteToPrefix("/certificate-provider/", certificateProviderMux, notFoundHandler))
-	handleCertificateProvider := makeHandle(certificateProviderMux, sessionStore, errorHandler)
+	handleCertificateProvider := makeCertificateProviderHandle(certificateProviderMux, sessionStore, errorHandler)
 
-	handleCertificateProvider(page.Paths.CertificateProvider.CheckYourName, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.CheckYourName,
 		CheckYourName(tmpls.Get("certificate_provider_check_your_name.gohtml"), donorStore, notifyClient, certificateProviderStore))
-	handleCertificateProvider(page.Paths.CertificateProvider.EnterDateOfBirth, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.EnterDateOfBirth,
 		EnterDateOfBirth(tmpls.Get("certificate_provider_enter_date_of_birth.gohtml"), donorStore, certificateProviderStore))
-	handleCertificateProvider(page.Paths.CertificateProvider.EnterMobileNumber, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.EnterMobileNumber,
 		EnterMobileNumber(tmpls.Get("certificate_provider_enter_mobile_number.gohtml"), donorStore, certificateProviderStore))
 
-	handleCertificateProvider(page.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity,
 		Guidance(tmpls.Get("certificate_provider_what_youll_need_to_confirm_your_identity.gohtml"), donorStore, nil))
 
-	for path, page := range map[string]int{
+	for path, page := range map[page.CertificateProviderPath]int{
 		page.Paths.CertificateProvider.SelectYourIdentityOptions:  0,
 		page.Paths.CertificateProvider.SelectYourIdentityOptions1: 1,
 		page.Paths.CertificateProvider.SelectYourIdentityOptions2: 2,
 	} {
-		handleCertificateProvider(path, RequireSession,
+		handleCertificateProvider(path,
 			SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), page, certificateProviderStore))
 	}
 
-	handleCertificateProvider(page.Paths.CertificateProvider.YourChosenIdentityOptions, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.YourChosenIdentityOptions,
 		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), certificateProviderStore))
-	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithYoti, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithYoti,
 		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), sessionStore, yotiClient, certificateProviderStore))
-	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithYotiCallback, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithYotiCallback,
 		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, certificateProviderStore))
-	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLogin, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLogin,
 		IdentityWithOneLogin(logger, oneLoginClient, sessionStore, random.String))
-	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLoginCallback, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLoginCallback,
 		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, certificateProviderStore))
 
-	for path, identityOption := range map[string]identity.Option{
+	for path, identityOption := range map[page.CertificateProviderPath]identity.Option{
 		page.Paths.CertificateProvider.IdentityWithPassport:                 identity.Passport,
 		page.Paths.CertificateProvider.IdentityWithBiometricResidencePermit: identity.BiometricResidencePermit,
 		page.Paths.CertificateProvider.IdentityWithDrivingLicencePaper:      identity.DrivingLicencePaper,
 		page.Paths.CertificateProvider.IdentityWithDrivingLicencePhotocard:  identity.DrivingLicencePhotocard,
 		page.Paths.CertificateProvider.IdentityWithOnlineBankAccount:        identity.OnlineBankAccount,
 	} {
-		handleCertificateProvider(path, RequireSession,
+		handleCertificateProvider(path,
 			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), time.Now, identityOption, certificateProviderStore))
 	}
 
-	handleCertificateProvider(page.Paths.CertificateProvider.ReadTheLpa, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.ReadTheLpa,
 		Guidance(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), donorStore, certificateProviderStore))
-	handleCertificateProvider(page.Paths.CertificateProvider.WhatHappensNext, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.WhatHappensNext,
 		Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), donorStore, nil))
-	handleCertificateProvider(page.Paths.CertificateProvider.ProvideCertificate, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.ProvideCertificate,
 		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), donorStore, time.Now, certificateProviderStore))
-	handleCertificateProvider(page.Paths.CertificateProvider.CertificateProvided, RequireSession,
+	handleCertificateProvider(page.Paths.CertificateProvider.CertificateProvided,
 		Guidance(tmpls.Get("certificate_provided.gohtml"), donorStore, nil))
 }
 
-type handleOpt byte
-
-const (
-	None handleOpt = 1 << iota
-	RequireSession
-	CanGoBack
-)
-
-func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(string, handleOpt, page.Handler) {
-	return func(path string, opt handleOpt, h page.Handler) {
-		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(page.Path, page.Handler) {
+	return func(path page.Path, h page.Handler) {
+		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
-			appData.Page = path
-			appData.CanGoBack = opt&CanGoBack != 0
+			appData.ActorType = actor.TypeCertificateProvider
+			appData.Page = path.Format()
+
+			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
+				errorHandler(w, r, err)
+			}
+		})
+	}
+}
+
+func makeCertificateProviderHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(page.CertificateProviderPath, page.Handler) {
+	return func(path page.CertificateProviderPath, h page.Handler) {
+		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+
+			appData := page.AppDataFromContext(ctx)
 			appData.ActorType = actor.TypeCertificateProvider
 
-			if opt&RequireSession != 0 {
-				session, err := sesh.Login(store, r)
-				if err != nil {
-					http.Redirect(w, r, page.Paths.CertificateProviderStart, http.StatusFound)
-					return
-				}
-
-				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
-
-				sessionData, err := page.SessionDataFromContext(ctx)
-				if err == nil {
-					sessionData.SessionID = appData.SessionID
-					ctx = page.ContextWithSessionData(ctx, sessionData)
-
-					appData.LpaID = sessionData.LpaID
-				} else {
-					ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
-				}
+			session, err := sesh.Login(store, r)
+			if err != nil {
+				http.Redirect(w, r, page.Paths.CertificateProviderStart.Format(), http.StatusFound)
+				return
 			}
+
+			appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
+
+			sessionData, err := page.SessionDataFromContext(ctx)
+			if err == nil {
+				sessionData.SessionID = appData.SessionID
+				ctx = page.ContextWithSessionData(ctx, sessionData)
+
+				appData.LpaID = sessionData.LpaID
+			} else {
+				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+			}
+
+			appData.Page = path.Format(appData.LpaID)
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)

@@ -29,9 +29,9 @@ func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, cer
 
 		if r.Method == http.MethodPost {
 			if certificateProvider.CertificateProviderIdentityConfirmed() {
-				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.ReadTheLpa)
+				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.ReadTheLpa.Format(certificateProvider.LpaID))
 			} else {
-				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.SelectYourIdentityOptions1)
+				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.SelectYourIdentityOptions1.Format(certificateProvider.LpaID))
 			}
 		}
 

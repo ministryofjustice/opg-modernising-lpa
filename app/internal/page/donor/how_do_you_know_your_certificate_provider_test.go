@@ -80,7 +80,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		form                       url.Values
 		certificateProviderDetails actor.CertificateProvider
 		taskState                  actor.TaskState
-		redirect                   string
+		redirect                   page.LpaPath
 	}{
 		"legal-professional": {
 			form: url.Values{"how": {"legal-professional"}},
@@ -89,7 +89,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				Relationship: "legal-professional",
 			},
 			taskState: actor.TaskCompleted,
-			redirect:  "/lpa/lpa-id" + page.Paths.DoYouWantToNotifyPeople,
+			redirect:  page.Paths.DoYouWantToNotifyPeople,
 		},
 		"health-professional": {
 			form: url.Values{"how": {"health-professional"}},
@@ -98,7 +98,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				Relationship: "health-professional",
 			},
 			taskState: actor.TaskCompleted,
-			redirect:  "/lpa/lpa-id" + page.Paths.DoYouWantToNotifyPeople,
+			redirect:  page.Paths.DoYouWantToNotifyPeople,
 		},
 		"other": {
 			form: url.Values{"how": {"other"}, "description": {"This"}},
@@ -109,7 +109,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				RelationshipLength:      "gte-2-years",
 			},
 			taskState: actor.TaskInProgress,
-			redirect:  "/lpa/lpa-id" + page.Paths.HowLongHaveYouKnownCertificateProvider,
+			redirect:  page.Paths.HowLongHaveYouKnownCertificateProvider,
 		},
 		"lay - friend": {
 			form: url.Values{"how": {"friend"}},
@@ -119,7 +119,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				RelationshipLength: "gte-2-years",
 			},
 			taskState: actor.TaskInProgress,
-			redirect:  "/lpa/lpa-id" + page.Paths.HowLongHaveYouKnownCertificateProvider,
+			redirect:  page.Paths.HowLongHaveYouKnownCertificateProvider,
 		},
 		"lay - neighbour": {
 			form: url.Values{"how": {"neighbour"}},
@@ -129,7 +129,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				RelationshipLength: "gte-2-years",
 			},
 			taskState: actor.TaskInProgress,
-			redirect:  "/lpa/lpa-id" + page.Paths.HowLongHaveYouKnownCertificateProvider,
+			redirect:  page.Paths.HowLongHaveYouKnownCertificateProvider,
 		},
 		"lay - colleague": {
 			form: url.Values{"how": {"colleague"}},
@@ -139,7 +139,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				RelationshipLength: "gte-2-years",
 			},
 			taskState: actor.TaskInProgress,
-			redirect:  "/lpa/lpa-id" + page.Paths.HowLongHaveYouKnownCertificateProvider,
+			redirect:  page.Paths.HowLongHaveYouKnownCertificateProvider,
 		},
 	}
 
@@ -152,6 +152,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
+					ID:                  "lpa-id",
 					CertificateProvider: tc.certificateProviderDetails,
 					Tasks: page.Tasks{
 						YourDetails:         actor.TaskCompleted,
@@ -162,6 +163,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				Return(nil)
 
 			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &page.Lpa{
+				ID:                  "lpa-id",
 				CertificateProvider: actor.CertificateProvider{FirstNames: "John", Relationship: "what", RelationshipLength: "gte-2-years"},
 				Tasks: page.Tasks{
 					YourDetails:     actor.TaskCompleted,
@@ -172,7 +174,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, tc.redirect, resp.Header.Get("Location"))
+			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

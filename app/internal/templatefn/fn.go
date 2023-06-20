@@ -28,8 +28,6 @@ func All(tag, region string) map[string]any {
 		"details":            details,
 		"inc":                inc,
 		"link":               link,
-		"linkWithID":         linkWithID,
-		"linkLang":           linkLang,
 		"contains":           contains,
 		"tr":                 tr,
 		"trFormat":           trFormat,
@@ -136,18 +134,6 @@ func inc(i int) int {
 
 func link(app page.AppData, path string) string {
 	return app.BuildUrl(path)
-}
-
-func linkWithID(app page.AppData, path, lpaID string) string {
-	return page.AppData{Lang: app.Lang, LpaID: lpaID}.BuildUrl(path)
-}
-
-func linkLang(app page.AppData, path string) string {
-	if app.Lang == localize.Cy {
-		return "/" + app.Lang.String() + path
-	}
-
-	return path
 }
 
 func contains(needle string, list []string) bool {
@@ -273,13 +259,13 @@ func listAttorneys(attorneys actor.Attorneys, app page.AppData, attorneyType str
 	}
 
 	if attorneyType == "replacement" {
-		props["DetailsPath"] = fmt.Sprintf("%s?from=%s", app.Paths.ChooseReplacementAttorneys, app.Page)
-		props["AddressPath"] = fmt.Sprintf("%s?from=%s", app.Paths.ChooseReplacementAttorneysAddress, app.Page)
-		props["RemovePath"] = fmt.Sprintf("%s?from=%s", app.Paths.RemoveReplacementAttorney, app.Page)
+		props["DetailsPath"] = fmt.Sprintf("%s?from=%s", app.Paths.ChooseReplacementAttorneys.Format(lpa.ID), app.Page)
+		props["AddressPath"] = fmt.Sprintf("%s?from=%s", app.Paths.ChooseReplacementAttorneysAddress.Format(lpa.ID), app.Page)
+		props["RemovePath"] = fmt.Sprintf("%s?from=%s", app.Paths.RemoveReplacementAttorney.Format(lpa.ID), app.Page)
 	} else {
-		props["DetailsPath"] = fmt.Sprintf("%s?from=%s", app.Paths.ChooseAttorneys, app.Page)
-		props["AddressPath"] = fmt.Sprintf("%s?from=%s", app.Paths.ChooseAttorneysAddress, app.Page)
-		props["RemovePath"] = fmt.Sprintf("%s?from=%s", app.Paths.RemoveAttorney, app.Page)
+		props["DetailsPath"] = fmt.Sprintf("%s?from=%s", app.Paths.ChooseAttorneys.Format(lpa.ID), app.Page)
+		props["AddressPath"] = fmt.Sprintf("%s?from=%s", app.Paths.ChooseAttorneysAddress.Format(lpa.ID), app.Page)
+		props["RemovePath"] = fmt.Sprintf("%s?from=%s", app.Paths.RemoveAttorney.Format(lpa.ID), app.Page)
 	}
 
 	return props

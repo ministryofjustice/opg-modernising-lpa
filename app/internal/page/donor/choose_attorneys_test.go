@@ -45,6 +45,7 @@ func TestGetChooseAttorneysFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 
 	err := ChooseAttorneys(template.Execute, nil, mockUuidString)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
 		Attorneys: actor.Attorneys{
 			{FirstNames: "John", ID: "1"},
 		},
@@ -53,7 +54,7 @@ func TestGetChooseAttorneysFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseAttorneysSummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetChooseAttorneysWhenTemplateErrors(t *testing.T) {
@@ -147,6 +148,7 @@ func TestPostChooseAttorneysAttorneyDoesNotExist(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
+					ID: "lpa-id",
 					Donor: actor.Donor{
 						FirstNames: "Jane",
 						LastName:   "Doe",
@@ -157,6 +159,7 @@ func TestPostChooseAttorneysAttorneyDoesNotExist(t *testing.T) {
 				Return(nil)
 
 			err := ChooseAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &page.Lpa{
+				ID: "lpa-id",
 				Donor: actor.Donor{
 					FirstNames: "Jane",
 					LastName:   "Doe",
@@ -166,7 +169,7 @@ func TestPostChooseAttorneysAttorneyDoesNotExist(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseAttorneysAddress+"?id=123", resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.ChooseAttorneysAddress.Format("lpa-id")+"?id=123", resp.Header.Get("Location"))
 		})
 	}
 }
@@ -245,6 +248,7 @@ func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
+					ID:        "lpa-id",
 					Donor:     actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					Attorneys: actor.Attorneys{tc.attorney},
 					Tasks:     page.Tasks{ChooseAttorneys: actor.TaskCompleted},
@@ -252,6 +256,7 @@ func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
 				Return(nil)
 
 			err := ChooseAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &page.Lpa{
+				ID:    "lpa-id",
 				Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 				Attorneys: actor.Attorneys{
 					{
@@ -265,7 +270,7 @@ func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseAttorneysAddress+"?id=123", resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.ChooseAttorneysAddress.Format("lpa-id")+"?id=123", resp.Header.Get("Location"))
 		})
 	}
 }

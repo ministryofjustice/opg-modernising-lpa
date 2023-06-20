@@ -32,7 +32,7 @@ func TestSignOut(t *testing.T) {
 
 	oneLoginClient := newMockOneLoginClient(t)
 	oneLoginClient.
-		On("EndSessionURL", "id-token", "http://public"+Paths.Start).
+		On("EndSessionURL", "id-token", "http://public"+Paths.Start.Format()).
 		Return("http://end-session")
 
 	err := SignOut(nil, sessionStore, oneLoginClient, "http://public")(TestAppData, w, r)
@@ -64,7 +64,7 @@ func TestSignOutWhenClearSessionFails(t *testing.T) {
 
 	oneLoginClient := newMockOneLoginClient(t)
 	oneLoginClient.
-		On("EndSessionURL", "id-token", "http://public"+Paths.Start).
+		On("EndSessionURL", "id-token", "http://public"+Paths.Start.Format()).
 		Return("http://end-session")
 
 	err := SignOut(logger, sessionStore, oneLoginClient, "http://public")(TestAppData, w, r)
