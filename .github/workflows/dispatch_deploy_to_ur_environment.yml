@@ -24,22 +24,24 @@ permissions:
 defaults:
   run:
     shell: bash
+env:
+  environment_name: ur
 
 jobs:
   docker_build_scan_push:
     name: Docker Build, Scan and Push
     uses: ./.github/workflows/docker_job.yml
     with:
-      tag: ur-${{ inputs.tag_to_deploy }}
+      tag: ${{ env.environment_name }}-${{ inputs.tag_to_deploy }}
       checkout_tag : ${{ inputs.tag_to_deploy }}
 
   ui_tests_image:
-    name: Run Cypress UI Tests On Images
+    name: Run Cypress UI Tests On ${{ env.environment_name }} Images
     uses: ./.github/workflows/ui_test_job.yml
     needs: [docker_build_scan_push]
     with:
       run_against_image: true
-      tag: ur-${{ inputs.tag_to_deploy}}
+      tag: ${{ env.environment_name }}-${{ inputs.tag_to_deploy}}
       checkout_tag: ${{ inputs.tag_to_deploy}}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -47,13 +49,13 @@ jobs:
       cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
-  ur_deploy:
-      name: UR Environment Deploy
+  deploy:
+      name: ${{ env.environment_name }} Environment Deploy
       needs: [ui_tests_image]
       uses: ./.github/workflows/terraform_environment_job.yml
       with:
-        workspace_name: ur
-        version_tag: ur-${{ inputs.tag_to_deploy}}
+        workspace_name: ${{ env.environment_name }}
+        version_tag: ${{ env.environment_name }}-${{ inputs.tag_to_deploy}}
         checkout_tag: ${{ inputs.tag_to_deploy}}
       secrets:
         aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -62,16 +64,16 @@ jobs:
         github_access_token: ${{ secrets.GITHUB_TOKEN }}
         pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
-  ui_tests_ur_env:
-    name: Run Cypress UI Tests On PR Environment
+  ui_tests_env:
+    name: Run Cypress UI Tests On ${{ env.environment_name }} Environment
     uses: ./.github/workflows/ui_test_job.yml
-    needs: [ur_deploy]
+    needs: [deploy]
     with:
       run_against_image: false
-      base_url: "https://${{ needs.ur_deploy.outputs.url }}"
-      tag: ur-${{ inputs.tag_to_deploy}}
+      base_url: "https://${{ needs.deploy.outputs.url }}"
+      tag: ${{ env.environment_name }}-${{ inputs.tag_to_deploy}}
       checkout_tag: ${{ inputs.tag_to_deploy}}
-      environment_config_json: ${{ needs.ur_deploy.outputs.environment_config_json }}
+      environment_config_json: ${{ needs.deploy.outputs.environment_config_json }}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -79,26 +81,26 @@ jobs:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   always_remove_ingress:
-    name: Remove CI ingress from environment
+    name: Remove CI ingress from ${{ env.environment_name }} environment
     if: always()
     uses: ./.github/workflows/remove_ingress_job.yml
-    needs: [ui_tests_ur_env, ur_deploy]
+    needs: [ui_tests_env, deploy]
     with:
-      environment_config_json: ${{ needs.ur_deploy.outputs.environment_config_json }}
+      environment_config_json: ${{ needs.deploy.outputs.environment_config_json }}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
-  end_of_ur_deployment_workflow:
-    name: End of UR Deployment Workflow
+  end_of_deployment_workflow:
+    name: End of ${{ env.environment_name }} Deployment Workflow
     runs-on: ubuntu-latest
     environment:
-      name: "ur"
-      url: "https://${{ needs.ur_deploy.outputs.url }}"
-    needs: [ui_tests_ur_env]
+      name: "${{ env.environment_name }}"
+      url: "https://${{ needs.deploy.outputs.url }}"
+    needs: [ui_tests_env]
     steps:
-      - name: End of UR Deployment Workflow
+      - name: End of ${{ env.environment_name }} Deployment Workflow
         run: |
-          echo "${{ needs.ur_deploy.outputs.terraform_workspace_name }} UR environment tested, built and deployed"
-          echo "Tag Deployed: ${{ needs.ur_deploy.outputs.terraform_container_version }}"
-          echo "URL: https://${{ needs.ur_deploy.outputs.url }}"
+          echo "${{ needs.deploy.outputs.terraform_workspace_name }} environment tested, built and deployed"
+          echo "Tag Deployed: ${{ needs.deploy.outputs.terraform_container_version }}"
+          echo "URL: https://${{ needs.deploy.outputs.url }}"
