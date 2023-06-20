@@ -21,6 +21,23 @@
               Donor flow
             </h2>
           </legend>
+          <div class="govuk-form-group">
+            <fieldset class="govuk-fieldset">
+              <legend class="govuk-fieldset__legend">
+                LPA type
+              </legend>
+              <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+                <div class="govuk-radios__item">
+                  <input class="govuk-radios__input" id="type" name="type" type="radio" value="pfa" checked>
+                  <label class="govuk-label govuk-radios__label" for="type">Property and affairs</label>
+                </div>
+                <div class="govuk-radios__item">
+                  <input class="govuk-radios__input" id="type-2" name="type" type="radio" value="hw">
+                  <label class="govuk-label govuk-radios__label" for="type-2">Personal welfare</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
           <div class="govuk-checkboxes govuk-!-margin-bottom-3" data-module="govuk-checkboxes">
             <div class="govuk-checkboxes__item">
               <input class="govuk-checkboxes__input" id="f-donor-details" name="donor-details" type="checkbox" value="lpa.yourDetails">
@@ -59,7 +76,7 @@
             <div class="govuk-checkboxes__item">
               <input class="govuk-checkboxes__input" id="f-when-can-lpa-be-used" name="when-can-lpa-be-used" type="checkbox" value="lpa.chooseWhenCanBeUsed">
               <label class="govuk-label govuk-checkboxes__label" for="f-when-can-lpa-be-used">
-                Choose when the LPA can be used
+                Choose when the LPA can be used / Life-sustaining treatment
               </label>
             </div>
             <div class="govuk-checkboxes__item">
