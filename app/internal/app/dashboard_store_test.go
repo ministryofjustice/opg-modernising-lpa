@@ -49,3 +49,19 @@ func TestDashboardStoreGetAll(t *testing.T) {
 	assert.Equal(t, []*page.Lpa{lpa789}, attorney)
 	assert.Equal(t, []*page.Lpa{lpa456}, certificateProvider)
 }
+
+func TestDashboardStoreGetAllWhenNone(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+
+	dataStore := newMockDataStore(t)
+	dataStore.ExpectGetAllByGsi(ctx, "ActorIndex", "#SUB#an-id",
+		[]map[string]any{}, nil)
+
+	dashboardStore := &dashboardStore{dataStore: dataStore}
+
+	donor, attorney, certificateProvider, err := dashboardStore.GetAll(ctx)
+	assert.Nil(t, err)
+	assert.Nil(t, donor)
+	assert.Nil(t, attorney)
+	assert.Nil(t, certificateProvider)
+}

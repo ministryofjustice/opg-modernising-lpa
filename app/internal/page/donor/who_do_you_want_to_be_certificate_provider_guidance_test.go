@@ -76,15 +76,15 @@ func TestPostWhoDoYouWantToBeCertificateProviderGuidance(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{Tasks: page.Tasks{CertificateProvider: actor.TaskInProgress}}).
+		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", Tasks: page.Tasks{CertificateProvider: actor.TaskInProgress}}).
 		Return(nil)
 
-	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := WhoDoYouWantToBeCertificateProviderGuidance(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.CertificateProviderDetails, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProviderDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostWhoDoYouWantToBeCertificateProviderGuidanceWhenStoreErrors(t *testing.T) {

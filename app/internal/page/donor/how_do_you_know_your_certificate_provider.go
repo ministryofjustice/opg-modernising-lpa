@@ -53,10 +53,10 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 				}
 
 				if requireLength {
-					return appData.Redirect(w, r, lpa, page.Paths.HowLongHaveYouKnownCertificateProvider)
+					return appData.Redirect(w, r, lpa, page.Paths.HowLongHaveYouKnownCertificateProvider.Format(lpa.ID))
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.DoYouWantToNotifyPeople)
+				return appData.Redirect(w, r, lpa, page.Paths.DoYouWantToNotifyPeople.Format(lpa.ID))
 			}
 		}
 
