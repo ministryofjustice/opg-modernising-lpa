@@ -79,6 +79,7 @@ func TestPostSignYourLpa(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID:                    "lpa-id",
 			DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
 			Tasks: page.Tasks{
 				ConfirmYourIdentityAndSign: actor.TaskCompleted,
@@ -88,12 +89,12 @@ func TestPostSignYourLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := SignYourLpa(nil, donorStore)(testAppData, w, r, &page.Lpa{DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin}})
+	err := SignYourLpa(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id", DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.WitnessingYourSignature, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.WitnessingYourSignature.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostSignYourLpaWhenStoreErrors(t *testing.T) {

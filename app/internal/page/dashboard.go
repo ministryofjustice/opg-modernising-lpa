@@ -30,7 +30,7 @@ func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore Das
 				return err
 			}
 
-			return appData.Redirect(w, r, lpa, Paths.YourDetails)
+			return appData.Redirect(w, r, lpa, Paths.YourDetails.Format(lpa.ID))
 		}
 
 		donorLpas, attorneyLpas, certificateProviderLpas, err := dashboardStore.GetAll(r.Context())

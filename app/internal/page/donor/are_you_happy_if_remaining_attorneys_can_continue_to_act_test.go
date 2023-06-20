@@ -64,16 +64,17 @@ func TestPostAreYouHappyIfRemainingAttorneysCanContinueToAct(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
+					ID:                "lpa-id",
 					AttorneyDecisions: actor.AttorneyDecisions{HappyIfRemainingCanContinueToAct: happy},
 				}).
 				Return(nil)
 
-			err := AreYouHappyIfRemainingAttorneysCanContinueToAct(nil, donorStore)(testAppData, w, r, &page.Lpa{})
+			err := AreYouHappyIfRemainingAttorneysCanContinueToAct(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+page.Paths.TaskList, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

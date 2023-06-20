@@ -35,7 +35,7 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore D
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.DoYouWantToNotifyPeople)
+				return appData.Redirect(w, r, lpa, page.Paths.DoYouWantToNotifyPeople.Format(lpa.ID))
 			}
 		}
 

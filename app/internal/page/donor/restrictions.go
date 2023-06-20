@@ -34,7 +34,7 @@ func Restrictions(tmpl template.Template, donorStore DonorStore) Handler {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.TaskList)
+				return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
 			}
 		}
 

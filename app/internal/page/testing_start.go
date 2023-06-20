@@ -441,7 +441,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				Localizer: localizer,
 			}, false, lpa)
 
-			redirect = Paths.CertificateProviderStart
+			redirect = Paths.CertificateProviderStart.Format()
 		}
 
 		if asCertificateProvider != "" {
