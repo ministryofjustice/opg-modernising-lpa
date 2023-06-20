@@ -83,7 +83,7 @@ func App(
 
 	rootMux := http.NewServeMux()
 
-	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, donorStore, random.String, shareCodeSender, localizer, certificateProviderStore, attorneyStore, logger, time.Now))
+	rootMux.Handle(paths.TestingStart.String(), page.TestingStart(sessionStore, donorStore, random.String, shareCodeSender, localizer, certificateProviderStore, attorneyStore, logger, time.Now))
 
 	handleRoot := makeHandle(rootMux, errorHandler, sessionStore)
 
@@ -188,18 +188,18 @@ const (
 	RequireSession
 )
 
-func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, store sesh.Store) func(string, handleOpt, page.Handler) {
-	return func(path string, opt handleOpt, h page.Handler) {
-		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, store sesh.Store) func(page.Path, handleOpt, page.Handler) {
+	return func(path page.Path, opt handleOpt, h page.Handler) {
+		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
-			appData.Page = path
+			appData.Page = path.Format()
 
 			if opt&RequireSession != 0 {
 				loginSession, err := sesh.Login(store, r)
 				if err != nil {
-					http.Redirect(w, r, page.Paths.Start, http.StatusFound)
+					http.Redirect(w, r, page.Paths.Start.Format(), http.StatusFound)
 					return
 				}
 

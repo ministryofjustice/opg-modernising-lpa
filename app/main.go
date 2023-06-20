@@ -146,7 +146,7 @@ func main() {
 
 	sessionStore := sessions.NewCookieStore(sessionKeys...)
 
-	redirectURL := authRedirectBaseURL + page.Paths.AuthRedirect
+	redirectURL := authRedirectBaseURL + page.Paths.AuthRedirect.Format()
 
 	signInClient, err := onelogin.Discover(ctx, logger, httpClient, secretsClient, issuer, clientID, redirectURL)
 	if err != nil {
@@ -199,15 +199,15 @@ func main() {
 	uidClient := uid.New(uidBaseURL, httpClient, cfg, v4.NewSigner(), time.Now)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc(page.Paths.HealthCheck.Service, func(w http.ResponseWriter, r *http.Request) {})
-	mux.Handle(page.Paths.HealthCheck.Dependency, page.DependencyHealthCheck(logger, uidClient))
+	mux.HandleFunc(page.Paths.HealthCheck.Service.String(), func(w http.ResponseWriter, r *http.Request) {})
+	mux.Handle(page.Paths.HealthCheck.Dependency.String(), page.DependencyHealthCheck(logger, uidClient))
 	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, webDir+"/robots.txt")
 	})
 	mux.Handle("/static/", http.StripPrefix("/static", handlers.CompressHandler(page.CacheControlHeaders(http.FileServer(http.Dir(webDir+"/static/"))))))
-	mux.Handle(page.Paths.AuthRedirect, page.AuthRedirect(logger, sessionStore))
-	mux.Handle(page.Paths.YotiRedirect, page.YotiRedirect(logger, sessionStore))
-	mux.Handle(page.Paths.CookiesConsent, page.CookieConsent(page.Paths))
+	mux.Handle(page.Paths.AuthRedirect.String(), page.AuthRedirect(logger, sessionStore))
+	mux.Handle(page.Paths.YotiRedirect.String(), page.YotiRedirect(logger, sessionStore))
+	mux.Handle(page.Paths.CookiesConsent.String(), page.CookieConsent(page.Paths))
 	mux.Handle("/cy/", http.StripPrefix("/cy", app.App(logger, bundle.For(localize.Cy), localize.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient, uidClient, oneloginURL)))
 	mux.Handle("/", app.App(logger, bundle.For(localize.En), localize.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient, uidClient, oneloginURL))
 

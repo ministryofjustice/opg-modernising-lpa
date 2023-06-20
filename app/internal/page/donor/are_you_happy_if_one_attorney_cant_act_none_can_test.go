@@ -51,7 +51,7 @@ func TestGetAreYouHappyIfOneAttorneyCantActNoneCanWhenTemplateErrors(t *testing.
 }
 
 func TestPostAreYouHappyIfOneAttorneyCantActNoneCan(t *testing.T) {
-	testcases := map[string]string{
+	testcases := map[string]page.LpaPath{
 		"yes": page.Paths.TaskList,
 		"no":  page.Paths.AreYouHappyIfRemainingAttorneysCanContinueToAct,
 	}
@@ -69,16 +69,17 @@ func TestPostAreYouHappyIfOneAttorneyCantActNoneCan(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
+					ID:                "lpa-id",
 					AttorneyDecisions: actor.AttorneyDecisions{HappyIfOneCannotActNoneCan: happy},
 				}).
 				Return(nil)
 
-			err := AreYouHappyIfOneAttorneyCantActNoneCan(nil, donorStore)(testAppData, w, r, &page.Lpa{})
+			err := AreYouHappyIfOneAttorneyCantActNoneCan(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+redirect, resp.Header.Get("Location"))
+			assert.Equal(t, redirect.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

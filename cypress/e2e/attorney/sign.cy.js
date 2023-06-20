@@ -31,7 +31,7 @@ describe('Sign', () => {
 
     describe('as a replacement attorney', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?cookiesAccepted=1&redirect=/attorney-sign&lpa.complete=1&withReplacementAttorney=1&lpa.signedByDonor=1&certificateProviderProvided=certified&replacementAttorneyProvided=1');
+            cy.visit('/testing-start?cookiesAccepted=1&redirect=/attorney-sign&lpa.complete=1&withReplacementAttorney=1&lpa.signedByDonor=1&certificateProviderProvided=certified&replacementAttorneyProvided=1&loginAs=attorney');
         });
 
         it('can be signed', () => {

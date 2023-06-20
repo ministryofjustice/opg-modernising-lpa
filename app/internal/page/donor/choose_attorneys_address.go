@@ -15,7 +15,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 		attorney, found := lpa.Attorneys.Get(attorneyId)
 
 		if found == false {
-			return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneys)
+			return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneys.Format(lpa.ID))
 		}
 
 		data := &chooseAddressData{
@@ -51,7 +51,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneysSummary)
+				return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneysSummary.Format(lpa.ID))
 
 			case "manual":
 				if data.Errors.None() {
@@ -59,7 +59,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 						return err
 					}
 
-					return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneysSummary)
+					return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneysSummary.Format(lpa.ID))
 				}
 
 			case "postcode-select":
@@ -85,7 +85,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 						return err
 					}
 
-					return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneysSummary)
+					return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneysSummary.Format(lpa.ID))
 				} else {
 					data.Addresses = lpa.ActorAddresses()
 				}
