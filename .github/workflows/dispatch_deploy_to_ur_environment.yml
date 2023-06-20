@@ -25,24 +25,21 @@ defaults:
   run:
     shell: bash
 
-env:
-  environment_name: testenv
-
 jobs:
   docker_build_scan_push:
     name: Docker Build, Scan and Push
     uses: ./.github/workflows/docker_job.yml
     with:
-      tag: $environment_name-${{ inputs.tag_to_deploy }}
+      tag: testenv-${{ inputs.tag_to_deploy }}
       checkout_tag : ${{ inputs.tag_to_deploy }}
 
   ui_tests_image:
-    name: Run Cypress UI Tests On $environment_name Images
+    name: Run Cypress UI Tests On testenv Images
     uses: ./.github/workflows/ui_test_job.yml
     needs: [docker_build_scan_push]
     with:
       run_against_image: true
-      tag: $environment_name-${{ inputs.tag_to_deploy}}
+      tag: testenv-${{ inputs.tag_to_deploy}}
       checkout_tag: ${{ inputs.tag_to_deploy}}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -51,12 +48,12 @@ jobs:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   # deploy:
-  #     name: $environment_name Environment Deploy
+  #     name: testenv Environment Deploy
   #     needs: [ui_tests_image]
   #     uses: ./.github/workflows/terraform_environment_job.yml
   #     with:
-  #       workspace_name: $environment_name
-  #       version_tag: $environment_name-${{ inputs.tag_to_deploy}}
+  #       workspace_name: testenv
+  #       version_tag: testenv-${{ inputs.tag_to_deploy}}
   #       checkout_tag: ${{ inputs.tag_to_deploy}}
   #     secrets:
   #       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -66,13 +63,13 @@ jobs:
   #       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
   # ui_tests_env:
-  #   name: Run Cypress UI Tests On $environment_name Environment
+  #   name: Run Cypress UI Tests On testenv Environment
   #   uses: ./.github/workflows/ui_test_job.yml
   #   needs: [deploy]
   #   with:
   #     run_against_image: false
   #     base_url: "https://${{ needs.deploy.outputs.url }}"
-  #     tag: $environment_name-${{ inputs.tag_to_deploy}}
+  #     tag: testenv-${{ inputs.tag_to_deploy}}
   #     checkout_tag: ${{ inputs.tag_to_deploy}}
   #     environment_config_json: ${{ needs.deploy.outputs.environment_config_json }}
   #   secrets:
@@ -82,7 +79,7 @@ jobs:
   #     github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   # always_remove_ingress:
-  #   name: Remove CI ingress from $environment_name environment
+  #   name: Remove CI ingress from testenv environment
   #   if: always()
   #   uses: ./.github/workflows/remove_ingress_job.yml
   #   needs: [ui_tests_env, deploy]
@@ -93,14 +90,14 @@ jobs:
   #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
   # end_of_deployment_workflow:
-  #   name: End of $environment_name Deployment Workflow
+  #   name: End of testenv Deployment Workflow
   #   runs-on: ubuntu-latest
   #   environment:
-  #     name: "$environment_name"
+  #     name: "testenv"
   #     url: "https://${{ needs.deploy.outputs.url }}"
   #   needs: [ui_tests_env]
   #   steps:
-  #     - name: End of $environment_name Deployment Workflow
+  #     - name: End of testenv Deployment Workflow
   #       run: |
   #         echo "${{ needs.deploy.outputs.terraform_workspace_name }} environment tested, built and deployed"
   #         echo "Tag Deployed: ${{ needs.deploy.outputs.terraform_container_version }}"
