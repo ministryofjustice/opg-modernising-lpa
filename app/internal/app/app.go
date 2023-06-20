@@ -67,6 +67,7 @@ func App(
 	paths page.AppPaths,
 	oneLoginClient *onelogin.Client,
 	uidClient *uid.Client,
+	oneloginURL string,
 ) http.Handler {
 	donorStore := &donorStore{dataStore: dataStore, uuidString: uuid.NewString, now: time.Now}
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: time.Now}
@@ -154,10 +155,10 @@ func App(
 		uidClient,
 	)
 
-	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash)
+	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash, oneloginURL)
 }
 
-func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang, rumConfig page.RumConfig, staticHash string) http.HandlerFunc {
+func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang, rumConfig page.RumConfig, staticHash, oneloginURL string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		localizer.SetShowTranslationKeys(r.FormValue("showTranslationKeys") == "1")
@@ -171,6 +172,7 @@ func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang
 		appData.StaticHash = staticHash
 		appData.Paths = page.Paths
 		appData.ActorTypes = actor.ActorTypes
+		appData.OneloginURL = oneloginURL
 
 		_, cookieErr := r.Cookie("cookies-consent")
 		appData.CookieConsentSet = cookieErr != http.ErrNoCookie

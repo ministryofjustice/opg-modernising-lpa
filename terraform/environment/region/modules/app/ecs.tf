@@ -352,6 +352,10 @@ locals {
           name  = "UID_BASE_URL",
           value = var.app_env_vars.uid_base_url
         },
+        {
+          name  = "ONELOGIN_URL",
+          value = var.app_env_vars.onelogin_url
+        },
       ]
     }
   )
