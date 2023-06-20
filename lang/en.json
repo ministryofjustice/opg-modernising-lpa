@@ -652,5 +652,8 @@
     "returnToTaskList": "Return to task list",
     "myLpas": "My LPAs",
     "imAnAttorney": "I’m an attorney",
-    "imACertificateProvider": "I’m a certificate provider"
+    "imACertificateProvider": "I’m a certificate provider",
+    "viewAndManageDonor": "View and manage all your lasting powers of attorney.",
+    "viewAndManageAttorney": "View and manage all the lasting powers of attorney where you are named as an attorney.",
+    "viewAndManageCertificateProvider": "View and manage all the lasting powers of attorney where you are named as the certificate provider."
 }
