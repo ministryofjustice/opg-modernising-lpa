@@ -72,7 +72,7 @@ func TestPostAboutPayment(t *testing.T) {
 			},
 			"Fake return URL": {
 				nextUrl:  "/lpa/lpa-id/something-else",
-				redirect: "/lpa/lpa-id" + page.Paths.PaymentConfirmation,
+				redirect: page.Paths.PaymentConfirmation.Format("lpa-id"),
 			},
 		}
 
@@ -122,7 +122,7 @@ func TestPostAboutPayment(t *testing.T) {
 						},
 					}, nil)
 
-				err := AboutPayment(nil, template.Execute, sessionStore, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{Donor: actor.Donor{Email: "a@b.com"}, CertificateProvider: actor.CertificateProvider{}})
+				err := AboutPayment(nil, template.Execute, sessionStore, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, CertificateProvider: actor.CertificateProvider{}})
 				resp := w.Result()
 
 				assert.Nil(t, err)

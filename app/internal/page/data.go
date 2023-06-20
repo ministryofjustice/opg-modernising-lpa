@@ -185,39 +185,16 @@ func (l *Lpa) AttorneysAndCpSigningDeadline() time.Time {
 
 func (l *Lpa) CanGoTo(url string) bool {
 	path, _, _ := strings.Cut(url, "?")
-
-	section1Completed := l.Tasks.YourDetails.Completed() &&
-		l.Tasks.ChooseAttorneys.Completed() &&
-		l.Tasks.ChooseReplacementAttorneys.Completed() &&
-		(l.Type == LpaTypeHealthWelfare && l.Tasks.LifeSustainingTreatment.Completed() || l.Type == LpaTypePropertyFinance && l.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
-		l.Tasks.Restrictions.Completed() &&
-		l.Tasks.CertificateProvider.Completed() &&
-		l.Tasks.PeopleToNotify.Completed() &&
-		l.Tasks.CheckYourLpa.Completed()
-
-	switch path {
-	case Paths.ReadYourLpa, Paths.SignYourLpa, Paths.WitnessingYourSignature, Paths.WitnessingAsCertificateProvider, Paths.YouHaveSubmittedYourLpa:
-		return l.DonorIdentityConfirmed()
-	case Paths.WhenCanTheLpaBeUsed, Paths.LifeSustainingTreatment, Paths.Restrictions, Paths.WhoDoYouWantToBeCertificateProviderGuidance, Paths.DoYouWantToNotifyPeople, Paths.DoYouWantReplacementAttorneys:
-		return l.Tasks.YourDetails.Completed() &&
-			l.Tasks.ChooseAttorneys.Completed()
-	case Paths.CheckYourLpa:
-		return l.Tasks.YourDetails.Completed() &&
-			l.Tasks.ChooseAttorneys.Completed() &&
-			l.Tasks.ChooseReplacementAttorneys.Completed() &&
-			(l.Type == LpaTypeHealthWelfare && l.Tasks.LifeSustainingTreatment.Completed() || l.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
-			l.Tasks.Restrictions.Completed() &&
-			l.Tasks.CertificateProvider.Completed() &&
-			l.Tasks.PeopleToNotify.Completed()
-	case Paths.AboutPayment:
-		return section1Completed
-	case Paths.SelectYourIdentityOptions, Paths.HowToConfirmYourIdentityAndSign:
-		return section1Completed && l.Tasks.PayForLpa.Completed()
-	case "":
+	if path == "" {
 		return false
-	default:
-		return true
 	}
+
+	if strings.HasPrefix(path, "/lpa/") {
+		_, lpaPath, _ := strings.Cut(strings.TrimPrefix(path, "/lpa/"), "/")
+		return LpaPath("/" + lpaPath).CanGoTo(l)
+	}
+
+	return true
 }
 
 func (l *Lpa) Progress(certificateProvider *actor.CertificateProviderProvidedDetails) Progress {

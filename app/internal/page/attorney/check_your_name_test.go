@@ -107,7 +107,7 @@ func TestGetCheckYourNameWhenAttorneyDoesNotExist(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.Attorney.Start.Format(), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -171,6 +171,7 @@ func TestPostCheckYourName(t *testing.T) {
 				Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
+				LpaID:         "lpa-id",
 				IsNameCorrect: "yes",
 				Tasks:         actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted},
 			},
@@ -181,6 +182,7 @@ func TestPostCheckYourName(t *testing.T) {
 				ReplacementAttorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
+				LpaID:         "lpa-id",
 				IsNameCorrect: "yes",
 				Tasks:         actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted},
 			},
@@ -208,12 +210,12 @@ func TestPostCheckYourName(t *testing.T) {
 				On("Put", r.Context(), tc.updatedAttorney).
 				Return(nil)
 
-			err := CheckYourName(nil, donorStore, attorneyStore, nil)(tc.appData, w, r, &actor.AttorneyProvidedDetails{})
+			err := CheckYourName(nil, donorStore, attorneyStore, nil)(tc.appData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/attorney/lpa-id"+page.Paths.Attorney.ReadTheLpa, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.Attorney.ReadTheLpa.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -231,6 +233,7 @@ func TestPostCheckYourNameWithCorrectedName(t *testing.T) {
 				Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
+				LpaID:         "lpa-id",
 				IsNameCorrect: "no",
 				CorrectedName: "Bobby Smith",
 				Tasks:         actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted},
@@ -243,6 +246,7 @@ func TestPostCheckYourNameWithCorrectedName(t *testing.T) {
 				ReplacementAttorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
+				LpaID:         "lpa-id",
 				IsNameCorrect: "no",
 				CorrectedName: "Bobby Smith",
 				Tasks:         actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted},
@@ -284,12 +288,12 @@ func TestPostCheckYourNameWithCorrectedName(t *testing.T) {
 				}).
 				Return("", nil)
 
-			err := CheckYourName(nil, donorStore, attorneyStore, notifyClient)(tc.appData, w, r, &actor.AttorneyProvidedDetails{})
+			err := CheckYourName(nil, donorStore, attorneyStore, notifyClient)(tc.appData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/attorney/lpa-id"+page.Paths.Attorney.ReadTheLpa, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.Attorney.ReadTheLpa.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -308,10 +312,12 @@ func TestPostCheckYourNameWithUnchangedCorrectedName(t *testing.T) {
 				Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 			},
 			attorney: &actor.AttorneyProvidedDetails{
+				LpaID:         "lpa-id",
 				IsNameCorrect: "no",
 				CorrectedName: "Bobby Smith",
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
+				LpaID:         "lpa-id",
 				IsNameCorrect: "no",
 				CorrectedName: "Bobby Smith",
 				Tasks:         actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted},
@@ -324,10 +330,12 @@ func TestPostCheckYourNameWithUnchangedCorrectedName(t *testing.T) {
 				ReplacementAttorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
 			},
 			attorney: &actor.AttorneyProvidedDetails{
+				LpaID:         "lpa-id",
 				IsNameCorrect: "no",
 				CorrectedName: "Bobby Smith",
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
+				LpaID:         "lpa-id",
 				IsNameCorrect: "no",
 				CorrectedName: "Bobby Smith",
 				Tasks:         actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted},
@@ -362,7 +370,7 @@ func TestPostCheckYourNameWithUnchangedCorrectedName(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/attorney/lpa-id"+page.Paths.Attorney.ReadTheLpa, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.Attorney.ReadTheLpa.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

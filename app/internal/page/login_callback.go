@@ -13,7 +13,7 @@ type LoginCallbackOneLoginClient interface {
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
 }
 
-func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh.Store, redirect string) Handler {
+func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh.Store, redirect Path) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		oneLoginSession, err := sesh.OneLogin(sessionStore, r)
 		if err != nil {
@@ -38,6 +38,6 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 			return err
 		}
 
-		return appData.Redirect(w, r, nil, redirect)
+		return appData.Redirect(w, r, nil, redirect.Format())
 	}
 }

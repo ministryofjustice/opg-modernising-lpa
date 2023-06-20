@@ -24,9 +24,9 @@ func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, don
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if r.Method == http.MethodPost {
 			if lpa.DonorIdentityConfirmed() {
-				return appData.Redirect(w, r, lpa, page.Paths.ReadYourLpa)
+				return appData.Redirect(w, r, lpa, page.Paths.ReadYourLpa.Format(lpa.ID))
 			} else {
-				return appData.Redirect(w, r, lpa, page.Paths.SelectYourIdentityOptions1)
+				return appData.Redirect(w, r, lpa, page.Paths.SelectYourIdentityOptions1.Format(lpa.ID))
 			}
 		}
 

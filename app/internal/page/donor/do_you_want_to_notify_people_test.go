@@ -112,6 +112,7 @@ func TestGetDoYouWantToNotifyPeopleFromStoreWithPeople(t *testing.T) {
 	template := newMockTemplate(t)
 
 	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{
 			{ID: "123"},
 		},
@@ -120,7 +121,7 @@ func TestGetDoYouWantToNotifyPeopleFromStoreWithPeople(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChoosePeopleToNotifySummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetDoYouWantToNotifyPeopleWhenTemplateErrors(t *testing.T) {
@@ -146,19 +147,19 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 	testCases := []struct {
 		WantToNotify     string
 		ExistingAnswer   string
-		ExpectedRedirect string
+		ExpectedRedirect page.LpaPath
 		ExpectedStatus   actor.TaskState
 	}{
 		{
 			WantToNotify:     "yes",
 			ExistingAnswer:   "no",
-			ExpectedRedirect: "/lpa/lpa-id" + page.Paths.ChoosePeopleToNotify,
+			ExpectedRedirect: page.Paths.ChoosePeopleToNotify,
 			ExpectedStatus:   actor.TaskInProgress,
 		},
 		{
 			WantToNotify:     "no",
 			ExistingAnswer:   "yes",
-			ExpectedRedirect: "/lpa/lpa-id" + page.Paths.TaskList,
+			ExpectedRedirect: page.Paths.TaskList,
 			ExpectedStatus:   actor.TaskCompleted,
 		},
 	}
@@ -176,6 +177,7 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
+					ID:                      "lpa-id",
 					DoYouWantToNotifyPeople: tc.WantToNotify,
 					Tasks: page.Tasks{
 						YourDetails:                actor.TaskCompleted,
@@ -190,6 +192,7 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 				Return(nil)
 
 			err := DoYouWantToNotifyPeople(nil, donorStore)(testAppData, w, r, &page.Lpa{
+				ID:                      "lpa-id",
 				DoYouWantToNotifyPeople: tc.ExistingAnswer,
 				Tasks: page.Tasks{
 					YourDetails:                actor.TaskCompleted,
@@ -204,7 +207,7 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, tc.ExpectedRedirect, resp.Header.Get("Location"))
+			assert.Equal(t, tc.ExpectedRedirect.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
