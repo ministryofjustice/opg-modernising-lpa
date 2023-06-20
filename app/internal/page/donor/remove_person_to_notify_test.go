@@ -61,13 +61,13 @@ func TestGetRemovePersonToNotifyAttorneyDoesNotExist(t *testing.T) {
 		},
 	}
 
-	err := RemovePersonToNotify(logger, template.Execute, nil)(testAppData, w, r, &page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotify}})
+	err := RemovePersonToNotify(logger, template.Execute, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{personToNotify}})
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChoosePeopleToNotifySummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostRemovePersonToNotify(t *testing.T) {
@@ -96,16 +96,16 @@ func TestPostRemovePersonToNotify(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithAddress}}).
+		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{personToNotifyWithAddress}}).
 		Return(nil)
 
-	err := RemovePersonToNotify(logger, template.Execute, donorStore)(testAppData, w, r, &page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
+	err := RemovePersonToNotify(logger, template.Execute, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChoosePeopleToNotifySummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
@@ -132,13 +132,13 @@ func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	err := RemovePersonToNotify(logger, template.Execute, nil)(testAppData, w, r, &page.Lpa{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
+	err := RemovePersonToNotify(logger, template.Execute, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChoosePeopleToNotifySummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
@@ -232,12 +232,14 @@ func TestRemovePersonToNotifyRemoveLastPerson(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID:             "lpa-id",
 			PeopleToNotify: actor.PeopleToNotify{},
 			Tasks:          page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, PeopleToNotify: actor.TaskNotStarted},
 		}).
 		Return(nil)
 
 	err := RemovePersonToNotify(logger, template.Execute, donorStore)(testAppData, w, r, &page.Lpa{
+		ID:             "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress},
 		Tasks:          page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, PeopleToNotify: actor.TaskCompleted},
 	})
@@ -246,7 +248,7 @@ func TestRemovePersonToNotifyRemoveLastPerson(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChoosePeopleToNotifySummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestRemovePersonToNotifyFormValidate(t *testing.T) {

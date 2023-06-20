@@ -27,8 +27,8 @@ describe('Choose attorneys summary', () => {
 
         cy.get('#attorney-name-1').contains('a', 'Change').click();
 
-        cy.url().should('contain', '/choose-attorneys');
-        cy.url().should('contain', 'from=/choose-attorneys-summary');
+        cy.url().should('contain', '/choose-attorneys?from=');
+        cy.url().should('contain', '/choose-attorneys-summary');
         cy.url().should('match', /id=\w*/);
 
         cy.get('#f-first-names').clear().type('Mark');
@@ -45,8 +45,8 @@ describe('Choose attorneys summary', () => {
 
         cy.get('#attorney-address-2').contains('a', 'Change').click();
 
-        cy.url().should('contain', '/choose-attorneys-address');
-        cy.url().should('contain', 'from=/choose-attorneys-summary');
+        cy.url().should('contain', '/choose-attorneys-address?from=');
+        cy.url().should('contain', '/choose-attorneys-summary');
         cy.url().should('match', /id=\w*/);
 
         cy.contains('label', 'Enter a new address').click();

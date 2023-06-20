@@ -149,12 +149,14 @@ func TestPostChooseAttorneysAddressSkip(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID:        "lpa-id",
 			Attorneys: actor.Attorneys{{ID: "123", FirstNames: "a", Email: "a"}},
 			Tasks:     page.Tasks{ChooseAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
 		Attorneys: actor.Attorneys{{
 			ID:         "123",
 			FirstNames: "a",
@@ -166,7 +168,7 @@ func TestPostChooseAttorneysAddressSkip(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseAttorneysSummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChooseAttorneysAddressSkipWhenStoreErrors(t *testing.T) {
@@ -215,6 +217,7 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID:    "lpa-id",
 			Tasks: page.Tasks{ChooseAttorneys: actor.TaskCompleted},
 			Attorneys: actor.Attorneys{{
 				ID:         "123",
@@ -225,6 +228,7 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
 		Attorneys: actor.Attorneys{{
 			ID:         "123",
 			FirstNames: "a",
@@ -235,7 +239,7 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseAttorneysSummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
@@ -284,6 +288,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID:    "lpa-id",
 			Tasks: page.Tasks{ChooseAttorneys: actor.TaskCompleted},
 			Attorneys: actor.Attorneys{{
 				ID:         "123",
@@ -295,6 +300,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
 		Attorneys: actor.Attorneys{{
 			ID:         "123",
 			FirstNames: "John",
@@ -306,7 +312,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseAttorneysSummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
@@ -710,19 +716,21 @@ func TestPostChooseAttorneysAddressReuseSelect(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID:        "lpa-id",
 			Attorneys: actor.Attorneys{updatedAttorney},
 			Tasks:     page.Tasks{ChooseAttorneys: actor.TaskInProgress},
 		}).
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
+		ID:        "lpa-id",
 		Attorneys: actor.Attorneys{{ID: "123"}},
 	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChooseAttorneysSummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChooseAttorneysAddressReuseSelectWhenValidationError(t *testing.T) {
@@ -767,15 +775,15 @@ func TestPostChooseAttorneysManuallyFromAnotherPage(t *testing.T) {
 	}{
 		"with from value": {
 			"/?from=/test&id=123",
-			"/lpa/lpa-id/test",
+			"/test",
 		},
 		"without from value": {
 			"/?from=&id=123",
-			"/lpa/lpa-id" + page.Paths.ChooseAttorneysSummary,
+			page.Paths.ChooseAttorneysSummary.Format("lpa-id"),
 		},
 		"missing from key": {
 			"/?id=123",
-			"/lpa/lpa-id" + page.Paths.ChooseAttorneysSummary,
+			page.Paths.ChooseAttorneysSummary.Format("lpa-id"),
 		},
 	}
 
@@ -793,6 +801,7 @@ func TestPostChooseAttorneysManuallyFromAnotherPage(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpa := &page.Lpa{
+				ID: "lpa-id",
 				Attorneys: actor.Attorneys{
 					{
 						ID: "123",

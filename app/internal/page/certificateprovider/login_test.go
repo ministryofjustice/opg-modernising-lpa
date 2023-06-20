@@ -51,7 +51,7 @@ func TestCertificateProviderLogin(t *testing.T) {
 			Nonce:    "i am random",
 			Locale:   "cy",
 			LpaID:    "lpa-id",
-			Redirect: page.Paths.CertificateProvider.LoginCallback,
+			Redirect: page.Paths.CertificateProvider.LoginCallback.Format(),
 		},
 	}
 
@@ -105,7 +105,7 @@ func TestCertificateProviderLoginDefaultLocale(t *testing.T) {
 			Nonce:    "i am random",
 			Locale:   "en",
 			LpaID:    "lpa-id",
-			Redirect: page.Paths.CertificateProvider.LoginCallback,
+			Redirect: page.Paths.CertificateProvider.LoginCallback.Format(),
 		},
 	}
 

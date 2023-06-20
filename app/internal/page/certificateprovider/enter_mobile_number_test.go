@@ -172,9 +172,9 @@ func TestPostEnterMobileNumber(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 	certificateProviderStore.
-		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{Mobile: "07535111222"}).
+		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", Mobile: "07535111222"}).
 		Return(nil)
 
 	err := EnterMobileNumber(nil, donorStore, certificateProviderStore)(testAppData, w, r)
@@ -182,7 +182,7 @@ func TestPostEnterMobileNumber(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity.Format("lpa-id"), resp.Header.Get("Location"))
 
 }
 

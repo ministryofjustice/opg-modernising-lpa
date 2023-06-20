@@ -32,7 +32,7 @@ func CheckYourName(tmpl template.Template, donorStore DonorStore, attorneyStore 
 
 		attorney, ok := attorneys.Get(appData.AttorneyID)
 		if !ok {
-			return appData.Redirect(w, r, lpa, page.Paths.Attorney.Start)
+			return appData.Redirect(w, r, lpa, page.Paths.Attorney.Start.Format())
 		}
 
 		data := &checkYourNameData{
@@ -71,8 +71,7 @@ func CheckYourName(tmpl template.Template, donorStore DonorStore, attorneyStore 
 					return err
 				}
 
-				appData.Redirect(w, r, lpa, page.Paths.Attorney.ReadTheLpa)
-				return nil
+				return appData.Redirect(w, r, lpa, page.Paths.Attorney.ReadTheLpa.Format(attorneyProvidedDetails.LpaID))
 			}
 		}
 
