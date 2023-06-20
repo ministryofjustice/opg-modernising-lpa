@@ -1,7 +1,6 @@
 package donor
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -41,6 +40,7 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 
 	err := ChoosePeopleToNotify(template.Execute, nil, mockUuidString)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{
 			{
 				ID:         "123",
@@ -55,7 +55,7 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChoosePeopleToNotifySummary, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
@@ -87,7 +87,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 
 	testcases := map[string]struct {
 		addedPeople actor.PeopleToNotify
-		expectedUrl string
+		expectedUrl page.LpaPath
 	}{
 		"5 people": {
 			addedPeople: actor.PeopleToNotify{
@@ -97,7 +97,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 				personToNotify,
 				personToNotify,
 			},
-			expectedUrl: "/lpa/lpa-id" + page.Paths.ChoosePeopleToNotifySummary,
+			expectedUrl: page.Paths.ChoosePeopleToNotifySummary,
 		},
 		"6 people": {
 			addedPeople: actor.PeopleToNotify{
@@ -108,7 +108,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 				personToNotify,
 				personToNotify,
 			},
-			expectedUrl: "/lpa/lpa-id" + page.Paths.ChoosePeopleToNotifySummary,
+			expectedUrl: page.Paths.ChoosePeopleToNotifySummary,
 		},
 	}
 
@@ -118,13 +118,14 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			err := ChoosePeopleToNotify(nil, nil, mockUuidString)(testAppData, w, r, &page.Lpa{
+				ID:             "lpa-id",
 				PeopleToNotify: tc.addedPeople,
 			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, tc.expectedUrl, resp.Header.Get("Location"))
+			assert.Equal(t, tc.expectedUrl.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -172,6 +173,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
+					ID:             "lpa-id",
 					Donor:          actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					PeopleToNotify: actor.PeopleToNotify{tc.personToNotify},
 					Tasks:          page.Tasks{PeopleToNotify: actor.TaskInProgress},
@@ -179,13 +181,14 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 				Return(nil)
 
 			err := ChoosePeopleToNotify(nil, donorStore, mockUuidString)(testAppData, w, r, &page.Lpa{
+				ID:    "lpa-id",
 				Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, fmt.Sprintf("/lpa/lpa-id%s?id=123", page.Paths.ChoosePeopleToNotifyAddress), resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.ChoosePeopleToNotifyAddress.Format("lpa-id")+"?id=123", resp.Header.Get("Location"))
 		})
 	}
 }
@@ -204,6 +207,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID: "lpa-id",
 			PeopleToNotify: actor.PeopleToNotify{{
 				FirstNames: "Johnny",
 				LastName:   "Dear",
@@ -215,6 +219,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 		Return(nil)
 
 	err := ChoosePeopleToNotify(nil, donorStore, mockUuidString)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{{
 			FirstNames: "John",
 			LastName:   "Doe",
@@ -226,7 +231,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.ChoosePeopleToNotifyAddress+"?id=123", resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChoosePeopleToNotifyAddress.Format("lpa-id")+"?id=123", resp.Header.Get("Location"))
 }
 
 func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {

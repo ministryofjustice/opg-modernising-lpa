@@ -12,11 +12,11 @@ func TestIsLpaPath(t *testing.T) {
 		expectedIsLpaPage bool
 	}{
 		"dashboard": {
-			url:               Paths.Dashboard + "?someQuery=5",
+			url:               Paths.Dashboard.Format() + "?someQuery=5",
 			expectedIsLpaPage: false,
 		},
 		"start": {
-			url:               Paths.Start + "?someQuery=6",
+			url:               Paths.Start.Format() + "?someQuery=6",
 			expectedIsLpaPage: false,
 		},
 		"any other page": {

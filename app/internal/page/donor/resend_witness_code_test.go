@@ -55,6 +55,7 @@ func TestPostResendWitnessCode(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpa := &page.Lpa{
+		ID:                    "lpa-id",
 		Donor:                 actor.Donor{FirstNames: "john"},
 		DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "john"},
 	}
@@ -69,7 +70,7 @@ func TestPostResendWitnessCode(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.WitnessingAsCertificateProvider, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.WitnessingAsCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostResendWitnessCodeWhenSendErrors(t *testing.T) {

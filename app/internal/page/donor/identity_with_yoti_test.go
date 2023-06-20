@@ -75,12 +75,12 @@ func TestGetIdentityWithYotiWhenAlreadyProvided(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := IdentityWithYoti(nil, nil, nil)(testAppData, w, r, &page.Lpa{DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.EasyID}})
+	err := IdentityWithYoti(nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.EasyID}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.IdentityWithYotiCallback, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.IdentityWithYotiCallback.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithYotiWhenTest(t *testing.T) {
@@ -90,12 +90,12 @@ func TestGetIdentityWithYotiWhenTest(t *testing.T) {
 	yotiClient := newMockYotiClient(t)
 	yotiClient.On("IsTest").Return(true)
 
-	err := IdentityWithYoti(nil, nil, yotiClient)(testAppData, w, r, &page.Lpa{})
+	err := IdentityWithYoti(nil, nil, yotiClient)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.IdentityWithYotiCallback, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.IdentityWithYotiCallback.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithYotiWhenTemplateError(t *testing.T) {

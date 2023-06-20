@@ -16,7 +16,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 		personToNotify, found := lpa.PeopleToNotify.Get(personId)
 
 		if found == false {
-			return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotify)
+			return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotify.Format(lpa.ID))
 		}
 
 		data := &chooseAddressData{
@@ -51,7 +51,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 						return err
 					}
 
-					return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotifySummary)
+					return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotifySummary.Format(lpa.ID))
 				}
 
 			case "postcode-select":
@@ -77,7 +77,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 						return err
 					}
 
-					return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotifySummary)
+					return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotifySummary.Format(lpa.ID))
 				} else {
 					data.Addresses = lpa.ActorAddresses()
 				}

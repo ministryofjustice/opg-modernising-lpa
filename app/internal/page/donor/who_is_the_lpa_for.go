@@ -31,7 +31,7 @@ func WhoIsTheLpaFor(tmpl template.Template, donorStore DonorStore) Handler {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.LpaType)
+				return appData.Redirect(w, r, lpa, page.Paths.LpaType.Format(lpa.ID))
 			}
 		}
 
