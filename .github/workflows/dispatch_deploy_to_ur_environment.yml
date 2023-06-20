@@ -64,7 +64,7 @@ jobs:
 
   ui_tests_env:
     name: Run Cypress UI Tests On testenv Environment
-    uses: ./.github/workflows/ui_test_job.yml@v0.510.0
+    uses: ./.github/workflows/ui_test_job.yml
     needs: [deploy]
     with:
       run_against_image: false
