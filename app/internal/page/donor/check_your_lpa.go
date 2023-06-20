@@ -42,7 +42,7 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.AboutPayment)
+				return appData.Redirect(w, r, lpa, page.Paths.AboutPayment.Format(lpa.ID))
 			}
 		}
 

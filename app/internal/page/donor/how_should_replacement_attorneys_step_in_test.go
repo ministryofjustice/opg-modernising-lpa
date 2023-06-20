@@ -91,21 +91,23 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
-			HowShouldReplacementAttorneysStepIn:        page.SomeOtherWay,
+			ID:                                  "lpa-id",
+			HowShouldReplacementAttorneysStepIn: page.SomeOtherWay,
 			HowShouldReplacementAttorneysStepInDetails: "some details"}).
 		Return(nil)
 
 	template := newMockTemplate(t)
 
 	err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{
-		HowShouldReplacementAttorneysStepIn:        "",
+		ID:                                  "lpa-id",
+		HowShouldReplacementAttorneysStepIn: "",
 		HowShouldReplacementAttorneysStepInDetails: "",
 	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.TaskList, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
@@ -115,7 +117,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 		HowAttorneysMakeDecisions            string
 		HowReplacementAttorneysMakeDecisions string
 		HowShouldReplacementAttorneysStepIn  string
-		ExpectedRedirectUrl                  string
+		ExpectedRedirectUrl                  page.LpaPath
 		TaskState                            actor.TaskState
 	}{
 		"multiple attorneys acting jointly and severally replacements step in when none left": {
@@ -129,7 +131,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			},
 			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: page.AllCanNoLongerAct,
-			ExpectedRedirectUrl:                 "/lpa/lpa-id" + page.Paths.HowShouldReplacementAttorneysMakeDecisions,
+			ExpectedRedirectUrl:                 page.Paths.HowShouldReplacementAttorneysMakeDecisions,
 			TaskState:                           actor.TaskInProgress,
 		},
 		"multiple attorneys acting jointly": {
@@ -140,7 +142,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			HowAttorneysMakeDecisions:            actor.Jointly,
 			HowShouldReplacementAttorneysStepIn:  page.OneCanNoLongerAct,
 			HowReplacementAttorneysMakeDecisions: actor.Jointly,
-			ExpectedRedirectUrl:                  "/lpa/lpa-id" + page.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan,
+			ExpectedRedirectUrl:                  page.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan,
 			TaskState:                            actor.TaskInProgress,
 		},
 		"multiple attorneys acting jointly and severally replacements step in when one loses capacity": {
@@ -150,7 +152,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			},
 			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: page.OneCanNoLongerAct,
-			ExpectedRedirectUrl:                 "/lpa/lpa-id" + page.Paths.TaskList,
+			ExpectedRedirectUrl:                 page.Paths.TaskList,
 			TaskState:                           actor.TaskNotStarted,
 		},
 		"multiple attorneys acting jointly and severally": {
@@ -164,7 +166,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			},
 			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: page.OneCanNoLongerAct,
-			ExpectedRedirectUrl:                 "/lpa/lpa-id" + page.Paths.TaskList,
+			ExpectedRedirectUrl:                 page.Paths.TaskList,
 			TaskState:                           actor.TaskInProgress,
 		},
 	}
@@ -182,6 +184,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
+					ID:                                  "lpa-id",
 					Attorneys:                           tc.Attorneys,
 					AttorneyDecisions:                   actor.AttorneyDecisions{How: tc.HowAttorneysMakeDecisions},
 					ReplacementAttorneys:                tc.ReplacementAttorneys,
@@ -194,6 +197,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			template := newMockTemplate(t)
 
 			err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{
+				ID:                           "lpa-id",
 				Attorneys:                    tc.Attorneys,
 				AttorneyDecisions:            actor.AttorneyDecisions{How: tc.HowAttorneysMakeDecisions},
 				ReplacementAttorneys:         tc.ReplacementAttorneys,
@@ -203,8 +207,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, tc.ExpectedRedirectUrl, resp.Header.Get("Location"))
-
+			assert.Equal(t, tc.ExpectedRedirectUrl.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -250,22 +253,23 @@ func TestPostHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
-					HowShouldReplacementAttorneysStepIn:        tc.updatedWhenStepIn,
+					ID:                                  "lpa-id",
+					HowShouldReplacementAttorneysStepIn: tc.updatedWhenStepIn,
 					HowShouldReplacementAttorneysStepInDetails: tc.updatedOtherDetails}).
 				Return(nil)
 
 			template := newMockTemplate(t)
 
 			err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{
-				HowShouldReplacementAttorneysStepIn:        tc.existingWhenStepIn,
+				ID:                                  "lpa-id",
+				HowShouldReplacementAttorneysStepIn: tc.existingWhenStepIn,
 				HowShouldReplacementAttorneysStepInDetails: tc.existingOtherDetails,
 			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+page.Paths.TaskList, resp.Header.Get("Location"))
-
+			assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

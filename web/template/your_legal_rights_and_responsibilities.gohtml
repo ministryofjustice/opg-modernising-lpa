@@ -14,10 +14,10 @@
       {{ end }}
 
       <p class="govuk-button-group govuk-!-margin-top-8">
-        <a href="{{ link .App .App.Paths.SignYourLpa }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
+        <a href="{{ link .App (.App.Paths.SignYourLpa.Format .App.LpaID) }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
           {{ tr .App "continueToSigningPage" }}
         </a>
-        <a href="{{ link .App .App.Paths.TaskList }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+        <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
       </p>
     </div>
   </div>

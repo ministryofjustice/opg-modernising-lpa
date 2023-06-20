@@ -1,6 +1,7 @@
 describe('Who is eligible', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/certificate-provider-who-is-eligible&withShareCodeSession=1');
+        cy.visit('/testing-start?withShareCodeSession=1');
+        cy.visit('/certificate-provider-who-is-eligible');
     });
 
     it('can continue', () => {

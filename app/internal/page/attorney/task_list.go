@@ -39,7 +39,7 @@ func TaskList(tmpl template.Template, donorStore DonorStore, certificateProvider
 				return err
 			}
 			if ok {
-				signPath = page.Paths.Attorney.Sign
+				signPath = page.Paths.Attorney.Sign.Format(lpa.ID)
 			}
 		}
 
@@ -49,12 +49,12 @@ func TaskList(tmpl template.Template, donorStore DonorStore, certificateProvider
 			Items: []taskListItem{
 				{
 					Name:  "confirmYourDetails",
-					Path:  page.Paths.Attorney.MobileNumber,
+					Path:  page.Paths.Attorney.MobileNumber.Format(lpa.ID),
 					State: tasks.ConfirmYourDetails,
 				},
 				{
 					Name:  "readTheLpa",
-					Path:  page.Paths.Attorney.ReadTheLpa,
+					Path:  page.Paths.Attorney.ReadTheLpa.Format(lpa.ID),
 					State: tasks.ReadTheLpa,
 				},
 				{

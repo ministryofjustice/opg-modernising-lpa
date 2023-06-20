@@ -168,6 +168,7 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 				"date-of-birth-year":  {validBirthYear},
 			},
 			cp: &actor.CertificateProviderProvidedDetails{
+				LpaID:       "lpa-id",
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
 			},
 		},
@@ -179,6 +180,7 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
 			cp: &actor.CertificateProviderProvidedDetails{
+				LpaID:       "lpa-id",
 				DateOfBirth: date.New("1900", "1", "2"),
 			},
 		},
@@ -199,7 +201,7 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
 				On("Get", r.Context()).
-				Return(&actor.CertificateProviderProvidedDetails{}, nil)
+				Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 			certificateProviderStore.
 				On("Put", r.Context(), tc.cp).
 				Return(nil)
@@ -209,7 +211,7 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.EnterMobileNumber, resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.CertificateProvider.EnterMobileNumber.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -236,9 +238,10 @@ func TestPostEnterDateOfBirthWhenCPHasAlreadyWitnessed(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 	certificateProviderStore.
 		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{
+			LpaID:       "lpa-id",
 			DateOfBirth: date.New("1983", "1", "2"),
 		}).
 		Return(nil)
@@ -248,7 +251,7 @@ func TestPostEnterDateOfBirthWhenCPHasAlreadyWitnessed(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/certificate-provider/lpa-id"+page.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostEnterDateOfBirthWhenInputRequired(t *testing.T) {

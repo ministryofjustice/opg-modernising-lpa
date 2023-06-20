@@ -20,7 +20,7 @@ type yourChosenIdentityOptionsData struct {
 func YourChosenIdentityOptions(tmpl template.Template) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if r.Method == http.MethodPost {
-			return appData.Redirect(w, r, lpa, identityOptionPath(appData.Paths, lpa.DonorIdentityOption))
+			return appData.Redirect(w, r, lpa, identityOptionPath(appData.Paths, lpa.DonorIdentityOption).Format(lpa.ID))
 		}
 
 		data := &yourChosenIdentityOptionsData{
@@ -33,7 +33,7 @@ func YourChosenIdentityOptions(tmpl template.Template) Handler {
 	}
 }
 
-func identityOptionPath(paths page.AppPaths, identityOption identity.Option) string {
+func identityOptionPath(paths page.AppPaths, identityOption identity.Option) page.LpaPath {
 	switch identityOption {
 	case identity.OneLogin:
 		return paths.IdentityWithOneLogin

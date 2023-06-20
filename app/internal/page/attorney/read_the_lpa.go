@@ -30,7 +30,7 @@ func ReadTheLpa(tmpl template.Template, donorStore DonorStore, attorneyStore Att
 
 		attorney, ok := attorneys.Get(appData.AttorneyID)
 		if !ok {
-			return appData.Redirect(w, r, lpa, page.Paths.Attorney.Start)
+			return appData.Redirect(w, r, lpa, page.Paths.Attorney.Start.Format())
 		}
 
 		data := &readTheLpaData{
@@ -46,7 +46,7 @@ func ReadTheLpa(tmpl template.Template, donorStore DonorStore, attorneyStore Att
 				return err
 			}
 
-			return appData.Redirect(w, r, lpa, page.Paths.Attorney.RightsAndResponsibilities)
+			return appData.Redirect(w, r, lpa, page.Paths.Attorney.RightsAndResponsibilities.Format(attorneyProvidedDetails.LpaID))
 		}
 
 		return tmpl(w, data)
