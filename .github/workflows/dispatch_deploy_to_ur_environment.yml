@@ -49,58 +49,58 @@ jobs:
       cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
-  deploy:
-      name: ${{ env.environment_name }} Environment Deploy
-      needs: [ui_tests_image]
-      uses: ./.github/workflows/terraform_environment_job.yml
-      with:
-        workspace_name: ${{ env.environment_name }}
-        version_tag: ${{ env.environment_name }}-${{ inputs.tag_to_deploy}}
-        checkout_tag: ${{ inputs.tag_to_deploy}}
-      secrets:
-        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-        ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
-        github_access_token: ${{ secrets.GITHUB_TOKEN }}
-        pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
+  # deploy:
+  #     name: ${{ env.environment_name }} Environment Deploy
+  #     needs: [ui_tests_image]
+  #     uses: ./.github/workflows/terraform_environment_job.yml
+  #     with:
+  #       workspace_name: ${{ env.environment_name }}
+  #       version_tag: ${{ env.environment_name }}-${{ inputs.tag_to_deploy}}
+  #       checkout_tag: ${{ inputs.tag_to_deploy}}
+  #     secrets:
+  #       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+  #       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+  #       ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
+  #       github_access_token: ${{ secrets.GITHUB_TOKEN }}
+  #       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
-  ui_tests_env:
-    name: Run Cypress UI Tests On ${{ env.environment_name }} Environment
-    uses: ./.github/workflows/ui_test_job.yml
-    needs: [deploy]
-    with:
-      run_against_image: false
-      base_url: "https://${{ needs.deploy.outputs.url }}"
-      tag: ${{ env.environment_name }}-${{ inputs.tag_to_deploy}}
-      checkout_tag: ${{ inputs.tag_to_deploy}}
-      environment_config_json: ${{ needs.deploy.outputs.environment_config_json }}
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-      cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
-      github_access_token: ${{ secrets.GITHUB_TOKEN }}
+  # ui_tests_env:
+  #   name: Run Cypress UI Tests On ${{ env.environment_name }} Environment
+  #   uses: ./.github/workflows/ui_test_job.yml
+  #   needs: [deploy]
+  #   with:
+  #     run_against_image: false
+  #     base_url: "https://${{ needs.deploy.outputs.url }}"
+  #     tag: ${{ env.environment_name }}-${{ inputs.tag_to_deploy}}
+  #     checkout_tag: ${{ inputs.tag_to_deploy}}
+  #     environment_config_json: ${{ needs.deploy.outputs.environment_config_json }}
+  #   secrets:
+  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+  #     cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
+  #     github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
-  always_remove_ingress:
-    name: Remove CI ingress from ${{ env.environment_name }} environment
-    if: always()
-    uses: ./.github/workflows/remove_ingress_job.yml
-    needs: [ui_tests_env, deploy]
-    with:
-      environment_config_json: ${{ needs.deploy.outputs.environment_config_json }}
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+  # always_remove_ingress:
+  #   name: Remove CI ingress from ${{ env.environment_name }} environment
+  #   if: always()
+  #   uses: ./.github/workflows/remove_ingress_job.yml
+  #   needs: [ui_tests_env, deploy]
+  #   with:
+  #     environment_config_json: ${{ needs.deploy.outputs.environment_config_json }}
+  #   secrets:
+  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
-  end_of_deployment_workflow:
-    name: End of ${{ env.environment_name }} Deployment Workflow
-    runs-on: ubuntu-latest
-    environment:
-      name: "${{ env.environment_name }}"
-      url: "https://${{ needs.deploy.outputs.url }}"
-    needs: [ui_tests_env]
-    steps:
-      - name: End of ${{ env.environment_name }} Deployment Workflow
-        run: |
-          echo "${{ needs.deploy.outputs.terraform_workspace_name }} environment tested, built and deployed"
-          echo "Tag Deployed: ${{ needs.deploy.outputs.terraform_container_version }}"
-          echo "URL: https://${{ needs.deploy.outputs.url }}"
+  # end_of_deployment_workflow:
+  #   name: End of ${{ env.environment_name }} Deployment Workflow
+  #   runs-on: ubuntu-latest
+  #   environment:
+  #     name: "${{ env.environment_name }}"
+  #     url: "https://${{ needs.deploy.outputs.url }}"
+  #   needs: [ui_tests_env]
+  #   steps:
+  #     - name: End of ${{ env.environment_name }} Deployment Workflow
+  #       run: |
+  #         echo "${{ needs.deploy.outputs.terraform_workspace_name }} environment tested, built and deployed"
+  #         echo "Tag Deployed: ${{ needs.deploy.outputs.terraform_container_version }}"
+  #         echo "URL: https://${{ needs.deploy.outputs.url }}"
