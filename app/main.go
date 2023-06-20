@@ -71,6 +71,7 @@ func main() {
 		}
 		uidBaseURL  = env.Get("UID_BASE_URL", "http://uid-mock:8080")
 		metadataURL = env.Get("ECS_CONTAINER_METADATA_URI_V4", "")
+		oneloginURL = env.Get("ONELOGIN_URL", "https://home.integration.account.gov.uk")
 	)
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
@@ -207,8 +208,8 @@ func main() {
 	mux.Handle(page.Paths.AuthRedirect, page.AuthRedirect(logger, sessionStore))
 	mux.Handle(page.Paths.YotiRedirect, page.YotiRedirect(logger, sessionStore))
 	mux.Handle(page.Paths.CookiesConsent, page.CookieConsent(page.Paths))
-	mux.Handle("/cy/", http.StripPrefix("/cy", app.App(logger, bundle.For(localize.Cy), localize.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient, uidClient)))
-	mux.Handle("/", app.App(logger, bundle.For(localize.En), localize.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient, uidClient))
+	mux.Handle("/cy/", http.StripPrefix("/cy", app.App(logger, bundle.For(localize.Cy), localize.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient, uidClient, oneloginURL)))
+	mux.Handle("/", app.App(logger, bundle.For(localize.En), localize.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient, uidClient, oneloginURL))
 
 	var handler http.Handler = mux
 	if xrayEnabled {
