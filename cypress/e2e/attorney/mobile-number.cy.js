@@ -2,7 +2,7 @@ import { TestMobile } from "../../support/e2e";
 
 describe('Mobile number', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?lpa.complete=1&attorneyProvided=1&redirect=/attorney-mobile-number&loginAs=attorney');
+        cy.visit('/testing-start?lpa.complete=1&attorneyProvided=1&redirect=/mobile-number&loginAs=attorney');
     });
 
     it('can be completed', () => {
@@ -12,13 +12,13 @@ describe('Mobile number', () => {
 
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/attorney-check-your-name');
+        cy.url().should('contain', '/check-your-name');
     });
 
     it('can be empty', () => {
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/attorney-check-your-name');
+        cy.url().should('contain', '/check-your-name');
     });
 
     it('errors when not a UK mobile', () => {

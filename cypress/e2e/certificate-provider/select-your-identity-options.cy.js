@@ -1,6 +1,6 @@
 describe('Select your identity options', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/certificate-provider-select-your-identity-options&lpa.complete=1&certificateProviderProvided=1&loginAs=certificate-provider');
+        cy.visit('/testing-start?redirect=/select-your-identity-options&lpa.complete=1&certificateProviderProvided=1&loginAs=certificate-provider');
     });
 
     it('can select on first page', () => {
@@ -9,7 +9,7 @@ describe('Select your identity options', () => {
         cy.contains('label', 'Your GOV.UK One Login Identity').click();
         cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contain', '/certificate-provider-your-chosen-identity-options');
+        cy.url().should('contain', '/your-chosen-identity-options');
         cy.checkA11yApp();
 
         cy.contains('Your GOV.UK One Login Identity');
@@ -22,13 +22,13 @@ describe('Select your identity options', () => {
         cy.contains('label', 'I do not have either of these types of accounts').click();
         cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contain', '/certificate-provider-select-identity-document');
+        cy.url().should('contain', '/select-identity-document');
         cy.checkA11yApp();
 
         cy.contains('label', 'Your passport').click();
         cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contain', '/certificate-provider-your-chosen-identity-options');
+        cy.url().should('contain', '/your-chosen-identity-options');
         cy.checkA11yApp();
 
         cy.contains('passport');
@@ -41,19 +41,19 @@ describe('Select your identity options', () => {
         cy.contains('label', 'I do not have either of these types of accounts').click();
         cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contain', '/certificate-provider-select-identity-document');
+        cy.url().should('contain', '/select-identity-document');
         cy.checkA11yApp();
 
         cy.contains('label', 'I do not have any of these identity documents').click();
         cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contain', '/certificate-provider-select-identity-document-2');
+        cy.url().should('contain', '/select-identity-document-2');
         cy.checkA11yApp();
 
         cy.contains('label', 'A bank account').click();
         cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contain', '/certificate-provider-your-chosen-identity-options');
+        cy.url().should('contain', '/your-chosen-identity-options');
         cy.checkA11yApp();
 
         cy.contains('your bank account');
