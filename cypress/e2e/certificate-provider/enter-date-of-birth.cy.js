@@ -1,6 +1,6 @@
 describe('Enter date of birth', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/certificate-provider-enter-date-of-birth&certificateProviderProvided=1&loginAs=certificate-provider');
+        cy.visit('/testing-start?redirect=/enter-date-of-birth&certificateProviderProvided=1&loginAs=certificate-provider');
     });
 
     it('can be completed', () => {
@@ -12,7 +12,7 @@ describe('Enter date of birth', () => {
 
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/certificate-provider-enter-mobile-number');
+        cy.url().should('contain', '/enter-mobile-number');
     });
 
     it('can be over 100', () => {
@@ -24,14 +24,14 @@ describe('Enter date of birth', () => {
 
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/certificate-provider-enter-date-of-birth');
+        cy.url().should('contain', '/enter-date-of-birth');
         cy.contains('By saving this section, you confirm that the person is more than 100 years old')
 
         cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/certificate-provider-enter-mobile-number');
+        cy.url().should('contain', '/enter-mobile-number');
     });
 
     it('errors when empty', () => {
