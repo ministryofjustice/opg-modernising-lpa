@@ -9,7 +9,7 @@
 
       {{ trHtml .App "confirmYourIdentityContent" }}
 
-      <a class="govuk-button govuk-!-margin-top-4" href="{{ link .App .App.Paths.CertificateProvider.SelectYourIdentityOptions }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+      <a class="govuk-button govuk-!-margin-top-4" href="{{ link .App (.App.Paths.CertificateProvider.SelectYourIdentityOptions.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
     </div>
   </div>
 {{ end }}

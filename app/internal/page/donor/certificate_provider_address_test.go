@@ -137,16 +137,17 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID:                  "lpa-id",
 			CertificateProvider: actor.CertificateProvider{Address: testAddress},
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.HowDoYouKnowYourCertificateProvider, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.HowDoYouKnowYourCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
@@ -192,6 +193,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID: "lpa-id",
 			CertificateProvider: actor.CertificateProvider{
 				FirstNames: "John",
 				Address:    testAddress,
@@ -201,6 +203,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 		Return(nil)
 
 	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
 		CertificateProvider: actor.CertificateProvider{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
@@ -211,7 +214,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.HowDoYouKnowYourCertificateProvider, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.HowDoYouKnowYourCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
@@ -565,6 +568,7 @@ func TestPostCertificateProviderAddressReuseSelect(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
+			ID: "lpa-id",
 			CertificateProvider: actor.CertificateProvider{
 				Address: place.Address{
 					Line1:      "a",
@@ -577,12 +581,12 @@ func TestPostCertificateProviderAddressReuseSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.HowDoYouKnowYourCertificateProvider, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.HowDoYouKnowYourCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostCertificateProviderAddressReuseSelectWhenValidationError(t *testing.T) {

@@ -19,7 +19,7 @@ type identityWithYotiData struct {
 func IdentityWithYoti(tmpl template.Template, sessionStore SessionStore, yotiClient YotiClient) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if lpa.DonorIdentityConfirmed() || yotiClient.IsTest() {
-			return appData.Redirect(w, r, lpa, page.Paths.IdentityWithYotiCallback)
+			return appData.Redirect(w, r, lpa, page.Paths.IdentityWithYotiCallback.Format(lpa.ID))
 		}
 
 		if err := sesh.SetYoti(sessionStore, r, w, &sesh.YotiSession{

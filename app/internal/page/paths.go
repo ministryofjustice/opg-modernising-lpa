@@ -6,134 +6,214 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+type Path string
+
+func (p Path) String() string {
+	return string(p)
+}
+
+func (p Path) Format() string {
+	return string(p)
+}
+
+type LpaPath string
+
+func (p LpaPath) String() string {
+	return string(p)
+}
+
+func (p LpaPath) Format(id string) string {
+	return "/lpa/" + id + string(p)
+}
+
+func (p LpaPath) CanGoTo(lpa *Lpa) bool {
+	section1Completed := lpa.Tasks.YourDetails.Completed() &&
+		lpa.Tasks.ChooseAttorneys.Completed() &&
+		lpa.Tasks.ChooseReplacementAttorneys.Completed() &&
+		(lpa.Type == LpaTypeHealthWelfare && lpa.Tasks.LifeSustainingTreatment.Completed() || lpa.Type == LpaTypePropertyFinance && lpa.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
+		lpa.Tasks.Restrictions.Completed() &&
+		lpa.Tasks.CertificateProvider.Completed() &&
+		lpa.Tasks.PeopleToNotify.Completed() &&
+		lpa.Tasks.CheckYourLpa.Completed()
+
+	switch p {
+	case Paths.ReadYourLpa, Paths.SignYourLpa, Paths.WitnessingYourSignature, Paths.WitnessingAsCertificateProvider, Paths.YouHaveSubmittedYourLpa:
+		return lpa.DonorIdentityConfirmed()
+	case Paths.WhenCanTheLpaBeUsed, Paths.LifeSustainingTreatment, Paths.Restrictions, Paths.WhoDoYouWantToBeCertificateProviderGuidance, Paths.DoYouWantToNotifyPeople, Paths.DoYouWantReplacementAttorneys:
+		return lpa.Tasks.YourDetails.Completed() &&
+			lpa.Tasks.ChooseAttorneys.Completed()
+	case Paths.CheckYourLpa:
+		return lpa.Tasks.YourDetails.Completed() &&
+			lpa.Tasks.ChooseAttorneys.Completed() &&
+			lpa.Tasks.ChooseReplacementAttorneys.Completed() &&
+			(lpa.Type == LpaTypeHealthWelfare && lpa.Tasks.LifeSustainingTreatment.Completed() || lpa.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
+			lpa.Tasks.Restrictions.Completed() &&
+			lpa.Tasks.CertificateProvider.Completed() &&
+			lpa.Tasks.PeopleToNotify.Completed()
+	case Paths.AboutPayment:
+		return section1Completed
+	case Paths.SelectYourIdentityOptions, Paths.HowToConfirmYourIdentityAndSign:
+		return section1Completed && lpa.Tasks.PayForLpa.Completed()
+	case "":
+		return false
+	default:
+		return true
+	}
+}
+
+type AttorneyPath string
+
+func (p AttorneyPath) String() string {
+	return string(p)
+}
+
+func (p AttorneyPath) Format(id string) string {
+	return "/attorney/" + id + string(p)
+}
+
+type CertificateProviderPath string
+
+func (p CertificateProviderPath) String() string {
+	return string(p)
+}
+
+func (p CertificateProviderPath) Format(id string) string {
+	return "/certificate-provider/" + id + string(p)
+}
+
 type AttorneyPaths struct {
-	CheckYourName             string
-	CodeOfConduct             string
-	EnterReferenceNumber      string
-	Login                     string
-	LoginCallback             string
-	MobileNumber              string
-	ReadTheLpa                string
-	RightsAndResponsibilities string
-	Sign                      string
-	Start                     string
-	TaskList                  string
-	WhatHappensNext           string
-	WhatHappensWhenYouSign    string
+	EnterReferenceNumber Path
+	Login                Path
+	LoginCallback        Path
+	Start                Path
+
+	CheckYourName             AttorneyPath
+	CodeOfConduct             AttorneyPath
+	MobileNumber              AttorneyPath
+	ReadTheLpa                AttorneyPath
+	RightsAndResponsibilities AttorneyPath
+	Sign                      AttorneyPath
+	TaskList                  AttorneyPath
+	WhatHappensNext           AttorneyPath
+	WhatHappensWhenYouSign    AttorneyPath
 }
 
 type CertificateProviderPaths struct {
-	CertificateProvided                  string
-	CheckYourName                        string
-	EnterDateOfBirth                     string
-	EnterMobileNumber                    string
-	EnterReferenceNumber                 string
-	IdentityWithBiometricResidencePermit string
-	IdentityWithDrivingLicencePaper      string
-	IdentityWithDrivingLicencePhotocard  string
-	IdentityWithOneLogin                 string
-	IdentityWithOneLoginCallback         string
-	IdentityWithOnlineBankAccount        string
-	IdentityWithPassport                 string
-	IdentityWithYoti                     string
-	IdentityWithYotiCallback             string
-	Login                                string
-	LoginCallback                        string
-	ProvideCertificate                   string
-	ReadTheLpa                           string
-	SelectYourIdentityOptions            string
-	SelectYourIdentityOptions1           string
-	SelectYourIdentityOptions2           string
-	WhatHappensNext                      string
-	WhatYoullNeedToConfirmYourIdentity   string
-	WhoIsEligible                        string
-	YourChosenIdentityOptions            string
+	Login                Path
+	LoginCallback        Path
+	EnterReferenceNumber Path
+	WhoIsEligible        Path
+
+	CertificateProvided                  CertificateProviderPath
+	CheckYourName                        CertificateProviderPath
+	EnterDateOfBirth                     CertificateProviderPath
+	EnterMobileNumber                    CertificateProviderPath
+	IdentityWithBiometricResidencePermit CertificateProviderPath
+	IdentityWithDrivingLicencePaper      CertificateProviderPath
+	IdentityWithDrivingLicencePhotocard  CertificateProviderPath
+	IdentityWithOneLogin                 CertificateProviderPath
+	IdentityWithOneLoginCallback         CertificateProviderPath
+	IdentityWithOnlineBankAccount        CertificateProviderPath
+	IdentityWithPassport                 CertificateProviderPath
+	IdentityWithYoti                     CertificateProviderPath
+	IdentityWithYotiCallback             CertificateProviderPath
+	ProvideCertificate                   CertificateProviderPath
+	ReadTheLpa                           CertificateProviderPath
+	SelectYourIdentityOptions            CertificateProviderPath
+	SelectYourIdentityOptions1           CertificateProviderPath
+	SelectYourIdentityOptions2           CertificateProviderPath
+	WhatHappensNext                      CertificateProviderPath
+	WhatYoullNeedToConfirmYourIdentity   CertificateProviderPath
+	YourChosenIdentityOptions            CertificateProviderPath
 }
+
 type HealthCheckPaths struct {
-	Service    string
-	Dependency string
+	Service    Path
+	Dependency Path
 }
 
 type AppPaths struct {
+	AuthRedirect                       Path
+	Login                              Path
+	LoginCallback                      Path
+	Root                               Path
+	IdentityWithOneLogin               Path
+	SignOut                            Path
+	Fixtures                           Path
+	YourLegalRightsAndResponsibilities Path
+	CertificateProviderStart           Path
+	Start                              Path
+	TestingStart                       Path
+	Dashboard                          Path
+	YotiRedirect                       Path
+	CookiesConsent                     Path
+
+	LpaYourLegalRightsAndResponsibilities                      LpaPath
 	Attorney                                                   AttorneyPaths
 	CertificateProvider                                        CertificateProviderPaths
-	AboutPayment                                               string
-	AreYouHappyIfOneAttorneyCantActNoneCan                     string
-	AreYouHappyIfOneReplacementAttorneyCantActNoneCan          string
-	AreYouHappyIfRemainingAttorneysCanContinueToAct            string
-	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct string
-	AuthRedirect                                               string
-	CertificateProviderAddress                                 string
-	CertificateProviderDetails                                 string
-	CertificateProviderOptOut                                  string
-	CertificateProviderStart                                   string
-	CheckYourLpa                                               string
-	ChooseAttorneys                                            string
-	ChooseAttorneysAddress                                     string
-	ChooseAttorneysSummary                                     string
-	ChoosePeopleToNotify                                       string
-	ChoosePeopleToNotifyAddress                                string
-	ChoosePeopleToNotifySummary                                string
-	ChooseReplacementAttorneys                                 string
-	ChooseReplacementAttorneysAddress                          string
-	ChooseReplacementAttorneysSummary                          string
-	CookiesConsent                                             string
-	Dashboard                                                  string
-	DoYouWantReplacementAttorneys                              string
-	DoYouWantToNotifyPeople                                    string
-	Fixtures                                                   string
+	AboutPayment                                               LpaPath
+	AreYouHappyIfOneAttorneyCantActNoneCan                     LpaPath
+	AreYouHappyIfOneReplacementAttorneyCantActNoneCan          LpaPath
+	AreYouHappyIfRemainingAttorneysCanContinueToAct            LpaPath
+	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct LpaPath
+	CertificateProviderAddress                                 LpaPath
+	CertificateProviderDetails                                 LpaPath
+	CertificateProviderOptOut                                  LpaPath
+	CheckYourLpa                                               LpaPath
+	ChooseAttorneys                                            LpaPath
+	ChooseAttorneysAddress                                     LpaPath
+	ChooseAttorneysSummary                                     LpaPath
+	ChoosePeopleToNotify                                       LpaPath
+	ChoosePeopleToNotifyAddress                                LpaPath
+	ChoosePeopleToNotifySummary                                LpaPath
+	ChooseReplacementAttorneys                                 LpaPath
+	ChooseReplacementAttorneysAddress                          LpaPath
+	ChooseReplacementAttorneysSummary                          LpaPath
+	DoYouWantReplacementAttorneys                              LpaPath
+	DoYouWantToNotifyPeople                                    LpaPath
 	HealthCheck                                                HealthCheckPaths
-	HowDoYouKnowYourCertificateProvider                        string
-	HowLongHaveYouKnownCertificateProvider                     string
-	HowShouldAttorneysMakeDecisions                            string
-	HowShouldReplacementAttorneysMakeDecisions                 string
-	HowShouldReplacementAttorneysStepIn                        string
-	HowToConfirmYourIdentityAndSign                            string
-	HowWouldCertificateProviderPreferToCarryOutTheirRole       string
-	IdentityConfirmed                                          string
-	IdentityWithBiometricResidencePermit                       string
-	IdentityWithDrivingLicencePaper                            string
-	IdentityWithDrivingLicencePhotocard                        string
-	IdentityWithOneLogin                                       string
-	IdentityWithOneLoginCallback                               string
-	IdentityWithOnlineBankAccount                              string
-	IdentityWithPassport                                       string
-	IdentityWithYoti                                           string
-	IdentityWithYotiCallback                                   string
-	LifeSustainingTreatment                                    string
-	Login                                                      string
-	LoginCallback                                              string
-	LpaType                                                    string
-	PaymentConfirmation                                        string
-	Progress                                                   string
-	ReadYourLpa                                                string
-	RemoveAttorney                                             string
-	RemovePersonToNotify                                       string
-	RemoveReplacementAttorney                                  string
-	ResendWitnessCode                                          string
-	Restrictions                                               string
-	Root                                                       string
-	SelectYourIdentityOptions                                  string
-	SelectYourIdentityOptions1                                 string
-	SelectYourIdentityOptions2                                 string
-	SignOut                                                    string
-	SignYourLpa                                                string
-	Start                                                      string
-	TaskList                                                   string
-	TestingStart                                               string
-	UseExistingAddress                                         string
-	WhatYoullNeedToConfirmYourIdentity                         string
-	WhenCanTheLpaBeUsed                                        string
-	WhoDoYouWantToBeCertificateProviderGuidance                string
-	WhoIsTheLpaFor                                             string
-	WitnessingAsCertificateProvider                            string
-	WitnessingYourSignature                                    string
-	YotiRedirect                                               string
-	YouHaveSubmittedYourLpa                                    string
-	YourAddress                                                string
-	YourChosenIdentityOptions                                  string
-	YourDetails                                                string
-	YourLegalRightsAndResponsibilities                         string
+	HowDoYouKnowYourCertificateProvider                        LpaPath
+	HowLongHaveYouKnownCertificateProvider                     LpaPath
+	HowShouldAttorneysMakeDecisions                            LpaPath
+	HowShouldReplacementAttorneysMakeDecisions                 LpaPath
+	HowShouldReplacementAttorneysStepIn                        LpaPath
+	HowToConfirmYourIdentityAndSign                            LpaPath
+	HowWouldCertificateProviderPreferToCarryOutTheirRole       LpaPath
+	IdentityConfirmed                                          LpaPath
+	IdentityWithBiometricResidencePermit                       LpaPath
+	IdentityWithDrivingLicencePaper                            LpaPath
+	IdentityWithDrivingLicencePhotocard                        LpaPath
+	IdentityWithOneLoginCallback                               LpaPath
+	IdentityWithOnlineBankAccount                              LpaPath
+	IdentityWithPassport                                       LpaPath
+	IdentityWithYoti                                           LpaPath
+	IdentityWithYotiCallback                                   LpaPath
+	LifeSustainingTreatment                                    LpaPath
+	LpaType                                                    LpaPath
+	PaymentConfirmation                                        LpaPath
+	Progress                                                   LpaPath
+	ReadYourLpa                                                LpaPath
+	RemoveAttorney                                             LpaPath
+	RemovePersonToNotify                                       LpaPath
+	RemoveReplacementAttorney                                  LpaPath
+	ResendWitnessCode                                          LpaPath
+	Restrictions                                               LpaPath
+	SelectYourIdentityOptions                                  LpaPath
+	SelectYourIdentityOptions1                                 LpaPath
+	SelectYourIdentityOptions2                                 LpaPath
+	SignYourLpa                                                LpaPath
+	TaskList                                                   LpaPath
+	UseExistingAddress                                         LpaPath
+	WhatYoullNeedToConfirmYourIdentity                         LpaPath
+	WhenCanTheLpaBeUsed                                        LpaPath
+	WhoDoYouWantToBeCertificateProviderGuidance                LpaPath
+	WhoIsTheLpaFor                                             LpaPath
+	WitnessingAsCertificateProvider                            LpaPath
+	WitnessingYourSignature                                    LpaPath
+	YouHaveSubmittedYourLpa                                    LpaPath
+	YourAddress                                                LpaPath
+	YourChosenIdentityOptions                                  LpaPath
+	YourDetails                                                LpaPath
 }
 
 var Paths = AppPaths{
@@ -259,6 +339,7 @@ var Paths = AppPaths{
 	YourChosenIdentityOptions:                            "/your-chosen-identity-options",
 	YourDetails:                                          "/your-details",
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
+	LpaYourLegalRightsAndResponsibilities:                "/lpa-your-legal-rights-and-responsibilities",
 }
 
 // IsAttorneyPath checks whether the url should be prefixed with /attorney/.
@@ -266,15 +347,15 @@ func IsAttorneyPath(url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 
 	return slices.Contains([]string{
-		Paths.Attorney.CheckYourName,
-		Paths.Attorney.CodeOfConduct,
-		Paths.Attorney.MobileNumber,
-		Paths.Attorney.ReadTheLpa,
-		Paths.Attorney.RightsAndResponsibilities,
-		Paths.Attorney.Sign,
-		Paths.Attorney.TaskList,
-		Paths.Attorney.WhatHappensNext,
-		Paths.Attorney.WhatHappensWhenYouSign,
+		Paths.Attorney.CheckYourName.String(),
+		Paths.Attorney.CodeOfConduct.String(),
+		Paths.Attorney.MobileNumber.String(),
+		Paths.Attorney.ReadTheLpa.String(),
+		Paths.Attorney.RightsAndResponsibilities.String(),
+		Paths.Attorney.Sign.String(),
+		Paths.Attorney.TaskList.String(),
+		Paths.Attorney.WhatHappensNext.String(),
+		Paths.Attorney.WhatHappensWhenYouSign.String(),
 	}, path)
 }
 
@@ -283,27 +364,27 @@ func IsCertificateProviderPath(url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 
 	return slices.Contains([]string{
-		Paths.CertificateProvider.CertificateProvided,
-		Paths.CertificateProvider.CheckYourName,
-		Paths.CertificateProvider.EnterDateOfBirth,
-		Paths.CertificateProvider.EnterMobileNumber,
-		Paths.CertificateProvider.IdentityWithBiometricResidencePermit,
-		Paths.CertificateProvider.IdentityWithDrivingLicencePaper,
-		Paths.CertificateProvider.IdentityWithDrivingLicencePhotocard,
-		Paths.CertificateProvider.IdentityWithOneLogin,
-		Paths.CertificateProvider.IdentityWithOneLoginCallback,
-		Paths.CertificateProvider.IdentityWithOnlineBankAccount,
-		Paths.CertificateProvider.IdentityWithPassport,
-		Paths.CertificateProvider.IdentityWithYoti,
-		Paths.CertificateProvider.IdentityWithYotiCallback,
-		Paths.CertificateProvider.ProvideCertificate,
-		Paths.CertificateProvider.ReadTheLpa,
-		Paths.CertificateProvider.SelectYourIdentityOptions,
-		Paths.CertificateProvider.SelectYourIdentityOptions1,
-		Paths.CertificateProvider.SelectYourIdentityOptions2,
-		Paths.CertificateProvider.WhatHappensNext,
-		Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity,
-		Paths.CertificateProvider.YourChosenIdentityOptions,
+		Paths.CertificateProvider.CertificateProvided.String(),
+		Paths.CertificateProvider.CheckYourName.String(),
+		Paths.CertificateProvider.EnterDateOfBirth.String(),
+		Paths.CertificateProvider.EnterMobileNumber.String(),
+		Paths.CertificateProvider.IdentityWithBiometricResidencePermit.String(),
+		Paths.CertificateProvider.IdentityWithDrivingLicencePaper.String(),
+		Paths.CertificateProvider.IdentityWithDrivingLicencePhotocard.String(),
+		Paths.CertificateProvider.IdentityWithOneLogin.String(),
+		Paths.CertificateProvider.IdentityWithOneLoginCallback.String(),
+		Paths.CertificateProvider.IdentityWithOnlineBankAccount.String(),
+		Paths.CertificateProvider.IdentityWithPassport.String(),
+		Paths.CertificateProvider.IdentityWithYoti.String(),
+		Paths.CertificateProvider.IdentityWithYotiCallback.String(),
+		Paths.CertificateProvider.ProvideCertificate.String(),
+		Paths.CertificateProvider.ReadTheLpa.String(),
+		Paths.CertificateProvider.SelectYourIdentityOptions.String(),
+		Paths.CertificateProvider.SelectYourIdentityOptions1.String(),
+		Paths.CertificateProvider.SelectYourIdentityOptions2.String(),
+		Paths.CertificateProvider.WhatHappensNext.String(),
+		Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity.String(),
+		Paths.CertificateProvider.YourChosenIdentityOptions.String(),
 	}, path)
 }
 
@@ -314,21 +395,21 @@ func IsLpaPath(url string) bool {
 	return !IsAttorneyPath(url) &&
 		!IsCertificateProviderPath(url) &&
 		!slices.Contains([]string{
-			Paths.Attorney.EnterReferenceNumber,
-			Paths.Attorney.Login,
-			Paths.Attorney.LoginCallback,
-			Paths.Attorney.Start,
-			Paths.AuthRedirect,
-			Paths.CertificateProvider.EnterReferenceNumber,
-			Paths.CertificateProvider.Login,
-			Paths.CertificateProvider.LoginCallback,
-			Paths.CertificateProvider.WhoIsEligible,
-			Paths.CertificateProviderStart,
-			Paths.Dashboard,
-			Paths.Login,
-			Paths.LoginCallback,
-			Paths.SignOut,
-			Paths.Start,
-			Paths.YotiRedirect,
+			Paths.Attorney.EnterReferenceNumber.String(),
+			Paths.Attorney.Login.String(),
+			Paths.Attorney.LoginCallback.String(),
+			Paths.Attorney.Start.String(),
+			Paths.AuthRedirect.String(),
+			Paths.CertificateProvider.EnterReferenceNumber.String(),
+			Paths.CertificateProvider.Login.String(),
+			Paths.CertificateProvider.LoginCallback.String(),
+			Paths.CertificateProvider.WhoIsEligible.String(),
+			Paths.CertificateProviderStart.String(),
+			Paths.Dashboard.String(),
+			Paths.Login.String(),
+			Paths.LoginCallback.String(),
+			Paths.SignOut.String(),
+			Paths.Start.String(),
+			Paths.YotiRedirect.String(),
 		}, path)
 }

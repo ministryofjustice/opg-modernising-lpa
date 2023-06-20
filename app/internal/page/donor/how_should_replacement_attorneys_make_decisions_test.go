@@ -89,17 +89,17 @@ func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "", How: "jointly"}}).
+		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "", How: "jointly"}}).
 		Return(nil)
 
 	template := newMockTemplate(t)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "", How: ""}})
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id", ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "", How: ""}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.TaskList, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
@@ -109,7 +109,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 		attorneys actor.Attorneys
 		updated   actor.AttorneyDecisions
 		taskState actor.TaskState
-		redirect  string
+		redirect  page.LpaPath
 	}{
 		"existing details not set": {
 			form: url.Values{
@@ -155,6 +155,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
+					ID:                           "lpa-id",
 					ReplacementAttorneys:         tc.attorneys,
 					ReplacementAttorneyDecisions: tc.updated,
 					Tasks:                        page.Tasks{ChooseReplacementAttorneys: tc.taskState},
@@ -164,6 +165,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 			template := newMockTemplate(t)
 
 			err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{
+				ID:                           "lpa-id",
 				ReplacementAttorneys:         tc.attorneys,
 				ReplacementAttorneyDecisions: tc.existing,
 			})
@@ -171,7 +173,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+tc.redirect, resp.Header.Get("Location"))
+			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

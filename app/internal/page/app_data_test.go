@@ -31,26 +31,6 @@ func TestAppDataRedirect(t *testing.T) {
 	}
 }
 
-func TestAppDataRedirectWhenLpaRoute(t *testing.T) {
-	testCases := map[localize.Lang]string{
-		localize.En: "/lpa/lpa-id/somewhere",
-		localize.Cy: "/cy/lpa/lpa-id/somewhere",
-	}
-
-	for lang, url := range testCases {
-		t.Run(lang.String(), func(t *testing.T) {
-			r, _ := http.NewRequest(http.MethodGet, "/", nil)
-			w := httptest.NewRecorder()
-
-			AppData{Lang: lang, LpaID: "lpa-id"}.Redirect(w, r, nil, "/somewhere")
-			resp := w.Result()
-
-			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, url, resp.Header.Get("Location"))
-		})
-	}
-}
-
 func TestAppDataRedirectWhenCanGoTo(t *testing.T) {
 	testCases := map[string]struct {
 		url      string
@@ -60,12 +40,12 @@ func TestAppDataRedirectWhenCanGoTo(t *testing.T) {
 		"nil": {
 			url:      "/",
 			lpa:      nil,
-			expected: Paths.HowToConfirmYourIdentityAndSign,
+			expected: Paths.HowToConfirmYourIdentityAndSign.Format("lpa-id"),
 		},
 		"nil and from": {
-			url:      "/?from=" + Paths.Restrictions,
+			url:      "/?from=" + Paths.Restrictions.Format("lpa-id"),
 			lpa:      nil,
-			expected: Paths.Restrictions,
+			expected: Paths.Restrictions.Format("lpa-id"),
 		},
 		"allowed": {
 			url: "/",
@@ -83,22 +63,22 @@ func TestAppDataRedirectWhenCanGoTo(t *testing.T) {
 					PayForLpa:                  actor.TaskCompleted,
 				},
 			},
-			expected: Paths.HowToConfirmYourIdentityAndSign,
+			expected: Paths.HowToConfirmYourIdentityAndSign.Format("lpa-id"),
 		},
 		"allowed from": {
-			url:      "/?from=" + Paths.Restrictions,
+			url:      "/?from=" + Paths.Restrictions.Format("lpa-id"),
 			lpa:      &Lpa{Tasks: Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted}},
-			expected: Paths.Restrictions,
+			expected: Paths.Restrictions.Format("lpa-id"),
 		},
 		"not allowed": {
 			url:      "/",
 			lpa:      &Lpa{},
-			expected: Paths.TaskList,
+			expected: Paths.TaskList.Format("lpa-id"),
 		},
 		"not allowed from": {
-			url:      "/?from=" + Paths.Restrictions,
+			url:      "/?from=" + Paths.Restrictions.Format("lpa-id"),
 			lpa:      &Lpa{},
-			expected: Paths.TaskList,
+			expected: Paths.TaskList.Format("lpa-id"),
 		},
 	}
 
@@ -107,11 +87,11 @@ func TestAppDataRedirectWhenCanGoTo(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 			w := httptest.NewRecorder()
 
-			AppData{Lang: localize.En, LpaID: "lpa-id"}.Redirect(w, r, tc.lpa, Paths.HowToConfirmYourIdentityAndSign)
+			AppData{Lang: localize.En, LpaID: "lpa-id"}.Redirect(w, r, tc.lpa, Paths.HowToConfirmYourIdentityAndSign.Format("lpa-id"))
 			resp := w.Result()
 
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, "/lpa/lpa-id"+tc.expected, resp.Header.Get("Location"))
+			assert.Equal(t, tc.expected, resp.Header.Get("Location"))
 		})
 	}
 }
@@ -122,16 +102,14 @@ func TestAppDataBuildUrl(t *testing.T) {
 		url  string
 		want string
 	}{
-		"english":              {lang: localize.En, url: "/example.org", want: "/lpa/123/example.org"},
-		"welsh":                {lang: localize.Cy, url: "/example.org", want: "/cy/lpa/123/example.org"},
-		"other language":       {lang: localize.Lang(3), url: "/example.org", want: "/lpa/123/example.org"},
-		"certificate provider": {lang: localize.Cy, url: Paths.CertificateProvider.CertificateProvided, want: "/cy/certificate-provider/123/certificate-provided"},
-		"attorney":             {lang: localize.Cy, url: Paths.Attorney.CheckYourName, want: "/cy/attorney/123/attorney-check-your-name"},
+		"english":        {lang: localize.En, url: "/example.org", want: "/example.org"},
+		"welsh":          {lang: localize.Cy, url: "/example.org", want: "/cy/example.org"},
+		"other language": {lang: localize.Lang(3), url: "/example.org", want: "/example.org"},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			builtUrl := AppData{Lang: tc.lang, LpaID: "123"}.BuildUrl(tc.url)
+			builtUrl := AppData{Lang: tc.lang}.BuildUrl(tc.url)
 			assert.Equal(t, tc.want, builtUrl)
 		})
 	}
