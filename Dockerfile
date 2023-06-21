@@ -35,7 +35,7 @@ RUN go mod download
 COPY /app .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab
 
-FROM alpine:3.18.0 as production
+FROM alpine:3.18.2 as production
 
 WORKDIR /go/bin
 
