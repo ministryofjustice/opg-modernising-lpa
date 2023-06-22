@@ -1,4 +1,10 @@
-data "aws_caller_identity" "main" {}
+data "aws_caller_identity" "main" {
+  provider = aws.global
+}
+
+data "aws_region" "eu_west_1" {
+  provider = aws.eu_west_1
+}
 
 resource "aws_dynamodb_table" "reduced_fees" {
   name                        = "${local.environment_name}-reduced-fees"
@@ -29,12 +35,12 @@ resource "aws_dynamodb_table" "reduced_fees" {
   provider = aws.eu_west_1
 }
 
-# resource "aws_dynamodb_table_replica" "reduced_fees" {
-#   global_table_arn       = aws_dynamodb_table.reduced_fees.arn
-#   kms_key_arn            = data.aws_kms_alias.dynamodb_encryption_key_eu_west_2.target_key_arn
-#   point_in_time_recovery = true
-#   provider               = aws.eu_west_2
-# }
+resource "aws_dynamodb_table_replica" "reduced_fees" {
+  global_table_arn = aws_dynamodb_table.reduced_fees.arn
+  # kms_key_arn            = data.aws_kms_alias.dynamodb_encryption_key_eu_west_2.target_key_arn
+  point_in_time_recovery = true
+  provider               = aws.eu_west_2
+}
 
 
 resource "aws_cloudwatch_event_bus" "reduced_fees" {
@@ -56,17 +62,7 @@ resource "aws_pipes_pipe" "reduced_fees" {
   target      = aws_cloudwatch_event_bus.reduced_fees.arn
 
   source_parameters {}
-  target_parameters {
-    input_template = <<-EOT
-      {
-        "NewImage": <$.dynamodb.NewImage.Message.S>,
-        "OldImage": <$.dynamodb.OldImage.Message.S>,
-        "eventSourceARN": <$.eventSourceARN>,
-        "eventName": <$.eventName>,
-        "awsRegion": <$.awsRegion>
-      }
-      EOT
-  }
+  target_parameters {}
   provider = aws.eu_west_1
 }
 
@@ -92,12 +88,12 @@ data "aws_iam_policy_document" "reduced_fees_assume_role" {
     condition {
       test     = "StringEquals"
       variable = "aws:SourceAccount"
-      values   = ["653761790766"]
+      values   = [data.aws_caller_identity.main.account_id]
     }
     condition {
       test     = "StringEquals"
       variable = "aws:SourceArn"
-      values   = ["arn:aws:pipes:eu-west-1:653761790766:pipe/reduced-fees"]
+      values   = ["arn:aws:pipes:${data.aws_region.eu_west_1.name}:${data.aws_caller_identity.main.account_id}:pipe/reduced-fees"]
     }
   }
   provider = aws.global
