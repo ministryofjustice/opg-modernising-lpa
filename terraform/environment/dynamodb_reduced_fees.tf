@@ -36,7 +36,92 @@ resource "aws_dynamodb_table" "reduced_fees" {
 #   provider               = aws.eu_west_2
 # }
 
+
 resource "aws_cloudwatch_event_bus" "reduced_fees" {
   name     = "reduced-fees"
   provider = aws.eu_west_1
+}
+
+resource "aws_pipes_pipe" "reduced_fees" {
+  name        = "reduced-fees"
+  description = "capture events from dynamodb stream and pass to event bus"
+  role_arn    = aws_iam_role.reduced_fees_pipe.arn
+  source      = aws_dynamodb_table.reduced_fees.stream_arn
+  target      = aws_cloudwatch_event_bus.reduced_fees.arn
+
+  source_parameters {}
+  target_parameters {}
+  provider = aws.eu_west_1
+}
+
+
+resource "aws_iam_role" "reduced_fees_pipe" {
+  assume_role_policy = data.aws_iam_policy_document.reduced_fees_assume_role.json
+  path               = "/service-role/"
+  managed_policy_arns = [
+    "arn:aws:iam::653761790766:policy/service-role/DynamoDbPipeSourceTemplate-d47c4614",
+    "arn:aws:iam::653761790766:policy/service-role/EventBusPipeTargetTemplate-102dc19b",
+  ]
+  provider = aws.global
+}
+
+data "aws_iam_policy_document" "reduced_fees_assume_role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    effect  = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["pipes.amazonaws.com"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = ["653761790766"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceArn"
+      values   = ["arn:aws:pipes:eu-west-1:653761790766:pipe/reduced-fees"]
+    }
+  }
+  provider = aws.global
+}
+
+resource "aws_iam_role_policy" "reduced_fees_pipe_source" {
+  name     = "${local.default_tags.environment-name}-DynamoDbPipeSource"
+  policy   = data.aws_iam_policy_document.reduced_fees_dynamodb_source.json
+  role     = aws_iam_role.reduced_fees_pipe.id
+  provider = aws.global
+}
+
+data "aws_iam_policy_document" "reduced_fees_dynamodb_source" {
+  statement {
+    actions = [
+      "dynamodb:DescribeStream",
+      "dynamodb:GetRecords",
+      "dynamodb:GetShardIterator",
+      "dynamodb:ListStreams",
+    ]
+    effect    = "Allow"
+    resources = [aws_dynamodb_table.reduced_fees.stream_arn]
+  }
+  provider = aws.global
+}
+
+resource "aws_iam_role_policy" "reduced_fees_pipe_target" {
+  name     = "${local.default_tags.environment-name}-EventBusPipeTarget"
+  policy   = data.aws_iam_policy_document.reduced_fees_eventbus_target.json
+  role     = aws_iam_role.reduced_fees_pipe.id
+  provider = aws.global
+}
+
+data "aws_iam_policy_document" "reduced_fees_eventbus_target" {
+  statement {
+    actions = [
+      "events:PutEvents"
+    ]
+    effect    = "Allow"
+    resources = [aws_cloudwatch_event_bus.reduced_fees.arn]
+  }
+  provider = aws.global
 }
