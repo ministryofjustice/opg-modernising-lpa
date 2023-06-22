@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/mail"
 	"regexp"
+	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
@@ -210,13 +211,33 @@ func StringLength(length int) StringLengthCheck {
 	return StringLengthCheck{length: length}
 }
 
-var MobileRegex = regexp.MustCompile(`^(?:07|\+?447)\d{9}$`)
+var (
+	MobileRegex      = regexp.MustCompile(`^(?:07|\+?447)\d{9}$`)
+	NonUKMobileRegex = regexp.MustCompile(`^\+\d{4,15}$`)
+)
 
-type MobileCheck struct{}
+type MobileCheck struct {
+	nonUK      bool
+	errorLabel string
+}
+
+func (c MobileCheck) ErrorLabel(label string) MobileCheck {
+	c.errorLabel = label
+	return c
+}
 
 func (c MobileCheck) CheckString(label, value string) FormattableError {
-	if value != "" && !MobileRegex.MatchString(value) {
-		return MobileError{Label: label}
+	re := MobileRegex
+	if c.nonUK {
+		re = NonUKMobileRegex
+	}
+
+	if value != "" && !re.MatchString(strings.ReplaceAll(value, " ", "")) {
+		if c.errorLabel != "" {
+			return CustomError{Label: c.errorLabel}
+		} else {
+			return MobileError{Label: label}
+		}
 	}
 
 	return nil
@@ -224,6 +245,10 @@ func (c MobileCheck) CheckString(label, value string) FormattableError {
 
 func Mobile() MobileCheck {
 	return MobileCheck{}
+}
+
+func NonUKMobile() MobileCheck {
+	return MobileCheck{nonUK: true}
 }
 
 type EmailCheck struct{}

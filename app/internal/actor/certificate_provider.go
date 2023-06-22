@@ -16,6 +16,8 @@ type CertificateProvider struct {
 	Address place.Address
 	// Mobile number of the certificate provider, used to send witness codes
 	Mobile string
+	// HasNonUKMobile indicates whether the value of Mobile is a non-UK mobile number
+	HasNonUKMobile bool
 	// Email of the certificate provider
 	Email string
 	// How the certificate provider wants to perform their role (paper or online)
