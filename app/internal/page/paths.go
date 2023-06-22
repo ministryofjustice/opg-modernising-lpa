@@ -65,7 +65,7 @@ type CertificateProviderPaths struct {
 
 	CertificateProvided                  CertificateProviderPath
 	EnterDateOfBirth                     CertificateProviderPath
-	EnterMobileNumber                    CertificateProviderPath
+	ConfirmYourDetails                   CertificateProviderPath
 	IdentityWithBiometricResidencePermit CertificateProviderPath
 	IdentityWithDrivingLicencePaper      CertificateProviderPath
 	IdentityWithDrivingLicencePhotocard  CertificateProviderPath
@@ -184,7 +184,7 @@ var Paths = AppPaths{
 
 		CertificateProvided:                  "/certificate-provided",
 		EnterDateOfBirth:                     "/enter-date-of-birth",
-		EnterMobileNumber:                    "/enter-mobile-number",
+		ConfirmYourDetails:                   "/confirm-your-details",
 		IdentityWithBiometricResidencePermit: "/id/brp",
 		IdentityWithDrivingLicencePaper:      "/id/dlpaper",
 		IdentityWithDrivingLicencePhotocard:  "/id/dlphoto",

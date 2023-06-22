@@ -701,5 +701,13 @@
     "youreResponsibleForMakingSureTheseDetailsAreCorrect": "Welsh",
     "yourCertificateProvidersUkMobileNumber": "Welsh",
     "yourCertificateProvidersMobileNumber": "Welsh",
-    "enterAMobileNumberInTheCorrectFormat": "Welsh"
+    "enterAMobileNumberInTheCorrectFormat": "Welsh",
+    "youMustConfirmYourDetails": "Welsh",
+    "detailsYouHaveGivenUs": "Welsh",
+    "detailsTheDonorHasGivenAboutYou": "Welsh",
+    "whatToDoIfAnyDetailsAreIncorrect": "<p class=\"govuk-body\">Welsh</p>",
+    "whatToDoIfAnyDetailsAreIncorrectContent": "Welsh",
+    "anyErrorsInYourDetailsCanDelay": "Welsh",
+    "changeDateOfBirthLink": "Welsh",
+    "mobileNumber": "Welsh"
 }
