@@ -42,6 +42,12 @@ resource "aws_cloudwatch_event_bus" "reduced_fees" {
   provider = aws.eu_west_1
 }
 
+resource "aws_cloudwatch_event_archive" "reduced_fees" {
+  name             = "reduced-fees"
+  event_source_arn = aws_cloudwatch_event_bus.reduced_fees.arn
+  provider         = aws.eu_west_1
+}
+
 resource "aws_pipes_pipe" "reduced_fees" {
   name        = "reduced-fees"
   description = "capture events from dynamodb stream and pass to event bus"
@@ -50,7 +56,17 @@ resource "aws_pipes_pipe" "reduced_fees" {
   target      = aws_cloudwatch_event_bus.reduced_fees.arn
 
   source_parameters {}
-  target_parameters {}
+  target_parameters {
+    input_template = <<-EOT
+      {
+        "NewImage": <$.dynamodb.NewImage.Message.S>,
+        "OldImage": <$.dynamodb.OldImage.Message.S>,
+        "eventSourceARN": <$.eventSourceARN>,
+        "eventName": <$.eventName>,
+        "awsRegion": <$.awsRegion>
+      }
+      EOT
+  }
   provider = aws.eu_west_1
 }
 
