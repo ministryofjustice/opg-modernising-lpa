@@ -102,12 +102,10 @@ func Register(
 	rootMux.Handle("/certificate-provider/", page.RouteToPrefix("/certificate-provider/", certificateProviderMux, notFoundHandler))
 	handleCertificateProvider := makeCertificateProviderHandle(certificateProviderMux, sessionStore, errorHandler)
 
-	handleCertificateProvider(page.Paths.CertificateProvider.CheckYourName,
-		CheckYourName(tmpls.Get("certificate_provider_check_your_name.gohtml"), donorStore, notifyClient, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.EnterDateOfBirth,
 		EnterDateOfBirth(tmpls.Get("certificate_provider_enter_date_of_birth.gohtml"), donorStore, certificateProviderStore))
-	handleCertificateProvider(page.Paths.CertificateProvider.EnterMobileNumber,
-		EnterMobileNumber(tmpls.Get("certificate_provider_enter_mobile_number.gohtml"), donorStore, certificateProviderStore))
+	handleCertificateProvider(page.Paths.CertificateProvider.ConfirmYourDetails,
+		Guidance(tmpls.Get("certificate_provider_confirm_your_details.gohtml"), donorStore, certificateProviderStore))
 
 	handleCertificateProvider(page.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity,
 		Guidance(tmpls.Get("certificate_provider_what_youll_need_to_confirm_your_identity.gohtml"), donorStore, nil))
