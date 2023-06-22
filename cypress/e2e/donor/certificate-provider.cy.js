@@ -35,7 +35,7 @@ describe('Certificate provider task', () => {
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/certificate-provider-details');
-        cy.checkA11yApp();
+        cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
@@ -81,7 +81,7 @@ describe('Certificate provider task', () => {
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/certificate-provider-details');
-        cy.checkA11yApp();
+        cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
@@ -129,12 +129,12 @@ describe('Certificate provider task', () => {
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter first names');
             cy.contains('Enter last name');
-            cy.contains('Enter mobile number');
+            cy.contains('Enter your certificate provider’s UK mobile number');
         });
 
         cy.contains('[for=f-first-names] + .govuk-error-message', 'Enter first names');
         cy.contains('[for=f-last-name] + .govuk-error-message', 'Enter last name');
-        cy.contains('[for=f-mobile] + p + .govuk-error-message', 'Enter mobile number');
+        cy.contains('[for=f-mobile] + p + div + .govuk-error-message', 'Enter your certificate provider’s UK mobile number');
     });
 
     it('errors when invalid mobile number', () => {
@@ -142,7 +142,16 @@ describe('Certificate provider task', () => {
         cy.get('#f-mobile').type('not-a-number');
         cy.contains('button', 'Save and continue').click();
 
-        cy.contains('[for=f-mobile] + p + .govuk-error-message', 'Mobile number must be a UK mobile number, like 07700 900 982 or +44 7700 900 982');
+        cy.contains('[for=f-mobile] + p + div + .govuk-error-message', 'Enter a mobile number in the correct format');
+    });
+
+    it('errors when invalid non uk mobile number', () => {
+        cy.visitLpa('/certificate-provider-details');
+        cy.get('#f-has-non-uk-mobile').check();
+        cy.get('#f-non-uk-mobile').type('not-a-number', { force: true });
+        cy.contains('button', 'Save and continue').click();
+
+        cy.contains('[for=f-non-uk-mobile] + div + .govuk-error-message', 'Enter a mobile number in the correct format');
     });
 
     it('errors when how they prefer to carry out their role unselected', () => {

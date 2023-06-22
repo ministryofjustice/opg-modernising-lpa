@@ -2,7 +2,6 @@ package attorney
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
@@ -61,7 +60,7 @@ func readMobileNumberForm(r *http.Request) *mobileNumberForm {
 func (f *mobileNumberForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("mobile", "mobile", strings.ReplaceAll(f.Mobile, " ", ""),
+	errors.String("mobile", "mobile", f.Mobile,
 		validation.Mobile())
 
 	return errors
