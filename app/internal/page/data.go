@@ -185,7 +185,19 @@ func (l *Lpa) AttorneysAndCpSigningDeadline() time.Time {
 
 func (l *Lpa) CanGoTo(url string) bool {
 	path, _, _ := strings.Cut(url, "?")
+	if path == "" {
+		return false
+	}
 
+	if strings.HasPrefix(path, "/lpa/") {
+		_, lpaPath, _ := strings.Cut(strings.TrimPrefix(path, "/lpa/"), "/")
+		return l.canGoToLpaPath("/" + lpaPath)
+	}
+
+	return true
+}
+
+func (l *Lpa) canGoToLpaPath(path string) bool {
 	section1Completed := l.Tasks.YourDetails.Completed() &&
 		l.Tasks.ChooseAttorneys.Completed() &&
 		l.Tasks.ChooseReplacementAttorneys.Completed() &&
@@ -196,12 +208,12 @@ func (l *Lpa) CanGoTo(url string) bool {
 		l.Tasks.CheckYourLpa.Completed()
 
 	switch path {
-	case Paths.ReadYourLpa, Paths.SignYourLpa, Paths.WitnessingYourSignature, Paths.WitnessingAsCertificateProvider, Paths.YouHaveSubmittedYourLpa:
+	case Paths.ReadYourLpa.String(), Paths.SignYourLpa.String(), Paths.WitnessingYourSignature.String(), Paths.WitnessingAsCertificateProvider.String(), Paths.YouHaveSubmittedYourLpa.String():
 		return l.DonorIdentityConfirmed()
-	case Paths.WhenCanTheLpaBeUsed, Paths.LifeSustainingTreatment, Paths.Restrictions, Paths.WhoDoYouWantToBeCertificateProviderGuidance, Paths.DoYouWantToNotifyPeople, Paths.DoYouWantReplacementAttorneys:
+	case Paths.WhenCanTheLpaBeUsed.String(), Paths.LifeSustainingTreatment.String(), Paths.Restrictions.String(), Paths.WhoDoYouWantToBeCertificateProviderGuidance.String(), Paths.DoYouWantToNotifyPeople.String(), Paths.DoYouWantReplacementAttorneys.String():
 		return l.Tasks.YourDetails.Completed() &&
 			l.Tasks.ChooseAttorneys.Completed()
-	case Paths.CheckYourLpa:
+	case Paths.CheckYourLpa.String():
 		return l.Tasks.YourDetails.Completed() &&
 			l.Tasks.ChooseAttorneys.Completed() &&
 			l.Tasks.ChooseReplacementAttorneys.Completed() &&
@@ -209,9 +221,9 @@ func (l *Lpa) CanGoTo(url string) bool {
 			l.Tasks.Restrictions.Completed() &&
 			l.Tasks.CertificateProvider.Completed() &&
 			l.Tasks.PeopleToNotify.Completed()
-	case Paths.AboutPayment:
+	case Paths.AboutPayment.String():
 		return section1Completed
-	case Paths.SelectYourIdentityOptions, Paths.HowToConfirmYourIdentityAndSign:
+	case Paths.SelectYourIdentityOptions.String(), Paths.HowToConfirmYourIdentityAndSign.String():
 		return section1Completed && l.Tasks.PayForLpa.Completed()
 	case "":
 		return false

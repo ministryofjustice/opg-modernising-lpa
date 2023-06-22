@@ -1,213 +1,257 @@
 package page
 
-import (
-	"strings"
+type Path string
 
-	"golang.org/x/exp/slices"
-)
+func (p Path) String() string {
+	return string(p)
+}
+
+func (p Path) Format() string {
+	return string(p)
+}
+
+type LpaPath string
+
+func (p LpaPath) String() string {
+	return string(p)
+}
+
+func (p LpaPath) Format(id string) string {
+	return "/lpa/" + id + string(p)
+}
+
+type AttorneyPath string
+
+func (p AttorneyPath) String() string {
+	return string(p)
+}
+
+func (p AttorneyPath) Format(id string) string {
+	return "/attorney/" + id + string(p)
+}
+
+type CertificateProviderPath string
+
+func (p CertificateProviderPath) String() string {
+	return string(p)
+}
+
+func (p CertificateProviderPath) Format(id string) string {
+	return "/certificate-provider/" + id + string(p)
+}
 
 type AttorneyPaths struct {
-	CheckYourName             string
-	CodeOfConduct             string
-	EnterReferenceNumber      string
-	Login                     string
-	LoginCallback             string
-	MobileNumber              string
-	ReadTheLpa                string
-	RightsAndResponsibilities string
-	Sign                      string
-	Start                     string
-	TaskList                  string
-	WhatHappensNext           string
-	WhatHappensWhenYouSign    string
+	EnterReferenceNumber Path
+	Login                Path
+	LoginCallback        Path
+	Start                Path
+
+	CheckYourName             AttorneyPath
+	CodeOfConduct             AttorneyPath
+	MobileNumber              AttorneyPath
+	ReadTheLpa                AttorneyPath
+	RightsAndResponsibilities AttorneyPath
+	Sign                      AttorneyPath
+	TaskList                  AttorneyPath
+	WhatHappensNext           AttorneyPath
+	WhatHappensWhenYouSign    AttorneyPath
 }
 
 type CertificateProviderPaths struct {
-	CertificateProvided                  string
-	CheckYourName                        string
-	EnterDateOfBirth                     string
-	EnterMobileNumber                    string
-	EnterReferenceNumber                 string
-	IdentityWithBiometricResidencePermit string
-	IdentityWithDrivingLicencePaper      string
-	IdentityWithDrivingLicencePhotocard  string
-	IdentityWithOneLogin                 string
-	IdentityWithOneLoginCallback         string
-	IdentityWithOnlineBankAccount        string
-	IdentityWithPassport                 string
-	IdentityWithYoti                     string
-	IdentityWithYotiCallback             string
-	Login                                string
-	LoginCallback                        string
-	ProvideCertificate                   string
-	ReadTheLpa                           string
-	SelectYourIdentityOptions            string
-	SelectYourIdentityOptions1           string
-	SelectYourIdentityOptions2           string
-	WhatHappensNext                      string
-	WhatYoullNeedToConfirmYourIdentity   string
-	WhoIsEligible                        string
-	YourChosenIdentityOptions            string
+	Login                Path
+	LoginCallback        Path
+	EnterReferenceNumber Path
+	WhoIsEligible        Path
+
+	CertificateProvided                  CertificateProviderPath
+	CheckYourName                        CertificateProviderPath
+	EnterDateOfBirth                     CertificateProviderPath
+	EnterMobileNumber                    CertificateProviderPath
+	IdentityWithBiometricResidencePermit CertificateProviderPath
+	IdentityWithDrivingLicencePaper      CertificateProviderPath
+	IdentityWithDrivingLicencePhotocard  CertificateProviderPath
+	IdentityWithOneLogin                 CertificateProviderPath
+	IdentityWithOneLoginCallback         CertificateProviderPath
+	IdentityWithOnlineBankAccount        CertificateProviderPath
+	IdentityWithPassport                 CertificateProviderPath
+	IdentityWithYoti                     CertificateProviderPath
+	IdentityWithYotiCallback             CertificateProviderPath
+	ProvideCertificate                   CertificateProviderPath
+	ReadTheLpa                           CertificateProviderPath
+	SelectYourIdentityOptions            CertificateProviderPath
+	SelectYourIdentityOptions1           CertificateProviderPath
+	SelectYourIdentityOptions2           CertificateProviderPath
+	WhatHappensNext                      CertificateProviderPath
+	WhatYoullNeedToConfirmYourIdentity   CertificateProviderPath
+	YourChosenIdentityOptions            CertificateProviderPath
 }
+
 type HealthCheckPaths struct {
-	Service    string
-	Dependency string
+	Service    Path
+	Dependency Path
 }
 
 type AppPaths struct {
-	Attorney                                                   AttorneyPaths
-	CertificateProvider                                        CertificateProviderPaths
-	AboutPayment                                               string
-	AreYouHappyIfOneAttorneyCantActNoneCan                     string
-	AreYouHappyIfOneReplacementAttorneyCantActNoneCan          string
-	AreYouHappyIfRemainingAttorneysCanContinueToAct            string
-	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct string
-	AuthRedirect                                               string
-	CertificateProviderAddress                                 string
-	CertificateProviderDetails                                 string
-	CertificateProviderOptOut                                  string
-	CertificateProviderStart                                   string
-	CheckYourLpa                                               string
-	ChooseAttorneys                                            string
-	ChooseAttorneysAddress                                     string
-	ChooseAttorneysSummary                                     string
-	ChoosePeopleToNotify                                       string
-	ChoosePeopleToNotifyAddress                                string
-	ChoosePeopleToNotifySummary                                string
-	ChooseReplacementAttorneys                                 string
-	ChooseReplacementAttorneysAddress                          string
-	ChooseReplacementAttorneysSummary                          string
-	CookiesConsent                                             string
-	Dashboard                                                  string
-	DoYouWantReplacementAttorneys                              string
-	DoYouWantToNotifyPeople                                    string
-	Fixtures                                                   string
-	HealthCheck                                                HealthCheckPaths
-	HowDoYouKnowYourCertificateProvider                        string
-	HowLongHaveYouKnownCertificateProvider                     string
-	HowShouldAttorneysMakeDecisions                            string
-	HowShouldReplacementAttorneysMakeDecisions                 string
-	HowShouldReplacementAttorneysStepIn                        string
-	HowToConfirmYourIdentityAndSign                            string
-	HowWouldCertificateProviderPreferToCarryOutTheirRole       string
-	IdentityConfirmed                                          string
-	IdentityWithBiometricResidencePermit                       string
-	IdentityWithDrivingLicencePaper                            string
-	IdentityWithDrivingLicencePhotocard                        string
-	IdentityWithOneLogin                                       string
-	IdentityWithOneLoginCallback                               string
-	IdentityWithOnlineBankAccount                              string
-	IdentityWithPassport                                       string
-	IdentityWithYoti                                           string
-	IdentityWithYotiCallback                                   string
-	LifeSustainingTreatment                                    string
-	Login                                                      string
-	LoginCallback                                              string
-	LpaType                                                    string
-	PaymentConfirmation                                        string
-	Progress                                                   string
-	ReadYourLpa                                                string
-	RemoveAttorney                                             string
-	RemovePersonToNotify                                       string
-	RemoveReplacementAttorney                                  string
-	ResendWitnessCode                                          string
-	Restrictions                                               string
-	Root                                                       string
-	SelectYourIdentityOptions                                  string
-	SelectYourIdentityOptions1                                 string
-	SelectYourIdentityOptions2                                 string
-	SignOut                                                    string
-	SignYourLpa                                                string
-	Start                                                      string
-	TaskList                                                   string
-	TestingStart                                               string
-	UseExistingAddress                                         string
-	WhatYoullNeedToConfirmYourIdentity                         string
-	WhenCanTheLpaBeUsed                                        string
-	WhoDoYouWantToBeCertificateProviderGuidance                string
-	WhoIsTheLpaFor                                             string
-	WitnessingAsCertificateProvider                            string
-	WitnessingYourSignature                                    string
-	YotiRedirect                                               string
-	YouHaveSubmittedYourLpa                                    string
-	YourAddress                                                string
-	YourChosenIdentityOptions                                  string
-	YourDetails                                                string
-	YourLegalRightsAndResponsibilities                         string
+	Attorney            AttorneyPaths
+	CertificateProvider CertificateProviderPaths
+	HealthCheck         HealthCheckPaths
+
+	AuthRedirect                       Path
+	Login                              Path
+	LoginCallback                      Path
+	Root                               Path
+	SignOut                            Path
+	Fixtures                           Path
+	YourLegalRightsAndResponsibilities Path
+	CertificateProviderStart           Path
+	Start                              Path
+	TestingStart                       Path
+	Dashboard                          Path
+	YotiRedirect                       Path
+	CookiesConsent                     Path
+
+	LpaYourLegalRightsAndResponsibilities                      LpaPath
+	AboutPayment                                               LpaPath
+	AreYouHappyIfOneAttorneyCantActNoneCan                     LpaPath
+	AreYouHappyIfOneReplacementAttorneyCantActNoneCan          LpaPath
+	AreYouHappyIfRemainingAttorneysCanContinueToAct            LpaPath
+	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct LpaPath
+	CertificateProviderAddress                                 LpaPath
+	CertificateProviderDetails                                 LpaPath
+	CertificateProviderOptOut                                  LpaPath
+	CheckYourLpa                                               LpaPath
+	ChooseAttorneys                                            LpaPath
+	ChooseAttorneysAddress                                     LpaPath
+	ChooseAttorneysSummary                                     LpaPath
+	ChoosePeopleToNotify                                       LpaPath
+	ChoosePeopleToNotifyAddress                                LpaPath
+	ChoosePeopleToNotifySummary                                LpaPath
+	ChooseReplacementAttorneys                                 LpaPath
+	ChooseReplacementAttorneysAddress                          LpaPath
+	ChooseReplacementAttorneysSummary                          LpaPath
+	DoYouWantReplacementAttorneys                              LpaPath
+	DoYouWantToNotifyPeople                                    LpaPath
+	HowDoYouKnowYourCertificateProvider                        LpaPath
+	HowLongHaveYouKnownCertificateProvider                     LpaPath
+	HowShouldAttorneysMakeDecisions                            LpaPath
+	HowShouldReplacementAttorneysMakeDecisions                 LpaPath
+	HowShouldReplacementAttorneysStepIn                        LpaPath
+	HowToConfirmYourIdentityAndSign                            LpaPath
+	HowWouldCertificateProviderPreferToCarryOutTheirRole       LpaPath
+	IdentityConfirmed                                          LpaPath
+	IdentityWithBiometricResidencePermit                       LpaPath
+	IdentityWithDrivingLicencePaper                            LpaPath
+	IdentityWithDrivingLicencePhotocard                        LpaPath
+	IdentityWithOneLogin                                       LpaPath
+	IdentityWithOneLoginCallback                               LpaPath
+	IdentityWithOnlineBankAccount                              LpaPath
+	IdentityWithPassport                                       LpaPath
+	IdentityWithYoti                                           LpaPath
+	IdentityWithYotiCallback                                   LpaPath
+	LifeSustainingTreatment                                    LpaPath
+	LpaType                                                    LpaPath
+	PaymentConfirmation                                        LpaPath
+	Progress                                                   LpaPath
+	ReadYourLpa                                                LpaPath
+	RemoveAttorney                                             LpaPath
+	RemovePersonToNotify                                       LpaPath
+	RemoveReplacementAttorney                                  LpaPath
+	ResendWitnessCode                                          LpaPath
+	Restrictions                                               LpaPath
+	SelectYourIdentityOptions                                  LpaPath
+	SelectYourIdentityOptions1                                 LpaPath
+	SelectYourIdentityOptions2                                 LpaPath
+	SignYourLpa                                                LpaPath
+	TaskList                                                   LpaPath
+	UseExistingAddress                                         LpaPath
+	WhatYoullNeedToConfirmYourIdentity                         LpaPath
+	WhenCanTheLpaBeUsed                                        LpaPath
+	WhoDoYouWantToBeCertificateProviderGuidance                LpaPath
+	WhoIsTheLpaFor                                             LpaPath
+	WitnessingAsCertificateProvider                            LpaPath
+	WitnessingYourSignature                                    LpaPath
+	YouHaveSubmittedYourLpa                                    LpaPath
+	YourAddress                                                LpaPath
+	YourChosenIdentityOptions                                  LpaPath
+	YourDetails                                                LpaPath
 }
 
 var Paths = AppPaths{
+	CertificateProvider: CertificateProviderPaths{
+		Login:                "/certificate-provider-login",
+		LoginCallback:        "/certificate-provider-login-callback",
+		EnterReferenceNumber: "/certificate-provider-enter-reference-number",
+		WhoIsEligible:        "/certificate-provider-who-is-eligible",
+
+		CertificateProvided:                  "/certificate-provided",
+		CheckYourName:                        "/check-your-name",
+		EnterDateOfBirth:                     "/enter-date-of-birth",
+		EnterMobileNumber:                    "/enter-mobile-number",
+		IdentityWithBiometricResidencePermit: "/id/brp",
+		IdentityWithDrivingLicencePaper:      "/id/dlpaper",
+		IdentityWithDrivingLicencePhotocard:  "/id/dlphoto",
+		IdentityWithOneLogin:                 "/identity-with-one-login",
+		IdentityWithOneLoginCallback:         "/identity-with-one-login-callback",
+		IdentityWithOnlineBankAccount:        "/id/bank",
+		IdentityWithPassport:                 "/id/passport",
+		IdentityWithYoti:                     "/identity-with-yoti",
+		IdentityWithYotiCallback:             "/identity-with-yoti-callback",
+		ProvideCertificate:                   "/provide-certificate",
+		ReadTheLpa:                           "/read-the-lpa",
+		SelectYourIdentityOptions1:           "/select-identity-document",
+		SelectYourIdentityOptions2:           "/select-identity-document-2",
+		SelectYourIdentityOptions:            "/select-your-identity-options",
+		WhatHappensNext:                      "/what-happens-next",
+		WhatYoullNeedToConfirmYourIdentity:   "/what-youll-need-to-confirm-your-identity",
+		YourChosenIdentityOptions:            "/your-chosen-identity-options",
+	},
+
+	Attorney: AttorneyPaths{
+		EnterReferenceNumber:      "/attorney-enter-reference-number",
+		Login:                     "/attorney-login",
+		LoginCallback:             "/attorney-login-callback",
+		Start:                     "/attorney-start",
+		CheckYourName:             "/check-your-name",
+		CodeOfConduct:             "/code-of-conduct",
+		MobileNumber:              "/mobile-number",
+		ReadTheLpa:                "/read-the-lpa",
+		RightsAndResponsibilities: "/legal-rights-and-responsibilities",
+		Sign:                      "/sign",
+		TaskList:                  "/task-list",
+		WhatHappensNext:           "/what-happens-next",
+		WhatHappensWhenYouSign:    "/what-happens-when-you-sign-the-lpa",
+	},
+
+	HealthCheck: HealthCheckPaths{
+		Service:    "/health-check/service",
+		Dependency: "/health-check/dependency",
+	},
+
 	AboutPayment:                                               "/about-payment",
 	AreYouHappyIfOneAttorneyCantActNoneCan:                     "/are-you-happy-if-one-attorney-cant-act-none-can",
 	AreYouHappyIfOneReplacementAttorneyCantActNoneCan:          "/are-you-happy-if-one-replacement-attorney-cant-act-none-can",
 	AreYouHappyIfRemainingAttorneysCanContinueToAct:            "/are-you-happy-if-remaining-attorneys-can-continue-to-act",
 	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct: "/are-you-happy-if-remaining-replacement-attorneys-can-continue-to-act",
-	Attorney: AttorneyPaths{
-		CheckYourName:             "/attorney-check-your-name",
-		CodeOfConduct:             "/attorney-code-of-conduct",
-		EnterReferenceNumber:      "/attorney-enter-reference-number",
-		Login:                     "/attorney-login",
-		LoginCallback:             "/attorney-login-callback",
-		MobileNumber:              "/attorney-mobile-number",
-		ReadTheLpa:                "/attorney-read-the-lpa",
-		RightsAndResponsibilities: "/attorney-legal-rights-and-responsibilities",
-		Sign:                      "/attorney-sign",
-		Start:                     "/attorney-start",
-		TaskList:                  "/attorney-task-list",
-		WhatHappensNext:           "/attorney-what-happens-next",
-		WhatHappensWhenYouSign:    "/attorney-what-happens-when-you-sign-the-lpa",
-	},
-	AuthRedirect:               "/auth/redirect",
-	CertificateProviderDetails: "/certificate-provider-details",
-	CertificateProvider: CertificateProviderPaths{
-		CertificateProvided:                  "/certificate-provided",
-		CheckYourName:                        "/certificate-provider-check-your-name",
-		EnterDateOfBirth:                     "/certificate-provider-enter-date-of-birth",
-		EnterMobileNumber:                    "/certificate-provider-enter-mobile-number",
-		EnterReferenceNumber:                 "/certificate-provider-enter-reference-number",
-		IdentityWithBiometricResidencePermit: "/certificate-provider/id/brp",
-		IdentityWithDrivingLicencePaper:      "/certificate-provider/id/dlpaper",
-		IdentityWithDrivingLicencePhotocard:  "/certificate-provider/id/dlphoto",
-		IdentityWithOneLogin:                 "/certificate-provider-identity-with-one-login",
-		IdentityWithOneLoginCallback:         "/certificate-provider-identity-with-one-login-callback",
-		IdentityWithOnlineBankAccount:        "/certificate-provider/id/bank",
-		IdentityWithPassport:                 "/certificate-provider/id/passport",
-		IdentityWithYoti:                     "/certificate-provider-identity-with-yoti",
-		IdentityWithYotiCallback:             "/certificate-provider-identity-with-yoti-callback",
-		Login:                                "/certificate-provider-login",
-		LoginCallback:                        "/certificate-provider-login-callback",
-		ProvideCertificate:                   "/provide-certificate",
-		ReadTheLpa:                           "/certificate-provider-read-the-lpa",
-		SelectYourIdentityOptions1:           "/certificate-provider-select-identity-document",
-		SelectYourIdentityOptions2:           "/certificate-provider-select-identity-document-2",
-		SelectYourIdentityOptions:            "/certificate-provider-select-your-identity-options",
-		WhatHappensNext:                      "/certificate-provider-what-happens-next",
-		WhatYoullNeedToConfirmYourIdentity:   "/certificate-provider-what-youll-need-to-confirm-your-identity",
-		WhoIsEligible:                        "/certificate-provider-who-is-eligible",
-		YourChosenIdentityOptions:            "/certificate-provider-your-chosen-identity-options",
-	},
-	CertificateProviderOptOut:         "/certificate-provider-opt-out",
-	CertificateProviderAddress:        "/certificate-provider-address",
-	CertificateProviderStart:          "/certificate-provider-start",
-	CheckYourLpa:                      "/check-your-lpa",
-	ChooseAttorneys:                   "/choose-attorneys",
-	ChooseAttorneysAddress:            "/choose-attorneys-address",
-	ChooseAttorneysSummary:            "/choose-attorneys-summary",
-	ChoosePeopleToNotify:              "/choose-people-to-notify",
-	ChoosePeopleToNotifyAddress:       "/choose-people-to-notify-address",
-	ChoosePeopleToNotifySummary:       "/choose-people-to-notify-summary",
-	ChooseReplacementAttorneys:        "/choose-replacement-attorneys",
-	ChooseReplacementAttorneysAddress: "/choose-replacement-attorneys-address",
-	ChooseReplacementAttorneysSummary: "/choose-replacement-attorneys-summary",
-	CookiesConsent:                    "/cookies-consent",
-	Dashboard:                         "/dashboard",
-	DoYouWantReplacementAttorneys:     "/do-you-want-replacement-attorneys",
-	DoYouWantToNotifyPeople:           "/do-you-want-to-notify-people",
-	Fixtures:                          "/fixtures",
-	HealthCheck: HealthCheckPaths{
-		Service:    "/health-check/service",
-		Dependency: "/health-check/dependency",
-	},
+	AuthRedirect:                                         "/auth/redirect",
+	CertificateProviderDetails:                           "/certificate-provider-details",
+	CertificateProviderOptOut:                            "/certificate-provider-opt-out",
+	CertificateProviderAddress:                           "/certificate-provider-address",
+	CertificateProviderStart:                             "/certificate-provider-start",
+	CheckYourLpa:                                         "/check-your-lpa",
+	ChooseAttorneys:                                      "/choose-attorneys",
+	ChooseAttorneysAddress:                               "/choose-attorneys-address",
+	ChooseAttorneysSummary:                               "/choose-attorneys-summary",
+	ChoosePeopleToNotify:                                 "/choose-people-to-notify",
+	ChoosePeopleToNotifyAddress:                          "/choose-people-to-notify-address",
+	ChoosePeopleToNotifySummary:                          "/choose-people-to-notify-summary",
+	ChooseReplacementAttorneys:                           "/choose-replacement-attorneys",
+	ChooseReplacementAttorneysAddress:                    "/choose-replacement-attorneys-address",
+	ChooseReplacementAttorneysSummary:                    "/choose-replacement-attorneys-summary",
+	CookiesConsent:                                       "/cookies-consent",
+	Dashboard:                                            "/dashboard",
+	DoYouWantReplacementAttorneys:                        "/do-you-want-replacement-attorneys",
+	DoYouWantToNotifyPeople:                              "/do-you-want-to-notify-people",
+	Fixtures:                                             "/fixtures",
 	HowDoYouKnowYourCertificateProvider:                  "/how-do-you-know-your-certificate-provider",
 	HowLongHaveYouKnownCertificateProvider:               "/how-long-have-you-known-certificate-provider",
 	HowShouldAttorneysMakeDecisions:                      "/how-should-attorneys-make-decisions",
@@ -259,76 +303,5 @@ var Paths = AppPaths{
 	YourChosenIdentityOptions:                            "/your-chosen-identity-options",
 	YourDetails:                                          "/your-details",
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
-}
-
-// IsAttorneyPath checks whether the url should be prefixed with /attorney/.
-func IsAttorneyPath(url string) bool {
-	path, _, _ := strings.Cut(url, "?")
-
-	return slices.Contains([]string{
-		Paths.Attorney.CheckYourName,
-		Paths.Attorney.CodeOfConduct,
-		Paths.Attorney.MobileNumber,
-		Paths.Attorney.ReadTheLpa,
-		Paths.Attorney.RightsAndResponsibilities,
-		Paths.Attorney.Sign,
-		Paths.Attorney.TaskList,
-		Paths.Attorney.WhatHappensNext,
-		Paths.Attorney.WhatHappensWhenYouSign,
-	}, path)
-}
-
-// IsCertificateProviderPath checks whether the url should be prefixed with /certificate-provider/.
-func IsCertificateProviderPath(url string) bool {
-	path, _, _ := strings.Cut(url, "?")
-
-	return slices.Contains([]string{
-		Paths.CertificateProvider.CertificateProvided,
-		Paths.CertificateProvider.CheckYourName,
-		Paths.CertificateProvider.EnterDateOfBirth,
-		Paths.CertificateProvider.EnterMobileNumber,
-		Paths.CertificateProvider.IdentityWithBiometricResidencePermit,
-		Paths.CertificateProvider.IdentityWithDrivingLicencePaper,
-		Paths.CertificateProvider.IdentityWithDrivingLicencePhotocard,
-		Paths.CertificateProvider.IdentityWithOneLogin,
-		Paths.CertificateProvider.IdentityWithOneLoginCallback,
-		Paths.CertificateProvider.IdentityWithOnlineBankAccount,
-		Paths.CertificateProvider.IdentityWithPassport,
-		Paths.CertificateProvider.IdentityWithYoti,
-		Paths.CertificateProvider.IdentityWithYotiCallback,
-		Paths.CertificateProvider.ProvideCertificate,
-		Paths.CertificateProvider.ReadTheLpa,
-		Paths.CertificateProvider.SelectYourIdentityOptions,
-		Paths.CertificateProvider.SelectYourIdentityOptions1,
-		Paths.CertificateProvider.SelectYourIdentityOptions2,
-		Paths.CertificateProvider.WhatHappensNext,
-		Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity,
-		Paths.CertificateProvider.YourChosenIdentityOptions,
-	}, path)
-}
-
-// IsLpaPath checks whether the url should be prefixed with /lpa/.
-func IsLpaPath(url string) bool {
-	path, _, _ := strings.Cut(url, "?")
-
-	return !IsAttorneyPath(url) &&
-		!IsCertificateProviderPath(url) &&
-		!slices.Contains([]string{
-			Paths.Attorney.EnterReferenceNumber,
-			Paths.Attorney.Login,
-			Paths.Attorney.LoginCallback,
-			Paths.Attorney.Start,
-			Paths.AuthRedirect,
-			Paths.CertificateProvider.EnterReferenceNumber,
-			Paths.CertificateProvider.Login,
-			Paths.CertificateProvider.LoginCallback,
-			Paths.CertificateProvider.WhoIsEligible,
-			Paths.CertificateProviderStart,
-			Paths.Dashboard,
-			Paths.Login,
-			Paths.LoginCallback,
-			Paths.SignOut,
-			Paths.Start,
-			Paths.YotiRedirect,
-		}, path)
+	LpaYourLegalRightsAndResponsibilities:                "/your-legal-rights-and-responsibilities",
 }

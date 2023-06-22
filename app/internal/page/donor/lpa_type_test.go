@@ -82,18 +82,21 @@ func TestPostLpaType(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{Donor: actor.Donor{
-			FirstNames:  "Jane",
-			LastName:    "Smith",
-			DateOfBirth: date.New("2000", "1", "2"),
-			Address:     place.Address{Postcode: "ABC123"},
-		},
+		On("Put", r.Context(), &page.Lpa{
+			ID: "lpa-id",
+			Donor: actor.Donor{
+				FirstNames:  "Jane",
+				LastName:    "Smith",
+				DateOfBirth: date.New("2000", "1", "2"),
+				Address:     place.Address{Postcode: "ABC123"},
+			},
 			Type:  page.LpaTypePropertyFinance,
 			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
 		}).
 		Return(nil)
 
 	err := LpaType(nil, donorStore)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
 		Donor: actor.Donor{
 			FirstNames:  "Jane",
 			LastName:    "Smith",
@@ -105,7 +108,7 @@ func TestPostLpaType(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+page.Paths.TaskList, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostLpaTypeWhenStoreErrors(t *testing.T) {

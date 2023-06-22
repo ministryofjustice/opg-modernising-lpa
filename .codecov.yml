@@ -9,6 +9,7 @@ coverage:
     - "./app/internal/telemetry"
     - "./app/internal/page/fixtures.go"
     - "./app/internal/page/testing_start.go"
+    - "./app/main.go"
   status:
     project:
       default:

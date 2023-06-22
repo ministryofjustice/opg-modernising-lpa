@@ -67,6 +67,7 @@ func App(
 	paths page.AppPaths,
 	oneLoginClient *onelogin.Client,
 	uidClient *uid.Client,
+	oneloginURL string,
 ) http.Handler {
 	donorStore := &donorStore{dataStore: dataStore, uuidString: uuid.NewString, now: time.Now}
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: time.Now}
@@ -82,7 +83,7 @@ func App(
 
 	rootMux := http.NewServeMux()
 
-	rootMux.Handle(paths.TestingStart, page.TestingStart(sessionStore, donorStore, random.String, shareCodeSender, localizer, certificateProviderStore, attorneyStore, logger, time.Now))
+	rootMux.Handle(paths.TestingStart.String(), page.TestingStart(sessionStore, donorStore, random.String, shareCodeSender, localizer, certificateProviderStore, attorneyStore, logger, time.Now))
 
 	handleRoot := makeHandle(rootMux, errorHandler, sessionStore)
 
@@ -154,10 +155,10 @@ func App(
 		uidClient,
 	)
 
-	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash)
+	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash, oneloginURL)
 }
 
-func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang, rumConfig page.RumConfig, staticHash string) http.HandlerFunc {
+func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang, rumConfig page.RumConfig, staticHash, oneloginURL string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		localizer.SetShowTranslationKeys(r.FormValue("showTranslationKeys") == "1")
@@ -171,6 +172,7 @@ func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang
 		appData.StaticHash = staticHash
 		appData.Paths = page.Paths
 		appData.ActorTypes = actor.ActorTypes
+		appData.OneloginURL = oneloginURL
 
 		_, cookieErr := r.Cookie("cookies-consent")
 		appData.CookieConsentSet = cookieErr != http.ErrNoCookie
@@ -186,18 +188,18 @@ const (
 	RequireSession
 )
 
-func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, store sesh.Store) func(string, handleOpt, page.Handler) {
-	return func(path string, opt handleOpt, h page.Handler) {
-		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, store sesh.Store) func(page.Path, handleOpt, page.Handler) {
+	return func(path page.Path, opt handleOpt, h page.Handler) {
+		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
-			appData.Page = path
+			appData.Page = path.Format()
 
 			if opt&RequireSession != 0 {
 				loginSession, err := sesh.Login(store, r)
 				if err != nil {
-					http.Redirect(w, r, page.Paths.Start, http.StatusFound)
+					http.Redirect(w, r, page.Paths.Start.Format(), http.StatusFound)
 					return
 				}
 

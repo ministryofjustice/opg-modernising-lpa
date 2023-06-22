@@ -16,7 +16,7 @@
       {{ end }}
       {{ if $canChange }}
         <dd class="govuk-summary-list__actions">
-          <a class="govuk-link" href="{{ link .App .App.Paths.YourDetails }}?from={{.App.Page}}#f-first-names">
+          <a class="govuk-link" href="{{ link .App (.App.Paths.YourDetails.Format .App.LpaID) }}?from={{.App.Page}}#f-first-names">
             {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "name" }}</span>
           </a>
         </dd>
@@ -32,7 +32,7 @@
       </dd>
       {{ if $canChange }}
         <dd class="govuk-summary-list__actions">
-          <a class="govuk-link" href="{{ link .App .App.Paths.YourDetails }}?from={{.App.Page}}#f-date-of-birth">
+          <a class="govuk-link" href="{{ link .App (.App.Paths.YourDetails.Format .App.LpaID) }}?from={{.App.Page}}#f-date-of-birth">
             {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "dateOfBirth" }}</span>
           </a>
         </dd>
@@ -60,7 +60,7 @@
       </dd>
       {{ if $canChange }}
         <dd class="govuk-summary-list__actions">
-          <a class="govuk-link" href="{{ link .App .App.Paths.YourAddress }}?from={{.App.Page}}#f-address-line-1">
+          <a class="govuk-link" href="{{ link .App (.App.Paths.YourAddress.Format .App.LpaID) }}?from={{.App.Page}}#f-address-line-1">
             {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "address" }}</span>
           </a>
         </dd>

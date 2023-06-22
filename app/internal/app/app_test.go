@@ -22,7 +22,7 @@ import (
 )
 
 func TestApp(t *testing.T) {
-	app := App(&logging.Logger{}, &localize.Localizer{}, localize.En, template.Templates{}, nil, &dynamo.Client{}, "http://public.url", &pay.Client{}, &identity.YotiClient{}, &notify.Client{}, &place.Client{}, page.RumConfig{}, "?%3fNEI0t9MN", page.Paths, &onelogin.Client{}, &uid.Client{})
+	app := App(&logging.Logger{}, &localize.Localizer{}, localize.En, template.Templates{}, nil, &dynamo.Client{}, "http://public.url", &pay.Client{}, &identity.YotiClient{}, &notify.Client{}, &place.Client{}, page.RumConfig{}, "?%3fNEI0t9MN", page.Paths, &onelogin.Client{}, &uid.Client{}, "http://onelogin.url")
 
 	assert.Implements(t, (*http.Handler)(nil), app)
 }
@@ -124,7 +124,7 @@ func TestMakeHandleRequireSessionMissing(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Start, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Start.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeHandleRequireSessionError(t *testing.T) {
@@ -144,7 +144,7 @@ func TestMakeHandleRequireSessionError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Start, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Start.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeHandleWhenError(t *testing.T) {

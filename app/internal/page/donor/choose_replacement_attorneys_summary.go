@@ -1,7 +1,6 @@
 package donor
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -20,7 +19,7 @@ type chooseReplacementAttorneysSummaryData struct {
 func ChooseReplacementAttorneysSummary(tmpl template.Template) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if len(lpa.ReplacementAttorneys) == 0 {
-			return appData.Redirect(w, r, lpa, page.Paths.DoYouWantReplacementAttorneys)
+			return appData.Redirect(w, r, lpa, page.Paths.DoYouWantReplacementAttorneys.Format(lpa.ID))
 		}
 
 		data := &chooseReplacementAttorneysSummaryData{
@@ -37,13 +36,13 @@ func ChooseReplacementAttorneysSummary(tmpl template.Template) Handler {
 				var redirectUrl string
 
 				if data.Form.AddAttorney == "yes" {
-					redirectUrl = fmt.Sprintf("%s?addAnother=1", appData.Paths.ChooseReplacementAttorneys)
+					redirectUrl = appData.Paths.ChooseReplacementAttorneys.Format(lpa.ID) + "?addAnother=1"
 				} else if len(lpa.ReplacementAttorneys) > 1 && (len(lpa.Attorneys) == 1 || lpa.AttorneyDecisions.How == actor.JointlyForSomeSeverallyForOthers || lpa.AttorneyDecisions.How == actor.Jointly) {
-					redirectUrl = appData.Paths.HowShouldReplacementAttorneysMakeDecisions
+					redirectUrl = appData.Paths.HowShouldReplacementAttorneysMakeDecisions.Format(lpa.ID)
 				} else if lpa.AttorneyDecisions.How == actor.JointlyAndSeverally {
-					redirectUrl = appData.Paths.HowShouldReplacementAttorneysStepIn
+					redirectUrl = appData.Paths.HowShouldReplacementAttorneysStepIn.Format(lpa.ID)
 				} else {
-					redirectUrl = page.Paths.TaskList
+					redirectUrl = page.Paths.TaskList.Format(lpa.ID)
 				}
 
 				return appData.Redirect(w, r, lpa, redirectUrl)

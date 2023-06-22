@@ -25,6 +25,7 @@ type AppData struct {
 	ActorTypes       actor.Types
 	ActorType        actor.Type
 	AttorneyID       string
+	OneloginURL      string
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, lpa *Lpa, url string) error {
@@ -40,7 +41,7 @@ func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, lpa *Lpa, url 
 	if lpa == nil || lpa.CanGoTo(url) {
 		http.Redirect(w, r, d.BuildUrl(url), http.StatusFound)
 	} else {
-		http.Redirect(w, r, d.BuildUrl(Paths.TaskList), http.StatusFound)
+		http.Redirect(w, r, d.BuildUrl(Paths.TaskList.Format(d.LpaID)), http.StatusFound)
 	}
 
 	return nil
@@ -48,23 +49,7 @@ func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, lpa *Lpa, url 
 
 func (d AppData) BuildUrl(url string) string {
 	if d.Lang == localize.Cy {
-		return "/" + localize.Cy.String() + d.BuildUrlWithoutLang(url)
-	}
-
-	return d.BuildUrlWithoutLang(url)
-}
-
-func (d AppData) BuildUrlWithoutLang(url string) string {
-	if IsAttorneyPath(url) {
-		return "/attorney/" + d.LpaID + url
-	}
-
-	if IsCertificateProviderPath(url) {
-		return "/certificate-provider/" + d.LpaID + url
-	}
-
-	if IsLpaPath(url) {
-		return "/lpa/" + d.LpaID + url
+		return "/" + localize.Cy.String() + url
 	}
 
 	return url

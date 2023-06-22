@@ -24,7 +24,7 @@ func IdentityWithYoti(tmpl template.Template, sessionStore SessionStore, yotiCli
 		}
 
 		if certificateProvider.CertificateProviderIdentityConfirmed() || yotiClient.IsTest() {
-			return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.IdentityWithYotiCallback)
+			return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.IdentityWithYotiCallback.Format(certificateProvider.LpaID))
 		}
 
 		if err := sesh.SetYoti(sessionStore, r, w, &sesh.YotiSession{

@@ -124,7 +124,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Attorney.Start.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeHandleSessionMissing(t *testing.T) {
@@ -144,7 +144,7 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Attorney.Start.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeHandleLpaMissing(t *testing.T) {
@@ -164,7 +164,7 @@ func TestMakeHandleLpaMissing(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Attorney.Start.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeHandleNoSessionRequired(t *testing.T) {
@@ -211,7 +211,7 @@ func TestMakeAttorneyHandleExistingSessionData(t *testing.T) {
 		assert.Equal(t, expectedDetails, details)
 
 		assert.Equal(t, page.AppData{
-			Page:       "/path",
+			Page:       "/attorney/lpa-id/path",
 			CanGoBack:  true,
 			SessionID:  "cmFuZG9t",
 			LpaID:      "lpa-id",
@@ -269,7 +269,7 @@ func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 			handle("/path", CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, details *actor.AttorneyProvidedDetails) error {
 				assert.Equal(t, tc.details, details)
 				assert.Equal(t, page.AppData{
-					Page:       "/path",
+					Page:       "/attorney/lpa-id/path",
 					CanGoBack:  true,
 					LpaID:      "lpa-id",
 					SessionID:  "cmFuZG9t",
@@ -366,7 +366,7 @@ func TestMakeAttorneyHandleSessionError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Attorney.Start.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeAttorneyHandleSessionMissing(t *testing.T) {
@@ -388,7 +388,7 @@ func TestMakeAttorneyHandleSessionMissing(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Attorney.Start.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeAttorneyHandleLpaMissing(t *testing.T) {
@@ -410,5 +410,5 @@ func TestMakeAttorneyHandleLpaMissing(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.Start, resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Attorney.Start.Format(), resp.Header.Get("Location"))
 }

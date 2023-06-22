@@ -114,7 +114,7 @@ func TestPostDashboard(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/lpa/lpa-id"+Paths.YourDetails, resp.Header.Get("Location"))
+	assert.Equal(t, Paths.YourDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostDashboardWhenDonorStoreError(t *testing.T) {

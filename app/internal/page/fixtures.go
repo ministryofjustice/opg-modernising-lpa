@@ -41,7 +41,7 @@ func Fixtures(tmpl template.Template) Handler {
 						"lpa.replacementAttorneysAct": {"jointly"},
 						"lpa.type":                    {data.Form.Type},
 						"lpa.restrictions":            {"1"},
-						"redirect":                    {Paths.Attorney.Start},
+						"redirect":                    {Paths.Attorney.Start.Format()},
 					}
 					if data.Form.Email != "" {
 						if data.Form.ForReplacementAttorney != "" {
@@ -73,6 +73,7 @@ func Fixtures(tmpl template.Template) Handler {
 
 				case "donor":
 					values = url.Values{
+						"lpa.type":                    {data.Form.Type},
 						data.Form.DonorDetails:        {"1"},
 						data.Form.WhenCanLpaBeUsed:    {"1"},
 						data.Form.Restrictions:        {"1"},
@@ -95,7 +96,7 @@ func Fixtures(tmpl template.Template) Handler {
 						values.Add("lpa.peopleToNotify", data.Form.PersonToNotifyCount)
 					}
 				case "everything":
-					values = url.Values{"fresh": {"1"}, "lpa.complete": {"1"}, "redirect": {Paths.Dashboard}}
+					values = url.Values{"fresh": {"1"}, "lpa.complete": {"1"}, "redirect": {Paths.Dashboard.Format()}}
 
 					if r.FormValue("as-attorney") != "" {
 						values.Add("attorneyProvided", "1")

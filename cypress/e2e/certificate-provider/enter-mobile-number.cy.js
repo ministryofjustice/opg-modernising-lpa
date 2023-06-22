@@ -2,7 +2,7 @@ import { TestMobile } from "../../support/e2e";
 
 describe('Enter mobile number', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/certificate-provider-enter-mobile-number&certificateProviderProvided=1&loginAs=certificate-provider');
+        cy.visit('/testing-start?redirect=/enter-mobile-number&certificateProviderProvided=1&loginAs=certificate-provider');
     });
 
     it('can be completed', () => {
@@ -12,7 +12,7 @@ describe('Enter mobile number', () => {
 
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/certificate-provider-what-youll-need-to-confirm-your-identity');
+        cy.url().should('contain', '/what-youll-need-to-confirm-your-identity');
     });
 
     it('errors when empty', () => {

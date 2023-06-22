@@ -63,7 +63,7 @@ func TestLoginCallback(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, Paths.Attorney.EnterReferenceNumber, resp.Header.Get("Location"))
+	assert.Equal(t, Paths.Attorney.EnterReferenceNumber.Format(), resp.Header.Get("Location"))
 }
 
 func TestLoginCallbackSessionMissing(t *testing.T) {
@@ -134,7 +134,7 @@ func TestLoginCallbackWhenExchangeErrors(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", Redirect: Paths.LoginCallback},
+				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", Redirect: Paths.LoginCallback.Format()},
 			},
 		}, nil)
 
@@ -159,7 +159,7 @@ func TestLoginCallbackWhenUserInfoError(t *testing.T) {
 		On("Get", r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", Redirect: Paths.LoginCallback},
+				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", Redirect: Paths.LoginCallback.Format()},
 			},
 		}, nil)
 
@@ -188,7 +188,7 @@ func TestLoginCallbackWhenSessionError(t *testing.T) {
 					State:    "my-state",
 					Nonce:    "my-nonce",
 					Locale:   "en",
-					Redirect: Paths.LoginCallback,
+					Redirect: Paths.LoginCallback.Format(),
 				},
 			},
 		}, nil)
