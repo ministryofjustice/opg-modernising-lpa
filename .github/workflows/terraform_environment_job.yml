@@ -109,7 +109,7 @@ jobs:
 
       - uses: actions/github-script@v6
         name: Add plan summary to PR comment
-        if: github.ref != 'refs/heads/main'
+        if: github.workflow == '[Workflow] PR'
         with:
           github-token: ${{ secrets.github_access_token }}
           script: |
@@ -145,7 +145,7 @@ jobs:
             }
 
       - name: Protect environment workspace
-        if: github.ref != 'refs/heads/main'
+        if: github.workflow == '[Workflow] PR'
         env:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
           TF_VAR_container_version: ${{ inputs.version_tag }}
