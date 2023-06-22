@@ -62,9 +62,74 @@ func TestCheckString(t *testing.T) {
 			input:  "07777777777",
 			checks: []StringChecker{Mobile()},
 		},
-		"mobile invalid": {
+		"mobile with spaces": {
+			input:  " 0 7 7 7 7 7 7 7 7 7 7 ",
+			checks: []StringChecker{Mobile()},
+		},
+		"mobile uk prefix": {
+			input:  "+447777777777",
+			checks: []StringChecker{Mobile()},
+		},
+		"mobile uk prefix with spaces": {
+			input:  " + 4 4 7 7 7 7 7 7 7 7 7 7 ",
+			checks: []StringChecker{Mobile()},
+		},
+		"mobile invalid too long": {
 			input:    "01152222222",
 			checks:   []StringChecker{Mobile()},
+			expected: With(name, MobileError{Label: label}),
+		},
+		"mobile invalid too short": {
+			input:    "011522222",
+			checks:   []StringChecker{Mobile()},
+			expected: With(name, MobileError{Label: label}),
+		},
+		"mobile invalid alpha chars": {
+			input:    "01152a2222",
+			checks:   []StringChecker{Mobile()},
+			expected: With(name, MobileError{Label: label}),
+		},
+		"mobile invalid uk prefix too long": {
+			input:    "+441152222222",
+			checks:   []StringChecker{Mobile()},
+			expected: With(name, MobileError{Label: label}),
+		},
+		"mobile invalid uk prefix too short": {
+			input:    "+4411522222",
+			checks:   []StringChecker{Mobile()},
+			expected: With(name, MobileError{Label: label}),
+		},
+		"mobile invalid uk prefix alpha chars": {
+			input:    "+441152a2222",
+			checks:   []StringChecker{Mobile()},
+			expected: With(name, MobileError{Label: label}),
+		},
+		"mobile invalid error label": {
+			input:    "01152222222",
+			checks:   []StringChecker{Mobile().ErrorLabel("this")},
+			expected: With(name, CustomError{Label: "this"}),
+		},
+		"non uk mobile": {
+			input:  "+337777777777",
+			checks: []StringChecker{NonUKMobile()},
+		},
+		"non uk mobile with spaces": {
+			input:  " + 3 3 7 7 7 7 7 7 7 7 7 7 ",
+			checks: []StringChecker{NonUKMobile()},
+		},
+		"non uk mobile no prefix": {
+			input:    "337777777777",
+			checks:   []StringChecker{NonUKMobile()},
+			expected: With(name, MobileError{Label: label}),
+		},
+		"non uk mobile too long": {
+			input:    "+3377777777777777",
+			checks:   []StringChecker{NonUKMobile()},
+			expected: With(name, MobileError{Label: label}),
+		},
+		"non uk mobile too short": {
+			input:    "+337",
+			checks:   []StringChecker{NonUKMobile()},
 			expected: With(name, MobileError{Label: label}),
 		},
 		"email": {
