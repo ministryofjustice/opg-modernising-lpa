@@ -1,9 +1,12 @@
+data "aws_caller_identity" "main" {}
+
 resource "aws_dynamodb_table" "reduced_fees" {
   name                        = "${local.environment_name}-reduced-fees"
   billing_mode                = "PAY_PER_REQUEST"
   deletion_protection_enabled = local.default_tags.environment-name == "production" ? true : false
   stream_enabled              = true
   stream_view_type            = "NEW_AND_OLD_IMAGES"
+  hash_key                    = "PK"
 
   # key for encryption may need to be available to consuming services if they intend to reach in and grab
   # server_side_encryption {
