@@ -1,45 +1,228 @@
-import hasReturnToTaskListAndSaveButtons from './data-loss-warning'
+import DataLossWarning from './data-loss-warning'
 
-describe('data loss warning', () => {
-    it.each([
-        {
-            body: `<form>
-                <div class="govuk-button-group" data-module="app-save-or-return">
-                    <button class="govuk-button" data-module="govuk-button">Some button text</button>
-                    <a href="/" class="govuk-button govuk-button--secondary">More button text</a>
-                </div>
-            </form>`,
-            expected: true,
-        },
-        {
-            body: `<form>
-                <div class="govuk-button-group" data-module="app-save-or-return">
-                    <button class="govuk-button" data-module="govuk-button">Some button text</button>
-                </div>
-            </form>`,
-            expected: false,
-        },
-        {
-            body: `<form>
-                <div class="govuk-button-group" data-module="not-app-save-or-return">
-                    <button class="govuk-button" data-module="govuk-button">Some button text</button>
-                    <a href="/" class="govuk-button govuk-button--secondary">More button text</a>
-                </div>
-            </form>`,
-            expected: false,
-        },
-        {
-            body: `<form>
-                <div class="govuk-button-group" data-module="app-save-or-return">
-                    <div class="govuk-button" data-module="govuk-button">Some button text</div>
-                    <p class="govuk-button govuk-button--secondary">More button text</p>
-                </div>
-            </form>`,
-            expected: false,
-        },
-    ])('knows when a save or return button group has two buttons with body %s', ({body, expected}) => {
-        document.body.innerHTML = body
-        expect(hasReturnToTaskListAndSaveButtons()).toBe(expected)
+const validBody = `
+<div id="dialog-overlay" class="hide" tabindex="-1"></div>
+<div id="dialog"
+        class="hide govuk-!-padding-left-4 govuk-!-padding-top-2"
+        role="dialog"
+        aria-labelledby="dialog-title"
+        aria-describedby="dialog-description"
+        aria-modal="true"
+        style="border: 10px solid black;">
+    <div tabindex="0" class="dialog-focus"></div>
+    <h2 id="dialog-title" class="govuk-heading-l">You have unsaved changes</h2>
+    <p id="dialog-description" class="govuk-body">To save, go back to the page and select <span class="govuk-body govuk-!-font-weight-bold">Save and continue</span>.</p>
+
+    <div class="govuk-button-group">
+        <button id='back-to-page-btn' class="govuk-button" data-module="govuk-button" aria-label="Close Navigation">Back to page</button>
+        <a href="/task-list" id='return-to-task-list-popup' class="govuk-button govuk-button--secondary">Continue without saving</a>
+    </div>
+</div>
+
+<form>
+    <div class="govuk-button-group" data-module="app-save-or-return">
+        <input type="text">
+        <textarea></textarea>
+
+        <button id='submit-btn' class="govuk-button" data-module="govuk-button">Save and continue</button>
+        <a href="/task-list" id='return-to-task-list-form' class="govuk-button govuk-button--secondary">Return to task list</a>
+    </div>
+</form>`
+
+describe('component validation', () => {
+    describe('save or return', () => {
+        describe('valid when', () => {
+            it.each([
+                {
+                    name: 'anchor and button',
+                    body: `<form>
+                        <div class="govuk-button-group" data-module="app-save-or-return">
+                            <button class="govuk-button" data-module="govuk-button">Save and continue</button>
+                            <a href="/" class="govuk-button govuk-button--secondary">Return to task list</a>
+                        </div>
+                    </form>`,
+                },
+                {
+                    name: 'two anchors',
+                    body: `<form>
+                        <div class="govuk-button-group" data-module="app-save-or-return">
+                            <a href="/" class="govuk-button govuk-button--secondary">Save and continue</a>
+                            <a href="/" class="govuk-button govuk-button--secondary">Return to task list</a>
+                        </div>
+                    </form>`,
+                },
+                {
+                    name: 'two buttons',
+                    body: `<form>
+                        <div class="govuk-button-group" data-module="app-save-or-return">
+                            <button class="govuk-button" data-module="govuk-button">Save and continue</button>
+                            <button class="govuk-button" data-module="govuk-button">Return to task list</button>
+                        </div>
+                    </form>`,
+                },
+            ])('$name', ({name, body}) => {
+                document.body.innerHTML = body
+                const sut = new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`))
+
+                expect(sut.saveOrReturnComponentValid()).toEqual(true)
+            })
+        })
+
+        describe('invalid when', () => {
+            it.each([
+                {
+                    name: 'one child element',
+                    body: `<form>
+                        <div class="govuk-button-group" data-module="app-save-or-return">
+                            <button class="govuk-button" data-module="govuk-button">Save and continue</button>
+                        </div>
+                    </form>`,
+                },
+                {
+                    name: 'wrong data-module',
+                    body: `<form>
+                        <div class="govuk-button-group" data-module="not-app-save-or-return">
+                            <button class="govuk-button" data-module="govuk-button">Save and continue</button>
+                            <a href="/" class="govuk-button govuk-button--secondary">Return to task list</a>
+                        </div>
+                    </form>`,
+                },
+                {
+                    name: 'wrong child element',
+                    body: `<form>
+                        <div class="govuk-button-group" data-module="app-save-or-return">
+                            <div class="govuk-button" data-module="govuk-button">Save and continue</div>
+                            <p class="govuk-button govuk-button--secondary">Return to task list</p>
+                        </div>
+                    </form>`,
+                },
+            ])('$name', ({name, body}) => {
+                document.body.innerHTML = body
+                const sut = new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`))
+
+                expect(sut.saveOrReturnComponentValid()).toEqual(false)
+            })
+        })
     })
 
+    describe('dialog', () => {
+        describe('valid when', () => {
+            it('expected divs, anchors and buttons are present', () => {
+                document.body.innerHTML = `<div id="dialog-overlay"></div>
+                <div id="dialog">
+                    <div class="govuk-button-group">
+                        <button class="govuk-button" data-module="govuk-button" aria-label="Close Navigation">Back to page</button>
+                        <a href="/task-list" id='return-to-task-list-popup' class="govuk-button govuk-button--secondary">Continue without saving</a>
+                    </div>
+                </div>`
+                const sut = new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`))
+
+                expect(sut.dialogComponentValid()).toEqual(true)
+            })
+        })
+
+        describe('invalid when', () => {
+            it.each([
+                {
+                    name: 'overlay div missing',
+                    body: `<div id="not-dialog-overlay"></div>
+                    <div id="dialog">
+                        <div class="govuk-button-group">
+                            <button class="govuk-button" data-module="govuk-button" aria-label="Close Navigation">Back to page</button>
+                            <a href="/task-list" id='return-to-task-list-popup' class="govuk-button govuk-button--secondary">Continue without saving</a>
+                        </div>
+                    </div>`,
+                },
+                {
+                    name: 'dialog div missing',
+                    body: `<div id="dialog-overlay"></div>
+                    <div id="not-dialog">
+                        <div class="govuk-button-group">
+                            <button class="govuk-button" data-module="govuk-button" aria-label="Close Navigation">Back to page</button>
+                            <a href="/task-list" id='return-to-task-list-popup' class="govuk-button govuk-button--secondary">Continue without saving</a>
+                        </div>
+                    </div>`,
+                },
+                {
+                    name: 'wrong number of anchors/buttons',
+                    body: `<div id="dialog-overlay"></div>
+                    <div id="dialog">
+                        <div class="govuk-button-group">
+                            <button class="govuk-button" data-module="govuk-button" aria-label="Close Navigation">Back to page</button>
+                        </div>
+                    </div>`,
+                },
+            ])('$name', ({name, body}) => {
+                document.body.innerHTML = body
+                const sut = new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`))
+
+                expect(sut.dialogComponentValid()).toEqual(false)
+            })
+        })
+    })
+
+})
+
+describe('toggling popup visiblity', () => {
+    it.each([
+        {
+            elementName: 'input',
+        },
+        {
+            elementName: 'textarea',
+        },
+    ])('shown if changes have been made to $elementName', ({elementName}) => {
+        document.body.innerHTML = validBody
+        const sut = new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`))
+
+        sut.registerListeners()
+
+        // interact with form
+        document.querySelector(elementName).dispatchEvent(new Event('change', { bubbles: true }))
+
+        // click RTTL button
+        document.getElementById('return-to-task-list-form').click()
+
+        const popUpOverlay = document.getElementById('dialog-overlay')
+        const popUp = document.getElementById('dialog')
+
+        expect(popUpOverlay.classList.contains('hide')).toEqual(false)
+        expect(popUp.classList.contains('hide')).toEqual(false)
+    })
+
+    it('not shown if changes have not been made', () => {
+        document.body.innerHTML = validBody
+
+        const sut = new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`))
+
+        sut.registerListeners()
+
+        document.getElementById('return-to-task-list-form').click()
+
+        const popUpOverlay = document.getElementById('dialog-overlay')
+        const popUp = document.getElementById('dialog')
+
+        expect(popUpOverlay.classList.contains('hide')).toEqual(true)
+        expect(popUp.classList.contains('hide')).toEqual(true)
+    })
+})
+
+describe('interacting with pop up', () => {
+    it('clicking back to page popup button hides overlay', () => {
+        document.body.innerHTML = validBody
+
+        const sut = new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`))
+
+        sut.registerListeners()
+
+        document.querySelector('input').dispatchEvent(new Event('change', { bubbles: true }))
+        document.getElementById('return-to-task-list-form').click()
+        document.getElementById('back-to-page-btn').click()
+
+        const popUpOverlay = document.getElementById('dialog-overlay')
+        const popUp = document.getElementById('dialog')
+
+        expect(popUpOverlay.classList.contains('hide')).toEqual(true)
+        expect(popUp.classList.contains('hide')).toEqual(true)
+    })
 })
