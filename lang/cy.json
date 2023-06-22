@@ -558,6 +558,7 @@
     "enterYourDateOfBirth": "Welsh",
     "yourDateOfBirth": "Welsh",
     "18OrOverWarning": "Welsh",
+    "ukMobileNumber": "Welsh",
     "enterYourUkMobile": "Welsh",
     "enterYourUkMobileContext": "Welsh",
     "enterYourUkMobileHint": "Welsh",
@@ -693,5 +694,12 @@
     "imACertificateProvider": "Welsh",
     "viewAndManageDonor": "Welsh",
     "viewAndManageAttorney": "Welsh",
-    "viewAndManageCertificateProvider": "Welsh"
+    "viewAndManageCertificateProvider": "Welsh",
+    "theyDoNotHaveAUkMobileNumber": "Welsh",
+    "mobilePhoneNumber": "Welsh",
+    "nonUkMobileHint": "Welsh",
+    "youreResponsibleForMakingSureTheseDetailsAreCorrect": "Welsh",
+    "yourCertificateProvidersUkMobileNumber": "Welsh",
+    "yourCertificateProvidersMobileNumber": "Welsh",
+    "enterAMobileNumberInTheCorrectFormat": "Welsh"
 }
