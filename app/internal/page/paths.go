@@ -46,7 +46,7 @@ type AttorneyPaths struct {
 	LoginCallback        Path
 	Start                Path
 
-	CheckYourName             AttorneyPath
+	ConfirmYourDetails        AttorneyPath
 	CodeOfConduct             AttorneyPath
 	MobileNumber              AttorneyPath
 	ReadTheLpa                AttorneyPath
@@ -209,7 +209,7 @@ var Paths = AppPaths{
 		Login:                     "/attorney-login",
 		LoginCallback:             "/attorney-login-callback",
 		Start:                     "/attorney-start",
-		CheckYourName:             "/check-your-name",
+		ConfirmYourDetails:        "/confirm-your-details",
 		CodeOfConduct:             "/code-of-conduct",
 		MobileNumber:              "/mobile-number",
 		ReadTheLpa:                "/read-the-lpa",
