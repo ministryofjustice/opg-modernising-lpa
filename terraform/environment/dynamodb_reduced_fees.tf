@@ -178,13 +178,13 @@ data "aws_iam_policy_document" "cross_account_put_access" {
       "events:PutEvents",
     ]
     resources = [
-      "arn:aws:events:eu-west-1:123456789012:event-bus/default"
+      "arn:aws:events:eu-west-1:288342028542:event-bus/default"
     ]
 
-    principals {
-      type        = "AWS"
-      identifiers = [data.aws_caller_identity.main.account_id]
-    }
+    #   principals {
+    #     type        = "AWS"
+    #     identifiers = [data.aws_caller_identity.main.account_id]
+    #   }
   }
   provider = aws.eu_west_1
 }
@@ -199,16 +199,16 @@ resource "aws_cloudwatch_event_rule" "cross_account_put" {
   name        = "cross-account-put"
   description = "forward dynamodb stream events to bus in remote account"
 
-  # event_pattern = jsonencode({
-  #   detail-type = [
-  #     "AWS Console Sign In via CloudTrail"
-  #   ]
-  # })
+  event_pattern = jsonencode({
+    source = ["aws.dynamodb"]
+  })
+  provider = aws.eu_west_1
 }
 
 resource "aws_cloudwatch_event_target" "cross_account_put" {
   target_id = "CrossAccountPutEvent"
-  arn       = "arn:aws:events:eu-west-1:123456789012:event-bus/default"
+  arn       = "arn:aws:events:eu-west-1:288342028542:event-bus/default"
   rule      = aws_cloudwatch_event_rule.cross_account_put.name
   role_arn  = aws_iam_role.cross_account_put.arn
+  provider  = aws.eu_west_1
 }
