@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -61,7 +62,7 @@ func TestDonorStoreGetAll(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.ExpectGetAllByGsi(ctx, "ActorIndex", "#DONOR#an-id",
-		[]map[string]any{{"Data": lpa}}, nil)
+		[]any{lpa}, nil)
 
 	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }}
 
@@ -198,7 +199,7 @@ func TestDonorStoreCreate(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.On("Create", ctx, "LPA#10100000", "#DONOR#an-id", &page.Lpa{ID: "10100000", UpdatedAt: now}).Return(nil)
-	dataStore.On("Create", ctx, "LPA#10100000", "#SUB#an-id", "#DONOR#an-id|DONOR").Return(nil)
+	dataStore.On("Create", ctx, "LPA#10100000", "#SUB#an-id", sub{DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor}).Return(nil)
 
 	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }, now: func() time.Time { return now }}
 
@@ -235,7 +236,7 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 				On("Create", ctx, "LPA#10100000", "#DONOR#an-id", &page.Lpa{ID: "10100000", UpdatedAt: now}).
 				Return(nil)
 			dataStore.
-				On("Create", ctx, "LPA#10100000", "#SUB#an-id", "#DONOR#an-id|DONOR").
+				On("Create", ctx, "LPA#10100000", "#SUB#an-id", sub{DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor}).
 				Return(expectedError)
 
 			return dataStore
