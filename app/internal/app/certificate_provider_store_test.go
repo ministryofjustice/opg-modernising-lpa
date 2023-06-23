@@ -102,7 +102,7 @@ func TestCertificateProviderStoreGetAll(t *testing.T) {
 	dataStore := newMockDataStore(t)
 	dataStore.
 		ExpectGetAllByGsi(ctx, "ActorIndex", "#CERTIFICATE_PROVIDER#session-id",
-			[]map[string]any{{"Data": certificateProvider}}, nil)
+			[]any{certificateProvider}, nil)
 
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: nil}
 

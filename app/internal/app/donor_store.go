@@ -51,23 +51,14 @@ func (s *donorStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
 		return nil, errors.New("donorStore.GetAll requires SessionID")
 	}
 
-	var items []struct {
-		Data *page.Lpa
-	}
+	var items []*page.Lpa
+	err = s.dataStore.GetAllByGsi(ctx, "ActorIndex", "#DONOR#"+data.SessionID, &items)
 
-	sk := "#DONOR#" + data.SessionID
-	err = s.dataStore.GetAllByGsi(ctx, "ActorIndex", sk, &items)
-
-	lpas := make([]*page.Lpa, len(items))
-	for i, item := range items {
-		lpas[i] = item.Data
-	}
-
-	slices.SortFunc(lpas, func(a, b *page.Lpa) bool {
+	slices.SortFunc(items, func(a, b *page.Lpa) bool {
 		return a.UpdatedAt.After(b.UpdatedAt)
 	})
 
-	return lpas, err
+	return items, err
 }
 
 func (s *donorStore) GetAny(ctx context.Context) (*page.Lpa, error) {
