@@ -20,8 +20,11 @@ const validBody = `
 </div>
 
 <form>
-    <input type="text">
-    <textarea></textarea>
+    <input id="input" type="text" value="hello">
+    <textarea id="textarea"></textarea>
+    <select id="select"><option value="1">Option 1</option></select>
+    <input id="radio" type="radio" value="2">
+    <input id="checkbox" type="checkbox" value="3">
 
     <div class="govuk-button-group" data-module="app-save-or-return">
         <button id='submit-btn' class="govuk-button" data-module="govuk-button">Save and continue</button>
@@ -166,16 +169,38 @@ describe('component validation', () => {
 describe('toggling popup visiblity', () => {
     it.each([
         {
-            elementName: 'input',
+            elementId: 'input',
+            eventType: 'keyup',
         },
         {
-            elementName: 'textarea',
+            elementId: 'textarea',
+            eventType: 'keyup',
         },
-    ])('shown if changes have been made to $elementName', ({elementName}) => {
+        {
+            elementId: 'checkbox',
+            eventType: 'change',
+        },
+        {
+            elementId: 'radio',
+            eventType: 'change',
+        },
+        {
+            elementId: 'select',
+            eventType: 'change',
+        },
+    ])('shown if changes have been made to $elementId', ({elementId, eventType}) => {
         document.body.innerHTML = validBody
-        new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`)).registerListeners()
+        const fd = new FormData(document.querySelector('form'))
+        fd.append('s', 'v')
+        console.log(fd.values())
 
-        document.querySelector(elementName).dispatchEvent(new Event('change', { bubbles: true }))
+
+        new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`)).init()
+
+        const element = document.getElementById(elementId)
+        element.value = "hi"
+        element.dispatchEvent(new Event('input', { bubbles: true }))
+
         document.getElementById('return-to-task-list-form').click()
 
         const popUpOverlay = document.getElementById('dialog-overlay')

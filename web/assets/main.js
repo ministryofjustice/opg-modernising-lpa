@@ -18,7 +18,7 @@ if (header) {
 const saveOrReturn = document.querySelector(`[data-module="app-save-or-return"]`)
 if (saveOrReturn) {
     console.log('saveOrReturn found')
-    new DataLossWarning(saveOrReturn).registerListeners()
+    new DataLossWarning(saveOrReturn).init()
 }
 
 const backLink = document.querySelector('.govuk-back-link');

@@ -1,16 +1,24 @@
 export class DataLossWarning {
-
     constructor(saveOrReturnComponent) {
         this.saveOrReturnComponent = saveOrReturnComponent
-        this.changesMade = false
+        this.originalFormValues = ''
     }
 
-    setChangesMade() {
-        this.changesMade = true
+    init() {
+        this.originalFormValues = this.stringifyFormValues()
+        this.registerListeners()
+    }
+
+    changesMade() {
+        return this.originalFormValues !== this.stringifyFormValues()
+    }
+
+    stringifyFormValues() {
+        return JSON.stringify(...new FormData(document.querySelector('form')).values())
     }
 
     togglePopupVisibility() {
-        if (this.changesMade) {
+        if (this.changesMade()) {
             document.getElementById('dialog-overlay').classList.toggle('govuk-visually-hidden')
             document.getElementById('dialog').classList.toggle('govuk-visually-hidden')
         }
@@ -49,15 +57,14 @@ export class DataLossWarning {
 
     registerListeners() {
         if (this.saveOrReturnComponentValid()) {
-            for (let element of document.querySelectorAll('input, textarea')) {
-                element.addEventListener('change', this.setChangesMade.bind(this))
-            }
-
             for (let element of this.saveOrReturnComponent.children) {
                 if (element.tagName === 'A') {
                     element.addEventListener('click', (e) => {
-                        e.preventDefault()
+                        if (this.changesMade()) {
+                            e.preventDefault()
+                        }
                     })
+
                     element.addEventListener('click', this.togglePopupVisibility.bind(this))
                 }
             }
