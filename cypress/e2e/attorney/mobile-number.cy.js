@@ -12,13 +12,13 @@ describe('Mobile number', () => {
 
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/check-your-name');
+        cy.url().should('contain', '/confirm-your-details');
     });
 
     it('can be empty', () => {
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/check-your-name');
+        cy.url().should('contain', '/confirm-your-details');
     });
 
     it('errors when not a UK mobile', () => {

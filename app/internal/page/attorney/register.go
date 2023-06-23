@@ -109,10 +109,10 @@ func Register(
 		Guidance(tmpls.Get("attorney_code_of_conduct.gohtml"), donorStore))
 	handleAttorney(page.Paths.Attorney.TaskList, RequireAttorney,
 		TaskList(tmpls.Get("attorney_task_list.gohtml"), donorStore, certificateProviderStore))
-	handleAttorney(page.Paths.Attorney.CheckYourName, RequireAttorney,
-		CheckYourName(tmpls.Get("attorney_check_your_name.gohtml"), donorStore, attorneyStore, notifyClient))
 	handleAttorney(page.Paths.Attorney.MobileNumber, RequireAttorney,
 		MobileNumber(tmpls.Get("attorney_mobile_number.gohtml"), attorneyStore))
+	handleAttorney(page.Paths.Attorney.ConfirmYourDetails, RequireAttorney,
+		ConfirmYourDetails(tmpls.Get("attorney_confirm_your_details.gohtml"), attorneyStore, donorStore))
 	handleAttorney(page.Paths.Attorney.ReadTheLpa, RequireAttorney,
 		ReadTheLpa(tmpls.Get("attorney_read_the_lpa.gohtml"), donorStore, attorneyStore))
 	handleAttorney(page.Paths.Attorney.RightsAndResponsibilities, RequireAttorney,
