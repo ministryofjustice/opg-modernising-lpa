@@ -706,8 +706,12 @@
     "detailsYouHaveGivenUs": "Welsh",
     "detailsTheDonorHasGivenAboutYou": "Welsh",
     "whatToDoIfAnyDetailsAreIncorrect": "<p class=\"govuk-body\">Welsh</p>",
-    "whatToDoIfAnyDetailsAreIncorrectContent": "Welsh",
+    "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContent": "Welsh",
+    "whatToDoIfAnyDetailsAreIncorrectAttorneyContent": "Welsh",
     "anyErrorsInYourDetailsCanDelay": "Welsh",
     "changeDateOfBirthLink": "Welsh",
-    "mobileNumber": "Welsh"
+    "mobileNumber": "Welsh",
+    "telephoneNumber": "Welsh",
+    "changeTelephoneNumberLink": "Welsh",
+    "anyErrorsInYourDetailsCanMakeLpaDifficultToUse": "Welsh"
 }

@@ -1,0 +1,57 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "confirmYourDetails" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "confirmYourDetails" }}</h1>
+
+      <p class="govuk-body">{{ trFormat .App "youMustConfirmYourDetails" "DonorFullName" .Lpa.Donor.FullName }}</p>
+
+      <h2 class="govuk-heading-m">{{ tr .App "detailsYouHaveGivenUs" }}</h2>
+
+      <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">{{ tr .App "telephoneNumber" }}</dt>
+          <dd class="govuk-summary-list__value">{{ .AttorneyProvidedDetails.Mobile }}</dd>
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App (.App.Paths.Attorney.MobileNumber.Format .Lpa.ID) }}">{{ trHtml .App "changeTelephoneNumberLink" }}</a>
+          </dd>
+        </div>
+      </dl>
+
+      <h2 class="govuk-heading-m">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h2>
+
+      <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">{{ tr .App "name" }}</dt>
+          <dd class="govuk-summary-list__value">{{ .Attorney.FullName }}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
+          <dd class="govuk-summary-list__value">
+            {{ .Attorney.Address.Line1 }}<br>
+            {{ if .Attorney.Address.Line2 }}{{ .Attorney.Address.Line2 }}<br>{{end}}
+            {{ if .Attorney.Address.Line3 }}{{ .Attorney.Address.Line3 }}<br>{{end}}
+            {{ if .Attorney.Address.TownOrCity }}{{ .Attorney.Address.TownOrCity }}<br>{{end}}
+            {{ .Attorney.Address.Postcode }}
+          </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">{{ tr .App "dateOfBirth" }}</dt>
+          <dd class="govuk-summary-list__value">{{ formatDate .Attorney.DateOfBirth }}</dd>
+        </div>
+      </dl>
+
+      {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" "whatToDoIfAnyDetailsAreIncorrectAttorneyContent" false) }}
+
+      {{ template "warning" (warning .App "anyErrorsInYourDetailsCanMakeLpaDifficultToUse") }}
+
+      <form novalidate method="post">
+        {{ template "continue-button" . }}
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}
