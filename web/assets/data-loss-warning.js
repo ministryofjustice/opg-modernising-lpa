@@ -1,9 +1,8 @@
-export default class DataLossWarning {
+export class DataLossWarning {
 
     constructor(saveOrReturnComponent) {
         this.saveOrReturnComponent = saveOrReturnComponent
         this.changesMade = false
-        this.registerListeners()
     }
 
     setChangesMade() {
@@ -12,8 +11,8 @@ export default class DataLossWarning {
 
     togglePopupVisibility() {
         if (this.changesMade) {
-            document.getElementById('dialog-overlay').classList.toggle('hide')
-            document.getElementById('dialog').classList.toggle('hide')
+            document.getElementById('dialog-overlay').classList.toggle('govuk-visually-hidden')
+            document.getElementById('dialog').classList.toggle('govuk-visually-hidden')
         }
     }
 
@@ -50,12 +49,15 @@ export default class DataLossWarning {
 
     registerListeners() {
         if (this.saveOrReturnComponentValid()) {
-            for (let element of this.saveOrReturnComponent.children) {
-                if (['INPUT', 'TEXTAREA'].includes(element.tagName)) {
-                    element.addEventListener('change', this.setChangesMade.bind(this))
-                }
+            for (let element of document.querySelectorAll('input, textarea')) {
+                element.addEventListener('change', this.setChangesMade.bind(this))
+            }
 
+            for (let element of this.saveOrReturnComponent.children) {
                 if (element.tagName === 'A') {
+                    element.addEventListener('click', (e) => {
+                        e.preventDefault()
+                    })
                     element.addEventListener('click', this.togglePopupVisibility.bind(this))
                 }
             }

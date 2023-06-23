@@ -12,10 +12,27 @@
         "test": "jest"
     },
     "license": "MIT",
+    "type": "module",
+    "jest": {
+        "clearMocks": true,
+        "resetMocks": true,
+        "restoreMocks": true,
+        "testEnvironment": "jsdom",
+        "testRegex": "\\.test\\.js$",
+        "transform": {
+            "^.+\\.js$": [
+                "esbuild-jest"
+            ]
+        },
+        "transformIgnorePatterns": [
+            "/node_modules/*.+\\.js$"
+        ],
+        "verbose": true
+    },
     "dependencies": {
         "@ministryofjustice/frontend": "^1.6.3",
         "aws-rum-web": "^1.11.0",
-        "esbuild": "^0.17.0",
+        "esbuild": "^0.18.6",
         "govuk-frontend": "^4.4.0",
         "jquery": "^3.6.1",
         "sass": "^1.56.1"

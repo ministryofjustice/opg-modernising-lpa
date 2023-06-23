@@ -1,9 +1,9 @@
-import DataLossWarning from './data-loss-warning'
+import { DataLossWarning } from './data-loss-warning'
 
 const validBody = `
-<div id="dialog-overlay" class="hide" tabindex="-1"></div>
+<div id="dialog-overlay" class="govuk-visually-hidden" tabindex="-1"></div>
 <div id="dialog"
-        class="hide govuk-!-padding-left-4 govuk-!-padding-top-2"
+        class="govuk-visually-hidden govuk-!-padding-left-4 govuk-!-padding-top-2"
         role="dialog"
         aria-labelledby="dialog-title"
         aria-describedby="dialog-description"
@@ -14,16 +14,16 @@ const validBody = `
     <p id="dialog-description" class="govuk-body">To save, go back to the page and select <span class="govuk-body govuk-!-font-weight-bold">Save and continue</span>.</p>
 
     <div class="govuk-button-group">
-        <button id='back-to-page-btn' class="govuk-button" data-module="govuk-button" aria-label="Close Navigation">Back to page</button>
+        <button type="button" id='back-to-page-btn' class="govuk-button" data-module="govuk-button" aria-label="Close Navigation">Back to page</button>
         <a href="/task-list" id='return-to-task-list-popup' class="govuk-button govuk-button--secondary">Continue without saving</a>
     </div>
 </div>
 
 <form>
-    <div class="govuk-button-group" data-module="app-save-or-return">
-        <input type="text">
-        <textarea></textarea>
+    <input type="text">
+    <textarea></textarea>
 
+    <div class="govuk-button-group" data-module="app-save-or-return">
         <button id='submit-btn' class="govuk-button" data-module="govuk-button">Save and continue</button>
         <a href="/task-list" id='return-to-task-list-form' class="govuk-button govuk-button--secondary">Return to task list</a>
     </div>
@@ -173,7 +173,7 @@ describe('toggling popup visiblity', () => {
         },
     ])('shown if changes have been made to $elementName', ({elementName}) => {
         document.body.innerHTML = validBody
-        const sut = new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`))
+        new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`)).registerListeners()
 
         document.querySelector(elementName).dispatchEvent(new Event('change', { bubbles: true }))
         document.getElementById('return-to-task-list-form').click()
@@ -181,22 +181,22 @@ describe('toggling popup visiblity', () => {
         const popUpOverlay = document.getElementById('dialog-overlay')
         const popUp = document.getElementById('dialog')
 
-        expect(popUpOverlay.classList.contains('hide')).toEqual(false)
-        expect(popUp.classList.contains('hide')).toEqual(false)
+        expect(popUpOverlay.classList.contains('govuk-visually-hidden')).toEqual(false)
+        expect(popUp.classList.contains('govuk-visually-hidden')).toEqual(false)
     })
 
     it('not shown if changes have not been made', () => {
         document.body.innerHTML = validBody
 
-        const sut = new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`))
+        new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`)).registerListeners()
 
         document.getElementById('return-to-task-list-form').click()
 
         const popUpOverlay = document.getElementById('dialog-overlay')
         const popUp = document.getElementById('dialog')
 
-        expect(popUpOverlay.classList.contains('hide')).toEqual(true)
-        expect(popUp.classList.contains('hide')).toEqual(true)
+        expect(popUpOverlay.classList.contains('govuk-visually-hidden')).toEqual(true)
+        expect(popUp.classList.contains('govuk-visually-hidden')).toEqual(true)
     })
 })
 
@@ -213,7 +213,7 @@ describe('interacting with pop up', () => {
         const popUpOverlay = document.getElementById('dialog-overlay')
         const popUp = document.getElementById('dialog')
 
-        expect(popUpOverlay.classList.contains('hide')).toEqual(true)
-        expect(popUp.classList.contains('hide')).toEqual(true)
+        expect(popUpOverlay.classList.contains('govuk-visually-hidden')).toEqual(true)
+        expect(popUp.classList.contains('govuk-visually-hidden')).toEqual(true)
     })
 })

@@ -1,5 +1,23 @@
 {{ define "save-and-return-buttons" }}
-  <div class="govuk-button-group">
+  <div id="dialog-overlay" class="govuk-visually-hidden" tabindex="-1"></div>
+  <div id="dialog"
+          class="govuk-visually-hidden govuk-!-padding-left-4 govuk-!-padding-top-2"
+          role="dialog"
+          aria-labelledby="dialog-title"
+          aria-describedby="dialog-description"
+          aria-modal="true"
+          style="border: 10px solid black;">
+      <div tabindex="0" class="dialog-focus"></div>
+      <h2 id="dialog-title" class="govuk-heading-l">You have unsaved changes</h2>
+      <p id="dialog-description" class="govuk-body">To save, go back to the page and select <span class="govuk-body govuk-!-font-weight-bold">Save and continue</span>.</p>
+
+      <div class="govuk-button-group">
+          <button type="button" id='back-to-page-btn' class="govuk-button" data-module="govuk-button" aria-label="Close Navigation">Back to page</button>
+          <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" id='return-to-task-list-popup' class="govuk-button govuk-button--secondary">Continue without saving</a>
+      </div>
+  </div>
+
+  <div class="govuk-button-group" data-module="app-save-or-return">
     <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "saveAndContinue" }}</button>
     <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
   </div>
