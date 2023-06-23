@@ -21,8 +21,7 @@ resource "aws_dynamodb_table" "lpas_table" {
   global_secondary_index {
     name               = "ActorIndex"
     hash_key           = "SK"
-    projection_type    = "INCLUDE"
-    non_key_attributes = ["Data"]
+    projection_type    = "ALL"
   }
 
   server_side_encryption {

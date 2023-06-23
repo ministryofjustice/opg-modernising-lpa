@@ -24,7 +24,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 				On("Create", ctx, "LPA#123", "#ATTORNEY#456", details).
 				Return(nil)
 			dataStore.
-				On("Create", ctx, "LPA#123", "#SUB#456", "#DONOR#session-id|ATTORNEY").
+				On("Create", ctx, "LPA#123", "#SUB#456", sub{DonorKey: "#DONOR#session-id", ActorType: actor.TypeAttorney}).
 				Return(nil)
 
 			attorneyStore := &attorneyStore{dataStore: dataStore, now: func() time.Time { return now }}
@@ -82,7 +82,7 @@ func TestAttorneyStoreCreateWhenCreateError(t *testing.T) {
 				On("Create", ctx, "LPA#123", "#ATTORNEY#456", mock.Anything).
 				Return(nil)
 			dataStore.
-				On("Create", ctx, "LPA#123", "#SUB#456", "#DONOR#session-id|ATTORNEY").
+				On("Create", ctx, "LPA#123", "#SUB#456", sub{DonorKey: "#DONOR#session-id", ActorType: actor.TypeAttorney}).
 				Return(expectedError)
 
 			return dataStore
@@ -108,7 +108,7 @@ func TestAttorneyStoreGetAll(t *testing.T) {
 	dataStore := newMockDataStore(t)
 	dataStore.
 		ExpectGetAllByGsi(ctx, "ActorIndex", "#ATTORNEY#session-id",
-			[]map[string]any{{"Data": attorney}}, nil)
+			[]any{attorney}, nil)
 
 	attorneyStore := &attorneyStore{dataStore: dataStore, now: nil}
 

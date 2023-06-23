@@ -30,7 +30,7 @@ func (s *attorneyStore) Create(ctx context.Context, donorSessionID, attorneyID s
 	if err := s.dataStore.Create(ctx, pk, sk, attorney); err != nil {
 		return nil, err
 	}
-	if err := s.dataStore.Create(ctx, pk, subk, "#DONOR#"+donorSessionID+"|ATTORNEY"); err != nil {
+	if err := s.dataStore.Create(ctx, pk, subk, sub{DonorKey: "#DONOR#" + donorSessionID, ActorType: actor.TypeAttorney}); err != nil {
 		return nil, err
 	}
 
@@ -47,19 +47,10 @@ func (s *attorneyStore) GetAll(ctx context.Context) ([]*actor.AttorneyProvidedDe
 		return nil, errors.New("attorneyStore.GetAll requires SessionID")
 	}
 
-	var items []struct {
-		Data *actor.AttorneyProvidedDetails
-	}
+	var items []*actor.AttorneyProvidedDetails
+	err = s.dataStore.GetAllByGsi(ctx, "ActorIndex", "#ATTORNEY#"+data.SessionID, &items)
 
-	sk := "#ATTORNEY#" + data.SessionID
-	err = s.dataStore.GetAllByGsi(ctx, "ActorIndex", sk, &items)
-
-	details := make([]*actor.AttorneyProvidedDetails, len(items))
-	for i, item := range items {
-		details[i] = item.Data
-	}
-
-	return details, err
+	return items, err
 }
 
 func (s *attorneyStore) Get(ctx context.Context) (*actor.AttorneyProvidedDetails, error) {

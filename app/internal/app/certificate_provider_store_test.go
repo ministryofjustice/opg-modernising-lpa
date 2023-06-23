@@ -20,7 +20,7 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 		On("Create", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123", UpdatedAt: now}).
 		Return(nil)
 	dataStore.
-		On("Create", ctx, "LPA#123", "#SUB#456", "#DONOR#session-id|CERTIFICATE_PROVIDER").
+		On("Create", ctx, "LPA#123", "#SUB#456", sub{DonorKey: "#DONOR#session-id", ActorType: actor.TypeCertificateProvider}).
 		Return(nil)
 
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: func() time.Time { return now }}
@@ -76,7 +76,7 @@ func TestCertificateProviderStoreCreateWhenCreateError(t *testing.T) {
 				On("Create", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123", UpdatedAt: now}).
 				Return(nil)
 			dataStore.
-				On("Create", ctx, "LPA#123", "#SUB#456", "#DONOR#session-id|CERTIFICATE_PROVIDER").
+				On("Create", ctx, "LPA#123", "#SUB#456", sub{DonorKey: "#DONOR#session-id", ActorType: actor.TypeCertificateProvider}).
 				Return(expectedError)
 
 			return dataStore
@@ -102,7 +102,7 @@ func TestCertificateProviderStoreGetAll(t *testing.T) {
 	dataStore := newMockDataStore(t)
 	dataStore.
 		ExpectGetAllByGsi(ctx, "ActorIndex", "#CERTIFICATE_PROVIDER#session-id",
-			[]map[string]any{{"Data": certificateProvider}}, nil)
+			[]any{certificateProvider}, nil)
 
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: nil}
 
