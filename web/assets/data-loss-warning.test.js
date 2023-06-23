@@ -1,37 +1,5 @@
 import { DataLossWarning } from './data-loss-warning'
 
-const validBody = `
-<div id="dialog-overlay" class="govuk-visually-hidden" tabindex="-1"></div>
-<div id="dialog"
-        class="govuk-visually-hidden govuk-!-padding-left-4 govuk-!-padding-top-2"
-        role="dialog"
-        aria-labelledby="dialog-title"
-        aria-describedby="dialog-description"
-        aria-modal="true"
-        style="border: 10px solid black;">
-    <div tabindex="0" class="dialog-focus"></div>
-    <h2 id="dialog-title" class="govuk-heading-l">You have unsaved changes</h2>
-    <p id="dialog-description" class="govuk-body">To save, go back to the page and select <span class="govuk-body govuk-!-font-weight-bold">Save and continue</span>.</p>
-
-    <div class="govuk-button-group">
-        <button type="button" id='back-to-page-btn' class="govuk-button" data-module="govuk-button" aria-label="Close Navigation">Back to page</button>
-        <a href="/task-list" id='return-to-task-list-popup' class="govuk-button govuk-button--secondary">Continue without saving</a>
-    </div>
-</div>
-
-<form>
-    <input id="input" type="text" value="hello">
-    <textarea id="textarea"></textarea>
-    <select id="select"><option value="1">Option 1</option></select>
-    <input id="radio" type="radio" value="2">
-    <input id="checkbox" type="checkbox" value="3">
-
-    <div class="govuk-button-group" data-module="app-save-or-return">
-        <button id='submit-btn' class="govuk-button" data-module="govuk-button">Save and continue</button>
-        <a href="/task-list" id='return-to-task-list-form' class="govuk-button govuk-button--secondary">Return to task list</a>
-    </div>
-</form>`
-
 describe('component validation', () => {
     describe('save or return', () => {
         describe('valid when', () => {
@@ -119,6 +87,7 @@ describe('component validation', () => {
                     </div>
                 </div>`
                 const sut = new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`))
+                sut.init()
 
                 expect(sut.dialogComponentValid()).toEqual(true)
             })
@@ -163,82 +132,6 @@ describe('component validation', () => {
             })
         })
     })
-
 })
 
-describe('toggling popup visiblity', () => {
-    it.each([
-        {
-            elementId: 'input',
-            eventType: 'keyup',
-        },
-        {
-            elementId: 'textarea',
-            eventType: 'keyup',
-        },
-        {
-            elementId: 'checkbox',
-            eventType: 'change',
-        },
-        {
-            elementId: 'radio',
-            eventType: 'change',
-        },
-        {
-            elementId: 'select',
-            eventType: 'change',
-        },
-    ])('shown if changes have been made to $elementId', ({elementId, eventType}) => {
-        document.body.innerHTML = validBody
-        const fd = new FormData(document.querySelector('form'))
-        fd.append('s', 'v')
-        console.log(fd.values())
-
-
-        new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`)).init()
-
-        const element = document.getElementById(elementId)
-        element.value = "hi"
-        element.dispatchEvent(new Event('input', { bubbles: true }))
-
-        document.getElementById('return-to-task-list-form').click()
-
-        const popUpOverlay = document.getElementById('dialog-overlay')
-        const popUp = document.getElementById('dialog')
-
-        expect(popUpOverlay.classList.contains('govuk-visually-hidden')).toEqual(false)
-        expect(popUp.classList.contains('govuk-visually-hidden')).toEqual(false)
-    })
-
-    it('not shown if changes have not been made', () => {
-        document.body.innerHTML = validBody
-
-        new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`)).registerListeners()
-
-        document.getElementById('return-to-task-list-form').click()
-
-        const popUpOverlay = document.getElementById('dialog-overlay')
-        const popUp = document.getElementById('dialog')
-
-        expect(popUpOverlay.classList.contains('govuk-visually-hidden')).toEqual(true)
-        expect(popUp.classList.contains('govuk-visually-hidden')).toEqual(true)
-    })
-})
-
-describe('interacting with pop up', () => {
-    it('clicking back to page popup button hides overlay', () => {
-        document.body.innerHTML = validBody
-
-        const sut = new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`))
-
-        document.querySelector('input').dispatchEvent(new Event('change', { bubbles: true }))
-        document.getElementById('return-to-task-list-form').click()
-        document.getElementById('back-to-page-btn').click()
-
-        const popUpOverlay = document.getElementById('dialog-overlay')
-        const popUp = document.getElementById('dialog')
-
-        expect(popUpOverlay.classList.contains('govuk-visually-hidden')).toEqual(true)
-        expect(popUp.classList.contains('govuk-visually-hidden')).toEqual(true)
-    })
-})
+// limitations with FormData API + jsdom + jest means testing toggling visibility falls to cypress

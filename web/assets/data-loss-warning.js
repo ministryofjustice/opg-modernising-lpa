@@ -5,22 +5,31 @@ export class DataLossWarning {
     }
 
     init() {
-        this.originalFormValues = this.stringifyFormValues()
-        this.registerListeners()
+        this.dialog = document.getElementById('dialog')
+        this.dialogOverlay = document.getElementById('dialog-overlay')
+
+        if (this.dialogComponentValid() && this.saveOrReturnComponentValid()) {
+            this.originalFormValues = this.stringifyFormValues()
+            this.registerListeners()
+        }
     }
 
     changesMade() {
+        console.log(this.originalFormValues)
+        console.log(this.stringifyFormValues())
         return this.originalFormValues !== this.stringifyFormValues()
     }
 
     stringifyFormValues() {
-        return JSON.stringify(...new FormData(document.querySelector('form')).values())
+        return JSON.stringify([...new FormData(document.querySelector('form')).values()])
     }
 
-    togglePopupVisibility() {
+    toggleDialogVisibility() {
         if (this.changesMade()) {
-            document.getElementById('dialog-overlay').classList.toggle('govuk-visually-hidden')
-            document.getElementById('dialog').classList.toggle('govuk-visually-hidden')
+            this.dialog.classList.toggle('govuk-visually-hidden')
+            this.dialog.classList.toggle('dialog')
+            this.dialogOverlay.classList.toggle('govuk-visually-hidden')
+            this.dialogOverlay.classList.toggle('dialog-overlay')
         }
     }
 
@@ -33,14 +42,11 @@ export class DataLossWarning {
     }
 
     dialogComponentValid() {
-        const overlay = document.getElementById('dialog-overlay')
-        const dialog = document.getElementById('dialog')
-
-        if (!overlay || !dialog) {
+        if (!this.dialog || !this.dialogOverlay) {
             return false
         }
 
-        return this.buttonsPresent(2, dialog.querySelector(".govuk-button-group"))
+        return this.buttonsPresent(2, this.dialog.querySelector(".govuk-button-group"))
     }
 
     buttonsPresent(requiredCount, parentElement) {
@@ -56,27 +62,22 @@ export class DataLossWarning {
     }
 
     registerListeners() {
-        if (this.saveOrReturnComponentValid()) {
-            for (let element of this.saveOrReturnComponent.children) {
-                if (element.tagName === 'A') {
-                    element.addEventListener('click', (e) => {
-                        if (this.changesMade()) {
-                            e.preventDefault()
-                        }
-                    })
+        for (let element of this.saveOrReturnComponent.children) {
+            if (element.tagName === 'A') {
+                element.addEventListener('click', (e) => {
+                    if (this.changesMade()) {
+                        e.preventDefault()
+                    }
+                })
 
-                    element.addEventListener('click', this.togglePopupVisibility.bind(this))
-                }
+                element.addEventListener('click', this.toggleDialogVisibility.bind(this))
             }
         }
 
-        if (this.dialogComponentValid()) {
-            for (let element of document.getElementById('dialog').querySelector(".govuk-button-group").children) {
-                if (element.tagName === 'BUTTON') {
-                    element.addEventListener('click', this.togglePopupVisibility.bind(this))
-                }
+        for (let element of this.dialog.querySelector(".govuk-button-group").children) {
+            if (element.tagName === 'BUTTON') {
+                element.addEventListener('click', this.toggleDialogVisibility.bind(this))
             }
-
         }
     }
 }
