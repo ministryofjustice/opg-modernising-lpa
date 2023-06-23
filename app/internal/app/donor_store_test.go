@@ -61,7 +61,7 @@ func TestDonorStoreGetAll(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.ExpectGetAllByGsi(ctx, "ActorIndex", "#DONOR#an-id",
-		[]map[string]any{{"Data": lpa}}, nil)
+		[]any{lpa}, nil)
 
 	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }}
 

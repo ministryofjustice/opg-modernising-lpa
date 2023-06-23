@@ -108,7 +108,7 @@ func TestAttorneyStoreGetAll(t *testing.T) {
 	dataStore := newMockDataStore(t)
 	dataStore.
 		ExpectGetAllByGsi(ctx, "ActorIndex", "#ATTORNEY#session-id",
-			[]map[string]any{{"Data": attorney}}, nil)
+			[]any{attorney}, nil)
 
 	attorneyStore := &attorneyStore{dataStore: dataStore, now: nil}
 

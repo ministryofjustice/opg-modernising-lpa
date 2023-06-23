@@ -47,19 +47,10 @@ func (s *certificateProviderStore) GetAll(ctx context.Context) ([]*actor.Certifi
 		return nil, errors.New("certificateProviderStore.GetAll requires SessionID")
 	}
 
-	var items []struct {
-		Data *actor.CertificateProviderProvidedDetails
-	}
+	var items []*actor.CertificateProviderProvidedDetails
+	err = s.dataStore.GetAllByGsi(ctx, "ActorIndex", "#CERTIFICATE_PROVIDER#"+data.SessionID, &items)
 
-	sk := "#CERTIFICATE_PROVIDER#" + data.SessionID
-	err = s.dataStore.GetAllByGsi(ctx, "ActorIndex", sk, &items)
-
-	details := make([]*actor.CertificateProviderProvidedDetails, len(items))
-	for i, item := range items {
-		details[i] = item.Data
-	}
-
-	return details, err
+	return items, err
 }
 
 func (s *certificateProviderStore) GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {

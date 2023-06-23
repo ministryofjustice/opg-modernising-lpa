@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/stretchr/testify/assert"
+	mock "github.com/stretchr/testify/mock"
 )
 
 var expectedError = errors.New("err")
@@ -17,10 +18,10 @@ var expectedError = errors.New("err")
 func TestGet(t *testing.T) {
 	ctx := context.Background()
 
-	result := "hello"
+	expected := map[string]string{"Col": "Val"}
 	pkey, _ := attributevalue.Marshal("a-pk")
 	skey, _ := attributevalue.Marshal("a-sk")
-	data, _ := attributevalue.Marshal(result)
+	data, _ := attributevalue.MarshalMap(expected)
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
@@ -28,14 +29,14 @@ func TestGet(t *testing.T) {
 			TableName: aws.String("this"),
 			Key:       map[string]types.AttributeValue{"PK": pkey, "SK": skey},
 		}).
-		Return(&dynamodb.GetItemOutput{Item: map[string]types.AttributeValue{"Data": data}}, nil)
+		Return(&dynamodb.GetItemOutput{Item: data}, nil)
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v string
-	err := c.Get(ctx, "a-pk", "a-sk", &v)
+	var actual map[string]string
+	err := c.Get(ctx, "a-pk", "a-sk", &actual)
 	assert.Nil(t, err)
-	assert.Equal(t, result, v)
+	assert.Equal(t, expected, actual)
 }
 
 func TestGetWhenError(t *testing.T) {
@@ -82,44 +83,32 @@ func TestGetWhenNotFound(t *testing.T) {
 
 func TestPut(t *testing.T) {
 	ctx := context.Background()
-	pkey, _ := attributevalue.Marshal("a-pk")
-	skey, _ := attributevalue.Marshal("a-sk")
-	data, _ := attributevalue.Marshal("hello")
+	data, _ := attributevalue.MarshalMap(map[string]string{
+		"PK":  "a-pk",
+		"SK":  "a-sk",
+		"Col": "Val",
+	})
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
 		On("PutItem", ctx, &dynamodb.PutItemInput{
 			TableName: aws.String("this"),
-			Item: map[string]types.AttributeValue{
-				"PK":   pkey,
-				"SK":   skey,
-				"Data": data,
-			},
+			Item:      data,
 		}).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	err := c.Put(ctx, "a-pk", "a-sk", "hello")
+	err := c.Put(ctx, "a-pk", "a-sk", map[string]string{"Col": "Val"})
 	assert.Nil(t, err)
 }
 
 func TestPutWhenError(t *testing.T) {
 	ctx := context.Background()
-	pkey, _ := attributevalue.Marshal("a-pk")
-	skey, _ := attributevalue.Marshal("a-sk")
-	data, _ := attributevalue.Marshal("hello")
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
-		On("PutItem", ctx, &dynamodb.PutItemInput{
-			TableName: aws.String("this"),
-			Item: map[string]types.AttributeValue{
-				"PK":   pkey,
-				"SK":   skey,
-				"Data": data,
-			},
-		}).
+		On("PutItem", ctx, mock.Anything).
 		Return(&dynamodb.PutItemOutput{}, expectedError)
 
 	c := &Client{table: "this", svc: dynamoDB}
@@ -130,59 +119,48 @@ func TestPutWhenError(t *testing.T) {
 
 func TestCreate(t *testing.T) {
 	ctx := context.Background()
-	pkey, _ := attributevalue.Marshal("a-pk")
-	skey, _ := attributevalue.Marshal("a-sk")
-	data, _ := attributevalue.Marshal("hello")
+	data, _ := attributevalue.MarshalMap(map[string]string{
+		"PK":  "a-pk",
+		"SK":  "a-sk",
+		"Col": "Val",
+	})
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
 		On("PutItem", ctx, &dynamodb.PutItemInput{
-			TableName: aws.String("this"),
-			Item: map[string]types.AttributeValue{
-				"PK":   pkey,
-				"SK":   skey,
-				"Data": data,
-			},
+			TableName:           aws.String("this"),
+			Item:                data,
 			ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
 		}).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	err := c.Create(ctx, "a-pk", "a-sk", "hello")
+	err := c.Create(ctx, "a-pk", "a-sk", map[string]string{"Col": "Val"})
 	assert.Nil(t, err)
 }
 
 func TestCreateWhenError(t *testing.T) {
 	ctx := context.Background()
-	pkey, _ := attributevalue.Marshal("a-pk")
-	skey, _ := attributevalue.Marshal("a-sk")
-	data, _ := attributevalue.Marshal("hello")
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
-		On("PutItem", ctx, &dynamodb.PutItemInput{
-			TableName: aws.String("this"),
-			Item: map[string]types.AttributeValue{
-				"PK":   pkey,
-				"SK":   skey,
-				"Data": data,
-			},
-			ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
-		}).
+		On("PutItem", ctx, mock.Anything).
 		Return(&dynamodb.PutItemOutput{}, expectedError)
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	err := c.Create(ctx, "a-pk", "a-sk", "hello")
+	err := c.Create(ctx, "a-pk", "a-sk", map[string]string{"Col": "Val"})
 	assert.Equal(t, expectedError, err)
 }
 
 func TestGetOneByPartialSk(t *testing.T) {
-	result, _ := attributevalue.Marshal("some data")
 	ctx := context.Background()
+
+	expected := map[string]string{"Col": "Val"}
 	pkey, _ := attributevalue.Marshal("a-pk")
 	skey, _ := attributevalue.Marshal("a-partial-sk")
+	data, _ := attributevalue.MarshalMap(expected)
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
@@ -192,88 +170,69 @@ func TestGetOneByPartialSk(t *testing.T) {
 			ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey, ":SK": skey},
 			KeyConditionExpression:    aws.String("#PK = :PK and begins_with(#SK, :SK)"),
 		}).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{{"Data": result}}}, nil)
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data}}, nil)
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v string
+	var v map[string]string
 	err := c.GetOneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
 	assert.Nil(t, err)
-	assert.Equal(t, "some data", v)
+	assert.Equal(t, expected, v)
 }
 
 func TestGetOneByPartialSkOnQueryError(t *testing.T) {
-	result, _ := attributevalue.Marshal("some data")
 	ctx := context.Background()
-	pkey, _ := attributevalue.Marshal("a-pk")
-	skey, _ := attributevalue.Marshal("a-partial-sk")
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
-		On("Query", ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			ExpressionAttributeNames:  map[string]string{"#PK": "PK", "#SK": "SK"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey, ":SK": skey},
-			KeyConditionExpression:    aws.String("#PK = :PK and begins_with(#SK, :SK)"),
-		}).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{{"Data": result}}}, expectedError)
+		On("Query", ctx, mock.Anything).
+		Return(nil, expectedError)
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v string
+	var v map[string]string
 	err := c.GetOneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
 	assert.Equal(t, expectedError, err)
 }
 
 func TestGetOneByPartialSkWhenNotFound(t *testing.T) {
 	ctx := context.Background()
-	pkey, _ := attributevalue.Marshal("a-pk")
-	skey, _ := attributevalue.Marshal("a-partial-sk")
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
-		On("Query", ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			ExpressionAttributeNames:  map[string]string{"#PK": "PK", "#SK": "SK"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey, ":SK": skey},
-			KeyConditionExpression:    aws.String("#PK = :PK and begins_with(#SK, :SK)"),
-		}).
+		On("Query", ctx, mock.Anything).
 		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{}}, nil)
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v string
+	var v map[string]string
 	err := c.GetOneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
 	assert.Equal(t, NotFoundError{}, err)
 }
 
 func TestGetOneByPartialSkWhenMultipleResults(t *testing.T) {
-	result, _ := attributevalue.Marshal("some data")
 	ctx := context.Background()
-	pkey, _ := attributevalue.Marshal("a-pk")
-	skey, _ := attributevalue.Marshal("a-partial-sk")
+
+	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
-		On("Query", ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			ExpressionAttributeNames:  map[string]string{"#PK": "PK", "#SK": "SK"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey, ":SK": skey},
-			KeyConditionExpression:    aws.String("#PK = :PK and begins_with(#SK, :SK)"),
-		}).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{{"Data": result}, {"Data": result}}}, nil)
+		On("Query", ctx, mock.Anything).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data, data}}, nil)
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v string
+	var v map[string]string
 	err := c.GetOneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
 	assert.Equal(t, MultipleResultsError{}, err)
 }
 
 func TestGetAllByGsi(t *testing.T) {
-	result, _ := attributevalue.Marshal("some data")
 	ctx := context.Background()
+
+	expected := map[string]string{"Col": "Val"}
 	skey, _ := attributevalue.Marshal("a-partial-sk")
+	data, _ := attributevalue.MarshalMap(expected)
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
@@ -284,18 +243,14 @@ func TestGetAllByGsi(t *testing.T) {
 			ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey},
 			KeyConditionExpression:    aws.String("#SK = :SK"),
 		}).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{{"Data": result}, {"Data": result}}}, nil)
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data, data}}, nil)
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v []struct {
-		Data string
-	}
+	var v []map[string]string
 	err := c.GetAllByGsi(ctx, "index-name", "a-partial-sk", &v)
 	assert.Nil(t, err)
-	assert.Len(t, v, 2)
-	assert.Equal(t, "some data", v[0].Data)
-	assert.Equal(t, "some data", v[1].Data)
+	assert.Equal(t, []map[string]string{expected, expected}, v)
 }
 
 func TestGetAllByGsiWhenNotFound(t *testing.T) {
@@ -322,17 +277,10 @@ func TestGetAllByGsiWhenNotFound(t *testing.T) {
 
 func TestGetAllByGsiOnQueryError(t *testing.T) {
 	ctx := context.Background()
-	skey, _ := attributevalue.Marshal("a-partial-sk")
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
-		On("Query", ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			IndexName:                 aws.String("index-name"),
-			ExpressionAttributeNames:  map[string]string{"#SK": "SK"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey},
-			KeyConditionExpression:    aws.String("#SK = :SK"),
-		}).
+		On("Query", ctx, mock.Anything).
 		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{}}, expectedError)
 
 	c := &Client{table: "this", svc: dynamoDB}
@@ -344,6 +292,9 @@ func TestGetAllByGsiOnQueryError(t *testing.T) {
 
 func TestGetAllByKeys(t *testing.T) {
 	ctx := context.Background()
+
+	expected := map[string]string{"Col": "Val"}
+	data, _ := attributevalue.MarshalMap(expected)
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
@@ -359,21 +310,16 @@ func TestGetAllByKeys(t *testing.T) {
 		}).
 		Return(&dynamodb.BatchGetItemOutput{
 			Responses: map[string][]map[string]types.AttributeValue{
-				"this": {
-					{"Data": &types.AttributeValueMemberS{Value: "hey"}},
-				},
+				"this": {data},
 			},
 		}, nil)
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v []struct {
-		Data string
-	}
+	var v []map[string]string
 	err := c.GetAllByKeys(ctx, []Key{{PK: "pk", SK: "sk"}}, &v)
 	assert.Nil(t, err)
-	assert.Len(t, v, 1)
-	assert.Equal(t, "hey", v[0].Data)
+	assert.Equal(t, []map[string]string{expected}, v)
 }
 
 func TestGetAllByKeysWhenQueryErrors(t *testing.T) {
@@ -381,16 +327,7 @@ func TestGetAllByKeysWhenQueryErrors(t *testing.T) {
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
-		On("BatchGetItem", ctx, &dynamodb.BatchGetItemInput{
-			RequestItems: map[string]types.KeysAndAttributes{
-				"this": {
-					Keys: []map[string]types.AttributeValue{{
-						"PK": &types.AttributeValueMemberS{Value: "pk"},
-						"SK": &types.AttributeValueMemberS{Value: "sk"},
-					}},
-				},
-			},
-		}).
+		On("BatchGetItem", ctx, mock.Anything).
 		Return(nil, expectedError)
 
 	c := &Client{table: "this", svc: dynamoDB}
