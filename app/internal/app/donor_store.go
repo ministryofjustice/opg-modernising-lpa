@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"golang.org/x/exp/slices"
 )
@@ -34,7 +35,7 @@ func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
 	if err := s.dataStore.Create(ctx, pk, sk, lpa); err != nil {
 		return nil, err
 	}
-	if err := s.dataStore.Create(ctx, pk, subk, sk+"|DONOR"); err != nil {
+	if err := s.dataStore.Create(ctx, pk, subk, sub{DonorKey: sk, ActorType: actor.TypeDonor}); err != nil {
 		return nil, err
 	}
 
@@ -51,23 +52,14 @@ func (s *donorStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
 		return nil, errors.New("donorStore.GetAll requires SessionID")
 	}
 
-	var items []struct {
-		Data *page.Lpa
-	}
+	var items []*page.Lpa
+	err = s.dataStore.GetAllByGsi(ctx, "ActorIndex", "#DONOR#"+data.SessionID, &items)
 
-	sk := "#DONOR#" + data.SessionID
-	err = s.dataStore.GetAllByGsi(ctx, "ActorIndex", sk, &items)
-
-	lpas := make([]*page.Lpa, len(items))
-	for i, item := range items {
-		lpas[i] = item.Data
-	}
-
-	slices.SortFunc(lpas, func(a, b *page.Lpa) bool {
+	slices.SortFunc(items, func(a, b *page.Lpa) bool {
 		return a.UpdatedAt.After(b.UpdatedAt)
 	})
 
-	return lpas, err
+	return items, err
 }
 
 func (s *donorStore) GetAny(ctx context.Context) (*page.Lpa, error) {
