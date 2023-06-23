@@ -64,9 +64,8 @@ type CertificateProviderPaths struct {
 	WhoIsEligible        Path
 
 	CertificateProvided                  CertificateProviderPath
-	CheckYourName                        CertificateProviderPath
 	EnterDateOfBirth                     CertificateProviderPath
-	EnterMobileNumber                    CertificateProviderPath
+	ConfirmYourDetails                   CertificateProviderPath
 	IdentityWithBiometricResidencePermit CertificateProviderPath
 	IdentityWithDrivingLicencePaper      CertificateProviderPath
 	IdentityWithDrivingLicencePhotocard  CertificateProviderPath
@@ -184,9 +183,8 @@ var Paths = AppPaths{
 		WhoIsEligible:        "/certificate-provider-who-is-eligible",
 
 		CertificateProvided:                  "/certificate-provided",
-		CheckYourName:                        "/check-your-name",
 		EnterDateOfBirth:                     "/enter-date-of-birth",
-		EnterMobileNumber:                    "/enter-mobile-number",
+		ConfirmYourDetails:                   "/confirm-your-details",
 		IdentityWithBiometricResidencePermit: "/id/brp",
 		IdentityWithDrivingLicencePaper:      "/id/dlpaper",
 		IdentityWithDrivingLicencePhotocard:  "/id/dlphoto",
