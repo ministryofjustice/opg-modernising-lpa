@@ -175,20 +175,9 @@ data "aws_iam_policy_document" "cross_account_put_access" {
     resources = [
       "arn:aws:events:eu-west-1:288342028542:event-bus/default"
     ]
-
-    #   principals {
-    #     type        = "AWS"
-    #     identifiers = [data.aws_caller_identity.main.account_id]
-    #   }
   }
   provider = aws.eu_west_1
 }
-
-# resource "aws_cloudwatch_event_bus_policy" "cross_account_put_access" {
-#   policy         = data.aws_iam_policy_document.cross_account_put_access.json
-#   event_bus_name = aws_cloudwatch_event_bus.reduced_fees.name
-#   provider       = aws.eu_west_1
-# }
 
 resource "aws_cloudwatch_event_rule" "cross_account_put" {
   name        = "cross-account-put"
