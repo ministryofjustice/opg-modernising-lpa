@@ -6,6 +6,8 @@ data "aws_region" "eu_west_1" {
   provider = aws.eu_west_1
 }
 
+# DynamoDB table for reduced fees
+
 resource "aws_dynamodb_table" "reduced_fees" {
   name                        = "${local.environment_name}-reduced-fees"
   billing_mode                = "PAY_PER_REQUEST"
@@ -42,6 +44,7 @@ resource "aws_dynamodb_table_replica" "reduced_fees" {
   provider               = aws.eu_west_2
 }
 
+# Event bus for reduced fees
 
 resource "aws_cloudwatch_event_bus" "reduced_fees" {
   name     = "reduced-fees"
@@ -53,6 +56,8 @@ resource "aws_cloudwatch_event_archive" "reduced_fees" {
   event_source_arn = aws_cloudwatch_event_bus.reduced_fees.arn
   provider         = aws.eu_west_1
 }
+
+# Event pipe to send events from dynamodb stream to event bus
 
 resource "aws_pipes_pipe" "reduced_fees" {
   name        = "reduced-fees"
@@ -136,4 +141,74 @@ data "aws_iam_policy_document" "reduced_fees_eventbus_target" {
     resources = [aws_cloudwatch_event_bus.reduced_fees.arn]
   }
   provider = aws.global
+}
+
+# Send event to remote account event bus
+
+resource "aws_iam_role" "cross_account_put" {
+  assume_role_policy = data.aws_iam_policy_document.cross_account_put_assume_role.json
+  provider           = aws.global
+}
+
+resource "aws_iam_role_policy" "cross_account_put" {
+  name     = "${local.default_tags.environment-name}-cross-account-put"
+  policy   = data.aws_iam_policy_document.cross_account_put_access.json
+  role     = aws_iam_role.cross_account_put.id
+  provider = aws.global
+}
+
+data "aws_iam_policy_document" "cross_account_put_assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+data "aws_iam_policy_document" "cross_account_put_access" {
+  statement {
+    sid    = "CrossAccountPutAccess"
+    effect = "Allow"
+    actions = [
+      "events:PutEvents",
+    ]
+    resources = [
+      "arn:aws:events:eu-west-1:123456789012:event-bus/default"
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = [data.aws_caller_identity.main.account_id]
+    }
+  }
+  provider = aws.eu_west_1
+}
+
+# resource "aws_cloudwatch_event_bus_policy" "cross_account_put_access" {
+#   policy         = data.aws_iam_policy_document.cross_account_put_access.json
+#   event_bus_name = aws_cloudwatch_event_bus.reduced_fees.name
+#   provider       = aws.eu_west_1
+# }
+
+resource "aws_cloudwatch_event_rule" "cross_account_put" {
+  name        = "cross-account-put"
+  description = "forward dynamodb stream events to bus in remote account"
+
+  # event_pattern = jsonencode({
+  #   detail-type = [
+  #     "AWS Console Sign In via CloudTrail"
+  #   ]
+  # })
+}
+
+resource "aws_cloudwatch_event_target" "cross_account_put" {
+  target_id = "CrossAccountPutEvent"
+  arn       = "arn:aws:events:eu-west-1:123456789012:event-bus/default"
+  rule      = aws_cloudwatch_event_rule.cross_account_put.name
+  role_arn  = aws_iam_role.cross_account_put.arn
 }
