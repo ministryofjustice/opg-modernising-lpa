@@ -58,13 +58,7 @@ func EnterDateOfBirth(tmpl template.Template, donorStore DonorStore, certificate
 					return err
 				}
 
-				redirect := page.Paths.CertificateProvider.EnterMobileNumber
-
-				if lpa.CPWitnessCodeValidated {
-					redirect = page.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity
-				}
-
-				return appData.Redirect(w, r, lpa, redirect.Format(certificateProvider.LpaID))
+				return appData.Redirect(w, r, lpa, page.Paths.CertificateProvider.ConfirmYourDetails.Format(certificateProvider.LpaID))
 			}
 		}
 

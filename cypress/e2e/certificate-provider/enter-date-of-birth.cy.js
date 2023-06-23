@@ -12,7 +12,7 @@ describe('Enter date of birth', () => {
 
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/enter-mobile-number');
+        cy.url().should('contain', '/confirm-your-details');
     });
 
     it('can be over 100', () => {
@@ -31,7 +31,7 @@ describe('Enter date of birth', () => {
 
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/enter-mobile-number');
+        cy.url().should('contain', '/confirm-your-details');
     });
 
     it('errors when empty', () => {
