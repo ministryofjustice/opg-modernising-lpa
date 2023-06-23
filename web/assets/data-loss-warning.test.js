@@ -175,12 +175,7 @@ describe('toggling popup visiblity', () => {
         document.body.innerHTML = validBody
         const sut = new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`))
 
-        sut.registerListeners()
-
-        // interact with form
         document.querySelector(elementName).dispatchEvent(new Event('change', { bubbles: true }))
-
-        // click RTTL button
         document.getElementById('return-to-task-list-form').click()
 
         const popUpOverlay = document.getElementById('dialog-overlay')
@@ -194,8 +189,6 @@ describe('toggling popup visiblity', () => {
         document.body.innerHTML = validBody
 
         const sut = new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`))
-
-        sut.registerListeners()
 
         document.getElementById('return-to-task-list-form').click()
 
@@ -212,8 +205,6 @@ describe('interacting with pop up', () => {
         document.body.innerHTML = validBody
 
         const sut = new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`))
-
-        sut.registerListeners()
 
         document.querySelector('input').dispatchEvent(new Event('change', { bubbles: true }))
         document.getElementById('return-to-task-list-form').click()

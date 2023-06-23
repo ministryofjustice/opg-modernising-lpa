@@ -3,6 +3,7 @@ export default class DataLossWarning {
     constructor(saveOrReturnComponent) {
         this.saveOrReturnComponent = saveOrReturnComponent
         this.changesMade = false
+        this.registerListeners()
     }
 
     setChangesMade() {
@@ -21,15 +22,7 @@ export default class DataLossWarning {
             return false
         }
 
-        let buttonCount = 0
-
-        for (let element of this.saveOrReturnComponent.children) {
-            if (['A', 'BUTTON'].includes(element.tagName)) {
-                buttonCount++
-            }
-        }
-
-        return buttonCount === 2
+        return this.buttonsPresent(2, this.saveOrReturnComponent)
     }
 
     dialogComponentValid() {
@@ -40,15 +33,19 @@ export default class DataLossWarning {
             return false
         }
 
+        return this.buttonsPresent(2, dialog.querySelector(".govuk-button-group"))
+    }
+
+    buttonsPresent(requiredCount, parentElement) {
         let buttonCount = 0
 
-        for (let element of dialog.querySelector(".govuk-button-group").children) {
+        for (let element of parentElement.children) {
             if (['A', 'BUTTON'].includes(element.tagName)) {
                 buttonCount++
             }
         }
 
-        return buttonCount === 2
+        return buttonCount === requiredCount
     }
 
     registerListeners() {
