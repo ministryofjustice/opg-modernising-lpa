@@ -71,15 +71,10 @@ resource "aws_pipes_pipe" "reduced_fees" {
   provider = aws.eu_west_1
 }
 
-
 resource "aws_iam_role" "reduced_fees_pipe" {
   assume_role_policy = data.aws_iam_policy_document.reduced_fees_assume_role.json
   path               = "/service-role/"
-  managed_policy_arns = [
-    "arn:aws:iam::653761790766:policy/service-role/DynamoDbPipeSourceTemplate-d47c4614",
-    "arn:aws:iam::653761790766:policy/service-role/EventBusPipeTargetTemplate-102dc19b",
-  ]
-  provider = aws.global
+  provider           = aws.global
 }
 
 data "aws_iam_policy_document" "reduced_fees_assume_role" {
