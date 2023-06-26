@@ -693,5 +693,10 @@
     "imACertificateProvider": "Welsh",
     "viewAndManageDonor": "Welsh",
     "viewAndManageAttorney": "Welsh",
-    "viewAndManageCertificateProvider": "Welsh"
+    "viewAndManageCertificateProvider": "Welsh",
+
+    "youHaveUnsavedChanges": "Welsh",
+    "unsavedChangesDialogContent": "Welsh <span class=\"govuk-body govuk-!-font-weight-bold\">welsh</span>.",
+    "backToPage": "Welsh",
+    "continueWithoutSaving": "Welsh"
 }

@@ -655,5 +655,10 @@
     "imACertificateProvider": "I’m a certificate provider",
     "viewAndManageDonor": "View and manage all your lasting powers of attorney.",
     "viewAndManageAttorney": "View and manage all the lasting powers of attorney where you are named as an attorney.",
-    "viewAndManageCertificateProvider": "View and manage all the lasting powers of attorney where you are named as the certificate provider."
+    "viewAndManageCertificateProvider": "View and manage all the lasting powers of attorney where you are named as the certificate provider.",
+
+    "youHaveUnsavedChanges": "You have unsaved changes",
+    "unsavedChangesDialogContent": "To save, go back to the page and select <span class=\"govuk-body govuk-!-font-weight-bold\">Save and continue</span>.",
+    "backToPage": "Back to page",
+    "continueWithoutSaving": "Continue without saving"
 }

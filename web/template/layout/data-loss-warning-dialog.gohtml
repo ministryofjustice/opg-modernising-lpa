@@ -5,15 +5,14 @@
          role="dialog"
          aria-labelledby="dialog-title"
          aria-describedby="dialog-description"
-         aria-modal="true"
-         style="border: 10px solid black;">
-        <div tabindex="0" class="dialog-focus"></div>
-        <h2 id="dialog-title" class="govuk-heading-l">You have unsaved changes</h2>
-        <p id="dialog-description" class="govuk-body">To save, go back to the page and select <span class="govuk-body govuk-!-font-weight-bold">Save and continue</span>.</p>
+         aria-modal="true">
+        <div id="dialog-focus" tabindex="0"></div>
+        <h2 id="dialog-title" class="govuk-heading-l">{{ tr .App "youHaveUnsavedChanges" }}</h2>
+        <p id="dialog-description" class="govuk-body">{{ trHtml .App "unsavedChangesDialogContent" }}</p>
 
         <div class="govuk-button-group">
-            <button type="button" id='back-to-page-btn' class="govuk-button" data-module="govuk-button" aria-label="Close Navigation">Back to page</button>
-            <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" id='return-to-task-list-popup' class="govuk-button govuk-button--secondary">Continue without saving</a>
+            <button type="button" id='back-to-page' class="govuk-button" data-module="govuk-button" aria-label="Close Navigation">{{ tr .App "backTopage" }}</button>
+            <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" id='return-to-task-list-dialog' class="govuk-button govuk-button--secondary">{{ tr .App "continueWithoutSaving" }}</a>
         </div>
     </div>
 {{ end }}
