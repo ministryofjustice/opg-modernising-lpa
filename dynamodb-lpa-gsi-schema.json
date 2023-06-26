@@ -3,8 +3,7 @@
     "IndexName": "ActorIndex",
     "KeySchema": [{"AttributeName":"SK","KeyType":"HASH"}],
     "Projection": {
-      "ProjectionType":"INCLUDE",
-      "NonKeyAttributes":["Data"]
+      "ProjectionType":"ALL"
     },
     "ProvisionedThroughput": {
       "ReadCapacityUnits": 10,
