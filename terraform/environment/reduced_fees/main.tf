@@ -1,7 +1,3 @@
-data "aws_caller_identity" "main" {
-  provider = aws.global
-}
-
 # DynamoDB table for reduced fees
 
 resource "aws_dynamodb_table" "reduced_fees" {
@@ -63,7 +59,7 @@ resource "aws_iam_role" "reduced_fees_pipe" {
   name               = "${data.aws_default_tags.current.tags.environment-name}-reduced-fees-pipe"
   assume_role_policy = data.aws_iam_policy_document.reduced_fees_assume_role.json
   path               = "/service-role/"
-  provider           = aws.global
+  provider           = aws.region
 }
 
 data "aws_iam_policy_document" "reduced_fees_assume_role" {
@@ -82,17 +78,17 @@ data "aws_iam_policy_document" "reduced_fees_assume_role" {
     condition {
       test     = "StringEquals"
       variable = "aws:SourceArn"
-      values   = ["arn:aws:pipes:${data.aws_region.current.name}:${data.aws_caller_identity.main.account_id}:pipe/reduced-fees"]
+      values   = ["arn:aws:pipes:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:pipe/reduced-fees"]
     }
   }
-  provider = aws.global
+  provider = aws.region
 }
 
 resource "aws_iam_role_policy" "reduced_fees_pipe_source" {
   name     = "${data.aws_default_tags.current.tags.environment-name}-DynamoDbPipeSource"
   policy   = data.aws_iam_policy_document.reduced_fees_dynamodb_source.json
   role     = aws_iam_role.reduced_fees_pipe.id
-  provider = aws.global
+  provider = aws.region
 }
 
 data "aws_iam_policy_document" "reduced_fees_dynamodb_source" {
@@ -106,7 +102,7 @@ data "aws_iam_policy_document" "reduced_fees_dynamodb_source" {
     effect    = "Allow"
     resources = [aws_dynamodb_table.reduced_fees.stream_arn]
   }
-  provider = aws.global
+  provider = aws.region
 }
 
 resource "aws_iam_role_policy" "reduced_fees_pipe_target" {
@@ -124,7 +120,7 @@ data "aws_iam_policy_document" "reduced_fees_eventbus_target" {
     effect    = "Allow"
     resources = [aws_cloudwatch_event_bus.reduced_fees.arn]
   }
-  provider = aws.global
+  provider = aws.region
 }
 
 # Send event to remote account event bus
@@ -132,14 +128,14 @@ data "aws_iam_policy_document" "reduced_fees_eventbus_target" {
 resource "aws_iam_role" "cross_account_put" {
   name               = "${data.aws_default_tags.current.tags.environment-name}-cross-account-put"
   assume_role_policy = data.aws_iam_policy_document.cross_account_put_assume_role.json
-  provider           = aws.global
+  provider           = aws.region
 }
 
 resource "aws_iam_role_policy" "cross_account_put" {
   name     = "${data.aws_default_tags.current.tags.environment-name}-cross-account-put"
   policy   = data.aws_iam_policy_document.cross_account_put_access.json
   role     = aws_iam_role.cross_account_put.id
-  provider = aws.global
+  provider = aws.region
 }
 
 data "aws_iam_policy_document" "cross_account_put_assume_role" {
@@ -153,6 +149,7 @@ data "aws_iam_policy_document" "cross_account_put_assume_role" {
 
     actions = ["sts:AssumeRole"]
   }
+  provider = aws.region
 }
 
 data "aws_iam_policy_document" "cross_account_put_access" {
