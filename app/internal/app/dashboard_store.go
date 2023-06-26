@@ -11,10 +11,15 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-type sub struct {
-	PK        string
-	SK        string
-	DonorKey  string
+// An lpaLink is used to join an actor to an LPA.
+type lpaLink struct {
+	// PK is the same as the PK for the LPA
+	PK string
+	// SK is the subKey for the current user
+	SK string
+	// DonorKey is the donorKey for the donor
+	DonorKey string
+	// ActorType is the type for the current user
 	ActorType actor.Type
 }
 
@@ -32,7 +37,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		return nil, nil, nil, errors.New("donorStore.GetAll requires SessionID")
 	}
 
-	var keys []sub
+	var keys []lpaLink
 	if err := s.dataStore.GetAllByGsi(ctx, "ActorIndex", subKey(data.SessionID), &keys); err != nil {
 		return nil, nil, nil, err
 	}

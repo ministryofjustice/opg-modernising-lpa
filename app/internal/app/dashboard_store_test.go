@@ -21,7 +21,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.ExpectGetAllByGsi(ctx, "ActorIndex", "#SUB#an-id",
-		[]sub{
+		[]lpaLink{
 			{PK: "LPA#123", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor},
 			{PK: "LPA#456", SK: "#SUB#an-id", DonorKey: "#DONOR#another-id", ActorType: actor.TypeCertificateProvider},
 			{PK: "LPA#789", SK: "#SUB#an-id", DonorKey: "#DONOR#different-id", ActorType: actor.TypeAttorney},

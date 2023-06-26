@@ -193,7 +193,7 @@ func TestDonorStoreCreate(t *testing.T) {
 		On("Create", ctx, lpa).
 		Return(nil)
 	dataStore.
-		On("Create", ctx, sub{PK: "LPA#10100000", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor}).
+		On("Create", ctx, lpaLink{PK: "LPA#10100000", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor}).
 		Return(nil)
 
 	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }, now: func() time.Time { return now }}
