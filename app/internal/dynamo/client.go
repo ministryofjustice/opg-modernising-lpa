@@ -138,14 +138,11 @@ func (c *Client) GetOneByPartialSk(ctx context.Context, pk, partialSk string, v 
 	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
-func (c *Client) Put(ctx context.Context, pk, sk string, v interface{}) error {
+func (c *Client) Put(ctx context.Context, v interface{}) error {
 	item, err := attributevalue.MarshalMap(v)
 	if err != nil {
 		return err
 	}
-
-	item["PK"] = &types.AttributeValueMemberS{Value: pk}
-	item["SK"] = &types.AttributeValueMemberS{Value: sk}
 
 	_, err = c.svc.PutItem(ctx, &dynamodb.PutItemInput{
 		TableName: aws.String(c.table),
@@ -155,14 +152,11 @@ func (c *Client) Put(ctx context.Context, pk, sk string, v interface{}) error {
 	return err
 }
 
-func (c *Client) Create(ctx context.Context, pk, sk string, v interface{}) error {
+func (c *Client) Create(ctx context.Context, v interface{}) error {
 	item, err := attributevalue.MarshalMap(v)
 	if err != nil {
 		return err
 	}
-
-	item["PK"] = &types.AttributeValueMemberS{Value: pk}
-	item["SK"] = &types.AttributeValueMemberS{Value: sk}
 
 	_, err = c.svc.PutItem(ctx, &dynamodb.PutItemInput{
 		TableName:           aws.String(c.table),

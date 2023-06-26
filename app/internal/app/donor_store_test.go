@@ -158,11 +158,11 @@ func TestDonorStoreGetWhenDataStoreError(t *testing.T) {
 }
 
 func TestDonorStorePut(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
-	lpa := &page.Lpa{ID: "5"}
+	ctx := context.Background()
+	lpa := &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5"}
 
 	dataStore := newMockDataStore(t)
-	dataStore.On("Put", ctx, "LPA#5", "#DONOR#an-id", lpa).Return(nil)
+	dataStore.On("Put", ctx, lpa).Return(nil)
 
 	donorStore := &donorStore{dataStore: dataStore}
 
@@ -170,21 +170,12 @@ func TestDonorStorePut(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestDonorStorePutWithSessionMissing(t *testing.T) {
-	ctx := context.Background()
-
-	donorStore := &donorStore{dataStore: nil, uuidString: func() string { return "10100000" }}
-
-	err := donorStore.Put(ctx, &page.Lpa{})
-	assert.Equal(t, page.SessionMissingError{}, err)
-}
-
 func TestDonorStorePutWhenError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
-	lpa := &page.Lpa{ID: "5"}
+	ctx := context.Background()
+	lpa := &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5"}
 
 	dataStore := newMockDataStore(t)
-	dataStore.On("Put", ctx, "LPA#5", "#DONOR#an-id", lpa).Return(expectedError)
+	dataStore.On("Put", ctx, lpa).Return(expectedError)
 
 	donorStore := &donorStore{dataStore: dataStore}
 
@@ -194,18 +185,22 @@ func TestDonorStorePutWhenError(t *testing.T) {
 
 func TestDonorStoreCreate(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
-
 	now := time.Now()
+	lpa := &page.Lpa{PK: "LPA#10100000", SK: "#DONOR#an-id", ID: "10100000", UpdatedAt: now}
 
 	dataStore := newMockDataStore(t)
-	dataStore.On("Create", ctx, "LPA#10100000", "#DONOR#an-id", &page.Lpa{ID: "10100000", UpdatedAt: now}).Return(nil)
-	dataStore.On("Create", ctx, "LPA#10100000", "#SUB#an-id", sub{DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor}).Return(nil)
+	dataStore.
+		On("Create", ctx, lpa).
+		Return(nil)
+	dataStore.
+		On("Create", ctx, sub{PK: "LPA#10100000", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor}).
+		Return(nil)
 
 	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }, now: func() time.Time { return now }}
 
-	lpa, err := donorStore.Create(ctx)
+	result, err := donorStore.Create(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, &page.Lpa{ID: "10100000", UpdatedAt: now}, lpa)
+	assert.Equal(t, lpa, result)
 }
 
 func TestDonorStoreCreateWithSessionMissing(t *testing.T) {
@@ -225,7 +220,7 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 		"certificate provider record": func(t *testing.T) *mockDataStore {
 			dataStore := newMockDataStore(t)
 			dataStore.
-				On("Create", ctx, "LPA#10100000", "#DONOR#an-id", &page.Lpa{ID: "10100000", UpdatedAt: now}).
+				On("Create", ctx, mock.Anything).
 				Return(expectedError)
 
 			return dataStore
@@ -233,10 +228,11 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 		"link record": func(t *testing.T) *mockDataStore {
 			dataStore := newMockDataStore(t)
 			dataStore.
-				On("Create", ctx, "LPA#10100000", "#DONOR#an-id", &page.Lpa{ID: "10100000", UpdatedAt: now}).
-				Return(nil)
+				On("Create", ctx, mock.Anything).
+				Return(nil).
+				Once()
 			dataStore.
-				On("Create", ctx, "LPA#10100000", "#SUB#an-id", sub{DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor}).
+				On("Create", ctx, mock.Anything).
 				Return(expectedError)
 
 			return dataStore

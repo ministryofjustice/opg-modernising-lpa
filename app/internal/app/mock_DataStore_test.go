@@ -14,13 +14,13 @@ type mockDataStore struct {
 	mock.Mock
 }
 
-// Create provides a mock function with given fields: ctx, pk, sk, v
-func (_m *mockDataStore) Create(ctx context.Context, pk string, sk string, v interface{}) error {
-	ret := _m.Called(ctx, pk, sk, v)
+// Create provides a mock function with given fields: ctx, v
+func (_m *mockDataStore) Create(ctx context.Context, v interface{}) error {
+	ret := _m.Called(ctx, v)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, interface{}) error); ok {
-		r0 = rf(ctx, pk, sk, v)
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
+		r0 = rf(ctx, v)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -84,13 +84,13 @@ func (_m *mockDataStore) GetOneByPartialSk(ctx context.Context, pk string, parti
 	return r0
 }
 
-// Put provides a mock function with given fields: _a0, _a1, _a2, _a3
-func (_m *mockDataStore) Put(_a0 context.Context, _a1 string, _a2 string, _a3 interface{}) error {
-	ret := _m.Called(_a0, _a1, _a2, _a3)
+// Put provides a mock function with given fields: ctx, v
+func (_m *mockDataStore) Put(ctx context.Context, v interface{}) error {
+	ret := _m.Called(ctx, v)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, interface{}) error); ok {
-		r0 = rf(_a0, _a1, _a2, _a3)
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
+		r0 = rf(ctx, v)
 	} else {
 		r0 = ret.Error(0)
 	}

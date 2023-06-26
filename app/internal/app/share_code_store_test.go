@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -93,11 +92,11 @@ func TestShareCodeStorePut(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
-			data := actor.ShareCodeData{LpaID: "lpa-id"}
+			data := actor.ShareCodeData{PK: tc.pk, SK: "#METADATA#123", LpaID: "lpa-id"}
 
 			dataStore := newMockDataStore(t)
 			dataStore.
-				On("Put", ctx, tc.pk, "#METADATA#123", data).
+				On("Put", ctx, data).
 				Return(nil)
 
 			shareCodeStore := &shareCodeStore{dataStore: dataStore}
@@ -117,11 +116,11 @@ func TestShareCodeStorePutForBadActorType(t *testing.T) {
 }
 
 func TestShareCodeStorePutOnError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
+	ctx := context.Background()
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Put", ctx, mock.Anything, mock.Anything, mock.Anything).
+		On("Put", ctx, mock.Anything).
 		Return(expectedError)
 
 	shareCodeStore := &shareCodeStore{dataStore: dataStore}

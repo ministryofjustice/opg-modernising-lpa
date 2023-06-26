@@ -83,11 +83,7 @@ func TestGetWhenNotFound(t *testing.T) {
 
 func TestPut(t *testing.T) {
 	ctx := context.Background()
-	data, _ := attributevalue.MarshalMap(map[string]string{
-		"PK":  "a-pk",
-		"SK":  "a-sk",
-		"Col": "Val",
-	})
+	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
@@ -99,7 +95,7 @@ func TestPut(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	err := c.Put(ctx, "a-pk", "a-sk", map[string]string{"Col": "Val"})
+	err := c.Put(ctx, map[string]string{"Col": "Val"})
 	assert.Nil(t, err)
 }
 
@@ -113,17 +109,13 @@ func TestPutWhenError(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	err := c.Put(ctx, "a-pk", "a-sk", "hello")
+	err := c.Put(ctx, "hello")
 	assert.Equal(t, expectedError, err)
 }
 
 func TestCreate(t *testing.T) {
 	ctx := context.Background()
-	data, _ := attributevalue.MarshalMap(map[string]string{
-		"PK":  "a-pk",
-		"SK":  "a-sk",
-		"Col": "Val",
-	})
+	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
@@ -136,7 +128,7 @@ func TestCreate(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	err := c.Create(ctx, "a-pk", "a-sk", map[string]string{"Col": "Val"})
+	err := c.Create(ctx, map[string]string{"Col": "Val"})
 	assert.Nil(t, err)
 }
 
@@ -150,7 +142,7 @@ func TestCreateWhenError(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	err := c.Create(ctx, "a-pk", "a-sk", map[string]string{"Col": "Val"})
+	err := c.Create(ctx, map[string]string{"Col": "Val"})
 	assert.Equal(t, expectedError, err)
 }
 
