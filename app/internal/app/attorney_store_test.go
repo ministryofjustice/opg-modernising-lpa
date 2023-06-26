@@ -13,23 +13,23 @@ import (
 )
 
 func TestAttorneyStoreCreate(t *testing.T) {
-	for name, is := range map[string]bool{"attorney": false, "replacement": true} {
+	for name, isReplacement := range map[string]bool{"attorney": false, "replacement": true} {
 		t.Run(name, func(t *testing.T) {
 			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 			now := time.Now()
-			details := &actor.AttorneyProvidedDetails{ID: "attorney-id", LpaID: "123", UpdatedAt: now, IsReplacement: is}
+			details := &actor.AttorneyProvidedDetails{PK: "LPA#123", SK: "#ATTORNEY#456", ID: "attorney-id", LpaID: "123", UpdatedAt: now, IsReplacement: isReplacement}
 
 			dataStore := newMockDataStore(t)
 			dataStore.
-				On("Create", ctx, "LPA#123", "#ATTORNEY#456", details).
+				On("Create", ctx, details).
 				Return(nil)
 			dataStore.
-				On("Create", ctx, "LPA#123", "#SUB#456", "#DONOR#session-id|ATTORNEY").
+				On("Create", ctx, lpaLink{PK: "LPA#123", SK: "#SUB#456", DonorKey: "#DONOR#session-id", ActorType: actor.TypeAttorney}).
 				Return(nil)
 
 			attorneyStore := &attorneyStore{dataStore: dataStore, now: func() time.Time { return now }}
 
-			attorney, err := attorneyStore.Create(ctx, "session-id", "attorney-id", is)
+			attorney, err := attorneyStore.Create(ctx, "session-id", "attorney-id", isReplacement)
 			assert.Nil(t, err)
 			assert.Equal(t, details, attorney)
 		})
@@ -71,7 +71,7 @@ func TestAttorneyStoreCreateWhenCreateError(t *testing.T) {
 		"certificate provider record": func(t *testing.T) *mockDataStore {
 			dataStore := newMockDataStore(t)
 			dataStore.
-				On("Create", ctx, "LPA#123", "#ATTORNEY#456", mock.Anything).
+				On("Create", ctx, mock.Anything).
 				Return(expectedError)
 
 			return dataStore
@@ -79,10 +79,11 @@ func TestAttorneyStoreCreateWhenCreateError(t *testing.T) {
 		"link record": func(t *testing.T) *mockDataStore {
 			dataStore := newMockDataStore(t)
 			dataStore.
-				On("Create", ctx, "LPA#123", "#ATTORNEY#456", mock.Anything).
-				Return(nil)
+				On("Create", ctx, mock.Anything).
+				Return(nil).
+				Once()
 			dataStore.
-				On("Create", ctx, "LPA#123", "#SUB#456", "#DONOR#session-id|ATTORNEY").
+				On("Create", ctx, mock.Anything).
 				Return(expectedError)
 
 			return dataStore
@@ -108,7 +109,7 @@ func TestAttorneyStoreGetAll(t *testing.T) {
 	dataStore := newMockDataStore(t)
 	dataStore.
 		ExpectGetAllByGsi(ctx, "ActorIndex", "#ATTORNEY#session-id",
-			[]map[string]any{{"Data": attorney}}, nil)
+			[]any{attorney}, nil)
 
 	attorneyStore := &attorneyStore{dataStore: dataStore, now: nil}
 
@@ -192,13 +193,12 @@ func TestAttorneyStoreGetOnError(t *testing.T) {
 }
 
 func TestAttorneyStorePut(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
-
+	ctx := context.Background()
 	now := time.Now()
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Put", ctx, "LPA#123", "#ATTORNEY#456", &actor.AttorneyProvidedDetails{LpaID: "123", UpdatedAt: now}).
+		On("Put", ctx, &actor.AttorneyProvidedDetails{PK: "LPA#123", SK: "#ATTORNEY#456", LpaID: "123", UpdatedAt: now}).
 		Return(nil)
 
 	attorneyStore := &attorneyStore{
@@ -206,28 +206,17 @@ func TestAttorneyStorePut(t *testing.T) {
 		now:       func() time.Time { return now },
 	}
 
-	err := attorneyStore.Put(ctx, &actor.AttorneyProvidedDetails{LpaID: "123"})
-
+	err := attorneyStore.Put(ctx, &actor.AttorneyProvidedDetails{PK: "LPA#123", SK: "#ATTORNEY#456", LpaID: "123"})
 	assert.Nil(t, err)
 }
 
-func TestAttorneyStorePutWhenSessionMissing(t *testing.T) {
-	ctx := context.Background()
-
-	attorneyStore := &attorneyStore{dataStore: nil, now: nil}
-
-	err := attorneyStore.Put(ctx, &actor.AttorneyProvidedDetails{})
-	assert.Equal(t, page.SessionMissingError{}, err)
-}
-
 func TestAttorneyStorePutOnError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
-
+	ctx := context.Background()
 	now := time.Now()
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Put", ctx, "LPA#123", "#ATTORNEY#456", &actor.AttorneyProvidedDetails{LpaID: "123", UpdatedAt: now}).
+		On("Put", ctx, &actor.AttorneyProvidedDetails{PK: "LPA#123", SK: "#ATTORNEY#456", LpaID: "123", UpdatedAt: now}).
 		Return(expectedError)
 
 	attorneyStore := &attorneyStore{
@@ -235,26 +224,6 @@ func TestAttorneyStorePutOnError(t *testing.T) {
 		now:       func() time.Time { return now },
 	}
 
-	err := attorneyStore.Put(ctx, &actor.AttorneyProvidedDetails{LpaID: "123"})
-
+	err := attorneyStore.Put(ctx, &actor.AttorneyProvidedDetails{PK: "LPA#123", SK: "#ATTORNEY#456", LpaID: "123"})
 	assert.Equal(t, expectedError, err)
-}
-
-func TestAttorneyStorePutMissingRequiredSessionData(t *testing.T) {
-	testCases := map[string]struct {
-		sessionData *page.SessionData
-	}{
-		"missing LpaID":     {sessionData: &page.SessionData{SessionID: "456"}},
-		"missing SessionID": {sessionData: &page.SessionData{LpaID: "123"}},
-		"missing both":      {sessionData: &page.SessionData{}},
-	}
-
-	for _, tc := range testCases {
-		ctx := page.ContextWithSessionData(context.Background(), tc.sessionData)
-
-		attorneyStore := &attorneyStore{dataStore: nil}
-
-		err := attorneyStore.Put(ctx, &actor.AttorneyProvidedDetails{})
-		assert.Equal(t, errors.New("attorneyStore.Put requires LpaID and SessionID"), err)
-	}
 }
