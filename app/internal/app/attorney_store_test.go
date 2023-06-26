@@ -24,7 +24,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 				On("Create", ctx, details).
 				Return(nil)
 			dataStore.
-				On("Create", ctx, sub{PK: "LPA#123", SK: "#SUB#456", DonorKey: "#DONOR#session-id", ActorType: actor.TypeAttorney}).
+				On("Create", ctx, lpaLink{PK: "LPA#123", SK: "#SUB#456", DonorKey: "#DONOR#session-id", ActorType: actor.TypeAttorney}).
 				Return(nil)
 
 			attorneyStore := &attorneyStore{dataStore: dataStore, now: func() time.Time { return now }}

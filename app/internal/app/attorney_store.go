@@ -36,7 +36,7 @@ func (s *attorneyStore) Create(ctx context.Context, donorSessionID, attorneyID s
 	if err := s.dataStore.Create(ctx, attorney); err != nil {
 		return nil, err
 	}
-	if err := s.dataStore.Create(ctx, sub{
+	if err := s.dataStore.Create(ctx, lpaLink{
 		PK:        lpaKey(data.LpaID),
 		SK:        subKey(data.SessionID),
 		DonorKey:  donorKey(donorSessionID),
