@@ -33,7 +33,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 	}
 
 	var keys []sub
-	if err := s.dataStore.GetAllByGsi(ctx, "ActorIndex", "#SUB#"+data.SessionID, &keys); err != nil {
+	if err := s.dataStore.GetAllByGsi(ctx, "ActorIndex", subKey(data.SessionID), &keys); err != nil {
 		return nil, nil, nil, err
 	}
 
