@@ -11,6 +11,7 @@ import (
 
 // CertificateProviderProvidedDetails contains details about the certificate provider, provided by the certificate provider
 type CertificateProviderProvidedDetails struct {
+	PK, SK string
 	// The identifier of the LPA the certificate provider is providing a certificate for
 	LpaID string
 	// Tracking when CertificateProviderProvidedDetails is updated

@@ -1,6 +1,7 @@
 package actor
 
 type ShareCodeData struct {
+	PK, SK                string
 	SessionID             string
 	LpaID                 string
 	Identity              bool
