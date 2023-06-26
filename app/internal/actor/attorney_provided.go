@@ -6,6 +6,7 @@ import (
 
 // AttorneyProvidedDetails contains details about an attorney or replacement attorney, provided by the attorney or replacement attorney
 type AttorneyProvidedDetails struct {
+	PK, SK string
 	// The identifier of the attorney or replacement attorney being edited
 	ID string
 	// The identifier of the LPA the attorney or replacement attorney is named in

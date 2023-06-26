@@ -36,11 +36,11 @@ type Logger interface {
 //go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
 type DataStore interface {
 	Get(ctx context.Context, pk, sk string, v interface{}) error
-	Put(context.Context, string, string, interface{}) error
+	Put(ctx context.Context, v interface{}) error
 	GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
 	GetAllByGsi(ctx context.Context, gsi, sk string, v interface{}) error
 	GetAllByKeys(ctx context.Context, pks []dynamo.Key, v interface{}) error
-	Create(ctx context.Context, pk, sk string, v interface{}) error
+	Create(ctx context.Context, v interface{}) error
 }
 
 //go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore

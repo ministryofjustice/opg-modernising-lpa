@@ -9,25 +9,27 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/stretchr/testify/assert"
+	mock "github.com/stretchr/testify/mock"
 )
 
 func TestCertificateProviderStoreCreate(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 	now := time.Now()
+	details := &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123", UpdatedAt: now}
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Create", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123", UpdatedAt: now}).
+		On("Create", ctx, details).
 		Return(nil)
 	dataStore.
-		On("Create", ctx, "LPA#123", "#SUB#456", "#DONOR#session-id|CERTIFICATE_PROVIDER").
+		On("Create", ctx, sub{PK: "LPA#123", SK: "#SUB#456", DonorKey: "#DONOR#session-id", ActorType: actor.TypeCertificateProvider}).
 		Return(nil)
 
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: func() time.Time { return now }}
 
 	certificateProvider, err := certificateProviderStore.Create(ctx, "session-id")
 	assert.Nil(t, err)
-	assert.Equal(t, &actor.CertificateProviderProvidedDetails{LpaID: "123", UpdatedAt: now}, certificateProvider)
+	assert.Equal(t, details, certificateProvider)
 }
 
 func TestCertificateProviderStoreCreateWhenSessionMissing(t *testing.T) {
@@ -65,7 +67,7 @@ func TestCertificateProviderStoreCreateWhenCreateError(t *testing.T) {
 		"certificate provider record": func(t *testing.T) *mockDataStore {
 			dataStore := newMockDataStore(t)
 			dataStore.
-				On("Create", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123", UpdatedAt: now}).
+				On("Create", ctx, mock.Anything).
 				Return(expectedError)
 
 			return dataStore
@@ -73,10 +75,11 @@ func TestCertificateProviderStoreCreateWhenCreateError(t *testing.T) {
 		"link record": func(t *testing.T) *mockDataStore {
 			dataStore := newMockDataStore(t)
 			dataStore.
-				On("Create", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123", UpdatedAt: now}).
-				Return(nil)
+				On("Create", ctx, mock.Anything).
+				Return(nil).
+				Once()
 			dataStore.
-				On("Create", ctx, "LPA#123", "#SUB#456", "#DONOR#session-id|CERTIFICATE_PROVIDER").
+				On("Create", ctx, mock.Anything).
 				Return(expectedError)
 
 			return dataStore
@@ -102,7 +105,7 @@ func TestCertificateProviderStoreGetAll(t *testing.T) {
 	dataStore := newMockDataStore(t)
 	dataStore.
 		ExpectGetAllByGsi(ctx, "ActorIndex", "#CERTIFICATE_PROVIDER#session-id",
-			[]map[string]any{{"Data": certificateProvider}}, nil)
+			[]any{certificateProvider}, nil)
 
 	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: nil}
 
@@ -229,13 +232,12 @@ func TestCertificateProviderStoreGetOnError(t *testing.T) {
 }
 
 func TestCertificateProviderStorePut(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
-
+	ctx := context.Background()
 	now := time.Now()
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Put", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123", UpdatedAt: now}).
+		On("Put", ctx, &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123", UpdatedAt: now}).
 		Return(nil)
 
 	certificateProviderStore := &certificateProviderStore{
@@ -243,28 +245,17 @@ func TestCertificateProviderStorePut(t *testing.T) {
 		now:       func() time.Time { return now },
 	}
 
-	err := certificateProviderStore.Put(ctx, &actor.CertificateProviderProvidedDetails{LpaID: "123"})
-
+	err := certificateProviderStore.Put(ctx, &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123"})
 	assert.Nil(t, err)
 }
 
-func TestCertificateProviderStorePutWhenSessionMissing(t *testing.T) {
-	ctx := context.Background()
-
-	certificateProviderStore := &certificateProviderStore{dataStore: nil, now: nil}
-
-	err := certificateProviderStore.Put(ctx, &actor.CertificateProviderProvidedDetails{})
-	assert.Equal(t, page.SessionMissingError{}, err)
-}
-
 func TestCertificateProviderStorePutOnError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
-
+	ctx := context.Background()
 	now := time.Now()
 
 	dataStore := newMockDataStore(t)
 	dataStore.
-		On("Put", ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123", UpdatedAt: now}).
+		On("Put", ctx, &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123", UpdatedAt: now}).
 		Return(expectedError)
 
 	certificateProviderStore := &certificateProviderStore{
@@ -272,26 +263,6 @@ func TestCertificateProviderStorePutOnError(t *testing.T) {
 		now:       func() time.Time { return now },
 	}
 
-	err := certificateProviderStore.Put(ctx, &actor.CertificateProviderProvidedDetails{LpaID: "123"})
-
+	err := certificateProviderStore.Put(ctx, &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123"})
 	assert.Equal(t, expectedError, err)
-}
-
-func TestCertificateProviderStorePutMissingRequiredSessionData(t *testing.T) {
-	testCases := map[string]struct {
-		sessionData *page.SessionData
-	}{
-		"missing LpaID":     {sessionData: &page.SessionData{SessionID: "456"}},
-		"missing SessionID": {sessionData: &page.SessionData{LpaID: "123"}},
-		"missing both":      {sessionData: &page.SessionData{}},
-	}
-
-	for _, tc := range testCases {
-		ctx := page.ContextWithSessionData(context.Background(), tc.sessionData)
-
-		certificateProviderStore := &certificateProviderStore{dataStore: nil}
-
-		err := certificateProviderStore.Put(ctx, &actor.CertificateProviderProvidedDetails{})
-		assert.Equal(t, errors.New("certificateProviderStore.Put requires LpaID and SessionID"), err)
-	}
 }
