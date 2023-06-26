@@ -68,6 +68,10 @@ variable "environments" {
       })
       cloudwatch_application_insights_enabled = bool
       pagerduty_service_name                  = string
+      reduced_fees = object({
+        enabled              = bool
+        target_event_bus_arn = string
+      })
     })
   )
 }
