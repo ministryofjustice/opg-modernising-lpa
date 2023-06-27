@@ -3,6 +3,7 @@ import { AwsRum, AwsRumConfig } from 'aws-rum-web';
 import * as GOVUKFrontend from "govuk-frontend";
 import $ from 'jquery';
 import { CrossServiceHeader } from './service-header';
+import { DataLossWarning } from './data-loss-warning';
 
 window.$ = $
 initAll()
@@ -12,6 +13,11 @@ GOVUKFrontend.initAll();
 const header = document.querySelector("[data-module='one-login-header']");
 if (header) {
     new CrossServiceHeader(header).init();
+}
+
+const saveOrReturn = document.querySelector(`[data-module="app-save-or-return"]`)
+if (saveOrReturn) {
+    new DataLossWarning(saveOrReturn).init()
 }
 
 const backLink = document.querySelector('.govuk-back-link');
