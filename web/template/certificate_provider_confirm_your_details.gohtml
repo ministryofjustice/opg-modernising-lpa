@@ -7,7 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "confirmYourDetails" }}</h1>
 
-      <p class="govuk-body">{{ trFormat .App "youMustConfirmYourDetails" "DonorFullName" .Lpa.Donor.FullName }}</p>
+      <p class="govuk-body">{{ trFormat .App "youMustConfirmYourDateOfBirth" "DonorFullName" .Lpa.Donor.FullName }}</p>
 
       <h2 class="govuk-heading-m">{{ tr .App "detailsYouHaveGivenUs" }}</h2>
 
@@ -21,7 +21,7 @@
         </div>
       </dl>
 
-      <h2 class="govuk-heading-m">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h2>
+      <h2 class="govuk-heading-m govuk-!-margin-top-8">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h2>
 
       <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
