@@ -11,7 +11,11 @@
       <span class="govuk-hint"><strong>{{ tr $.App "applicationNumber" }}:</strong> {{ .Item.ID }}</span>
       <div class="govuk-button-group govuk-!-margin-top-4">
         {{ if .Item.Submitted.IsZero }}
-          <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .Item.ID) }}">{{ tr .App "continue" }}</a>
+          {{ if .Item.Tasks.YourDetails.Completed }}
+            <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .Item.ID) }}">{{ tr .App "continue" }}</a>
+          {{ else }}
+            <a class="govuk-button" href="{{ link .App (.App.Paths.YourDetails.Format .Item.ID) }}">{{ tr .App "continue" }}</a>
+          {{ end }}
         {{ else }}
           <a class="govuk-button" href="{{ link .App (.App.Paths.Progress.Format .Item.ID) }}">{{ tr .App "trackLpaProgress" }}</a>
         {{ end }}
