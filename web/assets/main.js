@@ -17,7 +17,6 @@ if (header) {
 
 const saveOrReturn = document.querySelector(`[data-module="app-save-or-return"]`)
 if (saveOrReturn) {
-    console.log('saveOrReturn found')
     new DataLossWarning(saveOrReturn).init()
 }
 

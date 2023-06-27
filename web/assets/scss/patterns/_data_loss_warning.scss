@@ -22,13 +22,3 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
-
-.dialog-overlay[aria-hidden='true'],
-.dialog[aria-hidden='true'] {
-  display: none;
-}
-
-.dialog-overlay:not([aria-hidden='true']),
-.dialog:not([aria-hidden='true']) {
-  display: block;
-}
