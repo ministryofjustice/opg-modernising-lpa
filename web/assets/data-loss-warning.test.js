@@ -1,5 +1,33 @@
 import { DataLossWarning } from './data-loss-warning'
 
+const validBody = `
+<div id="dialog-overlay" class="govuk-!-display-none" tabindex="-1"></div>
+<div id="dialog"
+     class="govuk-!-display-none govuk-!-padding-left-4 govuk-!-padding-top-2"
+     role="dialog"
+     aria-labelledby="dialog-title"
+     aria-describedby="dialog-description"
+     aria-modal="true">
+    <div id="dialog-focus" tabindex="0"></div>
+    <h2 id="dialog-title" class="govuk-heading-l">You have unsaved changes</h2>
+    <p id="dialog-description" class="govuk-body">To save, go back to the page and select <span class="govuk-body govuk-!-font-weight-bold">Save and continue</span>.</p>
+
+    <div class="govuk-button-group" data-module="app-save-or-return">
+        <button type="button" id='back-to-page' class="govuk-button" data-module="govuk-button" aria-label="Back to page">Back to page</button>
+        <a href="/task-list" id='return-to-task-list-dialog' class="govuk-button govuk-button--secondary">Continue without saving</a>
+    </div>
+</div>
+
+<form>
+    <input type="text">
+    <textarea></textarea>
+    <div class="govuk-button-group" data-module="app-save-or-return">
+        <button id='submit-btn' class="govuk-button" data-module="govuk-button">Save and continue</button>
+        <a href="/task-list" id='return-to-task-list-form' class="govuk-button govuk-button--secondary">Return to task list</a>
+    </div>
+</form>
+`
+
 describe('component validation', () => {
     describe('save or return', () => {
         describe('valid when', () => {
@@ -129,6 +157,41 @@ describe('component validation', () => {
                 const sut = new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`))
 
                 expect(sut.dialogComponentValid()).toEqual(false)
+            })
+        })
+
+        describe('toggling visibility', () => {
+            it('toggles required classes', () => {
+                document.body.innerHTML = validBody
+                const sut = new DataLossWarning(document.querySelector(`[data-module="app-save-or-return"]`))
+                sut.init()
+
+                sut.changesMade = jest.fn().mockReturnValue(true)
+                sut.dialogVisible = jest.fn().mockReturnValue(true)
+
+                const dialog = document.getElementById('dialog')
+                const dialogOverlay = document.getElementById('dialog-overlay')
+
+                console.log(dialog.innerHTML)
+                expect(dialog.classList.contains('govuk-!-display-none')).toBeTruthy()
+                expect(dialogOverlay.classList.contains('govuk-!-display-none')).toBeTruthy()
+                expect(dialog.classList.contains('dialog')).toBeFalsy()
+                expect(dialogOverlay.classList.contains('dialog-overlay')).toBeFalsy()
+
+                sut.toggleDialogVisibility()
+
+                expect(dialog.classList.contains('govuk-!-display-none')).toBeFalsy()
+                expect(dialogOverlay.classList.contains('govuk-!-display-none')).toBeFalsy()
+                expect(dialog.classList.contains('dialog')).toBeTruthy()
+                expect(dialogOverlay.classList.contains('dialog-overlay')).toBeTruthy()
+
+                sut.dialogVisible = jest.fn().mockReturnValue(false)
+                sut.toggleDialogVisibility()
+
+                expect(dialog.classList.contains('govuk-!-display-none')).toBeTruthy()
+                expect(dialogOverlay.classList.contains('govuk-!-display-none')).toBeTruthy()
+                expect(dialog.classList.contains('dialog')).toBeFalsy()
+                expect(dialogOverlay.classList.contains('dialog-overlay')).toBeFalsy()
             })
         })
     })

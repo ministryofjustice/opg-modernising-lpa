@@ -28,9 +28,9 @@ export class DataLossWarning {
 
     toggleDialogVisibility() {
         if (this.changesMade()) {
-            this.dialog.classList.toggle('govuk-visually-hidden')
+            this.dialog.classList.toggle('govuk-!-display-none')
             this.dialog.classList.toggle('dialog')
-            this.dialogOverlay.classList.toggle('govuk-visually-hidden')
+            this.dialogOverlay.classList.toggle('govuk-!-display-none')
             this.dialogOverlay.classList.toggle('dialog-overlay')
 
             if (this.dialogVisible()) {
@@ -38,13 +38,13 @@ export class DataLossWarning {
                 document.getElementById('dialog-focus').focus()
             } else {
                 this.dialog.removeEventListener('keydown', this.handleTrapFocus)
-                document.activeElement.blur()
+                this.saveOrReturnComponent.querySelector('a').focus()
             }
         }
     }
 
     dialogVisible() {
-        return !this.dialog.classList.contains('govuk-visually-hidden') && !this.dialogOverlay.classList.contains('govuk-visually-hidden')
+        return !this.dialog.classList.contains('govuk-!-display-none') && !this.dialogOverlay.classList.contains('govuk-!-display-none')
     }
 
     saveOrReturnComponentValid() {

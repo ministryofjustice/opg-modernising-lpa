@@ -1,7 +1,7 @@
 {{ define "data-loss-warning-dialog" }}
-    <div id="dialog-overlay" class="govuk-visually-hidden" tabindex="-1"></div>
+    <div id="dialog-overlay" class="govuk-!-display-none" tabindex="-1"></div>
     <div id="dialog"
-         class="govuk-visually-hidden govuk-!-padding-left-4 govuk-!-padding-top-2"
+         class="govuk-!-display-none govuk-!-padding-left-4 govuk-!-padding-top-2"
          role="dialog"
          aria-labelledby="dialog-title"
          aria-describedby="dialog-description"
@@ -11,7 +11,7 @@
         <p id="dialog-description" class="govuk-body">{{ trHtml .App "unsavedChangesDialogContent" }}</p>
 
         <div class="govuk-button-group">
-            <button type="button" id='back-to-page' class="govuk-button" data-module="govuk-button" aria-label="Close Navigation">{{ tr .App "backTopage" }}</button>
+            <button type="button" id='back-to-page' class="govuk-button" data-module="govuk-button" aria-label="{{ tr .App "backToPage" }}">{{ tr .App "backToPage" }}</button>
             <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" id='return-to-task-list-dialog' class="govuk-button govuk-button--secondary">{{ tr .App "continueWithoutSaving" }}</a>
         </div>
     </div>
