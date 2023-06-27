@@ -9,8 +9,9 @@ data "aws_kms_alias" "dynamodb_encryption_key_eu_west_2" {
 }
 
 resource "aws_dynamodb_table" "lpas_table" {
-  name         = "${local.environment_name}-Lpas2"
-  billing_mode = "PAY_PER_REQUEST"
+  name                        = "${local.environment_name}-Lpas2"
+  billing_mode                = "PAY_PER_REQUEST"
+  deletion_protection_enabled = local.default_tags.environment-name == "production" ? true : false
   # see docs/runbooks/disabling_dynamodb_global_tables.md when Global Tables needs to be disabled
   stream_enabled   = local.environment.dynamodb.stream_enabled
   stream_view_type = local.environment.dynamodb.stream_enabled ? "NEW_AND_OLD_IMAGES" : null
@@ -20,8 +21,7 @@ resource "aws_dynamodb_table" "lpas_table" {
   global_secondary_index {
     name               = "ActorIndex"
     hash_key           = "SK"
-    projection_type    = "INCLUDE"
-    non_key_attributes = ["Data"]
+    projection_type    = "ALL"
   }
 
   server_side_encryption {
@@ -44,8 +44,7 @@ resource "aws_dynamodb_table" "lpas_table" {
   }
 
   lifecycle {
-    prevent_destroy = false
-    ignore_changes  = [replica]
+    ignore_changes = [replica]
   }
   provider = aws.eu_west_1
 }

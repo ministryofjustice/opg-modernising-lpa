@@ -38,6 +38,7 @@ const (
 
 // Lpa contains all the data related to the LPA application
 type Lpa struct {
+	PK, SK string
 	// Identifies the LPA being drafted
 	ID string
 	// A unique identifier created after sending basic LPA details to the UID service

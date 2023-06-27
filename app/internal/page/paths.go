@@ -46,7 +46,7 @@ type AttorneyPaths struct {
 	LoginCallback        Path
 	Start                Path
 
-	CheckYourName             AttorneyPath
+	ConfirmYourDetails        AttorneyPath
 	CodeOfConduct             AttorneyPath
 	MobileNumber              AttorneyPath
 	ReadTheLpa                AttorneyPath
@@ -64,9 +64,8 @@ type CertificateProviderPaths struct {
 	WhoIsEligible        Path
 
 	CertificateProvided                  CertificateProviderPath
-	CheckYourName                        CertificateProviderPath
 	EnterDateOfBirth                     CertificateProviderPath
-	EnterMobileNumber                    CertificateProviderPath
+	ConfirmYourDetails                   CertificateProviderPath
 	IdentityWithBiometricResidencePermit CertificateProviderPath
 	IdentityWithDrivingLicencePaper      CertificateProviderPath
 	IdentityWithDrivingLicencePhotocard  CertificateProviderPath
@@ -184,9 +183,8 @@ var Paths = AppPaths{
 		WhoIsEligible:        "/certificate-provider-who-is-eligible",
 
 		CertificateProvided:                  "/certificate-provided",
-		CheckYourName:                        "/check-your-name",
 		EnterDateOfBirth:                     "/enter-date-of-birth",
-		EnterMobileNumber:                    "/enter-mobile-number",
+		ConfirmYourDetails:                   "/confirm-your-details",
 		IdentityWithBiometricResidencePermit: "/id/brp",
 		IdentityWithDrivingLicencePaper:      "/id/dlpaper",
 		IdentityWithDrivingLicencePhotocard:  "/id/dlphoto",
@@ -211,7 +209,7 @@ var Paths = AppPaths{
 		Login:                     "/attorney-login",
 		LoginCallback:             "/attorney-login-callback",
 		Start:                     "/attorney-start",
-		CheckYourName:             "/check-your-name",
+		ConfirmYourDetails:        "/confirm-your-details",
 		CodeOfConduct:             "/code-of-conduct",
 		MobileNumber:              "/mobile-number",
 		ReadTheLpa:                "/read-the-lpa",

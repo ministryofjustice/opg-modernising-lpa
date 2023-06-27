@@ -278,6 +278,8 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			if opts.hasWhenCanBeUsed {
 				lpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
 				lpa.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
+				lpa.LifeSustainingTreatmentOption = OptionA
+				lpa.Tasks.LifeSustainingTreatment = actor.TaskCompleted
 			}
 
 			if opts.hasRestrictions {

@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -20,26 +21,18 @@ func TestDashboardStoreGetAll(t *testing.T) {
 
 	dataStore := newMockDataStore(t)
 	dataStore.ExpectGetAllByGsi(ctx, "ActorIndex", "#SUB#an-id",
-		[]map[string]any{
-			{"PK": "LPA#123", "SK": "#SUB#an-id", "Data": "#DONOR#an-id|DONOR"},
-			{"PK": "LPA#456", "SK": "#SUB#an-id", "Data": "#DONOR#another-id|CERTIFICATE_PROVIDER"},
-			{"PK": "LPA#789", "SK": "#SUB#an-id", "Data": "#DONOR#different-id|ATTORNEY"},
-			{"PK": "LPA#0", "SK": "#SUB#an-id", "Data": "#DONOR#an-id|DONOR"},
+		[]lpaLink{
+			{PK: "LPA#123", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor},
+			{PK: "LPA#456", SK: "#SUB#an-id", DonorKey: "#DONOR#another-id", ActorType: actor.TypeCertificateProvider},
+			{PK: "LPA#789", SK: "#SUB#an-id", DonorKey: "#DONOR#different-id", ActorType: actor.TypeAttorney},
+			{PK: "LPA#0", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor},
 		}, nil)
 	dataStore.ExpectGetAllByKeys(ctx, []dynamo.Key{
 		{PK: "LPA#123", SK: "#DONOR#an-id"},
 		{PK: "LPA#456", SK: "#DONOR#another-id"},
 		{PK: "LPA#789", SK: "#DONOR#different-id"},
 		{PK: "LPA#0", SK: "#DONOR#an-id"},
-	}, []struct {
-		PK   string
-		Data *page.Lpa
-	}{
-		{PK: "LPA#123", Data: lpa123},
-		{PK: "LPA#456", Data: lpa456},
-		{PK: "LPA#789", Data: lpa789},
-		{PK: "LPA#0", Data: lpa0},
-	}, nil)
+	}, []*page.Lpa{lpa123, lpa456, lpa789, lpa0}, nil)
 
 	dashboardStore := &dashboardStore{dataStore: dataStore}
 

@@ -23,10 +23,16 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore) H
 		data := &certificateProviderDetailsData{
 			App: appData,
 			Form: &certificateProviderDetailsForm{
-				FirstNames: lpa.CertificateProvider.FirstNames,
-				LastName:   lpa.CertificateProvider.LastName,
-				Mobile:     lpa.CertificateProvider.Mobile,
+				FirstNames:     lpa.CertificateProvider.FirstNames,
+				LastName:       lpa.CertificateProvider.LastName,
+				HasNonUKMobile: lpa.CertificateProvider.HasNonUKMobile,
 			},
+		}
+
+		if lpa.CertificateProvider.HasNonUKMobile {
+			data.Form.NonUKMobile = lpa.CertificateProvider.Mobile
+		} else {
+			data.Form.Mobile = lpa.CertificateProvider.Mobile
 		}
 
 		if r.Method == http.MethodPost {
@@ -51,7 +57,12 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore) H
 			if data.Errors.None() && data.NameWarning == nil && !data.SameLastnameAsDonor {
 				lpa.CertificateProvider.FirstNames = data.Form.FirstNames
 				lpa.CertificateProvider.LastName = data.Form.LastName
-				lpa.CertificateProvider.Mobile = data.Form.Mobile
+				lpa.CertificateProvider.HasNonUKMobile = data.Form.HasNonUKMobile
+				if data.Form.HasNonUKMobile {
+					lpa.CertificateProvider.Mobile = data.Form.NonUKMobile
+				} else {
+					lpa.CertificateProvider.Mobile = data.Form.Mobile
+				}
 
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
@@ -69,6 +80,8 @@ type certificateProviderDetailsForm struct {
 	FirstNames               string
 	LastName                 string
 	Mobile                   string
+	HasNonUKMobile           bool
+	NonUKMobile              string
 	IgnoreNameWarning        string
 	IgnoreSimilarNameWarning bool
 }
@@ -78,6 +91,8 @@ func readCertificateProviderDetailsForm(r *http.Request) *certificateProviderDet
 		FirstNames:               page.PostFormString(r, "first-names"),
 		LastName:                 page.PostFormString(r, "last-name"),
 		Mobile:                   page.PostFormString(r, "mobile"),
+		HasNonUKMobile:           page.PostFormString(r, "has-non-uk-mobile") == "1",
+		NonUKMobile:              page.PostFormString(r, "non-uk-mobile"),
 		IgnoreNameWarning:        page.PostFormString(r, "ignore-name-warning"),
 		IgnoreSimilarNameWarning: page.PostFormString(r, "ignore-similar-name-warning") == "yes",
 	}
@@ -92,9 +107,15 @@ func (d *certificateProviderDetailsForm) Validate() validation.List {
 	errors.String("last-name", "lastName", d.LastName,
 		validation.Empty())
 
-	errors.String("mobile", "mobile", strings.ReplaceAll(d.Mobile, " ", ""),
-		validation.Empty(),
-		validation.Mobile())
+	if d.HasNonUKMobile {
+		errors.String("non-uk-mobile", "yourCertificateProvidersMobileNumber", d.NonUKMobile,
+			validation.Empty(),
+			validation.NonUKMobile().ErrorLabel("enterAMobileNumberInTheCorrectFormat"))
+	} else {
+		errors.String("mobile", "yourCertificateProvidersUkMobileNumber", d.Mobile,
+			validation.Empty(),
+			validation.Mobile().ErrorLabel("enterAMobileNumberInTheCorrectFormat"))
+	}
 
 	return errors
 }

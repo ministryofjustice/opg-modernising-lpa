@@ -11,7 +11,11 @@
       <span class="govuk-hint"><strong>{{ tr $.App "applicationNumber" }}:</strong> {{ .Item.ID }}</span>
       <div class="govuk-button-group govuk-!-margin-top-4">
         {{ if .Item.Submitted.IsZero }}
-          <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .Item.ID) }}">{{ tr .App "continue" }}</a>
+          {{ if .Item.Tasks.YourDetails.Completed }}
+            <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .Item.ID) }}">{{ tr .App "continue" }}</a>
+          {{ else }}
+            <a class="govuk-button" href="{{ link .App (.App.Paths.YourDetails.Format .Item.ID) }}">{{ tr .App "continue" }}</a>
+          {{ end }}
         {{ else }}
           <a class="govuk-button" href="{{ link .App (.App.Paths.Progress.Format .Item.ID) }}">{{ tr .App "trackLpaProgress" }}</a>
         {{ end }}
@@ -44,7 +48,7 @@
       <h2 class="govuk-heading-m govuk-!-padding-top-0 govuk-!-margin-bottom-1">{{ if eq "pfa" .Item.Type }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}: <span class="govuk-!-font-weight-regular">{{ .Item.Donor.FirstNames }} {{ .Item.Donor.LastName }}</span></h2>
       <span class="govuk-hint"><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Item.ID }}</span>
       <div class="govuk-button-group govuk-!-margin-top-4">
-        <a class="govuk-button" href="{{ link .App (.App.Paths.CertificateProvider.CheckYourName.Format .Item.ID) }}">{{ tr .App "continue" }}</a>
+        <a class="govuk-button" href="{{ link .App (.App.Paths.CertificateProvider.EnterDateOfBirth.Format .Item.ID) }}">{{ tr .App "continue" }}</a>
         <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "options" }}</a>
       </div>
     </div>

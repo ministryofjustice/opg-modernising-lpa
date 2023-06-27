@@ -34,28 +34,58 @@ func TestGetCertificateProviderDetails(t *testing.T) {
 }
 
 func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &certificateProviderDetailsData{
-			App: testAppData,
-			Form: &certificateProviderDetailsForm{
-				FirstNames: "John",
+	testcases := map[string]struct {
+		lpa  *page.Lpa
+		form *certificateProviderDetailsForm
+	}{
+		"uk mobile": {
+			lpa: &page.Lpa{
+				CertificateProvider: actor.CertificateProvider{
+					FirstNames: "John",
+					Mobile:     "07777",
+				},
 			},
-		}).
-		Return(nil)
-
-	err := CertificateProviderDetails(template.Execute, nil)(testAppData, w, r, &page.Lpa{
-		CertificateProvider: actor.CertificateProvider{
-			FirstNames: "John",
+			form: &certificateProviderDetailsForm{
+				FirstNames: "John",
+				Mobile:     "07777",
+			},
 		},
-	})
-	resp := w.Result()
+		"non-uk mobile": {
+			lpa: &page.Lpa{
+				CertificateProvider: actor.CertificateProvider{
+					FirstNames:     "John",
+					Mobile:         "07777",
+					HasNonUKMobile: true,
+				},
+			},
+			form: &certificateProviderDetailsForm{
+				FirstNames:     "John",
+				NonUKMobile:    "07777",
+				HasNonUKMobile: true,
+			},
+		},
+	}
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+			template := newMockTemplate(t)
+			template.
+				On("Execute", w, &certificateProviderDetailsData{
+					App:  testAppData,
+					Form: tc.form,
+				}).
+				Return(nil)
+
+			err := CertificateProviderDetails(template.Execute, nil)(testAppData, w, r, tc.lpa)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
@@ -92,6 +122,20 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				FirstNames: "John",
 				LastName:   "Rey",
 				Mobile:     "07535111111",
+			},
+		},
+		"valid non uk mobile": {
+			form: url.Values{
+				"first-names":       {"John"},
+				"last-name":         {"Rey"},
+				"has-non-uk-mobile": {"1"},
+				"non-uk-mobile":     {"+337575757"},
+			},
+			certificateProviderDetails: actor.CertificateProvider{
+				FirstNames:     "John",
+				LastName:       "Rey",
+				Mobile:         "+337575757",
+				HasNonUKMobile: true,
 			},
 		},
 		"name warning ignored": {
@@ -318,86 +362,42 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 				Mobile:     "07535111111",
 			},
 		},
-		"missing-all": {
+		"missing all": {
 			form: &certificateProviderDetailsForm{},
 			errors: validation.
 				With("first-names", validation.EnterError{Label: "firstNames"}).
 				With("last-name", validation.EnterError{Label: "lastName"}).
-				With("mobile", validation.EnterError{Label: "mobile"}),
+				With("mobile", validation.EnterError{Label: "yourCertificateProvidersUkMobileNumber"}),
 		},
-		"invalid-incorrect-mobile-format": {
+		"missing when non uk mobile": {
+			form: &certificateProviderDetailsForm{HasNonUKMobile: true},
+			errors: validation.
+				With("first-names", validation.EnterError{Label: "firstNames"}).
+				With("last-name", validation.EnterError{Label: "lastName"}).
+				With("non-uk-mobile", validation.EnterError{Label: "yourCertificateProvidersMobileNumber"}),
+		},
+		"invalid incorrect mobile format": {
 			form: &certificateProviderDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
 				Mobile:     "0753511111",
 			},
-			errors: validation.With("mobile", validation.MobileError{Label: "mobile"}),
+			errors: validation.With("mobile", validation.CustomError{Label: "enterAMobileNumberInTheCorrectFormat"}),
+		},
+		"invalid non uk mobile format": {
+			form: &certificateProviderDetailsForm{
+				FirstNames:     "A",
+				LastName:       "B",
+				HasNonUKMobile: true,
+				NonUKMobile:    "0753511111",
+			},
+			errors: validation.With("non-uk-mobile", validation.CustomError{Label: "enterAMobileNumberInTheCorrectFormat"}),
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
-}
-
-func TestUkMobileFormatValidation(t *testing.T) {
-	form := &certificateProviderDetailsForm{
-		FirstNames: "A",
-		LastName:   "B",
-	}
-
-	testCases := map[string]struct {
-		Mobile string
-		Error  validation.List
-	}{
-		"valid local format": {
-			Mobile: "07535111222",
-		},
-		"valid international format": {
-			Mobile: "+447535111222",
-		},
-		"valid local format spaces": {
-			Mobile: "  0 7 5 3 5 1 1 1 2 2 2 ",
-		},
-		"valid international format spaces": {
-			Mobile: "  + 4 4 7 5 3 5 1 1 1 2 2 2 ",
-		},
-		"invalid local too short": {
-			Mobile: "0753511122",
-			Error:  validation.With("mobile", validation.MobileError{Label: "mobile"}),
-		},
-		"invalid local too long": {
-			Mobile: "075351112223",
-			Error:  validation.With("mobile", validation.MobileError{Label: "mobile"}),
-		},
-		"invalid international too short": {
-			Mobile: "+44753511122",
-			Error:  validation.With("mobile", validation.MobileError{Label: "mobile"}),
-		},
-		"invalid international too long": {
-			Mobile: "+4475351112223",
-			Error:  validation.With("mobile", validation.MobileError{Label: "mobile"}),
-		},
-		"invalid contains alpha chars": {
-			Mobile: "+44753511122a",
-			Error:  validation.With("mobile", validation.MobileError{Label: "mobile"}),
-		},
-		"invalid local not uk": {
-			Mobile: "09535111222",
-			Error:  validation.With("mobile", validation.MobileError{Label: "mobile"}),
-		},
-		"invalid international not uk": {
-			Mobile: "+449535111222",
-			Error:  validation.With("mobile", validation.MobileError{Label: "mobile"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			form.Mobile = tc.Mobile
-			assert.Equal(t, tc.Error, form.Validate())
 		})
 	}
 }

@@ -29,7 +29,10 @@ func (s *shareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCod
 		return err
 	}
 
-	return s.dataStore.Put(ctx, pk, sk, data)
+	data.PK = pk
+	data.SK = sk
+
+	return s.dataStore.Put(ctx, data)
 }
 
 func shareCodeKeys(actorType actor.Type, shareCode string) (pk, sk string, err error) {
