@@ -23,7 +23,7 @@ export class DataLossWarning {
     }
 
     stringifyFormValues() {
-        return JSON.stringify([...new FormData(document.querySelector('form')).values()])
+        return JSON.stringify([...new FormData(document.querySelector("form:not([action])")).values()])
     }
 
     toggleDialogVisibility() {
