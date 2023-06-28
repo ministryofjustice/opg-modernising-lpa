@@ -18,8 +18,8 @@ type AttorneyProvidedDetails struct {
 	// Mobile number of the attorney or replacement attorney
 	Mobile string
 	// Whether the name of the attorney or replacement attorney provided by the applicant is correct
-	IsNameCorrect string
-	// The corrected name of the attorney or replacement attorney. Only applies if IsNameCorrect = "no"
+	IsNameCorrect YesNo
+	// The corrected name of the attorney or replacement attorney. Only applies if IsNameCorrect==No
 	CorrectedName string
 	// Confirming the attorney or replacement attorney agrees to responsibilities and confirms the tick box is a legal signature
 	Confirmed bool

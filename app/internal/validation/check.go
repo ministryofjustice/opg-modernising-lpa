@@ -11,6 +11,19 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+type ErrorChecker interface {
+	CheckError(label string, value error) FormattableError
+}
+
+func (l *List) Error(name, label string, value error, checks ...ErrorChecker) {
+	for _, check := range checks {
+		if err := check.CheckError(label, value); err != nil {
+			l.Add(name, err)
+			return
+		}
+	}
+}
+
 type StringChecker interface {
 	CheckString(label, value string) FormattableError
 }
@@ -111,6 +124,18 @@ func (c SelectedCheck) CheckOptions(label string, value []string) FormattableErr
 
 func (c SelectedCheck) CheckAddress(label string, value *place.Address) FormattableError {
 	if value == nil {
+		if c.useCustomError {
+			return CustomError{Label: label}
+		} else {
+			return SelectError{Label: label}
+		}
+	}
+
+	return nil
+}
+
+func (c SelectedCheck) CheckError(label string, err error) FormattableError {
+	if err != nil {
 		if c.useCustomError {
 			return CustomError{Label: label}
 		} else {

@@ -15,6 +15,7 @@ type removePersonToNotifyData struct {
 	PersonToNotify actor.PersonToNotify
 	Errors         validation.List
 	Form           *removePersonToNotifyForm
+	Options        actor.YesNoOptions
 }
 
 func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
@@ -30,6 +31,7 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore Dono
 			App:            appData,
 			PersonToNotify: person,
 			Form:           &removePersonToNotifyForm{},
+			Options:        actor.YesNoValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -37,7 +39,7 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore Dono
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				if data.Form.RemovePersonToNotify == "yes" {
+				if data.Form.RemovePersonToNotify == actor.Yes {
 					lpa.PeopleToNotify.Delete(person)
 					if len(lpa.PeopleToNotify) == 0 {
 						lpa.Tasks.PeopleToNotify = actor.TaskNotStarted
@@ -58,20 +60,24 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore Dono
 }
 
 type removePersonToNotifyForm struct {
-	RemovePersonToNotify string
+	RemovePersonToNotify actor.YesNo
+	Error                error
 }
 
 func readRemovePersonToNotifyForm(r *http.Request) *removePersonToNotifyForm {
+	remove, err := actor.ParseYesNo(page.PostFormString(r, "remove-person-to-notify"))
+
 	return &removePersonToNotifyForm{
-		RemovePersonToNotify: page.PostFormString(r, "remove-person-to-notify"),
+		RemovePersonToNotify: remove,
+		Error:                err,
 	}
 }
 
 func (f *removePersonToNotifyForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("remove-person-to-notify", "removePersonToNotify", f.RemovePersonToNotify,
-		validation.Select("yes", "no"))
+	errors.Error("remove-person-to-notify", "removePersonToNotify", f.Error,
+		validation.Selected())
 
 	return errors
 }

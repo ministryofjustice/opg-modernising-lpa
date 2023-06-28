@@ -15,6 +15,7 @@ type removeAttorneyData struct {
 	Attorney actor.Attorney
 	Errors   validation.List
 	Form     *removeAttorneyForm
+	Options  actor.YesNoOptions
 }
 
 func RemoveAttorney(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
@@ -30,6 +31,7 @@ func RemoveAttorney(logger Logger, tmpl template.Template, donorStore DonorStore
 			App:      appData,
 			Attorney: attorney,
 			Form:     &removeAttorneyForm{},
+			Options:  actor.YesNoValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -37,7 +39,7 @@ func RemoveAttorney(logger Logger, tmpl template.Template, donorStore DonorStore
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				if data.Form.RemoveAttorney == "yes" {
+				if data.Form.RemoveAttorney == actor.Yes {
 					lpa.Attorneys.Delete(attorney)
 					if len(lpa.Attorneys) == 1 {
 						lpa.AttorneyDecisions = actor.AttorneyDecisions{}
@@ -61,13 +63,17 @@ func RemoveAttorney(logger Logger, tmpl template.Template, donorStore DonorStore
 }
 
 type removeAttorneyForm struct {
-	RemoveAttorney string
+	RemoveAttorney actor.YesNo
+	Error          error
 	errorLabel     string
 }
 
 func readRemoveAttorneyForm(r *http.Request, errorLabel string) *removeAttorneyForm {
+	remove, err := actor.ParseYesNo(page.PostFormString(r, "remove-attorney"))
+
 	return &removeAttorneyForm{
-		RemoveAttorney: page.PostFormString(r, "remove-attorney"),
+		RemoveAttorney: remove,
+		Error:          err,
 		errorLabel:     errorLabel,
 	}
 }
@@ -75,8 +81,8 @@ func readRemoveAttorneyForm(r *http.Request, errorLabel string) *removeAttorneyF
 func (f *removeAttorneyForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("remove-attorney", f.errorLabel, f.RemoveAttorney,
-		validation.Select("yes", "no"))
+	errors.Error("remove-attorney", f.errorLabel, f.Error,
+		validation.Selected())
 
 	return errors
 }
