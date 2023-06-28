@@ -26,7 +26,7 @@ func TestGetSign(t *testing.T) {
 			appData: testAppData,
 			lpa: &page.Lpa{
 				Submitted:           time.Now(),
-				WhenCanTheLpaBeUsed: page.UsedWhenRegistered,
+				WhenCanTheLpaBeUsed: page.CanBeUsedWhenRegistered,
 				Attorneys: actor.Attorneys{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
@@ -38,7 +38,7 @@ func TestGetSign(t *testing.T) {
 			appData: testAppData,
 			lpa: &page.Lpa{
 				Submitted:           time.Now(),
-				WhenCanTheLpaBeUsed: page.UsedWhenCapacityLost,
+				WhenCanTheLpaBeUsed: page.CanBeUsedWhenCapacityLost,
 				Attorneys: actor.Attorneys{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
@@ -49,7 +49,7 @@ func TestGetSign(t *testing.T) {
 			appData: testReplacementAppData,
 			lpa: &page.Lpa{
 				Submitted:           time.Now(),
-				WhenCanTheLpaBeUsed: page.UsedWhenRegistered,
+				WhenCanTheLpaBeUsed: page.CanBeUsedWhenRegistered,
 				ReplacementAttorneys: actor.Attorneys{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
@@ -62,7 +62,7 @@ func TestGetSign(t *testing.T) {
 			appData: testReplacementAppData,
 			lpa: &page.Lpa{
 				Submitted:           time.Now(),
-				WhenCanTheLpaBeUsed: page.UsedWhenCapacityLost,
+				WhenCanTheLpaBeUsed: page.CanBeUsedWhenCapacityLost,
 				ReplacementAttorneys: actor.Attorneys{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
@@ -129,7 +129,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 		"certified but not submitted": {
 			appData: testAppData,
 			lpa: &page.Lpa{
-				WhenCanTheLpaBeUsed: page.UsedWhenCapacityLost,
+				WhenCanTheLpaBeUsed: page.CanBeUsedWhenCapacityLost,
 				Attorneys: actor.Attorneys{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},

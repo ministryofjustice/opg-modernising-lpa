@@ -63,7 +63,7 @@ func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStor
 			App:                        appData,
 			Attorney:                   attorney,
 			IsReplacement:              appData.IsReplacementAttorney(),
-			LpaCanBeUsedWhenRegistered: lpa.WhenCanTheLpaBeUsed == page.UsedWhenRegistered,
+			LpaCanBeUsedWhenRegistered: lpa.WhenCanTheLpaBeUsed == page.CanBeUsedWhenRegistered,
 			Form: &signForm{
 				Confirm: attorneyProvidedDetails.Confirmed,
 			},
