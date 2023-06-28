@@ -4,22 +4,25 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
 type areYouHappyIfOneReplacementAttorneyCantActNoneCanData struct {
-	App    page.AppData
-	Errors validation.List
-	Happy  string
+	App     page.AppData
+	Errors  validation.List
+	Happy   actor.YesNo
+	Options actor.YesNoOptions
 }
 
 func AreYouHappyIfOneReplacementAttorneyCantActNoneCan(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &areYouHappyIfOneReplacementAttorneyCantActNoneCanData{
-			App:   appData,
-			Happy: lpa.ReplacementAttorneyDecisions.HappyIfOneCannotActNoneCan,
+			App:     appData,
+			Happy:   lpa.ReplacementAttorneyDecisions.HappyIfOneCannotActNoneCan,
+			Options: actor.YesNoValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -34,7 +37,7 @@ func AreYouHappyIfOneReplacementAttorneyCantActNoneCan(tmpl template.Template, d
 					return err
 				}
 
-				if form.Happy == "yes" {
+				if form.Happy == actor.Yes {
 					return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
 				} else {
 					return appData.Redirect(w, r, lpa, page.Paths.AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct.Format(lpa.ID))

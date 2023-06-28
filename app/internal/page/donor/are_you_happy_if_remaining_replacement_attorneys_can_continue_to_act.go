@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
@@ -12,7 +13,7 @@ import (
 type areYouHappyIfRemainingReplacementAttorneysCanContinueToActData struct {
 	App    page.AppData
 	Errors validation.List
-	Happy  string
+	Happy  actor.YesNo
 }
 
 func AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(tmpl template.Template, donorStore DonorStore) Handler {

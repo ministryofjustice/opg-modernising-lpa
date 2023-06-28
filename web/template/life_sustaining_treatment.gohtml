@@ -24,9 +24,9 @@
 
             {{ template "error-message" (errorMessage . "option") }}
 
-            {{ template "radios" (items . "option" .Option
-              (item "option-a" "optionA" "hint" "optionAHint")
-              (item "option-b" "optionB" "hint" "optionBHint")
+            {{ template "radios" (items . "option" .Form.Option.String
+              (item .Options.OptionA.String "optionA" "hint" "optionAHint")
+              (item .Options.OptionB.String "optionB" "hint" "optionBHint")
             ) }}
           </fieldset>
         </div>
