@@ -51,10 +51,10 @@ func TestGetAreYouHappyIfRemainingReplacementAttorneysCanContinueToActWhenTempla
 }
 
 func TestPostAreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(t *testing.T) {
-	for _, happy := range []string{"yes", "no"} {
-		t.Run(happy, func(t *testing.T) {
+	for _, happy := range []actor.YesNo{actor.Yes, actor.No} {
+		t.Run(happy.String(), func(t *testing.T) {
 			form := url.Values{
-				"happy": {happy},
+				"happy": {happy.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -85,7 +85,7 @@ func TestPostAreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(t *testi
 
 func TestPostAreYouHappyIfRemainingReplacementAttorneysCanContinueToActWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"happy": {"yes"},
+		"happy": {actor.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()

@@ -325,7 +325,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExist(t *testing.T) {
 	uidClient := newMockUidClient(t)
 	uidClient.
 		On("CreateCase", mock.Anything, &uid.CreateCaseRequestBody{
-			Type: page.LpaTypePropertyFinance,
+			Type: page.LpaTypePropertyFinance.String(),
 			Donor: uid.DonorDetails{
 				Name:     "Jane Smith",
 				Dob:      uid.ISODate{Time: date.New("2000", "1", "2").Time()},
@@ -396,7 +396,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExistOnUidClientError(t *t
 	uidClient := newMockUidClient(t)
 	uidClient.
 		On("CreateCase", mock.Anything, &uid.CreateCaseRequestBody{
-			Type: page.LpaTypePropertyFinance,
+			Type: page.LpaTypePropertyFinance.String(),
 			Donor: uid.DonorDetails{
 				Name:     "Jane Smith",
 				Dob:      uid.ISODate{Time: date.New("2000", "1", "2").Time()},
@@ -472,7 +472,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExistOnLpaStorePutError(t 
 	uidClient := newMockUidClient(t)
 	uidClient.
 		On("CreateCase", mock.Anything, &uid.CreateCaseRequestBody{
-			Type: page.LpaTypePropertyFinance,
+			Type: page.LpaTypePropertyFinance.String(),
 			Donor: uid.DonorDetails{
 				Name:     "Jane Smith",
 				Dob:      uid.ISODate{Time: date.New("2000", "1", "2").Time()},

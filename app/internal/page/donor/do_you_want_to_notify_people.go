@@ -12,8 +12,8 @@ import (
 type doYouWantToNotifyPeopleData struct {
 	App             page.AppData
 	Errors          validation.List
+	Options         actor.YesNoOptions
 	Form            *doYouWantToNotifyPeopleForm
-	WantToNotify    string
 	Lpa             *page.Lpa
 	HowWorkTogether string
 }
@@ -25,9 +25,12 @@ func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Hand
 		}
 
 		data := &doYouWantToNotifyPeopleData{
-			App:          appData,
-			WantToNotify: lpa.DoYouWantToNotifyPeople,
-			Lpa:          lpa,
+			App: appData,
+			Lpa: lpa,
+			Form: &doYouWantToNotifyPeopleForm{
+				WantToNotify: lpa.DoYouWantToNotifyPeople,
+			},
+			Options: actor.YesNoValues,
 		}
 
 		switch lpa.AttorneyDecisions.How {
@@ -49,7 +52,7 @@ func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Hand
 
 				redirectPath := appData.Paths.ChoosePeopleToNotify.Format(lpa.ID)
 
-				if data.Form.WantToNotify == "no" {
+				if lpa.DoYouWantToNotifyPeople == actor.No {
 					redirectPath = appData.Paths.TaskList.Format(lpa.ID)
 					lpa.Tasks.PeopleToNotify = actor.TaskCompleted
 				}
@@ -67,20 +70,24 @@ func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Hand
 }
 
 type doYouWantToNotifyPeopleForm struct {
-	WantToNotify string
+	WantToNotify actor.YesNo
+	Error        error
 }
 
 func readDoYouWantToNotifyPeople(r *http.Request) *doYouWantToNotifyPeopleForm {
+	want, err := actor.ParseYesNo(page.PostFormString(r, "want-to-notify"))
+
 	return &doYouWantToNotifyPeopleForm{
-		WantToNotify: page.PostFormString(r, "want-to-notify"),
+		WantToNotify: want,
+		Error:        err,
 	}
 }
 
 func (f *doYouWantToNotifyPeopleForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("want-to-notify", "yesToNotifySomeoneAboutYourLpa", f.WantToNotify,
-		validation.Select("yes", "no"))
+	errors.Error("want-to-notify", "yesToNotifySomeoneAboutYourLpa", f.Error,
+		validation.Selected())
 
 	return errors
 }
