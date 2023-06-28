@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
@@ -20,8 +21,13 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &whenCanTheLpaBeUsedData{
-			App: testAppData,
-			Lpa: &page.Lpa{},
+			App:  testAppData,
+			Lpa:  &page.Lpa{},
+			Form: &whenCanTheLpaBeUsedForm{},
+			Options: whenCanTheLpaBeUsedOptions{
+				WhenCapacityLost: page.CanBeUsedWhenCapacityLost,
+				WhenRegistered:   page.CanBeUsedWhenRegistered,
+			},
 		}).
 		Return(nil)
 
@@ -39,13 +45,19 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &whenCanTheLpaBeUsedData{
-			App:  testAppData,
-			When: page.UsedWhenRegistered,
-			Lpa:  &page.Lpa{WhenCanTheLpaBeUsed: page.UsedWhenRegistered},
+			App: testAppData,
+			Lpa: &page.Lpa{WhenCanTheLpaBeUsed: page.CanBeUsedWhenRegistered},
+			Form: &whenCanTheLpaBeUsedForm{
+				When: page.CanBeUsedWhenRegistered,
+			},
+			Options: whenCanTheLpaBeUsedOptions{
+				WhenCapacityLost: page.CanBeUsedWhenCapacityLost,
+				WhenRegistered:   page.CanBeUsedWhenRegistered,
+			},
 		}).
 		Return(nil)
 
-	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &page.Lpa{WhenCanTheLpaBeUsed: page.UsedWhenRegistered})
+	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &page.Lpa{WhenCanTheLpaBeUsed: page.CanBeUsedWhenRegistered})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -58,10 +70,7 @@ func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &whenCanTheLpaBeUsedData{
-			App: testAppData,
-			Lpa: &page.Lpa{},
-		}).
+		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
 	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
@@ -73,7 +82,7 @@ func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 
 func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 	form := url.Values{
-		"when": {page.UsedWhenRegistered},
+		"when": {page.CanBeUsedWhenRegistered.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -84,7 +93,7 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			ID:                  "lpa-id",
-			WhenCanTheLpaBeUsed: page.UsedWhenRegistered,
+			WhenCanTheLpaBeUsed: page.CanBeUsedWhenRegistered,
 			Tasks:               page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, WhenCanTheLpaBeUsed: actor.TaskCompleted},
 		}).
 		Return(nil)
@@ -102,7 +111,7 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 
 func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"when": {page.UsedWhenRegistered},
+		"when": {page.CanBeUsedWhenRegistered.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -111,7 +120,7 @@ func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{WhenCanTheLpaBeUsed: page.UsedWhenRegistered, Tasks: page.Tasks{WhenCanTheLpaBeUsed: actor.TaskCompleted}}).
+		On("Put", r.Context(), &page.Lpa{WhenCanTheLpaBeUsed: page.CanBeUsedWhenRegistered, Tasks: page.Tasks{WhenCanTheLpaBeUsed: actor.TaskCompleted}}).
 		Return(expectedError)
 
 	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r, &page.Lpa{})
@@ -126,11 +135,9 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &whenCanTheLpaBeUsedData{
-			App:    testAppData,
-			Errors: validation.With("when", validation.SelectError{Label: "whenYourAttorneysCanUseYourLpa"}),
-			Lpa:    &page.Lpa{},
-		}).
+		On("Execute", w, mock.MatchedBy(func(data *whenCanTheLpaBeUsedData) bool {
+			return assert.Equal(t, validation.With("when", validation.SelectError{Label: "whenYourAttorneysCanUseYourLpa"}), data.Errors)
+		})).
 		Return(nil)
 
 	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
@@ -142,7 +149,7 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 
 func TestReadWhenCanTheLpaBeUsedForm(t *testing.T) {
 	form := url.Values{
-		"when": {page.UsedWhenRegistered},
+		"when": {page.CanBeUsedWhenRegistered.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -150,7 +157,7 @@ func TestReadWhenCanTheLpaBeUsedForm(t *testing.T) {
 
 	result := readWhenCanTheLpaBeUsedForm(r)
 
-	assert.Equal(t, page.UsedWhenRegistered, result.When)
+	assert.Equal(t, page.CanBeUsedWhenRegistered, result.When)
 }
 
 func TestWhenCanTheLpaBeUsedFormValidate(t *testing.T) {
@@ -158,23 +165,12 @@ func TestWhenCanTheLpaBeUsedFormValidate(t *testing.T) {
 		form   *whenCanTheLpaBeUsedForm
 		errors validation.List
 	}{
-		"when-registered": {
-			form: &whenCanTheLpaBeUsedForm{
-				When: page.UsedWhenRegistered,
-			},
+		"valid": {
+			form: &whenCanTheLpaBeUsedForm{},
 		},
-		"when-capacity-lost": {
+		"error": {
 			form: &whenCanTheLpaBeUsedForm{
-				When: page.UsedWhenCapacityLost,
-			},
-		},
-		"missing": {
-			form:   &whenCanTheLpaBeUsedForm{},
-			errors: validation.With("when", validation.SelectError{Label: "whenYourAttorneysCanUseYourLpa"}),
-		},
-		"invalid": {
-			form: &whenCanTheLpaBeUsedForm{
-				When: "what",
+				Error: expectedError,
 			},
 			errors: validation.With("when", validation.SelectError{Label: "whenYourAttorneysCanUseYourLpa"}),
 		},
