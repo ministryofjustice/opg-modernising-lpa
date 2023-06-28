@@ -14,28 +14,28 @@ func TestMakeAttorneyDecisions(t *testing.T) {
 		expected AttorneyDecisions
 	}{
 		"without details": {
-			existing: AttorneyDecisions{HappyIfOneCannotActNoneCan: "yes"},
+			existing: AttorneyDecisions{HappyIfOneCannotActNoneCan: Yes},
 			how:      Jointly,
 			details:  "hey",
 			expected: AttorneyDecisions{How: Jointly},
 		},
 		"with details": {
-			existing: AttorneyDecisions{HappyIfOneCannotActNoneCan: "yes"},
+			existing: AttorneyDecisions{HappyIfOneCannotActNoneCan: Yes},
 			how:      JointlyForSomeSeverallyForOthers,
 			details:  "hey",
 			expected: AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, Details: "hey"},
 		},
 		"same how without details": {
-			existing: AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: "yes"},
+			existing: AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: Yes},
 			how:      Jointly,
 			details:  "hey",
-			expected: AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: "yes"},
+			expected: AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: Yes},
 		},
 		"same how with details": {
-			existing: AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, Details: "what", HappyIfOneCannotActNoneCan: "yes"},
+			existing: AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, Details: "what", HappyIfOneCannotActNoneCan: Yes},
 			how:      JointlyForSomeSeverallyForOthers,
 			details:  "hey",
-			expected: AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, Details: "hey", HappyIfOneCannotActNoneCan: "yes"},
+			expected: AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, Details: "hey", HappyIfOneCannotActNoneCan: Yes},
 		},
 	}
 
@@ -91,27 +91,27 @@ func TestAttorneyDecisionsIsComplete(t *testing.T) {
 	}{
 		"jointly attorneys, happy": {
 			attorneyCount: 2,
-			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: "yes"},
+			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: Yes},
 			expected:      true,
 		},
 		"jointly for some severally for others attorney, happy": {
 			attorneyCount: 2,
-			decisions:     AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, HappyIfOneCannotActNoneCan: "yes"},
+			decisions:     AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, HappyIfOneCannotActNoneCan: Yes},
 			expected:      true,
 		},
 		"jointly attorneys, unhappy": {
 			attorneyCount: 2,
-			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: "no", HappyIfRemainingCanContinueToAct: "no"},
+			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: No, HappyIfRemainingCanContinueToAct: No},
 			expected:      true,
 		},
 		"jointly attorneys, mixed happy": {
 			attorneyCount: 2,
-			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: "no", HappyIfRemainingCanContinueToAct: "yes"},
+			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: No, HappyIfRemainingCanContinueToAct: Yes},
 			expected:      true,
 		},
 		"jointly attorneys, unhappy missing": {
 			attorneyCount: 2,
-			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: "no"},
+			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: No},
 			expected:      false,
 		},
 		"jointly and severally attorney": {
