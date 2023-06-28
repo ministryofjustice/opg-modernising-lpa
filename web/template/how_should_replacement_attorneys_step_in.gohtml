@@ -20,20 +20,20 @@
 
             <div class="govuk-radios {{ if .Errors.Has "when-to-step-in" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
               <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-when-to-step-in" name="when-to-step-in" type="radio" value="one" aria-describedby="when-to-step-in-item-hint" {{ if eq "one" .Form.WhenToStepIn }}checked{{ end }}>
+                <input class="govuk-radios__input" id="f-when-to-step-in" name="when-to-step-in" type="radio" value="{{ .Options.WhenOneCanNoLongerAct.String }}" aria-describedby="when-to-step-in-item-hint" {{ if eq .Options.WhenOneCanNoLongerAct .Form.WhenToStepIn }}checked{{ end }}>
                 <label class="govuk-label govuk-radios__label" for="f-when-to-step-in">
                   {{ trHtml .App "whenOneCanNoLongerAct" }}
                 </label>
               </div>
               <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-when-to-step-in-2" name="when-to-step-in" type="radio" value="all" aria-describedby="when-to-step-in-2-item-hint" {{ if eq "all" .Form.WhenToStepIn }}checked{{ end }}>
+                <input class="govuk-radios__input" id="f-when-to-step-in-2" name="when-to-step-in" type="radio" value="{{ .Options.WhenAllCanNoLongerAct.String }}" aria-describedby="when-to-step-in-2-item-hint" {{ if eq .Options.WhenAllCanNoLongerAct .Form.WhenToStepIn }}checked{{ end }}>
                 <label class="govuk-label govuk-radios__label" for="f-when-to-step-in-2">
                   {{ trHtml .App "whenNoneCanNoLongerAct" }}
                 </label>
               </div>
               {{ if .AllowSomeOtherWay }}
                 <div class="govuk-radios__item">
-                  <input class="govuk-radios__input" id="f-when-to-step-in-3" name="when-to-step-in" type="radio" value="other" aria-describedby="when-to-step-in-3-item-hint" aria-controls="when-to-step-in-3-conditional-div" {{ if or (eq "other" .Form.WhenToStepIn) (.Errors.Has "other-details") }}checked{{ end }}>
+                  <input class="govuk-radios__input" id="f-when-to-step-in-3" name="when-to-step-in" type="radio" value="{{ .Options.AnotherWay.String }}" aria-describedby="when-to-step-in-3-item-hint" aria-controls="when-to-step-in-3-conditional-div" {{ if or (eq .Options.AnotherWay .Form.WhenToStepIn) (.Errors.Has "other-details") }}checked{{ end }}>
                   <label class="govuk-label govuk-radios__label" for="f-when-to-step-in-3">
                     {{ tr .App "otherWay" }}
                   </label>

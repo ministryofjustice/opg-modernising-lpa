@@ -7,7 +7,7 @@
     <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
       <strong class="moj-badge app-float-right govuk-!-margin-left-2">{{ tr .App "statusTag" }}</strong>
       <p class="govuk-body app-float-right"><strong>{{ tr .App "lastSaved" }}:</strong> {{ formatDateTime .Item.UpdatedAt }}</p>
-      <h2 class="govuk-heading-m govuk-!-padding-top-0 govuk-!-margin-bottom-1">{{ if eq "pfa" .Item.Type }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}: <span class="govuk-!-font-weight-regular">{{ .Item.Donor.FirstNames }} {{ .Item.Donor.LastName }}</span></h2>
+      <h2 class="govuk-heading-m govuk-!-padding-top-0 govuk-!-margin-bottom-1">{{ if .Item.Type.IsPropertyFinance }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}: <span class="govuk-!-font-weight-regular">{{ .Item.Donor.FirstNames }} {{ .Item.Donor.LastName }}</span></h2>
       <span class="govuk-hint"><strong>{{ tr $.App "applicationNumber" }}:</strong> {{ .Item.ID }}</span>
       <div class="govuk-button-group govuk-!-margin-top-4">
         {{ if .Item.Submitted.IsZero }}
@@ -30,7 +30,7 @@
     <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
       <strong class="moj-badge app-float-right govuk-!-margin-left-2">{{ tr .App "statusTag" }}</strong>
       <p class="govuk-body app-float-right"><strong>{{ tr .App "lastSaved" }}:</strong> {{ formatDateTime .Item.UpdatedAt }}</p>
-      <h2 class="govuk-heading-m govuk-!-padding-top-0 govuk-!-margin-bottom-1">{{ if eq "pfa" .Item.Type }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}: <span class="govuk-!-font-weight-regular">{{ .Item.Donor.FirstNames }} {{ .Item.Donor.LastName }}</span></h2>
+      <h2 class="govuk-heading-m govuk-!-padding-top-0 govuk-!-margin-bottom-1">{{ if .Item.Type.IsPropertyFinance }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}: <span class="govuk-!-font-weight-regular">{{ .Item.Donor.FirstNames }} {{ .Item.Donor.LastName }}</span></h2>
       <span class="govuk-hint"><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Item.ID }}</span>
       <div class="govuk-button-group govuk-!-margin-top-4">
         <a class="govuk-button" href="{{ link .App (.App.Paths.Attorney.TaskList.Format .Item.ID) }}">{{ tr .App "continue" }}</a>
@@ -45,7 +45,7 @@
     <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
       <strong class="moj-badge app-float-right govuk-!-margin-left-2">{{ tr .App "statusTag" }}</strong>
       <p class="govuk-body app-float-right"><strong>{{ tr .App "lastSaved" }}:</strong> {{ formatDateTime .Item.UpdatedAt }}</p>
-      <h2 class="govuk-heading-m govuk-!-padding-top-0 govuk-!-margin-bottom-1">{{ if eq "pfa" .Item.Type }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}: <span class="govuk-!-font-weight-regular">{{ .Item.Donor.FirstNames }} {{ .Item.Donor.LastName }}</span></h2>
+      <h2 class="govuk-heading-m govuk-!-padding-top-0 govuk-!-margin-bottom-1">{{ if .Item.Type.IsPropertyFinance }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}: <span class="govuk-!-font-weight-regular">{{ .Item.Donor.FirstNames }} {{ .Item.Donor.LastName }}</span></h2>
       <span class="govuk-hint"><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Item.ID }}</span>
       <div class="govuk-button-group govuk-!-margin-top-4">
         <a class="govuk-button" href="{{ link .App (.App.Paths.CertificateProvider.EnterDateOfBirth.Format .Item.ID) }}">{{ tr .App "continue" }}</a>

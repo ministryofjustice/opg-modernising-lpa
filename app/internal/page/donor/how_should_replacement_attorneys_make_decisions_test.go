@@ -21,8 +21,9 @@ func TestGetHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &howShouldReplacementAttorneysMakeDecisionsData{
-			App:  testAppData,
-			Form: &howShouldAttorneysMakeDecisionsForm{},
+			App:     testAppData,
+			Form:    &howShouldAttorneysMakeDecisionsForm{},
+			Options: actor.AttorneysActValues,
 		}).
 		Return(nil)
 
@@ -42,13 +43,14 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 		On("Execute", w, &howShouldReplacementAttorneysMakeDecisionsData{
 			App: testAppData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    "jointly",
+				DecisionsType:    actor.Jointly,
 				DecisionsDetails: "some decisions",
 			},
+			Options: actor.AttorneysActValues,
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &page.Lpa{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: "jointly"}})
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &page.Lpa{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: actor.Jointly}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -61,13 +63,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsWhenTemplateErrors(t *test
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &howShouldReplacementAttorneysMakeDecisionsData{
-			App: testAppData,
-			Form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    "",
-				DecisionsDetails: "",
-			},
-		}).
+		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
 	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
@@ -79,7 +75,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsWhenTemplateErrors(t *test
 
 func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 	form := url.Values{
-		"decision-type": {"jointly"},
+		"decision-type": {actor.Jointly.String()},
 		"mixed-details": {""},
 	}
 
@@ -89,7 +85,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "", How: "jointly"}}).
+		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "", How: actor.Jointly}}).
 		Return(nil)
 
 	template := newMockTemplate(t)
@@ -113,7 +109,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 	}{
 		"existing details not set": {
 			form: url.Values{
-				"decision-type": {"mixed"},
+				"decision-type": {actor.JointlyForSomeSeverallyForOthers.String()},
 				"mixed-details": {"some details"},
 			},
 			existing:  actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
@@ -124,7 +120,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 		},
 		"existing details set": {
 			form: url.Values{
-				"decision-type": {"jointly"},
+				"decision-type": {actor.Jointly.String()},
 				"mixed-details": {"some details"},
 			},
 			existing:  actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, Details: "some details"},
@@ -135,7 +131,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 		},
 		"requires happiness": {
 			form: url.Values{
-				"decision-type": {"jointly"},
+				"decision-type": {actor.Jointly.String()},
 				"mixed-details": {"some details"},
 			},
 			existing:  actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, Details: "some details"},
@@ -180,7 +176,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"decision-type": {"jointly"},
+		"decision-type": {actor.Jointly.String()},
 		"mixed-details": {"some decisions"},
 	}
 
@@ -211,15 +207,9 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenValidationErrors(t *t
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &howShouldReplacementAttorneysMakeDecisionsData{
-			App:    testAppData,
-			Errors: validation.With("decision-type", validation.SelectError{Label: "howReplacementAttorneysShouldMakeDecisions"}),
-			Form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    "",
-				DecisionsDetails: "",
-				errorLabel:       "howReplacementAttorneysShouldMakeDecisions",
-			},
-		}).
+		On("Execute", w, mock.MatchedBy(func(data *howShouldReplacementAttorneysMakeDecisionsData) bool {
+			return assert.Equal(t, validation.With("decision-type", validation.SelectError{Label: "howReplacementAttorneysShouldMakeDecisions"}), data.Errors)
+		})).
 		Return(nil)
 
 	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &page.Lpa{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "", How: ""}})
@@ -231,7 +221,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenValidationErrors(t *t
 
 func TestPostHowShouldReplacementAttorneysMakeDecisionsErrorOnPutStore(t *testing.T) {
 	form := url.Values{
-		"decision-type": {"jointly"},
+		"decision-type": {actor.Jointly.String()},
 		"mixed-details": {""},
 	}
 
@@ -241,7 +231,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsErrorOnPutStore(t *testin
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "", How: "jointly"}}).
+		On("Put", r.Context(), &page.Lpa{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "", How: actor.Jointly}}).
 		Return(expectedError)
 
 	template := newMockTemplate(t)

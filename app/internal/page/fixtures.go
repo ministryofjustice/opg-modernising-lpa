@@ -6,6 +6,7 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
@@ -36,9 +37,9 @@ func Fixtures(tmpl template.Template) Handler {
 						"sendAttorneyShare":           {"1"},
 						"lpa.complete":                {"1"},
 						"lpa.attorneys":               {"2"},
-						"lpa.attorneysAct":            {"jointly-and-severally"},
+						"lpa.attorneysAct":            {actor.JointlyAndSeverally.String()},
 						"lpa.replacementAttorneys":    {"2"},
-						"lpa.replacementAttorneysAct": {"jointly"},
+						"lpa.replacementAttorneysAct": {actor.Jointly.String()},
 						"lpa.type":                    {data.Form.Type},
 						"lpa.restrictions":            {"1"},
 						"redirect":                    {Paths.Attorney.Start.Format()},
