@@ -20,19 +20,19 @@
 
             {{ trHtml .App "findOutMoreAboutReplacementAttorneysContent" }}
 
-            {{ if eq .Lpa.AttorneyDecisions.How "jointly" }}
+            {{ if .Lpa.AttorneyDecisions.How.IsJointly }}
               {{ template "warning" (warning .App "jointlyReplacementWarning") }}
               {{ trHtml .App "jointlyReplacementWarningContent" }}
-            {{ else if eq .Lpa.AttorneyDecisions.How "mixed" }}
+            {{ else if .Lpa.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
               {{ template "warning" (warning .App "mixedReplacementWarning") }}
               {{ trHtml .App "mixedReplacementWarningContent" }}
             {{ end }}
 
             {{ template "error-message" (errorMessage . "want") }}
 
-            {{ template "radios" (items . "want" .Want
-              (item "yes" "yesReplacementAttorneys")
-              (item "no" "noReplacementAttorneys")
+            {{ template "radios" (items . "want" .Form.Want.String
+              (item .Options.Yes.String "yesReplacementAttorneys")
+              (item .Options.No.String "noReplacementAttorneys")
             ) }}
           </fieldset>
         </div>

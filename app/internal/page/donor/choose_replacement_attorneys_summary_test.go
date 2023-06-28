@@ -25,9 +25,10 @@ func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseReplacementAttorneysSummaryData{
-			App:  testAppData,
-			Lpa:  lpa,
-			Form: &chooseAttorneysSummaryForm{},
+			App:     testAppData,
+			Lpa:     lpa,
+			Form:    &chooseAttorneysSummaryForm{},
+			Options: actor.YesNoValues,
 		}).
 		Return(nil)
 
@@ -55,7 +56,7 @@ func TestGetChooseReplacementAttorneysSummaryWhenNoReplacementAttorneys(t *testi
 
 func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 	form := url.Values{
-		"add-attorney": {"yes"},
+		"add-attorney": {actor.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -78,7 +79,7 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 		redirectUrl          page.LpaPath
 		attorneys            actor.Attorneys
 		replacementAttorneys actor.Attorneys
-		howAttorneysAct      string
+		howAttorneysAct      actor.AttorneysAct
 		decisionDetails      string
 	}{
 		"with multiple attorneys acting jointly and severally and single replacement attorney": {
@@ -124,7 +125,7 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 	for testname, tc := range testcases {
 		t.Run(testname, func(t *testing.T) {
 			form := url.Values{
-				"add-attorney": {"no"},
+				"add-attorney": {actor.No.String()},
 			}
 
 			w := httptest.NewRecorder()

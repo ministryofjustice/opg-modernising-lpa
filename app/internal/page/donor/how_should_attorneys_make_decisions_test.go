@@ -21,9 +21,10 @@ func TestGetHowShouldAttorneysMakeDecisions(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &howShouldAttorneysMakeDecisionsData{
-			App:  testAppData,
-			Form: &howShouldAttorneysMakeDecisionsForm{},
-			Lpa:  &page.Lpa{},
+			App:     testAppData,
+			Form:    &howShouldAttorneysMakeDecisionsForm{},
+			Lpa:     &page.Lpa{},
+			Options: actor.AttorneysActValues,
 		}).
 		Return(nil)
 
@@ -43,14 +44,15 @@ func TestGetHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 		On("Execute", w, &howShouldAttorneysMakeDecisionsData{
 			App: testAppData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    "jointly",
+				DecisionsType:    actor.Jointly,
 				DecisionsDetails: "some decisions",
 			},
-			Lpa: &page.Lpa{AttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: "jointly"}},
+			Lpa:     &page.Lpa{AttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: actor.Jointly}},
+			Options: actor.AttorneysActValues,
 		}).
 		Return(nil)
 
-	err := HowShouldAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &page.Lpa{AttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: "jointly"}})
+	err := HowShouldAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &page.Lpa{AttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: actor.Jointly}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -63,14 +65,7 @@ func TestGetHowShouldAttorneysMakeDecisionsWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &howShouldAttorneysMakeDecisionsData{
-			App: testAppData,
-			Form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    "",
-				DecisionsDetails: "",
-			},
-			Lpa: &page.Lpa{},
-		}).
+		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
 	err := HowShouldAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
@@ -82,7 +77,7 @@ func TestGetHowShouldAttorneysMakeDecisionsWhenTemplateErrors(t *testing.T) {
 
 func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 	form := url.Values{
-		"decision-type": {"jointly-and-severally"},
+		"decision-type": {actor.JointlyAndSeverally.String()},
 		"mixed-details": {""},
 	}
 
@@ -112,27 +107,27 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 
 func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 	testCases := map[string]struct {
-		existingType    string
+		existingType    actor.AttorneysAct
 		existingDetails string
-		updatedType     string
+		updatedType     actor.AttorneysAct
 		updatedDetails  string
 		formType        string
 		formDetails     string
 	}{
 		"existing details not set": {
-			existingType:    "jointly-and-severally",
+			existingType:    actor.JointlyAndSeverally,
 			existingDetails: "",
-			updatedType:     "mixed",
+			updatedType:     actor.JointlyForSomeSeverallyForOthers,
 			updatedDetails:  "some details",
-			formType:        "mixed",
+			formType:        actor.JointlyForSomeSeverallyForOthers.String(),
 			formDetails:     "some details",
 		},
 		"existing details set": {
-			existingType:    "mixed",
+			existingType:    actor.JointlyForSomeSeverallyForOthers,
 			existingDetails: "some details",
-			updatedType:     "jointly",
+			updatedType:     actor.Jointly,
 			updatedDetails:  "",
-			formType:        "jointly",
+			formType:        actor.Jointly.String(),
 			formDetails:     "some details",
 		},
 	}
@@ -185,16 +180,9 @@ func TestPostHowShouldAttorneysMakeDecisionsWhenValidationErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &howShouldAttorneysMakeDecisionsData{
-			App:    testAppData,
-			Errors: validation.With("decision-type", validation.SelectError{Label: "howAttorneysShouldMakeDecisions"}),
-			Form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    "",
-				DecisionsDetails: "",
-				errorLabel:       "howAttorneysShouldMakeDecisions",
-			},
-			Lpa: &page.Lpa{},
-		}).
+		On("Execute", w, mock.MatchedBy(func(data *howShouldAttorneysMakeDecisionsData) bool {
+			return assert.Equal(t, validation.With("decision-type", validation.SelectError{Label: "howAttorneysShouldMakeDecisions"}), data.Errors)
+		})).
 		Return(nil)
 
 	err := HowShouldAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
@@ -204,53 +192,9 @@ func TestPostHowShouldAttorneysMakeDecisionsWhenValidationErrors(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestHowShouldAttorneysMakeDecisionsFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		DecisionType   string
-		DecisionDetail string
-		ExpectedErrors validation.List
-	}{
-		"valid": {
-			DecisionType:   "jointly-and-severally",
-			DecisionDetail: "",
-		},
-		"valid with detail": {
-			DecisionType:   "mixed",
-			DecisionDetail: "some details",
-		},
-		"unsupported decision type": {
-			DecisionType:   "not-supported",
-			DecisionDetail: "",
-			ExpectedErrors: validation.With("decision-type", validation.SelectError{Label: "xyz"}),
-		},
-		"missing decision type": {
-			DecisionType:   "",
-			DecisionDetail: "",
-			ExpectedErrors: validation.With("decision-type", validation.SelectError{Label: "xyz"}),
-		},
-		"missing decision detail when mixed": {
-			DecisionType:   "mixed",
-			DecisionDetail: "",
-			ExpectedErrors: validation.With("mixed-details", validation.EnterError{Label: "details"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			form := howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    tc.DecisionType,
-				DecisionsDetails: tc.DecisionDetail,
-				errorLabel:       "xyz",
-			}
-
-			assert.Equal(t, tc.ExpectedErrors, form.Validate())
-		})
-	}
-}
-
 func TestPostHowShouldAttorneysMakeDecisionsErrorOnPutStore(t *testing.T) {
 	form := url.Values{
-		"decision-type": {"jointly-and-severally"},
+		"decision-type": {actor.JointlyAndSeverally.String()},
 		"mixed-details": {""},
 	}
 
@@ -270,4 +214,44 @@ func TestPostHowShouldAttorneysMakeDecisionsErrorOnPutStore(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestHowShouldAttorneysMakeDecisionsFormValidate(t *testing.T) {
+	testCases := map[string]struct {
+		form   *howShouldAttorneysMakeDecisionsForm
+		errors validation.List
+	}{
+		"valid": {
+			form: &howShouldAttorneysMakeDecisionsForm{
+				errorLabel: "xyz",
+			},
+		},
+		"valid with detail": {
+			form: &howShouldAttorneysMakeDecisionsForm{
+				DecisionsType:    actor.JointlyForSomeSeverallyForOthers,
+				DecisionsDetails: "some details",
+				errorLabel:       "xyz",
+			},
+		},
+		"invalid": {
+			form: &howShouldAttorneysMakeDecisionsForm{
+				Error:      expectedError,
+				errorLabel: "xyz",
+			},
+			errors: validation.With("decision-type", validation.SelectError{Label: "xyz"}),
+		},
+		"missing decision detail when mixed": {
+			form: &howShouldAttorneysMakeDecisionsForm{
+				DecisionsType: actor.JointlyForSomeSeverallyForOthers,
+				errorLabel:    "xyz",
+			},
+			errors: validation.With("mixed-details", validation.EnterError{Label: "details"}),
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.errors, tc.form.Validate())
+		})
+	}
 }

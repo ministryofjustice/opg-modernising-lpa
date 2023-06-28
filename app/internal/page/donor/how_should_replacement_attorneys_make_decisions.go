@@ -10,9 +10,10 @@ import (
 )
 
 type howShouldReplacementAttorneysMakeDecisionsData struct {
-	App    page.AppData
-	Errors validation.List
-	Form   *howShouldAttorneysMakeDecisionsForm
+	App     page.AppData
+	Errors  validation.List
+	Form    *howShouldAttorneysMakeDecisionsForm
+	Options actor.AttorneysActOptions
 }
 
 func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, donorStore DonorStore) Handler {
@@ -23,6 +24,7 @@ func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, donorSto
 				DecisionsType:    lpa.ReplacementAttorneyDecisions.How,
 				DecisionsDetails: lpa.ReplacementAttorneyDecisions.Details,
 			},
+			Options: actor.AttorneysActValues,
 		}
 
 		if r.Method == http.MethodPost {
