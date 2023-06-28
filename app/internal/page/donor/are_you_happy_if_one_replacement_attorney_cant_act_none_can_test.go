@@ -21,7 +21,8 @@ func TestGetAreYouHappyIfOneReplacementAttorneyCantActNoneCan(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &areYouHappyIfOneReplacementAttorneyCantActNoneCanData{
-			App: testAppData,
+			App:     testAppData,
+			Options: actor.YesNoValues,
 		}).
 		Return(nil)
 
@@ -38,9 +39,7 @@ func TestGetAreYouHappyIfOneReplacementAttorneyCantActNoneCanWhenTemplateErrors(
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &areYouHappyIfOneReplacementAttorneyCantActNoneCanData{
-			App: testAppData,
-		}).
+		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
 	err := AreYouHappyIfOneReplacementAttorneyCantActNoneCan(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
@@ -52,24 +51,24 @@ func TestGetAreYouHappyIfOneReplacementAttorneyCantActNoneCanWhenTemplateErrors(
 
 func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCan(t *testing.T) {
 	testcases := map[string]struct {
-		happy    string
+		happy    actor.YesNo
 		lpa      *page.Lpa
 		redirect page.LpaPath
 	}{
 		"yes": {
-			happy: "yes",
+			happy: actor.Yes,
 			lpa: &page.Lpa{
 				ID:                           "lpa-id",
-				ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfOneCannotActNoneCan: "yes"},
+				ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfOneCannotActNoneCan: actor.Yes},
 				Tasks:                        page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 			},
 			redirect: page.Paths.TaskList,
 		},
 		"no": {
-			happy: "no",
+			happy: actor.No,
 			lpa: &page.Lpa{
 				ID:                           "lpa-id",
-				ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfOneCannotActNoneCan: "no"},
+				ReplacementAttorneyDecisions: actor.AttorneyDecisions{HappyIfOneCannotActNoneCan: actor.No},
 				Tasks:                        page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 			},
 			redirect: page.Paths.AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct,
@@ -79,7 +78,7 @@ func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCan(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				"happy": {tc.happy},
+				"happy": {tc.happy.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -106,7 +105,7 @@ func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCan(t *testing.T) {
 
 func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCanWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"happy": {"yes"},
+		"happy": {actor.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -130,10 +129,9 @@ func TestPostAreYouHappyIfOneReplacementAttorneyCantActNoneCanWhenValidationErro
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &areYouHappyIfOneReplacementAttorneyCantActNoneCanData{
-			App:    testAppData,
-			Errors: validation.With("happy", validation.SelectError{Label: "yesIfYouAreHappyIfOneReplacementAttorneyCantActNoneCan"}),
-		}).
+		On("Execute", w, mock.MatchedBy(func(data *areYouHappyIfOneReplacementAttorneyCantActNoneCanData) bool {
+			return assert.Equal(t, validation.With("happy", validation.SelectError{Label: "yesIfYouAreHappyIfOneReplacementAttorneyCantActNoneCan"}), data.Errors)
+		})).
 		Return(nil)
 
 	err := AreYouHappyIfOneReplacementAttorneyCantActNoneCan(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
