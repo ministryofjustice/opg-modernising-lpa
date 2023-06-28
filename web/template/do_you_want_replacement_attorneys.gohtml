@@ -30,9 +30,9 @@
 
             {{ template "error-message" (errorMessage . "want") }}
 
-            {{ template "radios" (items . "want" .Want
-              (item "yes" "yesReplacementAttorneys")
-              (item "no" "noReplacementAttorneys")
+            {{ template "radios" (items . "want" .Form.Want.String
+              (item .Options.Yes.String "yesReplacementAttorneys")
+              (item .Options.No.String "noReplacementAttorneys")
             ) }}
           </fieldset>
         </div>

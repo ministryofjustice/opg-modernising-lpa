@@ -35,6 +35,7 @@ func TestGetRemoveAttorney(t *testing.T) {
 			Attorney: attorney,
 			Errors:   nil,
 			Form:     &removeAttorneyForm{},
+			Options:  actor.YesNoValues,
 		}).
 		Return(nil)
 
@@ -120,7 +121,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				"remove-attorney": {"yes"},
+				"remove-attorney": {actor.Yes.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -148,7 +149,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 
 func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 	form := url.Values{
-		"remove-attorney": {"no"},
+		"remove-attorney": {actor.No.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -181,7 +182,7 @@ func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 
 func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 	form := url.Values{
-		"remove-attorney": {"yes"},
+		"remove-attorney": {actor.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -255,27 +256,13 @@ func TestRemoveAttorneyFormValidate(t *testing.T) {
 		form   *removeAttorneyForm
 		errors validation.List
 	}{
-		"valid - yes": {
-			form: &removeAttorneyForm{
-				RemoveAttorney: "yes",
-			},
+		"valid": {
+			form: &removeAttorneyForm{},
 		},
-		"valid - no": {
+		"invalid": {
 			form: &removeAttorneyForm{
-				RemoveAttorney: "no",
-			},
-		},
-		"missing-value": {
-			form: &removeAttorneyForm{
-				RemoveAttorney: "",
-				errorLabel:     "xyz",
-			},
-			errors: validation.With("remove-attorney", validation.SelectError{Label: "xyz"}),
-		},
-		"unexpected-value": {
-			form: &removeAttorneyForm{
-				RemoveAttorney: "not expected",
-				errorLabel:     "xyz",
+				Error:      expectedError,
+				errorLabel: "xyz",
 			},
 			errors: validation.With("remove-attorney", validation.SelectError{Label: "xyz"}),
 		},

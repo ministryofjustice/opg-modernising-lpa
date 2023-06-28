@@ -10,18 +10,22 @@ import (
 )
 
 type wantReplacementAttorneysData struct {
-	App    page.AppData
-	Errors validation.List
-	Want   string
-	Lpa    *page.Lpa
+	App     page.AppData
+	Errors  validation.List
+	Form    *wantReplacementAttorneysForm
+	Options actor.YesNoOptions
+	Lpa     *page.Lpa
 }
 
 func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &wantReplacementAttorneysData{
-			App:  appData,
-			Want: lpa.WantReplacementAttorneys,
-			Lpa:  lpa,
+			App: appData,
+			Lpa: lpa,
+			Form: &wantReplacementAttorneysForm{
+				Want: lpa.WantReplacementAttorneys,
+			},
+			Options: actor.YesNoValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -32,7 +36,7 @@ func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Han
 				lpa.WantReplacementAttorneys = form.Want
 				var redirectUrl string
 
-				if form.Want == "no" {
+				if lpa.WantReplacementAttorneys == actor.No {
 					lpa.ReplacementAttorneys = actor.Attorneys{}
 					redirectUrl = page.Paths.TaskList.Format(lpa.ID)
 				} else {
@@ -58,20 +62,24 @@ func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Han
 }
 
 type wantReplacementAttorneysForm struct {
-	Want string
+	Want  actor.YesNo
+	Error error
 }
 
 func readWantReplacementAttorneysForm(r *http.Request) *wantReplacementAttorneysForm {
+	want, err := actor.ParseYesNo(page.PostFormString(r, "want"))
+
 	return &wantReplacementAttorneysForm{
-		Want: page.PostFormString(r, "want"),
+		Want:  want,
+		Error: err,
 	}
 }
 
 func (f *wantReplacementAttorneysForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("want", "yesToAddReplacementAttorneys", f.Want,
-		validation.Select("yes", "no"))
+	errors.Error("want", "yesToAddReplacementAttorneys", f.Error,
+		validation.Selected())
 
 	return errors
 }
