@@ -7,9 +7,9 @@
         {{ tr .App "typeOfLpa" }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ if eq .Lpa.Type "pfa" }}
+        {{ if .Lpa.Type.IsPropertyFinance }}
           {{ tr .App "lpaTypePfa" }}
-        {{ else if eq .Lpa.Type "hw" }}
+        {{ else if .Lpa.Type.IsHealthWelfare }}
           {{ tr .App "lpaTypeHw" }}
         {{ end }}
       </dd>
@@ -31,7 +31,7 @@
         {{ end }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ tr .App .Lpa.WhenCanTheLpaBeUsed }}
+        {{ tr .App .Lpa.WhenCanTheLpaBeUsed.String }}
       </dd>
       {{ if $canChange }}
         <dd class="govuk-summary-list__actions">

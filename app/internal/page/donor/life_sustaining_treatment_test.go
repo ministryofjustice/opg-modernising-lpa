@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestGetLifeSustainingTreatment(t *testing.T) {
@@ -20,7 +21,12 @@ func TestGetLifeSustainingTreatment(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &lifeSustainingTreatmentData{
-			App: testAppData,
+			App:  testAppData,
+			Form: &lifeSustainingTreatmentForm{},
+			Options: lifeSustainingTreatmentOptions{
+				OptionA: page.LifeSustainingTreatmentOptionA,
+				OptionB: page.LifeSustainingTreatmentOptionB,
+			},
 		}).
 		Return(nil)
 
@@ -38,12 +44,18 @@ func TestGetLifeSustainingTreatmentFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &lifeSustainingTreatmentData{
-			App:    testAppData,
-			Option: page.OptionA,
+			App: testAppData,
+			Form: &lifeSustainingTreatmentForm{
+				Option: page.LifeSustainingTreatmentOptionA,
+			},
+			Options: lifeSustainingTreatmentOptions{
+				OptionA: page.LifeSustainingTreatmentOptionA,
+				OptionB: page.LifeSustainingTreatmentOptionB,
+			},
 		}).
 		Return(nil)
 
-	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &page.Lpa{LifeSustainingTreatmentOption: page.OptionA})
+	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &page.Lpa{LifeSustainingTreatmentOption: page.LifeSustainingTreatmentOptionA})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -56,9 +68,7 @@ func TestGetLifeSustainingTreatmentWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &lifeSustainingTreatmentData{
-			App: testAppData,
-		}).
+		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
 	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
@@ -70,7 +80,7 @@ func TestGetLifeSustainingTreatmentWhenTemplateErrors(t *testing.T) {
 
 func TestPostLifeSustainingTreatment(t *testing.T) {
 	form := url.Values{
-		"option": {page.OptionA},
+		"option": {page.LifeSustainingTreatmentOptionA.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -81,7 +91,7 @@ func TestPostLifeSustainingTreatment(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			ID:                            "lpa-id",
-			LifeSustainingTreatmentOption: page.OptionA,
+			LifeSustainingTreatmentOption: page.LifeSustainingTreatmentOptionA,
 			Tasks:                         page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, LifeSustainingTreatment: actor.TaskCompleted},
 		}).
 		Return(nil)
@@ -99,7 +109,7 @@ func TestPostLifeSustainingTreatment(t *testing.T) {
 
 func TestPostLifeSustainingTreatmentWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"option": {page.OptionA},
+		"option": {page.LifeSustainingTreatmentOptionA.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -108,7 +118,7 @@ func TestPostLifeSustainingTreatmentWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{LifeSustainingTreatmentOption: page.OptionA, Tasks: page.Tasks{LifeSustainingTreatment: actor.TaskCompleted}}).
+		On("Put", r.Context(), &page.Lpa{LifeSustainingTreatmentOption: page.LifeSustainingTreatmentOptionA, Tasks: page.Tasks{LifeSustainingTreatment: actor.TaskCompleted}}).
 		Return(expectedError)
 
 	err := LifeSustainingTreatment(nil, donorStore)(testAppData, w, r, &page.Lpa{})
@@ -123,10 +133,9 @@ func TestPostLifeSustainingTreatmentWhenValidationErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &lifeSustainingTreatmentData{
-			App:    testAppData,
-			Errors: validation.With("option", validation.SelectError{Label: "ifTheDonorGivesConsentToLifeSustainingTreatment"}),
-		}).
+		On("Execute", w, mock.MatchedBy(func(data *lifeSustainingTreatmentData) bool {
+			return assert.Equal(t, validation.With("option", validation.SelectError{Label: "ifTheDonorGivesConsentToLifeSustainingTreatment"}), data.Errors)
+		})).
 		Return(nil)
 
 	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
@@ -138,7 +147,7 @@ func TestPostLifeSustainingTreatmentWhenValidationErrors(t *testing.T) {
 
 func TestReadLifeSustainingTreatmentForm(t *testing.T) {
 	form := url.Values{
-		"option": {page.OptionA},
+		"option": {page.LifeSustainingTreatmentOptionA.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -146,7 +155,7 @@ func TestReadLifeSustainingTreatmentForm(t *testing.T) {
 
 	result := readLifeSustainingTreatmentForm(r)
 
-	assert.Equal(t, page.OptionA, result.Option)
+	assert.Equal(t, page.LifeSustainingTreatmentOptionA, result.Option)
 }
 
 func TestLifeSustainingTreatmentFormValidate(t *testing.T) {
@@ -154,23 +163,12 @@ func TestLifeSustainingTreatmentFormValidate(t *testing.T) {
 		form   *lifeSustainingTreatmentForm
 		errors validation.List
 	}{
-		"option a": {
-			form: &lifeSustainingTreatmentForm{
-				Option: page.OptionA,
-			},
-		},
-		"option b": {
-			form: &lifeSustainingTreatmentForm{
-				Option: page.OptionB,
-			},
-		},
-		"missing": {
-			form:   &lifeSustainingTreatmentForm{},
-			errors: validation.With("option", validation.SelectError{Label: "ifTheDonorGivesConsentToLifeSustainingTreatment"}),
+		"valid": {
+			form: &lifeSustainingTreatmentForm{},
 		},
 		"invalid": {
 			form: &lifeSustainingTreatmentForm{
-				Option: "what",
+				Error: expectedError,
 			},
 			errors: validation.With("option", validation.SelectError{Label: "ifTheDonorGivesConsentToLifeSustainingTreatment"}),
 		},

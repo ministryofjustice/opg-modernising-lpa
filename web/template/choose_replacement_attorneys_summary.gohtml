@@ -20,8 +20,8 @@
             {{ template "error-message" (errorMessage . "add-attorney") }}
 
             {{ template "radios" (items . "add-attorney" ""
-              (item "yes" "yes")
-              (item "no" "no")
+              (item .Options.Yes.String "yes")
+              (item .Options.No.String "no")
             ) }}
           </fieldset>
         </div>
