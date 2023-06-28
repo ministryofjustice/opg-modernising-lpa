@@ -9,13 +9,13 @@
 
       {{ trHtml .App "weCanNotifyUpTo5PeopleContent" }}
 
-        {{ template "people-to-notify-summary" (listPeopleToNotify .App true  .Lpa) }}
+        {{ template "people-to-notify-summary" (listPeopleToNotify .App true .Lpa) }}
 
       {{ if eq 5 (len .Lpa.PeopleToNotify) }}
         {{ template "warning" (warning .App "addedMaxPeople") }}
 
         <form novalidate method="post">
-          <input type="hidden" name="add-person-to-notify" value="no">
+          <input type="hidden" name="add-person-to-notify" value="{{ .Options.No.String }}">
 
           {{ template "continue-and-return-buttons" . }}
           {{ template "csrf-field" . }}
@@ -31,8 +31,8 @@
               {{ template "error-message" (errorMessage . "add-person-to-notify") }}
 
               {{ template "radios" (items . "add-person-to-notify" ""
-                (item "yes" "yes")
-                (item "no" "no")
+                (item .Options.Yes.String "yes")
+                (item .Options.No.String "no")
               ) }}
             </fieldset>
           </div>

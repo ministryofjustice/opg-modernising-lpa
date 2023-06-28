@@ -21,9 +21,10 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseAttorneysSummaryData{
-			App:  testAppData,
-			Lpa:  &page.Lpa{Attorneys: actor.Attorneys{{}}},
-			Form: &chooseAttorneysSummaryForm{},
+			App:     testAppData,
+			Lpa:     &page.Lpa{Attorneys: actor.Attorneys{{}}},
+			Form:    &chooseAttorneysSummaryForm{},
+			Options: actor.YesNoValues,
 		}).
 		Return(nil)
 
@@ -48,22 +49,22 @@ func TestGetChooseAttorneysSummaryWhenNoAttorneys(t *testing.T) {
 
 func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	testcases := map[string]struct {
-		addMoreFormValue string
+		addMoreFormValue actor.YesNo
 		expectedUrl      string
 		Attorneys        actor.Attorneys
 	}{
 		"add attorney": {
-			addMoreFormValue: "yes",
+			addMoreFormValue: actor.Yes,
 			expectedUrl:      page.Paths.ChooseAttorneys.Format("lpa-id") + "?addAnother=1",
 			Attorneys:        actor.Attorneys{},
 		},
 		"do not add attorney - with single attorney": {
-			addMoreFormValue: "no",
+			addMoreFormValue: actor.No,
 			expectedUrl:      page.Paths.TaskList.Format("lpa-id"),
 			Attorneys:        actor.Attorneys{{ID: "123"}},
 		},
 		"do not add attorney - with multiple attorneys": {
-			addMoreFormValue: "no",
+			addMoreFormValue: actor.No,
 			expectedUrl:      page.Paths.HowShouldAttorneysMakeDecisions.Format("lpa-id"),
 			Attorneys:        actor.Attorneys{{ID: "123"}, {ID: "456"}},
 		},
@@ -72,7 +73,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	for testname, tc := range testcases {
 		t.Run(testname, func(t *testing.T) {
 			form := url.Values{
-				"add-attorney": {tc.addMoreFormValue},
+				"add-attorney": {tc.addMoreFormValue.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -119,24 +120,13 @@ func TestChooseAttorneysSummaryFormValidate(t *testing.T) {
 		form   *chooseAttorneysSummaryForm
 		errors validation.List
 	}{
-		"yes": {
-			form: &chooseAttorneysSummaryForm{
-				AddAttorney: "yes",
-			},
-		},
-		"no": {
-			form: &chooseAttorneysSummaryForm{
-				AddAttorney: "no",
-			},
-		},
-		"missing": {
-			form:   &chooseAttorneysSummaryForm{errorLabel: "xyz"},
-			errors: validation.With("add-attorney", validation.SelectError{Label: "xyz"}),
+		"valid": {
+			form: &chooseAttorneysSummaryForm{},
 		},
 		"invalid": {
 			form: &chooseAttorneysSummaryForm{
-				AddAttorney: "what",
-				errorLabel:  "xyz",
+				Error:      expectedError,
+				errorLabel: "xyz",
 			},
 			errors: validation.With("add-attorney", validation.SelectError{Label: "xyz"}),
 		},
