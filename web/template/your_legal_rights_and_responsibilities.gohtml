@@ -7,7 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "yourLegalRightsAndResponsibilities" }}</h1>
 
-      {{ if eq "hw" .Lpa.Type }}
+      {{ if .Lpa.Type.IsHealthWelfare }}
         {{ trHtml .App "yourLegalRightsAndResponsibilitiesContentHw" }}
       {{ else }}
         {{ trHtml .App "yourLegalRightsAndResponsibilitiesContentPfa" }}

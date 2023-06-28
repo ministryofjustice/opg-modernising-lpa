@@ -14,6 +14,7 @@ package page
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -23,18 +24,126 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+const CostOfLpaPence = 8200
+
+type LpaType string
+
 const (
-	AllCanNoLongerAct      = "all"
-	CostOfLpaPence         = 8200
-	LpaTypeHealthWelfare   = "hw"
-	LpaTypePropertyFinance = "pfa"
-	OneCanNoLongerAct      = "one"
-	SomeOtherWay           = "other"
-	UsedWhenCapacityLost   = "when-capacity-lost"
-	UsedWhenRegistered     = "when-registered"
-	OptionA                = "option-a"
-	OptionB                = "option-b"
+	LpaTypeHealthWelfare   = LpaType("hw")
+	LpaTypePropertyFinance = LpaType("pfa")
 )
+
+func ParseLpaType(s string) (LpaType, error) {
+	switch s {
+	case "hw":
+		return LpaTypeHealthWelfare, nil
+	case "pfa":
+		return LpaTypePropertyFinance, nil
+	default:
+		return LpaType(""), fmt.Errorf("invalid LpaType '%s'", s)
+	}
+}
+
+func (e LpaType) IsHealthWelfare() bool {
+	return e == LpaTypeHealthWelfare
+}
+
+func (e LpaType) IsPropertyFinance() bool {
+	return e == LpaTypePropertyFinance
+}
+
+func (e LpaType) String() string {
+	return string(e)
+}
+
+type CanBeUsedWhen string
+
+const (
+	CanBeUsedWhenCapacityLost = CanBeUsedWhen("when-capacity-lost")
+	CanBeUsedWhenRegistered   = CanBeUsedWhen("when-registered")
+)
+
+func ParseCanBeUsedWhen(s string) (CanBeUsedWhen, error) {
+	switch s {
+	case "when-capacity-lost":
+		return CanBeUsedWhenCapacityLost, nil
+	case "when-registered":
+		return CanBeUsedWhenRegistered, nil
+	default:
+		return CanBeUsedWhen(""), fmt.Errorf("invalid CanBeUsedWhen '%s'", s)
+	}
+}
+
+func (e CanBeUsedWhen) String() string {
+	return string(e)
+}
+
+type LifeSustainingTreatment string
+
+const (
+	LifeSustainingTreatmentOptionA = LifeSustainingTreatment("option-a")
+	LifeSustainingTreatmentOptionB = LifeSustainingTreatment("option-b")
+)
+
+func ParseLifeSustainingTreatment(s string) (LifeSustainingTreatment, error) {
+	switch s {
+	case "option-a":
+		return LifeSustainingTreatmentOptionA, nil
+	case "option-b":
+		return LifeSustainingTreatmentOptionB, nil
+	default:
+		return LifeSustainingTreatment(""), fmt.Errorf("invalid LifeSustainingTreatmentOption '%s'", s)
+	}
+}
+
+func (e LifeSustainingTreatment) IsOptionA() bool {
+	return e == LifeSustainingTreatmentOptionA
+}
+
+func (e LifeSustainingTreatment) IsOptionB() bool {
+	return e == LifeSustainingTreatmentOptionB
+}
+
+func (e LifeSustainingTreatment) String() string {
+	return string(e)
+}
+
+type ReplacementAttorneysStepIn string
+
+const (
+	ReplacementAttorneysStepInWhenAllCanNoLongerAct = ReplacementAttorneysStepIn("all")
+	ReplacementAttorneysStepInWhenOneCanNoLongerAct = ReplacementAttorneysStepIn("one")
+	ReplacementAttorneysStepInAnotherWay            = ReplacementAttorneysStepIn("other")
+)
+
+func ParseReplacementAttorneysStepIn(s string) (ReplacementAttorneysStepIn, error) {
+	switch s {
+	case "all":
+		return ReplacementAttorneysStepInWhenAllCanNoLongerAct, nil
+	case "one":
+		return ReplacementAttorneysStepInWhenOneCanNoLongerAct, nil
+	case "other":
+		return ReplacementAttorneysStepInAnotherWay, nil
+	default:
+		return ReplacementAttorneysStepIn(""), fmt.Errorf("invalid ReplacementAttorneysStepIn '%s'", s)
+	}
+}
+
+func (e ReplacementAttorneysStepIn) IsWhenAllCanNoLongerAct() bool {
+	return e == ReplacementAttorneysStepInWhenAllCanNoLongerAct
+}
+
+func (e ReplacementAttorneysStepIn) IsWhenOneCanNoLongerAct() bool {
+	return e == ReplacementAttorneysStepInWhenOneCanNoLongerAct
+}
+
+func (e ReplacementAttorneysStepIn) IsAnotherWay() bool {
+	return e == ReplacementAttorneysStepInAnotherWay
+}
+
+func (e ReplacementAttorneysStepIn) String() string {
+	return string(e)
+}
 
 // Lpa contains all the data related to the LPA application
 type Lpa struct {
@@ -56,13 +165,13 @@ type Lpa struct {
 	// Who the LPA is being drafted for (set, but not used)
 	WhoFor string
 	// Type of LPA being drafted
-	Type string
+	Type LpaType
 	// Whether the applicant wants to add replacement attorneys
-	WantReplacementAttorneys string
+	WantReplacementAttorneys actor.YesNo
 	// When the LPA can be used
-	WhenCanTheLpaBeUsed string
+	WhenCanTheLpaBeUsed CanBeUsedWhen
 	// Preferences on life sustaining treatment (applicable to personal welfare LPAs only)
-	LifeSustainingTreatmentOption string
+	LifeSustainingTreatmentOption LifeSustainingTreatment
 	// Restrictions on attorneys actions
 	Restrictions string
 	// Used to show the task list
@@ -82,11 +191,11 @@ type Lpa struct {
 	// Information on how the applicant wishes their replacement attorneys to act
 	ReplacementAttorneyDecisions actor.AttorneyDecisions
 	// How to bring in replacement attorneys, if set
-	HowShouldReplacementAttorneysStepIn string
+	HowShouldReplacementAttorneysStepIn ReplacementAttorneysStepIn
 	// Details on how replacement attorneys must step in if HowShouldReplacementAttorneysStepIn is set to "other"
 	HowShouldReplacementAttorneysStepInDetails string
 	// Whether the applicant wants to notify people about the application
-	DoYouWantToNotifyPeople string
+	DoYouWantToNotifyPeople actor.YesNo
 	// People to notify about the application
 	PeopleToNotify actor.PeopleToNotify
 	// Codes used for the certificate provider to witness signing
@@ -308,12 +417,12 @@ func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDec
 }
 
 func ChooseReplacementAttorneysState(lpa *Lpa) actor.TaskState {
-	if lpa.WantReplacementAttorneys == "no" {
+	if lpa.WantReplacementAttorneys == actor.No {
 		return actor.TaskCompleted
 	}
 
 	if len(lpa.ReplacementAttorneys) == 0 {
-		if lpa.WantReplacementAttorneys == "" {
+		if lpa.WantReplacementAttorneys != actor.Yes && lpa.WantReplacementAttorneys != actor.No {
 			return actor.TaskNotStarted
 		}
 
@@ -327,7 +436,7 @@ func ChooseReplacementAttorneysState(lpa *Lpa) actor.TaskState {
 	}
 
 	if len(lpa.ReplacementAttorneys) > 1 &&
-		lpa.HowShouldReplacementAttorneysStepIn != OneCanNoLongerAct &&
+		lpa.HowShouldReplacementAttorneysStepIn != ReplacementAttorneysStepInWhenOneCanNoLongerAct &&
 		!lpa.ReplacementAttorneyDecisions.IsComplete(len(lpa.ReplacementAttorneys)) {
 		return actor.TaskInProgress
 	}
@@ -339,12 +448,12 @@ func ChooseReplacementAttorneysState(lpa *Lpa) actor.TaskState {
 	}
 
 	if lpa.AttorneyDecisions.How == actor.JointlyAndSeverally {
-		if lpa.HowShouldReplacementAttorneysStepIn == "" {
+		if lpa.HowShouldReplacementAttorneysStepIn.String() == "" {
 			return actor.TaskInProgress
 		}
 
 		if len(lpa.ReplacementAttorneys) > 1 &&
-			lpa.HowShouldReplacementAttorneysStepIn == AllCanNoLongerAct &&
+			lpa.HowShouldReplacementAttorneysStepIn == ReplacementAttorneysStepInWhenAllCanNoLongerAct &&
 			!lpa.ReplacementAttorneyDecisions.IsComplete(len(lpa.ReplacementAttorneys)) {
 			return actor.TaskInProgress
 		}
