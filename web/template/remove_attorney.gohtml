@@ -17,8 +17,8 @@
             {{ template "error-message" (errorMessage . "remove-attorney") }}
 
             {{ template "radios" (items . "remove-attorney" ""
-              (item "yes" "yes")
-              (item "no" "no")
+              (item .Options.Yes.String "yes")
+              (item .Options.No.String "no")
             ) }}
           </fieldset>
         </div>

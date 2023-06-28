@@ -1,22 +1,24 @@
 package form
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestReadHappyForm(t *testing.T) {
-	form := url.Values{"happy": {"yes"}}
+	form := url.Values{"happy": {actor.Yes.String()}}
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	assert.Equal(t, &HappyForm{Happy: "yes"}, ReadHappyForm(r))
+	assert.Equal(t, &HappyForm{Happy: actor.Yes}, ReadHappyForm(r))
 }
 
 func TestHappyFormValidate(t *testing.T) {
@@ -24,14 +26,11 @@ func TestHappyFormValidate(t *testing.T) {
 		form   *HappyForm
 		errors validation.List
 	}{
-		"yes": {
-			form: &HappyForm{Happy: "yes"},
+		"valid": {
+			form: &HappyForm{},
 		},
-		"no": {
-			form: &HappyForm{Happy: "yes"},
-		},
-		"other": {
-			form:   &HappyForm{Happy: "other"},
+		"invalid": {
+			form:   &HappyForm{Error: errors.New("err")},
 			errors: validation.With("happy", validation.SelectError{Label: "a-label"}),
 		},
 	}
