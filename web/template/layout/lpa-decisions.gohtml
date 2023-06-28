@@ -7,9 +7,9 @@
         {{ tr .App "typeOfLpa" }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ if eq .Lpa.Type "pfa" }}
+        {{ if .Lpa.Type.IsPropertyFinance }}
           {{ tr .App "lpaTypePfa" }}
-        {{ else if eq .Lpa.Type "hw" }}
+        {{ else if .Lpa.Type.IsHealthWelfare }}
           {{ tr .App "lpaTypeHw" }}
         {{ end }}
       </dd>
@@ -31,7 +31,7 @@
         {{ end }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ tr .App .Lpa.WhenCanTheLpaBeUsed }}
+        {{ tr .App .Lpa.WhenCanTheLpaBeUsed.String }}
       </dd>
       {{ if $canChange }}
         <dd class="govuk-summary-list__actions">
@@ -196,9 +196,9 @@
           {{ tr .App $title }}
         </dt>
         <dd class="govuk-summary-list__value">
-          {{ if eq .Lpa.HowShouldReplacementAttorneysStepIn "one" }}
+          {{ if .Lpa.HowShouldReplacementAttorneysStepIn.IsWhenOneCanNoLongerAct }}
             {{ trHtml .App "whenOneCanNoLongerAct" }}
-          {{ else if eq .Lpa.HowShouldReplacementAttorneysStepIn "all" }}
+          {{ else if .Lpa.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct }}
             {{ trHtml .App "whenNoneCanNoLongerAct" }}
           {{ else }}
             {{ trHtml .App "otherWay" }}
@@ -245,13 +245,13 @@
       </div>
     {{ end }}
 
-    {{ if eq .Lpa.Type "hw" }}
+    {{ if eq .Lpa.Type.IsHealthWelfare }}
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">
           {{ tr .App "lifeSustainingTreatment" }}
         </dt>
         <dd class="govuk-summary-list__value">
-          {{ if eq .Lpa.LifeSustainingTreatmentOption "option-a" }}
+          {{ if .Lpa.LifeSustainingTreatmentOption.IsOptionA }}
             <p class="govuk-body">{{ trHtml .App "optionA" }}</p>
           {{ else }}
             <p class="govuk-body">{{ trHtml .App "optionB" }}</p>
