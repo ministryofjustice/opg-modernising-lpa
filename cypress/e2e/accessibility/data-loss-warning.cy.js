@@ -5,48 +5,54 @@ describe('data loss warning accessibility', () => {
         cy.get('#f-first-names').type('John');
         cy.contains('a', 'Return to task list').click()
 
-        cy.contains('#dialog').should('be.visible')
-        cy.contains('#dialog-overlay').should('be.visible')
+        cy.get('#dialog').should('be.visible')
+        cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none')
 
-        cy.focused().should('have.attr', 'id', 'dialog-focus')
-
-        cy.realPress("Tab")
-        cy.focused().should('have.attr', 'id', 'back-to-page')
+        cy.focused().should('have.attr', 'id', 'back-to-page-btn')
 
         cy.realPress("Tab")
-        cy.focused().should('have.attr', 'id', 'return-to-task-list-dialog')
+        cy.focused().should('have.attr', 'id', 'return-to-task-list-dialog-btn')
 
         cy.realPress("Tab")
-        cy.focused().should('have.attr', 'id', 'back-to-page')
+        cy.focused().should('have.attr', 'id', 'dialog-title')
+
+        cy.realPress("Tab")
+        cy.focused().should('have.attr', 'id', 'dialog-description')
+
+        cy.realPress("Tab")
+        cy.focused().should('have.attr', 'id', 'back-to-page-btn')
 
         cy.contains('button', 'Back to page').click()
 
-        cy.contains('#dialog').should('not.be.visible')
-        cy.contains('#dialog-overlay').should('not.be.visible')
+        cy.get('#dialog').should('not.be.visible')
+        cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none')
 
-        cy.focused().should('have.text', 'Return to task list')
+        cy.focused().should('have.attr', 'id', 'return-to-tasklist-btn')
 
         cy.contains('a', 'Return to task list').click()
 
-        cy.contains('#dialog').should('be.visible')
-        cy.contains('#dialog-overlay').should('be.visible')
+        cy.get('#dialog').should('be.visible')
+        cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none')
 
-        cy.focused().should('have.attr', 'id', 'dialog-focus')
+        cy.focused().should('have.attr', 'id', 'back-to-page-btn')
 
-        cy.realPress("Tab")
-        cy.focused().should('have.attr', 'id', 'back-to-page')
+        cy.realPress(["Shift", "Tab"])
+        cy.focused().should('have.attr', 'id', 'dialog-description')
 
-        cy.realPress("Tab")
-        cy.focused().should('have.attr', 'id', 'return-to-task-list-dialog')
+        cy.realPress(["Shift", "Tab"])
+        cy.focused().should('have.attr', 'id', 'dialog-title')
 
-        cy.realPress("Tab")
-        cy.focused().should('have.attr', 'id', 'back-to-page')
+        cy.realPress(["Shift", "Tab"])
+        cy.focused().should('have.attr', 'id', 'return-to-task-list-dialog-btn')
+
+        cy.realPress(["Shift", "Tab"])
+        cy.focused().should('have.attr', 'id', 'back-to-page-btn')
 
         cy.realType('{esc}')
 
-        cy.contains('#dialog').should('not.be.visible')
-        cy.contains('#dialog-overlay').should('not.be.visible')
+        cy.get('#dialog').should('not.be.visible')
+        cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none')
 
-        cy.focused().should('have.text', 'Return to task list')
+        cy.focused().should('have.attr', 'id', 'return-to-tasklist-btn')
     })
 })

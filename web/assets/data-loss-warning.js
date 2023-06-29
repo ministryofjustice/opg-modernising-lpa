@@ -12,7 +12,7 @@ export class DataLossWarning {
         // so we can reference the same func when removing event
         this.handleTrapFocus = this.handleTrapFocus.bind(this)
 
-        if (this.dialogComponentValid() && this.saveOrReturnComponentValid()) {
+        if (this.dialog && this.dialogOverlay && this.saveOrReturnComponent) {
             this.originalFormValues = this.stringifyFormValues()
             this.registerListeners()
         }
@@ -33,7 +33,7 @@ export class DataLossWarning {
 
             if (this.dialogVisible()) {
                 this.dialog.addEventListener('keydown', this.handleTrapFocus)
-                document.getElementById('dialog-focus').focus()
+                document.getElementById('back-to-page-btn').focus()
             } else {
                 this.dialog.removeEventListener('keydown', this.handleTrapFocus)
                 this.saveOrReturnComponent.querySelector('a').focus()
@@ -45,67 +45,25 @@ export class DataLossWarning {
         return !this.dialog.classList.contains('govuk-!-display-none') && !this.dialogOverlay.classList.contains('govuk-!-display-none')
     }
 
-    saveOrReturnComponentValid() {
-        if (!this.saveOrReturnComponent) {
-            return false
-        }
-
-        return this.buttonsPresent(2, this.saveOrReturnComponent)
-    }
-
-    dialogComponentValid() {
-        if (!this.dialog || !this.dialogOverlay) {
-            return false
-        }
-
-        return this.buttonsPresent(2, this.dialog.querySelector(".govuk-button-group"))
-    }
-
-    buttonsPresent(requiredCount, parentElement) {
-        let buttonCount = 0
-
-        for (let element of parentElement.children) {
-            if (['A', 'BUTTON'].includes(element.tagName)) {
-                buttonCount++
-            }
-        }
-
-        return buttonCount === requiredCount
-    }
-
     registerListeners() {
-        for (let element of this.saveOrReturnComponent.children) {
-            if (element.tagName === 'A') {
-                element.addEventListener('click', (e) => {
-                    if (this.changesMade()) {
-                        e.preventDefault()
-                    }
-                })
-
-                element.addEventListener('click', this.toggleDialogVisibility.bind(this))
+        document.getElementById('return-to-tasklist-btn').addEventListener('click', (e) => {
+            if (this.changesMade()) {
+                e.preventDefault()
             }
-        }
-
-        for (let element of this.dialog.querySelector(".govuk-button-group").children) {
-            if (element.tagName === 'BUTTON') {
-                element.addEventListener('click', this.toggleDialogVisibility.bind(this))
-            }
-        }
+        })
+        document.getElementById('return-to-tasklist-btn').addEventListener('click', this.toggleDialogVisibility.bind(this))
+        document.getElementById('back-to-page-btn').addEventListener('click', this.toggleDialogVisibility.bind(this))
+        document.getElementById('return-to-task-list-dialog-btn').addEventListener('click', this.toggleDialogVisibility.bind(this))
     }
 
     handleTrapFocus(e) {
-        const focusableEls = this.dialog.querySelectorAll('a[href], button')
-        const firstFocusableEl = focusableEls[0]
-        const lastFocusableEl = focusableEls[focusableEls.length - 1]
+        const firstFocusableEl = document.getElementById('dialog-title')
+        const lastFocusableEl = document.getElementById('return-to-task-list-dialog-btn')
         const KEY_CODE_TAB = 9
         const KEY_CODE_ESC = 27
 
         const tabPressed = (e.key === 'Tab' || e.keyCode === KEY_CODE_TAB)
         const escPressed = (e.key === 'Esc' || e.keyCode === KEY_CODE_ESC)
-
-        if (!tabPressed && !escPressed) {
-            return;
-        }
 
         if (tabPressed) {
             if (e.shiftKey) { /* shift + tab */
