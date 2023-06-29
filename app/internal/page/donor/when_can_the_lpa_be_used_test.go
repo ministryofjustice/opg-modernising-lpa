@@ -21,13 +21,10 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &whenCanTheLpaBeUsedData{
-			App:  testAppData,
-			Lpa:  &page.Lpa{},
-			Form: &whenCanTheLpaBeUsedForm{},
-			Options: whenCanTheLpaBeUsedOptions{
-				WhenCapacityLost: page.CanBeUsedWhenCapacityLost,
-				WhenRegistered:   page.CanBeUsedWhenRegistered,
-			},
+			App:     testAppData,
+			Lpa:     &page.Lpa{},
+			Form:    &whenCanTheLpaBeUsedForm{},
+			Options: page.CanBeUsedWhenValues,
 		}).
 		Return(nil)
 
@@ -50,10 +47,7 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 			Form: &whenCanTheLpaBeUsedForm{
 				When: page.CanBeUsedWhenRegistered,
 			},
-			Options: whenCanTheLpaBeUsedOptions{
-				WhenCapacityLost: page.CanBeUsedWhenCapacityLost,
-				WhenRegistered:   page.CanBeUsedWhenRegistered,
-			},
+			Options: page.CanBeUsedWhenValues,
 		}).
 		Return(nil)
 
