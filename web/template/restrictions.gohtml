@@ -14,7 +14,7 @@
 
         {{ template "details" (details . "restrictionExamples" "restrictionExamplesContent" false) }}
 
-        {{ if eq .Lpa.LifeSustainingTreatmentOption "option-a" }}
+        {{ if .Lpa.LifeSustainingTreatmentOption.IsOptionA }}
           <p class="govuk-inset-text">
             You can also include any restrictions and conditions you have about life-sustaining treatment.
           </p>

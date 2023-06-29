@@ -35,6 +35,7 @@ func TestGetRemovePersonToNotify(t *testing.T) {
 			PersonToNotify: personToNotify,
 			Errors:         nil,
 			Form:           &removePersonToNotifyForm{},
+			Options:        actor.YesNoValues,
 		}).
 		Return(nil)
 
@@ -72,7 +73,7 @@ func TestGetRemovePersonToNotifyAttorneyDoesNotExist(t *testing.T) {
 
 func TestPostRemovePersonToNotify(t *testing.T) {
 	form := url.Values{
-		"remove-person-to-notify": {"yes"},
+		"remove-person-to-notify": {actor.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -110,7 +111,7 @@ func TestPostRemovePersonToNotify(t *testing.T) {
 
 func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
 	form := url.Values{
-		"remove-person-to-notify": {"no"},
+		"remove-person-to-notify": {actor.No.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -143,7 +144,7 @@ func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
 
 func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
 	form := url.Values{
-		"remove-person-to-notify": {"yes"},
+		"remove-person-to-notify": {actor.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -214,7 +215,7 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 
 func TestRemovePersonToNotifyRemoveLastPerson(t *testing.T) {
 	form := url.Values{
-		"remove-person-to-notify": {"yes"},
+		"remove-person-to-notify": {actor.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -256,25 +257,12 @@ func TestRemovePersonToNotifyFormValidate(t *testing.T) {
 		form   *removePersonToNotifyForm
 		errors validation.List
 	}{
-		"valid - yes": {
-			form: &removePersonToNotifyForm{
-				RemovePersonToNotify: "yes",
-			},
+		"valid": {
+			form: &removePersonToNotifyForm{},
 		},
-		"valid - no": {
+		"invalid": {
 			form: &removePersonToNotifyForm{
-				RemovePersonToNotify: "no",
-			},
-		},
-		"missing-value": {
-			form: &removePersonToNotifyForm{
-				RemovePersonToNotify: "",
-			},
-			errors: validation.With("remove-person-to-notify", validation.SelectError{Label: "removePersonToNotify"}),
-		},
-		"unexpected-value": {
-			form: &removePersonToNotifyForm{
-				RemovePersonToNotify: "not expected",
+				Error: expectedError,
 			},
 			errors: validation.With("remove-person-to-notify", validation.SelectError{Label: "removePersonToNotify"}),
 		},
