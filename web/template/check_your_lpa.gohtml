@@ -59,7 +59,9 @@
           </strong>
         </div>
 
-        <div class="govuk-button-group">
+        {{ template "data-loss-warning-dialog" . }}
+
+        <div class="govuk-button-group" data-module="app-save-or-return">
           <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "confirm" }}</button>
           <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
         </div>
