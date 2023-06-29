@@ -9,17 +9,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
-type whenCanTheLpaBeUsedOptions struct {
-	WhenCapacityLost page.CanBeUsedWhen
-	WhenRegistered   page.CanBeUsedWhen
-}
-
 type whenCanTheLpaBeUsedData struct {
 	App     page.AppData
 	Errors  validation.List
 	Lpa     *page.Lpa
 	Form    *whenCanTheLpaBeUsedForm
-	Options whenCanTheLpaBeUsedOptions
+	Options page.CanBeUsedWhenOptions
 }
 
 func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler {
@@ -30,10 +25,7 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler 
 			Form: &whenCanTheLpaBeUsedForm{
 				When: lpa.WhenCanTheLpaBeUsed,
 			},
-			Options: whenCanTheLpaBeUsedOptions{
-				WhenCapacityLost: page.CanBeUsedWhenCapacityLost,
-				WhenRegistered:   page.CanBeUsedWhenRegistered,
-			},
+			Options: page.CanBeUsedWhenValues,
 		}
 
 		if r.Method == http.MethodPost {
