@@ -21,12 +21,9 @@ func TestGetLifeSustainingTreatment(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &lifeSustainingTreatmentData{
-			App:  testAppData,
-			Form: &lifeSustainingTreatmentForm{},
-			Options: lifeSustainingTreatmentOptions{
-				OptionA: page.LifeSustainingTreatmentOptionA,
-				OptionB: page.LifeSustainingTreatmentOptionB,
-			},
+			App:     testAppData,
+			Form:    &lifeSustainingTreatmentForm{},
+			Options: page.LifeSustainingTreatmentValues,
 		}).
 		Return(nil)
 
@@ -48,10 +45,7 @@ func TestGetLifeSustainingTreatmentFromStore(t *testing.T) {
 			Form: &lifeSustainingTreatmentForm{
 				Option: page.LifeSustainingTreatmentOptionA,
 			},
-			Options: lifeSustainingTreatmentOptions{
-				OptionA: page.LifeSustainingTreatmentOptionA,
-				OptionB: page.LifeSustainingTreatmentOptionB,
-			},
+			Options: page.LifeSustainingTreatmentValues,
 		}).
 		Return(nil)
 
