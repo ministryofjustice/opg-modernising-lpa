@@ -1,61 +1,23 @@
 package actor
 
-import "fmt"
-
-type AttorneysAct string
+//go:generate enumerator -type AttorneysAct -linecomment
+type AttorneysAct uint8
 
 const (
+	AttorneysActUnknown AttorneysAct = iota
+
 	// Jointly indicates attorneys or replacement attorneys should act jointly
-	Jointly = AttorneysAct("jointly")
+	Jointly // jointly
+
 	// JointlyAndSeverally indicates attorneys or replacement attorneys should act
 	// jointly and severally
-	JointlyAndSeverally = AttorneysAct("jointly-and-severally")
+	JointlyAndSeverally // jointly-and-severally
+
 	// JointlyForSomeSeverallyForOthers indicates attorneys or replacement
 	// attorneys should act jointly for some decisions, and jointly and severally
 	// for other decisions
-	JointlyForSomeSeverallyForOthers = AttorneysAct("mixed")
+	JointlyForSomeSeverallyForOthers // mixed
 )
-
-func ParseAttorneysAct(s string) (AttorneysAct, error) {
-	switch s {
-	case "jointly":
-		return Jointly, nil
-	case "jointly-and-severally":
-		return JointlyAndSeverally, nil
-	case "mixed":
-		return JointlyForSomeSeverallyForOthers, nil
-	default:
-		return AttorneysAct(""), fmt.Errorf("invalid AttorneysAct '%s'", s)
-	}
-}
-
-func (e AttorneysAct) IsJointly() bool {
-	return e == Jointly
-}
-
-func (e AttorneysAct) IsJointlyAndSeverally() bool {
-	return e == JointlyAndSeverally
-}
-
-func (e AttorneysAct) IsJointlyForSomeSeverallyForOthers() bool {
-	return e == JointlyForSomeSeverallyForOthers
-}
-
-func (e AttorneysAct) String() string {
-	return string(e)
-}
-
-type AttorneysActOptions struct {
-	Jointly                          AttorneysAct
-	JointlyAndSeverally              AttorneysAct
-	JointlyForSomeSeverallyForOthers AttorneysAct
-}
-
-var AttorneysActValues = AttorneysActOptions{
-	Jointly:                          Jointly,
-	JointlyAndSeverally:              JointlyAndSeverally,
-	JointlyForSomeSeverallyForOthers: JointlyForSomeSeverallyForOthers,
-}
 
 // AttorneyDecisions contains details about how an attorney or replacement attorney should act, provided by the applicant
 type AttorneyDecisions struct {
@@ -93,7 +55,7 @@ func (d AttorneyDecisions) RequiresHappiness(attorneyCount int) bool {
 }
 
 func (d AttorneyDecisions) IsComplete(attorneyCount int) bool {
-	return d.How.String() != "" &&
+	return !d.How.IsAttorneysActUnknown() &&
 		(!d.RequiresHappiness(attorneyCount) ||
 			d.HappyIfOneCannotActNoneCan == Yes ||
 			d.HappyIfOneCannotActNoneCan == No && (d.HappyIfRemainingCanContinueToAct == Yes || d.HappyIfRemainingCanContinueToAct == No))

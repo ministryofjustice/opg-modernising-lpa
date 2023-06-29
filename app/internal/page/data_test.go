@@ -199,11 +199,11 @@ func TestTypeLegalTermTransKey(t *testing.T) {
 			ExpectedLegalTerm: "hwLegalTerm",
 		},
 		"unexpected": {
-			LpaType:           "not-a-type",
+			LpaType:           LpaType(5),
 			ExpectedLegalTerm: "",
 		},
 		"empty": {
-			LpaType:           "",
+			LpaType:           LpaTypeUnknown,
 			ExpectedLegalTerm: "",
 		},
 	}
@@ -613,7 +613,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Email:      "a",
 			}},
 			attorneyDecisions:     actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			howReplacementsStepIn: "somehow",
+			howReplacementsStepIn: ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			taskState:             actor.TaskCompleted,
 		},
 		"jointly attorneys single": {
