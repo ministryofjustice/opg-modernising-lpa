@@ -199,11 +199,10 @@ func TestTypeLegalTermTransKey(t *testing.T) {
 			ExpectedLegalTerm: "hwLegalTerm",
 		},
 		"unexpected": {
-			LpaType:           "not-a-type",
+			LpaType:           LpaType(5),
 			ExpectedLegalTerm: "",
 		},
 		"empty": {
-			LpaType:           "",
 			ExpectedLegalTerm: "",
 		},
 	}
@@ -211,7 +210,7 @@ func TestTypeLegalTermTransKey(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			lpa := Lpa{Type: tc.LpaType}
-			assert.Equal(t, tc.ExpectedLegalTerm, lpa.TypeLegalTermTransKey())
+			assert.Equal(t, tc.ExpectedLegalTerm, lpa.Type.LegalTermTransKey())
 		})
 	}
 }
@@ -613,7 +612,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Email:      "a",
 			}},
 			attorneyDecisions:     actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			howReplacementsStepIn: "somehow",
+			howReplacementsStepIn: ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			taskState:             actor.TaskCompleted,
 		},
 		"jointly attorneys single": {
@@ -819,9 +818,4 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			}))
 		})
 	}
-}
-
-func TestIsHealthAndWelfareLpa(t *testing.T) {
-	assert.True(t, (&Lpa{Type: LpaTypeHealthWelfare}).IsHealthAndWelfareLpa())
-	assert.False(t, (&Lpa{Type: LpaTypePropertyFinance}).IsHealthAndWelfareLpa())
 }
