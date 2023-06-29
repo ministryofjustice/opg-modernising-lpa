@@ -4,15 +4,17 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
 type choosePeopleToNotifySummaryData struct {
-	App    page.AppData
-	Errors validation.List
-	Form   *choosePeopleToNotifySummaryForm
-	Lpa    *page.Lpa
+	App     page.AppData
+	Errors  validation.List
+	Form    *choosePeopleToNotifySummaryForm
+	Options actor.YesNoOptions
+	Lpa     *page.Lpa
 }
 
 func ChoosePeopleToNotifySummary(tmpl template.Template) Handler {
@@ -22,9 +24,10 @@ func ChoosePeopleToNotifySummary(tmpl template.Template) Handler {
 		}
 
 		data := &choosePeopleToNotifySummaryData{
-			App:  appData,
-			Lpa:  lpa,
-			Form: &choosePeopleToNotifySummaryForm{},
+			App:     appData,
+			Lpa:     lpa,
+			Form:    &choosePeopleToNotifySummaryForm{},
+			Options: actor.YesNoValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -34,7 +37,7 @@ func ChoosePeopleToNotifySummary(tmpl template.Template) Handler {
 			if data.Errors.None() {
 				redirectUrl := appData.Paths.ChoosePeopleToNotify.Format(lpa.ID) + "?addAnother=1"
 
-				if data.Form.AddPersonToNotify == "no" {
+				if data.Form.AddPersonToNotify == actor.No {
 					redirectUrl = appData.Paths.TaskList.Format(lpa.ID)
 				}
 
@@ -47,20 +50,24 @@ func ChoosePeopleToNotifySummary(tmpl template.Template) Handler {
 }
 
 type choosePeopleToNotifySummaryForm struct {
-	AddPersonToNotify string
+	AddPersonToNotify actor.YesNo
+	Error             error
 }
 
 func readChoosePeopleToNotifySummaryForm(r *http.Request) *choosePeopleToNotifySummaryForm {
+	add, err := actor.ParseYesNo(page.PostFormString(r, "add-person-to-notify"))
+
 	return &choosePeopleToNotifySummaryForm{
-		AddPersonToNotify: page.PostFormString(r, "add-person-to-notify"),
+		AddPersonToNotify: add,
+		Error:             err,
 	}
 }
 
 func (f *choosePeopleToNotifySummaryForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("add-person-to-notify", "yesToAddAnotherPersonToNotify", f.AddPersonToNotify,
-		validation.Select("yes", "no"))
+	errors.Error("add-person-to-notify", "yesToAddAnotherPersonToNotify", f.Error,
+		validation.Selected())
 
 	return errors
 }

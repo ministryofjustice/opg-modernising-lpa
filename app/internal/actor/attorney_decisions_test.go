@@ -1,41 +1,85 @@
 package actor
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
+func TestAttorneysAct(t *testing.T) {
+	values := map[AttorneysAct]string{
+		Jointly:                          "jointly",
+		JointlyAndSeverally:              "jointly-and-severally",
+		JointlyForSomeSeverallyForOthers: "mixed",
+	}
+
+	for value, s := range values {
+		t.Run(fmt.Sprintf("parse(%s)", s), func(t *testing.T) {
+			parsed, err := ParseAttorneysAct(s)
+			assert.Nil(t, err)
+			assert.Equal(t, value, parsed)
+		})
+
+		t.Run(fmt.Sprintf("string(%s)", s), func(t *testing.T) {
+			assert.Equal(t, s, value.String())
+		})
+	}
+
+	t.Run("parse invalid", func(t *testing.T) {
+		_, err := ParseAttorneysAct("invalid")
+		assert.NotNil(t, err)
+	})
+
+	t.Run("IsJointly", func(t *testing.T) {
+		assert.True(t, Jointly.IsJointly())
+		assert.False(t, JointlyAndSeverally.IsJointly())
+		assert.False(t, JointlyForSomeSeverallyForOthers.IsJointly())
+	})
+
+	t.Run("IsJointlyAndSeverally", func(t *testing.T) {
+		assert.True(t, JointlyAndSeverally.IsJointlyAndSeverally())
+		assert.False(t, Jointly.IsJointlyAndSeverally())
+		assert.False(t, JointlyForSomeSeverallyForOthers.IsJointlyAndSeverally())
+	})
+
+	t.Run("IsJointlyForSomeSeverallyForOthers", func(t *testing.T) {
+		assert.True(t, JointlyForSomeSeverallyForOthers.IsJointlyForSomeSeverallyForOthers())
+		assert.False(t, Jointly.IsJointlyForSomeSeverallyForOthers())
+		assert.False(t, JointlyAndSeverally.IsJointlyForSomeSeverallyForOthers())
+	})
+}
+
 func TestMakeAttorneyDecisions(t *testing.T) {
 	testcases := map[string]struct {
 		existing AttorneyDecisions
-		how      string
+		how      AttorneysAct
 		details  string
 		expected AttorneyDecisions
 	}{
 		"without details": {
-			existing: AttorneyDecisions{HappyIfOneCannotActNoneCan: "yes"},
+			existing: AttorneyDecisions{HappyIfOneCannotActNoneCan: Yes},
 			how:      Jointly,
 			details:  "hey",
 			expected: AttorneyDecisions{How: Jointly},
 		},
 		"with details": {
-			existing: AttorneyDecisions{HappyIfOneCannotActNoneCan: "yes"},
+			existing: AttorneyDecisions{HappyIfOneCannotActNoneCan: Yes},
 			how:      JointlyForSomeSeverallyForOthers,
 			details:  "hey",
 			expected: AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, Details: "hey"},
 		},
 		"same how without details": {
-			existing: AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: "yes"},
+			existing: AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: Yes},
 			how:      Jointly,
 			details:  "hey",
-			expected: AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: "yes"},
+			expected: AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: Yes},
 		},
 		"same how with details": {
-			existing: AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, Details: "what", HappyIfOneCannotActNoneCan: "yes"},
+			existing: AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, Details: "what", HappyIfOneCannotActNoneCan: Yes},
 			how:      JointlyForSomeSeverallyForOthers,
 			details:  "hey",
-			expected: AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, Details: "hey", HappyIfOneCannotActNoneCan: "yes"},
+			expected: AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, Details: "hey", HappyIfOneCannotActNoneCan: Yes},
 		},
 	}
 
@@ -49,7 +93,7 @@ func TestMakeAttorneyDecisions(t *testing.T) {
 func TestAttorneyDecisionsRequiresHappiness(t *testing.T) {
 	testcases := map[string]struct {
 		attorneyCount int
-		how           string
+		how           AttorneysAct
 		expected      bool
 	}{
 		"jointly attorneys": {
@@ -91,27 +135,27 @@ func TestAttorneyDecisionsIsComplete(t *testing.T) {
 	}{
 		"jointly attorneys, happy": {
 			attorneyCount: 2,
-			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: "yes"},
+			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: Yes},
 			expected:      true,
 		},
 		"jointly for some severally for others attorney, happy": {
 			attorneyCount: 2,
-			decisions:     AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, HappyIfOneCannotActNoneCan: "yes"},
+			decisions:     AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, HappyIfOneCannotActNoneCan: Yes},
 			expected:      true,
 		},
 		"jointly attorneys, unhappy": {
 			attorneyCount: 2,
-			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: "no", HappyIfRemainingCanContinueToAct: "no"},
+			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: No, HappyIfRemainingCanContinueToAct: No},
 			expected:      true,
 		},
 		"jointly attorneys, mixed happy": {
 			attorneyCount: 2,
-			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: "no", HappyIfRemainingCanContinueToAct: "yes"},
+			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: No, HappyIfRemainingCanContinueToAct: Yes},
 			expected:      true,
 		},
 		"jointly attorneys, unhappy missing": {
 			attorneyCount: 2,
-			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: "no"},
+			decisions:     AttorneyDecisions{How: Jointly, HappyIfOneCannotActNoneCan: No},
 			expected:      false,
 		},
 		"jointly and severally attorney": {

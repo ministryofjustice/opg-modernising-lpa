@@ -34,6 +34,7 @@ func TestGetRemoveReplacementAttorney(t *testing.T) {
 			App:      testAppData,
 			Attorney: attorney,
 			Form:     &removeAttorneyForm{},
+			Options:  actor.YesNoValues,
 		}).
 		Return(nil)
 
@@ -119,7 +120,7 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 
 			form := url.Values{
-				"remove-attorney": {"yes"},
+				"remove-attorney": {actor.Yes.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -147,7 +148,7 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 
 func TestPostRemoveReplacementAttorneyWithFormValueNo(t *testing.T) {
 	form := url.Values{
-		"remove-attorney": {"no"},
+		"remove-attorney": {actor.No.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -180,7 +181,7 @@ func TestPostRemoveReplacementAttorneyWithFormValueNo(t *testing.T) {
 
 func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
 	form := url.Values{
-		"remove-attorney": {"yes"},
+		"remove-attorney": {actor.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -212,7 +213,7 @@ func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
 		Return(expectedError)
 
 	err := RemoveReplacementAttorney(logger, template.Execute, donorStore)(testAppData, w, r, &page.Lpa{
-		WantReplacementAttorneys: "yes",
+		WantReplacementAttorneys: actor.Yes,
 		ReplacementAttorneys:     actor.Attorneys{attorneyWithoutAddress, attorneyWithAddress},
 	})
 

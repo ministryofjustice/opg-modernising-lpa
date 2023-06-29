@@ -1,12 +1,44 @@
 package validation
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestCheckError(t *testing.T) {
+	name := "field-name"
+	label := "translation-label"
+
+	testcases := map[string]struct {
+		input    error
+		checks   []ErrorChecker
+		expected List
+	}{
+		"selected": {
+			input:  nil,
+			checks: []ErrorChecker{Selected()},
+		},
+		"selected invalid": {
+			input:    errors.New("err"),
+			checks:   []ErrorChecker{Selected()},
+			expected: With(name, SelectError{Label: label}),
+		},
+	}
+
+	for scenario, tc := range testcases {
+		t.Run(scenario, func(t *testing.T) {
+			var errors List
+
+			errors.Error(name, label, tc.input, tc.checks...)
+
+			assert.Equal(t, tc.expected, errors)
+		})
+	}
+}
 
 func TestCheckString(t *testing.T) {
 	name := "field-name"

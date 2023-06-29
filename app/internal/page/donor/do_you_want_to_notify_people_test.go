@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestGetDoYouWantToNotifyPeople(t *testing.T) {
@@ -20,8 +21,10 @@ func TestGetDoYouWantToNotifyPeople(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &doYouWantToNotifyPeopleData{
-			App: testAppData,
-			Lpa: &page.Lpa{},
+			App:     testAppData,
+			Lpa:     &page.Lpa{},
+			Form:    &doYouWantToNotifyPeopleForm{},
+			Options: actor.YesNoValues,
 		}).
 		Return(nil)
 
@@ -39,16 +42,19 @@ func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &doYouWantToNotifyPeopleData{
-			App:          testAppData,
-			WantToNotify: "yes",
+			App: testAppData,
 			Lpa: &page.Lpa{
-				DoYouWantToNotifyPeople: "yes",
+				DoYouWantToNotifyPeople: actor.Yes,
 			},
+			Form: &doYouWantToNotifyPeopleForm{
+				WantToNotify: actor.Yes,
+			},
+			Options: actor.YesNoValues,
 		}).
 		Return(nil)
 
 	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &page.Lpa{
-		DoYouWantToNotifyPeople: "yes",
+		DoYouWantToNotifyPeople: actor.Yes,
 	})
 	resp := w.Result()
 
@@ -58,7 +64,7 @@ func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
 
 func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 	testCases := map[string]struct {
-		howWorkTogether  string
+		howWorkTogether  actor.AttorneysAct
 		expectedTransKey string
 	}{
 		"jointly": {
@@ -83,18 +89,21 @@ func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &doYouWantToNotifyPeopleData{
-					App:          testAppData,
-					WantToNotify: "yes",
+					App: testAppData,
 					Lpa: &page.Lpa{
-						DoYouWantToNotifyPeople: "yes",
+						DoYouWantToNotifyPeople: actor.Yes,
 						AttorneyDecisions:       actor.AttorneyDecisions{How: tc.howWorkTogether},
 					},
+					Form: &doYouWantToNotifyPeopleForm{
+						WantToNotify: actor.Yes,
+					},
+					Options:         actor.YesNoValues,
 					HowWorkTogether: tc.expectedTransKey,
 				}).
 				Return(nil)
 
 			err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &page.Lpa{
-				DoYouWantToNotifyPeople: "yes",
+				DoYouWantToNotifyPeople: actor.Yes,
 				AttorneyDecisions:       actor.AttorneyDecisions{How: tc.howWorkTogether},
 			})
 			resp := w.Result()
@@ -130,10 +139,7 @@ func TestGetDoYouWantToNotifyPeopleWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &doYouWantToNotifyPeopleData{
-			App: testAppData,
-			Lpa: &page.Lpa{},
-		}).
+		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
 	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
@@ -145,29 +151,29 @@ func TestGetDoYouWantToNotifyPeopleWhenTemplateErrors(t *testing.T) {
 
 func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 	testCases := []struct {
-		WantToNotify     string
-		ExistingAnswer   string
+		WantToNotify     actor.YesNo
+		ExistingAnswer   actor.YesNo
 		ExpectedRedirect page.LpaPath
 		ExpectedStatus   actor.TaskState
 	}{
 		{
-			WantToNotify:     "yes",
-			ExistingAnswer:   "no",
+			WantToNotify:     actor.Yes,
+			ExistingAnswer:   actor.No,
 			ExpectedRedirect: page.Paths.ChoosePeopleToNotify,
 			ExpectedStatus:   actor.TaskInProgress,
 		},
 		{
-			WantToNotify:     "no",
-			ExistingAnswer:   "yes",
+			WantToNotify:     actor.No,
+			ExistingAnswer:   actor.Yes,
 			ExpectedRedirect: page.Paths.TaskList,
 			ExpectedStatus:   actor.TaskCompleted,
 		},
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.WantToNotify, func(t *testing.T) {
+		t.Run(tc.WantToNotify.String(), func(t *testing.T) {
 			form := url.Values{
-				"want-to-notify": {tc.WantToNotify},
+				"want-to-notify": {tc.WantToNotify.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -214,7 +220,7 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 
 func TestPostDoYouWantToNotifyPeopleWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"want-to-notify": {"yes"},
+		"want-to-notify": {actor.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -224,7 +230,7 @@ func TestPostDoYouWantToNotifyPeopleWhenStoreErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
-			DoYouWantToNotifyPeople: "yes",
+			DoYouWantToNotifyPeople: actor.Yes,
 			Tasks:                   page.Tasks{PeopleToNotify: actor.TaskInProgress},
 		}).
 		Return(expectedError)
@@ -241,12 +247,9 @@ func TestPostDoYouWantToNotifyPeopleWhenValidationErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &doYouWantToNotifyPeopleData{
-			App:    testAppData,
-			Errors: validation.With("want-to-notify", validation.SelectError{Label: "yesToNotifySomeoneAboutYourLpa"}),
-			Form:   &doYouWantToNotifyPeopleForm{},
-			Lpa:    &page.Lpa{},
-		}).
+		On("Execute", w, mock.MatchedBy(func(data *doYouWantToNotifyPeopleData) bool {
+			return assert.Equal(t, validation.With("want-to-notify", validation.SelectError{Label: "yesToNotifySomeoneAboutYourLpa"}), data.Errors)
+		})).
 		Return(nil)
 
 	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
@@ -258,7 +261,7 @@ func TestPostDoYouWantToNotifyPeopleWhenValidationErrors(t *testing.T) {
 
 func TestReadDoYouWantToNotifyPeopleForm(t *testing.T) {
 	form := url.Values{
-		"want-to-notify": {"yes"},
+		"want-to-notify": {actor.Yes.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -266,7 +269,7 @@ func TestReadDoYouWantToNotifyPeopleForm(t *testing.T) {
 
 	result := readDoYouWantToNotifyPeople(r)
 
-	assert.Equal(t, "yes", result.WantToNotify)
+	assert.Equal(t, actor.Yes, result.WantToNotify)
 }
 
 func TestDoYouWantToNotifyPeopleFormValidate(t *testing.T) {
@@ -274,23 +277,12 @@ func TestDoYouWantToNotifyPeopleFormValidate(t *testing.T) {
 		form   *doYouWantToNotifyPeopleForm
 		errors validation.List
 	}{
-		"yes": {
-			form: &doYouWantToNotifyPeopleForm{
-				WantToNotify: "yes",
-			},
-		},
-		"no": {
-			form: &doYouWantToNotifyPeopleForm{
-				WantToNotify: "no",
-			},
-		},
-		"missing": {
-			form:   &doYouWantToNotifyPeopleForm{},
-			errors: validation.With("want-to-notify", validation.SelectError{Label: "yesToNotifySomeoneAboutYourLpa"}),
+		"valid": {
+			form: &doYouWantToNotifyPeopleForm{},
 		},
 		"invalid": {
 			form: &doYouWantToNotifyPeopleForm{
-				WantToNotify: "what",
+				Error: expectedError,
 			},
 			errors: validation.With("want-to-notify", validation.SelectError{Label: "yesToNotifySomeoneAboutYourLpa"}),
 		},

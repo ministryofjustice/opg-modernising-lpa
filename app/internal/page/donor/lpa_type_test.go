@@ -23,7 +23,12 @@ func TestGetLpaType(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &lpaTypeData{
-			App: testAppData,
+			App:  testAppData,
+			Form: &lpaTypeForm{},
+			Options: lpaTypeOptions{
+				PropertyFinance: page.LpaTypePropertyFinance,
+				HealthWelfare:   page.LpaTypeHealthWelfare,
+			},
 		}).
 		Return(nil)
 
@@ -41,8 +46,14 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &lpaTypeData{
-			App:  testAppData,
-			Type: page.LpaTypePropertyFinance,
+			App: testAppData,
+			Form: &lpaTypeForm{
+				LpaType: page.LpaTypePropertyFinance,
+			},
+			Options: lpaTypeOptions{
+				PropertyFinance: page.LpaTypePropertyFinance,
+				HealthWelfare:   page.LpaTypeHealthWelfare,
+			},
 		}).
 		Return(nil)
 
@@ -59,9 +70,7 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &lpaTypeData{
-			App: testAppData,
-		}).
+		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
 	err := LpaType(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
@@ -73,7 +82,7 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 
 func TestPostLpaType(t *testing.T) {
 	form := url.Values{
-		"lpa-type": {page.LpaTypePropertyFinance},
+		"lpa-type": {page.LpaTypePropertyFinance.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -113,7 +122,7 @@ func TestPostLpaType(t *testing.T) {
 
 func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"lpa-type": {page.LpaTypePropertyFinance},
+		"lpa-type": {page.LpaTypePropertyFinance.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -137,10 +146,9 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &lpaTypeData{
-			App:    testAppData,
-			Errors: validation.With("lpa-type", validation.SelectError{Label: "theTypeOfLpaToMake"}),
-		}).
+		On("Execute", w, mock.MatchedBy(func(data *lpaTypeData) bool {
+			return assert.Equal(t, validation.With("lpa-type", validation.SelectError{Label: "theTypeOfLpaToMake"}), data.Errors)
+		})).
 		Return(nil)
 
 	err := LpaType(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
@@ -152,7 +160,7 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 
 func TestReadLpaTypeForm(t *testing.T) {
 	form := url.Values{
-		"lpa-type": {page.LpaTypePropertyFinance},
+		"lpa-type": {page.LpaTypePropertyFinance.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -168,23 +176,12 @@ func TestLpaTypeFormValidate(t *testing.T) {
 		form   *lpaTypeForm
 		errors validation.List
 	}{
-		"pfa": {
-			form: &lpaTypeForm{
-				LpaType: page.LpaTypePropertyFinance,
-			},
-		},
-		"hw": {
-			form: &lpaTypeForm{
-				LpaType: "hw",
-			},
-		},
-		"missing": {
-			form:   &lpaTypeForm{},
-			errors: validation.With("lpa-type", validation.SelectError{Label: "theTypeOfLpaToMake"}),
+		"valid": {
+			form: &lpaTypeForm{},
 		},
 		"invalid": {
 			form: &lpaTypeForm{
-				LpaType: "what",
+				Error: expectedError,
 			},
 			errors: validation.With("lpa-type", validation.SelectError{Label: "theTypeOfLpaToMake"}),
 		},

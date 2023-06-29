@@ -8,11 +8,18 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
+type howShouldReplacementAttorneysStepInOptions struct {
+	WhenAllCanNoLongerAct page.ReplacementAttorneysStepIn
+	WhenOneCanNoLongerAct page.ReplacementAttorneysStepIn
+	AnotherWay            page.ReplacementAttorneysStepIn
+}
+
 type howShouldReplacementAttorneysStepInData struct {
 	App               page.AppData
 	Errors            validation.List
 	AllowSomeOtherWay bool
 	Form              *howShouldReplacementAttorneysStepInForm
+	Options           howShouldReplacementAttorneysStepInOptions
 }
 
 func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore DonorStore) Handler {
@@ -24,6 +31,11 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 				WhenToStepIn: lpa.HowShouldReplacementAttorneysStepIn,
 				OtherDetails: lpa.HowShouldReplacementAttorneysStepInDetails,
 			},
+			Options: howShouldReplacementAttorneysStepInOptions{
+				WhenAllCanNoLongerAct: page.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+				WhenOneCanNoLongerAct: page.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
+				AnotherWay:            page.ReplacementAttorneysStepInAnotherWay,
+			},
 		}
 
 		if r.Method == http.MethodPost {
@@ -33,7 +45,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 			if data.Errors.None() {
 				lpa.HowShouldReplacementAttorneysStepIn = data.Form.WhenToStepIn
 
-				if data.Form.WhenToStepIn != page.SomeOtherWay {
+				if lpa.HowShouldReplacementAttorneysStepIn != page.ReplacementAttorneysStepInAnotherWay {
 					lpa.HowShouldReplacementAttorneysStepInDetails = ""
 				} else {
 					lpa.HowShouldReplacementAttorneysStepInDetails = data.Form.OtherDetails
@@ -45,7 +57,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 					return err
 				}
 
-				if len(lpa.ReplacementAttorneys) > 1 && lpa.HowShouldReplacementAttorneysStepIn == page.AllCanNoLongerAct {
+				if len(lpa.ReplacementAttorneys) > 1 && lpa.HowShouldReplacementAttorneysStepIn == page.ReplacementAttorneysStepInWhenAllCanNoLongerAct {
 					return appData.Redirect(w, r, lpa, appData.Paths.HowShouldReplacementAttorneysMakeDecisions.Format(lpa.ID))
 				} else if lpa.ReplacementAttorneyDecisions.RequiresHappiness(len(lpa.ReplacementAttorneys)) {
 					return appData.Redirect(w, r, lpa, appData.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan.Format(lpa.ID))
@@ -60,13 +72,17 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 }
 
 type howShouldReplacementAttorneysStepInForm struct {
-	WhenToStepIn string
+	WhenToStepIn page.ReplacementAttorneysStepIn
+	Error        error
 	OtherDetails string
 }
 
 func readHowShouldReplacementAttorneysStepInForm(r *http.Request) *howShouldReplacementAttorneysStepInForm {
+	when, err := page.ParseReplacementAttorneysStepIn(page.PostFormString(r, "when-to-step-in"))
+
 	return &howShouldReplacementAttorneysStepInForm{
-		WhenToStepIn: page.PostFormString(r, "when-to-step-in"),
+		WhenToStepIn: when,
+		Error:        err,
 		OtherDetails: page.PostFormString(r, "other-details"),
 	}
 }
@@ -74,10 +90,10 @@ func readHowShouldReplacementAttorneysStepInForm(r *http.Request) *howShouldRepl
 func (f *howShouldReplacementAttorneysStepInForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("when-to-step-in", "whenYourReplacementAttorneysStepIn", f.WhenToStepIn,
-		validation.Select(page.OneCanNoLongerAct, page.AllCanNoLongerAct, page.SomeOtherWay))
+	errors.Error("when-to-step-in", "whenYourReplacementAttorneysStepIn", f.Error,
+		validation.Selected())
 
-	if f.WhenToStepIn == page.SomeOtherWay {
+	if f.WhenToStepIn == page.ReplacementAttorneysStepInAnotherWay {
 		errors.String("other-details", "detailsOfWhenToStepIn", f.OtherDetails,
 			validation.Empty())
 	}
