@@ -1,16 +1,14 @@
 {{ template "page" . }}
 
-{{ $lpaType := tr .App .Lpa.TypeLegalTermTransKey }}
+{{ $lpaType := tr .App .Lpa.Type.LegalTermTransKey }}
 
 {{ define "pageTitle" }}
-    {{ $lpaType := tr .App .Lpa.TypeLegalTermTransKey }}
     {{ trFormat .App "myLpa" "LpaType" $lpaType }}
 {{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {{ $lpaType := tr .App .Lpa.TypeLegalTermTransKey }}
             <h1 class="govuk-heading-xl">{{ trFormat .App "myLpa" "LpaType" $lpaType }}</h1>
             <div class="govuk-body">
                 <span><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Lpa.ID }}</span>
