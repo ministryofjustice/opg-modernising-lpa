@@ -195,3 +195,32 @@ resource "aws_cloudwatch_event_target" "cross_account_put" {
   role_arn  = aws_iam_role.cross_account_put.arn
   provider  = aws.region
 }
+
+resource "aws_cloudwatch_event_rule" "receive_update" {
+  name           = "${data.aws_default_tags.current.tags.environment-name}-receive-update-more-evidence-required"
+  description    = "receive more evidence required update events from remote account"
+  event_bus_name = aws_cloudwatch_event_bus.reduced_fees.name
+
+  event_pattern = jsonencode({
+    source      = ["reduced-fees"],
+    detail-type = ["update"]
+    # region      = ["${data.aws_region.current.name}"]
+    # detail = ["{\"status\": \"more evidence required\"}"]
+  })
+  provider = aws.region
+}
+
+resource "aws_sqs_queue" "receive_update" {
+  name                        = "${data.aws_default_tags.current.tags.environment-name}-reduced-fees"
+  fifo_queue                  = false
+  content_based_deduplication = false
+  provider                    = aws.region
+}
+
+resource "aws_cloudwatch_event_target" "receive_update" {
+  target_id      = "${data.aws_default_tags.current.tags.environment-name}-receive-update-more-evidence-required"
+  arn            = aws_sqs_queue.receive_update.arn
+  event_bus_name = aws_cloudwatch_event_bus.reduced_fees.name
+  rule           = aws_cloudwatch_event_rule.receive_update.name
+  provider       = aws.region
+}
