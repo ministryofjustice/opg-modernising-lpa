@@ -17,8 +17,8 @@
             {{ template "error-message" (errorMessage . "happy") }}
 
             {{ template "radios" (items . "happy" .Happy
-              (item "yes" "yes")
-              (item "no" "no")
+              (item .Options.Yes.String "yes")
+              (item .Options.No.String "no")
             ) }}
           </div>
         </fieldset>

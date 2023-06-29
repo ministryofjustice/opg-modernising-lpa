@@ -21,7 +21,8 @@ func TestGetAreYouHappyIfOneAttorneyCantActNoneCan(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &areYouHappyIfOneAttorneyCantActNoneCanData{
-			App: testAppData,
+			App:     testAppData,
+			Options: actor.YesNoValues,
 		}).
 		Return(nil)
 
@@ -38,9 +39,7 @@ func TestGetAreYouHappyIfOneAttorneyCantActNoneCanWhenTemplateErrors(t *testing.
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &areYouHappyIfOneAttorneyCantActNoneCanData{
-			App: testAppData,
-		}).
+		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
 	err := AreYouHappyIfOneAttorneyCantActNoneCan(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
@@ -51,15 +50,15 @@ func TestGetAreYouHappyIfOneAttorneyCantActNoneCanWhenTemplateErrors(t *testing.
 }
 
 func TestPostAreYouHappyIfOneAttorneyCantActNoneCan(t *testing.T) {
-	testcases := map[string]page.LpaPath{
-		"yes": page.Paths.TaskList,
-		"no":  page.Paths.AreYouHappyIfRemainingAttorneysCanContinueToAct,
+	testcases := map[actor.YesNo]page.LpaPath{
+		actor.Yes: page.Paths.TaskList,
+		actor.No:  page.Paths.AreYouHappyIfRemainingAttorneysCanContinueToAct,
 	}
 
 	for happy, redirect := range testcases {
-		t.Run(happy, func(t *testing.T) {
+		t.Run(happy.String(), func(t *testing.T) {
 			form := url.Values{
-				"happy": {happy},
+				"happy": {happy.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -86,7 +85,7 @@ func TestPostAreYouHappyIfOneAttorneyCantActNoneCan(t *testing.T) {
 
 func TestPostAreYouHappyIfOneAttorneyCantActNoneCanWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"happy": {"yes"},
+		"happy": {actor.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -110,10 +109,9 @@ func TestPostAreYouHappyIfOneAttorneyCantActNoneCanWhenValidationErrors(t *testi
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &areYouHappyIfOneAttorneyCantActNoneCanData{
-			App:    testAppData,
-			Errors: validation.With("happy", validation.SelectError{Label: "yesIfYouAreHappyIfOneAttorneyCantActNoneCan"}),
-		}).
+		On("Execute", w, mock.MatchedBy(func(data *areYouHappyIfOneAttorneyCantActNoneCanData) bool {
+			return assert.Equal(t, validation.With("happy", validation.SelectError{Label: "yesIfYouAreHappyIfOneAttorneyCantActNoneCan"}), data.Errors)
+		})).
 		Return(nil)
 
 	err := AreYouHappyIfOneAttorneyCantActNoneCan(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
