@@ -23,9 +23,10 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &choosePeopleToNotifySummaryData{
-			App:  testAppData,
-			Lpa:  lpa,
-			Form: &choosePeopleToNotifySummaryForm{},
+			App:     testAppData,
+			Lpa:     lpa,
+			Form:    &choosePeopleToNotifySummaryForm{},
+			Options: actor.YesNoValues,
 		}).
 		Return(nil)
 
@@ -61,7 +62,7 @@ func TestGetChoosePeopleToNotifySummaryWhenNoPeopleToNotify(t *testing.T) {
 
 func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
 	form := url.Values{
-		"add-person-to-notify": {"yes"},
+		"add-person-to-notify": {actor.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -78,7 +79,7 @@ func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
 
 func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 	form := url.Values{
-		"add-person-to-notify": {"no"},
+		"add-person-to-notify": {actor.No.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -135,23 +136,12 @@ func TestChoosePeopleToNotifySummaryFormValidate(t *testing.T) {
 		form   *choosePeopleToNotifySummaryForm
 		errors validation.List
 	}{
-		"yes": {
-			form: &choosePeopleToNotifySummaryForm{
-				AddPersonToNotify: "yes",
-			},
-		},
-		"no": {
-			form: &choosePeopleToNotifySummaryForm{
-				AddPersonToNotify: "no",
-			},
-		},
-		"missing": {
-			form:   &choosePeopleToNotifySummaryForm{},
-			errors: validation.With("add-person-to-notify", validation.SelectError{Label: "yesToAddAnotherPersonToNotify"}),
+		"valid": {
+			form: &choosePeopleToNotifySummaryForm{},
 		},
 		"invalid": {
 			form: &choosePeopleToNotifySummaryForm{
-				AddPersonToNotify: "what",
+				Error: expectedError,
 			},
 			errors: validation.With("add-person-to-notify", validation.SelectError{Label: "yesToAddAnotherPersonToNotify"}),
 		},

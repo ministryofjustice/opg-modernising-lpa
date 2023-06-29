@@ -4,22 +4,25 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
 type areYouHappyIfRemainingAttorneysCanContinueToActData struct {
-	App    page.AppData
-	Errors validation.List
-	Happy  string
+	App     page.AppData
+	Errors  validation.List
+	Happy   actor.YesNo
+	Options actor.YesNoOptions
 }
 
 func AreYouHappyIfRemainingAttorneysCanContinueToAct(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &areYouHappyIfRemainingAttorneysCanContinueToActData{
-			App:   appData,
-			Happy: lpa.AttorneyDecisions.HappyIfRemainingCanContinueToAct,
+			App:     appData,
+			Happy:   lpa.AttorneyDecisions.HappyIfRemainingCanContinueToAct,
+			Options: actor.YesNoValues,
 		}
 
 		if r.Method == http.MethodPost {

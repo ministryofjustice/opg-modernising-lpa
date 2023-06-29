@@ -15,6 +15,7 @@ type removeReplacementAttorneyData struct {
 	Attorney actor.Attorney
 	Errors   validation.List
 	Form     *removeAttorneyForm
+	Options  actor.YesNoOptions
 }
 
 func RemoveReplacementAttorney(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
@@ -30,6 +31,7 @@ func RemoveReplacementAttorney(logger Logger, tmpl template.Template, donorStore
 			App:      appData,
 			Attorney: attorney,
 			Form:     &removeAttorneyForm{},
+			Options:  actor.YesNoValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -37,7 +39,7 @@ func RemoveReplacementAttorney(logger Logger, tmpl template.Template, donorStore
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				if data.Form.RemoveAttorney == "yes" {
+				if data.Form.RemoveAttorney == actor.Yes {
 					lpa.ReplacementAttorneys.Delete(attorney)
 					if len(lpa.ReplacementAttorneys) == 1 {
 						lpa.ReplacementAttorneyDecisions = actor.AttorneyDecisions{}

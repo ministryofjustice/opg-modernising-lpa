@@ -10,10 +10,11 @@ import (
 )
 
 type howShouldAttorneysMakeDecisionsData struct {
-	App    page.AppData
-	Errors validation.List
-	Form   *howShouldAttorneysMakeDecisionsForm
-	Lpa    *page.Lpa
+	App     page.AppData
+	Errors  validation.List
+	Form    *howShouldAttorneysMakeDecisionsForm
+	Lpa     *page.Lpa
+	Options actor.AttorneysActOptions
 }
 
 func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorStore) Handler {
@@ -24,7 +25,8 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorSto
 				DecisionsType:    lpa.AttorneyDecisions.How,
 				DecisionsDetails: lpa.AttorneyDecisions.Details,
 			},
-			Lpa: lpa,
+			Lpa:     lpa,
+			Options: actor.AttorneysActValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -56,14 +58,18 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorSto
 }
 
 type howShouldAttorneysMakeDecisionsForm struct {
-	DecisionsType    string
+	DecisionsType    actor.AttorneysAct
+	Error            error
 	DecisionsDetails string
 	errorLabel       string
 }
 
 func readHowShouldAttorneysMakeDecisionsForm(r *http.Request, errorLabel string) *howShouldAttorneysMakeDecisionsForm {
+	how, err := actor.ParseAttorneysAct(page.PostFormString(r, "decision-type"))
+
 	return &howShouldAttorneysMakeDecisionsForm{
-		DecisionsType:    page.PostFormString(r, "decision-type"),
+		DecisionsType:    how,
+		Error:            err,
 		DecisionsDetails: page.PostFormString(r, "mixed-details"),
 		errorLabel:       errorLabel,
 	}
@@ -72,8 +78,8 @@ func readHowShouldAttorneysMakeDecisionsForm(r *http.Request, errorLabel string)
 func (f *howShouldAttorneysMakeDecisionsForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("decision-type", f.errorLabel, f.DecisionsType,
-		validation.Select(actor.Jointly, actor.JointlyAndSeverally, actor.JointlyForSomeSeverallyForOthers))
+	errors.Error("decision-type", f.errorLabel, f.Error,
+		validation.Selected())
 
 	if f.DecisionsType == actor.JointlyForSomeSeverallyForOthers {
 		errors.String("mixed-details", "details", f.DecisionsDetails,

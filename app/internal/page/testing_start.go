@@ -145,10 +145,10 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 		if count > 1 {
 			lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
-			lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
+			lpa.HowShouldReplacementAttorneysStepIn = ReplacementAttorneysStepInWhenOneCanNoLongerAct
 		}
 
-		lpa.WantReplacementAttorneys = "yes"
+		lpa.WantReplacementAttorneys = actor.Yes
 		lpa.Tasks.ChooseReplacementAttorneys = actor.TaskCompleted
 	}
 
@@ -161,7 +161,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			lpa.PeopleToNotify = append(lpa.PeopleToNotify, makePersonToNotify(name))
 		}
 
-		lpa.DoYouWantToNotifyPeople = "yes"
+		lpa.DoYouWantToNotifyPeople = actor.Yes
 		lpa.Tasks.PeopleToNotify = actor.TaskCompleted
 	}
 
@@ -203,12 +203,12 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			if opts.hasDonorDetails {
 				lpa.Donor = makeDonor()
 				lpa.WhoFor = "me"
-				lpa.Type = "pfa"
+				lpa.Type = LpaTypePropertyFinance
 				lpa.Tasks.YourDetails = actor.TaskCompleted
 			}
 
-			if opts.lpaType != "" {
-				lpa.Type = opts.lpaType
+			if opts.lpaType == "hw" {
+				lpa.Type = LpaTypeHealthWelfare
 			}
 
 			if opts.attorneys > 0 {
@@ -223,26 +223,26 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 				lpa.ReplacementAttorneys = lpa.Attorneys
 				lpa.Type = LpaTypePropertyFinance
-				lpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
+				lpa.WhenCanTheLpaBeUsed = CanBeUsedWhenRegistered
 
 				lpa.AttorneyDecisions.How = actor.JointlyAndSeverally
 
-				lpa.WantReplacementAttorneys = "yes"
+				lpa.WantReplacementAttorneys = actor.Yes
 				lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
-				lpa.HowShouldReplacementAttorneysStepIn = OneCanNoLongerAct
+				lpa.HowShouldReplacementAttorneysStepIn = ReplacementAttorneysStepInWhenOneCanNoLongerAct
 
 				lpa.Tasks.ChooseAttorneys = actor.TaskInProgress
 				lpa.Tasks.ChooseReplacementAttorneys = actor.TaskInProgress
 			}
 
 			if opts.howAttorneysAct != "" {
-				switch opts.howAttorneysAct {
-				case actor.Jointly:
-					lpa.AttorneyDecisions.How = actor.Jointly
-				case actor.JointlyAndSeverally:
-					lpa.AttorneyDecisions.How = actor.JointlyAndSeverally
-				default:
-					lpa.AttorneyDecisions.How = actor.JointlyForSomeSeverallyForOthers
+				act, err := actor.ParseAttorneysAct(opts.howAttorneysAct)
+				if err == nil {
+					act = actor.JointlyForSomeSeverallyForOthers
+				}
+
+				lpa.AttorneyDecisions.How = act
+				if act == actor.JointlyForSomeSeverallyForOthers {
 					lpa.AttorneyDecisions.Details = "some details"
 				}
 			}
@@ -258,27 +258,27 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				lpa.ReplacementAttorneys[1].Address = place.Address{}
 
 				lpa.ReplacementAttorneys = lpa.Attorneys
-				lpa.WantReplacementAttorneys = "yes"
+				lpa.WantReplacementAttorneys = actor.Yes
 				lpa.Tasks.ChooseAttorneys = actor.TaskCompleted
 				lpa.Tasks.ChooseReplacementAttorneys = actor.TaskInProgress
 			}
 
 			if opts.howReplacementAttorneysAct != "" {
-				switch opts.howReplacementAttorneysAct {
-				case actor.Jointly:
-					lpa.ReplacementAttorneyDecisions.How = actor.Jointly
-				case actor.JointlyAndSeverally:
-					lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
-				default:
-					lpa.ReplacementAttorneyDecisions.How = actor.JointlyForSomeSeverallyForOthers
+				act, err := actor.ParseAttorneysAct(opts.howReplacementAttorneysAct)
+				if err == nil {
+					act = actor.JointlyForSomeSeverallyForOthers
+				}
+
+				lpa.ReplacementAttorneyDecisions.How = act
+				if act == actor.JointlyForSomeSeverallyForOthers {
 					lpa.ReplacementAttorneyDecisions.Details = "some details"
 				}
 			}
 
 			if opts.hasWhenCanBeUsed {
-				lpa.WhenCanTheLpaBeUsed = UsedWhenRegistered
+				lpa.WhenCanTheLpaBeUsed = CanBeUsedWhenRegistered
 				lpa.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
-				lpa.LifeSustainingTreatmentOption = OptionA
+				lpa.LifeSustainingTreatmentOption = LifeSustainingTreatmentOptionA
 				lpa.Tasks.LifeSustainingTreatment = actor.TaskCompleted
 			}
 

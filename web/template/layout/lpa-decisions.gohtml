@@ -7,9 +7,9 @@
         {{ tr .App "typeOfLpa" }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ if eq .Lpa.Type "pfa" }}
+        {{ if .Lpa.Type.IsPropertyFinance }}
           {{ tr .App "lpaTypePfa" }}
-        {{ else if eq .Lpa.Type "hw" }}
+        {{ else if .Lpa.Type.IsHealthWelfare }}
           {{ tr .App "lpaTypeHw" }}
         {{ end }}
       </dd>
@@ -31,7 +31,7 @@
         {{ end }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ tr .App .Lpa.WhenCanTheLpaBeUsed }}
+        {{ tr .App .Lpa.WhenCanTheLpaBeUsed.String }}
       </dd>
       {{ if $canChange }}
         <dd class="govuk-summary-list__actions">
@@ -76,11 +76,11 @@
         </dt>
         <dd class="govuk-summary-list__value">
           {{ if .App.IsDonor }}
-            {{ trHtml .App .Lpa.AttorneyDecisions.How }}
+            {{ trHtml .App .Lpa.AttorneyDecisions.How.String }}
           {{ else }}
-            {{ if eq "jointly" .Lpa.AttorneyDecisions.How }}
+            {{ if .Lpa.AttorneyDecisions.How.IsJointly }}
               {{ trHtml .App "jointlyExplanation" }}
-            {{ else if eq "jointly-and-severally" .Lpa.AttorneyDecisions.How }}
+            {{ else if .Lpa.AttorneyDecisions.How.IsJointlyAndSeverally }}
               {{ trHtml .App "jointlyAndSeverallyExplanation" }}
             {{ else }}
               {{ trHtml .App "jointlyForSomeSeverallyForOthersExplanation" }}
@@ -108,10 +108,10 @@
           {{ tr .App $title }}
         </dt>
         <dd class="govuk-summary-list__value">
-          {{ if .Lpa.AttorneyDecisions.HappyIfOneCannotActNoneCan }}
+          {{ if .Lpa.AttorneyDecisions.HappyIfOneCannotActNoneCan.IsYes }}
             <p class="govuk-body">{{ tr .App "ifOneAttorneyCannotActNoneCan" }}</p>
           {{ else }}
-            {{ if .Lpa.AttorneyDecisions.HappyIfRemainingCanContinueToAct }}
+            {{ if .Lpa.AttorneyDecisions.HappyIfRemainingCanContinueToAct.IsYes }}
               <p class="govuk-body">{{ tr .App "ifOneAttorneyCannotActTheRemainingCan" }}</p>
             {{ else }}
               <p class="govuk-body">{{ tr .App "ifOneAttorneyCannotActNoneCanButYouAlsoDontWantTheRemainingOnesToAct" }}</p>
@@ -165,11 +165,11 @@
         </dt>
         <dd class="govuk-summary-list__value">
           {{ if .App.IsDonor }}
-            {{ trHtml .App (printf "replacement-%s" .Lpa.ReplacementAttorneyDecisions.How) }}
+            {{ trHtml .App (printf "replacement-%s" .Lpa.ReplacementAttorneyDecisions.How.String) }}
           {{ else }}
-            {{ if eq "jointly" .Lpa.ReplacementAttorneyDecisions.How }}
+            {{ if .Lpa.ReplacementAttorneyDecisions.How.IsJointly }}
               {{ trHtml .App "replacementJointlyExplanation" }}
-            {{ else if eq "jointly-and-severally" .Lpa.ReplacementAttorneyDecisions.How }}
+            {{ else if .Lpa.ReplacementAttorneyDecisions.How.IsJointlyAndSeverally }}
               {{ trHtml .App "replacementJointlyAndSeverallyExplanation" }}
             {{ else }}
               {{ trHtml .App "replacementJointlyForSomeSeverallyForOthersExplanation" }}
@@ -196,9 +196,9 @@
           {{ tr .App $title }}
         </dt>
         <dd class="govuk-summary-list__value">
-          {{ if eq .Lpa.HowShouldReplacementAttorneysStepIn "one" }}
+          {{ if .Lpa.HowShouldReplacementAttorneysStepIn.IsWhenOneCanNoLongerAct }}
             {{ trHtml .App "whenOneCanNoLongerAct" }}
-          {{ else if eq .Lpa.HowShouldReplacementAttorneysStepIn "all" }}
+          {{ else if .Lpa.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct }}
             {{ trHtml .App "whenNoneCanNoLongerAct" }}
           {{ else }}
             {{ trHtml .App "otherWay" }}
@@ -225,10 +225,10 @@
           {{ tr .App $title }}
         </dt>
         <dd class="govuk-summary-list__value">
-          {{ if .Lpa.ReplacementAttorneyDecisions.HappyIfOneCannotActNoneCan }}
+          {{ if .Lpa.ReplacementAttorneyDecisions.HappyIfOneCannotActNoneCan.IsYes }}
             <p class="govuk-body">{{ tr .App "ifOneReplacementAttorneyCannotActNoneCan" }}</p>
           {{ else }}
-            {{ if .Lpa.ReplacementAttorneyDecisions.HappyIfRemainingCanContinueToAct }}
+            {{ if .Lpa.ReplacementAttorneyDecisions.HappyIfRemainingCanContinueToAct.IsYes }}
               <p class="govuk-body">{{ tr .App "ifOneReplacementAttorneyCannotActTheRemainingCan" }}</p>
             {{ else }}
               <p class="govuk-body">{{ tr .App "ifOneReplacementAttorneyCannotActNoneCanButYouAlsoDontWantTheRemainingOnesToAct" }}</p>
@@ -245,13 +245,13 @@
       </div>
     {{ end }}
 
-    {{ if eq .Lpa.Type "hw" }}
+    {{ if .Lpa.Type.IsHealthWelfare }}
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">
           {{ tr .App "lifeSustainingTreatment" }}
         </dt>
         <dd class="govuk-summary-list__value">
-          {{ if eq .Lpa.LifeSustainingTreatmentOption "option-a" }}
+          {{ if .Lpa.LifeSustainingTreatmentOption.IsOptionA }}
             <p class="govuk-body">{{ trHtml .App "optionA" }}</p>
           {{ else }}
             <p class="govuk-body">{{ trHtml .App "optionB" }}</p>

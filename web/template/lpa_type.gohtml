@@ -17,9 +17,9 @@
             </legend>
             {{ template "error-message" (errorMessage . "lpa-type") }}
 
-            {{ template "radios" (items . "lpa-type" .Type
-              (item "pfa" "lpaTypePfaHumanised" "hint" "lpaTypePfaHint")
-              (item "hw" "lpaTypeHwHumanised" "hint" "lpaTypeHwHint")
+            {{ template "radios" (items . "lpa-type" .Form.LpaType.String
+              (item .Options.PropertyFinance.String "lpaTypePfaHumanised" "hint" "lpaTypePfaHint")
+              (item .Options.HealthWelfare.String "lpaTypeHwHumanised" "hint" "lpaTypeHwHint")
             ) }}
           </fieldset>
         </div>

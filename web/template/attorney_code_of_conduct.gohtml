@@ -28,13 +28,13 @@
 
       {{ $content := "" }}
       {{ if .App.IsReplacementAttorney }}
-        {{ if eq .Lpa.Type "pfa" }}
+        {{ if .Lpa.Type.IsPropertyFinance }}
           {{ $content = "replacementAttorneyCodeOfConductPfa" }}
         {{ else }}
           {{ $content = "replacementAttorneyCodeOfConductHw" }}
         {{ end }}
       {{ else }}
-        {{ if eq .Lpa.Type "pfa" }}
+        {{ if .Lpa.Type.IsPropertyFinance }}
           {{ $content = "attorneyCodeOfConductPfa" }}
         {{ else }}
           {{ $content = "attorneyCodeOfConductHw" }}
