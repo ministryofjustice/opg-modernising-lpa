@@ -1,18 +1,12 @@
 export class DataLossWarning {
-    constructor(saveOrReturnComponent) {
-        this.saveOrReturnComponent = saveOrReturnComponent
-        this.originalFormValues = ''
-        this.dialog = null
-        this.dialogOverlay = null
-    }
-
     init() {
+        this.returnToTaskListButton = document.getElementById('return-to-tasklist-btn')
         this.dialog = document.getElementById('dialog')
         this.dialogOverlay = document.getElementById('dialog-overlay')
         // so we can reference the same func when removing event
         this.handleTrapFocus = this.handleTrapFocus.bind(this)
 
-        if (this.dialog && this.dialogOverlay && this.saveOrReturnComponent) {
+        if (this.dialog && this.dialogOverlay && this.returnToTaskListButton) {
             this.originalFormValues = this.stringifyFormValues()
             this.registerListeners()
         }
@@ -36,7 +30,7 @@ export class DataLossWarning {
                 document.getElementById('back-to-page-btn').focus()
             } else {
                 this.dialog.removeEventListener('keydown', this.handleTrapFocus)
-                this.saveOrReturnComponent.querySelector('a').focus()
+                this.returnToTaskListButton.focus()
             }
         }
     }
