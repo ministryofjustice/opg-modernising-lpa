@@ -1,5 +1,6 @@
 import './commands'
 import 'cypress-axe'
+import "cypress-real-events"
 
 export const
     TestEmail = 'simulate-delivered@notifications.service.gov.uk',
@@ -175,7 +176,7 @@ export const AddressFormAssertions = {
 
         cy.contains('[for=f-lookup-postcode] + .govuk-error-message', 'We could not find any addresses for that postcode. Check the postcode is correct, or enter the address manually.');
     },
-    
+
     assertErrorsWhenYourValidPostcodeFormatButNoAddressesFound() {
         const validFormatPostcodeWithNoAddresses = 'NE234EE'
 

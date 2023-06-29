@@ -714,5 +714,9 @@
     "mobileNumber": "Welsh",
     "telephoneNumber": "Welsh",
     "changeTelephoneNumberLink": "Welsh",
-    "anyErrorsInYourDetailsCanMakeLpaDifficultToUse": "Welsh"
+    "anyErrorsInYourDetailsCanMakeLpaDifficultToUse": "Welsh",
+    "youHaveUnsavedChanges": "Welsh",
+    "unsavedChangesDialogContent": "Welsh <span class=\"govuk-body govuk-!-font-weight-bold\">welsh</span>.",
+    "backToPage": "Welsh",
+    "continueWithoutSaving": "Welsh"
 }
