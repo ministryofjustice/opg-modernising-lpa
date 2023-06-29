@@ -14,7 +14,6 @@ package page
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strings"
 	"time"
 
@@ -26,124 +25,42 @@ import (
 
 const CostOfLpaPence = 8200
 
-type LpaType string
+//go:generate enumerator -type LpaType -linecomment -trimprefix
+type LpaType uint8
 
 const (
-	LpaTypeHealthWelfare   = LpaType("hw")
-	LpaTypePropertyFinance = LpaType("pfa")
+	LpaTypeUnknown         LpaType = iota
+	LpaTypeHealthWelfare           // hw
+	LpaTypePropertyFinance         // pfa
 )
 
-func ParseLpaType(s string) (LpaType, error) {
-	switch s {
-	case "hw":
-		return LpaTypeHealthWelfare, nil
-	case "pfa":
-		return LpaTypePropertyFinance, nil
-	default:
-		return LpaType(""), fmt.Errorf("invalid LpaType '%s'", s)
-	}
-}
-
-func (e LpaType) IsHealthWelfare() bool {
-	return e == LpaTypeHealthWelfare
-}
-
-func (e LpaType) IsPropertyFinance() bool {
-	return e == LpaTypePropertyFinance
-}
-
-func (e LpaType) String() string {
-	return string(e)
-}
-
-type CanBeUsedWhen string
+//go:generate enumerator -type CanBeUsedWhen -linecomment -trimprefix
+type CanBeUsedWhen uint8
 
 const (
-	CanBeUsedWhenCapacityLost = CanBeUsedWhen("when-capacity-lost")
-	CanBeUsedWhenRegistered   = CanBeUsedWhen("when-registered")
+	CanBeUsedWhenUnknown      CanBeUsedWhen = iota
+	CanBeUsedWhenCapacityLost               // when-capacity-lost
+	CanBeUsedWhenRegistered                 // when-registered
 )
 
-func ParseCanBeUsedWhen(s string) (CanBeUsedWhen, error) {
-	switch s {
-	case "when-capacity-lost":
-		return CanBeUsedWhenCapacityLost, nil
-	case "when-registered":
-		return CanBeUsedWhenRegistered, nil
-	default:
-		return CanBeUsedWhen(""), fmt.Errorf("invalid CanBeUsedWhen '%s'", s)
-	}
-}
-
-func (e CanBeUsedWhen) String() string {
-	return string(e)
-}
-
-type LifeSustainingTreatment string
+//go:generate enumerator -type LifeSustainingTreatment -linecomment -trimprefix
+type LifeSustainingTreatment uint8
 
 const (
-	LifeSustainingTreatmentOptionA = LifeSustainingTreatment("option-a")
-	LifeSustainingTreatmentOptionB = LifeSustainingTreatment("option-b")
+	LifeSustainingTreatmentUnknown LifeSustainingTreatment = iota
+	LifeSustainingTreatmentOptionA                         // option-a
+	LifeSustainingTreatmentOptionB                         // option-b
 )
 
-func ParseLifeSustainingTreatment(s string) (LifeSustainingTreatment, error) {
-	switch s {
-	case "option-a":
-		return LifeSustainingTreatmentOptionA, nil
-	case "option-b":
-		return LifeSustainingTreatmentOptionB, nil
-	default:
-		return LifeSustainingTreatment(""), fmt.Errorf("invalid LifeSustainingTreatmentOption '%s'", s)
-	}
-}
-
-func (e LifeSustainingTreatment) IsOptionA() bool {
-	return e == LifeSustainingTreatmentOptionA
-}
-
-func (e LifeSustainingTreatment) IsOptionB() bool {
-	return e == LifeSustainingTreatmentOptionB
-}
-
-func (e LifeSustainingTreatment) String() string {
-	return string(e)
-}
-
-type ReplacementAttorneysStepIn string
+//go:generate enumerator -type ReplacementAttorneysStepIn -linecomment -trimprefix
+type ReplacementAttorneysStepIn uint8
 
 const (
-	ReplacementAttorneysStepInWhenAllCanNoLongerAct = ReplacementAttorneysStepIn("all")
-	ReplacementAttorneysStepInWhenOneCanNoLongerAct = ReplacementAttorneysStepIn("one")
-	ReplacementAttorneysStepInAnotherWay            = ReplacementAttorneysStepIn("other")
+	ReplacementAttorneysStepInUnknown               ReplacementAttorneysStepIn = iota
+	ReplacementAttorneysStepInWhenAllCanNoLongerAct                            // all
+	ReplacementAttorneysStepInWhenOneCanNoLongerAct                            // one
+	ReplacementAttorneysStepInAnotherWay                                       // other
 )
-
-func ParseReplacementAttorneysStepIn(s string) (ReplacementAttorneysStepIn, error) {
-	switch s {
-	case "all":
-		return ReplacementAttorneysStepInWhenAllCanNoLongerAct, nil
-	case "one":
-		return ReplacementAttorneysStepInWhenOneCanNoLongerAct, nil
-	case "other":
-		return ReplacementAttorneysStepInAnotherWay, nil
-	default:
-		return ReplacementAttorneysStepIn(""), fmt.Errorf("invalid ReplacementAttorneysStepIn '%s'", s)
-	}
-}
-
-func (e ReplacementAttorneysStepIn) IsWhenAllCanNoLongerAct() bool {
-	return e == ReplacementAttorneysStepInWhenAllCanNoLongerAct
-}
-
-func (e ReplacementAttorneysStepIn) IsWhenOneCanNoLongerAct() bool {
-	return e == ReplacementAttorneysStepInWhenOneCanNoLongerAct
-}
-
-func (e ReplacementAttorneysStepIn) IsAnotherWay() bool {
-	return e == ReplacementAttorneysStepInAnotherWay
-}
-
-func (e ReplacementAttorneysStepIn) String() string {
-	return string(e)
-}
 
 // Lpa contains all the data related to the LPA application
 type Lpa struct {
@@ -448,7 +365,7 @@ func ChooseReplacementAttorneysState(lpa *Lpa) actor.TaskState {
 	}
 
 	if lpa.AttorneyDecisions.How.IsJointlyAndSeverally() {
-		if lpa.HowShouldReplacementAttorneysStepIn.String() == "" {
+		if lpa.HowShouldReplacementAttorneysStepIn.IsUnknown() {
 			return actor.TaskInProgress
 		}
 

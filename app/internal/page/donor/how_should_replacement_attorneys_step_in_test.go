@@ -109,11 +109,7 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{
-		ID:                                  "lpa-id",
-		HowShouldReplacementAttorneysStepIn: "",
-		HowShouldReplacementAttorneysStepInDetails: "",
-	})
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -324,10 +320,7 @@ func TestPostHowShouldReplacementAttorneysStepInWhenPutStoreError(t *testing.T) 
 
 	template := newMockTemplate(t)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{
-		HowShouldReplacementAttorneysStepIn:        "",
-		HowShouldReplacementAttorneysStepInDetails: "",
-	})
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
