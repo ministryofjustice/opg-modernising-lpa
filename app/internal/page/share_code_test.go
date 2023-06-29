@@ -32,7 +32,7 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", lpa.TypeLegalTermTransKey()).
+		On("T", lpa.Type.LegalTermTransKey()).
 		Return("property and affairs")
 
 	TestAppData.Localizer = localizer
@@ -109,7 +109,7 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", lpa.TypeLegalTermTransKey()).
+		On("T", lpa.Type.LegalTermTransKey()).
 		Return("property and affairs")
 
 	TestAppData.Localizer = localizer
@@ -206,7 +206,7 @@ func TestShareCodeSenderSendCertificateProviderWhenEmailErrors(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", lpa.TypeLegalTermTransKey()).
+		On("T", lpa.Type.LegalTermTransKey()).
 		Return("property and affairs")
 
 	TestAppData.Localizer = localizer
@@ -299,7 +299,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", lpa.TypeLegalTermTransKey()).
+		On("T", lpa.Type.LegalTermTransKey()).
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Jan").
@@ -411,7 +411,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", lpa.TypeLegalTermTransKey()).
+		On("T", lpa.Type.LegalTermTransKey()).
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Jan").
@@ -501,7 +501,7 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", lpa.TypeLegalTermTransKey()).
+		On("T", lpa.Type.LegalTermTransKey()).
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Jan").

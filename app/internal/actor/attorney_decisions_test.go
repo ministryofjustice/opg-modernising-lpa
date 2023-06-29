@@ -1,54 +1,10 @@
 package actor
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
-
-func TestAttorneysAct(t *testing.T) {
-	values := map[AttorneysAct]string{
-		Jointly:                          "jointly",
-		JointlyAndSeverally:              "jointly-and-severally",
-		JointlyForSomeSeverallyForOthers: "mixed",
-	}
-
-	for value, s := range values {
-		t.Run(fmt.Sprintf("parse(%s)", s), func(t *testing.T) {
-			parsed, err := ParseAttorneysAct(s)
-			assert.Nil(t, err)
-			assert.Equal(t, value, parsed)
-		})
-
-		t.Run(fmt.Sprintf("string(%s)", s), func(t *testing.T) {
-			assert.Equal(t, s, value.String())
-		})
-	}
-
-	t.Run("parse invalid", func(t *testing.T) {
-		_, err := ParseAttorneysAct("invalid")
-		assert.NotNil(t, err)
-	})
-
-	t.Run("IsJointly", func(t *testing.T) {
-		assert.True(t, Jointly.IsJointly())
-		assert.False(t, JointlyAndSeverally.IsJointly())
-		assert.False(t, JointlyForSomeSeverallyForOthers.IsJointly())
-	})
-
-	t.Run("IsJointlyAndSeverally", func(t *testing.T) {
-		assert.True(t, JointlyAndSeverally.IsJointlyAndSeverally())
-		assert.False(t, Jointly.IsJointlyAndSeverally())
-		assert.False(t, JointlyForSomeSeverallyForOthers.IsJointlyAndSeverally())
-	})
-
-	t.Run("IsJointlyForSomeSeverallyForOthers", func(t *testing.T) {
-		assert.True(t, JointlyForSomeSeverallyForOthers.IsJointlyForSomeSeverallyForOthers())
-		assert.False(t, Jointly.IsJointlyForSomeSeverallyForOthers())
-		assert.False(t, JointlyAndSeverally.IsJointlyForSomeSeverallyForOthers())
-	})
-}
 
 func TestMakeAttorneyDecisions(t *testing.T) {
 	testcases := map[string]struct {
