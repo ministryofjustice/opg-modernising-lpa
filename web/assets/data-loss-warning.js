@@ -29,9 +29,7 @@ export class DataLossWarning {
     toggleDialogVisibility() {
         if (this.changesMade()) {
             this.dialog.classList.toggle('govuk-!-display-none')
-            this.dialog.classList.toggle('dialog')
             this.dialogOverlay.classList.toggle('govuk-!-display-none')
-            this.dialogOverlay.classList.toggle('dialog-overlay')
 
             if (this.dialogVisible()) {
                 this.dialog.addEventListener('keydown', this.handleTrapFocus)

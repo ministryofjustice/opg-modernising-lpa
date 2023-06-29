@@ -1,4 +1,4 @@
-.dialog-overlay {
+.app-dialog-overlay {
   z-index: 2;
   position: fixed;
   top: 0;
@@ -9,7 +9,7 @@
   background-color: govuk-colour('black');
 }
 
-.dialog {
+.app-dialog {
   z-index: 3;
   background-color: govuk-colour('white');
   padding: govuk-spacing(6);
