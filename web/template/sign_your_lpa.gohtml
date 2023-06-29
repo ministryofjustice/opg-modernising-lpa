@@ -70,6 +70,8 @@
 
         {{ template "details" (details . "howTickingActsAsSignature" "howTickingActsAsSignatureContent" false) }}
 
+        {{ template "data-loss-warning-dialog" . }}
+
         <div class="govuk-button-group">
           <button type="submit" class="govuk-button" data-module="govuk-button">
             {{ tr .App "submitMySignature" }}
