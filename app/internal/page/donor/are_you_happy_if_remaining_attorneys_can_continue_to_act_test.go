@@ -21,7 +21,8 @@ func TestGetAreYouHappyIfRemainingAttorneysCanContinueToAct(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &areYouHappyIfRemainingAttorneysCanContinueToActData{
-			App: testAppData,
+			App:     testAppData,
+			Options: actor.YesNoValues,
 		}).
 		Return(nil)
 
@@ -38,9 +39,7 @@ func TestGetAreYouHappyIfRemainingAttorneysCanContinueToActWhenTemplateErrors(t 
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &areYouHappyIfRemainingAttorneysCanContinueToActData{
-			App: testAppData,
-		}).
+		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
 	err := AreYouHappyIfRemainingAttorneysCanContinueToAct(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
@@ -51,10 +50,10 @@ func TestGetAreYouHappyIfRemainingAttorneysCanContinueToActWhenTemplateErrors(t 
 }
 
 func TestPostAreYouHappyIfRemainingAttorneysCanContinueToAct(t *testing.T) {
-	for _, happy := range []string{"yes", "no"} {
-		t.Run(happy, func(t *testing.T) {
+	for _, happy := range []actor.YesNo{actor.Yes, actor.No} {
+		t.Run(happy.String(), func(t *testing.T) {
 			form := url.Values{
-				"happy": {happy},
+				"happy": {happy.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -81,7 +80,7 @@ func TestPostAreYouHappyIfRemainingAttorneysCanContinueToAct(t *testing.T) {
 
 func TestPostAreYouHappyIfRemainingAttorneysCanContinueToActWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"happy": {"yes"},
+		"happy": {actor.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -105,10 +104,9 @@ func TestPostAreYouHappyIfRemainingAttorneysCanContinueToActWhenValidationErrors
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &areYouHappyIfRemainingAttorneysCanContinueToActData{
-			App:    testAppData,
-			Errors: validation.With("happy", validation.SelectError{Label: "yesIfYouAreHappyIfRemainingAttorneysCanContinueToAct"}),
-		}).
+		On("Execute", w, mock.MatchedBy(func(data *areYouHappyIfRemainingAttorneysCanContinueToActData) bool {
+			return assert.Equal(t, validation.With("happy", validation.SelectError{Label: "yesIfYouAreHappyIfRemainingAttorneysCanContinueToAct"}), data.Errors)
+		})).
 		Return(nil)
 
 	err := AreYouHappyIfRemainingAttorneysCanContinueToAct(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
