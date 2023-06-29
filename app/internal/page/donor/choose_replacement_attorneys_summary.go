@@ -10,10 +10,11 @@ import (
 )
 
 type chooseReplacementAttorneysSummaryData struct {
-	App    page.AppData
-	Errors validation.List
-	Form   *chooseAttorneysSummaryForm
-	Lpa    *page.Lpa
+	App     page.AppData
+	Errors  validation.List
+	Form    *chooseAttorneysSummaryForm
+	Lpa     *page.Lpa
+	Options actor.YesNoOptions
 }
 
 func ChooseReplacementAttorneysSummary(tmpl template.Template) Handler {
@@ -23,9 +24,10 @@ func ChooseReplacementAttorneysSummary(tmpl template.Template) Handler {
 		}
 
 		data := &chooseReplacementAttorneysSummaryData{
-			App:  appData,
-			Lpa:  lpa,
-			Form: &chooseAttorneysSummaryForm{},
+			App:     appData,
+			Lpa:     lpa,
+			Form:    &chooseAttorneysSummaryForm{},
+			Options: actor.YesNoValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -35,11 +37,11 @@ func ChooseReplacementAttorneysSummary(tmpl template.Template) Handler {
 			if data.Errors.None() {
 				var redirectUrl string
 
-				if data.Form.AddAttorney == "yes" {
+				if data.Form.AddAttorney == actor.Yes {
 					redirectUrl = appData.Paths.ChooseReplacementAttorneys.Format(lpa.ID) + "?addAnother=1"
-				} else if len(lpa.ReplacementAttorneys) > 1 && (len(lpa.Attorneys) == 1 || lpa.AttorneyDecisions.How == actor.JointlyForSomeSeverallyForOthers || lpa.AttorneyDecisions.How == actor.Jointly) {
+				} else if len(lpa.ReplacementAttorneys) > 1 && (len(lpa.Attorneys) == 1 || lpa.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers() || lpa.AttorneyDecisions.How.IsJointly()) {
 					redirectUrl = appData.Paths.HowShouldReplacementAttorneysMakeDecisions.Format(lpa.ID)
-				} else if lpa.AttorneyDecisions.How == actor.JointlyAndSeverally {
+				} else if lpa.AttorneyDecisions.How.IsJointlyAndSeverally() {
 					redirectUrl = appData.Paths.HowShouldReplacementAttorneysStepIn.Format(lpa.ID)
 				} else {
 					redirectUrl = page.Paths.TaskList.Format(lpa.ID)

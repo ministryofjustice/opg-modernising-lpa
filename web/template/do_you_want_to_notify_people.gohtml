@@ -31,9 +31,9 @@
             </legend>
             {{ template "error-message" (errorMessage . "want-to-notify") }}
 
-            {{ template "radios" (items . "want-to-notify" .WantToNotify
-              (item "yes" "yes")
-              (item "no" "no")
+            {{ template "radios" (items . "want-to-notify" .Form.WantToNotify.String
+              (item .Options.Yes.String "yes")
+              (item .Options.No.String "no")
             ) }}
           </fieldset>
         </div>

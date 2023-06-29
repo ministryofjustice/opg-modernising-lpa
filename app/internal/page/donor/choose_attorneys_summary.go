@@ -5,15 +5,17 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
 type chooseAttorneysSummaryData struct {
-	App    page.AppData
-	Errors validation.List
-	Form   *chooseAttorneysSummaryForm
-	Lpa    *page.Lpa
+	App     page.AppData
+	Errors  validation.List
+	Form    *chooseAttorneysSummaryForm
+	Lpa     *page.Lpa
+	Options actor.YesNoOptions
 }
 
 func ChooseAttorneysSummary(tmpl template.Template) Handler {
@@ -23,9 +25,10 @@ func ChooseAttorneysSummary(tmpl template.Template) Handler {
 		}
 
 		data := &chooseAttorneysSummaryData{
-			App:  appData,
-			Lpa:  lpa,
-			Form: &chooseAttorneysSummaryForm{},
+			App:     appData,
+			Lpa:     lpa,
+			Form:    &chooseAttorneysSummaryForm{},
+			Options: actor.YesNoValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -39,7 +42,7 @@ func ChooseAttorneysSummary(tmpl template.Template) Handler {
 					redirectUrl = appData.Paths.HowShouldAttorneysMakeDecisions.Format(lpa.ID)
 				}
 
-				if data.Form.AddAttorney == "yes" {
+				if data.Form.AddAttorney == actor.Yes {
 					redirectUrl = fmt.Sprintf("%s?addAnother=1", appData.Paths.ChooseAttorneys.Format(lpa.ID))
 				}
 
@@ -52,13 +55,17 @@ func ChooseAttorneysSummary(tmpl template.Template) Handler {
 }
 
 type chooseAttorneysSummaryForm struct {
-	AddAttorney string
+	AddAttorney actor.YesNo
+	Error       error
 	errorLabel  string
 }
 
 func readChooseAttorneysSummaryForm(r *http.Request, errorLabel string) *chooseAttorneysSummaryForm {
+	add, err := actor.ParseYesNo(page.PostFormString(r, "add-attorney"))
+
 	return &chooseAttorneysSummaryForm{
-		AddAttorney: page.PostFormString(r, "add-attorney"),
+		AddAttorney: add,
+		Error:       err,
 		errorLabel:  errorLabel,
 	}
 }
@@ -66,8 +73,8 @@ func readChooseAttorneysSummaryForm(r *http.Request, errorLabel string) *chooseA
 func (f *chooseAttorneysSummaryForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("add-attorney", f.errorLabel, f.AddAttorney,
-		validation.Select("yes", "no"))
+	errors.Error("add-attorney", f.errorLabel, f.Error,
+		validation.Selected())
 
 	return errors
 }
