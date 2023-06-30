@@ -16,7 +16,7 @@
           <div class="govuk-form-group {{ if .Errors.Has "happy" }}govuk-form-group--error{{ end }}">
             {{ template "error-message" (errorMessage . "happy") }}
 
-            {{ template "radios" (items . "happy" .Happy
+            {{ template "radios" (items . "happy" .Happy.String
               (item .Options.Yes.String "yes")
               (item .Options.No.String "no")
             ) }}
