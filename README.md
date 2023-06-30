@@ -67,6 +67,13 @@ It also enables debugging via [delve](https://github.com/go-delve/delve). Delve 
 }
 ```
 
+#### Code generation
+
+We make use of [mockery](https://github.com/vektra/mockery) for generating mocks
+and [enumerator](./app/cmd/enumerator) for generating enums. To use you'll need
+to `go install ./app/command/enumerator`, then running `make go-generate` will
+create code from any declarations.
+
 ## Licence
 
 The OPG Modernising LPA code in this repository is released under the MIT license, a copy of which can be found in [LICENCE](./LICENCE).
