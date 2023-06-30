@@ -8,18 +8,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
-type howShouldReplacementAttorneysStepInOptions struct {
-	WhenAllCanNoLongerAct page.ReplacementAttorneysStepIn
-	WhenOneCanNoLongerAct page.ReplacementAttorneysStepIn
-	AnotherWay            page.ReplacementAttorneysStepIn
-}
-
 type howShouldReplacementAttorneysStepInData struct {
 	App               page.AppData
 	Errors            validation.List
 	AllowSomeOtherWay bool
 	Form              *howShouldReplacementAttorneysStepInForm
-	Options           howShouldReplacementAttorneysStepInOptions
+	Options           page.ReplacementAttorneysStepInOptions
 }
 
 func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore DonorStore) Handler {
@@ -31,11 +25,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 				WhenToStepIn: lpa.HowShouldReplacementAttorneysStepIn,
 				OtherDetails: lpa.HowShouldReplacementAttorneysStepInDetails,
 			},
-			Options: howShouldReplacementAttorneysStepInOptions{
-				WhenAllCanNoLongerAct: page.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
-				WhenOneCanNoLongerAct: page.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
-				AnotherWay:            page.ReplacementAttorneysStepInAnotherWay,
-			},
+			Options: page.ReplacementAttorneysStepInValues,
 		}
 
 		if r.Method == http.MethodPost {

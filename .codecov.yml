@@ -4,6 +4,7 @@ coverage:
   range: "70...100"
   ignore:
     - "*_test.go"
+    - "enum_*.go"
     - "./mocks/*"
     - "./app/internal/identity/yoti*"
     - "./app/internal/telemetry"
