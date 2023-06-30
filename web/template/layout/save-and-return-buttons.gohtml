@@ -1,6 +1,8 @@
 {{ define "save-and-return-buttons" }}
+  {{template "data-loss-warning-dialog" . }}
+
   <div class="govuk-button-group">
     <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "saveAndContinue" }}</button>
-    <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+    <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" id="return-to-tasklist-btn" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
   </div>
 {{ end }}

@@ -676,5 +676,9 @@
     "mobileNumber": "Mobile number",
     "telephoneNumber": "Telephone number",
     "changeTelephoneNumberLink": "Change<span class=\"govuk-visually-hidden\"> telephone number</span>",
-    "anyErrorsInYourDetailsCanMakeLpaDifficultToUse": "Any errors in your details can make the LPA difficult to use. Organisations might not accept the LPA if your details do not match your ID."
+    "anyErrorsInYourDetailsCanMakeLpaDifficultToUse": "Any errors in your details can make the LPA difficult to use. Organisations might not accept the LPA if your details do not match your ID.",
+    "youHaveUnsavedChanges": "You have unsaved changes",
+    "unsavedChangesDialogContent": "To save, go back to the page and select <span class=\"govuk-body govuk-!-font-weight-bold\">Save and continue</span>.",
+    "backToPage": "Back to page",
+    "continueWithoutSaving": "Continue without saving"
 }
