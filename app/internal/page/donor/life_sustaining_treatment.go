@@ -9,16 +9,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
-type lifeSustainingTreatmentOptions struct {
-	OptionA page.LifeSustainingTreatment
-	OptionB page.LifeSustainingTreatment
-}
-
 type lifeSustainingTreatmentData struct {
 	App     page.AppData
 	Errors  validation.List
 	Form    *lifeSustainingTreatmentForm
-	Options lifeSustainingTreatmentOptions
+	Options page.LifeSustainingTreatmentOptions
 }
 
 func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) Handler {
@@ -28,10 +23,7 @@ func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) Hand
 			Form: &lifeSustainingTreatmentForm{
 				Option: lpa.LifeSustainingTreatmentOption,
 			},
-			Options: lifeSustainingTreatmentOptions{
-				OptionA: page.LifeSustainingTreatmentOptionA,
-				OptionB: page.LifeSustainingTreatmentOptionB,
-			},
+			Options: page.LifeSustainingTreatmentValues,
 		}
 
 		if r.Method == http.MethodPost {

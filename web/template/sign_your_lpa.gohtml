@@ -13,7 +13,7 @@
 
       {{ template "details" (details . "whatHappensIfIWantToMakeChanges" "whatHappensIfIWantToMakeChangesContent" false) }}
 
-      {{ $lpaTypeLegalTerm := tr .App .Lpa.TypeLegalTermTransKey }}
+      {{ $lpaTypeLegalTerm := tr .App .Lpa.Type.LegalTermTransKey }}
 
       <p class="govuk-body">{{ trFormat .App "bySigningIConfirm" "LpaType" $lpaTypeLegalTerm }}</p>
 

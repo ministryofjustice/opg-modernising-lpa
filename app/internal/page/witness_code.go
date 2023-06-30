@@ -40,7 +40,7 @@ func (s *WitnessCodeSender) Send(ctx context.Context, lpa *Lpa, localizer Locali
 		Personalisation: map[string]string{
 			"WitnessCode":   code,
 			"DonorFullName": localizer.Possessive(lpa.Donor.FullName()),
-			"LpaType":       localizer.T(lpa.TypeLegalTermTransKey()),
+			"LpaType":       localizer.T(lpa.Type.LegalTermTransKey()),
 		},
 	})
 	if err != nil {
