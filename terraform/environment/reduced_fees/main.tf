@@ -50,7 +50,12 @@ resource "aws_pipes_pipe" "reduced_fees" {
   role_arn    = aws_iam_role.reduced_fees_pipe.arn
   source      = aws_dynamodb_table.reduced_fees.stream_arn
   target      = aws_cloudwatch_event_bus.reduced_fees.arn
-  source_parameters {}
+  source_parameters {
+    dynamodb_stream_parameters {
+      batch_size        = 1
+      starting_position = "LATEST"
+    }
+  }
   target_parameters {}
   provider = aws.region
 }
@@ -78,7 +83,7 @@ data "aws_iam_policy_document" "reduced_fees_assume_role" {
     condition {
       test     = "StringEquals"
       variable = "aws:SourceArn"
-      values   = ["arn:aws:pipes:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:pipe/reduced-fees"]
+      values   = ["arn:aws:pipes:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:pipe/${data.aws_default_tags.current.tags.environment-name}-reduced-fees"]
     }
   }
   provider = aws.region
