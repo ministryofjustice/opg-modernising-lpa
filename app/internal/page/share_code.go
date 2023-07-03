@@ -57,7 +57,7 @@ func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template 
 			"cpFullName":        lpa.CertificateProvider.FullName(),
 			"donorFirstNames":   lpa.Donor.FirstNames,
 			"donorFullName":     lpa.Donor.FullName(),
-			"lpaLegalTerm":      appData.Localizer.T(lpa.TypeLegalTermTransKey()),
+			"lpaLegalTerm":      appData.Localizer.T(lpa.Type.LegalTermTransKey()),
 			"cpLandingPageLink": fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
 			"optOutLink":        fmt.Sprintf("%s%s?share-code=%s", s.appPublicURL, Paths.CertificateProviderOptOut, shareCode),
 		},
@@ -116,7 +116,7 @@ func (s *ShareCodeSender) sendAttorney(ctx context.Context, template notify.Temp
 			"donorFirstNames":           lpa.Donor.FirstNames,
 			"donorFirstNamesPossessive": appData.Localizer.Possessive(lpa.Donor.FirstNames),
 			"donorFullName":             lpa.Donor.FullName(),
-			"lpaLegalTerm":              appData.Localizer.T(lpa.TypeLegalTermTransKey()),
+			"lpaLegalTerm":              appData.Localizer.T(lpa.Type.LegalTermTransKey()),
 			"landingPageLink":           fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
 		},
 	}); err != nil {
