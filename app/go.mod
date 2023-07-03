@@ -6,11 +6,11 @@ require (
 	github.com/MicahParks/keyfunc v1.9.0
 	github.com/aws/aws-sdk-go-v2 v1.18.1
 	github.com/aws/aws-sdk-go-v2/config v1.18.27
-	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.10.29
-	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.19.11
+	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.10.30
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.20.0
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.19.10
 	github.com/felixge/httpsnoop v1.0.3
-	github.com/getyoti/yoti-go-sdk/v3 v3.9.0
+	github.com/getyoti/yoti-go-sdk/v3 v3.10.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/sessions v1.2.1
