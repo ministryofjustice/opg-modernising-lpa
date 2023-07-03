@@ -588,3 +588,101 @@ func TestPactContract(t *testing.T) {
 		})
 	}
 }
+
+func TestHealth(t *testing.T) {
+	var endpointCalled string
+	var requestMethod string
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+
+		rBody, _ := io.ReadAll(r.Body)
+		r.Body = io.NopCloser(bytes.NewBuffer(rBody))
+
+		endpointCalled = r.URL.String()
+		requestMethod = r.Method
+
+		w.Write([]byte(`{"status":"OK"}`))
+	}))
+
+	v4Signer := newMockV4Signer(t)
+	v4Signer.
+		On("SignHTTP", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
+	now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
+
+	client := &Client{
+		baseURL:    server.URL,
+		httpClient: server.Client(),
+		cfg:        createTestConfig(false),
+		signer:     v4Signer,
+		now:        now,
+	}
+
+	resp, err := client.Health(context.Background())
+
+	assert.Equal(t, http.MethodGet, requestMethod)
+	assert.Equal(t, "/health", endpointCalled)
+
+	actualRespBody, _ := io.ReadAll(resp.Body)
+
+	assert.Nil(t, err)
+	assert.Equal(t, `{"status":"OK"}`, string(actualRespBody))
+}
+
+func TestHealthOnNewRequestError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+
+	client := &Client{
+		baseURL:    server.URL + "`invalid-url-format",
+		httpClient: server.Client(),
+	}
+	_, err := client.Health(context.Background())
+
+	assert.NotNil(t, err)
+}
+
+func TestHealthOnSignError(t *testing.T) {
+	now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
+
+	v4Signer := newMockV4Signer(t)
+	v4Signer.
+		On("SignHTTP", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	client := &Client{
+		baseURL:    "/",
+		httpClient: nil,
+		cfg:        createTestConfig(false),
+		signer:     v4Signer,
+		now:        now,
+	}
+
+	_, err := client.Health(context.Background())
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestHealthOnDoRequestError(t *testing.T) {
+	v4Signer := newMockV4Signer(t)
+	v4Signer.
+		On("SignHTTP", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
+	httpClient := newMockDoer(t)
+	httpClient.
+		On("Do", mock.Anything).
+		Return(nil, expectedError)
+
+	client := &Client{
+		baseURL:    "/",
+		httpClient: httpClient,
+		cfg:        createTestConfig(false),
+		signer:     v4Signer,
+		now:        time.Now,
+	}
+	_, err := client.Health(context.Background())
+
+	assert.Equal(t, expectedError, err)
+}
