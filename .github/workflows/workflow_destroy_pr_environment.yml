@@ -66,6 +66,10 @@ jobs:
           sudo chmod +x /usr/local/bin/terraform-workspace-manager
           terraform-workspace-manager -register-workspace=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }} -time-to-protect=1 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
         working-directory: ./terraform/environment
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.2
+          terraform_wrapper: false
       - name: Terraform Init
         run: terraform init -input=false
         working-directory: ./terraform/environment

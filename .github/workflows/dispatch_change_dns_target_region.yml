@@ -54,7 +54,7 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: 1.2.6
+          terraform_version: 1.5.2
           terraform_wrapper: false
       - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@v2
