@@ -63,11 +63,6 @@ type CreateCaseResponse struct {
 	BadRequestErrors []CreateCaseResponseBadRequestError `json:"errors"`
 }
 
-type HealthResponse struct {
-	Status     string `json:"status"`
-	StatusCode int
-}
-
 type CreateCaseResponseBadRequestError struct {
 	Source string `json:"source"`
 	Detail string `json:"detail"`
