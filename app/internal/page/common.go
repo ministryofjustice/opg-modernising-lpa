@@ -111,4 +111,5 @@ type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
 //go:generate mockery --testonly --inpackage --name UidClient --structname mockUidClient
 type UidClient interface {
 	CreateCase(context.Context, *uid.CreateCaseRequestBody) (uid.CreateCaseResponse, error)
+	Health(context.Context) (*http.Response, error)
 }

@@ -63,6 +63,11 @@ type CreateCaseResponse struct {
 	BadRequestErrors []CreateCaseResponseBadRequestError `json:"errors"`
 }
 
+type HealthResponse struct {
+	Status     string `json:"status"`
+	StatusCode int
+}
+
 type CreateCaseResponseBadRequestError struct {
 	Source string `json:"source"`
 	Detail string `json:"detail"`
@@ -111,6 +116,25 @@ func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (C
 	}
 
 	return createCaseResponse, nil
+}
+
+func (c *Client) Health(ctx context.Context) (*http.Response, error) {
+	r, err := http.NewRequest(http.MethodGet, c.baseURL+"/health", nil)
+	if err != nil {
+		return &http.Response{}, err
+	}
+
+	err = c.sign(ctx, r, apiGatewayServiceName)
+	if err != nil {
+		return &http.Response{}, err
+	}
+
+	resp, err := c.httpClient.Do(r)
+	if err != nil {
+		return &http.Response{}, err
+	}
+
+	return resp, nil
 }
 
 type ISODate struct {
