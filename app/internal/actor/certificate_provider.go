@@ -6,6 +6,14 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 )
 
+//go:generate enumerator -type CertificateProviderRelationship -linecomment -empty
+type CertificateProviderRelationship uint8
+
+const (
+	Personally     CertificateProviderRelationship = iota + 1 // personally
+	Professionally                                            // professionally
+)
+
 // CertificateProvider contains details about the certificate provider, provided by the applicant
 type CertificateProvider struct {
 	// First names of the certificate provider
@@ -23,10 +31,8 @@ type CertificateProvider struct {
 	// How the certificate provider wants to perform their role (paper or online)
 	CarryOutBy string
 	// The certificate provider's relationship to the applicant
-	Relationship string
-	// If CertificateProvider.Relationship="other", what that means
-	RelationshipDescription string
-	// Amount of time Relationship has been in place (does not apply to health professionals or legal professionals)
+	Relationship CertificateProviderRelationship
+	// Amount of time Relationship has been in place if Personally
 	RelationshipLength string
 }
 

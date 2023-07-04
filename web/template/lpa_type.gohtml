@@ -5,7 +5,7 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "whichTypeOfLpaToMake" }}</h1>
+      <h1 class="govuk-heading-xl">{{ tr .App "chooseWhichTypeOfLpaToMake" }}</h1>
 
       {{ trHtml .App "whichTypeOfLpaToMakeContent" }}
 
@@ -18,8 +18,8 @@
             {{ template "error-message" (errorMessage . "lpa-type") }}
 
             {{ template "radios" (items . "lpa-type" .Form.LpaType.String
-              (item .Options.PropertyFinance.String "lpaTypePfaHumanised" "hint" "lpaTypePfaHint")
-              (item .Options.HealthWelfare.String "lpaTypeHwHumanised" "hint" "lpaTypeHwHint")
+              (item .Options.PropertyFinance.String "lpaTypePfa" "hint" "lpaTypePfaHint")
+              (item .Options.HealthWelfare.String "lpaTypeHw" "hint" "lpaTypeHwHint")
             ) }}
           </fieldset>
         </div>

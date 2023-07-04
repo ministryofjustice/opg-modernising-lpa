@@ -4,7 +4,7 @@ describe('How should replacement attorneys step in', () => {
     });
 
     it('can choose how replacement attorneys step in', () => {
-        cy.contains('h1', 'How should your replacement attorneys step in?');
+        cy.contains('h1', 'When your replacement attorneys step in');
 
         // see https://github.com/alphagov/govuk-frontend/issues/979
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
@@ -31,10 +31,10 @@ describe('How should replacement attorneys step in', () => {
         cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Select when your replacement attorneys should step in');
+            cy.contains('Select when your replacement attorneys step in');
         });
 
-        cy.contains('.govuk-fieldset .govuk-error-message', 'Select when your replacement attorneys should step in');
+        cy.contains('.govuk-fieldset .govuk-error-message', 'Select when your replacement attorneys step in');
     });
 
     it('errors when other and details empty', () => {
