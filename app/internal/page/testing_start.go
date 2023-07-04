@@ -100,14 +100,13 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 	makeCertificateProvider := func(firstNames string) actor.CertificateProvider {
 		return actor.CertificateProvider{
-			FirstNames:              firstNames,
-			LastName:                "Jones",
-			Email:                   testEmail,
-			Mobile:                  testMobile,
-			Relationship:            "friend",
-			RelationshipDescription: "",
-			RelationshipLength:      "gte-2-years",
-			CarryOutBy:              "paper",
+			FirstNames:         firstNames,
+			LastName:           "Jones",
+			Email:              testEmail,
+			Mobile:             testMobile,
+			Relationship:       actor.Personally,
+			RelationshipLength: "gte-2-years",
+			CarryOutBy:         "paper",
 			Address: place.Address{
 				Line1:      "5 RICHMOND PLACE",
 				Line2:      "KINGS HEATH",

@@ -141,6 +141,25 @@ func TestAttorneysFirstNames(t *testing.T) {
 	assert.Equal(t, "Bob Alan George, Samantha and Abby Helen", attorneys.FirstNames())
 }
 
+func TestAttorneysFirstNamesList(t *testing.T) {
+	attorneys := Attorneys{
+		{
+			FirstNames: "Bob Alan George",
+			LastName:   "Jones",
+		},
+		{
+			FirstNames: "Samantha",
+			LastName:   "Smith",
+		},
+		{
+			FirstNames: "Abby Helen",
+			LastName:   "Burns-Simpson",
+		},
+	}
+
+	assert.Equal(t, []string{"Bob Alan George", "Samantha", "Abby Helen"}, attorneys.FirstNamesList())
+}
+
 func TestConcatSentence(t *testing.T) {
 	assert.Equal(t, "Bob Smith, Alice Jones, John Doe and Paul Compton", concatSentence([]string{"Bob Smith", "Alice Jones", "John Doe", "Paul Compton"}))
 	assert.Equal(t, "Bob Smith, Alice Jones and John Doe", concatSentence([]string{"Bob Smith", "Alice Jones", "John Doe"}))

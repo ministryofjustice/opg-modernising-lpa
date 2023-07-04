@@ -4,7 +4,7 @@ describe('How should replacement attorneys make decisions', () => {
     });
 
     it('can choose how replacement attorneys act', () => {
-        cy.contains('h1', 'How should the replacement attorneys make decisions?');
+        cy.contains('h1', 'How should your replacement attorneys make decisions?');
 
         // see https://github.com/alphagov/govuk-frontend/issues/979
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
