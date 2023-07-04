@@ -14,6 +14,8 @@
               </h1>
             </legend>
 
+            <p class="govuk-body">{{ tr .App "asYouHaveMoreThanOneAttorney" }}</p>
+
             {{ template "error-message" (errorMessage . "decision-type") }}
 
             <div class="govuk-radios {{ if .Errors.Has "decision-type" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
@@ -48,7 +50,7 @@
                 </div>
 
                 <div class="govuk-radios__conditional" id="decision-type-3-conditional-div">
-                  <div class="govuk-form-group {{ if .Errors.Has "mixed-details" }}govuk-form-group--error{{ end }}">
+                  <div class="govuk-form-group govuk-!-margin-top-4 {{ if .Errors.Has "mixed-details" }}govuk-form-group--error{{ end }}">
                     <p class="govuk-body">{{ trHtml .App "decisionDetailsHint" }}</p>
                     <label class="govuk-label" for="f-mixed-details">
                       {{ tr .App "details" }}

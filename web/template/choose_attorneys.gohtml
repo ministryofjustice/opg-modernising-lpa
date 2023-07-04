@@ -1,27 +1,28 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "whoWouldYouLikeToBeTheAttorneys" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "enterYourAttorneysDetails" }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <form novalidate method="post">
-        <h1 class="govuk-heading-xl">{{ tr .App "whoWouldYouLikeToBeTheAttorneys" }}</h1>
+        <h1 class="govuk-heading-xl">{{ tr .App "enterYourAttorneysDetails" }}</h1>
 
-        {{ template "details" (details . "whoWouldYouLikeToBeTheAttorneysDetailsTitle" "whoWouldYouLikeToBeTheAttorneysDetailsContent" .ShowDetails) }}
+        {{ template "details" (details . "whoWouldYouLikeToBeTheAttorneysDetailsTitle" "whoWouldYouLikeToBeTheAttorneysDetailsContent" false) }}
 
-        <h2 class="govuk-heading-l">{{ tr .App "attorney" }}</h2>
-
+        <p class="govuk-body">{{ tr .App "youMustEnterTheirNameAsItAppears" }}</p>
+        
         {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20") }}
         {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
 
         {{ template "name-warning" . }}
 
-        {{ template "input" (input . "email" "emailOptional" .Form.Email "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
-
         {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
-
         {{ template "dob-warning" . }}
+
+        {{ template "input" (input . "email" "emailOptional" .Form.Email "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email" "labelClasses" "govuk-label--m") }}
+
+        {{ template "warning" (warning .App "organisationsMightNotAcceptAttorney") }}
 
         {{ template "save-and-return-buttons" . }}
 

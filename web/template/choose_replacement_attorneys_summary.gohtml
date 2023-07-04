@@ -7,8 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ trCount .App "replacementAttorneysAdded" (len .Lpa.ReplacementAttorneys) }}</h1>
 
-      {{ $showHeaders := not (eq .Lpa.Tasks.CheckYourLpa.String "completed") }}
-      {{ template "attorney-summary" (listAttorneys .Lpa.ReplacementAttorneys .App "replacement" $showHeaders .Lpa) }}
+      {{ template "attorney-summary" (listAttorneys .Lpa.ReplacementAttorneys .App "replacement" 2 .Lpa) }}
 
       <form novalidate method="post">
         <div class="govuk-form-group {{ if .Errors.Has "add-attorney" }}govuk-form-group--error{{ end }}">
