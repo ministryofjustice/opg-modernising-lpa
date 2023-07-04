@@ -119,6 +119,7 @@ type AppPaths struct {
 	CertificateProviderDetails                                 LpaPath
 	CertificateProviderOptOut                                  LpaPath
 	CheckYourLpa                                               LpaPath
+	ChooseAttorneysGuidance                                    LpaPath
 	ChooseAttorneys                                            LpaPath
 	ChooseAttorneysAddress                                     LpaPath
 	ChooseAttorneysSummary                                     LpaPath
@@ -165,7 +166,8 @@ type AppPaths struct {
 	UseExistingAddress                                         LpaPath
 	WhatYoullNeedToConfirmYourIdentity                         LpaPath
 	WhenCanTheLpaBeUsed                                        LpaPath
-	WhoDoYouWantToBeCertificateProviderGuidance                LpaPath
+	WhatACertificateProviderDoes                               LpaPath
+	ChooseYourCertificateProvider                              LpaPath
 	WhoIsTheLpaFor                                             LpaPath
 	WitnessingAsCertificateProvider                            LpaPath
 	WitnessingYourSignature                                    LpaPath
@@ -236,6 +238,7 @@ var Paths = AppPaths{
 	CertificateProviderAddress:                           "/certificate-provider-address",
 	CertificateProviderStart:                             "/certificate-provider-start",
 	CheckYourLpa:                                         "/check-your-lpa",
+	ChooseAttorneysGuidance:                              "/choose-attorneys-guidance",
 	ChooseAttorneys:                                      "/choose-attorneys",
 	ChooseAttorneysAddress:                               "/choose-attorneys-address",
 	ChooseAttorneysSummary:                               "/choose-attorneys-summary",
@@ -291,7 +294,8 @@ var Paths = AppPaths{
 	UseExistingAddress:                                   "/use-existing-address",
 	WhatYoullNeedToConfirmYourIdentity:                   "/what-youll-need-to-confirm-your-identity",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
-	WhoDoYouWantToBeCertificateProviderGuidance:          "/who-do-you-want-to-be-certificate-provider-guidance",
+	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
+	ChooseYourCertificateProvider:                        "/choose-your-certificate-provider",
 	WhoIsTheLpaFor:                                       "/who-is-the-lpa-for",
 	WitnessingAsCertificateProvider:                      "/witnessing-as-certificate-provider",
 	WitnessingYourSignature:                              "/witnessing-your-signature",
