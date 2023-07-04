@@ -45,18 +45,25 @@ resource "aws_cloudwatch_event_archive" "reduced_fees" {
 # Event pipe to send events from dynamodb stream to event bus
 
 resource "aws_pipes_pipe" "reduced_fees" {
-  name        = "${data.aws_default_tags.current.tags.environment-name}-reduced-fees"
-  description = "capture events from dynamodb stream and pass to event bus"
-  role_arn    = aws_iam_role.reduced_fees_pipe.arn
-  source      = aws_dynamodb_table.reduced_fees.stream_arn
-  target      = aws_cloudwatch_event_bus.reduced_fees.arn
+  name          = "${data.aws_default_tags.current.tags.environment-name}-reduced-fees"
+  description   = "capture events from dynamodb stream and pass to event bus"
+  desired_state = "RUNNING"
+  enrichment    = null
+  name_prefix   = null
+  role_arn      = aws_iam_role.reduced_fees_pipe.arn
+  source        = aws_dynamodb_table.reduced_fees.stream_arn
+  target        = aws_cloudwatch_event_bus.reduced_fees.arn
   source_parameters {
     dynamodb_stream_parameters {
-      batch_size        = 1
-      starting_position = "LATEST"
+      batch_size                         = 1
+      maximum_batching_window_in_seconds = 0
+      maximum_record_age_in_seconds      = -1
+      maximum_retry_attempts             = 0
+      on_partial_batch_item_failure      = null
+      parallelization_factor             = 1
+      starting_position                  = "LATEST"
     }
   }
-  target_parameters {}
   provider = aws.region
 }
 
