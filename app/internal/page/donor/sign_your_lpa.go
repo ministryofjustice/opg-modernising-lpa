@@ -89,7 +89,7 @@ func (f *signYourLpaForm) Validate() validation.List {
 	var errors validation.List
 
 	if !(f.WantToApply && f.WantToSign) {
-		errors.Add("sign-lpa", validation.CustomError{Label: "bothBoxesToSignAndApply"})
+		errors.Add("sign-lpa", validation.SelectError{Label: "bothBoxesToSignAndApply"})
 	}
 
 	return errors

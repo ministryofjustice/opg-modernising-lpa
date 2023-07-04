@@ -62,7 +62,7 @@ func TaskList(tmpl template.Template) Handler {
 						},
 						{
 							Name:  "chooseYourAttorneys",
-							Path:  page.Paths.ChooseAttorneys.Format(lpa.ID),
+							Path:  page.Paths.ChooseAttorneysGuidance.Format(lpa.ID),
 							State: lpa.Tasks.ChooseAttorneys,
 							Count: len(lpa.Attorneys),
 						},
@@ -80,7 +80,7 @@ func TaskList(tmpl template.Template) Handler {
 						},
 						{
 							Name:  "chooseYourCertificateProvider",
-							Path:  page.Paths.WhoDoYouWantToBeCertificateProviderGuidance.Format(lpa.ID),
+							Path:  page.Paths.WhatACertificateProviderDoes.Format(lpa.ID),
 							State: lpa.Tasks.CertificateProvider,
 						},
 						{

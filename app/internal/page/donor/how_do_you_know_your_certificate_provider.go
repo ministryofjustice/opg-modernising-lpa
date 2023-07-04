@@ -22,8 +22,7 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 			App:                 appData,
 			CertificateProvider: lpa.CertificateProvider,
 			Form: &howDoYouKnowYourCertificateProviderForm{
-				Description: lpa.CertificateProvider.RelationshipDescription,
-				How:         lpa.CertificateProvider.Relationship,
+				How: lpa.CertificateProvider.Relationship,
 			},
 		}
 
@@ -33,15 +32,14 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 
 			if data.Errors.None() {
 				lpa.CertificateProvider.Relationship = data.Form.How
-				lpa.CertificateProvider.RelationshipDescription = data.Form.Description
 
 				requireLength := false
-
-				if lpa.CertificateProvider.Relationship != "legal-professional" && lpa.CertificateProvider.Relationship != "health-professional" {
+				if lpa.CertificateProvider.Relationship.IsPersonally() {
 					requireLength = true
 				}
 
 				if requireLength {
+					// TODO: should stay as Completed if editing and not changing the answer here
 					lpa.Tasks.CertificateProvider = actor.TaskInProgress
 				} else {
 					lpa.CertificateProvider.RelationshipLength = ""
@@ -65,29 +63,24 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 }
 
 type howDoYouKnowYourCertificateProviderForm struct {
-	Description string
-	How         string
+	How   actor.CertificateProviderRelationship
+	Error error
 }
 
 func readHowDoYouKnowYourCertificateProviderForm(r *http.Request) *howDoYouKnowYourCertificateProviderForm {
-	r.ParseForm()
+	how, err := actor.ParseCertificateProviderRelationship(page.PostFormString(r, "how"))
 
 	return &howDoYouKnowYourCertificateProviderForm{
-		Description: page.PostFormString(r, "description"),
-		How:         page.PostFormString(r, "how"),
+		How:   how,
+		Error: err,
 	}
 }
 
 func (f *howDoYouKnowYourCertificateProviderForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("how", "howYouKnowCertificateProvider", f.How,
-		validation.Select("friend", "neighbour", "colleague", "health-professional", "legal-professional", "other"))
-
-	if f.How == "other" {
-		errors.String("description", "description", f.Description,
-			validation.Empty())
-	}
+	errors.Error("how", "howYouKnowCertificateProvider", f.Error,
+		validation.Selected())
 
 	return errors
 }
