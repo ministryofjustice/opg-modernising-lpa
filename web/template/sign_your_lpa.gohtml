@@ -19,7 +19,15 @@
 
       <ul class="govuk-list govuk-list--bullet">
         <li>{{ tr .App "iHaveReadLpa" }}</li>
-        <li>{{ trFormat .App "iGiveAttorneysAuthority" "LpaType" $lpaTypeLegalTerm }}</li>
+        {{ if .Lpa.Type.IsHealthWelfare }}
+          <li>{{ tr .App "iGiveAttorneysAuthority" "LpaType" $lpaTypeLegalTerm }}</li>
+        {{ else }}
+          {{ if .Lpa.WhenCanTheLpaBeUsed.IsRegistered }}
+            <li>{{ tr .App "iGiveAttorneysAuthorityWhenRegistered" }}</li>
+          {{ else }}
+            <li>{{ tr .App "iGiveAttorneysAuthorityWhenLostMentalCapacity" }}</li>
+          {{ end }}
+        {{ end }}
         {{ if .Lpa.Type.IsHealthWelfare }}
           {{ if .Lpa.LifeSustainingTreatmentOption.IsOptionA }}
             <li>{{ tr .App "iGiveMyAttorneysAuthorityLifeSustainingTreatment" }}</li>

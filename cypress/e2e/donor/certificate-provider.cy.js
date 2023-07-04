@@ -7,23 +7,6 @@ describe('Certificate provider task', () => {
         cy.visit('/testing-start?redirect=/task-list&lpa.yourDetails=1&lpa.attorneys=1');
     });
 
-    it('can be left unfinished', () => {
-        cy.contains('li', "Choose your certificate provider")
-            .should('contain', 'Not started')
-            .find('a')
-            .click();
-
-        cy.checkA11yApp();
-
-        cy.contains('button', 'Save and continue').click();
-        cy.url().should('contain', '/certificate-provider-details');
-
-        cy.visitLpa('/task-list');
-
-        cy.contains('li', "Choose your certificate provider")
-            .should('contain', 'In progress');
-    });
-
     it('can be a professional', () => {
         cy.contains('li', "Choose your certificate provider")
             .should('contain', 'Not started')
@@ -32,7 +15,12 @@ describe('Certificate provider task', () => {
 
         cy.checkA11yApp();
 
-        cy.contains('button', 'Save and continue').click();
+        cy.contains('a', 'Continue').click();
+
+        cy.url().should('contain', '/choose-your-certificate-provider');
+        cy.checkA11yApp();
+
+        cy.contains('a', 'Continue').click();
 
         cy.url().should('contain', '/certificate-provider-details');
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
@@ -45,7 +33,7 @@ describe('Certificate provider task', () => {
         cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
-        cy.contains('label', 'Online and by email').click();
+        cy.contains('label', 'By email').click();
         cy.get('#f-email').type(TestEmail, { force: true });
         cy.contains('button', 'Save and continue').click()
 
@@ -59,7 +47,7 @@ describe('Certificate provider task', () => {
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.contains('How do you know John Doe, your certificate provider?');
-        cy.contains('label', 'Solicitor').click();
+        cy.contains('label', 'Professionally').click();
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/do-you-want-to-notify-people');
@@ -78,7 +66,12 @@ describe('Certificate provider task', () => {
 
         cy.checkA11yApp();
 
-        cy.contains('button', 'Save and continue').click();
+        cy.contains('a', 'Continue').click();
+
+        cy.url().should('contain', '/choose-your-certificate-provider');
+        cy.checkA11yApp();
+
+        cy.contains('a', 'Continue').click();
 
         cy.url().should('contain', '/certificate-provider-details');
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
@@ -104,7 +97,7 @@ describe('Certificate provider task', () => {
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.contains('How do you know John Doe, your certificate provider?');
-        cy.contains('label', 'Friend').click();
+        cy.contains('label', 'Personally').click();
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/how-long-have-you-known-certificate-provider');
@@ -169,7 +162,7 @@ describe('Certificate provider task', () => {
     it('errors when how they prefer to carry out their role email invalid', () => {
         cy.visitLpa('/how-would-certificate-provider-prefer-to-carry-out-their-role');
 
-        cy.contains('label', 'Online and by email').click();
+        cy.contains('label', 'By email').click();
         cy.contains('button', 'Save and continue').click()
         cy.contains('[for=f-email] + .govuk-error-message', 'Enter certificate provider’s email address');
 
@@ -218,19 +211,6 @@ describe('Certificate provider task', () => {
         cy.contains('.govuk-fieldset .govuk-error-message', 'Select how you know your certificate provider');
     });
 
-    it('errors relationship not explained', () => {
-        cy.visitLpa('/how-do-you-know-your-certificate-provider');
-
-        cy.contains('label', 'Other').click();
-        cy.contains('button', 'Save and continue').click();
-
-        cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Enter description');
-        });
-
-        cy.contains('.govuk-fieldset .govuk-error-message', 'Enter description');
-    });
-
     it('errors how long you have known them not selected', () => {
         cy.visitLpa('/how-long-have-you-known-certificate-provider');
 
@@ -250,10 +230,10 @@ describe('Certificate provider task', () => {
         cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('You must have known your non-professional certificate provider for 2 years or more');
+            cy.contains('You must have known your certificate provider personally for 2 years or more. If you have known them for less than 2 years, you must choose a different certificate provider.');
         });
 
-        cy.contains('.govuk-fieldset .govuk-error-message', 'You must have known your non-professional certificate provider for 2 years or more');
+        cy.contains('.govuk-fieldset .govuk-error-message', 'You must have known your certificate provider personally for 2 years or more. If you have known them for less than 2 years, you must choose a different certificate provider.');
     });
 
     it('warns when name shared with other actor', () => {
