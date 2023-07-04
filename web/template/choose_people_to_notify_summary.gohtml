@@ -9,7 +9,7 @@
 
       {{ trHtml .App "weCanNotifyUpTo5PeopleContent" }}
 
-        {{ template "people-to-notify-summary" (listPeopleToNotify .App true .Lpa) }}
+        {{ template "people-to-notify-summary" (listPeopleToNotify .App 2 .Lpa) }}
 
       {{ if eq 5 (len .Lpa.PeopleToNotify) }}
         {{ template "warning" (warning .App "addedMaxPeople") }}
