@@ -260,14 +260,14 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 	}
 
 	app := page.AppData{SessionID: "abc", Page: "/here"}
-	withHeaders := true
+	headingLevel := 3
 	lpa := &page.Lpa{ID: "lpa-id"}
 	attorneyType := "attorney"
 
 	want := map[string]interface{}{
 		"Attorneys":    attorneys,
 		"App":          app,
-		"WithHeaders":  withHeaders,
+		"HeadingLevel": headingLevel,
 		"Lpa":          lpa,
 		"AttorneyType": attorneyType,
 		"DetailsPath":  app.Paths.ChooseAttorneys.Format("lpa-id") + "?from=/here",
@@ -275,7 +275,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 		"RemovePath":   app.Paths.RemoveAttorney.Format("lpa-id") + "?from=/here",
 	}
 
-	got := listAttorneys(attorneys, app, attorneyType, withHeaders, lpa)
+	got := listAttorneys(attorneys, app, attorneyType, headingLevel, lpa)
 
 	assert.Equal(t, want, got)
 }
@@ -287,14 +287,14 @@ func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 	}
 
 	app := page.AppData{SessionID: "abc", Page: "/here"}
-	withHeaders := true
+	headingLevel := 3
 	lpa := &page.Lpa{ID: "lpa-id"}
 	attorneyType := "replacement"
 
 	want := map[string]interface{}{
 		"Attorneys":    attorneys,
 		"App":          app,
-		"WithHeaders":  withHeaders,
+		"HeadingLevel": headingLevel,
 		"Lpa":          lpa,
 		"AttorneyType": attorneyType,
 		"DetailsPath":  app.Paths.ChooseReplacementAttorneys.Format("lpa-id") + "?from=/here",
@@ -302,7 +302,7 @@ func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 		"RemovePath":   app.Paths.RemoveReplacementAttorney.Format("lpa-id") + "?from=/here",
 	}
 
-	got := listAttorneys(attorneys, app, attorneyType, withHeaders, lpa)
+	got := listAttorneys(attorneys, app, attorneyType, headingLevel, lpa)
 
 	assert.Equal(t, want, got)
 }
@@ -319,16 +319,16 @@ func TestWarning(t *testing.T) {
 
 func TestListPeopleToNotify(t *testing.T) {
 	app := page.AppData{SessionID: "abc"}
-	withHeaders := true
+	headingLevel := 3
 	lpa := &page.Lpa{}
 
 	want := map[string]interface{}{
-		"App":         app,
-		"WithHeaders": withHeaders,
-		"Lpa":         lpa,
+		"App":          app,
+		"HeadingLevel": headingLevel,
+		"Lpa":          lpa,
 	}
 
-	got := listPeopleToNotify(app, withHeaders, lpa)
+	got := listPeopleToNotify(app, headingLevel, lpa)
 
 	assert.Equal(t, want, got)
 }
@@ -351,16 +351,16 @@ func TestProgressbar(t *testing.T) {
 
 func TestListPeopleNamedOnLpa(t *testing.T) {
 	app := page.AppData{SessionID: "abc"}
-	withHeaders := true
+	headingLevel := 3
 	lpa := &page.Lpa{}
 
 	want := map[string]interface{}{
-		"App":               app,
-		"ShowPeopleHeaders": withHeaders,
-		"Lpa":               lpa,
+		"App":          app,
+		"HeadingLevel": headingLevel,
+		"Lpa":          lpa,
 	}
 
-	got := peopleNamedOnLpa(app, lpa, withHeaders)
+	got := peopleNamedOnLpa(app, lpa, headingLevel)
 
 	assert.Equal(t, want, got)
 }

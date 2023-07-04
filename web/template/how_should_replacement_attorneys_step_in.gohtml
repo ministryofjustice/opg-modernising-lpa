@@ -1,11 +1,11 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "howShouldYourReplacementAttorneysStepIn" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "whenYourReplacementAttorneysStepIn" }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "howShouldYourReplacementAttorneysStepIn" }}</h1>
+      <h1 class="govuk-heading-xl">{{ tr .App "whenYourReplacementAttorneysStepIn" }}</h1>
 
       {{ trHtml .App "howShouldReplacementAttorneysStepInDetail" }}
 
@@ -40,7 +40,7 @@
 
                   <div class="govuk-radios__conditional" id="when-to-step-in-3-conditional-div">
                     <div class="govuk-form-group {{ if .Errors.Has "other-details" }}govuk-form-group--error{{ end }}">
-                      {{ trHtml .App "otherWayHint" }}
+                      <p class="govuk-body">{{ tr .App "otherWayHint" }}</p>
                       <label class="govuk-label" for="f-other-details">
                         {{ tr .App "details" }}
                       </label>
