@@ -20,11 +20,8 @@
               <div class="govuk-radios__item">
                 <input class="govuk-radios__input" id="f-carry-out-by" name="carry-out-by" type="radio" value="email" {{ if eq "email" .Form.CarryOutBy }}checked{{ end }} aria-describedby="carry-out-by-item-hint" data-aria-controls="conditional-email">
                 <label class="govuk-label govuk-radios__label" for="f-carry-out-by">
-                  {{ tr .App "onlineAndByEmail" }}
+                  {{ tr .App "byEmail" }}
                 </label>
-                <div id="carry-out-by-item-hint" class="govuk-hint govuk-radios__hint">
-                  {{ tr .App "onlineAndByEmailHint" }}
-                </div>
                 <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-email">
                   {{ template "input" (input . "email" "certificateProvidersEmail" .Form.Email "classes" "govuk-input--width-20" "type" "email") }}
                 </div>
