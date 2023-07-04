@@ -22,8 +22,8 @@ on:
         default: ${{ github.ref }}
         required: false
         type: string
-      simple:
-        description: 'Run "simple" specs only'
+      smoke:
+        description: 'Run "smoke" specs only'
         required: false
         type: boolean
       environment_config_json:
@@ -105,18 +105,20 @@ jobs:
         run: python ./scripts/ci_ingress/ci_ingress.py ${{ inputs.environment_config_json}} --add
 
       - name: Cypress run
-        if: inputs.simple != true
+        if: inputs.smoke != true
         uses: cypress-io/github-action@v5
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
           GITHUB_TOKEN: ${{ secrets.github_access_token }}
 
-      - name: Cypress run (simple)
-        if: inputs.simple
+      - name: Cypress run (smoke)
+        if: inputs.smoke
         uses: cypress-io/github-action@v5
         with:
-          spec: cypress/e2e/donor/start.cy.js
+          spec: |
+            cypress/e2e/donor/start.cy.js
+            cypress/e2e/smoke/external.cy.js
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}

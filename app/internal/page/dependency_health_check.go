@@ -1,26 +1,25 @@
 package page
 
 import (
+	"fmt"
+	"io"
 	"net/http"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/uid"
 )
 
 func DependencyHealthCheck(logger Logger, uidClient UidClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		_, err := uidClient.CreateCase(r.Context(), &uid.CreateCaseRequestBody{
-			Type: LpaTypePropertyFinance.String(),
-			Donor: uid.DonorDetails{
-				Name:     "Jane Smith",
-				Dob:      uid.ISODate{Time: date.New("2000", "1", "2").Time()},
-				Postcode: "B147ED",
-			},
-		})
+		resp, err := uidClient.Health(r.Context())
 
 		if err != nil {
 			logger.Print(err)
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(fmt.Sprintf("Error while getting UID service status: %s", err.Error())))
+		} else {
+			resp.Body.Close()
+			body, _ := io.ReadAll(resp.Body)
+
+			w.WriteHeader(resp.StatusCode)
+			w.Write(body)
 		}
 	}
 }
