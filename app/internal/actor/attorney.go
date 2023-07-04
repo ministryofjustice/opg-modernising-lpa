@@ -78,6 +78,15 @@ func (as Attorneys) FirstNames() string {
 	return concatSentence(names)
 }
 
+func (as Attorneys) FirstNamesList() []string {
+	names := make([]string, len(as))
+	for i, a := range as {
+		names[i] = a.FirstNames
+	}
+
+	return names
+}
+
 func concatSentence(list []string) string {
 	switch len(list) {
 	case 0:

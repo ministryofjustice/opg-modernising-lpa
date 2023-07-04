@@ -155,7 +155,9 @@ func Register(
 	handleWithLpa(page.Paths.TaskList, None,
 		TaskList(tmpls.Get("task_list.gohtml")))
 
-	handleWithLpa(page.Paths.ChooseAttorneys, None,
+	handleWithLpa(page.Paths.ChooseAttorneysGuidance, None,
+		Guidance(tmpls.Get("choose_attorneys_guidance.gohtml")))
+	handleWithLpa(page.Paths.ChooseAttorneys, CanGoBack,
 		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), donorStore, random.UuidString))
 	handleWithLpa(page.Paths.ChooseAttorneysAddress, CanGoBack,
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
@@ -196,8 +198,10 @@ func Register(
 	handleWithLpa(page.Paths.Restrictions, None,
 		Restrictions(tmpls.Get("restrictions.gohtml"), donorStore))
 
-	handleWithLpa(page.Paths.WhoDoYouWantToBeCertificateProviderGuidance, None,
-		WhoDoYouWantToBeCertificateProviderGuidance(tmpls.Get("who_do_you_want_to_be_certificate_provider_guidance.gohtml"), donorStore))
+	handleWithLpa(page.Paths.WhatACertificateProviderDoes, None,
+		Guidance(tmpls.Get("what_a_certificate_provider_does.gohtml")))
+	handleWithLpa(page.Paths.ChooseYourCertificateProvider, None,
+		Guidance(tmpls.Get("choose_your_certificate_provider.gohtml")))
 	handleWithLpa(page.Paths.CertificateProviderDetails, CanGoBack,
 		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), donorStore))
 	handleWithLpa(page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, CanGoBack,

@@ -136,7 +136,7 @@ func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.MatchedBy(func(data *signYourLpaData) bool {
-			return assert.Equal(t, validation.With("sign-lpa", validation.CustomError{Label: "bothBoxesToSignAndApply"}), data.Errors)
+			return assert.Equal(t, validation.With("sign-lpa", validation.SelectError{Label: "bothBoxesToSignAndApply"}), data.Errors)
 		})).
 		Return(nil)
 
@@ -179,18 +179,18 @@ func TestSignYourLpaFormValidate(t *testing.T) {
 				WantToApply: false,
 				WantToSign:  true,
 			},
-			errors: validation.With("sign-lpa", validation.CustomError{Label: "bothBoxesToSignAndApply"}),
+			errors: validation.With("sign-lpa", validation.SelectError{Label: "bothBoxesToSignAndApply"}),
 		},
 		"only want-to-apply selected": {
 			form: &signYourLpaForm{
 				WantToApply: true,
 				WantToSign:  false,
 			},
-			errors: validation.With("sign-lpa", validation.CustomError{Label: "bothBoxesToSignAndApply"}),
+			errors: validation.With("sign-lpa", validation.SelectError{Label: "bothBoxesToSignAndApply"}),
 		},
 		"none selected": {
 			form:   &signYourLpaForm{},
-			errors: validation.With("sign-lpa", validation.CustomError{Label: "bothBoxesToSignAndApply"}),
+			errors: validation.With("sign-lpa", validation.SelectError{Label: "bothBoxesToSignAndApply"}),
 		},
 	}
 
