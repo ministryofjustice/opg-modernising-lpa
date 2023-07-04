@@ -13,7 +13,7 @@
 
         {{ template "name-warning" . }}
 
-        {{ template "input" (input . "other-names" "otherNames" .Form.OtherNames "classes" "govuk-input--width-20") }}
+        {{ template "input" (input . "other-names" "otherNames" .Form.OtherNames "hint" "otherNamesHint" "classes" "govuk-input--width-20") }}
 
         {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
 
