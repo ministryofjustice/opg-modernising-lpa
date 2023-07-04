@@ -88,7 +88,7 @@ jobs:
       run_against_image: false
       base_url: "https://${{ needs.preproduction_deploy.outputs.url }}"
       tag: ${{ needs.create_tags.outputs.version_tag }}
-      simple: true
+      smoke: true
       environment_config_json: ${{ needs.preproduction_deploy.outputs.environment_config_json }}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
