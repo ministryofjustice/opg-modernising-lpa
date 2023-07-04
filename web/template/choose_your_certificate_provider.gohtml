@@ -1,0 +1,25 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "chooseYourCertificateProvider" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "chooseYourCertificateProvider" }}</h1>
+
+      {{ trHtml .App "chooseYourCertificateProviderContent" }}
+
+      {{ template "details" (details . "examplesOfProfessionalCertificateProviders" "examplesOfProfessionalCertificateProvidersContent" false) }}
+
+      <p class="govuk-body">{{ tr .App "chooseSomeoneYoureComfortableHavingAConversationWith" }}</p>
+
+      {{ trFormatHtml .App "whoCannotBeACertificateProvider" "AttorneysFirstNamesOr" (concatOr .App .Lpa.Attorneys.FirstNamesList) }}
+      {{ trHtml .App "detailsYoullNeedAboutYourCertificateProvider" }}
+      
+      <div class="govuk-button-group">
+        <a class="govuk-button" href="{{ link .App (.App.Paths.CertificateProviderDetails.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+        <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+      </div>
+    </div>
+  </div>
+{{ end }}

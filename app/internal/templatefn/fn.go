@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"reflect"
+	"strings"
 	"time"
 	"unicode"
 	"unicode/utf8"
@@ -48,6 +49,7 @@ func All(tag, region string) map[string]any {
 		"possessive":         possessive,
 		"card":               card,
 		"printStruct":        printStruct,
+		"concatOr":           concatOr,
 	}
 }
 
@@ -249,11 +251,11 @@ func lowerFirst(s string) string {
 	return string(unicode.ToLower(r)) + s[n:]
 }
 
-func listAttorneys(attorneys actor.Attorneys, app page.AppData, attorneyType string, withHeaders bool, lpa *page.Lpa) map[string]interface{} {
+func listAttorneys(attorneys actor.Attorneys, app page.AppData, attorneyType string, headingLevel int, lpa *page.Lpa) map[string]interface{} {
 	props := map[string]interface{}{
 		"Attorneys":    attorneys,
 		"App":          app,
-		"WithHeaders":  withHeaders,
+		"HeadingLevel": headingLevel,
 		"Lpa":          lpa,
 		"AttorneyType": attorneyType,
 	}
@@ -271,11 +273,11 @@ func listAttorneys(attorneys actor.Attorneys, app page.AppData, attorneyType str
 	return props
 }
 
-func listPeopleToNotify(app page.AppData, withHeaders bool, lpa *page.Lpa) map[string]interface{} {
+func listPeopleToNotify(app page.AppData, headingLevel int, lpa *page.Lpa) map[string]interface{} {
 	return map[string]interface{}{
-		"App":         app,
-		"WithHeaders": withHeaders,
-		"Lpa":         lpa,
+		"App":          app,
+		"HeadingLevel": headingLevel,
+		"Lpa":          lpa,
 	}
 }
 
@@ -294,11 +296,11 @@ func progressBar(app page.AppData, lpa *page.Lpa, certificateProvider *actor.Cer
 	}
 }
 
-func peopleNamedOnLpa(app page.AppData, lpa *page.Lpa, showPeopleHeaders bool) map[string]interface{} {
+func peopleNamedOnLpa(app page.AppData, lpa *page.Lpa, headingLevel int) map[string]interface{} {
 	return map[string]interface{}{
-		"App":               app,
-		"Lpa":               lpa,
-		"ShowPeopleHeaders": showPeopleHeaders,
+		"App":          app,
+		"Lpa":          lpa,
+		"HeadingLevel": headingLevel,
 	}
 }
 
@@ -331,4 +333,20 @@ func printStruct(s interface{}) string {
 
 func possessive(app page.AppData, s string) string {
 	return app.Localizer.Possessive(s)
+}
+
+func concatOr(app page.AppData, list []string) string {
+	if app.Lang == localize.Cy {
+		return "Welsh"
+	}
+
+	switch len(list) {
+	case 0:
+		return ""
+	case 1:
+		return list[0]
+	default:
+		last := len(list) - 1
+		return fmt.Sprintf("%s or %s", strings.Join(list[:last], ", "), list[last])
+	}
 }
