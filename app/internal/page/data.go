@@ -233,7 +233,7 @@ func (l *Lpa) canGoToLpaPath(path string) bool {
 	switch path {
 	case Paths.ReadYourLpa.String(), Paths.SignYourLpa.String(), Paths.WitnessingYourSignature.String(), Paths.WitnessingAsCertificateProvider.String(), Paths.YouHaveSubmittedYourLpa.String():
 		return l.DonorIdentityConfirmed()
-	case Paths.WhenCanTheLpaBeUsed.String(), Paths.LifeSustainingTreatment.String(), Paths.Restrictions.String(), Paths.WhoDoYouWantToBeCertificateProviderGuidance.String(), Paths.DoYouWantToNotifyPeople.String(), Paths.DoYouWantReplacementAttorneys.String():
+	case Paths.WhenCanTheLpaBeUsed.String(), Paths.LifeSustainingTreatment.String(), Paths.Restrictions.String(), Paths.WhatACertificateProviderDoes.String(), Paths.DoYouWantToNotifyPeople.String(), Paths.DoYouWantReplacementAttorneys.String():
 		return l.Tasks.YourDetails.Completed() &&
 			l.Tasks.ChooseAttorneys.Completed()
 	case Paths.CheckYourLpa.String():
