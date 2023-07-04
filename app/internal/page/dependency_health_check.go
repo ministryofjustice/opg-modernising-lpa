@@ -1,6 +1,7 @@
 package page
 
 import (
+	"io"
 	"net/http"
 )
 
@@ -10,12 +11,13 @@ func DependencyHealthCheck(logger Logger, uidClient UidClient) http.HandlerFunc 
 
 		if err != nil {
 			logger.Print(err)
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusBadRequest)
+			return
 		}
 
-		if resp.StatusCode != http.StatusOK {
-			logger.Print("UID service not available")
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		body, _ := io.ReadAll(resp.Body)
+
+		w.WriteHeader(resp.StatusCode)
+		w.Write(body)
 	}
 }
