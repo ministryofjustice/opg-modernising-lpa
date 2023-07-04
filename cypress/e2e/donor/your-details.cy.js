@@ -39,7 +39,7 @@ describe('Donor details', () => {
 
         cy.contains('[for=f-first-names] + .govuk-error-message', 'First names must be 53 characters or less');
         cy.contains('[for=f-last-name] + .govuk-error-message', 'Last name must be 61 characters or less');
-        cy.contains('[for=f-other-names] + .govuk-error-message', 'Other names must be 50 characters or less');
+        cy.contains('[for=f-other-names] + div + .govuk-error-message', 'Other names must be 50 characters or less');
     });
 
     it('errors when invalid dates of birth', () => {
