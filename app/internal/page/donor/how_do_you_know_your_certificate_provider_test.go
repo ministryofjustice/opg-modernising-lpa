@@ -38,7 +38,7 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	certificateProvider := actor.CertificateProvider{
-		Relationship: "friend",
+		Relationship: actor.Personally,
 	}
 
 	template := newMockTemplate(t)
@@ -46,7 +46,7 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 		On("Execute", w, &howDoYouKnowYourCertificateProviderData{
 			App:                 testAppData,
 			CertificateProvider: certificateProvider,
-			Form:                &howDoYouKnowYourCertificateProviderForm{How: "friend"},
+			Form:                &howDoYouKnowYourCertificateProviderForm{How: actor.Personally},
 		}).
 		Return(nil)
 
@@ -82,61 +82,20 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		taskState                  actor.TaskState
 		redirect                   page.LpaPath
 	}{
-		"legal-professional": {
-			form: url.Values{"how": {"legal-professional"}},
+		"professionally": {
+			form: url.Values{"how": {actor.Professionally.String()}},
 			certificateProviderDetails: actor.CertificateProvider{
 				FirstNames:   "John",
-				Relationship: "legal-professional",
+				Relationship: actor.Professionally,
 			},
 			taskState: actor.TaskCompleted,
 			redirect:  page.Paths.DoYouWantToNotifyPeople,
 		},
-		"health-professional": {
-			form: url.Values{"how": {"health-professional"}},
+		"personally": {
+			form: url.Values{"how": {actor.Personally.String()}},
 			certificateProviderDetails: actor.CertificateProvider{
 				FirstNames:   "John",
-				Relationship: "health-professional",
-			},
-			taskState: actor.TaskCompleted,
-			redirect:  page.Paths.DoYouWantToNotifyPeople,
-		},
-		"other": {
-			form: url.Values{"how": {"other"}, "description": {"This"}},
-			certificateProviderDetails: actor.CertificateProvider{
-				FirstNames:              "John",
-				Relationship:            "other",
-				RelationshipDescription: "This",
-				RelationshipLength:      "gte-2-years",
-			},
-			taskState: actor.TaskInProgress,
-			redirect:  page.Paths.HowLongHaveYouKnownCertificateProvider,
-		},
-		"lay - friend": {
-			form: url.Values{"how": {"friend"}},
-			certificateProviderDetails: actor.CertificateProvider{
-				FirstNames:         "John",
-				Relationship:       "friend",
-				RelationshipLength: "gte-2-years",
-			},
-			taskState: actor.TaskInProgress,
-			redirect:  page.Paths.HowLongHaveYouKnownCertificateProvider,
-		},
-		"lay - neighbour": {
-			form: url.Values{"how": {"neighbour"}},
-			certificateProviderDetails: actor.CertificateProvider{
-				FirstNames:         "John",
-				Relationship:       "neighbour",
-				RelationshipLength: "gte-2-years",
-			},
-			taskState: actor.TaskInProgress,
-			redirect:  page.Paths.HowLongHaveYouKnownCertificateProvider,
-		},
-		"lay - colleague": {
-			form: url.Values{"how": {"colleague"}},
-			certificateProviderDetails: actor.CertificateProvider{
-				FirstNames:         "John",
-				Relationship:       "colleague",
-				RelationshipLength: "gte-2-years",
+				Relationship: actor.Personally,
 			},
 			taskState: actor.TaskInProgress,
 			redirect:  page.Paths.HowLongHaveYouKnownCertificateProvider,
@@ -164,7 +123,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 
 			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &page.Lpa{
 				ID:                  "lpa-id",
-				CertificateProvider: actor.CertificateProvider{FirstNames: "John", Relationship: "what", RelationshipLength: "gte-2-years"},
+				CertificateProvider: actor.CertificateProvider{FirstNames: "John"},
 				Tasks: page.Tasks{
 					YourDetails:     actor.TaskCompleted,
 					ChooseAttorneys: actor.TaskCompleted,
@@ -181,7 +140,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 
 func TestPostHowDoYouKnowYourCertificateProviderWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"how": {"friend"},
+		"how": {actor.Personally.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -205,11 +164,9 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenValidationErrors(t *testing.
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &howDoYouKnowYourCertificateProviderData{
-			App:    testAppData,
-			Form:   &howDoYouKnowYourCertificateProviderForm{},
-			Errors: validation.With("how", validation.SelectError{Label: "howYouKnowCertificateProvider"}),
-		}).
+		On("Execute", w, mock.MatchedBy(func(data *howDoYouKnowYourCertificateProviderData) bool {
+			return assert.Equal(t, validation.With("how", validation.SelectError{Label: "howYouKnowCertificateProvider"}), data.Errors)
+		})).
 		Return(nil)
 
 	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
@@ -221,8 +178,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenValidationErrors(t *testing.
 
 func TestReadHowDoYouKnowYourCertificateProviderForm(t *testing.T) {
 	form := url.Values{
-		"how":         {"friend"},
-		"description": {"What"},
+		"how": {actor.Personally.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -230,8 +186,7 @@ func TestReadHowDoYouKnowYourCertificateProviderForm(t *testing.T) {
 
 	result := readHowDoYouKnowYourCertificateProviderForm(r)
 
-	assert.Equal(t, "friend", result.How)
-	assert.Equal(t, "What", result.Description)
+	assert.Equal(t, actor.Personally, result.How)
 }
 
 func TestHowDoYouKnowYourCertificateProviderFormValidate(t *testing.T) {
@@ -240,26 +195,13 @@ func TestHowDoYouKnowYourCertificateProviderFormValidate(t *testing.T) {
 		errors validation.List
 	}{
 		"valid": {
-			form: &howDoYouKnowYourCertificateProviderForm{
-				How:         "friend",
-				Description: "This",
-			},
+			form: &howDoYouKnowYourCertificateProviderForm{},
 		},
-		"missing": {
-			form:   &howDoYouKnowYourCertificateProviderForm{},
-			errors: validation.With("how", validation.SelectError{Label: "howYouKnowCertificateProvider"}),
-		},
-		"invalid-option": {
+		"invalid": {
 			form: &howDoYouKnowYourCertificateProviderForm{
-				How: "what",
+				Error: expectedError,
 			},
 			errors: validation.With("how", validation.SelectError{Label: "howYouKnowCertificateProvider"}),
-		},
-		"other-missing-description": {
-			form: &howDoYouKnowYourCertificateProviderForm{
-				How: "other",
-			},
-			errors: validation.With("description", validation.EnterError{Label: "description"}),
 		},
 	}
 
