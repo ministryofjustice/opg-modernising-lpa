@@ -16,55 +16,49 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetLpaType(t *testing.T) {
+func TestGetApplicationReason(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &lpaTypeData{
-			App:  testAppData,
-			Form: &lpaTypeForm{},
-			Options: lpaTypeOptions{
-				PropertyFinance: page.LpaTypePropertyFinance,
-				HealthWelfare:   page.LpaTypeHealthWelfare,
-			},
+		On("Execute", w, &applicationReasonData{
+			App:     testAppData,
+			Form:    &applicationReasonForm{},
+			Options: page.ApplicationReasonValues,
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := ApplicationReason(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetLpaTypeFromStore(t *testing.T) {
+func TestGetApplicationReasonFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &lpaTypeData{
+		On("Execute", w, &applicationReasonData{
 			App: testAppData,
-			Form: &lpaTypeForm{
-				LpaType: page.LpaTypePropertyFinance,
+			Form: &applicationReasonForm{
+				ApplicationReason: page.MoveFromPaperApplication,
 			},
-			Options: lpaTypeOptions{
-				PropertyFinance: page.LpaTypePropertyFinance,
-				HealthWelfare:   page.LpaTypeHealthWelfare,
-			},
+			Options: page.ApplicationReasonValues,
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, nil)(testAppData, w, r, &page.Lpa{Type: page.LpaTypePropertyFinance})
+	err := ApplicationReason(template.Execute, nil)(testAppData, w, r, &page.Lpa{ApplicationReason: page.MoveFromPaperApplication})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
+func TestGetApplicationReasonWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -73,16 +67,16 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := LpaType(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := ApplicationReason(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostLpaType(t *testing.T) {
+func TestPostApplicationReason(t *testing.T) {
 	form := url.Values{
-		"lpa-type": {page.LpaTypePropertyFinance.String()},
+		"application-reason": {page.NewApplication.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -99,11 +93,12 @@ func TestPostLpaType(t *testing.T) {
 				DateOfBirth: date.New("2000", "1", "2"),
 				Address:     place.Address{Postcode: "ABC123"},
 			},
-			Type: page.LpaTypePropertyFinance,
+			ApplicationReason: page.NewApplication,
+			Tasks:             page.Tasks{YourDetails: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := LpaType(nil, donorStore)(testAppData, w, r, &page.Lpa{
+	err := ApplicationReason(nil, donorStore)(testAppData, w, r, &page.Lpa{
 		ID: "lpa-id",
 		Donor: actor.Donor{
 			FirstNames:  "Jane",
@@ -116,12 +111,12 @@ func TestPostLpaType(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ApplicationReason.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
+func TestPostApplicationReasonWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"lpa-type": {page.LpaTypePropertyFinance.String()},
+		"application-reason": {page.NewApplication.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -133,56 +128,56 @@ func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := LpaType(nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := ApplicationReason(nil, donorStore)(testAppData, w, r, &page.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
 
-func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
+func TestPostApplicationReasonWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, mock.MatchedBy(func(data *lpaTypeData) bool {
-			return assert.Equal(t, validation.With("lpa-type", validation.SelectError{Label: "theTypeOfLpaToMake"}), data.Errors)
+		On("Execute", w, mock.MatchedBy(func(data *applicationReasonData) bool {
+			return assert.Equal(t, validation.With("application-reason", validation.SelectError{Label: "theReasonForMakingTheApplication"}), data.Errors)
 		})).
 		Return(nil)
 
-	err := LpaType(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := ApplicationReason(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestReadLpaTypeForm(t *testing.T) {
+func TestReadApplicationReasonForm(t *testing.T) {
 	form := url.Values{
-		"lpa-type": {page.LpaTypePropertyFinance.String()},
+		"application-reason": {page.NewApplication.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readLpaTypeForm(r)
+	result := readApplicationReasonForm(r)
 
-	assert.Equal(t, page.LpaTypePropertyFinance, result.LpaType)
+	assert.Equal(t, page.NewApplication, result.ApplicationReason)
 }
 
-func TestLpaTypeFormValidate(t *testing.T) {
+func TestApplicationReasonFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *lpaTypeForm
+		form   *applicationReasonForm
 		errors validation.List
 	}{
 		"valid": {
-			form: &lpaTypeForm{},
+			form: &applicationReasonForm{},
 		},
 		"invalid": {
-			form: &lpaTypeForm{
+			form: &applicationReasonForm{
 				Error: expectedError,
 			},
-			errors: validation.With("lpa-type", validation.SelectError{Label: "theTypeOfLpaToMake"}),
+			errors: validation.With("application-reason", validation.SelectError{Label: "theReasonForMakingTheApplication"}),
 		},
 	}
 
