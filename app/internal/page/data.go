@@ -68,6 +68,16 @@ const (
 	ReplacementAttorneysStepInAnotherWay                                                  // other
 )
 
+//go:generate enumerator -type ApplicationReason  -empty
+type ApplicationReason uint8
+
+const (
+	NewApplication ApplicationReason = iota + 1
+	RemakeOfInvalidApplication
+	AdditionalApplication
+	MoveFromPaperApplication
+)
+
 // Lpa contains all the data related to the LPA application
 type Lpa struct {
 	PK, SK string
@@ -89,6 +99,8 @@ type Lpa struct {
 	WhoFor string
 	// Type of LPA being drafted
 	Type LpaType
+	// ApplicationReason is why the application is being made
+	ApplicationReason ApplicationReason
 	// Whether the applicant wants to add replacement attorneys
 	WantReplacementAttorneys actor.YesNo
 	// When the LPA can be used
