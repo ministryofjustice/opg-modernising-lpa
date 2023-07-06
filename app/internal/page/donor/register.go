@@ -153,6 +153,8 @@ func Register(
 		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore))
 	handleWithLpa(page.Paths.ApplicationReason, None,
 		ApplicationReason(tmpls.Get("application_reason.gohtml"), donorStore))
+	handleWithLpa(page.Paths.PreviousApplicationNumber, None,
+		PreviousApplicationNumber(tmpls.Get("previous_application_number.gohtml"), donorStore))
 
 	handleWithLpa(page.Paths.TaskList, None,
 		TaskList(tmpls.Get("task_list.gohtml")))
