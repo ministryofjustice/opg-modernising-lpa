@@ -8,7 +8,7 @@ describe('data loss warning accessibility', () => {
         cy.get('#dialog').should('be.visible')
         cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none')
 
-        cy.focused().should('have.attr', 'id', 'back-to-page-btn')
+        cy.focused().should('have.attr', 'id', 'back-to-page-dialog-btn')
 
         cy.realPress("Tab")
         cy.focused().should('have.attr', 'id', 'return-to-task-list-dialog-btn')
@@ -20,7 +20,7 @@ describe('data loss warning accessibility', () => {
         cy.focused().should('have.attr', 'id', 'dialog-description')
 
         cy.realPress("Tab")
-        cy.focused().should('have.attr', 'id', 'back-to-page-btn')
+        cy.focused().should('have.attr', 'id', 'back-to-page-dialog-btn')
 
         cy.contains('button', 'Back to page').click()
 
@@ -34,7 +34,7 @@ describe('data loss warning accessibility', () => {
         cy.get('#dialog').should('be.visible')
         cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none')
 
-        cy.focused().should('have.attr', 'id', 'back-to-page-btn')
+        cy.focused().should('have.attr', 'id', 'back-to-page-dialog-btn')
 
         cy.realPress(["Shift", "Tab"])
         cy.focused().should('have.attr', 'id', 'dialog-description')
@@ -46,7 +46,7 @@ describe('data loss warning accessibility', () => {
         cy.focused().should('have.attr', 'id', 'return-to-task-list-dialog-btn')
 
         cy.realPress(["Shift", "Tab"])
-        cy.focused().should('have.attr', 'id', 'back-to-page-btn')
+        cy.focused().should('have.attr', 'id', 'back-to-page-dialog-btn')
 
         cy.realType('{esc}')
 

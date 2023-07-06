@@ -7,27 +7,42 @@ export class DataLossWarning {
         this.handleTrapFocus = this.handleTrapFocus.bind(this)
 
         if (this.dialog && this.dialogOverlay && this.returnToTaskListButton) {
-            this.originalFormValues = this.stringifyFormValues()
+            this.formValuesOnPageLoad = this.getEncodedStringifiedFormValues()
+            this.formValuesPriorToPageLoad = this.getFormValuesFromCookie()
+
             this.registerListeners()
         }
     }
 
     changesMade() {
-        return this.originalFormValues !== this.stringifyFormValues()
+        return this.formValuesOnPageLoad !== this.getEncodedStringifiedFormValues() ||
+            // to account for page reload on validation error
+            this.formValuesPriorToPageLoad === this.getEncodedStringifiedFormValues()
     }
 
-    stringifyFormValues() {
-        return JSON.stringify([...new FormData(document.querySelector("form:not([action])")).values()])
+    formEmpty() {
+        const encodedEmptyFormValues = encodeURIComponent(JSON.stringify([]))
+
+        return this.getEncodedStringifiedFormValues() === encodedEmptyFormValues
+    }
+
+    getEncodedStringifiedFormValues() {
+        const formValues = new FormData(document.querySelector("form:not([action])"))
+        formValues.delete('csrf')
+
+        const sanitisedValues = [...formValues.values()].filter(subArray => subArray.length > 0)
+
+        return encodeURIComponent(JSON.stringify(sanitisedValues))
     }
 
     toggleDialogVisibility() {
-        if (this.changesMade()) {
+        if (this.changesMade() && !this.formEmpty()) {
             this.dialog.classList.toggle('govuk-!-display-none')
             this.dialogOverlay.classList.toggle('govuk-!-display-none')
 
             if (this.dialogVisible()) {
                 this.dialog.addEventListener('keydown', this.handleTrapFocus)
-                document.getElementById('back-to-page-btn').focus()
+                document.getElementById('back-to-page-dialog-btn').focus()
             } else {
                 this.dialog.removeEventListener('keydown', this.handleTrapFocus)
                 this.returnToTaskListButton.focus()
@@ -41,13 +56,14 @@ export class DataLossWarning {
 
     registerListeners() {
         document.getElementById('return-to-tasklist-btn').addEventListener('click', (e) => {
-            if (this.changesMade()) {
+            if (this.changesMade() && !this.formEmpty()) {
                 e.preventDefault()
             }
         })
         document.getElementById('return-to-tasklist-btn').addEventListener('click', this.toggleDialogVisibility.bind(this))
-        document.getElementById('back-to-page-btn').addEventListener('click', this.toggleDialogVisibility.bind(this))
+        document.getElementById('back-to-page-dialog-btn').addEventListener('click', this.toggleDialogVisibility.bind(this))
         document.getElementById('return-to-task-list-dialog-btn').addEventListener('click', this.toggleDialogVisibility.bind(this))
+        document.getElementById('save-and-continue-btn').addEventListener('click', () => { this.addFormValuesToCookie() })
     }
 
     handleTrapFocus(e) {
@@ -76,5 +92,17 @@ export class DataLossWarning {
         if (escPressed) {
             this.toggleDialogVisibility()
         }
+    }
+
+    addFormValuesToCookie() {
+        // so the cookie isn't available for longer than required
+        const tenSecondsFutureDate = new Date();
+        tenSecondsFutureDate.setTime(tenSecondsFutureDate.getTime() + 10)
+
+        document.cookie = `formValues=${this.getEncodedStringifiedFormValues()}; expires=${tenSecondsFutureDate.toUTCString()}; SameSite=Lax; Secure`;
+    }
+
+    getFormValuesFromCookie() {
+        return document.cookie.split("; ").find((row) => row.startsWith("formValues="))?.split("=")[1];
     }
 }
