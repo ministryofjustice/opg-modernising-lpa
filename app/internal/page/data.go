@@ -101,6 +101,8 @@ type Lpa struct {
 	Type LpaType
 	// ApplicationReason is why the application is being made
 	ApplicationReason ApplicationReason
+	// PreviousApplicationNumber if the application is related to an existing application
+	PreviousApplicationNumber string
 	// Whether the applicant wants to add replacement attorneys
 	WantReplacementAttorneys actor.YesNo
 	// When the LPA can be used

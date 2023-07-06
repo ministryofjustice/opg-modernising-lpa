@@ -153,6 +153,7 @@ type AppPaths struct {
 	LpaType                                                    LpaPath
 	LpaYourLegalRightsAndResponsibilities                      LpaPath
 	PaymentConfirmation                                        LpaPath
+	PreviousApplicationNumber                                  LpaPath
 	Progress                                                   LpaPath
 	ReadYourLpa                                                LpaPath
 	RemoveAttorney                                             LpaPath
@@ -279,6 +280,7 @@ var Paths = AppPaths{
 	LpaType:                                              "/lpa-type",
 	LpaYourLegalRightsAndResponsibilities:                "/your-legal-rights-and-responsibilities",
 	PaymentConfirmation:                                  "/payment-confirmation",
+	PreviousApplicationNumber:                            "/previous-application-number",
 	Progress:                                             "/progress",
 	ReadYourLpa:                                          "/read-your-lpa",
 	RemoveAttorney:                                       "/remove-attorney",
