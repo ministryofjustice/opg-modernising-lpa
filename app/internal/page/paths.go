@@ -109,8 +109,8 @@ type AppPaths struct {
 	YotiRedirect                       Path
 	CookiesConsent                     Path
 
-	LpaYourLegalRightsAndResponsibilities                      LpaPath
 	AboutPayment                                               LpaPath
+	ApplicationReason                                          LpaPath
 	AreYouHappyIfOneAttorneyCantActNoneCan                     LpaPath
 	AreYouHappyIfOneReplacementAttorneyCantActNoneCan          LpaPath
 	AreYouHappyIfRemainingAttorneysCanContinueToAct            LpaPath
@@ -119,9 +119,9 @@ type AppPaths struct {
 	CertificateProviderDetails                                 LpaPath
 	CertificateProviderOptOut                                  LpaPath
 	CheckYourLpa                                               LpaPath
-	ChooseAttorneysGuidance                                    LpaPath
 	ChooseAttorneys                                            LpaPath
 	ChooseAttorneysAddress                                     LpaPath
+	ChooseAttorneysGuidance                                    LpaPath
 	ChooseAttorneysSummary                                     LpaPath
 	ChoosePeopleToNotify                                       LpaPath
 	ChoosePeopleToNotifyAddress                                LpaPath
@@ -129,6 +129,7 @@ type AppPaths struct {
 	ChooseReplacementAttorneys                                 LpaPath
 	ChooseReplacementAttorneysAddress                          LpaPath
 	ChooseReplacementAttorneysSummary                          LpaPath
+	ChooseYourCertificateProvider                              LpaPath
 	DoYouWantReplacementAttorneys                              LpaPath
 	DoYouWantToNotifyPeople                                    LpaPath
 	HowDoYouKnowYourCertificateProvider                        LpaPath
@@ -150,6 +151,7 @@ type AppPaths struct {
 	IdentityWithYotiCallback                                   LpaPath
 	LifeSustainingTreatment                                    LpaPath
 	LpaType                                                    LpaPath
+	LpaYourLegalRightsAndResponsibilities                      LpaPath
 	PaymentConfirmation                                        LpaPath
 	Progress                                                   LpaPath
 	ReadYourLpa                                                LpaPath
@@ -164,10 +166,9 @@ type AppPaths struct {
 	SignYourLpa                                                LpaPath
 	TaskList                                                   LpaPath
 	UseExistingAddress                                         LpaPath
+	WhatACertificateProviderDoes                               LpaPath
 	WhatYoullNeedToConfirmYourIdentity                         LpaPath
 	WhenCanTheLpaBeUsed                                        LpaPath
-	WhatACertificateProviderDoes                               LpaPath
-	ChooseYourCertificateProvider                              LpaPath
 	WhoIsTheLpaFor                                             LpaPath
 	WitnessingAsCertificateProvider                            LpaPath
 	WitnessingYourSignature                                    LpaPath
@@ -228,19 +229,20 @@ var Paths = AppPaths{
 	},
 
 	AboutPayment:                                               "/about-payment",
+	ApplicationReason:                                          "/application-reason",
 	AreYouHappyIfOneAttorneyCantActNoneCan:                     "/are-you-happy-if-one-attorney-cant-act-none-can",
 	AreYouHappyIfOneReplacementAttorneyCantActNoneCan:          "/are-you-happy-if-one-replacement-attorney-cant-act-none-can",
 	AreYouHappyIfRemainingAttorneysCanContinueToAct:            "/are-you-happy-if-remaining-attorneys-can-continue-to-act",
 	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct: "/are-you-happy-if-remaining-replacement-attorneys-can-continue-to-act",
 	AuthRedirect:                                         "/auth/redirect",
+	CertificateProviderAddress:                           "/certificate-provider-address",
 	CertificateProviderDetails:                           "/certificate-provider-details",
 	CertificateProviderOptOut:                            "/certificate-provider-opt-out",
-	CertificateProviderAddress:                           "/certificate-provider-address",
 	CertificateProviderStart:                             "/certificate-provider-start",
 	CheckYourLpa:                                         "/check-your-lpa",
-	ChooseAttorneysGuidance:                              "/choose-attorneys-guidance",
 	ChooseAttorneys:                                      "/choose-attorneys",
 	ChooseAttorneysAddress:                               "/choose-attorneys-address",
+	ChooseAttorneysGuidance:                              "/choose-attorneys-guidance",
 	ChooseAttorneysSummary:                               "/choose-attorneys-summary",
 	ChoosePeopleToNotify:                                 "/choose-people-to-notify",
 	ChoosePeopleToNotifyAddress:                          "/choose-people-to-notify-address",
@@ -248,6 +250,7 @@ var Paths = AppPaths{
 	ChooseReplacementAttorneys:                           "/choose-replacement-attorneys",
 	ChooseReplacementAttorneysAddress:                    "/choose-replacement-attorneys-address",
 	ChooseReplacementAttorneysSummary:                    "/choose-replacement-attorneys-summary",
+	ChooseYourCertificateProvider:                        "/choose-your-certificate-provider",
 	CookiesConsent:                                       "/cookies-consent",
 	Dashboard:                                            "/dashboard",
 	DoYouWantReplacementAttorneys:                        "/do-you-want-replacement-attorneys",
@@ -274,6 +277,7 @@ var Paths = AppPaths{
 	Login:                                                "/login",
 	LoginCallback:                                        "/login-callback",
 	LpaType:                                              "/lpa-type",
+	LpaYourLegalRightsAndResponsibilities:                "/your-legal-rights-and-responsibilities",
 	PaymentConfirmation:                                  "/payment-confirmation",
 	Progress:                                             "/progress",
 	ReadYourLpa:                                          "/read-your-lpa",
@@ -292,10 +296,9 @@ var Paths = AppPaths{
 	TaskList:                                             "/task-list",
 	TestingStart:                                         "/testing-start",
 	UseExistingAddress:                                   "/use-existing-address",
+	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
 	WhatYoullNeedToConfirmYourIdentity:                   "/what-youll-need-to-confirm-your-identity",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
-	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
-	ChooseYourCertificateProvider:                        "/choose-your-certificate-provider",
 	WhoIsTheLpaFor:                                       "/who-is-the-lpa-for",
 	WitnessingAsCertificateProvider:                      "/witnessing-as-certificate-provider",
 	WitnessingYourSignature:                              "/witnessing-your-signature",
@@ -305,5 +308,4 @@ var Paths = AppPaths{
 	YourChosenIdentityOptions:                            "/your-chosen-identity-options",
 	YourDetails:                                          "/your-details",
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
-	LpaYourLegalRightsAndResponsibilities:                "/your-legal-rights-and-responsibilities",
 }
