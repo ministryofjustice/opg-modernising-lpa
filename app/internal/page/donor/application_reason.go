@@ -31,14 +31,19 @@ func ApplicationReason(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.Tasks.YourDetails = actor.TaskCompleted
+				redirect := page.Paths.PreviousApplicationNumber
 				lpa.ApplicationReason = data.Form.ApplicationReason
+
+				if lpa.ApplicationReason.IsNewApplication() {
+					redirect = page.Paths.TaskList
+					lpa.Tasks.YourDetails = actor.TaskCompleted
+				}
 
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
+				return appData.Redirect(w, r, lpa, redirect.Format(lpa.ID))
 			}
 		}
 
