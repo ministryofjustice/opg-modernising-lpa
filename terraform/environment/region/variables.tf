@@ -73,3 +73,8 @@ variable "dns_weighting" {
   type        = number
   description = "Weighting for DNS records"
 }
+
+variable "app_allowed_api_arns" {
+  type        = map(list(string))
+  description = "ARNs of allowed APIs"
+}
