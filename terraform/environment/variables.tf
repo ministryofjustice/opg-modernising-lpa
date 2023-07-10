@@ -47,6 +47,9 @@ variable "environments" {
           minimum = number
           maximum = number
         })
+        allowed_api_arns = object({
+          uid_service = list(string)
+        })
       })
       backups = object({
         backup_plan_enabled = bool

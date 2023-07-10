@@ -95,3 +95,8 @@ variable "rum_monitor_application_id_secretsmanager_secret_arn" {
   description = "ARN of the AWS Secrets Manager secret containing the RUM monitor application ID"
   nullable    = true
 }
+
+variable "app_allowed_api_arns" {
+  type        = map(list(string))
+  description = "ARNs of allowed APIs"
+}
