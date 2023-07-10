@@ -75,43 +75,60 @@ func TestGetApplicationReasonWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostApplicationReason(t *testing.T) {
-	form := url.Values{
-		"application-reason": {page.NewApplication.String()},
+	testcases := map[page.ApplicationReason]struct {
+		redirect string
+		tasks    page.Tasks
+	}{
+		page.NewApplication: {
+			redirect: page.Paths.TaskList.Format("lpa-id"),
+			tasks:    page.Tasks{YourDetails: actor.TaskCompleted},
+		},
+		page.RemakeOfInvalidApplication: {
+			redirect: page.Paths.PreviousApplicationNumber.Format("lpa-id"),
+		},
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for reason, tc := range testcases {
+		t.Run(reason.String(), func(t *testing.T) {
+			form := url.Values{
+				"application-reason": {reason.String()},
+			}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &page.Lpa{
-			ID: "lpa-id",
-			Donor: actor.Donor{
-				FirstNames:  "Jane",
-				LastName:    "Smith",
-				DateOfBirth: date.New("2000", "1", "2"),
-				Address:     place.Address{Postcode: "ABC123"},
-			},
-			ApplicationReason: page.NewApplication,
-			Tasks:             page.Tasks{YourDetails: actor.TaskCompleted},
-		}).
-		Return(nil)
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ApplicationReason(nil, donorStore)(testAppData, w, r, &page.Lpa{
-		ID: "lpa-id",
-		Donor: actor.Donor{
-			FirstNames:  "Jane",
-			LastName:    "Smith",
-			DateOfBirth: date.New("2000", "1", "2"),
-			Address:     place.Address{Postcode: "ABC123"},
-		},
-	})
-	resp := w.Result()
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("Put", r.Context(), &page.Lpa{
+					ID: "lpa-id",
+					Donor: actor.Donor{
+						FirstNames:  "Jane",
+						LastName:    "Smith",
+						DateOfBirth: date.New("2000", "1", "2"),
+						Address:     place.Address{Postcode: "ABC123"},
+					},
+					ApplicationReason: reason,
+					Tasks:             tc.tasks,
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+			err := ApplicationReason(nil, donorStore)(testAppData, w, r, &page.Lpa{
+				ID: "lpa-id",
+				Donor: actor.Donor{
+					FirstNames:  "Jane",
+					LastName:    "Smith",
+					DateOfBirth: date.New("2000", "1", "2"),
+					Address:     place.Address{Postcode: "ABC123"},
+				},
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.redirect, resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostApplicationReasonWhenStoreErrors(t *testing.T) {
