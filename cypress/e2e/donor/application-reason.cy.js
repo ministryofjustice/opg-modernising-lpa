@@ -3,7 +3,7 @@ describe('Application reason', () => {
         cy.visit('/testing-start?redirect=/application-reason&lpa.yourDetails=1');
         cy.checkA11yApp();
 
-        cy.contains('label', 'additionalApplication').click();
+        cy.contains('label', 'noneOfTheAbove').click();
 
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/task-list');
