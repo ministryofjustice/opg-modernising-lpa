@@ -220,6 +220,8 @@
     "byEmail": "Welsh",
     "usingPaperForms": "Welsh",
     "certificateProvidersEmail": "Welsh",
+    "aboutPayment": "Ynglŷn â thalu",
+    "aboutPaymentContent": "<p class=\"govuk-body\">Welsh.</p>",
     "importantAssistive": "Pwysig",
     "continueToPayment": "Parhau i dalu",
     "howDoYouKnowYourCertificateProvider": "Sut ydych chi’n nabod {{.FirstNames}} {{.LastName}}, eich darparwr tystysgrif?",

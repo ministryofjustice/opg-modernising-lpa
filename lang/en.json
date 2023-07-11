@@ -209,6 +209,8 @@
     "byEmail": "By email",
     "usingPaperForms": "Using paper forms",
     "certificateProvidersEmail": "Certificate provider’s email address",
+    "aboutPayment": "About payment",
+    "aboutPaymentContent": "<p class=\"govuk-body\">Placeholder content</p>",
     "importantAssistive": "Important",
     "continueToPayment": "Continue to payment",
     "howDoYouKnowYourCertificateProvider": "How do you know {{.FirstNames}} {{.LastName}}, your certificate provider?",
