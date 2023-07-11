@@ -220,6 +220,8 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     resources = [
       var.lpas_table.arn,
       "${var.lpas_table.arn}/index/*",
+      var.reduced_fees_table.arn,
+      "${var.reduced_fees_table.arn}/index/*",
     ]
   }
 
