@@ -400,7 +400,7 @@
     "whenNoneCanNoLongerAct": "When <span class=\"govuk-!-font-weight-bold\">none</span> of your original attorneys can act, all your replacement attorneys will step in at the same time. You can choose how they make decisions on the next page.",
     "otherWay": "In some other way",
     "otherWayHint": "Describe below how you would like this to happen. Be careful - the more specific your instructions, the more likely your replacement attorneys will not be able to follow them. If in doubt, get legal advice.",
-    "whenYourReplacementAttorneysStepIn": "when your replacement attorneys should step in",
+    "whenYourReplacementAttorneysStepIn": "When your replacement attorneys step in",
     "detailsOfWhenToStepIn": "details of when your replacement attorneys should step in",
     "jointly-and-severally": "<p class=\"govuk-body\">Your attorneys can make decisions together or on their own.</p> <p class=\"govuk-body\">In legal terms, this is known as your attorneys working ‘jointly and severally’.</p>",
     "jointly": "<p class=\"govuk-body\">Your attorneys must make and agree all decisions together.</p> <p class=\"govuk-body\">In legal terms, this is known as your attorneys working ‘jointly’</p>",
