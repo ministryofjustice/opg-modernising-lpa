@@ -7,7 +7,11 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "whenYourReplacementAttorneysStepIn" }}</h1>
 
-      {{ trHtml .App "howShouldReplacementAttorneysStepInDetail" }}
+      {{ if .AllowSomeOtherWay }}
+        {{ trHtml .App "howShouldReplacementAttorneysStepInDetailSomeOtherWay" }}
+      {{ else }}
+        {{ trHtml .App "howShouldReplacementAttorneysStepInDetail" }}
+      {{ end }}
 
       <form novalidate method="post">
         <div class="govuk-form-group {{ if .Errors.Has "when-to-step-in" }}govuk-form-group--error{{ end }}">

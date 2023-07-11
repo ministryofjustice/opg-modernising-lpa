@@ -26,7 +26,7 @@ describe('Confirm your identity and sign', () => {
         cy.checkA11yApp();
 
         cy.contains('h1', "What you’ll need to confirm your identity");
-        cy.contains('a', 'Continue').click();
+        cy.contains('a', 'Save and continue').click();
 
         cy.url().should('contain', '/select-your-identity-options');
         cy.checkA11yApp();
@@ -72,12 +72,12 @@ describe('Confirm your identity and sign', () => {
         cy.url().should('contain', '/witnessing-your-signature');
         cy.checkA11yApp();
 
-        cy.contains('button', 'Save and continue').click();
+        cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/witnessing-as-certificate-provider');
         cy.checkA11yApp();
 
-        cy.contains('h1', "Witnessing as the certificate provider");
+        cy.contains('h1', "Witness as the certificate provider");
         cy.get('#f-witness-code').type('1234');
         cy.contains('button', 'Save and continue').click();
 
@@ -98,7 +98,7 @@ describe('Confirm your identity and sign', () => {
             .click();
 
         cy.contains('a', 'Continue').click();
-        cy.contains('a', 'Continue').click();
+        cy.contains('a', 'Save and continue').click();
         cy.contains('label', 'Your GOV.UK One Login Identity').click();
         cy.contains('button', 'Save and continue').click();
 
@@ -110,7 +110,7 @@ describe('Confirm your identity and sign', () => {
             .click();
 
         cy.contains('a', 'Continue').click();
-        cy.contains('a', 'Continue').click();
+        cy.contains('a', 'Save and continue').click();
         cy.contains('button', 'Save and continue').click();
         cy.contains('Your GOV.UK One Login Identity');
     });
@@ -121,18 +121,18 @@ describe('Confirm your identity and sign', () => {
         cy.contains('button', 'Submit my signature').click();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('You must select both boxes to sign and apply to register your LPA');
+            cy.contains('Select both boxes to sign and apply to register your LPA');
         });
 
-        cy.contains('.moj-ticket-panel  .govuk-error-message', 'You must select both boxes to sign and apply to register your LPA');
+        cy.contains('.moj-ticket-panel  .govuk-error-message', 'Select both boxes to sign and apply to register your LPA');
     });
 
-    it.only('errors when not witnessed', () => {
+    it('errors when not witnessed', () => {
         cy.visitLpa('/id/passport');
         cy.contains('button', 'Continue').click();
 
         cy.visitLpa('/witnessing-your-signature');
-        cy.contains('button', 'Save and continue').click();
+        cy.contains('button', 'Continue').click();
 
         cy.contains('button', 'Save and continue').click();
 
