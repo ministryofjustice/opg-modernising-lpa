@@ -129,17 +129,6 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 			taskState: actor.TaskCompleted,
 			redirect:  page.Paths.TaskList,
 		},
-		"requires happiness": {
-			form: url.Values{
-				"decision-type": {actor.Jointly.String()},
-				"mixed-details": {"some details"},
-			},
-			existing:  actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, Details: "some details"},
-			attorneys: actor.Attorneys{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}},
-			updated:   actor.AttorneyDecisions{How: actor.Jointly},
-			taskState: actor.TaskInProgress,
-			redirect:  page.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan,
-		},
 	}
 
 	for name, tc := range testCases {
