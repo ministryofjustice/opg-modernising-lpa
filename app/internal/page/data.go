@@ -78,6 +78,15 @@ const (
 	MoveFromPaperApplication
 )
 
+//go:generate enumerator -type FeeType -linecomment -trimprefix -empty
+type FeeType uint8
+
+const (
+	HalfFee FeeType = iota + 1
+	NoFee
+	HardShip
+)
+
 // Lpa contains all the data related to the LPA application
 type Lpa struct {
 	PK, SK string
@@ -147,6 +156,8 @@ type Lpa struct {
 	CPWitnessCodeValidated bool
 	// Used to rate limit witnessing requests
 	WitnessCodeLimiter *Limiter
+	// FeeType is the type of fee the user is applying for
+	FeeType FeeType
 }
 
 type PaymentDetails struct {
