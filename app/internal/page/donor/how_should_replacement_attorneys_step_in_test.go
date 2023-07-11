@@ -141,7 +141,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			HowAttorneysMakeDecisions:            actor.Jointly,
 			HowShouldReplacementAttorneysStepIn:  page.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			HowReplacementAttorneysMakeDecisions: actor.Jointly,
-			ExpectedRedirectUrl:                  page.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan,
+			ExpectedRedirectUrl:                  page.Paths.TaskList,
 			TaskState:                            actor.TaskInProgress,
 		},
 		"multiple attorneys acting jointly and severally replacements step in when one loses capacity": {
