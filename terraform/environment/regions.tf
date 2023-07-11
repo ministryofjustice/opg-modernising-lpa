@@ -26,6 +26,7 @@ module "eu_west_1" {
     name = aws_dynamodb_table.lpas_table.name
   }
   app_env_vars           = local.environment.app.env
+  app_allowed_api_arns   = local.environment.app.allowed_api_arns
   public_access_enabled  = var.public_access_enabled
   pagerduty_service_name = local.environment.pagerduty_service_name
   dns_weighting          = 100
@@ -55,6 +56,7 @@ module "eu_west_2" {
     name = aws_dynamodb_table.lpas_table.name
   }
   app_env_vars           = local.environment.app.env
+  app_allowed_api_arns   = local.environment.app.allowed_api_arns
   public_access_enabled  = var.public_access_enabled
   pagerduty_service_name = local.environment.pagerduty_service_name
   dns_weighting          = 0
