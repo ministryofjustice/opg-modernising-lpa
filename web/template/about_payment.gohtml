@@ -9,29 +9,10 @@
 
       {{ trHtml .App "aboutPaymentContent" }}
 
-      <p class="govuk-body">{{ tr .App "feeCoversContent" }}</p>
-
-      {{ trFormatHtml .App "feeCoversExamples" "CpFirstNames" .CertificateProvider.FirstNames "CpLastName" .CertificateProvider.LastName }}
-
-      <div class="govuk-warning-text govuk-!-margin-bottom-2">
-        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-        <strong class="govuk-warning-text__text">
-          <span class="govuk-warning-text__assistive">{{ tr .App "importantAssistive" }}</span>
-          {{ tr .App "lowIncome" }}
-        </strong>
+      <div class="govuk-button-group">
+        <a href="{{ link .App (.App.Paths.AreYourApplyingForADifferentFeeType.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "continue" }}</a>
       </div>
 
-      <p class="govuk-body">
-        <a href="#" class="govuk-link">{{ tr .App "qualifyingForReduction" }}</a>
-      </p>
-
-      <form novalidate method="post">
-        <div class="govuk-button-group">
-          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "continueToPayment" }}</button>
-          <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
-        </div>
-        {{ template "csrf-field" . }}
-      </form>
     </div>
   </div>
 {{ end }}

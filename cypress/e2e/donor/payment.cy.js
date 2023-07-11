@@ -11,11 +11,19 @@ describe('Payment', () => {
 
             cy.checkA11yApp();
 
+            cy.contains('a', 'Continue').click()
+
+            cy.url().should('contains', '/are-you-applying-for-a-different-fee-type')
+
+            cy.checkA11yApp();
+
+            cy.get('input[name="different-fee"]').check('no');
+
             cy.intercept('**/v1/payments', (req) => {
                 cy.getCookie('pay').should('exist')
             })
 
-            cy.contains('button', 'Continue to payment').click()
+            cy.contains('button', 'Continue').click()
         })
 
         it('removes existing secure cookie on payment confirmation page', () => {
