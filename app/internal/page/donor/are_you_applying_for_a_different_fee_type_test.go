@@ -3,6 +3,8 @@ package donor
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/gorilla/sessions"
@@ -16,21 +18,24 @@ import (
 
 var publicUrl = "http://example.org"
 
-func TestGetAboutPayment(t *testing.T) {
+func TestGetAreYourApplyingForADifferentFeeType(t *testing.T) {
 	random := func(int) string { return "123456789012" }
 
 	t.Run("Handles page data", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/about-payment", nil)
+		r, _ := http.NewRequest(http.MethodGet, "/are-you-applying-for-a-different-fee-type", nil)
 
 		template := newMockTemplate(t)
 		template.
-			On("Execute", w, &aboutPaymentData{App: testAppData}).
+			On("Execute", w, &areYourApplyingForADifferentFeeTypeData{
+				App:     testAppData,
+				Options: actor.YesNoValues,
+			}).
 			Return(nil)
 
 		payClient := newMockPayClient(t)
 
-		err := AboutPayment(nil, template.Execute, nil, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{
+		err := AreYourApplyingForADifferentFeeType(nil, template.Execute, nil, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{
 			CertificateProvider: actor.CertificateProvider{},
 		})
 		resp := w.Result()
@@ -41,14 +46,17 @@ func TestGetAboutPayment(t *testing.T) {
 
 	t.Run("Returns an error when cannot render template", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/about-payment", nil)
+		r, _ := http.NewRequest(http.MethodGet, "/are-you-applying-for-a-different-fee-type", nil)
 
 		template := newMockTemplate(t)
 		template.
-			On("Execute", w, &aboutPaymentData{App: testAppData}).
+			On("Execute", w, &areYourApplyingForADifferentFeeTypeData{
+				App:     testAppData,
+				Options: actor.YesNoValues,
+			}).
 			Return(expectedError)
 
-		err := AboutPayment(nil, template.Execute, nil, nil, publicUrl, random)(testAppData, w, r, &page.Lpa{
+		err := AreYourApplyingForADifferentFeeType(nil, template.Execute, nil, nil, publicUrl, random)(testAppData, w, r, &page.Lpa{
 			CertificateProvider: actor.CertificateProvider{},
 		})
 		resp := w.Result()
@@ -58,7 +66,7 @@ func TestGetAboutPayment(t *testing.T) {
 	})
 }
 
-func TestPostAboutPayment(t *testing.T) {
+func TestPostAreYourApplyingForADifferentFeeType(t *testing.T) {
 	random := func(int) string { return "123456789012" }
 
 	t.Run("Creates GOV UK Pay payment and saves paymentID in secure cookie", func(t *testing.T) {
@@ -78,12 +86,21 @@ func TestPostAboutPayment(t *testing.T) {
 
 		for name, tc := range testCases {
 			t.Run(name, func(t *testing.T) {
+				form := url.Values{
+					"different-fee": {actor.No.String()},
+				}
+
 				w := httptest.NewRecorder()
-				r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
+				r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(form.Encode()))
+				r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 				template := newMockTemplate(t)
 				template.
-					On("Execute", w, &aboutPaymentData{App: testAppData}).
+					On("Execute", w, &areYourApplyingForADifferentFeeTypeData{
+						App:     testAppData,
+						Options: actor.YesNoValues,
+						Form:    &areYourApplyingForADifferentFeeTypeForm{DifferentFee: actor.No},
+					}).
 					Return(nil)
 
 				sessionStore := newMockSessionStore(t)
@@ -122,7 +139,7 @@ func TestPostAboutPayment(t *testing.T) {
 						},
 					}, nil)
 
-				err := AboutPayment(nil, template.Execute, sessionStore, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, CertificateProvider: actor.CertificateProvider{}})
+				err := AreYourApplyingForADifferentFeeType(nil, template.Execute, sessionStore, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, CertificateProvider: actor.CertificateProvider{}})
 				resp := w.Result()
 
 				assert.Nil(t, err)
@@ -134,8 +151,13 @@ func TestPostAboutPayment(t *testing.T) {
 	})
 
 	t.Run("Returns error when cannot create payment", func(t *testing.T) {
+		form := url.Values{
+			"different-fee": {actor.No.String()},
+		}
+
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
+		r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(form.Encode()))
+		r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 		template := newMockTemplate(t)
 
@@ -150,14 +172,19 @@ func TestPostAboutPayment(t *testing.T) {
 			On("CreatePayment", mock.Anything).
 			Return(pay.CreatePaymentResponse{}, expectedError)
 
-		err := AboutPayment(logger, template.Execute, sessionStore, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{}})
+		err := AreYourApplyingForADifferentFeeType(logger, template.Execute, sessionStore, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{}})
 
 		assert.Equal(t, expectedError, err, "Expected error was not returned")
 	})
 
 	t.Run("Returns error when cannot save to session", func(t *testing.T) {
+		form := url.Values{
+			"different-fee": {actor.No.String()},
+		}
+
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
+		r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(form.Encode()))
+		r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 		template := newMockTemplate(t)
 
@@ -174,8 +201,34 @@ func TestPostAboutPayment(t *testing.T) {
 			On("CreatePayment", mock.Anything).
 			Return(pay.CreatePaymentResponse{Links: map[string]pay.Link{"next_url": {Href: "http://example.url"}}}, nil)
 
-		err := AboutPayment(logger, template.Execute, sessionStore, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{}})
+		err := AreYourApplyingForADifferentFeeType(logger, template.Execute, sessionStore, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{}})
 
 		assert.Equal(t, expectedError, err, "Expected error was not returned")
+	})
+
+	t.Run("Redirects to evidence required when applying for different fee type", func(t *testing.T) {
+		form := url.Values{
+			"different-fee": {actor.Yes.String()},
+		}
+
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(form.Encode()))
+		r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+		template := newMockTemplate(t)
+		template.
+			On("Execute", w, &areYourApplyingForADifferentFeeTypeData{
+				App:     testAppData,
+				Options: actor.YesNoValues,
+				Form:    &areYourApplyingForADifferentFeeTypeForm{DifferentFee: actor.Yes},
+			}).
+			Return(nil)
+
+		err := AreYourApplyingForADifferentFeeType(nil, template.Execute, nil, nil, publicUrl, random)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, CertificateProvider: actor.CertificateProvider{}})
+		resp := w.Result()
+
+		assert.Nil(t, err)
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, page.Paths.EvidenceRequired.Format("lpa-id"), resp.Header.Get("Location"))
 	})
 }
