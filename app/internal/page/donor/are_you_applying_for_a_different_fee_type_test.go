@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -231,4 +232,52 @@ func TestPostAreYourApplyingForADifferentFeeType(t *testing.T) {
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, page.Paths.EvidenceRequired.Format("lpa-id"), resp.Header.Get("Location"))
 	})
+
+	t.Run("Invalid form submission", func(t *testing.T) {
+		form := url.Values{
+			"different-fee": {""},
+		}
+
+		w := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(form.Encode()))
+		r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+		validationError := validation.With("different-type", validation.SelectError{Label: "whetherApplyingForDifferentFeeType"})
+
+		template := newMockTemplate(t)
+		template.
+			On("Execute", w, mock.MatchedBy(func(data *areYourApplyingForADifferentFeeTypeData) bool {
+				return assert.Equal(t, validationError, data.Errors)
+			})).
+			Return(nil)
+
+		err := AreYourApplyingForADifferentFeeType(nil, template.Execute, nil, nil, publicUrl, random)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, CertificateProvider: actor.CertificateProvider{}})
+		resp := w.Result()
+
+		assert.Nil(t, err)
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+	})
+}
+
+func TestAreYourApplyingForADifferentFeeTypeFormValidate(t *testing.T) {
+	testCases := map[string]struct {
+		form   *areYourApplyingForADifferentFeeTypeForm
+		errors validation.List
+	}{
+		"valid": {
+			form: &areYourApplyingForADifferentFeeTypeForm{},
+		},
+		"invalid": {
+			form: &areYourApplyingForADifferentFeeTypeForm{
+				Error: expectedError,
+			},
+			errors: validation.With("different-type", validation.SelectError{Label: "whetherApplyingForDifferentFeeType"}),
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.errors, tc.form.Validate())
+		})
+	}
 }

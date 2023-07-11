@@ -32,36 +32,40 @@ func AreYourApplyingForADifferentFeeType(logger Logger, tmpl template.Template, 
 
 		if r.Method == http.MethodPost {
 			data.Form = readAreYourApplyingForADifferentFeeTypeForm(r)
-			if data.Form.DifferentFee.IsNo() {
-				createPaymentBody := pay.CreatePaymentBody{
-					Amount:      page.CostOfLpaPence,
-					Reference:   randomString(12),
-					Description: "Property and Finance LPA",
-					ReturnUrl:   appPublicUrl + appData.BuildUrl(page.Paths.PaymentConfirmation.Format(lpa.ID)),
-					Email:       lpa.Donor.Email,
-					Language:    appData.Lang.String(),
-				}
+			data.Errors = data.Form.Validate()
 
-				resp, err := payClient.CreatePayment(createPaymentBody)
-				if err != nil {
-					logger.Print(fmt.Sprintf("Error creating payment: %s", err.Error()))
-					return err
-				}
+			if data.Errors.None() {
+				if data.Form.DifferentFee.IsNo() {
+					createPaymentBody := pay.CreatePaymentBody{
+						Amount:      page.CostOfLpaPence,
+						Reference:   randomString(12),
+						Description: "Property and Finance LPA",
+						ReturnUrl:   appPublicUrl + appData.BuildUrl(page.Paths.PaymentConfirmation.Format(lpa.ID)),
+						Email:       lpa.Donor.Email,
+						Language:    appData.Lang.String(),
+					}
 
-				if err = sesh.SetPayment(sessionStore, r, w, &sesh.PaymentSession{PaymentID: resp.PaymentId}); err != nil {
-					return err
-				}
+					resp, err := payClient.CreatePayment(createPaymentBody)
+					if err != nil {
+						logger.Print(fmt.Sprintf("Error creating payment: %s", err.Error()))
+						return err
+					}
 
-				nextUrl := resp.Links["next_url"].Href
-				// If URL matches expected domain for GOV UK PAY redirect there. If not,
-				// redirect to the confirmation code and carry on with flow.
-				if strings.HasPrefix(nextUrl, pay.PaymentPublicServiceUrl) {
-					http.Redirect(w, r, nextUrl, http.StatusFound)
+					if err = sesh.SetPayment(sessionStore, r, w, &sesh.PaymentSession{PaymentID: resp.PaymentId}); err != nil {
+						return err
+					}
+
+					nextUrl := resp.Links["next_url"].Href
+					// If URL matches expected domain for GOV UK PAY redirect there. If not,
+					// redirect to the confirmation code and carry on with flow.
+					if strings.HasPrefix(nextUrl, pay.PaymentPublicServiceUrl) {
+						http.Redirect(w, r, nextUrl, http.StatusFound)
+					} else {
+						appData.Redirect(w, r, lpa, page.Paths.PaymentConfirmation.Format(lpa.ID))
+					}
 				} else {
-					appData.Redirect(w, r, lpa, page.Paths.PaymentConfirmation.Format(lpa.ID))
+					appData.Redirect(w, r, lpa, page.Paths.EvidenceRequired.Format(lpa.ID))
 				}
-			} else {
-				appData.Redirect(w, r, lpa, page.Paths.EvidenceRequired.Format(lpa.ID))
 			}
 		}
 
@@ -81,4 +85,13 @@ func readAreYourApplyingForADifferentFeeTypeForm(r *http.Request) *areYourApplyi
 		DifferentFee: differentFee,
 		Error:        err,
 	}
+}
+
+func (f *areYourApplyingForADifferentFeeTypeForm) Validate() validation.List {
+	var errors validation.List
+
+	errors.Error("different-type", "whetherApplyingForDifferentFeeType", f.Error,
+		validation.Selected())
+
+	return errors
 }
