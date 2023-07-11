@@ -111,6 +111,7 @@ type AppPaths struct {
 
 	AboutPayment                                               LpaPath
 	ApplicationReason                                          LpaPath
+	AreYourApplyingForADifferentFeeType                        LpaPath
 	AreYouHappyIfOneAttorneyCantActNoneCan                     LpaPath
 	AreYouHappyIfOneReplacementAttorneyCantActNoneCan          LpaPath
 	AreYouHappyIfRemainingAttorneysCanContinueToAct            LpaPath
@@ -170,6 +171,7 @@ type AppPaths struct {
 	WhatACertificateProviderDoes                               LpaPath
 	WhatYoullNeedToConfirmYourIdentity                         LpaPath
 	WhenCanTheLpaBeUsed                                        LpaPath
+	WhichFeeTypeAreYouApplyingFor                              LpaPath
 	WhoIsTheLpaFor                                             LpaPath
 	WitnessingAsCertificateProvider                            LpaPath
 	WitnessingYourSignature                                    LpaPath
@@ -231,6 +233,7 @@ var Paths = AppPaths{
 
 	AboutPayment:                                               "/about-payment",
 	ApplicationReason:                                          "/application-reason",
+	AreYourApplyingForADifferentFeeType:                        "/are-you-applying-for-a-different-fee-type",
 	AreYouHappyIfOneAttorneyCantActNoneCan:                     "/are-you-happy-if-one-attorney-cant-act-none-can",
 	AreYouHappyIfOneReplacementAttorneyCantActNoneCan:          "/are-you-happy-if-one-replacement-attorney-cant-act-none-can",
 	AreYouHappyIfRemainingAttorneysCanContinueToAct:            "/are-you-happy-if-remaining-attorneys-can-continue-to-act",
@@ -301,6 +304,7 @@ var Paths = AppPaths{
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
 	WhatYoullNeedToConfirmYourIdentity:                   "/what-youll-need-to-confirm-your-identity",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
+	WhichFeeTypeAreYouApplyingFor:                        "/which-fee-type-are-you-applying-for",
 	WhoIsTheLpaFor:                                       "/who-is-the-lpa-for",
 	WitnessingAsCertificateProvider:                      "/witnessing-as-certificate-provider",
 	WitnessingYourSignature:                              "/witnessing-your-signature",
