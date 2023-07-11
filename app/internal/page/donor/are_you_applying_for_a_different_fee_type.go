@@ -64,7 +64,7 @@ func AreYourApplyingForADifferentFeeType(logger Logger, tmpl template.Template, 
 						appData.Redirect(w, r, lpa, page.Paths.PaymentConfirmation.Format(lpa.ID))
 					}
 				} else {
-					appData.Redirect(w, r, lpa, page.Paths.EvidenceRequired.Format(lpa.ID))
+					appData.Redirect(w, r, lpa, page.Paths.WhichFeeTypeAreYouApplyingFor.Format(lpa.ID))
 				}
 			}
 		}

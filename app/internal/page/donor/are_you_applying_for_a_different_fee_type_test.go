@@ -230,7 +230,7 @@ func TestPostAreYourApplyingForADifferentFeeType(t *testing.T) {
 
 		assert.Nil(t, err)
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
-		assert.Equal(t, page.Paths.EvidenceRequired.Format("lpa-id"), resp.Header.Get("Location"))
+		assert.Equal(t, page.Paths.WhichFeeTypeAreYouApplyingFor.Format("lpa-id"), resp.Header.Get("Location"))
 	})
 
 	t.Run("Invalid form submission", func(t *testing.T) {

@@ -133,7 +133,6 @@ type AppPaths struct {
 	ChooseYourCertificateProvider                              LpaPath
 	DoYouWantReplacementAttorneys                              LpaPath
 	DoYouWantToNotifyPeople                                    LpaPath
-	EvidenceRequired                                           LpaPath
 	HowDoYouKnowYourCertificateProvider                        LpaPath
 	HowLongHaveYouKnownCertificateProvider                     LpaPath
 	HowShouldAttorneysMakeDecisions                            LpaPath
@@ -172,6 +171,7 @@ type AppPaths struct {
 	WhatACertificateProviderDoes                               LpaPath
 	WhatYoullNeedToConfirmYourIdentity                         LpaPath
 	WhenCanTheLpaBeUsed                                        LpaPath
+	WhichFeeTypeAreYouApplyingFor                              LpaPath
 	WhoIsTheLpaFor                                             LpaPath
 	WitnessingAsCertificateProvider                            LpaPath
 	WitnessingYourSignature                                    LpaPath
@@ -259,7 +259,6 @@ var Paths = AppPaths{
 	Dashboard:                                            "/dashboard",
 	DoYouWantReplacementAttorneys:                        "/do-you-want-replacement-attorneys",
 	DoYouWantToNotifyPeople:                              "/do-you-want-to-notify-people",
-	EvidenceRequired:                                     "/evidence-required",
 	Fixtures:                                             "/fixtures",
 	HowDoYouKnowYourCertificateProvider:                  "/how-do-you-know-your-certificate-provider",
 	HowLongHaveYouKnownCertificateProvider:               "/how-long-have-you-known-certificate-provider",
@@ -305,6 +304,7 @@ var Paths = AppPaths{
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
 	WhatYoullNeedToConfirmYourIdentity:                   "/what-youll-need-to-confirm-your-identity",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
+	WhichFeeTypeAreYouApplyingFor:                        "/which-fee-type-are-you-applying-for",
 	WhoIsTheLpaFor:                                       "/who-is-the-lpa-for",
 	WitnessingAsCertificateProvider:                      "/witnessing-as-certificate-provider",
 	WitnessingYourSignature:                              "/witnessing-your-signature",
