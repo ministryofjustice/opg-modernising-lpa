@@ -204,8 +204,6 @@ resource "aws_cloudwatch_event_rule" "receive_update" {
   event_pattern = jsonencode({
     source      = ["reduced-fees"],
     detail-type = ["update"]
-    # region      = ["${data.aws_region.current.name}"]
-    # detail = ["{\"status\": \"more evidence required\"}"]
   })
   provider = aws.region
 }
