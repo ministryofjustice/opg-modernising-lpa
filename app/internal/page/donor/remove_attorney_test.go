@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
@@ -34,8 +35,8 @@ func TestGetRemoveAttorney(t *testing.T) {
 			App:      testAppData,
 			Attorney: attorney,
 			Errors:   nil,
-			Form:     &removeAttorneyForm{},
-			Options:  actor.YesNoValues,
+			Form:     &form.YesNoForm{},
+			Options:  form.YesNoValues,
 		}).
 		Return(nil)
 
@@ -121,7 +122,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				"remove-attorney": {actor.Yes.String()},
+				"yes-no": {form.Yes.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -149,7 +150,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 
 func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 	form := url.Values{
-		"remove-attorney": {actor.No.String()},
+		"yes-no": {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -182,7 +183,7 @@ func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 
 func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 	form := url.Values{
-		"remove-attorney": {actor.Yes.String()},
+		"yes-no": {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -223,7 +224,7 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 
 func TestRemoveAttorneyFormValidation(t *testing.T) {
 	form := url.Values{
-		"remove-attorney": {""},
+		"yes-no": {""},
 	}
 
 	w := httptest.NewRecorder()
@@ -235,7 +236,7 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	validationError := validation.With("remove-attorney", validation.SelectError{Label: "yesToRemoveAttorney"})
+	validationError := validation.With("yes-no", validation.SelectError{Label: "yesToRemoveAttorney"})
 
 	template := newMockTemplate(t)
 	template.
@@ -249,28 +250,4 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestRemoveAttorneyFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *removeAttorneyForm
-		errors validation.List
-	}{
-		"valid": {
-			form: &removeAttorneyForm{},
-		},
-		"invalid": {
-			form: &removeAttorneyForm{
-				Error:      expectedError,
-				errorLabel: "xyz",
-			},
-			errors: validation.With("remove-attorney", validation.SelectError{Label: "xyz"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
@@ -147,7 +148,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			lpa.HowShouldReplacementAttorneysStepIn = ReplacementAttorneysStepInWhenOneCanNoLongerAct
 		}
 
-		lpa.WantReplacementAttorneys = actor.Yes
+		lpa.WantReplacementAttorneys = form.Yes
 		lpa.Tasks.ChooseReplacementAttorneys = actor.TaskCompleted
 	}
 
@@ -160,7 +161,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			lpa.PeopleToNotify = append(lpa.PeopleToNotify, makePersonToNotify(name))
 		}
 
-		lpa.DoYouWantToNotifyPeople = actor.Yes
+		lpa.DoYouWantToNotifyPeople = form.Yes
 		lpa.Tasks.PeopleToNotify = actor.TaskCompleted
 	}
 
@@ -226,7 +227,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 				lpa.AttorneyDecisions.How = actor.JointlyAndSeverally
 
-				lpa.WantReplacementAttorneys = actor.Yes
+				lpa.WantReplacementAttorneys = form.Yes
 				lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
 				lpa.HowShouldReplacementAttorneysStepIn = ReplacementAttorneysStepInWhenOneCanNoLongerAct
 
@@ -257,7 +258,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				lpa.ReplacementAttorneys[1].Address = place.Address{}
 
 				lpa.ReplacementAttorneys = lpa.Attorneys
-				lpa.WantReplacementAttorneys = actor.Yes
+				lpa.WantReplacementAttorneys = form.Yes
 				lpa.Tasks.ChooseAttorneys = actor.TaskCompleted
 				lpa.Tasks.ChooseReplacementAttorneys = actor.TaskInProgress
 			}

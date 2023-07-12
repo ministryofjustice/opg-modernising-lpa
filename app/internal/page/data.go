@@ -13,11 +13,11 @@ package page
 
 import (
 	"context"
-	"encoding/json"
 	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 	"golang.org/x/exp/slices"
@@ -104,7 +104,7 @@ type Lpa struct {
 	// PreviousApplicationNumber if the application is related to an existing application
 	PreviousApplicationNumber string
 	// Whether the applicant wants to add replacement attorneys
-	WantReplacementAttorneys actor.YesNo
+	WantReplacementAttorneys form.YesNo
 	// When the LPA can be used
 	WhenCanTheLpaBeUsed CanBeUsedWhen
 	// Preferences on life sustaining treatment (applicable to personal welfare LPAs only)
@@ -132,7 +132,7 @@ type Lpa struct {
 	// Details on how replacement attorneys must step in if HowShouldReplacementAttorneysStepIn is set to "other"
 	HowShouldReplacementAttorneysStepInDetails string
 	// Whether the applicant wants to notify people about the application
-	DoYouWantToNotifyPeople actor.YesNo
+	DoYouWantToNotifyPeople form.YesNo
 	// People to notify about the application
 	PeopleToNotify actor.PeopleToNotify
 	// Codes used for the certificate provider to witness signing
@@ -202,12 +202,6 @@ func SessionDataFromContext(ctx context.Context) (*SessionData, error) {
 
 func ContextWithSessionData(ctx context.Context, data *SessionData) context.Context {
 	return context.WithValue(ctx, (*SessionData)(nil), data)
-}
-
-func DecodeAddress(s string) *place.Address {
-	var v place.Address
-	json.Unmarshal([]byte(s), &v)
-	return &v
 }
 
 func (l *Lpa) DonorIdentityConfirmed() bool {
@@ -344,12 +338,12 @@ func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDec
 }
 
 func ChooseReplacementAttorneysState(lpa *Lpa) actor.TaskState {
-	if lpa.WantReplacementAttorneys == actor.No {
+	if lpa.WantReplacementAttorneys == form.No {
 		return actor.TaskCompleted
 	}
 
 	if len(lpa.ReplacementAttorneys) == 0 {
-		if lpa.WantReplacementAttorneys != actor.Yes && lpa.WantReplacementAttorneys != actor.No {
+		if lpa.WantReplacementAttorneys != form.Yes && lpa.WantReplacementAttorneys != form.No {
 			return actor.TaskNotStarted
 		}
 

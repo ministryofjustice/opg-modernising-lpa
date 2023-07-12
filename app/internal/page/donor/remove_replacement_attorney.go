@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
@@ -14,8 +15,8 @@ type removeReplacementAttorneyData struct {
 	App      page.AppData
 	Attorney actor.Attorney
 	Errors   validation.List
-	Form     *removeAttorneyForm
-	Options  actor.YesNoOptions
+	Form     *form.YesNoForm
+	Options  form.YesNoOptions
 }
 
 func RemoveReplacementAttorney(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
@@ -30,16 +31,16 @@ func RemoveReplacementAttorney(logger Logger, tmpl template.Template, donorStore
 		data := &removeReplacementAttorneyData{
 			App:      appData,
 			Attorney: attorney,
-			Form:     &removeAttorneyForm{},
-			Options:  actor.YesNoValues,
+			Form:     &form.YesNoForm{},
+			Options:  form.YesNoValues,
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readRemoveAttorneyForm(r, "yesToRemoveReplacementAttorney")
+			data.Form = form.ReadYesNoForm(r, "yesToRemoveReplacementAttorney")
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				if data.Form.RemoveAttorney == actor.Yes {
+				if data.Form.YesNo == form.Yes {
 					lpa.ReplacementAttorneys.Delete(attorney)
 					if len(lpa.ReplacementAttorneys) == 1 {
 						lpa.ReplacementAttorneyDecisions = actor.AttorneyDecisions{}
