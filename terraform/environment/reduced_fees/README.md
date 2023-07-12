@@ -2,7 +2,7 @@
 
 This module creates event driven architecture to send and receive reduced fees events between MLPAB and Sirius.
 
-Outbound events are sent to the an Event Bridge event bus from DynamoDB Streams using EventBridge Pipes.
+Outbound events are sent to an Event Bridge event bus from DynamoDB Streams using EventBridge Pipes.
 
 From there the event is sent to the Sirius event bus for processing using a rule with cross account putEvent IAM permissions.
 
