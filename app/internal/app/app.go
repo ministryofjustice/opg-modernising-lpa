@@ -146,7 +146,6 @@ func App(
 		appPublicURL,
 		payClient,
 		yotiClient,
-		notifyClient,
 		shareCodeSender,
 		witnessCodeSender,
 		errorHandler,

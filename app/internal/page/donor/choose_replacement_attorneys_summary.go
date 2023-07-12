@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
@@ -12,9 +12,9 @@ import (
 type chooseReplacementAttorneysSummaryData struct {
 	App     page.AppData
 	Errors  validation.List
-	Form    *chooseAttorneysSummaryForm
+	Form    *form.YesNoForm
 	Lpa     *page.Lpa
-	Options actor.YesNoOptions
+	Options form.YesNoOptions
 }
 
 func ChooseReplacementAttorneysSummary(tmpl template.Template) Handler {
@@ -26,18 +26,18 @@ func ChooseReplacementAttorneysSummary(tmpl template.Template) Handler {
 		data := &chooseReplacementAttorneysSummaryData{
 			App:     appData,
 			Lpa:     lpa,
-			Form:    &chooseAttorneysSummaryForm{},
-			Options: actor.YesNoValues,
+			Form:    &form.YesNoForm{},
+			Options: form.YesNoValues,
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readChooseAttorneysSummaryForm(r, "yesToAddAnotherReplacementAttorney")
+			data.Form = form.ReadYesNoForm(r, "yesToAddAnotherReplacementAttorney")
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
 				var redirectUrl string
 
-				if data.Form.AddAttorney == actor.Yes {
+				if data.Form.YesNo == form.Yes {
 					redirectUrl = appData.Paths.ChooseReplacementAttorneys.Format(lpa.ID) + "?addAnother=1"
 				} else if len(lpa.ReplacementAttorneys) > 1 && (len(lpa.Attorneys) == 1 || lpa.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers() || lpa.AttorneyDecisions.How.IsJointly()) {
 					redirectUrl = appData.Paths.HowShouldReplacementAttorneysMakeDecisions.Format(lpa.ID)

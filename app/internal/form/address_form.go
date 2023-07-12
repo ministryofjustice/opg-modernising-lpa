@@ -1,9 +1,9 @@
 package form
 
 import (
+	"encoding/json"
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
@@ -20,28 +20,28 @@ func ReadAddressForm(r *http.Request) *AddressForm {
 
 	switch f.Action {
 	case "postcode-lookup":
-		f.LookupPostcode = page.PostFormString(r, "lookup-postcode")
+		f.LookupPostcode = PostFormString(r, "lookup-postcode")
 
 	case "postcode-select":
-		f.LookupPostcode = page.PostFormString(r, "lookup-postcode")
+		f.LookupPostcode = PostFormString(r, "lookup-postcode")
 		selectAddress := r.PostFormValue("select-address")
 		if selectAddress != "" {
-			f.Address = page.DecodeAddress(selectAddress)
+			f.Address = DecodeAddress(selectAddress)
 		}
 
 	case "reuse-select":
 		selectAddress := r.PostFormValue("select-address")
 		if selectAddress != "" {
-			f.Address = page.DecodeAddress(selectAddress)
+			f.Address = DecodeAddress(selectAddress)
 		}
 
 	case "manual":
 		f.Address = &place.Address{
-			Line1:      page.PostFormString(r, "address-line-1"),
-			Line2:      page.PostFormString(r, "address-line-2"),
-			Line3:      page.PostFormString(r, "address-line-3"),
-			TownOrCity: page.PostFormString(r, "address-town"),
-			Postcode:   page.PostFormString(r, "address-postcode"),
+			Line1:      PostFormString(r, "address-line-1"),
+			Line2:      PostFormString(r, "address-line-2"),
+			Line3:      PostFormString(r, "address-line-3"),
+			TownOrCity: PostFormString(r, "address-town"),
+			Postcode:   PostFormString(r, "address-postcode"),
 		}
 	}
 
@@ -102,4 +102,10 @@ func (f *AddressForm) Validate(useYour bool) validation.List {
 	}
 
 	return errors
+}
+
+func DecodeAddress(s string) *place.Address {
+	var v place.Address
+	json.Unmarshal([]byte(s), &v)
+	return &v
 }

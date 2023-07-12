@@ -1,4 +1,4 @@
-package actor
+package form
 
 //go:generate enumerator -type YesNo -linecomment -empty
 type YesNo uint8

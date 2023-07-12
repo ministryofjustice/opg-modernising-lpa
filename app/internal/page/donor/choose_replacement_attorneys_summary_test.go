@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
@@ -27,8 +28,8 @@ func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 		On("Execute", w, &chooseReplacementAttorneysSummaryData{
 			App:     testAppData,
 			Lpa:     lpa,
-			Form:    &chooseAttorneysSummaryForm{},
-			Options: actor.YesNoValues,
+			Form:    &form.YesNoForm{},
+			Options: form.YesNoValues,
 		}).
 		Return(nil)
 
@@ -56,7 +57,7 @@ func TestGetChooseReplacementAttorneysSummaryWhenNoReplacementAttorneys(t *testi
 
 func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 	form := url.Values{
-		"add-attorney": {actor.Yes.String()},
+		"yes-no": {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -125,7 +126,7 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 	for testname, tc := range testcases {
 		t.Run(testname, func(t *testing.T) {
 			form := url.Values{
-				"add-attorney": {actor.No.String()},
+				"yes-no": {form.No.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -156,14 +157,14 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 
 func TestPostChooseReplacementAttorneySummaryFormValidation(t *testing.T) {
 	form := url.Values{
-		"add-attorney": {""},
+		"yes-no": {""},
 	}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	validationError := validation.With("add-attorney", validation.SelectError{Label: "yesToAddAnotherReplacementAttorney"})
+	validationError := validation.With("yes-no", validation.SelectError{Label: "yesToAddAnotherReplacementAttorney"})
 
 	template := newMockTemplate(t)
 	template.
