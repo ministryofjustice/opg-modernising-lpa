@@ -28,9 +28,9 @@
               {{ trHtml .App "mixedReplacementWarningContent" }}
             {{ end }}
 
-            {{ template "error-message" (errorMessage . "want") }}
+            {{ template "error-message" (errorMessage . "yes-no") }}
 
-            {{ template "radios" (items . "want" .Form.Want.String
+            {{ template "radios" (items . "yes-no" .Form.YesNo.String
               (item .Options.Yes.String "yesReplacementAttorneys")
               (item .Options.No.String "noReplacementAttorneys")
             ) }}

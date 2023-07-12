@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
@@ -18,8 +19,8 @@ type areYouApplyingForADifferentFeeTypeData struct {
 	App                 page.AppData
 	Errors              validation.List
 	CertificateProvider actor.CertificateProvider
-	Options             actor.YesNoOptions
-	Form                *areYouApplyingForADifferentFeeTypeForm
+	Options             form.YesNoOptions
+	Form                *form.YesNoForm
 }
 
 func AreYouApplyingForADifferentFeeType(logger Logger, tmpl template.Template, sessionStore sessions.Store, payClient PayClient, appPublicUrl string, randomString func(int) string) Handler {
@@ -27,15 +28,15 @@ func AreYouApplyingForADifferentFeeType(logger Logger, tmpl template.Template, s
 		data := &areYouApplyingForADifferentFeeTypeData{
 			App:                 appData,
 			CertificateProvider: lpa.CertificateProvider,
-			Options:             actor.YesNoValues,
+			Options:             form.YesNoValues,
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readAreYouApplyingForADifferentFeeTypeForm(r)
+			data.Form = form.ReadYesNoForm(r, "whetherApplyingForDifferentFeeType")
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				if data.Form.DifferentFee.IsNo() {
+				if data.Form.YesNo.IsNo() {
 					createPaymentBody := pay.CreatePaymentBody{
 						Amount:      page.CostOfLpaPence,
 						Reference:   randomString(12),
@@ -71,27 +72,4 @@ func AreYouApplyingForADifferentFeeType(logger Logger, tmpl template.Template, s
 
 		return tmpl(w, data)
 	}
-}
-
-type areYouApplyingForADifferentFeeTypeForm struct {
-	DifferentFee actor.YesNo
-	Error        error
-}
-
-func readAreYouApplyingForADifferentFeeTypeForm(r *http.Request) *areYouApplyingForADifferentFeeTypeForm {
-	differentFee, err := actor.ParseYesNo(page.PostFormString(r, "different-fee"))
-
-	return &areYouApplyingForADifferentFeeTypeForm{
-		DifferentFee: differentFee,
-		Error:        err,
-	}
-}
-
-func (f *areYouApplyingForADifferentFeeTypeForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.Error("different-type", "whetherApplyingForDifferentFeeType", f.Error,
-		validation.Selected())
-
-	return errors
 }

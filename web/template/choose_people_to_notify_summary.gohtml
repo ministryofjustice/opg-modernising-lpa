@@ -28,9 +28,9 @@
                 {{ tr .App "doYouWantToAddAnotherPersonToNotify" }}
               </legend>
 
-              {{ template "error-message" (errorMessage . "add-person-to-notify") }}
+              {{ template "error-message" (errorMessage . "yes-no") }}
 
-              {{ template "radios" (items . "add-person-to-notify" ""
+              {{ template "radios" (items . "yes-no" ""
                 (item .Options.Yes.String "yes")
                 (item .Options.No.String "no")
               ) }}

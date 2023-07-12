@@ -14,7 +14,7 @@
                     <div class="govuk-form-group {{ if .Errors.Has "different-fee" }}govuk-form-group--error{{ end }}">
                         {{ template "error-message" (errorMessage . "different-fee") }}
 
-                        {{ template "radios" (items . "different-fee" ""
+                        {{ template "radios" (items . "yes-no" ""
                         (item .Options.Yes.String "yes")
                         (item .Options.No.String "no")
                         ) }}

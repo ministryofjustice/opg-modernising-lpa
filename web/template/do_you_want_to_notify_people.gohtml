@@ -29,9 +29,9 @@
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
               {{ tr .App "wantPeopleToNotify" }}
             </legend>
-            {{ template "error-message" (errorMessage . "want-to-notify") }}
+            {{ template "error-message" (errorMessage . "yes-no") }}
 
-            {{ template "radios" (items . "want-to-notify" .Form.WantToNotify.String
+            {{ template "radios" (items . "yes-no" .Form.YesNo.String
               (item .Options.Yes.String "yes")
               (item .Options.No.String "no")
             ) }}

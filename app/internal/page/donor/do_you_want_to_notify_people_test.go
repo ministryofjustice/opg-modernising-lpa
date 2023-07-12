@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -23,8 +24,8 @@ func TestGetDoYouWantToNotifyPeople(t *testing.T) {
 		On("Execute", w, &doYouWantToNotifyPeopleData{
 			App:     testAppData,
 			Lpa:     &page.Lpa{},
-			Form:    &doYouWantToNotifyPeopleForm{},
-			Options: actor.YesNoValues,
+			Form:    &form.YesNoForm{},
+			Options: form.YesNoValues,
 		}).
 		Return(nil)
 
@@ -44,17 +45,17 @@ func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
 		On("Execute", w, &doYouWantToNotifyPeopleData{
 			App: testAppData,
 			Lpa: &page.Lpa{
-				DoYouWantToNotifyPeople: actor.Yes,
+				DoYouWantToNotifyPeople: form.Yes,
 			},
-			Form: &doYouWantToNotifyPeopleForm{
-				WantToNotify: actor.Yes,
+			Form: &form.YesNoForm{
+				YesNo: form.Yes,
 			},
-			Options: actor.YesNoValues,
+			Options: form.YesNoValues,
 		}).
 		Return(nil)
 
 	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &page.Lpa{
-		DoYouWantToNotifyPeople: actor.Yes,
+		DoYouWantToNotifyPeople: form.Yes,
 	})
 	resp := w.Result()
 
@@ -91,19 +92,19 @@ func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 				On("Execute", w, &doYouWantToNotifyPeopleData{
 					App: testAppData,
 					Lpa: &page.Lpa{
-						DoYouWantToNotifyPeople: actor.Yes,
+						DoYouWantToNotifyPeople: form.Yes,
 						AttorneyDecisions:       actor.AttorneyDecisions{How: tc.howWorkTogether},
 					},
-					Form: &doYouWantToNotifyPeopleForm{
-						WantToNotify: actor.Yes,
+					Form: &form.YesNoForm{
+						YesNo: form.Yes,
 					},
-					Options:         actor.YesNoValues,
+					Options:         form.YesNoValues,
 					HowWorkTogether: tc.expectedTransKey,
 				}).
 				Return(nil)
 
 			err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &page.Lpa{
-				DoYouWantToNotifyPeople: actor.Yes,
+				DoYouWantToNotifyPeople: form.Yes,
 				AttorneyDecisions:       actor.AttorneyDecisions{How: tc.howWorkTogether},
 			})
 			resp := w.Result()
@@ -151,29 +152,29 @@ func TestGetDoYouWantToNotifyPeopleWhenTemplateErrors(t *testing.T) {
 
 func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 	testCases := []struct {
-		WantToNotify     actor.YesNo
-		ExistingAnswer   actor.YesNo
+		YesNo            form.YesNo
+		ExistingAnswer   form.YesNo
 		ExpectedRedirect page.LpaPath
 		ExpectedStatus   actor.TaskState
 	}{
 		{
-			WantToNotify:     actor.Yes,
-			ExistingAnswer:   actor.No,
+			YesNo:            form.Yes,
+			ExistingAnswer:   form.No,
 			ExpectedRedirect: page.Paths.ChoosePeopleToNotify,
 			ExpectedStatus:   actor.TaskInProgress,
 		},
 		{
-			WantToNotify:     actor.No,
-			ExistingAnswer:   actor.Yes,
+			YesNo:            form.No,
+			ExistingAnswer:   form.Yes,
 			ExpectedRedirect: page.Paths.TaskList,
 			ExpectedStatus:   actor.TaskCompleted,
 		},
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.WantToNotify.String(), func(t *testing.T) {
+		t.Run(tc.YesNo.String(), func(t *testing.T) {
 			form := url.Values{
-				"want-to-notify": {tc.WantToNotify.String()},
+				"yes-no": {tc.YesNo.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -184,7 +185,7 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
 					ID:                      "lpa-id",
-					DoYouWantToNotifyPeople: tc.WantToNotify,
+					DoYouWantToNotifyPeople: tc.YesNo,
 					Tasks: page.Tasks{
 						YourDetails:                actor.TaskCompleted,
 						ChooseAttorneys:            actor.TaskCompleted,
@@ -219,18 +220,18 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 }
 
 func TestPostDoYouWantToNotifyPeopleWhenStoreErrors(t *testing.T) {
-	form := url.Values{
-		"want-to-notify": {actor.Yes.String()},
+	f := url.Values{
+		"yes-no": {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
-			DoYouWantToNotifyPeople: actor.Yes,
+			DoYouWantToNotifyPeople: form.Yes,
 			Tasks:                   page.Tasks{PeopleToNotify: actor.TaskInProgress},
 		}).
 		Return(expectedError)
@@ -248,7 +249,7 @@ func TestPostDoYouWantToNotifyPeopleWhenValidationErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.MatchedBy(func(data *doYouWantToNotifyPeopleData) bool {
-			return assert.Equal(t, validation.With("want-to-notify", validation.SelectError{Label: "yesToNotifySomeoneAboutYourLpa"}), data.Errors)
+			return assert.Equal(t, validation.With("yes-no", validation.SelectError{Label: "yesToNotifySomeoneAboutYourLpa"}), data.Errors)
 		})).
 		Return(nil)
 
@@ -257,40 +258,4 @@ func TestPostDoYouWantToNotifyPeopleWhenValidationErrors(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestReadDoYouWantToNotifyPeopleForm(t *testing.T) {
-	form := url.Values{
-		"want-to-notify": {actor.Yes.String()},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	result := readDoYouWantToNotifyPeople(r)
-
-	assert.Equal(t, actor.Yes, result.WantToNotify)
-}
-
-func TestDoYouWantToNotifyPeopleFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *doYouWantToNotifyPeopleForm
-		errors validation.List
-	}{
-		"valid": {
-			form: &doYouWantToNotifyPeopleForm{},
-		},
-		"invalid": {
-			form: &doYouWantToNotifyPeopleForm{
-				Error: expectedError,
-			},
-			errors: validation.With("want-to-notify", validation.SelectError{Label: "yesToNotifySomeoneAboutYourLpa"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }

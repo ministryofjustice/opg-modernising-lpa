@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
@@ -34,8 +35,8 @@ func TestGetRemovePersonToNotify(t *testing.T) {
 			App:            testAppData,
 			PersonToNotify: personToNotify,
 			Errors:         nil,
-			Form:           &removePersonToNotifyForm{},
-			Options:        actor.YesNoValues,
+			Form:           &form.YesNoForm{},
+			Options:        form.YesNoValues,
 		}).
 		Return(nil)
 
@@ -73,7 +74,7 @@ func TestGetRemovePersonToNotifyAttorneyDoesNotExist(t *testing.T) {
 
 func TestPostRemovePersonToNotify(t *testing.T) {
 	form := url.Values{
-		"remove-person-to-notify": {actor.Yes.String()},
+		"yes-no": {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -111,7 +112,7 @@ func TestPostRemovePersonToNotify(t *testing.T) {
 
 func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
 	form := url.Values{
-		"remove-person-to-notify": {actor.No.String()},
+		"yes-no": {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -144,7 +145,7 @@ func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
 
 func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
 	form := url.Values{
-		"remove-person-to-notify": {actor.Yes.String()},
+		"yes-no": {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -185,7 +186,7 @@ func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
 
 func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 	form := url.Values{
-		"remove-person-to-notify": {""},
+		"yes-no": {""},
 	}
 
 	w := httptest.NewRecorder()
@@ -197,7 +198,7 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	validationError := validation.With("remove-person-to-notify", validation.SelectError{Label: "removePersonToNotify"})
+	validationError := validation.With("yes-no", validation.SelectError{Label: "removePersonToNotify"})
 
 	template := newMockTemplate(t)
 	template.
@@ -215,7 +216,7 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 
 func TestRemovePersonToNotifyRemoveLastPerson(t *testing.T) {
 	form := url.Values{
-		"remove-person-to-notify": {actor.Yes.String()},
+		"yes-no": {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -250,27 +251,4 @@ func TestRemovePersonToNotifyRemoveLastPerson(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, page.Paths.ChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
-}
-
-func TestRemovePersonToNotifyFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *removePersonToNotifyForm
-		errors validation.List
-	}{
-		"valid": {
-			form: &removePersonToNotifyForm{},
-		},
-		"invalid": {
-			form: &removePersonToNotifyForm{
-				Error: expectedError,
-			},
-			errors: validation.With("remove-person-to-notify", validation.SelectError{Label: "removePersonToNotify"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }

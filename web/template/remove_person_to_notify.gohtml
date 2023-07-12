@@ -14,9 +14,9 @@
               </h1>
             </legend>
 
-            {{ template "error-message" (errorMessage . "remove-person-to-notify") }}
+            {{ template "error-message" (errorMessage . "yes-no") }}
 
-            {{ template "radios" (items . "remove-person-to-notify" ""
+            {{ template "radios" (items . "yes-no" ""
               (item .Options.Yes.String "yes")
               (item .Options.No.String "no")
             ) }}

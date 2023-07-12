@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
@@ -30,7 +31,7 @@ func TestGetAreYouApplyingForADifferentFeeType(t *testing.T) {
 		template.
 			On("Execute", w, &areYouApplyingForADifferentFeeTypeData{
 				App:     testAppData,
-				Options: actor.YesNoValues,
+				Options: form.YesNoValues,
 			}).
 			Return(nil)
 
@@ -53,7 +54,7 @@ func TestGetAreYouApplyingForADifferentFeeType(t *testing.T) {
 		template.
 			On("Execute", w, &areYouApplyingForADifferentFeeTypeData{
 				App:     testAppData,
-				Options: actor.YesNoValues,
+				Options: form.YesNoValues,
 			}).
 			Return(expectedError)
 
@@ -87,20 +88,20 @@ func TestPostAreYouApplyingForADifferentFeeType(t *testing.T) {
 
 		for name, tc := range testCases {
 			t.Run(name, func(t *testing.T) {
-				form := url.Values{
-					"different-fee": {actor.No.String()},
+				f := url.Values{
+					"yes-no": {form.No.String()},
 				}
 
 				w := httptest.NewRecorder()
-				r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(form.Encode()))
+				r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(f.Encode()))
 				r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 				template := newMockTemplate(t)
 				template.
 					On("Execute", w, &areYouApplyingForADifferentFeeTypeData{
 						App:     testAppData,
-						Options: actor.YesNoValues,
-						Form:    &areYouApplyingForADifferentFeeTypeForm{DifferentFee: actor.No},
+						Options: form.YesNoValues,
+						Form:    &form.YesNoForm{YesNo: form.No, ErrorLabel: "whetherApplyingForDifferentFeeType"},
 					}).
 					Return(nil)
 
@@ -153,7 +154,7 @@ func TestPostAreYouApplyingForADifferentFeeType(t *testing.T) {
 
 	t.Run("Returns error when cannot create payment", func(t *testing.T) {
 		form := url.Values{
-			"different-fee": {actor.No.String()},
+			"yes-no": {form.No.String()},
 		}
 
 		w := httptest.NewRecorder()
@@ -180,7 +181,7 @@ func TestPostAreYouApplyingForADifferentFeeType(t *testing.T) {
 
 	t.Run("Returns error when cannot save to session", func(t *testing.T) {
 		form := url.Values{
-			"different-fee": {actor.No.String()},
+			"yes-no": {form.No.String()},
 		}
 
 		w := httptest.NewRecorder()
@@ -208,20 +209,20 @@ func TestPostAreYouApplyingForADifferentFeeType(t *testing.T) {
 	})
 
 	t.Run("Redirects to evidence required when applying for different fee type", func(t *testing.T) {
-		form := url.Values{
-			"different-fee": {actor.Yes.String()},
+		f := url.Values{
+			"yes-no": {form.Yes.String()},
 		}
 
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(form.Encode()))
+		r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(f.Encode()))
 		r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 		template := newMockTemplate(t)
 		template.
 			On("Execute", w, &areYouApplyingForADifferentFeeTypeData{
 				App:     testAppData,
-				Options: actor.YesNoValues,
-				Form:    &areYouApplyingForADifferentFeeTypeForm{DifferentFee: actor.Yes},
+				Options: form.YesNoValues,
+				Form:    &form.YesNoForm{YesNo: form.Yes, ErrorLabel: "whetherApplyingForDifferentFeeType"},
 			}).
 			Return(nil)
 
@@ -235,14 +236,14 @@ func TestPostAreYouApplyingForADifferentFeeType(t *testing.T) {
 
 	t.Run("Invalid form submission", func(t *testing.T) {
 		form := url.Values{
-			"different-fee": {""},
+			"yes-no": {""},
 		}
 
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(form.Encode()))
 		r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-		validationError := validation.With("different-type", validation.SelectError{Label: "whetherApplyingForDifferentFeeType"})
+		validationError := validation.With("yes-no", validation.SelectError{Label: "whetherApplyingForDifferentFeeType"})
 
 		template := newMockTemplate(t)
 		template.
@@ -257,27 +258,4 @@ func TestPostAreYouApplyingForADifferentFeeType(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 	})
-}
-
-func TestAreYouApplyingForADifferentFeeTypeFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *areYouApplyingForADifferentFeeTypeForm
-		errors validation.List
-	}{
-		"valid": {
-			form: &areYouApplyingForADifferentFeeTypeForm{},
-		},
-		"invalid": {
-			form: &areYouApplyingForADifferentFeeTypeForm{
-				Error: expectedError,
-			},
-			errors: validation.With("different-type", validation.SelectError{Label: "whetherApplyingForDifferentFeeType"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }
