@@ -49,8 +49,6 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 
 				if len(lpa.ReplacementAttorneys) > 1 && lpa.HowShouldReplacementAttorneysStepIn == page.ReplacementAttorneysStepInWhenAllCanNoLongerAct {
 					return appData.Redirect(w, r, lpa, appData.Paths.HowShouldReplacementAttorneysMakeDecisions.Format(lpa.ID))
-				} else if lpa.ReplacementAttorneyDecisions.RequiresHappiness(len(lpa.ReplacementAttorneys)) {
-					return appData.Redirect(w, r, lpa, appData.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan.Format(lpa.ID))
 				} else {
 					return appData.Redirect(w, r, lpa, appData.Paths.TaskList.Format(lpa.ID))
 				}
