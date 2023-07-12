@@ -25,6 +25,10 @@ module "eu_west_1" {
     arn  = aws_dynamodb_table.lpas_table.arn,
     name = aws_dynamodb_table.lpas_table.name
   }
+  reduced_fees_table = {
+    arn  = module.reduced_fees[0].dynamodb_table.arn,
+    name = module.reduced_fees[0].dynamodb_table.name,
+  }
   app_env_vars           = local.environment.app.env
   app_allowed_api_arns   = local.environment.app.allowed_api_arns
   public_access_enabled  = var.public_access_enabled
@@ -54,6 +58,10 @@ module "eu_west_2" {
   lpas_table = {
     arn  = local.environment.dynamodb.region_replica_enabled ? aws_dynamodb_table_replica.lpas_table[0].arn : aws_dynamodb_table.lpas_table.arn,
     name = aws_dynamodb_table.lpas_table.name
+  }
+  reduced_fees_table = {
+    arn  = module.reduced_fees[0].dynamodb_table.arn,
+    name = module.reduced_fees[0].dynamodb_table.name,
   }
   app_env_vars           = local.environment.app.env
   app_allowed_api_arns   = local.environment.app.allowed_api_arns

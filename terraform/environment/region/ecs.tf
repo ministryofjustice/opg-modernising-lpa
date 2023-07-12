@@ -30,6 +30,7 @@ module "app" {
   ingress_allow_list_cidr         = var.ingress_allow_list_cidr
   alb_deletion_protection_enabled = var.alb_deletion_protection_enabled
   lpas_table                      = var.lpas_table
+  reduced_fees_table              = var.reduced_fees_table
   container_port                  = 8080
   public_access_enabled           = var.public_access_enabled
   network = {
