@@ -1,0 +1,18 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "howToPrintAndSendEvidence" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "howToPrintAndSendEvidence" }}</h1>
+
+      {{ trHtml .App "howToPrintAndSendEvidenceContent" }}
+
+      <div class="govuk-button-group">
+        <a class="govuk-button" href="{{ link .App (.App.Paths.ProvideAddressToSendEvidenceForm.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+        <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+      </div>
+    </div>
+  </div>
+{{ end }}
