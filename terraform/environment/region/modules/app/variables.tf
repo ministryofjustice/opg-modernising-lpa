@@ -105,3 +105,11 @@ variable "app_allowed_api_arns" {
   type        = map(list(string))
   description = "ARNs of allowed APIs"
 }
+
+variable "uploads_s3_bucket" {
+  type = object({
+    bucket_name = string
+    bucket_arn  = string
+  })
+  description = "Name and ARN of the S3 bucket for uploads"
+}
