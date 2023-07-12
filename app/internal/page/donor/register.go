@@ -225,6 +225,10 @@ func Register(
 
 	handleWithLpa(page.Paths.AboutPayment, CanGoBack,
 		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String))
+	handleWithLpa(page.Paths.EvidenceRequired, CanGoBack,
+		Guidance(tmpls.Get("evidence_required.gohtml")))
+	handleWithLpa(page.Paths.CanEvidenceBeUploaded, CanGoBack,
+		CanEvidenceBeUploaded(tmpls.Get("can_evidence_be_uploaded.gohtml")))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender))
 
