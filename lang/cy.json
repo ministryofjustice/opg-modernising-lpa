@@ -461,6 +461,7 @@
     "addedMaxPeople": "Welsh",
     "yesToAddAnotherPersonToNotify": "Welsh",
     "removeAPersonToNotify": "Dileu person i’w hysbysu",
+    "yesToRemoveThisPerson": "Welsh",
     "howToConfirmYourIdentityAndSign": "Sut i gadarnhau pwy ydych chi a llofnodi’r LPA",
     "howToConfirmYourIdentityAndSignIntro": "Mae 3 cham i lofnodi eich LPA. Rhaid i chi gwblhau’r camau hyn ar yr un pryd.",
     "yourCertificateProviderMustBeWithYou": "Rhaid i {{.CertificateProviderName}}, eich darparwr tystysgrif, fod gyda chi mewn person pan fyddwch yn cwblhau’r camau hyn.",

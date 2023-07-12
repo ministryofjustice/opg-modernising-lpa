@@ -432,6 +432,7 @@
     "addedMaxPeople": "You’ve now added the maximum number of people we can notify about your LPA. If you want to add someone else, you must remove a person you’ve already added.",
     "yesToAddAnotherPersonToNotify": "yes to add another person to notify",
     "removeAPersonToNotify": "Remove a person to notify",
+    "yesToRemoveThisPerson": "yes to remove this person",
     "howToConfirmYourIdentityAndSign": "How to confirm your identity and sign the LPA",
     "howToConfirmYourIdentityAndSignIntro": "There are 3 steps to signing your LPA. You must complete these steps in one go.",
     "yourCertificateProviderMustBeWithYou": "{{.CertificateProviderName}}, your certificate provider, must be with you in person when you complete these steps.",

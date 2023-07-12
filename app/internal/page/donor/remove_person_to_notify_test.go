@@ -198,7 +198,7 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	validationError := validation.With("yes-no", validation.SelectError{Label: "removePersonToNotify"})
+	validationError := validation.With("yes-no", validation.SelectError{Label: "yesToRemoveThisPerson"})
 
 	template := newMockTemplate(t)
 	template.

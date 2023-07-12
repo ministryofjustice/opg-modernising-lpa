@@ -36,7 +36,7 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore Dono
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = form.ReadYesNoForm(r, "removePersonToNotify")
+			data.Form = form.ReadYesNoForm(r, "yesToRemoveThisPerson")
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
