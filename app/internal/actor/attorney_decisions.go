@@ -23,10 +23,6 @@ type AttorneyDecisions struct {
 	How AttorneysAct
 	// Details on how attorneys should make decisions if acting jointly for some decisions, and jointly and severally for other decisions
 	Details string
-	// Confirmation the applicant is happy with all attorneys being unable to act if one cannot act
-	HappyIfOneCannotActNoneCan YesNo
-	// Confirmation the applicant is happy with any remaining attorneys being able to act if one cannot act
-	HappyIfRemainingCanContinueToAct YesNo
 }
 
 func MakeAttorneyDecisions(existing AttorneyDecisions, how AttorneysAct, details string) AttorneyDecisions {
@@ -48,13 +44,6 @@ func MakeAttorneyDecisions(existing AttorneyDecisions, how AttorneysAct, details
 	}
 }
 
-func (d AttorneyDecisions) RequiresHappiness(attorneyCount int) bool {
-	return attorneyCount > 1 && (d.How == Jointly || d.How == JointlyForSomeSeverallyForOthers)
-}
-
-func (d AttorneyDecisions) IsComplete(attorneyCount int) bool {
-	return !d.How.Empty() &&
-		(!d.RequiresHappiness(attorneyCount) ||
-			d.HappyIfOneCannotActNoneCan == Yes ||
-			d.HappyIfOneCannotActNoneCan == No && !d.HappyIfRemainingCanContinueToAct.Empty())
+func (d AttorneyDecisions) IsComplete() bool {
+	return !d.How.Empty()
 }

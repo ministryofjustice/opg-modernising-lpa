@@ -220,6 +220,8 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     resources = [
       var.lpas_table.arn,
       "${var.lpas_table.arn}/index/*",
+      var.reduced_fees_table.arn,
+      "${var.reduced_fees_table.arn}/index/*",
     ]
   }
 
@@ -230,6 +232,18 @@ data "aws_iam_policy_document" "task_role_access_policy" {
       "execute-api:Invoke",
     ]
     resources = var.app_allowed_api_arns.uid_service
+  }
+
+  statement {
+    sid    = "uploadsS3BucketAccess"
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:DeleteObject",
+    ]
+    resources = [
+      "${var.uploads_s3_bucket.bucket_arn}/*",
+    ]
   }
 
   provider = aws.region
@@ -300,6 +314,14 @@ locals {
         {
           name  = "DYNAMODB_TABLE_LPAS",
           value = var.lpas_table.name
+        },
+        {
+          name  = "DYNAMODB_TABLE_REDUCED_FEES",
+          value = var.reduced_fees_table.name
+        },
+        {
+          name  = "UPLOADS_S3_BUCKET_NAME",
+          value = var.uploads_s3_bucket.bucket_name
         },
         {
           name  = "GOVUK_PAY_BASE_URL",

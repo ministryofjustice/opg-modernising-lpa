@@ -30,12 +30,17 @@ module "app" {
   ingress_allow_list_cidr         = var.ingress_allow_list_cidr
   alb_deletion_protection_enabled = var.alb_deletion_protection_enabled
   lpas_table                      = var.lpas_table
+  reduced_fees_table              = var.reduced_fees_table
   container_port                  = 8080
   public_access_enabled           = var.public_access_enabled
   network = {
     vpc_id              = data.aws_vpc.main.id
     application_subnets = data.aws_subnet.application.*.id
     public_subnets      = data.aws_subnet.public.*.id
+  }
+  uploads_s3_bucket = {
+    bucket_name = module.uploads_s3_bucket.id
+    bucket_arn  = module.uploads_s3_bucket.arn
   }
   aws_rum_guest_role_arn                               = data.aws_iam_role.rum_monitor_unauthenticated.arn
   rum_monitor_application_id_secretsmanager_secret_arn = aws_secretsmanager_secret.rum_monitor_application_id.id

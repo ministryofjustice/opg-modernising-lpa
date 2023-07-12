@@ -74,6 +74,11 @@ variable "lpas_table" {
   description = "DynamoDB table for storing LPAs"
 }
 
+variable "reduced_fees_table" {
+  type        = any
+  description = "DynamoDB table for pushing reduced fees events to Sirius"
+}
+
 variable "app_env_vars" {
   type        = any
   description = "Environment variable values for app"
@@ -99,4 +104,12 @@ variable "rum_monitor_application_id_secretsmanager_secret_arn" {
 variable "app_allowed_api_arns" {
   type        = map(list(string))
   description = "ARNs of allowed APIs"
+}
+
+variable "uploads_s3_bucket" {
+  type = object({
+    bucket_name = string
+    bucket_arn  = string
+  })
+  description = "Name and ARN of the S3 bucket for uploads"
 }
