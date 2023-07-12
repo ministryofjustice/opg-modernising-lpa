@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -23,8 +24,8 @@ func TestGetWantReplacementAttorneys(t *testing.T) {
 		On("Execute", w, &wantReplacementAttorneysData{
 			App:     testAppData,
 			Lpa:     &page.Lpa{},
-			Form:    &wantReplacementAttorneysForm{},
-			Options: actor.YesNoValues,
+			Form:    &form.YesNoForm{},
+			Options: form.YesNoValues,
 		}).
 		Return(nil)
 
@@ -57,15 +58,15 @@ func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
 	template.
 		On("Execute", w, &wantReplacementAttorneysData{
 			App: testAppData,
-			Lpa: &page.Lpa{WantReplacementAttorneys: actor.Yes},
-			Form: &wantReplacementAttorneysForm{
-				Want: actor.Yes,
+			Lpa: &page.Lpa{WantReplacementAttorneys: form.Yes},
+			Form: &form.YesNoForm{
+				YesNo: form.Yes,
 			},
-			Options: actor.YesNoValues,
+			Options: form.YesNoValues,
 		}).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &page.Lpa{WantReplacementAttorneys: actor.Yes})
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &page.Lpa{WantReplacementAttorneys: form.Yes})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -90,21 +91,21 @@ func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 
 func TestPostWantReplacementAttorneys(t *testing.T) {
 	testCases := map[string]struct {
-		want                         actor.YesNo
+		yesNo                        form.YesNo
 		existingReplacementAttorneys actor.Attorneys
 		expectedReplacementAttorneys actor.Attorneys
 		taskState                    actor.TaskState
 		redirect                     page.LpaPath
 	}{
 		"yes": {
-			want:                         actor.Yes,
+			yesNo:                        form.Yes,
 			existingReplacementAttorneys: actor.Attorneys{{ID: "123"}},
 			expectedReplacementAttorneys: actor.Attorneys{{ID: "123"}},
 			taskState:                    actor.TaskInProgress,
 			redirect:                     page.Paths.ChooseReplacementAttorneys,
 		},
 		"no": {
-			want: actor.No,
+			yesNo: form.No,
 			existingReplacementAttorneys: actor.Attorneys{
 				{ID: "123"},
 				{ID: "345"},
@@ -118,7 +119,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				"want": {tc.want.String()},
+				"yes-no": {tc.yesNo.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -129,7 +130,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
 					ID:                       "lpa-id",
-					WantReplacementAttorneys: tc.want,
+					WantReplacementAttorneys: tc.yesNo,
 					ReplacementAttorneys:     tc.expectedReplacementAttorneys,
 					Tasks:                    page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, ChooseReplacementAttorneys: tc.taskState},
 				}).
@@ -151,7 +152,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 
 func TestPostWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"want": {actor.Yes.String()},
+		"yes-no": {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -176,7 +177,7 @@ func TestPostWantReplacementAttorneysWhenValidationErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.MatchedBy(func(data *wantReplacementAttorneysData) bool {
-			return assert.Equal(t, validation.With("want", validation.SelectError{Label: "yesToAddReplacementAttorneys"}), data.Errors)
+			return assert.Equal(t, validation.With("yes-no", validation.SelectError{Label: "yesToAddReplacementAttorneys"}), data.Errors)
 		})).
 		Return(nil)
 
@@ -185,40 +186,4 @@ func TestPostWantReplacementAttorneysWhenValidationErrors(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestReadWantReplacementAttorneysForm(t *testing.T) {
-	form := url.Values{
-		"want": {actor.Yes.String()},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	result := readWantReplacementAttorneysForm(r)
-
-	assert.Equal(t, actor.Yes, result.Want)
-}
-
-func TestWantReplacementAttorneysFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *wantReplacementAttorneysForm
-		errors validation.List
-	}{
-		"valid": {
-			form: &wantReplacementAttorneysForm{},
-		},
-		"invalid": {
-			form: &wantReplacementAttorneysForm{
-				Error: expectedError,
-			},
-			errors: validation.With("want", validation.SelectError{Label: "yesToAddReplacementAttorneys"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }
