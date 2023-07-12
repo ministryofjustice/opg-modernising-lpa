@@ -17,7 +17,7 @@ describe('Payment', () => {
 
             cy.checkA11yApp();
 
-            cy.get('input[name="different-fee"]').check('no');
+            cy.get('input[name="yes-no"]').check('no');
 
             cy.intercept('**/v1/payments', (req) => {
                 cy.getCookie('pay').should('exist')

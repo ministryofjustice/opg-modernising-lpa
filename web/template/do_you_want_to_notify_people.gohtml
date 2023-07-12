@@ -24,7 +24,7 @@
       {{ trHtml .App "findOutMoreAboutPeopleToNotifyLink" }}
 
       <form novalidate method="post">
-        <div class="govuk-form-group {{ if .Errors.Has "want-to-notify" }}govuk-form-group--error{{ end }}">
+        <div class="govuk-form-group {{ if .Errors.Has "yes-no" }}govuk-form-group--error{{ end }}">
           <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
               {{ tr .App "wantPeopleToNotify" }}
