@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -23,8 +24,8 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 		On("Execute", w, &chooseAttorneysSummaryData{
 			App:     testAppData,
 			Lpa:     &page.Lpa{Attorneys: actor.Attorneys{{}}},
-			Form:    &chooseAttorneysSummaryForm{},
-			Options: actor.YesNoValues,
+			Form:    &form.YesNoForm{},
+			Options: form.YesNoValues,
 		}).
 		Return(nil)
 
@@ -49,22 +50,22 @@ func TestGetChooseAttorneysSummaryWhenNoAttorneys(t *testing.T) {
 
 func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	testcases := map[string]struct {
-		addMoreFormValue actor.YesNo
+		addMoreFormValue form.YesNo
 		expectedUrl      string
 		Attorneys        actor.Attorneys
 	}{
 		"add attorney": {
-			addMoreFormValue: actor.Yes,
+			addMoreFormValue: form.Yes,
 			expectedUrl:      page.Paths.ChooseAttorneys.Format("lpa-id") + "?addAnother=1",
 			Attorneys:        actor.Attorneys{},
 		},
 		"do not add attorney - with single attorney": {
-			addMoreFormValue: actor.No,
+			addMoreFormValue: form.No,
 			expectedUrl:      page.Paths.TaskList.Format("lpa-id"),
 			Attorneys:        actor.Attorneys{{ID: "123"}},
 		},
 		"do not add attorney - with multiple attorneys": {
-			addMoreFormValue: actor.No,
+			addMoreFormValue: form.No,
 			expectedUrl:      page.Paths.HowShouldAttorneysMakeDecisions.Format("lpa-id"),
 			Attorneys:        actor.Attorneys{{ID: "123"}, {ID: "456"}},
 		},
@@ -73,7 +74,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	for testname, tc := range testcases {
 		t.Run(testname, func(t *testing.T) {
 			form := url.Values{
-				"add-attorney": {tc.addMoreFormValue.String()},
+				"yes-no": {tc.addMoreFormValue.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -92,14 +93,14 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 
 func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 	form := url.Values{
-		"add-attorney": {""},
+		"yes-no": {""},
 	}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	validationError := validation.With("add-attorney", validation.SelectError{Label: "yesToAddAnotherAttorney"})
+	validationError := validation.With("yes-no", validation.SelectError{Label: "yesToAddAnotherAttorney"})
 
 	template := newMockTemplate(t)
 	template.
@@ -113,28 +114,4 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestChooseAttorneysSummaryFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *chooseAttorneysSummaryForm
-		errors validation.List
-	}{
-		"valid": {
-			form: &chooseAttorneysSummaryForm{},
-		},
-		"invalid": {
-			form: &chooseAttorneysSummaryForm{
-				Error:      expectedError,
-				errorLabel: "xyz",
-			},
-			errors: validation.With("add-attorney", validation.SelectError{Label: "xyz"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }
