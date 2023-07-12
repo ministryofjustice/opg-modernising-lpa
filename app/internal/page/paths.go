@@ -111,11 +111,12 @@ type AppPaths struct {
 
 	AboutPayment                                               LpaPath
 	ApplicationReason                                          LpaPath
-	AreYourApplyingForADifferentFeeType                        LpaPath
+	AreYouApplyingForADifferentFeeType                         LpaPath
 	AreYouHappyIfOneAttorneyCantActNoneCan                     LpaPath
 	AreYouHappyIfOneReplacementAttorneyCantActNoneCan          LpaPath
 	AreYouHappyIfRemainingAttorneysCanContinueToAct            LpaPath
 	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct LpaPath
+	CanEvidenceBeUploaded                                      LpaPath
 	CertificateProviderAddress                                 LpaPath
 	CertificateProviderDetails                                 LpaPath
 	CertificateProviderOptOut                                  LpaPath
@@ -133,6 +134,7 @@ type AppPaths struct {
 	ChooseYourCertificateProvider                              LpaPath
 	DoYouWantReplacementAttorneys                              LpaPath
 	DoYouWantToNotifyPeople                                    LpaPath
+	EvidenceRequired                                           LpaPath
 	HowDoYouKnowYourCertificateProvider                        LpaPath
 	HowLongHaveYouKnownCertificateProvider                     LpaPath
 	HowShouldAttorneysMakeDecisions                            LpaPath
@@ -155,6 +157,7 @@ type AppPaths struct {
 	LpaYourLegalRightsAndResponsibilities                      LpaPath
 	PaymentConfirmation                                        LpaPath
 	PreviousApplicationNumber                                  LpaPath
+	PrintEvidenceForm                                          LpaPath
 	Progress                                                   LpaPath
 	ReadYourLpa                                                LpaPath
 	RemoveAttorney                                             LpaPath
@@ -167,6 +170,7 @@ type AppPaths struct {
 	SelectYourIdentityOptions2                                 LpaPath
 	SignYourLpa                                                LpaPath
 	TaskList                                                   LpaPath
+	UploadInstructions                                         LpaPath
 	UseExistingAddress                                         LpaPath
 	WhatACertificateProviderDoes                               LpaPath
 	WhatYoullNeedToConfirmYourIdentity                         LpaPath
@@ -233,12 +237,13 @@ var Paths = AppPaths{
 
 	AboutPayment:                                               "/about-payment",
 	ApplicationReason:                                          "/application-reason",
-	AreYourApplyingForADifferentFeeType:                        "/are-you-applying-for-a-different-fee-type",
+	AreYouApplyingForADifferentFeeType:                         "/are-you-applying-for-a-different-fee-type",
 	AreYouHappyIfOneAttorneyCantActNoneCan:                     "/are-you-happy-if-one-attorney-cant-act-none-can",
 	AreYouHappyIfOneReplacementAttorneyCantActNoneCan:          "/are-you-happy-if-one-replacement-attorney-cant-act-none-can",
 	AreYouHappyIfRemainingAttorneysCanContinueToAct:            "/are-you-happy-if-remaining-attorneys-can-continue-to-act",
 	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct: "/are-you-happy-if-remaining-replacement-attorneys-can-continue-to-act",
 	AuthRedirect:                                         "/auth/redirect",
+	CanEvidenceBeUploaded:                                "/can-evidence-be-uploaded",
 	CertificateProviderAddress:                           "/certificate-provider-address",
 	CertificateProviderDetails:                           "/certificate-provider-details",
 	CertificateProviderOptOut:                            "/certificate-provider-opt-out",
@@ -259,6 +264,7 @@ var Paths = AppPaths{
 	Dashboard:                                            "/dashboard",
 	DoYouWantReplacementAttorneys:                        "/do-you-want-replacement-attorneys",
 	DoYouWantToNotifyPeople:                              "/do-you-want-to-notify-people",
+	EvidenceRequired:                                     "/evidence-required",
 	Fixtures:                                             "/fixtures",
 	HowDoYouKnowYourCertificateProvider:                  "/how-do-you-know-your-certificate-provider",
 	HowLongHaveYouKnownCertificateProvider:               "/how-long-have-you-known-certificate-provider",
@@ -284,6 +290,7 @@ var Paths = AppPaths{
 	LpaYourLegalRightsAndResponsibilities:                "/your-legal-rights-and-responsibilities",
 	PaymentConfirmation:                                  "/payment-confirmation",
 	PreviousApplicationNumber:                            "/previous-application-number",
+	PrintEvidenceForm:                                    "/print-evidence-form",
 	Progress:                                             "/progress",
 	ReadYourLpa:                                          "/read-your-lpa",
 	RemoveAttorney:                                       "/remove-attorney",
@@ -300,6 +307,7 @@ var Paths = AppPaths{
 	Start:                                                "/start",
 	TaskList:                                             "/task-list",
 	TestingStart:                                         "/testing-start",
+	UploadInstructions:                                   "/upload-instructions",
 	UseExistingAddress:                                   "/use-existing-address",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
 	WhatYoullNeedToConfirmYourIdentity:                   "/what-youll-need-to-confirm-your-identity",

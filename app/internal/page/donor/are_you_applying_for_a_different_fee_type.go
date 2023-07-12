@@ -14,24 +14,24 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
-type areYourApplyingForADifferentFeeTypeData struct {
+type areYouApplyingForADifferentFeeTypeData struct {
 	App                 page.AppData
 	Errors              validation.List
 	CertificateProvider actor.CertificateProvider
 	Options             actor.YesNoOptions
-	Form                *areYourApplyingForADifferentFeeTypeForm
+	Form                *areYouApplyingForADifferentFeeTypeForm
 }
 
-func AreYourApplyingForADifferentFeeType(logger Logger, tmpl template.Template, sessionStore sessions.Store, payClient PayClient, appPublicUrl string, randomString func(int) string) Handler {
+func AreYouApplyingForADifferentFeeType(logger Logger, tmpl template.Template, sessionStore sessions.Store, payClient PayClient, appPublicUrl string, randomString func(int) string) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		data := &areYourApplyingForADifferentFeeTypeData{
+		data := &areYouApplyingForADifferentFeeTypeData{
 			App:                 appData,
 			CertificateProvider: lpa.CertificateProvider,
 			Options:             actor.YesNoValues,
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readAreYourApplyingForADifferentFeeTypeForm(r)
+			data.Form = readAreYouApplyingForADifferentFeeTypeForm(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
@@ -73,21 +73,21 @@ func AreYourApplyingForADifferentFeeType(logger Logger, tmpl template.Template, 
 	}
 }
 
-type areYourApplyingForADifferentFeeTypeForm struct {
+type areYouApplyingForADifferentFeeTypeForm struct {
 	DifferentFee actor.YesNo
 	Error        error
 }
 
-func readAreYourApplyingForADifferentFeeTypeForm(r *http.Request) *areYourApplyingForADifferentFeeTypeForm {
+func readAreYouApplyingForADifferentFeeTypeForm(r *http.Request) *areYouApplyingForADifferentFeeTypeForm {
 	differentFee, err := actor.ParseYesNo(page.PostFormString(r, "different-fee"))
 
-	return &areYourApplyingForADifferentFeeTypeForm{
+	return &areYouApplyingForADifferentFeeTypeForm{
 		DifferentFee: differentFee,
 		Error:        err,
 	}
 }
 
-func (f *areYourApplyingForADifferentFeeTypeForm) Validate() validation.List {
+func (f *areYouApplyingForADifferentFeeTypeForm) Validate() validation.List {
 	var errors validation.List
 
 	errors.Error("different-type", "whetherApplyingForDifferentFeeType", f.Error,

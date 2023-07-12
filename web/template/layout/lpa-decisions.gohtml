@@ -97,37 +97,6 @@
       </div>
     {{ end }}
 
-    {{ if .Lpa.AttorneyDecisions.RequiresHappiness (len .Lpa.Attorneys) }}
-      {{ $title := "howAttorneysWillActWhenOneCannot" }}
-      {{ if .App.IsDonor }}
-        {{ $title = "howYourAttorneysWillActWhenOneCannot" }}
-      {{ end }}
-
-      <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-          {{ tr .App $title }}
-        </dt>
-        <dd class="govuk-summary-list__value">
-          {{ if .Lpa.AttorneyDecisions.HappyIfOneCannotActNoneCan.IsYes }}
-            <p class="govuk-body">{{ tr .App "ifOneAttorneyCannotActNoneCan" }}</p>
-          {{ else }}
-            {{ if .Lpa.AttorneyDecisions.HappyIfRemainingCanContinueToAct.IsYes }}
-              <p class="govuk-body">{{ tr .App "ifOneAttorneyCannotActTheRemainingCan" }}</p>
-            {{ else }}
-              <p class="govuk-body">{{ tr .App "ifOneAttorneyCannotActNoneCanButYouAlsoDontWantTheRemainingOnesToAct" }}</p>
-            {{ end }}
-          {{ end }}
-        </dd>
-        {{ if $canChange }}
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (.App.Paths.AreYouHappyIfOneAttorneyCantActNoneCan.Format .App.LpaID) }}">
-              {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
-            </a>
-          </dd>
-        {{ end }}
-      </div>
-    {{ end }}
-
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
         {{ if .App.IsDonor }}
@@ -207,37 +176,6 @@
         {{ if $canChange }}
           <dd class="govuk-summary-list__actions">
             <a class="govuk-link" href="{{ link .App (.App.Paths.HowShouldReplacementAttorneysStepIn.Format .App.LpaID) }}">
-              {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
-            </a>
-          </dd>
-        {{ end }}
-      </div>
-    {{ end }}
-
-    {{ if .Lpa.ReplacementAttorneyDecisions.RequiresHappiness (len .Lpa.ReplacementAttorneys) }}
-      {{ $title := "howReplacementAttorneysWillActWhenOneCannot" }}
-      {{ if .App.IsDonor }}
-        {{ $title = "howYourReplacementAttorneysWillActWhenOneCannot" }}
-      {{ end }}
-
-      <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-          {{ tr .App $title }}
-        </dt>
-        <dd class="govuk-summary-list__value">
-          {{ if .Lpa.ReplacementAttorneyDecisions.HappyIfOneCannotActNoneCan.IsYes }}
-            <p class="govuk-body">{{ tr .App "ifOneReplacementAttorneyCannotActNoneCan" }}</p>
-          {{ else }}
-            {{ if .Lpa.ReplacementAttorneyDecisions.HappyIfRemainingCanContinueToAct.IsYes }}
-              <p class="govuk-body">{{ tr .App "ifOneReplacementAttorneyCannotActTheRemainingCan" }}</p>
-            {{ else }}
-              <p class="govuk-body">{{ tr .App "ifOneReplacementAttorneyCannotActNoneCanButYouAlsoDontWantTheRemainingOnesToAct" }}</p>
-            {{ end }}
-          {{ end }}
-        </dd>
-        {{ if $canChange }}
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (.App.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan.Format .App.LpaID) }}">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
             </a>
           </dd>

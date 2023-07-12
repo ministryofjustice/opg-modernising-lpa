@@ -19,7 +19,7 @@ import (
 
 var publicUrl = "http://example.org"
 
-func TestGetAreYourApplyingForADifferentFeeType(t *testing.T) {
+func TestGetAreYouApplyingForADifferentFeeType(t *testing.T) {
 	random := func(int) string { return "123456789012" }
 
 	t.Run("Handles page data", func(t *testing.T) {
@@ -28,7 +28,7 @@ func TestGetAreYourApplyingForADifferentFeeType(t *testing.T) {
 
 		template := newMockTemplate(t)
 		template.
-			On("Execute", w, &areYourApplyingForADifferentFeeTypeData{
+			On("Execute", w, &areYouApplyingForADifferentFeeTypeData{
 				App:     testAppData,
 				Options: actor.YesNoValues,
 			}).
@@ -36,7 +36,7 @@ func TestGetAreYourApplyingForADifferentFeeType(t *testing.T) {
 
 		payClient := newMockPayClient(t)
 
-		err := AreYourApplyingForADifferentFeeType(nil, template.Execute, nil, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{
+		err := AreYouApplyingForADifferentFeeType(nil, template.Execute, nil, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{
 			CertificateProvider: actor.CertificateProvider{},
 		})
 		resp := w.Result()
@@ -51,13 +51,13 @@ func TestGetAreYourApplyingForADifferentFeeType(t *testing.T) {
 
 		template := newMockTemplate(t)
 		template.
-			On("Execute", w, &areYourApplyingForADifferentFeeTypeData{
+			On("Execute", w, &areYouApplyingForADifferentFeeTypeData{
 				App:     testAppData,
 				Options: actor.YesNoValues,
 			}).
 			Return(expectedError)
 
-		err := AreYourApplyingForADifferentFeeType(nil, template.Execute, nil, nil, publicUrl, random)(testAppData, w, r, &page.Lpa{
+		err := AreYouApplyingForADifferentFeeType(nil, template.Execute, nil, nil, publicUrl, random)(testAppData, w, r, &page.Lpa{
 			CertificateProvider: actor.CertificateProvider{},
 		})
 		resp := w.Result()
@@ -67,7 +67,7 @@ func TestGetAreYourApplyingForADifferentFeeType(t *testing.T) {
 	})
 }
 
-func TestPostAreYourApplyingForADifferentFeeType(t *testing.T) {
+func TestPostAreYouApplyingForADifferentFeeType(t *testing.T) {
 	random := func(int) string { return "123456789012" }
 
 	t.Run("Creates GOV UK Pay payment and saves paymentID in secure cookie", func(t *testing.T) {
@@ -97,10 +97,10 @@ func TestPostAreYourApplyingForADifferentFeeType(t *testing.T) {
 
 				template := newMockTemplate(t)
 				template.
-					On("Execute", w, &areYourApplyingForADifferentFeeTypeData{
+					On("Execute", w, &areYouApplyingForADifferentFeeTypeData{
 						App:     testAppData,
 						Options: actor.YesNoValues,
-						Form:    &areYourApplyingForADifferentFeeTypeForm{DifferentFee: actor.No},
+						Form:    &areYouApplyingForADifferentFeeTypeForm{DifferentFee: actor.No},
 					}).
 					Return(nil)
 
@@ -140,7 +140,7 @@ func TestPostAreYourApplyingForADifferentFeeType(t *testing.T) {
 						},
 					}, nil)
 
-				err := AreYourApplyingForADifferentFeeType(nil, template.Execute, sessionStore, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, CertificateProvider: actor.CertificateProvider{}})
+				err := AreYouApplyingForADifferentFeeType(nil, template.Execute, sessionStore, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, CertificateProvider: actor.CertificateProvider{}})
 				resp := w.Result()
 
 				assert.Nil(t, err)
@@ -173,7 +173,7 @@ func TestPostAreYourApplyingForADifferentFeeType(t *testing.T) {
 			On("CreatePayment", mock.Anything).
 			Return(pay.CreatePaymentResponse{}, expectedError)
 
-		err := AreYourApplyingForADifferentFeeType(logger, template.Execute, sessionStore, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{}})
+		err := AreYouApplyingForADifferentFeeType(logger, template.Execute, sessionStore, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{}})
 
 		assert.Equal(t, expectedError, err, "Expected error was not returned")
 	})
@@ -202,7 +202,7 @@ func TestPostAreYourApplyingForADifferentFeeType(t *testing.T) {
 			On("CreatePayment", mock.Anything).
 			Return(pay.CreatePaymentResponse{Links: map[string]pay.Link{"next_url": {Href: "http://example.url"}}}, nil)
 
-		err := AreYourApplyingForADifferentFeeType(logger, template.Execute, sessionStore, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{}})
+		err := AreYouApplyingForADifferentFeeType(logger, template.Execute, sessionStore, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{}})
 
 		assert.Equal(t, expectedError, err, "Expected error was not returned")
 	})
@@ -218,14 +218,14 @@ func TestPostAreYourApplyingForADifferentFeeType(t *testing.T) {
 
 		template := newMockTemplate(t)
 		template.
-			On("Execute", w, &areYourApplyingForADifferentFeeTypeData{
+			On("Execute", w, &areYouApplyingForADifferentFeeTypeData{
 				App:     testAppData,
 				Options: actor.YesNoValues,
-				Form:    &areYourApplyingForADifferentFeeTypeForm{DifferentFee: actor.Yes},
+				Form:    &areYouApplyingForADifferentFeeTypeForm{DifferentFee: actor.Yes},
 			}).
 			Return(nil)
 
-		err := AreYourApplyingForADifferentFeeType(nil, template.Execute, nil, nil, publicUrl, random)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, CertificateProvider: actor.CertificateProvider{}})
+		err := AreYouApplyingForADifferentFeeType(nil, template.Execute, nil, nil, publicUrl, random)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, CertificateProvider: actor.CertificateProvider{}})
 		resp := w.Result()
 
 		assert.Nil(t, err)
@@ -246,12 +246,12 @@ func TestPostAreYourApplyingForADifferentFeeType(t *testing.T) {
 
 		template := newMockTemplate(t)
 		template.
-			On("Execute", w, mock.MatchedBy(func(data *areYourApplyingForADifferentFeeTypeData) bool {
+			On("Execute", w, mock.MatchedBy(func(data *areYouApplyingForADifferentFeeTypeData) bool {
 				return assert.Equal(t, validationError, data.Errors)
 			})).
 			Return(nil)
 
-		err := AreYourApplyingForADifferentFeeType(nil, template.Execute, nil, nil, publicUrl, random)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, CertificateProvider: actor.CertificateProvider{}})
+		err := AreYouApplyingForADifferentFeeType(nil, template.Execute, nil, nil, publicUrl, random)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, CertificateProvider: actor.CertificateProvider{}})
 		resp := w.Result()
 
 		assert.Nil(t, err)
@@ -259,16 +259,16 @@ func TestPostAreYourApplyingForADifferentFeeType(t *testing.T) {
 	})
 }
 
-func TestAreYourApplyingForADifferentFeeTypeFormValidate(t *testing.T) {
+func TestAreYouApplyingForADifferentFeeTypeFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *areYourApplyingForADifferentFeeTypeForm
+		form   *areYouApplyingForADifferentFeeTypeForm
 		errors validation.List
 	}{
 		"valid": {
-			form: &areYourApplyingForADifferentFeeTypeForm{},
+			form: &areYouApplyingForADifferentFeeTypeForm{},
 		},
 		"invalid": {
-			form: &areYourApplyingForADifferentFeeTypeForm{
+			form: &areYouApplyingForADifferentFeeTypeForm{
 				Error: expectedError,
 			},
 			errors: validation.With("different-type", validation.SelectError{Label: "whetherApplyingForDifferentFeeType"}),

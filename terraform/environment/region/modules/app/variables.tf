@@ -74,6 +74,11 @@ variable "lpas_table" {
   description = "DynamoDB table for storing LPAs"
 }
 
+variable "reduced_fees_table" {
+  type        = any
+  description = "DynamoDB table for pushing reduced fees events to Sirius"
+}
+
 variable "app_env_vars" {
   type        = any
   description = "Environment variable values for app"

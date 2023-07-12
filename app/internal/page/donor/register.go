@@ -170,10 +170,6 @@ func Register(
 		RemoveAttorney(logger, tmpls.Get("remove_attorney.gohtml"), donorStore))
 	handleWithLpa(page.Paths.HowShouldAttorneysMakeDecisions, CanGoBack,
 		HowShouldAttorneysMakeDecisions(tmpls.Get("how_should_attorneys_make_decisions.gohtml"), donorStore))
-	handleWithLpa(page.Paths.AreYouHappyIfOneAttorneyCantActNoneCan, CanGoBack,
-		AreYouHappyIfOneAttorneyCantActNoneCan(tmpls.Get("are_you_happy_if_one_attorney_cant_act_none_can.gohtml"), donorStore))
-	handleWithLpa(page.Paths.AreYouHappyIfRemainingAttorneysCanContinueToAct, CanGoBack,
-		AreYouHappyIfRemainingAttorneysCanContinueToAct(tmpls.Get("are_you_happy_if_remaining_attorneys_can_continue_to_act.gohtml"), donorStore))
 
 	handleWithLpa(page.Paths.DoYouWantReplacementAttorneys, None,
 		WantReplacementAttorneys(tmpls.Get("do_you_want_replacement_attorneys.gohtml"), donorStore))
@@ -189,10 +185,6 @@ func Register(
 		HowShouldReplacementAttorneysStepIn(tmpls.Get("how_should_replacement_attorneys_step_in.gohtml"), donorStore))
 	handleWithLpa(page.Paths.HowShouldReplacementAttorneysMakeDecisions, CanGoBack,
 		HowShouldReplacementAttorneysMakeDecisions(tmpls.Get("how_should_replacement_attorneys_make_decisions.gohtml"), donorStore))
-	handleWithLpa(page.Paths.AreYouHappyIfOneReplacementAttorneyCantActNoneCan, CanGoBack,
-		AreYouHappyIfOneReplacementAttorneyCantActNoneCan(tmpls.Get("are_you_happy_if_one_replacement_attorney_cant_act_none_can.gohtml"), donorStore))
-	handleWithLpa(page.Paths.AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct, CanGoBack,
-		AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct(tmpls.Get("are_you_happy_if_remaining_replacement_attorneys_can_continue_to_act.gohtml"), donorStore))
 
 	handleWithLpa(page.Paths.WhenCanTheLpaBeUsed, None,
 		WhenCanTheLpaBeUsed(tmpls.Get("when_can_the_lpa_be_used.gohtml"), donorStore))
@@ -232,8 +224,12 @@ func Register(
 
 	handleWithLpa(page.Paths.AboutPayment, None,
 		Guidance(tmpls.Get("about_payment.gohtml")))
-	handleWithLpa(page.Paths.AreYourApplyingForADifferentFeeType, CanGoBack,
-		AreYourApplyingForADifferentFeeType(logger, tmpls.Get("are_you_applying_for_a_different_fee_type.gohtml"), sessionStore, payClient, appPublicUrl, random.String))
+	handleWithLpa(page.Paths.AreYouApplyingForADifferentFeeType, CanGoBack,
+		AreYouApplyingForADifferentFeeType(logger, tmpls.Get("are_you_applying_for_a_different_fee_type.gohtml"), sessionStore, payClient, appPublicUrl, random.String))
+	handleWithLpa(page.Paths.EvidenceRequired, CanGoBack,
+		Guidance(tmpls.Get("evidence_required.gohtml")))
+	handleWithLpa(page.Paths.CanEvidenceBeUploaded, CanGoBack,
+		CanEvidenceBeUploaded(tmpls.Get("can_evidence_be_uploaded.gohtml")))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender))
 
