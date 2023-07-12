@@ -304,6 +304,10 @@ locals {
           value = var.lpas_table.name
         },
         {
+          name  = "DYNAMODB_TABLE_REDUCED_FEES",
+          value = var.reduced_fees_table.name
+        },
+        {
           name  = "GOVUK_PAY_BASE_URL",
           value = "https://publicapi.payments.service.gov.uk"
         },
