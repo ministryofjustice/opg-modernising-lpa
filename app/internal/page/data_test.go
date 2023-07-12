@@ -451,28 +451,6 @@ func TestChooseAttorneysState(t *testing.T) {
 			decisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			taskState: actor.TaskInProgress,
 		},
-		"multiple with happy decisions": {
-			attorneys: actor.Attorneys{{
-				FirstNames: "a",
-				Email:      "a",
-			}, {
-				FirstNames: "b",
-				Email:      "b",
-			}},
-			decisions: actor.AttorneyDecisions{How: actor.Jointly, HappyIfOneCannotActNoneCan: actor.Yes},
-			taskState: actor.TaskCompleted,
-		},
-		"multiple with unhappy decisions": {
-			attorneys: actor.Attorneys{{
-				FirstNames: "a",
-				Email:      "a",
-			}, {
-				FirstNames: "b",
-				Email:      "b",
-			}},
-			decisions: actor.AttorneyDecisions{How: actor.Jointly, HappyIfOneCannotActNoneCan: actor.No},
-			taskState: actor.TaskInProgress,
-		},
 	}
 
 	for name, tc := range testcases {
@@ -558,7 +536,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Email:      "b",
 			}},
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
-			taskState:                    actor.TaskInProgress,
+			taskState:                    actor.TaskCompleted,
 		},
 		"multiple mixed": {
 			want: actor.Yes,
@@ -570,30 +548,6 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Email:      "b",
 			}},
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers},
-			taskState:                    actor.TaskInProgress,
-		},
-		"multiple jointly happily": {
-			want: actor.Yes,
-			replacementAttorneys: actor.Attorneys{{
-				FirstNames: "a",
-				Email:      "a",
-			}, {
-				FirstNames: "b",
-				Email:      "b",
-			}},
-			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly, HappyIfOneCannotActNoneCan: actor.Yes},
-			taskState:                    actor.TaskCompleted,
-		},
-		"multiple mixed happily": {
-			want: actor.Yes,
-			replacementAttorneys: actor.Attorneys{{
-				FirstNames: "a",
-				Email:      "a",
-			}, {
-				FirstNames: "b",
-				Email:      "b",
-			}},
-			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, HappyIfOneCannotActNoneCan: actor.Yes},
 			taskState:                    actor.TaskCompleted,
 		},
 		"jointly and severally attorneys single": {
@@ -684,20 +638,6 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			howReplacementsStepIn:        ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
-			taskState:                    actor.TaskInProgress,
-		},
-		"jointly and severally attorneys multiple with step in when none can act jointly happily": {
-			want: actor.Yes,
-			replacementAttorneys: actor.Attorneys{{
-				FirstNames: "a",
-				Email:      "a",
-			}, {
-				FirstNames: "b",
-				Email:      "b",
-			}},
-			attorneyDecisions:            actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			howReplacementsStepIn:        ReplacementAttorneysStepInWhenAllCanNoLongerAct,
-			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly, HappyIfOneCannotActNoneCan: actor.Yes},
 			taskState:                    actor.TaskCompleted,
 		},
 		"jointly and severally attorneys multiple with step in when none can act mixed": {
@@ -712,20 +652,6 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			howReplacementsStepIn:        ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers},
-			taskState:                    actor.TaskInProgress,
-		},
-		"jointly and severally attorneys multiple with step in when none can act mixed happily": {
-			want: actor.Yes,
-			replacementAttorneys: actor.Attorneys{{
-				FirstNames: "a",
-				Email:      "a",
-			}, {
-				FirstNames: "b",
-				Email:      "b",
-			}},
-			attorneyDecisions:            actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			howReplacementsStepIn:        ReplacementAttorneysStepInWhenAllCanNoLongerAct,
-			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, HappyIfOneCannotActNoneCan: actor.Yes},
 			taskState:                    actor.TaskCompleted,
 		},
 		"jointly attorneys multiple without decisions": {
@@ -753,7 +679,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			taskState:                    actor.TaskCompleted,
 		},
-		"jointly attorneys multiple jointly": {
+		"jointly attorneys multiple with jointly": {
 			want: actor.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
@@ -764,19 +690,6 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			}},
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.Jointly},
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
-			taskState:                    actor.TaskInProgress,
-		},
-		"jointly attorneys multiple with jointly happily": {
-			want: actor.Yes,
-			replacementAttorneys: actor.Attorneys{{
-				FirstNames: "a",
-				Email:      "a",
-			}, {
-				FirstNames: "b",
-				Email:      "b",
-			}},
-			attorneyDecisions:            actor.AttorneyDecisions{How: actor.Jointly},
-			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly, HappyIfOneCannotActNoneCan: actor.Yes},
 			taskState:                    actor.TaskCompleted,
 		},
 		"jointly attorneys multiple mixed": {
@@ -790,19 +703,6 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			}},
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.Jointly},
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers},
-			taskState:                    actor.TaskInProgress,
-		},
-		"jointly attorneys multiple with mixed happily": {
-			want: actor.Yes,
-			replacementAttorneys: actor.Attorneys{{
-				FirstNames: "a",
-				Email:      "a",
-			}, {
-				FirstNames: "b",
-				Email:      "b",
-			}},
-			attorneyDecisions:            actor.AttorneyDecisions{How: actor.Jointly},
-			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, HappyIfOneCannotActNoneCan: actor.Yes},
 			taskState:                    actor.TaskCompleted,
 		},
 	}

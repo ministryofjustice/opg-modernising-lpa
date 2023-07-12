@@ -149,7 +149,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 					ID:                "lpa-id",
 					Attorneys:         actor.Attorneys{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}},
 					AttorneyDecisions: actor.AttorneyDecisions{Details: tc.updatedDetails, How: tc.updatedType},
-					Tasks:             page.Tasks{ChooseAttorneys: actor.TaskInProgress},
+					Tasks:             page.Tasks{ChooseAttorneys: actor.TaskCompleted},
 				}).
 				Return(nil)
 
@@ -164,7 +164,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.AreYouHappyIfOneAttorneyCantActNoneCan.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
