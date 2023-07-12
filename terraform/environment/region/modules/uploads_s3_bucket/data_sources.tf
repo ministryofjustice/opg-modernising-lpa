@@ -17,6 +17,6 @@ data "aws_kms_alias" "source_default_key" {
 }
 
 data "aws_s3_bucket" "access_log" {
-  bucket   = "s3-access-logs-opg-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.name}"
+  bucket   = "s3-access-logs-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.name}"
   provider = aws.region
 }
