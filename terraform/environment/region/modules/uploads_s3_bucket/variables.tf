@@ -1,8 +1,3 @@
-variable "account_name" {
-  description = "Account friendly that the current environment resides in."
-  type        = string
-}
-
 variable "bucket_name" {
   description = "Name of the bucket. do not use dots (.) except for buckets that are used only for static website hosting."
 }
