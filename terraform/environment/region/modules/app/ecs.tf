@@ -220,6 +220,8 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     resources = [
       var.lpas_table.arn,
       "${var.lpas_table.arn}/index/*",
+      var.reduced_fees_table.arn,
+      "${var.reduced_fees_table.arn}/index/*",
     ]
   }
 
@@ -300,6 +302,10 @@ locals {
         {
           name  = "DYNAMODB_TABLE_LPAS",
           value = var.lpas_table.name
+        },
+        {
+          name  = "DYNAMODB_TABLE_REDUCED_FEES",
+          value = var.reduced_fees_table.name
         },
         {
           name  = "GOVUK_PAY_BASE_URL",
