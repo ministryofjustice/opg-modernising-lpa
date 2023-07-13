@@ -12,10 +12,10 @@ func _() {
 	var x [1]struct{}
 	_ = x[HalfFee-1]
 	_ = x[NoFee-2]
-	_ = x[HardShip-3]
+	_ = x[Hardship-3]
 }
 
-const _FeeType_name = "HalfFeeNoFeeHardShip"
+const _FeeType_name = "HalfFeeNoFeeHardship"
 
 var _FeeType_index = [...]uint8{0, 7, 12, 20}
 
@@ -35,8 +35,8 @@ func (i FeeType) IsNoFee() bool {
 	return i == NoFee
 }
 
-func (i FeeType) IsHardShip() bool {
-	return i == HardShip
+func (i FeeType) IsHardship() bool {
+	return i == Hardship
 }
 
 func ParseFeeType(s string) (FeeType, error) {
@@ -45,8 +45,8 @@ func ParseFeeType(s string) (FeeType, error) {
 		return HalfFee, nil
 	case "NoFee":
 		return NoFee, nil
-	case "HardShip":
-		return HardShip, nil
+	case "Hardship":
+		return Hardship, nil
 	default:
 		return FeeType(0), fmt.Errorf("invalid FeeType '%s'", s)
 	}
@@ -55,13 +55,13 @@ func ParseFeeType(s string) (FeeType, error) {
 type FeeTypeOptions struct {
 	HalfFee  FeeType
 	NoFee    FeeType
-	HardShip FeeType
+	Hardship FeeType
 }
 
 var FeeTypeValues = FeeTypeOptions{
 	HalfFee:  HalfFee,
 	NoFee:    NoFee,
-	HardShip: HardShip,
+	Hardship: Hardship,
 }
 
 func (i FeeType) Empty() bool {

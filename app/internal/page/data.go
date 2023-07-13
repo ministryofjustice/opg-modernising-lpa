@@ -84,7 +84,7 @@ type FeeType uint8
 const (
 	HalfFee FeeType = iota + 1
 	NoFee
-	HardShip
+	Hardship
 )
 
 // Lpa contains all the data related to the LPA application
