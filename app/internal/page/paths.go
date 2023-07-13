@@ -142,6 +142,7 @@ type AppPaths struct {
 	HowShouldReplacementAttorneysStepIn                        LpaPath
 	HowToConfirmYourIdentityAndSign                            LpaPath
 	HowToPrintAndSendEvidence                                  LpaPath
+	HowToSendEvidence                                          LpaPath
 	HowWouldCertificateProviderPreferToCarryOutTheirRole       LpaPath
 	IdentityConfirmed                                          LpaPath
 	IdentityWithBiometricResidencePermit                       LpaPath
@@ -275,6 +276,7 @@ var Paths = AppPaths{
 	HowShouldReplacementAttorneysStepIn:                        "/how-should-replacement-attorneys-step-in",
 	HowToConfirmYourIdentityAndSign:                            "/how-to-confirm-your-identity-and-sign",
 	HowToPrintAndSendEvidence:                                  "/how-to-print-and-send-evidence",
+	HowToSendEvidence:                                          "/how-to-send-evidence",
 	HowWouldCertificateProviderPreferToCarryOutTheirRole:       "/how-would-certificate-provider-prefer-to-carry-out-their-role",
 	IdentityConfirmed:                                          "/identity-confirmed",
 	IdentityWithBiometricResidencePermit:                       "/id/biometric-residence-permit",
