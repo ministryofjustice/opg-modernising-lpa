@@ -141,6 +141,8 @@ type AppPaths struct {
 	HowShouldReplacementAttorneysMakeDecisions                 LpaPath
 	HowShouldReplacementAttorneysStepIn                        LpaPath
 	HowToConfirmYourIdentityAndSign                            LpaPath
+	HowToPrintAndSendEvidence                                  LpaPath
+	HowToSendEvidence                                          LpaPath
 	HowWouldCertificateProviderPreferToCarryOutTheirRole       LpaPath
 	IdentityConfirmed                                          LpaPath
 	IdentityWithBiometricResidencePermit                       LpaPath
@@ -159,6 +161,7 @@ type AppPaths struct {
 	PreviousApplicationNumber                                  LpaPath
 	PrintEvidenceForm                                          LpaPath
 	Progress                                                   LpaPath
+	ProvideAddressToSendEvidenceForm                           LpaPath
 	ReadYourLpa                                                LpaPath
 	RemoveAttorney                                             LpaPath
 	RemovePersonToNotify                                       LpaPath
@@ -272,6 +275,8 @@ var Paths = AppPaths{
 	HowShouldReplacementAttorneysMakeDecisions:           "/how-should-replacement-attorneys-make-decisions",
 	HowShouldReplacementAttorneysStepIn:                  "/how-should-replacement-attorneys-step-in",
 	HowToConfirmYourIdentityAndSign:                      "/how-to-confirm-your-identity-and-sign",
+	HowToPrintAndSendEvidence:                            "/how-to-print-and-send-evidence",
+	HowToSendEvidence:                                    "/how-to-send-evidence",
 	HowWouldCertificateProviderPreferToCarryOutTheirRole: "/how-would-certificate-provider-prefer-to-carry-out-their-role",
 	IdentityConfirmed:                                    "/identity-confirmed",
 	IdentityWithBiometricResidencePermit:                 "/id/biometric-residence-permit",
@@ -292,6 +297,7 @@ var Paths = AppPaths{
 	PreviousApplicationNumber:                            "/previous-application-number",
 	PrintEvidenceForm:                                    "/print-evidence-form",
 	Progress:                                             "/progress",
+	ProvideAddressToSendEvidenceForm:                     "/provide-address-to-send-evidence-form",
 	ReadYourLpa:                                          "/read-your-lpa",
 	RemoveAttorney:                                       "/remove-attorney",
 	RemovePersonToNotify:                                 "/remove-person-to-notify",

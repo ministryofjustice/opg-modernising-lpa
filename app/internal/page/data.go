@@ -147,6 +147,8 @@ type Lpa struct {
 	CPWitnessCodeValidated bool
 	// Used to rate limit witnessing requests
 	WitnessCodeLimiter *Limiter
+	// EvidenceFormAddress is where the form to provide evidence for a fee reduction will be sent
+	EvidenceFormAddress place.Address
 }
 
 type PaymentDetails struct {
