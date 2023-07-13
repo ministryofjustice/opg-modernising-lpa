@@ -622,7 +622,7 @@ func TestPayHelperPay(t *testing.T) {
 				payClient:    payClient,
 				appPublicURL: "http://example.org",
 				randomString: func(int) string { return "123456789012" },
-			}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
+			}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, FeeType: page.Full})
 			resp := w.Result()
 
 			assert.Nil(t, err)
