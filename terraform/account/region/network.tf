@@ -9,3 +9,23 @@ module "network" {
     aws = aws.region
   }
 }
+
+resource "aws_security_group" "lambda_egress" {
+  name        = "lambda-egress-${data.aws_region.current.name}"
+  vpc_id      = module.network.vpc.id
+  description = "Shared security group lambda for outbound traffic"
+
+  tags     = { "Name" = "lambda-egress-${data.aws_region.current.name}" }
+  provider = aws.region
+}
+
+resource "aws_security_group_rule" "lambda_egress" {
+  type              = "egress"
+  protocol          = "-1"
+  from_port         = 0
+  to_port           = 0
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.lambda_egress.id
+  description       = "Outbound Lambda"
+  provider          = aws.region
+}
