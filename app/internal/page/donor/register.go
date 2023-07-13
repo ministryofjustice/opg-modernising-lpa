@@ -233,6 +233,8 @@ func Register(
 		Guidance(tmpls.Get("print_evidence_form.gohtml")))
 	handleWithLpa(page.Paths.HowToPrintAndSendEvidence, CanGoBack,
 		Guidance(tmpls.Get("how_to_print_and_send_evidence.gohtml")))
+	handleWithLpa(page.Paths.ProvideAddressToSendEvidenceForm, CanGoBack,
+		ProvideAddressToSendEvidenceForm(logger, tmpls.Get("provide_address_to_send_evidence_form.gohtml"), addressClient, donorStore))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender))
 
