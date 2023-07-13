@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -94,7 +93,7 @@ func TestReadAddressForm(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
-			r.Header.Add("Content-Type", page.FormUrlEncoded)
+			r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 			actual := ReadAddressForm(r)
 			assert.Equal(t, tc.result, actual)

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -22,7 +22,7 @@ func TestGetCanEvidenceBeUploaded(t *testing.T) {
 	template.
 		On("Execute", w, &canEvidenceBeUploadedData{
 			App:     testAppData,
-			Options: actor.YesNoValues,
+			Options: form.YesNoValues,
 		}).
 		Return(nil)
 
@@ -41,7 +41,7 @@ func TestGetCanEvidenceBeUploadedFromStore(t *testing.T) {
 	template.
 		On("Execute", w, &canEvidenceBeUploadedData{
 			App:     testAppData,
-			Options: actor.YesNoValues,
+			Options: form.YesNoValues,
 		}).
 		Return(nil)
 
@@ -69,15 +69,15 @@ func TestGetCanEvidenceBeUploadedWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostCanEvidenceBeUploaded(t *testing.T) {
-	testcases := map[actor.YesNo]page.LpaPath{
-		actor.Yes: page.Paths.UploadInstructions,
-		actor.No:  page.Paths.PrintEvidenceForm,
+	testcases := map[form.YesNo]page.LpaPath{
+		form.Yes: page.Paths.UploadInstructions,
+		form.No:  page.Paths.PrintEvidenceForm,
 	}
 
-	for happy, redirect := range testcases {
-		t.Run(happy.String(), func(t *testing.T) {
+	for yesNo, redirect := range testcases {
+		t.Run(yesNo.String(), func(t *testing.T) {
 			form := url.Values{
-				"happy": {happy.String()},
+				"yes-no": {yesNo.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -102,7 +102,7 @@ func TestPostCanEvidenceBeUploadedWhenValidationErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.MatchedBy(func(data *canEvidenceBeUploadedData) bool {
-			return assert.Equal(t, validation.With("happy", validation.SelectError{Label: "canEvidenceBeUploaded"}), data.Errors)
+			return assert.Equal(t, validation.With("yes-no", validation.SelectError{Label: "canEvidenceBeUploaded"}), data.Errors)
 		})).
 		Return(nil)
 

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 	"github.com/stretchr/testify/assert"
@@ -462,7 +463,7 @@ func TestChooseAttorneysState(t *testing.T) {
 
 func TestChooseReplacementAttorneysState(t *testing.T) {
 	testcases := map[string]struct {
-		want                         actor.YesNo
+		want                         form.YesNo
 		replacementAttorneys         actor.Attorneys
 		attorneyDecisions            actor.AttorneyDecisions
 		howReplacementsStepIn        ReplacementAttorneysStepIn
@@ -473,15 +474,15 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState: actor.TaskNotStarted,
 		},
 		"do not want": {
-			want:      actor.No,
+			want:      form.No,
 			taskState: actor.TaskCompleted,
 		},
 		"do want": {
-			want:      actor.Yes,
+			want:      form.Yes,
 			taskState: actor.TaskInProgress,
 		},
 		"single with email": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",
@@ -489,7 +490,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState: actor.TaskCompleted,
 		},
 		"single with address": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Address:    place.Address{Line1: "a"},
@@ -497,14 +498,14 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState: actor.TaskCompleted,
 		},
 		"single incomplete": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 			}},
 			taskState: actor.TaskInProgress,
 		},
 		"multiple without decisions": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",
@@ -515,7 +516,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState: actor.TaskInProgress,
 		},
 		"multiple jointly and severally": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",
@@ -527,7 +528,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState:                    actor.TaskCompleted,
 		},
 		"multiple jointly": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",
@@ -539,7 +540,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState:                    actor.TaskCompleted,
 		},
 		"multiple mixed": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",
@@ -551,7 +552,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState:                    actor.TaskCompleted,
 		},
 		"jointly and severally attorneys single": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",
@@ -560,7 +561,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState:         actor.TaskInProgress,
 		},
 		"jointly and severally attorneys single with step in": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",
@@ -570,7 +571,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState:             actor.TaskCompleted,
 		},
 		"jointly attorneys single": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",
@@ -579,7 +580,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState:         actor.TaskCompleted,
 		},
 		"mixed attorneys single": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",
@@ -589,7 +590,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 		},
 
 		"jointly and severally attorneys multiple": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",
@@ -601,7 +602,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState:         actor.TaskInProgress,
 		},
 		"jointly and severally attorneys multiple with step in": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",
@@ -614,7 +615,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState:             actor.TaskCompleted,
 		},
 		"jointly and severally attorneys multiple with step in when none can act": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",
@@ -627,7 +628,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState:             actor.TaskInProgress,
 		},
 		"jointly and severally attorneys multiple with step in when none can act jointly": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",
@@ -641,7 +642,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState:                    actor.TaskCompleted,
 		},
 		"jointly and severally attorneys multiple with step in when none can act mixed": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",
@@ -655,7 +656,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState:                    actor.TaskCompleted,
 		},
 		"jointly attorneys multiple without decisions": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",
@@ -667,7 +668,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState:         actor.TaskInProgress,
 		},
 		"jointly attorneys multiple jointly and severally": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",
@@ -680,7 +681,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState:                    actor.TaskCompleted,
 		},
 		"jointly attorneys multiple with jointly": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",
@@ -693,7 +694,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			taskState:                    actor.TaskCompleted,
 		},
 		"jointly attorneys multiple mixed": {
-			want: actor.Yes,
+			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{{
 				FirstNames: "a",
 				Email:      "a",

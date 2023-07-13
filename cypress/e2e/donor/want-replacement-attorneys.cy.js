@@ -4,7 +4,7 @@ describe('Do you want replacement attorneys', () => {
 
         cy.get('div.govuk-warning-text').should('contain', 'Replacement attorneys are an important backup when attorneys are appointed to act jointly.')
 
-        cy.get('input[name="want"]').check('yes')
+        cy.get('input[name="yes-no"]').check('yes')
 
         cy.checkA11yApp();
 
@@ -17,7 +17,7 @@ describe('Do you want replacement attorneys', () => {
 
         cy.get('div.govuk-warning-text').should('contain', 'You appointed your attorneys to act jointly for some decisions, and jointly and severally for others.')
 
-        cy.get('input[name="want"]').check('yes')
+        cy.get('input[name="yes-no"]').check('yes')
 
         cy.checkA11yApp();
 
@@ -30,7 +30,7 @@ describe('Do you want replacement attorneys', () => {
 
         cy.get('div.govuk-warning-text').should('not.exist')
 
-        cy.get('input[name="want"]').check('yes')
+        cy.get('input[name="yes-no"]').check('yes')
 
         cy.checkA11yApp();
 
@@ -43,7 +43,7 @@ describe('Do you want replacement attorneys', () => {
 
         cy.get('div.govuk-warning-text').should('not.exist')
 
-        cy.get('input[name="want"]').check('no')
+        cy.get('input[name="yes-no"]').check('no')
 
         cy.checkA11yApp();
 

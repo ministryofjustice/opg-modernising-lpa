@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
@@ -14,8 +15,8 @@ type removePersonToNotifyData struct {
 	App            page.AppData
 	PersonToNotify actor.PersonToNotify
 	Errors         validation.List
-	Form           *removePersonToNotifyForm
-	Options        actor.YesNoOptions
+	Form           *form.YesNoForm
+	Options        form.YesNoOptions
 }
 
 func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
@@ -30,16 +31,16 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore Dono
 		data := &removePersonToNotifyData{
 			App:            appData,
 			PersonToNotify: person,
-			Form:           &removePersonToNotifyForm{},
-			Options:        actor.YesNoValues,
+			Form:           &form.YesNoForm{},
+			Options:        form.YesNoValues,
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readRemovePersonToNotifyForm(r)
+			data.Form = form.ReadYesNoForm(r, "yesToRemoveThisPerson")
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				if data.Form.RemovePersonToNotify == actor.Yes {
+				if data.Form.YesNo == form.Yes {
 					lpa.PeopleToNotify.Delete(person)
 					if len(lpa.PeopleToNotify) == 0 {
 						lpa.Tasks.PeopleToNotify = actor.TaskNotStarted
@@ -57,27 +58,4 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore Dono
 
 		return tmpl(w, data)
 	}
-}
-
-type removePersonToNotifyForm struct {
-	RemovePersonToNotify actor.YesNo
-	Error                error
-}
-
-func readRemovePersonToNotifyForm(r *http.Request) *removePersonToNotifyForm {
-	remove, err := actor.ParseYesNo(page.PostFormString(r, "remove-person-to-notify"))
-
-	return &removePersonToNotifyForm{
-		RemovePersonToNotify: remove,
-		Error:                err,
-	}
-}
-
-func (f *removePersonToNotifyForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.Error("remove-person-to-notify", "removePersonToNotify", f.Error,
-		validation.Selected())
-
-	return errors
 }

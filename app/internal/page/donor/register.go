@@ -121,7 +121,6 @@ func Register(
 	appPublicUrl string,
 	payClient PayClient,
 	yotiClient YotiClient,
-	notifyClient NotifyClient,
 	shareCodeSender ShareCodeSender,
 	witnessCodeSender WitnessCodeSender,
 	errorHandler page.ErrorHandler,
@@ -223,8 +222,10 @@ func Register(
 	handleWithLpa(page.Paths.CheckYourLpa, CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore))
 
-	handleWithLpa(page.Paths.AboutPayment, CanGoBack,
-		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String))
+	handleWithLpa(page.Paths.AboutPayment, None,
+		Guidance(tmpls.Get("about_payment.gohtml")))
+	handleWithLpa(page.Paths.AreYouApplyingForADifferentFeeType, CanGoBack,
+		AreYouApplyingForADifferentFeeType(logger, tmpls.Get("are_you_applying_for_a_different_fee_type.gohtml"), sessionStore, payClient, appPublicUrl, random.String))
 	handleWithLpa(page.Paths.EvidenceRequired, CanGoBack,
 		Guidance(tmpls.Get("evidence_required.gohtml")))
 	handleWithLpa(page.Paths.CanEvidenceBeUploaded, CanGoBack,
