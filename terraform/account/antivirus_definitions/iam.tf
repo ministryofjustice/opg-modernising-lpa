@@ -1,5 +1,5 @@
 resource "aws_iam_role" "s3_antivirus_update" {
-  name               = "s3-antivirus-update-${var.account_name}"
+  name               = "s3-antivirus-update-${data.aws_default_tags.current.tags.account-name}"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume.json
   provider           = aws.region
 }

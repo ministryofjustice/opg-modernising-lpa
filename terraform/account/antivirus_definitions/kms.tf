@@ -1,8 +1,9 @@
 resource "aws_kms_key" "cloudwatch" {
-  description             = "Sirius Virus Definition for ${var.account_name}"
+  description             = "Virus Definition for ${data.aws_default_tags.current.tags.account-name}"
   deletion_window_in_days = 10
   policy                  = data.aws_iam_policy_document.cloudwatch_kms.json
   enable_key_rotation     = true
+  provider                = aws.region
 }
 
 # See the following link for further information
@@ -69,4 +70,5 @@ data "aws_iam_policy_document" "cloudwatch_kms" {
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/breakglass"]
     }
   }
+  provider = aws.region
 }

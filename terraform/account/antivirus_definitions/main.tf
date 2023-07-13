@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_log_group" "lambda" {
-  name              = "/aws/lambda/antivirus-definition-${var.account_name}"
+  name              = "/aws/lambda/antivirus-definition-${data.aws_default_tags.current.tags.account-name}"
   kms_key_id        = aws_kms_key.cloudwatch.arn
   retention_in_days = 7
   provider          = aws.region
@@ -11,7 +11,7 @@ data "aws_security_group" "lambda_egress" {
 }
 
 resource "aws_lambda_function" "lambda_function" {
-  function_name = "antivirus-definition-${var.account_name}"
+  function_name = "antivirus-definition-${data.aws_default_tags.current.tags.account-name}"
   image_uri     = var.ecr_image_uri
   package_type  = "Image"
   role          = aws_iam_role.s3_antivirus_update.arn
