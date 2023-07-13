@@ -19,7 +19,7 @@ resource "aws_lambda_function" "lambda_function" {
   memory_size   = 2048
 
   vpc_config {
-    subnet_ids = data.aws_subnets.application.ids
+    subnet_ids = data.aws_subnet.application.*.id
     security_group_ids = [
       data.aws_security_group.lambda_egress.id
     ]
