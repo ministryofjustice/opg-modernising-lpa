@@ -23,8 +23,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-const CostOfLpaPence = 8200
-
 //go:generate enumerator -type LpaType -linecomment -trimprefix -empty
 type LpaType uint8
 
@@ -85,7 +83,20 @@ const (
 	HalfFee FeeType = iota + 1
 	NoFee
 	Hardship
+	Full
 )
+
+func (i *FeeType) Cost() int {
+	if i.IsFull() {
+		return 8200
+	}
+
+	if i.IsHalfFee() {
+		return 4100
+	}
+
+	return 0
+}
 
 // Lpa contains all the data related to the LPA application
 type Lpa struct {
