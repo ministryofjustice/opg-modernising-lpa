@@ -1,22 +1,23 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "areYouApplyingForADifferentFeeType" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "whichFeeTypeAreYouApplyingFor" }}{{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ tr .App "areYouApplyingForADifferentFeeType" }}</h1>
+            <h1 class="govuk-heading-xl">{{ tr .App "whichFeeTypeAreYouApplyingFor" }}</h1>
 
-            <p class="govuk-body">{{ tr .App "areYouApplyingForADifferentFeeTypeContent" }}</p>
+            <p class="govuk-body">{{ tr .App "whichFeeTypeAreYouApplyingForContent" }}</p>
 
             <form novalidate method="post">
                 <fieldset class="govuk-fieldset">
-                    <div class="govuk-form-group {{ if .Errors.Has "yes-no" }}govuk-form-group--error{{ end }}">
-                        {{ template "error-message" (errorMessage . "yes-no") }}
+                    <div class="govuk-form-group {{ if .Errors.Has "fee-type" }}govuk-form-group--error{{ end }}">
+                        {{ template "error-message" (errorMessage . "fee-type") }}
 
-                        {{ template "radios" (items . "yes-no" ""
-                        (item .Options.Yes.String "yes")
-                        (item .Options.No.String "no")
+                        {{ template "radios" (items . "fee-type" ""
+                        (item .Options.HalfFee.String "halfFee")
+                        (item .Options.NoFee.String "noFee")
+                        (item .Options.Hardship.String "hardship")
                         ) }}
                     </div>
                 </fieldset>
