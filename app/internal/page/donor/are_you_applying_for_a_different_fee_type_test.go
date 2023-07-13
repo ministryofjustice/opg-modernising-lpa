@@ -7,255 +7,128 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/pay"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-var publicUrl = "http://example.org"
-
 func TestGetAreYouApplyingForADifferentFeeType(t *testing.T) {
-	random := func(int) string { return "123456789012" }
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/are-you-applying-for-a-different-fee-type", nil)
 
-	t.Run("Handles page data", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/are-you-applying-for-a-different-fee-type", nil)
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &areYouApplyingForADifferentFeeTypeData{
+			App:     testAppData,
+			Options: form.YesNoValues,
+		}).
+		Return(nil)
 
-		template := newMockTemplate(t)
-		template.
-			On("Execute", w, &areYouApplyingForADifferentFeeTypeData{
-				App:     testAppData,
-				Options: form.YesNoValues,
-			}).
-			Return(nil)
+	err := AreYouApplyingForADifferentFeeType(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	resp := w.Result()
 
-		payClient := newMockPayClient(t)
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
 
-		err := AreYouApplyingForADifferentFeeType(nil, template.Execute, nil, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{
-			CertificateProvider: actor.CertificateProvider{},
-		})
-		resp := w.Result()
+func TestGetAreYouApplyingForADifferentFeeTypeWhenTemplateErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/are-you-applying-for-a-different-fee-type", nil)
 
-		assert.Nil(t, err)
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
-	})
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &areYouApplyingForADifferentFeeTypeData{
+			App:     testAppData,
+			Options: form.YesNoValues,
+		}).
+		Return(expectedError)
 
-	t.Run("Returns an error when cannot render template", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/are-you-applying-for-a-different-fee-type", nil)
+	err := AreYouApplyingForADifferentFeeType(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	resp := w.Result()
 
-		template := newMockTemplate(t)
-		template.
-			On("Execute", w, &areYouApplyingForADifferentFeeTypeData{
-				App:     testAppData,
-				Options: form.YesNoValues,
-			}).
-			Return(expectedError)
-
-		err := AreYouApplyingForADifferentFeeType(nil, template.Execute, nil, nil, publicUrl, random)(testAppData, w, r, &page.Lpa{
-			CertificateProvider: actor.CertificateProvider{},
-		})
-		resp := w.Result()
-
-		assert.Equal(t, expectedError, err)
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
-	})
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostAreYouApplyingForADifferentFeeType(t *testing.T) {
-	random := func(int) string { return "123456789012" }
+	f := url.Values{
+		"yes-no": {form.No.String()},
+	}
 
-	t.Run("Creates GOV UK Pay payment and saves paymentID in secure cookie", func(t *testing.T) {
-		testCases := map[string]struct {
-			nextUrl  string
-			redirect string
-		}{
-			"Real return URL": {
-				nextUrl:  "https://www.payments.service.gov.uk/path-from/response",
-				redirect: "https://www.payments.service.gov.uk/path-from/response",
-			},
-			"Fake return URL": {
-				nextUrl:  "/lpa/lpa-id/something-else",
-				redirect: page.Paths.PaymentConfirmation.Format("lpa-id"),
-			},
-		}
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-		for name, tc := range testCases {
-			t.Run(name, func(t *testing.T) {
-				f := url.Values{
-					"yes-no": {form.No.String()},
-				}
+	lpa := &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}}
 
-				w := httptest.NewRecorder()
-				r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(f.Encode()))
-				r.Header.Add("Content-Type", page.FormUrlEncoded)
+	payer := newMockPayer(t)
+	payer.
+		On("Pay", testAppData, w, r, lpa).
+		Return(nil)
 
-				template := newMockTemplate(t)
-				template.
-					On("Execute", w, &areYouApplyingForADifferentFeeTypeData{
-						App:     testAppData,
-						Options: form.YesNoValues,
-						Form:    &form.YesNoForm{YesNo: form.No, ErrorLabel: "whetherApplyingForDifferentFeeType"},
-					}).
-					Return(nil)
+	err := AreYouApplyingForADifferentFeeType(nil, payer)(testAppData, w, r, lpa)
+	assert.Nil(t, err)
+}
 
-				sessionStore := newMockSessionStore(t)
+func TestPostAreYouApplyingForADifferentFeeTypeWhenPayerErrors(t *testing.T) {
+	form := url.Values{
+		"yes-no": {form.No.String()},
+	}
 
-				session := sessions.NewSession(sessionStore, "pay")
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-				session.Options = &sessions.Options{
-					Path:     "/",
-					MaxAge:   5400,
-					SameSite: http.SameSiteLaxMode,
-					HttpOnly: true,
-					Secure:   true,
-				}
-				session.Values = map[any]any{"payment": &sesh.PaymentSession{PaymentID: "a-fake-id"}}
+	payer := newMockPayer(t)
+	payer.
+		On("Pay", testAppData, w, r, mock.Anything).
+		Return(expectedError)
 
-				sessionStore.
-					On("Save", r, w, session).
-					Return(nil)
+	err := AreYouApplyingForADifferentFeeType(nil, payer)(testAppData, w, r, &page.Lpa{})
+	assert.Equal(t, expectedError, err)
+}
 
-				payClient := newMockPayClient(t)
-				payClient.
-					On("CreatePayment", pay.CreatePaymentBody{
-						Amount:      8200,
-						Reference:   "123456789012",
-						Description: "Property and Finance LPA",
-						ReturnUrl:   "http://example.org/lpa/lpa-id/payment-confirmation",
-						Email:       "a@b.com",
-						Language:    "en",
-					}).
-					Return(pay.CreatePaymentResponse{
-						PaymentId: "a-fake-id",
-						Links: map[string]pay.Link{
-							"next_url": {
-								Href: tc.nextUrl,
-							},
-						},
-					}, nil)
+func TestPostAreYouApplyingForADifferentFeeTypeWhenYes(t *testing.T) {
+	f := url.Values{
+		"yes-no": {form.Yes.String()},
+	}
 
-				err := AreYouApplyingForADifferentFeeType(nil, template.Execute, sessionStore, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, CertificateProvider: actor.CertificateProvider{}})
-				resp := w.Result()
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-				assert.Nil(t, err)
-				assert.Equal(t, http.StatusFound, resp.StatusCode)
-				assert.Equal(t, tc.redirect, resp.Header.Get("Location"))
+	err := AreYouApplyingForADifferentFeeType(nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
+	resp := w.Result()
 
-			})
-		}
-	})
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.WhichFeeTypeAreYouApplyingFor.Format("lpa-id"), resp.Header.Get("Location"))
+}
 
-	t.Run("Returns error when cannot create payment", func(t *testing.T) {
-		form := url.Values{
-			"yes-no": {form.No.String()},
-		}
+func TestPostAreYouApplyingForADifferentFeeTypeWhenValidationError(t *testing.T) {
+	form := url.Values{
+		"yes-no": {""},
+	}
 
-		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(form.Encode()))
-		r.Header.Add("Content-Type", page.FormUrlEncoded)
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-		template := newMockTemplate(t)
+	validationError := validation.With("yes-no", validation.SelectError{Label: "whetherApplyingForDifferentFeeType"})
 
-		sessionStore := newMockSessionStore(t)
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, mock.MatchedBy(func(data *areYouApplyingForADifferentFeeTypeData) bool {
+			return assert.Equal(t, validationError, data.Errors)
+		})).
+		Return(nil)
 
-		logger := newMockLogger(t)
-		logger.
-			On("Print", "Error creating payment: "+expectedError.Error())
+	err := AreYouApplyingForADifferentFeeType(template.Execute, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
+	resp := w.Result()
 
-		payClient := newMockPayClient(t)
-		payClient.
-			On("CreatePayment", mock.Anything).
-			Return(pay.CreatePaymentResponse{}, expectedError)
-
-		err := AreYouApplyingForADifferentFeeType(logger, template.Execute, sessionStore, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{}})
-
-		assert.Equal(t, expectedError, err, "Expected error was not returned")
-	})
-
-	t.Run("Returns error when cannot save to session", func(t *testing.T) {
-		form := url.Values{
-			"yes-no": {form.No.String()},
-		}
-
-		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(form.Encode()))
-		r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-		template := newMockTemplate(t)
-
-		sessionStore := newMockSessionStore(t)
-
-		sessionStore.
-			On("Save", mock.Anything, mock.Anything, mock.Anything).
-			Return(expectedError)
-
-		logger := newMockLogger(t)
-
-		payClient := newMockPayClient(t)
-		payClient.
-			On("CreatePayment", mock.Anything).
-			Return(pay.CreatePaymentResponse{Links: map[string]pay.Link{"next_url": {Href: "http://example.url"}}}, nil)
-
-		err := AreYouApplyingForADifferentFeeType(logger, template.Execute, sessionStore, payClient, publicUrl, random)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{}})
-
-		assert.Equal(t, expectedError, err, "Expected error was not returned")
-	})
-
-	t.Run("Redirects to evidence required when applying for different fee type", func(t *testing.T) {
-		f := url.Values{
-			"yes-no": {form.Yes.String()},
-		}
-
-		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(f.Encode()))
-		r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-		template := newMockTemplate(t)
-		template.
-			On("Execute", w, &areYouApplyingForADifferentFeeTypeData{
-				App:     testAppData,
-				Options: form.YesNoValues,
-				Form:    &form.YesNoForm{YesNo: form.Yes, ErrorLabel: "whetherApplyingForDifferentFeeType"},
-			}).
-			Return(nil)
-
-		err := AreYouApplyingForADifferentFeeType(nil, template.Execute, nil, nil, publicUrl, random)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, CertificateProvider: actor.CertificateProvider{}})
-		resp := w.Result()
-
-		assert.Nil(t, err)
-		assert.Equal(t, http.StatusFound, resp.StatusCode)
-		assert.Equal(t, page.Paths.WhichFeeTypeAreYouApplyingFor.Format("lpa-id"), resp.Header.Get("Location"))
-	})
-
-	t.Run("Invalid form submission", func(t *testing.T) {
-		form := url.Values{
-			"yes-no": {""},
-		}
-
-		w := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(form.Encode()))
-		r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-		validationError := validation.With("yes-no", validation.SelectError{Label: "whetherApplyingForDifferentFeeType"})
-
-		template := newMockTemplate(t)
-		template.
-			On("Execute", w, mock.MatchedBy(func(data *areYouApplyingForADifferentFeeTypeData) bool {
-				return assert.Equal(t, validationError, data.Errors)
-			})).
-			Return(nil)
-
-		err := AreYouApplyingForADifferentFeeType(nil, template.Execute, nil, nil, publicUrl, random)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, CertificateProvider: actor.CertificateProvider{}})
-		resp := w.Result()
-
-		assert.Nil(t, err)
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
-	})
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }

@@ -3,8 +3,10 @@ package donor
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/sessions"
@@ -110,6 +112,11 @@ type RequestSigner interface {
 	Sign(context.Context, *http.Request, string) error
 }
 
+//go:generate mockery --testonly --inpackage --name Payer --structname mockPayer
+type Payer interface {
+	Pay(page.AppData, http.ResponseWriter, *http.Request, *page.Lpa) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -118,7 +125,7 @@ func Register(
 	donorStore DonorStore,
 	oneLoginClient OneLoginClient,
 	addressClient AddressClient,
-	appPublicUrl string,
+	appPublicURL string,
 	payClient PayClient,
 	yotiClient YotiClient,
 	shareCodeSender ShareCodeSender,
@@ -128,6 +135,14 @@ func Register(
 	certificateProviderStore CertificateProviderStore,
 	uidClient UidClient,
 ) {
+	payer := &payHelper{
+		logger:       logger,
+		sessionStore: sessionStore,
+		payClient:    payClient,
+		appPublicURL: appPublicURL,
+		randomString: random.String,
+	}
+
 	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler)
 
 	handleRoot(page.Paths.Login, None,
@@ -225,7 +240,7 @@ func Register(
 	handleWithLpa(page.Paths.AboutPayment, None,
 		Guidance(tmpls.Get("about_payment.gohtml")))
 	handleWithLpa(page.Paths.AreYouApplyingForADifferentFeeType, CanGoBack,
-		AreYouApplyingForADifferentFeeType(logger, tmpls.Get("are_you_applying_for_a_different_fee_type.gohtml"), sessionStore, payClient, appPublicUrl, random.String))
+		AreYouApplyingForADifferentFeeType(tmpls.Get("are_you_applying_for_a_different_fee_type.gohtml"), payer))
 	handleWithLpa(page.Paths.EvidenceRequired, CanGoBack,
 		Guidance(tmpls.Get("evidence_required.gohtml")))
 	handleWithLpa(page.Paths.CanEvidenceBeUploaded, CanGoBack,
@@ -236,6 +251,8 @@ func Register(
 		Guidance(tmpls.Get("how_to_print_and_send_evidence.gohtml")))
 	handleWithLpa(page.Paths.ProvideAddressToSendEvidenceForm, CanGoBack,
 		ProvideAddressToSendEvidenceForm(logger, tmpls.Get("provide_address_to_send_evidence_form.gohtml"), addressClient, donorStore))
+	handleWithLpa(page.Paths.HowToSendEvidence, CanGoBack,
+		HowToSendEvidence(tmpls.Get("how_to_send_evidence.gohtml"), payer))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender))
 
@@ -408,4 +425,43 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOp
 			}
 		})
 	}
+}
+
+type payHelper struct {
+	logger       Logger
+	sessionStore sessions.Store
+	payClient    PayClient
+	appPublicURL string
+	randomString func(int) string
+}
+
+func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	createPaymentBody := pay.CreatePaymentBody{
+		Amount:      page.CostOfLpaPence,
+		Reference:   p.randomString(12),
+		Description: "Property and Finance LPA",
+		ReturnUrl:   p.appPublicURL + appData.BuildUrl(page.Paths.PaymentConfirmation.Format(lpa.ID)),
+		Email:       lpa.Donor.Email,
+		Language:    appData.Lang.String(),
+	}
+
+	resp, err := p.payClient.CreatePayment(createPaymentBody)
+	if err != nil {
+		p.logger.Print(fmt.Sprintf("Error creating payment: %s", err.Error()))
+		return err
+	}
+
+	if err = sesh.SetPayment(p.sessionStore, r, w, &sesh.PaymentSession{PaymentID: resp.PaymentId}); err != nil {
+		return err
+	}
+
+	nextUrl := resp.Links["next_url"].Href
+	// If URL matches expected domain for GOV UK PAY redirect there. If not,
+	// redirect to the confirmation code and carry on with flow.
+	if strings.HasPrefix(nextUrl, pay.PaymentPublicServiceUrl) {
+		http.Redirect(w, r, nextUrl, http.StatusFound)
+		return nil
+	}
+
+	return appData.Redirect(w, r, lpa, page.Paths.PaymentConfirmation.Format(lpa.ID))
 }
