@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
@@ -12,8 +13,8 @@ import (
 type wantReplacementAttorneysData struct {
 	App     page.AppData
 	Errors  validation.List
-	Form    *wantReplacementAttorneysForm
-	Options actor.YesNoOptions
+	Form    *form.YesNoForm
+	Options form.YesNoOptions
 	Lpa     *page.Lpa
 }
 
@@ -22,21 +23,21 @@ func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Han
 		data := &wantReplacementAttorneysData{
 			App: appData,
 			Lpa: lpa,
-			Form: &wantReplacementAttorneysForm{
-				Want: lpa.WantReplacementAttorneys,
+			Form: &form.YesNoForm{
+				YesNo: lpa.WantReplacementAttorneys,
 			},
-			Options: actor.YesNoValues,
+			Options: form.YesNoValues,
 		}
 
 		if r.Method == http.MethodPost {
-			form := readWantReplacementAttorneysForm(r)
-			data.Errors = form.Validate()
+			f := form.ReadYesNoForm(r, "yesToAddReplacementAttorneys")
+			data.Errors = f.Validate()
 
 			if data.Errors.None() {
-				lpa.WantReplacementAttorneys = form.Want
+				lpa.WantReplacementAttorneys = f.YesNo
 				var redirectUrl string
 
-				if lpa.WantReplacementAttorneys == actor.No {
+				if lpa.WantReplacementAttorneys == form.No {
 					lpa.ReplacementAttorneys = actor.Attorneys{}
 					redirectUrl = page.Paths.TaskList.Format(lpa.ID)
 				} else {
@@ -59,27 +60,4 @@ func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Han
 
 		return tmpl(w, data)
 	}
-}
-
-type wantReplacementAttorneysForm struct {
-	Want  actor.YesNo
-	Error error
-}
-
-func readWantReplacementAttorneysForm(r *http.Request) *wantReplacementAttorneysForm {
-	want, err := actor.ParseYesNo(page.PostFormString(r, "want"))
-
-	return &wantReplacementAttorneysForm{
-		Want:  want,
-		Error: err,
-	}
-}
-
-func (f *wantReplacementAttorneysForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.Error("want", "yesToAddReplacementAttorneys", f.Error,
-		validation.Selected())
-
-	return errors
 }

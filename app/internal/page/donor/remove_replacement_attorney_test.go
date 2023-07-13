@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
@@ -33,8 +34,8 @@ func TestGetRemoveReplacementAttorney(t *testing.T) {
 		On("Execute", w, &removeReplacementAttorneyData{
 			App:      testAppData,
 			Attorney: attorney,
-			Form:     &removeAttorneyForm{},
-			Options:  actor.YesNoValues,
+			Form:     &form.YesNoForm{},
+			Options:  form.YesNoValues,
 		}).
 		Return(nil)
 
@@ -120,7 +121,7 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 
 			form := url.Values{
-				"remove-attorney": {actor.Yes.String()},
+				"yes-no": {form.Yes.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -148,7 +149,7 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 
 func TestPostRemoveReplacementAttorneyWithFormValueNo(t *testing.T) {
 	form := url.Values{
-		"remove-attorney": {actor.No.String()},
+		"yes-no": {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -180,12 +181,12 @@ func TestPostRemoveReplacementAttorneyWithFormValueNo(t *testing.T) {
 }
 
 func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
-	form := url.Values{
-		"remove-attorney": {actor.Yes.String()},
+	f := url.Values{
+		"yes-no": {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
@@ -213,7 +214,7 @@ func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
 		Return(expectedError)
 
 	err := RemoveReplacementAttorney(logger, template.Execute, donorStore)(testAppData, w, r, &page.Lpa{
-		WantReplacementAttorneys: actor.Yes,
+		WantReplacementAttorneys: form.Yes,
 		ReplacementAttorneys:     actor.Attorneys{attorneyWithoutAddress, attorneyWithAddress},
 	})
 
@@ -224,12 +225,12 @@ func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
 }
 
 func TestRemoveReplacementAttorneyFormValidation(t *testing.T) {
-	form := url.Values{
-		"remove-attorney": {""},
+	f := url.Values{
+		"yes-no": {""},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	attorneyWithoutAddress := actor.Attorney{
@@ -237,7 +238,7 @@ func TestRemoveReplacementAttorneyFormValidation(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	validationError := validation.With("remove-attorney", validation.SelectError{Label: "yesToRemoveReplacementAttorney"})
+	validationError := validation.With("yes-no", validation.SelectError{Label: "yesToRemoveReplacementAttorney"})
 
 	template := newMockTemplate(t)
 	template.
