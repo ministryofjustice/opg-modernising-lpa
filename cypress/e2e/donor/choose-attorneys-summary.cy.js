@@ -74,7 +74,7 @@ describe('Choose attorneys summary', () => {
     it('can add another attorney from summary page', () => {
         cy.checkA11yApp();
 
-        cy.get('#f-add-attorney').check('yes');
+        cy.get('input[name="yes-no"]').check('yes');
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/choose-attorneys');
@@ -122,7 +122,7 @@ describe('Choose attorneys summary', () => {
 
         cy.contains('Are you sure you want to remove John Smith?');
 
-        cy.get('#f-remove-attorney').check('yes');
+        cy.get('input[name="yes-no"]').check('yes');
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/choose-attorneys-summary');
@@ -132,7 +132,7 @@ describe('Choose attorneys summary', () => {
         cy.get('main').should('not.contain', 'John Smith');
 
         cy.get('#remove-attorney-1').contains('a', 'Remove').click();
-        cy.get('#f-remove-attorney').check('yes');
+        cy.get('input[name="yes-no"]').check('yes');
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/choose-attorneys');

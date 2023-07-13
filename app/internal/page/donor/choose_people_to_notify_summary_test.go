@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -25,8 +26,8 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 		On("Execute", w, &choosePeopleToNotifySummaryData{
 			App:     testAppData,
 			Lpa:     lpa,
-			Form:    &choosePeopleToNotifySummaryForm{},
-			Options: actor.YesNoValues,
+			Form:    &form.YesNoForm{},
+			Options: form.YesNoValues,
 		}).
 		Return(nil)
 
@@ -62,7 +63,7 @@ func TestGetChoosePeopleToNotifySummaryWhenNoPeopleToNotify(t *testing.T) {
 
 func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
 	form := url.Values{
-		"add-person-to-notify": {actor.Yes.String()},
+		"yes-no": {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -79,7 +80,7 @@ func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
 
 func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 	form := url.Values{
-		"add-person-to-notify": {actor.No.String()},
+		"yes-no": {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -108,14 +109,14 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 
 func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 	form := url.Values{
-		"add-person-to-notify": {""},
+		"yes-no": {""},
 	}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	validationError := validation.With("add-person-to-notify", validation.SelectError{Label: "yesToAddAnotherPersonToNotify"})
+	validationError := validation.With("yes-no", validation.SelectError{Label: "yesToAddAnotherPersonToNotify"})
 
 	template := newMockTemplate(t)
 	template.
@@ -129,27 +130,4 @@ func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestChoosePeopleToNotifySummaryFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *choosePeopleToNotifySummaryForm
-		errors validation.List
-	}{
-		"valid": {
-			form: &choosePeopleToNotifySummaryForm{},
-		},
-		"invalid": {
-			form: &choosePeopleToNotifySummaryForm{
-				Error: expectedError,
-			},
-			errors: validation.With("add-person-to-notify", validation.SelectError{Label: "yesToAddAnotherPersonToNotify"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }

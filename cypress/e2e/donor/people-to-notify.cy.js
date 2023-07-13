@@ -14,7 +14,7 @@ describe('People to notify', () => {
 
         cy.checkA11yApp();
 
-        cy.get('input[name="want-to-notify"]').check('yes')
+        cy.get('input[name="yes-no"]').check('yes')
         cy.contains('button', 'Save and continue').click();
 
         addPersonToNotify(person1, true)
@@ -28,7 +28,7 @@ describe('People to notify', () => {
         cy.get('#address-1').contains(person1.address.town);
         cy.get('#address-1').contains(person1.address.postcode);
 
-        cy.get('input[name="add-person-to-notify"]').check('yes')
+        cy.get('input[name="yes-no"]').check('yes')
         cy.contains('button', 'Save and continue').click();
 
         cy.visitLpa('/task-list')
@@ -92,7 +92,7 @@ describe('People to notify', () => {
 
         cy.checkA11yApp();
 
-        cy.get('input[name="remove-person-to-notify"]').check('yes')
+        cy.get('input[name="yes-no"]').check('yes')
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/choose-people-to-notify-summary');
@@ -101,7 +101,7 @@ describe('People to notify', () => {
 
         cy.url().should('contain', '/remove-person-to-notify');
 
-        cy.get('input[name="remove-person-to-notify"]').check('yes')
+        cy.get('input[name="yes-no"]').check('yes')
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/do-you-want-to-notify-people');

@@ -121,7 +121,6 @@ func Register(
 	appPublicUrl string,
 	payClient PayClient,
 	yotiClient YotiClient,
-	notifyClient NotifyClient,
 	shareCodeSender ShareCodeSender,
 	witnessCodeSender WitnessCodeSender,
 	errorHandler page.ErrorHandler,
@@ -223,12 +222,20 @@ func Register(
 	handleWithLpa(page.Paths.CheckYourLpa, CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore))
 
-	handleWithLpa(page.Paths.AboutPayment, CanGoBack,
-		AboutPayment(logger, tmpls.Get("about_payment.gohtml"), sessionStore, payClient, appPublicUrl, random.String))
+	handleWithLpa(page.Paths.AboutPayment, None,
+		Guidance(tmpls.Get("about_payment.gohtml")))
+	handleWithLpa(page.Paths.AreYouApplyingForADifferentFeeType, CanGoBack,
+		AreYouApplyingForADifferentFeeType(logger, tmpls.Get("are_you_applying_for_a_different_fee_type.gohtml"), sessionStore, payClient, appPublicUrl, random.String))
 	handleWithLpa(page.Paths.EvidenceRequired, CanGoBack,
 		Guidance(tmpls.Get("evidence_required.gohtml")))
 	handleWithLpa(page.Paths.CanEvidenceBeUploaded, CanGoBack,
 		CanEvidenceBeUploaded(tmpls.Get("can_evidence_be_uploaded.gohtml")))
+	handleWithLpa(page.Paths.PrintEvidenceForm, CanGoBack,
+		Guidance(tmpls.Get("print_evidence_form.gohtml")))
+	handleWithLpa(page.Paths.HowToPrintAndSendEvidence, CanGoBack,
+		Guidance(tmpls.Get("how_to_print_and_send_evidence.gohtml")))
+	handleWithLpa(page.Paths.ProvideAddressToSendEvidenceForm, CanGoBack,
+		ProvideAddressToSendEvidenceForm(logger, tmpls.Get("provide_address_to_send_evidence_form.gohtml"), addressClient, donorStore))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender))
 
