@@ -3,6 +3,7 @@ package page
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/sessions"
 )
@@ -47,8 +48,16 @@ func ValidateCsrf(next http.Handler, store sessions.Store, randomString func(int
 }
 
 func csrfValid(r *http.Request, csrfSession *sessions.Session) bool {
-	formValue := r.PostFormValue("csrf")
 	cookieValue, ok := csrfSession.Values["token"].(string)
+	if !ok {
+		return false
+	}
 
-	return ok && formValue == cookieValue
+	if contentType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";"); contentType == "multipart/form-data" {
+		// for multipart/form-data requests the csrf token must be checked where the
+		// other fields are read as we can't read the body twice
+		return true
+	}
+
+	return r.PostFormValue("csrf") == cookieValue
 }
