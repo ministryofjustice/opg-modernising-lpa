@@ -251,7 +251,7 @@ func Register(
 	handleWithLpa(page.Paths.CanEvidenceBeUploaded, CanGoBack,
 		CanEvidenceBeUploaded(tmpls.Get("can_evidence_be_uploaded.gohtml")))
 	handleWithLpa(page.Paths.UploadInstructions, CanGoBack, // TODO: check is this meant to be 2 pages? might need to remove page.Paths.UploadEvidence
-		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), donorStore, sessionStore, s3Client, evidenceBucketName))
+		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), donorStore, s3Client, evidenceBucketName))
 	handleWithLpa(page.Paths.PrintEvidenceForm, CanGoBack,
 		Guidance(tmpls.Get("print_evidence_form.gohtml")))
 	handleWithLpa(page.Paths.HowToPrintAndSendEvidence, CanGoBack,

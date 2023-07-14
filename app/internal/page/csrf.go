@@ -1,7 +1,11 @@
 package page
 
 import (
+	"bytes"
 	"errors"
+	"io"
+	"mime"
+	"mime/multipart"
 	"net/http"
 	"strings"
 
@@ -54,9 +58,34 @@ func csrfValid(r *http.Request, csrfSession *sessions.Session) bool {
 	}
 
 	if contentType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";"); contentType == "multipart/form-data" {
-		// for multipart/form-data requests the csrf token must be checked where the
-		// other fields are read as we can't read the body twice
-		return true
+		var buf bytes.Buffer
+
+		tee := io.TeeReader(r.Body, &buf)
+
+		mediaType, params, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+		if err != nil {
+			return false
+		}
+		if mediaType != "multipart/form-data" {
+			return false
+		}
+
+		reader := multipart.NewReader(tee, params["boundary"])
+
+		part, err := reader.NextPart()
+		if err != nil {
+			return false
+		}
+
+		if part.FormName() != "csrf" {
+			return false
+		}
+
+		lmt := io.LimitReader(part, int64(len(cookieValue)+1))
+		value, _ := io.ReadAll(lmt)
+
+		r.Body = MultiReadCloser(io.NopCloser(&buf), r.Body)
+		return string(value) == cookieValue
 	}
 
 	return r.PostFormValue("csrf") == cookieValue

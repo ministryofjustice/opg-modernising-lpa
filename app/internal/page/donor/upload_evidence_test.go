@@ -13,7 +13,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -31,7 +30,7 @@ func TestGetUploadEvidence(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, nil, "")(testAppData, w, r, &page.Lpa{})
+	err := UploadEvidence(template.Execute, nil, nil, "")(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -47,7 +46,7 @@ func TestGetUploadEvidenceWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := UploadEvidence(template.Execute, nil, nil, nil, "")(testAppData, w, r, &page.Lpa{})
+	err := UploadEvidence(template.Execute, nil, nil, "")(testAppData, w, r, &page.Lpa{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -69,11 +68,6 @@ func TestPostUploadEvidence(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
 	r.Header.Set("Content-Type", writer.FormDataContentType())
 
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "csrf").
-		Return(&sessions.Session{Values: map[any]any{"token": "123"}}, nil)
-
 	s3Client := newMockS3Client(t)
 	s3Client.
 		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
@@ -87,7 +81,7 @@ func TestPostUploadEvidence(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", EvidenceKey: "lpa-id-evidence"}).
 		Return(nil)
 
-	err := UploadEvidence(nil, donorStore, sessionStore, s3Client, "evidence-bucket")(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	err := UploadEvidence(nil, donorStore, s3Client, "evidence-bucket")(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -95,59 +89,32 @@ func TestPostUploadEvidence(t *testing.T) {
 	assert.Equal(t, page.Paths.ApplicationReason.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostUploadEvidenceWhenBadCsrf(t *testing.T) {
-	testcases := map[string]struct {
-		fieldName    string
-		fieldContent string
-	}{
-		"bad value": {
-			fieldName:    "csrf",
-			fieldContent: "456",
-		},
-		"wrong field": {
-			fieldName:    "not-csrf",
-			fieldContent: "123",
-		},
-		"over size value": {
-			fieldName:    "csrf",
-			fieldContent: "4567",
-		},
-	}
+func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
 
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			var buf bytes.Buffer
-			writer := multipart.NewWriter(&buf)
+	part, _ := writer.CreateFormField("what")
+	io.WriteString(part, "hey")
 
-			part, _ := writer.CreateFormField(tc.fieldName)
-			io.WriteString(part, tc.fieldContent)
+	writer.Close()
 
-			writer.Close()
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
 
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", &buf)
-			r.Header.Set("Content-Type", writer.FormDataContentType())
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &uploadEvidenceData{
+			App:    testAppData,
+			Errors: validation.With("upload", validation.CustomError{Label: "X"}),
+		}).
+		Return(nil)
 
-			sessionStore := newMockSessionStore(t)
-			sessionStore.
-				On("Get", r, "csrf").
-				Return(&sessions.Session{Values: map[any]any{"token": "123"}}, nil)
+	err := UploadEvidence(template.Execute, nil, nil, "evidence-bucket")(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	resp := w.Result()
 
-			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &uploadEvidenceData{
-					App:    testAppData,
-					Errors: validation.With("upload", validation.CustomError{Label: "Y"}),
-				}).
-				Return(nil)
-
-			err := UploadEvidence(template.Execute, nil, sessionStore, nil, "evidence-bucket")(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
-			resp := w.Result()
-
-			assert.Nil(t, err)
-			assert.Equal(t, http.StatusOK, resp.StatusCode)
-		})
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
@@ -192,11 +159,6 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", &buf)
 			r.Header.Set("Content-Type", writer.FormDataContentType())
 
-			sessionStore := newMockSessionStore(t)
-			sessionStore.
-				On("Get", r, "csrf").
-				Return(&sessions.Session{Values: map[any]any{"token": "123"}}, nil)
-
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &uploadEvidenceData{
@@ -205,51 +167,13 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := UploadEvidence(template.Execute, nil, sessionStore, nil, "evidence-bucket")(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+			err := UploadEvidence(template.Execute, nil, nil, "evidence-bucket")(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
 		})
 	}
-}
-
-func TestPostUploadEvidenceWhenSessionStoreErrors(t *testing.T) {
-	var buf bytes.Buffer
-	writer := multipart.NewWriter(&buf)
-
-	part, _ := writer.CreateFormField("csrf")
-	io.WriteString(part, "123")
-
-	file, _ := os.Open("testdata/dummy.pdf")
-	part, _ = writer.CreateFormFile("upload", "whatever.pdf")
-	io.Copy(part, file)
-
-	file.Close()
-	writer.Close()
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
-	r.Header.Set("Content-Type", writer.FormDataContentType())
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "csrf").
-		Return(nil, expectedError)
-
-	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &uploadEvidenceData{
-			App:    testAppData,
-			Errors: validation.With("upload", validation.CustomError{Label: "Y"}),
-		}).
-		Return(nil)
-
-	err := UploadEvidence(template.Execute, nil, sessionStore, nil, "evidence-bucket")(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostUploadEvidenceWhenS3ClientErrors(t *testing.T) {
@@ -270,17 +194,12 @@ func TestPostUploadEvidenceWhenS3ClientErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
 	r.Header.Set("Content-Type", writer.FormDataContentType())
 
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "csrf").
-		Return(&sessions.Session{Values: map[any]any{"token": "123"}}, nil)
-
 	s3Client := newMockS3Client(t)
 	s3Client.
 		On("PutObject", r.Context(), mock.Anything).
 		Return(nil, expectedError)
 
-	err := UploadEvidence(nil, nil, sessionStore, s3Client, "evidence-bucket")(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	err := UploadEvidence(nil, nil, s3Client, "evidence-bucket")(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -302,11 +221,6 @@ func TestPostUploadEvidenceWhenDonorStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
 	r.Header.Set("Content-Type", writer.FormDataContentType())
 
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "csrf").
-		Return(&sessions.Session{Values: map[any]any{"token": "123"}}, nil)
-
 	s3Client := newMockS3Client(t)
 	s3Client.
 		On("PutObject", r.Context(), mock.Anything).
@@ -317,6 +231,6 @@ func TestPostUploadEvidenceWhenDonorStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := UploadEvidence(nil, donorStore, sessionStore, s3Client, "evidence-bucket")(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	err := UploadEvidence(nil, donorStore, s3Client, "evidence-bucket")(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }
