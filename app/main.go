@@ -15,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/env"
@@ -69,9 +70,10 @@ func main() {
 			IdentityPoolID:    env.Get("AWS_RUM_IDENTITY_POOL_ID", ""),
 			ApplicationID:     env.Get("AWS_RUM_APPLICATION_ID", ""),
 		}
-		uidBaseURL  = env.Get("UID_BASE_URL", "http://uid-mock:8080")
-		metadataURL = env.Get("ECS_CONTAINER_METADATA_URI_V4", "")
-		oneloginURL = env.Get("ONELOGIN_URL", "https://home.integration.account.gov.uk")
+		uidBaseURL         = env.Get("UID_BASE_URL", "http://uid-mock:8080")
+		metadataURL        = env.Get("ECS_CONTAINER_METADATA_URI_V4", "")
+		oneloginURL        = env.Get("ONELOGIN_URL", "https://home.integration.account.gov.uk")
+		evidenceBucketName = env.Get("UPLOADS_S3_BUCKET_NAME", "evidence")
 	)
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
@@ -198,6 +200,10 @@ func main() {
 
 	uidClient := uid.New(uidBaseURL, httpClient, cfg, v4.NewSigner(), time.Now)
 
+	s3Client := s3.NewFromConfig(cfg, func(o *s3.Options) {
+		o.UsePathStyle = true
+	})
+
 	mux := http.NewServeMux()
 	mux.HandleFunc(page.Paths.HealthCheck.Service.String(), func(w http.ResponseWriter, r *http.Request) {})
 	mux.Handle(page.Paths.HealthCheck.Dependency.String(), page.DependencyHealthCheck(logger, uidClient))
@@ -208,8 +214,46 @@ func main() {
 	mux.Handle(page.Paths.AuthRedirect.String(), page.AuthRedirect(logger, sessionStore))
 	mux.Handle(page.Paths.YotiRedirect.String(), page.YotiRedirect(logger, sessionStore))
 	mux.Handle(page.Paths.CookiesConsent.String(), page.CookieConsent(page.Paths))
-	mux.Handle("/cy/", http.StripPrefix("/cy", app.App(logger, bundle.For(localize.Cy), localize.Cy, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient, uidClient, oneloginURL)))
-	mux.Handle("/", app.App(logger, bundle.For(localize.En), localize.En, tmpls, sessionStore, dynamoClient, appPublicURL, payClient, yotiClient, notifyClient, addressClient, rumConfig, staticHash, page.Paths, signInClient, uidClient, oneloginURL))
+	mux.Handle("/cy/", http.StripPrefix("/cy", app.App(
+		logger,
+		bundle.For(localize.Cy),
+		localize.Cy,
+		tmpls,
+		sessionStore,
+		dynamoClient,
+		appPublicURL,
+		payClient,
+		yotiClient,
+		notifyClient,
+		addressClient,
+		rumConfig,
+		staticHash,
+		page.Paths,
+		signInClient,
+		uidClient,
+		oneloginURL,
+		s3Client,
+		evidenceBucketName)))
+	mux.Handle("/", app.App(
+		logger,
+		bundle.For(localize.En),
+		localize.En,
+		tmpls,
+		sessionStore,
+		dynamoClient,
+		appPublicURL,
+		payClient,
+		yotiClient,
+		notifyClient,
+		addressClient,
+		rumConfig,
+		staticHash,
+		page.Paths,
+		signInClient,
+		uidClient,
+		oneloginURL,
+		s3Client,
+		evidenceBucketName))
 
 	var handler http.Handler = mux
 	if xrayEnabled {
