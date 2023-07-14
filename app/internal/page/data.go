@@ -76,11 +76,11 @@ const (
 	MoveFromPaperApplication
 )
 
-//go:generate enumerator -type FeeType -linecomment -trimprefix -empty
+//go:generate enumerator -type FeeType
 type FeeType uint8
 
 const (
-	FullFee FeeType = iota + 1
+	FullFee FeeType = iota
 	HalfFee
 	NoFee
 	HardshipFee
