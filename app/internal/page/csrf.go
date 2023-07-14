@@ -15,6 +15,8 @@ type contextKey string
 
 var ErrCsrfInvalid = errors.New("CSRF token not valid")
 
+const csrfTokenLength = 12
+
 func ValidateCsrf(next http.Handler, store sessions.Store, randomString func(int) string, errorHandler ErrorHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -33,7 +35,7 @@ func ValidateCsrf(next http.Handler, store sessions.Store, randomString func(int
 		}
 
 		if csrfSession.IsNew {
-			csrfSession.Values = map[any]any{"token": randomString(12)}
+			csrfSession.Values = map[any]any{"token": randomString(csrfTokenLength)}
 			csrfSession.Options = &sessions.Options{
 				MaxAge:   24 * 60 * 60,
 				Secure:   true,
@@ -69,7 +71,7 @@ func csrfValid(r *http.Request, csrfSession *sessions.Session) bool {
 			return false
 		}
 
-		lmt := io.LimitReader(part, int64(len(cookieValue)+1))
+		lmt := io.LimitReader(part, csrfTokenLength+1)
 		value, _ := io.ReadAll(lmt)
 
 		r.Body = MultiReadCloser(io.NopCloser(&buf), r.Body)

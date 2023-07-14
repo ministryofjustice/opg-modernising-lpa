@@ -111,15 +111,15 @@ func TestPostValidateCsrfWhenInvalidMultipartForm(t *testing.T) {
 	}{
 		"bad value": {
 			fieldName:    "csrf",
-			fieldContent: "456",
+			fieldContent: "hey",
 		},
 		"wrong field": {
 			fieldName:    "not-csrf",
-			fieldContent: "123",
+			fieldContent: "123456789012",
 		},
 		"over size value": {
 			fieldName:    "csrf",
-			fieldContent: "4567",
+			fieldContent: "1234567890123",
 		},
 	}
 
@@ -140,7 +140,7 @@ func TestPostValidateCsrfWhenInvalidMultipartForm(t *testing.T) {
 			sessionStore := newMockSessionStore(t)
 			sessionStore.
 				On("Get", r, "csrf").
-				Return(&sessions.Session{Values: map[any]any{"token": "123"}}, nil)
+				Return(&sessions.Session{Values: map[any]any{"token": "123456789012"}}, nil)
 
 			errorHandler := newMockErrorHandler(t)
 			errorHandler.
