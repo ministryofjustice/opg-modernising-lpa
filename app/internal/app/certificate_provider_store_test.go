@@ -25,7 +25,7 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 		On("Create", ctx, lpaLink{PK: "LPA#123", SK: "#SUB#456", DonorKey: "#DONOR#session-id", ActorType: actor.TypeCertificateProvider}).
 		Return(nil)
 
-	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: func() time.Time { return now }}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dataStore, now: func() time.Time { return now }}
 
 	certificateProvider, err := certificateProviderStore.Create(ctx, "session-id")
 	assert.Nil(t, err)
@@ -35,7 +35,7 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 func TestCertificateProviderStoreCreateWhenSessionMissing(t *testing.T) {
 	ctx := context.Background()
 
-	certificateProviderStore := &certificateProviderStore{dataStore: nil, now: nil}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: nil, now: nil}
 
 	_, err := certificateProviderStore.Create(ctx, "session-id")
 	assert.Equal(t, page.SessionMissingError{}, err)
@@ -90,7 +90,7 @@ func TestCertificateProviderStoreCreateWhenCreateError(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			dataStore := makeMockDataStore(t)
 
-			certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: func() time.Time { return now }}
+			certificateProviderStore := &certificateProviderStore{dynamoClient: dataStore, now: func() time.Time { return now }}
 
 			_, err := certificateProviderStore.Create(ctx, "session-id")
 			assert.Equal(t, expectedError, err)
@@ -107,7 +107,7 @@ func TestCertificateProviderStoreGetAll(t *testing.T) {
 		ExpectGetAllByGsi(ctx, "ActorIndex", "#CERTIFICATE_PROVIDER#session-id",
 			[]any{certificateProvider}, nil)
 
-	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: nil}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dataStore, now: nil}
 
 	certificateProviders, err := certificateProviderStore.GetAll(ctx)
 	assert.Nil(t, err)
@@ -139,7 +139,7 @@ func TestCertificateProviderStoreGetAny(t *testing.T) {
 	dataStore.
 		ExpectGetOneByPartialSk(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
 
-	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: nil}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dataStore, now: nil}
 
 	certificateProvider, err := certificateProviderStore.GetAny(ctx)
 	assert.Nil(t, err)
@@ -149,7 +149,7 @@ func TestCertificateProviderStoreGetAny(t *testing.T) {
 func TestCertificateProviderStoreGetAnyWhenSessionMissing(t *testing.T) {
 	ctx := context.Background()
 
-	certificateProviderStore := &certificateProviderStore{dataStore: nil, now: nil}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: nil, now: nil}
 
 	_, err := certificateProviderStore.GetAny(ctx)
 	assert.Equal(t, page.SessionMissingError{}, err)
@@ -171,7 +171,7 @@ func TestCertificateProviderStoreGetAnyOnError(t *testing.T) {
 	dataStore.
 		ExpectGetOneByPartialSk(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, expectedError)
 
-	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: nil}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dataStore, now: nil}
 
 	_, err := certificateProviderStore.GetAny(ctx)
 	assert.Equal(t, expectedError, err)
@@ -184,7 +184,7 @@ func TestCertificateProviderStoreGet(t *testing.T) {
 	dataStore.
 		ExpectGet(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
 
-	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: nil}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dataStore, now: nil}
 
 	certificateProvider, err := certificateProviderStore.Get(ctx)
 	assert.Nil(t, err)
@@ -194,7 +194,7 @@ func TestCertificateProviderStoreGet(t *testing.T) {
 func TestCertificateProviderStoreGetWhenSessionMissing(t *testing.T) {
 	ctx := context.Background()
 
-	certificateProviderStore := &certificateProviderStore{dataStore: nil, now: nil}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: nil, now: nil}
 
 	_, err := certificateProviderStore.Get(ctx)
 	assert.Equal(t, page.SessionMissingError{}, err)
@@ -225,7 +225,7 @@ func TestCertificateProviderStoreGetOnError(t *testing.T) {
 	dataStore.
 		ExpectGet(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, expectedError)
 
-	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: nil}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dataStore, now: nil}
 
 	_, err := certificateProviderStore.Get(ctx)
 	assert.Equal(t, expectedError, err)
@@ -241,8 +241,8 @@ func TestCertificateProviderStorePut(t *testing.T) {
 		Return(nil)
 
 	certificateProviderStore := &certificateProviderStore{
-		dataStore: dataStore,
-		now:       func() time.Time { return now },
+		dynamoClient: dataStore,
+		now:          func() time.Time { return now },
 	}
 
 	err := certificateProviderStore.Put(ctx, &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123"})
@@ -259,8 +259,8 @@ func TestCertificateProviderStorePutOnError(t *testing.T) {
 		Return(expectedError)
 
 	certificateProviderStore := &certificateProviderStore{
-		dataStore: dataStore,
-		now:       func() time.Time { return now },
+		dynamoClient: dataStore,
+		now:          func() time.Time { return now },
 	}
 
 	err := certificateProviderStore.Put(ctx, &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123"})

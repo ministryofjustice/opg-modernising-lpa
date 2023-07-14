@@ -34,7 +34,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		{PK: "LPA#0", SK: "#DONOR#an-id"},
 	}, []*page.Lpa{lpa123, lpa456, lpa789, lpa0}, nil)
 
-	dashboardStore := &dashboardStore{dataStore: dataStore}
+	dashboardStore := &dashboardStore{dynamoClient: dataStore}
 
 	donor, attorney, certificateProvider, err := dashboardStore.GetAll(ctx)
 	assert.Nil(t, err)
@@ -50,7 +50,7 @@ func TestDashboardStoreGetAllWhenNone(t *testing.T) {
 	dataStore.ExpectGetAllByGsi(ctx, "ActorIndex", "#SUB#an-id",
 		[]map[string]any{}, nil)
 
-	dashboardStore := &dashboardStore{dataStore: dataStore}
+	dashboardStore := &dashboardStore{dynamoClient: dataStore}
 
 	donor, attorney, certificateProvider, err := dashboardStore.GetAll(ctx)
 	assert.Nil(t, err)

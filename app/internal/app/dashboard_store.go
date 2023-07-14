@@ -24,7 +24,7 @@ type lpaLink struct {
 }
 
 type dashboardStore struct {
-	dataStore DynamoClient
+	dynamoClient DynamoClient
 }
 
 func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certificateProvider []*page.Lpa, err error) {
@@ -38,7 +38,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 	}
 
 	var keys []lpaLink
-	if err := s.dataStore.GetAllByGsi(ctx, "ActorIndex", subKey(data.SessionID), &keys); err != nil {
+	if err := s.dynamoClient.GetAllByGsi(ctx, "ActorIndex", subKey(data.SessionID), &keys); err != nil {
 		return nil, nil, nil, err
 	}
 
@@ -56,7 +56,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 	}
 
 	var items []*page.Lpa
-	if err := s.dataStore.GetAllByKeys(ctx, searchKeys, &items); err != nil {
+	if err := s.dynamoClient.GetAllByKeys(ctx, searchKeys, &items); err != nil {
 		return nil, nil, nil, err
 	}
 

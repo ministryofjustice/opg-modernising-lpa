@@ -38,7 +38,7 @@ func TestShareCodeStoreGet(t *testing.T) {
 				ExpectGet(ctx, tc.pk, "#METADATA#123",
 					data, nil)
 
-			shareCodeStore := &shareCodeStore{dataStore: dataStore}
+			shareCodeStore := &shareCodeStore{dynamoClient: dataStore}
 
 			result, err := shareCodeStore.Get(ctx, tc.t, "123")
 			assert.Nil(t, err)
@@ -64,7 +64,7 @@ func TestShareCodeStoreGetOnError(t *testing.T) {
 		ExpectGet(ctx, "ATTORNEYSHARE#123", "#METADATA#123",
 			data, expectedError)
 
-	shareCodeStore := &shareCodeStore{dataStore: dataStore}
+	shareCodeStore := &shareCodeStore{dynamoClient: dataStore}
 
 	_, err := shareCodeStore.Get(ctx, actor.TypeAttorney, "123")
 	assert.Equal(t, expectedError, err)
@@ -99,7 +99,7 @@ func TestShareCodeStorePut(t *testing.T) {
 				On("Put", ctx, data).
 				Return(nil)
 
-			shareCodeStore := &shareCodeStore{dataStore: dataStore}
+			shareCodeStore := &shareCodeStore{dynamoClient: dataStore}
 
 			err := shareCodeStore.Put(ctx, tc.actor, "123", data)
 			assert.Nil(t, err)
@@ -123,7 +123,7 @@ func TestShareCodeStorePutOnError(t *testing.T) {
 		On("Put", ctx, mock.Anything).
 		Return(expectedError)
 
-	shareCodeStore := &shareCodeStore{dataStore: dataStore}
+	shareCodeStore := &shareCodeStore{dynamoClient: dataStore}
 
 	err := shareCodeStore.Put(ctx, actor.TypeAttorney, "123", actor.ShareCodeData{LpaID: "123"})
 	assert.Equal(t, expectedError, err)

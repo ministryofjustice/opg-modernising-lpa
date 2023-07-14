@@ -10,8 +10,8 @@ import (
 )
 
 type attorneyStore struct {
-	dataStore DynamoClient
-	now       func() time.Time
+	dynamoClient DynamoClient
+	now          func() time.Time
 }
 
 func (s *attorneyStore) Create(ctx context.Context, donorSessionID, attorneyID string, isReplacement bool) (*actor.AttorneyProvidedDetails, error) {
@@ -33,10 +33,10 @@ func (s *attorneyStore) Create(ctx context.Context, donorSessionID, attorneyID s
 		IsReplacement: isReplacement,
 	}
 
-	if err := s.dataStore.Create(ctx, attorney); err != nil {
+	if err := s.dynamoClient.Create(ctx, attorney); err != nil {
 		return nil, err
 	}
-	if err := s.dataStore.Create(ctx, lpaLink{
+	if err := s.dynamoClient.Create(ctx, lpaLink{
 		PK:        lpaKey(data.LpaID),
 		SK:        subKey(data.SessionID),
 		DonorKey:  donorKey(donorSessionID),
@@ -59,7 +59,7 @@ func (s *attorneyStore) GetAll(ctx context.Context) ([]*actor.AttorneyProvidedDe
 	}
 
 	var items []*actor.AttorneyProvidedDetails
-	err = s.dataStore.GetAllByGsi(ctx, "ActorIndex", attorneyKey(data.SessionID), &items)
+	err = s.dynamoClient.GetAllByGsi(ctx, "ActorIndex", attorneyKey(data.SessionID), &items)
 
 	return items, err
 }
@@ -75,14 +75,14 @@ func (s *attorneyStore) Get(ctx context.Context) (*actor.AttorneyProvidedDetails
 	}
 
 	var attorney actor.AttorneyProvidedDetails
-	err = s.dataStore.Get(ctx, lpaKey(data.LpaID), attorneyKey(data.SessionID), &attorney)
+	err = s.dynamoClient.Get(ctx, lpaKey(data.LpaID), attorneyKey(data.SessionID), &attorney)
 
 	return &attorney, err
 }
 
 func (s *attorneyStore) Put(ctx context.Context, attorney *actor.AttorneyProvidedDetails) error {
 	attorney.UpdatedAt = s.now()
-	return s.dataStore.Put(ctx, attorney)
+	return s.dynamoClient.Put(ctx, attorney)
 }
 
 func attorneyKey(s string) string {

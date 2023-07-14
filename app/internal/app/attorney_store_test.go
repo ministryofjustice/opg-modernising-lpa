@@ -27,7 +27,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 				On("Create", ctx, lpaLink{PK: "LPA#123", SK: "#SUB#456", DonorKey: "#DONOR#session-id", ActorType: actor.TypeAttorney}).
 				Return(nil)
 
-			attorneyStore := &attorneyStore{dataStore: dataStore, now: func() time.Time { return now }}
+			attorneyStore := &attorneyStore{dynamoClient: dataStore, now: func() time.Time { return now }}
 
 			attorney, err := attorneyStore.Create(ctx, "session-id", "attorney-id", isReplacement)
 			assert.Nil(t, err)
@@ -39,7 +39,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 func TestAttorneyStoreCreateWhenSessionMissing(t *testing.T) {
 	ctx := context.Background()
 
-	attorneyStore := &attorneyStore{dataStore: nil, now: nil}
+	attorneyStore := &attorneyStore{dynamoClient: nil, now: nil}
 
 	_, err := attorneyStore.Create(ctx, "session-id", "attorney-id", false)
 	assert.Equal(t, page.SessionMissingError{}, err)
@@ -94,7 +94,7 @@ func TestAttorneyStoreCreateWhenCreateError(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			dataStore := makeMockDataStore(t)
 
-			attorneyStore := &attorneyStore{dataStore: dataStore, now: func() time.Time { return now }}
+			attorneyStore := &attorneyStore{dynamoClient: dataStore, now: func() time.Time { return now }}
 
 			_, err := attorneyStore.Create(ctx, "session-id", "attorney-id", false)
 			assert.Equal(t, expectedError, err)
@@ -111,7 +111,7 @@ func TestAttorneyStoreGetAll(t *testing.T) {
 		ExpectGetAllByGsi(ctx, "ActorIndex", "#ATTORNEY#session-id",
 			[]any{attorney}, nil)
 
-	attorneyStore := &attorneyStore{dataStore: dataStore, now: nil}
+	attorneyStore := &attorneyStore{dynamoClient: dataStore, now: nil}
 
 	attorneys, err := attorneyStore.GetAll(ctx)
 	assert.Nil(t, err)
@@ -144,7 +144,7 @@ func TestAttorneyStoreGet(t *testing.T) {
 		ExpectGet(ctx, "LPA#123", "#ATTORNEY#456",
 			&actor.AttorneyProvidedDetails{LpaID: "123"}, nil)
 
-	attorneyStore := &attorneyStore{dataStore: dataStore, now: nil}
+	attorneyStore := &attorneyStore{dynamoClient: dataStore, now: nil}
 
 	attorney, err := attorneyStore.Get(ctx)
 	assert.Nil(t, err)
@@ -154,7 +154,7 @@ func TestAttorneyStoreGet(t *testing.T) {
 func TestAttorneyStoreGetWhenSessionMissing(t *testing.T) {
 	ctx := context.Background()
 
-	attorneyStore := &attorneyStore{dataStore: nil, now: nil}
+	attorneyStore := &attorneyStore{dynamoClient: nil, now: nil}
 
 	_, err := attorneyStore.Get(ctx)
 	assert.Equal(t, page.SessionMissingError{}, err)
@@ -186,7 +186,7 @@ func TestAttorneyStoreGetOnError(t *testing.T) {
 		ExpectGet(ctx, "LPA#123", "#ATTORNEY#456",
 			&actor.AttorneyProvidedDetails{LpaID: "123"}, expectedError)
 
-	attorneyStore := &attorneyStore{dataStore: dataStore, now: nil}
+	attorneyStore := &attorneyStore{dynamoClient: dataStore, now: nil}
 
 	_, err := attorneyStore.Get(ctx)
 	assert.Equal(t, expectedError, err)
@@ -202,8 +202,8 @@ func TestAttorneyStorePut(t *testing.T) {
 		Return(nil)
 
 	attorneyStore := &attorneyStore{
-		dataStore: dataStore,
-		now:       func() time.Time { return now },
+		dynamoClient: dataStore,
+		now:          func() time.Time { return now },
 	}
 
 	err := attorneyStore.Put(ctx, &actor.AttorneyProvidedDetails{PK: "LPA#123", SK: "#ATTORNEY#456", LpaID: "123"})
@@ -220,8 +220,8 @@ func TestAttorneyStorePutOnError(t *testing.T) {
 		Return(expectedError)
 
 	attorneyStore := &attorneyStore{
-		dataStore: dataStore,
-		now:       func() time.Time { return now },
+		dynamoClient: dataStore,
+		now:          func() time.Time { return now },
 	}
 
 	err := attorneyStore.Put(ctx, &actor.AttorneyProvidedDetails{PK: "LPA#123", SK: "#ATTORNEY#456", LpaID: "123"})

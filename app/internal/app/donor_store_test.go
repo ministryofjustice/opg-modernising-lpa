@@ -64,7 +64,7 @@ func TestDonorStoreGetAll(t *testing.T) {
 	dataStore.ExpectGetAllByGsi(ctx, "ActorIndex", "#DONOR#an-id",
 		[]any{lpa}, nil)
 
-	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }}
+	donorStore := &donorStore{dynamoClient: dataStore, uuidString: func() string { return "10100000" }}
 
 	result, err := donorStore.GetAll(ctx)
 	assert.Nil(t, err)
@@ -74,7 +74,7 @@ func TestDonorStoreGetAll(t *testing.T) {
 func TestDonorStoreGetAllWithSessionMissing(t *testing.T) {
 	ctx := context.Background()
 
-	donorStore := &donorStore{dataStore: nil, uuidString: func() string { return "10100000" }}
+	donorStore := &donorStore{dynamoClient: nil, uuidString: func() string { return "10100000" }}
 
 	_, err := donorStore.GetAll(ctx)
 	assert.Equal(t, page.SessionMissingError{}, err)
@@ -83,7 +83,7 @@ func TestDonorStoreGetAllWithSessionMissing(t *testing.T) {
 func TestDonorStoreGetAllWhenMissingSessionID(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
 
-	donorStore := &donorStore{dataStore: nil, uuidString: func() string { return "10100000" }}
+	donorStore := &donorStore{dynamoClient: nil, uuidString: func() string { return "10100000" }}
 
 	_, err := donorStore.GetAll(ctx)
 	assert.NotNil(t, err)
@@ -95,7 +95,7 @@ func TestDonorStoreGetAny(t *testing.T) {
 	dataStore := newMockDataStore(t)
 	dataStore.ExpectGetOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, nil)
 
-	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }}
+	donorStore := &donorStore{dynamoClient: dataStore, uuidString: func() string { return "10100000" }}
 
 	lpa, err := donorStore.GetAny(ctx)
 	assert.Nil(t, err)
@@ -105,7 +105,7 @@ func TestDonorStoreGetAny(t *testing.T) {
 func TestDonorStoreGetAnyWithSessionMissing(t *testing.T) {
 	ctx := context.Background()
 
-	donorStore := &donorStore{dataStore: nil, uuidString: func() string { return "10100000" }}
+	donorStore := &donorStore{dynamoClient: nil, uuidString: func() string { return "10100000" }}
 
 	_, err := donorStore.GetAny(ctx)
 	assert.Equal(t, page.SessionMissingError{}, err)
@@ -117,7 +117,7 @@ func TestDonorStoreGetAnyWhenDataStoreError(t *testing.T) {
 	dataStore := newMockDataStore(t)
 	dataStore.ExpectGetOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, expectedError)
 
-	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }}
+	donorStore := &donorStore{dynamoClient: dataStore, uuidString: func() string { return "10100000" }}
 
 	_, err := donorStore.GetAny(ctx)
 	assert.Equal(t, expectedError, err)
@@ -129,7 +129,7 @@ func TestDonorStoreGet(t *testing.T) {
 	dataStore := newMockDataStore(t)
 	dataStore.ExpectGet(ctx, "LPA#an-id", "#DONOR#456", &page.Lpa{ID: "an-id"}, nil)
 
-	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }}
+	donorStore := &donorStore{dynamoClient: dataStore, uuidString: func() string { return "10100000" }}
 
 	lpa, err := donorStore.Get(ctx)
 	assert.Nil(t, err)
@@ -139,7 +139,7 @@ func TestDonorStoreGet(t *testing.T) {
 func TestDonorStoreGetWithSessionMissing(t *testing.T) {
 	ctx := context.Background()
 
-	donorStore := &donorStore{dataStore: nil, uuidString: func() string { return "10100000" }}
+	donorStore := &donorStore{dynamoClient: nil, uuidString: func() string { return "10100000" }}
 
 	_, err := donorStore.Get(ctx)
 	assert.Equal(t, page.SessionMissingError{}, err)
@@ -151,7 +151,7 @@ func TestDonorStoreGetWhenDataStoreError(t *testing.T) {
 	dataStore := newMockDataStore(t)
 	dataStore.ExpectGet(ctx, "LPA#an-id", "#DONOR#456", &page.Lpa{ID: "an-id"}, expectedError)
 
-	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }}
+	donorStore := &donorStore{dynamoClient: dataStore, uuidString: func() string { return "10100000" }}
 
 	_, err := donorStore.Get(ctx)
 	assert.Equal(t, expectedError, err)
@@ -164,7 +164,7 @@ func TestDonorStorePut(t *testing.T) {
 	dataStore := newMockDataStore(t)
 	dataStore.On("Put", ctx, lpa).Return(nil)
 
-	donorStore := &donorStore{dataStore: dataStore}
+	donorStore := &donorStore{dynamoClient: dataStore}
 
 	err := donorStore.Put(ctx, lpa)
 	assert.Nil(t, err)
@@ -177,7 +177,7 @@ func TestDonorStorePutWhenError(t *testing.T) {
 	dataStore := newMockDataStore(t)
 	dataStore.On("Put", ctx, lpa).Return(expectedError)
 
-	donorStore := &donorStore{dataStore: dataStore}
+	donorStore := &donorStore{dynamoClient: dataStore}
 
 	err := donorStore.Put(ctx, lpa)
 	assert.Equal(t, expectedError, err)
@@ -196,7 +196,7 @@ func TestDonorStoreCreate(t *testing.T) {
 		On("Create", ctx, lpaLink{PK: "LPA#10100000", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor}).
 		Return(nil)
 
-	donorStore := &donorStore{dataStore: dataStore, uuidString: func() string { return "10100000" }, now: func() time.Time { return now }}
+	donorStore := &donorStore{dynamoClient: dataStore, uuidString: func() string { return "10100000" }, now: func() time.Time { return now }}
 
 	result, err := donorStore.Create(ctx)
 	assert.Nil(t, err)
@@ -206,7 +206,7 @@ func TestDonorStoreCreate(t *testing.T) {
 func TestDonorStoreCreateWithSessionMissing(t *testing.T) {
 	ctx := context.Background()
 
-	donorStore := &donorStore{dataStore: nil, uuidString: func() string { return "10100000" }, now: func() time.Time { return time.Now() }}
+	donorStore := &donorStore{dynamoClient: nil, uuidString: func() string { return "10100000" }, now: func() time.Time { return time.Now() }}
 
 	_, err := donorStore.Create(ctx)
 	assert.Equal(t, page.SessionMissingError{}, err)
@@ -244,9 +244,9 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 			dataStore := makeMockDataStore(t)
 
 			donorStore := &donorStore{
-				dataStore:  dataStore,
-				uuidString: func() string { return "10100000" },
-				now:        func() time.Time { return now },
+				dynamoClient: dataStore,
+				uuidString:   func() string { return "10100000" },
+				now:          func() time.Time { return now },
 			}
 
 			_, err := donorStore.Create(ctx)

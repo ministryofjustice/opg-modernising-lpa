@@ -8,7 +8,7 @@ import (
 )
 
 type shareCodeStore struct {
-	dataStore DynamoClient
+	dynamoClient DynamoClient
 }
 
 func (s *shareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error) {
@@ -19,7 +19,7 @@ func (s *shareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCod
 		return data, err
 	}
 
-	err = s.dataStore.Get(ctx, pk, sk, &data)
+	err = s.dynamoClient.Get(ctx, pk, sk, &data)
 	return data, err
 }
 
@@ -32,7 +32,7 @@ func (s *shareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCod
 	data.PK = pk
 	data.SK = sk
 
-	return s.dataStore.Put(ctx, data)
+	return s.dynamoClient.Put(ctx, data)
 }
 
 func shareCodeKeys(actorType actor.Type, shareCode string) (pk, sk string, err error) {

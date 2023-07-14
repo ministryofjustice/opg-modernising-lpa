@@ -70,12 +70,12 @@ func App(
 	oneloginURL string,
 	reducedFeeDynamoClient DynamoClient,
 ) http.Handler {
-	donorStore := &donorStore{dataStore: lpaDynamoClient, uuidString: uuid.NewString, now: time.Now}
-	certificateProviderStore := &certificateProviderStore{dataStore: lpaDynamoClient, now: time.Now}
-	attorneyStore := &attorneyStore{dataStore: lpaDynamoClient, now: time.Now}
-	shareCodeStore := &shareCodeStore{dataStore: lpaDynamoClient}
-	dashboardStore := &dashboardStore{dataStore: lpaDynamoClient}
-	reducedFeeStore := &reducedFeeStore{dataStore: reducedFeeDynamoClient}
+	donorStore := &donorStore{dynamoClient: lpaDynamoClient, uuidString: uuid.NewString, now: time.Now}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: lpaDynamoClient, now: time.Now}
+	attorneyStore := &attorneyStore{dynamoClient: lpaDynamoClient, now: time.Now}
+	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient}
+	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient}
+	reducedFeeStore := &reducedFeeStore{dynamoClient: reducedFeeDynamoClient}
 
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String)
 	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
