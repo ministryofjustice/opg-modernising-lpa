@@ -1,0 +1,27 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "uploadEvidence" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "uploadEvidence" }}</h1>
+
+      {{ trHtml .App "uploadEvidenceContent" }}
+
+      <form novalidate method="post" enctype="multipart/form-data">
+        {{ template "csrf-field" . }}
+
+        <div class="govuk-form-group">
+          <label class="govuk-label" for="f-upload">{{ tr .App "upload" }}</label>
+          <input class="govuk-file-upload" id="f-upload" name="upload" type="file" />
+        </div>
+
+        <div class="govuk-button-group">
+          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "continueToPayment" }}</button>
+          <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{{ end }}
