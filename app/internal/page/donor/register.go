@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
@@ -134,6 +135,8 @@ func Register(
 	notFoundHandler page.Handler,
 	certificateProviderStore CertificateProviderStore,
 	uidClient UidClient,
+	s3Client *s3.Client,
+	evidenceBucketName string,
 ) {
 	payer := &payHelper{
 		logger:       logger,
@@ -247,6 +250,8 @@ func Register(
 		Guidance(tmpls.Get("evidence_required.gohtml")))
 	handleWithLpa(page.Paths.CanEvidenceBeUploaded, CanGoBack,
 		CanEvidenceBeUploaded(tmpls.Get("can_evidence_be_uploaded.gohtml")))
+	handleWithLpa(page.Paths.UploadInstructions, CanGoBack, // TODO: check is this meant to be 2 pages? might need to remove page.Paths.UploadEvidence
+		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), donorStore, s3Client, evidenceBucketName))
 	handleWithLpa(page.Paths.PrintEvidenceForm, CanGoBack,
 		Guidance(tmpls.Get("print_evidence_form.gohtml")))
 	handleWithLpa(page.Paths.HowToPrintAndSendEvidence, CanGoBack,

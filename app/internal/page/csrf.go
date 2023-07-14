@@ -1,8 +1,13 @@
 package page
 
 import (
+	"bytes"
 	"errors"
+	"io"
+	"mime"
+	"mime/multipart"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/sessions"
 )
@@ -47,8 +52,41 @@ func ValidateCsrf(next http.Handler, store sessions.Store, randomString func(int
 }
 
 func csrfValid(r *http.Request, csrfSession *sessions.Session) bool {
-	formValue := r.PostFormValue("csrf")
 	cookieValue, ok := csrfSession.Values["token"].(string)
+	if !ok {
+		return false
+	}
 
-	return ok && formValue == cookieValue
+	if contentType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";"); contentType == "multipart/form-data" {
+		var buf bytes.Buffer
+
+		tee := io.TeeReader(r.Body, &buf)
+
+		mediaType, params, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+		if err != nil {
+			return false
+		}
+		if mediaType != "multipart/form-data" {
+			return false
+		}
+
+		reader := multipart.NewReader(tee, params["boundary"])
+
+		part, err := reader.NextPart()
+		if err != nil {
+			return false
+		}
+
+		if part.FormName() != "csrf" {
+			return false
+		}
+
+		lmt := io.LimitReader(part, int64(len(cookieValue)+1))
+		value, _ := io.ReadAll(lmt)
+
+		r.Body = MultiReadCloser(io.NopCloser(&buf), r.Body)
+		return string(value) == cookieValue
+	}
+
+	return r.PostFormValue("csrf") == cookieValue
 }
