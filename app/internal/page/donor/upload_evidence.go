@@ -15,9 +15,17 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
+type uploadError int
+
+func (uploadError) Error() string { return "err" }
+
 const (
 	peekSize      = 512
 	maxUploadSize = 32 << 20 // 32Mb
+
+	errUploadMissing         = uploadError(1)
+	errUnexpectedContentType = uploadError(2)
+	errUploadTooBig          = uploadError(3)
 )
 
 type uploadEvidenceData struct {
@@ -30,7 +38,7 @@ type S3Client interface {
 	PutObject(context.Context, *s3.PutObjectInput, ...func(*s3.Options)) (*s3.PutObjectOutput, error)
 }
 
-func UploadEvidence(tmpl template.Template, donorStore DonorStore, s3Client S3Client, bucketName string) Handler {
+func UploadEvidence(tmpl template.Template, donorStore DonorStore, s3Client S3Client, bucketName string, payer Payer) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &uploadEvidenceData{
 			App: appData,
@@ -57,7 +65,7 @@ func UploadEvidence(tmpl template.Template, donorStore DonorStore, s3Client S3Cl
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.ApplicationReason.Format(lpa.ID))
+				return payer.Pay(appData, w, r, lpa)
 			}
 		}
 
@@ -99,9 +107,13 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 	buf := bufio.NewReader(part)
 
 	sniff, _ := buf.Peek(peekSize)
+	if len(sniff) == 0 {
+		return &uploadEvidenceForm{Error: errUploadMissing}
+	}
+
 	contentType := http.DetectContentType(sniff)
 	if contentType != "application/pdf" {
-		return &uploadEvidenceForm{Error: errors.New("unexpected content type")}
+		return &uploadEvidenceForm{Error: errUnexpectedContentType}
 	}
 
 	var file bytes.Buffer
@@ -112,7 +124,7 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 		return &uploadEvidenceForm{Error: err}
 	}
 	if copied > maxUploadSize {
-		return &uploadEvidenceForm{Error: errors.New("over size limit")}
+		return &uploadEvidenceForm{Error: errUploadTooBig}
 	}
 
 	return &uploadEvidenceForm{File: file.Bytes()}
@@ -122,7 +134,16 @@ func (f *uploadEvidenceForm) Validate() validation.List {
 	var errors validation.List
 
 	if f.Error != nil {
-		errors.Add("upload", validation.CustomError{Label: "X"})
+		switch f.Error {
+		case errUploadMissing:
+			errors.Add("upload", validation.CustomError{Label: "errorUploadMissing"})
+		case errUnexpectedContentType:
+			errors.Add("upload", validation.CustomError{Label: "errorFileIncorrectType"})
+		case errUploadTooBig:
+			errors.Add("upload", validation.CustomError{Label: "errorFileTooBig"})
+		default:
+			errors.Add("upload", validation.CustomError{Label: "errorGenericUploadProblem"})
+		}
 	}
 
 	return errors

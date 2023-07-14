@@ -30,7 +30,7 @@ func TestGetUploadEvidence(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, "")(testAppData, w, r, &page.Lpa{})
+	err := UploadEvidence(template.Execute, nil, nil, "", nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -46,7 +46,7 @@ func TestGetUploadEvidenceWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := UploadEvidence(template.Execute, nil, nil, "")(testAppData, w, r, &page.Lpa{})
+	err := UploadEvidence(template.Execute, nil, nil, "", nil)(testAppData, w, r, &page.Lpa{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -81,12 +81,13 @@ func TestPostUploadEvidence(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", EvidenceKey: "lpa-id-evidence"}).
 		Return(nil)
 
-	err := UploadEvidence(nil, donorStore, s3Client, "evidence-bucket")(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
-	resp := w.Result()
+	payer := newMockPayer(t)
+	payer.
+		On("Pay", testAppData, w, r, &page.Lpa{ID: "lpa-id", EvidenceKey: "lpa-id-evidence"}).
+		Return(nil)
 
+	err := UploadEvidence(nil, donorStore, s3Client, "evidence-bucket", payer)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ApplicationReason.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
@@ -106,11 +107,11 @@ func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
 	template.
 		On("Execute", w, &uploadEvidenceData{
 			App:    testAppData,
-			Errors: validation.With("upload", validation.CustomError{Label: "X"}),
+			Errors: validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, "evidence-bucket")(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	err := UploadEvidence(template.Execute, nil, nil, "evidence-bucket", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -127,18 +128,22 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 	testcases := map[string]struct {
 		fieldName    string
 		fieldContent io.Reader
+		errorLabel   string
 	}{
 		"not pdf": {
 			fieldName:    "upload",
 			fieldContent: strings.NewReader("I am just text"),
+			errorLabel:   "errorFileIncorrectType",
 		},
 		"wrong field": {
 			fieldName:    "file",
 			fieldContent: bytes.NewReader(dummyData),
+			errorLabel:   "errorGenericUploadProblem",
 		},
 		"over size pdf": {
 			fieldName:    "upload",
 			fieldContent: io.MultiReader(bytes.NewReader(dummyData), randomReader),
+			errorLabel:   "errorFileTooBig",
 		},
 	}
 
@@ -163,11 +168,11 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 			template.
 				On("Execute", w, &uploadEvidenceData{
 					App:    testAppData,
-					Errors: validation.With("upload", validation.CustomError{Label: "X"}),
+					Errors: validation.With("upload", validation.CustomError{Label: tc.errorLabel}),
 				}).
 				Return(nil)
 
-			err := UploadEvidence(template.Execute, nil, nil, "evidence-bucket")(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+			err := UploadEvidence(template.Execute, nil, nil, "evidence-bucket", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -199,7 +204,7 @@ func TestPostUploadEvidenceWhenS3ClientErrors(t *testing.T) {
 		On("PutObject", r.Context(), mock.Anything).
 		Return(nil, expectedError)
 
-	err := UploadEvidence(nil, nil, s3Client, "evidence-bucket")(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	err := UploadEvidence(nil, nil, s3Client, "evidence-bucket", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -231,6 +236,6 @@ func TestPostUploadEvidenceWhenDonorStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := UploadEvidence(nil, donorStore, s3Client, "evidence-bucket")(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	err := UploadEvidence(nil, donorStore, s3Client, "evidence-bucket", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }

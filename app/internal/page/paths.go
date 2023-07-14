@@ -174,7 +174,6 @@ type AppPaths struct {
 	SignYourLpa                                                LpaPath
 	TaskList                                                   LpaPath
 	UploadEvidence                                             LpaPath
-	UploadInstructions                                         LpaPath
 	UseExistingAddress                                         LpaPath
 	WhatACertificateProviderDoes                               LpaPath
 	WhatYoullNeedToConfirmYourIdentity                         LpaPath
@@ -315,7 +314,6 @@ var Paths = AppPaths{
 	TaskList:                                             "/task-list",
 	TestingStart:                                         "/testing-start",
 	UploadEvidence:                                       "/upload-evidence",
-	UploadInstructions:                                   "/upload-instructions",
 	UseExistingAddress:                                   "/use-existing-address",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
 	WhatYoullNeedToConfirmYourIdentity:                   "/what-youll-need-to-confirm-your-identity",
