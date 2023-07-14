@@ -117,6 +117,10 @@ type Payer interface {
 	Pay(page.AppData, http.ResponseWriter, *http.Request, *page.Lpa) error
 }
 
+type ReducedFeeStore interface {
+	Put(context.Context, *page.Lpa) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -134,6 +138,7 @@ func Register(
 	notFoundHandler page.Handler,
 	certificateProviderStore CertificateProviderStore,
 	uidClient UidClient,
+	reducedFeeStore ReducedFeeStore,
 ) {
 	payer := &payHelper{
 		logger:       logger,
@@ -256,7 +261,7 @@ func Register(
 	handleWithLpa(page.Paths.HowToSendEvidence, CanGoBack,
 		HowToSendEvidence(tmpls.Get("how_to_send_evidence.gohtml"), payer))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender, reducedFeeStore))
 
 	handleWithLpa(page.Paths.HowToConfirmYourIdentityAndSign, None,
 		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml")))

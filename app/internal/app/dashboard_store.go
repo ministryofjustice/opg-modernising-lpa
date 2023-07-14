@@ -24,7 +24,7 @@ type lpaLink struct {
 }
 
 type dashboardStore struct {
-	dataStore DataStore
+	dataStore DynamoClient
 }
 
 func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certificateProvider []*page.Lpa, err error) {

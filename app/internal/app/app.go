@@ -33,8 +33,8 @@ type Logger interface {
 	Print(v ...interface{})
 }
 
-//go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
-type DataStore interface {
+//go:generate mockery --testonly --inpackage --name DynamoClient --structname mockDynamoClient
+type DynamoClient interface {
 	Get(ctx context.Context, pk, sk string, v interface{}) error
 	Put(ctx context.Context, v interface{}) error
 	GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
@@ -56,7 +56,7 @@ func App(
 	lang localize.Lang,
 	tmpls template.Templates,
 	sessionStore SessionStore,
-	dataStore DataStore,
+	lpaDynamoClient DynamoClient,
 	appPublicURL string,
 	payClient *pay.Client,
 	yotiClient *identity.YotiClient,
@@ -68,12 +68,14 @@ func App(
 	oneLoginClient *onelogin.Client,
 	uidClient *uid.Client,
 	oneloginURL string,
+	reducedFeeDynamoClient DynamoClient,
 ) http.Handler {
-	donorStore := &donorStore{dataStore: dataStore, uuidString: uuid.NewString, now: time.Now}
-	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: time.Now}
-	attorneyStore := &attorneyStore{dataStore: dataStore, now: time.Now}
-	shareCodeStore := &shareCodeStore{dataStore: dataStore}
-	dashboardStore := &dashboardStore{dataStore: dataStore}
+	donorStore := &donorStore{dataStore: lpaDynamoClient, uuidString: uuid.NewString, now: time.Now}
+	certificateProviderStore := &certificateProviderStore{dataStore: lpaDynamoClient, now: time.Now}
+	attorneyStore := &attorneyStore{dataStore: lpaDynamoClient, now: time.Now}
+	shareCodeStore := &shareCodeStore{dataStore: lpaDynamoClient}
+	dashboardStore := &dashboardStore{dataStore: lpaDynamoClient}
+	reducedFeeStore := &reducedFeeStore{dataStore: reducedFeeDynamoClient}
 
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String)
 	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
@@ -152,6 +154,7 @@ func App(
 		notFoundHandler,
 		certificateProviderStore,
 		uidClient,
+		reducedFeeStore,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash, oneloginURL)

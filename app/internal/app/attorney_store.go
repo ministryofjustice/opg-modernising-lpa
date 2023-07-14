@@ -10,7 +10,7 @@ import (
 )
 
 type attorneyStore struct {
-	dataStore DataStore
+	dataStore DynamoClient
 	now       func() time.Time
 }
 

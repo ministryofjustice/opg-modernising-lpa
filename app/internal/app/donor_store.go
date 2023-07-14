@@ -11,7 +11,7 @@ import (
 )
 
 type donorStore struct {
-	dataStore  DataStore
+	dataStore  DynamoClient
 	uuidString func() string
 	now        func() time.Time
 }

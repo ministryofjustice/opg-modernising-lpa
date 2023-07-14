@@ -10,7 +10,7 @@ import (
 )
 
 type certificateProviderStore struct {
-	dataStore DataStore
+	dataStore DynamoClient
 	now       func() time.Time
 }
 

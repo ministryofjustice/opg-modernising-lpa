@@ -8,7 +8,7 @@ import (
 )
 
 type shareCodeStore struct {
-	dataStore DataStore
+	dataStore DynamoClient
 }
 
 func (s *shareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error) {
