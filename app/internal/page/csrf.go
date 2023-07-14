@@ -7,7 +7,6 @@ import (
 	"mime"
 	"mime/multipart"
 	"net/http"
-	"strings"
 
 	"github.com/gorilla/sessions"
 )
@@ -57,20 +56,9 @@ func csrfValid(r *http.Request, csrfSession *sessions.Session) bool {
 		return false
 	}
 
-	if contentType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";"); contentType == "multipart/form-data" {
+	if mediaType, params, err := mime.ParseMediaType(r.Header.Get("Content-Type")); err == nil && mediaType == "multipart/form-data" {
 		var buf bytes.Buffer
-
-		tee := io.TeeReader(r.Body, &buf)
-
-		mediaType, params, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
-		if err != nil {
-			return false
-		}
-		if mediaType != "multipart/form-data" {
-			return false
-		}
-
-		reader := multipart.NewReader(tee, params["boundary"])
+		reader := multipart.NewReader(io.TeeReader(r.Body, &buf), params["boundary"])
 
 		part, err := reader.NextPart()
 		if err != nil {

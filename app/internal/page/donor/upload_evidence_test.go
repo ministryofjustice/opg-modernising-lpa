@@ -130,6 +130,11 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 		fieldContent io.Reader
 		errorLabel   string
 	}{
+		"missing": {
+			fieldName:    "upload",
+			fieldContent: strings.NewReader(""),
+			errorLabel:   "errorUploadMissing",
+		},
 		"not pdf": {
 			fieldName:    "upload",
 			fieldContent: strings.NewReader("I am just text"),
