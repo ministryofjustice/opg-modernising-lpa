@@ -186,7 +186,7 @@ func TestDonorStorePutWhenError(t *testing.T) {
 func TestDonorStoreCreate(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 	now := time.Now()
-	lpa := &page.Lpa{PK: "LPA#10100000", SK: "#DONOR#an-id", ID: "10100000", UpdatedAt: now, FeeType: page.Full}
+	lpa := &page.Lpa{PK: "LPA#10100000", SK: "#DONOR#an-id", ID: "10100000", UpdatedAt: now}
 
 	dataStore := newMockDataStore(t)
 	dataStore.

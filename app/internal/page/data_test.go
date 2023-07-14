@@ -723,10 +723,10 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 
 func TestFeeTypeCost(t *testing.T) {
 	testCases := map[FeeType]int{
-		Full:     8200,
-		HalfFee:  4100,
-		NoFee:    0,
-		Hardship: 0,
+		FullFee:     8200,
+		HalfFee:     4100,
+		NoFee:       0,
+		HardshipFee: 0,
 	}
 
 	for feeType, expectedCost := range testCases {

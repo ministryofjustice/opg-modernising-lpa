@@ -80,14 +80,14 @@ const (
 type FeeType uint8
 
 const (
-	HalfFee FeeType = iota + 1
+	FullFee FeeType = iota + 1
+	HalfFee
 	NoFee
-	Hardship
-	Full
+	HardshipFee
 )
 
-func (i *FeeType) Cost() int {
-	if i.IsFull() {
+func (i FeeType) Cost() int {
+	if i.IsFullFee() {
 		return 8200
 	}
 

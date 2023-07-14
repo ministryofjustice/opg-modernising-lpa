@@ -33,7 +33,6 @@ func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
 		SK:        donorKey(data.SessionID),
 		ID:        lpaID,
 		UpdatedAt: s.now(),
-		FeeType:   page.Full,
 	}
 
 	if err := s.dataStore.Create(ctx, lpa); err != nil {
