@@ -720,3 +720,18 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 		})
 	}
 }
+
+func TestFeeTypeCost(t *testing.T) {
+	testCases := map[FeeType]int{
+		FullFee:     8200,
+		HalfFee:     4100,
+		NoFee:       0,
+		HardshipFee: 0,
+	}
+
+	for feeType, expectedCost := range testCases {
+		t.Run(feeType.String(), func(t *testing.T) {
+			assert.Equal(t, expectedCost, feeType.Cost())
+		})
+	}
+}
