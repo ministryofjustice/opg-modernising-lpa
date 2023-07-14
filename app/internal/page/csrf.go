@@ -1,7 +1,11 @@
 package page
 
 import (
+	"bytes"
 	"errors"
+	"io"
+	"mime"
+	"mime/multipart"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -10,6 +14,8 @@ import (
 type contextKey string
 
 var ErrCsrfInvalid = errors.New("CSRF token not valid")
+
+const csrfTokenLength = 12
 
 func ValidateCsrf(next http.Handler, store sessions.Store, randomString func(int) string, errorHandler ErrorHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +35,7 @@ func ValidateCsrf(next http.Handler, store sessions.Store, randomString func(int
 		}
 
 		if csrfSession.IsNew {
-			csrfSession.Values = map[any]any{"token": randomString(12)}
+			csrfSession.Values = map[any]any{"token": randomString(csrfTokenLength)}
 			csrfSession.Options = &sessions.Options{
 				MaxAge:   24 * 60 * 60,
 				Secure:   true,
@@ -47,8 +53,30 @@ func ValidateCsrf(next http.Handler, store sessions.Store, randomString func(int
 }
 
 func csrfValid(r *http.Request, csrfSession *sessions.Session) bool {
-	formValue := r.PostFormValue("csrf")
 	cookieValue, ok := csrfSession.Values["token"].(string)
+	if !ok {
+		return false
+	}
 
-	return ok && formValue == cookieValue
+	if mediaType, params, err := mime.ParseMediaType(r.Header.Get("Content-Type")); err == nil && mediaType == "multipart/form-data" {
+		var buf bytes.Buffer
+		reader := multipart.NewReader(io.TeeReader(r.Body, &buf), params["boundary"])
+
+		part, err := reader.NextPart()
+		if err != nil {
+			return false
+		}
+
+		if part.FormName() != "csrf" {
+			return false
+		}
+
+		lmt := io.LimitReader(part, csrfTokenLength+1)
+		value, _ := io.ReadAll(lmt)
+
+		r.Body = MultiReadCloser(io.NopCloser(&buf), r.Body)
+		return string(value) == cookieValue
+	}
+
+	return r.PostFormValue("csrf") == cookieValue
 }
