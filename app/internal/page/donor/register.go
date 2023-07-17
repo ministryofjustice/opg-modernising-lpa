@@ -444,7 +444,7 @@ type payHelper struct {
 
 func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 	createPaymentBody := pay.CreatePaymentBody{
-		Amount:      page.CostOfLpaPence,
+		Amount:      lpa.FeeType.Cost(),
 		Reference:   p.randomString(12),
 		Description: "Property and Finance LPA",
 		ReturnUrl:   p.appPublicURL + appData.BuildUrl(page.Paths.PaymentConfirmation.Format(lpa.ID)),
