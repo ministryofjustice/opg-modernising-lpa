@@ -632,6 +632,18 @@ func TestPayHelperPay(t *testing.T) {
 	}
 }
 
+func TestPayHelperPayWhenNoFee(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
+
+	err := (&payHelper{}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.NoFee})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.WhatHappensAfterNoFee.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
 func TestPayHelperPayWhenCreatePaymentErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
