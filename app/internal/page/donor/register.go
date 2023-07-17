@@ -252,6 +252,8 @@ func Register(
 		CanEvidenceBeUploaded(tmpls.Get("can_evidence_be_uploaded.gohtml")))
 	handleWithLpa(page.Paths.UploadEvidence, CanGoBack,
 		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), donorStore, s3Client, evidenceBucketName, payer))
+	handleWithLpa(page.Paths.WhatHappensAfterNoFee, None,
+		Guidance(tmpls.Get("what_happens_after_no_fee.gohtml")))
 	handleWithLpa(page.Paths.PrintEvidenceForm, CanGoBack,
 		Guidance(tmpls.Get("print_evidence_form.gohtml")))
 	handleWithLpa(page.Paths.HowToPrintAndSendEvidence, CanGoBack,
@@ -443,6 +445,10 @@ type payHelper struct {
 }
 
 func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	if lpa.FeeType.IsNoFee() {
+		return appData.Redirect(w, r, lpa, page.Paths.WhatHappensAfterNoFee.Format(lpa.ID))
+	}
+
 	createPaymentBody := pay.CreatePaymentBody{
 		Amount:      page.CostOfLpaPence,
 		Reference:   p.randomString(12),
