@@ -70,7 +70,7 @@ func TestGetCanEvidenceBeUploadedWhenTemplateErrors(t *testing.T) {
 
 func TestPostCanEvidenceBeUploaded(t *testing.T) {
 	testcases := map[form.YesNo]page.LpaPath{
-		form.Yes: page.Paths.UploadInstructions,
+		form.Yes: page.Paths.UploadEvidence,
 		form.No:  page.Paths.PrintEvidenceForm,
 	}
 
