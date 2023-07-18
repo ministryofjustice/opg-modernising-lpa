@@ -191,7 +191,7 @@ type Tasks struct {
 	Restrictions               actor.TaskState
 	CertificateProvider        actor.TaskState
 	CheckYourLpa               actor.TaskState
-	PayForLpa                  actor.TaskState
+	PayForLpa                  actor.PaymentTask
 	ConfirmYourIdentityAndSign actor.TaskState
 	PeopleToNotify             actor.TaskState
 }
@@ -281,7 +281,7 @@ func (l *Lpa) canGoToLpaPath(path string) bool {
 	case Paths.AboutPayment.String():
 		return section1Completed
 	case Paths.SelectYourIdentityOptions.String(), Paths.HowToConfirmYourIdentityAndSign.String():
-		return section1Completed && l.Tasks.PayForLpa.Completed()
+		return section1Completed && l.Tasks.PayForLpa.IsCompleted()
 	case "":
 		return false
 	default:

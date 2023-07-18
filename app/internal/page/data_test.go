@@ -280,7 +280,7 @@ func TestCanGoTo(t *testing.T) {
 					CertificateProvider:        actor.TaskCompleted,
 					PeopleToNotify:             actor.TaskCompleted,
 					CheckYourLpa:               actor.TaskCompleted,
-					PayForLpa:                  actor.TaskCompleted,
+					PayForLpa:                  actor.PaymentTaskCompleted,
 				},
 			},
 			url:      Paths.SelectYourIdentityOptions.Format("123"),

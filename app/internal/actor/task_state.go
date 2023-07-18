@@ -1,6 +1,6 @@
 package actor
 
-type TaskState int
+type TaskState uint8
 
 const (
 	TaskNotStarted TaskState = iota
@@ -22,3 +22,14 @@ func (t TaskState) String() string {
 	}
 	return ""
 }
+
+//go:generate enumerator -type PaymentTask -trimprefix
+type PaymentTask uint8
+
+const (
+	PaymentTaskNotStarted PaymentTask = iota
+	PaymentTaskInProgress
+	PaymentTaskCompleted
+	PaymentTaskPending
+	PaymentTaskDenied
+)
