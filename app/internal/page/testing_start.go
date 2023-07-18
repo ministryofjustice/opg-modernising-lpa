@@ -322,7 +322,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 					PaymentReference: ref,
 					PaymentId:        ref,
 				}
-				lpa.Tasks.PayForLpa = actor.TaskCompleted
+				lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted
 			}
 
 			if opts.idConfirmedAndSigned {

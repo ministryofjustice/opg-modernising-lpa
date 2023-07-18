@@ -52,7 +52,11 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			logger.Print(fmt.Sprintf("unable to expire cookie in session: %s", err.Error()))
 		}
 
-		lpa.Tasks.PayForLpa = actor.TaskCompleted
+		if lpa.FeeType.IsFullFee() {
+			lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted
+		} else {
+			lpa.Tasks.PayForLpa = actor.PaymentTaskPending
+		}
 
 		if err := donorStore.Put(r.Context(), lpa); err != nil {
 			logger.Print(fmt.Sprintf("unable to update lpa in donorStore: %s", err.Error()))
