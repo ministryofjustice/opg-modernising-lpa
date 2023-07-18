@@ -117,3 +117,17 @@ func TestPossessive(t *testing.T) {
 		})
 	}
 }
+
+func TestConcat(t *testing.T) {
+	bundle := NewBundle("testdata/en.json", "testdata/cy.json")
+	en := bundle.For(En)
+
+	assert.Equal(t, "Bob Smith, Alice Jones, John Doe or Paul Compton", en.Concat([]string{"Bob Smith", "Alice Jones", "John Doe", "Paul Compton"}, "or"))
+	assert.Equal(t, "Bob Smith, Alice Jones and John Doe", en.Concat([]string{"Bob Smith", "Alice Jones", "John Doe"}, "and"))
+	assert.Equal(t, "Bob Smith and John Doe", en.Concat([]string{"Bob Smith", "John Doe"}, "and"))
+	assert.Equal(t, "Bob Smith", en.Concat([]string{"Bob Smith"}, "and"))
+	assert.Equal(t, "", en.Concat([]string{}, "and"))
+
+	cy := bundle.For(Cy)
+	assert.Equal(t, "Welsh", cy.Concat([]string{"a"}, "and"))
+}

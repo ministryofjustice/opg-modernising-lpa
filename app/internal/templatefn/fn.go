@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"html/template"
 	"reflect"
-	"strings"
 	"time"
 	"unicode"
 	"unicode/utf8"
@@ -49,6 +48,7 @@ func All(tag, region string) map[string]any {
 		"possessive":         possessive,
 		"card":               card,
 		"printStruct":        printStruct,
+		"concatAnd":          concatAnd,
 		"concatOr":           concatOr,
 	}
 }
@@ -335,18 +335,10 @@ func possessive(app page.AppData, s string) string {
 	return app.Localizer.Possessive(s)
 }
 
-func concatOr(app page.AppData, list []string) string {
-	if app.Lang == localize.Cy {
-		return "Welsh"
-	}
+func concatAnd(app page.AppData, list []string) string {
+	return app.Localizer.Concat(list, "and")
+}
 
-	switch len(list) {
-	case 0:
-		return ""
-	case 1:
-		return list[0]
-	default:
-		last := len(list) - 1
-		return fmt.Sprintf("%s or %s", strings.Join(list[:last], ", "), list[last])
-	}
+func concatOr(app page.AppData, list []string) string {
+	return app.Localizer.Concat(list, "or")
 }
