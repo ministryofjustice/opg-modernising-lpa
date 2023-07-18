@@ -24,7 +24,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://public.url", &pay.Client{}, &identity.YotiClient{}, nil, nil, nil, nil, nil, &uid.Client{}, nil)
+	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://public.url", &pay.Client{}, &identity.YotiClient{}, nil, nil, nil, nil, nil, &uid.Client{}, nil, "bucket", nil)
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -622,7 +622,7 @@ func TestPayHelperPay(t *testing.T) {
 				payClient:    payClient,
 				appPublicURL: "http://example.org",
 				randomString: func(int) string { return "123456789012" },
-			}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
+			}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, FeeType: page.FullFee})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -630,6 +630,18 @@ func TestPayHelperPay(t *testing.T) {
 			assert.Equal(t, tc.redirect, resp.Header.Get("Location"))
 		})
 	}
+}
+
+func TestPayHelperPayWhenNoFee(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
+
+	err := (&payHelper{}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.NoFee})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.WhatHappensAfterNoFee.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPayHelperPayWhenCreatePaymentErrors(t *testing.T) {

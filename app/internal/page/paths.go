@@ -173,9 +173,10 @@ type AppPaths struct {
 	SelectYourIdentityOptions2                                 LpaPath
 	SignYourLpa                                                LpaPath
 	TaskList                                                   LpaPath
-	UploadInstructions                                         LpaPath
+	UploadEvidence                                             LpaPath
 	UseExistingAddress                                         LpaPath
 	WhatACertificateProviderDoes                               LpaPath
+	WhatHappensAfterNoFee                                      LpaPath
 	WhatYoullNeedToConfirmYourIdentity                         LpaPath
 	WhenCanTheLpaBeUsed                                        LpaPath
 	WhichFeeTypeAreYouApplyingFor                              LpaPath
@@ -313,9 +314,10 @@ var Paths = AppPaths{
 	Start:                                                "/start",
 	TaskList:                                             "/task-list",
 	TestingStart:                                         "/testing-start",
-	UploadInstructions:                                   "/upload-instructions",
+	UploadEvidence:                                       "/upload-evidence",
 	UseExistingAddress:                                   "/use-existing-address",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
+	WhatHappensAfterNoFee:                                "/what-happens-after-no-fee",
 	WhatYoullNeedToConfirmYourIdentity:                   "/what-youll-need-to-confirm-your-identity",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
 	WhichFeeTypeAreYouApplyingFor:                        "/which-fee-type-are-you-applying-for",

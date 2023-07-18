@@ -5,8 +5,10 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/logging"
@@ -68,6 +70,8 @@ func App(
 	oneLoginClient *onelogin.Client,
 	uidClient *uid.Client,
 	oneloginURL string,
+	s3Client *s3.Client,
+	evidenceBucketName string,
 	reducedFeeDynamoClient DynamoClient,
 ) http.Handler {
 	donorStore := &donorStore{dynamoClient: lpaDynamoClient, uuidString: uuid.NewString, now: time.Now}
@@ -154,6 +158,8 @@ func App(
 		notFoundHandler,
 		certificateProviderStore,
 		uidClient,
+		s3Client,
+		evidenceBucketName,
 		reducedFeeStore,
 	)
 
@@ -163,7 +169,9 @@ func App(
 func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang, rumConfig page.RumConfig, staticHash, oneloginURL string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		localizer.SetShowTranslationKeys(r.FormValue("showTranslationKeys") == "1")
+		if contentType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";"); contentType != "multipart/form-data" {
+			localizer.SetShowTranslationKeys(r.FormValue("showTranslationKeys") == "1")
+		}
 
 		appData := page.AppDataFromContext(ctx)
 		appData.Path = r.URL.Path

@@ -17,7 +17,6 @@ type donorStore struct {
 }
 
 func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
-
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err

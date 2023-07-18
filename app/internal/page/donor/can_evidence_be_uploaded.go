@@ -28,7 +28,7 @@ func CanEvidenceBeUploaded(tmpl template.Template) Handler {
 
 			if data.Errors.None() {
 				if form.YesNo.IsYes() {
-					return appData.Redirect(w, r, lpa, page.Paths.UploadInstructions.Format(lpa.ID))
+					return appData.Redirect(w, r, lpa, page.Paths.UploadEvidence.Format(lpa.ID))
 				} else {
 					return appData.Redirect(w, r, lpa, page.Paths.PrintEvidenceForm.Format(lpa.ID))
 				}
