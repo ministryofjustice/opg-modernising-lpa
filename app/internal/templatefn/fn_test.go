@@ -398,10 +398,24 @@ func TestPossessive(t *testing.T) {
 	assert.Equal(t, "John’s", possessive(app, "John"))
 }
 
+func TestConcatAnd(t *testing.T) {
+	app := page.AppData{
+		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
+	}
+
+	assert.Equal(t, "", concatAnd(app, []string{}))
+	assert.Equal(t, "a", concatAnd(app, []string{"a"}))
+	assert.Equal(t, "a and b", concatAnd(app, []string{"a", "b"}))
+	assert.Equal(t, "a, b and c", concatAnd(app, []string{"a", "b", "c"}))
+}
+
 func TestConcatOr(t *testing.T) {
-	assert.Equal(t, "Welsh", concatOr(page.AppData{Lang: localize.Cy}, []string{"a"}))
-	assert.Equal(t, "", concatOr(page.AppData{Lang: localize.En}, []string{}))
-	assert.Equal(t, "a", concatOr(page.AppData{Lang: localize.En}, []string{"a"}))
-	assert.Equal(t, "a or b", concatOr(page.AppData{Lang: localize.En}, []string{"a", "b"}))
-	assert.Equal(t, "a, b or c", concatOr(page.AppData{Lang: localize.En}, []string{"a", "b", "c"}))
+	app := page.AppData{
+		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
+	}
+
+	assert.Equal(t, "", concatOr(app, []string{}))
+	assert.Equal(t, "a", concatOr(app, []string{"a"}))
+	assert.Equal(t, "a or b", concatOr(app, []string{"a", "b"}))
+	assert.Equal(t, "a, b or c", concatOr(app, []string{"a", "b", "c"}))
 }
