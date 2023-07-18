@@ -18,7 +18,7 @@ type areYouApplyingForADifferentFeeTypeData struct {
 	Form                *form.YesNoForm
 }
 
-func AreYouApplyingForADifferentFeeType(tmpl template.Template, payer Payer) Handler {
+func AreYouApplyingForADifferentFeeType(tmpl template.Template, payer Payer, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &areYouApplyingForADifferentFeeTypeData{
 			App:                 appData,
@@ -31,6 +31,11 @@ func AreYouApplyingForADifferentFeeType(tmpl template.Template, payer Payer) Han
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
+				lpa.Tasks.PayForLpa = actor.PaymentTaskInProgress
+				if err := donorStore.Put(r.Context(), lpa); err != nil {
+					return err
+				}
+
 				if data.Form.YesNo.IsNo() {
 					return payer.Pay(appData, w, r, lpa)
 				} else {
