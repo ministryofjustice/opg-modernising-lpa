@@ -13,7 +13,7 @@
 
       <p class="govuk-body">{{ tr .App "chooseSomeoneYoureComfortableHavingAConversationWith" }}</p>
 
-      {{ trFormatHtml .App "whoCannotBeACertificateProvider" "AttorneysFirstNamesOr" (concatOr .App .Lpa.Attorneys.FirstNamesList) }}
+      {{ trFormatHtml .App "whoCannotBeACertificateProvider" "AttorneysFirstNamesOr" (concatOr .App .Lpa.Attorneys.FirstNames) }}
       {{ trHtml .App "detailsYoullNeedAboutYourCertificateProvider" }}
       
       <div class="govuk-button-group">

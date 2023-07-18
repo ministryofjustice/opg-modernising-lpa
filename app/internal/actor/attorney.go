@@ -2,7 +2,6 @@ package actor
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
@@ -60,41 +59,20 @@ func (as *Attorneys) Delete(attorney Attorney) bool {
 	return true
 }
 
-func (as Attorneys) FullNames() string {
+func (as Attorneys) FullNames() []string {
 	names := make([]string, len(as))
 	for i, a := range as {
 		names[i] = fmt.Sprintf("%s %s", a.FirstNames, a.LastName)
 	}
 
-	return concatSentence(names)
+	return names
 }
 
-func (as Attorneys) FirstNames() string {
-	names := make([]string, len(as))
-	for i, a := range as {
-		names[i] = a.FirstNames
-	}
-
-	return concatSentence(names)
-}
-
-func (as Attorneys) FirstNamesList() []string {
+func (as Attorneys) FirstNames() []string {
 	names := make([]string, len(as))
 	for i, a := range as {
 		names[i] = a.FirstNames
 	}
 
 	return names
-}
-
-func concatSentence(list []string) string {
-	switch len(list) {
-	case 0:
-		return ""
-	case 1:
-		return list[0]
-	default:
-		last := len(list) - 1
-		return fmt.Sprintf("%s and %s", strings.Join(list[:last], ", "), list[last])
-	}
 }
