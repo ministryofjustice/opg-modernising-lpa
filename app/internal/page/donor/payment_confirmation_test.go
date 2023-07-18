@@ -48,6 +48,7 @@ func TestGetPaymentConfirmation(t *testing.T) {
 				PaymentId:        "abc123",
 				Amount:           8200,
 			},
+			Tasks: page.Tasks{PayForLpa: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -158,7 +159,12 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(nil)
 
-	err := PaymentConfirmation(logger, template.Execute, payClient, donorStore, sessionStore, shareCodeSender, nil)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{
+	reducedFeeStore := newMockReducedFeeStore(t)
+	reducedFeeStore.
+		On("Create", r.Context(), mock.Anything).
+		Return(nil)
+
+	err := PaymentConfirmation(logger, template.Execute, payClient, donorStore, sessionStore, shareCodeSender, reducedFeeStore)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{
 		Email: "certificateprovider@example.com",
 	}})
 	resp := w.Result()
@@ -179,11 +185,6 @@ func TestGetPaymentConfirmationWhenErrorCreatingReducedFee(t *testing.T) {
 		On("SendCertificateProvider", r.Context(), notify.CertificateProviderInviteEmail, testAppData, true, &page.Lpa{CertificateProvider: actor.CertificateProvider{Email: "certificateprovider@example.com"}}).
 		Return(nil)
 
-	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &paymentConfirmationData{App: testAppData, PaymentReference: "123456789012"}).
-		Return(nil)
-
 	sessionStore := newMockSessionStore(t).
 		withPaySession(r).
 		withExpiredPaySession(r, w)
@@ -200,10 +201,16 @@ func TestGetPaymentConfirmationWhenErrorCreatingReducedFee(t *testing.T) {
 				PaymentId:        "abc123",
 				Amount:           8200,
 			},
+			Tasks: page.Tasks{PayForLpa: actor.TaskCompleted},
 		}).
 		Return(expectedError)
 
-	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, shareCodeSender, reducedFeeStore)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{
+	logger := newMockLogger(t)
+	logger.
+		On("Print", "unable to create reduced fee: err").
+		Return(nil)
+
+	err := PaymentConfirmation(logger, nil, payClient, donorStore, sessionStore, shareCodeSender, reducedFeeStore)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{
 		Email: "certificateprovider@example.com",
 	}})
 	resp := w.Result()
@@ -222,6 +229,7 @@ func (m *mockPayClient) withASuccessfulPayment(paymentId, reference string) *moc
 			},
 			PaymentId: paymentId,
 			Reference: reference,
+			Amount:    8200,
 		}, nil)
 
 	return m

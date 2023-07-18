@@ -132,12 +132,12 @@ func main() {
 		})
 	}
 
-	lpasClient, err := dynamo.NewClient(cfg, dynamoTableLpas)
+	lpasDynamoClient, err := dynamo.NewClient(cfg, dynamoTableLpas)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	reducedFeesClient, err := dynamo.NewClient(cfg, dynamoTableReducedFees)
+	reducedFeesDynamoClient, err := dynamo.NewClient(cfg, dynamoTableReducedFees)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -226,7 +226,7 @@ func main() {
 		localize.Cy,
 		tmpls,
 		sessionStore,
-		dynamoClient,
+		lpasDynamoClient,
 		appPublicURL,
 		payClient,
 		yotiClient,
@@ -240,14 +240,14 @@ func main() {
 		oneloginURL,
 		s3Client,
 		evidenceBucketName,
-		reducedFeesClient)))
+		reducedFeesDynamoClient)))
 	mux.Handle("/", app.App(
 		logger,
 		bundle.For(localize.En),
 		localize.En,
 		tmpls,
 		sessionStore,
-		dynamoClient,
+		lpasDynamoClient,
 		appPublicURL,
 		payClient,
 		yotiClient,
@@ -261,7 +261,7 @@ func main() {
 		oneloginURL,
 		s3Client,
 		evidenceBucketName,
-		reducedFeesClient))
+		reducedFeesDynamoClient))
 
 	var handler http.Handler = mux
 	if xrayEnabled {
