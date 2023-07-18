@@ -27,7 +27,7 @@ func TestGetAreYouApplyingForADifferentFeeType(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := AreYouApplyingForADifferentFeeType(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := AreYouApplyingForADifferentFeeType(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -46,7 +46,7 @@ func TestGetAreYouApplyingForADifferentFeeTypeWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := AreYouApplyingForADifferentFeeType(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := AreYouApplyingForADifferentFeeType(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -69,8 +69,35 @@ func TestPostAreYouApplyingForADifferentFeeType(t *testing.T) {
 		On("Pay", testAppData, w, r, lpa).
 		Return(nil)
 
-	err := AreYouApplyingForADifferentFeeType(nil, payer)(testAppData, w, r, lpa)
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), &page.Lpa{
+			ID:    "lpa-id",
+			Donor: actor.Donor{Email: "a@b.com"},
+			Tasks: page.Tasks{PayForLpa: actor.PaymentTaskInProgress},
+		}).
+		Return(nil)
+
+	err := AreYouApplyingForADifferentFeeType(nil, payer, donorStore)(testAppData, w, r, lpa)
 	assert.Nil(t, err)
+}
+
+func TestPostAreYouApplyingForADifferentFeeTypeWhenDonorStoreErrors(t *testing.T) {
+	form := url.Values{
+		"yes-no": {form.No.String()},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(expectedError)
+
+	err := AreYouApplyingForADifferentFeeType(nil, nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	assert.Equal(t, expectedError, err)
 }
 
 func TestPostAreYouApplyingForADifferentFeeTypeWhenPayerErrors(t *testing.T) {
@@ -87,7 +114,12 @@ func TestPostAreYouApplyingForADifferentFeeTypeWhenPayerErrors(t *testing.T) {
 		On("Pay", testAppData, w, r, mock.Anything).
 		Return(expectedError)
 
-	err := AreYouApplyingForADifferentFeeType(nil, payer)(testAppData, w, r, &page.Lpa{})
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(nil)
+
+	err := AreYouApplyingForADifferentFeeType(nil, payer, donorStore)(testAppData, w, r, &page.Lpa{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -100,7 +132,16 @@ func TestPostAreYouApplyingForADifferentFeeTypeWhenYes(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := AreYouApplyingForADifferentFeeType(nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), &page.Lpa{
+			ID:    "lpa-id",
+			Donor: actor.Donor{Email: "a@b.com"},
+			Tasks: page.Tasks{PayForLpa: actor.PaymentTaskInProgress},
+		}).
+		Return(nil)
+
+	err := AreYouApplyingForADifferentFeeType(nil, nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -126,7 +167,7 @@ func TestPostAreYouApplyingForADifferentFeeTypeWhenValidationError(t *testing.T)
 		})).
 		Return(nil)
 
-	err := AreYouApplyingForADifferentFeeType(template.Execute, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
+	err := AreYouApplyingForADifferentFeeType(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
