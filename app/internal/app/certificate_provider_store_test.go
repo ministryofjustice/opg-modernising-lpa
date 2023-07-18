@@ -17,15 +17,15 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 	now := time.Now()
 	details := &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123", UpdatedAt: now}
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
 		On("Create", ctx, details).
 		Return(nil)
-	dataStore.
+	dynamoClient.
 		On("Create", ctx, lpaLink{PK: "LPA#123", SK: "#SUB#456", DonorKey: "#DONOR#session-id", ActorType: actor.TypeCertificateProvider}).
 		Return(nil)
 
-	certificateProviderStore := &certificateProviderStore{dynamoClient: dataStore, now: func() time.Time { return now }}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
 	certificateProvider, err := certificateProviderStore.Create(ctx, "session-id")
 	assert.Nil(t, err)
@@ -63,34 +63,34 @@ func TestCertificateProviderStoreCreateWhenCreateError(t *testing.T) {
 	now := time.Now()
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 
-	testcases := map[string]func(*testing.T) *mockDataStore{
-		"certificate provider record": func(t *testing.T) *mockDataStore {
-			dataStore := newMockDataStore(t)
-			dataStore.
+	testcases := map[string]func(*testing.T) *mockDynamoClient{
+		"certificate provider record": func(t *testing.T) *mockDynamoClient {
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
 				On("Create", ctx, mock.Anything).
 				Return(expectedError)
 
-			return dataStore
+			return dynamoClient
 		},
-		"link record": func(t *testing.T) *mockDataStore {
-			dataStore := newMockDataStore(t)
-			dataStore.
+		"link record": func(t *testing.T) *mockDynamoClient {
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
 				On("Create", ctx, mock.Anything).
 				Return(nil).
 				Once()
-			dataStore.
+			dynamoClient.
 				On("Create", ctx, mock.Anything).
 				Return(expectedError)
 
-			return dataStore
+			return dynamoClient
 		},
 	}
 
 	for name, makeMockDataStore := range testcases {
 		t.Run(name, func(t *testing.T) {
-			dataStore := makeMockDataStore(t)
+			dynamoClient := makeMockDataStore(t)
 
-			certificateProviderStore := &certificateProviderStore{dynamoClient: dataStore, now: func() time.Time { return now }}
+			certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
 			_, err := certificateProviderStore.Create(ctx, "session-id")
 			assert.Equal(t, expectedError, err)
@@ -102,12 +102,12 @@ func TestCertificateProviderStoreGetAll(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "session-id"})
 	certificateProvider := &actor.CertificateProviderProvidedDetails{LpaID: "123"}
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
 		ExpectGetAllByGsi(ctx, "ActorIndex", "#CERTIFICATE_PROVIDER#session-id",
 			[]any{certificateProvider}, nil)
 
-	certificateProviderStore := &certificateProviderStore{dynamoClient: dataStore, now: nil}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: nil}
 
 	certificateProviders, err := certificateProviderStore.GetAll(ctx)
 	assert.Nil(t, err)
@@ -135,11 +135,11 @@ func TestCertificateProviderStoreGetAllWhenMissingSessionID(t *testing.T) {
 func TestCertificateProviderStoreGetAny(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
 		ExpectGetOneByPartialSk(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
 
-	certificateProviderStore := &certificateProviderStore{dynamoClient: dataStore, now: nil}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: nil}
 
 	certificateProvider, err := certificateProviderStore.GetAny(ctx)
 	assert.Nil(t, err)
@@ -167,11 +167,11 @@ func TestCertificateProviderStoreGetAnyMissingLpaIDInSessionData(t *testing.T) {
 func TestCertificateProviderStoreGetAnyOnError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
 		ExpectGetOneByPartialSk(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, expectedError)
 
-	certificateProviderStore := &certificateProviderStore{dynamoClient: dataStore, now: nil}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: nil}
 
 	_, err := certificateProviderStore.GetAny(ctx)
 	assert.Equal(t, expectedError, err)
@@ -180,11 +180,11 @@ func TestCertificateProviderStoreGetAnyOnError(t *testing.T) {
 func TestCertificateProviderStoreGet(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
 		ExpectGet(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
 
-	certificateProviderStore := &certificateProviderStore{dynamoClient: dataStore, now: nil}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: nil}
 
 	certificateProvider, err := certificateProviderStore.Get(ctx)
 	assert.Nil(t, err)
@@ -221,11 +221,11 @@ func TestCertificateProviderStoreGetMissingSessionIDInSessionData(t *testing.T) 
 func TestCertificateProviderStoreGetOnError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
 		ExpectGet(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, expectedError)
 
-	certificateProviderStore := &certificateProviderStore{dynamoClient: dataStore, now: nil}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: nil}
 
 	_, err := certificateProviderStore.Get(ctx)
 	assert.Equal(t, expectedError, err)
@@ -235,13 +235,13 @@ func TestCertificateProviderStorePut(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
 		On("Put", ctx, &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123", UpdatedAt: now}).
 		Return(nil)
 
 	certificateProviderStore := &certificateProviderStore{
-		dynamoClient: dataStore,
+		dynamoClient: dynamoClient,
 		now:          func() time.Time { return now },
 	}
 
@@ -253,13 +253,13 @@ func TestCertificateProviderStorePutOnError(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
 		On("Put", ctx, &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123", UpdatedAt: now}).
 		Return(expectedError)
 
 	certificateProviderStore := &certificateProviderStore{
-		dynamoClient: dataStore,
+		dynamoClient: dynamoClient,
 		now:          func() time.Time { return now },
 	}
 

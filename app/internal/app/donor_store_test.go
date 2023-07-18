@@ -16,7 +16,7 @@ import (
 
 var expectedError = errors.New("err")
 
-func (m *mockDataStore) ExpectGet(ctx, pk, partialSk, data interface{}, err error) {
+func (m *mockDynamoClient) ExpectGet(ctx, pk, partialSk, data interface{}, err error) {
 	m.
 		On("Get", ctx, pk, partialSk, mock.Anything).
 		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
@@ -26,7 +26,7 @@ func (m *mockDataStore) ExpectGet(ctx, pk, partialSk, data interface{}, err erro
 		})
 }
 
-func (m *mockDataStore) ExpectGetOneByPartialSk(ctx, pk, partialSk, data interface{}, err error) {
+func (m *mockDynamoClient) ExpectGetOneByPartialSk(ctx, pk, partialSk, data interface{}, err error) {
 	m.
 		On("GetOneByPartialSk", ctx, pk, partialSk, mock.Anything).
 		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
@@ -36,7 +36,7 @@ func (m *mockDataStore) ExpectGetOneByPartialSk(ctx, pk, partialSk, data interfa
 		})
 }
 
-func (m *mockDataStore) ExpectGetAllByGsi(ctx, gsi, sk, data interface{}, err error) {
+func (m *mockDynamoClient) ExpectGetAllByGsi(ctx, gsi, sk, data interface{}, err error) {
 	m.
 		On("GetAllByGsi", ctx, gsi, sk, mock.Anything).
 		Return(func(ctx context.Context, gsi, pk string, v interface{}) error {
@@ -46,7 +46,7 @@ func (m *mockDataStore) ExpectGetAllByGsi(ctx, gsi, sk, data interface{}, err er
 		})
 }
 
-func (m *mockDataStore) ExpectGetAllByKeys(ctx context.Context, keys []dynamo.Key, data interface{}, err error) {
+func (m *mockDynamoClient) ExpectGetAllByKeys(ctx context.Context, keys []dynamo.Key, data interface{}, err error) {
 	m.
 		On("GetAllByKeys", ctx, keys, mock.Anything).
 		Return(func(ctx context.Context, keys []dynamo.Key, v interface{}) error {
@@ -60,11 +60,11 @@ func TestDonorStoreGetAll(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 	lpa := &page.Lpa{ID: "10100000"}
 
-	dataStore := newMockDataStore(t)
-	dataStore.ExpectGetAllByGsi(ctx, "ActorIndex", "#DONOR#an-id",
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectGetAllByGsi(ctx, "ActorIndex", "#DONOR#an-id",
 		[]any{lpa}, nil)
 
-	donorStore := &donorStore{dynamoClient: dataStore, uuidString: func() string { return "10100000" }}
+	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
 	result, err := donorStore.GetAll(ctx)
 	assert.Nil(t, err)
@@ -92,10 +92,10 @@ func TestDonorStoreGetAllWhenMissingSessionID(t *testing.T) {
 func TestDonorStoreGetAny(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id"})
 
-	dataStore := newMockDataStore(t)
-	dataStore.ExpectGetOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, nil)
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectGetOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, nil)
 
-	donorStore := &donorStore{dynamoClient: dataStore, uuidString: func() string { return "10100000" }}
+	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
 	lpa, err := donorStore.GetAny(ctx)
 	assert.Nil(t, err)
@@ -114,10 +114,10 @@ func TestDonorStoreGetAnyWithSessionMissing(t *testing.T) {
 func TestDonorStoreGetAnyWhenDataStoreError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id"})
 
-	dataStore := newMockDataStore(t)
-	dataStore.ExpectGetOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, expectedError)
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectGetOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, expectedError)
 
-	donorStore := &donorStore{dynamoClient: dataStore, uuidString: func() string { return "10100000" }}
+	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
 	_, err := donorStore.GetAny(ctx)
 	assert.Equal(t, expectedError, err)
@@ -126,10 +126,10 @@ func TestDonorStoreGetAnyWhenDataStoreError(t *testing.T) {
 func TestDonorStoreGet(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
 
-	dataStore := newMockDataStore(t)
-	dataStore.ExpectGet(ctx, "LPA#an-id", "#DONOR#456", &page.Lpa{ID: "an-id"}, nil)
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectGet(ctx, "LPA#an-id", "#DONOR#456", &page.Lpa{ID: "an-id"}, nil)
 
-	donorStore := &donorStore{dynamoClient: dataStore, uuidString: func() string { return "10100000" }}
+	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
 	lpa, err := donorStore.Get(ctx)
 	assert.Nil(t, err)
@@ -148,10 +148,10 @@ func TestDonorStoreGetWithSessionMissing(t *testing.T) {
 func TestDonorStoreGetWhenDataStoreError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
 
-	dataStore := newMockDataStore(t)
-	dataStore.ExpectGet(ctx, "LPA#an-id", "#DONOR#456", &page.Lpa{ID: "an-id"}, expectedError)
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectGet(ctx, "LPA#an-id", "#DONOR#456", &page.Lpa{ID: "an-id"}, expectedError)
 
-	donorStore := &donorStore{dynamoClient: dataStore, uuidString: func() string { return "10100000" }}
+	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
 	_, err := donorStore.Get(ctx)
 	assert.Equal(t, expectedError, err)
@@ -161,10 +161,10 @@ func TestDonorStorePut(t *testing.T) {
 	ctx := context.Background()
 	lpa := &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5"}
 
-	dataStore := newMockDataStore(t)
-	dataStore.On("Put", ctx, lpa).Return(nil)
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.On("Put", ctx, lpa).Return(nil)
 
-	donorStore := &donorStore{dynamoClient: dataStore}
+	donorStore := &donorStore{dynamoClient: dynamoClient}
 
 	err := donorStore.Put(ctx, lpa)
 	assert.Nil(t, err)
@@ -174,10 +174,10 @@ func TestDonorStorePutWhenError(t *testing.T) {
 	ctx := context.Background()
 	lpa := &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5"}
 
-	dataStore := newMockDataStore(t)
-	dataStore.On("Put", ctx, lpa).Return(expectedError)
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.On("Put", ctx, lpa).Return(expectedError)
 
-	donorStore := &donorStore{dynamoClient: dataStore}
+	donorStore := &donorStore{dynamoClient: dynamoClient}
 
 	err := donorStore.Put(ctx, lpa)
 	assert.Equal(t, expectedError, err)
@@ -188,15 +188,15 @@ func TestDonorStoreCreate(t *testing.T) {
 	now := time.Now()
 	lpa := &page.Lpa{PK: "LPA#10100000", SK: "#DONOR#an-id", ID: "10100000", UpdatedAt: now}
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
 		On("Create", ctx, lpa).
 		Return(nil)
-	dataStore.
+	dynamoClient.
 		On("Create", ctx, lpaLink{PK: "LPA#10100000", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor}).
 		Return(nil)
 
-	donorStore := &donorStore{dynamoClient: dataStore, uuidString: func() string { return "10100000" }, now: func() time.Time { return now }}
+	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }, now: func() time.Time { return now }}
 
 	result, err := donorStore.Create(ctx)
 	assert.Nil(t, err)
@@ -216,35 +216,35 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 	now := time.Now()
 
-	testcases := map[string]func(*testing.T) *mockDataStore{
-		"certificate provider record": func(t *testing.T) *mockDataStore {
-			dataStore := newMockDataStore(t)
-			dataStore.
+	testcases := map[string]func(*testing.T) *mockDynamoClient{
+		"certificate provider record": func(t *testing.T) *mockDynamoClient {
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
 				On("Create", ctx, mock.Anything).
 				Return(expectedError)
 
-			return dataStore
+			return dynamoClient
 		},
-		"link record": func(t *testing.T) *mockDataStore {
-			dataStore := newMockDataStore(t)
-			dataStore.
+		"link record": func(t *testing.T) *mockDynamoClient {
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
 				On("Create", ctx, mock.Anything).
 				Return(nil).
 				Once()
-			dataStore.
+			dynamoClient.
 				On("Create", ctx, mock.Anything).
 				Return(expectedError)
 
-			return dataStore
+			return dynamoClient
 		},
 	}
 
 	for name, makeMockDataStore := range testcases {
 		t.Run(name, func(t *testing.T) {
-			dataStore := makeMockDataStore(t)
+			dynamoClient := makeMockDataStore(t)
 
 			donorStore := &donorStore{
-				dynamoClient: dataStore,
+				dynamoClient: dynamoClient,
 				uuidString:   func() string { return "10100000" },
 				now:          func() time.Time { return now },
 			}
