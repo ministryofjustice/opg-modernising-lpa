@@ -9,6 +9,20 @@ type mockLocalizer struct {
 	mock.Mock
 }
 
+// Concat provides a mock function with given fields: _a0, _a1
+func (_m *mockLocalizer) Concat(_a0 []string, _a1 string) string {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func([]string, string) string); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
 // Count provides a mock function with given fields: messageID, count
 func (_m *mockLocalizer) Count(messageID string, count int) string {
 	ret := _m.Called(messageID, count)
