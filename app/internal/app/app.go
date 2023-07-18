@@ -79,7 +79,7 @@ func App(
 	attorneyStore := &attorneyStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient}
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient}
-	reducedFeeStore := &reducedFeeStore{dynamoClient: reducedFeeDynamoClient}
+	reducedFeeStore := &reducedFeeStore{dynamoClient: reducedFeeDynamoClient, now: time.Now}
 
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String)
 	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
