@@ -17,16 +17,11 @@ type reducedFee struct {
 	SK        string
 	PaymentID string
 	// This is the Sirius UID - better name?
-	LpaUID     string
-	FeeType    string
-	AmountPaid int
-	UpdatedAt  time.Time
+	LpaUID    string
+	FeeType   string
+	Amount    int
+	UpdatedAt time.Time
 	//TODO add S3 refs once we're saving docs
-}
-
-func (r *reducedFeeStore) Put(ctx context.Context, lpa *page.Lpa) error {
-	lpa.UpdatedAt = r.now()
-	return r.dynamoClient.Put(ctx, lpa)
 }
 
 func (r *reducedFeeStore) Create(ctx context.Context, lpa *page.Lpa) error {
@@ -36,6 +31,7 @@ func (r *reducedFeeStore) Create(ctx context.Context, lpa *page.Lpa) error {
 		PaymentID: lpa.PaymentDetails.PaymentId,
 		LpaUID:    lpa.UID,
 		FeeType:   lpa.FeeType.String(),
+		Amount:    lpa.PaymentDetails.Amount,
 		UpdatedAt: r.now(),
 	}); err != nil {
 		return err

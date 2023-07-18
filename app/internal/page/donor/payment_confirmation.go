@@ -41,6 +41,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		lpa.PaymentDetails = page.PaymentDetails{
 			PaymentReference: payment.Reference,
 			PaymentId:        payment.PaymentId,
+			Amount:           payment.Amount,
 		}
 
 		data := &paymentConfirmationData{
