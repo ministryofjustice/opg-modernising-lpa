@@ -63,7 +63,7 @@ func TestGetTaskList(t *testing.T) {
 					Restrictions:               actor.TaskCompleted,
 					CertificateProvider:        actor.TaskInProgress,
 					CheckYourLpa:               actor.TaskCompleted,
-					PayForLpa:                  actor.TaskInProgress,
+					PayForLpa:                  actor.PaymentTaskInProgress,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
@@ -79,7 +79,7 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: page.Paths.AboutPayment.Format("lpa-id"), State: actor.TaskInProgress},
+					{Name: "payForTheLpa", Path: page.Paths.AboutPayment.Format("lpa-id"), PaymentState: actor.PaymentTaskInProgress},
 				}
 
 				return sections

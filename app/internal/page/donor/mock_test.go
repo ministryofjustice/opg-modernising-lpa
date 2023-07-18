@@ -56,7 +56,7 @@ func (m *mockDonorStore) withCompletedPaymentLpaData(r *http.Request, paymentId,
 				Amount:           8200,
 			},
 			Tasks: page.Tasks{
-				PayForLpa: actor.TaskCompleted,
+				PayForLpa: actor.PaymentTaskCompleted,
 			},
 		}).
 		Return(nil)

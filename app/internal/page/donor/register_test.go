@@ -636,12 +636,35 @@ func TestPayHelperPayWhenNoFee(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
-	err := (&payHelper{}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.NoFee})
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", FeeType: page.NoFee, Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}}).
+		Return(nil)
+
+	err := (&payHelper{
+		donorStore: donorStore,
+	}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.NoFee})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, page.Paths.WhatHappensAfterNoFee.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPayHelperPayWhenNoFeeAndDonorStoreErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(expectedError)
+
+	err := (&payHelper{
+		donorStore: donorStore,
+	}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.NoFee})
+
+	assert.Equal(t, expectedError, err)
 }
 
 func TestPayHelperPayWhenCreatePaymentErrors(t *testing.T) {

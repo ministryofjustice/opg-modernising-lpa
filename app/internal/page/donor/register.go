@@ -147,6 +147,7 @@ func Register(
 	payer := &payHelper{
 		logger:       logger,
 		sessionStore: sessionStore,
+		donorStore:   donorStore,
 		payClient:    payClient,
 		appPublicURL: appPublicURL,
 		randomString: random.String,
@@ -249,7 +250,7 @@ func Register(
 	handleWithLpa(page.Paths.AboutPayment, None,
 		Guidance(tmpls.Get("about_payment.gohtml")))
 	handleWithLpa(page.Paths.AreYouApplyingForADifferentFeeType, CanGoBack,
-		AreYouApplyingForADifferentFeeType(tmpls.Get("are_you_applying_for_a_different_fee_type.gohtml"), payer))
+		AreYouApplyingForADifferentFeeType(tmpls.Get("are_you_applying_for_a_different_fee_type.gohtml"), payer, donorStore))
 	handleWithLpa(page.Paths.WhichFeeTypeAreYouApplyingFor, CanGoBack,
 		WhichFeeTypeAreYouApplyingFor(tmpls.Get("which_fee_type_are_you_applying_for.gohtml"), donorStore))
 	handleWithLpa(page.Paths.EvidenceRequired, CanGoBack,
@@ -445,6 +446,7 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOp
 type payHelper struct {
 	logger       Logger
 	sessionStore sessions.Store
+	donorStore   DonorStore
 	payClient    PayClient
 	appPublicURL string
 	randomString func(int) string
@@ -452,6 +454,11 @@ type payHelper struct {
 
 func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 	if lpa.FeeType.IsNoFee() {
+		lpa.Tasks.PayForLpa = actor.PaymentTaskPending
+		if err := p.donorStore.Put(r.Context(), lpa); err != nil {
+			return err
+		}
+
 		return appData.Redirect(w, r, lpa, page.Paths.WhatHappensAfterNoFee.Format(lpa.ID))
 	}
 
