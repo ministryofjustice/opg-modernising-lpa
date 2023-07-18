@@ -117,8 +117,9 @@ type Payer interface {
 	Pay(page.AppData, http.ResponseWriter, *http.Request, *page.Lpa) error
 }
 
+//go:generate mockery --testonly --inpackage --name ReducedFeeStore --structname mockReducedFeeStore
 type ReducedFeeStore interface {
-	Put(context.Context, *page.Lpa) error
+	Create(ctx context.Context, lpa *page.Lpa) error
 }
 
 func Register(
