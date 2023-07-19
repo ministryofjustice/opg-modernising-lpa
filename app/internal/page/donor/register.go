@@ -118,6 +118,11 @@ type Payer interface {
 	Pay(page.AppData, http.ResponseWriter, *http.Request, *page.Lpa) error
 }
 
+//go:generate mockery --testonly --inpackage --name ReducedFeeStore --structname mockReducedFeeStore
+type ReducedFeeStore interface {
+	Create(ctx context.Context, lpa *page.Lpa) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -137,6 +142,7 @@ func Register(
 	uidClient UidClient,
 	s3Client *s3.Client,
 	evidenceBucketName string,
+	reducedFeeStore ReducedFeeStore,
 ) {
 	payer := &payHelper{
 		logger:       logger,
@@ -264,7 +270,7 @@ func Register(
 	handleWithLpa(page.Paths.HowToSendEvidence, CanGoBack,
 		HowToSendEvidence(tmpls.Get("how_to_send_evidence.gohtml"), payer))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender, reducedFeeStore))
 
 	handleWithLpa(page.Paths.HowToConfirmYourIdentityAndSign, None,
 		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml")))

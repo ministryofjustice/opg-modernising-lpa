@@ -24,7 +24,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://public.url", &pay.Client{}, &identity.YotiClient{}, nil, nil, nil, nil, nil, &uid.Client{}, nil, "bucket")
+	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://public.url", &pay.Client{}, &identity.YotiClient{}, nil, nil, nil, nil, nil, &uid.Client{}, nil, "bucket", nil)
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
