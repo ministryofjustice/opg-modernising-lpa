@@ -33,6 +33,9 @@ func TestGetIdentityWithTodo(t *testing.T) {
 				LastName:    "b",
 				RetrievedAt: now,
 			},
+			Tasks: actor.CertificateProviderTasks{
+				ConfirmYourIdentity: actor.TaskCompleted,
+			},
 		}).
 		Return(nil)
 

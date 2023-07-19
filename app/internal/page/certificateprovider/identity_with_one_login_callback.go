@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
@@ -74,6 +75,7 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 		}
 
 		certificateProvider.IdentityUserData = userData
+		certificateProvider.Tasks.ConfirmYourIdentity = actor.TaskCompleted
 
 		if certificateProvider.CertificateProviderIdentityConfirmed() {
 			data.FirstNames = userData.FirstNames
