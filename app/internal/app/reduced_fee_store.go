@@ -13,15 +13,14 @@ type reducedFeeStore struct {
 }
 
 type reducedFee struct {
-	PK        string
-	SK        string
-	PaymentID string
-	// This is the Sirius UID - better name?
-	LpaUID    string
-	FeeType   string
-	Amount    int
-	UpdatedAt time.Time
-	//TODO add S3 refs once we're saving docs
+	PK           string
+	SK           string
+	PaymentID    string
+	LpaUID       string
+	FeeType      string
+	Amount       int
+	UpdatedAt    time.Time
+	EvidenceKeys []string
 }
 
 func (r *reducedFeeStore) Create(ctx context.Context, lpa *page.Lpa) error {
@@ -33,6 +32,8 @@ func (r *reducedFeeStore) Create(ctx context.Context, lpa *page.Lpa) error {
 		FeeType:   lpa.FeeType.String(),
 		Amount:    lpa.PaymentDetails.Amount,
 		UpdatedAt: r.now(),
+		//TODO just reference multiple keys when we support multi-file uploads
+		EvidenceKeys: []string{lpa.EvidenceKey},
 	}); err != nil {
 		return err
 	}
