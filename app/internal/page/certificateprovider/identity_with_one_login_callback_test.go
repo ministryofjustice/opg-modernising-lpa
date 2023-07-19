@@ -33,6 +33,9 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 			FirstNames:       "John",
 			LastName:         "Doe",
 			IdentityUserData: userData,
+			Tasks: actor.CertificateProviderTasks{
+				ConfirmYourIdentity: actor.TaskCompleted,
+			},
 		}).
 		Return(nil)
 
