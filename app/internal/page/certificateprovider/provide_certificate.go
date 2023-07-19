@@ -30,7 +30,7 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 		}
 
 		if lpa.Submitted.IsZero() {
-			return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderStart.Format())
+			return appData.Redirect(w, r, lpa, page.Paths.CertificateProvider.TaskList.Format(lpa.ID))
 		}
 
 		data := &provideCertificateData{
@@ -48,6 +48,7 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 			if data.Errors.None() {
 				certificateProvider.Certificate.AgreeToStatement = true
 				certificateProvider.Certificate.Agreed = now()
+				certificateProvider.Tasks.ProvideTheCertificate = actor.TaskCompleted
 				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return err
 				}
