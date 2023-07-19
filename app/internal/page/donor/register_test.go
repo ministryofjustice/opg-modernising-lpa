@@ -24,7 +24,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://public.url", &pay.Client{}, &identity.YotiClient{}, nil, nil, nil, nil, nil, &uid.Client{}, nil, "bucket")
+	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://public.url", &pay.Client{}, &identity.YotiClient{}, nil, nil, nil, nil, nil, &uid.Client{}, nil, "bucket", nil)
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -632,39 +632,106 @@ func TestPayHelperPay(t *testing.T) {
 	}
 }
 
-func TestPayHelperPayWhenNoFee(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
+func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
+	testCases := []page.FeeType{
+		page.NoFee,
+		page.HardshipFee,
+	}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", FeeType: page.NoFee, Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}}).
-		Return(nil)
+	for _, feeType := range testCases {
+		t.Run(feeType.String(), func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
-	err := (&payHelper{
-		donorStore: donorStore,
-	}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.NoFee})
-	resp := w.Result()
+			lpa := &page.Lpa{ID: "lpa-id", FeeType: feeType, Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}}
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.WhatHappensAfterNoFee.Format("lpa-id"), resp.Header.Get("Location"))
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("Put", r.Context(), lpa).
+				Return(nil)
+
+			reducedFeeStore := newMockReducedFeeStore(t)
+			reducedFeeStore.
+				On("Create", r.Context(), lpa).
+				Return(nil)
+
+			err := (&payHelper{
+				donorStore:      donorStore,
+				reducedFeeStore: reducedFeeStore,
+			}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: feeType})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, page.Paths.WhatHappensAfterNoFee.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
 }
 
-func TestPayHelperPayWhenNoFeeAndDonorStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
+func TestPayHelperPayWhenPaymentNotRequiredAndDonorStoreErrors(t *testing.T) {
+	testCases := []page.FeeType{
+		page.NoFee,
+		page.HardshipFee,
+	}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
-		Return(expectedError)
+	for _, feeType := range testCases {
+		t.Run(feeType.String(), func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
-	err := (&payHelper{
-		donorStore: donorStore,
-	}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.NoFee})
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("Put", r.Context(), mock.Anything).
+				Return(expectedError)
 
-	assert.Equal(t, expectedError, err)
+			err := (&payHelper{
+				donorStore: donorStore,
+			}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: feeType})
+
+			assert.Equal(t, expectedError, err)
+		})
+	}
+}
+
+func TestPayHelperPayWhenPaymentNotRequiredAndReducedFeeStoreErrors(t *testing.T) {
+	testCases := []page.FeeType{
+		page.NoFee,
+		page.HardshipFee,
+	}
+
+	for _, feeType := range testCases {
+		t.Run(feeType.String(), func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
+
+			lpa := &page.Lpa{ID: "lpa-id", FeeType: feeType, Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}}
+
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("Put", r.Context(), lpa).
+				Return(nil)
+
+			reducedFeeStore := newMockReducedFeeStore(t)
+			reducedFeeStore.
+				On("Create", r.Context(), lpa).
+				Return(expectedError)
+
+			logger := newMockLogger(t)
+			logger.
+				On("Print", "unable to create reduced fee: err").
+				Return(nil)
+
+			err := (&payHelper{
+				donorStore:      donorStore,
+				reducedFeeStore: reducedFeeStore,
+				logger:          logger,
+			}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: feeType})
+			resp := w.Result()
+
+			assert.Equal(t, expectedError, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestPayHelperPayWhenCreatePaymentErrors(t *testing.T) {
