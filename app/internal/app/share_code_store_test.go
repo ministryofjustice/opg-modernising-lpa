@@ -33,12 +33,12 @@ func TestShareCodeStoreGet(t *testing.T) {
 			ctx := context.Background()
 			data := actor.ShareCodeData{LpaID: "lpa-id"}
 
-			dataStore := newMockDataStore(t)
-			dataStore.
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
 				ExpectGet(ctx, tc.pk, "#METADATA#123",
 					data, nil)
 
-			shareCodeStore := &shareCodeStore{dataStore: dataStore}
+			shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
 
 			result, err := shareCodeStore.Get(ctx, tc.t, "123")
 			assert.Nil(t, err)
@@ -59,12 +59,12 @@ func TestShareCodeStoreGetOnError(t *testing.T) {
 	ctx := context.Background()
 	data := actor.ShareCodeData{LpaID: "lpa-id"}
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
 		ExpectGet(ctx, "ATTORNEYSHARE#123", "#METADATA#123",
 			data, expectedError)
 
-	shareCodeStore := &shareCodeStore{dataStore: dataStore}
+	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
 
 	_, err := shareCodeStore.Get(ctx, actor.TypeAttorney, "123")
 	assert.Equal(t, expectedError, err)
@@ -94,12 +94,12 @@ func TestShareCodeStorePut(t *testing.T) {
 			ctx := context.Background()
 			data := actor.ShareCodeData{PK: tc.pk, SK: "#METADATA#123", LpaID: "lpa-id"}
 
-			dataStore := newMockDataStore(t)
-			dataStore.
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
 				On("Put", ctx, data).
 				Return(nil)
 
-			shareCodeStore := &shareCodeStore{dataStore: dataStore}
+			shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
 
 			err := shareCodeStore.Put(ctx, tc.actor, "123", data)
 			assert.Nil(t, err)
@@ -118,12 +118,12 @@ func TestShareCodeStorePutForBadActorType(t *testing.T) {
 func TestShareCodeStorePutOnError(t *testing.T) {
 	ctx := context.Background()
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
 		On("Put", ctx, mock.Anything).
 		Return(expectedError)
 
-	shareCodeStore := &shareCodeStore{dataStore: dataStore}
+	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
 
 	err := shareCodeStore.Put(ctx, actor.TypeAttorney, "123", actor.ShareCodeData{LpaID: "123"})
 	assert.Equal(t, expectedError, err)

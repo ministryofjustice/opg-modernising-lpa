@@ -19,15 +19,15 @@ func TestAttorneyStoreCreate(t *testing.T) {
 			now := time.Now()
 			details := &actor.AttorneyProvidedDetails{PK: "LPA#123", SK: "#ATTORNEY#456", ID: "attorney-id", LpaID: "123", UpdatedAt: now, IsReplacement: isReplacement}
 
-			dataStore := newMockDataStore(t)
-			dataStore.
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
 				On("Create", ctx, details).
 				Return(nil)
-			dataStore.
+			dynamoClient.
 				On("Create", ctx, lpaLink{PK: "LPA#123", SK: "#SUB#456", DonorKey: "#DONOR#session-id", ActorType: actor.TypeAttorney}).
 				Return(nil)
 
-			attorneyStore := &attorneyStore{dataStore: dataStore, now: func() time.Time { return now }}
+			attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
 			attorney, err := attorneyStore.Create(ctx, "session-id", "attorney-id", isReplacement)
 			assert.Nil(t, err)
@@ -39,7 +39,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 func TestAttorneyStoreCreateWhenSessionMissing(t *testing.T) {
 	ctx := context.Background()
 
-	attorneyStore := &attorneyStore{dataStore: nil, now: nil}
+	attorneyStore := &attorneyStore{dynamoClient: nil, now: nil}
 
 	_, err := attorneyStore.Create(ctx, "session-id", "attorney-id", false)
 	assert.Equal(t, page.SessionMissingError{}, err)
@@ -67,34 +67,34 @@ func TestAttorneyStoreCreateWhenCreateError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 	now := time.Now()
 
-	testcases := map[string]func(*testing.T) *mockDataStore{
-		"certificate provider record": func(t *testing.T) *mockDataStore {
-			dataStore := newMockDataStore(t)
-			dataStore.
+	testcases := map[string]func(*testing.T) *mockDynamoClient{
+		"certificate provider record": func(t *testing.T) *mockDynamoClient {
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
 				On("Create", ctx, mock.Anything).
 				Return(expectedError)
 
-			return dataStore
+			return dynamoClient
 		},
-		"link record": func(t *testing.T) *mockDataStore {
-			dataStore := newMockDataStore(t)
-			dataStore.
+		"link record": func(t *testing.T) *mockDynamoClient {
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
 				On("Create", ctx, mock.Anything).
 				Return(nil).
 				Once()
-			dataStore.
+			dynamoClient.
 				On("Create", ctx, mock.Anything).
 				Return(expectedError)
 
-			return dataStore
+			return dynamoClient
 		},
 	}
 
 	for name, makeMockDataStore := range testcases {
 		t.Run(name, func(t *testing.T) {
-			dataStore := makeMockDataStore(t)
+			dynamoClient := makeMockDataStore(t)
 
-			attorneyStore := &attorneyStore{dataStore: dataStore, now: func() time.Time { return now }}
+			attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
 			_, err := attorneyStore.Create(ctx, "session-id", "attorney-id", false)
 			assert.Equal(t, expectedError, err)
@@ -106,12 +106,12 @@ func TestAttorneyStoreGetAll(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "session-id"})
 	attorney := &actor.AttorneyProvidedDetails{LpaID: "123"}
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
 		ExpectGetAllByGsi(ctx, "ActorIndex", "#ATTORNEY#session-id",
 			[]any{attorney}, nil)
 
-	attorneyStore := &attorneyStore{dataStore: dataStore, now: nil}
+	attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: nil}
 
 	attorneys, err := attorneyStore.GetAll(ctx)
 	assert.Nil(t, err)
@@ -139,12 +139,12 @@ func TestAttorneyStoreGetAllWhenMissingSessionID(t *testing.T) {
 func TestAttorneyStoreGet(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
 		ExpectGet(ctx, "LPA#123", "#ATTORNEY#456",
 			&actor.AttorneyProvidedDetails{LpaID: "123"}, nil)
 
-	attorneyStore := &attorneyStore{dataStore: dataStore, now: nil}
+	attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: nil}
 
 	attorney, err := attorneyStore.Get(ctx)
 	assert.Nil(t, err)
@@ -154,7 +154,7 @@ func TestAttorneyStoreGet(t *testing.T) {
 func TestAttorneyStoreGetWhenSessionMissing(t *testing.T) {
 	ctx := context.Background()
 
-	attorneyStore := &attorneyStore{dataStore: nil, now: nil}
+	attorneyStore := &attorneyStore{dynamoClient: nil, now: nil}
 
 	_, err := attorneyStore.Get(ctx)
 	assert.Equal(t, page.SessionMissingError{}, err)
@@ -181,12 +181,12 @@ func TestAttorneyStoreGetMissingSessionIDInSessionData(t *testing.T) {
 func TestAttorneyStoreGetOnError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
 		ExpectGet(ctx, "LPA#123", "#ATTORNEY#456",
 			&actor.AttorneyProvidedDetails{LpaID: "123"}, expectedError)
 
-	attorneyStore := &attorneyStore{dataStore: dataStore, now: nil}
+	attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: nil}
 
 	_, err := attorneyStore.Get(ctx)
 	assert.Equal(t, expectedError, err)
@@ -196,14 +196,14 @@ func TestAttorneyStorePut(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
 		On("Put", ctx, &actor.AttorneyProvidedDetails{PK: "LPA#123", SK: "#ATTORNEY#456", LpaID: "123", UpdatedAt: now}).
 		Return(nil)
 
 	attorneyStore := &attorneyStore{
-		dataStore: dataStore,
-		now:       func() time.Time { return now },
+		dynamoClient: dynamoClient,
+		now:          func() time.Time { return now },
 	}
 
 	err := attorneyStore.Put(ctx, &actor.AttorneyProvidedDetails{PK: "LPA#123", SK: "#ATTORNEY#456", LpaID: "123"})
@@ -214,14 +214,14 @@ func TestAttorneyStorePutOnError(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	dataStore := newMockDataStore(t)
-	dataStore.
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
 		On("Put", ctx, &actor.AttorneyProvidedDetails{PK: "LPA#123", SK: "#ATTORNEY#456", LpaID: "123", UpdatedAt: now}).
 		Return(expectedError)
 
 	attorneyStore := &attorneyStore{
-		dataStore: dataStore,
-		now:       func() time.Time { return now },
+		dynamoClient: dynamoClient,
+		now:          func() time.Time { return now },
 	}
 
 	err := attorneyStore.Put(ctx, &actor.AttorneyProvidedDetails{PK: "LPA#123", SK: "#ATTORNEY#456", LpaID: "123"})
