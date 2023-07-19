@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
@@ -35,6 +36,8 @@ func IdentityWithTodo(tmpl template.Template, now func() time.Time, identityOpti
 			DateOfBirth: certificateProvider.DateOfBirth,
 			RetrievedAt: now(),
 		}
+		certificateProvider.Tasks.ConfirmYourIdentity = actor.TaskCompleted
+
 		if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 			return err
 		}
