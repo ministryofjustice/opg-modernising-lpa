@@ -11,7 +11,7 @@
 
       {{ trFormatHtml .App "certificateProvidedContent" "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) }}
 
-      <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "goToYourDashboard" }}</button>
+      <a href="{{ link .App .App.Paths.Dashboard.Format }}" class="govuk-button">{{ tr .App "goToYourDashboard" }}</a>
     </div>
   </div>
 {{ end }}
