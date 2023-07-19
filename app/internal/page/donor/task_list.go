@@ -17,10 +17,11 @@ type taskListData struct {
 }
 
 type taskListItem struct {
-	Name  string
-	Path  string
-	State actor.TaskState
-	Count int
+	Name         string
+	Path         string
+	State        actor.TaskState
+	PaymentState actor.PaymentTask
+	Count        int
 }
 
 type taskListSection struct {
@@ -100,9 +101,9 @@ func TaskList(tmpl template.Template) Handler {
 					Heading: "payForTheLpa",
 					Items: []taskListItem{
 						{
-							Name:  "payForTheLpa",
-							Path:  page.Paths.AboutPayment.Format(lpa.ID),
-							State: lpa.Tasks.PayForLpa,
+							Name:         "payForTheLpa",
+							Path:         page.Paths.AboutPayment.Format(lpa.ID),
+							PaymentState: lpa.Tasks.PayForLpa,
 						},
 					},
 				},

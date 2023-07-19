@@ -60,7 +60,7 @@ func TestAppDataRedirectWhenCanGoTo(t *testing.T) {
 					CertificateProvider:        actor.TaskCompleted,
 					PeopleToNotify:             actor.TaskCompleted,
 					CheckYourLpa:               actor.TaskCompleted,
-					PayForLpa:                  actor.TaskCompleted,
+					PayForLpa:                  actor.PaymentTaskCompleted,
 				},
 			},
 			expected: Paths.HowToConfirmYourIdentityAndSign.Format("lpa-id"),
