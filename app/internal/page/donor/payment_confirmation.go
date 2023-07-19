@@ -64,9 +64,11 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			return err
 		}
 
-		if err := reducedFeeStore.Create(r.Context(), lpa); err != nil {
-			logger.Print(fmt.Sprintf("unable to create reduced fee: %s", err.Error()))
-			return err
+		if lpa.FeeType.IsHalfFee() {
+			if err := reducedFeeStore.Create(r.Context(), lpa); err != nil {
+				logger.Print(fmt.Sprintf("unable to create reduced fee: %s", err.Error()))
+				return err
+			}
 		}
 
 		return tmpl(w, data)

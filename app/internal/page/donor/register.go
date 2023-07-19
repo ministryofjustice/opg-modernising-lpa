@@ -453,7 +453,7 @@ type payHelper struct {
 }
 
 func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-	if lpa.FeeType.IsNoFee() {
+	if lpa.FeeType.IsNoFee() || lpa.FeeType.IsHardshipFee() {
 		lpa.Tasks.PayForLpa = actor.PaymentTaskPending
 		if err := p.donorStore.Put(r.Context(), lpa); err != nil {
 			return err
