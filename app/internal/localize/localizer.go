@@ -89,3 +89,19 @@ func (l *Localizer) Possessive(s string) string {
 
 	return fmt.Sprintf(format, s)
 }
+
+func (l *Localizer) Concat(list []string, joiner string) string {
+	if l.Lang == Cy {
+		return "Welsh"
+	}
+
+	switch len(list) {
+	case 0:
+		return ""
+	case 1:
+		return list[0]
+	default:
+		last := len(list) - 1
+		return fmt.Sprintf("%s %s %s", strings.Join(list[:last], ", "), l.T(joiner), list[last])
+	}
+}
