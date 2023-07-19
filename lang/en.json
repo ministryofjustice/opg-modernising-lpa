@@ -675,5 +675,6 @@
     "personallyHint": "For example, this could be a friend, neighbour or colleague. You must have known this person for at least 2 years.",
     "professionally": "Professionally",
     "professionallyHint": "This must be someone with the relevant professional skills to make sure you understand your LPA and want to make it.",
-    "asYouHaveMoreThanOneAttorney": "As you have more than one attorney, you must decide whether each attorney can use your LPA on their own or whether they must all agree decisions together, or a mixture."
+    "asYouHaveMoreThanOneAttorney": "As you have more than one attorney, you must decide whether each attorney can use your LPA on their own or whether they must all agree decisions together, or a mixture.",
+    "beACertificateProviderOnAnLpa": "Be a certificate provider on an LPA"
 }
