@@ -80,6 +80,7 @@ type CertificateProviderPaths struct {
 	SelectYourIdentityOptions            CertificateProviderPath
 	SelectYourIdentityOptions1           CertificateProviderPath
 	SelectYourIdentityOptions2           CertificateProviderPath
+	TaskList                             CertificateProviderPath
 	WhatHappensNext                      CertificateProviderPath
 	WhatYoullNeedToConfirmYourIdentity   CertificateProviderPath
 	YourChosenIdentityOptions            CertificateProviderPath
@@ -213,6 +214,7 @@ var Paths = AppPaths{
 		SelectYourIdentityOptions1:           "/select-identity-document",
 		SelectYourIdentityOptions2:           "/select-identity-document-2",
 		SelectYourIdentityOptions:            "/select-your-identity-options",
+		TaskList:                             "/task-list",
 		WhatHappensNext:                      "/what-happens-next",
 		WhatYoullNeedToConfirmYourIdentity:   "/what-youll-need-to-confirm-your-identity",
 		YourChosenIdentityOptions:            "/your-chosen-identity-options",
