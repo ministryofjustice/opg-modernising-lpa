@@ -229,12 +229,7 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(nil)
 
-	reducedFeeStore := newMockReducedFeeStore(t)
-	reducedFeeStore.
-		On("Create", r.Context(), mock.Anything).
-		Return(nil)
-
-	err := PaymentConfirmation(logger, template.Execute, payClient, donorStore, sessionStore, shareCodeSender, reducedFeeStore)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{
+	err := PaymentConfirmation(logger, template.Execute, payClient, donorStore, sessionStore, shareCodeSender, nil)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{
 		Email: "certificateprovider@example.com",
 	}})
 	resp := w.Result()
