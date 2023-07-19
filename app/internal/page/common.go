@@ -88,6 +88,7 @@ type Localizer interface {
 	ShowTranslationKeys() bool
 	SetShowTranslationKeys(s bool)
 	Possessive(s string) string
+	Concat([]string, string) string
 }
 
 //go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
