@@ -24,7 +24,7 @@ type reducedFee struct {
 }
 
 func (r *reducedFeeStore) Create(ctx context.Context, lpa *page.Lpa) error {
-	if err := r.dynamoClient.Create(ctx, &reducedFee{
+	reducedFee := &reducedFee{
 		PK:        "LPAUID#" + lpa.UID,
 		SK:        "#PAYMENT#" + lpa.PaymentDetails.PaymentId,
 		PaymentID: lpa.PaymentDetails.PaymentId,
@@ -32,9 +32,16 @@ func (r *reducedFeeStore) Create(ctx context.Context, lpa *page.Lpa) error {
 		FeeType:   lpa.FeeType.String(),
 		Amount:    lpa.PaymentDetails.Amount,
 		UpdatedAt: r.now(),
-		//TODO just reference multiple keys when we support multi-file uploads
+		//TODO just reference multiple keys on lpa when we support multi-file uploads
 		EvidenceKeys: []string{lpa.EvidenceKey},
-	}); err != nil {
+	}
+
+	if lpa.PaymentDetails.PaymentId == "" {
+		//TODO temporary fix to ensure we have unique PK+SK. Do we want to filter stream from lpas table instead?
+		reducedFee.SK = "#PAYMENT#" + lpa.FeeType.String() + "#DATE#" + r.now().String()
+	}
+
+	if err := r.dynamoClient.Create(ctx, reducedFee); err != nil {
 		return err
 	}
 

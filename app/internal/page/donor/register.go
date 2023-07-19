@@ -145,12 +145,13 @@ func Register(
 	reducedFeeStore ReducedFeeStore,
 ) {
 	payer := &payHelper{
-		logger:       logger,
-		sessionStore: sessionStore,
-		donorStore:   donorStore,
-		payClient:    payClient,
-		appPublicURL: appPublicURL,
-		randomString: random.String,
+		logger:          logger,
+		sessionStore:    sessionStore,
+		donorStore:      donorStore,
+		payClient:       payClient,
+		appPublicURL:    appPublicURL,
+		randomString:    random.String,
+		reducedFeeStore: reducedFeeStore,
 	}
 
 	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler)
@@ -444,18 +445,24 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOp
 }
 
 type payHelper struct {
-	logger       Logger
-	sessionStore sessions.Store
-	donorStore   DonorStore
-	payClient    PayClient
-	appPublicURL string
-	randomString func(int) string
+	logger          Logger
+	sessionStore    sessions.Store
+	donorStore      DonorStore
+	payClient       PayClient
+	appPublicURL    string
+	randomString    func(int) string
+	reducedFeeStore ReducedFeeStore
 }
 
 func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 	if lpa.FeeType.IsNoFee() || lpa.FeeType.IsHardshipFee() {
 		lpa.Tasks.PayForLpa = actor.PaymentTaskPending
 		if err := p.donorStore.Put(r.Context(), lpa); err != nil {
+			return err
+		}
+
+		if err := p.reducedFeeStore.Create(r.Context(), lpa); err != nil {
+			p.logger.Print(fmt.Sprintf("unable to create reduced fee: %s", err.Error()))
 			return err
 		}
 

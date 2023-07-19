@@ -45,6 +45,36 @@ func TestCreate(t *testing.T) {
 	assert.Nil(t, reducedFeeStore.Create(ctx, lpa))
 }
 
+func TestCreateWhenNoPaymentID(t *testing.T) {
+	now := time.Now()
+	ctx := context.Background()
+	lpa := &page.Lpa{
+		UID:         "lpa-uid",
+		FeeType:     page.NoFee,
+		EvidenceKey: "http://evidence-key",
+	}
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("Create", ctx, &reducedFee{
+			PK:           "LPAUID#lpa-uid",
+			SK:           "#PAYMENT#NoFee#DATE#" + now.String(),
+			PaymentID:    "",
+			LpaUID:       "lpa-uid",
+			FeeType:      "NoFee",
+			UpdatedAt:    now,
+			EvidenceKeys: []string{"http://evidence-key"},
+		}).
+		Return(nil)
+
+	reducedFeeStore := reducedFeeStore{
+		dynamoClient: dynamoClient,
+		now:          func() time.Time { return now },
+	}
+
+	assert.Nil(t, reducedFeeStore.Create(ctx, lpa))
+}
+
 func TestCreateOnDynamoError(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
