@@ -11,9 +11,9 @@ import (
 )
 
 type donorStore struct {
-	dataStore  DataStore
-	uuidString func() string
-	now        func() time.Time
+	dynamoClient DynamoClient
+	uuidString   func() string
+	now          func() time.Time
 }
 
 func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
@@ -35,10 +35,10 @@ func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
 		UpdatedAt: s.now(),
 	}
 
-	if err := s.dataStore.Create(ctx, lpa); err != nil {
+	if err := s.dynamoClient.Create(ctx, lpa); err != nil {
 		return nil, err
 	}
-	if err := s.dataStore.Create(ctx, lpaLink{
+	if err := s.dynamoClient.Create(ctx, lpaLink{
 		PK:        lpaKey(lpaID),
 		SK:        subKey(data.SessionID),
 		DonorKey:  donorKey(data.SessionID),
@@ -61,7 +61,7 @@ func (s *donorStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
 	}
 
 	var items []*page.Lpa
-	err = s.dataStore.GetAllByGsi(ctx, "ActorIndex", donorKey(data.SessionID), &items)
+	err = s.dynamoClient.GetAllByGsi(ctx, "ActorIndex", donorKey(data.SessionID), &items)
 
 	slices.SortFunc(items, func(a, b *page.Lpa) bool {
 		return a.UpdatedAt.After(b.UpdatedAt)
@@ -81,7 +81,7 @@ func (s *donorStore) GetAny(ctx context.Context) (*page.Lpa, error) {
 	}
 
 	var lpa *page.Lpa
-	if err := s.dataStore.GetOneByPartialSk(ctx, lpaKey(data.LpaID), "#DONOR#", &lpa); err != nil {
+	if err := s.dynamoClient.GetOneByPartialSk(ctx, lpaKey(data.LpaID), "#DONOR#", &lpa); err != nil {
 		return nil, err
 	}
 
@@ -99,13 +99,13 @@ func (s *donorStore) Get(ctx context.Context) (*page.Lpa, error) {
 	}
 
 	var lpa *page.Lpa
-	err = s.dataStore.Get(ctx, lpaKey(data.LpaID), donorKey(data.SessionID), &lpa)
+	err = s.dynamoClient.Get(ctx, lpaKey(data.LpaID), donorKey(data.SessionID), &lpa)
 	return lpa, err
 }
 
 func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 	lpa.UpdatedAt = time.Now()
-	return s.dataStore.Put(ctx, lpa)
+	return s.dynamoClient.Put(ctx, lpa)
 }
 
 func lpaKey(s string) string {

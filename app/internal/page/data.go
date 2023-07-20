@@ -180,6 +180,8 @@ type PaymentDetails struct {
 	PaymentReference string
 	// ID returned from GOV.UK Pay
 	PaymentId string
+	// Amount is the amount paid in pence
+	Amount int
 }
 
 type Tasks struct {

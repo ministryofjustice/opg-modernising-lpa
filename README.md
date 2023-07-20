@@ -32,7 +32,6 @@ docker compose up -d
 ```
 
 ### Run Cypress tests
-
 ```shell
 make run-cypress
 ```
