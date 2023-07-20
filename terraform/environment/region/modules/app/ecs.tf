@@ -216,6 +216,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     sid = "${local.policy_region_prefix}Allow"
 
     actions = [
+      "dynamodb:BatchGetItem",
       "dynamodb:DeleteItem",
       "dynamodb:GetItem",
       "dynamodb:PutItem",
