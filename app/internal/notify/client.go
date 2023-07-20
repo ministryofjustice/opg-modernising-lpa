@@ -104,7 +104,7 @@ func (c *Client) TemplateID(id TemplateId) string {
 		case SignatureCodeSms:
 			return "e39849c0-ecab-4e16-87ec-6b22afb9d535"
 		case CertificateProviderInviteEmail:
-			return "45d39d6d-c5f0-48da-a365-3410269dcbac"
+			return "a10341e3-3bbd-4452-b52f-ebb4f51a4d73"
 		case CertificateProviderReturnEmail:
 			return "453917cd-d8bb-44af-90a1-d73ae0f3fd07"
 		case CertificateProviderNameChangeEmail:
@@ -123,7 +123,7 @@ func (c *Client) TemplateID(id TemplateId) string {
 		case SignatureCodeSms:
 			return "dfa15e16-1f23-494a-bffb-a475513df6cc"
 		case CertificateProviderInviteEmail, CertificateProviderReturnEmail:
-			return "7fde634d-96b5-4a82-855a-712ebd56397b"
+			return "dd864a1a-64b4-4b4e-b810-86267ebd6476"
 		case CertificateProviderNameChangeEmail:
 			return "0f111ed1-5c58-47eb-a13f-931f2077523b"
 		case AttorneyInviteEmail:

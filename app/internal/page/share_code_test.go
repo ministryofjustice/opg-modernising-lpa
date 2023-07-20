@@ -34,6 +34,9 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 	localizer.
 		On("T", lpa.Type.LegalTermTransKey()).
 		Return("property and affairs")
+	localizer.
+		On("Possessive", "Jan").
+		Return("Jan’s")
 
 	TestAppData.Localizer = localizer
 
@@ -60,13 +63,13 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 					TemplateID:   "template-id",
 					EmailAddress: "name@example.org",
 					Personalisation: map[string]string{
-						"shareCode":         "123",
-						"cpFullName":        "Joanna Jones",
-						"donorFirstNames":   "Jan",
-						"donorFullName":     "Jan Smith",
-						"lpaLegalTerm":      "property and affairs",
-						"cpLandingPageLink": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
-						"optOutLink":        fmt.Sprintf("http://app%s?share-code=%s", Paths.CertificateProviderOptOut, "123"),
+						"shareCode":                   "123",
+						"cpFullName":                  "Joanna Jones",
+						"donorFirstNames":             "Jan",
+						"donorFullName":               "Jan Smith",
+						"lpaLegalTerm":                "property and affairs",
+						"certificateProviderStartURL": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+						"donorFirstNamesPossessive":   "Jan’s",
 					},
 				}).
 				Return("", nil)
@@ -111,6 +114,9 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 	localizer.
 		On("T", lpa.Type.LegalTermTransKey()).
 		Return("property and affairs")
+	localizer.
+		On("Possessive", "Jan").
+		Return("Jan’s")
 
 	TestAppData.Localizer = localizer
 
@@ -145,13 +151,13 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 					TemplateID:   "template-id",
 					EmailAddress: "name@example.org",
 					Personalisation: map[string]string{
-						"shareCode":         tc.expectedTestCode,
-						"cpFullName":        "Joanna Jones",
-						"donorFirstNames":   "Jan",
-						"donorFullName":     "Jan Smith",
-						"lpaLegalTerm":      "property and affairs",
-						"cpLandingPageLink": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
-						"optOutLink":        fmt.Sprintf("http://app%s?share-code=%s", Paths.CertificateProviderOptOut, tc.expectedTestCode),
+						"shareCode":                   tc.expectedTestCode,
+						"cpFullName":                  "Joanna Jones",
+						"donorFirstNames":             "Jan",
+						"donorFullName":               "Jan Smith",
+						"lpaLegalTerm":                "property and affairs",
+						"certificateProviderStartURL": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+						"donorFirstNamesPossessive":   "Jan’s",
 					},
 				}).
 				Return("", nil)
@@ -160,13 +166,13 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 					TemplateID:   "template-id",
 					EmailAddress: "name@example.org",
 					Personalisation: map[string]string{
-						"shareCode":         "123",
-						"cpFullName":        "Joanna Jones",
-						"donorFirstNames":   "Jan",
-						"donorFullName":     "Jan Smith",
-						"lpaLegalTerm":      "property and affairs",
-						"cpLandingPageLink": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
-						"optOutLink":        fmt.Sprintf("http://app%s?share-code=%s", Paths.CertificateProviderOptOut, "123"),
+						"shareCode":                   "123",
+						"cpFullName":                  "Joanna Jones",
+						"donorFirstNames":             "Jan",
+						"donorFullName":               "Jan Smith",
+						"lpaLegalTerm":                "property and affairs",
+						"certificateProviderStartURL": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+						"donorFirstNamesPossessive":   "Jan’s",
 					},
 				}).
 				Return("", nil)
@@ -208,6 +214,9 @@ func TestShareCodeSenderSendCertificateProviderWhenEmailErrors(t *testing.T) {
 	localizer.
 		On("T", lpa.Type.LegalTermTransKey()).
 		Return("property and affairs")
+	localizer.
+		On("Possessive", "Jan").
+		Return("Jan’s")
 
 	TestAppData.Localizer = localizer
 
@@ -225,13 +234,13 @@ func TestShareCodeSenderSendCertificateProviderWhenEmailErrors(t *testing.T) {
 			TemplateID:   "template-id",
 			EmailAddress: "name@example.org",
 			Personalisation: map[string]string{
-				"shareCode":         "123",
-				"cpFullName":        "Joanna Jones",
-				"donorFirstNames":   "Jan",
-				"donorFullName":     "Jan Smith",
-				"lpaLegalTerm":      "property and affairs",
-				"cpLandingPageLink": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
-				"optOutLink":        fmt.Sprintf("http://app%s?share-code=%s", Paths.CertificateProviderOptOut, "123"),
+				"shareCode":                   "123",
+				"cpFullName":                  "Joanna Jones",
+				"donorFirstNames":             "Jan",
+				"donorFullName":               "Jan Smith",
+				"lpaLegalTerm":                "property and affairs",
+				"certificateProviderStartURL": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+				"donorFirstNamesPossessive":   "Jan’s",
 			},
 		}).
 		Return("", ExpectedError)
