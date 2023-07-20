@@ -72,6 +72,10 @@ func Fixtures(tmpl template.Template) Handler {
 						values.Add("startCpFlowDonorHasNotPaid", "1")
 					}
 
+					if data.Form.Signed != "" {
+						values.Add("lpa.signedByDonor", "1")
+					}
+
 				case "donor":
 					values = url.Values{
 						"lpa.type":                    {data.Form.Type},
