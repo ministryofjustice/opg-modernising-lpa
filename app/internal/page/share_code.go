@@ -53,13 +53,13 @@ func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template 
 		TemplateID:   s.notifyClient.TemplateID(template),
 		EmailAddress: lpa.CertificateProvider.Email,
 		Personalisation: map[string]string{
-			"shareCode":         shareCode,
-			"cpFullName":        lpa.CertificateProvider.FullName(),
-			"donorFirstNames":   lpa.Donor.FirstNames,
-			"donorFullName":     lpa.Donor.FullName(),
-			"lpaLegalTerm":      appData.Localizer.T(lpa.Type.LegalTermTransKey()),
-			"cpLandingPageLink": fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
-			"optOutLink":        fmt.Sprintf("%s%s?share-code=%s", s.appPublicURL, Paths.CertificateProviderOptOut, shareCode),
+			"cpFullName":                  lpa.CertificateProvider.FullName(),
+			"donorFullName":               lpa.Donor.FullName(),
+			"lpaLegalTerm":                appData.Localizer.T(lpa.Type.LegalTermTransKey()),
+			"donorFirstNames":             lpa.Donor.FirstNames,
+			"certificateProviderStartURL": fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
+			"donorFirstNamesPossessive":   appData.Localizer.Possessive(lpa.Donor.FirstNames),
+			"shareCode":                   shareCode,
 		},
 	}); err != nil {
 		return fmt.Errorf("email failed: %w", err)
