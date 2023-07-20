@@ -7,15 +7,15 @@ resource "aws_dynamodb_table" "reduced_fees" {
   stream_enabled              = true
   stream_view_type            = "NEW_AND_OLD_IMAGES"
   hash_key                    = "PK"
-
-  # key for encryption may need to be available to consuming services if they intend to reach in and grab
-  # server_side_encryption {
-  #   enabled     = true
-  #   kms_key_arn = var.dynamodb_encryption_key_arn
-  # }
+  range_key                   = "SK"
 
   attribute {
     name = "PK"
+    type = "S"
+  }
+
+  attribute {
+    name = "SK"
     type = "S"
   }
 
