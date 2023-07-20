@@ -13,7 +13,7 @@
         <li><a class="govuk-link govuk-link--no-visited-state" href="#attorney">Attorney flow</a></li>
         <li><a class="govuk-link govuk-link--no-visited-state" href="#dashboard">Dashboard</a></li>
       </ul>
-      
+
       <form novalidate method="post">
         <fieldset class="govuk-fieldset" aria-describedby="waste-hint">
           <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
@@ -155,9 +155,15 @@
                 Donor has paid
               </label>
             </div>
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="f-signed-cp" name="signed" type="checkbox" value="1">
+              <label class="govuk-label govuk-checkboxes__label" for="f-signed-cp">
+                Donor has signed LPA
+              </label>
+            </div>
           </div>
         </div>
-        
+
         <div class="govuk-button-group govuk-!-padding-top-3">
           <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="certificate-provider">Start</button>
         </div>
