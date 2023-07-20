@@ -2,14 +2,11 @@ locals {
   name_prefix = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
 }
 
-variable "ecs_execution_role" {
-  type        = any
-  description = "The task execution role that the Amazon ECS container agent and the Docker daemon can assume."
-}
-
-variable "ecs_task_roles" {
+variable "iam_roles" {
   type = object({
-    app = any
+    ecs_execution_role = any
+    app_ecs_task_role  = any
+    s3_antivirus       = any
   })
   description = "ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services."
 }
