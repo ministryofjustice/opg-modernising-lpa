@@ -21,15 +21,10 @@
 
       {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa 0) }}
 
-      <p class="govuk-body">
-        {{ $progress := .Lpa.Progress .CertificateProvider }}
-
-        {{ if $progress.LpaSigned.Completed }}
-          <a class="govuk-button" href="{{ link .App (.App.Paths.CertificateProvider.ProvideCertificate.Format .App.LpaID) }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
-        {{ else }}
-          <a class="govuk-button" href="{{ link .App (.App.Paths.CertificateProvider.WhatHappensNext.Format .App.LpaID) }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
-        {{ end }}
-      </p>
+      <form novalidate method="post">
+        {{ template "continue-button" . }}
+        {{ template "csrf-field" . }}
+      </form>
     </div>
   </div>
 {{ end }}

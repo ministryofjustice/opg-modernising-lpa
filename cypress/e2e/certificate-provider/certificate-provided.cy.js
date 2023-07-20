@@ -3,8 +3,8 @@ describe('Certificate provided', () => {
         cy.visit('/testing-start?redirect=/certificate-provided&loginAs=certificate-provider');
     });
 
-    it('has a button', () => {
+    it('has a button to the dashboard', () => {
         cy.checkA11yApp();
-        cy.contains('button', 'Go to your dashboard');
+        cy.contains('a', 'Go to your dashboard');
     });
 })
