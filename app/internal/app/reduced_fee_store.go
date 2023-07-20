@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
@@ -26,7 +27,7 @@ type reducedFee struct {
 func (r *reducedFeeStore) Create(ctx context.Context, lpa *page.Lpa) error {
 	reducedFee := &reducedFee{
 		PK:        "LPAUID#" + lpa.UID,
-		SK:        "#PAYMENT#" + lpa.PaymentDetails.PaymentId,
+		SK:        "#DATE#" + strconv.FormatInt(r.now().Unix(), 10),
 		PaymentID: lpa.PaymentDetails.PaymentId,
 		LpaUID:    lpa.UID,
 		FeeType:   lpa.FeeType.String(),
@@ -36,14 +37,5 @@ func (r *reducedFeeStore) Create(ctx context.Context, lpa *page.Lpa) error {
 		EvidenceKeys: []string{lpa.EvidenceKey},
 	}
 
-	if lpa.PaymentDetails.PaymentId == "" {
-		//TODO temporary fix to ensure we have unique PK+SK. Do we want to filter stream from lpas table instead?
-		reducedFee.SK = "#PAYMENT#" + lpa.FeeType.String() + "#DATE#" + r.now().String()
-	}
-
-	if err := r.dynamoClient.Create(ctx, reducedFee); err != nil {
-		return err
-	}
-
-	return nil
+	return r.dynamoClient.Create(ctx, reducedFee)
 }

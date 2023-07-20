@@ -11,7 +11,7 @@ import (
 )
 
 func TestCreate(t *testing.T) {
-	now := time.Now()
+	now := time.Date(2000, time.March, 4, 0, 0, 0, 0, time.UTC)
 	ctx := context.Background()
 	lpa := &page.Lpa{
 		UID: "lpa-uid",
@@ -27,41 +27,11 @@ func TestCreate(t *testing.T) {
 	dynamoClient.
 		On("Create", ctx, &reducedFee{
 			PK:           "LPAUID#lpa-uid",
-			SK:           "#PAYMENT#payment-id",
+			SK:           "#DATE#952128000",
 			PaymentID:    "payment-id",
 			LpaUID:       "lpa-uid",
 			FeeType:      "HalfFee",
 			Amount:       123,
-			UpdatedAt:    now,
-			EvidenceKeys: []string{"http://evidence-key"},
-		}).
-		Return(nil)
-
-	reducedFeeStore := reducedFeeStore{
-		dynamoClient: dynamoClient,
-		now:          func() time.Time { return now },
-	}
-
-	assert.Nil(t, reducedFeeStore.Create(ctx, lpa))
-}
-
-func TestCreateWhenNoPaymentID(t *testing.T) {
-	now := time.Now()
-	ctx := context.Background()
-	lpa := &page.Lpa{
-		UID:         "lpa-uid",
-		FeeType:     page.NoFee,
-		EvidenceKey: "http://evidence-key",
-	}
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Create", ctx, &reducedFee{
-			PK:           "LPAUID#lpa-uid",
-			SK:           "#PAYMENT#NoFee#DATE#" + now.String(),
-			PaymentID:    "",
-			LpaUID:       "lpa-uid",
-			FeeType:      "NoFee",
 			UpdatedAt:    now,
 			EvidenceKeys: []string{"http://evidence-key"},
 		}).
