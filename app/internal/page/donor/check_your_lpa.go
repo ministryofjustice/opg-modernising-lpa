@@ -23,8 +23,7 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
 			App: appData,
 			Lpa: lpa,
 			Form: &checkYourLpaForm{
-				Checked: lpa.Checked,
-				Happy:   lpa.HappyToShare,
+				CheckedAndHappy: lpa.CheckedAndHappy,
 			},
 			Completed: lpa.Tasks.CheckYourLpa.Completed(),
 		}
@@ -34,8 +33,7 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.Checked = data.Form.Checked
-				lpa.HappyToShare = data.Form.Happy
+				lpa.CheckedAndHappy = data.Form.CheckedAndHappy
 				lpa.Tasks.CheckYourLpa = actor.TaskCompleted
 
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
@@ -51,23 +49,19 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
 }
 
 type checkYourLpaForm struct {
-	Checked bool
-	Happy   bool
+	CheckedAndHappy bool
 }
 
 func readCheckYourLpaForm(r *http.Request) *checkYourLpaForm {
 	return &checkYourLpaForm{
-		Checked: page.PostFormString(r, "checked") == "1",
-		Happy:   page.PostFormString(r, "happy") == "1",
+		CheckedAndHappy: page.PostFormString(r, "checked-and-happy") == "1",
 	}
 }
 
 func (f *checkYourLpaForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Bool("checked", "checkedLpa", f.Checked,
-		validation.Selected())
-	errors.Bool("happy", "happyToShareLpa", f.Happy,
+	errors.Bool("checked-and-happy", "theBoxIfYouHaveCheckedAndHappyToShareLpa", f.CheckedAndHappy,
 		validation.Selected())
 
 	return errors

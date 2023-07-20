@@ -39,8 +39,7 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpa := &page.Lpa{
-		Checked:      true,
-		HappyToShare: true,
+		CheckedAndHappy: true,
 	}
 
 	template := newMockTemplate(t)
@@ -49,8 +48,7 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 			App: testAppData,
 			Lpa: lpa,
 			Form: &checkYourLpaForm{
-				Checked: true,
-				Happy:   true,
+				CheckedAndHappy: true,
 			},
 		}).
 		Return(nil)
@@ -64,8 +62,7 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 
 func TestPostCheckYourLpa(t *testing.T) {
 	form := url.Values{
-		"checked": {"1"},
-		"happy":   {"1"},
+		"checked-and-happy": {"1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -73,19 +70,17 @@ func TestPostCheckYourLpa(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpa := &page.Lpa{
-		ID:           "lpa-id",
-		Checked:      false,
-		HappyToShare: false,
-		Tasks:        page.Tasks{CheckYourLpa: actor.TaskInProgress},
+		ID:              "lpa-id",
+		CheckedAndHappy: false,
+		Tasks:           page.Tasks{CheckYourLpa: actor.TaskInProgress},
 	}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
-			ID:           "lpa-id",
-			Checked:      true,
-			HappyToShare: true,
-			Tasks:        page.Tasks{CheckYourLpa: actor.TaskCompleted},
+			ID:              "lpa-id",
+			CheckedAndHappy: true,
+			Tasks:           page.Tasks{CheckYourLpa: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -99,8 +94,7 @@ func TestPostCheckYourLpa(t *testing.T) {
 
 func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"checked": {"1"},
-		"happy":   {"1"},
+		"checked-and-happy": {"1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -110,9 +104,8 @@ func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
-			Checked:      true,
-			HappyToShare: true,
-			Tasks:        page.Tasks{CheckYourLpa: actor.TaskCompleted},
+			CheckedAndHappy: true,
+			Tasks:           page.Tasks{CheckYourLpa: actor.TaskCompleted},
 		}).
 		Return(expectedError)
 
@@ -123,7 +116,7 @@ func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {
 
 func TestPostCheckYourLpaWhenValidationErrors(t *testing.T) {
 	form := url.Values{
-		"checked": {"1"},
+		"checked-and-happy": {"0"},
 	}
 
 	w := httptest.NewRecorder()
@@ -133,7 +126,7 @@ func TestPostCheckYourLpaWhenValidationErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.MatchedBy(func(data *checkYourLpaData) bool {
-			return assert.Equal(t, validation.With("happy", validation.SelectError{Label: "happyToShareLpa"}), data.Errors)
+			return assert.Equal(t, validation.With("checked-and-happy", validation.SelectError{Label: "theBoxIfYouHaveCheckedAndHappyToShareLpa"}), data.Errors)
 		})).
 		Return(nil)
 
@@ -148,8 +141,7 @@ func TestReadCheckYourLpaForm(t *testing.T) {
 	assert := assert.New(t)
 
 	form := url.Values{
-		"checked": {" 1   "},
-		"happy":   {" 0"},
+		"checked-and-happy": {" 1   "},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -157,8 +149,7 @@ func TestReadCheckYourLpaForm(t *testing.T) {
 
 	result := readCheckYourLpaForm(r)
 
-	assert.Equal(true, result.Checked)
-	assert.Equal(false, result.Happy)
+	assert.Equal(true, result.CheckedAndHappy)
 }
 
 func TestCheckYourLpaFormValidate(t *testing.T) {
@@ -168,18 +159,15 @@ func TestCheckYourLpaFormValidate(t *testing.T) {
 	}{
 		"valid": {
 			form: &checkYourLpaForm{
-				Happy:   true,
-				Checked: true,
+				CheckedAndHappy: true,
 			},
 		},
-		"invalid-all": {
+		"invalid": {
 			form: &checkYourLpaForm{
-				Happy:   false,
-				Checked: false,
+				CheckedAndHappy: false,
 			},
 			errors: validation.
-				With("checked", validation.SelectError{Label: "checkedLpa"}).
-				With("happy", validation.SelectError{Label: "happyToShareLpa"}),
+				With("checked-and-happy", validation.SelectError{Label: "theBoxIfYouHaveCheckedAndHappyToShareLpa"}),
 		},
 	}
 
