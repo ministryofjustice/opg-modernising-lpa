@@ -40,9 +40,7 @@
           </div>
         </div>
 
-        {{ if .Lpa.Submitted.IsZero }}
-          {{ template "details" (details . "whatHappensIfIChange" "whatHappensIfIChangeDetails" false) }}
-        {{ else }}
+        {{ if .Lpa.Tasks.PayForLpa.Completed }}
           <div class="govuk-warning-text">
             <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
             <strong class="govuk-warning-text__text">
@@ -50,6 +48,8 @@
               {{ tr .App "onceYouClickCertificateProviderWillBeSentText" }}
             </strong>
           </div>
+        {{ else }}
+          {{ template "details" (details . "whatHappensIfIChange" "whatHappensIfIChangeDetails" false) }}
         {{ end }}
 
 
