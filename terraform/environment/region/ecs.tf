@@ -18,8 +18,8 @@ module "application_logs" {
 module "app" {
   source                          = "./modules/app"
   ecs_cluster                     = aws_ecs_cluster.main.id
-  ecs_execution_role              = var.ecs_execution_role
-  ecs_task_role                   = var.ecs_task_roles.app
+  ecs_execution_role              = var.iam_roles.ecs_execution_role
+  ecs_task_role                   = var.iam_roles.app_ecs_task_role
   ecs_service_desired_count       = 1
   ecs_application_log_group_name  = module.application_logs.cloudwatch_log_group.name
   ecs_capacity_provider           = var.ecs_capacity_provider
@@ -39,8 +39,8 @@ module "app" {
     public_subnets      = data.aws_subnet.public.*.id
   }
   uploads_s3_bucket = {
-    bucket_name = module.uploads_s3_bucket.id
-    bucket_arn  = module.uploads_s3_bucket.arn
+    bucket_name = module.uploads_s3_bucket.bucket.id
+    bucket_arn  = module.uploads_s3_bucket.bucket.arn
   }
   aws_rum_guest_role_arn                               = data.aws_iam_role.rum_monitor_unauthenticated.arn
   rum_monitor_application_id_secretsmanager_secret_arn = aws_secretsmanager_secret.rum_monitor_application_id.id
