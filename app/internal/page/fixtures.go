@@ -142,7 +142,6 @@ type fixturesForm struct {
 	ForReplacementAttorney   string
 	Signed                   string
 	Type                     string
-	LpaSignedByDonor         string
 }
 
 func readFixtures(r *http.Request) *fixturesForm {
@@ -167,7 +166,6 @@ func readFixtures(r *http.Request) *fixturesForm {
 		ForReplacementAttorney:   PostFormString(r, "for-replacement-attorney"),
 		Signed:                   PostFormString(r, "signed"),
 		Type:                     PostFormString(r, "type"),
-		LpaSignedByDonor:         PostFormString(r, "lpa-signed-by-donor"),
 	}
 }
 
