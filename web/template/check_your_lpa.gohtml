@@ -24,39 +24,34 @@
       {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa 4) }}
 
       <form novalidate method="post">
-        <div class="govuk-form-group  {{ if .Errors.Has "checked" }}govuk-form-group--error{{ end }}">
-          {{ template "error-message" (errorMessage . "checked") }}
+        <div class="govuk-form-group  {{ if .Errors.Has "checked-and-happy" }}govuk-form-group--error{{ end }}">
+          {{ template "error-message" (errorMessage . "checked-and-happy") }}
           <div class="govuk-checkboxes" data-module="govuk-checkboxes">
             <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-checked" name="checked" type="checkbox" value="1" {{ if .Form.Checked }}checked{{ end }}>
+              <input class="govuk-checkboxes__input" id="f-checked" name="checked-and-happy" type="checkbox" value="1" {{ if .Form.CheckedAndHappy }}checked{{ end }}>
               <label class="govuk-label govuk-checkboxes__label" for="f-checked">
-                {{ tr .App "iveCheckedThisLpa" }}
+                {{ if eq "paper" .Lpa.CertificateProvider.CarryOutBy }}
+                  {{ trFormat .App "iveCheckedThisLpaAndImHappyToShowToCertificateProvider" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
+                {{ else }}
+                  {{ trFormat .App "iveCheckedThisLpaAndImHappyToShareWithCertificateProvider" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
+                {{ end }}
               </label>
             </div>
           </div>
         </div>
 
-        <div class="govuk-form-group {{ if .Errors.Has "happy" }}govuk-form-group--error{{ end }}">
-          {{ template "error-message" (errorMessage . "happy") }}
-          <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-happy" name="happy" type="checkbox" value="1" {{ if .Form.Happy }}checked{{ end }}>
-              <label class="govuk-label govuk-checkboxes__label" for="f-happy">
-                {{ trFormat .App "imHappyToShare" "FirstNames" .Lpa.CertificateProvider.FirstNames "LastName" .Lpa.CertificateProvider.LastName }}
-              </label>
-            </div>
+        {{ if .Lpa.Tasks.PayForLpa.Completed }}
+          <div class="govuk-warning-text">
+            <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+            <strong class="govuk-warning-text__text">
+              <span class="govuk-warning-text__assistive"></span>
+              {{ tr .App "onceYouClickCertificateProviderWillBeSentText" }}
+            </strong>
           </div>
-        </div>
+        {{ else }}
+          {{ template "details" (details . "whatHappensIfIChange" "whatHappensIfIChangeDetails" false) }}
+        {{ end }}
 
-        {{ template "details" (details . "whatHappensIfIChange" "whatHappensIfIChangeDetails" false) }}
-
-        <div class="govuk-warning-text">
-          <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-          <strong class="govuk-warning-text__text">
-            <span class="govuk-warning-text__assistive"></span>
-            {{ tr .App "onceYouClickConfirmWarning" }}
-          </strong>
-        </div>
 
         {{ template "data-loss-warning-dialog" . }}
 

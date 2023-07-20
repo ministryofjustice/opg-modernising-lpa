@@ -240,6 +240,8 @@ func Register(
 
 	handleWithLpa(page.Paths.CheckYourLpa, CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore))
+	handleWithLpa(page.Paths.LpaDetailsSaved, CanGoBack,
+		Guidance(tmpls.Get("lpa_details_saved.gohtml")))
 
 	handleWithLpa(page.Paths.AboutPayment, None,
 		Guidance(tmpls.Get("about_payment.gohtml")))
