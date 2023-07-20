@@ -102,6 +102,8 @@ func Register(
 	rootMux.Handle("/certificate-provider/", page.RouteToPrefix("/certificate-provider/", certificateProviderMux, notFoundHandler))
 	handleCertificateProvider := makeCertificateProviderHandle(certificateProviderMux, sessionStore, errorHandler)
 
+	handleCertificateProvider(page.Paths.CertificateProvider.TaskList,
+		TaskList(tmpls.Get("certificate_provider_task_list.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.EnterDateOfBirth,
 		EnterDateOfBirth(tmpls.Get("certificate_provider_enter_date_of_birth.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.ConfirmYourDetails,
@@ -142,7 +144,7 @@ func Register(
 	}
 
 	handleCertificateProvider(page.Paths.CertificateProvider.ReadTheLpa,
-		Guidance(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), donorStore, certificateProviderStore))
+		ReadTheLpa(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.WhatHappensNext,
 		Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), donorStore, nil))
 	handleCertificateProvider(page.Paths.CertificateProvider.ProvideCertificate,

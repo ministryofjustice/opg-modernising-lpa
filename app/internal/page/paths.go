@@ -64,8 +64,8 @@ type CertificateProviderPaths struct {
 	WhoIsEligible        Path
 
 	CertificateProvided                  CertificateProviderPath
-	EnterDateOfBirth                     CertificateProviderPath
 	ConfirmYourDetails                   CertificateProviderPath
+	EnterDateOfBirth                     CertificateProviderPath
 	IdentityWithBiometricResidencePermit CertificateProviderPath
 	IdentityWithDrivingLicencePaper      CertificateProviderPath
 	IdentityWithDrivingLicencePhotocard  CertificateProviderPath
@@ -80,6 +80,7 @@ type CertificateProviderPaths struct {
 	SelectYourIdentityOptions            CertificateProviderPath
 	SelectYourIdentityOptions1           CertificateProviderPath
 	SelectYourIdentityOptions2           CertificateProviderPath
+	TaskList                             CertificateProviderPath
 	WhatHappensNext                      CertificateProviderPath
 	WhatYoullNeedToConfirmYourIdentity   CertificateProviderPath
 	YourChosenIdentityOptions            CertificateProviderPath
@@ -197,8 +198,8 @@ var Paths = AppPaths{
 		WhoIsEligible:        "/certificate-provider-who-is-eligible",
 
 		CertificateProvided:                  "/certificate-provided",
-		EnterDateOfBirth:                     "/enter-date-of-birth",
 		ConfirmYourDetails:                   "/confirm-your-details",
+		EnterDateOfBirth:                     "/enter-date-of-birth",
 		IdentityWithBiometricResidencePermit: "/id/brp",
 		IdentityWithDrivingLicencePaper:      "/id/dlpaper",
 		IdentityWithDrivingLicencePhotocard:  "/id/dlphoto",
@@ -213,6 +214,7 @@ var Paths = AppPaths{
 		SelectYourIdentityOptions1:           "/select-identity-document",
 		SelectYourIdentityOptions2:           "/select-identity-document-2",
 		SelectYourIdentityOptions:            "/select-your-identity-options",
+		TaskList:                             "/task-list",
 		WhatHappensNext:                      "/what-happens-next",
 		WhatYoullNeedToConfirmYourIdentity:   "/what-youll-need-to-confirm-your-identity",
 		YourChosenIdentityOptions:            "/your-chosen-identity-options",
