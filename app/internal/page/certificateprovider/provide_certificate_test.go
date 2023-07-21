@@ -19,10 +19,12 @@ func TestGetProvideCertificate(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+	lpa := &page.Lpa{Submitted: time.Now()}
+
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{Submitted: time.Now()}, nil)
+		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -34,6 +36,7 @@ func TestGetProvideCertificate(t *testing.T) {
 		On("Execute", w, &provideCertificateData{
 			App:                 testAppData,
 			CertificateProvider: &actor.CertificateProviderProvidedDetails{},
+			Lpa:                 lpa,
 			Form:                &provideCertificateForm{},
 		}).
 		Return(nil)
