@@ -14,6 +14,7 @@ type provideCertificateData struct {
 	App                 page.AppData
 	Errors              validation.List
 	CertificateProvider *actor.CertificateProviderProvidedDetails
+	Lpa                 *page.Lpa
 	Form                *provideCertificateForm
 }
 
@@ -36,6 +37,7 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 		data := &provideCertificateData{
 			App:                 appData,
 			CertificateProvider: certificateProvider,
+			Lpa:                 lpa,
 			Form: &provideCertificateForm{
 				AgreeToStatement: certificateProvider.Certificate.AgreeToStatement,
 			},
