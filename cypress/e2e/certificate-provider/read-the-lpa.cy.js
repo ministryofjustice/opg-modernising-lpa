@@ -12,7 +12,7 @@ describe('Read the LPA', () => {
             cy.contains('dt', "Their replacement attorneys")
 
             cy.contains('Continue').click();
-            cy.url().should('contain', '/provide-certificate');
+            cy.url().should('contain', '/what-happens-next');
         });
     });
 
