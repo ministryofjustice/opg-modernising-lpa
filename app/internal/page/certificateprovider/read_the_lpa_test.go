@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
@@ -127,35 +126,6 @@ func TestPostReadTheLpa(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, page.Paths.CertificateProvider.WhatHappensNext.Format("lpa-id"), resp.Header.Get("Location"))
-}
-
-func TestPostReadTheLpaWhenSubmitted(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id", Submitted: time.Now()}, nil)
-
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
-	certificateProviderStore.
-		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{
-			Tasks: actor.CertificateProviderTasks{
-				ReadTheLpa: actor.TaskCompleted,
-			},
-		}).
-		Return(nil)
-
-	err := ReadTheLpa(nil, donorStore, certificateProviderStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProvider.ProvideCertificate.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostReadTheLpaWithAttorneyOnDonorStoreError(t *testing.T) {

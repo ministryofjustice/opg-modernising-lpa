@@ -34,10 +34,6 @@ func ReadTheLpa(tmpl template.Template, donorStore DonorStore, certificateProvid
 				return err
 			}
 
-			if !lpa.Submitted.IsZero() {
-				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.ProvideCertificate.Format(lpa.ID))
-			}
-
 			return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.WhatHappensNext.Format(lpa.ID))
 		}
 
