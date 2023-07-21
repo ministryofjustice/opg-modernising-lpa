@@ -49,6 +49,6 @@ func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store, certi
 		}
 
 		appData.LpaID = oneLoginSession.LpaID
-		return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.EnterDateOfBirth.Format(oneLoginSession.LpaID))
+		return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.TaskList.Format(oneLoginSession.LpaID))
 	}
 }
