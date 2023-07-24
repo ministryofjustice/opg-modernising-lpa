@@ -239,7 +239,9 @@ func Register(
 		RemovePersonToNotify(logger, tmpls.Get("remove_person_to_notify.gohtml"), donorStore))
 
 	handleWithLpa(page.Paths.CheckYourLpa, CanGoBack,
-		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore))
+		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender))
+	handleWithLpa(page.Paths.LpaDetailsSaved, CanGoBack,
+		Guidance(tmpls.Get("lpa_details_saved.gohtml")))
 
 	handleWithLpa(page.Paths.AboutPayment, None,
 		Guidance(tmpls.Get("about_payment.gohtml")))
@@ -264,7 +266,7 @@ func Register(
 	handleWithLpa(page.Paths.HowToSendEvidence, CanGoBack,
 		HowToSendEvidence(tmpls.Get("how_to_send_evidence.gohtml"), payer))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore))
 
 	handleWithLpa(page.Paths.HowToConfirmYourIdentityAndSign, None,
 		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml")))
