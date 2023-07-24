@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
@@ -23,35 +24,65 @@ func TestGetTaskList(t *testing.T) {
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
 			appData:             testAppData,
 			expected: func(items []taskListItem) []taskListItem {
+				items[1].Disabled = true
 				items[2].Disabled = true
+				items[3].Disabled = true
 
 				return items
 			},
 		},
-		"required tasks completed": {
+		"paid": {
 			lpa: &page.Lpa{
 				ID: "lpa-id",
+				Tasks: page.Tasks{
+					PayForLpa: actor.PaymentTaskCompleted,
+				},
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{
 				Tasks: actor.CertificateProviderTasks{
-					ConfirmYourIdentity: actor.TaskCompleted,
-					ReadTheLpa:          actor.TaskCompleted,
+					ConfirmYourDetails: actor.TaskCompleted,
 				},
 			},
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = actor.TaskCompleted
-				items[1].State = actor.TaskCompleted
+				items[1].Disabled = true
+				items[2].Disabled = true
+				items[3].Disabled = true
 
 				return items
 			},
 		},
-		"all completed": {
+		"submitted": {
 			lpa: &page.Lpa{
-				ID: "lpa-id",
+				ID:        "lpa-id",
+				Submitted: time.Now(),
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{
 				Tasks: actor.CertificateProviderTasks{
+					ConfirmYourDetails: actor.TaskCompleted,
+				},
+			},
+			appData: testAppData,
+			expected: func(items []taskListItem) []taskListItem {
+				items[0].State = actor.TaskCompleted
+				items[1].Disabled = true
+				items[3].Disabled = true
+
+				return items
+			},
+		},
+		"all": {
+			lpa: &page.Lpa{
+				ID:        "lpa-id",
+				Submitted: time.Now(),
+				Tasks: page.Tasks{
+					PayForLpa: actor.PaymentTaskCompleted,
+				},
+			},
+			certificateProvider: &actor.CertificateProviderProvidedDetails{
+				Tasks: actor.CertificateProviderTasks{
+					ConfirmYourDetails:    actor.TaskCompleted,
 					ConfirmYourIdentity:   actor.TaskCompleted,
 					ReadTheLpa:            actor.TaskCompleted,
 					ProvideTheCertificate: actor.TaskCompleted,
@@ -62,6 +93,7 @@ func TestGetTaskList(t *testing.T) {
 				items[0].State = actor.TaskCompleted
 				items[1].State = actor.TaskCompleted
 				items[2].State = actor.TaskCompleted
+				items[3].State = actor.TaskCompleted
 
 				return items
 			},
@@ -89,7 +121,8 @@ func TestGetTaskList(t *testing.T) {
 					App: tc.appData,
 					Lpa: tc.lpa,
 					Items: tc.expected([]taskListItem{
-						{Name: "confirmYourIdentity", Path: page.Paths.CertificateProvider.EnterDateOfBirth.Format("lpa-id")},
+						{Name: "confirmYourDetails", Path: page.Paths.CertificateProvider.EnterDateOfBirth.Format("lpa-id")},
+						{Name: "confirmYourIdentity", Path: page.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity.Format("lpa-id")},
 						{Name: "readTheLpa", Path: page.Paths.CertificateProvider.ReadTheLpa.Format("lpa-id")},
 						{Name: "provideTheCertificateForThisLpa", Path: page.Paths.CertificateProvider.ProvideCertificate.Format("lpa-id")},
 					}),

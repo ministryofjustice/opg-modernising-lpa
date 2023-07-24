@@ -40,8 +40,7 @@ func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store, certi
 			LpaID:     oneLoginSession.LpaID,
 		})
 
-		_, err = certificateProviderStore.Create(ctx, oneLoginSession.SessionID)
-		if err != nil {
+		if _, err := certificateProviderStore.Create(ctx, oneLoginSession.SessionID); err != nil {
 			var ccf *types.ConditionalCheckFailedException
 			if !errors.As(err, &ccf) {
 				return err
@@ -49,6 +48,17 @@ func LoginCallback(oneLoginClient OneLoginClient, sessionStore sesh.Store, certi
 		}
 
 		appData.LpaID = oneLoginSession.LpaID
-		return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.TaskList.Format(oneLoginSession.LpaID))
+
+		certificateProvider, err := certificateProviderStore.Get(ctx)
+		if err != nil {
+			return err
+		}
+
+		redirect := page.Paths.CertificateProvider.EnterDateOfBirth
+		if certificateProvider.Tasks.ConfirmYourDetails.Completed() {
+			redirect = page.Paths.CertificateProvider.TaskList
+		}
+
+		return appData.Redirect(w, r, nil, redirect.Format(oneLoginSession.LpaID))
 	}
 }
